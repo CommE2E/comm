@@ -1,6 +1,6 @@
 <?php
 
-$base_url = "http://ashoat.tevosyan.com/squadcal/";
+$base_url = "http://www.squadcal.org/";
 $month = isset($_GET['month'])
   ? (int)$_GET['month']
   : date('n');
@@ -9,6 +9,18 @@ $year = isset($_GET['year'])
   : date('Y');
 $current_date = date('j');
 $month_beginning_timestamp = strtotime("$month/1/$year");
+
+$conn = new mysqli(
+  "localhost",
+  "tevosyan_squad",
+  "nvm2xn",
+  "tevosyan_squadcal"
+);
+$result = $conn->query("SELECT DAY(day) AS day, text FROM days WHERE MONTH(day) = $month AND YEAR(day) = $year ORDER BY day");
+$text = array();
+while ($row = $result->fetch_assoc()) {
+  $text[$row['day']] = $row['text'];
+}
 
 ?>
 <!DOCTYPE html> 
@@ -31,6 +43,7 @@ $month_beginning_timestamp = strtotime("$month/1/$year");
                 }
             </style>
         <title>SquadCal</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     </head>
     <body>
         <h1>squaaaaaaaaaaa</h1>
@@ -44,7 +57,7 @@ if ($prev_month === 0) {
   $prev_month = 12;
   $year_of_prev_month = $year - 1;
 }
-$prev_url = "{$base_url}?month={$prev_month}&year={$year_of_prev_month}";
+$prev_url = "{$base_url}?month={$prev_month}&amp;year={$year_of_prev_month}";
 
 $next_month = $month + 1;
 $year_of_next_month = $year;
@@ -52,13 +65,13 @@ if ($next_month === 13) {
   $next_month = 1;
   $year_of_next_month = $year + 1;
 }
-$next_url = "{$base_url}?month={$next_month}&year={$year_of_next_month}";
+$next_url = "{$base_url}?month={$next_month}&amp;year={$year_of_next_month}";
 
-echo "<h2 style='text-align: center'>";
-echo "<a href=\"{$prev_url}\">&lt;</a>";
-echo " $month_name $year ";
-echo "<a href=\"{$next_url}\">&gt;</a>";
-echo "</h2>";
+echo "        <h2 style='text-align: center'>\n";
+echo "          <a href=\"{$prev_url}\">&lt;</a>\n";
+echo "          $month_name $year \n";
+echo "          <a href=\"{$next_url}\">&gt;</a>\n";
+echo "        </h2>\n";
 
 ?>
         <table>
@@ -89,26 +102,64 @@ $days_of_week = array(
 $current_day = 1;
 $day_of_week = array_shift($days_of_week);
 $days_of_week[] = $day_of_week;
-echo '<tr>';
+echo "          <tr>\n";
 while ($day_of_week !== $first_day_of_week) {
-  echo "<td></td>";
+  echo "            <td></td>\n";
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
 }
   
 for ($current_day = 1; $current_day <= $days_in_month; $current_day++) {
   if ($day_of_week === 'Sunday') {
-    echo '</tr><tr>';
+    echo "          </tr>\n";
+    echo "          <tr>\n";
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  echo '<td><h2>';
-  echo $current_day;
-  echo '</h2><textarea rows=3></textarea></td>';
+  echo "            <td>\n";
+  echo "              <h2>$current_day</h2>\n";
+  echo "              <textarea rows='3' id='$current_day'>$text[$current_day]</textarea>\n";
+  echo "            </td>\n";
 }
-echo '</tr>';
+
+while ($day_of_week !== 'Sunday') {
+  echo "            <td></td>\n";
+  $day_of_week = array_shift($days_of_week);
+  $days_of_week[] = $day_of_week;
+}
+echo "          </tr>\n";
 
 ?>
+        <script>
+          var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
+
+          var original_values = {};
+          $('textarea').each(function(i, element) {
+            original_values[element.id] = element.value;
+          });
+
+          $('textarea').on('input', function(event) {
+            $.post(
+              'save.php',
+              {
+                'text': event.target.value,
+                'day': event.target.id,
+                'month': <?=$month?>,
+                'year': <?=$year?>,
+                'prev_text': original_values[event.target.id],
+                'session_id': session_id,
+                'timestamp': Date.now(),
+              },
+              function(data) {
+                console.log(data);
+                if (data.error === 'concurrent_modification') {
+                  console.log('alerting');
+                  alert('Some one is editing at the same time as you! Please refresh and try again.');
+                }
+              }
+            );
+          });
+        </script>
         </table>
     </body>
 </html>
