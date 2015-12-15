@@ -16,14 +16,17 @@ $conn = new mysqli(
 );
 
 $text = $conn->real_escape_string($_POST['text']);
-$prev_text = $conn->real_escape_string($_POST['prev_text']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
 $result = $conn->query("SELECT text, session_id, last_update FROM days WHERE day='$date'");
 $old_row = $result->fetch_assoc();
 if ($old_row) {
-  if ($session_id !== $old_row['session_id'] && $prev_text !== $old_row['text']) {
-    exit(json_encode(array('error' => 'concurrent_modification')));
+  if ($session_id !== $old_row['session_id'] && $_POST['prev_text'] !== $old_row['text']) {
+    exit(json_encode(array(
+      'error' => 'concurrent_modification',
+      'db' => $old_row['text'],
+      'ui' => $_POST['prev_text'],
+    )));
   }
   if (intval($old_row['last_update']) >= $timestamp) {
     exit(json_encode(array(

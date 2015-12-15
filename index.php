@@ -8,7 +8,7 @@ $year = isset($_GET['year'])
   ? (int)$_GET['year']
   : date('Y');
 $current_date = date('j');
-$month_beginning_timestamp = strtotime("$month/1/$year");
+$month_beginning_timestamp = date_create("$month/1/$year");
 
 $conn = new mysqli(
   "localhost",
@@ -31,25 +31,64 @@ while ($row = $result->fetch_assoc()) {
                 table {
                   height: 100%;
                   width: 100%;
+                  table-layout: fixed;
                 }
                 textarea {
-                  width: 95%;
+                  position: absolute;
+                  top: 0px;
+                  left: 0px;
+                  background: none;
+                  width: 100%;
+                  height: 100%;
+                  box-sizing: border-box;
+                  outline: none;
+                  border: none;
+                  resize: none;
+                  overflow: auto;
+                  overflow-y: hidden;
+                  padding: 5px;
                 }
-                h2 {
-                  padding-top: 0px;
-                  padding-bottom: 0px;
-                  margin-top: 0px;
-                  margin-bottom: 0px;
+                * {
+                  padding: 0;
+                  margin: 0;
+                }
+                header {
+                  height: 42px;
+                }
+                header, tr {
+                  font-family: 'Anaheim', sans-serif;
+                }
+                body {
+                  background-color: #FFFAF0;
+                }
+                td.day {
+                  background-color: white;
+                  position: relative;
+                  height: 100px;
+                }
+                td.day > h2 {
+                  position: absolute;
+                  bottom: 0;
+                  right: 0;
+                  color: #FEE5AC;
+                  font-size: 32px;
+                  line-height: 32px;
+                  pointer-events: none;
+                }
+                h1 {
+                  padding-left: 4px;
                 }
             </style>
         <title>SquadCal</title>
+        <link href='https://fonts.googleapis.com/css?family=Anaheim' rel='stylesheet' type='text/css'>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     </head>
     <body>
-        <h1>squaaaaaaaaaaa</h1>
+        <header>
+          <h1 style="position: absolute;">SquadCal</h1>
 <?php
 
-$month_name = date('F', $month_beginning_timestamp);
+$month_name = $month_beginning_timestamp->format('F');
 
 $prev_month = $month - 1;
 $year_of_prev_month = $year;
@@ -67,13 +106,14 @@ if ($next_month === 13) {
 }
 $next_url = "{$base_url}?month={$next_month}&amp;year={$year_of_next_month}";
 
-echo "        <h2 style='text-align: center'>\n";
-echo "          <a href=\"{$prev_url}\">&lt;</a>\n";
-echo "          $month_name $year \n";
-echo "          <a href=\"{$next_url}\">&gt;</a>\n";
-echo "        </h2>\n";
+echo "          <h2 style='text-align: center'>\n";
+echo "            <a href=\"{$prev_url}\">&lt;</a>\n";
+echo "            $month_name $year \n";
+echo "            <a href=\"{$next_url}\">&gt;</a>\n";
+echo "          </h2>\n";
 
 ?>
+        </header>
         <table>
           <tr>
             <th>Sunday</th>
@@ -86,9 +126,9 @@ echo "        </h2>\n";
           </tr>
 <?php
 
-$days_in_month = date('t', $month_beginning_timestamp);
+$days_in_month = $month_beginning_timestamp->format('t');
 
-$first_day_of_week = date('l', $month_beginning_timestamp);
+$first_day_of_week = $month_beginning_timestamp->format('l');
 $days_of_week = array(
   'Sunday',
   'Monday',
@@ -116,7 +156,7 @@ for ($current_day = 1; $current_day <= $days_in_month; $current_day++) {
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  echo "            <td>\n";
+  echo "            <td class='day'>\n";
   echo "              <h2>$current_day</h2>\n";
   echo "              <textarea rows='3' id='$current_day'>$text[$current_day]</textarea>\n";
   echo "            </td>\n";
@@ -153,7 +193,6 @@ echo "          </tr>\n";
               function(data) {
                 console.log(data);
                 if (data.error === 'concurrent_modification') {
-                  console.log('alerting');
                   alert('Some one is editing at the same time as you! Please refresh and try again.');
                 }
               }
