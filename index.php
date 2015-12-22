@@ -23,10 +23,10 @@ while ($row = $result->fetch_assoc()) {
 }
 
 ?>
-<!DOCTYPE html> 
-<html lang="en"> 
-    <head> 
-        <meta charset="utf-8" /> 
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
             <style type="text/css">
                 table {
                   height: 100%;
@@ -74,6 +74,9 @@ while ($row = $result->fetch_assoc()) {
                   font-size: 32px;
                   line-height: 32px;
                   pointer-events: none;
+                }
+                td.currentday > h2 {
+                  color: #FF3300;
                 }
                 h1 {
                   padding-left: 4px;
@@ -148,7 +151,7 @@ while ($day_of_week !== $first_day_of_week) {
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
 }
-  
+
 for ($current_day = 1; $current_day <= $days_in_month; $current_day++) {
   if ($day_of_week === 'Sunday') {
     echo "          </tr>\n";
@@ -156,7 +159,11 @@ for ($current_day = 1; $current_day <= $days_in_month; $current_day++) {
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  echo "            <td class='day'>\n";
+  if ($current_day === getdate()[mday]) {
+    echo "            <td class='day currentday'>\n";
+  } else {
+    echo "            <td class='day'>\n";
+  }
   echo "              <h2>$current_day</h2>\n";
   echo "              <textarea rows='3' id='$current_day'>$text[$current_day]</textarea>\n";
   echo "            </td>\n";
