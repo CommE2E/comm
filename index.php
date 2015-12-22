@@ -7,7 +7,6 @@ $month = isset($_GET['month'])
 $year = isset($_GET['year'])
   ? (int)$_GET['year']
   : date('Y');
-$current_date = date('j');
 $month_beginning_timestamp = date_create("$month/1/$year");
 
 $conn = new mysqli(
@@ -76,7 +75,7 @@ while ($row = $result->fetch_assoc()) {
                   pointer-events: none;
                 }
                 td.currentday > h2 {
-                  color: #FF3300;
+                  color: #FF944D;
                 }
                 h1 {
                   padding-left: 4px;
@@ -142,7 +141,7 @@ $days_of_week = array(
   'Saturday',
 );
 
-$current_day = 1;
+$current_date = 1;
 $day_of_week = array_shift($days_of_week);
 $days_of_week[] = $day_of_week;
 echo "          <tr>\n";
@@ -152,20 +151,21 @@ while ($day_of_week !== $first_day_of_week) {
   $days_of_week[] = $day_of_week;
 }
 
-for ($current_day = 1; $current_day <= $days_in_month; $current_day++) {
+$today_date = date('j');
+for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
     echo "          </tr>\n";
     echo "          <tr>\n";
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  if ($current_day === getdate()[mday]) {
+  if ($today_date == $current_date) {
     echo "            <td class='day currentday'>\n";
   } else {
     echo "            <td class='day'>\n";
   }
-  echo "              <h2>$current_day</h2>\n";
-  echo "              <textarea rows='3' id='$current_day'>$text[$current_day]</textarea>\n";
+  echo "              <h2>$current_date</h2>\n";
+  echo "              <textarea rows='3' id='$current_date'>$text[$current_date]</textarea>\n";
   echo "            </td>\n";
 }
 
