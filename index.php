@@ -151,7 +151,9 @@ while ($day_of_week !== $first_day_of_week) {
   $days_of_week[] = $day_of_week;
 }
 
-$today_date = date('j');
+$today_date = idate('d');
+$today_month = idate('m');
+$today_year = idate('Y');
 for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
     echo "          </tr>\n";
@@ -159,7 +161,7 @@ for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  if ($today_date == $current_date) {
+  if ($today_date === $current_date && $today_month === $month && $today_year === $year) {
     echo "            <td class='day currentday'>\n";
   } else {
     echo "            <td class='day'>\n";
