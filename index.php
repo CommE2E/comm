@@ -159,7 +159,7 @@ for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  if ($today_date == $current_date) {
+  if ($today_date == $current_date && $month == date('n') && $year == date('Y')) {
     echo "            <td class='day currentday'>\n";
   } else {
     echo "            <td class='day'>\n";
