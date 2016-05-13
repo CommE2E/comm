@@ -42,6 +42,9 @@ while ($row = $result->fetch_assoc()) {
                   overflow-y: hidden;
                   padding: 5px;
                 }
+                textarea.selected {
+                  border: 1px dotted;
+                }
                 * {
                   padding: 0;
                   margin: 0;
@@ -178,6 +181,11 @@ echo "          </tr>\n";
           var original_values = {};
           $('textarea').each(function(i, element) {
             original_values[element.id] = element.value;
+          });
+
+          $('textarea').click(function() {
+            $("textarea.selected").removeClass("selected");
+            $(this).addClass('selected');
           });
 
           $('textarea').on('input', function(event) {
