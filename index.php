@@ -42,8 +42,9 @@ while ($row = $result->fetch_assoc()) {
                   overflow-y: hidden;
                   padding: 5px;
                 }
-                textarea.selected {
-                  border: 1px dotted;
+                textarea:focus {
+                  border: 1px dotted #C4B37E;
+                  padding: 4px;
                 }
                 * {
                   padding: 0;
@@ -65,8 +66,8 @@ while ($row = $result->fetch_assoc()) {
                 }
                 td.day > h2 {
                   position: absolute;
-                  bottom: 0;
-                  right: 0;
+                  bottom: 2px;
+                  right: 3px;
                   color: #FEE5AC;
                   font-size: 32px;
                   line-height: 32px;
@@ -181,11 +182,6 @@ echo "          </tr>\n";
           var original_values = {};
           $('textarea').each(function(i, element) {
             original_values[element.id] = element.value;
-          });
-
-          $('textarea').click(function() {
-            $("textarea.selected").removeClass("selected");
-            $(this).addClass('selected');
           });
 
           $('textarea').on('input', function(event) {
