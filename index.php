@@ -1,6 +1,7 @@
 <?php
 
-$base_url = "http://www.squadcal.org/";
+require_once('config.php');
+
 $month = isset($_GET['month'])
   ? (int)$_GET['month']
   : date('n');
@@ -9,12 +10,6 @@ $year = isset($_GET['year'])
   : date('Y');
 $month_beginning_timestamp = date_create("$month/1/$year");
 
-$conn = new mysqli(
-  "localhost",
-  "tevosyan_squad",
-  "nvm2xn",
-  "tevosyan_squadcal"
-);
 $result = $conn->query("SELECT DAY(day) AS day, text FROM days WHERE MONTH(day) = $month AND YEAR(day) = $year ORDER BY day");
 $text = array();
 while ($row = $result->fetch_assoc()) {

@@ -1,5 +1,7 @@
 <?php
 
+require_once('config.php');
+
 header("Content-Type: application/json");
 
 $timestamp = intval($_POST['timestamp']);
@@ -7,13 +9,6 @@ $day = intval($_POST['day']);
 $month = intval($_POST['month']);
 $year = intval($_POST['year']);
 $date = date('Y-m-d', strtotime("$month/$day/$year"));
-
-$conn = new mysqli(
-  "localhost",
-  "tevosyan_squad",
-  "nvm2xn",
-  "tevosyan_squadcal"
-);
 
 $text = $conn->real_escape_string($_POST['text']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
