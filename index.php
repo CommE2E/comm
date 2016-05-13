@@ -4,10 +4,10 @@ require_once('config.php');
 
 $month = isset($_GET['month'])
   ? (int)$_GET['month']
-  : date('n');
+  : idate('m');
 $year = isset($_GET['year'])
   ? (int)$_GET['year']
-  : date('Y');
+  : idate('Y');
 $month_beginning_timestamp = date_create("$month/1/$year");
 
 $result = $conn->query("SELECT DAY(day) AS day, text FROM days WHERE MONTH(day) = $month AND YEAR(day) = $year ORDER BY day");
