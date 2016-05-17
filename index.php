@@ -10,7 +10,14 @@ $year = isset($_GET['year'])
   : idate('Y');
 $month_beginning_timestamp = date_create("$month/1/$year");
 
-$result = $conn->query("SELECT DAY(day) AS day, text FROM days WHERE MONTH(day) = $month AND YEAR(day) = $year ORDER BY day");
+// TODO fix this
+$squad = 1;
+
+$result = $conn->query(
+  "SELECT id, DAY(date) AS day, text FROM days ".
+    "WHERE MONTH(date) = $month AND YEAR(date) = $year AND squad = $squad ".
+    "ORDER BY date"
+);
 $text = array();
 while ($row = $result->fetch_assoc()) {
   $text[$row['day']] = $row['text'];
@@ -194,6 +201,7 @@ echo "          </tr>\n";
                 'day': event.target.id,
                 'month': <?=$month?>,
                 'year': <?=$year?>,
+                'squad': <?=$squad?>,
                 'prev_text': original_values[event.target.id],
                 'session_id': session_id,
                 'timestamp': Date.now(),
