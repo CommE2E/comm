@@ -8,10 +8,10 @@ $month = isset($_GET['month'])
 $year = isset($_GET['year'])
   ? (int)$_GET['year']
   : idate('Y');
+$squad = isset($_GET['squad'])
+  ? (int)$_GET['squad']
+  : 254;
 $month_beginning_timestamp = date_create("$month/1/$year");
-
-// TODO fix this
-$squad = 1;
 
 $result = $conn->query(
   "SELECT id, DAY(date) AS day, text FROM days ".
