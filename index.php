@@ -12,7 +12,20 @@ $squad = isset($_GET['squad'])
   ? (int)$_GET['squad']
   : 254;
 $month_beginning_timestamp = date_create("$month/1/$year");
+if ($month < 1 || $month > 12) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
+}
 
+// First, validate the squad ID
+$result = $conn->query("SELECT name FROM squads WHERE id=$squad");
+$squad_row = $result->fetch_assoc();
+if (!$squad_row) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
+}
+
+// Fetch the actual text for each day
 $result = $conn->query(
   "SELECT id, DAY(date) AS day, text FROM days ".
     "WHERE MONTH(date) = $month AND YEAR(date) = $year AND squad = $squad ".
