@@ -18,9 +18,12 @@ if ($month < 1 || $month > 12) {
 }
 
 // First, validate the squad ID
-$result = $conn->query("SELECT name FROM squads WHERE id=$squad");
-$squad_row = $result->fetch_assoc();
-if (!$squad_row) {
+$result = $conn->query("SELECT id, name FROM squads");
+$squads = array();
+while ($row = $result->fetch_assoc()) {
+  $squads[$row['id']] = $row['name'];
+}
+if (!isset($squads[$squad])) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
@@ -97,16 +100,26 @@ while ($row = $result->fetch_assoc()) {
                   color: #FF944D;
                 }
                 h1 {
+                  position: absolute;
                   padding-left: 4px;
+                }
+                div.upper-right {
+                  position: absolute;
+                  padding-top: 8px;
+                  padding-right: 12px;
+                  right: 0;
+                }
+                h2.upper-center {
+                  text-align: center;
                 }
             </style>
         <title>SquadCal</title>
-        <link href='https://fonts.googleapis.com/css?family=Anaheim' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Anaheim" rel="stylesheet" type='text/css'>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     </head>
     <body>
         <header>
-          <h1 style="position: absolute;">SquadCal</h1>
+          <h1>SquadCal</h1>
 <?php
 
 $month_name = $month_beginning_timestamp->format('F');
@@ -127,13 +140,24 @@ if ($next_month === 13) {
 }
 $next_url = "{$base_url}?month={$next_month}&amp;year={$year_of_next_month}";
 
-echo "          <h2 style='text-align: center'>\n";
-echo "            <a href=\"{$prev_url}\">&lt;</a>\n";
-echo "            $month_name $year \n";
-echo "            <a href=\"{$next_url}\">&gt;</a>\n";
-echo "          </h2>\n";
-
-?>
+echo <<<HTML
+          <div class="upper-right">
+            <select id="squad_nav">
+HTML;
+foreach ($squads as $id => $name) {
+  $select = $id === $squad ? " selected" : "";
+  echo <<<HTML
+              <option value="$id"$select>$name</option>
+HTML;
+}
+echo <<<HTML
+            </select>
+          </div>
+          <h2 class="upper-center">
+            <a href="{$prev_url}">&lt;</a>
+            $month_name $year
+            <a href="{$next_url}">&gt;</a>
+          </h2>
         </header>
         <table>
           <tr>
@@ -145,7 +169,7 @@ echo "          </h2>\n";
             <th>Friday</th>
             <th>Saturday</th>
           </tr>
-<?php
+HTML;
 
 $days_in_month = $month_beginning_timestamp->format('t');
 
@@ -226,6 +250,10 @@ echo "          </tr>\n";
                 }
               }
             );
+          });
+
+          $('select#squad_nav').change(function(event) {
+            window.location.href = "<?=$base_url?>/?squad=" + event.target.value;
           });
         </script>
         </table>
