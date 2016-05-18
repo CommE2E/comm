@@ -130,7 +130,7 @@ if ($prev_month === 0) {
   $prev_month = 12;
   $year_of_prev_month = $year - 1;
 }
-$prev_url = "{$base_url}?month={$prev_month}&amp;year={$year_of_prev_month}";
+$prev_url = "{$base_url}?month={$prev_month}&amp;year={$year_of_prev_month}&amp;squad={$squad}";
 
 $next_month = $month + 1;
 $year_of_next_month = $year;
@@ -138,16 +138,16 @@ if ($next_month === 13) {
   $next_month = 1;
   $year_of_next_month = $year + 1;
 }
-$next_url = "{$base_url}?month={$next_month}&amp;year={$year_of_next_month}";
+$next_url = "{$base_url}?month={$next_month}&amp;year={$year_of_next_month}&amp;squad={$squad}";
 
 echo <<<HTML
           <div class="upper-right">
             <select id="squad_nav">
 HTML;
 foreach ($squads as $id => $name) {
-  $select = $id === $squad ? " selected" : "";
+  $selected = $id === $squad ? " selected" : "";
   echo <<<HTML
-              <option value="$id"$select>$name</option>
+              <option value="$id"$selected>$name</option>
 HTML;
 }
 echo <<<HTML
@@ -253,7 +253,7 @@ echo "          </tr>\n";
           });
 
           $('select#squad_nav').change(function(event) {
-            window.location.href = "<?=$base_url?>/?squad=" + event.target.value;
+            window.location.href = "<?=$base_url?>?month=<?=$month;?>&year=<?=$year;?>&squad=" + event.target.value;
           });
         </script>
         </table>
