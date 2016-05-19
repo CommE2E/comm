@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('auth.php');
 
 $month = isset($_GET['month'])
   ? (int)$_GET['month']
@@ -18,23 +19,56 @@ if ($month < 1 || $month > 12) {
 }
 
 // First, validate the squad ID
-$result = $conn->query("SELECT id, name FROM squads");
+$result = $conn->query(
+  "SELECT id, name, hash IS NOT NULL AS requires_auth FROM squads"
+);
 $squads = array();
+$squad_requires_auth = array();
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
+  $squad_requires_auth[$row['id']] = (bool)$row['requires_auth'];
 }
 if (!isset($squads[$squad])) {
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  header(
+    $_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error',
+    true,
+    500
+  );
   exit;
 }
 
+// Next, figure out if we need to authenticate
+list($cookie_id, $cookie_hash) = init_anonymous_cookie();
+if ($squad_requires_auth[$squad]) {
+  $result = $conn->query(
+    "SELECT squad FROM subscriptions ".
+      "WHERE squad = $squad AND subscriber = $cookie_id"
+  );
+  $subscription_row = $result->fetch_assoc();
+  if (!$subscription_row) {
+    header(
+      $_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error',
+      true,
+      500
+    );
+    exit;
+  }
+}
+$time = round(microtime(true) * 1000); // in milliseconds
+$conn->query(
+  "INSERT INTO subscriptions(squad, subscriber, last_view) ".
+    "VALUES ($squad, $cookie_id, $time) ".
+    "ON DUPLICATE KEY UPDATE last_view = $time"
+);
+
 // Fetch the actual text for each day
+$days_in_month = $month_beginning_timestamp->format('t');
+$text = array_fill(1, $days_in_month, '');
 $result = $conn->query(
   "SELECT id, DAY(date) AS day, text FROM days ".
     "WHERE MONTH(date) = $month AND YEAR(date) = $year AND squad = $squad ".
     "ORDER BY date"
 );
-$text = array();
 while ($row = $result->fetch_assoc()) {
   $text[$row['day']] = $row['text'];
 }
@@ -174,8 +208,6 @@ echo <<<HTML
             <th>Saturday</th>
           </tr>
 HTML;
-
-$days_in_month = $month_beginning_timestamp->format('t');
 
 $first_day_of_week = $month_beginning_timestamp->format('l');
 $days_of_week = array(

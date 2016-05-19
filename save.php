@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('auth.php');
 
 header("Content-Type: application/json");
 
@@ -44,6 +45,21 @@ if ($id === null && ($date === null || $squad === 0)) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
+}
+
+// First, make sure the squad exists and we're a member
+list($cookie_id, $cookie_hash) = init_anonymous_cookie();
+$conn->query(
+  $result = $conn->query(
+    "SELECT squad FROM subscriptions ".
+      "WHERE squad = $squad AND subscriber = $cookie_id"
+  );
+  $subscription_row = $result->fetch_assoc();
+  if (!$subscription_row) {
+    exit(json_encode(array(
+      'error' => 'invalid_credentials',
+    )));
+  }
 }
 
 // This block ends one of two ways:
