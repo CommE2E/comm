@@ -105,7 +105,7 @@ while ($row = $result->fetch_assoc()) {
                 }
                 div.upper-right {
                   position: absolute;
-                  padding: 10px;
+                  padding: 9px;
                   right: 0;
                 }
                 div.upper-right > select {
