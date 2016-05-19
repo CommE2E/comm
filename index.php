@@ -105,9 +105,13 @@ while ($row = $result->fetch_assoc()) {
                 }
                 div.upper-right {
                   position: absolute;
-                  padding-top: 8px;
-                  padding-right: 12px;
+                  padding: 10px;
                   right: 0;
+                }
+                div.upper-right > select {
+                  height: 28px;
+                  font-size: 12px;
+                  border: 1px solid #AAA;
                 }
                 h2.upper-center {
                   text-align: center;
