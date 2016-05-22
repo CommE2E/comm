@@ -380,6 +380,12 @@ echo "          </tr>\n";
             $('div.password-modal-overlay').hide();
             $('select#squad_nav').val(current_squad);
           });
+          $(window).click(function(event) {
+            if (event.target.className === 'password-modal-overlay') {
+              $('div.password-modal-overlay').hide();
+              $('select#squad_nav').val(current_squad);
+            }
+          });
           $('form#password-modal-form').submit(function(event) {
             event.preventDefault();
             $('form#password-modal-form :input').prop("disabled", true);
