@@ -187,6 +187,8 @@ while ($row = $result->fetch_assoc()) {
                 div.password-modal-header {
                   padding: 6px;
                   background-color: #FEE5AC;
+                  border-top-left-radius: 3px;
+                  border-top-right-radius: 3px;
                 }
                 div.password-modal-header > h2 {
                   font-size: 22px;
