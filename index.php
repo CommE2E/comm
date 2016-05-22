@@ -17,10 +17,14 @@ if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
+list($cookie_id, $cookie_hash) = init_anonymous_cookie();
 
 // First, validate the squad ID
 $result = $conn->query(
-  "SELECT id, name, hash IS NOT NULL AS requires_auth FROM squads"
+  "SELECT sq.id, sq.name, ".
+    "sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
+    "FROM squads sq LEFT JOIN subscriptions su ".
+    "ON sq.id = su.squad AND su.subscriber = {$cookie_id}"
 );
 $squads = array();
 $squad_requires_auth = array();
@@ -38,7 +42,6 @@ if (!isset($squads[$squad])) {
 }
 
 // Next, figure out if we need to authenticate
-list($cookie_id, $cookie_hash) = init_anonymous_cookie();
 if ($squad_requires_auth[$squad]) {
   $result = $conn->query(
     "SELECT squad FROM subscriptions ".
@@ -130,7 +133,7 @@ while ($row = $result->fetch_assoc()) {
                   line-height: 32px;
                   pointer-events: none;
                 }
-                td.currentday > h2 {
+                td.current-day > h2 {
                   color: #FF944D;
                 }
                 h1 {
@@ -150,9 +153,62 @@ while ($row = $result->fetch_assoc()) {
                 h2.upper-center {
                   text-align: center;
                 }
+                div.password-modal-overlay {
+                  position: fixed;
+                  left: 0;
+                  top: 0;
+                  z-index: 1;
+                  display: none;
+                  width: 100%;
+                  height: 100%;
+                  padding-top: 100px;
+                  background-color: rgba(0,0,0,0.4);
+                  overflow: auto;
+                }
+                div.password-modal {
+                  position: relative;
+                  background-color: white;
+                  max-width: 400px;
+                  margin: auto;
+                  box-shadow: 0 4px 20px rgba(0, 0, 0, .3),
+                    0 0 0 1px rgba(0, 0, 0, .1);
+                  border-radius: 3px;
+                  font-family: 'Open Sans', sans-serif;
+                }
+                span.password-modal-close {
+                  float: right;
+                  font-size: 32px;
+                  margin-top: -6px;
+                }
+                span.password-modal-close:hover {
+                  color: black;
+                  cursor: pointer;
+                }
+                div.password-modal-header {
+                  padding: 6px;
+                  background-color: #FEE5AC;
+                }
+                div.password-modal-header > h2 {
+                  font-size: 22px;
+                }
+                div.password-modal-body {
+                  padding: 6px 6px;
+                  width: 100%;
+                }
+                div.password-modal-body input#squad-password {
+                  font-size: 14px;
+                  padding: 1px;
+                  width: 320px;
+                }
+                div.password-modal-body input#password-submit {
+                  font-size: 16px;
+                  position: relative;
+                  float: right;
+                  margin-right: 12px;
+                }
             </style>
         <title>SquadCal</title>
-        <link href="https://fonts.googleapis.com/css?family=Anaheim" rel="stylesheet" type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300|Anaheim" rel="stylesheet" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     </head>
     <body>
@@ -241,12 +297,12 @@ for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
   if ($today_date === $current_date && $today_month === $month && $today_year === $year) {
-    echo "            <td class='day currentday'>\n";
+    echo "            <td class='day current-day'>\n";
   } else {
     echo "            <td class='day'>\n";
   }
   echo "              <h2>$current_date</h2>\n";
-  echo "              <textarea rows='3' id='$current_date'>$text[$current_date]</textarea>\n";
+  echo "              <textarea rows='3' id='$current_date'>{$text[$current_date]}</textarea>\n";
   echo "            </td>\n";
 }
 
@@ -258,13 +314,31 @@ while ($day_of_week !== 'Sunday') {
 echo "          </tr>\n";
 
 ?>
+        </table>
+        <div class="password-modal-overlay">
+          <div class="password-modal">
+            <div class="password-modal-header">
+              <span class="password-modal-close">×</span>
+              <h2>Password Required</h2>
+            </div>
+            <div class="password-modal-body">
+              <form method="POST" id="password-modal-form">
+                <input type="password" id="squad-password" placeholder="Password" />
+                <input type="submit" id="password-submit" />
+              </form>
+          </div>
+        </div>
         <script>
           var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
+          var current_squad = <?=$squad?>;
+          var new_squad = null;
 
           var original_values = {};
           $('textarea').each(function(i, element) {
             original_values[element.id] = element.value;
           });
+
+          var squad_requires_auth = <?=json_encode($squad_requires_auth)?>;
 
           $('textarea').on('input', function(event) {
             $.post(
@@ -282,16 +356,53 @@ echo "          </tr>\n";
               function(data) {
                 console.log(data);
                 if (data.error === 'concurrent_modification') {
-                  alert('Some one is editing at the same time as you! Please refresh and try again.');
+                  alert(
+                    "Some one is editing at the same time as you! "+
+                      "Please refresh and try again."
+                  );
                 }
               }
             );
           });
 
           $('select#squad_nav').change(function(event) {
-            window.location.href = "<?=$base_url?>?month=<?=$month;?>&year=<?=$year;?>&squad=" + event.target.value;
+            new_squad = event.target.value;
+            if (squad_requires_auth[new_squad] !== false) {
+              $('div.password-modal-overlay').show();
+            } else {
+              window.location.href = "<?=$base_url?>"+
+                "?month=<?=$month?>"+
+                "&year=<?=$year?>"+
+                "&squad=" + new_squad;
+            }
+          });
+          $('span.password-modal-close').click(function() {
+            $('div.password-modal-overlay').hide();
+            $('select#squad_nav').val(current_squad);
+          });
+          $('form#password-modal-form').submit(function(event) {
+            event.preventDefault();
+            $('form#password-modal-form :input').prop("disabled", true);
+            $.post(
+              'login.php',
+              {
+                'squad': new_squad,
+                'password': $('input#squad-password').val(),
+              },
+              function(data) {
+                console.log(data);
+                if (data.success === true) {
+                  window.location.href = "<?=$base_url?>"+
+                    "?month=<?=$month?>"+
+                    "&year=<?=$year?>"+
+                    "&squad=" + new_squad;
+                } else {
+                  $('input#squad-password').val("");
+                  $('form#password-modal-form :input').prop("disabled", false);
+                }
+              }
+            );
           });
         </script>
-        </table>
     </body>
 </html>
