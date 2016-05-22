@@ -381,11 +381,13 @@ echo "          </tr>\n";
           $('span.password-modal-close').click(function() {
             $('div.password-modal-overlay').hide();
             $('select#squad_nav').val(current_squad);
+            $('input#squad-password').val("");
           });
           $(window).click(function(event) {
             if (event.target.className === 'password-modal-overlay') {
               $('div.password-modal-overlay').hide();
               $('select#squad_nav').val(current_squad);
+              $('input#squad-password').val("");
             }
           });
           $('form#password-modal-form').submit(function(event) {
