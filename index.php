@@ -27,35 +27,18 @@ $result = $conn->query(
     "ON sq.id = su.squad AND su.subscriber = {$cookie_id}"
 );
 $squads = array();
-$squad_requires_auth = array();
+$authorized_squads = array();
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
-  $squad_requires_auth[$row['id']] = (bool)$row['requires_auth'];
+  $authorized_squads[$row['id']] = !$row['requires_auth'];
 }
-if (!isset($squads[$squad])) {
+if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
   header(
     $_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error',
     true,
     500
   );
   exit;
-}
-
-// Next, figure out if we need to authenticate
-if ($squad_requires_auth[$squad]) {
-  $result = $conn->query(
-    "SELECT squad FROM subscriptions ".
-      "WHERE squad = $squad AND subscriber = $cookie_id"
-  );
-  $subscription_row = $result->fetch_assoc();
-  if (!$subscription_row) {
-    header(
-      $_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error',
-      true,
-      500
-    );
-    exit;
-  }
 }
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
@@ -340,7 +323,7 @@ echo "          </tr>\n";
             original_values[element.id] = element.value;
           });
 
-          var squad_requires_auth = <?=json_encode($squad_requires_auth)?>;
+          var authorized_squads = <?=json_encode($authorized_squads)?>;
 
           $('textarea').on('input', function(event) {
             $.post(
@@ -369,7 +352,7 @@ echo "          </tr>\n";
 
           $('select#squad_nav').change(function(event) {
             new_squad = event.target.value;
-            if (squad_requires_auth[new_squad] !== false) {
+            if (authorized_squads[new_squad] !== true) {
               $('div.password-modal-overlay').show();
             } else {
               window.location.href = "<?=$base_url?>"+

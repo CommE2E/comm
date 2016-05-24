@@ -49,17 +49,17 @@ if ($id === null && ($date === null || $squad === 0)) {
 
 // First, make sure the squad exists and we're a member
 list($cookie_id, $cookie_hash) = init_anonymous_cookie();
-$conn->query(
-  $result = $conn->query(
-    "SELECT squad FROM subscriptions ".
-      "WHERE squad = $squad AND subscriber = $cookie_id"
-  );
-  $subscription_row = $result->fetch_assoc();
-  if (!$subscription_row) {
-    exit(json_encode(array(
-      'error' => 'invalid_credentials',
-    )));
-  }
+$result = $conn->query(
+  "SELECT sq.name, sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
+    "FROM squads sq LEFT JOIN subscriptions su ".
+    "ON sq.id = su.squad AND su.subscriber = {$cookie_id} ".
+    "WHERE sq.id = $squad"
+);
+$squad_row = $result->fetch_assoc();
+if ((bool)$squad_row['requires_auth']) {
+  exit(json_encode(array(
+    'error' => 'invalid_credentials',
+  )));
 }
 
 // This block ends one of two ways:
