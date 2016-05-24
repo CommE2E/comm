@@ -47,7 +47,6 @@ td.day > h2 {
   color: #FEE5AC;
   font-size: 32px;
   line-height: 32px;
-  pointer-events: none;
 }
 td.current-day > h2 {
   color: #FF944D;
