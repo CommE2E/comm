@@ -4,7 +4,7 @@ require_once('config.php');
 
 // Returns array($cookie_id, $cookie_hash)
 function init_anonymous_cookie() {
-  global $conn, $base_url, $cookie_lifetime;
+  global $conn, $base_url, $cookie_lifetime, $https;
 
   $time = round(microtime(true) * 1000); // in milliseconds
 
