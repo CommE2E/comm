@@ -53,23 +53,12 @@ $conn->query(
     "VALUES ($cookie_id, UNHEX('$cookie_hash'), $user_id, $time, $time)"
 );
 
-$path = parse_url($base_url, PHP_URL_PATH);
-$domain = parse_url($base_url, PHP_URL_HOST);
-$domain = preg_replace("/^www\.(.*)/", "$1", $domain);
-setcookie(
-  'user',
-  $cookie_hash,
-  intval($time / 1000) + $cookie_lifetime,
-  $path,
-  $domain,
-  $https, // HTTPS only
-  true // no JS access
-);
+add_cookie('user', $cookie_hash, $time);
 
 // We can kill the anonymous cookie now
 // We want to do this regardless of get_anonymous_cookie since that function can
 // return null when there is a cookie on the client
-setcookie('anonymous', '', time() - 3600);
+delete_cookie('anonymous');
 list($anonymous_cookie_id, $_) = get_anonymous_cookie();
 if (!$anonymous_cookie_id) {
   exit(json_encode(array(
@@ -90,7 +79,7 @@ while ($row = $result->fetch_assoc()) {
 }
 if ($new_rows) {
   $conn->query(
-    "INSERT INTO subscriptions(squad, subscriber, last_view) VALUES ".
+    "INSERT INTO subscriptions(squad, subscriber, last_view) ".
       "VALUES ".implode(', ', $new_rows)." ".
       "ON DUPLICATE KEY ".
       "UPDATE last_view = GREATEST(VALUES(last_view), last_view)"

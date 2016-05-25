@@ -26,7 +26,7 @@ function get_viewer_info() {
 //   bool: whether or not the viewer is a user
 // )
 function init_cookie() {
-  global $conn, $base_url, $cookie_lifetime, $https;
+  global $conn, $cookie_lifetime;
 
   if (!isset($_COOKIE['user'])) {
     return array(init_anonymous_cookie(), false);
@@ -38,7 +38,7 @@ function init_cookie() {
   );
   $cookie_row = $result->fetch_assoc();
   if (!$cookie_row) {
-    setcookie('user', '', time() - 3600);
+    delete_cookie('user');
     return array(init_anonymous_cookie(), false);
   }
 
@@ -46,7 +46,7 @@ function init_cookie() {
   $cookie_id = $cookie_row['id'];
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
     // Cookie is expired. Delete it...
-    setcookie('user', '', time() - 3600);
+    delete_cookie('user');
     $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
     $conn->query("DELETE FROM ids WHERE id = $cookie_id");
     return array(init_anonymous_cookie(), false);
@@ -56,24 +56,13 @@ function init_cookie() {
     "UPDATE cookies SET last_update = $time WHERE id = $cookie_id"
   );
 
-  $path = parse_url($base_url, PHP_URL_PATH);
-  $domain = parse_url($base_url, PHP_URL_HOST);
-  $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
-  setcookie(
-    'user',
-    $cookie_hash,
-    intval($time / 1000) + $cookie_lifetime,
-    $path,
-    $domain,
-    $https, // HTTPS only
-    true // no JS access
-  );
+  add_cookie('user', $cookie_hash, $time);
   return array($cookie_row['user'], true);
 }
 
 // Returns cookie ID
 function init_anonymous_cookie() {
-  global $conn, $base_url, $cookie_lifetime, $https;
+  global $conn;
 
   list($cookie_id, $cookie_hash) = get_anonymous_cookie();
   $time = round(microtime(true) * 1000); // in milliseconds
@@ -92,18 +81,7 @@ function init_anonymous_cookie() {
     );
   }
 
-  $path = parse_url($base_url, PHP_URL_PATH);
-  $domain = parse_url($base_url, PHP_URL_HOST);
-  $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
-  setcookie(
-    'anonymous',
-    $cookie_hash,
-    intval($time / 1000) + $cookie_lifetime,
-    $path,
-    $domain,
-    $https, // HTTPS only
-    true // no JS access
-  );
+  add_cookie('anonymous', $cookie_hash, $time);
 
   return $cookie_id;
 }
@@ -143,4 +121,33 @@ function get_anonymous_cookie() {
   }
 
   return array($cookie_row['id'], $cookie_hash);
+}
+
+// $current_time in milliseconds
+function add_cookie($name, $value, $current_time) {
+  global $cookie_lifetime;
+  set_cookie($name, $value, intval($current_time / 1000) + $cookie_lifetime);
+}
+
+function delete_cookie($name) {
+  set_cookie($name, '', time() - 3600);
+}
+
+// $expiration_time in seconds
+function set_cookie($name, $value, $expiration_time) {
+  global $base_url, $https;
+
+  $path = parse_url($base_url, PHP_URL_PATH);
+  $domain = parse_url($base_url, PHP_URL_HOST);
+  $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
+
+  setcookie(
+    $name,
+    $value,
+    $expiration_time,
+    $path,
+    $domain,
+    $https, // HTTPS only
+    true // no JS access
+  );
 }
