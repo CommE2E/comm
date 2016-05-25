@@ -5,6 +5,13 @@ require_once('auth.php');
 
 header("Content-Type: application/json");
 
+if ($https && !isset($_SERVER['HTTPS'])) {
+  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
+  exit(json_encode(array(
+    'error' => 'tls_failure',
+  )));
+}
+
 // Either we're given an ID, indicating that a row for this date/squad pair
 // already exists, or we're given a date/squad pair to create a new row with.
 if (isset($_POST['id'])) {

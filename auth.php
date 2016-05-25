@@ -54,13 +54,13 @@ function init_anonymous_cookie() {
   $domain = parse_url($base_url, PHP_URL_HOST);
   $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
   setcookie(
-    'anonymous', // name
+    'anonymous',
     $cookie_hash,
-    intval($time / 1000) + $cookie_lifetime, // expiration
+    intval($time / 1000) + $cookie_lifetime,
     $path,
     $domain,
-    false, // secure TODO
-    true // httponly
+    $https, // HTTPS only
+    true // no JS access
   );
 
   return array($cookie_id, $cookie_hash);

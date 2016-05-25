@@ -3,6 +3,12 @@
 require_once('config.php');
 require_once('auth.php');
 
+if ($https && !isset($_SERVER['HTTPS'])) {
+  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
+}
+
 $month = isset($_GET['month'])
   ? (int)$_GET['month']
   : idate('m');

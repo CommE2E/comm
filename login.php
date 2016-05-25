@@ -5,6 +5,13 @@ require_once('auth.php');
 
 header("Content-Type: application/json");
 
+if ($https && !isset($_SERVER['HTTPS'])) {
+  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
+  exit(json_encode(array(
+    'error' => 'tls_failure',
+  )));
+}
+
 // For now this endpoint can only authenticate squads, but eventually it might
 // handle users as well
 
