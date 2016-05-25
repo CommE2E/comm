@@ -2,7 +2,60 @@
 
 require_once('config.php');
 
-// Returns array($cookie_id, $cookie_hash)
+function get_viewer_id() {
+  list($id, $is_user) = get_viewer_info();
+  return $id;
+}
+
+function user_logged_in() {
+  list($id, $is_user) = get_viewer_info();
+  return $is_user;
+}
+
+// See init_cookie return
+function get_viewer_info() {
+  static $viewer_info = null;
+  if ($viewer_info === null) {
+    $viewer_info = init_cookie();
+  }
+  return $viewer_info;
+}
+
+// Returns array(
+//   int: either a user ID or a cookie ID (for anonymous),
+//   bool: whether or not the viewer is a user
+// )
+function init_cookie() {
+  global $conn, $cookie_lifetime;
+
+  if (!isset($_COOKIE['user'])) {
+    return array(init_anonymous_cookie(), false);
+  }
+  $possible_cookie_hash = $conn->real_escape_string($_COOKIE['user']);
+  $result = $conn->query(
+    "SELECT id, user, last_update FROM cookies ".
+      "WHERE hash = UNHEX('$possible_cookie_hash') AND user IS NOT NULL"
+  );
+  $cookie_row = $result->fetch_assoc();
+  if (!$cookie_row) {
+    return array(init_anonymous_cookie(), false);
+  }
+
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $cookie_id = $cookie_row['id'];
+  if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
+    // Cookie is expired. Delete it from the database...
+    $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
+    return array(init_anonymous_cookie(), false);
+  }
+
+  $conn->query(
+    "UPDATE cookies SET last_update = $time WHERE id = $cookie_id"
+  );
+  return array($cookie_row['user'], true);
+}
+
+// Returns cookie ID
 function init_anonymous_cookie() {
   global $conn, $base_url, $cookie_lifetime, $https;
 
@@ -20,7 +73,7 @@ function init_anonymous_cookie() {
     );
     $cookie_row = $result->fetch_assoc();
     if ($cookie_row) {
-      if ($cookie_row['last_update'] + $cookie_lifetime * 1000 > $time) {
+      if ($cookie_row['last_update'] + $cookie_lifetime * 1000 >= $time) {
         // Cookie is valid!
         $cookie_hash = $possible_cookie_hash;
         $cookie_id = $cookie_row['id'];
@@ -63,5 +116,5 @@ function init_anonymous_cookie() {
     true // no JS access
   );
 
-  return array($cookie_id, $cookie_hash);
+  return $cookie_id;
 }

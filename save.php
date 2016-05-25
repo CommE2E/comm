@@ -55,11 +55,11 @@ if ($id === null && ($date === null || $squad === 0)) {
 }
 
 // First, make sure the squad exists and we're a member
-list($cookie_id, $cookie_hash) = init_anonymous_cookie();
+$viewer_id = get_viewer_id();
 $result = $conn->query(
   "SELECT sq.name, sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
     "FROM squads sq LEFT JOIN subscriptions su ".
-    "ON sq.id = su.squad AND su.subscriber = {$cookie_id} ".
+    "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
     "WHERE sq.id = $squad"
 );
 $squad_row = $result->fetch_assoc();

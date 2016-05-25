@@ -23,14 +23,14 @@ if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
-list($cookie_id, $cookie_hash) = init_anonymous_cookie();
+$viewer_id = get_viewer_id();
 
 // First, validate the squad ID
 $result = $conn->query(
   "SELECT sq.id, sq.name, ".
     "sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
     "FROM squads sq LEFT JOIN subscriptions su ".
-    "ON sq.id = su.squad AND su.subscriber = {$cookie_id}"
+    "ON sq.id = su.squad AND su.subscriber = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
@@ -45,7 +45,7 @@ if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
   "INSERT INTO subscriptions(squad, subscriber, last_view) ".
-    "VALUES ($squad, $cookie_id, $time) ".
+    "VALUES ($squad, $viewer_id, $time) ".
     "ON DUPLICATE KEY UPDATE last_view = $time"
 );
 

@@ -58,7 +58,7 @@ $('form#password-modal-form').submit(function(event) {
   event.preventDefault();
   $('form#password-modal-form :input').prop("disabled", true);
   $.post(
-    'login.php',
+    'auth_squad.php',
     {
       'squad': new_squad,
       'password': $('input#squad-password').val(),

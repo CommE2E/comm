@@ -12,9 +12,6 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
-// For now this endpoint can only authenticate squads, but eventually it might
-// handle users as well
-
 if (!isset($_POST['squad'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -53,12 +50,12 @@ if ($squad_row['hash'] !== $hash) {
   )));
 }
 
-list($cookie_id, $cookie_hash) = init_anonymous_cookie();
+$viewer_id = get_viewer_id();
 
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
   "INSERT INTO subscriptions(squad, subscriber, last_view) ".
-    "VALUES ($squad, $cookie_id, $time) ".
+    "VALUES ($squad, $viewer_id, $time) ".
     "ON DUPLICATE KEY UPDATE last_view = $time"
 );
 
