@@ -51,24 +51,68 @@ td.day > h2 {
 td.current-day > h2 {
   color: #FF944D;
 }
+
 h1 {
   position: absolute;
   padding-left: 4px;
 }
+
 div.upper-right {
   position: absolute;
-  padding: 9px;
+  padding: 6px;
   right: 0;
 }
 div.upper-right > select {
   height: 28px;
   font-size: 12px;
   border: 1px solid #AAA;
+  vertical-align: top;
+  margin-top: 4px;
 }
+
+div.user-button {
+  position: relative;
+  display: inline;
+}
+div.user-button > img {
+  opacity: 0.5;
+  height: 36px;
+}
+div.user-button > div.user-menu {
+  display: none;
+  position: absolute;
+  right: 4px;
+  top: 12px;
+  background-color: #FFFAF0;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  background-color: white;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+div.user-button > div.user-menu > div {
+  border-bottom: 1px solid #D3D3D3;
+  padding: 3px 16px;
+}
+div.user-button > div.user-menu > div:last-child {
+  border-bottom: none;
+}
+div.user-button:hover > div.user-menu {
+  display: block;
+}
+div.user-button > div.user-menu a {
+  text-decoration: none;
+  color: #2A5DB0;
+}
+
 h2.upper-center {
   text-align: center;
 }
-div.password-modal-overlay {
+
+div.modal-overlay {
   position: fixed;
   left: 0;
   top: 0;
@@ -80,46 +124,67 @@ div.password-modal-overlay {
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
 }
-div.password-modal {
+div.modal {
   position: relative;
   background-color: white;
-  max-width: 400px;
   margin: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, .3),
     0 0 0 1px rgba(0, 0, 0, .1);
   border-radius: 3px;
-  font-family: 'Open Sans', sans-serif;
 }
-span.password-modal-close {
+span.modal-close {
   float: right;
   font-size: 32px;
   margin-top: -6px;
+  font-weight: 300;
 }
-span.password-modal-close:hover {
+span.modal-close:hover {
   color: black;
   cursor: pointer;
 }
-div.password-modal-header {
+div.modal-header {
   padding: 6px;
   background-color: #FEE5AC;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
+  font-family: 'Open Sans', sans-serif;
 }
-div.password-modal-header > h2 {
+div.modal-header > h2 {
   font-size: 22px;
+  font-weight: 300;
 }
-div.password-modal-body {
+div.modal-body {
   padding: 6px 6px;
   width: 100%;
 }
-div.password-modal-body input#squad-password {
+div.modal-body input[type='text'], div.modal-body input[type='password'] {
   font-size: 14px;
   padding: 1px;
-  width: 320px;
+  margin: 3px;
 }
-div.password-modal-body input#password-submit {
+div.modal-body input[type='submit'] {
   font-size: 16px;
+  margin: 3px;
+}
+
+div.squad-password-modal {
+  max-width: 400px;
+}
+div.squad-password-modal-body input[type='password'] {
+  width: 310px;
+}
+div.squad-password-modal-body input[type='submit'] {
   position: relative;
   float: right;
-  margin-right: 12px;
+  margin-right: 15px;
+}
+
+div.log-in-modal, div.register-modal {
+  max-width: 300px;
+}
+div.log-in-modal-body input[type='text'],
+div.log-in-modal-body input[type='password'],
+div.register-modal-body input[type='text'],
+div.register-modal-body input[type='password'] {
+  width: 275px;
 }

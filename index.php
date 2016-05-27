@@ -70,7 +70,7 @@ while ($row = $result->fetch_assoc()) {
       <link
         rel="stylesheet"
         type="text/css"
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300%7CAnaheim"
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
       />
       <link rel="stylesheet" type="text/css" href="style.css" />
       <script
@@ -82,7 +82,7 @@ while ($row = $result->fetch_assoc()) {
         var month = <?=$month?>;
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
-        var base_url = "<?=$base_url?>";
+        var base_url = "<?=$base_url?>?year=<?=$year?>&month=<?=$month?>";
       </script>
     </head>
     <body>
@@ -128,6 +128,26 @@ HTML;
 }
 echo <<<HTML
           </select>
+          <div class="user-button">
+            <img id="account" src="{$base_url}images/account.svg" />
+            <div class="user-menu">
+
+HTML;
+if (user_logged_in()) {
+  echo <<<HTML
+              <div><a href="#" id="log-out-button">Log out</a></div>
+
+HTML;
+} else {
+  echo <<<HTML
+              <div><a href="#" id="log-in-button">Log in</a></div>
+              <div><a href="#" id="register-button">Register</a></div>
+
+HTML;
+}
+echo <<<HTML
+            </div>
+          </div>
         </div>
         <h2 class="upper-center">
           <a href="{$prev_url}">&lt;</a>
@@ -235,16 +255,74 @@ HTML;
 
 ?>
       </table>
-      <div class="password-modal-overlay">
-        <div class="password-modal">
-          <div class="password-modal-header">
-            <span class="password-modal-close">×</span>
+      <div class="modal-overlay squad-password-modal-overlay">
+        <div class="modal squad-password-modal">
+          <div class="modal-header">
+            <span class="modal-close squad-password-modal-close">×</span>
             <h2>Password Required</h2>
           </div>
-          <div class="password-modal-body">
-            <form method="POST" id="password-modal-form">
-              <input type="password" id="squad-password" placeholder="Password" />
-              <input type="submit" id="password-submit" />
+          <div class="modal-body squad-password-modal-body">
+            <form method="POST" id="squad-password-modal-form">
+              <input
+                type="password"
+                id="squad-password"
+                placeholder="Password"
+              />
+              <input type="submit" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay log-in-modal-overlay">
+        <div class="modal log-in-modal">
+          <div class="modal-header">
+            <span class="modal-close log-in-modal-close">×</span>
+            <h2>Log in</h2>
+          </div>
+          <div class="modal-body log-in-modal-body">
+            <form method="POST" id="log-in-modal-form">
+              <div>
+                <input
+                  type="text"
+                  id="log-in-username"
+                  placeholder="Username"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  id="log-in-password"
+                  placeholder="Password"
+                />
+              </div>
+              <input type="submit" value="Log in" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay register-modal-overlay">
+        <div class="modal register-modal">
+          <div class="modal-header">
+            <span class="modal-close register-modal-close">×</span>
+            <h2>Register</h2>
+          </div>
+          <div class="modal-body register-modal-body">
+            <form method="POST" id="register-modal-form">
+              <div>
+                <input
+                  type="text"
+                  id="register-username"
+                  placeholder="Username"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  id="register-password"
+                  placeholder="Password"
+                />
+              </div>
+              <input type="submit" value="Register" />
             </form>
           </div>
         </div>

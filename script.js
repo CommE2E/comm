@@ -31,32 +31,36 @@ $('textarea').on('input', function(event) {
   );
 });
 
+$(window).click(function(event) {
+  if ($(event.target).hasClass('modal-overlay')) {
+    $('div.modal-overlay').hide();
+  }
+});
+$('span.modal-close').click(function() {
+  $('div.modal-overlay').hide();
+});
+
 $('select#squad_nav').change(function(event) {
   new_squad = event.target.value;
   if (authorized_squads[new_squad] !== true) {
-    $('div.password-modal-overlay').show();
+    $('div.squad-password-modal-overlay').show();
   } else {
-    window.location.href = base_url+
-      "?month="+month+
-      "&year="+year+
-      "&squad="+new_squad;
+    window.location.href = base_url+"&squad="+new_squad;
   }
 });
-$('span.password-modal-close').click(function() {
-  $('div.password-modal-overlay').hide();
+$('span.squad-password-modal-close').click(function() {
   $('select#squad_nav').val(squad);
   $('input#squad-password').val("");
 });
 $(window).click(function(event) {
-  if (event.target.className === 'password-modal-overlay') {
-    $('div.password-modal-overlay').hide();
+  if ($(event.target).hasClass('squad-password-modal-overlay')) {
     $('select#squad_nav').val(squad);
     $('input#squad-password').val("");
   }
 });
-$('form#password-modal-form').submit(function(event) {
+$('form#squad-password-modal-form').submit(function(event) {
   event.preventDefault();
-  $('form#password-modal-form :input').prop("disabled", true);
+  $('form#squad-password-modal-form :input').prop("disabled", true);
   $.post(
     'auth_squad.php',
     {
@@ -66,14 +70,88 @@ $('form#password-modal-form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = base_url+
-          "?month="+month+
-          "&year="+year+
-          "&squad=" + new_squad;
+        window.location.href = base_url+"&squad="+new_squad;
       } else {
         $('input#squad-password').val("");
-        $('form#password-modal-form :input').prop("disabled", false);
+        $('form#squad-password-modal-form :input').prop("disabled", false);
       }
+    }
+  );
+});
+
+$('a#log-in-button').click(function() {
+  $('div.log-in-modal-overlay').show();
+});
+$('span.log-in-modal-close').click(function() {
+  $('input#log-in-password').val("");
+});
+$(window).click(function(event) {
+  if ($(event.target).hasClass('log-in-modal-overlay')) {
+    $('input#log-in-password').val("");
+  }
+});
+$('form#log-in-modal-form').submit(function(event) {
+  event.preventDefault();
+  $('form#log-in-modal-form :input').prop("disabled", true);
+  $.post(
+    'login.php',
+    {
+      'username': $('input#log-in-username').val(),
+      'password': $('input#log-in-password').val(),
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        location.reload();
+      } else {
+        $('input#log-in-password').val("");
+        $('form#log-in-modal-form :input').prop("disabled", false);
+      }
+    }
+  );
+});
+
+$('a#register-button').click(function() {
+  $('div.register-modal-overlay').show();
+});
+$('span.register-modal-close').click(function() {
+  $('input#register-password').val("");
+});
+$(window).click(function(event) {
+  if ($(event.target).hasClass('register-modal-overlay')) {
+    $('input#register-password').val("");
+  }
+});
+$('form#register-modal-form').submit(function(event) {
+  event.preventDefault();
+});
+$('form#register-modal-form').submit(function(event) {
+  event.preventDefault();
+  $('form#register-modal-form :input').prop("disabled", true);
+  $.post(
+    'register.php',
+    {
+      'username': $('input#register-username').val(),
+      'password': $('input#register-password').val(),
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        location.reload();
+      } else {
+        $('input#register-password').val("");
+        $('form#register-modal-form :input').prop("disabled", false);
+      }
+    }
+  );
+});
+
+$('a#log-out-button').click(function() {
+  $.post(
+    'logout.php',
+    {},
+    function(data) {
+      window.location.href = base_url;
     }
   );
 });

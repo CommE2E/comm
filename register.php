@@ -11,7 +11,6 @@ if ($https && !isset($_SERVER['HTTPS'])) {
     'error' => 'tls_failure',
   )));
 }
-
 if (!isset($_POST['username']) || !isset($_POST['password'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -25,24 +24,17 @@ if (isset($_COOKIE['user'])) {
   )));
 }
 
-$result = $conn->query(
-  "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE username=\"$username\""
+$salt = md5(openssl_random_pseudo_bytes(32));
+$hash = hash('sha512', $password.$salt);
+$time = round(microtime(true) * 1000); // in milliseconds
+$conn->query("INSERT INTO ids(table_name) VALUES('users')");
+$id = $conn->insert_id;
+$conn->query(
+  "INSERT INTO users(id, username, salt, hash, creation_time) ".
+    "VALUES ($id, '$username', UNHEX('$salt'), UNHEX('$hash'), $time)"
 );
-$user_row = $result->fetch_assoc();
-if (!$user_row) {
-  exit(json_encode(array(
-    'error' => 'invalid_parameters',
-  )));
-}
-$hash = hash('sha512', $password.$user_row['salt']);
-if ($user_row['hash'] !== $hash) {
-  exit(json_encode(array(
-    'error' => 'invalid_credentials',
-  )));
-}
 
-create_user_cookie($user_row['id']);
+create_user_cookie($id);
 
 exit(json_encode(array(
   'success' => true,

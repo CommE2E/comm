@@ -2,11 +2,13 @@
 
 require_once('config.php');
 
+// Returns either a user ID or a cookie ID (for anonymous)
 function get_viewer_id() {
   list($id, $is_user) = get_viewer_info();
   return $id;
 }
 
+// True if viewer is a registered user; false otherwise
 function user_logged_in() {
   list($id, $is_user) = get_viewer_info();
   return $is_user;
@@ -84,6 +86,55 @@ function init_anonymous_cookie() {
   add_cookie('anonymous', $cookie_hash, $time);
 
   return $cookie_id;
+}
+
+// Creates a new user cookie and merges with any existing anonymous cookie
+function create_user_cookie($user_id) {
+  global $conn;
+
+  $cookie_hash = hash('sha256', openssl_random_pseudo_bytes(32));
+  $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
+  $cookie_id = $conn->insert_id;
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $conn->query(
+    "INSERT INTO cookies(id, hash, user, creation_time, last_update) ".
+      "VALUES ($cookie_id, UNHEX('$cookie_hash'), $user_id, $time, $time)"
+  );
+  add_cookie('user', $cookie_hash, $time);
+
+  // We can kill the anonymous cookie now
+  // We want to do this regardless of get_anonymous_cookie since that function can
+  // return null when there is a cookie on the client
+  delete_cookie('anonymous');
+  list($anonymous_cookie_id, $_) = get_anonymous_cookie();
+  if (!$anonymous_cookie_id) {
+    return;
+  }
+
+  // Now we will move the anonymous cookie's memberships to the logged in user
+  // MySQL can't handle constraint violations on UPDATE, so need to pull all the
+  // membership rows to PHP, delete them, and then recreate them :(
+  $result = $conn->query(
+    "SELECT squad, last_view FROM subscriptions ".
+      "WHERE subscriber = $anonymous_cookie_id"
+  );
+  $new_rows = array();
+  while ($row = $result->fetch_assoc()) {
+    $new_rows[] = "(".$row['squad'].", ".$user_id.", ".$row['last_view'].")";
+  }
+  if ($new_rows) {
+    $conn->query(
+      "INSERT INTO subscriptions(squad, subscriber, last_view) ".
+        "VALUES ".implode(', ', $new_rows)." ".
+        "ON DUPLICATE KEY ".
+        "UPDATE last_view = GREATEST(VALUES(last_view), last_view)"
+    );
+    $conn->query(
+      "DELETE FROM subscriptions WHERE subscriber = $anonymous_cookie_id"
+    );
+  }
+  $conn->query("DELETE FROM cookies WHERE id = $anonymous_cookie_id");
+  $conn->query("DELETE FROM ids WHERE id = $anonymous_cookie_id");
 }
 
 // Returns array(int: cookie_id, string: cookie_hash)
