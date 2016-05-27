@@ -1,3 +1,14 @@
+header, tr {
+  font-family: 'Anaheim', sans-serif;
+}
+body {
+  background-color: #FFFAF0;
+}
+a {
+  text-decoration: none;
+  color: #2A5DB0;
+}
+
 table {
   height: 100%;
   width: 100%;
@@ -28,12 +39,6 @@ textarea:focus {
 }
 header {
   height: 42px;
-}
-header, tr {
-  font-family: 'Anaheim', sans-serif;
-}
-body {
-  background-color: #FFFAF0;
 }
 td.day {
   background-color: white;
@@ -102,10 +107,6 @@ div.user-button > div.user-menu > div:last-child {
 }
 div.user-button:hover > div.user-menu {
   display: block;
-}
-div.user-button > div.user-menu a {
-  text-decoration: none;
-  color: #2A5DB0;
 }
 
 h2.upper-center {
