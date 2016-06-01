@@ -16,11 +16,27 @@ if (!isset($_POST['username']) || !isset($_POST['password'])) {
     'error' => 'invalid_parameters',
   )));
 }
-$username = $conn->real_escape_string($_POST['username']);
-$password = $_POST['password'];
 if (isset($_COOKIE['user'])) {
   exit(json_encode(array(
     'error' => 'already_logged_in',
+  )));
+}
+
+$username = $conn->real_escape_string($_POST['username']);
+$password = $_POST['password'];
+
+$valid_username_regex = "/^[a-zA-Z0-9-_]+$/";
+if (!preg_match($valid_username_regex, $username)) {
+  exit(json_encode(array(
+    'error' => 'invalid_username',
+  )));
+}
+
+$result = $conn->query("SELECT id FROM users WHERE username = '$username'");
+$user_row = $result->fetch_assoc();
+if ($user_row) {
+  exit(json_encode(array(
+    'error' => 'username_taken',
   )));
 }
 

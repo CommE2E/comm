@@ -295,6 +295,7 @@ HTML;
                   placeholder="Password"
                 />
               </div>
+              <span class="modal-form-error"></span>
               <input type="submit" value="Log in" />
             </form>
           </div>
@@ -322,7 +323,50 @@ HTML;
                   placeholder="Password"
                 />
               </div>
+              <div>
+                <input
+                  type="password"
+                  id="register-confirm-password"
+                  placeholder="Confirm password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
               <input type="submit" value="Register" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay user-settings-modal-overlay">
+        <div class="modal user-settings-modal">
+          <div class="modal-header">
+            <span class="modal-close user-settings-modal-close">×</span>
+            <h2>Change password</h2>
+          </div>
+          <div class="modal-body user-settings-modal-body">
+            <form method="POST" id="user-settings-modal-form">
+              <div>
+                <input
+                  type="password"
+                  id="change-current-password"
+                  placeholder="Current password"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  id="change-new-password"
+                  placeholder="New password"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  id="change-confirm-password"
+                  placeholder="Confirm new password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Change Password" />
             </form>
           </div>
         </div>

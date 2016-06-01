@@ -167,6 +167,15 @@ div.modal-body input[type='submit'] {
   font-size: 16px;
   margin: 3px;
 }
+div.modal-body span.modal-form-error {
+  float: right;
+  font-family: sans-serif;
+  font-size: 14px;
+  margin-right: 18px;
+  margin-top: 8px;
+  color: red;
+  font-style: italic;
+}
 
 div.squad-password-modal {
   max-width: 400px;
@@ -180,12 +189,14 @@ div.squad-password-modal-body input[type='submit'] {
   margin-right: 15px;
 }
 
-div.log-in-modal, div.register-modal {
+div.log-in-modal, div.register-modal, div.user-settings-modal {
   max-width: 300px;
 }
 div.log-in-modal-body input[type='text'],
 div.log-in-modal-body input[type='password'],
 div.register-modal-body input[type='text'],
-div.register-modal-body input[type='password'] {
+div.register-modal-body input[type='password'],
+div.user-settings-modal-body input[type='password']
+{
   width: 275px;
 }
