@@ -29,10 +29,6 @@ textarea {
   overflow-y: hidden;
   padding: 5px;
 }
-textarea:focus {
-  border: 1px dotted #C4B37E;
-  padding: 4px;
-}
 * {
   padding: 0;
   margin: 0;
