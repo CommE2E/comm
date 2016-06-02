@@ -136,6 +136,7 @@ HTML;
 if (user_logged_in()) {
   echo <<<HTML
               <div><a href="#" id="log-out-button">Log out</a></div>
+              <div><a href="#" id="user-settings-button">Change password</a></div>
 
 HTML;
 } else {
@@ -347,7 +348,7 @@ HTML;
               <div>
                 <input
                   type="password"
-                  id="change-current-password"
+                  id="change-old-password"
                   placeholder="Current password"
                 />
               </div>

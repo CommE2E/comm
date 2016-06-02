@@ -214,14 +214,52 @@ $('span.user-settings-modal-close').click(function() {
   $('input#change-current-password').val("");
   $('input#change-new-password').val("");
   $('input#change-confirm-password').val("");
+  $('form#user-settings-modal-form span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if ($(event.target).hasClass('user-settings-modal-overlay')) {
     $('input#change-current-password').val("");
     $('input#change-new-password').val("");
     $('input#change-confirm-password').val("");
+    $('form#user-settings-modal-form span.modal-form-error').text("");
   }
 });
 $('form#user-settings-modal-form').submit(function(event) {
   event.preventDefault();
+  var new_password = $('input#change-new-password').val();
+  var confirm_password = $('input#change-confirm-password').val();
+  if (new_password !== confirm_password) {
+    $('input#change-new-password').val("");
+    $('input#change-confirm-password').val("");
+    $('form#user-settings-modal-form span.modal-form-error')
+      .text("passwords don't match");
+    return;
+  }
+  $('form#user-settings-modal-form :input').prop("disabled", true);
+  $.post(
+    'change_password.php',
+    {
+      'old_password': $('input#change-old-password').val(),
+      'new_password': new_password,
+    },
+    function(data) {
+      console.log(data);
+      $('form#user-settings-modal-form :input').prop("disabled", false);
+      $('input#change-old-password').val("");
+      if (data.success === true) {
+        $('div.user-settings-modal-overlay').hide();
+        $('input#change-new-password').val("");
+        $('input#change-confirm-password').val("");
+        $('form#user-settings-modal-form span.modal-form-error').text("");
+      } else if (data.error === 'invalid_credentials') {
+        $('form#user-settings-modal-form span.modal-form-error')
+          .text("wrong current password");
+      } else {
+        $('input#change-new-password').val("");
+        $('input#change-confirm-password').val("");
+        $('form#user-settings-modal-form span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
 });
