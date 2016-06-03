@@ -176,23 +176,23 @@ div.modal-body span.modal-form-error {
 div.squad-password-modal {
   max-width: 400px;
 }
-div.squad-password-modal-body input[type='password'] {
+div.squad-password-modal div.modal-body input[type='password'] {
   width: 310px;
 }
-div.squad-password-modal-body input[type='submit'] {
+div.squad-password-modal div.modal-body input[type='submit'] {
   position: relative;
   float: right;
   margin-right: 15px;
 }
 
-div.log-in-modal, div.register-modal, div.user-settings-modal {
+div.log-in-modal, div.register-modal, div.user-settings-modal, div.delete-user-modal {
   max-width: 300px;
 }
-div.log-in-modal-body input[type='text'],
-div.log-in-modal-body input[type='password'],
-div.register-modal-body input[type='text'],
-div.register-modal-body input[type='password'],
-div.user-settings-modal-body input[type='password']
+div.log-in-modal div.modal-body input[type='text'],
+div.log-in-modal div.modal-body input[type='password'],
+div.register-modal div.modal-body input[type='text'],
+div.register-modal div.modal-body input[type='password'],
+div.user-settings-modal div.modal-body input[type='password']
 {
   width: 275px;
 }

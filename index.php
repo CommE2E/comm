@@ -259,11 +259,11 @@ HTML;
       <div class="modal-overlay squad-password-modal-overlay">
         <div class="modal squad-password-modal">
           <div class="modal-header">
-            <span class="modal-close squad-password-modal-close">×</span>
+            <span class="modal-close">×</span>
             <h2>Password Required</h2>
           </div>
-          <div class="modal-body squad-password-modal-body">
-            <form method="POST" id="squad-password-modal-form">
+          <div class="modal-body">
+            <form method="POST">
               <input
                 type="password"
                 id="squad-password"
@@ -277,11 +277,11 @@ HTML;
       <div class="modal-overlay log-in-modal-overlay">
         <div class="modal log-in-modal">
           <div class="modal-header">
-            <span class="modal-close log-in-modal-close">×</span>
+            <span class="modal-close">×</span>
             <h2>Log in</h2>
           </div>
-          <div class="modal-body log-in-modal-body">
-            <form method="POST" id="log-in-modal-form">
+          <div class="modal-body">
+            <form method="POST">
               <div>
                 <input
                   type="text"
@@ -305,11 +305,11 @@ HTML;
       <div class="modal-overlay register-modal-overlay">
         <div class="modal register-modal">
           <div class="modal-header">
-            <span class="modal-close register-modal-close">×</span>
+            <span class="modal-close">×</span>
             <h2>Register</h2>
           </div>
-          <div class="modal-body register-modal-body">
-            <form method="POST" id="register-modal-form">
+          <div class="modal-body">
+            <form method="POST">
               <div>
                 <input
                   type="text"
@@ -340,11 +340,11 @@ HTML;
       <div class="modal-overlay user-settings-modal-overlay">
         <div class="modal user-settings-modal">
           <div class="modal-header">
-            <span class="modal-close user-settings-modal-close">×</span>
+            <span class="modal-close">×</span>
             <h2>Change password</h2>
           </div>
-          <div class="modal-body user-settings-modal-body">
-            <form method="POST" id="user-settings-modal-form">
+          <div class="modal-body">
+            <form method="POST">
               <div>
                 <input
                   type="password"
