@@ -136,7 +136,10 @@ HTML;
 if (user_logged_in()) {
   echo <<<HTML
               <div><a href="#" id="log-out-button">Log out</a></div>
-              <div><a href="#" id="user-settings-button">Change password</a></div>
+              <div>
+                <a href="#" id="user-settings-button">Change password</a>
+              </div>
+              <div><a href="#" id="delete-account-button">Delete account</a></div>
 
 HTML;
 } else {
@@ -371,6 +374,30 @@ HTML;
               </div>
               <span class="modal-form-error"></span>
               <input type="submit" value="Change Password" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay delete-account-modal-overlay">
+        <div class="modal delete-account-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Delete account</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              <p>
+                Your account will be permanently deleted.
+              </p>
+              <div>
+                <input
+                  type="password"
+                  id="delete-account-password"
+                  placeholder="Password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Delete account" />
             </form>
           </div>
         </div>

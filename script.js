@@ -80,6 +80,7 @@ $('div.squad-password-modal form').submit(function(event) {
         return;
       }
       $('input#squad-password').val("");
+      $('input#squad-password').focus();
       $('div.squad-password-modal input').prop("disabled", false);
       if (data.error === 'invalid_credentials') {
         $('div.squad-password-modal span.modal-form-error')
@@ -148,6 +149,7 @@ $('div.log-in-modal form').submit(function(event) {
         $('input#log-in-username').val("");
         $('input#log-in-password').val("");
         $('input#log-in-username').val("");
+        $('input#log-in-username').focus();
         $('div.log-in-modal span.modal-form-error')
           .text("unknown error");
       }
@@ -217,15 +219,14 @@ $('div.register-modal form').submit(function(event) {
         return;
       }
       $('div.register-modal input').prop("disabled", false);
+      $('input#register-username').focus();
       if (data.error === 'username_taken') {
         $('input#register-username').val("");
-        $('input#register-username').focus();
         $('div.register-modal span.modal-form-error')
           .text("username already taken");
       } else {
         $('input#register-username').val("");
         $('input#register-password').val("");
-        $('input#register-username').focus();
         $('input#register-confirm-password').val("");
         $('div.register-modal span.modal-form-error')
           .text("unknown error");
@@ -310,6 +311,51 @@ $('div.user-settings-modal form').submit(function(event) {
         $('input#change-confirm-password').val("");
         $('input#change-old-password').focus();
         $('div.user-settings-modal span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
+});
+
+$('a#delete-account-button').click(function() {
+  $('div.delete-account-modal-overlay').show();
+  $('div.delete-account-modal input')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
+});
+$('div.delete-account-modal span.modal-close').click(function() {
+  $('input#delete-account-password').val("");
+  $('div.delete-account-modal span.modal-form-error').text("");
+});
+$(window).click(function(event) {
+  if ($(event.target).hasClass('delete-account-modal-overlay')) {
+    $('input#delete-account-password').val("");
+    $('div.delete-account-modal span.modal-form-error').text("");
+  }
+});
+$('div.delete-account-modal form').submit(function(event) {
+  event.preventDefault();
+  $('div.delete-account-modal input').prop("disabled", true);
+  $.post(
+    'delete_account.php',
+    {
+      'password': $('input#delete-account-password').val(),
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        window.location.href = base_url;
+        return;
+      }
+      $('div.delete-account-modal input').prop("disabled", false);
+      $('input#delete-account-password').val("");
+      $('input#delete-account-password').focus();
+      if (data.error === 'invalid_credentials') {
+        $('div.delete-account-modal span.modal-form-error')
+          .text("wrong password");
+      } else {
+        $('div.delete-account-modal span.modal-form-error')
           .text("unknown error");
       }
     }
