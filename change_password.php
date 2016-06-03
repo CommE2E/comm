@@ -25,6 +25,11 @@ if (!isset($_POST['old_password']) || !isset($_POST['new_password'])) {
 $user = get_viewer_id();
 $old_password = $_POST['old_password'];
 $new_password = $_POST['new_password'];
+if (trim($new_password) === '') {
+  exit(json_encode(array(
+    'error' => 'empty_password',
+  )));
+}
 
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".

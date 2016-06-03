@@ -24,6 +24,11 @@ if (isset($_COOKIE['user'])) {
 
 $username = $conn->real_escape_string($_POST['username']);
 $password = $_POST['password'];
+if (trim($password) === '') {
+  exit(json_encode(array(
+    'error' => 'empty_password',
+  )));
+}
 
 $valid_username_regex = "/^[a-zA-Z0-9-_]+$/";
 if (!preg_match($valid_username_regex, $username)) {

@@ -178,6 +178,14 @@ $('div.register-modal form').submit(function(event) {
   event.preventDefault();
   var password = $('input#register-password').val();
   var confirm_password = $('input#register-confirm-password').val();
+  if (password.trim() === '') {
+    $('input#register-password').val("");
+    $('input#register-confirm-password').val("");
+    $('input#register-password').focus();
+    $('div.register-modal span.modal-form-error')
+      .text("empty password");
+    return;
+  }
   if (password !== confirm_password) {
     $('input#register-password').val("");
     $('input#register-confirm-password').val("");
@@ -261,6 +269,14 @@ $('div.user-settings-modal form').submit(function(event) {
   event.preventDefault();
   var new_password = $('input#change-new-password').val();
   var confirm_password = $('input#change-confirm-password').val();
+  if (new_password.trim() === '') {
+    $('input#change-new-password').val("");
+    $('input#change-confirm-password').val("");
+    $('input#change-new-password').focus();
+    $('div.user-settings-modal span.modal-form-error')
+      .text("empty password");
+    return;
+  }
   if (new_password !== confirm_password) {
     $('input#change-new-password').val("");
     $('input#change-confirm-password').val("");
