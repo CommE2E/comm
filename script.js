@@ -55,11 +55,13 @@ $('select#squad_nav').change(function(event) {
 $('div.squad-password-modal span.modal-close').click(function() {
   $('select#squad_nav').val(squad);
   $('input#squad-password').val("");
+  $('div.squad-password-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if ($(event.target).hasClass('squad-password-modal-overlay')) {
     $('select#squad_nav').val(squad);
     $('input#squad-password').val("");
+    $('div.squad-password-modal span.modal-form-error').text("");
   }
 });
 $('div.squad-password-modal form').submit(function(event) {
@@ -75,9 +77,16 @@ $('div.squad-password-modal form').submit(function(event) {
       console.log(data);
       if (data.success === true) {
         window.location.href = base_url+"&squad="+new_squad;
+        return;
+      }
+      $('input#squad-password').val("");
+      $('div.squad-password-modal input').prop("disabled", false);
+      if (data.error === 'invalid_credentials') {
+        $('div.squad-password-modal span.modal-form-error')
+          .text("wrong password");
       } else {
-        $('input#squad-password').val("");
-        $('div.squad-password-modal input').prop("disabled", false);
+        $('div.squad-password-modal span.modal-form-error')
+          .text("unknown error");
       }
     }
   );

@@ -260,16 +260,19 @@ HTML;
         <div class="modal squad-password-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
-            <h2>Password Required</h2>
+            <h2>Password required</h2>
           </div>
           <div class="modal-body">
             <form method="POST">
-              <input
-                type="password"
-                id="squad-password"
-                placeholder="Password"
-              />
-              <input type="submit" />
+              <div>
+                <input
+                  type="password"
+                  id="squad-password"
+                  placeholder="Password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Submit" />
             </form>
           </div>
         </div>
