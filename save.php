@@ -79,7 +79,7 @@ if ($id === null) {
   // Check if the row and ID are already created
   $result = $conn->query(
     "SELECT id, text, session_id, last_update FROM days ".
-      "WHERE date='$date' AND squad=$squad"
+      "WHERE date = '$date' AND squad = $squad"
   );
   $existing_row = $result->fetch_assoc();
   if (!$existing_row) {
@@ -107,10 +107,10 @@ if ($id === null) {
     if ($conn->errno === 1062) {
       $result = $conn->query(
         "SELECT id, text, session_id, last_update FROM days ".
-          "WHERE date='$date' AND squad=$squad"
+          "WHERE date = '$date' AND squad = $squad"
       );
       $existing_row = $result->fetch_assoc();
-      $conn->query("DELETE FROM ids WHERE id=$new_id");
+      $conn->query("DELETE FROM ids WHERE id = $new_id");
     }
   }
   if ($existing_row === null) {
@@ -122,7 +122,7 @@ if ($id === null) {
 } else {
   // We need to check the current row to look for concurrent modification
   $result = $conn->query(
-    "SELECT text, session_id, last_update FROM days WHERE `id`=$id"
+    "SELECT text, session_id, last_update FROM days WHERE `id` = $id"
   );
   $existing_row = $result->fetch_assoc();
   if ($existing_row === null) {

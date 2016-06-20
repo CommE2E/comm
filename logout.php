@@ -12,6 +12,20 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
+if (isset($_COOKIE['user'])) {
+  $cookie_hash = $conn->real_escape_string($_COOKIE['user']);
+  $result = $conn->query(
+    "SELECT id FROM cookies ".
+      "WHERE hash = UNHEX('$cookie_hash') AND user IS NOT NULL"
+  );
+  $cookie_row = $result->fetch_assoc();
+  if ($cookie_row) {
+    $id = $cookie_row['id'];
+    $conn->query("DELETE FROM cookies WHERE id = $id");
+    $conn->query("DELETE FROM ids WHERE id = $id");
+  }
+}
+
 delete_cookie('user');
 
 exit(json_encode(array(

@@ -27,7 +27,7 @@ $password = $_POST['password'];
 
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE id=\"$user\""
+    "FROM users WHERE id =\"$user\""
 );
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
@@ -42,19 +42,19 @@ if ($user_row['hash'] !== $hash) {
   )));
 }
 
-$conn->query("DELETE FROM users WHERE id=$user");
-$conn->query("DELETE FROM subscriptions WHERE subscriber=$user");
-$conn->query("DELETE FROM ids WHERE id=$user");
+$conn->query("DELETE FROM users WHERE id = $user");
+$conn->query("DELETE FROM subscriptions WHERE subscriber = $user");
+$conn->query("DELETE FROM ids WHERE id = $user");
 
-$result = $conn->query("SELECT id FROM cookies WHERE user=$user");
+$result = $conn->query("SELECT id FROM cookies WHERE user = $user");
 $delete_ids = array();
 while ($row = $result->fetch_assoc()) {
-  $delete_ids[] = "id=".$row['id'];
+  $delete_ids[] = "id = ".$row['id'];
 }
 if ($delete_ids) {
   $conn->query("DELETE FROM ids WHERE ".implode(' OR ', $delete_ids));
 }
-$conn->query("DELETE FROM cookies WHERE user=$user");
+$conn->query("DELETE FROM cookies WHERE user = $user");
 
 delete_cookie('user');
 
