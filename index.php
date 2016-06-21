@@ -259,8 +259,8 @@ HTML;
 
 ?>
       </table>
-      <div class="modal-overlay squad-password-modal-overlay">
-        <div class="modal squad-password-modal">
+      <div class="modal-overlay" id="squad-password-modal-overlay">
+        <div class="modal" id="squad-password-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Password required</h2>
@@ -280,8 +280,8 @@ HTML;
           </div>
         </div>
       </div>
-      <div class="modal-overlay log-in-modal-overlay">
-        <div class="modal log-in-modal">
+      <div class="modal-overlay" id="log-in-modal-overlay">
+        <div class="modal" id="log-in-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Log in</h2>
@@ -308,8 +308,8 @@ HTML;
           </div>
         </div>
       </div>
-      <div class="modal-overlay register-modal-overlay">
-        <div class="modal register-modal">
+      <div class="modal-overlay" id="register-modal-overlay">
+        <div class="modal" id="register-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Register</h2>
@@ -343,8 +343,8 @@ HTML;
           </div>
         </div>
       </div>
-      <div class="modal-overlay user-settings-modal-overlay">
-        <div class="modal user-settings-modal">
+      <div class="modal-overlay" id="user-settings-modal-overlay">
+        <div class="modal" id="user-settings-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Change password</h2>
@@ -378,8 +378,8 @@ HTML;
           </div>
         </div>
       </div>
-      <div class="modal-overlay delete-account-modal-overlay">
-        <div class="modal delete-account-modal">
+      <div class="modal-overlay" id="delete-account-modal-overlay">
+        <div class="modal" id="delete-account-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Delete account</h2>
