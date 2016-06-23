@@ -27,7 +27,7 @@ $password = $_POST['password'];
 
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE id =\"$user\""
+    "FROM users WHERE id = $user"
 );
 $user_row = $result->fetch_assoc();
 if (!$user_row) {

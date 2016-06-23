@@ -59,7 +59,7 @@ function init_cookie() {
   );
 
   add_cookie('user', $cookie_hash, $time);
-  return array($cookie_row['user'], true);
+  return array((int)$cookie_row['user'], true);
 }
 
 // Returns cookie ID
@@ -171,7 +171,7 @@ function get_anonymous_cookie() {
     return array(null, null);
   }
 
-  return array($cookie_row['id'], $cookie_hash);
+  return array((int)$cookie_row['id'], $cookie_hash);
 }
 
 // $current_time in milliseconds

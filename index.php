@@ -27,16 +27,20 @@ $viewer_id = get_viewer_id();
 
 // First, validate the squad ID
 $result = $conn->query(
-  "SELECT sq.id, sq.name, ".
+  "SELECT sq.id, sq.name, sq.creator, ".
     "sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
     "FROM squads sq LEFT JOIN subscriptions su ".
     "ON sq.id = su.squad AND su.subscriber = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
+$viewer_is_squad_creator = false;
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
   $authorized_squads[$row['id']] = !$row['requires_auth'];
+  if ((int)$row['id'] === $squad && (int)$row['creator'] === $viewer_id) {
+    $viewer_is_squad_creator = true;
+  }
 }
 if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -133,9 +137,23 @@ HTML;
 }
 echo <<<HTML
           </select>
-          <div class="user-button">
+
+HTML;
+if ($viewer_is_squad_creator) {
+  echo <<<HTML
+          <div class="nav-button">
+            <img id="squad" src="{$base_url}images/squad.svg" />
+            <div class="nav-menu">
+              <div><a href="#" id="delete-squad-button">Delete squad</a></div>
+            </div>
+          </div>
+
+HTML;
+}
+echo <<<HTML
+          <div class="nav-button">
             <img id="account" src="{$base_url}images/account.svg" />
-            <div class="user-menu">
+            <div class="nav-menu">
 
 HTML;
 if (user_logged_in()) {
@@ -458,6 +476,30 @@ HTML;
               </div>
               <span class="modal-form-error"></span>
               <input type="submit" value="Create squad" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay" id="delete-squad-modal-overlay">
+        <div class="modal" id="delete-squad-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Delete squad</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              <p>
+                Your squad will be permanently deleted.
+              </p>
+              <div>
+                <input
+                  type="password"
+                  id="delete-squad-password"
+                  placeholder="Personal account password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Delete squad" />
             </form>
           </div>
         </div>

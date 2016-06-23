@@ -70,17 +70,18 @@ div.upper-right > select {
   border: 1px solid #AAA;
   vertical-align: top;
   margin-top: 4px;
+  margin-right: 3px;
 }
 
-div.user-button {
+div.nav-button {
   position: relative;
   display: inline;
 }
-div.user-button > img {
+div.nav-button > img {
   opacity: 0.5;
   height: 36px;
 }
-div.user-button > div.user-menu {
+div.nav-button > div.nav-menu {
   display: none;
   position: absolute;
   right: 4px;
@@ -95,14 +96,14 @@ div.user-button > div.user-menu {
   border-radius: 3px;
   white-space: nowrap;
 }
-div.user-button > div.user-menu > div {
+div.nav-button > div.nav-menu > div {
   border-bottom: 1px solid #D3D3D3;
   padding: 3px 16px;
 }
-div.user-button > div.user-menu > div:last-child {
+div.nav-button > div.nav-menu > div:last-child {
   border-bottom: none;
 }
-div.user-button:hover > div.user-menu {
+div.nav-button:hover > div.nav-menu {
   display: block;
 }
 

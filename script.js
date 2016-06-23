@@ -462,3 +462,49 @@ $('div#delete-account-modal form').submit(function(event) {
     }
   );
 });
+
+$('a#delete-squad-button').click(function() {
+  $('div#delete-squad-modal-overlay').show();
+  $('div#delete-squad-modal input')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
+});
+$('div#delete-squad-modal span.modal-close').click(function() {
+  $('input#delete-squad-password').val("");
+  $('div#delete-squad-modal span.modal-form-error').text("");
+});
+$(window).click(function(event) {
+  if (event.target.id === 'delete-squad-modal-overlay') {
+    $('input#delete-squad-password').val("");
+    $('div#delete-squad-modal span.modal-form-error').text("");
+  }
+});
+$('div#delete-squad-modal form').submit(function(event) {
+  event.preventDefault();
+  $('div#delete-squad-modal input').prop("disabled", true);
+  $.post(
+    'delete_squad.php',
+    {
+      'squad': squad,
+      'password': $('input#delete-squad-password').val(),
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        window.location.href = base_url;
+        return;
+      }
+      $('div#delete-squad-modal input').prop("disabled", false);
+      $('input#delete-squad-password').val("");
+      $('input#delete-squad-password').focus();
+      if (data.error === 'invalid_credentials') {
+        $('div#delete-squad-modal span.modal-form-error')
+          .text("wrong password");
+      } else {
+        $('div#delete-squad-modal span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
+});
