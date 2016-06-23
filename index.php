@@ -126,6 +126,11 @@ foreach ($squads as $id => $name) {
 
 HTML;
 }
+if (user_logged_in()) {
+  echo <<<HTML
+            <option value="0">New squad...</option>
+HTML;
+}
 echo <<<HTML
           </select>
           <div class="user-button">
@@ -398,6 +403,61 @@ HTML;
               </div>
               <span class="modal-form-error"></span>
               <input type="submit" value="Delete account" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay" id="new-squad-modal-overlay">
+        <div class="modal" id="new-squad-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>New squad</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              <div>
+                <input
+                  type="text"
+                  id="new-squad-name"
+                  placeholder="Squad name"
+                />
+              </div>
+              <div class="new-squad-type-selector">
+                <label>
+                  <input
+                    type="radio"
+                    name="new-squad-type"
+                    id="new-squad-open"
+                    value="open"
+                  />
+                  <span>Open</span>
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="new-squad-type"
+                    id="new-squad-closed"
+                    value="closed"
+                  />
+                  <span>Closed</span>
+                </label>
+              </div>
+              <div class="new-squad-password">
+                <input
+                  type="password"
+                  id="new-squad-password"
+                  placeholder="Squad password"
+                />
+              </div>
+              <div class="new-squad-password">
+                <input
+                  type="password"
+                  id="new-squad-confirm-password"
+                  placeholder="Confirm password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Create squad" />
             </form>
           </div>
         </div>

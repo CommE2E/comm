@@ -162,15 +162,16 @@ div.modal-body p {
   font-size: 14px;
   font-style: italic;
 }
+div.modal-body input {
+  margin: 3px;
+}
 div.modal-body input[type='text'], div.modal-body input[type='password'] {
   font-size: 14px;
   padding: 1px;
-  margin: 3px;
   width: 275px;
 }
 div.modal-body input[type='submit'] {
   font-size: 16px;
-  margin: 3px;
 }
 div.modal-body span.modal-form-error {
   float: right;
@@ -179,4 +180,14 @@ div.modal-body span.modal-form-error {
   margin-top: 8px;
   color: red;
   font-style: italic;
+}
+
+div.modal-body label {
+  padding: 0 3px;
+}
+div.new-squad-type-selector {
+  padding: 4px 0;
+}
+div.new-squad-password {
+  display: none;
 }

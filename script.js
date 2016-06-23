@@ -42,7 +42,13 @@ $('span.modal-close').click(function() {
 
 $('select#squad_nav').change(function(event) {
   new_squad = event.target.value;
-  if (authorized_squads[new_squad] !== true) {
+  if (new_squad === "0") {
+    $('div#new-squad-modal-overlay').show();
+    $('div#new-squad-modal input')
+      .filter(function() { return this.value === ""; })
+      .first()
+      .focus();
+  } else if (authorized_squads[new_squad] !== true) {
     $('div#squad-password-modal-overlay').show();
     $('div#squad-password-modal input')
       .filter(function() { return this.value === ""; })
@@ -92,6 +98,101 @@ $('div#squad-password-modal form').submit(function(event) {
     }
   );
 });
+
+$('div#new-squad-modal span.modal-close').click(function() {
+  $('input#new-squad-password').val("");
+  $('div#new-squad-modal span.modal-form-error').text("");
+});
+$('input#new-squad-closed').click(function() {
+  $('div.new-squad-password').show();
+});
+$('input#new-squad-open').click(function() {
+  $('div.new-squad-password').hide();
+});
+$('div#new-squad-modal span.modal-close').click(function() {
+  $('select#squad_nav').val(squad);
+  $('input#new-squad-password').val("");
+  $('input#new-squad-confirm-password').val("");
+  $('div#new-squad-modal span.modal-form-error').text("");
+});
+$(window).click(function(event) {
+  if (event.target.id === 'new-squad-modal-overlay') {
+    $('select#squad_nav').val(squad);
+    $('input#new-squad-password').val("");
+    $('input#new-squad-confirm-password').val("");
+    $('div#new-squad-modal span.modal-form-error').text("");
+  }
+});
+$('div#new-squad-modal form').submit(function(event) {
+  event.preventDefault();
+  var name = $('input#new-squad-name').val().trim();
+  if (name === '') {
+    $('input#new-squad-name').val("");
+    $('input#new-squad-name').focus();
+    $('div#new-squad-modal span.modal-form-error')
+      .text("empty squad name");
+    return;
+  }
+  var type = $('div#new-squad-modal input[name="new-squad-type"]:checked');
+  if (type.length === 0) {
+    $('input#new-squad-open').focus();
+    $('div#new-squad-modal span.modal-form-error')
+      .text("squad type unspecified");
+    return;
+  }
+  var password = $('input#new-squad-password').val();
+  if (type.val() === 'closed') {
+    if (password.trim() === '') {
+      $('input#new-squad-password').val("");
+      $('input#new-squad-confirm-password').val("");
+      $('input#new-squad-password').focus();
+      $('div#new-squad-modal span.modal-form-error')
+        .text("empty password");
+      return;
+    }
+    var confirm_password = $('input#new-squad-confirm-password').val();
+    if (password !== confirm_password) {
+      $('input#new-squad-password').val("");
+      $('input#new-squad-confirm-password').val("");
+      $('input#new-squad-password').focus();
+      $('div#new-squad-modal span.modal-form-error')
+        .text("passwords don't match");
+      return;
+    }
+  }
+  $('div#new-squad-modal input').prop("disabled", true);
+  $.post(
+    'new_squad.php',
+    {
+      'name': name,
+      'type': type.val(),
+      'password': password,
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        window.location.href = base_url+"&squad="+data.new_squad_id;
+        return;
+      }
+      $('div#new-squad-modal input').prop("disabled", false);
+      $('input#new-squad-name').val("");
+      $('input#new-squad-name').focus();
+      if (data.error === 'name_taken') {
+        $('div#new-squad-modal span.modal-form-error')
+          .text("squad name already taken");
+      } else {
+        $('input#new-squad-password').val("");
+        $('input#new-squad-confirm-password').val("");
+        $('div#new-squad-modal input[name="new-squad-type"]')
+          .prop('checked', false);
+        $('div.new-squad-password').hide();
+        $('div#new-squad-modal span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
+});
+
 
 $('a#log-in-button').click(function() {
   $('div#log-in-modal-overlay').show();
@@ -179,7 +280,6 @@ $(window).click(function(event) {
 $('div#register-modal form').submit(function(event) {
   event.preventDefault();
   var password = $('input#register-password').val();
-  var confirm_password = $('input#register-confirm-password').val();
   if (password.trim() === '') {
     $('input#register-password').val("");
     $('input#register-confirm-password').val("");
@@ -188,6 +288,7 @@ $('div#register-modal form').submit(function(event) {
       .text("empty password");
     return;
   }
+  var confirm_password = $('input#register-confirm-password').val();
   if (password !== confirm_password) {
     $('input#register-password').val("");
     $('input#register-confirm-password').val("");
@@ -269,7 +370,6 @@ $(window).click(function(event) {
 $('div#user-settings-modal form').submit(function(event) {
   event.preventDefault();
   var new_password = $('input#change-new-password').val();
-  var confirm_password = $('input#change-confirm-password').val();
   if (new_password.trim() === '') {
     $('input#change-new-password').val("");
     $('input#change-confirm-password').val("");
@@ -278,6 +378,7 @@ $('div#user-settings-modal form').submit(function(event) {
       .text("empty password");
     return;
   }
+  var confirm_password = $('input#change-confirm-password').val();
   if (new_password !== confirm_password) {
     $('input#change-new-password').val("");
     $('input#change-confirm-password').val("");
