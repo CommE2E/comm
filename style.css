@@ -186,9 +186,9 @@ div.modal-body span.modal-form-error {
 div.modal-body label {
   padding: 0 3px;
 }
-div.new-squad-type-selector {
+div.squad-type-selector {
   padding: 4px 0;
 }
-div.new-squad-password {
+div.hidden {
   display: none;
 }

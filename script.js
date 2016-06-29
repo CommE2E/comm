@@ -99,15 +99,13 @@ $('div#squad-password-modal form').submit(function(event) {
   );
 });
 
-$('div#new-squad-modal span.modal-close').click(function() {
-  $('input#new-squad-password').val("");
-  $('div#new-squad-modal span.modal-form-error').text("");
-});
 $('input#new-squad-closed').click(function() {
-  $('div.new-squad-password').show();
+  $('div#new-squad-password-container').show();
+  $('div#new-squad-confirm-password-container').show();
 });
 $('input#new-squad-open').click(function() {
-  $('div.new-squad-password').hide();
+  $('div#new-squad-password-container').hide();
+  $('div#new-squad-confirm-password-container').hide();
 });
 $('div#new-squad-modal span.modal-close').click(function() {
   $('select#squad_nav').val(squad);
@@ -503,6 +501,99 @@ $('div#delete-squad-modal form').submit(function(event) {
           .text("wrong password");
       } else {
         $('div#delete-squad-modal span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
+});
+
+$('input#edit-squad-closed').click(function() {
+  $('div#edit-squad-new-password-container').show();
+  $('div#edit-squad-confirm-password-container').show();
+});
+$('input#edit-squad-open').click(function() {
+  $('div#edit-squad-new-password-container').hide();
+  $('div#edit-squad-confirm-password-container').hide();
+});
+$('a#edit-squad-button').click(function() {
+  $('div#edit-squad-modal-overlay').show();
+  $('div#edit-squad-modal input')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
+});
+$('div#edit-squad-modal span.modal-close').click(function() {
+  $('input#edit-squad-personal-password').val("");
+  $('input#edit-squad-new-password').val("");
+  $('input#edit-squad-confirm-password').val("");
+  $('div#edit-squad-modal span.modal-form-error').text("");
+});
+$(window).click(function(event) {
+  if (event.target.id === 'edit-squad-modal-overlay') {
+    $('input#edit-squad-personal-password').val("");
+    $('input#edit-squad-new-password').val("");
+    $('input#edit-squad-confirm-password').val("");
+    $('div#edit-squad-modal span.modal-form-error').text("");
+  }
+});
+$('div#edit-squad-modal form').submit(function(event) {
+  event.preventDefault();
+  var type = $('div#edit-squad-modal '+
+    'input[name="edit-squad-type"]:checked');
+  if (type.length === 0) {
+    $('input#edit-squad-open').focus();
+    $('div#edit-squad-modal span.modal-form-error')
+      .text("squad type unspecified");
+    return;
+  }
+  var new_password = $('input#edit-squad-new-password').val();
+  if (type.val() === 'closed') {
+    if (new_password.trim() === '') {
+      $('input#edit-squad-new-password').val("");
+      $('input#edit-squad-confirm-password').val("");
+      $('input#edit-squad-new-password').focus();
+      $('div#edit-squad-modal span.modal-form-error')
+        .text("empty password");
+      return;
+    }
+    var confirm_password = $('input#edit-squad-confirm-password').val();
+    if (new_password !== confirm_password) {
+      $('input#edit-squad-new-password').val("");
+      $('input#edit-squad-confirm-password').val("");
+      $('input#edit-squad-new-password').focus();
+      $('div#edit-squad-modal span.modal-form-error')
+        .text("passwords don't match");
+      return;
+    }
+  }
+  $('div#edit-squad-modal input').prop("disabled", true);
+  $.post(
+    'edit_squad.php',
+    {
+      'squad': squad,
+      'type': type.val(),
+      'personal_password': $('input#edit-squad-personal-password').val(),
+      'new_password': new_password,
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        location.reload();
+        return;
+      }
+      $('div#edit-squad-modal input').prop("disabled", false);
+      $('input#edit-squad-personal-password').val("");
+      if (data.error === 'invalid_credentials') {
+        $('input#edit-squad-personal-password').focus();
+        $('div#edit-squad-modal span.modal-form-error')
+          .text("wrong password");
+      } else {
+        $('input#edit-squad-open').prop('checked', !squad_requires_auth);
+        $('input#edit-squad-closed').prop('checked', squad_requires_auth);
+        $('input#edit-squad-new-password').val("");
+        $('input#edit-squad-confirm-password').val("");
+        $('input#edit-squad-personal-password').focus();
+        $('div#edit-squad-modal span.modal-form-error')
           .text("unknown error");
       }
     }

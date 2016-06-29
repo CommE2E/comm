@@ -28,18 +28,20 @@ $viewer_id = get_viewer_id();
 // First, validate the squad ID
 $result = $conn->query(
   "SELECT sq.id, sq.name, sq.creator, ".
-    "sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
+    "sq.hash IS NOT NULL AS requires_auth, su.squad IS NOT NULL AS is_authed ".
     "FROM squads sq LEFT JOIN subscriptions su ".
     "ON sq.id = su.squad AND su.subscriber = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
 $viewer_is_squad_creator = false;
+$squad_requires_auth = false;
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
-  $authorized_squads[$row['id']] = !$row['requires_auth'];
-  if ((int)$row['id'] === $squad && (int)$row['creator'] === $viewer_id) {
-    $viewer_is_squad_creator = true;
+  $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
+  if ((int)$row['id'] === $squad) {
+    $viewer_is_squad_creator = (int)$row['creator'] === $viewer_id;
+    $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
 if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
@@ -87,6 +89,7 @@ while ($row = $result->fetch_assoc()) {
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
         var base_url = "<?=$base_url?>?year=<?=$year?>&month=<?=$month?>";
+        var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
       </script>
     </head>
     <body>
@@ -133,6 +136,7 @@ HTML;
 if (user_logged_in()) {
   echo <<<HTML
             <option value="0">New squad...</option>
+
 HTML;
 }
 echo <<<HTML
@@ -145,6 +149,11 @@ if ($viewer_is_squad_creator) {
             <img id="squad" src="{$base_url}images/squad.svg" />
             <div class="nav-menu">
               <div><a href="#" id="delete-squad-button">Delete squad</a></div>
+              <div>
+                <a href="#" id="edit-squad-button">
+                  Edit squad
+                </a>
+              </div>
             </div>
           </div>
 
@@ -396,7 +405,7 @@ HTML;
                 />
               </div>
               <span class="modal-form-error"></span>
-              <input type="submit" value="Change Password" />
+              <input type="submit" value="Change password" />
             </form>
           </div>
         </div>
@@ -440,7 +449,7 @@ HTML;
                   placeholder="Squad name"
                 />
               </div>
-              <div class="new-squad-type-selector">
+              <div class="squad-type-selector">
                 <label>
                   <input
                     type="radio"
@@ -460,14 +469,20 @@ HTML;
                   <span>Closed</span>
                 </label>
               </div>
-              <div class="new-squad-password">
+              <div
+                class="hidden"
+                id="new-squad-password-container"
+              >
                 <input
                   type="password"
                   id="new-squad-password"
                   placeholder="Squad password"
                 />
               </div>
-              <div class="new-squad-password">
+              <div
+                class="hidden"
+                id="new-squad-confirm-password-container"
+              >
                 <input
                   type="password"
                   id="new-squad-confirm-password"
@@ -504,6 +519,104 @@ HTML;
           </div>
         </div>
       </div>
+      <div class="modal-overlay" id="edit-squad-modal-overlay">
+        <div class="modal" id="edit-squad-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Edit squad</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              <div>
+                <input
+                  type="password"
+                  id="edit-squad-personal-password"
+                  placeholder="Personal account password"
+                />
+              </div>
+              <div class="squad-type-selector">
+                <label>
+                  <input
+                    type="radio"
+                    name="edit-squad-type"
+                    id="edit-squad-open"
+                    value="open"
+
+<?php
+if (!$squad_requires_auth) {
+  echo <<<HTML
+                    checked
+
+HTML;
+}
+echo <<<HTML
+                  />
+                  <span>Open</span>
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="edit-squad-type"
+                    id="edit-squad-closed"
+                    value="closed"
+
+HTML;
+if ($squad_requires_auth) {
+  echo <<<HTML
+                    checked
+
+HTML;
+}
+echo <<<HTML
+                  />
+                  <span>Closed</span>
+                </label>
+              </div>
+              <div
+
+HTML;
+if (!$squad_requires_auth) {
+  echo <<<HTML
+                class="hidden"
+
+HTML;
+}
+echo <<<HTML
+                id="edit-squad-new-password-container"
+              >
+                <input
+                  type="password"
+                  id="edit-squad-new-password"
+                  placeholder="New squad password"
+                />
+              </div>
+              <div
+
+HTML;
+if (!$squad_requires_auth) {
+  echo <<<HTML
+                class="hidden"
+
+HTML;
+}
+echo <<<HTML
+                id="edit-squad-confirm-password-container"
+              >
+                <input
+                  type="password"
+                  id="edit-squad-confirm-password"
+                  placeholder="Confirm new squad password"
+                />
+              </div>
+              <span class="modal-form-error"></span>
+              <input type="submit" value="Update squad" />
+            </form>
+          </div>
+        </div>
+      </div>
+
+HTML;
+?>
       <script src="script.js"></script>
     </body>
 </html>
