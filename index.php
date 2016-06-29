@@ -85,6 +85,7 @@ while ($row = $result->fetch_assoc()) {
       </script>
       <script>
         var squad = <?=$squad?>;
+        var squad_name = "<?=$squads[$squad]?>";
         var month = <?=$month?>;
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
@@ -529,9 +530,9 @@ HTML;
             <form method="POST">
               <div>
                 <input
-                  type="password"
-                  id="edit-squad-personal-password"
-                  placeholder="Personal account password"
+                  type="text"
+                  id="edit-squad-name"
+                  value="<?=$squads[$squad]?>"
                 />
               </div>
               <div class="squad-type-selector">
@@ -587,7 +588,7 @@ echo <<<HTML
                 <input
                   type="password"
                   id="edit-squad-new-password"
-                  placeholder="New squad password"
+                  placeholder="New squad password (optional)"
                 />
               </div>
               <div
@@ -605,7 +606,14 @@ echo <<<HTML
                 <input
                   type="password"
                   id="edit-squad-confirm-password"
-                  placeholder="Confirm new squad password"
+                  placeholder="Confirm new squad password (optional)"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  id="edit-squad-personal-password"
+                  placeholder="Personal account password"
                 />
               </div>
               <span class="modal-form-error"></span>

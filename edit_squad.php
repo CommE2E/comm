@@ -17,6 +17,7 @@ if (!user_logged_in()) {
   )));
 }
 if (
+  !isset($_POST['name']) ||
   !isset($_POST['squad']) ||
   !isset($_POST['type']) ||
   !isset($_POST['personal_password'])
@@ -59,15 +60,32 @@ if ($row['hash'] !== $hash) {
   )));
 }
 
-if ($is_closed) {
+$name = $conn->real_escape_string($_POST['name']);
+$result = $conn->query("SELECT id FROM squads WHERE name = '$name'");
+$squad_row = $result->fetch_assoc();
+if ($squad_row && (int)$squad_row['id'] !== $squad) {
+  exit(json_encode(array(
+    'error' => 'name_taken',
+  )));
+}
+
+if ($is_closed && $new_password !== '') {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $new_password.$salt);
   $conn->query(
-    "UPDATE squads SET salt = UNHEX('$salt'), hash = UNHEX('$hash') ".
+    "UPDATE squads ".
+      "SET name = '$name', salt = UNHEX('$salt'), hash = UNHEX('$hash') ".
       "WHERE id = $squad"
   );
+} else if ($is_closed) {
+  $conn->query(
+    "UPDATE squads SET name = '$name' WHERE id = $squad"
+  );
 } else {
-  $conn->query("UPDATE squads SET salt = NULL, hash = NULL WHERE id = $squad");
+  $conn->query(
+    "UPDATE squads SET name = '$name', salt = NULL, hash = NULL ".
+      "WHERE id = $squad"
+  );
 }
 
 exit(json_encode(array(

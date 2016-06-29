@@ -44,13 +44,13 @@ $('select#squad_nav').change(function(event) {
   new_squad = event.target.value;
   if (new_squad === "0") {
     $('div#new-squad-modal-overlay').show();
-    $('div#new-squad-modal input')
+    $('div#new-squad-modal input:visible')
       .filter(function() { return this.value === ""; })
       .first()
       .focus();
   } else if (authorized_squads[new_squad] !== true) {
     $('div#squad-password-modal-overlay').show();
-    $('div#squad-password-modal input')
+    $('div#squad-password-modal input:visible')
       .filter(function() { return this.value === ""; })
       .first()
       .focus();
@@ -194,7 +194,7 @@ $('div#new-squad-modal form').submit(function(event) {
 
 $('a#log-in-button').click(function() {
   $('div#log-in-modal-overlay').show();
-  $('div#log-in-modal input')
+  $('div#log-in-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -258,7 +258,7 @@ $('div#log-in-modal form').submit(function(event) {
 
 $('a#register-button').click(function() {
   $('div#register-modal-overlay').show();
-  $('div#register-modal input')
+  $('div#register-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -346,7 +346,7 @@ $('a#log-out-button').click(function() {
 
 $('a#user-settings-button').click(function() {
   $('div#user-settings-modal-overlay').show();
-  $('div#user-settings-modal input')
+  $('div#user-settings-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -418,7 +418,7 @@ $('div#user-settings-modal form').submit(function(event) {
 
 $('a#delete-account-button').click(function() {
   $('div#delete-account-modal-overlay').show();
-  $('div#delete-account-modal input')
+  $('div#delete-account-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -463,7 +463,7 @@ $('div#delete-account-modal form').submit(function(event) {
 
 $('a#delete-squad-button').click(function() {
   $('div#delete-squad-modal-overlay').show();
-  $('div#delete-squad-modal input')
+  $('div#delete-squad-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -517,7 +517,7 @@ $('input#edit-squad-open').click(function() {
 });
 $('a#edit-squad-button').click(function() {
   $('div#edit-squad-modal-overlay').show();
-  $('div#edit-squad-modal input')
+  $('div#edit-squad-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
@@ -538,6 +538,14 @@ $(window).click(function(event) {
 });
 $('div#edit-squad-modal form').submit(function(event) {
   event.preventDefault();
+  var name = $('input#edit-squad-name').val().trim();
+  if (name === '') {
+    $('input#edit-squad-name').val(squad_name);
+    $('input#edit-squad-name').focus();
+    $('div#edit-squad-modal span.modal-form-error')
+      .text("empty squad name");
+    return;
+  }
   var type = $('div#edit-squad-modal '+
     'input[name="edit-squad-type"]:checked');
   if (type.length === 0) {
@@ -548,14 +556,6 @@ $('div#edit-squad-modal form').submit(function(event) {
   }
   var new_password = $('input#edit-squad-new-password').val();
   if (type.val() === 'closed') {
-    if (new_password.trim() === '') {
-      $('input#edit-squad-new-password').val("");
-      $('input#edit-squad-confirm-password').val("");
-      $('input#edit-squad-new-password').focus();
-      $('div#edit-squad-modal span.modal-form-error')
-        .text("empty password");
-      return;
-    }
     var confirm_password = $('input#edit-squad-confirm-password').val();
     if (new_password !== confirm_password) {
       $('input#edit-squad-new-password').val("");
@@ -570,6 +570,7 @@ $('div#edit-squad-modal form').submit(function(event) {
   $.post(
     'edit_squad.php',
     {
+      'name': name,
       'squad': squad,
       'type': type.val(),
       'personal_password': $('input#edit-squad-personal-password').val(),
@@ -582,17 +583,24 @@ $('div#edit-squad-modal form').submit(function(event) {
         return;
       }
       $('div#edit-squad-modal input').prop("disabled", false);
-      $('input#edit-squad-personal-password').val("");
       if (data.error === 'invalid_credentials') {
+        $('input#edit-squad-personal-password').val("");
         $('input#edit-squad-personal-password').focus();
         $('div#edit-squad-modal span.modal-form-error')
           .text("wrong password");
+      } else if (data.error === 'name_taken') {
+        $('input#edit-squad-name').val(squad_name);
+        $('input#edit-squad-name').focus();
+        $('div#edit-squad-modal span.modal-form-error')
+          .text("squad name already taken");
       } else {
+        $('input#edit-squad-name').val(squad_name);
         $('input#edit-squad-open').prop('checked', !squad_requires_auth);
         $('input#edit-squad-closed').prop('checked', squad_requires_auth);
         $('input#edit-squad-new-password').val("");
         $('input#edit-squad-confirm-password').val("");
-        $('input#edit-squad-personal-password').focus();
+        $('input#edit-squad-personal-password').val("");
+        $('input#edit-squad-name').focus();
         $('div#edit-squad-modal span.modal-form-error')
           .text("unknown error");
       }
