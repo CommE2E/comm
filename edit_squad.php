@@ -43,7 +43,8 @@ $squad = (int)$_POST['squad'];
 $personal_password = $_POST['personal_password'];
 
 $result = $conn->query(
-  "SELECT LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
+  "SELECT s.hash IS NOT NULL AS squad_requires_auth, ".
+    "LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
     "FROM squads s LEFT JOIN users u ON s.creator = u.id ".
     "WHERE s.id = $squad AND s.creator = $user"
 );
@@ -57,6 +58,14 @@ $hash = hash('sha512', $personal_password.$row['salt']);
 if ($row['hash'] !== $hash) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
+  )));
+}
+
+// If the squad is currently open but is being switched to closed,
+// then a password *must* be specified
+if (!$row['squad_requires_auth'] && $is_closed && trim($new_password) === '') {
+  exit(json_encode(array(
+    'error' => 'empty_password',
   )));
 }
 
@@ -78,6 +87,8 @@ if ($is_closed && $new_password !== '') {
       "WHERE id = $squad"
   );
 } else if ($is_closed) {
+  // We are guaranteed that the squad was closed beforehand, as otherwise
+  // $new_password would have to be set and the above condition would've tripped
   $conn->query(
     "UPDATE squads SET name = '$name' WHERE id = $squad"
   );

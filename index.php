@@ -149,12 +149,12 @@ if ($viewer_is_squad_creator) {
           <div class="nav-button">
             <img id="squad" src="{$base_url}images/squad.svg" />
             <div class="nav-menu">
-              <div><a href="#" id="delete-squad-button">Delete squad</a></div>
               <div>
                 <a href="#" id="edit-squad-button">
                   Edit squad
                 </a>
               </div>
+              <div><a href="#" id="delete-squad-button">Delete squad</a></div>
             </div>
           </div>
 
@@ -582,13 +582,14 @@ if (!$squad_requires_auth) {
 
 HTML;
 }
+$optional = $squad_requires_auth ? " (optional)" : "";
 echo <<<HTML
                 id="edit-squad-new-password-container"
               >
                 <input
                   type="password"
                   id="edit-squad-new-password"
-                  placeholder="New squad password (optional)"
+                  placeholder="New squad password{$optional}"
                 />
               </div>
               <div
@@ -606,7 +607,7 @@ echo <<<HTML
                 <input
                   type="password"
                   id="edit-squad-confirm-password"
-                  placeholder="Confirm new squad password (optional)"
+                  placeholder="Confirm new squad password{$optional}"
                 />
               </div>
               <div>

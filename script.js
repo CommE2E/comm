@@ -517,10 +517,7 @@ $('input#edit-squad-open').click(function() {
 });
 $('a#edit-squad-button').click(function() {
   $('div#edit-squad-modal-overlay').show();
-  $('div#edit-squad-modal input:visible')
-    .filter(function() { return this.value === ""; })
-    .first()
-    .focus();
+  $('input#edit-squad-name').focus();
 });
 $('div#edit-squad-modal span.modal-close').click(function() {
   $('input#edit-squad-personal-password').val("");
@@ -556,6 +553,18 @@ $('div#edit-squad-modal form').submit(function(event) {
   }
   var new_password = $('input#edit-squad-new-password').val();
   if (type.val() === 'closed') {
+    if (!squad_requires_auth) {
+      // If the squad is currently open but is being switched to closed,
+      // then a password *must* be specified
+      if (new_password.trim() === '') {
+        $('input#edit-squad-new-password').val("");
+        $('input#edit-squad-confirm-password').val("");
+        $('input#edit-squad-new-password').focus();
+        $('div#edit-squad-modal span.modal-form-error')
+          .text("empty password");
+        return;
+      }
+    }
     var confirm_password = $('input#edit-squad-confirm-password').val();
     if (new_password !== confirm_password) {
       $('input#edit-squad-new-password').val("");
@@ -595,6 +604,13 @@ $('div#edit-squad-modal form').submit(function(event) {
           .text("squad name already taken");
       } else {
         $('input#edit-squad-name').val(squad_name);
+        if (squad_requires_auth) {
+          $('div#edit-squad-new-password-container').show();
+          $('div#edit-squad-confirm-password-container').show();
+        } else {
+          $('div#edit-squad-new-password-container').hide();
+          $('div#edit-squad-confirm-password-container').hide();
+        }
         $('input#edit-squad-open').prop('checked', !squad_requires_auth);
         $('input#edit-squad-closed').prop('checked', squad_requires_auth);
         $('input#edit-squad-new-password').val("");
