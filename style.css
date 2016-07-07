@@ -130,7 +130,10 @@ div.modal {
   box-shadow: 0 4px 20px rgba(0, 0, 0, .3),
     0 0 0 1px rgba(0, 0, 0, .1);
   border-radius: 3px;
-  max-width: 300px;
+  max-width: 330px;
+}
+div.large-modal {
+  max-width: 500px;
 }
 span.modal-close {
   float: right;
@@ -159,9 +162,10 @@ div.modal-body {
   box-sizing: border-box;
 }
 div.modal-body p {
-  padding: 1px 3px 3px 3px;
+  padding: 1px 3px 4px 3px;
   font-size: 14px;
   font-style: italic;
+  text-align: center;
 }
 div.modal-body input {
   margin: 3px;
@@ -169,26 +173,94 @@ div.modal-body input {
 div.modal-body input[type='text'], div.modal-body input[type='password'] {
   font-size: 14px;
   padding: 1px;
+  width: 175px;
+}
+div.large-modal div.modal-body input[type='text'],
+div.large-modal div.modal-body input[type='password'] {
   width: 275px;
 }
 div.modal-body input[type='submit'] {
   font-size: 16px;
 }
-div.modal-body span.modal-form-error {
-  float: right;
+
+div.modal-body div.form-title {
+  display: inline-block;
+  text-align: right;
+  padding-right: 5px;
+  padding-top: 5px;
   font-size: 14px;
-  margin-right: 7px;
-  margin-top: 8px;
-  color: red;
-  font-style: italic;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  vertical-align: top;
+  width: 110px;
+}
+div.large-modal div.modal-body div.form-title {
+  width: 140px;
+}
+div.modal-body div.form-content {
+  display: inline-block;
+  font-family: sans-serif;
+  font-size: 15px;
 }
 
-div.modal-body label {
-  padding: 0 3px;
+div.form-enum-selector {
+  display: inline-block;
 }
-div.squad-type-selector {
-  padding: 4px 0;
+div.form-enum-selector > label {
+  display: block;
+  padding-top: 5px;
 }
+div.form-enum-selector > label > input {
+  vertical-align: top;
+  margin-top: 4px;
+}
+div.form-enum-selector div.form-enum-option {
+  font-weight: bold;
+  display: inline-block;
+  font-size: 15px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+}
+div.form-enum-selector div.form-enum-description {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 13px;
+  max-width: 260px;
+  color: gray;
+}
+div.form-enum-selector div.form-enum-password {
+  margin-left: -5px;
+}
+div.form-enum-selector div.form-enum-password > input[type='password'] {
+  width: 257px;
+}
+
+div.modal-body div.form-footer {
+  margin-top: 5px;
+  padding-top: 3px;
+  border-top: 2px solid #EFEFEF;
+  min-height: 26px;
+}
+div.modal-body div.form-footer span.modal-form-error {
+  display: inline-block;
+  font-size: 14px;
+  color: red;
+  font-style: italic;
+  padding-top: 5px;
+}
+div.modal-body div.form-footer span.form-submit {
+  display: inline-block;
+  float: right;
+}
+
+div#squad-login-modal div#squad-login-name > div.form-title {
+  vertical-align: initial;
+}
+div#squad-login-modal div#squad-login-name > div.form-content {
+  margin-left: 3px;
+  margin-bottom: 3px;
+}
+
 div.hidden {
   display: none;
 }

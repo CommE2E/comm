@@ -49,8 +49,9 @@ $('select#squad_nav').change(function(event) {
       .first()
       .focus();
   } else if (authorized_squads[new_squad] !== true) {
-    $('div#squad-password-modal-overlay').show();
-    $('div#squad-password-modal input:visible')
+    $('div#squad-login-name > div.form-content').text(squad_name);
+    $('div#squad-login-modal-overlay').show();
+    $('div#squad-login-modal input:visible')
       .filter(function() { return this.value === ""; })
       .first()
       .focus();
@@ -58,21 +59,21 @@ $('select#squad_nav').change(function(event) {
     window.location.href = base_url+"&squad="+new_squad;
   }
 });
-$('div#squad-password-modal span.modal-close').click(function() {
+$('div#squad-login-modal span.modal-close').click(function() {
   $('select#squad_nav').val(squad);
   $('input#squad-password').val("");
-  $('div#squad-password-modal span.modal-form-error').text("");
+  $('div#squad-login-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
-  if (event.target.id === 'squad-password-modal-overlay') {
+  if (event.target.id === 'squad-login-modal-overlay') {
     $('select#squad_nav').val(squad);
     $('input#squad-password').val("");
-    $('div#squad-password-modal span.modal-form-error').text("");
+    $('div#squad-login-modal span.modal-form-error').text("");
   }
 });
-$('div#squad-password-modal form').submit(function(event) {
+$('div#squad-login-modal form').submit(function(event) {
   event.preventDefault();
-  $('div#squad-password-modal input').prop("disabled", true);
+  $('div#squad-login-modal input').prop("disabled", true);
   $.post(
     'auth_squad.php',
     {
@@ -87,12 +88,12 @@ $('div#squad-password-modal form').submit(function(event) {
       }
       $('input#squad-password').val("");
       $('input#squad-password').focus();
-      $('div#squad-password-modal input').prop("disabled", false);
+      $('div#squad-login-modal input').prop("disabled", false);
       if (data.error === 'invalid_credentials') {
-        $('div#squad-password-modal span.modal-form-error')
+        $('div#squad-login-modal span.modal-form-error')
           .text("wrong password");
       } else {
-        $('div#squad-password-modal span.modal-form-error')
+        $('div#squad-login-modal span.modal-form-error')
           .text("unknown error");
       }
     }

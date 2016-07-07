@@ -292,23 +292,34 @@ HTML;
 
 ?>
       </table>
-      <div class="modal-overlay" id="squad-password-modal-overlay">
-        <div class="modal" id="squad-password-modal">
+      <div class="modal-overlay" id="squad-login-modal-overlay">
+        <div class="modal" id="squad-login-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Password required</h2>
           </div>
           <div class="modal-body">
             <form method="POST">
-              <div>
-                <input
-                  type="password"
-                  id="squad-password"
-                  placeholder="Password"
-                />
+              <div id="squad-login-name">
+                <div class="form-title">Squad</div>
+                <div class="form-content" id="squad-login-name"></div>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Submit" />
+              <div>
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="squad-password"
+                    placeholder="Password"
+                  />
+                </div>
+              </div>
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Log in" />
+                </span>
+              </div>
             </form>
           </div>
         </div>
@@ -322,21 +333,31 @@ HTML;
           <div class="modal-body">
             <form method="POST">
               <div>
-                <input
-                  type="text"
-                  id="log-in-username"
-                  placeholder="Username"
-                />
+                <div class="form-title">Username</div>
+                <div class="form-content">
+                  <input
+                    type="text"
+                    id="log-in-username"
+                    placeholder="Username"
+                  />
+                </div>
               </div>
               <div>
-                <input
-                  type="password"
-                  id="log-in-password"
-                  placeholder="Password"
-                />
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="log-in-password"
+                    placeholder="Password"
+                  />
+                </div>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Log in" />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Log in" />
+                </span>
+              </div>
             </form>
           </div>
         </div>
@@ -350,28 +371,40 @@ HTML;
           <div class="modal-body">
             <form method="POST">
               <div>
-                <input
-                  type="text"
-                  id="register-username"
-                  placeholder="Username"
-                />
+                <div class="form-title">Username</div>
+                <div class="form-content">
+                  <input
+                    type="text"
+                    id="register-username"
+                    placeholder="Username"
+                  />
+                </div>
               </div>
               <div>
-                <input
-                  type="password"
-                  id="register-password"
-                  placeholder="Password"
-                />
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <div>
+                    <input
+                      type="password"
+                      id="register-password"
+                      placeholder="Password"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      id="register-confirm-password"
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <input
-                  type="password"
-                  id="register-confirm-password"
-                  placeholder="Confirm password"
-                />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Register" />
+                </span>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Register" />
             </form>
           </div>
         </div>
@@ -385,28 +418,38 @@ HTML;
           <div class="modal-body">
             <form method="POST">
               <div>
+                <div class="form-title">New password</div>
+                <div class="form-content">
+                  <div>
+                    <input
+                      type="password"
+                      id="change-new-password"
+                      placeholder="New password"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      id="change-confirm-password"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="form-title">Old password</div>
                 <input
                   type="password"
                   id="change-old-password"
-                  placeholder="Current password"
+                  placeholder="Old password"
                 />
               </div>
-              <div>
-                <input
-                  type="password"
-                  id="change-new-password"
-                  placeholder="New password"
-                />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Change password" />
+                </span>
               </div>
-              <div>
-                <input
-                  type="password"
-                  id="change-confirm-password"
-                  placeholder="Confirm new password"
-                />
-              </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Change password" />
             </form>
           </div>
         </div>
@@ -423,20 +466,27 @@ HTML;
                 Your account will be permanently deleted.
               </p>
               <div>
-                <input
-                  type="password"
-                  id="delete-account-password"
-                  placeholder="Password"
-                />
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="delete-account-password"
+                    placeholder="Password"
+                  />
+                </div>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Delete account" />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Delete account" />
+                </span>
+              </div>
             </form>
           </div>
         </div>
       </div>
       <div class="modal-overlay" id="new-squad-modal-overlay">
-        <div class="modal" id="new-squad-modal">
+        <div class="modal large-modal" id="new-squad-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>New squad</h2>
@@ -444,54 +494,75 @@ HTML;
           <div class="modal-body">
             <form method="POST">
               <div>
-                <input
-                  type="text"
-                  id="new-squad-name"
-                  placeholder="Squad name"
-                />
-              </div>
-              <div class="squad-type-selector">
-                <label>
+                <div class="form-title">Squad name</div>
+                <div class="form-content">
                   <input
-                    type="radio"
-                    name="new-squad-type"
-                    id="new-squad-open"
-                    value="open"
+                    type="text"
+                    id="new-squad-name"
+                    placeholder="Squad name"
                   />
-                  <span>Open</span>
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="new-squad-type"
-                    id="new-squad-closed"
-                    value="closed"
-                  />
-                  <span>Closed</span>
-                </label>
+                </div>
               </div>
-              <div
-                class="hidden"
-                id="new-squad-password-container"
-              >
-                <input
-                  type="password"
-                  id="new-squad-password"
-                  placeholder="Squad password"
-                />
+              <div class="modal-radio-selector">
+                <div class="form-title">Privacy</div>
+                <div class="form-enum-selector">
+                  <label>
+                    <input
+                      type="radio"
+                      name="new-squad-type"
+                      id="new-squad-open"
+                      value="open"
+                    />
+                    <div class="form-enum-option">
+                      Open
+                      <div class="form-enum-description">
+                        Anybody can view the contents of an open squad.
+                      </div>
+                    </div>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="new-squad-type"
+                      id="new-squad-closed"
+                      value="closed"
+                    />
+                    <div class="form-enum-option">
+                      Closed
+                      <div class="form-enum-description">
+                        Only people with the password can view the contents of
+                        a closed squad.
+                      </div>
+                      <div
+                        class="form-enum-password hidden"
+                        id="new-squad-password-container"
+                      >
+                        <input
+                          type="password"
+                          id="new-squad-password"
+                          placeholder="Squad password"
+                        />
+                      </div>
+                      <div
+                        class="form-enum-password hidden"
+                        id="new-squad-confirm-password-container"
+                      >
+                        <input
+                          type="password"
+                          id="new-squad-confirm-password"
+                          placeholder="Confirm password"
+                        />
+                      </div>
+                    </div>
+                  </label>
+                </div>
               </div>
-              <div
-                class="hidden"
-                id="new-squad-confirm-password-container"
-              >
-                <input
-                  type="password"
-                  id="new-squad-confirm-password"
-                  placeholder="Confirm password"
-                />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Create squad" />
+                </span>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Create squad" />
             </form>
           </div>
         </div>
@@ -506,22 +577,30 @@ HTML;
             <form method="POST">
               <p>
                 Your squad will be permanently deleted.
+                Enter the password to your account, not your squad.
               </p>
               <div>
-                <input
-                  type="password"
-                  id="delete-squad-password"
-                  placeholder="Personal account password"
-                />
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="delete-squad-password"
+                    placeholder="Account password"
+                  />
+                </div>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Delete squad" />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Delete squad" />
+                </span>
+              </div>
             </form>
           </div>
         </div>
       </div>
       <div class="modal-overlay" id="edit-squad-modal-overlay">
-        <div class="modal" id="edit-squad-modal">
+        <div class="modal large-modal" id="edit-squad-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
             <h2>Edit squad</h2>
@@ -529,19 +608,24 @@ HTML;
           <div class="modal-body">
             <form method="POST">
               <div>
-                <input
-                  type="text"
-                  id="edit-squad-name"
-                  value="<?=$squads[$squad]?>"
-                />
-              </div>
-              <div class="squad-type-selector">
-                <label>
+                <div class="form-title">Squad name</div>
+                <div class="form-content">
                   <input
-                    type="radio"
-                    name="edit-squad-type"
-                    id="edit-squad-open"
-                    value="open"
+                    type="text"
+                    id="edit-squad-name"
+                    value="<?=$squads[$squad]?>"
+                  />
+                </div>
+              </div>
+              <div class="modal-radio-selector">
+                <div class="form-title">Privacy</div>
+                <div class="form-enum-selector">
+                  <label>
+                    <input
+                      type="radio"
+                      name="edit-squad-type"
+                      id="edit-squad-open"
+                      value="open"
 
 <?php
 if (!$squad_requires_auth) {
@@ -551,15 +635,20 @@ if (!$squad_requires_auth) {
 HTML;
 }
 echo <<<HTML
-                  />
-                  <span>Open</span>
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="edit-squad-type"
-                    id="edit-squad-closed"
-                    value="closed"
+                    />
+                    <div class="form-enum-option">
+                      Open
+                      <div class="form-enum-description">
+                        Anybody can view the contents of an open squad.
+                      </div>
+                    </div>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="edit-squad-type"
+                      id="edit-squad-closed"
+                      value="closed"
 
 HTML;
 if ($squad_requires_auth) {
@@ -569,56 +658,68 @@ if ($squad_requires_auth) {
 HTML;
 }
 echo <<<HTML
-                  />
-                  <span>Closed</span>
-                </label>
-              </div>
-              <div
+                    />
+                    <div class="form-enum-option">
+                      Closed
+                      <div class="form-enum-description">
+                        Only people with the password can view the contents of
+                        a closed squad.
+                      </div>
+                      <div
+                        class="form-enum-password
 
 HTML;
 if (!$squad_requires_auth) {
-  echo <<<HTML
-                class="hidden"
-
-HTML;
+  echo " hidden";
 }
 $optional = $squad_requires_auth ? " (optional)" : "";
 echo <<<HTML
-                id="edit-squad-new-password-container"
-              >
-                <input
-                  type="password"
-                  id="edit-squad-new-password"
-                  placeholder="New squad password{$optional}"
-                />
-              </div>
-              <div
+"
+                        id="edit-squad-new-password-container"
+                      >
+                        <input
+                          type="password"
+                          id="edit-squad-new-password"
+                          placeholder="New squad password{$optional}"
+                        />
+                      </div>
+                      <div
+                        class="form-enum-password
 
 HTML;
 if (!$squad_requires_auth) {
-  echo <<<HTML
-                class="hidden"
-
-HTML;
+  echo " hidden";
 }
 echo <<<HTML
-                id="edit-squad-confirm-password-container"
-              >
-                <input
-                  type="password"
-                  id="edit-squad-confirm-password"
-                  placeholder="Confirm new squad password{$optional}"
-                />
+"
+                        id="edit-squad-confirm-password-container"
+                      >
+                        <input
+                          type="password"
+                          id="edit-squad-confirm-password"
+                          placeholder="Confirm squad password{$optional}"
+                        />
+                      </div>
+                    </div>
+                  </label>
+                </div>
               </div>
               <div>
-                <input
-                  type="password"
-                  id="edit-squad-personal-password"
-                  placeholder="Personal account password"
-                />
+                <div class="form-title">Account password</div>
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="edit-squad-personal-password"
+                    placeholder="Personal account password"
+                  />
+                </div>
               </div>
-              <span class="modal-form-error"></span>
-              <input type="submit" value="Update squad" />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Update squad" />
+                </span>
+              </div>
             </form>
           </div>
         </div>

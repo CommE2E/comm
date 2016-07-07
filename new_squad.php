@@ -47,17 +47,21 @@ $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('squads')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
+$edit_rules = $is_closed ? 1 : 0; // temporary hack
 if ($is_closed) {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $password.$salt);
   $conn->query(
-    "INSERT INTO squads(id, name, salt, hash, creator, creation_time) ".
-      "VALUES ($id, '$name', UNHEX('$salt'), UNHEX('$hash'), $creator, $time)"
+    "INSERT INTO squads".
+      "(id, name, salt, hash, edit_rules, creator, creation_time) ".
+      "VALUES ($id, '$name', UNHEX('$salt'), UNHEX('$hash'), ".
+      "$edit_rules, $creator, $time)"
   );
 } else {
   $conn->query(
-    "INSERT INTO squads(id, name, salt, hash, creator, creation_time) ".
-      "VALUES ($id, '$name', NULL, NULL, $creator, $time)"
+    "INSERT INTO squads".
+      "(id, name, salt, hash, edit_rules, creator, creation_time) ".
+      "VALUES ($id, '$name', NULL, NULL, $edit_rules, $creator, $time)"
   );
 }
 
