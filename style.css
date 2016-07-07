@@ -164,7 +164,6 @@ div.modal-body {
 div.modal-body p {
   padding: 1px 3px 4px 3px;
   font-size: 14px;
-  font-style: italic;
   text-align: center;
 }
 div.modal-body input {
@@ -261,6 +260,9 @@ div#squad-login-modal div#squad-login-name > div.form-content {
   margin-bottom: 3px;
 }
 
-div.hidden {
+.hidden {
   display: none;
+}
+.italic {
+  font-style: italic;
 }

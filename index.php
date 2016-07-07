@@ -462,7 +462,7 @@ HTML;
           </div>
           <div class="modal-body">
             <form method="POST">
-              <p>
+              <p class="italic">
                 Your account will be permanently deleted.
               </p>
               <div>
@@ -575,9 +575,11 @@ HTML;
           </div>
           <div class="modal-body">
             <form method="POST">
-              <p>
+              <p class="italic">
                 Your squad will be permanently deleted.
-                Enter the password to your account, not your squad.
+              </p>
+              <p>
+                Enter password to your account, not your squad.
               </p>
               <div>
                 <div class="form-title">Password</div>
