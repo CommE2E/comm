@@ -147,7 +147,11 @@ HTML;
 if ($viewer_is_squad_creator) {
   echo <<<HTML
           <div class="nav-button">
-            <img id="squad" src="{$base_url}images/squad.svg" />
+            <img
+              id="squad"
+              src="{$base_url}images/squad.svg"
+              alt="squad settings"
+            />
             <div class="nav-menu">
               <div>
                 <a href="#" id="edit-squad-button">
@@ -162,7 +166,11 @@ HTML;
 }
 echo <<<HTML
           <div class="nav-button">
-            <img id="account" src="{$base_url}images/account.svg" />
+            <img
+              id="account"
+              src="{$base_url}images/account.svg"
+              alt="account settings"
+            />
             <div class="nav-menu">
 
 HTML;
@@ -320,7 +328,7 @@ HTML;
           </div>
           <div class="modal-body">
             <form method="POST">
-              <div id="squad-login-name">
+              <div>
                 <div class="form-title">Squad</div>
                 <div class="form-content" id="squad-login-name"></div>
               </div>
@@ -526,7 +534,7 @@ HTML;
               <div class="modal-radio-selector">
                 <div class="form-title">Privacy</div>
                 <div class="form-enum-selector">
-                  <label>
+                  <div class="form-enum-container">
                     <input
                       type="radio"
                       name="new-squad-type"
@@ -534,13 +542,15 @@ HTML;
                       value="open"
                     />
                     <div class="form-enum-option">
-                      Open
-                      <div class="form-enum-description">
-                        Anybody can view the contents of an open squad.
-                      </div>
+                      <label for="new-squad-open">
+                        Open
+                        <span class="form-enum-description">
+                          Anybody can view the contents of an open squad.
+                        </span>
+                      </label>
                     </div>
-                  </label>
-                  <label>
+                  </div>
+                  <div class="form-enum-container">
                     <input
                       type="radio"
                       name="new-squad-type"
@@ -548,11 +558,13 @@ HTML;
                       value="closed"
                     />
                     <div class="form-enum-option">
-                      Closed
-                      <div class="form-enum-description">
-                        Only people with the password can view the contents of
-                        a closed squad.
-                      </div>
+                      <label for="new-squad-closed">
+                        Closed
+                        <span class="form-enum-description">
+                          Only people with the password can view the contents of
+                          a closed squad.
+                        </span>
+                      </label>
                       <div
                         class="form-enum-password hidden"
                         id="new-squad-password-container"
@@ -574,7 +586,7 @@ HTML;
                         />
                       </div>
                     </div>
-                  </label>
+                  </div>
                 </div>
               </div>
               <div class="form-footer">
@@ -642,7 +654,7 @@ HTML;
               <div class="modal-radio-selector">
                 <div class="form-title">Privacy</div>
                 <div class="form-enum-selector">
-                  <label>
+                  <div class="form-enum-container">
                     <input
                       type="radio"
                       name="edit-squad-type"
@@ -658,13 +670,15 @@ HTML;
 echo <<<HTML
                     />
                     <div class="form-enum-option">
-                      Open
-                      <div class="form-enum-description">
-                        Anybody can view the contents of an open squad.
-                      </div>
+                      <label for="edit-squad-open">
+                        Open
+                        <span class="form-enum-description">
+                          Anybody can view the contents of an open squad.
+                        </span>
+                      </label>
                     </div>
-                  </label>
-                  <label>
+                  </div>
+                  <div class="form-enum-container">
                     <input
                       type="radio"
                       name="edit-squad-type"
@@ -681,11 +695,13 @@ HTML;
 echo <<<HTML
                     />
                     <div class="form-enum-option">
-                      Closed
-                      <div class="form-enum-description">
-                        Only people with the password can view the contents of
-                        a closed squad.
-                      </div>
+                      <label for="edit-squad-closed">
+                        Closed
+                        <span class="form-enum-description">
+                          Only people with the password can view the contents of
+                          a closed squad.
+                        </span>
+                      </label>
                       <div
                         class="form-enum-password
 HTML;
@@ -720,7 +736,7 @@ echo <<<HTML
                         />
                       </div>
                     </div>
-                  </label>
+                  </div>
                 </div>
               </div>
               <div>

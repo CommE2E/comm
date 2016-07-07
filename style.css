@@ -205,11 +205,10 @@ div.modal-body div.form-content {
 div.form-enum-selector {
   display: inline-block;
 }
-div.form-enum-selector > label {
-  display: block;
+div.form-enum-selector > div.form-enum-container {
   padding-top: 5px;
 }
-div.form-enum-selector > label > input {
+div.form-enum-selector > div.form-enum-container > input {
   vertical-align: top;
   margin-top: 4px;
 }
@@ -220,7 +219,8 @@ div.form-enum-selector div.form-enum-option {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
 }
-div.form-enum-selector div.form-enum-description {
+div.form-enum-selector span.form-enum-description {
+  display: block;
   font-family: sans-serif;
   font-weight: normal;
   font-size: 13px;
