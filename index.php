@@ -292,6 +292,26 @@ HTML;
 
 ?>
       </table>
+      <div class="modal-overlay" id="concurrent-modification-modal-overlay">
+        <div class="modal" id="concurrent-modification-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Concurrent modification</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              It looks like somebody is attempting to modify that field at the
+              same time as you! Please refresh the page and try again.
+            </p>
+            <div class="form-footer">
+              <span class="modal-form-error"></span>
+              <span class="form-submit">
+                <input type="submit" value="Refresh" id="refresh-button" />
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="modal-overlay" id="squad-login-modal-overlay">
         <div class="modal" id="squad-login-modal">
           <div class="modal-header">
@@ -628,11 +648,10 @@ HTML;
                       name="edit-squad-type"
                       id="edit-squad-open"
                       value="open"
-
 <?php
 if (!$squad_requires_auth) {
   echo <<<HTML
-                    checked
+                      checked
 
 HTML;
 }
@@ -655,7 +674,7 @@ echo <<<HTML
 HTML;
 if ($squad_requires_auth) {
   echo <<<HTML
-                    checked
+                      checked
 
 HTML;
 }
@@ -669,7 +688,6 @@ echo <<<HTML
                       </div>
                       <div
                         class="form-enum-password
-
 HTML;
 if (!$squad_requires_auth) {
   echo " hidden";
@@ -687,7 +705,6 @@ echo <<<HTML
                       </div>
                       <div
                         class="form-enum-password
-
 HTML;
 if (!$squad_requires_auth) {
   echo " hidden";

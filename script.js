@@ -22,13 +22,13 @@ $('textarea').on('input', function(event) {
     function(data) {
       console.log(data);
       if (data.error === 'concurrent_modification') {
-        alert(
-          "Some one is editing at the same time as you! "+
-            "Please refresh and try again."
-        );
+        $('div#concurrent-modification-modal-overlay').show();
       }
     }
   );
+});
+$('input#refresh-button').click(function() {
+  location.reload();
 });
 
 $(window).click(function(event) {
