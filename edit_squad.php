@@ -78,12 +78,13 @@ if ($squad_row && (int)$squad_row['id'] !== $squad) {
   )));
 }
 
+$edit_rules = $is_closed ? 1 : 0; // temporary hack
 if ($is_closed && $new_password !== '') {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $new_password.$salt);
   $conn->query(
-    "UPDATE squads ".
-      "SET name = '$name', salt = UNHEX('$salt'), hash = UNHEX('$hash') ".
+    "UPDATE squads SET name = '$name', ".
+      "salt = UNHEX('$salt'), hash = UNHEX('$hash'), edit_rules = $edit_rules ".
       "WHERE id = $squad"
   );
 } else if ($is_closed) {
@@ -94,7 +95,8 @@ if ($is_closed && $new_password !== '') {
   );
 } else {
   $conn->query(
-    "UPDATE squads SET name = '$name', salt = NULL, hash = NULL ".
+    "UPDATE squads SET name = '$name', ".
+      "salt = NULL, hash = NULL, edit_rules = $edit_rules ".
       "WHERE id = $squad"
   );
 }
