@@ -55,6 +55,14 @@ $conn->query(
     "ON DUPLICATE KEY UPDATE last_view = $time"
 );
 
+// Get the username
+$username = null;
+if (user_logged_in()) {
+  $result = $conn->query("SELECT username FROM users WHERE id = $viewer_id");
+  $user_row = $result->fetch_assoc();
+  $username = $user_row['username'];
+}
+
 // Fetch the actual text for each day
 $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, '');
@@ -124,24 +132,6 @@ $next_url = $base_url.
 
 echo <<<HTML
         <div class="upper-right">
-          <select id="squad_nav">
-
-HTML;
-foreach ($squads as $id => $name) {
-  $selected = $id === $squad ? " selected" : "";
-  echo <<<HTML
-            <option value="$id"$selected>$name</option>
-
-HTML;
-}
-if (user_logged_in()) {
-  echo <<<HTML
-            <option value="0">New squad...</option>
-
-HTML;
-}
-echo <<<HTML
-          </select>
 
 HTML;
 if ($viewer_is_squad_creator) {
@@ -165,12 +155,39 @@ if ($viewer_is_squad_creator) {
 HTML;
 }
 echo <<<HTML
+          <select id="squad-nav">
+
+HTML;
+foreach ($squads as $id => $name) {
+  $selected = $id === $squad ? " selected" : "";
+  echo <<<HTML
+            <option value="$id"$selected>$name</option>
+
+HTML;
+}
+if (user_logged_in()) {
+  echo <<<HTML
+            <option value="0">New squad...</option>
+
+HTML;
+}
+echo <<<HTML
+          </select>
           <div class="nav-button">
             <img
               id="account"
               src="{$base_url}images/account.svg"
               alt="account settings"
             />
+
+HTML;
+if ($username) {
+  echo <<<HTML
+            <span id="username">$username</span>
+
+HTML;
+}
+echo <<<HTML
             <div class="nav-menu">
 
 HTML;
@@ -328,9 +345,9 @@ HTML;
           </div>
           <div class="modal-body">
             <form method="POST">
-              <div>
+              <div id="squad-login-name">
                 <div class="form-title">Squad</div>
-                <div class="form-content" id="squad-login-name"></div>
+                <div class="form-content"></div>
               </div>
               <div>
                 <div class="form-title">Password</div>
@@ -405,6 +422,16 @@ HTML;
                     type="text"
                     id="register-username"
                     placeholder="Username"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="form-title">Email</div>
+                <div class="form-content">
+                  <input
+                    type="text"
+                    id="register-email"
+                    placeholder="Email"
                   />
                 </div>
               </div>

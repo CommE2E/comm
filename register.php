@@ -11,7 +11,12 @@ if ($https && !isset($_SERVER['HTTPS'])) {
     'error' => 'tls_failure',
   )));
 }
-if (!isset($_POST['username']) || !isset($_POST['password'])) {
+
+if (
+  !isset($_POST['username']) ||
+  !isset($_POST['email']) ||
+  !isset($_POST['password'])
+) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
@@ -22,7 +27,8 @@ if (isset($_COOKIE['user'])) {
   )));
 }
 
-$username = $conn->real_escape_string($_POST['username']);
+$username = $_POST['username'];
+$email = $_POST['email'];
 $password = $_POST['password'];
 if (trim($password) === '') {
   exit(json_encode(array(
@@ -36,6 +42,20 @@ if (!preg_match($valid_username_regex, $username)) {
     'error' => 'invalid_username',
   )));
 }
+
+$valid_email_regex = "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+".
+  "@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?".
+  "(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
+if (!preg_match($valid_email_regex, $email)) {
+  exit(json_encode(array(
+    'email' => $email,
+    'regex' => $valid_email_regex,
+    'error' => 'invalid_email',
+  )));
+}
+
+$username = $conn->real_escape_string($username);
+$email = $conn->real_escape_string($email);
 
 $result = $conn->query("SELECT id FROM users WHERE username = '$username'");
 $user_row = $result->fetch_assoc();
@@ -51,8 +71,8 @@ $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('users')");
 $id = $conn->insert_id;
 $conn->query(
-  "INSERT INTO users(id, username, salt, hash, creation_time) ".
-    "VALUES ($id, '$username', UNHEX('$salt'), UNHEX('$hash'), $time)"
+  "INSERT INTO users(id, username, salt, hash, email, creation_time) ".
+    "VALUES ($id, '$username', UNHEX('$salt'), UNHEX('$hash'), '$email', $time)"
 );
 
 create_user_cookie($id);

@@ -40,7 +40,7 @@ $('span.modal-close').click(function() {
   $('div.modal-overlay').hide();
 });
 
-$('select#squad_nav').change(function(event) {
+$('select#squad-nav').change(function(event) {
   new_squad = event.target.value;
   if (new_squad === "0") {
     $('div#new-squad-modal-overlay').show();
@@ -60,13 +60,13 @@ $('select#squad_nav').change(function(event) {
   }
 });
 $('div#squad-login-modal span.modal-close').click(function() {
-  $('select#squad_nav').val(squad);
+  $('select#squad-nav').val(squad);
   $('input#squad-password').val("");
   $('div#squad-login-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'squad-login-modal-overlay') {
-    $('select#squad_nav').val(squad);
+    $('select#squad-nav').val(squad);
     $('input#squad-password').val("");
     $('div#squad-login-modal span.modal-form-error').text("");
   }
@@ -109,14 +109,14 @@ $('input#new-squad-open').click(function() {
   $('div#new-squad-confirm-password-container').hide();
 });
 $('div#new-squad-modal span.modal-close').click(function() {
-  $('select#squad_nav').val(squad);
+  $('select#squad-nav').val(squad);
   $('input#new-squad-password').val("");
   $('input#new-squad-confirm-password').val("");
   $('div#new-squad-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'new-squad-modal-overlay') {
-    $('select#squad_nav').val(squad);
+    $('select#squad-nav').val(squad);
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
     $('div#new-squad-modal span.modal-form-error').text("");
@@ -305,11 +305,25 @@ $('div#register-modal form').submit(function(event) {
       .text("alphanumeric usernames only");
     return;
   }
+  var email = $('input#register-email').val();
+  var valid_email_regex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+/.source +
+    /@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?/.source +
+    /(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.source
+  );
+  if (email.search(valid_email_regex) === -1) {
+    $('input#register-email').val("");
+    $('input#register-email').focus();
+    $('div#register-modal span.modal-form-error')
+      .text("invalid email address");
+    return;
+  }
   $('div#register-modal input').prop("disabled", true);
   $.post(
     'register.php',
     {
       'username': username,
+      'email': email,
       'password': password,
     },
     function(data) {
@@ -326,6 +340,7 @@ $('div#register-modal form').submit(function(event) {
           .text("username already taken");
       } else {
         $('input#register-username').val("");
+        $('input#register-email').val("");
         $('input#register-password').val("");
         $('input#register-confirm-password').val("");
         $('div#register-modal span.modal-form-error')

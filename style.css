@@ -69,8 +69,8 @@ div.upper-right > select {
   font-size: 12px;
   border: 1px solid #AAA;
   vertical-align: top;
-  margin-top: 4px;
-  margin-right: 3px;
+  margin: 4px 6px 0 1px;
+  float: left;
 }
 
 div.nav-button {
@@ -80,12 +80,14 @@ div.nav-button {
 div.nav-button > img {
   opacity: 0.5;
   height: 36px;
+  float: left;
+  padding-right: 1px;
 }
 div.nav-button > div.nav-menu {
   display: none;
   position: absolute;
   right: 4px;
-  top: 12px;
+  top: 32px;
   background-color: #FFFAF0;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
@@ -105,6 +107,18 @@ div.nav-button > div.nav-menu > div:last-child {
 }
 div.nav-button:hover > div.nav-menu {
   display: block;
+}
+span#username {
+  font-family: sans-serif;
+  font-size: 18px;
+  display: inline-block;
+  margin-top: 8px;
+  margin-right: 3px;
+  float: left;
+  padding-bottom: 3px;
+}
+span#username:hover {
+  cursor: default;
 }
 
 h2.upper-center {
