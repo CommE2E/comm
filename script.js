@@ -1,26 +1,24 @@
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 var new_squad = null;
 
+$(window).click(function(event) {
+  if ($(event.target).hasClass('modal-overlay')) {
+    $('div.modal-overlay').hide();
+  }
+});
+$('span.modal-close').click(function() {
+  $('div.modal-overlay').hide();
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('div.modal-overlay').hide();
+  }
+});
+
 var original_values = {};
 $('textarea').each(function(i, element) {
   original_values[element.id] = element.value;
 });
-
-// Check if we need to show a dialog on load
-var query_string = decodeURIComponent(window.location.search.substring(1));
-if (query_string) {
-  var query_string_parts = query_string.split('&');
-  for (var i in query_string_parts) {
-    var query_string_part = query_string_parts[i];
-    var split_part = query_string_part.split('=');
-    if (split_part[0] !== 'show') {
-      continue;
-    }
-    if (split_part[1] === 'verify_email') {
-      $('div#verify-email-modal-overlay').show();
-    }
-  }
-}
 
 $('textarea').on('input', function(event) {
   $.post(
@@ -44,16 +42,7 @@ $('textarea').on('input', function(event) {
   );
 });
 $('input#refresh-button').click(function() {
-  location.reload();
-});
-
-$(window).click(function(event) {
-  if ($(event.target).hasClass('modal-overlay')) {
-    $('div.modal-overlay').hide();
-  }
-});
-$('span.modal-close').click(function() {
-  $('div.modal-overlay').hide();
+  window.location.href = this_url;
 });
 
 $('select#squad-nav').change(function(event) {
@@ -72,7 +61,7 @@ $('select#squad-nav').change(function(event) {
       .first()
       .focus();
   } else {
-    window.location.href = base_url+"&squad="+new_squad;
+    window.location.href = month_url+"&squad="+new_squad;
   }
 });
 $('div#squad-login-modal span.modal-close').click(function() {
@@ -99,7 +88,7 @@ $('div#squad-login-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = base_url+"&squad="+new_squad;
+        window.location.href = month_url+"&squad="+new_squad;
         return;
       }
       $('input#squad-password').val("");
@@ -186,7 +175,7 @@ $('div#new-squad-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = base_url+"&squad="+data.new_squad_id;
+        window.location.href = month_url+"&squad="+data.new_squad_id;
         return;
       }
       $('div#new-squad-modal input').prop("disabled", false);
@@ -255,7 +244,7 @@ $('div#log-in-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        location.reload();
+        window.location.href = this_url;
         return;
       }
       $('div#log-in-modal input').prop("disabled", false);
@@ -353,13 +342,7 @@ $('div#register-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        var url = location.origin+location.pathname;
-        if (location.search) {
-          url += location.search+'&';
-        } else {
-          url += '?';
-        }
-        location = url+"show=verify_email";
+        window.location.href = this_url+"&show=verify_email";
         return;
       }
       $('div#register-modal input').prop("disabled", false);
@@ -385,7 +368,7 @@ $('a#log-out-button').click(function() {
     'logout.php',
     {},
     function(data) {
-      window.location.href = base_url;
+      window.location.href = month_url;
     }
   );
 });
@@ -495,7 +478,7 @@ $('div#delete-account-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = base_url;
+        window.location.href = month_url;
         return;
       }
       $('div#delete-account-modal input').prop("disabled", false);
@@ -541,7 +524,7 @@ $('div#delete-squad-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = base_url;
+        window.location.href = month_url;
         return;
       }
       $('div#delete-squad-modal input').prop("disabled", false);
@@ -639,7 +622,7 @@ $('div#edit-squad-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        location.reload();
+        window.location.href = this_url;
         return;
       }
       $('div#edit-squad-modal input').prop("disabled", false);

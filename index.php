@@ -25,6 +25,13 @@ if ($month < 1 || $month > 12) {
 }
 $viewer_id = get_viewer_id();
 
+$query_string = array();
+$show = null;
+parse_str($_SERVER['QUERY_STRING'], $query_string);
+if (isset($query_string['show'])) {
+  $show = $query_string['show'];
+}
+
 // First, validate the squad ID
 $result = $conn->query(
   "SELECT sq.id, sq.name, sq.creator, ".
@@ -79,6 +86,9 @@ while ($row = $result->fetch_assoc()) {
   $text[$row['day']] = $row['text'];
 }
 
+$month_url = "$base_url?year=$year&month=$month";
+$this_url = "$month_url&squad=$squad";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,7 +112,8 @@ while ($row = $result->fetch_assoc()) {
         var month = <?=$month?>;
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
-        var base_url = "<?=$base_url?>?year=<?=$year?>&month=<?=$month?>";
+        var month_url = "<?=$month_url?>";
+        var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
       </script>
     </head>
@@ -317,11 +328,30 @@ HTML;
 }
 echo <<<HTML
         </tr>
+      </table>
 
 HTML;
+if ($show === 'verify_email') {
+  echo <<<HTML
+      <div class="modal-overlay visible-modal-overlay" id='test'>
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Verify email</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              We've sent you an email to verify your email address.
+              Please read it and follow the instructions to complete
+              the registration process!
+            </p>
+          </div>
+        </div>
+      </div>
 
+HTML;
+}
 ?>
-      </table>
       <div class="modal-overlay" id="concurrent-modification-modal-overlay">
         <div class="modal" id="concurrent-modification-modal">
           <div class="modal-header">
@@ -807,21 +837,6 @@ echo <<<HTML
 
 HTML;
 ?>
-      <div class="modal-overlay" id="verify-email-modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Verify email</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              We've sent you an email to verify your email address.
-              Please read it and follow the instructions to complete
-              the registration process!
-            </p>
-          </div>
-        </div>
-      </div>
       <script src="script.js"></script>
     </body>
 </html>

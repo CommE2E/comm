@@ -137,6 +137,9 @@ div.modal-overlay {
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
 }
+div.visible-modal-overlay {
+  display: initial;
+}
 div.modal {
   position: relative;
   background-color: white;
