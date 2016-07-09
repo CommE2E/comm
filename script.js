@@ -362,10 +362,7 @@ $('a#log-out-button').click(function() {
 
 $('a#user-settings-button').click(function() {
   $('div#user-settings-modal-overlay').show();
-  $('div#user-settings-modal input:visible')
-    .filter(function() { return this.value === ""; })
-    .first()
-    .focus();
+  $('input#change-email').focus();
 });
 $('div#user-settings-modal span.modal-close').click(function() {
   $('input#change-current-password').val("");
@@ -384,14 +381,6 @@ $(window).click(function(event) {
 $('div#user-settings-modal form').submit(function(event) {
   event.preventDefault();
   var new_password = $('input#change-new-password').val();
-  if (new_password.trim() === '') {
-    $('input#change-new-password').val("");
-    $('input#change-confirm-password').val("");
-    $('input#change-new-password').focus();
-    $('div#user-settings-modal span.modal-form-error')
-      .text("empty password");
-    return;
-  }
   var confirm_password = $('input#change-confirm-password').val();
   if (new_password !== confirm_password) {
     $('input#change-new-password').val("");
@@ -401,12 +390,26 @@ $('div#user-settings-modal form').submit(function(event) {
       .text("passwords don't match");
     return;
   }
+  var email_field = $('input#change-email').val();
+  var valid_email_regex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+/.source +
+    /@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?/.source +
+    /(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.source
+  );
+  if (email_field.search(valid_email_regex) === -1) {
+    $('input#change-email').val(email);
+    $('input#change-email').focus();
+    $('div#user-settings-modal span.modal-form-error')
+      .text("invalid email address");
+    return;
+  }
   $('div#user-settings-modal input').prop("disabled", true);
   $.post(
-    'change_password.php',
+    'edit_account.php',
     {
-      'old_password': $('input#change-old-password').val(),
+      'email': email_field,
       'new_password': new_password,
+      'old_password': $('input#change-old-password').val(),
     },
     function(data) {
       console.log(data);
@@ -422,9 +425,10 @@ $('div#user-settings-modal form').submit(function(event) {
         $('div#user-settings-modal span.modal-form-error')
           .text("wrong current password");
       } else {
+        $('input#change-email').val(email);
         $('input#change-new-password').val("");
         $('input#change-confirm-password').val("");
-        $('input#change-old-password').focus();
+        $('input#change-email').focus();
         $('div#user-settings-modal span.modal-form-error')
           .text("unknown error");
       }

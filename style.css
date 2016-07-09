@@ -266,10 +266,10 @@ div.modal-body div.form-footer span.form-submit {
   float: right;
 }
 
-div#squad-login-modal div#squad-login-name > div.form-title {
+div.form-text > div.form-title {
   vertical-align: initial;
 }
-div#squad-login-modal div#squad-login-name > div.form-content {
+div.form-text > div.form-content {
   margin-left: 3px;
   margin-bottom: 3px;
 }

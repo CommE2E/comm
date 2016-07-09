@@ -16,7 +16,11 @@ if (!user_logged_in()) {
     'error' => 'not_logged_in',
   )));
 }
-if (!isset($_POST['old_password']) || !isset($_POST['new_password'])) {
+if (
+  !isset($_POST['email']) ||
+  !isset($_POST['new_password']) ||
+  !isset($_POST['old_password'])
+) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
@@ -25,11 +29,7 @@ if (!isset($_POST['old_password']) || !isset($_POST['new_password'])) {
 $user = get_viewer_id();
 $old_password = $_POST['old_password'];
 $new_password = $_POST['new_password'];
-if (trim($new_password) === '') {
-  exit(json_encode(array(
-    'error' => 'empty_password',
-  )));
-}
+$email = $conn->real_escape_string($_POST['email']);
 
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
@@ -48,12 +48,19 @@ if ($user_row['hash'] !== $hash) {
   )));
 }
 
-$salt = md5(openssl_random_pseudo_bytes(32));
-$hash = hash('sha512', $new_password.$salt);
-
-$conn->query(
-  "UPDATE users SET salt=UNHEX('$salt'), hash=UNHEX('$hash') WHERE id=$user"
-);
+if ($new_password !== '') {
+  $salt = md5(openssl_random_pseudo_bytes(32));
+  $hash = hash('sha512', $new_password.$salt);
+  $conn->query(
+    "UPDATE users SET email = '$email', ".
+      "salt = UNHEX('$salt'), hash = UNHEX('$hash') ".
+      "WHERE id=$user"
+  );
+} else {
+  $conn->query(
+    "UPDATE users SET email = '$email' WHERE id = $user"
+  );
+}
 
 exit(json_encode(array(
   'success' => true,

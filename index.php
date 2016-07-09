@@ -57,10 +57,14 @@ $conn->query(
 
 // Get the username
 $username = null;
+$email = null;
 if (user_logged_in()) {
-  $result = $conn->query("SELECT username FROM users WHERE id = $viewer_id");
+  $result = $conn->query(
+    "SELECT username, email FROM users WHERE id = $viewer_id"
+  );
   $user_row = $result->fetch_assoc();
   $username = $user_row['username'];
+  $email = $user_row['email'];
 }
 
 // Fetch the actual text for each day
@@ -93,6 +97,7 @@ while ($row = $result->fetch_assoc()) {
       </script>
       <script>
         var squad = <?=$squad?>;
+        var email = "<?=$email?>";
         var squad_name = "<?=$squads[$squad]?>";
         var month = <?=$month?>;
         var year = <?=$year?>;
@@ -194,10 +199,10 @@ HTML;
 if (user_logged_in()) {
   echo <<<HTML
               <div><a href="#" id="log-out-button">Log out</a></div>
+              <div><a href="#" id="user-settings-button">Edit account</a></div>
               <div>
-                <a href="#" id="user-settings-button">Change password</a>
+                <a href="#" id="delete-account-button">Delete account</a>
               </div>
-              <div><a href="#" id="delete-account-button">Delete account</a></div>
 
 HTML;
 } else {
@@ -345,7 +350,7 @@ HTML;
           </div>
           <div class="modal-body">
             <form method="POST">
-              <div id="squad-login-name">
+              <div class="form-text" id="squad-login-name">
                 <div class="form-title">Squad</div>
                 <div class="form-content"></div>
               </div>
@@ -465,44 +470,57 @@ HTML;
         </div>
       </div>
       <div class="modal-overlay" id="user-settings-modal-overlay">
-        <div class="modal" id="user-settings-modal">
+        <div class="modal large-modal" id="user-settings-modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
-            <h2>Change password</h2>
+            <h2>Edit account</h2>
           </div>
           <div class="modal-body">
             <form method="POST">
+              <div class="form-text">
+                <div class="form-title">Username</div>
+                <div class="form-content"><?=$username?></div>
+              </div>
               <div>
-                <div class="form-title">New password</div>
+                <div class="form-title">Email</div>
+                <input
+                  type="text"
+                  id="change-email"
+                  placeholder="Email"
+                  value="<?=$email?>"
+                />
+              </div>
+              <div>
+                <div class="form-title">New password (optional)</div>
                 <div class="form-content">
                   <div>
                     <input
                       type="password"
                       id="change-new-password"
-                      placeholder="New password"
+                      placeholder="New password (optional)"
                     />
                   </div>
                   <div>
                     <input
                       type="password"
                       id="change-confirm-password"
-                      placeholder="Confirm new password"
+                      placeholder="Confirm new password (optional)"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <div class="form-title">Old password</div>
+                <div class="form-title">Current password</div>
                 <input
                   type="password"
                   id="change-old-password"
-                  placeholder="Old password"
+                  placeholder="Current password"
                 />
               </div>
               <div class="form-footer">
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
-                  <input type="submit" value="Change password" />
+                  <input type="submit" value="Update account" />
                 </span>
               </div>
             </form>
