@@ -78,6 +78,13 @@ $(window).click(function(event) {
     $('div#squad-login-modal span.modal-form-error').text("");
   }
 });
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('select#squad-nav').val(squad);
+    $('input#squad-password').val("");
+    $('div#squad-login-modal span.modal-form-error').text("");
+  }
+});
 $('div#squad-login-modal form').submit(function(event) {
   event.preventDefault();
   $('div#squad-login-modal input').prop("disabled", true);
@@ -123,6 +130,14 @@ $('div#new-squad-modal span.modal-close').click(function() {
 });
 $(window).click(function(event) {
   if (event.target.id === 'new-squad-modal-overlay') {
+    $('select#squad-nav').val(squad);
+    $('input#new-squad-password').val("");
+    $('input#new-squad-confirm-password').val("");
+    $('div#new-squad-modal span.modal-form-error').text("");
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
     $('select#squad-nav').val(squad);
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
@@ -217,6 +232,12 @@ $(window).click(function(event) {
     $('div#log-in-modal span.modal-form-error').text("");
   }
 });
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('input#log-in-password').val("");
+    $('div#log-in-modal span.modal-form-error').text("");
+  }
+});
 $('div#log-in-modal form').submit(function(event) {
   event.preventDefault();
   var username = $('input#log-in-username').val();
@@ -286,6 +307,13 @@ $('div#register-modal span.modal-close').click(function() {
 });
 $(window).click(function(event) {
   if (event.target.id === 'register-modal-overlay') {
+    $('input#register-password').val("");
+    $('input#register-confirm-password').val("");
+    $('div#register-modal span.modal-form-error').text("");
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
     $('input#register-password').val("");
     $('input#register-confirm-password').val("");
     $('div#register-modal span.modal-form-error').text("");
@@ -393,6 +421,14 @@ $(window).click(function(event) {
     $('div#user-settings-modal span.modal-form-error').text("");
   }
 });
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('input#change-current-password').val("");
+    $('input#change-new-password').val("");
+    $('input#change-confirm-password').val("");
+    $('div#user-settings-modal span.modal-form-error').text("");
+  }
+});
 $('div#user-settings-modal form').submit(function(event) {
   event.preventDefault();
   var new_password = $('input#change-new-password').val();
@@ -469,6 +505,12 @@ $(window).click(function(event) {
     $('div#delete-account-modal span.modal-form-error').text("");
   }
 });
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('input#delete-account-password').val("");
+    $('div#delete-account-modal span.modal-form-error').text("");
+  }
+});
 $('div#delete-account-modal form').submit(function(event) {
   event.preventDefault();
   $('div#delete-account-modal input').prop("disabled", true);
@@ -510,6 +552,12 @@ $('div#delete-squad-modal span.modal-close').click(function() {
 });
 $(window).click(function(event) {
   if (event.target.id === 'delete-squad-modal-overlay') {
+    $('input#delete-squad-password').val("");
+    $('div#delete-squad-modal span.modal-form-error').text("");
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
     $('input#delete-squad-password').val("");
     $('div#delete-squad-modal span.modal-form-error').text("");
   }
@@ -563,6 +611,14 @@ $('div#edit-squad-modal span.modal-close').click(function() {
 });
 $(window).click(function(event) {
   if (event.target.id === 'edit-squad-modal-overlay') {
+    $('input#edit-squad-personal-password').val("");
+    $('input#edit-squad-new-password').val("");
+    $('input#edit-squad-confirm-password').val("");
+    $('div#edit-squad-modal span.modal-form-error').text("");
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
     $('input#edit-squad-personal-password').val("");
     $('input#edit-squad-new-password').val("");
     $('input#edit-squad-confirm-password').val("");
