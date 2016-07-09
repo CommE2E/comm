@@ -54,7 +54,9 @@ $('select#squad-nav').change(function(event) {
       .first()
       .focus();
   } else if (authorized_squads[new_squad] !== true) {
-    $('div#squad-login-name > div.form-content').text(squad_name);
+    var new_squad_name = $(event.target)
+      .find("[value='"+new_squad+"']").text();
+    $('div#squad-login-name > div.form-content').text(new_squad_name);
     $('div#squad-login-modal-overlay').show();
     $('div#squad-login-modal input:visible')
       .filter(function() { return this.value === ""; })
