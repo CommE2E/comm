@@ -79,7 +79,7 @@ create_user_cookie($id);
 $verify_hash = bin2hex(openssl_random_pseudo_bytes(4));
 $conn->query(
   "INSERT INTO verifications(user, field, hash) ".
-    "VALUES($id, 0, '$verify_hash')" // field=0 means email field
+    "VALUES($id, 0, UNHEX('$verify_hash'))" // field=0 means email field
 );
 $link = $base_url . "?verify=$verify_hash";
 $contents = <<<EMAIL

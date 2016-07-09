@@ -34,7 +34,7 @@ if (isset($query_string['show'])) {
 if (isset($query_string['verify'])) {
   $verify_hash = $conn->real_escape_string($query_string['verify']);
   $result = $conn->query(
-    "SELECT user, field FROM verifications WHERE hash = '$verify_hash'"
+    "SELECT user, field FROM verifications WHERE hash = UNHEX('$verify_hash')"
   );
   $verification_row = $result->fetch_assoc();
   if ($verification_row) {
