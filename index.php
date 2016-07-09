@@ -31,6 +31,29 @@ parse_str($_SERVER['QUERY_STRING'], $query_string);
 if (isset($query_string['show'])) {
   $show = $query_string['show'];
 }
+if (isset($query_string['verify'])) {
+  $verify_hash = $conn->real_escape_string($query_string['verify']);
+  $result = $conn->query(
+    "SELECT user, field FROM verifications WHERE hash = '$verify_hash'"
+  );
+  $verification_row = $result->fetch_assoc();
+  if ($verification_row) {
+    // We don't care who is signed in... the hash is sufficiently random
+    $verified_user = $verification_row['user'];
+    $verified_field = $verification_row['field'];
+    $verified_field_name = "email"; // the only verification we support now
+    $conn->query(
+      "DELETE FROM verifications ".
+        "WHERE user = $verified_user AND field = $verified_field"
+    );
+    $verified_field_sql_column = $verified_field_name."_verified";
+    $conn->query(
+      "UPDATE users SET $verified_field_sql_column = 1 ".
+        "WHERE id = $verified_user"
+    );
+    $show = 'verified_'.$verified_field_name;
+  }
+}
 
 // First, validate the squad ID
 $result = $conn->query(
@@ -331,26 +354,6 @@ echo <<<HTML
       </table>
 
 HTML;
-if ($show === 'verify_email') {
-  echo <<<HTML
-      <div class="modal-overlay visible-modal-overlay" id='test'>
-        <div class="modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Verify email</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              We've sent you an email to verify your email address.
-              Please read it and follow the instructions to complete
-              the registration process!
-            </p>
-          </div>
-        </div>
-      </div>
-
-HTML;
-}
 ?>
       <div class="modal-overlay" id="concurrent-modification-modal-overlay">
         <div class="modal" id="concurrent-modification-modal">
@@ -836,6 +839,43 @@ echo <<<HTML
       </div>
 
 HTML;
+$extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
+echo <<<HTML
+      <div class="modal-overlay$extra_class">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Verify email</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              We've sent you an email to verify your email address.
+              Please read it and follow the instructions to complete
+              the verification process!
+            </p>
+          </div>
+        </div>
+      </div>
+
+HTML;
+if ($show === 'verified_email') {
+echo <<<HTML
+      <div class="modal-overlay visible-modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Verified email</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              Thanks for verifying your email address!
+            </p>
+          </div>
+        </div>
+      </div>
+
+HTML;
+}
 ?>
       <script src="script.js"></script>
     </body>
