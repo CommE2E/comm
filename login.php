@@ -27,7 +27,7 @@ if (isset($_COOKIE['user'])) {
 
 $result = $conn->query(
   "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE username=\"$username\""
+    "FROM users WHERE username = '$username' OR email = '$username'"
 );
 $user_row = $result->fetch_assoc();
 if (!$user_row) {

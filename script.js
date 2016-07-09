@@ -214,11 +214,19 @@ $('div#log-in-modal form').submit(function(event) {
   event.preventDefault();
   var username = $('input#log-in-username').val();
   var valid_username_regex = /^[a-zA-Z0-9-_]+$/;
-  if (username.search(valid_username_regex) === -1) {
+  var valid_email_regex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+/.source +
+    /@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?/.source +
+    /(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.source
+  );
+  if (
+    username.search(valid_username_regex) === -1 &&
+    username.search(valid_email_regex) === -1
+  ) {
     $('input#log-in-username').val("");
     $('input#log-in-username').focus();
     $('div#log-in-modal span.modal-form-error')
-      .text("alphanumeric usernames only");
+      .text("alphanumeric usernames or emails only");
     return;
   }
   $('div#log-in-modal input').prop("disabled", true);
@@ -305,13 +313,13 @@ $('div#register-modal form').submit(function(event) {
       .text("alphanumeric usernames only");
     return;
   }
-  var email = $('input#register-email').val();
+  var email_field = $('input#register-email').val();
   var valid_email_regex = new RegExp(
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+/.source +
     /@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?/.source +
     /(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.source
   );
-  if (email.search(valid_email_regex) === -1) {
+  if (email_field.search(valid_email_regex) === -1) {
     $('input#register-email').val("");
     $('input#register-email').focus();
     $('div#register-modal span.modal-form-error')
@@ -323,7 +331,7 @@ $('div#register-modal form').submit(function(event) {
     'register.php',
     {
       'username': username,
-      'email': email,
+      'email': email_field,
       'password': password,
     },
     function(data) {
@@ -416,6 +424,7 @@ $('div#user-settings-modal form').submit(function(event) {
       $('div#user-settings-modal input').prop("disabled", false);
       $('input#change-old-password').val("");
       if (data.success === true) {
+        email = email_field;
         $('div#user-settings-modal-overlay').hide();
         $('input#change-new-password').val("");
         $('input#change-confirm-password').val("");

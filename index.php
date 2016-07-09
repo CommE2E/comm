@@ -388,7 +388,7 @@ HTML;
                   <input
                     type="text"
                     id="log-in-username"
-                    placeholder="Username"
+                    placeholder="Username or email"
                   />
                 </div>
               </div>
