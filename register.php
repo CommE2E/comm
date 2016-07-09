@@ -76,7 +76,7 @@ $conn->query(
 create_user_cookie($id);
 
 // We need to verify the email address
-$verify_hash = md5(openssl_random_pseudo_bytes(8));
+$verify_hash = bin2hex(openssl_random_pseudo_bytes(4));
 $conn->query(
   "INSERT INTO verifications(user, field, hash) ".
     "VALUES($id, 0, '$verify_hash')" // field=0 means email field
@@ -85,8 +85,7 @@ $link = $base_url . "?verify=$verify_hash";
 $contents = <<<EMAIL
 <html>
   <body style="font-family: sans-serif;">
-    <h1>Verify email for SquadCal</h1>
-    <p>Welcome to SquadCal, $username!</p>
+    <h3>Welcome to SquadCal, $username!</h3>
     <p>
       Please complete your registration and verify your email by
       clicking this link: $link
@@ -96,7 +95,7 @@ $contents = <<<EMAIL
 EMAIL;
 mail(
   $email,
-  'Verify Email',
+  'Verify email for SquadCal',
   $contents,
   "From: no-reply@squadcal.org\r\n".
     "MIME-Version: 1.0\r\n".
