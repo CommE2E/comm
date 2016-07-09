@@ -807,6 +807,21 @@ echo <<<HTML
 
 HTML;
 ?>
+      <div class="modal-overlay" id="verify-email-modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Verify email</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              We've sent you an email to verify your email address.
+              Please read it and follow the instructions to complete
+              the registration process!
+            </p>
+          </div>
+        </div>
+      </div>
       <script src="script.js"></script>
     </body>
 </html>

@@ -48,8 +48,6 @@ $valid_email_regex = "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+".
   "(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
 if (!preg_match($valid_email_regex, $email)) {
   exit(json_encode(array(
-    'email' => $email,
-    'regex' => $valid_email_regex,
     'error' => 'invalid_email',
   )));
 }
@@ -76,6 +74,34 @@ $conn->query(
 );
 
 create_user_cookie($id);
+
+// We need to verify the email address
+$verify_hash = md5(openssl_random_pseudo_bytes(8));
+$conn->query(
+  "INSERT INTO verifications(user, field, hash) ".
+    "VALUES($id, 0, '$verify_hash')" // field=0 means email field
+);
+$link = $base_url . "?verify=$verify_hash";
+$contents = <<<EMAIL
+<html>
+  <body style="font-family: sans-serif;">
+    <h1>Verify email for SquadCal</h1>
+    <p>Welcome to SquadCal, $username!</p>
+    <p>
+      Please complete your registration and verify your email by
+      clicking this link: $link
+    </p>
+  </body>
+</html>
+EMAIL;
+mail(
+  $email,
+  'Verify Email',
+  $contents,
+  "From: no-reply@squadcal.org\r\n".
+    "MIME-Version: 1.0\r\n".
+    "Content-type: text/html; charset=iso-8859-1\r\n"
+);
 
 exit(json_encode(array(
   'success' => true,

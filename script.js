@@ -6,6 +6,22 @@ $('textarea').each(function(i, element) {
   original_values[element.id] = element.value;
 });
 
+// Check if we need to show a dialog on load
+var query_string = decodeURIComponent(window.location.search.substring(1));
+if (query_string) {
+  var query_string_parts = query_string.split('&');
+  for (var i in query_string_parts) {
+    var query_string_part = query_string_parts[i];
+    var split_part = query_string_part.split('=');
+    if (split_part[0] !== 'show') {
+      continue;
+    }
+    if (split_part[1] === 'verify_email') {
+      $('div#verify-email-modal-overlay').show();
+    }
+  }
+}
+
 $('textarea').on('input', function(event) {
   $.post(
     'save.php',
@@ -337,7 +353,13 @@ $('div#register-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        location.reload();
+        var url = location.origin+location.pathname;
+        if (location.search) {
+          url += location.search+'&';
+        } else {
+          url += '?';
+        }
+        location = url+"show=verify_email";
         return;
       }
       $('div#register-modal input').prop("disabled", false);
