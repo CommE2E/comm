@@ -12,7 +12,7 @@ function verify_email($user, $username, $email) {
   );
   $verification_row = $result->fetch_assoc();
   if ($verification_row) {
-    $verify_hash = $verification_row['hash'];
+    $verify_hash = strtolower($verification_row['hash']);
   } else {
     $verify_hash = bin2hex(openssl_random_pseudo_bytes(4));
     $conn->query(
