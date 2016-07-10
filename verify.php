@@ -46,7 +46,7 @@ function generate_verification_code($user, $field) {
   return $code;
 }
 
-// deletes the row in verifications table and returns array(user id, field)
+// returns array(user id, field)
 // if code doesn't work then returns null
 function verify_code($code) {
   global $conn, $verify_code_lifetime;
@@ -68,11 +68,13 @@ function verify_code($code) {
     return null;
   }
 
-  $user = (int)$row['user'];
-  $field = (int)$row['field'];
-  // Delete all verifications since it's verified now
+  return array((int)$row['user'], (int)$row['field']);
+}
+
+// Call this function after a successful verification
+function clear_verify_codes($user, $field) {
+  global $conn;
   $conn->query(
     "DELETE FROM verifications WHERE user = $user AND field = $field"
   );
-  return array($user, $field);
 }

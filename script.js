@@ -1,19 +1,24 @@
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 var new_squad = null;
 
-$(window).click(function(event) {
-  if ($(event.target).hasClass('modal-overlay')) {
+if (show === 'reset_password') {
+  $('input#reset-new-password').focus();
+} else {
+  // No way to escape the reset password prompt
+  $(window).click(function(event) {
+    if ($(event.target).hasClass('modal-overlay')) {
+      $('div.modal-overlay').hide();
+    }
+  });
+  $('span.modal-close').click(function() {
     $('div.modal-overlay').hide();
-  }
-});
-$('span.modal-close').click(function() {
-  $('div.modal-overlay').hide();
-});
-$(document).keyup(function(e) {
-  if (e.keyCode == 27) { // esc key
-    $('div.modal-overlay').hide();
-  }
-});
+  });
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27) { // esc key
+      $('div.modal-overlay').hide();
+    }
+  });
+}
 
 var original_values = {};
 $('textarea').each(function(i, element) {

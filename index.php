@@ -32,15 +32,19 @@ parse_str($_SERVER['QUERY_STRING'], $query_string);
 if (isset($query_string['show'])) {
   $show = $query_string['show'];
 }
+$verified_user = 0;
 if (isset($query_string['verify'])) {
   $verification_result = verify_code($query_string['verify']);
   if ($verification_result) {
     list($verified_user, $verified_field) = $verification_result;
     if ($verified_field === VERIFY_FIELD_EMAIL) {
+      clear_verify_codes($verified_user, $verified_field);
       $conn->query(
         "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
       );
       $show = 'verified_email';
+    } else if ($verified_field === VERIFY_FIELD_RESET_PASSWORD) {
+      $show = 'reset_password';
     }
   }
 }
@@ -130,6 +134,7 @@ $this_url = "$month_url&squad=$squad";
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
+        var show = "<?=$show?>";
       </script>
     </head>
     <body>
@@ -938,7 +943,7 @@ HTML;
 HTML;
 }
 if ($show === 'verified_email') {
-echo <<<HTML
+  echo <<<HTML
       <div class="modal-overlay visible-modal-overlay">
         <div class="modal">
           <div class="modal-header">
@@ -949,6 +954,60 @@ echo <<<HTML
             <p>
               Thanks for verifying your email address!
             </p>
+          </div>
+        </div>
+      </div>
+
+HTML;
+} else if ($show === 'reset_password') {
+  $result = $conn->query(
+    "SELECT username FROM users WHERE id = $verified_user"
+  );
+  $reset_password_user_row = $result->fetch_assoc();
+  $reset_password_username = $reset_password_user_row['username'];
+  echo <<<HTML
+      <div class="modal-overlay visible-modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Reset password</h2>
+          </div>
+          <div class="modal-body" id="reset-password-modal">
+            <form method="POST">
+              <div class="form-text">
+                <div class="form-title">Username</div>
+                <div class="form-content">$reset_password_username</div>
+              </div>
+              <div>
+                <div class="form-title">Password</div>
+                <div class="form-content">
+                  <div>
+                    <input
+                      type="password"
+                      id="reset-new-password"
+                      placeholder="Password"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      id="reset-confirm-password"
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                </div>
+              </div>
+              <input
+                type="hidden"
+                id="reset-password-code"
+                value="{$query_string['verify']}"
+              />
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Submit" />
+                </span>
+              </div>
+            </form>
           </div>
         </div>
       </div>
