@@ -38,10 +38,10 @@ if (isset($query_string['verify'])) {
   if ($verification_result) {
     list($verified_user, $verified_field) = $verification_result;
     if ($verified_field === VERIFY_FIELD_EMAIL) {
-      clear_verify_codes($verified_user, $verified_field);
       $conn->query(
         "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
       );
+      clear_verify_codes($verified_user, $verified_field);
       $show = 'verified_email';
     } else if ($verified_field === VERIFY_FIELD_RESET_PASSWORD) {
       $show = 'reset_password';
@@ -967,11 +967,11 @@ HTML;
   $reset_password_username = $reset_password_user_row['username'];
   echo <<<HTML
       <div class="modal-overlay visible-modal-overlay">
-        <div class="modal">
+        <div class="modal" id="reset-password-modal">
           <div class="modal-header">
             <h2>Reset password</h2>
           </div>
-          <div class="modal-body" id="reset-password-modal">
+          <div class="modal-body">
             <form method="POST">
               <div class="form-text">
                 <div class="form-title">Username</div>
@@ -1004,7 +1004,7 @@ HTML;
               <div class="form-footer">
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
-                  <input type="submit" value="Submit" />
+                  <input type="submit" value="Update" />
                 </span>
               </div>
             </form>

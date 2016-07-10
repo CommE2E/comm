@@ -463,6 +463,48 @@ $('div#forgot-password-modal form').submit(function(event) {
     }
   );
 });
+$('div#reset-password-modal form').submit(function(event) {
+  event.preventDefault();
+  var password = $('input#reset-new-password').val();
+  if (password.trim() === '') {
+    $('input#reset-new-password').val("");
+    $('input#reset-confirm-password').val("");
+    $('input#reset-new-password').focus();
+    $('div#reset-password-modal span.modal-form-error')
+      .text("empty password");
+    return;
+  }
+  var confirm_password = $('input#reset-confirm-password').val();
+  if (password !== confirm_password) {
+    $('input#reset-new-password').val("");
+    $('input#reset-confirm-password').val("");
+    $('input#reset-new-password').focus();
+    $('div#reset-password-modal span.modal-form-error')
+      .text("passwords don't match");
+    return;
+  }
+  $('div#reset-password-modal input').prop("disabled", true);
+  $.post(
+    'reset_password.php',
+    {
+      'code': $('input#reset-password-code').val(),
+      'password': password,
+    },
+    function(data) {
+      console.log(data);
+      if (data.success === true) {
+        window.location.href = this_url;
+        return;
+      }
+      $('div#reset-password-modal input').prop("disabled", false);
+      $('input#reset-new-password').val("");
+      $('input#reset-confirm-password').val("");
+      $('input#reset-new-password').focus();
+      $('div#reset-password-modal span.modal-form-error')
+        .text("unknown error");
+    }
+  );
+});
 
 $('a#log-out-button').click(function() {
   $.post(
