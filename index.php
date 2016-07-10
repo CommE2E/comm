@@ -536,14 +536,17 @@ HTML;
 HTML;
   if ($email_verified) {
     echo <<<HTML
-                  <div class="verified-status verified-status-true">
+                  <div
+                    class="verified-status verified-status-true"
+                    id="email-verified-status"
+                  >
                     Verified
                   </div>
 
 HTML;
   } else {
     echo <<<HTML
-                  <div class="verified-status">
+                  <div class="verified-status" id="email-verified-status">
                     <span class="verified-status-false">
                       Not verified
                     </span>

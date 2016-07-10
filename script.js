@@ -449,6 +449,7 @@ $('div#user-settings-modal form').submit(function(event) {
   );
   if (email_field.search(valid_email_regex) === -1) {
     $('input#change-email').val(email);
+    $('div#email-verified-status').show();
     $('input#change-email').focus();
     $('div#user-settings-modal span.modal-form-error')
       .text("invalid email address");
@@ -465,7 +466,11 @@ $('div#user-settings-modal form').submit(function(event) {
     function(data) {
       console.log(data);
       if (data.success === true) {
-        window.location.href = this_url;
+        if (email_field !== email) {
+          window.location.href = this_url+"&show=verify_email";
+        } else {
+          window.location.href = this_url;
+        }
         return;
       }
       $('div#user-settings-modal input').prop("disabled", false);
@@ -476,6 +481,7 @@ $('div#user-settings-modal form').submit(function(event) {
           .text("wrong current password");
       } else {
         $('input#change-email').val(email);
+        $('div#email-verified-status').show();
         $('input#change-new-password').val("");
         $('input#change-confirm-password').val("");
         $('input#change-email').focus();
@@ -484,6 +490,21 @@ $('div#user-settings-modal form').submit(function(event) {
       }
     }
   );
+});
+$('input#change-email').keypress(function() {
+  $('div#email-verified-status').hide();
+});
+$('a#resend-verification-email-button').click(function() {
+  // Close user settings modal
+  $('input#change-current-password').val("");
+  $('input#change-new-password').val("");
+  $('input#change-confirm-password').val("");
+  $('div#user-settings-modal span.modal-form-error').text("");
+  $('div#user-settings-modal-overlay').hide();
+  // Actually resend the email
+  $.post('resend_verification.php', {});
+  // Show verification modal
+  $('div#verify-email-modal-overlay').show();
 });
 
 $('a#delete-account-button').click(function() {
@@ -712,17 +733,4 @@ $('div#edit-squad-modal form').submit(function(event) {
       }
     }
   );
-});
-
-$('a#resend-verification-email-button').click(function() {
-  // Close user settings modal
-  $('input#change-current-password').val("");
-  $('input#change-new-password').val("");
-  $('input#change-confirm-password').val("");
-  $('div#user-settings-modal span.modal-form-error').text("");
-  $('div#user-settings-modal-overlay').hide();
-  // Actually resend the email
-  $.post('resend_verification.php', {});
-  // Show verification modal
-  $('div#verify-email-modal-overlay').show();
 });
