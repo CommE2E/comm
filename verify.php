@@ -68,8 +68,8 @@ function verify_code($code) {
     return null;
   }
 
-  $user = $row['user'];
-  $field = $row['field'];
+  $user = (int)$row['user'];
+  $field = (int)$row['field'];
   // Delete all verifications since it's verified now
   $conn->query(
     "DELETE FROM verifications WHERE user = $user AND field = $field"

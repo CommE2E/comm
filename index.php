@@ -36,11 +36,11 @@ if (isset($query_string['verify'])) {
   $verification_result = verify_code($query_string['verify']);
   if ($verification_result) {
     list($verified_user, $verified_field) = $verification_result;
-    if ($verified_field === 'email') {
+    if ($verified_field === VERIFY_FIELD_EMAIL) {
       $conn->query(
         "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
       );
-      $show = 'verify_email';
+      $show = 'verified_email';
     }
   }
 }
@@ -915,7 +915,7 @@ HTML;
       </div>
 
 HTML;
-  $extra_class = $show === 'verify_email' ? ' visible' : '';
+  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
   echo <<<HTML
       <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
         <div class="modal">
@@ -939,7 +939,7 @@ HTML;
 }
 if ($show === 'verified_email') {
 echo <<<HTML
-      <div class="modal-overlay visible">
+      <div class="modal-overlay visible-modal-overlay">
         <div class="modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
