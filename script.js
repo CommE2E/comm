@@ -393,6 +393,72 @@ $('div#register-modal form').submit(function(event) {
   );
 });
 
+$('a#forgot-password-button').click(function() {
+  $('div#log-in-modal-overlay').hide();
+  $('input#log-in-password').val("");
+  $('div#log-in-modal span.modal-form-error').text("");
+  $('div#forgot-password-modal-overlay').show();
+  $('input#forgot-password-username').focus();
+});
+$('div#log-in-modal span.modal-close').click(function() {
+  $('div#forgot-password-modal span.modal-form-error').text("");
+});
+$(window).click(function(event) {
+  if (event.target.id === 'log-in-modal-overlay') {
+    $('div#forgot-password-modal span.modal-form-error').text("");
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    $('div#forgot-password-modal span.modal-form-error').text("");
+  }
+});
+$('div#forgot-password-modal form').submit(function(event) {
+  event.preventDefault();
+  var username = $('input#forgot-password-username').val();
+  var valid_username_regex = /^[a-zA-Z0-9-_]+$/;
+  var valid_email_regex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+/.source +
+    /@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?/.source +
+    /(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.source
+  );
+  if (
+    username.search(valid_username_regex) === -1 &&
+    username.search(valid_email_regex) === -1
+  ) {
+    $('input#forgot-password-username').val("");
+    $('input#forgot-password-username').focus();
+    $('div#forgot-password-modal span.modal-form-error')
+      .text("alphanumeric usernames or emails only");
+    return;
+  }
+  $('div#forgot-password-modal input').prop("disabled", true);
+  $.post(
+    'forgot_password.php',
+    {
+      'username': username,
+    },
+    function(data) {
+      console.log(data);
+      $('div#forgot-password-modal input').prop("disabled", false);
+      $('input#forgot-password-username').val("");
+      if (data.success === true) {
+        $('div#forgot-password-modal-overlay').hide();
+        $('div#forgot-password-modal span.modal-form-error').text("");
+        $('div#password-reset-email-modal-overlay').show();
+      } else if (data.error === 'invalid_user') {
+        $('input#forgot-password-username').focus();
+        $('div#forgot-password-modal span.modal-form-error')
+          .text("user doesn't exist");
+      } else {
+        $('input#forgot-password-username').focus();
+        $('div#forgot-password-modal span.modal-form-error')
+          .text("unknown error");
+      }
+    }
+  );
+});
+
 $('a#log-out-button').click(function() {
   $.post(
     'logout.php',

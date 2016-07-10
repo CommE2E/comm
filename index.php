@@ -438,6 +438,9 @@ if (!user_logged_in()) {
                     id="log-in-password"
                     placeholder="Password"
                   />
+                  <div class="form-subtitle">
+                    <a href="#" id="forgot-password-button">Forgot password?</a>
+                  </div>
                 </div>
               </div>
               <div class="form-footer">
@@ -507,6 +510,48 @@ if (!user_logged_in()) {
           </div>
         </div>
       </div>
+      <div class="modal-overlay" id="forgot-password-modal-overlay">
+        <div class="modal" id="forgot-password-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Reset password</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              <div>
+                <div class="form-title">Username</div>
+                <div class="form-content">
+                  <input
+                    type="text"
+                    id="forgot-password-username"
+                    placeholder="Username or email"
+                  />
+                </div>
+              </div>
+              <div class="form-footer">
+                <span class="modal-form-error"></span>
+                <span class="form-submit">
+                  <input type="submit" value="Reset" />
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay" id="password-reset-email-modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Password reset email sent</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              We've sent you an email with instructions on how to reset
+              your password.
+            </p>
+          </div>
+        </div>
+      </div>
 
 HTML;
 } else {
@@ -537,7 +582,7 @@ HTML;
   if ($email_verified) {
     echo <<<HTML
                   <div
-                    class="verified-status verified-status-true"
+                    class="form-subtitle verified-status-true"
                     id="email-verified-status"
                   >
                     Verified
@@ -546,7 +591,7 @@ HTML;
 HTML;
   } else {
     echo <<<HTML
-                  <div class="verified-status" id="email-verified-status">
+                  <div class="form-subtitle" id="email-verified-status">
                     <span class="verified-status-false">
                       Not verified
                     </span>
@@ -880,7 +925,7 @@ HTML;
       </div>
 
 HTML;
-  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
+  $extra_class = $show === 'verify_email' ? ' visible' : '';
   echo <<<HTML
       <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
         <div class="modal">
@@ -902,7 +947,7 @@ HTML;
 }
 if ($show === 'verified_email') {
 echo <<<HTML
-      <div class="modal-overlay visible-modal-overlay">
+      <div class="modal-overlay visible">
         <div class="modal">
           <div class="modal-header">
             <span class="modal-close">×</span>

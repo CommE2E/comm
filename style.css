@@ -137,9 +137,6 @@ div.modal-overlay {
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
 }
-div.visible-modal-overlay {
-  display: initial;
-}
 div.modal {
   position: relative;
   background-color: white;
@@ -218,6 +215,11 @@ div.modal-body div.form-content {
   font-family: sans-serif;
   font-size: 15px;
 }
+div.modal-body div.form-subtitle {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
 
 div.form-enum-selector {
   display: inline-block;
@@ -277,11 +279,6 @@ div.form-text > div.form-content {
   margin-bottom: 3px;
 }
 
-div.verified-status {
-  font-size: 12px;
-  padding-left: 4px;
-  font-style: italic;
-}
 .verified-status-true {
   color: green;
 }
@@ -291,6 +288,9 @@ div.verified-status {
 
 .hidden {
   display: none;
+}
+.visible {
+  display: initial;
 }
 .italic {
   font-style: italic;

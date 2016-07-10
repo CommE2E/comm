@@ -13,6 +13,11 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
+if (user_logged_in()) {
+  exit(json_encode(array(
+    'error' => 'already_logged_in',
+  )));
+}
 if (
   !isset($_POST['username']) ||
   !isset($_POST['email']) ||
@@ -22,12 +27,6 @@ if (
     'error' => 'invalid_parameters',
   )));
 }
-if (isset($_COOKIE['user'])) {
-  exit(json_encode(array(
-    'error' => 'already_logged_in',
-  )));
-}
-
 $username = $_POST['username'];
 $email = $_POST['email'];
 $password = $_POST['password'];

@@ -12,6 +12,11 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
+if (user_logged_in()) {
+  exit(json_encode(array(
+    'error' => 'already_logged_in',
+  )));
+}
 if (!isset($_POST['username']) || !isset($_POST['password'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -19,11 +24,6 @@ if (!isset($_POST['username']) || !isset($_POST['password'])) {
 }
 $username = $conn->real_escape_string($_POST['username']);
 $password = $_POST['password'];
-if (isset($_COOKIE['user'])) {
-  exit(json_encode(array(
-    'error' => 'already_logged_in',
-  )));
-}
 
 $result = $conn->query(
   "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
