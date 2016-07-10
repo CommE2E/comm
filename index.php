@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('verify.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -32,26 +33,15 @@ if (isset($query_string['show'])) {
   $show = $query_string['show'];
 }
 if (isset($query_string['verify'])) {
-  $verify_hash = $conn->real_escape_string($query_string['verify']);
-  $result = $conn->query(
-    "SELECT user, field FROM verifications WHERE hash = UNHEX('$verify_hash')"
-  );
-  $verification_row = $result->fetch_assoc();
-  if ($verification_row) {
-    // We don't care who is signed in... the hash is sufficiently random
-    $verified_user = $verification_row['user'];
-    $verified_field = $verification_row['field'];
-    $verified_field_name = "email"; // the only verification we support now
-    $conn->query(
-      "DELETE FROM verifications ".
-        "WHERE user = $verified_user AND field = $verified_field"
-    );
-    $verified_field_sql_column = $verified_field_name."_verified";
-    $conn->query(
-      "UPDATE users SET $verified_field_sql_column = 1 ".
-        "WHERE id = $verified_user"
-    );
-    $show = 'verified_'.$verified_field_name;
+  $verification_result = verify_hash($query_string['verify']);
+  if ($verification_result) {
+    list($verified_user, $verified_field) = $verification_result;
+    if ($verified_field === 'email') {
+      $conn->query(
+        "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
+      );
+      $show = 'verified_email';
+    }
   }
 }
 
