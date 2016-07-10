@@ -72,7 +72,7 @@ if ($new_password !== '') {
 
 $set_clause = implode(
   ', ',
-  array_filter(array($change_email, $change_password)),
+  array_filter(array($change_email, $change_password))
 );
 if ($set_clause) {
   $conn->query("UPDATE users SET $set_clause WHERE id=$user");
