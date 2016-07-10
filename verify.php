@@ -27,7 +27,7 @@ function verify_email($user, $username, $email) {
     <h3>Welcome to SquadCal, $username!</h3>
     <p>
       Please complete your registration and verify your email by
-      clicking this link: $link
+      clicking this link: <a href="$link">$link</a>
     </p>
   </body>
 </html>
