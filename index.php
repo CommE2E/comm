@@ -537,7 +537,7 @@ if (!user_logged_in()) {
           <div class="modal-body">
             <p>
               We've sent you an email with instructions on how to reset
-              your password.
+              your password. Note that the email will expire in a day.
             </p>
           </div>
         </div>
@@ -925,9 +925,11 @@ HTML;
           </div>
           <div class="modal-body">
             <p>
-              We've sent you an email to verify your email address.
-              Please read it and follow the instructions to complete
-              the verification process!
+              We've sent you an email to verify your email address. Please read
+              it and follow the instructions to complete the verification
+              process! Note that the email will expire in a day, but another
+              email can be sent from "Edit account" in the user menu at any
+              time.
             </p>
           </div>
         </div>

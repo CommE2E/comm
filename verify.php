@@ -38,9 +38,10 @@ function generate_verification_code($user, $field) {
   global $conn;
   $code = bin2hex(openssl_random_pseudo_bytes(4));
   $hash = hash('sha512', $code);
+  $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
-    "INSERT INTO verifications(user, field, hash) ".
-      "VALUES($user, $field, UNHEX('$hash'))"
+    "INSERT INTO verifications(user, field, hash, creation_time) ".
+      "VALUES($user, $field, UNHEX('$hash'), $time)"
   );
   return $code;
 }
@@ -48,15 +49,25 @@ function generate_verification_code($user, $field) {
 // deletes the row in verifications table and returns array(user id, field)
 // if code doesn't work then returns null
 function verify_code($code) {
-  global $conn;
+  global $conn, $verify_code_lifetime;
+
   $hash = hash('sha512', $code);
   $result = $conn->query(
-    "SELECT user, field FROM verifications WHERE hash = UNHEX('$hash')"
+    "SELECT user, field, creation_time ".
+      "FROM verifications WHERE hash = UNHEX('$hash')"
   );
   $row = $result->fetch_assoc();
   if (!$row) {
     return null;
   }
+
+  $time = round(microtime(true) * 1000); // in milliseconds
+  if ($row['creation_time'] + $verify_code_lifetime * 1000 < $time) {
+    // Code is expired. Delete it...
+    $conn->query("DELETE FROM verifications WHERE hash = UNHEX('$hash')");
+    return null;
+  }
+
   $user = $row['user'];
   $field = $row['field'];
   // Delete all verifications since it's verified now
