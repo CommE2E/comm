@@ -33,14 +33,14 @@ if (isset($query_string['show'])) {
   $show = $query_string['show'];
 }
 if (isset($query_string['verify'])) {
-  $verification_result = verify_hash($query_string['verify']);
+  $verification_result = verify_code($query_string['verify']);
   if ($verification_result) {
     list($verified_user, $verified_field) = $verification_result;
     if ($verified_field === 'email') {
       $conn->query(
         "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
       );
-      $show = 'verified_email';
+      $show = 'verify_email';
     }
   }
 }

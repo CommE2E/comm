@@ -9,8 +9,8 @@ define('VERIFY_FIELD_RESET_PASSWORD', 1);
 function verify_email($user, $username, $email) {
   global $base_url, $conn;
 
-  $verify_hash = generate_hash($user, VERIFY_FIELD_EMAIL);
-  $link = $base_url . "?verify=$verify_hash";
+  $code = generate_verification_code($user, VERIFY_FIELD_EMAIL);
+  $link = $base_url . "?verify=$code";
   $contents = <<<EMAIL
 <html>
   <body style="font-family: sans-serif;">
@@ -32,32 +32,24 @@ EMAIL;
   );
 }
 
-// this is intended to be called when generating as hash
-// generates row in verifications table
-function generate_hash($user, $field) {
+// generates row in verifications table with hash of code
+// returns verification code
+function generate_verification_code($user, $field) {
   global $conn;
-  $result = $conn->query(
-    "SELECT HEX(hash) AS hash FROM verifications ".
-      "WHERE user = $user AND field = $field"
-  );
-  $verification_row = $result->fetch_assoc();
-  if ($verification_row) {
-    return strtolower($verification_row['hash']);
-  }
-  $hash = bin2hex(openssl_random_pseudo_bytes(4));
+  $code = bin2hex(openssl_random_pseudo_bytes(4));
+  $hash = hash('sha512', $code);
   $conn->query(
     "INSERT INTO verifications(user, field, hash) ".
       "VALUES($user, $field, UNHEX('$hash'))"
   );
-  return $hash;
+  return $code;
 }
 
-// this is intended to be called when verifying a hash
 // deletes the row in verifications table and returns array(user id, field)
-// if hash doesn't work then returns null
-function verify_hash($hash) {
+// if code doesn't work then returns null
+function verify_code($code) {
   global $conn;
-  $hash = $conn->real_escape_string($hash);
+  $hash = hash('sha512', $code);
   $result = $conn->query(
     "SELECT user, field FROM verifications WHERE hash = UNHEX('$hash')"
   );
