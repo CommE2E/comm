@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('verify.php');
 
 header("Content-Type: application/json");
 
@@ -75,32 +76,7 @@ $conn->query(
 
 create_user_cookie($id);
 
-// We need to verify the email address
-$verify_hash = bin2hex(openssl_random_pseudo_bytes(4));
-$conn->query(
-  "INSERT INTO verifications(user, field, hash) ".
-    "VALUES($id, 0, UNHEX('$verify_hash'))" // field=0 means email field
-);
-$link = $base_url . "?verify=$verify_hash";
-$contents = <<<EMAIL
-<html>
-  <body style="font-family: sans-serif;">
-    <h3>Welcome to SquadCal, $username!</h3>
-    <p>
-      Please complete your registration and verify your email by
-      clicking this link: $link
-    </p>
-  </body>
-</html>
-EMAIL;
-mail(
-  $email,
-  'Verify email for SquadCal',
-  $contents,
-  "From: no-reply@squadcal.org\r\n".
-    "MIME-Version: 1.0\r\n".
-    "Content-type: text/html; charset=iso-8859-1\r\n"
-);
+verify_email($id, $username, $email);
 
 exit(json_encode(array(
   'success' => true,

@@ -464,15 +464,13 @@ $('div#user-settings-modal form').submit(function(event) {
     },
     function(data) {
       console.log(data);
+      if (data.success === true) {
+        window.location.href = this_url;
+        return;
+      }
       $('div#user-settings-modal input').prop("disabled", false);
       $('input#change-old-password').val("");
-      if (data.success === true) {
-        email = email_field;
-        $('div#user-settings-modal-overlay').hide();
-        $('input#change-new-password').val("");
-        $('input#change-confirm-password').val("");
-        $('div#user-settings-modal span.modal-form-error').text("");
-      } else if (data.error === 'invalid_credentials') {
+      if (data.error === 'invalid_credentials') {
         $('input#change-old-password').focus();
         $('div#user-settings-modal span.modal-form-error')
           .text("wrong current password");
@@ -714,4 +712,17 @@ $('div#edit-squad-modal form').submit(function(event) {
       }
     }
   );
+});
+
+$('a#resend-verification-email-button').click(function() {
+  // Close user settings modal
+  $('input#change-current-password').val("");
+  $('input#change-new-password').val("");
+  $('input#change-confirm-password').val("");
+  $('div#user-settings-modal span.modal-form-error').text("");
+  $('div#user-settings-modal-overlay').hide();
+  // Actually resend the email
+  $.post('resend_verification.php', {});
+  // Show verification modal
+  $('div#verify-email-modal-overlay').show();
 });

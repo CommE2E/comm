@@ -88,13 +88,15 @@ $conn->query(
 // Get the username
 $username = null;
 $email = null;
+$email_verified = null;
 if (user_logged_in()) {
   $result = $conn->query(
-    "SELECT username, email FROM users WHERE id = $viewer_id"
+    "SELECT username, email, email_verified FROM users WHERE id = $viewer_id"
   );
   $user_row = $result->fetch_assoc();
   $username = $user_row['username'];
   $email = $user_row['email'];
+  $email_verified = $user_row['email_verified'];
 }
 
 // Fetch the actual text for each day
@@ -407,6 +409,9 @@ HTML;
           </div>
         </div>
       </div>
+<?php
+if (!user_logged_in()) {
+  echo <<<HTML
       <div class="modal-overlay" id="log-in-modal-overlay">
         <div class="modal" id="log-in-modal">
           <div class="modal-header">
@@ -502,6 +507,10 @@ HTML;
           </div>
         </div>
       </div>
+
+HTML;
+} else {
+  echo <<<HTML
       <div class="modal-overlay" id="user-settings-modal-overlay">
         <div class="modal large-modal" id="user-settings-modal">
           <div class="modal-header">
@@ -512,16 +521,42 @@ HTML;
             <form method="POST">
               <div class="form-text">
                 <div class="form-title">Username</div>
-                <div class="form-content"><?=$username?></div>
+                <div class="form-content">$username</div>
               </div>
               <div>
                 <div class="form-title">Email</div>
-                <input
-                  type="text"
-                  id="change-email"
-                  placeholder="Email"
-                  value="<?=$email?>"
-                />
+                <div class="form-content">
+                  <input
+                    type="text"
+                    id="change-email"
+                    placeholder="Email"
+                    value="$email"
+                  />
+
+HTML;
+  if ($email_verified) {
+    echo <<<HTML
+                  <div class="verified-status verified-status-true">
+                    Verified
+                  </div>
+
+HTML;
+  } else {
+    echo <<<HTML
+                  <div class="verified-status">
+                    <span class="verified-status-false">
+                      Not verified
+                    </span>
+                    -
+                    <a href="#" id="resend-verification-email-button">
+                      resend verification email
+                    </a>
+                  </div>
+
+HTML;
+  }
+  echo <<<HTML
+                </div>
               </div>
               <div>
                 <div class="form-title">New password (optional)</div>
@@ -544,11 +579,13 @@ HTML;
               </div>
               <div>
                 <div class="form-title">Current password</div>
-                <input
-                  type="password"
-                  id="change-old-password"
-                  placeholder="Current password"
-                />
+                <div class="form-content">
+                  <input
+                    type="password"
+                    id="change-old-password"
+                    placeholder="Current password"
+                  />
+                </div>
               </div>
               <div class="form-footer">
                 <span class="modal-form-error"></span>
@@ -725,7 +762,7 @@ HTML;
                   <input
                     type="text"
                     id="edit-squad-name"
-                    value="<?=$squads[$squad]?>"
+                    value="{$squads[$squad]}"
                   />
                 </div>
               </div>
@@ -738,14 +775,15 @@ HTML;
                       name="edit-squad-type"
                       id="edit-squad-open"
                       value="open"
-<?php
-if (!$squad_requires_auth) {
-  echo <<<HTML
+
+HTML;
+  if (!$squad_requires_auth) {
+    echo <<<HTML
                       checked
 
 HTML;
-}
-echo <<<HTML
+  }
+  echo <<<HTML
                     />
                     <div class="form-enum-option">
                       <label for="edit-squad-open">
@@ -764,13 +802,13 @@ echo <<<HTML
                       value="closed"
 
 HTML;
-if ($squad_requires_auth) {
-  echo <<<HTML
+  if ($squad_requires_auth) {
+    echo <<<HTML
                       checked
 
 HTML;
-}
-echo <<<HTML
+  }
+  echo <<<HTML
                     />
                     <div class="form-enum-option">
                       <label for="edit-squad-closed">
@@ -783,11 +821,11 @@ echo <<<HTML
                       <div
                         class="form-enum-password
 HTML;
-if (!$squad_requires_auth) {
-  echo " hidden";
-}
-$optional = $squad_requires_auth ? " (optional)" : "";
-echo <<<HTML
+  if (!$squad_requires_auth) {
+    echo " hidden";
+  }
+  $optional = $squad_requires_auth ? " (optional)" : "";
+  echo <<<HTML
 "
                         id="edit-squad-new-password-container"
                       >
@@ -800,10 +838,10 @@ echo <<<HTML
                       <div
                         class="form-enum-password
 HTML;
-if (!$squad_requires_auth) {
-  echo " hidden";
-}
-echo <<<HTML
+  if (!$squad_requires_auth) {
+    echo " hidden";
+  }
+  echo <<<HTML
 "
                         id="edit-squad-confirm-password-container"
                       >
@@ -839,9 +877,9 @@ echo <<<HTML
       </div>
 
 HTML;
-$extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
-echo <<<HTML
-      <div class="modal-overlay$extra_class">
+  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
+  echo <<<HTML
+      <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
         <div class="modal">
           <div class="modal-header">
             <span class="modal-close">×</span>
@@ -858,6 +896,7 @@ echo <<<HTML
       </div>
 
 HTML;
+}
 if ($show === 'verified_email') {
 echo <<<HTML
       <div class="modal-overlay visible-modal-overlay">

@@ -277,6 +277,18 @@ div.form-text > div.form-content {
   margin-bottom: 3px;
 }
 
+div.verified-status {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
+.verified-status-true {
+  color: green;
+}
+.verified-status-false {
+  color: red;
+}
+
 .hidden {
   display: none;
 }
