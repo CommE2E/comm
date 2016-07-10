@@ -54,7 +54,7 @@ $conn->query(
     "WHERE id = $user"
 );
 
-create_user_cookie($id);
+create_user_cookie($user);
 
 clear_verify_codes($user, VERIFY_FIELD_RESET_PASSWORD);
 
