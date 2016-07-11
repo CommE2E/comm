@@ -6,7 +6,7 @@ require_once('config.php');
 define('VERIFY_FIELD_EMAIL', 0);
 define('VERIFY_FIELD_RESET_PASSWORD', 1);
 
-function verify_email($user, $username, $email) {
+function verify_email($user, $username, $email, $welcome=false) {
   global $base_url, $conn;
 
   $code = generate_verification_code($user, VERIFY_FIELD_EMAIL);
@@ -14,10 +14,20 @@ function verify_email($user, $username, $email) {
   $contents = <<<EMAIL
 <html>
   <body style="font-family: sans-serif;">
+
+EMAIL;
+  $action = "verify your email";
+  if ($welcome) {
+    $contents .= <<<EMAIL
     <h3>Welcome to SquadCal, $username!</h3>
+
+EMAIL;
+    $action = "complete your registration and ".$action;
+  }
+  $contents .= <<<EMAIL
     <p>
-      Please complete your registration and verify your email by
-      clicking this link: <a href="$link">$link</a>
+      Please $action by clicking this link:
+      <a href="$link">$link</a>
     </p>
   </body>
 </html>

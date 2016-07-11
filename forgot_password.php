@@ -46,7 +46,7 @@ $contents = <<<EMAIL
   <body style="font-family: sans-serif;">
     <p>
       We received a request to reset the password associated with your account
-      ($username) on SquadCal. If you did not issue this request, you do not
+      $username on SquadCal. If you did not issue this request, you do not
       need to do anything, and your password will remain the same. However, if
       you did issue this request, please visit this link to reset your password:
       <a href="$link">$link</a>

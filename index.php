@@ -930,9 +930,11 @@ HTML;
           </div>
           <div class="modal-body">
             <p>
-              We've sent you an email to verify your email address. Please read
-              it and follow the instructions to complete the verification
-              process! Note that the email will expire in a day, but another
+              We've sent you an email to verify your email address. Just click
+              on the link in the email to complete the verification process.
+            </p>
+            <p>
+              Note that the email will expire in a day, but another
               email can be sent from "Edit account" in the user menu at any
               time.
             </p>
