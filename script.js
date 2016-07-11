@@ -600,6 +600,7 @@ $('div#user-settings-modal form').submit(function(event) {
           .text("wrong current password");
       } else if (data.error === 'email_taken') {
         $('input#change-email').val(email);
+        $('div#email-verified-status').show();
         $('input#change-email').focus();
         $('div#user-settings-modal span.modal-form-error')
           .text("email already taken");
@@ -616,7 +617,7 @@ $('div#user-settings-modal form').submit(function(event) {
     }
   );
 });
-$('input#change-email').keypress(function() {
+$('input#change-email').on("input propertychange", function() {
   $('div#email-verified-status').hide();
 });
 $('a#resend-verification-email-button').click(function() {
