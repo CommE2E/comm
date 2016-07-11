@@ -55,11 +55,22 @@ if (!preg_match($valid_email_regex, $email)) {
 $username = $conn->real_escape_string($username);
 $email = $conn->real_escape_string($email);
 
-$result = $conn->query("SELECT id FROM users WHERE username = '$username'");
-$user_row = $result->fetch_assoc();
-if ($user_row) {
+$result = $conn->query(
+  "SELECT COUNT(id) AS count FROM users WHERE username = '$username'"
+);
+$matching_username_row = $result->fetch_assoc();
+if ($matching_username_row['count'] !== '0') {
   exit(json_encode(array(
     'error' => 'username_taken',
+  )));
+}
+$result = $conn->query(
+  "SELECT COUNT(id) AS count FROM users WHERE email = '$email'"
+);
+$matching_email_row = $result->fetch_assoc();
+if ($matching_email_row['count'] !== '0') {
+  exit(json_encode(array(
+    'error' => 'email_taken',
   )));
 }
 

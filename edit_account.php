@@ -59,6 +59,15 @@ if ($user_row['email'] !== $email) {
       'error' => 'invalid_email',
     )));
   }
+  $result = $conn->query(
+    "SELECT COUNT(id) AS count FROM users WHERE email = '$email'"
+  );
+  $matching_email_row = $result->fetch_assoc();
+  if ($matching_email_row['count'] !== '0') {
+    exit(json_encode(array(
+      'error' => 'email_taken',
+    )));
+  }
   $escaped_email = $conn->real_escape_string($email);
   $change_email = "email = '$escaped_email', email_verified = 0";
   verify_email($user, $user_row['username'], $email);

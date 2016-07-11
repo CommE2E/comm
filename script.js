@@ -381,16 +381,22 @@ $('div#register-modal form').submit(function(event) {
         return;
       }
       $('div#register-modal input').prop("disabled", false);
-      $('input#register-username').focus();
       if (data.error === 'username_taken') {
         $('input#register-username').val("");
+        $('input#register-username').focus();
         $('div#register-modal span.modal-form-error')
           .text("username already taken");
+      } else if (data.error === 'email_taken') {
+        $('input#register-email').val("");
+        $('input#register-email').focus();
+        $('div#register-modal span.modal-form-error')
+          .text("email already taken");
       } else {
         $('input#register-username').val("");
         $('input#register-email').val("");
         $('input#register-password').val("");
         $('input#register-confirm-password').val("");
+        $('input#register-username').focus();
         $('div#register-modal span.modal-form-error')
           .text("unknown error");
       }
@@ -587,12 +593,18 @@ $('div#user-settings-modal form').submit(function(event) {
         return;
       }
       $('div#user-settings-modal input').prop("disabled", false);
-      $('input#change-old-password').val("");
       if (data.error === 'invalid_credentials') {
+        $('input#change-old-password').val("");
         $('input#change-old-password').focus();
         $('div#user-settings-modal span.modal-form-error')
           .text("wrong current password");
+      } else if (data.error === 'email_taken') {
+        $('input#change-email').val(email);
+        $('input#change-email').focus();
+        $('div#user-settings-modal span.modal-form-error')
+          .text("email already taken");
       } else {
+        $('input#change-old-password').val("");
         $('input#change-email').val(email);
         $('div#email-verified-status').show();
         $('input#change-new-password').val("");
