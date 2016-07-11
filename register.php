@@ -86,7 +86,7 @@ $conn->query(
 
 create_user_cookie($id);
 
-verify_email($id, $username, $email);
+verify_email($id, $username, $email, true);
 
 exit(json_encode(array(
   'success' => true,
