@@ -44,6 +44,7 @@ if ($user_row['hash'] !== $hash) {
 
 $conn->query("DELETE FROM users WHERE id = $user");
 $conn->query("DELETE FROM subscriptions WHERE subscriber = $user");
+$conn->query("DELETE FROM verifications WHERE user = $user");
 $conn->query("DELETE FROM ids WHERE id = $user");
 
 $result = $conn->query("SELECT id FROM cookies WHERE user = $user");
