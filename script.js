@@ -618,7 +618,12 @@ $('div#user-settings-modal form').submit(function(event) {
   );
 });
 $('input#change-email').on("input propertychange", function() {
-  $('div#email-verified-status').hide();
+  var email_field = $('input#change-email').val();
+  if (email_field != email) {
+    $('div#email-verified-status').hide();
+  } else {
+    $('div#email-verified-status').show();
+  }
 });
 $('a#resend-verification-email-button').click(function() {
   // Close user settings modal
