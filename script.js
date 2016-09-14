@@ -53,11 +53,16 @@ $('input#refresh-button').click(function() {
 $('select#squad-nav').change(function(event) {
   new_squad = event.target.value;
   if (new_squad === "0") {
-    $('div#new-squad-modal-overlay').show();
-    $('div#new-squad-modal input:visible')
-      .filter(function() { return this.value === ""; })
-      .first()
-      .focus();
+    if (email) {
+      $('div#new-squad-modal-overlay').show();
+      $('div#new-squad-modal input:visible')
+        .filter(function() { return this.value === ""; })
+        .first()
+        .focus();
+    } else {
+      $('select#squad-nav').val(squad);
+      $('div#login-to-create-squad-modal-overlay').show();
+    }
   } else if (authorized_squads[new_squad] !== true) {
     var new_squad_name = $(event.target)
       .find("[value='"+new_squad+"']").text();
@@ -864,4 +869,21 @@ $('div#edit-squad-modal form').submit(function(event) {
       }
     }
   );
+});
+
+$('a#show-login-modal').click(function() {
+  $('div#login-to-create-squad-modal-overlay').hide();
+  $('div#log-in-modal-overlay').show();
+  $('div#log-in-modal input:visible')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
+});
+$('a#show-register-modal').click(function() {
+  $('div#login-to-create-squad-modal-overlay').hide();
+  $('div#register-modal-overlay').show();
+  $('div#register-modal input:visible')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
 });

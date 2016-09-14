@@ -201,13 +201,8 @@ foreach ($squads as $id => $name) {
 
 HTML;
 }
-if (user_logged_in()) {
-  echo <<<HTML
-            <option value="0">New squad...</option>
-
-HTML;
-}
 echo <<<HTML
+            <option value="0">New squad...</option>
           </select>
           <div class="nav-button">
             <img
@@ -543,6 +538,21 @@ if (!user_logged_in()) {
             <p>
               We've sent you an email with instructions on how to reset
               your password. Note that the email will expire in a day.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay" id="login-to-create-squad-modal-overlay">
+        <div class="modal" id="login-to-create-squad-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>Log in or register</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+              In order to create a new squad, you'll first need to
+              <a href="#" id="show-login-modal">log in</a> or
+              <a href="#" id="show-register-modal">register</a> a new account.
             </p>
           </div>
         </div>
