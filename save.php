@@ -75,6 +75,7 @@ if ((bool)$squad_row['requires_auth']) {
 // - There is already a row for the given date/squad pair, and we will continue
 //   past this block in order to check for concurrent modification
 $existing_row = null;
+$already_updated_days = false;
 if ($id === null) {
   // Check if the row and ID are already created
   $result = $conn->query(
@@ -92,33 +93,29 @@ if ($id === null) {
         "VALUES ($new_id, '$date', $squad, '$text', '$session_id', $timestamp)"
     );
     if ($conn->errno === 0) {
-      exit(json_encode(array(
-        'success' => true,
-        'id' => $new_id,
-        'new_time' => $timestamp,
-      )));
-    }
-    // There's a race condition that can happen if two people start editing the
-    // same date at the same time, and two IDs are created for the same row. If
-    // this happens, the UNIQUE constraint `date_squad` should be triggered on the
-    // second racer, and for that execution path our last query will have failed.
-    // We will recover by re-querying for the ID here, and deleting the extra ID
-    // we created from the `ids` table.
-    if ($conn->errno === 1062) {
+      $id = $new_id;
+      $already_updated_days = true;
+    } else if ($conn->errno === 1062) {
+      // There's a race condition that can happen if two people start editing
+      // the same date at the same time, and two IDs are created for the same
+      // row. If this happens, the UNIQUE constraint `date_squad` should be
+      // triggered on the second racer, and for that execution path our last
+      // query will have failed. We will recover by re-querying for the ID here,
+      // and deleting the extra ID we created from the `ids` table.
       $result = $conn->query(
         "SELECT id, text, session_id, last_update FROM days ".
           "WHERE date = '$date' AND squad = $squad"
       );
       $existing_row = $result->fetch_assoc();
+      $id = $existing_row['id'];
       $conn->query("DELETE FROM ids WHERE id = $new_id");
     }
   }
-  if ($existing_row === null) {
+  if (!$already_updated_days && $existing_row === null) {
     exit(json_encode(array(
       'error' => 'unknown_error',
     )));
   }
-  $id = $existing_row['id'];
 } else {
   // We need to check the current row to look for concurrent modification
   $result = $conn->query(
@@ -132,33 +129,35 @@ if ($id === null) {
   }
 }
 
-// Once we get here, we are guaranteed that a row exists
-// We must check it for concurrent modification
-if (
-  $session_id !== $existing_row['session_id'] &&
-  $_POST['prev_text'] !== $existing_row['text']
-) {
-  exit(json_encode(array(
-    'error' => 'concurrent_modification',
-    'db' => $existing_row['text'],
-    'ui' => $_POST['prev_text'],
-  )));
-}
-if (intval($existing_row['last_update']) >= $timestamp) {
-  exit(json_encode(array(
-    'error' => 'old_timestamp',
-    'old_time' => intval($existing_row['last_update']),
-    'new_time' => $timestamp,
-  )));
-}
+if (!$already_updated_days) {
+  // Once we get here, we are guaranteed that a row exists
+  // We must check it for concurrent modification
+  if (
+    $session_id !== $existing_row['session_id'] &&
+    $_POST['prev_text'] !== $existing_row['text']
+  ) {
+    exit(json_encode(array(
+      'error' => 'concurrent_modification',
+      'db' => $existing_row['text'],
+      'ui' => $_POST['prev_text'],
+    )));
+  }
+  if (intval($existing_row['last_update']) >= $timestamp) {
+    exit(json_encode(array(
+      'error' => 'old_timestamp',
+      'old_time' => intval($existing_row['last_update']),
+      'new_time' => $timestamp,
+    )));
+  }
 
-// We have confirmed that there is no concurrent modification
-// We will now update the row
-$conn->query(
-  "UPDATE days SET text = '$text', session_id = '$session_id', " .
-    "last_update = $timestamp ".
-    "WHERE id = $id"
-);
+  // We have confirmed that there is no concurrent modification
+  // We will now update the row
+  $conn->query(
+    "UPDATE days SET text = '$text', session_id = '$session_id', " .
+      "last_update = $timestamp ".
+      "WHERE id = $id"
+  );
+}
 
 exit(json_encode(array(
   'success' => true,
