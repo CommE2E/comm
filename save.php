@@ -47,6 +47,7 @@ if (
 $timestamp = intval($_POST['timestamp']);
 $text = $conn->real_escape_string($_POST['text']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
+$entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : -1;
 
 if ($day_id === null && ($date === null || $squad === 0)) {
   exit(json_encode(array(
@@ -118,17 +119,16 @@ if ($day_id === null) {
   }
 }
 
-// After this, we need to:
-// - Pass the current entry ID down from server in index.php, and back up to server in save.php
-// - Update save.php to look at passed-in entry ID. For now it will error out if no ID passed but an entry exists
-// - Make the UI actually show different entries, and let people create new ones
-// - No longer error out if no entry ID passed but an entry already exist
-
-// For now, we never get an entry_id, and always just use the first connected
-// entry
-$result = $conn->query("SELECT id FROM entries WHERE day = $day_id");
-$entry_row = $result->fetch_assoc();
-if (!$entry_row) {
+if ($entry_id === -1) {
+  // This check is temporary. It will eventually be possible to have multiple
+  // entries per day. However, at this time that's not possible, so we error out
+  $result = $conn->query("SELECT id FROM entries WHERE day = $day_id");
+  $entry_row = $result->fetch_assoc();
+  if ($entry_row) {
+    exit(json_encode(array(
+      'error' => 'duplicate_entry',
+    )));
+  }
   $conn->query("INSERT INTO ids(table_name) VALUES('entries')");
   $entry_id = $conn->insert_id;
   $conn->query(
@@ -143,7 +143,6 @@ if (!$entry_row) {
       "'$text', $timestamp, '$session_id', $timestamp)"
   );
 } else {
-  $entry_id = $entry_row['id'];
   $result = $conn->query(
     "SELECT id, author, text, session_id, last_update FROM revisions ".
       "WHERE entry = $entry_id ORDER BY last_update DESC LIMIT 1"

@@ -37,6 +37,7 @@ $('textarea').on('input', function(event) {
       'prev_text': original_values[event.target.id],
       'session_id': session_id,
       'timestamp': Date.now(),
+      'entry_id': entry_ids[event.target.id],
     },
     function(data) {
       console.log(data);

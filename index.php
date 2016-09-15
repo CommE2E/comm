@@ -96,14 +96,17 @@ if (user_logged_in()) {
 // Fetch the actual text for each day
 $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, '');
+$entry_ids = array_fill(1, $days_in_month, -1);
 $result = $conn->query(
-  "SELECT d.id, DAY(d.date) AS day, e.text FROM days d ".
+  "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text FROM days d ".
     "LEFT JOIN entries e ON e.day = d.id ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
     "AND d.squad = $squad ORDER BY d.date"
 );
 while ($row = $result->fetch_assoc()) {
-  $text[$row['day']] = $row['text'];
+  $day = intval($row['day']);
+  $text[$day] = $row['text'];
+  $entry_ids[$day] = intval($row['entry_id']);
 }
 
 $month_url = "$base_url?year=$year&month=$month";
@@ -136,6 +139,7 @@ $this_url = "$month_url&squad=$squad";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
         var show = "<?=$show?>";
+        var entry_ids = <?=json_encode($entry_ids)?>;
       </script>
     </head>
     <body>
