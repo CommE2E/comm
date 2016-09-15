@@ -15,11 +15,11 @@ if ($https && !isset($_SERVER['HTTPS'])) {
 // Either we're given an ID, indicating that a row for this date/squad pair
 // already exists, or we're given a date/squad pair to create a new row with.
 if (isset($_POST['id'])) {
-  $id = intval($_POST['id']);
+  $day_id = intval($_POST['id']);
   $date = null;
   $squad = null;
 } else {
-  $id = null;
+  $day_id = null;
   if (
     !isset($_POST['day']) ||
     !isset($_POST['month']) ||
@@ -48,7 +48,7 @@ $timestamp = intval($_POST['timestamp']);
 $text = $conn->real_escape_string($_POST['text']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
-if ($id === null && ($date === null || $squad === 0)) {
+if ($day_id === null && ($date === null || $squad === 0)) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
@@ -76,24 +76,27 @@ if ((bool)$squad_row['requires_auth']) {
 //   past this block in order to check for concurrent modification
 $existing_row = null;
 $already_updated_days = false;
-if ($id === null) {
+if ($day_id === null) {
   // Check if the row and ID are already created
   $result = $conn->query(
     "SELECT id, text, session_id, last_update FROM days ".
       "WHERE date = '$date' AND squad = $squad"
   );
   $existing_row = $result->fetch_assoc();
-  if (!$existing_row) {
+  if ($existing_row) {
+    $day_id = $existing_row['id'];
+  } else {
     // Okay, create the ID first
-    $result = $conn->query("INSERT INTO ids(table_name) VALUES('days')");
-    $new_id = $conn->insert_id;
+    $conn->query("INSERT INTO ids(table_name) VALUES('days')");
+    $new_day_id = $conn->insert_id;
     // Now create the row in the `days` table
     $conn->query(
       "INSERT INTO days(id, date, squad, text, session_id, last_update) ".
-        "VALUES ($new_id, '$date', $squad, '$text', '$session_id', $timestamp)"
+        "VALUES ($new_day_id, '$date', $squad, ".
+        "'$text', '$session_id', $timestamp)"
     );
     if ($conn->errno === 0) {
-      $id = $new_id;
+      $day_id = $new_day_id;
       $already_updated_days = true;
     } else if ($conn->errno === 1062) {
       // There's a race condition that can happen if two people start editing
@@ -107,8 +110,8 @@ if ($id === null) {
           "WHERE date = '$date' AND squad = $squad"
       );
       $existing_row = $result->fetch_assoc();
-      $id = $existing_row['id'];
-      $conn->query("DELETE FROM ids WHERE id = $new_id");
+      $day_id = $existing_row['id'];
+      $conn->query("DELETE FROM ids WHERE id = $new_day_id");
     }
   }
   if (!$already_updated_days && $existing_row === null) {
@@ -119,7 +122,7 @@ if ($id === null) {
 } else {
   // We need to check the current row to look for concurrent modification
   $result = $conn->query(
-    "SELECT text, session_id, last_update FROM days WHERE `id` = $id"
+    "SELECT text, session_id, last_update FROM days WHERE `id` = $day_id"
   );
   $existing_row = $result->fetch_assoc();
   if ($existing_row === null) {
@@ -155,12 +158,93 @@ if (!$already_updated_days) {
   $conn->query(
     "UPDATE days SET text = '$text', session_id = '$session_id', " .
       "last_update = $timestamp ".
-      "WHERE id = $id"
+      "WHERE id = $day_id"
+  );
+}
+
+// After this, we need to:
+// - Push to Stevie
+// - Create a script to populate entries/revisions
+// - Move the UI over to displaying first entry
+// - Kill the text field on days (simultaneous code push and SQL table deletion)
+// - As part of that, kill all the complex text-updating logic for days
+// - Pass the current entry ID down from server in index.php, and back up to server in save.php
+// - Update save.php to look at passed-in entry ID. For now it will error out if no ID passed but an entry exists
+// - Make the UI actually show different entries, and let people create new ones
+// - No longer error out if no entry ID passed but an entry already exist
+
+// For now, we never get an entry_id, and always just use the first connected
+// entry
+$result = $conn->query("SELECT id FROM entries WHERE day = $day_id");
+$entry_row = $result->fetch_assoc();
+if (!$entry_row) {
+  $conn->query("INSERT INTO ids(table_name) VALUES('entries')");
+  $entry_id = $conn->insert_id;
+  $conn->query(
+    "INSERT INTO entries(id, day, text, creator, creation_time, last_update) ".
+      "VALUES ($entry_id, $day_id, '$text', $viewer_id, $timestamp, $timestamp)"
+  );
+  $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
+  $revision_id = $conn->insert_id;
+  $conn->query(
+    "INSERT INTO revisions(id, entry, author, text, creation_time, ".
+      "session_id, last_update) VALUES ($revision_id, $entry_id, $viewer_id, ".
+      "'$text', $timestamp, '$session_id', $timestamp)"
+  );
+} else {
+  $entry_id = $entry_row['id'];
+  $result = $conn->query(
+    "SELECT id, author, text, session_id, last_update FROM revisions ".
+      "WHERE entry = $entry_id ORDER BY last_update DESC LIMIT 1"
+  );
+  $last_revision_row = $result->fetch_assoc();
+  if (!$last_revision_row) {
+    exit(json_encode(array(
+      'error' => 'unknown_error',
+    )));
+  }
+  if (
+    $viewer_id === intval($last_revision_row['author']) &&
+    $session_id === $last_revision_row['session_id'] &&
+    intval($last_revision_row['last_update']) + 120000 > $timestamp
+  ) {
+    $revision_id = $last_revision_row['id'];
+    $conn->query(
+      "UPDATE revisions SET last_update = $timestamp, text = '$text' ".
+        "WHERE id = $revision_id"
+    );
+  } else if (
+    $session_id !== $last_revision_row['session_id'] &&
+    $_POST['prev_text'] !== $last_revision_row['text']
+  ) {
+    exit(json_encode(array(
+      'error' => 'concurrent_modification',
+      'db' => $last_revision_row['text'],
+      'ui' => $_POST['prev_text'],
+    )));
+  } else if (intval($last_revision_row['last_update']) >= $timestamp) {
+    exit(json_encode(array(
+      'error' => 'old_timestamp',
+      'old_time' => intval($last_revision_row['last_update']),
+      'new_time' => $timestamp,
+    )));
+  } else {
+    $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
+    $revision_id = $conn->insert_id;
+    $conn->query(
+      "INSERT INTO revisions(id, entry, author, text, creation_time, ".
+        "session_id, last_update) VALUES ($revision_id, $entry_id, ".
+        "$viewer_id, '$text', $timestamp, '$session_id', $timestamp)"
+    );
+  }
+  $conn->query(
+    "UPDATE entries SET last_update = $timestamp, text = '$text' ".
+      "WHERE id = $entry_id"
   );
 }
 
 exit(json_encode(array(
   'success' => true,
-  'id' => $id,
+  'day_id' => $day_id,
   'new_time' => $timestamp,
 )));
