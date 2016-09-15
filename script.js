@@ -871,16 +871,18 @@ $('div#edit-squad-modal form').submit(function(event) {
   );
 });
 
-$('a#show-login-modal').click(function() {
-  $('div#login-to-create-squad-modal-overlay').hide();
+$('a.show-login-modal').click(function() {
+  $('select#squad-nav').val(squad);
+  $('div.modal-overlay').hide();
   $('div#log-in-modal-overlay').show();
   $('div#log-in-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
 });
-$('a#show-register-modal').click(function() {
-  $('div#login-to-create-squad-modal-overlay').hide();
+$('a.show-register-modal').click(function() {
+  $('select#squad-nav').val(squad);
+  $('div.modal-overlay').hide();
   $('div#register-modal-overlay').show();
   $('div#register-modal input:visible')
     .filter(function() { return this.value === ""; })

@@ -183,6 +183,11 @@ div.modal-body p {
   font-size: 14px;
   text-align: center;
 }
+div.modal-body p.form-pre-footer {
+  padding-top: 5px;
+  font-size: 12px;
+  font-style: italic;
+}
 div.modal-body input {
   margin: 3px;
 }

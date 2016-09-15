@@ -389,10 +389,14 @@ HTML;
                   />
                 </div>
               </div>
+              <p class="form-pre-footer">
+                Or <a href="#" class="show-login-modal">log in</a>
+                to your account if you already have access
+              </p>
               <div class="form-footer">
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
-                  <input type="submit" value="Log in" />
+                  <input type="submit" value="Submit" />
                 </span>
               </div>
             </form>
@@ -551,8 +555,9 @@ if (!user_logged_in()) {
           <div class="modal-body">
             <p>
               In order to create a new squad, you'll first need to
-              <a href="#" id="show-login-modal">log in</a> or
-              <a href="#" id="show-register-modal">register</a> a new account.
+              <a href="#" class="show-login-modal">log in</a> or
+              <a href="#" class="show-register-modal">register</a>
+              a new account.
             </p>
           </div>
         </div>
