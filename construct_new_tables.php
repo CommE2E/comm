@@ -8,6 +8,7 @@ $result = $conn->query(
 );
 while ($row = $result->fetch_assoc()) {
   if ($row['entry_id']) {
+    $entry_id = intval($row['entry_id']);
     echo "Skipping entry for day #".$row['day_id']."\n";
   } else {
     $conn->query("INSERT INTO ids(table_name) VALUES('entries')");
