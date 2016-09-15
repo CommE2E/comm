@@ -163,8 +163,6 @@ if (!$already_updated_days) {
 }
 
 // After this, we need to:
-// - Push to Stevie
-// - Create a script to populate entries/revisions
 // - Move the UI over to displaying first entry
 // - Kill the text field on days (simultaneous code push and SQL table deletion)
 // - As part of that, kill all the complex text-updating logic for days
