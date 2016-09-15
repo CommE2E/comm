@@ -74,13 +74,10 @@ if ((bool)$squad_row['requires_auth']) {
 //   case we will simply create it and exit, or
 // - There is already a row for the given date/squad pair, and we will continue
 //   past this block in order to check for concurrent modification
-$existing_row = null;
-$already_updated_days = false;
 if ($day_id === null) {
   // Check if the row and ID are already created
   $result = $conn->query(
-    "SELECT id, text, session_id, last_update FROM days ".
-      "WHERE date = '$date' AND squad = $squad"
+    "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
   );
   $existing_row = $result->fetch_assoc();
   if ($existing_row) {
@@ -91,13 +88,10 @@ if ($day_id === null) {
     $new_day_id = $conn->insert_id;
     // Now create the row in the `days` table
     $conn->query(
-      "INSERT INTO days(id, date, squad, text, session_id, last_update) ".
-        "VALUES ($new_day_id, '$date', $squad, ".
-        "'$text', '$session_id', $timestamp)"
+      "INSERT INTO days(id, date, squad) VALUES ($new_day_id, '$date', $squad)"
     );
     if ($conn->errno === 0) {
       $day_id = $new_day_id;
-      $already_updated_days = true;
     } else if ($conn->errno === 1062) {
       // There's a race condition that can happen if two people start editing
       // the same date at the same time, and two IDs are created for the same
@@ -106,24 +100,16 @@ if ($day_id === null) {
       // query will have failed. We will recover by re-querying for the ID here,
       // and deleting the extra ID we created from the `ids` table.
       $result = $conn->query(
-        "SELECT id, text, session_id, last_update FROM days ".
-          "WHERE date = '$date' AND squad = $squad"
+        "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
       );
       $existing_row = $result->fetch_assoc();
       $day_id = $existing_row['id'];
       $conn->query("DELETE FROM ids WHERE id = $new_day_id");
     }
   }
-  if (!$already_updated_days && $existing_row === null) {
-    exit(json_encode(array(
-      'error' => 'unknown_error',
-    )));
-  }
 } else {
-  // We need to check the current row to look for concurrent modification
-  $result = $conn->query(
-    "SELECT text, session_id, last_update FROM days WHERE `id` = $day_id"
-  );
+  // We need to make sure the day ID actually exists
+  $result = $conn->query("SELECT id FROM days WHERE `id` = $day_id");
   $existing_row = $result->fetch_assoc();
   if ($existing_row === null) {
     exit(json_encode(array(
@@ -132,40 +118,7 @@ if ($day_id === null) {
   }
 }
 
-if (!$already_updated_days) {
-  // Once we get here, we are guaranteed that a row exists
-  // We must check it for concurrent modification
-  if (
-    $session_id !== $existing_row['session_id'] &&
-    $_POST['prev_text'] !== $existing_row['text']
-  ) {
-    exit(json_encode(array(
-      'error' => 'concurrent_modification',
-      'db' => $existing_row['text'],
-      'ui' => $_POST['prev_text'],
-    )));
-  }
-  if (intval($existing_row['last_update']) >= $timestamp) {
-    exit(json_encode(array(
-      'error' => 'old_timestamp',
-      'old_time' => intval($existing_row['last_update']),
-      'new_time' => $timestamp,
-    )));
-  }
-
-  // We have confirmed that there is no concurrent modification
-  // We will now update the row
-  $conn->query(
-    "UPDATE days SET text = '$text', session_id = '$session_id', " .
-      "last_update = $timestamp ".
-      "WHERE id = $day_id"
-  );
-}
-
 // After this, we need to:
-// - Move the UI over to displaying first entry
-// - Kill the text field on days (simultaneous code push and SQL table deletion)
-// - As part of that, kill all the complex text-updating logic for days
 // - Pass the current entry ID down from server in index.php, and back up to server in save.php
 // - Update save.php to look at passed-in entry ID. For now it will error out if no ID passed but an entry exists
 // - Make the UI actually show different entries, and let people create new ones

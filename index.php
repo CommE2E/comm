@@ -97,9 +97,10 @@ if (user_logged_in()) {
 $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, '');
 $result = $conn->query(
-  "SELECT id, DAY(date) AS day, text FROM days ".
-    "WHERE MONTH(date) = $month AND YEAR(date) = $year AND squad = $squad ".
-    "ORDER BY date"
+  "SELECT d.id, DAY(d.date) AS day, e.text FROM days d ".
+    "LEFT JOIN entries e ON e.day = d.id ".
+    "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
+    "AND d.squad = $squad ORDER BY d.date"
 );
 while ($row = $result->fetch_assoc()) {
   $text[$row['day']] = $row['text'];
