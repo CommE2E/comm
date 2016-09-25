@@ -95,18 +95,17 @@ if (user_logged_in()) {
 
 // Fetch the actual text for each day
 $days_in_month = $month_beginning_timestamp->format('t');
-$text = array_fill(1, $days_in_month, '');
-$entry_ids = array_fill(1, $days_in_month, -1);
+$text = array_fill(1, $days_in_month, array());
 $result = $conn->query(
   "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text FROM days d ".
     "LEFT JOIN entries e ON e.day = d.id ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
-    "AND d.squad = $squad ORDER BY d.date"
+    "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date"
 );
 while ($row = $result->fetch_assoc()) {
   $day = intval($row['day']);
-  $text[$day] = $row['text'];
-  $entry_ids[$day] = intval($row['entry_id']);
+  $entry = intval($row['entry_id']);
+  $text[$day][$entry] = $row['text'];
 }
 
 $month_url = "$base_url?year=$year&month=$month";
@@ -139,7 +138,6 @@ $this_url = "$month_url&squad=$squad";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
         var show = "<?=$show?>";
-        var entry_ids = <?=json_encode($entry_ids)?>;
       </script>
     </head>
     <body>
@@ -321,18 +319,37 @@ HTML;
     $today_year === $year
   ) {
     echo <<<HTML
-          <td class='day current-day'>
+          <td class='day current-day' id='{$current_date}'>
 
 HTML;
   } else {
     echo <<<HTML
-          <td class='day'>
+          <td class='day' id='{$current_date}'>
 
 HTML;
   }
   echo <<<HTML
             <h2>$current_date</h2>
-            <textarea rows='3' id='$current_date'>{$text[$current_date]}</textarea>
+            <div class='entry-container'>
+
+HTML;
+  foreach ($text[$current_date] as $entry_id => $day_text) {
+    echo <<<HTML
+              <div class='entry'>
+                <textarea
+                  rows='1'
+                  id='{$current_date}_{$entry_id}'
+                >{$day_text}</textarea>
+                <span class='delete-entry'>
+                  <a href='#' class='delete-entry-button'>✖</a>
+                </span>
+              </div>
+
+HTML;
+  }
+  echo <<<HTML
+              <div class="entry-container-spacer"></div>
+            </div>
           </td>
 
 HTML;

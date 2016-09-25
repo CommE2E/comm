@@ -16,19 +16,15 @@ table {
   table-layout: fixed;
 }
 textarea {
-  position: absolute;
-  top: 0px;
-  left: 0px;
   background: none;
   width: 100%;
-  height: 100%;
   box-sizing: border-box;
   outline: none;
   border: none;
   resize: none;
   overflow: auto;
   overflow-y: hidden;
-  padding: 5px;
+  padding-right: 15px;
 }
 * {
   padding: 0;
@@ -39,8 +35,40 @@ header {
 }
 td.day {
   background-color: white;
-  position: relative;
   height: 100px;
+  position: relative;
+  vertical-align: top;
+  line-height: 0;
+  cursor: text;
+}
+td.day > div.entry-container {
+  overflow: auto;
+  height: 100px;
+}
+div.entry-container > div.entry-container-spacer {
+  height: 13px;
+}
+div.entry {
+  padding: 5px;
+  background-color: #FFF8DD;
+  box-shadow: inset 0px 0px 0px 2px white;
+  border-radius: 5px;
+  position: relative;
+}
+span.delete-entry {
+  position: absolute;
+  top: 12px;
+  right: 5px;
+  display: none;
+}
+div.entry:hover span.delete-entry {
+  display: initial;
+}
+span.delete-entry > a {
+  color: gray;
+}
+span.delete-entry > a:hover {
+  color: black;
 }
 td.day > h2 {
   position: absolute;
@@ -49,6 +77,7 @@ td.day > h2 {
   color: #FEE5AC;
   font-size: 32px;
   line-height: 32px;
+  z-index: 1;
 }
 td.current-day > h2 {
   color: #FF944D;
