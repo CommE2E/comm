@@ -100,7 +100,7 @@ $result = $conn->query(
   "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text FROM days d ".
     "LEFT JOIN entries e ON e.day = d.id ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
-    "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date"
+    "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
 );
 while ($row = $result->fetch_assoc()) {
   $day = intval($row['day']);

@@ -965,24 +965,38 @@ function delete_entry(textarea_id) {
   } else if (creating[id_parts[0]]) {
     needs_update_after_creation[id_parts[0]] = true;
   }
-  $("textarea#" + textarea_id).closest("div.entry").remove();
+  $('textarea#' + textarea_id).closest('div.entry').remove();
 }
 $('table').on('focusout', 'textarea', function(event) {
   if (event.target.value.trim() === '') {
     delete_entry(event.target.id);
   }
 });
-$('a.delete-entry-button').click(function() {
-  var textarea_id = $(this).closest('div.entry').find("textarea").attr("id");
+$('table').on('click', 'a.delete-entry-button', function() {
+  var entry = $(this).closest('div.entry');
+  var next_entry = entry.next('div.entry');
+  var textarea_id = entry.find('textarea').attr('id');
   delete_entry(textarea_id);
+  next_entry.addClass('focused-entry');
+  next_entry.find('span.delete-entry').addClass('focused-delete-entry');
 });
-$('table').on('focusin', 'textarea', function(event) {
+
+function update_entry_focus(entry) {
+  var textarea = entry.find('textarea');
+  var delete_button = entry.find('span.delete-entry');
+  if (entry.is(':hover') || textarea.is(':focus')) {
+    entry.addClass('focused-entry');
+    delete_button.addClass('focused-delete-entry');
+  } else {
+    entry.removeClass('focused-entry');
+    delete_button.removeClass('focused-delete-entry');
+  }
+}
+$('table').on('focusin focusout', 'textarea', function(event) {
   var entry = $(event.target).closest('div.entry');
-  entry.addClass('focused-entry');
-  entry.find('span.delete-entry').addClass('focused-delete-entry');
+  update_entry_focus(entry);
 });
-$('table').on('focusout', 'textarea', function(event) {
+$('table').on('mouseenter mouseleave', 'div.entry', function(event) {
   var entry = $(event.target).closest('div.entry');
-  entry.removeClass('focused-entry');
-  entry.find('span.delete-entry').removeClass('focused-delete-entry');
+  update_entry_focus(entry);
 });

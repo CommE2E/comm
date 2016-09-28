@@ -61,12 +61,6 @@ span.delete-entry {
   right: 5px;
   display: none;
 }
-div.entry:hover {
-  z-index: 3;
-}
-div.entry:hover span.delete-entry {
-  display: initial;
-}
 div.focused-entry {
   z-index: 3 !important;
 }
