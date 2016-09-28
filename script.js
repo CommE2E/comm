@@ -950,6 +950,7 @@ $('td.day > div').click(function(event) {
   );
   container.find('div.entry-container-spacer').before(new_entry);
   $('textarea#' + textarea_id).focus();
+  $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
 });
 
 function delete_entry(textarea_id) {
