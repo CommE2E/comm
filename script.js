@@ -67,16 +67,14 @@ function save_entry(textarea_element) {
       }
       if (id_parts[1] === "-1" && data.entry_id) {
         var needs_update = needs_update_after_creation[id_parts[0]];
+        if (needs_update && $("textarea#" + textarea_element.id).length === 0) {
+          delete_entry(data.entry_id);
+        } else {
+          textarea_element.id = id_parts[0] + "_" + data.entry_id;
+        }
         creating[id_parts[0]] = false;
         needs_update_after_creation[id_parts[0]] = false;
-        if (needs_update) {
-          if ($("textarea#" + textarea_element.id).length === 0) {
-            delete_entry(data.entry_id);
-          }
-          return;
-        }
-        textarea_element.id = id_parts[0] + "_" + data.entry_id;
-        if (needs_update) {
+        if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
           save_entry(textarea_element);
         }
       }
@@ -977,4 +975,14 @@ $('table').on('focusout', 'textarea', function(event) {
 $('a.delete-entry-button').click(function() {
   var textarea_id = $(this).closest('div.entry').find("textarea").attr("id");
   delete_entry(textarea_id);
+});
+$('table').on('focusin', 'textarea', function(event) {
+  var entry = $(event.target).closest('div.entry');
+  entry.addClass('focused-entry');
+  entry.find('span.delete-entry').addClass('focused-delete-entry');
+});
+$('table').on('focusout', 'textarea', function(event) {
+  var entry = $(event.target).closest('div.entry');
+  entry.removeClass('focused-entry');
+  entry.find('span.delete-entry').removeClass('focused-delete-entry');
 });

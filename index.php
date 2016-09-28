@@ -299,6 +299,7 @@ HTML;
 $today_date = idate('d');
 $today_month = idate('m');
 $today_year = idate('Y');
+$tab_index = 1;
 for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
     if ($first_sunday) {
@@ -339,6 +340,7 @@ HTML;
                 <textarea
                   rows='1'
                   id='{$current_date}_{$entry_id}'
+                  tabindex='{$tab_index}'
                 >{$day_text}</textarea>
                 <span class='delete-entry'>
                   <a href='#' class='delete-entry-button'>✖</a>
@@ -346,6 +348,7 @@ HTML;
               </div>
 
 HTML;
+    $tab_index++;
   }
   echo <<<HTML
               <div class="entry-container-spacer"></div>
