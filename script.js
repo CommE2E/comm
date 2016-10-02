@@ -67,10 +67,17 @@ function save_entry(textarea_element) {
       }
       if (id_parts[1] === "-1" && data.entry_id) {
         var needs_update = needs_update_after_creation[id_parts[0]];
-        if (needs_update && $("textarea#" + textarea_element.id).length === 0) {
+        var textarea = $("textarea#" + textarea_element.id);
+        if (needs_update && textarea.length === 0) {
           delete_entry(data.entry_id);
         } else {
           textarea_element.id = id_parts[0] + "_" + data.entry_id;
+          textarea.closest('div.entry').find('a.delete-entry-button').after(
+            "<a href='#'>" +
+            "  <span class='history'>≡</span>" +
+            "  <span class='action-links-text'>History</span>" +
+            "</a>"
+          );
         }
         creating[id_parts[0]] = false;
         needs_update_after_creation[id_parts[0]] = false;
@@ -945,11 +952,16 @@ $('td.day > div').click(function(event) {
   textarea.attr('id', textarea_id);
   new_entry.append(textarea);
   new_entry.append(
-    "<span class='delete-entry'>"+
-      "<a href='#' class='delete-entry-button'>✖</a></span>"
+    "<div class='action-links'>" +
+    "  <a href='#' class='delete-entry-button'>" +
+    "    <span class='delete'>✖</span>" +
+    "    <span class='action-links-text'>Delete</span>" +
+    "  </a>" +
+    "</div>"
   );
   container.find('div.entry-container-spacer').before(new_entry);
   $('textarea#' + textarea_id).focus();
+  container.scrollTop(container[0].scrollHeight);
   $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
 });
 
@@ -979,18 +991,18 @@ $('table').on('click', 'a.delete-entry-button', function() {
   var textarea_id = entry.find('textarea').attr('id');
   delete_entry(textarea_id);
   next_entry.addClass('focused-entry');
-  next_entry.find('span.delete-entry').addClass('focused-delete-entry');
+  next_entry.find('div.action-links').addClass('focused-action-links');
 });
 
 function update_entry_focus(entry) {
   var textarea = entry.find('textarea');
-  var delete_button = entry.find('span.delete-entry');
+  var action_links = entry.find('div.action-links');
   if (entry.is(':hover') || textarea.is(':focus')) {
     entry.addClass('focused-entry');
-    delete_button.addClass('focused-delete-entry');
+    action_links.addClass('focused-action-links');
   } else {
     entry.removeClass('focused-entry');
-    delete_button.removeClass('focused-delete-entry');
+    action_links.removeClass('focused-action-links');
   }
 }
 $('table').on('focusin focusout', 'textarea', function(event) {
@@ -1000,4 +1012,12 @@ $('table').on('focusin focusout', 'textarea', function(event) {
 $('table').on('mouseenter mouseleave', 'div.entry', function(event) {
   var entry = $(event.target).closest('div.entry');
   update_entry_focus(entry);
+});
+$('td.day').hover(function(event) {
+  var day = $(event.target).closest('td.day');
+  if (day.is(':hover')) {
+    day.find('div.day-action-links').addClass('focused-action-links');
+  } else {
+    day.find('div.day-action-links').removeClass('focused-action-links');
+  }
 });

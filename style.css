@@ -18,13 +18,11 @@ table {
 textarea {
   background: none;
   width: 100%;
-  box-sizing: border-box;
   outline: none;
   border: none;
   resize: none;
   overflow: auto;
   overflow-y: hidden;
-  padding-right: 15px;
 }
 * {
   padding: 0;
@@ -35,15 +33,15 @@ header {
 }
 td.day {
   background-color: white;
-  height: 100px;
   position: relative;
   vertical-align: top;
   line-height: 0;
   cursor: text;
+  height: 100px;
 }
 td.day > div.entry-container {
   overflow: auto;
-  height: 100px;
+  height: 82px;
 }
 div.entry-container > div.entry-container-spacer {
   height: 13px;
@@ -55,22 +53,50 @@ div.entry {
   border-radius: 5px;
   position: relative;
 }
-span.delete-entry {
-  position: absolute;
-  top: 12px;
-  right: 5px;
+div.action-links {
   display: none;
+  line-height: 90%;
+  margin-top: 3px;
+  font-size: 16px;
+}
+div.day-action-links {
+  padding-left: 3px;
+}
+div.action-links a + a {
+  margin-left: 1px;
+}
+span.action-links-text {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  position: relative;
+  bottom: 1px;
+}
+span.delete {
+  font-size: 14px;
+  margin-right: -1px;
+}
+span.history {
+  font-size: 24px;
+  position: relative;
+  margin-right: -2px;
+  top: 1px;
+  line-height: 0;
 }
 div.focused-entry {
   z-index: 3 !important;
 }
-span.focused-delete-entry {
-  display: initial !important;
+div.focused-action-links {
+  display: block !important;
 }
-span.delete-entry > a {
+html.touchevents div.action-links {
+  /* for touch devices show all action-links */
+  display: block !important;
+}
+div.action-links > a {
   color: gray;
 }
-span.delete-entry > a:hover {
+div.action-links > a:hover {
   color: black;
 }
 td.day > h2 {

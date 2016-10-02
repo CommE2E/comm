@@ -113,7 +113,7 @@ $this_url = "$month_url&squad=$squad";
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
     <meta charset="utf-8" />
       <title>SquadCal</title>
@@ -127,6 +127,7 @@ $this_url = "$month_url&squad=$squad";
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
       >
       </script>
+      <script src="modernizr-custom.js"></script>
       <script>
         var squad = <?=$squad?>;
         var email = "<?=$email?>";
@@ -342,9 +343,16 @@ HTML;
                   id='{$current_date}_{$entry_id}'
                   tabindex='{$tab_index}'
                 >{$day_text}</textarea>
-                <span class='delete-entry'>
-                  <a href='#' class='delete-entry-button'>✖</a>
-                </span>
+                <div class='action-links'>
+                  <a href='#' class='delete-entry-button'>
+                    <span class='delete'>✖</span>
+                    <span class='action-links-text'>Delete</span>
+                  </a>
+                  <a href='#'>
+                    <span class='history'>≡</span>
+                    <span class='action-links-text'>History</span>
+                  </a>
+                </div>
               </div>
 
 HTML;
@@ -352,6 +360,12 @@ HTML;
   }
   echo <<<HTML
               <div class="entry-container-spacer"></div>
+            </div>
+            <div class='action-links day-action-links'>
+              <a href='#'>
+                <span class='history'>≡</span>
+                <span class='action-links-text'>History</span>
+              </a>
             </div>
           </td>
 
