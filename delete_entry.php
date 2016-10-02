@@ -18,23 +18,13 @@ if (!isset($_POST['id'])) {
 }
 $id = intval($_POST['id']);
 
-$viewer_id = get_viewer_id();
-$result = $conn->query(
-  "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
-    "FROM entries e ".
-    "LEFT JOIN days d ON d.id = e.day ".
-    "LEFT JOIN squads sq ON sq.id = d.squad ".
-    "LEFT JOIN subscriptions su ".
-    "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
-    "WHERE e.id = $id"
-);
-$entry_row = $result->fetch_assoc();
-if (!$entry_row) {
+$can_see = viewer_can_see_entry($id);
+if ($can_see === null) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
-if ((bool)$squad_row['requires_auth']) {
+if (!$can_see) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));
