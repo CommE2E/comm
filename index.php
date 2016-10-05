@@ -127,6 +127,8 @@ $this_url = "$month_url&squad=$squad";
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
       >
       </script>
+      <script src="jquery.timeago.js"></script>
+      <script src="jquery.dateFormat.min.js"></script>
       <script src="modernizr-custom.js"></script>
       <script>
         var squad = <?=$squad?>;
@@ -348,7 +350,7 @@ HTML;
                     <span class='delete'>✖</span>
                     <span class='action-links-text'>Delete</span>
                   </a>
-                  <a href='#'>
+                  <a href='#' class='entry-history-button'>
                     <span class='history'>≡</span>
                     <span class='action-links-text'>History</span>
                   </a>
@@ -362,7 +364,7 @@ HTML;
               <div class="entry-container-spacer"></div>
             </div>
             <div class='action-links day-action-links'>
-              <a href='#'>
+              <a href='#' class='day-history-button'>
                 <span class='history'>≡</span>
                 <span class='action-links-text'>History</span>
               </a>
@@ -383,6 +385,32 @@ HTML;
 echo <<<HTML
         </tr>
       </table>
+      <div class="modal-overlay" id="history-modal-overlay">
+        <div class="modal" id="history-modal">
+          <div class="modal-header">
+            <span class="modal-close">×</span>
+            <h2>History</h2>
+          </div>
+          <div class="modal-body">
+            <p id="history-loading">
+              <img
+                src="{$base_url}images/ajax-loader.gif"
+                alt="loading"
+              />
+            </p>
+            <div class="history-header">
+              <a id='day-history-button' href='#'>&lt; all entries</a>
+              <span class="history-date"></span>
+            </div>
+            <div class="day-history">
+              <a href="#" id="test1">Test1</a>
+            </div>
+            <div class="entry-history">
+              <ul></ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
 HTML;
 ?>

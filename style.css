@@ -213,8 +213,8 @@ div.large-modal {
 span.modal-close {
   float: right;
   font-size: 32px;
-  margin-top: -6px;
   font-weight: 300;
+  line-height: 26px;
 }
 span.modal-close:hover {
   color: black;
@@ -357,4 +357,85 @@ div.form-text > div.form-content {
 }
 .italic {
   font-style: italic;
+}
+
+div#history-modal div.modal-body {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+p#history-loading img {
+  padding-top: 4px;
+}
+div.entry-history {
+  position: absolute;
+  width: 100%;
+  left: 100%;
+  top: 27px;
+  box-sizing: border-box;
+}
+div.history-header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 5px;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  background-color: #F4F4F4;
+}
+a#day-history-button {
+  float: left;
+  width: 33%;
+}
+span.history-date {
+  float: left;
+  width: 33%;
+  text-align: center;
+}
+div.entry-history ul {
+  overflow: auto;
+  height: 211px;
+}
+div.entry-history li {
+  border-bottom: 2px solid lightgray;
+  margin: 5px;
+  padding-bottom: 8px;
+  padding-top: 1px;
+}
+div.entry-history li:first-child {
+  margin-top: 0;
+}
+div.entry-history li:last-child {
+  border-bottom: none;
+}
+span.entry-author {
+  float: left;
+  padding-left: 11px;
+  font-size: 12px;
+  color: gray;
+}
+span.entry-username {
+  color: #2A5DB0;
+}
+time.entry-time {
+  float: right;
+  padding-right: 11px;
+  font-size: 12px;
+  color: gray;
+}
+div.clear {
+  clear: both;
+}
+div.entry-history-entry {
+  margin: 5px;
+  font-size: 13px;
+}
+div.day-history {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 27px;
+  box-sizing: border-box;
 }

@@ -30,7 +30,7 @@ $('textarea').each(function(i, element) {
 $('textarea').each(function () {
   this.setAttribute('style', 'height: ' + (this.scrollHeight) + 'px');
 });
-$('table').on('input', 'textarea', function () {
+$('table').on('input', 'textarea', function() {
   this.style.height = 'auto';
   this.style.height = (this.scrollHeight) + 'px';
 });
@@ -73,7 +73,7 @@ function save_entry(textarea_element) {
         } else {
           textarea_element.id = id_parts[0] + "_" + data.entry_id;
           textarea.closest('div.entry').find('a.delete-entry-button').after(
-            "<a href='#'>" +
+            "<a href='#' class='entry-history-button'>" +
             "  <span class='history'>≡</span>" +
             "  <span class='action-links-text'>History</span>" +
             "</a>"
@@ -1020,4 +1020,93 @@ $('td.day').hover(function(event) {
   } else {
     day.find('div.day-action-links').removeClass('focused-action-links');
   }
+});
+
+// mode = 0: day view
+// mode = 1: entry view
+function update_history_modal_mode(mode, animate) {
+  if (mode === 0) {
+    if (animate) {
+      $('div.day-history').animate({
+        left: '0',
+      }, 500);
+      $('div.entry-history').animate({
+        left: '100%',
+      }, 500);
+    } else {
+      $('div.day-history').css('left', '0');
+      $('div.entry-history').css('left', '100%');
+    }
+    $('a#day-history-button').css('visibility', 'hidden');
+  } else if (mode === 1) {
+    if (animate) {
+      $('div.day-history').animate({
+        left: '-100%',
+      }, 500);
+      $('div.entry-history').animate({
+        left: '0',
+      }, 500);
+    } else {
+      $('div.day-history').css('left', '-100%');
+      $('div.entry-history').css('left', '0');
+    }
+    $('a#day-history-button').css('visibility', 'visible');
+  }
+}
+
+function show_entry_history(id) {
+  $('p#history-loading').show();
+  $('div.entry-history > ul').empty();
+  update_history_modal_mode(1, false);
+  $('div#history-modal-overlay').show();
+  $.post(
+    'entry_history.php',
+    { 'id': id },
+    function(data) {
+      console.log(data);
+      $('p#history-loading').hide();
+      var list = $('div.entry-history > ul');
+      for (var i in data.result) {
+        var revision = data.result[i];
+        var list_item = $('<li>').appendTo(list);
+        list_item.append(
+          "<div class='entry entry-history-entry'>" +
+            revision.text + "</div>"
+        );
+        var author = revision.author === null
+          ? "Anonymous"
+          : "<span class='entry-username'>" + revision.author + "</span>";
+        list_item.append(
+          "<span class='entry-author'>updated by " + author + "</span>"
+        );
+        var date = new Date(revision.last_update);
+        var hovertext =
+          $.format.toBrowserTimeZone(date, "ddd, MMMM D, yyyy 'at' h:mm a");
+        var time = $(
+          "<time class='timeago entry-time' datetime='" + date.toISOString() +
+            "'>" + hovertext + "</time>"
+        ).appendTo(list_item);
+        time.timeago();
+        list_item.append("<div class='clear'>");
+      }
+    }
+  );
+}
+function pretty_date(numeric_date) {
+  var month_and_date = $('h2.upper-center').text().replace(/[<>]/g, '').trim();
+  var date = new Date(month_and_date + " " + numeric_date);
+  return $.format.date(date, "MMMM D, yyyy");
+}
+$('table').on('click', 'a.entry-history-button', function() {
+  var entry = $(this).closest('div.entry');
+  entry.removeClass('focused-entry');
+  var id_parts = entry.find('textarea').attr('id').split('_');
+  $('span.history-date').text(pretty_date(id_parts[0]));
+  show_entry_history(id_parts[1]);
+});
+$('a#test1').click(function() {
+  update_history_modal_mode(1, true);
+});
+$('a#day-history-button').click(function() {
+  update_history_modal_mode(0, true);
 });
