@@ -486,13 +486,26 @@ div.day-history li {
 div.day-history li:last-child {
   padding-bottom: 8px;
 }
-span.deleted-entry-label {
+span.deleted-entry {
   float: left;
   padding-top: 2px;
   padding-left: 11px;
   font-size: 12px;
+  line-height: 17px;
+}
+span.deleted-entry-label {
   color: red;
   font-style: italic;
+}
+span.restore-entry-label {
+  padding-left: 5px;
+}
+img.restore-loading {
+  width: 12px;
+  position: relative;
+  top: 2px;
+  left: 5px;
+  display: none;
 }
 a.revision-history-button {
   float: right;

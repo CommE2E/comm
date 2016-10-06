@@ -1186,7 +1186,12 @@ function show_day_history(numeric_date, animate) {
         time.timeago();
         list_item.append("<div class='clear'>");
         var deleted = entry.deleted
-          ? "<span class='deleted-entry-label'>deleted</span>"
+          ? "<span class='deleted-entry'>" +
+              "<span class='deleted-entry-label'>deleted</span>" +
+              "<span class='restore-entry-label'>" +
+              "(<a href='#' class='restore-entry-button'>restore</a>)</span>" +
+              "<img class='restore-loading' src='" + base_url +
+              "images/ajax-loader.gif' alt='loading' /></span>"
           : "";
         list_item.append(deleted);
         list_item.append(
@@ -1204,6 +1209,26 @@ function pretty_date(numeric_date) {
   var date = new Date(month_and_date + " " + numeric_date);
   return $.format.date(date, "MMMM D, yyyy");
 }
+
+$('div#history-modal span.modal-close').click(function() {
+  history_numeric_date = null;
+  day_history_loaded = false;
+  entry_history_loaded = null;
+});
+$(window).click(function(event) {
+  if (event.target.id === 'history-modal-overlay') {
+    history_numeric_date = null;
+    day_history_loaded = false;
+    entry_history_loaded = null;
+  }
+});
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) { // esc key
+    history_numeric_date = null;
+    day_history_loaded = false;
+    entry_history_loaded = null;
+  }
+});
 
 $('table').on('click', 'a.entry-history-button', function() {
   var entry = $(this).closest('div.entry');
@@ -1245,4 +1270,28 @@ $('a#all-history-button').click(function() {
   } else {
     show_day_history(history_numeric_date, true);
   }
+});
+
+$('div.day-history').on('click', 'a.restore-entry-button', function() {
+  var li = $(this).closest('li');
+  var entry_id = li.attr('id').split('_')[1];
+  li.find('img.restore-loading').show();
+  $.post(
+    'restore_entry.php',
+    {
+      'id': entry_id,
+      'session_id': session_id,
+      'timestamp': Date.now(),
+    },
+    function(data) {
+      console.log(data);
+      if (!data.success) {
+        return;
+      }
+      li.find('span.deleted-entry').remove();
+      show_entry_history(entry_id, true);
+      var new_entry = $("<div class='entry' />");
+      var textarea = $("<textarea rows='1' />");
+    }
+  );
 });
