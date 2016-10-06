@@ -1017,8 +1017,10 @@ $('td.day').hover(function(event) {
   var day = $(event.target).closest('td.day');
   if (day.is(':hover')) {
     day.find('div.day-action-links').addClass('focused-action-links');
+    day.find('div.entry-container').addClass('focused-entry-container');
   } else {
     day.find('div.day-action-links').removeClass('focused-action-links');
+    day.find('div.entry-container').removeClass('focused-entry-container');
   }
 });
 

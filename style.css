@@ -41,7 +41,10 @@ td.day {
 }
 td.day > div.entry-container {
   overflow: auto;
-  height: 82px;
+  height: 100px;
+}
+td.day > div.focused-entry-container {
+  height: 82px !important;
 }
 div.entry-container > div.entry-container-spacer {
   height: 13px;
@@ -387,11 +390,11 @@ div.history-header {
 }
 a#all-history-button {
   float: left;
-  width: 33%;
+  width: 25%;
 }
 span.history-date {
   float: left;
-  width: 33%;
+  width: 50%;
   text-align: center;
 }
 div.entry-history ul {
@@ -431,6 +434,7 @@ div.clear {
 div.entry-history-entry {
   margin: 5px;
   font-size: 13px;
+  word-break: break-all;
 }
 div.day-history {
   position: absolute;
