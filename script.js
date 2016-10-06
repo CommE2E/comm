@@ -3,6 +3,11 @@ var new_squad = null;
 var creating = {};
 var needs_update_after_creation = {};
 
+(function() {
+  var current_numeric_date = new Date().getDate();
+  $('td.day#' + current_numeric_date).addClass('current-day');
+})();
+
 if (show === 'reset_password') {
   $('input#reset-new-password').focus();
 } else {
@@ -27,7 +32,7 @@ $('textarea').each(function(i, element) {
   original_values[element.id] = element.value;
 });
 
-$('textarea').each(function () {
+$('textarea').each(function() {
   this.setAttribute('style', 'height: ' + (this.scrollHeight) + 'px');
 });
 $('table').on('input', 'textarea', function() {

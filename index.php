@@ -299,9 +299,6 @@ HTML;
   $days_of_week[] = $day_of_week;
 }
 
-$today_date = idate('d');
-$today_month = idate('m');
-$today_year = idate('Y');
 $tab_index = 1;
 for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
@@ -317,22 +314,8 @@ HTML;
   }
   $day_of_week = array_shift($days_of_week);
   $days_of_week[] = $day_of_week;
-  if (
-    $today_date === $current_date &&
-    $today_month === $month &&
-    $today_year === $year
-  ) {
-    echo <<<HTML
-          <td class='day current-day' id='{$current_date}'>
-
-HTML;
-  } else {
-    echo <<<HTML
-          <td class='day' id='{$current_date}'>
-
-HTML;
-  }
   echo <<<HTML
+          <td class='day' id='{$current_date}'>
             <h2>$current_date</h2>
             <div class='entry-container'>
 
