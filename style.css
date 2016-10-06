@@ -374,6 +374,10 @@ div#history-modal div.modal-body {
   height: 240px;
   overflow: hidden;
 }
+p#history-loading {
+  position: absolute;
+  top: 27px;
+}
 p#history-loading img {
   padding-top: 4px;
 }
@@ -442,6 +446,7 @@ div.entry-history-entry {
   margin: 5px;
   font-size: 13px;
   word-break: break-all;
+  white-space: pre-wrap;
 }
 div.day-history {
   position: absolute;
