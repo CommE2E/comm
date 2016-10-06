@@ -385,7 +385,7 @@ div.history-header {
   font-weight: 600;
   background-color: #F4F4F4;
 }
-a#day-history-button {
+a#all-history-button {
   float: left;
   width: 33%;
 }
@@ -438,4 +438,28 @@ div.day-history {
   left: 0;
   top: 27px;
   box-sizing: border-box;
+}
+div.day-history ul {
+  overflow: auto;
+  height: 211px;
+}
+div.day-history li {
+  padding-bottom: 2px;
+}
+div.day-history li:last-child {
+  padding-bottom: 8px;
+}
+span.deleted-entry-label {
+  float: left;
+  padding-top: 2px;
+  padding-left: 11px;
+  font-size: 12px;
+  color: red;
+  font-style: italic;
+}
+a.revision-history-button {
+  float: right;
+  padding-top: 2px;
+  padding-right: 11px;
+  font-size: 12px;
 }

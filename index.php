@@ -399,15 +399,11 @@ echo <<<HTML
               />
             </p>
             <div class="history-header">
-              <a id='day-history-button' href='#'>&lt; all entries</a>
+              <a id='all-history-button' href='#'>&lt; all entries</a>
               <span class="history-date"></span>
             </div>
-            <div class="day-history">
-              <a href="#" id="test1">Test1</a>
-            </div>
-            <div class="entry-history">
-              <ul></ul>
-            </div>
+            <div class="day-history"><ul></ul></div>
+            <div class="entry-history"><ul></ul></div>
           </div>
         </div>
       </div>

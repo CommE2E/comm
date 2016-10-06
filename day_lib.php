@@ -6,6 +6,8 @@ require_once('auth.php');
 // null if invalid parameters
 // false if invalid credentials
 function get_day_id($squad, $day, $month, $year) {
+  global $conn;
+
   $date = date('Y-m-d', strtotime("$month/$day/$year"));
   if (!$date || !$squad) {
     return null;

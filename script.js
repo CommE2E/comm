@@ -1022,9 +1022,13 @@ $('td.day').hover(function(event) {
   }
 });
 
+var history_numeric_date = null;
+var day_history_loaded = false;
+var entry_history_loaded = null;
 // mode = 0: day view
 // mode = 1: entry view
 function update_history_modal_mode(mode, animate) {
+  $('div#history-modal-overlay').show();
   if (mode === 0) {
     if (animate) {
       $('div.day-history').animate({
@@ -1037,7 +1041,7 @@ function update_history_modal_mode(mode, animate) {
       $('div.day-history').css('left', '0');
       $('div.entry-history').css('left', '100%');
     }
-    $('a#day-history-button').css('visibility', 'hidden');
+    $('a#all-history-button').css('visibility', 'hidden');
   } else if (mode === 1) {
     if (animate) {
       $('div.day-history').animate({
@@ -1050,15 +1054,14 @@ function update_history_modal_mode(mode, animate) {
       $('div.day-history').css('left', '-100%');
       $('div.entry-history').css('left', '0');
     }
-    $('a#day-history-button').css('visibility', 'visible');
+    $('a#all-history-button').css('visibility', 'visible');
   }
 }
-
-function show_entry_history(id) {
+function show_entry_history(id, animate) {
   $('p#history-loading').show();
   $('div.entry-history > ul').empty();
-  update_history_modal_mode(1, false);
-  $('div#history-modal-overlay').show();
+  $('span.history-date').text(pretty_date(history_numeric_date));
+  update_history_modal_mode(1, animate);
   $.post(
     'entry_history.php',
     { 'id': id },
@@ -1089,6 +1092,60 @@ function show_entry_history(id) {
         time.timeago();
         list_item.append("<div class='clear'>");
       }
+      entry_history_loaded = id;
+    }
+  );
+}
+function show_day_history(numeric_date, animate) {
+  $('p#history-loading').show();
+  $('div.day-history > ul').empty();
+  $('span.history-date').text(pretty_date(history_numeric_date));
+  update_history_modal_mode(0, animate);
+  $.post(
+    'day_history.php',
+    {
+      'day': numeric_date,
+      'month': month,
+      'year': year,
+      'squad': squad,
+    },
+    function(data) {
+      console.log(data);
+      $('p#history-loading').hide();
+      var list = $('div.day-history > ul');
+      for (var i in data.result) {
+        var entry = data.result[i];
+        var list_item = $("<li id='history_" + entry.id + "'>").appendTo(list);
+        list_item.append(
+          "<div class='entry entry-history-entry'>" +
+            entry.text + "</div>"
+        );
+        var creator = entry.creator === null
+          ? "Anonymous"
+          : "<span class='entry-username'>" + entry.creator + "</span>";
+        list_item.append(
+          "<span class='entry-author'>created by " + creator + "</span>"
+        );
+        var date = new Date(entry.creation_time);
+        var hovertext =
+          $.format.toBrowserTimeZone(date, "ddd, MMMM D, yyyy 'at' h:mm a");
+        var time = $(
+          "<time class='timeago entry-time' datetime='" + date.toISOString() +
+            "'>" + hovertext + "</time>"
+        ).appendTo(list_item);
+        time.timeago();
+        list_item.append("<div class='clear'>");
+        var deleted = entry.deleted
+          ? "<span class='deleted-entry-label'>deleted</span>"
+          : "";
+        list_item.append(deleted);
+        list_item.append(
+          "<a href='#' class='revision-history-button'>" +
+            "revision history &gt;</a>"
+        );
+        list_item.append("<div class='clear'>");
+      }
+      day_history_loaded = true;
     }
   );
 }
@@ -1097,16 +1154,45 @@ function pretty_date(numeric_date) {
   var date = new Date(month_and_date + " " + numeric_date);
   return $.format.date(date, "MMMM D, yyyy");
 }
+
 $('table').on('click', 'a.entry-history-button', function() {
   var entry = $(this).closest('div.entry');
   entry.removeClass('focused-entry');
   var id_parts = entry.find('textarea').attr('id').split('_');
-  $('span.history-date').text(pretty_date(id_parts[0]));
-  show_entry_history(id_parts[1]);
+  if (history_numeric_date != id_parts[0]) {
+    history_numeric_date = id_parts[0];
+    day_history_loaded = false;
+  }
+  if (entry_history_loaded === id_parts[1]) {
+    update_history_modal_mode(1, false);
+  } else {
+    show_entry_history(id_parts[1], false);
+  }
 });
-$('a#test1').click(function() {
-  update_history_modal_mode(1, true);
+$('div.day-history').on('click', 'a.revision-history-button', function() {
+  var id_parts = $(this).closest('li').attr('id').split('_');
+  if (entry_history_loaded === id_parts[1]) {
+    update_history_modal_mode(1, true);
+  } else {
+    show_entry_history(id_parts[1], true);
+  }
 });
-$('a#day-history-button').click(function() {
-  update_history_modal_mode(0, true);
+$('a.day-history-button').click(function() {
+  var new_numeric_date = $(this).closest('td.day').attr('id');
+  if (new_numeric_date === history_numeric_date && day_history_loaded) {
+    update_history_modal_mode(0, false);
+  } else {
+    history_numeric_date = new_numeric_date;
+    show_day_history(history_numeric_date, false);
+  }
+});
+$('a#all-history-button').click(function() {
+  if (!history_numeric_date) {
+    return;
+  }
+  if (day_history_loaded) {
+    update_history_modal_mode(0, true);
+  } else {
+    show_day_history(history_numeric_date, true);
+  }
 });
