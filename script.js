@@ -968,6 +968,12 @@ function create_new_entry(container) {
   textarea.attr('id', textarea_id);
   new_entry.append(textarea);
   new_entry.append(
+    "<img" +
+    "  class='entry-loading'" +
+    "  src='" + base_url + "images/ajax-loader.gif'" +
+    "  alt='loading'" +
+    "/>" +
+    "<span class='save-error'>!</span>" +
     "<div class='action-links'>" +
     "  <a href='#' class='delete-entry-button'>" +
     "    <span class='delete'>✖</span>" +

@@ -141,6 +141,7 @@ $this_url = "$month_url&squad=$squad";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
         var show = "<?=$show?>";
+        var base_url = "<?=$base_url?>";
       </script>
     </head>
     <body>
