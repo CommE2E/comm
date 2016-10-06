@@ -328,6 +328,12 @@ HTML;
                   id='{$current_date}_{$entry_id}'
                   tabindex='{$tab_index}'
                 >{$entry_text}</textarea>
+                <img
+                  class="entry-loading"
+                  src="{$base_url}images/ajax-loader.gif"
+                  alt="loading"
+                />
+                <span class="save-error">!</span>
                 <div class='action-links'>
                   <a href='#' class='delete-entry-button'>
                     <span class='delete'>✖</span>

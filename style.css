@@ -23,6 +23,8 @@ textarea {
   resize: none;
   overflow: auto;
   overflow-y: hidden;
+  padding-right: 15px;
+  box-sizing: border-box;
 }
 * {
   padding: 0;
@@ -55,6 +57,21 @@ div.entry {
   box-shadow: inset 0px 0px 0px 2px white;
   border-radius: 5px;
   position: relative;
+}
+img.entry-loading {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  width: 12px;
+  display: none;
+}
+span.save-error {
+  position: absolute;
+  top: 12px;
+  right: 9px;
+  font-weight: bold;
+  color: red;
+  display: none;
 }
 div.action-links {
   display: none;

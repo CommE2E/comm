@@ -39,44 +39,62 @@ $('table').on('input', 'textarea', function() {
   this.style.height = 'auto';
   this.style.height = (this.scrollHeight) + 'px';
 });
+
+var save_attempt_index = 0;
+var latest_save_attempt_index = {}; // map from numeric date to save index
 function save_entry(textarea_element) {
   if (textarea_element.value.trim() === '') {
     return;
   }
   var id_parts = textarea_element.id.split("_");
-  if (id_parts[1] === "-1") {
-    if (creating[id_parts[0]]) {
-      needs_update_after_creation[id_parts[0]] = true;
+  var numeric_date = id_parts[0];
+  var entry_id = id_parts[1];
+  if (entry_id === "-1") {
+    if (creating[numeric_date]) {
+      needs_update_after_creation[numeric_date] = true;
       return;
     } else {
-      creating[id_parts[0]] = true;
+      creating[numeric_date] = true;
     }
   }
+  var cur_save_attempt_index = save_attempt_index++;
+  latest_save_attempt_index[numeric_date] = cur_save_attempt_index;
+  var entry = $(textarea_element).closest('div.entry');
+  entry.find('img.entry-loading').show();
   $.post(
     'save.php',
     {
       'text': textarea_element.value,
-      'day': id_parts[0],
+      'day': numeric_date,
       'month': month,
       'year': year,
       'squad': squad,
       'prev_text': original_values[textarea_element.id],
       'session_id': session_id,
       'timestamp': Date.now(),
-      'entry_id': id_parts[1],
+      'entry_id': entry_id,
     },
     function(data) {
       console.log(data);
       if (data.error === 'concurrent_modification') {
         $('div#concurrent-modification-modal-overlay').show();
+        return;
       }
-      if (id_parts[1] === "-1" && data.entry_id) {
-        var needs_update = needs_update_after_creation[id_parts[0]];
+      if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
+        entry.find('img.entry-loading').hide();
+        if (data.success) {
+          entry.find('span.save-error').hide();
+        } else {
+          entry.find('span.save-error').show();
+        }
+      }
+      if (entry_id === "-1" && data.entry_id) {
+        var needs_update = needs_update_after_creation[numeric_date];
         var textarea = $("textarea#" + textarea_element.id);
         if (needs_update && textarea.length === 0) {
           delete_entry(data.entry_id);
         } else {
-          textarea_element.id = id_parts[0] + "_" + data.entry_id;
+          textarea_element.id = numeric_date + "_" + data.entry_id;
           textarea.closest('div.entry').find('a.delete-entry-button').after(
             "<a href='#' class='entry-history-button'>" +
             "  <span class='history'>≡</span>" +
@@ -84,8 +102,8 @@ function save_entry(textarea_element) {
             "</a>"
           );
         }
-        creating[id_parts[0]] = false;
-        needs_update_after_creation[id_parts[0]] = false;
+        creating[numeric_date] = false;
+        needs_update_after_creation[numeric_date] = false;
         if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
           save_entry(textarea_element);
         }
