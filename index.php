@@ -396,16 +396,16 @@ echo <<<HTML
             <h2>History</h2>
           </div>
           <div class="modal-body">
+            <div class="history-header">
+              <a id='all-history-button' href='#'>&lt; all entries</a>
+              <span class="history-date"></span>
+            </div>
             <p id="history-loading">
               <img
                 src="{$base_url}images/ajax-loader.gif"
                 alt="loading"
               />
             </p>
-            <div class="history-header">
-              <a id='all-history-button' href='#'>&lt; all entries</a>
-              <span class="history-date"></span>
-            </div>
             <div class="day-history"><ul></ul></div>
             <div class="entry-history"><ul></ul></div>
           </div>

@@ -376,7 +376,10 @@ div#history-modal div.modal-body {
 }
 p#history-loading {
   position: absolute;
+  left: 0;
   top: 27px;
+  box-sizing: border-box;
+  width: 100%;
 }
 p#history-loading img {
   padding-top: 4px;
@@ -398,6 +401,7 @@ div.history-header {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   background-color: #F4F4F4;
+  box-sizing: border-box;
 }
 a#all-history-button {
   float: left;
