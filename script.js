@@ -940,6 +940,9 @@ $('td.day > div').click(function(event) {
   if (container.hasClass('entry-container-spacer')) {
     container = container.parent();
   }
+  if (container.hasClass('day-action-links')) {
+    container = container.parent().find('div.entry-container');
+  }
   if (!container.hasClass('entry-container')) {
     return;
   }
