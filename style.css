@@ -86,6 +86,13 @@ span.history {
   top: 1px;
   line-height: 0;
 }
+span.add {
+  font-size: 22px;
+  font-weight: 900;
+  position: relative;
+  top: 1px;
+  line-height: 0;
+}
 div.focused-entry {
   z-index: 3 !important;
 }
@@ -466,4 +473,5 @@ a.revision-history-button {
   padding-top: 2px;
   padding-right: 11px;
   font-size: 12px;
+  font-weight: bold;
 }

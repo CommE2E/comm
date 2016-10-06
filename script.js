@@ -935,17 +935,7 @@ $('a.show-register-modal').click(function() {
     .focus();
 });
 
-$('td.day > div').click(function(event) {
-  var container = $(event.target);
-  if (container.hasClass('entry-container-spacer')) {
-    container = container.parent();
-  }
-  if (container.hasClass('day-action-links')) {
-    container = container.parent().find('div.entry-container');
-  }
-  if (!container.hasClass('entry-container')) {
-    return;
-  }
+function create_new_entry(container) {
   var textarea_id = container.closest('td.day').attr('id') + '_-1';
   if ($('textarea#' + textarea_id).length !== 0) {
     return;
@@ -966,6 +956,23 @@ $('td.day > div').click(function(event) {
   $('textarea#' + textarea_id).focus();
   container.scrollTop(container[0].scrollHeight);
   $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
+}
+$('td.day > div').click(function(event) {
+  var container = $(event.target);
+  if (container.hasClass('entry-container-spacer')) {
+    container = container.parent();
+  }
+  if (container.hasClass('day-action-links')) {
+    container = container.parent().find('div.entry-container');
+  }
+  if (!container.hasClass('entry-container')) {
+    return;
+  }
+  create_new_entry(container);
+});
+$('a.add-entry-button').click(function(event) {
+  var container = $(this).closest('td.day').find('div.entry-container');
+  create_new_entry(container);
 });
 
 function delete_entry(textarea_id) {

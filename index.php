@@ -364,6 +364,10 @@ HTML;
               <div class="entry-container-spacer"></div>
             </div>
             <div class='action-links day-action-links'>
+              <a href='#' class='add-entry-button'>
+                <span class='add'>+</span>
+                <span class='action-links-text'>Add</span>
+              </a>
               <a href='#' class='day-history-button'>
                 <span class='history'>≡</span>
                 <span class='action-links-text'>History</span>
