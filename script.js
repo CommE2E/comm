@@ -73,43 +73,47 @@ function save_entry(textarea_element) {
       'session_id': session_id,
       'timestamp': Date.now(),
       'entry_id': entry_id,
-    },
-    function(data) {
-      console.log(data);
-      if (data.error === 'concurrent_modification') {
-        $('div#concurrent-modification-modal-overlay').show();
-        return;
-      }
-      if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
-        entry.find('img.entry-loading').hide();
-        if (data.success) {
-          entry.find('span.save-error').hide();
-        } else {
-          entry.find('span.save-error').show();
-        }
-      }
-      if (entry_id === "-1" && data.entry_id) {
-        var needs_update = needs_update_after_creation[numeric_date];
-        var textarea = $("textarea#" + textarea_element.id);
-        if (needs_update && textarea.length === 0) {
-          delete_entry(data.entry_id);
-        } else {
-          textarea_element.id = numeric_date + "_" + data.entry_id;
-          textarea.closest('div.entry').find('a.delete-entry-button').after(
-            "<a href='#' class='entry-history-button'>" +
-            "  <span class='history'>≡</span>" +
-            "  <span class='action-links-text'>History</span>" +
-            "</a>"
-          );
-        }
-        creating[numeric_date] = false;
-        needs_update_after_creation[numeric_date] = false;
-        if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
-          save_entry(textarea_element);
-        }
+    }
+  ).done(function(data) {
+    console.log(data);
+    if (data.error === 'concurrent_modification') {
+      $('div#concurrent-modification-modal-overlay').show();
+      return;
+    }
+    if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
+      entry.find('img.entry-loading').hide();
+      if (data.success) {
+        entry.find('span.save-error').hide();
+      } else {
+        entry.find('span.save-error').show();
       }
     }
-  );
+    if (entry_id === "-1" && data.entry_id) {
+      var needs_update = needs_update_after_creation[numeric_date];
+      var textarea = $("textarea#" + textarea_element.id);
+      if (needs_update && textarea.length === 0) {
+        delete_entry(data.entry_id);
+      } else {
+        textarea_element.id = numeric_date + "_" + data.entry_id;
+        textarea.closest('div.entry').find('a.delete-entry-button').after(
+          "<a href='#' class='entry-history-button'>" +
+          "  <span class='history'>≡</span>" +
+          "  <span class='action-links-text'>History</span>" +
+          "</a>"
+        );
+      }
+      creating[numeric_date] = false;
+      needs_update_after_creation[numeric_date] = false;
+      if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
+        save_entry(textarea_element);
+      }
+    }
+  }).fail(function() {
+    if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
+      entry.find('img.entry-loading').hide();
+      entry.find('span.save-error').show();
+    }
+  });
 }
 $('table').on('input', 'textarea', function(event) {
   save_entry(event.target);
