@@ -337,14 +337,14 @@ HTML;
             <div class='entry-container'>
 
 HTML;
-  foreach ($text[$current_date] as $entry_id => $day_text) {
+  foreach ($text[$current_date] as $entry_id => $entry_text) {
     echo <<<HTML
               <div class='entry'>
                 <textarea
                   rows='1'
                   id='{$current_date}_{$entry_id}'
                   tabindex='{$tab_index}'
-                >{$day_text}</textarea>
+                >{$entry_text}</textarea>
                 <div class='action-links'>
                   <a href='#' class='delete-entry-button'>
                     <span class='delete'>✖</span>

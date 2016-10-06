@@ -24,11 +24,16 @@ if (
 $day = intval($_POST['day']);
 $month = intval($_POST['month']);
 $year = intval($_POST['year']);
-$date = date('Y-m-d', strtotime("$month/$day/$year"));
 $squad = intval($_POST['squad']);
-if ($date === null || $squad === 0) {
+$day_id = get_day_id($squad, $day, $month, $year);
+if ($day_id === null) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
+  )));
+}
+if (!$day_id) {
+  exit(json_encode(array(
+    'error' => 'invalid_credentials',
   )));
 }
 
@@ -47,57 +52,7 @@ $session_id = $conn->real_escape_string($_POST['session_id']);
 
 $entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : -1;
 
-// First, make sure the squad exists and we're a member
 $viewer_id = get_viewer_id();
-$result = $conn->query(
-  "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
-    "FROM squads sq LEFT JOIN subscriptions su ".
-    "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
-    "WHERE sq.id = $squad"
-);
-$squad_row = $result->fetch_assoc();
-if ((bool)$squad_row['requires_auth']) {
-  exit(json_encode(array(
-    'error' => 'invalid_credentials',
-  )));
-}
-
-$day_id = null;
-$result = $conn->query(
-  "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
-);
-$existing_row = $result->fetch_assoc();
-if ($existing_row) {
-  $day_id = $existing_row['id'];
-} else {
-  $conn->query("INSERT INTO ids(table_name) VALUES('days')");
-  $new_day_id = $conn->insert_id;
-  $conn->query(
-    "INSERT INTO days(id, date, squad) VALUES ($new_day_id, '$date', $squad)"
-  );
-  if ($conn->errno === 0) {
-    $day_id = $new_day_id;
-  } else if ($conn->errno === 1062) {
-    // There's a race condition that can happen if two people start editing
-    // the same date at the same time, and two IDs are created for the same
-    // row. If this happens, the UNIQUE constraint `date_squad` should be
-    // triggered on the second racer, and for that execution path our last
-    // query will have failed. We will recover by re-querying for the ID here,
-    // and deleting the extra ID we created from the `ids` table.
-    $result = $conn->query(
-      "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
-    );
-    $existing_row = $result->fetch_assoc();
-    $day_id = $existing_row['id'];
-    $conn->query("DELETE FROM ids WHERE id = $new_day_id");
-  }
-}
-if ($day_id === null) {
-  exit(json_encode(array(
-    'error' => 'invalid_parameters',
-  )));
-}
-
 if ($entry_id === -1) {
   $conn->query("INSERT INTO ids(table_name) VALUES('entries')");
   $entry_id = $conn->insert_id;

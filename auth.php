@@ -203,6 +203,25 @@ function set_cookie($name, $value, $expiration_time) {
   );
 }
 
+// null if squad does not exist
+function viewer_can_see_squad($squad) {
+  global $conn;
+
+  $viewer_id = get_viewer_id();
+  $result = $conn->query(
+    "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
+      "FROM squads sq LEFT JOIN subscriptions su ".
+      "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
+      "WHERE sq.id = $squad"
+  );
+  $squad_row = $result->fetch_assoc();
+  if (!$squad_row) {
+    return null;
+  }
+  return !$squad_row['requires_auth'];
+}
+
+// null if day does not exist
 function viewer_can_see_day($day) {
   global $conn;
 
