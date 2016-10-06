@@ -1013,7 +1013,12 @@ function delete_entry(textarea_id) {
   if (id_parts[1] !== "-1") {
     $.post(
       'delete_entry.php',
-      { 'id': id_parts[1] },
+      {
+        'id': id_parts[1],
+        'prev_text': original_values[textarea_id],
+        'session_id': session_id,
+        'timestamp': Date.now(),
+      },
       function(data) {
         console.log(data);
       }
