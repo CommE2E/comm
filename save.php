@@ -66,8 +66,8 @@ if ($entry_id === -1) {
   $revision_id = $conn->insert_id;
   $conn->query(
     "INSERT INTO revisions(id, entry, author, text, creation_time, ".
-      "session_id, last_update) VALUES ($revision_id, $entry_id, $viewer_id, ".
-      "'$text', $timestamp, '$session_id', $timestamp)"
+      "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
+      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0)"
   );
   exit(json_encode(array(
     'success' => true,
@@ -77,22 +77,37 @@ if ($entry_id === -1) {
   )));
 }
 
-$result = $conn->query("SELECT day FROM entries WHERE id = $entry_id");
+$result = $conn->query(
+  "SELECT day, deleted, text FROM entries WHERE id = $entry_id"
+);
 $entry_row = $result->fetch_assoc();
 if (!$entry_row || intval($entry_row['day']) != $day_id) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
+if ($entry_row['deleted']) {
+  exit(json_encode(array(
+    'error' => 'entry_deleted',
+  )));
+}
 
 $result = $conn->query(
-  "SELECT id, author, text, session_id, last_update FROM revisions ".
+  "SELECT id, author, text, session_id, last_update, deleted FROM revisions ".
     "WHERE entry = $entry_id ORDER BY last_update DESC LIMIT 1"
 );
 $last_revision_row = $result->fetch_assoc();
 if (!$last_revision_row) {
   exit(json_encode(array(
     'error' => 'unknown_error',
+  )));
+}
+if (
+  $last_revision_row['deleted'] ||
+  $last_revision_row['text'] !== $entry_row['text']
+) {
+  exit(json_encode(array(
+    'error' => 'database_corruption',
   )));
 }
 if (
@@ -125,8 +140,8 @@ if (
   $revision_id = $conn->insert_id;
   $conn->query(
     "INSERT INTO revisions(id, entry, author, text, creation_time, ".
-      "session_id, last_update) VALUES ($revision_id, $entry_id, ".
-      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp)"
+      "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
+      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0)"
   );
 }
 $conn->query(
