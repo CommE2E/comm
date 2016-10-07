@@ -96,8 +96,10 @@ if (user_logged_in()) {
 // Fetch the actual text for each day
 $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, array());
+$creation_times = array();
 $result = $conn->query(
-  "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text FROM days d ".
+  "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text, ".
+    "e.creation_time FROM days d ".
     "LEFT JOIN entries e ON e.day = d.id ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
     "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
@@ -106,6 +108,7 @@ while ($row = $result->fetch_assoc()) {
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
   $text[$day][$entry] = $row['text'];
+  $creation_times[$entry] = intval($row['creation_time']);
 }
 
 $month_url = "$base_url?year=$year&month=$month";
@@ -142,6 +145,7 @@ $this_url = "$month_url&squad=$squad";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
+        var creation_times = <?=json_encode($creation_times)?>;
       </script>
     </head>
     <body>

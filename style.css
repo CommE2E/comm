@@ -439,9 +439,6 @@ div.entry-history li {
   padding-bottom: 8px;
   padding-top: 1px;
 }
-div.entry-history li:first-child {
-  margin-top: 0;
-}
 div.entry-history li:last-child {
   border-bottom: none;
 }
@@ -513,4 +510,15 @@ a.revision-history-button {
   padding-right: 11px;
   font-size: 12px;
   font-weight: bold;
+}
+div.entry-history-restored {
+  font-style: italic;
+  font-size: 13px;
+  padding-left: 11px;
+}
+div.entry-history-deleted {
+  font-style: italic;
+  font-size: 13px;
+  padding-left: 11px;
+  color: red;
 }

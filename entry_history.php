@@ -31,13 +31,14 @@ if (!$can_see) {
 }
 
 $result = $conn->query(
-  "SELECT u.username AS author, r.text, r.last_update FROM revisions r ".
-    "LEFT JOIN users u ON u.id = r.author ".
+  "SELECT u.username AS author, r.text, r.last_update, r.deleted ".
+    "FROM revisions r LEFT JOIN users u ON u.id = r.author ".
     "WHERE r.entry = $id ORDER BY r.last_update DESC"
 );
 $revisions = array();
 while ($row = $result->fetch_assoc()) {
   $row['last_update'] = intval($row['last_update']);
+  $row['deleted'] = !!$row['deleted'];
   $revisions[] = $row;
 }
 

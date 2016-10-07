@@ -4,8 +4,10 @@ var creating = {};
 var needs_update_after_creation = {};
 
 (function() {
-  var current_numeric_date = new Date().getDate();
-  $('td.day#' + current_numeric_date).addClass('current-day');
+  var today = new Date();
+  if (today.getMonth() === month - 1 && today.getFullYear() === year) {
+    $('td.day#' + today.getDate()).addClass('current-day');
+  }
 })();
 
 if (show === 'reset_password') {
@@ -61,6 +63,7 @@ function save_entry(textarea_element) {
   latest_save_attempt_index[numeric_date] = cur_save_attempt_index;
   var entry = $(textarea_element).closest('div.entry');
   entry.find('img.entry-loading').show();
+  var creation_time = Date.now();
   $.post(
     'save.php',
     {
@@ -71,7 +74,7 @@ function save_entry(textarea_element) {
       'squad': squad,
       'prev_text': original_values[textarea_element.id],
       'session_id': session_id,
-      'timestamp': Date.now(),
+      'timestamp': creation_time,
       'entry_id': entry_id,
     }
   ).done(function(data) {
@@ -104,6 +107,7 @@ function save_entry(textarea_element) {
       }
       creating[numeric_date] = false;
       needs_update_after_creation[numeric_date] = false;
+      creation_times[data.entry_id] = creation_time;
       if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
         save_entry(textarea_element);
       }
@@ -1121,11 +1125,23 @@ function show_entry_history(id, animate) {
       var list = $('div.entry-history > ul');
       for (var i in data.result) {
         var revision = data.result[i];
+        var next_revision = data.result[parseInt(i) + 1];
         var list_item = $('<li>').appendTo(list);
-        list_item.append(
-          "<div class='entry entry-history-entry'>" +
-            revision.text + "</div>"
-        );
+        if (
+          next_revision !== undefined &&
+          revision.deleted !== next_revision.deleted
+        ) {
+          list_item.append(
+            revision.deleted
+              ? "<div class='entry-history-deleted'>Deleted</div>"
+              : "<div class='entry-history-restored'>Restored</div>"
+          );
+        } else {
+          list_item.append(
+            "<div class='entry entry-history-entry'>" +
+              revision.text + "</div>"
+          );
+        }
         var author = revision.author === null
           ? "Anonymous"
           : "<span class='entry-username'>" + revision.author + "</span>";
@@ -1275,6 +1291,7 @@ $('a#all-history-button').click(function() {
 $('div.day-history').on('click', 'a.restore-entry-button', function() {
   var li = $(this).closest('li');
   var entry_id = li.attr('id').split('_')[1];
+  var numeric_date = history_numeric_date;
   li.find('img.restore-loading').show();
   $.post(
     'restore_entry.php',
@@ -1290,8 +1307,52 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
       }
       li.find('span.deleted-entry').remove();
       show_entry_history(entry_id, true);
+
+      // Now we need to re-add the entry to the UI
       var new_entry = $("<div class='entry' />");
       var textarea = $("<textarea rows='1' />");
+      textarea.attr('id', numeric_date + '_' + entry_id);
+      textarea.val(data.text);
+      new_entry.append(textarea);
+      new_entry.append(
+        "<img" +
+        "  class='entry-loading'" +
+        "  src='" + base_url + "images/ajax-loader.gif'" +
+        "  alt='loading'" +
+        "/>" +
+        "<span class='save-error'>!</span>" +
+        "<div class='action-links'>" +
+        "  <a href='#' class='delete-entry-button'>" +
+        "    <span class='delete'>✖</span>" +
+        "    <span class='action-links-text'>Delete</span>" +
+        "  </a>" +
+        "  <a href='#' class='entry-history-button'>" +
+        "    <span class='history'>≡</span>" +
+        "    <span class='action-links-text'>History</span>" +
+        "  </a>" +
+        "</div>"
+      );
+      var current_entries = $('td.day#' + numeric_date + ' textarea');
+      var insert_before_this_entry = null;
+      current_entries.each(function(i, textarea_element) {
+        var id_parts = textarea_element.id.split("_");
+        var candidate_entry_id = id_parts[1];
+        if (
+          creation_times[candidate_entry_id] === undefined ||
+          creation_times[candidate_entry_id] > data.creation_time
+        ) {
+          insert_before_this_entry = $(textarea_element).closest('div.entry');
+          return false;
+        }
+        return true;
+      });
+      if (insert_before_this_entry === null) {
+        insert_before_this_entry =
+          $('td.day#' + numeric_date + ' div.entry-container-spacer');
+      }
+      insert_before_this_entry.before(new_entry);
+      creation_times[entry_id] = data.creation_time;
+      $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
     }
   );
 });
