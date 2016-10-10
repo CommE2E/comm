@@ -47,13 +47,13 @@ $personal_password = $_POST['personal_password'];
 // - figures out if the squad requires auth (squads table)
 // - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
-  "SELECT sq.hash IS NOT NULL as squad_requires_auth, ".
+  "SELECT s.hash IS NOT NULL as squad_requires_auth, ".
     "LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
-    "FROM roles su ".
-    "LEFT JOIN users u ON su.user = u.id ".
-    "LEFT JOIN squads sq ON su.squad = sq.id ".
-    "WHERE su.squad = $squad AND su.user = $user ".
-    "AND su.role >= ".ROLE_CREATOR
+    "FROM roles r ".
+    "LEFT JOIN users u ON u.id = r.user ".
+    "LEFT JOIN squads s ON s.id = r.squad ".
+    "WHERE r.squad = $squad AND r.user = $user ".
+    "AND r.role >= ".ROLE_CREATOR
 );
 $row = $result->fetch_assoc();
 if (!$row) {

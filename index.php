@@ -51,10 +51,10 @@ if (isset($query_string['verify'])) {
 
 // First, validate the squad ID
 $result = $conn->query(
-  "SELECT sq.id, sq.name, su.role, sq.hash IS NOT NULL AS requires_auth, ".
-    "su.squad IS NOT NULL AND su.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-    "AS is_authed FROM squads sq LEFT JOIN roles su ".
-    "ON sq.id = su.squad AND su.user = {$viewer_id}"
+  "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
+    "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
+    "AS is_authed FROM squads s LEFT JOIN roles r ".
+    "ON r.squad = s.id AND r.user = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
@@ -74,10 +74,11 @@ if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
 }
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO roles(squad, user, last_view, role) ".
-    "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.") ON DUPLICATE KEY ".
+  "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+    "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE KEY ".
     "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "role = GREATEST(VALUES(role), role)"
+    "role = GREATEST(VALUES(role), role) ".
+    "subscribed = GREATEST(VALUES(subscribed), subscribed)"
 );
 
 // Get the username
