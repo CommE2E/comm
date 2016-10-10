@@ -406,9 +406,6 @@ echo <<<HTML
           </div>
         </div>
       </div>
-
-HTML;
-?>
       <div class="modal-overlay" id="concurrent-modification-modal-overlay">
         <div class="modal" id="concurrent-modification-modal">
           <div class="modal-header">
@@ -451,10 +448,18 @@ HTML;
                   />
                 </div>
               </div>
+
+HTML;
+if (!user_logged_in()) {
+  echo <<<HTML
               <p class="form-pre-footer">
                 Or <a href="#" class="show-login-modal">log in</a>
                 to your account if you already have access
               </p>
+
+HTML;
+}
+echo <<<HTML
               <div class="form-footer">
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
@@ -465,7 +470,8 @@ HTML;
           </div>
         </div>
       </div>
-<?php
+
+HTML;
 if (!user_logged_in()) {
   echo <<<HTML
       <div class="modal-overlay" id="log-in-modal-overlay">
