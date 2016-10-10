@@ -28,8 +28,10 @@ $password = $_POST['password'];
 
 $result = $conn->query(
   "SELECT LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
-    "FROM squads s LEFT JOIN users u ON s.creator = u.id ".
-    "WHERE s.id = $squad AND s.creator = $user"
+    "FROM subscriptions su ".
+    "LEFT JOIN users u ON su.subscriber = u.id ".
+    "WHERE su.squad = $squad AND su.subscriber = $user ".
+    "AND su.type >= ".SUB_CREATOR
 );
 $row = $result->fetch_assoc();
 if (!$row) {

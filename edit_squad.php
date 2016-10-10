@@ -42,11 +42,18 @@ $user = get_viewer_id();
 $squad = (int)$_POST['squad'];
 $personal_password = $_POST['personal_password'];
 
+// Three unrelated purposes for this query, all from different tables:
+// - get hash and salt for viewer password check (users table)
+// - figures out if the squad requires auth (squads table)
+// - makes sure that viewer has the necessary permissions (subscriptions table)
 $result = $conn->query(
-  "SELECT s.hash IS NOT NULL AS squad_requires_auth, ".
+  "SELECT sq.hash IS NOT NULL as squad_requires_auth, ".
     "LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
-    "FROM squads s LEFT JOIN users u ON s.creator = u.id ".
-    "WHERE s.id = $squad AND s.creator = $user"
+    "FROM subscriptions su ".
+    "LEFT JOIN users u ON su.subscriber = u.id ".
+    "LEFT JOIN squads sq ON su.squad = sq.id ".
+    "WHERE su.squad = $squad AND su.subscriber = $user ".
+    "AND su.type >= ".SUB_CREATOR
 );
 $row = $result->fetch_assoc();
 if (!$row) {

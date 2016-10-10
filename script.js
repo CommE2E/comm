@@ -62,6 +62,7 @@ function save_entry(textarea_element) {
   var cur_save_attempt_index = save_attempt_index++;
   latest_save_attempt_index[numeric_date] = cur_save_attempt_index;
   var entry = $(textarea_element).closest('div.entry');
+  entry.find('span.save-error').hide();
   entry.find('img.entry-loading').show();
   var creation_time = Date.now();
   $.post(

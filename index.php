@@ -51,20 +51,20 @@ if (isset($query_string['verify'])) {
 
 // First, validate the squad ID
 $result = $conn->query(
-  "SELECT sq.id, sq.name, sq.creator, ".
-    "sq.hash IS NOT NULL AS requires_auth, su.squad IS NOT NULL AS is_authed ".
+  "SELECT sq.id, sq.name, su.type, sq.hash IS NOT NULL AS requires_auth, ".
+    "su.squad IS NOT NULL AND su.type >= ".SUB_SUCCESSFUL_AUTH." AS is_authed ".
     "FROM squads sq LEFT JOIN subscriptions su ".
     "ON sq.id = su.squad AND su.subscriber = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
-$viewer_is_squad_creator = false;
+$viewer_can_edit_squad = false;
 $squad_requires_auth = false;
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
   $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
   if ((int)$row['id'] === $squad) {
-    $viewer_is_squad_creator = (int)$row['creator'] === $viewer_id;
+    $viewer_can_edit_squad = (int)$row['type'] >= SUB_CREATOR;
     $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
@@ -74,9 +74,10 @@ if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
 }
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO subscriptions(squad, subscriber, last_view) ".
-    "VALUES ($squad, $viewer_id, $time) ".
-    "ON DUPLICATE KEY UPDATE last_view = $time"
+  "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
+    "VALUES ($squad, $viewer_id, $time, ".SUB_VIEWED.") ON DUPLICATE KEY ".
+    "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+    "type = GREATEST(VALUES(type), type)"
 );
 
 // Get the username
@@ -181,7 +182,7 @@ echo <<<HTML
         <div class="upper-right">
 
 HTML;
-if ($viewer_is_squad_creator) {
+if ($viewer_can_edit_squad) {
   echo <<<HTML
           <div class="nav-button">
             <img
@@ -867,6 +868,10 @@ HTML;
           </div>
         </div>
       </div>
+
+HTML;
+  if ($viewer_can_edit_squad) {
+    echo <<<HTML
       <div class="modal-overlay" id="edit-squad-modal-overlay">
         <div class="modal large-modal" id="edit-squad-modal">
           <div class="modal-header">
@@ -896,13 +901,13 @@ HTML;
                       value="open"
 
 HTML;
-  if (!$squad_requires_auth) {
-    echo <<<HTML
+    if (!$squad_requires_auth) {
+      echo <<<HTML
                       checked
 
 HTML;
-  }
-  echo <<<HTML
+    }
+    echo <<<HTML
                     />
                     <div class="form-enum-option">
                       <label for="edit-squad-open">
@@ -921,13 +926,13 @@ HTML;
                       value="closed"
 
 HTML;
-  if ($squad_requires_auth) {
-    echo <<<HTML
+    if ($squad_requires_auth) {
+      echo <<<HTML
                       checked
 
 HTML;
-  }
-  echo <<<HTML
+    }
+    echo <<<HTML
                     />
                     <div class="form-enum-option">
                       <label for="edit-squad-closed">
@@ -940,11 +945,11 @@ HTML;
                       <div
                         class="form-enum-password
 HTML;
-  if (!$squad_requires_auth) {
-    echo " hidden";
-  }
-  $optional = $squad_requires_auth ? " (optional)" : "";
-  echo <<<HTML
+    if (!$squad_requires_auth) {
+      echo " hidden";
+    }
+    $optional = $squad_requires_auth ? " (optional)" : "";
+    echo <<<HTML
 "
                         id="edit-squad-new-password-container"
                       >
@@ -957,10 +962,10 @@ HTML;
                       <div
                         class="form-enum-password
 HTML;
-  if (!$squad_requires_auth) {
-    echo " hidden";
-  }
-  echo <<<HTML
+    if (!$squad_requires_auth) {
+      echo " hidden";
+    }
+    echo <<<HTML
 "
                         id="edit-squad-confirm-password-container"
                       >
@@ -996,8 +1001,8 @@ HTML;
       </div>
 
 HTML;
-  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
-  echo <<<HTML
+    $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
+    echo <<<HTML
       <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
         <div class="modal">
           <div class="modal-header">
@@ -1019,6 +1024,7 @@ HTML;
       </div>
 
 HTML;
+  }
 }
 if ($show === 'verified_email') {
   echo <<<HTML

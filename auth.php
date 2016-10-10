@@ -2,6 +2,10 @@
 
 require_once('config.php');
 
+define("SUB_VIEWED", 0);
+define("SUB_SUCCESSFUL_AUTH", 5);
+define("SUB_CREATOR", 50);
+
 // Returns either a user ID or a cookie ID (for anonymous)
 function get_viewer_id() {
   list($id, $is_user) = get_viewer_info();
@@ -115,19 +119,21 @@ function create_user_cookie($user_id) {
   // MySQL can't handle constraint violations on UPDATE, so need to pull all the
   // membership rows to PHP, delete them, and then recreate them :(
   $result = $conn->query(
-    "SELECT squad, last_view FROM subscriptions ".
+    "SELECT squad, last_view, type FROM subscriptions ".
       "WHERE subscriber = $anonymous_cookie_id"
   );
   $new_rows = array();
   while ($row = $result->fetch_assoc()) {
-    $new_rows[] = "(".$row['squad'].", ".$user_id.", ".$row['last_view'].")";
+    $new_rows[] = "(".$row['squad'].", ".$user_id.", ".
+      $row['last_view'].", ".$row['type'].")";
   }
   if ($new_rows) {
     $conn->query(
-      "INSERT INTO subscriptions(squad, subscriber, last_view) ".
+      "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
         "VALUES ".implode(', ', $new_rows)." ".
         "ON DUPLICATE KEY ".
-        "UPDATE last_view = GREATEST(VALUES(last_view), last_view)"
+        "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+          "type = GREATEST(VALUES(type), type)"
     );
     $conn->query(
       "DELETE FROM subscriptions WHERE subscriber = $anonymous_cookie_id"
@@ -209,10 +215,10 @@ function viewer_can_see_squad($squad) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
-      "FROM squads sq LEFT JOIN subscriptions su ".
-      "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
-      "WHERE sq.id = $squad"
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
+      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM squads sq ".
+      "LEFT JOIN subscriptions su ON sq.id = su.squad AND ".
+      "su.subscriber = {$viewer_id} WHERE sq.id = $squad"
   );
   $squad_row = $result->fetch_assoc();
   if (!$squad_row) {
@@ -227,8 +233,8 @@ function viewer_can_see_day($day) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
-      "FROM days d ".
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
+      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM days d ".
       "LEFT JOIN squads sq ON sq.id = d.squad ".
       "LEFT JOIN subscriptions su ".
       "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
@@ -247,8 +253,8 @@ function viewer_can_see_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND su.squad IS NULL AS requires_auth ".
-      "FROM entries e ".
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
+      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN squads sq ON sq.id = d.squad ".
       "LEFT JOIN subscriptions su ".

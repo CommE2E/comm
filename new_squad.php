@@ -66,8 +66,8 @@ if ($is_closed) {
 }
 
 $conn->query(
-  "INSERT INTO subscriptions(squad, subscriber, last_view) ".
-    "VALUES ($id, $creator, $time)"
+  "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
+    "VALUES ($id, $creator, $time, ".SUB_CREATOR.")"
 );
 
 exit(json_encode(array(
