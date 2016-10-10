@@ -45,15 +45,15 @@ $personal_password = $_POST['personal_password'];
 // Three unrelated purposes for this query, all from different tables:
 // - get hash and salt for viewer password check (users table)
 // - figures out if the squad requires auth (squads table)
-// - makes sure that viewer has the necessary permissions (subscriptions table)
+// - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
   "SELECT sq.hash IS NOT NULL as squad_requires_auth, ".
     "LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
-    "FROM subscriptions su ".
-    "LEFT JOIN users u ON su.subscriber = u.id ".
+    "FROM roles su ".
+    "LEFT JOIN users u ON su.user = u.id ".
     "LEFT JOIN squads sq ON su.squad = sq.id ".
-    "WHERE su.squad = $squad AND su.subscriber = $user ".
-    "AND su.type >= ".SUB_CREATOR
+    "WHERE su.squad = $squad AND su.user = $user ".
+    "AND su.role >= ".ROLE_CREATOR
 );
 $row = $result->fetch_assoc();
 if (!$row) {

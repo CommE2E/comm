@@ -2,9 +2,9 @@
 
 require_once('config.php');
 
-define("SUB_VIEWED", 0);
-define("SUB_SUCCESSFUL_AUTH", 5);
-define("SUB_CREATOR", 50);
+define("ROLE_VIEWED", 0);
+define("ROLE_SUCCESSFUL_AUTH", 5);
+define("ROLE_CREATOR", 50);
 
 // Returns either a user ID or a cookie ID (for anonymous)
 function get_viewer_id() {
@@ -119,24 +119,24 @@ function create_user_cookie($user_id) {
   // MySQL can't handle constraint violations on UPDATE, so need to pull all the
   // membership rows to PHP, delete them, and then recreate them :(
   $result = $conn->query(
-    "SELECT squad, last_view, type FROM subscriptions ".
-      "WHERE subscriber = $anonymous_cookie_id"
+    "SELECT squad, last_view, role FROM roles ".
+      "WHERE user = $anonymous_cookie_id"
   );
   $new_rows = array();
   while ($row = $result->fetch_assoc()) {
     $new_rows[] = "(".$row['squad'].", ".$user_id.", ".
-      $row['last_view'].", ".$row['type'].")";
+      $row['last_view'].", ".$row['role'].")";
   }
   if ($new_rows) {
     $conn->query(
-      "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
+      "INSERT INTO roles(squad, user, last_view, role) ".
         "VALUES ".implode(', ', $new_rows)." ".
         "ON DUPLICATE KEY ".
         "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-          "type = GREATEST(VALUES(type), type)"
+          "role = GREATEST(VALUES(role), role)"
     );
     $conn->query(
-      "DELETE FROM subscriptions WHERE subscriber = $anonymous_cookie_id"
+      "DELETE FROM roles WHERE user = $anonymous_cookie_id"
     );
   }
   $conn->query("DELETE FROM cookies WHERE id = $anonymous_cookie_id");
@@ -172,7 +172,7 @@ function get_anonymous_cookie() {
     $conn->query("DELETE FROM cookies WHERE id = $old_cookie_id");
     $conn->query("DELETE FROM ids WHERE id = $old_cookie_id");
     $conn->query(
-      "DELETE FROM subscriptions WHERE subscriber = $old_cookie_id"
+      "DELETE FROM roles WHERE user = $old_cookie_id"
     );
     return array(null, null);
   }
@@ -215,10 +215,10 @@ function viewer_can_see_squad($squad) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
-      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM squads sq ".
-      "LEFT JOIN subscriptions su ON sq.id = su.squad AND ".
-      "su.subscriber = {$viewer_id} WHERE sq.id = $squad"
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM squads sq ".
+      "LEFT JOIN roles su ON sq.id = su.squad AND ".
+      "su.user = {$viewer_id} WHERE sq.id = $squad"
   );
   $squad_row = $result->fetch_assoc();
   if (!$squad_row) {
@@ -233,11 +233,11 @@ function viewer_can_see_day($day) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
-      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM days d ".
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM days d ".
       "LEFT JOIN squads sq ON sq.id = d.squad ".
-      "LEFT JOIN subscriptions su ".
-      "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
+      "LEFT JOIN roles su ".
+      "ON sq.id = su.squad AND su.user = {$viewer_id} ".
       "WHERE d.id = $day"
   );
   $day_row = $result->fetch_assoc();
@@ -253,12 +253,12 @@ function viewer_can_see_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.type < ".
-      SUB_SUCCESSFUL_AUTH.") AS requires_auth FROM entries e ".
+    "SELECT sq.hash IS NOT NULL AND (su.squad IS NULL OR su.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN squads sq ON sq.id = d.squad ".
-      "LEFT JOIN subscriptions su ".
-      "ON sq.id = su.squad AND su.subscriber = {$viewer_id} ".
+      "LEFT JOIN roles su ".
+      "ON sq.id = su.squad AND su.user = {$viewer_id} ".
       "WHERE e.id = $entry"
   );
   $entry_row = $result->fetch_assoc();

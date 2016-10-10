@@ -54,10 +54,10 @@ $viewer_id = get_viewer_id();
 
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
-    "VALUES ($squad, $viewer_id, $time, ".SUB_SUCCESSFUL_AUTH.") ON ".
+  "INSERT INTO roles(squad, user, last_view, role) ".
+    "VALUES ($squad, $viewer_id, $time, ".ROLE_SUCCESSFUL_AUTH.") ON ".
     "DUPLICATE KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "type = GREATEST(VALUES(type), type)"
+    "role = GREATEST(VALUES(role), role)"
 );
 
 exit(json_encode(array(

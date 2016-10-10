@@ -51,10 +51,10 @@ if (isset($query_string['verify'])) {
 
 // First, validate the squad ID
 $result = $conn->query(
-  "SELECT sq.id, sq.name, su.type, sq.hash IS NOT NULL AS requires_auth, ".
-    "su.squad IS NOT NULL AND su.type >= ".SUB_SUCCESSFUL_AUTH." AS is_authed ".
-    "FROM squads sq LEFT JOIN subscriptions su ".
-    "ON sq.id = su.squad AND su.subscriber = {$viewer_id}"
+  "SELECT sq.id, sq.name, su.role, sq.hash IS NOT NULL AS requires_auth, ".
+    "su.squad IS NOT NULL AND su.role >= ".ROLE_SUCCESSFUL_AUTH." ".
+    "AS is_authed FROM squads sq LEFT JOIN roles su ".
+    "ON sq.id = su.squad AND su.user = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
@@ -64,7 +64,7 @@ while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
   $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
   if ((int)$row['id'] === $squad) {
-    $viewer_can_edit_squad = (int)$row['type'] >= SUB_CREATOR;
+    $viewer_can_edit_squad = (int)$row['role'] >= ROLE_CREATOR;
     $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
@@ -74,10 +74,10 @@ if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
 }
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO subscriptions(squad, subscriber, last_view, type) ".
-    "VALUES ($squad, $viewer_id, $time, ".SUB_VIEWED.") ON DUPLICATE KEY ".
+  "INSERT INTO roles(squad, user, last_view, role) ".
+    "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.") ON DUPLICATE KEY ".
     "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "type = GREATEST(VALUES(type), type)"
+    "role = GREATEST(VALUES(role), role)"
 );
 
 // Get the username
