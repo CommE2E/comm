@@ -53,15 +53,16 @@ if ($is_closed) {
   $hash = hash('sha512', $password.$salt);
   $conn->query(
     "INSERT INTO squads".
-      "(id, name, salt, hash, edit_rules, creator, creation_time) ".
+      "(id, name, salt, hash, edit_rules, creator, creation_time, color) ".
       "VALUES ($id, '$name', UNHEX('$salt'), UNHEX('$hash'), ".
-      "$edit_rules, $creator, $time)"
+      "$edit_rules, $creator, $time, '#FFF8DD')"
   );
 } else {
   $conn->query(
     "INSERT INTO squads".
-      "(id, name, salt, hash, edit_rules, creator, creation_time) ".
-      "VALUES ($id, '$name', NULL, NULL, $edit_rules, $creator, $time)"
+      "(id, name, salt, hash, edit_rules, creator, creation_time, color) ".
+      "VALUES ($id, '$name', NULL, NULL, $edit_rules, $creator, $time, ".
+      "'#FFF8DD')"
   );
 }
 
