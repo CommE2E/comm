@@ -49,20 +49,31 @@ if (isset($query_string['verify'])) {
   }
 }
 
+function background_color_is_dark($color) {
+  $red = hexdec(substr($color, 0, 2));
+  $green = hexdec(substr($color, 2, 2));
+  $blue = hexdec(substr($color, 4, 2));
+  return $red * 0.299 + $green * 0.587 + $blue * 0.114 < 187;
+}
+
 // First, validate the squad ID
 $result = $conn->query(
   "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
     "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-    "AS is_authed, r.subscribed FROM squads s LEFT JOIN roles r ".
+    "AS is_authed, r.subscribed, s.color FROM squads s LEFT JOIN roles r ".
     "ON r.squad = s.id AND r.user = {$viewer_id}"
 );
 $squads = array();
+$colors = array();
+$color_is_dark = array();
 $authorized_squads = array();
 $viewer_can_edit_squad = false;
 $viewer_subscribed = false;
 $squad_requires_auth = false;
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
+  $colors[$row['id']] = $row['color'];
+  $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
   $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
   if ((int)$row['id'] === $squad) {
     $viewer_can_edit_squad = (int)$row['role'] >= ROLE_CREATOR;
@@ -102,9 +113,9 @@ $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, array());
 $creation_times = array();
 $result = $conn->query(
-  "SELECT d.id, e.id AS entry_id, DAY(d.date) AS day, e.text, ".
-    "e.creation_time FROM days d ".
-    "LEFT JOIN entries e ON e.day = d.id ".
+  "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time ".
+    "FROM entries e ".
+    "LEFT JOIN days d ON d.id = e.day ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
     "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
 );
@@ -130,6 +141,7 @@ $this_url = "$month_url&squad=$squad";
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
       />
       <link rel="stylesheet" type="text/css" href="style.css" />
+      <link rel="stylesheet" type="text/css" href="spectrum.css" />
       <script
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
       >
@@ -137,6 +149,7 @@ $this_url = "$month_url&squad=$squad";
       <script src="jquery.timeago.js"></script>
       <script src="jquery.dateFormat.min.js"></script>
       <script src="modernizr-custom.js"></script>
+      <script src="spectrum.js"></script>
       <script>
         var squad = <?=$squad?>;
         var email = "<?=$email?>";
@@ -151,6 +164,8 @@ $this_url = "$month_url&squad=$squad";
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
         var creation_times = <?=json_encode($creation_times)?>;
+        var colors = <?=json_encode($colors)?>;
+        var color_is_dark = <?=json_encode($color_is_dark)?>;
       </script>
     </head>
     <body>
@@ -316,6 +331,9 @@ HTML;
   $days_of_week[] = $day_of_week;
 }
 
+$style = 'background-color: #'.$colors[$squad];
+$possibly_dark_background = $color_is_dark[$squad] ? ' dark-entry' : '';
+
 $tab_index = 1;
 for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
@@ -339,7 +357,7 @@ HTML;
 HTML;
   foreach ($text[$current_date] as $entry_id => $entry_text) {
     echo <<<HTML
-              <div class='entry'>
+              <div class='entry{$possibly_dark_background}' style='{$style}'>
                 <textarea
                   rows='1'
                   id='{$current_date}_{$entry_id}'
@@ -841,6 +859,12 @@ HTML;
                   </div>
                 </div>
               </div>
+              <div>
+                <div class="form-title" id="color-title">Color</div>
+                <div class="form-content">
+                  <input type="text" id="new-squad-color" />
+                </div>
+              </div>
               <div class="form-footer">
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
@@ -994,6 +1018,12 @@ HTML;
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div>
+                <div class="form-title" id="color-title">Color</div>
+                <div class="form-content">
+                  <input type="text" id="edit-squad-color" />
                 </div>
               </div>
               <div>

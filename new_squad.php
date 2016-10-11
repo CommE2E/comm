@@ -11,7 +11,19 @@ if ($https && !isset($_SERVER['HTTPS'])) {
     'error' => 'tls_failure',
   )));
 }
-if (!isset($_POST['name']) || !isset($_POST['type'])) {
+
+if (
+  !isset($_POST['name']) ||
+  !isset($_POST['type']) ||
+  !isset($_POST['color'])
+) {
+  exit(json_encode(array(
+    'error' => 'invalid_parameters',
+  )));
+}
+
+$color = strtolower($_POST['color']);
+if (!preg_match('/^[a-f0-9]{6}$/', $color)) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
@@ -55,14 +67,14 @@ if ($is_closed) {
     "INSERT INTO squads".
       "(id, name, salt, hash, edit_rules, creator, creation_time, color) ".
       "VALUES ($id, '$name', UNHEX('$salt'), UNHEX('$hash'), ".
-      "$edit_rules, $creator, $time, '#FFF8DD')"
+      "$edit_rules, $creator, $time, '$color')"
   );
 } else {
   $conn->query(
     "INSERT INTO squads".
       "(id, name, salt, hash, edit_rules, creator, creation_time, color) ".
       "VALUES ($id, '$name', NULL, NULL, $edit_rules, $creator, $time, ".
-      "'#FFF8DD')"
+      "'$color')"
   );
 }
 

@@ -20,8 +20,16 @@ if (
   !isset($_POST['name']) ||
   !isset($_POST['squad']) ||
   !isset($_POST['type']) ||
+  !isset($_POST['color']) ||
   !isset($_POST['personal_password'])
 ) {
+  exit(json_encode(array(
+    'error' => 'invalid_parameters',
+  )));
+}
+
+$color = strtolower($_POST['color']);
+if (!preg_match('/^[a-f0-9]{6}$/', $color)) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
@@ -90,7 +98,7 @@ if ($is_closed && $new_password !== '') {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $new_password.$salt);
   $conn->query(
-    "UPDATE squads SET name = '$name', ".
+    "UPDATE squads SET name = '$name', color = '$color', ".
       "salt = UNHEX('$salt'), hash = UNHEX('$hash'), edit_rules = $edit_rules ".
       "WHERE id = $squad"
   );
@@ -98,11 +106,11 @@ if ($is_closed && $new_password !== '') {
   // We are guaranteed that the squad was closed beforehand, as otherwise
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
-    "UPDATE squads SET name = '$name' WHERE id = $squad"
+    "UPDATE squads SET name = '$name', color = '$color' WHERE id = $squad"
   );
 } else {
   $conn->query(
-    "UPDATE squads SET name = '$name', ".
+    "UPDATE squads SET name = '$name', color = '$color', ".
       "salt = NULL, hash = NULL, edit_rules = $edit_rules ".
       "WHERE id = $squad"
   );

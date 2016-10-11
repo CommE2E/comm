@@ -201,6 +201,12 @@ $('div#squad-login-modal form').submit(function(event) {
   );
 });
 
+$('input#new-squad-color').spectrum({
+  'cancelText': "Cancel",
+  'chooseText': "Choose",
+  'preferredFormat': "hex",
+  'color': '#fff8dd',
+});
 $('input#new-squad-closed').click(function() {
   $('div#new-squad-password-container').show();
   $('div#new-squad-confirm-password-container').show();
@@ -268,6 +274,8 @@ $('div#new-squad-modal form').submit(function(event) {
       return;
     }
   }
+  var color = $('input#new-squad-color').spectrum("get")
+    .toString().substring(1, 7);
   $('div#new-squad-modal input').prop("disabled", true);
   $.post(
     'new_squad.php',
@@ -275,6 +283,7 @@ $('div#new-squad-modal form').submit(function(event) {
       'name': name,
       'type': type.val(),
       'password': password,
+      'color': color,
     },
     function(data) {
       console.log(data);
@@ -823,6 +832,12 @@ $('div#delete-squad-modal form').submit(function(event) {
   );
 });
 
+$('input#edit-squad-color').spectrum({
+  'cancelText': "Cancel",
+  'chooseText': "Choose",
+  'preferredFormat': "hex",
+  'color': colors[squad],
+});
 $('input#edit-squad-closed').click(function() {
   $('div#edit-squad-new-password-container').show();
   $('div#edit-squad-confirm-password-container').show();
@@ -899,6 +914,8 @@ $('div#edit-squad-modal form').submit(function(event) {
       return;
     }
   }
+  var color = $('input#edit-squad-color').spectrum("get")
+    .toString().substring(1, 7);
   $('div#edit-squad-modal input').prop("disabled", true);
   $.post(
     'edit_squad.php',
@@ -908,6 +925,7 @@ $('div#edit-squad-modal form').submit(function(event) {
       'type': type.val(),
       'personal_password': $('input#edit-squad-personal-password').val(),
       'new_password': new_password,
+      'color': color,
     },
     function(data) {
       console.log(data);
@@ -940,6 +958,7 @@ $('div#edit-squad-modal form').submit(function(event) {
         $('input#edit-squad-new-password').val("");
         $('input#edit-squad-confirm-password').val("");
         $('input#edit-squad-personal-password').val("");
+        $('input#edit-squad-color').spectrum("set", colors[squad]);
         $('input#edit-squad-name').focus();
         $('div#edit-squad-modal span.modal-form-error')
           .text("unknown error");
@@ -973,6 +992,10 @@ function create_new_entry(container) {
     return;
   }
   var new_entry = $("<div class='entry' />");
+  new_entry.css('background-color', '#' + colors[squad]);
+  if (color_is_dark[squad]) {
+    new_entry.addClass('dark-entry');
+  }
   var textarea = $("<textarea rows='1' />");
   textarea.attr('id', textarea_id);
   new_entry.append(textarea);
@@ -1138,10 +1161,14 @@ function show_entry_history(id, animate) {
               : "<div class='entry-history-restored'>Restored</div>"
           );
         } else {
-          list_item.append(
+          var entry_div = $(
             "<div class='entry entry-history-entry'>" +
               revision.text + "</div>"
-          );
+          ).appendTo(list_item);
+          entry_div.css('background-color', '#' + colors[squad]);
+          if (color_is_dark[squad]) {
+            entry_div.addClass('dark-entry');
+          }
         }
         var author = revision.author === null
           ? "Anonymous"
@@ -1183,10 +1210,14 @@ function show_day_history(numeric_date, animate) {
       for (var i in data.result) {
         var entry = data.result[i];
         var list_item = $("<li id='history_" + entry.id + "'>").appendTo(list);
-        list_item.append(
+        var entry_div = $(
           "<div class='entry entry-history-entry'>" +
             entry.text + "</div>"
-        );
+        ).appendTo(list_item);
+        entry_div.css('background-color', '#' + colors[squad]);
+        if (color_is_dark[squad]) {
+          entry_div.addClass('dark-entry');
+        }
         var creator = entry.creator === null
           ? "Anonymous"
           : "<span class='entry-username'>" + entry.creator + "</span>";
@@ -1311,6 +1342,10 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
 
       // Now we need to re-add the entry to the UI
       var new_entry = $("<div class='entry' />");
+      new_entry.css('background-color', '#' + colors[squad]);
+      if (color_is_dark[squad]) {
+        new_entry.addClass('dark-entry');
+      }
       var textarea = $("<textarea rows='1' />");
       textarea.attr('id', numeric_date + '_' + entry_id);
       textarea.val(data.text);

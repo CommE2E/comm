@@ -53,10 +53,21 @@ div.entry-container > div.entry-container-spacer {
 }
 div.entry {
   padding: 5px;
-  background-color: #FFF8DD;
   box-shadow: inset 0px 0px 0px 2px white;
   border-radius: 5px;
   position: relative;
+}
+div.dark-entry {
+  color: white;
+}
+div.dark-entry textarea {
+  color: white;
+}
+div.dark-entry div.action-links > a {
+  color: lightgray;
+}
+div.dark-entry div.action-links > a:hover {
+  color: white;
 }
 img.entry-loading {
   position: absolute;
@@ -527,4 +538,8 @@ div.entry-history-deleted {
   font-size: 13px;
   padding-left: 11px;
   color: red;
+}
+
+div#color-title {
+  margin-top: 4px;
 }
