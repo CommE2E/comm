@@ -38,8 +38,10 @@ if (!$id) {
 }
 
 $result = $conn->query(
-  "SELECT e.id, u.username AS creator, e.text, e.creation_time, e.deleted ".
-    "FROM entries e LEFT JOIN users u ON u.id = e.creator ".
+  "SELECT e.id, u.username AS creator, e.text, e.creation_time, e.deleted, ".
+    "d.squad FROM entries e ".
+    "LEFT JOIN users u ON u.id = e.creator ".
+    "LEFT JOIN days d ON d.id = e.day ".
     "WHERE e.day = $id ORDER BY e.creation_time DESC"
 );
 $entries = array();
@@ -47,6 +49,7 @@ while ($row = $result->fetch_assoc()) {
   $row['id'] = intval($row['id']);
   $row['creation_time'] = intval($row['creation_time']);
   $row['deleted'] = !!$row['deleted'];
+  $row['squad'] = intval($row['squad']);
   $entries[] = $row;
 }
 
