@@ -53,18 +53,20 @@ if (isset($query_string['verify'])) {
 $result = $conn->query(
   "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
     "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-    "AS is_authed FROM squads s LEFT JOIN roles r ".
+    "AS is_authed, r.subscribed FROM squads s LEFT JOIN roles r ".
     "ON r.squad = s.id AND r.user = {$viewer_id}"
 );
 $squads = array();
 $authorized_squads = array();
 $viewer_can_edit_squad = false;
+$viewer_subscribed = false;
 $squad_requires_auth = false;
 while ($row = $result->fetch_assoc()) {
   $squads[$row['id']] = $row['name'];
   $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
   if ((int)$row['id'] === $squad) {
     $viewer_can_edit_squad = (int)$row['role'] >= ROLE_CREATOR;
+    $viewer_subscribed = (bool)$row['subscribed'];
     $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
@@ -77,7 +79,7 @@ $conn->query(
   "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
     "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE KEY ".
     "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "role = GREATEST(VALUES(role), role) ".
+    "role = GREATEST(VALUES(role), role), ".
     "subscribed = GREATEST(VALUES(subscribed), subscribed)"
 );
 
@@ -145,6 +147,7 @@ $this_url = "$month_url&squad=$squad";
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
+        var viewer_subscribed = <?=($viewer_subscribed ? 'true' : 'false')?>;
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
         var creation_times = <?=json_encode($creation_times)?>;
@@ -178,13 +181,10 @@ $next_url = $base_url.
   "?month=".$next_month.
   "&amp;year=".$year_of_next_month.
   "&amp;squad=".$squad;
+$subscribe_button_text = $viewer_subscribed ? "Unsubscribe" : "Subscribe";
 
 echo <<<HTML
         <div class="upper-right">
-
-HTML;
-if ($viewer_can_edit_squad) {
-  echo <<<HTML
           <div class="nav-button">
             <img
               id="squad"
@@ -193,17 +193,27 @@ if ($viewer_can_edit_squad) {
             />
             <div class="nav-menu">
               <div>
-                <a href="#" id="edit-squad-button">
-                  Edit squad
-                </a>
+                <img
+                  class="subscribe-loading"
+                  src="{$base_url}images/ajax-loader.gif"
+                  alt="loading"
+                />
+                <a href="#" id="subscribe-button">{$subscribe_button_text}</a>
               </div>
+
+HTML;
+if ($viewer_can_edit_squad) {
+  echo <<<HTML
+              <div><a href="#" id="edit-squad-button">
+                  Edit squad
+              </a></div>
               <div><a href="#" id="delete-squad-button">Delete squad</a></div>
-            </div>
-          </div>
 
 HTML;
 }
 echo <<<HTML
+            </div>
+          </div>
           <select id="squad-nav">
 
 HTML;

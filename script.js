@@ -1357,3 +1357,29 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
     }
   );
 });
+
+var subscription_changing = false;
+$('a#subscribe-button').click(function() {
+  if (subscription_changing) {
+    return;
+  }
+  subscription_changing = true;
+  $('img.subscribe-loading').show();
+  $.post(
+    'subscribe.php',
+    {
+      'squad': squad,
+      'subscribe': viewer_subscribed ? 0 : 1,
+    },
+    function(data) {
+      console.log(data);
+      $('img.subscribe-loading').hide();
+      if (data.success) {
+        viewer_subscribed = !viewer_subscribed;
+        var text = viewer_subscribed ? "Unsubscribe" : "Subscribe";
+        $('a#subscribe-button').text(text);
+      }
+      subscription_changing = false;
+    }
+  );
+});

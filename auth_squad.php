@@ -57,7 +57,7 @@ $conn->query(
   "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
     "VALUES ($squad, $viewer_id, $time, ".ROLE_SUCCESSFUL_AUTH.", 0) ON ".
     "DUPLICATE KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "role = GREATEST(VALUES(role), role) ".
+    "role = GREATEST(VALUES(role), role), ".
     "subscribed = GREATEST(VALUES(subscribed), subscribed)"
 );
 

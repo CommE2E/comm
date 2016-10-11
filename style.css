@@ -185,13 +185,19 @@ div.nav-button > div.nav-menu {
 }
 div.nav-button > div.nav-menu > div {
   border-bottom: 1px solid #D3D3D3;
-  padding: 3px 16px;
+  padding: 3px 25px;
 }
 div.nav-button > div.nav-menu > div:last-child {
   border-bottom: none;
 }
 div.nav-button:hover > div.nav-menu {
   display: block;
+}
+img.subscribe-loading {
+  display: none;
+  position: absolute;
+  top: 6px;
+  left: 6px;
 }
 span#username {
   font-family: sans-serif;
