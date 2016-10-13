@@ -2,6 +2,7 @@ var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 var new_squad = null;
 var creating = {};
 var needs_update_after_creation = {};
+var new_entry_to_squad = {};
 
 (function() {
   var today = new Date();
@@ -64,21 +65,22 @@ function save_entry(textarea_element) {
   var entry = $(textarea_element).closest('div.entry');
   entry.find('span.save-error').hide();
   entry.find('img.entry-loading').show();
+
   var creation_time = Date.now();
-  $.post(
-    'save.php',
-    {
-      'text': textarea_element.value,
-      'day': numeric_date,
-      'month': month,
-      'year': year,
-      'squad': squad,
-      'prev_text': original_values[textarea_element.id],
-      'session_id': session_id,
-      'timestamp': creation_time,
-      'entry_id': entry_id,
-    }
-  ).done(function(data) {
+  var payload = {
+    'text': textarea_element.value,
+    'prev_text': original_values[textarea_element.id],
+    'session_id': session_id,
+    'timestamp': creation_time,
+    'entry_id': entry_id,
+  };
+  if (entry_id === "-1") {
+    payload['day'] = numeric_date;
+    payload['month'] = month;
+    payload['year'] = year;
+    payload['squad'] = new_entry_to_squad[numeric_date];
+  }
+  $.post('save.php', payload).done(function(data) {
     console.log(data);
     if (data.error === 'concurrent_modification') {
       $('div#concurrent-modification-modal-overlay').show();
@@ -109,6 +111,7 @@ function save_entry(textarea_element) {
       creating[numeric_date] = false;
       needs_update_after_creation[numeric_date] = false;
       creation_times[data.entry_id] = creation_time;
+      new_entry_to_squad[numeric_date] = null;
       if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
         save_entry(textarea_element);
       }
@@ -137,9 +140,11 @@ $('select#squad-nav').change(function(event) {
         .first()
         .focus();
     } else {
-      $('select#squad-nav').val(squad);
+      $('select#squad-nav').val(original_nav);
       $('div#login-to-create-squad-modal-overlay').show();
     }
+  } else if (new_squad === "home") {
+    window.location.href = month_url+"&home";
   } else if (authorized_squads[new_squad] !== true) {
     var new_squad_name = $(event.target)
       .find("[value='"+new_squad+"']").text();
@@ -154,20 +159,20 @@ $('select#squad-nav').change(function(event) {
   }
 });
 $('div#squad-login-modal span.modal-close').click(function() {
-  $('select#squad-nav').val(squad);
+  $('select#squad-nav').val(original_nav);
   $('input#squad-password').val("");
   $('div#squad-login-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'squad-login-modal-overlay') {
-    $('select#squad-nav').val(squad);
+    $('select#squad-nav').val(original_nav);
     $('input#squad-password').val("");
     $('div#squad-login-modal span.modal-form-error').text("");
   }
 });
 $(document).keyup(function(e) {
   if (e.keyCode == 27) { // esc key
-    $('select#squad-nav').val(squad);
+    $('select#squad-nav').val(original_nav);
     $('input#squad-password').val("");
     $('div#squad-login-modal span.modal-form-error').text("");
   }
@@ -216,14 +221,14 @@ $('input#new-squad-open').click(function() {
   $('div#new-squad-confirm-password-container').hide();
 });
 $('div#new-squad-modal span.modal-close').click(function() {
-  $('select#squad-nav').val(squad);
+  $('select#squad-nav').val(original_nav);
   $('input#new-squad-password').val("");
   $('input#new-squad-confirm-password').val("");
   $('div#new-squad-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'new-squad-modal-overlay') {
-    $('select#squad-nav').val(squad);
+    $('select#squad-nav').val(original_nav);
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
     $('div#new-squad-modal span.modal-form-error').text("");
@@ -231,7 +236,7 @@ $(window).click(function(event) {
 });
 $(document).keyup(function(e) {
   if (e.keyCode == 27) { // esc key
-    $('select#squad-nav').val(squad);
+    $('select#squad-nav').val(original_nav);
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
     $('div#new-squad-modal span.modal-form-error').text("");
@@ -968,7 +973,7 @@ $('div#edit-squad-modal form').submit(function(event) {
 });
 
 $('a.show-login-modal').click(function() {
-  $('select#squad-nav').val(squad);
+  $('select#squad-nav').val(original_nav);
   $('div.modal-overlay').hide();
   $('div#log-in-modal-overlay').show();
   $('div#log-in-modal input:visible')
@@ -977,7 +982,7 @@ $('a.show-login-modal').click(function() {
     .focus();
 });
 $('a.show-register-modal').click(function() {
-  $('select#squad-nav').val(squad);
+  $('select#squad-nav').val(original_nav);
   $('div.modal-overlay').hide();
   $('div#register-modal-overlay').show();
   $('div#register-modal input:visible')
@@ -986,14 +991,35 @@ $('a.show-register-modal').click(function() {
     .focus();
 });
 
-function create_new_entry(container) {
-  var textarea_id = container.closest('td.day').attr('id') + '_-1';
+function truncated_squad_name(squad, max_length) {
+  var raw_squad_name = squad_names[squad];
+  if (raw_squad_name.length <= max_length) {
+    return raw_squad_name;
+  }
+  return raw_squad_name.substring(0, max_length - 1) + "...";
+}
+function handle_new_entry_action(day) {
+  var container = day.find('div.entry-container');
+  if (squad !== null) {
+    create_new_entry(container, squad);
+    return;
+  }
+  var numeric_date = day.attr('id');
+  if (new_entry_to_squad[numeric_date]) {
+    return;
+  }
+  day.find('div.pick-squad').show();
+}
+function create_new_entry(container, entry_squad) {
+  var numeric_date = container.closest('td.day').attr('id');
+  var textarea_id = numeric_date + '_-1';
   if ($('textarea#' + textarea_id).length !== 0) {
     return;
   }
+  new_entry_to_squad[numeric_date] = entry_squad;
   var new_entry = $("<div class='entry' />");
-  new_entry.css('background-color', '#' + colors[squad]);
-  if (color_is_dark[squad]) {
+  new_entry.css('background-color', '#' + colors[entry_squad]);
+  if (color_is_dark[entry_squad]) {
     new_entry.addClass('dark-entry');
   }
   var textarea = $("<textarea rows='1' />");
@@ -1011,6 +1037,9 @@ function create_new_entry(container) {
     "    <span class='delete'>✖</span>" +
     "    <span class='action-links-text'>Delete</span>" +
     "  </a>" +
+    "  <span class='right-action-links action-links-text'>" +
+    "    " + truncated_squad_name(entry_squad, 12) +
+    "  </span>" +
     "</div>"
   );
   container.find('div.entry-container-spacer').before(new_entry);
@@ -1019,21 +1048,37 @@ function create_new_entry(container) {
   $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
 }
 $('td.day > div').click(function(event) {
-  var container = $(event.target);
-  if (container.hasClass('entry-container-spacer')) {
-    container = container.parent();
+  var target = $(event.target);
+  if (
+    target.hasClass('entry-container') ||
+    target.hasClass('entry-container-spacer') ||
+    target.hasClass('day-action-links')
+  ) {
+    handle_new_entry_action(target.closest('td.day'));
   }
-  if (container.hasClass('day-action-links')) {
-    container = container.parent().find('div.entry-container');
-  }
-  if (!container.hasClass('entry-container')) {
-    return;
-  }
-  create_new_entry(container);
 });
 $('a.add-entry-button').click(function(event) {
+  var day = $(this).closest('td.day');
+  handle_new_entry_action(day);
+});
+$(window).click(function(event) {
+  var target = $(event.target);
+  var pick_squads = $('div.pick-squad');
+  if (
+    target.hasClass('entry-container') ||
+    target.hasClass('entry-container-spacer') ||
+    target.closest('a.add-entry-button').length > 0
+  ) {
+    pick_squads = pick_squads.filter(function() {
+      return $(this).closest('td.day')[0] !== target.closest('td.day')[0];
+    });
+  }
+  pick_squads.hide();
+});
+$('a.select-squad').click(function(event) {
+  var new_entry_squad = this.id.split('_')[1];
   var container = $(this).closest('td.day').find('div.entry-container');
-  create_new_entry(container);
+  create_new_entry(container, new_entry_squad);
 });
 
 function delete_entry(textarea_id) {
@@ -1051,8 +1096,11 @@ function delete_entry(textarea_id) {
         console.log(data);
       }
     );
-  } else if (creating[id_parts[0]]) {
-    needs_update_after_creation[id_parts[0]] = true;
+  } else {
+    new_entry_to_squad[id_parts[0]] = null;
+    if (creating[id_parts[0]]) {
+      needs_update_after_creation[id_parts[0]] = true;
+    }
   }
   $('textarea#' + textarea_id).closest('div.entry').remove();
 }
@@ -1165,8 +1213,8 @@ function show_entry_history(id, animate) {
             "<div class='entry entry-history-entry'>" +
               revision.text + "</div>"
           ).appendTo(list_item);
-          entry_div.css('background-color', '#' + colors[squad]);
-          if (color_is_dark[squad]) {
+          entry_div.css('background-color', '#' + colors[revision.squad]);
+          if (color_is_dark[revision.squad]) {
             entry_div.addClass('dark-entry');
           }
         }
@@ -1201,7 +1249,7 @@ function show_day_history(numeric_date, animate) {
       'day': numeric_date,
       'month': month,
       'year': year,
-      'squad': squad,
+      'nav': original_nav,
     },
     function(data) {
       console.log(data);
@@ -1214,8 +1262,8 @@ function show_day_history(numeric_date, animate) {
           "<div class='entry entry-history-entry'>" +
             entry.text + "</div>"
         ).appendTo(list_item);
-        entry_div.css('background-color', '#' + colors[squad]);
-        if (color_is_dark[squad]) {
+        entry_div.css('background-color', '#' + colors[entry.squad]);
+        if (color_is_dark[entry.squad]) {
           entry_div.addClass('dark-entry');
         }
         var creator = entry.creator === null
@@ -1224,14 +1272,11 @@ function show_day_history(numeric_date, animate) {
         list_item.append(
           "<span class='entry-author'>created by " + creator + "</span>"
         );
-        var date = new Date(entry.creation_time);
-        var hovertext =
-          $.format.toBrowserTimeZone(date, "ddd, MMMM D, yyyy 'at' h:mm a");
-        var time = $(
-          "<time class='timeago entry-time' datetime='" + date.toISOString() +
-            "'>" + hovertext + "</time>"
-        ).appendTo(list_item);
-        time.timeago();
+        list_item.append(
+          "<span class='entry-squad'>" +
+            truncated_squad_name(entry.squad, 20) +
+          "</span>"
+        );
         list_item.append("<div class='clear'>");
         var deleted = entry.deleted
           ? "<span class='deleted-entry'>" +
@@ -1342,8 +1387,8 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
 
       // Now we need to re-add the entry to the UI
       var new_entry = $("<div class='entry' />");
-      new_entry.css('background-color', '#' + colors[squad]);
-      if (color_is_dark[squad]) {
+      new_entry.css('background-color', '#' + colors[data.squad]);
+      if (color_is_dark[data.squad]) {
         new_entry.addClass('dark-entry');
       }
       var textarea = $("<textarea rows='1' />");
@@ -1366,6 +1411,9 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
         "    <span class='history'>≡</span>" +
         "    <span class='action-links-text'>History</span>" +
         "  </a>" +
+        "  <span class='right-action-links action-links-text'>" +
+        "    " + truncated_squad_name(data.squad, 12) +
+        "  </span>" +
         "</div>"
       );
       var current_entries = $('td.day#' + numeric_date + ' textarea');
@@ -1387,6 +1435,9 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
           $('td.day#' + numeric_date + ' div.entry-container-spacer');
       }
       insert_before_this_entry.before(new_entry);
+      var textarea_element = new_entry.find('textarea')[0];
+      textarea_element.style.height = 'auto';
+      textarea_element.style.height = (textarea_element.scrollHeight) + 'px';
       creation_times[entry_id] = data.creation_time;
       $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
     }

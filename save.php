@@ -12,21 +12,40 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   exit;
 }
 
-if (
-  !isset($_POST['day']) ||
-  !isset($_POST['month']) ||
-  !isset($_POST['year']) ||
-  !isset($_POST['squad'])
-) {
-  exit(json_encode(array(
-    'error' => 'invalid_parameters',
-  )));
+$entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : -1;
+if ($entry_id === -1) {
+  if (
+    !isset($_POST['day']) ||
+    !isset($_POST['month']) ||
+    !isset($_POST['year']) ||
+    !isset($_POST['squad'])
+  ) {
+    exit(json_encode(array(
+      'error' => 'invalid_parameters',
+    )));
+  }
+  $day = intval($_POST['day']);
+  $month = intval($_POST['month']);
+  $year = intval($_POST['year']);
+  $squad = intval($_POST['squad']);
+  $day_id = get_day_id($squad, $day, $month, $year);
+} else {
+  $result = $conn->query(
+    "SELECT day, deleted, text FROM entries WHERE id = $entry_id"
+  );
+  $entry_row = $result->fetch_assoc();
+  if (!$entry_row) {
+    exit(json_encode(array(
+      'error' => 'invalid_parameters',
+    )));
+  }
+  if ($entry_row['deleted']) {
+    exit(json_encode(array(
+      'error' => 'entry_deleted',
+    )));
+  }
+  $day_id = intval($entry_row['day']);
 }
-$day = intval($_POST['day']);
-$month = intval($_POST['month']);
-$year = intval($_POST['year']);
-$squad = intval($_POST['squad']);
-$day_id = get_day_id($squad, $day, $month, $year);
 if ($day_id === null) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -51,8 +70,6 @@ $timestamp = intval($_POST['timestamp']);
 $text = $conn->real_escape_string($_POST['text']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
-$entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : -1;
-
 $viewer_id = get_viewer_id();
 if ($entry_id === -1) {
   $conn->query("INSERT INTO ids(table_name) VALUES('entries')");
@@ -74,21 +91,6 @@ if ($entry_id === -1) {
     'day_id' => $day_id,
     'entry_id' => $entry_id,
     'new_time' => $timestamp,
-  )));
-}
-
-$result = $conn->query(
-  "SELECT day, deleted, text FROM entries WHERE id = $entry_id"
-);
-$entry_row = $result->fetch_assoc();
-if (!$entry_row || intval($entry_row['day']) != $day_id) {
-  exit(json_encode(array(
-    'error' => 'invalid_parameters',
-  )));
-}
-if ($entry_row['deleted']) {
-  exit(json_encode(array(
-    'error' => 'entry_deleted',
   )));
 }
 

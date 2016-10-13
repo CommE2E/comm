@@ -1,7 +1,7 @@
 <?php
 
 require_once('config.php');
-require_once('day_lib.php');
+require_once('auth.php');
 
 header("Content-Type: application/json");
 
@@ -15,7 +15,7 @@ if (
   !isset($_POST['day']) ||
   !isset($_POST['month']) ||
   !isset($_POST['year']) ||
-  !isset($_POST['squad'])
+  !isset($_POST['nav'])
 ) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -24,30 +24,34 @@ if (
 $day = intval($_POST['day']);
 $month = intval($_POST['month']);
 $year = intval($_POST['year']);
-$squad = intval($_POST['squad']);
-$id = get_day_id($squad, $day, $month, $year);
-if ($id === null) {
-  exit(json_encode(array(
-    'error' => 'invalid_parameters',
-  )));
-}
-if (!$id) {
-  exit(json_encode(array(
-    'error' => 'invalid_credentials',
-  )));
+
+$home = null;
+$squad = null;
+if ($_POST['nav'] === "home") {
+  $home = true;
+} else {
+  $home = false;
+  $squad = intval($_POST['nav']);
 }
 
+$additional_condition = $home ? "r.subscribed = 1" : "d.squad = $squad";
+$viewer_id = get_viewer_id();
 $result = $conn->query(
-  "SELECT e.id, u.username AS creator, e.text, e.creation_time, e.deleted, ".
-    "d.squad FROM entries e ".
+  "SELECT e.id, u.username AS creator, e.text, e.deleted, d.squad ".
+    "FROM entries e ".
     "LEFT JOIN users u ON u.id = e.creator ".
     "LEFT JOIN days d ON d.id = e.day ".
-    "WHERE e.day = $id ORDER BY e.creation_time DESC"
+    "LEFT JOIN squads s ON s.id = d.squad ".
+    "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+    "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
+    "DAY(d.date) = $day AND (s.hash IS NULL OR (r.squad IS NOT NULL AND ".
+    "r.role >= ".ROLE_SUCCESSFUL_AUTH.")) AND ".$additional_condition." ".
+    "ORDER BY e.creation_time DESC"
 );
+
 $entries = array();
 while ($row = $result->fetch_assoc()) {
   $row['id'] = intval($row['id']);
-  $row['creation_time'] = intval($row['creation_time']);
   $row['deleted'] = !!$row['deleted'];
   $row['squad'] = intval($row['squad']);
   $entries[] = $row;

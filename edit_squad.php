@@ -85,6 +85,11 @@ if (!$row['squad_requires_auth'] && $is_closed && trim($new_password) === '') {
 }
 
 $name = $conn->real_escape_string($_POST['name']);
+if (strtolower($name) === "home") {
+  exit(json_encode(array(
+    'error' => 'name_taken',
+  )));
+}
 $result = $conn->query("SELECT id FROM squads WHERE name = '$name'");
 $squad_row = $result->fetch_assoc();
 if ($squad_row && (int)$squad_row['id'] !== $squad) {

@@ -16,9 +16,14 @@ $month = isset($_GET['month'])
 $year = isset($_GET['year'])
   ? (int)$_GET['year']
   : idate('Y');
-$squad = isset($_GET['squad'])
-  ? (int)$_GET['squad']
-  : 254;
+$home = isset($_GET['home']);
+if ($home) {
+  $squad = null;
+} else if (isset($_GET['squad'])) {
+  $squad = (int)$_GET['squad'];
+} else {
+  $squad = 254;
+}
 $month_beginning_timestamp = date_create("$month/1/$year");
 if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -56,43 +61,64 @@ function background_color_is_dark($color) {
   return $red * 0.299 + $green * 0.587 + $blue * 0.114 < 187;
 }
 
-// First, validate the squad ID
 $result = $conn->query(
   "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
     "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
     "AS is_authed, r.subscribed, s.color FROM squads s LEFT JOIN roles r ".
     "ON r.squad = s.id AND r.user = {$viewer_id}"
 );
-$squads = array();
+$all_squad_names = array();
+$squad_names = array();
 $colors = array();
 $color_is_dark = array();
 $authorized_squads = array();
 $viewer_can_edit_squad = false;
 $viewer_subscribed = false;
 $squad_requires_auth = false;
+$subscription_exists = false;
 while ($row = $result->fetch_assoc()) {
-  $squads[$row['id']] = $row['name'];
-  $colors[$row['id']] = $row['color'];
-  $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
+  $all_squad_names[$row['id']] = $row['name'];
   $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
+  $subscribed_authorized = $authorized_squads[$row['id']] && $row['subscribed'];
+  if ($subscribed_authorized) {
+    $subscription_exists = true;
+  }
+  if ($subscribed_authorized || (int)$row['id'] === $squad) {
+    $colors[$row['id']] = $row['color'];
+    $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
+    $squad_names[$row['id']] = $row['name'];
+  }
   if ((int)$row['id'] === $squad) {
     $viewer_can_edit_squad = (int)$row['role'] >= ROLE_CREATOR;
     $viewer_subscribed = (bool)$row['subscribed'];
     $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
-if (!isset($squads[$squad]) || !$authorized_squads[$squad]) {
+if (!isset($_GET['squad']) && $subscription_exists) {
+  // If we defaulted to squad 254 but a subscription exists, default to home
+  $home = true;
+  $squad = null;
+  $viewer_can_edit_squad = false;
+  $viewer_subscribed = false;
+  $squad_requires_auth = false;
+}
+if (
+  ($home && !$subscription_exists) ||
+  (!$home && (!isset($squad_names[$squad]) || !$authorized_squads[$squad]))
+) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
-$time = round(microtime(true) * 1000); // in milliseconds
-$conn->query(
-  "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
-    "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE KEY ".
-    "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
-    "role = GREATEST(VALUES(role), role), ".
-    "subscribed = GREATEST(VALUES(subscribed), subscribed)"
-);
+if ($squad !== null) {
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $conn->query(
+    "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+      "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE KEY ".
+      "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+      "role = GREATEST(VALUES(role), role), ".
+      "subscribed = GREATEST(VALUES(subscribed), subscribed)"
+  );
+}
 
 // Get the username
 $username = null;
@@ -112,22 +138,40 @@ if (user_logged_in()) {
 $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, array());
 $creation_times = array();
-$result = $conn->query(
-  "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time ".
-    "FROM entries e ".
-    "LEFT JOIN days d ON d.id = e.day ".
-    "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year ".
-    "AND d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
-);
+$entry_squads = array();
+if ($home) {
+  $result = $conn->query(
+    "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
+      "d.squad FROM entries e ".
+      "LEFT JOIN days d ON d.id = e.day ".
+      "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+      "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
+      "r.subscribed = 1 AND e.deleted = 0 ORDER BY d.date, e.creation_time"
+  );
+} else {
+  $result = $conn->query(
+    "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
+      "d.squad FROM entries e ".
+      "LEFT JOIN days d ON d.id = e.day ".
+      "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
+      "d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
+  );
+}
 while ($row = $result->fetch_assoc()) {
+  $entry_squad = intval($row['squad']);
+  if (!$authorized_squads[$entry_squad]) {
+    continue;
+  }
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
   $text[$day][$entry] = $row['text'];
   $creation_times[$entry] = intval($row['creation_time']);
+  $entry_squads[$entry] = $entry_squad;
 }
 
 $month_url = "$base_url?year=$year&month=$month";
-$this_url = "$month_url&squad=$squad";
+$url_suffix = $home ? "home" : "squad=$squad";
+$this_url = "$month_url&$url_suffix";
 
 ?>
 <!DOCTYPE html>
@@ -151,9 +195,10 @@ $this_url = "$month_url&squad=$squad";
       <script src="modernizr-custom.js"></script>
       <script src="spectrum.js"></script>
       <script>
-        var squad = <?=$squad?>;
+        var squad = <?=($squad === null ? "null" : $squad)?>;
         var email = "<?=$email?>";
-        var squad_name = "<?=$squads[$squad]?>";
+        var squad_name = "<?=(isset($squad_names[$squad]) ? $squad_names[$squad] : '')?>";
+        var squad_names = <?=json_encode($squad_names)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
@@ -166,6 +211,7 @@ $this_url = "$month_url&squad=$squad";
         var creation_times = <?=json_encode($creation_times)?>;
         var colors = <?=json_encode($colors)?>;
         var color_is_dark = <?=json_encode($color_is_dark)?>;
+        var original_nav = "<?=($home ? 'home' : $squad)?>";
       </script>
     </head>
     <body>
@@ -184,7 +230,7 @@ if ($prev_month === 0) {
 $prev_url = $base_url.
   "?month=".$prev_month.
   "&amp;year=".$year_of_prev_month.
-  "&amp;squad=".$squad;
+  "&amp;".$url_suffix;
 
 $next_month = $month + 1;
 $year_of_next_month = $year;
@@ -195,11 +241,15 @@ if ($next_month === 13) {
 $next_url = $base_url.
   "?month=".$next_month.
   "&amp;year=".$year_of_next_month.
-  "&amp;squad=".$squad;
-$subscribe_button_text = $viewer_subscribed ? "Unsubscribe" : "Subscribe";
+  "&amp;".$url_suffix;
 
 echo <<<HTML
         <div class="upper-right">
+
+HTML;
+if (!$home) {
+  $subscribe_button_text = $viewer_subscribed ? "Unsubscribe" : "Subscribe";
+  echo <<<HTML
           <div class="nav-button">
             <img
               id="squad"
@@ -217,22 +267,33 @@ echo <<<HTML
               </div>
 
 HTML;
-if ($viewer_can_edit_squad) {
-  echo <<<HTML
+  if ($viewer_can_edit_squad) {
+    echo <<<HTML
               <div><a href="#" id="edit-squad-button">
                   Edit squad
               </a></div>
               <div><a href="#" id="delete-squad-button">Delete squad</a></div>
 
 HTML;
-}
-echo <<<HTML
+  }
+  echo <<<HTML
             </div>
           </div>
+
+HTML;
+}
+echo <<<HTML
           <select id="squad-nav">
 
 HTML;
-foreach ($squads as $id => $name) {
+if ($home || $subscription_exists) {
+  $selected = $home ? " selected" : "";
+  echo <<<HTML
+            <option value="home"$selected>Home</option>
+
+HTML;
+}
+foreach ($all_squad_names as $id => $name) {
   $selected = $id === $squad ? " selected" : "";
   echo <<<HTML
             <option value="$id"$selected>$name</option>
@@ -331,9 +392,6 @@ HTML;
   $days_of_week[] = $day_of_week;
 }
 
-$style = 'background-color: #'.$colors[$squad];
-$possibly_dark_background = $color_is_dark[$squad] ? ' dark-entry' : '';
-
 $tab_index = 1;
 for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
   if ($day_of_week === 'Sunday') {
@@ -356,6 +414,12 @@ HTML;
 
 HTML;
   foreach ($text[$current_date] as $entry_id => $entry_text) {
+    $entry_squad = $entry_squads[$entry_id];
+    $style = 'background-color: #'.$colors[$entry_squad];
+    $possibly_dark_background = $color_is_dark[$entry_squad] ? ' dark-entry' : '';
+    $truncated_squad_name = strlen($squad_names[$entry_squad]) > 12
+      ? substr($squad_names[$entry_squad], 0, 11) . "..."
+      : $squad_names[$entry_squad];
     echo <<<HTML
               <div class='entry{$possibly_dark_background}' style='{$style}'>
                 <textarea
@@ -378,6 +442,9 @@ HTML;
                     <span class='history'>≡</span>
                     <span class='action-links-text'>History</span>
                   </a>
+                  <span class='right-action-links action-links-text'>
+                    {$truncated_squad_name}
+                  </span>
                 </div>
               </div>
 
@@ -397,6 +464,34 @@ HTML;
                 <span class='action-links-text'>History</span>
               </a>
             </div>
+
+HTML;
+  if ($home) {
+    echo <<<HTML
+            <div class='pick-squad'>
+
+HTML;
+    foreach ($squad_names as $new_entry_squad => $new_entry_squad_name) {
+      $truncated_squad_name = strlen($new_entry_squad_name) > 20
+        ? substr($new_entry_squad_name, 0, 19) . "..."
+        : $new_entry_squad_name;
+      $style = 'background-color: #'.$colors[$new_entry_squad];
+      echo <<<HTML
+              <div>
+                <a href='#' class='select-squad' id='select_{$new_entry_squad}'>
+                  <div class='color-preview' style='{$style}'></div>
+                  {$truncated_squad_name}
+                </a>
+              </div>
+
+HTML;
+    }
+    echo <<<HTML
+            </div>
+
+HTML;
+  }
+  echo <<<HTML
           </td>
 
 HTML;
@@ -875,6 +970,10 @@ HTML;
           </div>
         </div>
       </div>
+
+HTML;
+  if (!$home && $viewer_can_edit_squad) {
+    echo <<<HTML
       <div class="modal-overlay" id="delete-squad-modal-overlay">
         <div class="modal" id="delete-squad-modal">
           <div class="modal-header">
@@ -909,10 +1008,6 @@ HTML;
           </div>
         </div>
       </div>
-
-HTML;
-  if ($viewer_can_edit_squad) {
-    echo <<<HTML
       <div class="modal-overlay" id="edit-squad-modal-overlay">
         <div class="modal large-modal" id="edit-squad-modal">
           <div class="modal-header">
@@ -927,7 +1022,7 @@ HTML;
                   <input
                     type="text"
                     id="edit-squad-name"
-                    value="{$squads[$squad]}"
+                    value="{$squad_names[$squad]}"
                   />
                 </div>
               </div>

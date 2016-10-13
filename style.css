@@ -39,14 +39,14 @@ td.day {
   vertical-align: top;
   line-height: 0;
   cursor: text;
-  height: 100px;
+  height: 120px;
 }
 td.day > div.entry-container {
   overflow: auto;
-  height: 100px;
+  height: 120px;
 }
 td.day > div.focused-entry-container {
-  height: 82px !important;
+  height: 100px !important;
 }
 div.entry-container > div.entry-container-spacer {
   height: 13px;
@@ -92,6 +92,7 @@ div.action-links {
 }
 div.day-action-links {
   padding-left: 3px;
+  margin-bottom: 1px;
 }
 div.action-links a + a {
   margin-left: 1px;
@@ -102,6 +103,11 @@ span.action-links-text {
   font-size: 11px;
   position: relative;
   bottom: 1px;
+}
+span.right-action-links {
+  position: absolute;
+  right: 5px;
+  bottom: 6px;
 }
 span.delete {
   font-size: 14px;
@@ -131,10 +137,10 @@ html.touchevents div.action-links {
   /* for touch devices show all action-links */
   display: block !important;
 }
-div.action-links > a {
+div.action-links a {
   color: gray;
 }
-div.action-links > a:hover {
+div.action-links a:hover {
   color: black;
 }
 td.day > h2 {
@@ -184,7 +190,6 @@ div.nav-button > div.nav-menu {
   position: absolute;
   right: 4px;
   top: 32px;
-  background-color: #FFFAF0;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   font-family: 'Open Sans', sans-serif;
@@ -362,6 +367,9 @@ div.form-enum-selector div.form-enum-password {
 div.form-enum-selector div.form-enum-password > input[type='password'] {
   width: 257px;
 }
+div#color-title {
+  margin-top: 4px;
+}
 
 div.modal-body div.form-footer {
   margin-top: 5px;
@@ -474,6 +482,14 @@ time.entry-time {
   font-size: 12px;
   color: gray;
 }
+span.entry-squad {
+  float: right;
+  padding-right: 11px;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  margin-top: -2px;
+}
 div.clear {
   clear: both;
 }
@@ -540,6 +556,42 @@ div.entry-history-deleted {
   color: red;
 }
 
-div#color-title {
-  margin-top: 4px;
+div.pick-squad {
+  display: none;
+  position: absolute;
+  left: 4px;
+  bottom: 20px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  background-color: white;
+  border-radius: 3px;
+  white-space: nowrap;
+  line-height: normal;
+  font-size: 12px;
+  cursor: pointer;
+}
+a.select-squad {
+  color: black;
+}
+div.pick-squad > div {
+  border-bottom: 1px solid #D3D3D3;
+  padding: 3px 10px 3px 25px;
+  position: relative;
+}
+div.pick-squad > div:hover {
+  background-color: #F2F2F2;
+}
+div.pick-squad > div:last-child {
+  border-bottom: none;
+}
+div.color-preview {
+  width: 12px;
+  height: 12px;
+  left: 6px;
+  position: absolute;
+  top: 5px;
+  border: 1px solid lightgray;
+  border-radius: 2px;
 }
