@@ -1040,6 +1040,7 @@ function create_new_entry(container, entry_squad) {
     "  <span class='right-action-links action-links-text'>" +
     "    " + truncated_squad_name(entry_squad, 12) +
     "  </span>" +
+    "  <div class='clear'></div>" +
     "</div>"
   );
   container.find('div.entry-container-spacer').before(new_entry);
@@ -1414,6 +1415,7 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
         "  <span class='right-action-links action-links-text'>" +
         "    " + truncated_squad_name(data.squad, 12) +
         "  </span>" +
+        "  <div class='clear'></div>" +
         "</div>"
       );
       var current_entries = $('td.day#' + numeric_date + ' textarea');

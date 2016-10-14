@@ -445,6 +445,7 @@ HTML;
                   <span class='right-action-links action-links-text'>
                     {$truncated_squad_name}
                   </span>
+                  <div class='clear'></div>
                 </div>
               </div>
 

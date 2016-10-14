@@ -105,9 +105,7 @@ span.action-links-text {
   bottom: 1px;
 }
 span.right-action-links {
-  position: absolute;
-  right: 5px;
-  bottom: 6px;
+  float: right;
 }
 span.delete {
   font-size: 14px;
