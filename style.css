@@ -237,6 +237,10 @@ div.lower-left > div.nav-button > div.nav-menu {
   bottom: 22px;
   right: initial;
   top: initial;
+  text-align: left;
+}
+div.lower-left > div.nav-button > div.nav-menu > div {
+  padding: 3px 22px;
 }
 span#username {
   display: inline-block;
