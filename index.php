@@ -303,42 +303,32 @@ HTML;
 echo <<<HTML
             <option value="0">New squad...</option>
           </select>
+        </div>
+        <div class="lower-left">
           <div class="nav-button">
-            <img
-              id="account"
-              src="{$base_url}images/account.svg"
-              alt="account settings"
-            />
-
-HTML;
-if ($username) {
-  echo <<<HTML
-            <span id="username">$username</span>
-
-HTML;
-}
-echo <<<HTML
-            <div class="nav-menu">
 
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
+            logged in as
+            <span id="username">$username</span>
+            <div class="nav-menu">
               <div><a href="#" id="log-out-button">Log out</a></div>
               <div><a href="#" id="user-settings-button">Edit account</a></div>
               <div>
                 <a href="#" id="delete-account-button">Delete account</a>
               </div>
+            </div>
 
 HTML;
 } else {
   echo <<<HTML
-              <div><a href="#" id="log-in-button">Log in</a></div>
-              <div><a href="#" id="register-button">Register</a></div>
+            <a href="#" id="log-in-button">Log in</a> ·
+            <a href="#" id="register-button">Register</a>
 
 HTML;
 }
 echo <<<HTML
-            </div>
           </div>
         </div>
         <h2 class="upper-center">

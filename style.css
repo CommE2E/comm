@@ -213,21 +213,37 @@ img.subscribe-loading {
   top: 6px;
   left: 6px;
 }
-span#username {
-  font-family: sans-serif;
-  font-size: 18px;
-  display: inline-block;
-  margin-top: 8px;
-  margin-right: 3px;
-  float: left;
-  padding-bottom: 3px;
-}
-span#username:hover {
-  cursor: default;
-}
 
 h2.upper-center {
   text-align: center;
+}
+
+div.lower-left {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 3px 16px;
+  z-index: 3;
+  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  border: 1px solid #E8E8E8;
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+}
+div.lower-left > div.nav-button > div.nav-menu {
+  left: 0px;
+  right: 0px;
+  bottom: 22px;
+  right: initial;
+  top: initial;
+}
+span#username {
+  display: inline-block;
+  color: #2A5DB0;
+}
+span#username:hover {
+  cursor: default;
 }
 
 div.modal-overlay {
