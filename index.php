@@ -109,6 +109,8 @@ if (
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
+$current_nav_name = $home ? "Home" : $squad_names[$squad];
+
 if ($squad !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
@@ -212,6 +214,7 @@ $this_url = "$month_url&$url_suffix";
         var colors = <?=json_encode($colors)?>;
         var color_is_dark = <?=json_encode($color_is_dark)?>;
         var original_nav = "<?=($home ? 'home' : $squad)?>";
+        var current_nav_name = "<?=$current_nav_name?>";
       </script>
     </head>
     <body>
@@ -282,27 +285,45 @@ HTML;
 
 HTML;
 }
+
+if ($home) {
+  $options = $all_squad_names;
+} else {
+  $options = $all_squad_names;
+  unset($options[$squad]);
+  if ($home || $subscription_exists) {
+    $options = array("home" => "Home") + $options;
+  }
+}
 echo <<<HTML
-          <select id="squad-nav">
+          <div id="squad-nav">
+            <div class="squad-nav-current">
+              <img
+                id="search"
+                src="{$base_url}images/search.svg"
+                alt="search"
+              />
+              <input type="text" id="typeahead" value="{$current_nav_name}" />
+              <span class="squad-nav-first-symbol">&#x25B2;</span>
+              <span class="squad-nav-second-symbol">&#x25BC;</span>
+            </div>
+            <div class="squad-nav-dropdown">
 
 HTML;
-if ($home || $subscription_exists) {
-  $selected = $home ? " selected" : "";
+foreach ($options as $id => $name) {
   echo <<<HTML
-            <option value="home"$selected>Home</option>
+              <div class="squad-nav-option" id="nav_{$id}">
+                {$name}
+              </div>
 
 HTML;
 }
-foreach ($all_squad_names as $id => $name) {
-  $selected = $id === $squad ? " selected" : "";
-  echo <<<HTML
-            <option value="$id"$selected>$name</option>
-
-HTML;
-}
 echo <<<HTML
-            <option value="0">New squad...</option>
-          </select>
+              <div class="squad-nav-option" id="nav_new">
+                New squad...
+              </div>
+            </div>
+          </div>
         </div>
         <div class="lower-left">
           <div class="nav-button">
