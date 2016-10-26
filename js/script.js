@@ -1362,7 +1362,7 @@ function show_day_history(numeric_date, animate) {
 }
 function pretty_date(numeric_date) {
   var month_and_date = $('h2.upper-center').text().replace(/[<>]/g, '').trim();
-  var date = new Date(month_and_date + " " + numeric_date);
+  var date = new Date(numeric_date + " " + month_and_date);
   return $.format.date(date, "MMMM D, yyyy");
 }
 
