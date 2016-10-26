@@ -1244,7 +1244,21 @@ HTML;
 
 HTML;
 }
-?>
+if (DEV) {
+  echo <<<HTML
+      <script src="js/jspm_packages/system.js"></script>
+      <script src="js/config.js"></script>
+      <script>
+        System.import("script.js");
+      </script>
+
+HTML;
+} else {
+  echo <<<HTML
       <script src="js/build.js"></script>
+
+HTML;
+}
+?>
     </body>
 </html>
