@@ -1,3 +1,15 @@
+// Polyfill everything so even ES3 browsers work
+import 'babel-polyfill';
+
+// jQuery and plugins
+import $ from 'jquery';
+import 'timeago'; // side effect: $.timeago
+import 'jquery-dateformat'; // side effect: $.format
+import 'spectrum-colorpicker'; // side effect: $.spectrum
+
+// Modernizr (custom, so it's not a JSPM package)
+import 'modernizr-custom';
+
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 var new_squad = null;
 var creating = {};

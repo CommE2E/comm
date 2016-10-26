@@ -188,14 +188,6 @@ $this_url = "$month_url&$url_suffix";
       />
       <link rel="stylesheet" type="text/css" href="style.css" />
       <link rel="stylesheet" type="text/css" href="spectrum.css" />
-      <script
-        src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
-      >
-      </script>
-      <script src="jquery.timeago.js"></script>
-      <script src="jquery.dateFormat.min.js"></script>
-      <script src="modernizr-custom.js"></script>
-      <script src="spectrum.js"></script>
       <script>
         var squad = <?=($squad === null ? "null" : $squad)?>;
         var email = "<?=$email?>";
@@ -1253,6 +1245,6 @@ HTML;
 HTML;
 }
 ?>
-      <script src="script.js"></script>
+      <script src="js/build.js"></script>
     </body>
 </html>
