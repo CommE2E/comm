@@ -11,6 +11,7 @@ type Props = {
   defaultSquads: {[id: string]: string},
   authorizedSquads: {[id: string]: bool},
   loggedIn: bool,
+  subscriptionExists: bool,
 };
 type State = {
   active: bool,
@@ -21,12 +22,12 @@ class Typeahead extends React.Component {
 
   props: Props;
   state: State;
-  setActive: (active: bool) => void;
-  freeze: (navID: string) => void;
-  unfreeze: () => void;
-  onClick: (event: SyntheticEvent) => void;
-  onKeyUp: (event: SyntheticEvent) => void;
+
   input: HTMLInputElement;
+
+  freeze: (navID: string) => void;
+  onClick: (event: SyntheticEvent) => void;
+  onKeyDown: (event: SyntheticEvent) => void;
 
   constructor(props: Props) {
     super(props);
@@ -34,11 +35,9 @@ class Typeahead extends React.Component {
       active: false,
       frozenNavID: null,
     };
-    this.setActive = this.setActive.bind(this);
     this.freeze = this.freeze.bind(this);
-    this.unfreeze = this.unfreeze.bind(this);
     this.onClick = this.onClick.bind(this);
-    this.onKeyUp = this.onKeyUp.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   render() {
@@ -47,53 +46,19 @@ class Typeahead extends React.Component {
 
     if (this.state.active) {
       let options = [];
-      if (this.props.currentNavID !== "home") {
-        options.push(
-          <TypeaheadOption
-            navID="home"
-            navName="Home"
-            monthURL={this.props.monthURL}
-            authorizedSquads={this.props.authorizedSquads}
-            loggedIn={this.props.loggedIn}
-            freezeTypeahead={this.freeze}
-            hideTypeahead={() => this.setActive(false)}
-            frozen={this.state.frozenNavID === "home"}
-            key="home"
-          />
-        );
+      if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
+        options.push(this.buildOption("home", "Home"));
       }
       for (let squadID: string in this.props.defaultSquads) {
         if (squadID === this.props.currentNavID) {
           continue;
         }
-        let squadName: string = this.props.defaultSquads[squadID];
-        options.push(
-          <TypeaheadOption
-            navID={squadID}
-            navName={squadName}
-            monthURL={this.props.monthURL}
-            authorizedSquads={this.props.authorizedSquads}
-            loggedIn={this.props.loggedIn}
-            freezeTypeahead={this.freeze}
-            hideTypeahead={() => this.setActive(false)}
-            frozen={this.state.frozenNavID === squadID}
-            key={squadID}
-          />
-        );
+        options.push(this.buildOption(
+          squadID,
+          this.props.defaultSquads[squadID]
+        ));
       }
-      options.push(
-        <TypeaheadOption
-          navID="new"
-          navName="New squad..."
-          monthURL={this.props.monthURL}
-          authorizedSquads={this.props.authorizedSquads}
-          loggedIn={this.props.loggedIn}
-          freezeTypeahead={this.freeze}
-          hideTypeahead={() => this.setActive(false)}
-          frozen={this.state.frozenNavID === "new"}
-          key="new"
-        />
-      );
+      options.push(this.buildOption("new", "New squad..."));
       dropdown = (
         <div className="squad-nav-dropdown">
           {options}
@@ -122,12 +87,28 @@ class Typeahead extends React.Component {
             ref={(input) => this.input = input}
             defaultValue={this.props.currentNavName}
             onBlur={() => this.setActive(false)}
-            onKeyUp={this.onKeyUp}
+            onKeyDown={this.onKeyDown}
           />
           {navSymbols}
           {dropdown}
         </div>
       </div>
+    );
+  }
+
+  buildOption(navID: string, navName: string) {
+    return (
+      <TypeaheadOption
+        navID={navID}
+        navName={navName}
+        monthURL={this.props.monthURL}
+        authorizedSquads={this.props.authorizedSquads}
+        loggedIn={this.props.loggedIn}
+        freezeTypeahead={this.freeze}
+        hideTypeahead={() => this.setActive(false)}
+        frozen={this.state.frozenNavID === navID}
+        key={navID}
+      />
     );
   }
 
@@ -171,7 +152,7 @@ class Typeahead extends React.Component {
     return this.state.active;
   }
 
-  onKeyUp(event: SyntheticEvent) {
+  onKeyDown(event: SyntheticEvent) {
     if (event.keyCode == 27) { // esc key
       this.setActive(false);
     }
@@ -187,6 +168,7 @@ Typeahead.propTypes = {
   defaultSquads: React.PropTypes.objectOf(React.PropTypes.string).isRequired,
   authorizedSquads: React.PropTypes.objectOf(React.PropTypes.bool).isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
+  subscriptionExists: React.PropTypes.bool.isRequired,
 };
 
 export default Typeahead;

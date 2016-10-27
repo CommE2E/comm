@@ -19,12 +19,13 @@ let typeahead = null;
 ReactDOM.render(
   <Typeahead
     baseURL={base_url}
+    monthURL={month_url}
     currentNavID={original_nav}
     currentNavName={current_nav_name}
     defaultSquads={all_squad_names}
     authorizedSquads={authorized_squads}
     loggedIn={!!email}
-    monthURL={month_url}
+    subscriptionExists={subscription_exists}
     ref={(ta) => typeahead = ta}
   />,
   document.getElementById('squad-nav-parent')

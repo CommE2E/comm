@@ -208,6 +208,7 @@ $this_url = "$month_url&$url_suffix";
         var color_is_dark = <?=json_encode($color_is_dark)?>;
         var original_nav = "<?=($home ? 'home' : $squad)?>";
         var current_nav_name = "<?=$current_nav_name?>";
+        var subscription_exists = <?=($subscription_exists ? 'true' : 'false')?>;
       </script>
     </head>
     <body>

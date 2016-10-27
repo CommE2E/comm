@@ -19,6 +19,7 @@ class TypeaheadOption extends React.Component {
 
   static defaultProps: { frozen: bool };
   props: Props;
+
   onClick: (event: SyntheticEvent) => void;
 
   constructor(props: Props) {
