@@ -43,6 +43,7 @@ class Typeahead extends React.Component {
   render() {
     let dropdown = null;
     let navSymbols = null;
+    let typeaheadValue = null;
 
     if (this.state.active) {
       let options = [];
@@ -71,6 +72,7 @@ class Typeahead extends React.Component {
           <span className="squad-nav-second-symbol">&#x25BC;</span>
         </span>
       );
+      typeaheadValue = this.props.currentNavName;
     }
 
     return (
@@ -88,6 +90,7 @@ class Typeahead extends React.Component {
             defaultValue={this.props.currentNavName}
             onBlur={() => this.setActive(false)}
             onKeyDown={this.onKeyDown}
+            value={typeaheadValue}
           />
           {navSymbols}
           {dropdown}
