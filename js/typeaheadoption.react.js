@@ -20,13 +20,6 @@ class TypeaheadOption extends React.Component {
   static defaultProps: { frozen: bool };
   props: Props;
 
-  onClick: (event: SyntheticEvent) => void;
-
-  constructor(props: Props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
-  }
-
   render() {
     return (
       <div
@@ -35,7 +28,7 @@ class TypeaheadOption extends React.Component {
           {'squad-nav-frozen-option': this.props.frozen},
         )}
         id={"nav_" + this.props.navID}
-        onMouseDown={this.onClick}
+        onMouseDown={this.onClick.bind(this)}
       >
         {this.props.navName}
       </div>

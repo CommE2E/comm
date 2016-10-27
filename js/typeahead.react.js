@@ -22,12 +22,7 @@ class Typeahead extends React.Component {
 
   props: Props;
   state: State;
-
   input: HTMLInputElement;
-
-  freeze: (navID: string) => void;
-  onClick: (event: SyntheticEvent) => void;
-  onKeyDown: (event: SyntheticEvent) => void;
 
   constructor(props: Props) {
     super(props);
@@ -35,9 +30,6 @@ class Typeahead extends React.Component {
       active: false,
       frozenNavID: null,
     };
-    this.freeze = this.freeze.bind(this);
-    this.onClick = this.onClick.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   render() {
@@ -76,7 +68,7 @@ class Typeahead extends React.Component {
     }
 
     return (
-      <div id="squad-nav" onMouseDown={this.onClick}>
+      <div id="squad-nav" onMouseDown={this.onClick.bind(this)}>
         <div className="squad-nav-current">
           <img
             id="search"
@@ -89,7 +81,7 @@ class Typeahead extends React.Component {
             ref={(input) => this.input = input}
             defaultValue={this.props.currentNavName}
             onBlur={() => this.setActive(false)}
-            onKeyDown={this.onKeyDown}
+            onKeyDown={this.onKeyDown.bind(this)}
             value={typeaheadValue}
           />
           {navSymbols}
@@ -107,7 +99,7 @@ class Typeahead extends React.Component {
         monthURL={this.props.monthURL}
         authorizedSquads={this.props.authorizedSquads}
         loggedIn={this.props.loggedIn}
-        freezeTypeahead={this.freeze}
+        freezeTypeahead={this.freeze.bind(this)}
         hideTypeahead={() => this.setActive(false)}
         frozen={this.state.frozenNavID === navID}
         key={navID}
