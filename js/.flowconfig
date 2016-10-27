@@ -1,0 +1,9 @@
+[ignore]
+
+[include]
+
+[libs]
+
+[options]
+module.name_mapper='^classnames$' -> '<PROJECT_ROOT>/jspm_packages/npm/classnames@2.2.5.js'
+module.name_mapper='^jquery$' -> '<PROJECT_ROOT>/jspm_packages/npm/jquery@3.1.1.js'

@@ -172,6 +172,9 @@ div.upper-right > select {
   margin: 4px 6px 0 1px;
   float: left;
 }
+div#squad-nav-parent {
+  float: left;
+}
 div#squad-nav {
   padding: 3px 12px;
   z-index: 1;
@@ -183,7 +186,6 @@ div#squad-nav {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  float: left;
 }
 div.squad-nav-current {
   min-width: 180px;
@@ -219,7 +221,6 @@ span.squad-nav-second-symbol {
   clear: right;
 }
 div.squad-nav-dropdown {
-  display: none;
   border-top: 1px solid #C8C8C8;
   margin-top: 3px;
   padding-top: 3px;

@@ -193,6 +193,7 @@ $this_url = "$month_url&$url_suffix";
         var email = "<?=$email?>";
         var squad_name = "<?=(isset($squad_names[$squad]) ? $squad_names[$squad] : '')?>";
         var squad_names = <?=json_encode($squad_names)?>;
+        var all_squad_names = <?=json_encode($all_squad_names)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
         var authorized_squads = <?=json_encode($authorized_squads)?>;
@@ -277,44 +278,8 @@ HTML;
 
 HTML;
 }
-
-if ($home) {
-  $options = $all_squad_names;
-} else {
-  $options = $all_squad_names;
-  unset($options[$squad]);
-  if ($home || $subscription_exists) {
-    $options = array("home" => "Home") + $options;
-  }
-}
 echo <<<HTML
-          <div id="squad-nav">
-            <div class="squad-nav-current">
-              <img
-                id="search"
-                src="{$base_url}images/search.svg"
-                alt="search"
-              />
-              <input type="text" id="typeahead" value="{$current_nav_name}" />
-              <span class="squad-nav-first-symbol">&#x25B2;</span>
-              <span class="squad-nav-second-symbol">&#x25BC;</span>
-            </div>
-            <div class="squad-nav-dropdown">
-
-HTML;
-foreach ($options as $id => $name) {
-  echo <<<HTML
-              <div class="squad-nav-option" id="nav_{$id}">
-                {$name}
-              </div>
-
-HTML;
-}
-echo <<<HTML
-              <div class="squad-nav-option" id="nav_new">
-                New squad...
-              </div>
-            </div>
+          <div id="squad-nav-parent">
           </div>
         </div>
         <div class="lower-left">

@@ -10,6 +10,26 @@ import 'spectrum-colorpicker'; // side effect: $.spectrum
 // Modernizr (custom, so it's not a JSPM package)
 import 'modernizr-custom';
 
+// React
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Typeahead from 'typeahead.react'
+
+let typeahead = null;
+ReactDOM.render(
+  <Typeahead
+    baseURL={base_url}
+    currentNavID={original_nav}
+    currentNavName={current_nav_name}
+    defaultSquads={all_squad_names}
+    authorizedSquads={authorized_squads}
+    loggedIn={!!email}
+    monthURL={month_url}
+    ref={(ta) => typeahead = ta}
+  />,
+  document.getElementById('squad-nav-parent')
+);
+
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 var new_squad = null;
 var creating = {};
@@ -142,100 +162,21 @@ $('input#refresh-button').click(function() {
   window.location.href = this_url;
 });
 
-var typeahead_freeze = false;
-function freeze_typeahead(option_div) {
-  typeahead_freeze = true;
-  option_div.addClass('squad-nav-frozen-option');
-}
-function unfreeze_typeahead() {
-  typeahead_freeze = false;
-  $('div.squad-nav-option').removeClass('squad-nav-frozen-option');
-  update_typeahead(false);
-}
-var typeahead_active = false;
-function update_typeahead(new_typeahead_active) {
-  if (typeahead_freeze || new_typeahead_active == typeahead_active) {
-    return;
-  }
-  typeahead_active = new_typeahead_active;
-  if (typeahead_active) {
-    $('input#typeahead').focus();
-    $('input#typeahead').select();
-    $('div.squad-nav-dropdown').show();
-    $('span.squad-nav-first-symbol').hide();
-    $('span.squad-nav-second-symbol').hide();
-  } else {
-    $('input#typeahead').blur();
-    $('input#typeahead').val(current_nav_name);
-    $('div.squad-nav-dropdown').hide();
-    $('span.squad-nav-first-symbol').show();
-    $('span.squad-nav-second-symbol').show();
-  }
-}
-$(window).click(function(event) {
-  var ta = typeahead_active;
-  var target = $(event.target);
-  var option = target.closest('div.squad-nav-option');
-  // If the typehead is closed and the target is the typeahead, it opens
-  if (!ta && target.closest('div#squad-nav').length > 0) {
-    update_typeahead(true);
-  // If the typeahead is open and the target is the actual text, do nothing
-  } else if (ta && target.closest('input#typeahead').length > 0) {
-  // If the typeahead is open and the target is a selection, navigate to it
-  } else if (ta && option.length > 0) {
-    var next = option.attr('id').split('_')[1];
-    if (next == 'new') {
-      if (email) {
-        freeze_typeahead(option);
-        $('div#new-squad-modal-overlay').show();
-        $('div#new-squad-modal input:visible')
-          .filter(function() { return this.value === ""; })
-          .first()
-          .focus();
-      } else {
-        update_typeahead(false);
-        $('div#login-to-create-squad-modal-overlay').show();
-      }
-    } else if (next == 'home') {
-      window.location.href = month_url+"&home";
-    } else if (authorized_squads[next] !== true) {
-      freeze_typeahead(option);
-      var new_squad_name = option.text();
-      $('div#squad-login-name > div.form-content').text(new_squad_name);
-      $('div#squad-login-modal-overlay').show();
-      $('div#squad-login-modal input:visible')
-        .filter(function() { return this.value === ""; })
-        .first()
-        .focus();
-    } else {
-      window.location.href = month_url+"&squad="+next;
-    }
-  // If the typeahead is open, close it
-  } else if (ta) {
-    update_typeahead(false);
-  }
-});
-$(document).keyup(function(e) {
-  if (e.keyCode == 27) { // esc key
-    update_typeahead(false);
-  }
-});
-
 $('div#squad-login-modal span.modal-close').click(function() {
-  unfreeze_typeahead();
+  typeahead.unfreeze();
   $('input#squad-password').val("");
   $('div#squad-login-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'squad-login-modal-overlay') {
-    unfreeze_typeahead();
+    typeahead.unfreeze();
     $('input#squad-password').val("");
     $('div#squad-login-modal span.modal-form-error').text("");
   }
 });
 $(document).keyup(function(e) {
   if (e.keyCode == 27) { // esc key
-    unfreeze_typeahead();
+    typeahead.unfreeze();
     $('input#squad-password').val("");
     $('div#squad-login-modal span.modal-form-error').text("");
   }
@@ -284,14 +225,14 @@ $('input#new-squad-open').click(function() {
   $('div#new-squad-confirm-password-container').hide();
 });
 $('div#new-squad-modal span.modal-close').click(function() {
-  unfreeze_typeahead();
+  typeahead.unfreeze();
   $('input#new-squad-password').val("");
   $('input#new-squad-confirm-password').val("");
   $('div#new-squad-modal span.modal-form-error').text("");
 });
 $(window).click(function(event) {
   if (event.target.id === 'new-squad-modal-overlay') {
-    unfreeze_typeahead();
+    typeahead.unfreeze();
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
     $('div#new-squad-modal span.modal-form-error').text("");
@@ -299,7 +240,7 @@ $(window).click(function(event) {
 });
 $(document).keyup(function(e) {
   if (e.keyCode == 27) { // esc key
-    unfreeze_typeahead();
+    typeahead.unfreeze();
     $('input#new-squad-password').val("");
     $('input#new-squad-confirm-password').val("");
     $('div#new-squad-modal span.modal-form-error').text("");
@@ -1036,7 +977,7 @@ $('div#edit-squad-modal form').submit(function(event) {
 });
 
 $('a.show-login-modal').click(function() {
-  unfreeze_typeahead();
+  typeahead.unfreeze();
   $('div.modal-overlay').hide();
   $('div#log-in-modal-overlay').show();
   $('div#log-in-modal input:visible')
