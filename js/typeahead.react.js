@@ -1,21 +1,29 @@
 // @flow
 
+import type { SquadInfo } from './squad-info';
+import { squadInfoPropType } from './squad-info';
+
 import React from 'react';
-import TypeaheadOption from './typeaheadoption.react';
+import classNames from 'classnames';
+
+import TypeaheadOption from './typeahead-option.react';
+import TypeaheadSquadOption from './typeahead-squad-option.react';
+import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 
 type Props = {
   baseURL: string,
   monthURL: string,
   currentNavID: string,
   currentNavName: string,
-  defaultSquads: {[id: string]: string},
-  authorizedSquads: {[id: string]: bool},
+  squadInfos: {[id: string]: SquadInfo},
   loggedIn: bool,
-  subscriptionExists: bool,
+  openSquadAuthModal: (id: string, name: string) => void,
 };
 type State = {
   active: bool,
   frozenNavID: ?string,
+  typeaheadValue: string,
+  squadInfos: {[id: string]: SquadInfo},
 };
 
 class Typeahead extends React.Component {
@@ -23,52 +31,128 @@ class Typeahead extends React.Component {
   props: Props;
   state: State;
   input: HTMLInputElement;
+  dropdown: HTMLDivElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
       active: false,
       frozenNavID: null,
+      typeaheadValue: props.currentNavName,
+      squadInfos: props.squadInfos,
     };
   }
 
   render() {
     let dropdown = null;
-    let navSymbols = null;
-    let typeaheadValue = null;
+    let rightAligned = null;
 
     if (this.state.active) {
-      let options = [];
-      if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
-        options.push(this.buildOption("home", "Home"));
-      }
-      for (let squadID: string in this.props.defaultSquads) {
+      let subscriptionExists = false;
+      const subscribedInfos = {};
+      const recommendedInfos = {};
+      for (const squadID: string in this.state.squadInfos) {
+        const squadInfo = this.state.squadInfos[squadID];
+        if (squadInfo.subscribed) {
+          subscriptionExists = true;
+        }
         if (squadID === this.props.currentNavID) {
           continue;
         }
-        options.push(this.buildOption(
+        if (squadInfo.subscribed) {
+          subscribedInfos[squadID] = squadInfo;
+        } else {
+          recommendedInfos[squadID] = squadInfo;
+        }
+      }
+
+      const panes = [];
+      if (this.props.currentNavID !== "home" && subscriptionExists) {
+        panes.push(
+          <div className="squad-nav-option-pane" key="home">
+            <div className="squad-nav-option-pane-header">
+              Home
+            </div>
+            {this.buildOption("home", "Home")}
+          </div>
+        );
+      }
+      const subscribedOptions = [];
+      for (const squadID: string in subscribedInfos) {
+        subscribedOptions.push(this.buildSquadOption(
           squadID,
-          this.props.defaultSquads[squadID]
+          subscribedInfos[squadID]
         ));
       }
-      options.push(this.buildOption("new", "New squad..."));
-      dropdown = (
-        <div className="squad-nav-dropdown">
-          {options}
+      if (subscribedOptions.length > 0) {
+        panes.push(
+          <div className="squad-nav-option-pane" key="subscribed">
+            <div className="squad-nav-option-pane-header">
+              Subscribed
+            </div>
+            {subscribedOptions}
+          </div>
+        );
+      }
+      const recommendedOptions = [];
+      for (const squadID: string in recommendedInfos) {
+        recommendedOptions.push(this.buildSquadOption(
+          squadID,
+          recommendedInfos[squadID]
+        ));
+      }
+      if (recommendedOptions.length > 0) {
+        panes.push(
+          <div className="squad-nav-option-pane" key="recommended">
+            <div className="squad-nav-option-pane-header">
+              Recommended
+            </div>
+            {recommendedOptions}
+          </div>
+        );
+      }
+      panes.push(
+        <div className="squad-nav-option-pane" key="actions">
+          <div className="squad-nav-option-pane-header">
+            Actions
+          </div>
+          {this.buildOption("new", "New squad...")}
         </div>
       );
+      dropdown = (
+        <div
+          className="squad-nav-dropdown"
+          ref={(dropdown) => this.dropdown = dropdown}
+        >
+          {panes}
+        </div>
+      );
+      let currentSquadInfo = this.state.squadInfos[this.props.currentNavID];
+      if (currentSquadInfo !== undefined) {
+        rightAligned = (
+          <TypeaheadOptionButtons
+            navID={this.props.currentNavID}
+            squadInfo={currentSquadInfo}
+            baseURL={this.props.baseURL}
+            updateSubscription={this.updateSubscription.bind(this)}
+          />
+        );
+      }
     } else {
-      navSymbols = (  
+      rightAligned = (  
         <span>
           <span className="squad-nav-first-symbol">&#x25B2;</span>
           <span className="squad-nav-second-symbol">&#x25BC;</span>
         </span>
       );
-      typeaheadValue = this.props.currentNavName;
     }
 
     return (
-      <div id="squad-nav" onMouseDown={this.onClick.bind(this)}>
+      <div
+        id="squad-nav"
+        onMouseDown={this.onMouseDown.bind(this)}
+        className={classNames({'squad-nav-active': this.state.active })}
+      >
         <div className="squad-nav-current">
           <img
             id="search"
@@ -79,29 +163,44 @@ class Typeahead extends React.Component {
             type="text"
             id="typeahead"
             ref={(input) => this.input = input}
-            defaultValue={this.props.currentNavName}
             onBlur={() => this.setActive(false)}
             onKeyDown={this.onKeyDown.bind(this)}
-            value={typeaheadValue}
+            value={this.state.typeaheadValue}
+            onChange={this.onChange.bind(this)}
           />
-          {navSymbols}
-          {dropdown}
+          {rightAligned}
         </div>
+        {dropdown}
       </div>
     );
   }
 
-  buildOption(navID: string, navName: string) {
+  buildOption(navID: string, name: string) {
     return (
       <TypeaheadOption
         navID={navID}
-        navName={navName}
+        name={name}
         monthURL={this.props.monthURL}
-        authorizedSquads={this.props.authorizedSquads}
         loggedIn={this.props.loggedIn}
         freezeTypeahead={this.freeze.bind(this)}
         hideTypeahead={() => this.setActive(false)}
         frozen={this.state.frozenNavID === navID}
+        key={navID}
+      />
+    );
+  }
+
+  buildSquadOption(navID: string, squadInfo: SquadInfo) {
+    return (
+      <TypeaheadSquadOption
+        navID={navID}
+        squadInfo={squadInfo}
+        monthURL={this.props.monthURL}
+        baseURL={this.props.baseURL}
+        freezeTypeahead={this.freeze.bind(this)}
+        frozen={this.state.frozenNavID === navID}
+        openSquadAuthModal={this.props.openSquadAuthModal}
+        updateSubscription={this.updateSubscription.bind(this)}
         key={navID}
       />
     );
@@ -113,18 +212,30 @@ class Typeahead extends React.Component {
         if (prevState.frozenNavID !== null || active === prevState.active) {
           return {};
         }
+        let typeaheadValue = prevState.typeaheadValue;
         if (active) {
           this.input.select();
           this.input.focus();
+        } else {
+          typeaheadValue = this.props.currentNavName;
         }
-        return { active: active };
+        // TODO take out this debugging code
+        return { active: true, typeaheadValue: typeaheadValue };
       },
     );
   }
 
-  onClick(event: SyntheticEvent) {
+  onMouseDown(event: SyntheticEvent) {
     if (!this.state.active) {
       this.setActive(true);
+      // This prevents a possible focus event on input#typeahead from overriding
+      // the select() that gets called in setActive
+      event.preventDefault();
+    } else if (
+      event.target instanceof Node &&
+      this.dropdown.contains(event.target)
+    ) {
+      // This prevents onBlur from firing on input#typeahead
       event.preventDefault(); 
     } else if (
       this.state.active &&
@@ -150,7 +261,23 @@ class Typeahead extends React.Component {
   onKeyDown(event: SyntheticEvent) {
     if (event.keyCode == 27) { // esc key
       this.setActive(false);
+      this.input.blur();
     }
+  }
+
+  onChange(event: SyntheticEvent) {
+    if (event.target instanceof HTMLInputElement) {
+      this.setState({ typeaheadValue: event.target.value });
+    }
+  }
+
+  updateSubscription(squadID: string, newSubscribed: bool) {
+    this.setState(
+      (prevState, props) => {
+        prevState.squadInfos[squadID].subscribed = newSubscribed;
+        return prevState;
+      },
+    );
   }
 
 }
@@ -160,10 +287,9 @@ Typeahead.propTypes = {
   monthURL: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
   currentNavName: React.PropTypes.string.isRequired,
-  defaultSquads: React.PropTypes.objectOf(React.PropTypes.string).isRequired,
-  authorizedSquads: React.PropTypes.objectOf(React.PropTypes.bool).isRequired,
+  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
-  subscriptionExists: React.PropTypes.bool.isRequired,
+  openSquadAuthModal: React.PropTypes.func.isRequired,
 };
 
 export default Typeahead;

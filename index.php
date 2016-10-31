@@ -67,19 +67,23 @@ $result = $conn->query(
     "AS is_authed, r.subscribed, s.color FROM squads s LEFT JOIN roles r ".
     "ON r.squad = s.id AND r.user = {$viewer_id}"
 );
-$all_squad_names = array();
+$squad_infos = array();
 $squad_names = array();
 $colors = array();
 $color_is_dark = array();
-$authorized_squads = array();
 $viewer_can_edit_squad = false;
 $viewer_subscribed = false;
 $squad_requires_auth = false;
 $subscription_exists = false;
 while ($row = $result->fetch_assoc()) {
-  $all_squad_names[$row['id']] = $row['name'];
-  $authorized_squads[$row['id']] = $row['is_authed'] || !$row['requires_auth'];
-  $subscribed_authorized = $authorized_squads[$row['id']] && $row['subscribed'];
+  $authorized = $row['is_authed'] || !$row['requires_auth'];
+  $subscribed_authorized = $authorized && $row['subscribed'];
+  $squad_infos[$row['id']] = array(
+    'name' => $row['name'],
+    'authorized' => $authorized,
+    'subscribed' => $subscribed_authorized,
+    'editable' => (int)$row['role'] >= ROLE_CREATOR,
+  );
   if ($subscribed_authorized) {
     $subscription_exists = true;
   }
@@ -89,7 +93,7 @@ while ($row = $result->fetch_assoc()) {
     $squad_names[$row['id']] = $row['name'];
   }
   if ((int)$row['id'] === $squad) {
-    $viewer_can_edit_squad = (int)$row['role'] >= ROLE_CREATOR;
+    $viewer_can_edit_squad = $squad_infos[$row['id']]['editable'];
     $viewer_subscribed = (bool)$row['subscribed'];
     $squad_requires_auth = (bool)$row['requires_auth'];
   }
@@ -104,7 +108,8 @@ if (!isset($_GET['squad']) && $subscription_exists) {
 }
 if (
   ($home && !$subscription_exists) ||
-  (!$home && (!isset($squad_names[$squad]) || !$authorized_squads[$squad]))
+  (!$home &&
+    (!isset($squad_names[$squad]) || !$squad_infos[$squad]['authorized']))
 ) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
@@ -161,7 +166,7 @@ if ($home) {
 }
 while ($row = $result->fetch_assoc()) {
   $entry_squad = intval($row['squad']);
-  if (!$authorized_squads[$entry_squad]) {
+  if (!$squad_infos[$entry_squad]['authorized']) {
     continue;
   }
   $day = intval($row['day']);
@@ -192,11 +197,10 @@ $this_url = "$month_url&$url_suffix";
         var squad = <?=($squad === null ? "null" : $squad)?>;
         var email = "<?=$email?>";
         var squad_name = "<?=(isset($squad_names[$squad]) ? $squad_names[$squad] : '')?>";
-        var squad_names = <?=json_encode($squad_names)?>;
-        var all_squad_names = <?=json_encode($all_squad_names)?>;
+        var squad_names = <?=json_encode($squad_names, JSON_FORCE_OBJECT)?>;
+        var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
-        var authorized_squads = <?=json_encode($authorized_squads)?>;
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
         var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
@@ -208,7 +212,6 @@ $this_url = "$month_url&$url_suffix";
         var color_is_dark = <?=json_encode($color_is_dark)?>;
         var original_nav = "<?=($home ? 'home' : $squad)?>";
         var current_nav_name = "<?=$current_nav_name?>";
-        var subscription_exists = <?=($subscription_exists ? 'true' : 'false')?>;
       </script>
     </head>
     <body>
@@ -254,14 +257,6 @@ if (!$home) {
               alt="squad settings"
             />
             <div class="nav-menu">
-              <div>
-                <img
-                  class="subscribe-loading"
-                  src="{$base_url}images/ajax-loader.gif"
-                  alt="loading"
-                />
-                <a href="#" id="subscribe-button">{$subscribe_button_text}</a>
-              </div>
 
 HTML;
   if ($viewer_can_edit_squad) {

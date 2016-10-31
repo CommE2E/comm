@@ -21,10 +21,12 @@ System.config({
     "babel-runtime": "npm:babel-runtime@5.8.38",
     "classnames": "npm:classnames@2.2.5",
     "core-js": "npm:core-js@1.2.7",
+    "fetch": "github:github/fetch@1.0.0",
     "jquery": "npm:jquery@3.1.1",
     "jquery-dateformat": "npm:jquery-dateformat@1.0.3",
     "react": "npm:react@15.3.2",
     "react-dom": "npm:react-dom@15.3.2",
+    "react-text-truncate": "npm:react-text-truncate@0.8.3",
     "spectrum-colorpicker": "npm:spectrum-colorpicker@1.8.0",
     "timeago": "npm:timeago@1.5.3",
     "github:jspm/nodelibs-assert@0.1.0": {
@@ -457,7 +459,7 @@ System.config({
       "core-js": "npm:core-js@1.2.7",
       "immutable": "npm:immutable@3.8.1",
       "isomorphic-fetch": "npm:isomorphic-fetch@2.2.1",
-      "loose-envify": "npm:loose-envify@1.2.0",
+      "loose-envify": "npm:loose-envify@1.3.0",
       "object-assign": "npm:object-assign@4.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "promise": "npm:promise@7.1.1",
@@ -483,16 +485,16 @@ System.config({
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
     "npm:invariant@2.2.1": {
-      "loose-envify": "npm:loose-envify@1.2.0",
+      "loose-envify": "npm:loose-envify@1.3.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:isomorphic-fetch@2.2.1": {
       "node-fetch": "npm:node-fetch@1.6.3",
       "whatwg-fetch": "npm:whatwg-fetch@1.0.0"
     },
-    "npm:loose-envify@1.2.0": {
+    "npm:loose-envify@1.3.0": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
-      "js-tokens": "npm:js-tokens@1.0.3",
+      "js-tokens": "npm:js-tokens@2.0.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "stream": "github:jspm/nodelibs-stream@0.1.0",
       "util": "github:jspm/nodelibs-util@0.1.0"
@@ -533,9 +535,15 @@ System.config({
     "npm:react-dom@15.3.2": {
       "react": "npm:react@15.3.2"
     },
+    "npm:react-text-truncate@0.8.3": {
+      "path": "github:jspm/nodelibs-path@0.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "react": "npm:react@15.3.2",
+      "react-dom": "npm:react-dom@15.3.2"
+    },
     "npm:react@15.3.2": {
       "fbjs": "npm:fbjs@0.8.5",
-      "loose-envify": "npm:loose-envify@1.2.0",
+      "loose-envify": "npm:loose-envify@1.3.0",
       "object-assign": "npm:object-assign@4.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },

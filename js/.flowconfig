@@ -7,3 +7,5 @@
 [options]
 module.name_mapper='^classnames$' -> '<PROJECT_ROOT>/jspm_packages/npm/classnames@2.2.5.js'
 module.name_mapper='^jquery$' -> '<PROJECT_ROOT>/jspm_packages/npm/jquery@3.1.1.js'
+module.name_mapper='^react-text-truncate$' -> '<PROJECT_ROOT>/jspm_packages/npm/react-text-truncate@0.8.3.js'
+module.name_mapper='^fetch$' -> '<PROJECT_ROOT>/jspm_packages/github/github/fetch@1.0.0.js'

@@ -177,7 +177,7 @@ div#squad-nav-parent {
 }
 div#squad-nav {
   padding: 3px 12px;
-  z-index: 1;
+  z-index: 2;
   position: relative;
   border-radius: 5px;
   border: 1px solid #C8C8C8;
@@ -212,6 +212,9 @@ input#typeahead {
   position: absolute;
   width: 140px;
 }
+div.squad-nav-active input#typeahead {
+  width: 373px;
+}
 input#typeahead:focus {
   outline-width: 0;
 }
@@ -224,19 +227,74 @@ div.squad-nav-dropdown {
   border-top: 1px solid #C8C8C8;
   margin-top: 3px;
   padding-top: 3px;
+  width: 400px;
+  cursor: default;
+}
+div.squad-nav-option-pane {
+  padding: 2px 0;
+}
+div.squad-nav-option-pane-header {
+  border-bottom: 1px solid #C8C8C8;
+  padding: 0 4px;
+  text-transform: uppercase;
+  color: #777777;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 9px;
 }
 div.squad-nav-option {
+  cursor: pointer;
   padding-left: 28px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
+  padding-top: 3px;
+}
+div.squad-nav-option-header {
+  position: relative;
+}
+div.squad-nav-option-name {
+  width: 300px;
+}
+ul.squad-nav-option-buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-transform: uppercase;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 9px;
+  list-style-type: none;
+}
+ul.squad-nav-option-buttons > li {
+  list-style-type: none;
+  display: inline-block;
+}
+ul.squad-nav-option-buttons > li + li:before {
+  content: "·";
+  padding: 0 3px
+}
+div.squad-nav-current ul.squad-nav-option-buttons {
+  top: 6px;
+  right: 12px;
+}
+ul.squad-nav-option-buttons a:hover {
+  text-decoration: underline;
+}
+img.subscribe-loading {
+  position: relative;
+  width: 10px;
+  right: 3px;
+  top: 1px;
+}
+div.squad-nav-option-description {
+  font-size: 11px;
+  font-family: sans-serif;
+  font-weight: initial;
+  color: #444444;
+  padding-top: 4px;
 }
 div.squad-nav-option:hover {
   background-color: #E8E8E8;
 }
 div.squad-nav-frozen-option {
   background-color: #E8E8E8;
-}
-div#nav_new {
-  font-style: italic;
 }
 
 div.nav-button {
@@ -272,12 +330,6 @@ div.nav-button > div.nav-menu > div:last-child {
 }
 div.nav-button:hover > div.nav-menu {
   display: block;
-}
-img.subscribe-loading {
-  display: none;
-  position: absolute;
-  top: 6px;
-  left: 6px;
 }
 
 h2.upper-center {
@@ -320,7 +372,7 @@ div.modal-overlay {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 1;
+  z-index: 3;
   display: none;
   width: 100%;
   height: 100%;

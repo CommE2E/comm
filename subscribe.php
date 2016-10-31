@@ -14,6 +14,7 @@ if ($https && !isset($_SERVER['HTTPS'])) {
 if (!isset($_POST['squad']) || !isset($_POST['subscribe'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
+    'test' => $_POST,
   )));
 }
 $squad = (int)$_POST['squad'];

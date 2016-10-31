@@ -4,11 +4,12 @@ import React from 'react';
 import classNames from 'classnames';
 import $ from 'jquery';
 
+import fetchJSON from './fetch-json';
+
 type Props = {
   navID: string,
-  navName: string,
+  name: string,
   monthURL: string,
-  authorizedSquads: {[id: string]: bool},
   loggedIn: bool,
   freezeTypeahead: (navID: string) => void,
   hideTypeahead: () => void,
@@ -28,15 +29,18 @@ class TypeaheadOption extends React.Component {
           {'squad-nav-frozen-option': this.props.frozen},
         )}
         id={"nav_" + this.props.navID}
-        onMouseDown={this.onClick.bind(this)}
+        onClick={this.onClick.bind(this)}
       >
-        {this.props.navName}
+        <div className="squad-nav-option-header">
+          <div className="squad-nav-option-name">
+            {this.props.name}
+          </div>
+        </div>
       </div>
     );
   }
 
   onClick(event: SyntheticEvent) {
-    event.stopPropagation(); 
     if (this.props.navID == 'new') {
       if (this.props.loggedIn) {
         this.props.freezeTypeahead(this.props.navID);
@@ -53,27 +57,15 @@ class TypeaheadOption extends React.Component {
       }
     } else if (this.props.navID == 'home') {
       window.location.href = this.props.monthURL + "&home";
-    } else if (this.props.authorizedSquads[this.props.navID] !== true) {
-      this.props.freezeTypeahead(this.props.navID);
-      // TODO: React-ify modal code
-      $('div#squad-login-name > div.form-content').text(this.props.navName);
-      $('div#squad-login-modal-overlay').show();
-      $('div#squad-login-modal input:visible')
-        .filter(function() { return this.value === ""; })
-        .first()
-        .focus();
-    } else {
-      window.location.href = this.props.monthURL + "&squad=" + this.props.navID;
-    }
+    } 
   }
 
 }
 
 TypeaheadOption.propTypes = {
   navID: React.PropTypes.string.isRequired,
-  navName: React.PropTypes.string.isRequired,
+  name: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  authorizedSquads: React.PropTypes.objectOf(React.PropTypes.bool).isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   hideTypeahead: React.PropTypes.func.isRequired,

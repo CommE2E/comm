@@ -8,12 +8,25 @@ import 'jquery-dateformat'; // side effect: $.format
 import 'spectrum-colorpicker'; // side effect: $.spectrum
 
 // Modernizr (custom, so it's not a JSPM package)
-import 'modernizr-custom';
+import './modernizr-custom';
 
 // React
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Typeahead from 'typeahead.react'
+
+var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
+
+var new_squad = null;
+function open_squad_auth_modal(new_id: string, new_name: string) {
+  $('div#squad-login-name > div.form-content').text(new_name);
+  new_squad = new_id;
+  $('div#squad-login-modal-overlay').show();
+  $('div#squad-login-modal input:visible')
+    .filter(function() { return this.value === ""; })
+    .first()
+    .focus();
+}
 
 let typeahead = null;
 ReactDOM.render(
@@ -22,17 +35,14 @@ ReactDOM.render(
     monthURL={month_url}
     currentNavID={original_nav}
     currentNavName={current_nav_name}
-    defaultSquads={all_squad_names}
-    authorizedSquads={authorized_squads}
+    squadInfos={squad_infos}
     loggedIn={!!email}
-    subscriptionExists={subscription_exists}
+    openSquadAuthModal={open_squad_auth_modal}
     ref={(ta) => typeahead = ta}
   />,
   document.getElementById('squad-nav-parent')
 );
 
-var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
-var new_squad = null;
 var creating = {};
 var needs_update_after_creation = {};
 var new_entry_to_squad = {};
@@ -1446,32 +1456,6 @@ $('div.day-history').on('click', 'a.restore-entry-button', function() {
       textarea_element.style.height = (textarea_element.scrollHeight) + 'px';
       creation_times[entry_id] = data.creation_time;
       $('textarea').each(function (i) { $(this).attr('tabindex', i + 1); });
-    }
-  );
-});
-
-var subscription_changing = false;
-$('a#subscribe-button').click(function() {
-  if (subscription_changing) {
-    return;
-  }
-  subscription_changing = true;
-  $('img.subscribe-loading').show();
-  $.post(
-    'subscribe.php',
-    {
-      'squad': squad,
-      'subscribe': viewer_subscribed ? 0 : 1,
-    },
-    function(data) {
-      console.log(data);
-      $('img.subscribe-loading').hide();
-      if (data.success) {
-        viewer_subscribed = !viewer_subscribed;
-        var text = viewer_subscribed ? "Unsubscribe" : "Subscribe";
-        $('a#subscribe-button').text(text);
-      }
-      subscription_changing = false;
     }
   );
 });
