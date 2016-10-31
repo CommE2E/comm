@@ -36,21 +36,22 @@ class TypeaheadSquadOption extends React.Component {
         onClick={this.onClick.bind(this)}
       >
         <div className="squad-nav-option-header">
-          <div className="squad-nav-option-name">
-            <TextTruncate line={1} text={this.props.squadInfo.name} />
-          </div>
           <TypeaheadOptionButtons
             navID={this.props.navID}
             squadInfo={this.props.squadInfo}
             baseURL={this.props.baseURL}
             updateSubscription={this.props.updateSubscription}
           />
+          <div className="squad-nav-option-name">
+            {this.props.squadInfo.name}
+          </div>
         </div>
         <div className="squad-nav-option-description">
           <TextTruncate
             line={2}
             text="This is an example possible squad description that goes on for
-            long enough and explains the purpose of the squad pretty well I hope."
+              long enough and explains the purpose of the squad pretty well I
+              hope. I need some more text to really test this."
           />
         </div>
       </div>

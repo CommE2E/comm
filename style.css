@@ -188,10 +188,11 @@ div#squad-nav {
   cursor: pointer;
 }
 div.squad-nav-current {
-  min-width: 180px;
+  min-width: 170px;
   padding: 2px 0;
 }
 div.squad-nav-current > img {
+  float: left;
   height: 24px;
   margin-right: 3px;
   margin-bottom: -7px;
@@ -202,6 +203,9 @@ span.squad-nav-first-symbol {
   line-height: 9px;
   padding-top: 1px;
 }
+div.typeahead-container {
+  overflow: hidden;
+}
 input#typeahead {
   padding: 0;
   border: none;
@@ -209,14 +213,17 @@ input#typeahead {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   font-size: 15px;
-  position: absolute;
-  width: 140px;
+  width: 125px;
 }
 div.squad-nav-active input#typeahead {
-  width: 373px;
+  width: 100%;
 }
 input#typeahead:focus {
   outline-width: 0;
+}
+span.squad-nav-symbols {
+  padding-left: 10px;
+  float: right;
 }
 span.squad-nav-second-symbol {
   float: right;
@@ -248,19 +255,20 @@ div.squad-nav-option {
   padding-top: 3px;
 }
 div.squad-nav-option-header {
-  position: relative;
 }
 div.squad-nav-option-name {
-  width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 ul.squad-nav-option-buttons {
-  position: absolute;
-  top: 0;
-  right: 0;
   text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
   list-style-type: none;
+  float: right;
+  padding-left: 10px;
 }
 ul.squad-nav-option-buttons > li {
   list-style-type: none;
@@ -269,10 +277,6 @@ ul.squad-nav-option-buttons > li {
 ul.squad-nav-option-buttons > li + li:before {
   content: "·";
   padding: 0 3px
-}
-div.squad-nav-current ul.squad-nav-option-buttons {
-  top: 6px;
-  right: 12px;
 }
 ul.squad-nav-option-buttons a:hover {
   text-decoration: underline;

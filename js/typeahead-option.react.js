@@ -35,6 +35,7 @@ class TypeaheadOption extends React.Component {
           <div className="squad-nav-option-name">
             {this.props.name}
           </div>
+          <div className="clear" />
         </div>
       </div>
     );

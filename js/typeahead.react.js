@@ -140,7 +140,7 @@ class Typeahead extends React.Component {
       }
     } else {
       rightAligned = (  
-        <span>
+        <span className="squad-nav-symbols">
           <span className="squad-nav-first-symbol">&#x25B2;</span>
           <span className="squad-nav-second-symbol">&#x25BC;</span>
         </span>
@@ -159,16 +159,18 @@ class Typeahead extends React.Component {
             src={this.props.baseURL + "images/search.svg"}
             alt="search"
           />
-          <input
-            type="text"
-            id="typeahead"
-            ref={(input) => this.input = input}
-            onBlur={() => this.setActive(false)}
-            onKeyDown={this.onKeyDown.bind(this)}
-            value={this.state.typeaheadValue}
-            onChange={this.onChange.bind(this)}
-          />
           {rightAligned}
+          <div className="typeahead-container">
+            <input
+              type="text"
+              id="typeahead"
+              ref={(input) => this.input = input}
+              onBlur={() => this.setActive(false)}
+              onKeyDown={this.onKeyDown.bind(this)}
+              value={this.state.typeaheadValue}
+              onChange={this.onChange.bind(this)}
+            />
+          </div>
         </div>
         {dropdown}
       </div>
