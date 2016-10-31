@@ -4,7 +4,9 @@ import type { SquadInfo } from './squad-info';
 import { squadInfoPropType } from './squad-info';
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import invariant from 'invariant';
 
 import TypeaheadOption from './typeahead-option.react';
 import TypeaheadSquadOption from './typeahead-squad-option.react';
@@ -30,8 +32,10 @@ class Typeahead extends React.Component {
 
   props: Props;
   state: State;
-  input: HTMLInputElement;
-  dropdown: HTMLDivElement;
+  input: ?HTMLInputElement;
+  dropdown: ?HTMLElement;
+  current: ?HTMLElement;
+  magnifyingGlass: ?HTMLElement;
 
   constructor(props: Props) {
     super(props);
@@ -153,11 +157,15 @@ class Typeahead extends React.Component {
         onMouseDown={this.onMouseDown.bind(this)}
         className={classNames({'squad-nav-active': this.state.active })}
       >
-        <div className="squad-nav-current">
+        <div
+          className="squad-nav-current"
+          ref={(current) => this.current = current}
+        >
           <img
             id="search"
             src={this.props.baseURL + "images/search.svg"}
             alt="search"
+            ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
           />
           {rightAligned}
           <div className="typeahead-container">
@@ -216,13 +224,15 @@ class Typeahead extends React.Component {
         }
         let typeaheadValue = prevState.typeaheadValue;
         if (active) {
+          invariant(this.input, "ref should be set");
           this.input.select();
+          invariant(this.input, "ref should be set");
           this.input.focus();
         } else {
           typeaheadValue = this.props.currentNavName;
         }
         // TODO take out this debugging code
-        return { active: true, typeaheadValue: typeaheadValue };
+        return { active: active, typeaheadValue: typeaheadValue };
       },
     );
   }
@@ -233,17 +243,26 @@ class Typeahead extends React.Component {
       // This prevents a possible focus event on input#typeahead from overriding
       // the select() that gets called in setActive
       event.preventDefault();
-    } else if (
-      event.target instanceof Node &&
-      this.dropdown.contains(event.target)
+      return;
+    }
+    const target = event.target;
+    const dropdown = this.dropdown;
+    const current = this.current;
+    const magnifyingGlass = this.magnifyingGlass;
+    invariant(target instanceof HTMLElement, "target isn't element");
+    invariant(dropdown, "ref should be set");
+    invariant(current, "ref should be set");
+    invariant(magnifyingGlass, "ref should be set");
+    if (target.id === "typeahead") {
+      return;
+    }
+    if (
+      dropdown.contains(target) ||
+      (current.contains(target) && !magnifyingGlass.contains(target))
     ) {
       // This prevents onBlur from firing on input#typeahead
       event.preventDefault(); 
-    } else if (
-      this.state.active &&
-      (!(event.target instanceof HTMLInputElement) || 
-        event.target.id !== "typeahead")
-    ) {
+    } else if (this.state.active) {
       this.setActive(false);
     }
   }
@@ -263,6 +282,7 @@ class Typeahead extends React.Component {
   onKeyDown(event: SyntheticEvent) {
     if (event.keyCode == 27) { // esc key
       this.setActive(false);
+      invariant(this.input, "ref should be set");
       this.input.blur();
     }
   }

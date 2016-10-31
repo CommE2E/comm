@@ -2,9 +2,12 @@
 
 import type { SquadInfo } from './squad-info';
 import { squadInfoPropType } from './squad-info';
+import type { LoadingStatus } from './loading-indicator.react';
 
 import React from 'react';
+
 import fetchJSON from './fetch-json';
+import LoadingIndicator from './loading-indicator.react';
 
 type Props = {
   navID: string,
@@ -13,19 +16,25 @@ type Props = {
   updateSubscription: (id: string, subscribed: bool) => void,
 };
 type State = {
-  loading: bool,
+  loadingStatus: LoadingStatus,
 };
 
 class TypeaheadOptionButtons extends React.Component {
 
   props: Props;
   state: State;
+  mounted: bool;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      loading: false,
+      loadingStatus: "inactive",
     };
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   render() {
@@ -36,21 +45,11 @@ class TypeaheadOptionButtons extends React.Component {
         </ul>
       );
     }
-    let loadingIndicator = null;
-    if (this.state.loading) {
-      loadingIndicator = (
-        <img
-          className="subscribe-loading"
-          src={this.props.baseURL + "images/ajax-loader.gif"}
-          alt="loading"
-        />
-      );
-    }
     let editButton = null;
     if (this.props.squadInfo.editable) {
       editButton = (
         <li>
-          <a href='#'>
+          <a href='#' onClick={this.edit.bind(this)}>
             Edit
           </a>
         </li>
@@ -60,7 +59,11 @@ class TypeaheadOptionButtons extends React.Component {
       <ul className="squad-nav-option-buttons">
         {editButton}
         <li>
-          {loadingIndicator}
+          <LoadingIndicator
+            status={this.state.loadingStatus}
+            baseURL={this.props.baseURL}
+            className="squad-nav-option-buttons-loading"
+          />
           <a href='#' onClick={this.subscribe.bind(this)}>
             {this.props.squadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
           </a>
@@ -71,11 +74,11 @@ class TypeaheadOptionButtons extends React.Component {
 
   async subscribe(event: SyntheticEvent) {
     event.stopPropagation();
-    if (this.state.loading) {
+    if (this.state.loadingStatus === "loading") {
       return;
     }
     this.setState({
-      loading: true,
+      loadingStatus: "loading",
     });
     const newSubscribed = !this.props.squadInfo.subscribed;
     const response = await fetchJSON('subscribe.php', {
@@ -83,14 +86,21 @@ class TypeaheadOptionButtons extends React.Component {
       'subscribe': newSubscribed ? 1 : 0,
     });
     if (response.success) {
-      this.setState({
-        loading: false,
-      });
+      if (this.mounted) {
+        this.setState({
+          loadingStatus: "inactive",
+        });
+      }
       this.props.updateSubscription(this.props.navID, newSubscribed);
     } else {
-      // Set state for loading failed :(
-      // TODO probably make a LoadingIndicator component, with an enum for state
+      this.setState({
+        loadingStatus: "error",
+      });
     }
+  }
+
+  edit(event: SyntheticEvent) {
+    event.stopPropagation();
   }
 
 }

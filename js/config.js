@@ -22,6 +22,7 @@ System.config({
     "classnames": "npm:classnames@2.2.5",
     "core-js": "npm:core-js@1.2.7",
     "fetch": "github:github/fetch@1.0.0",
+    "invariant": "npm:invariant@2.2.1",
     "jquery": "npm:jquery@3.1.1",
     "jquery-dateformat": "npm:jquery-dateformat@1.0.3",
     "react": "npm:react@15.3.2",
