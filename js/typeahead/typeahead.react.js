@@ -1,12 +1,13 @@
 // @flow
 
-import type { SquadInfo } from './squad-info';
-import { squadInfoPropType } from './squad-info';
+import type { SquadInfo } from '../squad-info';
+import { squadInfoPropType } from '../squad-info';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import invariant from 'invariant';
+import update from 'immutability-helper';
 
 import TypeaheadOption from './typeahead-option.react';
 import TypeaheadSquadOption from './typeahead-squad-option.react';
@@ -19,10 +20,13 @@ type Props = {
   currentNavName: string,
   squadInfos: {[id: string]: SquadInfo},
   loggedIn: bool,
-  openSquadAuthModal: (id: string, name: string) => void,
+  openSquadAuthModal: (squadInfo: SquadInfo) => void,
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
 };
 type State = {
   active: bool,
+  frozen: bool,
   frozenNavID: ?string,
   typeaheadValue: string,
   squadInfos: {[id: string]: SquadInfo},
@@ -41,6 +45,7 @@ class Typeahead extends React.Component {
     super(props);
     this.state = {
       active: false,
+      frozen: false,
       frozenNavID: null,
       typeaheadValue: props.currentNavName,
       squadInfos: props.squadInfos,
@@ -84,7 +89,6 @@ class Typeahead extends React.Component {
       const subscribedOptions = [];
       for (const squadID: string in subscribedInfos) {
         subscribedOptions.push(this.buildSquadOption(
-          squadID,
           subscribedInfos[squadID]
         ));
       }
@@ -101,7 +105,6 @@ class Typeahead extends React.Component {
       const recommendedOptions = [];
       for (const squadID: string in recommendedInfos) {
         recommendedOptions.push(this.buildSquadOption(
-          squadID,
           recommendedInfos[squadID]
         ));
       }
@@ -135,10 +138,13 @@ class Typeahead extends React.Component {
       if (currentSquadInfo !== undefined) {
         rightAligned = (
           <TypeaheadOptionButtons
-            navID={this.props.currentNavID}
             squadInfo={currentSquadInfo}
             baseURL={this.props.baseURL}
             updateSubscription={this.updateSubscription.bind(this)}
+            setModal={this.props.setModal}
+            clearModal={this.props.clearModal}
+            freezeTypeahead={this.freeze.bind(this)}
+            unfreezeTypeahead={this.unfreeze.bind(this)}
           />
         );
       }
@@ -200,18 +206,20 @@ class Typeahead extends React.Component {
     );
   }
 
-  buildSquadOption(navID: string, squadInfo: SquadInfo) {
+  buildSquadOption(squadInfo: SquadInfo) {
     return (
       <TypeaheadSquadOption
-        navID={navID}
         squadInfo={squadInfo}
         monthURL={this.props.monthURL}
         baseURL={this.props.baseURL}
         freezeTypeahead={this.freeze.bind(this)}
-        frozen={this.state.frozenNavID === navID}
+        unfreezeTypeahead={this.unfreeze.bind(this)}
+        frozen={this.state.frozenNavID === squadInfo.id}
         openSquadAuthModal={this.props.openSquadAuthModal}
         updateSubscription={this.updateSubscription.bind(this)}
-        key={navID}
+        setModal={this.props.setModal}
+        clearModal={this.props.clearModal}
+        key={squadInfo.id}
       />
     );
   }
@@ -219,7 +227,7 @@ class Typeahead extends React.Component {
   setActive(active: bool) {
     this.setState(
       (prevState, props) => {
-        if (prevState.frozenNavID !== null || active === prevState.active) {
+        if (prevState.frozen || active === prevState.active) {
           return {};
         }
         let typeaheadValue = prevState.typeaheadValue;
@@ -231,7 +239,6 @@ class Typeahead extends React.Component {
         } else {
           typeaheadValue = this.props.currentNavName;
         }
-        // TODO take out this debugging code
         return { active: active, typeaheadValue: typeaheadValue };
       },
     );
@@ -267,12 +274,12 @@ class Typeahead extends React.Component {
     }
   }
 
-  freeze(navID: string) {
-    this.setState({ frozenNavID: navID });
+  freeze(navID: ?string) {
+    this.setState({ frozen: true, frozenNavID: navID });
   }
 
   unfreeze() {
-    this.setState({ frozenNavID: null, active: false });
+    this.setState({ frozen: false, frozenNavID: null, active: false });
   }
 
   isActive() {
@@ -296,8 +303,11 @@ class Typeahead extends React.Component {
   updateSubscription(squadID: string, newSubscribed: bool) {
     this.setState(
       (prevState, props) => {
-        prevState.squadInfos[squadID].subscribed = newSubscribed;
-        return prevState;
+        const updateParam = { squadInfos: {} };
+        updateParam.squadInfos[squadID] = {
+          subscribed: { $set: newSubscribed },
+        };
+        return update(prevState, updateParam);
       },
     );
   }
@@ -312,6 +322,8 @@ Typeahead.propTypes = {
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   openSquadAuthModal: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
 };
 
 export default Typeahead;

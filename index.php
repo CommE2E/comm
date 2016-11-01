@@ -79,10 +79,13 @@ while ($row = $result->fetch_assoc()) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
   $subscribed_authorized = $authorized && $row['subscribed'];
   $squad_infos[$row['id']] = array(
+    'id' => $row['id'],
     'name' => $row['name'],
     'authorized' => $authorized,
     'subscribed' => $subscribed_authorized,
     'editable' => (int)$row['role'] >= ROLE_CREATOR,
+    'closed' => (bool)$row['requires_auth'],
+    'color' => $row['color'],
   );
   if ($subscribed_authorized) {
     $subscription_exists = true;
@@ -275,8 +278,7 @@ HTML;
 HTML;
 }
 echo <<<HTML
-          <div id="squad-nav-parent">
-          </div>
+          <div id="squad-nav-parent"></div>
         </div>
         <div class="lower-left">
           <div class="nav-button">
@@ -473,6 +475,7 @@ HTML;
 echo <<<HTML
         </tr>
       </table>
+      <div id="modal-manager-parent"></div>
       <div class="modal-overlay" id="history-modal-overlay">
         <div class="modal" id="history-modal">
           <div class="modal-header">
@@ -973,143 +976,11 @@ HTML;
           </div>
         </div>
       </div>
-      <div class="modal-overlay" id="edit-squad-modal-overlay">
-        <div class="modal large-modal" id="edit-squad-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Edit squad</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div>
-                <div class="form-title">Squad name</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="edit-squad-name"
-                    value="{$squad_names[$squad]}"
-                  />
-                </div>
-              </div>
-              <div class="modal-radio-selector">
-                <div class="form-title">Privacy</div>
-                <div class="form-enum-selector">
-                  <div class="form-enum-container">
-                    <input
-                      type="radio"
-                      name="edit-squad-type"
-                      id="edit-squad-open"
-                      value="open"
 
 HTML;
-    if (!$squad_requires_auth) {
-      echo <<<HTML
-                      checked
-
-HTML;
-    }
-    echo <<<HTML
-                    />
-                    <div class="form-enum-option">
-                      <label for="edit-squad-open">
-                        Open
-                        <span class="form-enum-description">
-                          Anybody can view the contents of an open squad.
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="form-enum-container">
-                    <input
-                      type="radio"
-                      name="edit-squad-type"
-                      id="edit-squad-closed"
-                      value="closed"
-
-HTML;
-    if ($squad_requires_auth) {
-      echo <<<HTML
-                      checked
-
-HTML;
-    }
-    echo <<<HTML
-                    />
-                    <div class="form-enum-option">
-                      <label for="edit-squad-closed">
-                        Closed
-                        <span class="form-enum-description">
-                          Only people with the password can view the contents of
-                          a closed squad.
-                        </span>
-                      </label>
-                      <div
-                        class="form-enum-password
-HTML;
-    if (!$squad_requires_auth) {
-      echo " hidden";
-    }
-    $optional = $squad_requires_auth ? " (optional)" : "";
-    echo <<<HTML
-"
-                        id="edit-squad-new-password-container"
-                      >
-                        <input
-                          type="password"
-                          id="edit-squad-new-password"
-                          placeholder="New squad password{$optional}"
-                        />
-                      </div>
-                      <div
-                        class="form-enum-password
-HTML;
-    if (!$squad_requires_auth) {
-      echo " hidden";
-    }
-    echo <<<HTML
-"
-                        id="edit-squad-confirm-password-container"
-                      >
-                        <input
-                          type="password"
-                          id="edit-squad-confirm-password"
-                          placeholder="Confirm squad password{$optional}"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div class="form-title" id="color-title">Color</div>
-                <div class="form-content">
-                  <input type="text" id="edit-squad-color" />
-                </div>
-              </div>
-              <div>
-                <div class="form-title">Account password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="edit-squad-personal-password"
-                    placeholder="Personal account password"
-                  />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Update squad" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-HTML;
-    $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
-    echo <<<HTML
+  }
+  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
+  echo <<<HTML
       <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
         <div class="modal">
           <div class="modal-header">
@@ -1131,7 +1002,6 @@ HTML;
       </div>
 
 HTML;
-  }
 }
 if ($show === 'verified_email') {
   echo <<<HTML

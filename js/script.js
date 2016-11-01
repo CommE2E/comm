@@ -13,20 +13,27 @@ import './modernizr-custom';
 // React
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Typeahead from 'typeahead.react'
+import Typeahead from 'typeahead/typeahead.react'
+import ModalManager from './modals/modal-manager.react'
 
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 
 var new_squad = null;
-function open_squad_auth_modal(new_id: string, new_name: string) {
-  $('div#squad-login-name > div.form-content').text(new_name);
-  new_squad = new_id;
+function open_squad_auth_modal(squadInfo: SquadInfo) {
+  $('div#squad-login-name > div.form-content').text(squadInfo.name);
+  new_squad = squadInfo.id;
   $('div#squad-login-modal-overlay').show();
   $('div#squad-login-modal input:visible')
     .filter(function() { return this.value === ""; })
     .first()
     .focus();
 }
+
+let modalManager = null;
+ReactDOM.render(
+  <ModalManager ref={(mm) => modalManager = mm} />,
+  document.getElementById('modal-manager-parent'),
+);
 
 let typeahead = null;
 ReactDOM.render(
@@ -38,6 +45,8 @@ ReactDOM.render(
     squadInfos={squad_infos}
     loggedIn={!!email}
     openSquadAuthModal={open_squad_auth_modal}
+    setModal={modalManager.setModal.bind(modalManager)}
+    clearModal={modalManager.clearModal.bind(modalManager)}
     ref={(ta) => typeahead = ta}
   />,
   document.getElementById('squad-nav-parent')
@@ -852,46 +861,6 @@ $('div#delete-squad-modal form').submit(function(event) {
   );
 });
 
-$('input#edit-squad-color').spectrum({
-  'cancelText': "Cancel",
-  'chooseText': "Choose",
-  'preferredFormat': "hex",
-  'color': colors[squad],
-});
-$('input#edit-squad-closed').click(function() {
-  $('div#edit-squad-new-password-container').show();
-  $('div#edit-squad-confirm-password-container').show();
-});
-$('input#edit-squad-open').click(function() {
-  $('div#edit-squad-new-password-container').hide();
-  $('div#edit-squad-confirm-password-container').hide();
-});
-$('a#edit-squad-button').click(function() {
-  $('div#edit-squad-modal-overlay').show();
-  $('input#edit-squad-name').focus();
-});
-$('div#edit-squad-modal span.modal-close').click(function() {
-  $('input#edit-squad-personal-password').val("");
-  $('input#edit-squad-new-password').val("");
-  $('input#edit-squad-confirm-password').val("");
-  $('div#edit-squad-modal span.modal-form-error').text("");
-});
-$(window).click(function(event) {
-  if (event.target.id === 'edit-squad-modal-overlay') {
-    $('input#edit-squad-personal-password').val("");
-    $('input#edit-squad-new-password').val("");
-    $('input#edit-squad-confirm-password').val("");
-    $('div#edit-squad-modal span.modal-form-error').text("");
-  }
-});
-$(document).keyup(function(e) {
-  if (e.keyCode == 27) { // esc key
-    $('input#edit-squad-personal-password').val("");
-    $('input#edit-squad-new-password').val("");
-    $('input#edit-squad-confirm-password').val("");
-    $('div#edit-squad-modal span.modal-form-error').text("");
-  }
-});
 $('div#edit-squad-modal form').submit(function(event) {
   event.preventDefault();
   var name = $('input#edit-squad-name').val().trim();

@@ -1,19 +1,23 @@
 // @flow
 
-import type { SquadInfo } from './squad-info';
-import { squadInfoPropType } from './squad-info';
-import type { LoadingStatus } from './loading-indicator.react';
+import type { SquadInfo } from '../squad-info';
+import { squadInfoPropType } from '../squad-info';
+import type { LoadingStatus } from '../loading-indicator.react';
 
 import React from 'react';
 
-import fetchJSON from './fetch-json';
-import LoadingIndicator from './loading-indicator.react';
+import fetchJSON from '../fetch-json';
+import LoadingIndicator from '../loading-indicator.react';
+import EditSquadModal from '../modals/edit-squad-modal.react';
 
 type Props = {
-  navID: string,
   squadInfo: SquadInfo,
   baseURL: string,
   updateSubscription: (id: string, subscribed: bool) => void,
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
+  freezeTypeahead: (navID: string) => void,
+  unfreezeTypeahead: () => void,
 };
 type State = {
   loadingStatus: LoadingStatus,
@@ -82,7 +86,7 @@ class TypeaheadOptionButtons extends React.Component {
     });
     const newSubscribed = !this.props.squadInfo.subscribed;
     const response = await fetchJSON('subscribe.php', {
-      'squad': this.props.navID,
+      'squad': this.props.squadInfo.id,
       'subscribe': newSubscribed ? 1 : 0,
     });
     if (response.success) {
@@ -91,7 +95,7 @@ class TypeaheadOptionButtons extends React.Component {
           loadingStatus: "inactive",
         });
       }
-      this.props.updateSubscription(this.props.navID, newSubscribed);
+      this.props.updateSubscription(this.props.squadInfo.id, newSubscribed);
     } else {
       this.setState({
         loadingStatus: "error",
@@ -101,15 +105,29 @@ class TypeaheadOptionButtons extends React.Component {
 
   edit(event: SyntheticEvent) {
     event.stopPropagation();
+    this.props.freezeTypeahead(this.props.squadInfo.id);
+    const onClose = () => {
+      this.props.unfreezeTypeahead();
+      this.props.clearModal();
+    }
+    this.props.setModal(
+      <EditSquadModal
+        squadInfo={this.props.squadInfo}
+        onClose={onClose}
+      />
+    );
   }
 
 }
 
 TypeaheadOptionButtons.propTypes = {
-  navID: React.PropTypes.string.isRequired,
   squadInfo: squadInfoPropType.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   updateSubscription: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
+  freezeTypeahead: React.PropTypes.func.isRequired,
+  unfreezeTypeahead: React.PropTypes.func.isRequired,
 };
 
 export default TypeaheadOptionButtons;

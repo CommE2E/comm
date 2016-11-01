@@ -4,7 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 import $ from 'jquery';
 
-import fetchJSON from './fetch-json';
+import fetchJSON from '../fetch-json';
 
 type Props = {
   navID: string,
@@ -13,7 +13,7 @@ type Props = {
   loggedIn: bool,
   freezeTypeahead: (navID: string) => void,
   hideTypeahead: () => void,
-  frozen: bool,
+  frozen?: bool,
 };
 
 class TypeaheadOption extends React.Component {

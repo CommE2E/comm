@@ -22,6 +22,7 @@ System.config({
     "classnames": "npm:classnames@2.2.5",
     "core-js": "npm:core-js@1.2.7",
     "fetch": "github:github/fetch@1.0.0",
+    "immutability-helper": "npm:immutability-helper@2.0.0",
     "invariant": "npm:invariant@2.2.1",
     "jquery": "npm:jquery@3.1.1",
     "jquery-dateformat": "npm:jquery-dateformat@1.0.3",
@@ -481,6 +482,9 @@ System.config({
       "stream": "github:jspm/nodelibs-stream@0.1.0",
       "string_decoder": "github:jspm/nodelibs-string_decoder@0.1.0",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
+    },
+    "npm:immutability-helper@2.0.0": {
+      "invariant": "npm:invariant@2.2.1"
     },
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"

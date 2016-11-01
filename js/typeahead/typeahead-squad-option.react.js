@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from './squad-info';
-import { squadInfoPropType } from './squad-info';
+import type { SquadInfo } from '../squad-info';
+import { squadInfoPropType } from '../squad-info';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -10,14 +10,16 @@ import TextTruncate from 'react-text-truncate';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 
 type Props = {
-  navID: string,
   squadInfo: SquadInfo,
   monthURL: string,
   baseURL: string,
   freezeTypeahead: (navID: string) => void,
-  frozen: bool,
-  openSquadAuthModal: (id: string, name: string) => void,
+  unfreezeTypeahead: () => void,
+  frozen?: bool,
+  openSquadAuthModal: (squadInfo: SquadInfo) => void,
   updateSubscription: (id: string, subscribed: bool) => void,
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
 };
 
 class TypeaheadSquadOption extends React.Component {
@@ -32,15 +34,18 @@ class TypeaheadSquadOption extends React.Component {
           "squad-nav-option",
           {'squad-nav-frozen-option': this.props.frozen},
         )}
-        id={"nav_" + this.props.navID}
+        id={"nav_" + this.props.squadInfo.id}
         onClick={this.onClick.bind(this)}
       >
         <div className="squad-nav-option-header">
           <TypeaheadOptionButtons
-            navID={this.props.navID}
             squadInfo={this.props.squadInfo}
             baseURL={this.props.baseURL}
             updateSubscription={this.props.updateSubscription}
+            setModal={this.props.setModal}
+            clearModal={this.props.clearModal}
+            freezeTypeahead={this.props.freezeTypeahead}
+            unfreezeTypeahead={this.props.unfreezeTypeahead}
           />
           <div className="squad-nav-option-name">
             {this.props.squadInfo.name}
@@ -60,28 +65,28 @@ class TypeaheadSquadOption extends React.Component {
 
   onClick(event: SyntheticEvent) {
     if (this.props.squadInfo.authorized) {
-      window.location.href = this.props.monthURL + "&squad=" + this.props.navID;
+      window.location.href = this.props.monthURL +
+        "&squad=" + this.props.squadInfo.id;
     } else {
       // TODO: make the password entry appear inline
-      this.props.freezeTypeahead(this.props.navID);
-      this.props.openSquadAuthModal(
-        this.props.navID,
-        this.props.squadInfo.name
-      );
+      this.props.freezeTypeahead(this.props.squadInfo.id);
+      this.props.openSquadAuthModal(this.props.squadInfo);
     }
   }
 
 }
 
 TypeaheadSquadOption.propTypes = {
-  navID: React.PropTypes.string.isRequired,
   squadInfo: squadInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
+  unfreezeTypeahead: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
   openSquadAuthModal: React.PropTypes.func.isRequired,
   updateSubscription: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
 };
 
 TypeaheadSquadOption.defaultProps = {
