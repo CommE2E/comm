@@ -33,9 +33,7 @@ class Modal extends React.Component {
             <span className="modal-close" onClick={this.props.onClose}>×</span>
             <h2>{this.props.name}</h2>
           </div>
-          <div className="modal-body">
-            {this.props.children}
-          </div>
+          {this.props.children}
         </div>
       </div>
     );

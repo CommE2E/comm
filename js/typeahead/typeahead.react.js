@@ -14,6 +14,7 @@ import TypeaheadSquadOption from './typeahead-squad-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 
 type Props = {
+  thisURL: string,
   baseURL: string,
   monthURL: string,
   currentNavID: string,
@@ -139,7 +140,9 @@ class Typeahead extends React.Component {
         rightAligned = (
           <TypeaheadOptionButtons
             squadInfo={currentSquadInfo}
+            thisURL={this.props.thisURL}
             baseURL={this.props.baseURL}
+            monthURL={this.props.monthURL}
             updateSubscription={this.updateSubscription.bind(this)}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
@@ -210,6 +213,7 @@ class Typeahead extends React.Component {
     return (
       <TypeaheadSquadOption
         squadInfo={squadInfo}
+        thisURL={this.props.thisURL}
         monthURL={this.props.monthURL}
         baseURL={this.props.baseURL}
         freezeTypeahead={this.freeze.bind(this)}
@@ -315,6 +319,7 @@ class Typeahead extends React.Component {
 }
 
 Typeahead.propTypes = {
+  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,

@@ -762,3 +762,44 @@ div.color-preview {
   border: 1px solid lightgray;
   border-radius: 2px;
 }
+
+div.edit-squad-privacy-container {
+  margin-bottom: 6px;
+}
+div.edit-squad-account-password {
+  border-top: 2px solid #EFEFEF;
+  padding-top: 4px;
+  margin-top: 2px;
+}
+div.edit-squad-account-password p {
+  padding: 3px 0px 5px 0px;
+  font-style: italic;
+  font-size: 13px;
+  color: #777777;
+}
+ul.edit-squad-tab-panel {
+  background-color: #F4F4F4;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+ul.edit-squad-tab-panel li {
+  display: inline-block;
+  list-style-type: none;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 10px 3px 10px;
+}
+ul.edit-squad-tab-panel li.edit-squad-current-tab {
+  background-color: white;
+  border-radius: 5px 5px 0 0;
+  cursor: default;
+}
+ul.edit-squad-tab-panel li > a {
+  color: #555555;
+}
+ul.edit-squad-tab-panel li.edit-squad-current-tab > a {
+  color: #123a7b;
+  cursor: default;
+}

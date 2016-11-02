@@ -8,11 +8,13 @@ import React from 'react';
 
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
-import EditSquadModal from '../modals/edit-squad-modal.react';
+import SquadSettingsModal from '../modals/squad-settings-modal.react';
 
 type Props = {
   squadInfo: SquadInfo,
+  thisURL: string,
   baseURL: string,
+  monthURL: string,
   updateSubscription: (id: string, subscribed: bool) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -54,7 +56,7 @@ class TypeaheadOptionButtons extends React.Component {
       editButton = (
         <li>
           <a href='#' onClick={this.edit.bind(this)}>
-            Edit
+            Settings
           </a>
         </li>
       );
@@ -111,8 +113,10 @@ class TypeaheadOptionButtons extends React.Component {
       this.props.clearModal();
     }
     this.props.setModal(
-      <EditSquadModal
+      <SquadSettingsModal
         squadInfo={this.props.squadInfo}
+        thisURL={this.props.thisURL}
+        monthURL={this.props.monthURL}
         onClose={onClose}
       />
     );
@@ -122,7 +126,9 @@ class TypeaheadOptionButtons extends React.Component {
 
 TypeaheadOptionButtons.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
+  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
+  monthURL: React.PropTypes.string.isRequired,
   updateSubscription: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,

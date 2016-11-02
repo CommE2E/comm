@@ -71,9 +71,7 @@ $squad_infos = array();
 $squad_names = array();
 $colors = array();
 $color_is_dark = array();
-$viewer_can_edit_squad = false;
 $viewer_subscribed = false;
-$squad_requires_auth = false;
 $subscription_exists = false;
 while ($row = $result->fetch_assoc()) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
@@ -96,18 +94,14 @@ while ($row = $result->fetch_assoc()) {
     $squad_names[$row['id']] = $row['name'];
   }
   if ((int)$row['id'] === $squad) {
-    $viewer_can_edit_squad = $squad_infos[$row['id']]['editable'];
     $viewer_subscribed = (bool)$row['subscribed'];
-    $squad_requires_auth = (bool)$row['requires_auth'];
   }
 }
 if (!isset($_GET['squad']) && $subscription_exists) {
   // If we defaulted to squad 254 but a subscription exists, default to home
   $home = true;
   $squad = null;
-  $viewer_can_edit_squad = false;
   $viewer_subscribed = false;
-  $squad_requires_auth = false;
 }
 if (
   ($home && !$subscription_exists) ||
@@ -206,7 +200,6 @@ $this_url = "$month_url&$url_suffix";
         var year = <?=$year?>;
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
-        var squad_requires_auth = <?=($squad_requires_auth ? 'true' : 'false')?>;
         var viewer_subscribed = <?=($viewer_subscribed ? 'true' : 'false')?>;
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
@@ -248,36 +241,6 @@ $next_url = $base_url.
 
 echo <<<HTML
         <div class="upper-right">
-
-HTML;
-if (!$home) {
-  $subscribe_button_text = $viewer_subscribed ? "Unsubscribe" : "Subscribe";
-  echo <<<HTML
-          <div class="nav-button">
-            <img
-              id="squad"
-              src="{$base_url}images/squad.svg"
-              alt="squad settings"
-            />
-            <div class="nav-menu">
-
-HTML;
-  if ($viewer_can_edit_squad) {
-    echo <<<HTML
-              <div><a href="#" id="edit-squad-button">
-                  Edit squad
-              </a></div>
-              <div><a href="#" id="delete-squad-button">Delete squad</a></div>
-
-HTML;
-  }
-  echo <<<HTML
-            </div>
-          </div>
-
-HTML;
-}
-echo <<<HTML
           <div id="squad-nav-parent"></div>
         </div>
         <div class="lower-left">
@@ -940,45 +903,6 @@ HTML;
       </div>
 
 HTML;
-  if (!$home && $viewer_can_edit_squad) {
-    echo <<<HTML
-      <div class="modal-overlay" id="delete-squad-modal-overlay">
-        <div class="modal" id="delete-squad-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Delete squad</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <p class="italic">
-                Your squad will be permanently deleted.
-              </p>
-              <p>
-                Enter password to your account, not your squad.
-              </p>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="delete-squad-password"
-                    placeholder="Account password"
-                  />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Delete squad" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-HTML;
-  }
   $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
   echo <<<HTML
       <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
