@@ -5,13 +5,17 @@ import classNames from 'classnames';
 import $ from 'jquery';
 
 import fetchJSON from '../fetch-json';
+import NewSquadModal from '../modals/new-squad-modal.react';
 
 type Props = {
   navID: string,
   name: string,
   monthURL: string,
   loggedIn: bool,
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
+  unfreezeTypeahead: () => void,
   hideTypeahead: () => void,
   frozen?: bool,
 };
@@ -45,12 +49,16 @@ class TypeaheadOption extends React.Component {
     if (this.props.navID == 'new') {
       if (this.props.loggedIn) {
         this.props.freezeTypeahead(this.props.navID);
-        // TODO: React-ify modal code
-        $('div#new-squad-modal-overlay').show();
-        $('div#new-squad-modal input:visible')
-          .filter(function() { return this.value === ""; })
-          .first()
-          .focus();
+        const onClose = () => {
+          this.props.unfreezeTypeahead();
+          this.props.clearModal();
+        }
+        this.props.setModal(
+          <NewSquadModal
+            monthURL={this.props.monthURL}
+            onClose={onClose}
+          />
+        );
       } else {
         this.props.hideTypeahead();
         // TODO: React-ify modal code
@@ -68,7 +76,10 @@ TypeaheadOption.propTypes = {
   name: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
+  unfreezeTypeahead: React.PropTypes.func.isRequired,
   hideTypeahead: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
 };

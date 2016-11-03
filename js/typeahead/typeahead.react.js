@@ -202,6 +202,9 @@ class Typeahead extends React.Component {
         monthURL={this.props.monthURL}
         loggedIn={this.props.loggedIn}
         freezeTypeahead={this.freeze.bind(this)}
+        unfreezeTypeahead={this.unfreeze.bind(this)}
+        setModal={this.props.setModal}
+        clearModal={this.props.clearModal}
         hideTypeahead={() => this.setActive(false)}
         frozen={this.state.frozenNavID === navID}
         key={navID}

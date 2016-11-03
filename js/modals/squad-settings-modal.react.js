@@ -72,7 +72,18 @@ class SquadSettingsModal extends React.Component {
               />
             </div>
           </div>
-          <div>
+          <div className="form-textarea-container">
+            <div className="form-title">Description</div>
+            <div className="form-content">
+              <textarea
+                value={this.state.squadInfo.description}
+                placeholder="Squad description"
+                onChange={this.onChangeDescription.bind(this)}
+                disabled={this.state.inputDisabled}
+              ></textarea>
+            </div>
+          </div>
+          <div className="edit-squad-color-container">
             <div className="form-title" id="color-title">Color</div>
             <div className="form-content">
               <ColorPicker
@@ -268,6 +279,18 @@ class SquadSettingsModal extends React.Component {
     });
   }
 
+  onChangeDescription(event: SyntheticEvent) {
+    const target = event.target;
+    invariant(target instanceof HTMLTextAreaElement, "target not textarea");
+    this.setState((prevState, props) => {
+      return update(prevState, {
+        squadInfo: {
+          description: { $set: target.value },
+        }
+      });
+    });
+  }
+
   onChangeColor(color: string) {
     this.setState((prevState, props) => {
       return update(prevState, {
@@ -375,6 +398,7 @@ class SquadSettingsModal extends React.Component {
     this.setState({ inputDisabled: true });
     const response = await fetchJSON('edit_squad.php', {
       'name': name,
+      'description': this.state.squadInfo.description,
       'squad': this.props.squadInfo.id,
       'type': this.state.squadInfo.closed ? "closed" : "open",
       'personal_password': this.state.accountPassword,
@@ -424,6 +448,7 @@ class SquadSettingsModal extends React.Component {
           return update(prevState, {
             squadInfo: {
               name: { $set: this.props.squadInfo.name },
+              description: { $set: this.props.squadInfo.description },
               closed: { $set: this.props.squadInfo.closed },
               color: { $set: this.props.squadInfo.color },
             },

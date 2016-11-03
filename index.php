@@ -63,15 +63,14 @@ function background_color_is_dark($color) {
 
 $result = $conn->query(
   "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
-    "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-    "AS is_authed, r.subscribed, s.color FROM squads s LEFT JOIN roles r ".
-    "ON r.squad = s.id AND r.user = {$viewer_id}"
+    "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." AS is_authed, ".
+    "r.subscribed, s.color, s.description FROM squads s ".
+    "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id}"
 );
 $squad_infos = array();
 $squad_names = array();
 $colors = array();
 $color_is_dark = array();
-$viewer_subscribed = false;
 $subscription_exists = false;
 while ($row = $result->fetch_assoc()) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
@@ -79,6 +78,7 @@ while ($row = $result->fetch_assoc()) {
   $squad_infos[$row['id']] = array(
     'id' => $row['id'],
     'name' => $row['name'],
+    'description' => $row['description'],
     'authorized' => $authorized,
     'subscribed' => $subscribed_authorized,
     'editable' => (int)$row['role'] >= ROLE_CREATOR,
@@ -93,15 +93,11 @@ while ($row = $result->fetch_assoc()) {
     $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
     $squad_names[$row['id']] = $row['name'];
   }
-  if ((int)$row['id'] === $squad) {
-    $viewer_subscribed = (bool)$row['subscribed'];
-  }
 }
 if (!isset($_GET['squad']) && $subscription_exists) {
   // If we defaulted to squad 254 but a subscription exists, default to home
   $home = true;
   $squad = null;
-  $viewer_subscribed = false;
 }
 if (
   ($home && !$subscription_exists) ||
@@ -193,14 +189,12 @@ $this_url = "$month_url&$url_suffix";
       <script>
         var squad = <?=($squad === null ? "null" : $squad)?>;
         var email = "<?=$email?>";
-        var squad_name = "<?=(isset($squad_names[$squad]) ? $squad_names[$squad] : '')?>";
         var squad_names = <?=json_encode($squad_names, JSON_FORCE_OBJECT)?>;
         var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
-        var viewer_subscribed = <?=($viewer_subscribed ? 'true' : 'false')?>;
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
         var creation_times = <?=json_encode($creation_times)?>;
@@ -353,6 +347,7 @@ HTML;
               <div class='entry{$possibly_dark_background}' style='{$style}'>
                 <textarea
                   rows='1'
+                  class='entry-text'
                   id='{$current_date}_{$entry_id}'
                   tabindex='{$tab_index}'
                 >{$entry_text}</textarea>
@@ -803,98 +798,6 @@ HTML;
                 <span class="modal-form-error"></span>
                 <span class="form-submit">
                   <input type="submit" value="Delete account" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="new-squad-modal-overlay">
-        <div class="modal large-modal" id="new-squad-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>New squad</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div>
-                <div class="form-title">Squad name</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="new-squad-name"
-                    placeholder="Squad name"
-                  />
-                </div>
-              </div>
-              <div class="modal-radio-selector">
-                <div class="form-title">Privacy</div>
-                <div class="form-enum-selector">
-                  <div class="form-enum-container">
-                    <input
-                      type="radio"
-                      name="new-squad-type"
-                      id="new-squad-open"
-                      value="open"
-                    />
-                    <div class="form-enum-option">
-                      <label for="new-squad-open">
-                        Open
-                        <span class="form-enum-description">
-                          Anybody can view the contents of an open squad.
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="form-enum-container">
-                    <input
-                      type="radio"
-                      name="new-squad-type"
-                      id="new-squad-closed"
-                      value="closed"
-                    />
-                    <div class="form-enum-option">
-                      <label for="new-squad-closed">
-                        Closed
-                        <span class="form-enum-description">
-                          Only people with the password can view the contents of
-                          a closed squad.
-                        </span>
-                      </label>
-                      <div
-                        class="form-enum-password hidden"
-                        id="new-squad-password-container"
-                      >
-                        <input
-                          type="password"
-                          id="new-squad-password"
-                          placeholder="Squad password"
-                        />
-                      </div>
-                      <div
-                        class="form-enum-password hidden"
-                        id="new-squad-confirm-password-container"
-                      >
-                        <input
-                          type="password"
-                          id="new-squad-confirm-password"
-                          placeholder="Confirm password"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div class="form-title" id="color-title">Color</div>
-                <div class="form-content">
-                  <input type="text" id="new-squad-color" />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Create squad" />
                 </span>
               </div>
             </form>

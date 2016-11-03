@@ -15,7 +15,7 @@ table {
   width: 100%;
   table-layout: fixed;
 }
-textarea {
+textarea.entry-text {
   background: none;
   width: 100%;
   outline: none;
@@ -60,7 +60,7 @@ div.entry {
 div.dark-entry {
   color: white;
 }
-div.dark-entry textarea {
+div.dark-entry textarea.entry-text {
   color: white;
 }
 div.dark-entry div.action-links > a {
@@ -462,17 +462,23 @@ div.modal-body p.form-pre-footer {
   font-size: 12px;
   font-style: italic;
 }
-div.modal-body input {
+div.modal-body input, div.modal-body textarea {
   margin: 3px;
 }
-div.modal-body input[type='text'], div.modal-body input[type='password'] {
+div.modal-body input[type='text'],
+div.modal-body input[type='password'],
+div.modal-body textarea {
   font-size: 14px;
   padding: 1px;
   width: 175px;
 }
 div.large-modal div.modal-body input[type='text'],
-div.large-modal div.modal-body input[type='password'] {
+div.large-modal div.modal-body input[type='password'],
+div.large-modal div.modal-body textarea {
   width: 275px;
+}
+div.modal-body textarea {
+  border-color: #DDDDDD;
 }
 div.modal-body input[type='submit'] {
   font-size: 16px;
@@ -763,6 +769,12 @@ div.color-preview {
   border-radius: 2px;
 }
 
+div.edit-squad-color-container {
+  margin-top: -5px;
+}
+div.form-textarea-container {
+  margin-top: 1px;
+}
 div.edit-squad-privacy-container {
   margin-bottom: 6px;
 }
@@ -802,4 +814,9 @@ ul.edit-squad-tab-panel li > a {
 ul.edit-squad-tab-panel li.edit-squad-current-tab > a {
   color: #123a7b;
   cursor: default;
+}
+
+div.new-squad-privacy-container {
+  margin-bottom: 3px;
+  margin-top: -6px;
 }

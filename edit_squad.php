@@ -18,6 +18,7 @@ if (!user_logged_in()) {
 }
 if (
   !isset($_POST['name']) ||
+  !isset($_POST['description']) ||
   !isset($_POST['squad']) ||
   !isset($_POST['type']) ||
   !isset($_POST['color']) ||
@@ -85,6 +86,7 @@ if (!$row['squad_requires_auth'] && $is_closed && trim($new_password) === '') {
 }
 
 $name = $conn->real_escape_string($_POST['name']);
+$description = $conn->real_escape_string($_POST['description']);
 if (strtolower($name) === "home") {
   exit(json_encode(array(
     'error' => 'name_taken',
@@ -103,20 +105,21 @@ if ($is_closed && $new_password !== '') {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $new_password.$salt);
   $conn->query(
-    "UPDATE squads SET name = '$name', color = '$color', ".
-      "salt = UNHEX('$salt'), hash = UNHEX('$hash'), edit_rules = $edit_rules ".
-      "WHERE id = $squad"
+    "UPDATE squads SET name = '$name', description = '$description', ".
+      "color = '$color', salt = UNHEX('$salt'), hash = UNHEX('$hash'), ".
+      "edit_rules = $edit_rules WHERE id = $squad"
   );
 } else if ($is_closed) {
   // We are guaranteed that the squad was closed beforehand, as otherwise
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
-    "UPDATE squads SET name = '$name', color = '$color' WHERE id = $squad"
+    "UPDATE squads SET name = '$name', description = '$description', ".
+      "color = '$color' WHERE id = $squad"
   );
 } else {
   $conn->query(
-    "UPDATE squads SET name = '$name', color = '$color', ".
-      "salt = NULL, hash = NULL, edit_rules = $edit_rules ".
+    "UPDATE squads SET name = '$name', description = '$description', ".
+      "color = '$color', salt = NULL, hash = NULL, edit_rules = $edit_rules ".
       "WHERE id = $squad"
   );
 }

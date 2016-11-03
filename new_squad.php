@@ -14,6 +14,7 @@ if ($https && !isset($_SERVER['HTTPS'])) {
 
 if (
   !isset($_POST['name']) ||
+  !isset($_POST['description']) ||
   !isset($_POST['type']) ||
   !isset($_POST['color'])
 ) {
@@ -36,6 +37,7 @@ if (!user_logged_in()) {
 }
 
 $name = $conn->real_escape_string($_POST['name']);
+$description = $conn->real_escape_string($_POST['description']);
 if (strtolower($name) === "home") {
   exit(json_encode(array(
     'error' => 'name_taken',
@@ -72,7 +74,7 @@ if ($is_closed) {
     "INSERT INTO squads".
       "(id, name, description, salt, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '', UNHEX('$salt'), UNHEX('$hash'), ".
+      "VALUES ($id, '$name', '$description', UNHEX('$salt'), UNHEX('$hash'), ".
       "$edit_rules, $creator, $time, '$color')"
   );
 } else {
@@ -80,8 +82,8 @@ if ($is_closed) {
     "INSERT INTO squads".
       "(id, name, description, salt, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '', NULL, NULL, $edit_rules, $creator, $time, ".
-      "'$color')"
+      "VALUES ($id, '$name', '$description', NULL, NULL, $edit_rules, ".
+      "$creator, $time, '$color')"
   );
 }
 

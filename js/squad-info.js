@@ -5,6 +5,7 @@ import React from 'react';
 export type SquadInfo = {
   id: string,
   name: string,
+  description: string,
   authorized: bool,
   subscribed: bool,
   editable: bool,
@@ -15,6 +16,7 @@ export type SquadInfo = {
 export const squadInfoPropType = React.PropTypes.shape({
   id: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
+  description: React.PropTypes.string.isRequired,
   authorized: React.PropTypes.bool.isRequired,
   subscribed: React.PropTypes.bool.isRequired,
   editable: React.PropTypes.bool.isRequired,

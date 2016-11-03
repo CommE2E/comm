@@ -29,6 +29,17 @@ class TypeaheadSquadOption extends React.Component {
   props: Props;
 
   render() {
+    let descriptionDiv = null;
+    if (this.props.squadInfo.description) {
+      descriptionDiv = (
+        <div className="squad-nav-option-description">
+          <TextTruncate
+            line={2}
+            text={this.props.squadInfo.description}
+          />
+        </div>
+      );
+    }
     return (
       <div
         className={classNames(
@@ -54,14 +65,7 @@ class TypeaheadSquadOption extends React.Component {
             {this.props.squadInfo.name}
           </div>
         </div>
-        <div className="squad-nav-option-description">
-          <TextTruncate
-            line={2}
-            text="This is an example possible squad description that goes on for
-              long enough and explains the purpose of the squad pretty well I
-              hope. I need some more text to really test this."
-          />
-        </div>
+        {descriptionDiv}
       </div>
     );
   }
