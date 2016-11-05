@@ -7,8 +7,6 @@ import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
 
-// TODO check spacing of form elements
-
 type Props = {
   monthURL: string,
   onClose: () => void,

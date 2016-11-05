@@ -258,8 +258,6 @@ div.squad-nav-option {
   padding-bottom: 6px;
   padding-top: 3px;
 }
-div.squad-nav-option-header {
-}
 div.squad-nav-option-name {
   white-space: nowrap;
   overflow: hidden;
@@ -315,6 +313,13 @@ div.squad-nav-option:hover {
 }
 div.squad-nav-frozen-option {
   background-color: #E8E8E8;
+}
+div.squad-nav-no-results {
+  text-align: center;
+  font-style: italic;
+  color: #777777;
+  padding-top: 3px;
+  font-size: 12px;
 }
 
 div.nav-button {

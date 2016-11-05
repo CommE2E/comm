@@ -31,6 +31,7 @@ System.config({
     "react-text-truncate": "npm:react-text-truncate@0.8.3",
     "spectrum-colorpicker": "npm:spectrum-colorpicker@1.8.0",
     "timeago": "npm:timeago@1.5.3",
+    "tokenize-text": "npm:tokenize-text@1.1.3",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.4.1"
     },
@@ -497,6 +498,9 @@ System.config({
       "node-fetch": "npm:node-fetch@1.6.3",
       "whatwg-fetch": "npm:whatwg-fetch@1.0.0"
     },
+    "npm:lodash@3.10.1": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
+    },
     "npm:loose-envify@1.3.0": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "js-tokens": "npm:js-tokens@2.0.0",
@@ -607,6 +611,10 @@ System.config({
     },
     "npm:timeago@1.5.3": {
       "jquery": "npm:jquery@3.1.1"
+    },
+    "npm:tokenize-text@1.1.3": {
+      "lodash": "npm:lodash@3.10.1",
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:ua-parser-js@0.7.10": {
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"

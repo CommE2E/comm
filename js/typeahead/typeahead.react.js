@@ -8,8 +8,9 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
+import Tokenizer from 'tokenize-text';
 
-import TypeaheadOption from './typeahead-option.react';
+import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadSquadOption from './typeahead-squad-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 
@@ -27,40 +28,86 @@ type Props = {
 };
 type State = {
   active: bool,
+  searchActive: bool,
   frozen: bool,
   frozenNavID: ?string,
   typeaheadValue: string,
   squadInfos: {[id: string]: SquadInfo},
+  searchResults: string[],
 };
+interface TypeaheadOption {
+  getNavID: () => string,
+  getRawText: () => string,
+}
 
 class Typeahead extends React.Component {
 
   props: Props;
   state: State;
+
   input: ?HTMLInputElement;
   dropdown: ?HTMLElement;
   current: ?HTMLElement;
   magnifyingGlass: ?HTMLElement;
 
+  fullTextIndex: {[token: string]: Set<string>};
+  partialTextIndex: {[token: string]: Set<string>};
+
   constructor(props: Props) {
     super(props);
     this.state = {
       active: false,
+      searchActive: false,
       frozen: false,
       frozenNavID: null,
       typeaheadValue: props.currentNavName,
       squadInfos: props.squadInfos,
+      searchResults: [],
     };
+    this.fullTextIndex = {};
+    this.partialTextIndex = {};
   }
 
   render() {
     let dropdown = null;
-    let rightAligned = null;
-
-    if (this.state.active) {
+    if (this.state.searchActive) {
+      let results;
+      if (this.state.searchResults.length !== 0) {
+        results = [];
+        for (const navID of this.state.searchResults) {
+          const squadInfo = this.state.squadInfos[navID];
+          if (squadInfo !== undefined) {
+            results.push(this.buildSquadOption(squadInfo));
+          } else if (navID === "home") {
+            results.push(this.buildActionOption("home", "Home"));
+          } else if (navID === "new") {
+            results.push(this.buildActionOption("new", "New squad..."));
+          }
+        }
+      } else {
+        results = (
+          <div className="squad-nav-no-results">
+            No results
+          </div>
+        );
+      }
+      dropdown = (
+        <div
+          className="squad-nav-dropdown"
+          ref={(dropdown) => this.dropdown = dropdown}
+        >
+          <div className="squad-nav-option-pane" key="results">
+            <div className="squad-nav-option-pane-header">
+              Results
+            </div>
+            {results}
+          </div>
+        </div>
+      );
+    } else if (this.state.active) {
       let subscriptionExists = false;
-      const subscribedInfos = {};
-      const recommendedInfos = {};
+      const subscribedInfos = [];
+      const recommendedInfos = [];
       for (const squadID: string in this.state.squadInfos) {
         const squadInfo = this.state.squadInfos[squadID];
         if (squadInfo.subscribed) {
@@ -70,9 +117,9 @@ class Typeahead extends React.Component {
           continue;
         }
         if (squadInfo.subscribed) {
-          subscribedInfos[squadID] = squadInfo;
+          subscribedInfos.push(squadInfo);
         } else {
-          recommendedInfos[squadID] = squadInfo;
+          recommendedInfos.push(squadInfo);
         }
       }
 
@@ -83,15 +130,13 @@ class Typeahead extends React.Component {
             <div className="squad-nav-option-pane-header">
               Home
             </div>
-            {this.buildOption("home", "Home")}
+            {this.buildActionOption("home", "Home")}
           </div>
         );
       }
       const subscribedOptions = [];
-      for (const squadID: string in subscribedInfos) {
-        subscribedOptions.push(this.buildSquadOption(
-          subscribedInfos[squadID]
-        ));
+      for (const squadInfo of subscribedInfos) {
+        subscribedOptions.push(this.buildSquadOption(squadInfo));
       }
       if (subscribedOptions.length > 0) {
         panes.push(
@@ -104,10 +149,8 @@ class Typeahead extends React.Component {
         );
       }
       const recommendedOptions = [];
-      for (const squadID: string in recommendedInfos) {
-        recommendedOptions.push(this.buildSquadOption(
-          recommendedInfos[squadID]
-        ));
+      for (const squadInfo of recommendedInfos) {
+        recommendedOptions.push(this.buildSquadOption(squadInfo));
       }
       if (recommendedOptions.length > 0) {
         panes.push(
@@ -124,7 +167,7 @@ class Typeahead extends React.Component {
           <div className="squad-nav-option-pane-header">
             Actions
           </div>
-          {this.buildOption("new", "New squad...")}
+          {this.buildActionOption("new", "New squad...")}
         </div>
       );
       dropdown = (
@@ -135,7 +178,11 @@ class Typeahead extends React.Component {
           {panes}
         </div>
       );
-      let currentSquadInfo = this.state.squadInfos[this.props.currentNavID];
+    }
+
+    let rightAligned = null;
+    if (this.state.active) {
+      const currentSquadInfo = this.state.squadInfos[this.props.currentNavID];
       if (currentSquadInfo !== undefined) {
         rightAligned = (
           <TypeaheadOptionButtons
@@ -194,9 +241,9 @@ class Typeahead extends React.Component {
     );
   }
 
-  buildOption(navID: string, name: string) {
+  buildActionOption(navID: string, name: string) {
     return (
-      <TypeaheadOption
+      <TypeaheadActionOption
         navID={navID}
         name={name}
         monthURL={this.props.monthURL}
@@ -208,6 +255,7 @@ class Typeahead extends React.Component {
         hideTypeahead={() => this.setActive(false)}
         frozen={this.state.frozenNavID === navID}
         key={navID}
+        ref={this.buildTextIndices.bind(this)}
       />
     );
   }
@@ -227,8 +275,34 @@ class Typeahead extends React.Component {
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         key={squadInfo.id}
+        ref={this.buildTextIndices.bind(this)}
       />
     );
+  }
+
+  buildTextIndices(option: ?TypeaheadOption) {
+    if (!option) {
+      return;
+    }
+    const navID = option.getNavID();
+    const tokenize = new Tokenizer().words();
+    const keywords = tokenize(option.getRawText());
+    for (const keyword of keywords) {
+      const value = keyword.value.toLowerCase();
+      if (this.fullTextIndex[value] === undefined) {
+        this.fullTextIndex[value] = new Set();
+      }
+      this.fullTextIndex[value].add(navID);
+      let partialString = "";
+      for (const char of value) {
+        partialString += char;
+        // TODO probably should do some stopwords here
+        if (this.partialTextIndex[partialString] === undefined) {
+          this.partialTextIndex[partialString] = new Set();
+        }
+        this.partialTextIndex[partialString].add(navID);
+      }
+    }
   }
 
   setActive(active: bool) {
@@ -246,7 +320,11 @@ class Typeahead extends React.Component {
         } else {
           typeaheadValue = this.props.currentNavName;
         }
-        return { active: active, typeaheadValue: typeaheadValue };
+        return {
+          active: active,
+          searchActive: prevState.searchActive && active,
+          typeaheadValue: typeaheadValue,
+        };
       },
     );
   }
@@ -302,9 +380,14 @@ class Typeahead extends React.Component {
   }
 
   onChange(event: SyntheticEvent) {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState({ typeaheadValue: event.target.value });
-    }
+    const target = event.target;
+    invariant(target instanceof HTMLInputElement, "target not input");
+    const results = this.getMatchingOptions(target.value);
+    this.setState({
+      typeaheadValue: target.value,
+      searchResults: results,
+      searchActive: target.value.trim() !== "",
+    });
   }
 
   updateSubscription(squadID: string, newSubscribed: bool) {
@@ -317,6 +400,41 @@ class Typeahead extends React.Component {
         return update(prevState, updateParam);
       },
     );
+  }
+
+  getMatchingOptions(query: string) {
+    const tokenize = new Tokenizer().words();
+    const keywords = tokenize(query);
+    if (keywords.length === 0) {
+      return [];
+    }
+
+    const lastKeyword = keywords[keywords.length - 1];
+    const lastMatchSet = lastKeyword.match.input.match(/\S$/)
+      ? this.partialTextIndex[lastKeyword.value.toLowerCase()]
+      : this.fullTextIndex[lastKeyword.value.toLowerCase()];
+    if (!lastMatchSet) {
+      return [];
+    }
+    const fullKeywords = keywords.
+      slice(0, -1).
+      map((k) => k.value.toLowerCase());
+
+    let possibleMatches = [...lastMatchSet];
+    for (const keyword of fullKeywords) {
+      const fullMatches = this.fullTextIndex[keyword];
+      if (!fullMatches) {
+        return [];
+      }
+      possibleMatches = possibleMatches.filter(
+        (navID) => fullMatches.has(navID)
+      );
+      if (!possibleMatches) {
+        return [];
+      }
+    }
+
+    return possibleMatches;
   }
 
 }

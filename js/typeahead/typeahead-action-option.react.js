@@ -20,7 +20,7 @@ type Props = {
   frozen?: bool,
 };
 
-class TypeaheadOption extends React.Component {
+class TypeaheadActionOption extends React.Component {
 
   static defaultProps: { frozen: bool };
   props: Props;
@@ -35,7 +35,7 @@ class TypeaheadOption extends React.Component {
         id={"nav_" + this.props.navID}
         onClick={this.onClick.bind(this)}
       >
-        <div className="squad-nav-option-header">
+        <div>
           <div className="squad-nav-option-name">
             {this.props.name}
           </div>
@@ -43,6 +43,14 @@ class TypeaheadOption extends React.Component {
         </div>
       </div>
     );
+  }
+
+  getNavID() {
+    return this.props.navID;
+  }
+
+  getRawText() {
+    return this.props.name;
   }
 
   onClick(event: SyntheticEvent) {
@@ -71,7 +79,7 @@ class TypeaheadOption extends React.Component {
 
 }
 
-TypeaheadOption.propTypes = {
+TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
@@ -84,8 +92,8 @@ TypeaheadOption.propTypes = {
   frozen: React.PropTypes.bool,
 };
 
-TypeaheadOption.defaultProps = {
+TypeaheadActionOption.defaultProps = {
   frozen: false,
 };
 
-export default TypeaheadOption;
+export default TypeaheadActionOption;

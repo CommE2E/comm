@@ -49,7 +49,7 @@ class TypeaheadSquadOption extends React.Component {
         id={"nav_" + this.props.squadInfo.id}
         onClick={this.onClick.bind(this)}
       >
-        <div className="squad-nav-option-header">
+        <div>
           <TypeaheadOptionButtons
             squadInfo={this.props.squadInfo}
             thisURL={this.props.thisURL}
@@ -68,6 +68,14 @@ class TypeaheadSquadOption extends React.Component {
         {descriptionDiv}
       </div>
     );
+  }
+
+  getNavID() {
+    return this.props.squadInfo.id;
+  }
+
+  getRawText() {
+    return this.props.squadInfo.name + " " + this.props.squadInfo.description;
   }
 
   onClick(event: SyntheticEvent) {

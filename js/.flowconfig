@@ -12,3 +12,4 @@ module.name_mapper='^fetch$' -> '<PROJECT_ROOT>/jspm_packages/github/github/fetc
 module.name_mapper='^invariant$' -> '<PROJECT_ROOT>/jspm_packages/npm/invariant@2.2.1.js'
 module.name_mapper='^spectrum-colorpicker$' -> '<PROJECT_ROOT>/jspm_packages/npm/spectrum-colorpicker@1.8.0.js'
 module.name_mapper='^immutability-helper$' -> '<PROJECT_ROOT>/jspm_packages/npm/immutability-helper@2.0.0.js'
+module.name_mapper='^tokenize-text$' -> '<PROJECT_ROOT>/jspm_packages/npm/tokenize-text@1.1.3.js'
