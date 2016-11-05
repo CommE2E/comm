@@ -6,15 +6,26 @@ System.config({
     "optional": [
       "runtime",
       "optimisation.modules.system"
-    ]
+    ],
   },
   paths: {
     "github:*": "jspm_packages/github/*",
     "npm:*": "jspm_packages/npm/*"
   },
 
+  meta: {
+    "*.js": {
+      "babelOptions": {
+        "plugins": [
+          "babel-plugin-transform-class-properties"
+        ]
+      }
+    }
+  },
+
   map: {
     "babel": "npm:babel-core@5.8.38",
+    "babel-plugin-transform-class-properties": "npm:babel-plugin-transform-class-properties@6.18.0",
     "babel-polyfill": "npm:babel-polyfill@6.16.0",
     "babel-preset-latest": "npm:babel-preset-latest@6.16.0",
     "babel-preset-react": "npm:babel-preset-react@6.16.0",
@@ -26,6 +37,7 @@ System.config({
     "invariant": "npm:invariant@2.2.1",
     "jquery": "npm:jquery@3.1.1",
     "jquery-dateformat": "npm:jquery-dateformat@1.0.3",
+    "lodash": "npm:lodash@4.16.6",
     "react": "npm:react@15.3.2",
     "react-dom": "npm:react-dom@15.3.2",
     "react-text-truncate": "npm:react-text-truncate@0.8.3",
@@ -103,7 +115,7 @@ System.config({
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
       "esutils": "npm:esutils@2.0.2",
-      "lodash": "npm:lodash@4.16.4"
+      "lodash": "npm:lodash@4.16.6"
     },
     "npm:babel-helper-call-delegate@6.18.0": {
       "babel-helper-hoist-variables": "npm:babel-helper-hoist-variables@6.18.0",
@@ -115,7 +127,7 @@ System.config({
       "babel-helper-function-name": "npm:babel-helper-function-name@6.18.0",
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.4"
+      "lodash": "npm:lodash@4.16.6"
     },
     "npm:babel-helper-explode-assignable-expression@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
@@ -144,7 +156,7 @@ System.config({
     "npm:babel-helper-regex@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.4"
+      "lodash": "npm:lodash@4.16.6"
     },
     "npm:babel-helper-remap-async-to-generator@6.18.0": {
       "babel-helper-function-name": "npm:babel-helper-function-name@6.18.0",
@@ -173,6 +185,11 @@ System.config({
       "babel-plugin-syntax-async-functions": "npm:babel-plugin-syntax-async-functions@6.13.0",
       "babel-runtime": "npm:babel-runtime@6.18.0"
     },
+    "npm:babel-plugin-transform-class-properties@6.18.0": {
+      "babel-helper-function-name": "npm:babel-helper-function-name@6.18.0",
+      "babel-plugin-syntax-class-properties": "npm:babel-plugin-syntax-class-properties@6.13.0",
+      "babel-runtime": "npm:babel-runtime@6.18.0"
+    },
     "npm:babel-plugin-transform-es2015-arrow-functions@6.8.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0"
     },
@@ -184,7 +201,7 @@ System.config({
       "babel-template": "npm:babel-template@6.16.0",
       "babel-traverse": "npm:babel-traverse@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.4"
+      "lodash": "npm:lodash@4.16.6"
     },
     "npm:babel-plugin-transform-es2015-classes@6.18.0": {
       "babel-helper-define-map": "npm:babel-helper-define-map@6.18.0",
@@ -321,7 +338,7 @@ System.config({
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "regenerator-runtime": "npm:regenerator-runtime@0.9.5"
+      "regenerator-runtime": "npm:regenerator-runtime@0.9.6"
     },
     "npm:babel-preset-es2015@6.18.0": {
       "babel-plugin-check-es2015-constants": "npm:babel-plugin-check-es2015-constants@6.8.0",
@@ -375,34 +392,34 @@ System.config({
     },
     "npm:babel-runtime@6.18.0": {
       "core-js": "npm:core-js@2.4.1",
-      "regenerator-runtime": "npm:regenerator-runtime@0.9.5"
+      "regenerator-runtime": "npm:regenerator-runtime@0.9.6"
     },
     "npm:babel-template@6.16.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-traverse": "npm:babel-traverse@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "babylon": "npm:babylon@6.13.0",
-      "lodash": "npm:lodash@4.16.4"
+      "babylon": "npm:babylon@6.13.1",
+      "lodash": "npm:lodash@4.16.6"
     },
     "npm:babel-traverse@6.18.0": {
       "babel-code-frame": "npm:babel-code-frame@6.16.0",
       "babel-messages": "npm:babel-messages@6.8.0",
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "babylon": "npm:babylon@6.13.0",
+      "babylon": "npm:babylon@6.13.1",
       "debug": "npm:debug@2.2.0",
       "globals": "npm:globals@9.12.0",
       "invariant": "npm:invariant@2.2.1",
-      "lodash": "npm:lodash@4.16.4",
+      "lodash": "npm:lodash@4.16.6",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:babel-types@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "esutils": "npm:esutils@2.0.2",
-      "lodash": "npm:lodash@4.16.4",
+      "lodash": "npm:lodash@4.16.6",
       "to-fast-properties": "npm:to-fast-properties@1.0.2"
     },
-    "npm:babylon@6.13.0": {
+    "npm:babylon@6.13.1": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
@@ -578,7 +595,7 @@ System.config({
       "string_decoder": "npm:string_decoder@0.10.31",
       "util-deprecate": "npm:util-deprecate@1.0.2"
     },
-    "npm:regenerator-runtime@0.9.5": {
+    "npm:regenerator-runtime@0.9.6": {
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },

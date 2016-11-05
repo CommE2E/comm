@@ -70,14 +70,6 @@ class TypeaheadSquadOption extends React.Component {
     );
   }
 
-  getNavID() {
-    return this.props.squadInfo.id;
-  }
-
-  getRawText() {
-    return this.props.squadInfo.name + " " + this.props.squadInfo.description;
-  }
-
   onClick(event: SyntheticEvent) {
     if (this.props.squadInfo.authorized) {
       window.location.href = this.props.monthURL +

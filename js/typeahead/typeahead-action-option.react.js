@@ -23,6 +23,8 @@ type Props = {
 class TypeaheadActionOption extends React.Component {
 
   static defaultProps: { frozen: bool };
+  static homeText;
+  static newText;
   props: Props;
 
   render() {
@@ -45,16 +47,8 @@ class TypeaheadActionOption extends React.Component {
     );
   }
 
-  getNavID() {
-    return this.props.navID;
-  }
-
-  getRawText() {
-    return this.props.name;
-  }
-
   onClick(event: SyntheticEvent) {
-    if (this.props.navID == 'new') {
+    if (this.props.navID === 'new') {
       if (this.props.loggedIn) {
         this.props.freezeTypeahead(this.props.navID);
         const onClose = () => {
@@ -78,6 +72,9 @@ class TypeaheadActionOption extends React.Component {
   }
 
 }
+
+TypeaheadActionOption.homeText = "Home";
+TypeaheadActionOption.newText = "New squad...";
 
 TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,

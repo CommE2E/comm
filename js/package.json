@@ -7,6 +7,7 @@
       "invariant": "npm:invariant@^2.2.1",
       "jquery": "npm:jquery@^3.1.1",
       "jquery-dateformat": "npm:jquery-dateformat@^1.0.3",
+      "lodash": "npm:lodash@^4.16.6",
       "react": "npm:react@^15.3.2",
       "react-dom": "npm:react-dom@^15.3.2",
       "react-text-truncate": "npm:react-text-truncate@^0.8.3",
@@ -16,6 +17,7 @@
     },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",
+      "babel-plugin-transform-class-properties": "npm:babel-plugin-transform-class-properties@^6.18.0",
       "babel-polyfill": "npm:babel-polyfill@^6.16.0",
       "babel-preset-latest": "npm:babel-preset-latest@^6.16.0",
       "babel-preset-react": "npm:babel-preset-react@^6.16.0",
