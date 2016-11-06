@@ -56,7 +56,8 @@ $username = $conn->real_escape_string($username);
 $email = $conn->real_escape_string($email);
 
 $result = $conn->query(
-  "SELECT COUNT(id) AS count FROM users WHERE username = '$username'"
+  "SELECT COUNT(id) AS count FROM users ".
+    "WHERE LCASE(username) = LCASE('$username')"
 );
 $matching_username_row = $result->fetch_assoc();
 if ($matching_username_row['count'] !== '0') {
@@ -65,7 +66,7 @@ if ($matching_username_row['count'] !== '0') {
   )));
 }
 $result = $conn->query(
-  "SELECT COUNT(id) AS count FROM users WHERE email = '$email'"
+  "SELECT COUNT(id) AS count FROM users WHERE LCASE(email) = LCASE('$email')"
 );
 $matching_email_row = $result->fetch_assoc();
 if ($matching_email_row['count'] !== '0') {

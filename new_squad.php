@@ -43,7 +43,9 @@ if (strtolower($name) === "home") {
     'error' => 'name_taken',
   )));
 }
-$result = $conn->query("SELECT id FROM squads WHERE name = '$name'");
+$result = $conn->query(
+  "SELECT id FROM squads WHERE LCASE(name) = LCASE('$name')"
+);
 $squad_row = $result->fetch_assoc();
 if ($squad_row) {
   exit(json_encode(array(
