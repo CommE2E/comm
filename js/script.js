@@ -13,8 +13,9 @@ import './modernizr-custom';
 // React
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Typeahead from 'typeahead/typeahead.react'
+import Typeahead from './typeahead/typeahead.react'
 import ModalManager from './modals/modal-manager.react'
+import Calendar from './calendar/calendar.react'
 
 var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 
@@ -50,19 +51,20 @@ ReactDOM.render(
     clearModal={modalManager.clearModal.bind(modalManager)}
     ref={(ta) => typeahead = ta}
   />,
-  document.getElementById('squad-nav-parent')
+  document.getElementById('squad-nav-parent'),
 );
 
-var creating = {};
-var needs_update_after_creation = {};
-var new_entry_to_squad = {};
-
-(function() {
-  var today = new Date();
-  if (today.getMonth() === month - 1 && today.getFullYear() === year) {
-    $('td.day#' + today.getDate()).addClass('current-day');
-  }
-})();
+ReactDOM.render(
+  <Calendar
+    baseURL={base_url}
+    sessionID={session_id}
+    year={year}
+    month={month}
+    entryInfos={entry_infos}
+    squadInfos={squad_infos}
+  />,
+  document.getElementById('calendar'),
+);
 
 if (show === 'reset_password') {
   $('input#reset-new-password').focus();
@@ -83,102 +85,6 @@ if (show === 'reset_password') {
   });
 }
 
-var original_values = {};
-$('textarea.entry-text').each(function(i, element) {
-  original_values[element.id] = element.value;
-});
-
-$('textarea.entry-text').each(function() {
-  this.setAttribute('style', 'height: ' + (this.scrollHeight) + 'px');
-});
-$('table').on('input', 'textarea.entry-text', function() {
-  this.style.height = 'auto';
-  this.style.height = (this.scrollHeight) + 'px';
-});
-
-var save_attempt_index = 0;
-var latest_save_attempt_index = {}; // map from numeric date to save index
-function save_entry(textarea_element) {
-  if (textarea_element.value.trim() === '') {
-    return;
-  }
-  var id_parts = textarea_element.id.split("_");
-  var numeric_date = id_parts[0];
-  var entry_id = id_parts[1];
-  if (entry_id === "-1") {
-    if (creating[numeric_date]) {
-      needs_update_after_creation[numeric_date] = true;
-      return;
-    } else {
-      creating[numeric_date] = true;
-    }
-  }
-  var cur_save_attempt_index = save_attempt_index++;
-  latest_save_attempt_index[numeric_date] = cur_save_attempt_index;
-  var entry = $(textarea_element).closest('div.entry');
-  entry.find('span.save-error').hide();
-  entry.find('img.entry-loading').show();
-
-  var creation_time = Date.now();
-  var payload = {
-    'text': textarea_element.value,
-    'prev_text': original_values[textarea_element.id],
-    'session_id': session_id,
-    'timestamp': creation_time,
-    'entry_id': entry_id,
-  };
-  if (entry_id === "-1") {
-    payload['day'] = numeric_date;
-    payload['month'] = month;
-    payload['year'] = year;
-    payload['squad'] = new_entry_to_squad[numeric_date];
-  }
-  $.post('save.php', payload).done(function(data) {
-    console.log(data);
-    if (data.error === 'concurrent_modification') {
-      $('div#concurrent-modification-modal-overlay').show();
-      return;
-    }
-    if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
-      entry.find('img.entry-loading').hide();
-      if (data.success) {
-        entry.find('span.save-error').hide();
-      } else {
-        entry.find('span.save-error').show();
-      }
-    }
-    if (entry_id === "-1" && data.entry_id) {
-      var needs_update = needs_update_after_creation[numeric_date];
-      var textarea = $("textarea#" + textarea_element.id);
-      if (needs_update && textarea.length === 0) {
-        delete_entry(data.entry_id);
-      } else {
-        textarea_element.id = numeric_date + "_" + data.entry_id;
-        textarea.closest('div.entry').find('a.delete-entry-button').after(
-          "<a href='#' class='entry-history-button'>" +
-          "  <span class='history'>≡</span>" +
-          "  <span class='action-links-text'>History</span>" +
-          "</a>"
-        );
-      }
-      creating[numeric_date] = false;
-      needs_update_after_creation[numeric_date] = false;
-      creation_times[data.entry_id] = creation_time;
-      new_entry_to_squad[numeric_date] = null;
-      if (needs_update && $("textarea#" + textarea_element.id).length !== 0) {
-        save_entry(textarea_element);
-      }
-    }
-  }).fail(function() {
-    if (latest_save_attempt_index[numeric_date] === cur_save_attempt_index) {
-      entry.find('img.entry-loading').hide();
-      entry.find('span.save-error').show();
-    }
-  });
-}
-$('table').on('input', 'textarea.entry-text', function(event) {
-  save_entry(event.target);
-});
 $('input#refresh-button').click(function() {
   window.location.href = this_url;
 });
@@ -725,159 +631,6 @@ function truncated_squad_name(squad, max_length) {
   }
   return raw_squad_name.substring(0, max_length - 1) + "...";
 }
-function handle_new_entry_action(day) {
-  var container = day.find('div.entry-container');
-  if (squad !== null) {
-    create_new_entry(container, squad);
-    return;
-  }
-  var numeric_date = day.attr('id');
-  if (new_entry_to_squad[numeric_date]) {
-    return;
-  }
-  day.find('div.pick-squad').show();
-}
-function create_new_entry(container, entry_squad) {
-  var numeric_date = container.closest('td.day').attr('id');
-  var textarea_id = numeric_date + '_-1';
-  if ($('textarea#' + textarea_id).length !== 0) {
-    return;
-  }
-  new_entry_to_squad[numeric_date] = entry_squad;
-  var new_entry = $("<div class='entry' />");
-  new_entry.css('background-color', '#' + colors[entry_squad]);
-  if (color_is_dark[entry_squad]) {
-    new_entry.addClass('dark-entry');
-  }
-  var textarea = $("<textarea class='entry-text' rows='1' />");
-  textarea.attr('id', textarea_id);
-  new_entry.append(textarea);
-  new_entry.append(
-    "<img" +
-    "  class='entry-loading'" +
-    "  src='" + base_url + "images/ajax-loader.gif'" +
-    "  alt='loading'" +
-    "/>" +
-    "<span class='save-error'>!</span>" +
-    "<div class='action-links'>" +
-    "  <a href='#' class='delete-entry-button'>" +
-    "    <span class='delete'>✖</span>" +
-    "    <span class='action-links-text'>Delete</span>" +
-    "  </a>" +
-    "  <span class='right-action-links action-links-text'>" +
-    "    " + truncated_squad_name(entry_squad, 12) +
-    "  </span>" +
-    "  <div class='clear'></div>" +
-    "</div>"
-  );
-  container.find('div.entry-container-spacer').before(new_entry);
-  $('textarea#' + textarea_id).focus();
-  container.scrollTop(container[0].scrollHeight);
-  $('textarea.entry-text').each(
-    function (i) { $(this).attr('tabindex', i + 1); }
-  );
-}
-$('td.day > div').click(function(event) {
-  var target = $(event.target);
-  if (
-    target.hasClass('entry-container') ||
-    target.hasClass('entry-container-spacer') ||
-    target.hasClass('day-action-links')
-  ) {
-    handle_new_entry_action(target.closest('td.day'));
-  }
-});
-$('a.add-entry-button').click(function(event) {
-  var day = $(this).closest('td.day');
-  handle_new_entry_action(day);
-});
-$(window).click(function(event) {
-  var target = $(event.target);
-  var pick_squads = $('div.pick-squad');
-  if (
-    target.hasClass('entry-container') ||
-    target.hasClass('entry-container-spacer') ||
-    target.closest('a.add-entry-button').length > 0
-  ) {
-    pick_squads = pick_squads.filter(function() {
-      return $(this).closest('td.day')[0] !== target.closest('td.day')[0];
-    });
-  }
-  pick_squads.hide();
-});
-$('a.select-squad').click(function(event) {
-  var new_entry_squad = this.id.split('_')[1];
-  var container = $(this).closest('td.day').find('div.entry-container');
-  create_new_entry(container, new_entry_squad);
-});
-
-function delete_entry(textarea_id) {
-  var id_parts = textarea_id.split("_");
-  if (id_parts[1] !== "-1") {
-    $.post(
-      'delete_entry.php',
-      {
-        'id': id_parts[1],
-        'prev_text': original_values[textarea_id],
-        'session_id': session_id,
-        'timestamp': Date.now(),
-      },
-      function(data) {
-        console.log(data);
-      }
-    );
-  } else {
-    new_entry_to_squad[id_parts[0]] = null;
-    if (creating[id_parts[0]]) {
-      needs_update_after_creation[id_parts[0]] = true;
-    }
-  }
-  $('textarea#' + textarea_id).closest('div.entry').remove();
-}
-$('table').on('focusout', 'textarea.entry-text', function(event) {
-  if (event.target.value.trim() === '') {
-    delete_entry(event.target.id);
-  }
-});
-$('table').on('click', 'a.delete-entry-button', function() {
-  var entry = $(this).closest('div.entry');
-  var next_entry = entry.next('div.entry');
-  var textarea_id = entry.find('textarea.entry-text').attr('id');
-  delete_entry(textarea_id);
-  next_entry.addClass('focused-entry');
-  next_entry.find('div.action-links').addClass('focused-action-links');
-});
-
-function update_entry_focus(entry) {
-  var textarea = entry.find('textarea.entry-text');
-  var action_links = entry.find('div.action-links');
-  if (entry.is(':hover') || textarea.is(':focus')) {
-    entry.addClass('focused-entry');
-    action_links.addClass('focused-action-links');
-  } else {
-    entry.removeClass('focused-entry');
-    action_links.removeClass('focused-action-links');
-  }
-}
-$('table').on('focusin focusout', 'textarea.entry-text', function(event) {
-  var entry = $(event.target).closest('div.entry');
-  update_entry_focus(entry);
-});
-$('table').on('mouseenter mouseleave', 'div.entry', function(event) {
-  var entry = $(event.target).closest('div.entry');
-  update_entry_focus(entry);
-});
-$('td.day').hover(function(event) {
-  var day = $(event.target).closest('td.day');
-  if (day.is(':hover')) {
-    day.find('div.day-action-links').addClass('focused-action-links');
-    day.find('div.entry-container').addClass('focused-entry-container');
-  } else {
-    day.find('div.day-action-links').removeClass('focused-action-links');
-    day.find('div.entry-container').removeClass('focused-entry-container');
-  }
-});
-
 var history_numeric_date = null;
 var day_history_loaded = false;
 var entry_history_loaded = null;

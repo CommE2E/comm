@@ -67,14 +67,31 @@ $result = $conn->query(
     "r.subscribed, s.color, s.description FROM squads s ".
     "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id}"
 );
+$rows = array();
+$subscription_exists = false;
+while ($row = $result->fetch_assoc()) {
+  $rows[] = $row;
+  $authorized = $row['is_authed'] || !$row['requires_auth'];
+  $subscribed_authorized = $authorized && $row['subscribed'];
+  if ($subscribed_authorized) {
+    $subscription_exists = true;
+  }
+}
+if (!isset($_GET['squad']) && $subscription_exists) {
+  // If we defaulted to squad 254 but a subscription exists, default to home
+  $home = true;
+  $squad = null;
+}
+
 $squad_infos = array();
 $squad_names = array();
 $colors = array();
 $color_is_dark = array();
-$subscription_exists = false;
-while ($row = $result->fetch_assoc()) {
+foreach ($rows as $row) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
   $subscribed_authorized = $authorized && $row['subscribed'];
+  $onscreen = ($home && $subscribed_authorized) ||
+    (!$home && (int)$row['id'] === $squad);
   $squad_infos[$row['id']] = array(
     'id' => $row['id'],
     'name' => $row['name'],
@@ -83,21 +100,14 @@ while ($row = $result->fetch_assoc()) {
     'subscribed' => $subscribed_authorized,
     'editable' => (int)$row['role'] >= ROLE_CREATOR,
     'closed' => (bool)$row['requires_auth'],
+    'onscreen' => $onscreen,
     'color' => $row['color'],
   );
-  if ($subscribed_authorized) {
-    $subscription_exists = true;
-  }
   if ($subscribed_authorized || (int)$row['id'] === $squad) {
     $colors[$row['id']] = $row['color'];
     $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
     $squad_names[$row['id']] = $row['name'];
   }
-}
-if (!isset($_GET['squad']) && $subscription_exists) {
-  // If we defaulted to squad 254 but a subscription exists, default to home
-  $home = true;
-  $squad = null;
 }
 if (
   ($home && !$subscription_exists) ||
@@ -139,6 +149,7 @@ $days_in_month = $month_beginning_timestamp->format('t');
 $text = array_fill(1, $days_in_month, array());
 $creation_times = array();
 $entry_squads = array();
+$entries = array_fill(1, $days_in_month, array());
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
@@ -167,6 +178,14 @@ while ($row = $result->fetch_assoc()) {
   $text[$day][$entry] = $row['text'];
   $creation_times[$entry] = intval($row['creation_time']);
   $entry_squads[$entry] = $entry_squad;
+  $entries[$day][$entry] = array(
+    "id" => (string)$entry,
+    "squadID" => (string)$entry_squad,
+    "text" => $row['text'],
+    "year" => $year,
+    "month" => $month,
+    "day" => $day,
+  );
 }
 
 $month_url = "$base_url?year=$year&month=$month";
@@ -191,6 +210,7 @@ $this_url = "$month_url&$url_suffix";
         var email = "<?=$email?>";
         var squad_names = <?=json_encode($squad_names, JSON_FORCE_OBJECT)?>;
         var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
+        var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
         var month_url = "<?=$month_url?>";
@@ -270,169 +290,7 @@ echo <<<HTML
           <a href="{$next_url}">&gt;</a>
         </h2>
       </header>
-      <table>
-        <tr>
-          <th>Sunday</th>
-          <th>Monday</th>
-          <th>Tuesday</th>
-          <th>Wednesday</th>
-          <th>Thursday</th>
-          <th>Friday</th>
-          <th>Saturday</th>
-        </tr>
-
-HTML;
-
-$first_day_of_week = $month_beginning_timestamp->format('l');
-$days_of_week = array(
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-);
-
-$current_date = 1;
-$day_of_week = array_shift($days_of_week);
-$days_of_week[] = $day_of_week;
-echo <<<HTML
-        <tr>
-
-HTML;
-
-// If the first day of the month is Sunday, avoid creating an empty <tr> below
-$first_sunday = $day_of_week === $first_day_of_week;
-
-// Fill in the empty <td> before the 1st
-while ($day_of_week !== $first_day_of_week) {
-  echo <<<HTML
-          <td></td>
-
-HTML;
-  $day_of_week = array_shift($days_of_week);
-  $days_of_week[] = $day_of_week;
-}
-
-$tab_index = 1;
-for ($current_date = 1; $current_date <= $days_in_month; $current_date++) {
-  if ($day_of_week === 'Sunday') {
-    if ($first_sunday) {
-      $first_sunday = false;
-    } else {
-      echo <<<HTML
-        </tr>
-        <tr>
-
-HTML;
-    }
-  }
-  $day_of_week = array_shift($days_of_week);
-  $days_of_week[] = $day_of_week;
-  echo <<<HTML
-          <td class='day' id='{$current_date}'>
-            <h2>$current_date</h2>
-            <div class='entry-container'>
-
-HTML;
-  foreach ($text[$current_date] as $entry_id => $entry_text) {
-    $entry_squad = $entry_squads[$entry_id];
-    $style = 'background-color: #'.$colors[$entry_squad];
-    $possibly_dark_background = $color_is_dark[$entry_squad] ? ' dark-entry' : '';
-    $truncated_squad_name = strlen($squad_names[$entry_squad]) > 12
-      ? substr($squad_names[$entry_squad], 0, 11) . "..."
-      : $squad_names[$entry_squad];
-    echo <<<HTML
-              <div class='entry{$possibly_dark_background}' style='{$style}'>
-                <textarea
-                  rows='1'
-                  class='entry-text'
-                  id='{$current_date}_{$entry_id}'
-                  tabindex='{$tab_index}'
-                >{$entry_text}</textarea>
-                <img
-                  class="entry-loading"
-                  src="{$base_url}images/ajax-loader.gif"
-                  alt="loading"
-                />
-                <span class="save-error">!</span>
-                <div class='action-links'>
-                  <a href='#' class='delete-entry-button'>
-                    <span class='delete'>✖</span>
-                    <span class='action-links-text'>Delete</span>
-                  </a>
-                  <a href='#' class='entry-history-button'>
-                    <span class='history'>≡</span>
-                    <span class='action-links-text'>History</span>
-                  </a>
-                  <span class='right-action-links action-links-text'>
-                    {$truncated_squad_name}
-                  </span>
-                  <div class='clear'></div>
-                </div>
-              </div>
-
-HTML;
-    $tab_index++;
-  }
-  echo <<<HTML
-              <div class="entry-container-spacer"></div>
-            </div>
-            <div class='action-links day-action-links'>
-              <a href='#' class='add-entry-button'>
-                <span class='add'>+</span>
-                <span class='action-links-text'>Add</span>
-              </a>
-              <a href='#' class='day-history-button'>
-                <span class='history'>≡</span>
-                <span class='action-links-text'>History</span>
-              </a>
-            </div>
-
-HTML;
-  if ($home) {
-    echo <<<HTML
-            <div class='pick-squad'>
-
-HTML;
-    foreach ($squad_names as $new_entry_squad => $new_entry_squad_name) {
-      $truncated_squad_name = strlen($new_entry_squad_name) > 20
-        ? substr($new_entry_squad_name, 0, 19) . "..."
-        : $new_entry_squad_name;
-      $style = 'background-color: #'.$colors[$new_entry_squad];
-      echo <<<HTML
-              <div>
-                <a href='#' class='select-squad' id='select_{$new_entry_squad}'>
-                  <div class='color-preview' style='{$style}'></div>
-                  {$truncated_squad_name}
-                </a>
-              </div>
-
-HTML;
-    }
-    echo <<<HTML
-            </div>
-
-HTML;
-  }
-  echo <<<HTML
-          </td>
-
-HTML;
-}
-
-while ($day_of_week !== 'Sunday') {
-  echo <<<HTML
-          <td></td>
-
-HTML;
-  $day_of_week = array_shift($days_of_week);
-  $days_of_week[] = $day_of_week;
-}
-echo <<<HTML
-        </tr>
-      </table>
+      <div id="calendar"></div>
       <div id="modal-manager-parent"></div>
       <div class="modal-overlay" id="history-modal-overlay">
         <div class="modal" id="history-modal">

@@ -101,7 +101,7 @@ class NewSquadModal extends React.Component {
                   placeholder="Squad description"
                   onChange={this.onChangeDescription.bind(this)}
                   disabled={this.state.inputDisabled}
-                ></textarea>
+                />
               </div>
             </div>
             <div className="new-squad-privacy-container">

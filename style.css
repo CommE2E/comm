@@ -74,18 +74,15 @@ img.entry-loading {
   top: 6px;
   right: 5px;
   width: 12px;
-  display: none;
 }
-span.save-error {
+span.entry-loading {
   position: absolute;
-  top: 12px;
-  right: 9px;
-  font-weight: bold;
-  color: red;
-  display: none;
+  top: 13px;
+  right: 5px;
+  font-size: 16px;
+  width: 6px;
 }
 div.action-links {
-  display: none;
   line-height: 90%;
   margin-top: 3px;
   font-size: 16px;
@@ -95,7 +92,7 @@ div.day-action-links {
   margin-bottom: 1px;
 }
 div.action-links a + a {
-  margin-left: 1px;
+  margin-left: 6px;
 }
 span.action-links-text {
   font-family: 'Open Sans', sans-serif;
@@ -103,9 +100,15 @@ span.action-links-text {
   font-size: 11px;
   position: relative;
   bottom: 1px;
+  padding-left: 6px;
 }
 span.right-action-links {
   float: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: inline-block;
+  overflow: hidden;
 }
 span.delete {
   font-size: 14px;
@@ -127,13 +130,6 @@ span.add {
 }
 div.focused-entry {
   z-index: 3 !important;
-}
-div.focused-action-links {
-  display: block !important;
-}
-html.touchevents div.action-links {
-  /* for touch devices show all action-links */
-  display: block !important;
 }
 div.action-links a {
   color: gray;
@@ -284,19 +280,16 @@ ul.squad-nav-option-buttons a:hover {
   text-decoration: underline;
 }
 .squad-nav-option-buttons-loading {
+  position: relative;
   padding-left: 3px;
+  top: 2px;
+  right: 3px;
+  width: 10px;
+  font-size: 14px;
 }
 img.loading-indicator-loading {
-  position: relative;
-  width: 10px;
-  right: 3px;
-  top: 2px;
 }
 span.loading-indicator-error {
-  position: relative;
-  top: 2px;
-  right: 3px;
-  font-size: 14px;
   font-weight: bold;
   color: red;
   line-height: 0;
@@ -735,7 +728,6 @@ div.entry-history-deleted {
 }
 
 div.pick-squad {
-  display: none;
   position: absolute;
   left: 4px;
   bottom: 20px;
@@ -749,13 +741,18 @@ div.pick-squad {
   line-height: normal;
   font-size: 12px;
   cursor: pointer;
+  outline: none;
 }
-a.select-squad {
+span.select-squad {
   color: black;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 div.pick-squad > div {
   border-bottom: 1px solid #D3D3D3;
-  padding: 3px 10px 3px 25px;
+  padding: 1px 10px 1px 25px;
   position: relative;
 }
 div.pick-squad > div:hover {
@@ -769,9 +766,12 @@ div.color-preview {
   height: 12px;
   left: 6px;
   position: absolute;
-  top: 5px;
+  top: 4px;
   border: 1px solid lightgray;
   border-radius: 2px;
+}
+div.select-squad-name {
+  padding-top: 1px;
 }
 
 div.edit-squad-color-container {
