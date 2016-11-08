@@ -7,12 +7,14 @@ import { squadInfoPropType } from '../squad-info';
 
 import React from 'react';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import Day from './day.react';
 
 type Props = {
   thisURL: string,
   baseURL: string,
+  navID: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
@@ -25,6 +27,16 @@ type Props = {
 class Calendar extends React.Component {
 
   props: Props;
+
+  componentDidMount() {
+    this.recomputeTabIndices();
+  }
+
+  recomputeTabIndices() {
+    $('textarea.entry-text').each(
+      (i, elem) => $(elem).attr('tabindex', i + 1),
+    );
+  }
 
   getDate(
     dayOfMonth: number,
@@ -63,6 +75,7 @@ class Calendar extends React.Component {
           <Day
             thisURL={this.props.thisURL}
             baseURL={this.props.baseURL}
+            navID={this.props.navID}
             sessionID={this.props.sessionID}
             year={this.props.year}
             month={this.props.month}
@@ -71,6 +84,7 @@ class Calendar extends React.Component {
             squadInfos={this.props.squadInfos}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
+            recomputeTabIndices={this.recomputeTabIndices.bind(this)}
             key={curDayOfMonth}
           />
         );
@@ -104,6 +118,7 @@ class Calendar extends React.Component {
 Calendar.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
+  navID: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,

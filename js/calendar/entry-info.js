@@ -4,7 +4,7 @@ import React from 'react';
 
 export type EntryInfo = {
   id?: ?string, // null if local copy without ID yet
-  localID: ?number, // only set if id is unset, local to Day
+  localID?: ?number, // only set if id is unset, local to Day
   squadID: string,
   text: string,
   year: number,

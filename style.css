@@ -589,27 +589,52 @@ div.form-text > div.form-float-content {
   font-style: italic;
 }
 
-div#history-modal div.modal-body {
+div.history-modal-body {
   position: relative;
   height: 240px;
   overflow: hidden;
 }
-p#history-loading {
+img.history-loading {
   position: absolute;
-  left: 0;
-  top: 27px;
-  box-sizing: border-box;
-  width: 100%;
+  right: 6px;
+  top: 5px;
 }
-p#history-loading img {
-  padding-top: 4px;
+span.history-loading {
+  position: absolute;
+  line-height: 16px;
+  font-size: 16px;
+  right: 12px;
+  top: 6px;
 }
 div.entry-history {
   position: absolute;
   width: 100%;
-  left: 100%;
   top: 27px;
   box-sizing: border-box;
+}
+div.entry-history-visible {
+  left: 0;
+}
+div.entry-history-invisible {
+  left: 100%;
+}
+@keyframes entry-history-visible-animation {
+  from { left: 100%; }
+  to { left: 0; }
+}
+div.entry-history-visible-animate {
+  left: 0;
+  animation-name: entry-history-visible-animation;
+  animation-duration: 0.5s;
+}
+@keyframes entry-history-invisible-animation {
+  from { left: 0; }
+  to { left: 100%; }
+}
+div.entry-history-invisible-animate {
+  left: 100%;
+  animation-name: entry-history-invisible-animation;
+  animation-duration: 0.5s;
 }
 div.history-header {
   position: absolute;
@@ -624,12 +649,13 @@ div.history-header {
   box-sizing: border-box;
 }
 a#all-history-button {
-  float: left;
-  width: 25%;
+  position: absolute;
+  top: 5px;
+  left: 7px;
 }
 span.history-date {
   float: left;
-  width: 50%;
+  width: 100%;
   text-align: center;
 }
 div.entry-history ul {
@@ -650,6 +676,11 @@ span.entry-author {
   padding-left: 11px;
   font-size: 12px;
   color: gray;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 50%;
+  box-sizing: border-box;
 }
 span.entry-username {
   color: #2A5DB0;
@@ -667,6 +698,12 @@ span.entry-squad {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   margin-top: -2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 50%;
+  padding-left: 10px;
+  box-sizing: border-box;
 }
 div.clear {
   clear: both;
@@ -680,9 +717,32 @@ div.entry-history-entry {
 div.day-history {
   position: absolute;
   width: 100%;
-  left: 0;
   top: 27px;
   box-sizing: border-box;
+}
+div.day-history-visible {
+  left: 0;
+}
+div.day-history-invisible {
+  left: -100%;
+}
+@keyframes day-history-visible-animation {
+  from { left: -100%; }
+  to { left: 0; }
+}
+div.day-history-visible-animate {
+  left: 0;
+  animation-name: day-history-visible-animation;
+  animation-duration: 0.5s;
+}
+@keyframes day-history-invisible-animation {
+  from { left: 0; }
+  to { left: -100%; }
+}
+div.day-history-invisible-animate {
+  left: -100%;
+  animation-name: day-history-invisible-animation;
+  animation-duration: 0.5s;
 }
 div.day-history ul {
   overflow: auto;
@@ -709,11 +769,16 @@ span.restore-entry-label {
   padding-left: 5px;
 }
 img.restore-loading {
-  width: 12px;
   position: relative;
   top: 2px;
   left: 5px;
-  display: none;
+  width: 12px;
+}
+span.restore-loading {
+  position: relative;
+  top: 2px;
+  left: 7px;
+  font-size: 15px;
 }
 a.revision-history-button {
   float: right;
@@ -831,4 +896,9 @@ ul.edit-squad-tab-panel li.edit-squad-current-tab > a {
 div.new-squad-privacy-container {
   margin-bottom: 3px;
   margin-top: -6px;
+}
+
+img.js-loading {
+  margin-top: 5px;
+  margin-right: 7px;
 }

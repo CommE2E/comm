@@ -18,6 +18,7 @@ import fetchJSON from '../fetch-json';
 import Modernizr from '../modernizr-custom';
 import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
+import HistoryModal from '../modals/history/history-modal.react';
 
 type Props = {
   entryInfo: EntryInfo,
@@ -28,6 +29,7 @@ type Props = {
   removeEntriesWhere: (filterFunc: (entryInfo: EntryInfo) => bool) => void,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setServerID: (localID: number, serverID: string, currentText: string) => void,
+  restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -307,8 +309,24 @@ class Entry extends React.Component {
     });
   }
 
-  async onHistory(event: SyntheticEvent) {
-    // TODO: handle history
+  onHistory(event: SyntheticEvent) {
+    const squadInfos = {};
+    squadInfos[this.props.squadInfo.id] = this.props.squadInfo;
+    this.props.setModal(
+      <HistoryModal
+        mode="entry"
+        baseURL={this.props.baseURL}
+        year={this.state.entryInfo.year}
+        month={this.state.entryInfo.month}
+        day={this.state.entryInfo.day}
+        sessionID={this.props.sessionID}
+        navID={this.props.squadInfo.id}
+        squadInfos={squadInfos}
+        onClose={this.props.clearModal}
+        restoreEntryInfo={this.props.restoreEntryInfo}
+        currentEntryID={this.state.entryInfo.id}
+      />
+    );
   }
 
 }
@@ -322,6 +340,7 @@ Entry.propTypes = {
   removeEntriesWhere: React.PropTypes.func.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setServerID: React.PropTypes.func.isRequired,
+  restoreEntryInfo: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 }

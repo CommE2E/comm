@@ -31,7 +31,8 @@ if (!$can_see) {
 }
 
 $result = $conn->query(
-  "SELECT u.username AS author, r.text, r.last_update, r.deleted, d.squad ".
+  "SELECT r.id, u.username AS author, r.text, r.last_update AS lastUpdate, ".
+    "r.deleted, d.squad AS squadID ".
     "FROM revisions r LEFT JOIN users u ON u.id = r.author ".
     "LEFT JOIN entries e ON e.id = r.entry ".
     "LEFT JOIN days d ON d.id = e.day ".
@@ -39,9 +40,8 @@ $result = $conn->query(
 );
 $revisions = array();
 while ($row = $result->fetch_assoc()) {
-  $row['last_update'] = intval($row['last_update']);
+  $row['lastUpdate'] = intval($row['lastUpdate']);
   $row['deleted'] = !!$row['deleted'];
-  $row['squad'] = intval($row['squad']);
   $revisions[] = $row;
 }
 

@@ -54,13 +54,6 @@ if (isset($query_string['verify'])) {
   }
 }
 
-function background_color_is_dark($color) {
-  $red = hexdec(substr($color, 0, 2));
-  $green = hexdec(substr($color, 2, 2));
-  $blue = hexdec(substr($color, 4, 2));
-  return $red * 0.299 + $green * 0.587 + $blue * 0.114 < 187;
-}
-
 $result = $conn->query(
   "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
     "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." AS is_authed, ".
@@ -84,9 +77,6 @@ if (!isset($_GET['squad']) && $subscription_exists) {
 }
 
 $squad_infos = array();
-$squad_names = array();
-$colors = array();
-$color_is_dark = array();
 foreach ($rows as $row) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
   $subscribed_authorized = $authorized && $row['subscribed'];
@@ -103,21 +93,16 @@ foreach ($rows as $row) {
     'onscreen' => $onscreen,
     'color' => $row['color'],
   );
-  if ($subscribed_authorized || (int)$row['id'] === $squad) {
-    $colors[$row['id']] = $row['color'];
-    $color_is_dark[$row['id']] = background_color_is_dark($row['color']);
-    $squad_names[$row['id']] = $row['name'];
-  }
 }
 if (
   ($home && !$subscription_exists) ||
   (!$home &&
-    (!isset($squad_names[$squad]) || !$squad_infos[$squad]['authorized']))
+    (!isset($squad_infos[$squad]) || !$squad_infos[$squad]['authorized']))
 ) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
-$current_nav_name = $home ? "Home" : $squad_names[$squad];
+$current_nav_name = $home ? "Home" : $squad_infos[$squad]['name'];
 
 if ($squad !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
@@ -146,9 +131,6 @@ if (user_logged_in()) {
 
 // Fetch the actual text for each day
 $days_in_month = $month_beginning_timestamp->format('t');
-$text = array_fill(1, $days_in_month, array());
-$creation_times = array();
-$entry_squads = array();
 $entries = array_fill(1, $days_in_month, array());
 if ($home) {
   $result = $conn->query(
@@ -175,9 +157,6 @@ while ($row = $result->fetch_assoc()) {
   }
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
-  $text[$day][$entry] = $row['text'];
-  $creation_times[$entry] = intval($row['creation_time']);
-  $entry_squads[$entry] = $entry_squad;
   $entries[$day][$entry] = array(
     "id" => (string)$entry,
     "squadID" => (string)$entry_squad,
@@ -208,7 +187,6 @@ $this_url = "$month_url&$url_suffix";
       <link rel="stylesheet" type="text/css" href="spectrum.css" />
       <script>
         var email = "<?=$email?>";
-        var squad_names = <?=json_encode($squad_names, JSON_FORCE_OBJECT)?>;
         var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
         var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
         var month = <?=$month?>;
@@ -217,22 +195,27 @@ $this_url = "$month_url&$url_suffix";
         var this_url = "<?=$this_url?>";
         var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
-        var creation_times = <?=json_encode($creation_times)?>;
-        var colors = <?=json_encode($colors)?>;
-        var color_is_dark = <?=json_encode($color_is_dark)?>;
         var original_nav = "<?=($home ? 'home' : $squad)?>";
         var current_nav_name = "<?=$current_nav_name?>";
       </script>
     </head>
     <body>
+<?php
+
+echo <<<HTML
       <header>
         <h1>SquadCal</h1>
-        <div id="upper-right"></div>
+        <div id="upper-right">
+          <img
+            class="js-loading"
+            src="{$base_url}images/ajax-loader.gif"
+            alt="loading"
+          />
+        </div>
         <div class="lower-left">
           <div class="nav-button">
 
-<?php
-
+HTML;
 if (user_logged_in()) {
   echo <<<HTML
             logged in as
@@ -289,28 +272,6 @@ echo <<<HTML
       </header>
       <div id="calendar"></div>
       <div id="modal-manager-parent"></div>
-      <div class="modal-overlay" id="history-modal-overlay">
-        <div class="modal" id="history-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>History</h2>
-          </div>
-          <div class="modal-body">
-            <div class="history-header">
-              <a id='all-history-button' href='#'>&lt; all entries</a>
-              <span class="history-date"></span>
-            </div>
-            <p id="history-loading">
-              <img
-                src="{$base_url}images/ajax-loader.gif"
-                alt="loading"
-              />
-            </p>
-            <div class="day-history"><ul></ul></div>
-            <div class="entry-history"><ul></ul></div>
-          </div>
-        </div>
-      </div>
 
 HTML;
 if (!user_logged_in()) {

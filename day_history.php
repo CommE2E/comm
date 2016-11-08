@@ -37,7 +37,7 @@ if ($_POST['nav'] === "home") {
 $additional_condition = $home ? "r.subscribed = 1" : "d.squad = $squad";
 $viewer_id = get_viewer_id();
 $result = $conn->query(
-  "SELECT e.id, u.username AS creator, e.text, e.deleted, d.squad ".
+  "SELECT e.id, u.username AS creator, e.text, e.deleted, d.squad AS squadID ".
     "FROM entries e ".
     "LEFT JOIN users u ON u.id = e.creator ".
     "LEFT JOIN days d ON d.id = e.day ".
@@ -51,9 +51,7 @@ $result = $conn->query(
 
 $entries = array();
 while ($row = $result->fetch_assoc()) {
-  $row['id'] = intval($row['id']);
   $row['deleted'] = !!$row['deleted'];
-  $row['squad'] = intval($row['squad']);
   $entries[] = $row;
 }
 

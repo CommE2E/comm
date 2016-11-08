@@ -14,10 +14,12 @@ import invariant from 'invariant';
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
 import { entryID } from './entry-utils';
+import HistoryModal from '../modals/history/history-modal.react';
 
 type Props = {
   thisURL: string,
   baseURL: string,
+  navID: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
@@ -26,6 +28,7 @@ type Props = {
   squadInfos: {[id: string]: SquadInfo},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
+  recomputeTabIndices: () => void,
 };
 type State = {
   entryInfos: EntryInfo[],
@@ -56,10 +59,6 @@ class Day extends React.Component {
   }
 
   render() {
-    // TODO: handle history
-    // TODO: handle restore from history
-    // TODO: pass in re-tabindex function
-
     const today = new Date();
     const isToday = today.getDate() === this.props.day &&
       today.getMonth() === this.props.month - 1 &&
@@ -104,6 +103,7 @@ class Day extends React.Component {
         removeEntriesWhere={this.removeEntriesWhere.bind(this)}
         focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan.bind(this)}
         setServerID={this.setServerID.bind(this)}
+        restoreEntryInfo={this.restoreEntryInfo.bind(this)}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         key={id}
@@ -235,6 +235,7 @@ class Day extends React.Component {
           "entry container isn't div",
         );
         this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
+        this.props.recomputeTabIndices();
       },
     );
   }
@@ -244,17 +245,50 @@ class Day extends React.Component {
   }
 
   onHistory(event: SyntheticEvent) {
+    this.props.setModal(
+      <HistoryModal
+        mode="day"
+        baseURL={this.props.baseURL}
+        year={this.props.year}
+        month={this.props.month}
+        sessionID={this.props.sessionID}
+        day={this.props.day}
+        navID={this.props.navID}
+        squadInfos={this.props.squadInfos}
+        onClose={this.props.clearModal}
+        restoreEntryInfo={this.restoreEntryInfo.bind(this)}
+      />
+    );
+  }
+
+  async restoreEntryInfo(entryInfo: EntryInfo) {
+    this.setState(
+      (prevState, props) => {
+        const spliceIndex = _.sortedIndexBy(
+          prevState.entryInfos,
+          entryInfo,
+          'creationTime',
+        );
+        return update(prevState, {
+          entryInfos: { $splice: [[ spliceIndex, 0, entryInfo ]] },
+        });
+      },
+      this.props.recomputeTabIndices,
+    );
   }
 
   removeEntriesWhere(filterFunc: (entryInfo: EntryInfo) => bool) {
-    this.setState((prevState, props) => {
-      const newEntryInfos = prevState.entryInfos.filter(
-        (entryInfo) => !filterFunc(entryInfo),
-      );
-      return update(prevState, {
-        entryInfos: { $set: newEntryInfos },
-      });
-    });
+    this.setState(
+      (prevState, props) => {
+        const newEntryInfos = prevState.entryInfos.filter(
+          (entryInfo) => !filterFunc(entryInfo),
+        );
+        return update(prevState, {
+          entryInfos: { $set: newEntryInfos },
+        });
+      },
+      this.props.recomputeTabIndices,
+    );
   }
 
   focusOnFirstEntryNewerThan(time: number) {
@@ -285,6 +319,7 @@ class Day extends React.Component {
         const entry = this.entries.get(serverID);
         invariant(entry, "entry for entryinfo should be defined");
         entry.setFocus();
+        this.props.recomputeTabIndices();
       },
     );
   }
@@ -294,6 +329,7 @@ class Day extends React.Component {
 Day.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
+  navID: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
@@ -302,6 +338,7 @@ Day.propTypes = {
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
+  recomputeTabIndices: React.PropTypes.func.isRequired,
 };
 
 export default Day;
