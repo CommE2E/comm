@@ -16,13 +16,20 @@ import LoadingIndicator from '../loading-indicator.react';
 import { colorIsDark } from '../squad-utils';
 import fetchJSON from '../fetch-json';
 import Modernizr from '../modernizr-custom';
+import ConcurrentModificationModal from
+  '../modals/concurrent-modification-modal.react';
 
 type Props = {
   entryInfo: EntryInfo,
   squadInfo: SquadInfo,
+  thisURL: string,
   baseURL: string,
   sessionID: string,
   removeEntriesWhere: (filterFunc: (entryInfo: EntryInfo) => bool) => void,
+  focusOnFirstEntryNewerThan: (time: number) => void,
+  setServerID: (localID: number, serverID: string, currentText: string) => void,
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
 };
 type State = {
   entryInfo: EntryInfo,
@@ -61,12 +68,23 @@ class Entry extends React.Component {
     this.updateHeight();
     // Whenever a new Entry is created, focus on it
     if (!this.state.entryInfo.id) {
-      invariant(
-        this.textarea instanceof HTMLTextAreaElement,
-        "textarea ref not set",
-      );
-      this.textarea.focus();
+      this.focus();
     }
+  }
+
+  focus() {
+    invariant(
+      this.textarea instanceof HTMLTextAreaElement,
+      "textarea ref not set",
+    );
+    this.textarea.focus();
+  }
+
+  setFocus() {
+    this.setState(
+      { hovered: true },
+      this.focus.bind(this),
+    );
   }
 
   componentWillUnmount() {
@@ -200,13 +218,11 @@ class Entry extends React.Component {
     const curSaveAttempt = ++this.saveAttemptIndex;
     this.setState({ loadingStatus: "loading" });
 
-    const creationTime = Date.now();
     const entryID = serverID ? serverID : "-1";
     const payload: Object = {
       'text': newText,
       'prev_text': this.props.entryInfo.text,
       'session_id': this.props.sessionID,
-      'timestamp': creationTime,
       'entry_id': entryID,
     };
     if (!serverID) {
@@ -214,6 +230,9 @@ class Entry extends React.Component {
       payload['month'] = this.state.entryInfo.month;
       payload['year'] = this.state.entryInfo.year;
       payload['squad'] = this.state.entryInfo.squadID;
+      payload['timestamp'] = this.props.entryInfo.creationTime;
+    } else {
+      payload['timestamp'] = Date.now();
     }
     const response = await fetchJSON('save.php', payload);
 
@@ -223,39 +242,51 @@ class Entry extends React.Component {
       });
     }
     if (response.error === 'concurrent_modification') {
-      // TODO: Reactify this modal
-      $('div#concurrent-modification-modal-overlay').show();
+      this.props.setModal(
+        <ConcurrentModificationModal
+          onClose={this.props.clearModal}
+          thisURL={this.props.thisURL}
+        />
+      );
       return;
     }
     if (!serverID && response.entry_id) {
+      const newServerID = response.entry_id.toString();
       const needsUpdate = this.needsUpdateAfterCreation;
       if (needsUpdate && !this.mounted) {
-        await this.delete(response.entry_id);
+        await this.delete(newServerID);
       } else {
         this.setState((prevState, props) => {
           return update(prevState, {
             entryInfo: {
-              id: { $set: response.entry_id },
+              id: { $set: newServerID },
             }
           });
         });
       }
       this.creating = false;
       this.needsUpdateAfterCreation = false;
-      // TODO: update Day's EntryInfo for us with ID and creation time
       if (needsUpdate && this.mounted) {
         invariant(
           this.textarea instanceof HTMLTextAreaElement,
           "textarea ref not set",
         );
-        await this.save(response.entry_id, this.textarea.value);
+        await this.save(newServerID, this.textarea.value);
+      }
+      if (this.mounted) {
+        invariant(this.state.entryInfo.localID, "localID should be set");
+        this.props.setServerID(
+          this.state.entryInfo.localID,
+          newServerID,
+          this.state.entryInfo.text,
+        );
       }
     }
   }
 
   async onDelete(event: SyntheticEvent) {
     await this.delete(this.state.entryInfo.id);
-    // TODO: some way to pass the focus on to the next
+    this.props.focusOnFirstEntryNewerThan(this.state.entryInfo.creationTime);
   }
 
   async delete(serverID: ?string) {
@@ -285,9 +316,14 @@ class Entry extends React.Component {
 Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
   squadInfo: squadInfoPropType.isRequired,
+  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   removeEntriesWhere: React.PropTypes.func.isRequired,
+  focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
+  setServerID: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
 }
 
 export default Entry;

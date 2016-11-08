@@ -13,18 +13,22 @@ import invariant from 'invariant';
 
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
+import { entryID } from './entry-utils';
 
 type Props = {
+  thisURL: string,
   baseURL: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
-  entryInfos: {[id: string]: EntryInfo},
+  entryInfos: EntryInfo[],
   squadInfos: {[id: string]: SquadInfo},
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
 };
 type State = {
-  entryInfos: {[id: string]: EntryInfo},
+  entryInfos: EntryInfo[],
   pickerOpen: bool,
   hovered: bool,
 };
@@ -37,6 +41,7 @@ class Day extends React.Component {
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
   squadPicker: ?HTMLDivElement;
+  entries: Map<string, Entry>;
   curLocalID: number;
 
   constructor(props: Props) {
@@ -47,6 +52,7 @@ class Day extends React.Component {
       hovered: false,
     };
     this.curLocalID = 1;
+    this.entries = new Map();
   }
 
   render() {
@@ -87,16 +93,23 @@ class Day extends React.Component {
       );
     }
 
-    const entries = _.chain(this.state.entryInfos).map((entryInfo) =>
-      <Entry
+    const entries = this.state.entryInfos.map((entryInfo) => {
+      const id = entryID(entryInfo);
+      return <Entry
         entryInfo={entryInfo}
         squadInfo={this.props.squadInfos[entryInfo.squadID]}
+        thisURL={this.props.thisURL}
         baseURL={this.props.baseURL}
         sessionID={this.props.sessionID}
         removeEntriesWhere={this.removeEntriesWhere.bind(this)}
-        key={entryInfo.id ? entryInfo.id : entryInfo.localID}
-      />,
-    ).value();
+        focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan.bind(this)}
+        setServerID={this.setServerID.bind(this)}
+        setModal={this.props.setModal}
+        clearModal={this.props.clearModal}
+        key={id}
+        ref={(entry) => this.entries.set(id, entry)}
+      />;
+    });
 
     let squadPicker = null;
     if (this.state.pickerOpen) {
@@ -210,11 +223,10 @@ class Day extends React.Component {
           year: props.year,
           month: props.month,
           day: props.day,
+          creationTime: Date.now(),
         };
-        const mergeObj = {};
-        mergeObj[localID] = newEntryInfo;
         return update(prevState, {
-          entryInfos: { $merge: mergeObj },
+          entryInfos: { $push: [ newEntryInfo ] },
         });
       },
       () => {
@@ -236,23 +248,60 @@ class Day extends React.Component {
 
   removeEntriesWhere(filterFunc: (entryInfo: EntryInfo) => bool) {
     this.setState((prevState, props) => {
-      const newEntryInfos = _.omitBy(prevState.entryInfos, filterFunc);
+      const newEntryInfos = prevState.entryInfos.filter(
+        (entryInfo) => !filterFunc(entryInfo),
+      );
       return update(prevState, {
         entryInfos: { $set: newEntryInfos },
       });
     });
   }
 
+  focusOnFirstEntryNewerThan(time: number) {
+    const entryInfo = this.state.entryInfos.find(
+      (entryInfo) => entryInfo.creationTime > time,
+    );
+    if (entryInfo) {
+      const entry = this.entries.get(entryID(entryInfo));
+      invariant(entry, "entry for entryinfo should be defined");
+      entry.setFocus();
+    }
+  }
+
+  setServerID(localID: number, serverID: string, currentText: string) {
+    this.setState(
+      (prevState, props) => {
+        const index = prevState.entryInfos.findIndex(
+          (entryInfo) => entryInfo.localID === localID,
+        );
+        const saveObj = {};
+        saveObj[index] = {
+          id: { $set: serverID },
+          text: { $set: currentText },
+        };
+        return update(prevState, { entryInfos: saveObj });
+      },
+      () => {
+        const entry = this.entries.get(serverID);
+        invariant(entry, "entry for entryinfo should be defined");
+        entry.setFocus();
+      },
+    );
+  }
+
 }
 
 Day.propTypes = {
+  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
-  entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,
+  entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
 };
 
 export default Day;

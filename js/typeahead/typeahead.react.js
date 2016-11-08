@@ -2,6 +2,7 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { NavID } from './typeahead-action-option.react';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -23,7 +24,6 @@ type Props = {
   currentNavName: string,
   squadInfos: {[id: string]: SquadInfo},
   loggedIn: bool,
-  openSquadAuthModal: (squadInfo: SquadInfo) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -256,7 +256,7 @@ class Typeahead extends React.Component {
     return null;
   }
 
-  buildActionOption(navID: string, name: string) {
+  buildActionOption(navID: NavID, name: string) {
     return (
       <TypeaheadActionOption
         navID={navID}
@@ -281,10 +281,10 @@ class Typeahead extends React.Component {
         thisURL={this.props.thisURL}
         monthURL={this.props.monthURL}
         baseURL={this.props.baseURL}
+        loggedIn={this.props.loggedIn}
         freezeTypeahead={this.freeze.bind(this)}
         unfreezeTypeahead={this.unfreeze.bind(this)}
         frozen={this.state.frozenNavID === squadInfo.id}
-        openSquadAuthModal={this.props.openSquadAuthModal}
         updateSubscription={this.updateSubscription.bind(this)}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
@@ -399,7 +399,6 @@ Typeahead.propTypes = {
   currentNavName: React.PropTypes.string.isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
-  openSquadAuthModal: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };

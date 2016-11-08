@@ -8,16 +8,17 @@ import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
+import SquadLoginModal from '../modals/squad-login-modal.react';
 
 type Props = {
   squadInfo: SquadInfo,
   thisURL: string,
   monthURL: string,
   baseURL: string,
+  loggedIn: bool,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
   frozen?: bool,
-  openSquadAuthModal: (squadInfo: SquadInfo) => void,
   updateSubscription: (id: string, subscribed: bool) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -77,7 +78,18 @@ class TypeaheadSquadOption extends React.Component {
     } else {
       // TODO: make the password entry appear inline
       this.props.freezeTypeahead(this.props.squadInfo.id);
-      this.props.openSquadAuthModal(this.props.squadInfo);
+      const onClose = () => {
+        this.props.unfreezeTypeahead();
+        this.props.clearModal();
+      }
+      this.props.setModal(
+        <SquadLoginModal
+          squadInfo={this.props.squadInfo}
+          monthURL={this.props.monthURL}
+          loggedIn={this.props.loggedIn}
+          onClose={onClose}
+        />
+      );
     }
   }
 
@@ -88,10 +100,10 @@ TypeaheadSquadOption.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
-  openSquadAuthModal: React.PropTypes.func.isRequired,
   updateSubscription: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,

@@ -6,16 +6,20 @@ import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
 
 import React from 'react';
+import _ from 'lodash';
 
 import Day from './day.react';
 
 type Props = {
+  thisURL: string,
   baseURL: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   squadInfos: {[id: string]: SquadInfo},
+  setModal: (modal: React.Element<any>) => void,
+  clearModal: () => void,
 };
 
 class Calendar extends React.Component {
@@ -51,15 +55,22 @@ class Calendar extends React.Component {
       if (curDayOfMonth < 1 || curDayOfMonth > totalDaysInMonth) {
         columns.push(<td key={curDayOfMonth} />);
       } else {
+        const entries = _.sortBy(
+          this.props.entryInfos[curDayOfMonth.toString()],
+          "creationTime",
+        );
         columns.push(
           <Day
+            thisURL={this.props.thisURL}
             baseURL={this.props.baseURL}
             sessionID={this.props.sessionID}
             year={this.props.year}
             month={this.props.month}
             day={curDayOfMonth} 
-            entryInfos={this.props.entryInfos[curDayOfMonth.toString()]}
+            entryInfos={entries}
             squadInfos={this.props.squadInfos}
+            setModal={this.props.setModal}
+            clearModal={this.props.clearModal}
             key={curDayOfMonth}
           />
         );
@@ -91,6 +102,7 @@ class Calendar extends React.Component {
 }
 
 Calendar.propTypes = {
+  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
@@ -99,6 +111,8 @@ Calendar.propTypes = {
     React.PropTypes.objectOf(entryInfoPropType),
   ).isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
 };
 
 export default Calendar;

@@ -10,6 +10,7 @@ export type EntryInfo = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
+  creationTime: number, // millisecond timestamp
 }
 
 export const entryInfoPropType = React.PropTypes.shape({
@@ -20,4 +21,5 @@ export const entryInfoPropType = React.PropTypes.shape({
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
+  creationTime: React.PropTypes.number.isRequired,
 });

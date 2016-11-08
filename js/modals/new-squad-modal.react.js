@@ -77,7 +77,7 @@ class NewSquadModal extends React.Component {
       );
     }
     return (
-      <Modal name="New squad" onClose={this.props.onClose}>
+      <Modal name="New squad" onClose={this.props.onClose} size="large">
         <div className="modal-body">
           <form method="POST">
             <div>
@@ -185,23 +185,23 @@ class NewSquadModal extends React.Component {
   onChangeName(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ 'name': target.value });
+    this.setState({ name: target.value });
   }
 
   onChangeDescription(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
-    this.setState({ 'description': target.value });
+    this.setState({ description: target.value });
   }
 
   onChangeColor(color: string) {
-    this.setState({ 'color': color });
+    this.setState({ color: color });
   }
 
   onChangeClosed(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ 'closed': target.value === "true" });
+    this.setState({ closed: target.value === "true" });
   }
 
   onChangeSquadPassword(event: SyntheticEvent) {

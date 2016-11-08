@@ -7,8 +7,9 @@ import $ from 'jquery';
 import fetchJSON from '../fetch-json';
 import NewSquadModal from '../modals/new-squad-modal.react';
 
+export type NavID = "home" | "new";
 type Props = {
-  navID: string,
+  navID: NavID,
   name: string,
   monthURL: string,
   loggedIn: bool,

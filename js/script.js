@@ -1,7 +1,8 @@
 // Polyfill everything so even ES3 browsers work
 import 'babel-polyfill';
 
-// jQuery and plugins
+import React from 'react';
+import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import 'timeago'; // side effect: $.timeago
 import 'jquery-dateformat'; // side effect: $.format
@@ -10,25 +11,11 @@ import 'spectrum-colorpicker'; // side effect: $.spectrum
 // Modernizr (custom, so it's not a JSPM package)
 import './modernizr-custom';
 
-// React
-import React from 'react';
-import ReactDOM from 'react-dom';
 import Typeahead from './typeahead/typeahead.react'
 import ModalManager from './modals/modal-manager.react'
 import Calendar from './calendar/calendar.react'
 
-var session_id = Math.floor(0x80000000 * Math.random()).toString(36);
-
-var new_squad = null;
-function open_squad_auth_modal(squadInfo: SquadInfo) {
-  $('div#squad-login-name > div.form-content').text(squadInfo.name);
-  new_squad = squadInfo.id;
-  $('div#squad-login-modal-overlay').show();
-  $('div#squad-login-modal input:visible')
-    .filter(function() { return this.value === ""; })
-    .first()
-    .focus();
-}
+const session_id = Math.floor(0x80000000 * Math.random()).toString(36);
 
 let modalManager = null;
 ReactDOM.render(
@@ -46,22 +33,24 @@ ReactDOM.render(
     currentNavName={current_nav_name}
     squadInfos={squad_infos}
     loggedIn={!!email}
-    openSquadAuthModal={open_squad_auth_modal}
     setModal={modalManager.setModal.bind(modalManager)}
     clearModal={modalManager.clearModal.bind(modalManager)}
     ref={(ta) => typeahead = ta}
   />,
-  document.getElementById('squad-nav-parent'),
+  document.getElementById('upper-right'),
 );
 
 ReactDOM.render(
   <Calendar
+    thisURL={this_url}
     baseURL={base_url}
     sessionID={session_id}
     year={year}
     month={month}
     entryInfos={entry_infos}
     squadInfos={squad_infos}
+    setModal={modalManager.setModal.bind(modalManager)}
+    clearModal={modalManager.clearModal.bind(modalManager)}
   />,
   document.getElementById('calendar'),
 );
@@ -84,58 +73,6 @@ if (show === 'reset_password') {
     }
   });
 }
-
-$('input#refresh-button').click(function() {
-  window.location.href = this_url;
-});
-
-$('div#squad-login-modal span.modal-close').click(function() {
-  typeahead.unfreeze();
-  $('input#squad-password').val("");
-  $('div#squad-login-modal span.modal-form-error').text("");
-});
-$(window).click(function(event) {
-  if (event.target.id === 'squad-login-modal-overlay') {
-    typeahead.unfreeze();
-    $('input#squad-password').val("");
-    $('div#squad-login-modal span.modal-form-error').text("");
-  }
-});
-$(document).keyup(function(e) {
-  if (e.keyCode == 27) { // esc key
-    typeahead.unfreeze();
-    $('input#squad-password').val("");
-    $('div#squad-login-modal span.modal-form-error').text("");
-  }
-});
-$('div#squad-login-modal form').submit(function(event) {
-  event.preventDefault();
-  $('div#squad-login-modal input').prop("disabled", true);
-  $.post(
-    'auth_squad.php',
-    {
-      'squad': new_squad,
-      'password': $('input#squad-password').val(),
-    },
-    function(data) {
-      console.log(data);
-      if (data.success === true) {
-        window.location.href = month_url+"&squad="+new_squad;
-        return;
-      }
-      $('input#squad-password').val("");
-      $('input#squad-password').focus();
-      $('div#squad-login-modal input').prop("disabled", false);
-      if (data.error === 'invalid_credentials') {
-        $('div#squad-login-modal span.modal-form-error')
-          .text("wrong password");
-      } else {
-        $('div#squad-login-modal span.modal-form-error')
-          .text("unknown error");
-      }
-    }
-  );
-});
 
 $('a#log-in-button').click(function() {
   $('div#log-in-modal-overlay').show();

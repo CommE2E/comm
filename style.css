@@ -155,21 +155,10 @@ h1 {
   padding-left: 4px;
 }
 
-div.upper-right {
+div#upper-right {
   position: absolute;
   padding: 6px;
   right: 0;
-}
-div.upper-right > select {
-  height: 28px;
-  font-size: 12px;
-  border: 1px solid #AAA;
-  vertical-align: top;
-  margin: 4px 6px 0 1px;
-  float: left;
-}
-div#squad-nav-parent {
-  float: left;
 }
 div#squad-nav {
   padding: 3px 12px;
@@ -566,6 +555,24 @@ div.form-text > div.form-title {
 div.form-text > div.form-content {
   margin-left: 3px;
   margin-bottom: 3px;
+}
+
+div.form-text > div.form-float-title {
+  float: left;
+  text-align: right;
+  padding-right: 5px;
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  width: 110px;
+}
+div.form-text > div.form-float-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  padding: 1px 20px 3px 4px;
+  margin-top: 5px;
 }
 
 .verified-status-true {

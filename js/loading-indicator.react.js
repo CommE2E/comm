@@ -27,6 +27,6 @@ export default function LoadingIndicator(props: Props) {
       />
     );
   } else if (props.status === "error") {
-    return <span className={cssClassNames}>!</span>;
+    return <span className={cssClassNames} title="error">!</span>;
   }
 }

@@ -2,15 +2,19 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import classNames from 'classnames';
 
+export type ModalSize = "large" | "small";
 type Props = {
   name: string,
   onClose: () => void,
   children?: React.Element<any>,
+  size?: ModalSize,
 };
 
 class Modal extends React.Component {
 
+  static defaultProps: { size: ModalSize };
   props: Props;
   overlay: ?HTMLDivElement;
 
@@ -20,6 +24,10 @@ class Modal extends React.Component {
   }
 
   render() {
+    const modalClasses = classNames(
+      "modal",
+      { "large-modal": this.props.size === "large" },
+    );
     return (
       <div
         className="react-modal-overlay"
@@ -28,7 +36,7 @@ class Modal extends React.Component {
         tabIndex={0}
         onKeyDown={this.onKeyDown.bind(this)}
       >
-        <div className="modal large-modal">
+        <div className={modalClasses}>
           <div className="modal-header">
             <span className="modal-close" onClick={this.props.onClose}>×</span>
             <h2>{this.props.name}</h2>
@@ -57,6 +65,11 @@ class Modal extends React.Component {
 Modal.propTypes = {
   name: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  size: React.PropTypes.string,
 }
+
+Modal.defaultProps = {
+  size: "small",
+};
 
 export default Modal;

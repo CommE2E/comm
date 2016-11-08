@@ -216,7 +216,7 @@ class SquadSettingsModal extends React.Component {
     }
 
     return (
-      <Modal name="Squad settings" onClose={this.props.onClose}>
+      <Modal name="Squad settings" onClose={this.props.onClose} size="large">
         <ul className="edit-squad-tab-panel">
           {this.buildTab("general", "General")}
           {this.buildTab("privacy", "Privacy")}

@@ -185,6 +185,7 @@ while ($row = $result->fetch_assoc()) {
     "year" => $year,
     "month" => $month,
     "day" => $day,
+    "creationTime" => intval($row['creation_time']),
   );
 }
 
@@ -206,7 +207,6 @@ $this_url = "$month_url&$url_suffix";
       <link rel="stylesheet" type="text/css" href="style.css" />
       <link rel="stylesheet" type="text/css" href="spectrum.css" />
       <script>
-        var squad = <?=($squad === null ? "null" : $squad)?>;
         var email = "<?=$email?>";
         var squad_names = <?=json_encode($squad_names, JSON_FORCE_OBJECT)?>;
         var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
@@ -227,7 +227,32 @@ $this_url = "$month_url&$url_suffix";
     <body>
       <header>
         <h1>SquadCal</h1>
+        <div id="upper-right"></div>
+        <div class="lower-left">
+          <div class="nav-button">
+
 <?php
+
+if (user_logged_in()) {
+  echo <<<HTML
+            logged in as
+            <span id="username">$username</span>
+            <div class="nav-menu">
+              <div><a href="#" id="log-out-button">Log out</a></div>
+              <div><a href="#" id="user-settings-button">Edit account</a></div>
+              <div>
+                <a href="#" id="delete-account-button">Delete account</a>
+              </div>
+            </div>
+
+HTML;
+} else {
+  echo <<<HTML
+            <a href="#" id="log-in-button">Log in</a> ·
+            <a href="#" id="register-button">Register</a>
+
+HTML;
+}
 
 $month_name = $month_beginning_timestamp->format('F');
 
@@ -253,34 +278,6 @@ $next_url = $base_url.
   "&amp;year=".$year_of_next_month.
   "&amp;".$url_suffix;
 
-echo <<<HTML
-        <div class="upper-right">
-          <div id="squad-nav-parent"></div>
-        </div>
-        <div class="lower-left">
-          <div class="nav-button">
-
-HTML;
-if (user_logged_in()) {
-  echo <<<HTML
-            logged in as
-            <span id="username">$username</span>
-            <div class="nav-menu">
-              <div><a href="#" id="log-out-button">Log out</a></div>
-              <div><a href="#" id="user-settings-button">Edit account</a></div>
-              <div>
-                <a href="#" id="delete-account-button">Delete account</a>
-              </div>
-            </div>
-
-HTML;
-} else {
-  echo <<<HTML
-            <a href="#" id="log-in-button">Log in</a> ·
-            <a href="#" id="register-button">Register</a>
-
-HTML;
-}
 echo <<<HTML
           </div>
         </div>
@@ -311,70 +308,6 @@ echo <<<HTML
             </p>
             <div class="day-history"><ul></ul></div>
             <div class="entry-history"><ul></ul></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="concurrent-modification-modal-overlay">
-        <div class="modal" id="concurrent-modification-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Concurrent modification</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              It looks like somebody is attempting to modify that field at the
-              same time as you! Please refresh the page and try again.
-            </p>
-            <div class="form-footer">
-              <span class="modal-form-error"></span>
-              <span class="form-submit">
-                <input type="submit" value="Refresh" id="refresh-button" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="squad-login-modal-overlay">
-        <div class="modal" id="squad-login-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Password required</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div class="form-text" id="squad-login-name">
-                <div class="form-title">Squad</div>
-                <div class="form-content"></div>
-              </div>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="squad-password"
-                    placeholder="Password"
-                  />
-                </div>
-              </div>
-
-HTML;
-if (!user_logged_in()) {
-  echo <<<HTML
-              <p class="form-pre-footer">
-                Or <a href="#" class="show-login-modal">log in</a>
-                to your account if you already have access
-              </p>
-
-HTML;
-}
-echo <<<HTML
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Submit" />
-                </span>
-              </div>
-            </form>
           </div>
         </div>
       </div>
