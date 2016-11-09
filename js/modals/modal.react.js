@@ -30,7 +30,7 @@ class Modal extends React.Component {
     );
     return (
       <div
-        className="react-modal-overlay"
+        className="modal-overlay"
         ref={(overlay) => this.overlay = overlay}
         onClick={this.onBackgroundClick.bind(this)}
         tabIndex={0}

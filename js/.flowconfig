@@ -16,3 +16,4 @@ module.name_mapper='^tokenize-text$' -> '<PROJECT_ROOT>/jspm_packages/npm/tokeni
 module.name_mapper='^lodash$' -> '<PROJECT_ROOT>/jspm_packages/npm/lodash@4.16.6.js'
 module.name_mapper='^timeago$' -> '<PROJECT_ROOT>/jspm_packages/npm/timeago@1.5.3.js'
 module.name_mapper='^jquery-dateformat$' -> '<PROJECT_ROOT>/jspm_packages/npm/jquery-dateformat@1.0.3.js'
+module.name_mapper='^babel-polyfill$' -> '<PROJECT_ROOT>/jspm_packages/npm/babel-polyfill@6.16.0.js'

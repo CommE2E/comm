@@ -32,14 +32,19 @@ if ($month < 1 || $month > 12) {
 $viewer_id = get_viewer_id();
 
 $query_string = array();
-$show = null;
 parse_str($_SERVER['QUERY_STRING'], $query_string);
+$show = null;
 if (isset($query_string['show'])) {
   $show = $query_string['show'];
 }
-$verified_user = 0;
+$verify = null;
 if (isset($query_string['verify'])) {
-  $verification_result = verify_code($query_string['verify']);
+  $verify = $query_string['verify'];
+}
+
+$reset_password_username = null;
+if ($verify) {
+  $verification_result = verify_code($verify);
   if ($verification_result) {
     list($verified_user, $verified_field) = $verification_result;
     if ($verified_field === VERIFY_FIELD_EMAIL) {
@@ -50,6 +55,11 @@ if (isset($query_string['verify'])) {
       $show = 'verified_email';
     } else if ($verified_field === VERIFY_FIELD_RESET_PASSWORD) {
       $show = 'reset_password';
+      $result = $conn->query(
+        "SELECT username FROM users WHERE id = $verified_user"
+      );
+      $reset_password_user_row = $result->fetch_assoc();
+      $reset_password_username = $reset_password_user_row['username'];
     }
   }
 }
@@ -186,15 +196,19 @@ $this_url = "$month_url&$url_suffix";
       <link rel="stylesheet" type="text/css" href="style.css" />
       <link rel="stylesheet" type="text/css" href="spectrum.css" />
       <script>
+        var username = "<?=$username?>";
         var email = "<?=$email?>";
+        var email_verified = <?=($email_verified ? "true" : "false")?>;
         var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
         var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
         var month = <?=$month?>;
         var year = <?=$year?>;
         var month_url = "<?=$month_url?>";
         var this_url = "<?=$this_url?>";
-        var show = "<?=$show?>";
         var base_url = "<?=$base_url?>";
+        var show = "<?=$show?>";
+        var verify = "<?=$verify?>";
+        var reset_password_username = "<?=$reset_password_username?>";
         var original_nav = "<?=($home ? 'home' : $squad)?>";
         var current_nav_name = "<?=$current_nav_name?>";
       </script>
@@ -212,20 +226,17 @@ echo <<<HTML
             alt="loading"
           />
         </div>
-        <div class="lower-left">
+        <div id="lower-left">
           <div class="nav-button">
 
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
             logged in as
-            <span id="username">$username</span>
+            <span class="username">$username</span>
             <div class="nav-menu">
               <div><a href="#" id="log-out-button">Log out</a></div>
               <div><a href="#" id="user-settings-button">Edit account</a></div>
-              <div>
-                <a href="#" id="delete-account-button">Delete account</a>
-              </div>
             </div>
 
 HTML;
@@ -274,386 +285,6 @@ echo <<<HTML
       <div id="modal-manager-parent"></div>
 
 HTML;
-if (!user_logged_in()) {
-  echo <<<HTML
-      <div class="modal-overlay" id="log-in-modal-overlay">
-        <div class="modal" id="log-in-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Log in</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div>
-                <div class="form-title">Username</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="log-in-username"
-                    placeholder="Username or email"
-                  />
-                </div>
-              </div>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="log-in-password"
-                    placeholder="Password"
-                  />
-                  <div class="form-subtitle">
-                    <a href="#" id="forgot-password-button">Forgot password?</a>
-                  </div>
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Log in" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="register-modal-overlay">
-        <div class="modal" id="register-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Register</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div>
-                <div class="form-title">Username</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="register-username"
-                    placeholder="Username"
-                  />
-                </div>
-              </div>
-              <div>
-                <div class="form-title">Email</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="register-email"
-                    placeholder="Email"
-                  />
-                </div>
-              </div>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <div>
-                    <input
-                      type="password"
-                      id="register-password"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="password"
-                      id="register-confirm-password"
-                      placeholder="Confirm password"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Register" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="forgot-password-modal-overlay">
-        <div class="modal" id="forgot-password-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Reset password</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div>
-                <div class="form-title">Username</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="forgot-password-username"
-                    placeholder="Username or email"
-                  />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Reset" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="password-reset-email-modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Password reset email sent</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              We've sent you an email with instructions on how to reset
-              your password. Note that the email will expire in a day.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="login-to-create-squad-modal-overlay">
-        <div class="modal" id="login-to-create-squad-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Log in or register</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              In order to create a new squad, you'll first need to
-              <a href="#" class="show-login-modal">log in</a> or
-              <a href="#" class="show-register-modal">register</a>
-              a new account.
-            </p>
-          </div>
-        </div>
-      </div>
-
-HTML;
-} else {
-  echo <<<HTML
-      <div class="modal-overlay" id="user-settings-modal-overlay">
-        <div class="modal large-modal" id="user-settings-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Edit account</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div class="form-text">
-                <div class="form-title">Username</div>
-                <div class="form-content">$username</div>
-              </div>
-              <div>
-                <div class="form-title">Email</div>
-                <div class="form-content">
-                  <input
-                    type="text"
-                    id="change-email"
-                    placeholder="Email"
-                    value="$email"
-                  />
-
-HTML;
-  if ($email_verified) {
-    echo <<<HTML
-                  <div
-                    class="form-subtitle verified-status-true"
-                    id="email-verified-status"
-                  >
-                    Verified
-                  </div>
-
-HTML;
-  } else {
-    echo <<<HTML
-                  <div class="form-subtitle" id="email-verified-status">
-                    <span class="verified-status-false">
-                      Not verified
-                    </span>
-                    -
-                    <a href="#" id="resend-verification-email-button">
-                      resend verification email
-                    </a>
-                  </div>
-
-HTML;
-  }
-  echo <<<HTML
-                </div>
-              </div>
-              <div>
-                <div class="form-title">New password (optional)</div>
-                <div class="form-content">
-                  <div>
-                    <input
-                      type="password"
-                      id="change-new-password"
-                      placeholder="New password (optional)"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="password"
-                      id="change-confirm-password"
-                      placeholder="Confirm new password (optional)"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div class="form-title">Current password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="change-old-password"
-                    placeholder="Current password"
-                  />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Update account" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-overlay" id="delete-account-modal-overlay">
-        <div class="modal" id="delete-account-modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Delete account</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <p class="italic">
-                Your account will be permanently deleted.
-              </p>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <input
-                    type="password"
-                    id="delete-account-password"
-                    placeholder="Password"
-                  />
-                </div>
-              </div>
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Delete account" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-HTML;
-  $extra_class = $show === 'verify_email' ? ' visible-modal-overlay' : '';
-  echo <<<HTML
-      <div class="modal-overlay$extra_class" id="verify-email-modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Verify email</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              We've sent you an email to verify your email address. Just click
-              on the link in the email to complete the verification process.
-            </p>
-            <p>
-              Note that the email will expire in a day, but another
-              email can be sent from "Edit account" in the user menu at any
-              time.
-            </p>
-          </div>
-        </div>
-      </div>
-
-HTML;
-}
-if ($show === 'verified_email') {
-  echo <<<HTML
-      <div class="modal-overlay visible-modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <span class="modal-close">×</span>
-            <h2>Verified email</h2>
-          </div>
-          <div class="modal-body">
-            <p>
-              Thanks for verifying your email address!
-            </p>
-          </div>
-        </div>
-      </div>
-
-HTML;
-} else if ($show === 'reset_password') {
-  $result = $conn->query(
-    "SELECT username FROM users WHERE id = $verified_user"
-  );
-  $reset_password_user_row = $result->fetch_assoc();
-  $reset_password_username = $reset_password_user_row['username'];
-  echo <<<HTML
-      <div class="modal-overlay visible-modal-overlay">
-        <div class="modal" id="reset-password-modal">
-          <div class="modal-header">
-            <h2>Reset password</h2>
-          </div>
-          <div class="modal-body">
-            <form method="POST">
-              <div class="form-text">
-                <div class="form-title">Username</div>
-                <div class="form-content">$reset_password_username</div>
-              </div>
-              <div>
-                <div class="form-title">Password</div>
-                <div class="form-content">
-                  <div>
-                    <input
-                      type="password"
-                      id="reset-new-password"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="password"
-                      id="reset-confirm-password"
-                      placeholder="Confirm password"
-                    />
-                  </div>
-                </div>
-              </div>
-              <input
-                type="hidden"
-                id="reset-password-code"
-                value="{$query_string['verify']}"
-              />
-              <div class="form-footer">
-                <span class="modal-form-error"></span>
-                <span class="form-submit">
-                  <input type="submit" value="Update" />
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-HTML;
-}
 if (DEV) {
   echo <<<HTML
       <script src="js/jspm_packages/system.js"></script>

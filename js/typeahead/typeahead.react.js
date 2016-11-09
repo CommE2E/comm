@@ -261,6 +261,7 @@ class Typeahead extends React.Component {
       <TypeaheadActionOption
         navID={navID}
         name={name}
+        thisURL={this.props.thisURL}
         monthURL={this.props.monthURL}
         loggedIn={this.props.loggedIn}
         freezeTypeahead={this.freeze.bind(this)}

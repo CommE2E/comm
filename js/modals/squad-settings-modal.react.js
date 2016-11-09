@@ -217,7 +217,7 @@ class SquadSettingsModal extends React.Component {
 
     return (
       <Modal name="Squad settings" onClose={this.props.onClose} size="large">
-        <ul className="edit-squad-tab-panel">
+        <ul className="tab-panel">
           {this.buildTab("general", "General")}
           {this.buildTab("privacy", "Privacy")}
           {this.buildTab("delete", "Delete")}
@@ -226,7 +226,7 @@ class SquadSettingsModal extends React.Component {
           <form method="POST">
             {mainContent}
             <div className="edit-squad-account-password">
-              <p>
+              <p className="confirm-account-password">
                 Please enter your account password to confirm your identity
               </p>
               <div className="form-title">Account password</div>
@@ -254,8 +254,10 @@ class SquadSettingsModal extends React.Component {
   }
 
   buildTab(tab: Tab, name: string) {
+    const currentTab = this.state.currentTab;
     const classNamesForTab = classNames({
-      'edit-squad-current-tab': this.state.currentTab === tab,
+      'current-tab': currentTab === tab,
+      'delete-tab': currentTab === tab && tab === "delete",
     });
     return (
       <li
@@ -491,10 +493,7 @@ class SquadSettingsModal extends React.Component {
         inputDisabled: false,
       },
       () => {
-        invariant(
-          this.accountPasswordInput,
-          "accountPasswordInput ref unset",
-        );
+        invariant(this.accountPasswordInput, "accountPasswordInput ref unset");
         this.accountPasswordInput.focus();
       },
     );

@@ -10,7 +10,6 @@ import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
-import $ from 'jquery';
 
 import LoadingIndicator from '../loading-indicator.react';
 import { colorIsDark } from '../squad-utils';

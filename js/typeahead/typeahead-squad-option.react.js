@@ -85,8 +85,10 @@ class TypeaheadSquadOption extends React.Component {
       this.props.setModal(
         <SquadLoginModal
           squadInfo={this.props.squadInfo}
+          thisURL={this.props.thisURL}
           monthURL={this.props.monthURL}
           loggedIn={this.props.loggedIn}
+          setModal={this.props.setModal}
           onClose={onClose}
         />
       );

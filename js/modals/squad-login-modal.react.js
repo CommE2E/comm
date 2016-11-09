@@ -5,15 +5,17 @@ import { squadInfoPropType } from '../squad-info';
 
 import React from 'react';
 import invariant from 'invariant';
-import $ from 'jquery';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
+import LogInModal from './account/log-in-modal.react';
 
 type Props = {
   squadInfo: SquadInfo,
+  thisURL: string,
   monthURL: string,
   loggedIn: bool,
+  setModal: (modal: React.Element<any>) => void,
   onClose: () => void,
 };
 type State = {
@@ -74,6 +76,7 @@ class SquadLoginModal extends React.Component {
                   placeholder="Password"
                   value={this.state.password}
                   onChange={this.onChangePassword.bind(this)}
+                  disabled={this.state.inputDisabled}
                   ref={(input) => this.passwordInput = input}
                 />
               </div>
@@ -135,24 +138,24 @@ class SquadLoginModal extends React.Component {
   }
 
   onClickAccountLogin(event: SyntheticEvent) {
-    // TODO: Reactify login-modal
-    // We'll need setModal, but we can pass in our onClose directly!
-    // We'll also need whatever the login modal needs...
-    this.props.onClose();
-    $('div#log-in-modal-overlay').show();
-    $('div#log-in-modal input:visible')
-      .filter(function() { return this.value === ""; })
-      .first()
-      .focus();
+    this.props.setModal(
+      <LogInModal
+        thisURL={this.props.thisURL}
+        onClose={this.props.onClose}
+        setModal={this.props.setModal}
+      />
+    );
   }
 
 }
 
 SquadLoginModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
+  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
+  setModal: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
-}
+};
 
 export default SquadLoginModal;

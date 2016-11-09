@@ -343,7 +343,7 @@ h2.upper-center {
   text-align: center;
 }
 
-div.lower-left {
+div#lower-left {
   position: fixed;
   left: 0;
   bottom: 0;
@@ -356,7 +356,7 @@ div.lower-left {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
 }
-div.lower-left > div.nav-button > div.nav-menu {
+div#lower-left > div.nav-button > div.nav-menu {
   left: 0px;
   right: 0px;
   bottom: 22px;
@@ -364,42 +364,27 @@ div.lower-left > div.nav-button > div.nav-menu {
   top: initial;
   text-align: left;
 }
-div.lower-left > div.nav-button > div.nav-menu > div {
+div#lower-left > div.nav-button > div.nav-menu > div {
   padding: 3px 22px;
 }
-span#username {
+span.username {
   display: inline-block;
   color: #2A5DB0;
 }
-span#username:hover {
+span.username:hover {
   cursor: default;
 }
 
-div.react-modal-overlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  padding-top: 100px;
-  background-color: rgba(0,0,0,0.4);
-  overflow: auto;
-}
 div.modal-overlay {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 3;
-  display: none;
   width: 100%;
   height: 100%;
   padding-top: 100px;
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
-}
-div.visible-modal-overlay {
-  display: initial;
 }
 div.modal {
   position: relative;
@@ -860,18 +845,23 @@ div.edit-squad-account-password {
   padding-top: 4px;
   margin-top: 2px;
 }
-div.edit-squad-account-password p {
+div.user-settings-current-password {
+  border-top: 2px solid #EFEFEF;
+  padding-top: 4px;
+  margin-top: 5px;
+}
+div.modal-body p.confirm-account-password {
   padding: 3px 0px 5px 0px;
   font-style: italic;
   font-size: 13px;
   color: #777777;
 }
-ul.edit-squad-tab-panel {
+ul.tab-panel {
   background-color: #F4F4F4;
   padding-left: 10px;
   padding-top: 5px;
 }
-ul.edit-squad-tab-panel li {
+ul.tab-panel li {
   display: inline-block;
   list-style-type: none;
   font-family: 'Open Sans', sans-serif;
@@ -880,17 +870,20 @@ ul.edit-squad-tab-panel li {
   cursor: pointer;
   padding: 3px 10px 3px 10px;
 }
-ul.edit-squad-tab-panel li.edit-squad-current-tab {
+ul.tab-panel li.current-tab {
   background-color: white;
   border-radius: 5px 5px 0 0;
   cursor: default;
 }
-ul.edit-squad-tab-panel li > a {
+ul.tab-panel li > a {
   color: #555555;
 }
-ul.edit-squad-tab-panel li.edit-squad-current-tab > a {
+ul.tab-panel li.current-tab > a {
   color: #123a7b;
   cursor: default;
+}
+ul.tab-panel li.delete-tab > a {
+  color: #ff0000 !important;
 }
 
 div.new-squad-privacy-container {
