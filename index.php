@@ -187,63 +187,63 @@ $this_url = "$month_url&$url_suffix";
 <html lang="en" class="no-js">
   <head>
     <meta charset="utf-8" />
-      <title>SquadCal</title>
-      <link
-        rel="stylesheet"
-        type="text/css"
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
-      />
-      <link rel="stylesheet" type="text/css" href="style.css" />
-      <link rel="stylesheet" type="text/css" href="spectrum.css" />
-      <script>
-        var username = "<?=$username?>";
-        var email = "<?=$email?>";
-        var email_verified = <?=($email_verified ? "true" : "false")?>;
-        var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
-        var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
-        var month = <?=$month?>;
-        var year = <?=$year?>;
-        var month_url = "<?=$month_url?>";
-        var this_url = "<?=$this_url?>";
-        var base_url = "<?=$base_url?>";
-        var show = "<?=$show?>";
-        var verify = "<?=$verify?>";
-        var reset_password_username = "<?=$reset_password_username?>";
-        var original_nav = "<?=($home ? 'home' : $squad)?>";
-        var current_nav_name = "<?=$current_nav_name?>";
-      </script>
-    </head>
-    <body>
+    <title>SquadCal</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="spectrum.css" />
+    <script>
+      var username = "<?=$username?>";
+      var email = "<?=$email?>";
+      var email_verified = <?=($email_verified ? "true" : "false")?>;
+      var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
+      var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
+      var month = <?=$month?>;
+      var year = <?=$year?>;
+      var month_url = "<?=$month_url?>";
+      var this_url = "<?=$this_url?>";
+      var base_url = "<?=$base_url?>";
+      var show = "<?=$show?>";
+      var verify = "<?=$verify?>";
+      var reset_password_username = "<?=$reset_password_username?>";
+      var original_nav = "<?=($home ? 'home' : $squad)?>";
+      var current_nav_name = "<?=$current_nav_name?>";
+    </script>
+  </head>
+  <body>
 <?php
 
 echo <<<HTML
       <header>
-        <h1>SquadCal</h1>
-        <div id="upper-right">
-          <img
-            class="js-loading"
-            src="{$base_url}images/ajax-loader.gif"
-            alt="loading"
-          />
-        </div>
-        <div id="lower-left">
-          <div class="nav-button">
+      <h1>SquadCal</h1>
+      <div id="upper-right">
+        <img
+          class="js-loading"
+          src="{$base_url}images/ajax-loader.gif"
+          alt="loading"
+        />
+      </div>
+      <div id="lower-left">
+        <div class="nav-button">
 
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
-            logged in as
-            <span class="username">$username</span>
-            <div class="nav-menu">
-              <div><a href="#" id="log-out-button">Log out</a></div>
-              <div><a href="#" id="user-settings-button">Edit account</a></div>
-            </div>
+          logged in as
+          <span class="username">$username</span>
+          <div class="nav-menu">
+            <div><a href="#" id="log-out-button">Log out</a></div>
+            <div><a href="#" id="user-settings-button">Edit account</a></div>
+          </div>
 
 HTML;
 } else {
   echo <<<HTML
-            <a href="#" id="log-in-button">Log in</a> ·
-            <a href="#" id="register-button">Register</a>
+          <a href="#" id="log-in-button">Log in</a> ·
+          <a href="#" id="register-button">Register</a>
 
 HTML;
 }
@@ -273,33 +273,33 @@ $next_url = $base_url.
   "&amp;".$url_suffix;
 
 echo <<<HTML
-          </div>
         </div>
-        <h2 class="upper-center">
-          <a href="{$prev_url}">&lt;</a>
-          $month_name $year
-          <a href="{$next_url}">&gt;</a>
-        </h2>
-      </header>
-      <div id="calendar"></div>
-      <div id="modal-manager-parent"></div>
+      </div>
+      <h2 class="upper-center">
+        <a href="{$prev_url}">&lt;</a>
+        $month_name $year
+        <a href="{$next_url}">&gt;</a>
+      </h2>
+    </header>
+    <div id="calendar"></div>
+    <div id="modal-manager-parent"></div>
 
 HTML;
 if (DEV) {
   echo <<<HTML
-      <script src="js/jspm_packages/system.js"></script>
-      <script src="js/config.js"></script>
-      <script>
-        System.import("script.js");
-      </script>
+    <script src="js/jspm_packages/system.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+      System.import("script.js");
+    </script>
 
 HTML;
 } else {
   echo <<<HTML
-      <script src="js/build.js"></script>
+    <script src="js/build.js"></script>
 
 HTML;
 }
 ?>
-    </body>
+  </body>
 </html>
