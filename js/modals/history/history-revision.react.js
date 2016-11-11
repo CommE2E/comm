@@ -9,8 +9,8 @@ import React from 'react';
 import classNames from 'classnames';
 import $ from 'jquery';
 import 'timeago'; // side effect: $.timeago
-import 'jquery-dateformat'; // side effect: $.format
 import invariant from 'invariant';
+import dateFormat from 'dateformat';
 
 import { colorIsDark } from '../../squad-utils';
 
@@ -57,8 +57,7 @@ class HistoryRevision extends React.Component {
         </span>;
 
     const date = new Date(this.props.revisionInfo.lastUpdate);
-    var hovertext =
-      $.format.toBrowserTimeZone(date, "ddd, MMMM D, yyyy 'at' h:mm a");
+    const hovertext = dateFormat(date, "dddd, mmmm dS, yyyy 'at' h:MM TT");
     return (
       <li>
         {change}

@@ -19,7 +19,7 @@ import HistoryModal from '../modals/history/history-modal.react';
 type Props = {
   thisURL: string,
   baseURL: string,
-  navID: string,
+  currentNavID: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
@@ -252,7 +252,7 @@ class Day extends React.Component {
         month={this.props.month}
         sessionID={this.props.sessionID}
         day={this.props.day}
-        navID={this.props.navID}
+        currentNavID={this.props.currentNavID}
         squadInfos={this.props.squadInfos}
         onClose={this.props.clearModal}
         restoreEntryInfo={this.restoreEntryInfo.bind(this)}
@@ -329,7 +329,7 @@ class Day extends React.Component {
 Day.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
-  navID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,

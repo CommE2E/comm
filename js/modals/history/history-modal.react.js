@@ -12,15 +12,15 @@ import type { EntryInfo } from '../../calendar/entry-info';
 
 import React from 'react';
 import invariant from 'invariant';
-import $ from 'jquery';
-import 'jquery-dateformat'; // side effect: $.format
 import classNames from 'classnames';
+import dateFormat from 'dateformat';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
+import { getDate } from '../../date-utils';
 
 type Props = {
   mode: HistoryMode,
@@ -29,7 +29,7 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   sessionID: string,
-  navID: string,
+  currentNavID: string,
   squadInfos: {[id: string]: SquadInfo},
   onClose: () => void,
   restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
@@ -87,12 +87,12 @@ class HistoryModal extends React.Component {
         >&lt; all entries</a>
       );
     }
-    const historyDate = new Date(
+    const historyDate = getDate(
       this.props.year,
-      this.props.month - 1,
+      this.props.month,
       this.props.day,
     );
-    const prettyDate = $.format.date(historyDate, "MMMM D, yyyy");
+    const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
     const loadingStatus = this.state.mode === "day"
       ? this.state.dayLoadingStatus
       : this.state.entryLoadingStatus;
@@ -173,7 +173,7 @@ class HistoryModal extends React.Component {
       'day': this.props.day,
       'month': this.props.month,
       'year': this.props.year,
-      'nav': this.props.navID,
+      'nav': this.props.currentNavID,
     });
     if (!response.result) {
       this.setState({ dayLoadingStatus: "error" });
@@ -249,7 +249,7 @@ HistoryModal.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   sessionID: React.PropTypes.string.isRequired,
-  navID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string.isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   onClose: React.PropTypes.func.isRequired,
   restoreEntryInfo: React.PropTypes.func.isRequired,

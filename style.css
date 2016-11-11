@@ -155,7 +155,7 @@ h1 {
   padding-left: 4px;
 }
 
-div#upper-right {
+div.upper-right {
   position: absolute;
   padding: 6px;
   right: 0;
@@ -343,7 +343,7 @@ h2.upper-center {
   text-align: center;
 }
 
-div#lower-left {
+div.lower-left {
   position: fixed;
   left: 0;
   bottom: 0;
@@ -356,7 +356,7 @@ div#lower-left {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
 }
-div#lower-left > div.nav-button > div.nav-menu {
+div.lower-left > div.nav-button > div.nav-menu {
   left: 0px;
   right: 0px;
   bottom: 22px;
@@ -364,7 +364,7 @@ div#lower-left > div.nav-button > div.nav-menu {
   top: initial;
   text-align: left;
 }
-div#lower-left > div.nav-button > div.nav-menu > div {
+div.lower-left > div.nav-button > div.nav-menu > div {
   padding: 3px 22px;
 }
 span.username {

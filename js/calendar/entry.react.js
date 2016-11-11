@@ -316,7 +316,7 @@ class Entry extends React.Component {
         month={this.state.entryInfo.month}
         day={this.state.entryInfo.day}
         sessionID={this.props.sessionID}
-        navID={this.props.squadInfo.id}
+        currentNavID={this.props.squadInfo.id}
         squadInfos={squadInfos}
         onClose={this.props.clearModal}
         restoreEntryInfo={this.props.restoreEntryInfo}

@@ -217,33 +217,34 @@ $this_url = "$month_url&$url_suffix";
 <?php
 
 echo <<<HTML
+    <div id="react-root">
       <header>
-      <h1>SquadCal</h1>
-      <div id="upper-right">
-        <img
-          class="js-loading"
-          src="{$base_url}images/ajax-loader.gif"
-          alt="loading"
-        />
-      </div>
-      <div id="lower-left">
-        <div class="nav-button">
+        <h1>SquadCal</h1>
+        <div class="upper-right">
+          <img
+            class="js-loading"
+            src="{$base_url}images/ajax-loader.gif"
+            alt="loading"
+          />
+        </div>
+        <div class="lower-left">
+          <div class="nav-button">
 
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
-          logged in as
-          <span class="username">$username</span>
-          <div class="nav-menu">
-            <div><a href="#" id="log-out-button">Log out</a></div>
-            <div><a href="#" id="user-settings-button">Edit account</a></div>
-          </div>
+            logged in as
+            <span class="username">$username</span>
+            <div class="nav-menu">
+              <div><a href="#">Log out</a></div>
+              <div><a href="#">Edit account</a></div>
+            </div>
 
 HTML;
 } else {
   echo <<<HTML
-          <a href="#" id="log-in-button">Log in</a> ·
-          <a href="#" id="register-button">Register</a>
+            <a href="#">Log in</a> ·
+            <a href="#">Register</a>
 
 HTML;
 }
@@ -273,16 +274,15 @@ $next_url = $base_url.
   "&amp;".$url_suffix;
 
 echo <<<HTML
+          </div>
         </div>
-      </div>
-      <h2 class="upper-center">
-        <a href="{$prev_url}">&lt;</a>
-        $month_name $year
-        <a href="{$next_url}">&gt;</a>
-      </h2>
-    </header>
-    <div id="calendar"></div>
-    <div id="modal-manager-parent"></div>
+        <h2 class="upper-center">
+          <a href="{$prev_url}">&lt;</a>
+          $month_name $year
+          <a href="{$next_url}">&gt;</a>
+        </h2>
+      </header>
+    </div>
 
 HTML;
 if (DEV) {

@@ -10,11 +10,12 @@ import _ from 'lodash';
 import $ from 'jquery';
 
 import Day from './day.react';
+import { getDate} from '../date-utils';
 
 type Props = {
   thisURL: string,
   baseURL: string,
-  navID: string,
+  currentNavID: string,
   sessionID: string,
   year: number,
   month: number, // 1-indexed
@@ -43,9 +44,9 @@ class Calendar extends React.Component {
     monthInput: ?number = undefined,
     yearInput: ?number = undefined,
   ) {
-    return new Date(
+    return getDate(
       yearInput ? yearInput : this.props.year,
-      (monthInput ? monthInput : this.props.month) - 1,
+      monthInput ? monthInput : this.props.month,
       dayOfMonth,
     );
   }
@@ -75,7 +76,7 @@ class Calendar extends React.Component {
           <Day
             thisURL={this.props.thisURL}
             baseURL={this.props.baseURL}
-            navID={this.props.navID}
+            currentNavID={this.props.currentNavID}
             sessionID={this.props.sessionID}
             year={this.props.year}
             month={this.props.month}
@@ -118,7 +119,7 @@ class Calendar extends React.Component {
 Calendar.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
-  navID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
