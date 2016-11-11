@@ -149,7 +149,6 @@ class Day extends React.Component {
     return (
       <td
         className={tdClasses}
-        id={this.props.day}
         onClick={this.onClick.bind(this)}
         onMouseEnter={() => this.setState({ hovered: true })}
         onMouseLeave={() => this.setState({ hovered: false })}
@@ -319,6 +318,7 @@ class Day extends React.Component {
         const entry = this.entries.get(serverID);
         invariant(entry, "entry for entryinfo should be defined");
         entry.setFocus();
+        // The setState call will recreate the raw HTML and wipe the tabindex
         this.props.recomputeTabIndices();
       },
     );

@@ -142,8 +142,6 @@ class Entry extends React.Component {
       "focused-entry": this.state.focused || this.state.hovered,
     });
     const style = { backgroundColor: "#" + this.props.squadInfo.color };
-    const textareaID = this.state.entryInfo.day + "_" +
-      (this.state.entryInfo.id ? this.state.entryInfo.id : "-1");
     return (
       <div
         className={entryClasses}
@@ -154,7 +152,6 @@ class Entry extends React.Component {
         <textarea
           rows="1"
           className="entry-text"
-          id={textareaID}
           onChange={this.onChange.bind(this)}
           value={this.state.entryInfo.text}
           onFocus={() => this.setState({ focused: true })}
