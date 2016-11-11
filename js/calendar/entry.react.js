@@ -175,7 +175,7 @@ class Entry extends React.Component {
       "textarea ref not set",
     );
     if (this.textarea.value.trim() === "") {
-      await this.delete(this.state.entryInfo.id);
+      await this.delete(this.state.entryInfo.id, false);
     }
   }
 
@@ -252,7 +252,7 @@ class Entry extends React.Component {
       const newServerID = response.entry_id.toString();
       const needsUpdate = this.needsUpdateAfterCreation;
       if (needsUpdate && !this.mounted) {
-        await this.delete(newServerID);
+        await this.delete(newServerID, false);
       } else {
         this.setState((prevState, props) => {
           return update(prevState, {
@@ -283,11 +283,18 @@ class Entry extends React.Component {
   }
 
   async onDelete(event: SyntheticEvent) {
-    await this.delete(this.state.entryInfo.id);
-    this.props.focusOnFirstEntryNewerThan(this.state.entryInfo.creationTime);
+    await this.delete(this.state.entryInfo.id, true);
   }
 
-  async delete(serverID: ?string) {
+  async delete(serverID: ?string, focusOnNextEntry: bool) {
+    this.props.removeEntriesWhere((candidate) => {
+      const ei = this.state.entryInfo;
+      return (!!candidate.id && candidate.id === serverID) ||
+        (!!candidate.localID && candidate.localID === ei.localID);
+    });
+    if (focusOnNextEntry) {
+      this.props.focusOnFirstEntryNewerThan(this.state.entryInfo.creationTime);
+    }
     if (serverID) {
       await fetchJSON('delete_entry.php', {
         'id': serverID,
@@ -298,11 +305,6 @@ class Entry extends React.Component {
     } else if (this.creating) {
       this.needsUpdateAfterCreation = true;
     }
-    this.props.removeEntriesWhere((candidate) => {
-      const ei = this.state.entryInfo;
-      return (!!candidate.id && candidate.id === serverID) ||
-        (!!candidate.localID && candidate.localID === ei.localID);
-    });
   }
 
   onHistory(event: SyntheticEvent) {
