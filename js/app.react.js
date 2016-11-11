@@ -80,12 +80,12 @@ class App extends React.Component {
     invariant(query, "query string should be defined");
 
     const lastMonthDate = getDate(this.props.year, this.props.month - 1, 1);
-    query.month = lastMonthDate.getMonth();
+    query.month = lastMonthDate.getMonth() + 1;
     query.year = lastMonthDate.getFullYear();
     const prevURL = url.format({ ...urlObj, query: query });
 
     const nextMonthDate = getDate(this.props.year, this.props.month + 1, 1);
-    query.month = nextMonthDate.getMonth();
+    query.month = nextMonthDate.getMonth() + 1;
     query.year = nextMonthDate.getFullYear();
     const nextURL = url.format({ ...urlObj, query: query });
 
@@ -97,6 +97,7 @@ class App extends React.Component {
     return (
       <div>
         <header>
+          <h1>SquadCal</h1>
           <div className="upper-right">
             <Typeahead
               thisURL={this.props.thisURL}
@@ -124,9 +125,11 @@ class App extends React.Component {
           </div>
           <h2 className="upper-center">
             <a href={prevURL}>&lt;</a>
+            {" "}
             {monthName}
             {" "}
             {this.props.year}
+            {" "}
             <a href={nextURL}>&gt;</a>
           </h2>
         </header>
