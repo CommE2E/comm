@@ -153,7 +153,7 @@ class NewSquadModal extends React.Component {
               </div>
             </div>
             <div>
-              <div className="form-title" id="color-title">Color</div>
+              <div className="form-title color-title">Color</div>
               <div className="form-content">
                 <ColorPicker
                   id="new-squad-color"

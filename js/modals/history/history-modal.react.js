@@ -82,9 +82,11 @@ class HistoryModal extends React.Component {
       allHistoryButton = (
         <a
           href="#"
-          id="all-history-button"
           onClick={this.onClickAllEntries.bind(this)}
-        >&lt; all entries</a>
+          className="all-history-button"
+        >
+          &lt; all entries
+        </a>
       );
     }
     const historyDate = getDate(

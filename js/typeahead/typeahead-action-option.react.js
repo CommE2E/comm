@@ -37,7 +37,6 @@ class TypeaheadActionOption extends React.Component {
           "squad-nav-option",
           {'squad-nav-frozen-option': this.props.frozen},
         )}
-        id={"nav_" + this.props.navID}
         onClick={this.onClick.bind(this)}
       >
         <div>

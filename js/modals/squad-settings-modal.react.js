@@ -84,7 +84,7 @@ class SquadSettingsModal extends React.Component {
             </div>
           </div>
           <div className="edit-squad-color-container">
-            <div className="form-title" id="color-title">Color</div>
+            <div className="form-title color-title">Color</div>
             <div className="form-content">
               <ColorPicker
                 id="edit-squad-color"

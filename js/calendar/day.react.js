@@ -122,11 +122,7 @@ class Day extends React.Component {
             key={squadInfo.id}
             onClick={() => this.createNewEntry(squadInfo.id)}
           >
-            <span
-              href="#"
-              className="select-squad"
-              id={"select_" + squadInfo.id}
-            >
+            <span href="#" className="select-squad">
               <div className="color-preview" style={style} />
               <span className="select-squad-name">{squadInfo.name}</span>
             </span>

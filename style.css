@@ -160,7 +160,7 @@ div.upper-right {
   padding: 6px;
   right: 0;
 }
-div#squad-nav {
+div.squad-nav {
   padding: 3px 12px;
   z-index: 2;
   position: relative;
@@ -195,7 +195,7 @@ span.squad-nav-first-symbol {
 div.typeahead-container {
   overflow: hidden;
 }
-input#typeahead {
+input.typeahead {
   padding: 0;
   border: none;
   background-color: transparent;
@@ -204,10 +204,10 @@ input#typeahead {
   font-size: 15px;
   width: 125px;
 }
-div.squad-nav-active input#typeahead {
+div.squad-nav-active input.typeahead {
   width: 100%;
 }
-input#typeahead:focus {
+input.typeahead:focus {
   outline-width: 0;
 }
 span.squad-nav-symbols {
@@ -512,7 +512,7 @@ div.form-enum-selector div.form-enum-password {
 div.form-enum-selector div.form-enum-password > input[type='password'] {
   width: 257px;
 }
-div#color-title {
+div.color-title {
   margin-top: 4px;
 }
 
@@ -633,7 +633,7 @@ div.history-header {
   background-color: #F4F4F4;
   box-sizing: border-box;
 }
-a#all-history-button {
+a.all-history-button {
   position: absolute;
   top: 5px;
   left: 7px;

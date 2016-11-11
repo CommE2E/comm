@@ -212,16 +212,17 @@ class Typeahead extends React.Component {
 
     return (
       <div
-        id="squad-nav"
         onMouseDown={this.onMouseDown.bind(this)}
-        className={classNames({'squad-nav-active': this.state.active })}
+        className={classNames({
+          'squad-nav': true,
+          'squad-nav-active': this.state.active },
+        )}
       >
         <div
           className="squad-nav-current"
           ref={(current) => this.current = current}
         >
           <img
-            id="search"
             src={this.props.baseURL + "images/search.svg"}
             alt="search"
             ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
@@ -230,7 +231,7 @@ class Typeahead extends React.Component {
           <div className="typeahead-container">
             <input
               type="text"
-              id="typeahead"
+              className="typeahead"
               ref={(input) => this.input = input}
               onBlur={() => this.setActive(false)}
               onKeyDown={this.onKeyDown.bind(this)}
