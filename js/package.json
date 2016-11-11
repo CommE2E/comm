@@ -23,11 +23,6 @@
       "babel-preset-react": "npm:babel-preset-react@^6.16.0",
       "babel-runtime": "npm:babel-runtime@^5.8.24",
       "core-js": "npm:core-js@^1.1.4"
-    },
-    "overrides": {
-      "npm:jquery-dateformat@1.0.3": {
-        "main": "dist/jquery-dateFormat"
-      }
     }
   },
   "devDependencies": {
