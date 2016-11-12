@@ -2,24 +2,24 @@
 
 import React from 'react';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 import fetchJSON from '../fetch-json';
 import NewSquadModal from '../modals/new-squad-modal.react';
 import LogInToCreateSquadModal
   from '../modals/account/log-in-to-create-squad-modal.react';
+import { mapStateToPropsByName } from '../redux-utils';
 
 export type NavID = "home" | "new";
 type Props = {
   navID: NavID,
   name: string,
-  thisURL: string,
   monthURL: string,
   loggedIn: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
-  hideTypeahead: () => void,
   frozen?: bool,
 };
 
@@ -59,14 +59,12 @@ class TypeaheadActionOption extends React.Component {
       if (this.props.loggedIn) {
         this.props.setModal(
           <NewSquadModal
-            monthURL={this.props.monthURL}
             onClose={onClose}
           />
         );
       } else {
         this.props.setModal(
           <LogInToCreateSquadModal 
-            thisURL={this.props.thisURL}
             onClose={onClose}
             setModal={this.props.setModal}
           />
@@ -85,14 +83,12 @@ TypeaheadActionOption.newText = "New squad...";
 TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
-  hideTypeahead: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
 };
 
@@ -100,4 +96,9 @@ TypeaheadActionOption.defaultProps = {
   frozen: false,
 };
 
-export default TypeaheadActionOption;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+  "monthURL",
+  "loggedIn",
+]);
+export default connect(mapStateToProps)(TypeaheadActionOption);

@@ -7,9 +7,11 @@ import { squadInfoPropType } from '../../squad-info';
 import type { EntryInfo } from '../../calendar/entry-info';
 import { entryInfoPropType } from '../../calendar/entry-info';
 import type { LoadingStatus } from '../../loading-indicator.react';
+import type { AppState } from '../../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 import LoadingIndicator from '../../loading-indicator.react';
 import { colorIsDark } from '../../squad-utils';
@@ -140,4 +142,14 @@ HistoryEntry.propTypes = {
   baseURL: React.PropTypes.string.isRequired,
 }
 
-export default HistoryEntry;
+type OwnProps = {
+  entryInfo: HistoryEntryInfo,
+};
+const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
+  return {
+    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+    sessionID: state.sessionID,
+    baseURL: state.baseURL,
+  };
+};
+export default connect(mapStateToProps)(HistoryEntry);

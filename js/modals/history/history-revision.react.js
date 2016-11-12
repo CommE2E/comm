@@ -4,6 +4,7 @@ import type { HistoryRevisionInfo } from './history-types';
 import { historyRevisionInfoPropType } from './history-types';
 import type { SquadInfo } from '../../squad-info';
 import { squadInfoPropType } from '../../squad-info';
+import type { AppState } from '../../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -11,6 +12,7 @@ import $ from 'jquery';
 import 'timeago'; // side effect: $.timeago
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
+import { connect } from 'react-redux';
 
 import { colorIsDark } from '../../squad-utils';
 
@@ -85,4 +87,12 @@ HistoryRevision.propTypes = {
   isDeletionOrRestoration: React.PropTypes.bool.isRequired,
 };
 
-export default HistoryRevision;
+type OwnProps = {
+  revisionInfo: HistoryRevisionInfo,
+};
+const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
+  return {
+    squadInfo: state.squadInfos[ownProps.revisionInfo.squadID],
+  };
+};
+export default connect(mapStateToProps)(HistoryRevision);

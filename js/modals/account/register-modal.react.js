@@ -2,10 +2,12 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
+import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
   thisURL: string,
@@ -261,4 +263,7 @@ RegisterModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 };
 
-export default RegisterModal;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+]);
+export default connect(mapStateToProps)(RegisterModal);

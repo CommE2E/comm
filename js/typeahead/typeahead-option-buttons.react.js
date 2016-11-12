@@ -3,23 +3,25 @@
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
 import type { LoadingStatus } from '../loading-indicator.react';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
+import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import SquadSettingsModal from '../modals/squad-settings-modal.react';
+import { mapStateToPropsByName, mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
   squadInfo: SquadInfo,
-  thisURL: string,
   baseURL: string,
-  monthURL: string,
-  updateSubscription: (id: string, subscribed: bool) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
+  updateStore: UpdateStore,
 };
 type State = {
   loadingStatus: LoadingStatus,
@@ -97,7 +99,13 @@ class TypeaheadOptionButtons extends React.Component {
           loadingStatus: "inactive",
         });
       }
-      this.props.updateSubscription(this.props.squadInfo.id, newSubscribed);
+      this.props.updateStore((prevState: AppState) => {
+        const updateParam = { squadInfos: {} };
+        updateParam.squadInfos[this.props.squadInfo.id] = {
+          subscribed: { $set: newSubscribed },
+        };
+        return update(prevState, updateParam);
+      });
     } else {
       this.setState({
         loadingStatus: "error",
@@ -115,8 +123,6 @@ class TypeaheadOptionButtons extends React.Component {
     this.props.setModal(
       <SquadSettingsModal
         squadInfo={this.props.squadInfo}
-        thisURL={this.props.thisURL}
-        monthURL={this.props.monthURL}
         onClose={onClose}
       />
     );
@@ -126,14 +132,17 @@ class TypeaheadOptionButtons extends React.Component {
 
 TypeaheadOptionButtons.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
-  monthURL: React.PropTypes.string.isRequired,
-  updateSubscription: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default TypeaheadOptionButtons;
+export default connect(
+  mapStateToPropsByName([
+    "baseURL",
+  ]),
+  mapStateToUpdateStore,
+)(TypeaheadOptionButtons);

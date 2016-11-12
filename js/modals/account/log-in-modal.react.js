@@ -2,11 +2,13 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import ForgotPasswordModal from './forgot-password-modal.react';
+import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
   thisURL: string,
@@ -205,4 +207,7 @@ LogInModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default LogInModal;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+]);
+export default connect(mapStateToProps)(LogInModal);

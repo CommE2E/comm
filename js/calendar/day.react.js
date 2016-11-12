@@ -4,23 +4,22 @@ import type { EntryInfo } from './entry-info';
 import { entryInfoPropType } from './entry-info';
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import update from 'immutability-helper';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
 import { entryID } from './entry-utils';
 import HistoryModal from '../modals/history/history-modal.react';
+import { mapStateToPropsByName, mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
-  thisURL: string,
-  baseURL: string,
-  currentNavID: string,
-  sessionID: string,
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
@@ -28,12 +27,15 @@ type Props = {
   squadInfos: {[id: string]: SquadInfo},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
-  recomputeTabIndices: () => void,
+  startingTabIndex: number,
+  updateStore: UpdateStore,
 };
 type State = {
-  entryInfos: EntryInfo[],
   pickerOpen: bool,
   hovered: bool,
+};
+type EntryConnect = {
+  getWrappedInstance: () => Entry,
 };
 
 class Day extends React.Component {
@@ -44,18 +46,24 @@ class Day extends React.Component {
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
   squadPicker: ?HTMLDivElement;
-  entries: Map<string, Entry>;
+  entries: Map<string, EntryConnect>;
   curLocalID: number;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      entryInfos: props.entryInfos,
       pickerOpen: false,
       hovered: false,
     };
     this.curLocalID = 1;
     this.entries = new Map();
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.props.entryInfos.length > prevProps.entryInfos.length) {
+      invariant(this.entryContainer, "entryContainer ref not set");
+      this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
+    }
   }
 
   render() {
@@ -92,20 +100,14 @@ class Day extends React.Component {
       );
     }
 
-    const entries = this.state.entryInfos.map((entryInfo) => {
+    const entries = this.props.entryInfos.map((entryInfo, i) => {
       const id = entryID(entryInfo);
       return <Entry
         entryInfo={entryInfo}
-        squadInfo={this.props.squadInfos[entryInfo.squadID]}
-        thisURL={this.props.thisURL}
-        baseURL={this.props.baseURL}
-        sessionID={this.props.sessionID}
-        removeEntriesWhere={this.removeEntriesWhere.bind(this)}
         focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan.bind(this)}
-        setServerID={this.setServerID.bind(this)}
-        restoreEntryInfo={this.restoreEntryInfo.bind(this)}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
+        tabIndex={this.props.startingTabIndex + i}
         key={id}
         ref={(entry) => this.entries.set(id, entry)}
       />;
@@ -209,30 +211,23 @@ class Day extends React.Component {
 
   createNewEntry(squadID: string) {
     const localID = this.curLocalID++;
-    this.setState(
-      (prevState, props) => {
-        const newEntryInfo: EntryInfo = {
-          localID: localID,
-          squadID: squadID,
-          text: "",
-          year: props.year,
-          month: props.month,
-          day: props.day,
-          creationTime: Date.now(),
-        };
-        return update(prevState, {
-          entryInfos: { $push: [ newEntryInfo ] },
-        });
-      },
-      () => {
-        invariant(
-          this.entryContainer instanceof HTMLDivElement,
-          "entry container isn't div",
-        );
-        this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
-        this.props.recomputeTabIndices();
-      },
-    );
+    this.props.updateStore((prevState: AppState) => {
+      const dayString = this.props.day.toString();
+      const dayEntryInfos = prevState.entryInfos[dayString];
+      const newEntryInfo: EntryInfo = {
+        localID: localID,
+        squadID: squadID,
+        text: "",
+        year: this.props.year,
+        month: this.props.month,
+        day: this.props.day,
+        creationTime: Date.now(),
+      };
+      const saveObj = {};
+      saveObj[dayString] = {};
+      saveObj[dayString][localID.toString()] = { $set: newEntryInfo };
+      return update(prevState, { entryInfos: saveObj });
+    });
   }
 
   onSquadPickerBlur(event: SyntheticEvent) {
@@ -243,90 +238,28 @@ class Day extends React.Component {
     this.props.setModal(
       <HistoryModal
         mode="day"
-        baseURL={this.props.baseURL}
         year={this.props.year}
         month={this.props.month}
-        sessionID={this.props.sessionID}
         day={this.props.day}
-        currentNavID={this.props.currentNavID}
-        squadInfos={this.props.squadInfos}
         onClose={this.props.clearModal}
-        restoreEntryInfo={this.restoreEntryInfo.bind(this)}
       />
     );
   }
 
-  async restoreEntryInfo(entryInfo: EntryInfo) {
-    this.setState(
-      (prevState, props) => {
-        const spliceIndex = _.sortedIndexBy(
-          prevState.entryInfos,
-          entryInfo,
-          'creationTime',
-        );
-        return update(prevState, {
-          entryInfos: { $splice: [[ spliceIndex, 0, entryInfo ]] },
-        });
-      },
-      this.props.recomputeTabIndices,
-    );
-  }
-
-  removeEntriesWhere(filterFunc: (entryInfo: EntryInfo) => bool) {
-    this.setState(
-      (prevState, props) => {
-        const newEntryInfos = prevState.entryInfos.filter(
-          (entryInfo) => !filterFunc(entryInfo),
-        );
-        return update(prevState, {
-          entryInfos: { $set: newEntryInfos },
-        });
-      },
-      this.props.recomputeTabIndices,
-    );
-  }
-
   focusOnFirstEntryNewerThan(time: number) {
-    const entryInfo = this.state.entryInfos.find(
+    const entryInfo = this.props.entryInfos.find(
       (entryInfo) => entryInfo.creationTime > time,
     );
     if (entryInfo) {
       const entry = this.entries.get(entryID(entryInfo));
       invariant(entry, "entry for entryinfo should be defined");
-      entry.setFocus();
+      entry.getWrappedInstance().setFocus();
     }
-  }
-
-  setServerID(localID: number, serverID: string, currentText: string) {
-    this.setState(
-      (prevState, props) => {
-        const index = prevState.entryInfos.findIndex(
-          (entryInfo) => entryInfo.localID === localID,
-        );
-        const saveObj = {};
-        saveObj[index] = {
-          id: { $set: serverID },
-          text: { $set: currentText },
-        };
-        return update(prevState, { entryInfos: saveObj });
-      },
-      () => {
-        const entry = this.entries.get(serverID);
-        invariant(entry, "entry for entryinfo should be defined");
-        entry.setFocus();
-        // The setState call will recreate the raw HTML and wipe the tabindex
-        this.props.recomputeTabIndices();
-      },
-    );
   }
 
 }
 
 Day.propTypes = {
-  thisURL: React.PropTypes.string.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
-  currentNavID: React.PropTypes.string.isRequired,
-  sessionID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
@@ -334,7 +267,13 @@ Day.propTypes = {
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
-  recomputeTabIndices: React.PropTypes.func.isRequired,
+  startingTabIndex: React.PropTypes.number.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default Day;
+export default connect(
+  mapStateToPropsByName([
+    "squadInfos",
+  ]),
+  mapStateToUpdateStore,
+)(Day);

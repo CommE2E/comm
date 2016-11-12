@@ -5,11 +5,14 @@ import { entryInfoPropType } from './entry-info';
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
 import type { LoadingStatus } from '../loading-indicator.react';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
+import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import LoadingIndicator from '../loading-indicator.react';
 import { colorIsDark } from '../squad-utils';
@@ -18,6 +21,7 @@ import Modernizr from '../modernizr-custom';
 import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
   entryInfo: EntryInfo,
@@ -25,19 +29,18 @@ type Props = {
   thisURL: string,
   baseURL: string,
   sessionID: string,
-  removeEntriesWhere: (filterFunc: (entryInfo: EntryInfo) => bool) => void,
   focusOnFirstEntryNewerThan: (time: number) => void,
-  setServerID: (localID: number, serverID: string, currentText: string) => void,
-  restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
+  tabIndex: number,
+  updateStore: UpdateStore,
 };
 type State = {
-  entryInfo: EntryInfo,
   focused: bool,
   hovered: bool,
   showSquadSelector: bool,
   loadingStatus: LoadingStatus,
+  text: string,
 };
 
 class Entry extends React.Component {
@@ -53,11 +56,11 @@ class Entry extends React.Component {
   constructor(props: Props) {
     super(props);
     this.state = {
-      entryInfo: props.entryInfo,
       focused: false,
       hovered: false,
       showSquadSelector: false,
       loadingStatus: "inactive",
+      text: props.entryInfo.text,
     };
     this.creating = false;
     this.needsUpdateAfterCreation = false;
@@ -68,7 +71,7 @@ class Entry extends React.Component {
   componentDidMount() {
     this.updateHeight();
     // Whenever a new Entry is created, focus on it
-    if (!this.state.entryInfo.id) {
+    if (!this.props.entryInfo.id) {
       this.focus();
     }
   }
@@ -105,7 +108,7 @@ class Entry extends React.Component {
     let actionLinks = null;
     if (this.state.focused || this.state.hovered || Modernizr.touchevents) {
       let historyButton = null;
-      if (this.state.entryInfo.id) {
+      if (this.props.entryInfo.id) {
         historyButton = (
           <a
             href="#"
@@ -153,9 +156,10 @@ class Entry extends React.Component {
           rows="1"
           className="entry-text"
           onChange={this.onChange.bind(this)}
-          value={this.state.entryInfo.text}
+          value={this.state.text}
           onFocus={() => this.setState({ focused: true })}
           onBlur={this.onBlur.bind(this)}
+          tabIndex={this.props.tabIndex}
           ref={(textarea) => this.textarea = textarea}
         />
         <LoadingIndicator
@@ -175,7 +179,7 @@ class Entry extends React.Component {
       "textarea ref not set",
     );
     if (this.textarea.value.trim() === "") {
-      await this.delete(this.state.entryInfo.id, false);
+      await this.delete(this.props.entryInfo.id, false);
     }
   }
 
@@ -183,16 +187,10 @@ class Entry extends React.Component {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState(
-      (prevState, props) => {
-        return update(prevState, {
-          entryInfo: {
-            text: { $set: target.value },
-          }
-        });
-      },
+      { "text": target.value },
       this.updateHeight.bind(this),
     );
-    await this.save(this.state.entryInfo.id, target.value);
+    await this.save(this.props.entryInfo.id, target.value);
   }
 
   async save(serverID: ?string, newText: string) {
@@ -224,10 +222,10 @@ class Entry extends React.Component {
       'entry_id': entryID,
     };
     if (!serverID) {
-      payload['day'] = this.state.entryInfo.day;
-      payload['month'] = this.state.entryInfo.month;
-      payload['year'] = this.state.entryInfo.year;
-      payload['squad'] = this.state.entryInfo.squadID;
+      payload['day'] = this.props.entryInfo.day;
+      payload['month'] = this.props.entryInfo.month;
+      payload['year'] = this.props.entryInfo.year;
+      payload['squad'] = this.props.entryInfo.squadID;
       payload['timestamp'] = this.props.entryInfo.creationTime;
     } else {
       payload['timestamp'] = Date.now();
@@ -253,14 +251,6 @@ class Entry extends React.Component {
       const needsUpdate = this.needsUpdateAfterCreation;
       if (needsUpdate && !this.mounted) {
         await this.delete(newServerID, false);
-      } else {
-        this.setState((prevState, props) => {
-          return update(prevState, {
-            entryInfo: {
-              id: { $set: newServerID },
-            }
-          });
-        });
       }
       this.creating = false;
       this.needsUpdateAfterCreation = false;
@@ -272,28 +262,42 @@ class Entry extends React.Component {
         await this.save(newServerID, this.textarea.value);
       }
       if (this.mounted) {
-        invariant(this.state.entryInfo.localID, "localID should be set");
-        this.props.setServerID(
-          this.state.entryInfo.localID,
-          newServerID,
-          this.state.entryInfo.text,
-        );
+        // This is to update the server ID in the Redux store
+        this.props.updateStore((prevState: AppState) => {
+          const dayString = this.props.entryInfo.day.toString();
+          const entryInfo = prevState.entryInfos[dayString];
+          invariant(this.props.entryInfo.localID, "localID should be set");
+          const localIDString = this.props.entryInfo.localID.toString();
+          const saveObj = {};
+          saveObj[dayString] = {};
+          saveObj[dayString][localIDString] = {};
+          saveObj[dayString][localIDString]["id"] = { $set: newServerID };
+          return update(prevState, { entryInfos: saveObj });
+        });
       }
     }
   }
 
   async onDelete(event: SyntheticEvent) {
-    await this.delete(this.state.entryInfo.id, true);
+    await this.delete(this.props.entryInfo.id, true);
   }
 
   async delete(serverID: ?string, focusOnNextEntry: bool) {
-    this.props.removeEntriesWhere((candidate) => {
-      const ei = this.state.entryInfo;
-      return (!!candidate.id && candidate.id === serverID) ||
-        (!!candidate.localID && candidate.localID === ei.localID);
+    this.props.updateStore((prevState: AppState) => {
+      const dayString = this.props.entryInfo.day.toString();
+      const dayEntryInfos = prevState.entryInfos[dayString];
+      const newDayEntryInfos = _.omitBy(dayEntryInfos, (candidate) => {
+        const ei = this.props.entryInfo;
+        return (!!candidate.id && candidate.id === serverID) ||
+          (!!candidate.localID && candidate.localID === ei.localID);
+      });
+      const saveObj = {};
+      saveObj[dayString] = { $set: newDayEntryInfos };
+      return update(prevState, { entryInfos: saveObj });
     });
+
     if (focusOnNextEntry) {
-      this.props.focusOnFirstEntryNewerThan(this.state.entryInfo.creationTime);
+      this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
       await fetchJSON('delete_entry.php', {
@@ -308,21 +312,14 @@ class Entry extends React.Component {
   }
 
   onHistory(event: SyntheticEvent) {
-    const squadInfos = {};
-    squadInfos[this.props.squadInfo.id] = this.props.squadInfo;
     this.props.setModal(
       <HistoryModal
         mode="entry"
-        baseURL={this.props.baseURL}
-        year={this.state.entryInfo.year}
-        month={this.state.entryInfo.month}
-        day={this.state.entryInfo.day}
-        sessionID={this.props.sessionID}
-        currentNavID={this.props.squadInfo.id}
-        squadInfos={squadInfos}
+        year={this.props.entryInfo.year}
+        month={this.props.entryInfo.month}
+        day={this.props.entryInfo.day}
         onClose={this.props.clearModal}
-        restoreEntryInfo={this.props.restoreEntryInfo}
-        currentEntryID={this.state.entryInfo.id}
+        currentEntryID={this.props.entryInfo.id}
       />
     );
   }
@@ -335,12 +332,27 @@ Entry.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   baseURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
-  removeEntriesWhere: React.PropTypes.func.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
-  setServerID: React.PropTypes.func.isRequired,
-  restoreEntryInfo: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
+  tabIndex: React.PropTypes.number.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 }
 
-export default Entry;
+type OwnProps = {
+  entryInfo: EntryInfo,
+};
+const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
+  return {
+    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+    thisURL: state.thisURL,
+    baseURL: state.baseURL,
+    sessionID: state.sessionID,
+  };
+};
+export default connect(
+  mapStateToProps,
+  mapStateToUpdateStore,
+  undefined,
+  { 'withRef': true },
+)(Entry);

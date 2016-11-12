@@ -9,11 +9,15 @@ import type {
 import type { SquadInfo } from '../../squad-info';
 import { squadInfoPropType } from '../../squad-info';
 import type { EntryInfo } from '../../calendar/entry-info';
+import type { AppState, UpdateStore } from '../../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
+import { connect } from 'react-redux';
+import update from 'immutability-helper';
+import _ from 'lodash';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
@@ -21,6 +25,8 @@ import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import { getDate } from '../../date-utils';
+import { mapStateToPropsByName, mapStateToUpdateStore }
+  from '../../redux-utils';
 
 type Props = {
   mode: HistoryMode,
@@ -28,12 +34,10 @@ type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
-  sessionID: string,
   currentNavID: string,
-  squadInfos: {[id: string]: SquadInfo},
   onClose: () => void,
-  restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
   currentEntryID?: ?string,
+  updateStore: UpdateStore,
 };
 type State = {
   mode: HistoryMode,
@@ -102,14 +106,11 @@ class HistoryModal extends React.Component {
     const entries = this.state.entries.map((entryInfo) =>
       <HistoryEntry
         entryInfo={entryInfo}
-        squadInfo={this.props.squadInfos[entryInfo.squadID]}
         year={this.props.year}
         month={this.props.month}
         day={this.props.day}
-        sessionID={this.props.sessionID}
         onClick={(event) => this.onClickEntry(entryInfo.id)}
         restoreEntryInfo={this.restoreEntryInfo.bind(this)}
-        baseURL={this.props.baseURL}
         key={entryInfo.id}
       />
     );
@@ -122,7 +123,6 @@ class HistoryModal extends React.Component {
       revisions.push(
         <HistoryRevision
           revisionInfo={revisionInfo}
-          squadInfo={this.props.squadInfos[revisionInfo.squadID]}
           isDeletionOrRestoration={isDeletionOrRestoration}
           key={revisionInfo.id}
         />
@@ -236,10 +236,16 @@ class HistoryModal extends React.Component {
       animateModeChange: true,
       currentEntryID: id,
     });
-    await Promise.all([
-      this.loadEntry(id),
-      this.props.restoreEntryInfo(entryInfo),
-    ]);
+
+    this.props.updateStore((prevState: AppState) => {
+      const dayString = entryInfo.day.toString();
+      const saveObj = {};
+      saveObj[dayString] = {};
+      saveObj[dayString][id] = { $set: entryInfo };
+      return update(prevState, { entryInfos: saveObj });
+    });
+
+    await this.loadEntry(id);
   }
 
 }
@@ -250,16 +256,20 @@ HistoryModal.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
-  sessionID: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
-  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   onClose: React.PropTypes.func.isRequired,
-  restoreEntryInfo: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
 HistoryModal.defaultProps = {
   currentEntryID: null,
 };
 
-export default HistoryModal;
+export default connect(
+  mapStateToPropsByName([
+    "baseURL",
+    "currentNavID",
+  ]),
+  mapStateToUpdateStore,
+)(HistoryModal);

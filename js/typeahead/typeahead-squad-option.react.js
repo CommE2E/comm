@@ -6,20 +6,18 @@ import { squadInfoPropType } from '../squad-info';
 import React from 'react';
 import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
+import { connect } from 'react-redux';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SquadLoginModal from '../modals/squad-login-modal.react';
+import { mapStateToPropsByName } from '../redux-utils';
 
 type Props = {
   squadInfo: SquadInfo,
-  thisURL: string,
   monthURL: string,
-  baseURL: string,
-  loggedIn: bool,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
   frozen?: bool,
-  updateSubscription: (id: string, subscribed: bool) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -52,10 +50,6 @@ class TypeaheadSquadOption extends React.Component {
         <div>
           <TypeaheadOptionButtons
             squadInfo={this.props.squadInfo}
-            thisURL={this.props.thisURL}
-            baseURL={this.props.baseURL}
-            monthURL={this.props.monthURL}
-            updateSubscription={this.props.updateSubscription}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
             freezeTypeahead={this.props.freezeTypeahead}
@@ -84,9 +78,6 @@ class TypeaheadSquadOption extends React.Component {
       this.props.setModal(
         <SquadLoginModal
           squadInfo={this.props.squadInfo}
-          thisURL={this.props.thisURL}
-          monthURL={this.props.monthURL}
-          loggedIn={this.props.loggedIn}
           setModal={this.props.setModal}
           onClose={onClose}
         />
@@ -98,14 +89,10 @@ class TypeaheadSquadOption extends React.Component {
 
 TypeaheadSquadOption.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
-  updateSubscription: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
@@ -114,5 +101,7 @@ TypeaheadSquadOption.defaultProps = {
   frozen: false,
 };
 
-export default TypeaheadSquadOption;
-
+const mapStateToProps = mapStateToPropsByName([
+  "monthURL",
+]);
+export default connect(mapStateToProps)(TypeaheadSquadOption);

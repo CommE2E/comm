@@ -7,10 +7,12 @@ import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
+import { connect } from 'react-redux';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
+import { mapStateToPropsByName } from '../redux-utils';
 
 type Tab = "general" | "privacy" | "delete";
 type Props = {
@@ -508,4 +510,8 @@ SquadSettingsModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 }
 
-export default SquadSettingsModal;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+  "monthURL",
+]);
+export default connect(mapStateToProps)(SquadSettingsModal);

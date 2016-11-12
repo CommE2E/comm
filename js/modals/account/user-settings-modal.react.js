@@ -3,11 +3,13 @@
 import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validEmailRegex } from './account-regexes';
 import VerifyEmailModal from './verify-email-modal.react';
+import { mapStateToPropsByName } from '../../redux-utils';
 
 type Tab = "general" | "delete";
 type Props = {
@@ -377,4 +379,11 @@ UserSettingsModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default UserSettingsModal;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+  "monthURL",
+  "username",
+  "email",
+  "emailVerified",
+]);
+export default connect(mapStateToProps)(UserSettingsModal);

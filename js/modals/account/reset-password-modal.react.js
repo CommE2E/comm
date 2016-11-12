@@ -2,9 +2,11 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
+import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
   thisURL: string,
@@ -167,6 +169,11 @@ ResetPasswordModal.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   resetPasswordUsername: React.PropTypes.string.isRequired,
   verifyCode: React.PropTypes.string.isRequired,
-}
+};
 
-export default ResetPasswordModal;
+const mapStateToProps = mapStateToPropsByName([
+  "thisURL",
+  "resetPasswordUsername",
+  "verifyCode",
+]);
+export default connect(mapStateToProps)(ResetPasswordModal);
