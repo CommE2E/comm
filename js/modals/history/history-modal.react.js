@@ -171,7 +171,7 @@ class HistoryModal extends React.Component {
       dayLoadingStatus: "loading",
       entries: [],
     });
-    const response = await fetchJSON('day_history.php', {
+    const response = await fetchJSON(this.props.baseURL, 'day_history.php', {
       'day': this.props.day,
       'month': this.props.month,
       'year': this.props.year,
@@ -192,7 +192,7 @@ class HistoryModal extends React.Component {
       entryLoadingStatus: "loading",
       revisions: [],
     });
-    const response = await fetchJSON('entry_history.php', {
+    const response = await fetchJSON(this.props.baseURL, 'entry_history.php', {
       'id': entryID,
     });
     if (!response.result) {

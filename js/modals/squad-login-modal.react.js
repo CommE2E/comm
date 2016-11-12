@@ -14,6 +14,7 @@ import { mapStateToPropsByName } from '../redux-utils';
 
 type Props = {
   squadInfo: SquadInfo,
+  baseURL: string,
   thisURL: string,
   monthURL: string,
   loggedIn: bool,
@@ -113,7 +114,7 @@ class SquadLoginModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('auth_squad.php', {
+    const response = await fetchJSON(this.props.baseURL, 'auth_squad.php', {
       'squad': this.props.squadInfo.id,
       'password': this.state.password,
     });
@@ -153,6 +154,7 @@ class SquadLoginModal extends React.Component {
 
 SquadLoginModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
+  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
@@ -161,6 +163,7 @@ SquadLoginModal.propTypes = {
 };
 
 const mapStateToProps = mapStateToPropsByName([
+  "baseURL",
   "thisURL",
   "monthURL",
   "loggedIn",

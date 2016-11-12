@@ -193,8 +193,8 @@ $this_url = "$month_url&$url_suffix";
       type="text/css"
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
     />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <link rel="stylesheet" type="text/css" href="spectrum.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$base_url?>style.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$base_url?>spectrum.css" />
     <script>
       var username = "<?=$username?>";
       var email = "<?=$email?>";
@@ -287,8 +287,8 @@ echo <<<HTML
 HTML;
 if (DEV) {
   echo <<<HTML
-    <script src="js/jspm_packages/system.js"></script>
-    <script src="js/config.js"></script>
+    <script src="{$base_url}js/jspm_packages/system.js"></script>
+    <script src="{$base_url}js/config.js"></script>
     <script>
       System.import("script.js");
     </script>
@@ -296,7 +296,7 @@ if (DEV) {
 HTML;
 } else {
   echo <<<HTML
-    <script src="js/build.js"></script>
+    <script src="{$base_url}js/build.js"></script>
 
 HTML;
 }

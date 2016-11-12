@@ -89,7 +89,7 @@ class TypeaheadOptionButtons extends React.Component {
       loadingStatus: "loading",
     });
     const newSubscribed = !this.props.squadInfo.subscribed;
-    const response = await fetchJSON('subscribe.php', {
+    const response = await fetchJSON(this.props.baseURL, 'subscribe.php', {
       'squad': this.props.squadInfo.id,
       'subscribe': newSubscribed ? 1 : 0,
     });

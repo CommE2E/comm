@@ -13,6 +13,7 @@ import { mapStateToPropsByName } from '../../redux-utils';
 
 type Tab = "general" | "delete";
 type Props = {
+  baseURL: string,
   thisURL: string,
   monthURL: string,
   username: string,
@@ -241,7 +242,7 @@ class UserSettingsModal extends React.Component {
   }
 
   async onClickResendVerificationEmail(event: SyntheticEvent) {
-    await fetchJSON('resend_verification.php', {});
+    await fetchJSON(this.props.baseURL, 'resend_verification.php', {});
     this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
   }
 
@@ -278,7 +279,7 @@ class UserSettingsModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('edit_account.php', {
+    const response = await fetchJSON(this.props.baseURL, 'edit_account.php', {
       'email': this.state.email,
       'new_password': this.state.newPassword,
       'old_password': this.state.currentPassword,
@@ -343,7 +344,7 @@ class UserSettingsModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('delete_account.php', {
+    const response = await fetchJSON(this.props.baseURL, 'delete_account.php', {
       'password': this.state.currentPassword,
     });
     if (response.success) {
@@ -370,6 +371,7 @@ class UserSettingsModal extends React.Component {
 }
 
 UserSettingsModal.propTypes = {
+  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   username: React.PropTypes.string.isRequired,
@@ -380,6 +382,7 @@ UserSettingsModal.propTypes = {
 };
 
 const mapStateToProps = mapStateToPropsByName([
+  "baseURL",
   "thisURL",
   "monthURL",
   "username",

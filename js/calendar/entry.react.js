@@ -230,7 +230,7 @@ class Entry extends React.Component {
     } else {
       payload['timestamp'] = Date.now();
     }
-    const response = await fetchJSON('save.php', payload);
+    const response = await fetchJSON(this.props.baseURL, 'save.php', payload);
 
     if (curSaveAttempt === this.saveAttemptIndex) {
       this.setState({ 
@@ -300,7 +300,7 @@ class Entry extends React.Component {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
-      await fetchJSON('delete_entry.php', {
+      await fetchJSON(this.props.baseURL, 'delete_entry.php', {
         'id': serverID,
         'prev_text': this.props.entryInfo.text,
         'session_id': this.props.sessionID,

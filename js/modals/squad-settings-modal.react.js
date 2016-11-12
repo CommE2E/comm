@@ -17,6 +17,7 @@ import { mapStateToPropsByName } from '../redux-utils';
 type Tab = "general" | "privacy" | "delete";
 type Props = {
   squadInfo: SquadInfo,
+  baseURL: string,
   thisURL: string,
   monthURL: string,
   onClose: () => void,
@@ -400,7 +401,7 @@ class SquadSettingsModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('edit_squad.php', {
+    const response = await fetchJSON(this.props.baseURL, 'edit_squad.php', {
       'name': name,
       'description': this.state.squadInfo.description,
       'squad': this.props.squadInfo.id,
@@ -476,7 +477,7 @@ class SquadSettingsModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('delete_squad.php', {
+    const response = await fetchJSON(this.props.baseURL, 'delete_squad.php', {
       'squad': this.props.squadInfo.id,
       'password': this.state.accountPassword,
     });
@@ -505,12 +506,14 @@ class SquadSettingsModal extends React.Component {
 
 SquadSettingsModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
+  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
 
 const mapStateToProps = mapStateToPropsByName([
+  "baseURL",
   "thisURL",
   "monthURL",
 ]);

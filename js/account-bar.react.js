@@ -10,6 +10,7 @@ import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { mapStateToPropsByName } from './redux-utils';
 
 type Props = {
+  baseURL: string,
   monthURL: string,
   loggedIn: bool,
   username: string,
@@ -61,7 +62,7 @@ class AccountBar extends React.Component {
   }
 
   async onLogOut(event: SyntheticEvent) {
-    await fetchJSON('logout.php', {});
+    await fetchJSON(this.props.baseURL, 'logout.php', {});
     window.location.href = this.props.monthURL;
   }
 
@@ -94,6 +95,7 @@ class AccountBar extends React.Component {
 }
 
 AccountBar.propTypes = {
+  baseURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
@@ -102,6 +104,7 @@ AccountBar.propTypes = {
 };
 
 const mapStateToProps = mapStateToPropsByName([
+  "baseURL",
   "monthURL",
   "loggedIn",
   "username",

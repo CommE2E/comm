@@ -4,7 +4,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 
-import fetchJSON from '../fetch-json';
 import NewSquadModal from '../modals/new-squad-modal.react';
 import LogInToCreateSquadModal
   from '../modals/account/log-in-to-create-squad-modal.react';

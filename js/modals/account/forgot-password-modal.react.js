@@ -2,13 +2,16 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import PasswordResetEmailModal from './password-reset-email-modal.react';
+import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
+  baseURL: string,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
 };
@@ -105,9 +108,11 @@ class ForgotPasswordModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('forgot_password.php', {
-      'username': this.state.usernameOrEmail,
-    });
+    const response = await fetchJSON(
+      this.props.baseURL,
+      'forgot_password.php',
+      { 'username': this.state.usernameOrEmail },
+    );
     if (response.success) {
       this.props.setModal(
         <PasswordResetEmailModal onClose={this.props.onClose} />
@@ -136,8 +141,11 @@ class ForgotPasswordModal extends React.Component {
 }
 
 ForgotPasswordModal.propTypes = {
+  baseURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default ForgotPasswordModal;
+export default connect(mapStateToPropsByName([
+  "baseURL",
+]))(ForgotPasswordModal);

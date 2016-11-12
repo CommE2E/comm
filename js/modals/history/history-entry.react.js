@@ -104,7 +104,7 @@ class HistoryEntry extends React.Component {
 
   async onRestore() {
     this.setState({ restoreLoadingStatus: "loading" });
-    const response = await fetchJSON('restore_entry.php', {
+    const response = await fetchJSON(this.props.baseURL, 'restore_entry.php', {
       'id': this.props.entryInfo.id,
       'session_id': this.props.sessionID,
       'timestamp': Date.now(),

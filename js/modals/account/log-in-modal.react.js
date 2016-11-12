@@ -11,6 +11,7 @@ import ForgotPasswordModal from './forgot-password-modal.react';
 import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
+  baseURL: string,
   thisURL: string,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
@@ -144,7 +145,7 @@ class LogInModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('login.php', {
+    const response = await fetchJSON(this.props.baseURL, 'login.php', {
       'username': this.state.usernameOrEmail,
       'password': this.state.password,
     });
@@ -202,12 +203,13 @@ class LogInModal extends React.Component {
 }
 
 LogInModal.propTypes = {
+  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
+export default connect(mapStateToPropsByName([
+  "baseURL",
   "thisURL",
-]);
-export default connect(mapStateToProps)(LogInModal);
+]))(LogInModal);
