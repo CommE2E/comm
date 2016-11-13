@@ -10,20 +10,53 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   exit;
 }
 
-$month = isset($_GET['month'])
-  ? (int)$_GET['month']
-  : idate('m');
-$year = isset($_GET['year'])
-  ? (int)$_GET['year']
-  : idate('Y');
-$home = isset($_GET['home']);
-if ($home) {
+$year_rewrite_matched = preg_match(
+  '#/year/([0-9]+)(/|$)#i',
+  $_SERVER['REQUEST_URI'],
+  $year_matches
+);
+if ($year_rewrite_matched) {
+  $year = (int)$year_matches[1];
+} else if (isset($_GET['year'])) {
+  $year = (int)$_GET['year'];
+} else {
+  $year = idate('Y');
+}
+$month_rewrite_matched = preg_match(
+  '#/month/([0-9]+)(/|$)#i',
+  $_SERVER['REQUEST_URI'],
+  $month_matches
+);
+if ($month_rewrite_matched) {
+  $month = (int)$month_matches[1];
+} else if (isset($_GET['month'])) {
+  $month = (int)$_GET['month'];
+} else {
+  $month = idate('m');
+}
+$squad_rewrite_matched = preg_match(
+  '#/squad/([0-9]+)(/|$)#i',
+  $_SERVER['REQUEST_URI'],
+  $squad_matches
+);
+$home_rewrite_matched = preg_match('#/home(/|$)#i', $_SERVER['REQUEST_URI']);
+if ($home_rewrite_matched) {
+  $home = true;
+  $squad = null;
+} else if ($squad_rewrite_matched) {
+  $home = false;
+  $squad = (int)$squad_matches[1];;
+} else if (isset($_GET['home'])) {
+  $home = true;
   $squad = null;
 } else if (isset($_GET['squad'])) {
+  $home = false;
   $squad = (int)$_GET['squad'];
 } else {
-  $squad = 254;
+  $home = false;
+  $squad = null;
 }
+
 $month_beginning_timestamp = date_create("$month/1/$year");
 if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -80,10 +113,12 @@ while ($row = $result->fetch_assoc()) {
     $subscription_exists = true;
   }
 }
-if (!isset($_GET['squad']) && $subscription_exists) {
-  // If we defaulted to squad 254 but a subscription exists, default to home
-  $home = true;
-  $squad = null;
+if (!$home && $squad === null) {
+  if ($subscription_exists) {
+    $home = true;
+  } else {
+    $squad = 254;
+  }
 }
 
 $squad_infos = array();
