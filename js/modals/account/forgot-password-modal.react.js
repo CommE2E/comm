@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from '../../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
@@ -8,7 +10,6 @@ import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import PasswordResetEmailModal from './password-reset-email-modal.react';
-import { mapStateToPropsByName } from '../../redux-utils';
 
 type Props = {
   baseURL: string,
@@ -146,6 +147,6 @@ ForgotPasswordModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToPropsByName([
-  "baseURL",
-]))(ForgotPasswordModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+}))(ForgotPasswordModal);

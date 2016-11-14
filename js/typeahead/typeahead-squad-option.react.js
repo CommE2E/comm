@@ -2,6 +2,7 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { AppState } from '../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -10,7 +11,7 @@ import { connect } from 'react-redux';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SquadLoginModal from '../modals/squad-login-modal.react';
-import { mapStateToPropsByName } from '../redux-utils';
+import { monthURL } from '../nav-utils';
 
 type Props = {
   squadInfo: SquadInfo,
@@ -101,7 +102,6 @@ TypeaheadSquadOption.defaultProps = {
   frozen: false,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "monthURL",
-]);
-export default connect(mapStateToProps)(TypeaheadSquadOption);
+export default connect((state: AppState) => ({
+  monthURL: monthURL(state),
+}))(TypeaheadSquadOption);

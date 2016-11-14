@@ -3,11 +3,12 @@
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import type { AppState } from '../redux-reducer';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
-import { mapStateToPropsByName } from '../redux-utils';
+import { monthURL } from '../nav-utils';
 
 type Props = {
   baseURL: string,
@@ -341,8 +342,7 @@ NewSquadModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 }
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "monthURL",
-]);
-export default connect(mapStateToProps)(NewSquadModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  monthURL: monthURL(state),
+}))(NewSquadModal);

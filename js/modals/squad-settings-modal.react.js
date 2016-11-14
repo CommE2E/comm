@@ -2,6 +2,7 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { AppState } from '../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -12,7 +13,7 @@ import { connect } from 'react-redux';
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
-import { mapStateToPropsByName } from '../redux-utils';
+import { thisURL, monthURL } from '../nav-utils';
 
 type Tab = "general" | "privacy" | "delete";
 type Props = {
@@ -512,9 +513,8 @@ SquadSettingsModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 }
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "thisURL",
-  "monthURL",
-]);
-export default connect(mapStateToProps)(SquadSettingsModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  thisURL: thisURL(state),
+  monthURL: monthURL(state),
+}))(SquadSettingsModal);

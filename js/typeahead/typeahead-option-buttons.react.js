@@ -12,7 +12,7 @@ import update from 'immutability-helper';
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import SquadSettingsModal from '../modals/squad-settings-modal.react';
-import { mapStateToPropsByName, mapStateToUpdateStore } from '../redux-utils';
+import { mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
   squadInfo: SquadInfo,
@@ -141,8 +141,8 @@ TypeaheadOptionButtons.propTypes = {
 };
 
 export default connect(
-  mapStateToPropsByName([
-    "baseURL",
-  ]),
+  (state: AppState) => ({
+    baseURL: state.navInfo.baseURL,
+  }),
   mapStateToUpdateStore,
 )(TypeaheadOptionButtons);

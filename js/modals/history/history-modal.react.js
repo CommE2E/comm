@@ -25,8 +25,8 @@ import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import { getDate } from '../../date-utils';
-import { mapStateToPropsByName, mapStateToUpdateStore }
-  from '../../redux-utils';
+import { mapStateToUpdateStore } from '../../redux-utils';
+import { currentNavID } from '../../nav-utils';
 
 type Props = {
   mode: HistoryMode,
@@ -267,9 +267,9 @@ HistoryModal.defaultProps = {
 };
 
 export default connect(
-  mapStateToPropsByName([
-    "baseURL",
-    "currentNavID",
-  ]),
+  (state: AppState) => ({
+    currentNavID: currentNavID(state),
+    baseURL: state.navInfo.baseURL,
+  }),
   mapStateToUpdateStore,
 )(HistoryModal);

@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from '../../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
@@ -7,7 +9,7 @@ import { connect } from 'react-redux';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
-import { mapStateToPropsByName } from '../../redux-utils';
+import { thisURL } from '../../nav-utils';
 
 type Props = {
   baseURL: string,
@@ -265,8 +267,7 @@ RegisterModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "thisURL",
-]);
-export default connect(mapStateToProps)(RegisterModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  thisURL: thisURL(state),
+}))(RegisterModal);

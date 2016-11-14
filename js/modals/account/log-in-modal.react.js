@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from '../../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
@@ -8,7 +10,7 @@ import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import ForgotPasswordModal from './forgot-password-modal.react';
-import { mapStateToPropsByName } from '../../redux-utils';
+import { thisURL } from '../../nav-utils';
 
 type Props = {
   baseURL: string,
@@ -209,7 +211,7 @@ LogInModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToPropsByName([
-  "baseURL",
-  "thisURL",
-]))(LogInModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  thisURL: thisURL(state),
+}))(LogInModal);

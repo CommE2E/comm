@@ -4,6 +4,7 @@ import type { SquadInfo } from './squad-info';
 import { squadInfoPropType } from './squad-info';
 import type { EntryInfo } from './calendar/entry-info';
 import { entryInfoPropType } from './calendar/entry-info';
+import type { AppState } from './redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -20,7 +21,7 @@ import VerifyEmailModal from './modals/account/verify-email-modal.react';
 import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import { getDate } from './date-utils';
-import { mapStateToPropsByName } from './redux-utils';
+import { thisURL } from './nav-utils';
 
 type Props = {
   thisURL: string,
@@ -129,10 +130,9 @@ App.propTypes = {
   show: React.PropTypes.string.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "thisURL",
-  "year",
-  "month",
-  "show",
-]);
-export default connect(mapStateToProps)(App);
+export default connect((state: AppState) => ({
+  thisURL: thisURL(state),
+  year: state.navInfo.year,
+  month: state.navInfo.month,
+  show: state.show,
+}))(App);

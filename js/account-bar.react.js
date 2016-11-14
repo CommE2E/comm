@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from './redux-reducer';
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -7,7 +9,7 @@ import fetchJSON from './fetch-json';
 import LogInModal from './modals/account/log-in-modal.react';
 import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
-import { mapStateToPropsByName } from './redux-utils';
+import { monthURL } from './nav-utils';
 
 type Props = {
   baseURL: string,
@@ -103,10 +105,9 @@ AccountBar.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "monthURL",
-  "loggedIn",
-  "username",
-]);
-export default connect(mapStateToProps)(AccountBar);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  monthURL: monthURL(state),
+  loggedIn: state.loggedIn,
+  username: state.username,
+}))(AccountBar);

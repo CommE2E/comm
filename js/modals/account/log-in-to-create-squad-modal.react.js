@@ -1,12 +1,14 @@
 // @flow
 
+import type { AppState } from '../../redux-reducer';
+
 import React from 'react';
 import { connect } from 'react-redux';
 
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
 import RegisterModal from './register-modal.react';
-import { mapStateToPropsByName } from '../../redux-utils';
+import { thisURL } from '../../nav-utils';
 
 type Props = {
   thisURL: string,
@@ -68,7 +70,6 @@ LogInToCreateSquadModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "thisURL",
-]);
-export default connect(mapStateToProps)(LogInToCreateSquadModal);
+export default connect((state: AppState) => ({
+  thisURL: thisURL(state),
+}))(LogInToCreateSquadModal);

@@ -113,6 +113,9 @@ while ($row = $result->fetch_assoc()) {
     $subscription_exists = true;
   }
 }
+
+$original_home = $home;
+$original_squad = $squad;
 if (!$home && $squad === null) {
   if ($subscription_exists) {
     $home = true;
@@ -125,8 +128,6 @@ $squad_infos = array();
 foreach ($rows as $row) {
   $authorized = $row['is_authed'] || !$row['requires_auth'];
   $subscribed_authorized = $authorized && $row['subscribed'];
-  $onscreen = ($home && $subscribed_authorized) ||
-    (!$home && (int)$row['id'] === $squad);
   $squad_infos[$row['id']] = array(
     'id' => $row['id'],
     'name' => $row['name'],
@@ -135,7 +136,6 @@ foreach ($rows as $row) {
     'subscribed' => $subscribed_authorized,
     'editable' => (int)$row['role'] >= ROLE_CREATOR,
     'closed' => (bool)$row['requires_auth'],
-    'onscreen' => $onscreen,
     'color' => $row['color'],
   );
 }
@@ -147,7 +147,6 @@ if (
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
-$current_nav_name = $home ? "Home" : $squad_infos[$squad]['name'];
 
 if ($squad !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
@@ -213,9 +212,9 @@ while ($row = $result->fetch_assoc()) {
   );
 }
 
-$month_url = "$base_url?year=$year&month=$month";
-$url_suffix = $home ? "home" : "squad=$squad";
-$this_url = "$month_url&$url_suffix";
+$js_home = $original_home
+  ? 'true'
+  : ($original_home === false ? 'false' : 'null');
 
 ?>
 <!DOCTYPE html>
@@ -238,14 +237,12 @@ $this_url = "$month_url&$url_suffix";
       var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
-      var month_url = "<?=$month_url?>";
-      var this_url = "<?=$this_url?>";
       var base_url = "<?=$base_url?>";
       var show = "<?=$show?>";
       var verify = "<?=$verify?>";
       var reset_password_username = "<?=$reset_password_username?>";
-      var original_nav = "<?=($home ? 'home' : $squad)?>";
-      var current_nav_name = "<?=$current_nav_name?>";
+      var home = <?=$js_home?>;
+      var squad_id = <?=$original_squad ? $original_squad : "null"?>;
     </script>
   </head>
   <body>
@@ -284,7 +281,12 @@ HTML;
 HTML;
 }
 
-$month_name = $month_beginning_timestamp->format('F');
+$nav_url_fragment = "";
+if ($original_home) {
+  $nav_url_fragment = "home/";
+} else if ($original_squad) {
+  $nav_url_fragment = "squad/{$original_squad}/";
+}
 
 $prev_month = $month - 1;
 $year_of_prev_month = $year;
@@ -292,10 +294,8 @@ if ($prev_month === 0) {
   $prev_month = 12;
   $year_of_prev_month = $year - 1;
 }
-$prev_url = $base_url.
-  "?month=".$prev_month.
-  "&amp;year=".$year_of_prev_month.
-  "&amp;".$url_suffix;
+$prev_url = $base_url . $nav_url_fragment .
+  "year/{$year_of_prev_month}/month/{$prev_month}";
 
 $next_month = $month + 1;
 $year_of_next_month = $year;
@@ -303,10 +303,10 @@ if ($next_month === 13) {
   $next_month = 1;
   $year_of_next_month = $year + 1;
 }
-$next_url = $base_url.
-  "?month=".$next_month.
-  "&amp;year=".$year_of_next_month.
-  "&amp;".$url_suffix;
+$next_url = $base_url . $nav_url_fragment .
+  "year/{$year_of_next_month}/month/{$next_month}";
+
+$month_name = $month_beginning_timestamp->format('F');
 
 echo <<<HTML
           </div>

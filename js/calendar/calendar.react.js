@@ -4,6 +4,7 @@ import type { EntryInfo } from './entry-info';
 import { entryInfoPropType } from './entry-info';
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { AppState } from '../redux-reducer';
 
 import React from 'react';
 import _ from 'lodash';
@@ -11,7 +12,6 @@ import { connect } from 'react-redux';
 
 import Day from './day.react';
 import { getDate} from '../date-utils';
-import { mapStateToPropsByName } from '../redux-utils';
 
 type Props = {
   year: number,
@@ -109,9 +109,8 @@ Calendar.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "year",
-  "month",
-  "entryInfos",
-]);
-export default connect(mapStateToProps)(Calendar);
+export default connect((state: AppState) => ({
+  year: state.navInfo.year,
+  month: state.navInfo.month,
+  entryInfos: state.entryInfos,
+}))(Calendar);

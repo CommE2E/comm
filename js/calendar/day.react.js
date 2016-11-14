@@ -17,14 +17,15 @@ import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
 import { entryID } from './entry-utils';
 import HistoryModal from '../modals/history/history-modal.react';
-import { mapStateToPropsByName, mapStateToUpdateStore } from '../redux-utils';
+import { mapStateToUpdateStore } from '../redux-utils';
+import { onScreenSquadInfos } from '../squad-utils';
 
 type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
   entryInfos: EntryInfo[],
-  squadInfos: {[id: string]: SquadInfo},
+  onScreenSquadInfos: SquadInfo[],
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
@@ -115,9 +116,7 @@ class Day extends React.Component {
 
     let squadPicker = null;
     if (this.state.pickerOpen) {
-      const options = _.chain(this.props.squadInfos).filter(
-        squadInfo => squadInfo.onscreen
-      ).map((squadInfo) => {
+      const options = this.props.onScreenSquadInfos.map((squadInfo) => {
         const style = { backgroundColor: "#" + squadInfo.color };
         return (
           <div
@@ -130,7 +129,7 @@ class Day extends React.Component {
             </span>
           </div>
         );
-      }).value();
+      });
       squadPicker =
         <div
           className="pick-squad"
@@ -188,13 +187,9 @@ class Day extends React.Component {
   }
 
   onAddEntry(event: SyntheticEvent) {
-    const onscreen = _.filter(
-      this.props.squadInfos, 
-      (squadInfo) => squadInfo.onscreen,
-    );
-    if (onscreen.length === 1) {
-      this.createNewEntry(onscreen[0].id);
-    } else if (onscreen.length > 1) {
+    if (this.props.onScreenSquadInfos.length === 1) {
+      this.createNewEntry(this.props.onScreenSquadInfos[0].id);
+    } else if (this.props.onScreenSquadInfos.length > 1) {
       this.setState(
         { pickerOpen: true },
         () => {
@@ -264,7 +259,7 @@ Day.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
-  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   startingTabIndex: React.PropTypes.number.isRequired,
@@ -272,8 +267,8 @@ Day.propTypes = {
 };
 
 export default connect(
-  mapStateToPropsByName([
-    "squadInfos",
-  ]),
+  (state: AppState) => ({
+    onScreenSquadInfos: onScreenSquadInfos(state),
+  }),
   mapStateToUpdateStore,
 )(Day);

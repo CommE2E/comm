@@ -87,12 +87,7 @@ HistoryRevision.propTypes = {
   isDeletionOrRestoration: React.PropTypes.bool.isRequired,
 };
 
-type OwnProps = {
-  revisionInfo: HistoryRevisionInfo,
-};
-const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
-  return {
-    squadInfo: state.squadInfos[ownProps.revisionInfo.squadID],
-  };
-};
-export default connect(mapStateToProps)(HistoryRevision);
+type OwnProps = { revisionInfo: HistoryRevisionInfo };
+export default connect((state: AppState, ownProps: OwnProps) => ({
+  squadInfo: state.squadInfos[ownProps.revisionInfo.squadID],
+}))(HistoryRevision);

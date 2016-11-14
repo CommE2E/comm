@@ -2,6 +2,7 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
+import type { AppState } from '../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -10,7 +11,7 @@ import { connect } from 'react-redux';
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import LogInModal from './account/log-in-modal.react';
-import { mapStateToPropsByName } from '../redux-utils';
+import { thisURL, monthURL } from '../nav-utils';
 
 type Props = {
   squadInfo: SquadInfo,
@@ -162,10 +163,9 @@ SquadLoginModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "thisURL",
-  "monthURL",
-  "loggedIn",
-]);
-export default connect(mapStateToProps)(SquadLoginModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  thisURL: thisURL(state),
+  monthURL: monthURL(state),
+  loggedIn: state.loggedIn,
+}))(SquadLoginModal);

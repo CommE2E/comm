@@ -5,19 +5,21 @@ import type { EntryInfo } from './calendar/entry-info';
 
 import invariant from 'invariant';
 
-export type AppState = {
-  thisURL: string,
+export type NavInfo = {
   baseURL: string,
-  monthURL: string,
-  currentNavID: string,
-  currentNavName: string,
+  year: number,
+  month: number, // 1-indexed
+  home: ?bool,
+  squadID: ?string,
+}
+
+export type AppState = {
+  navInfo: NavInfo,
   loggedIn: bool,
   username: string,
   email: string,
   emailVerified: bool,
   sessionID: string,
-  year: number,
-  month: number, // 1-indexed
   show: string,
   verifyCode: string,
   resetPasswordUsername: string,

@@ -1,5 +1,5 @@
 System.config({
-  baseURL: typeof base_url !== 'undefined' ? base_url + "js" : "js",
+  baseURL: "js",
   defaultJSExtensions: true,
   transpiler: "babel",
   babelOptions: {
@@ -41,8 +41,10 @@ System.config({
     "react": "npm:react@15.3.2",
     "react-dom": "npm:react-dom@15.3.2",
     "react-redux": "npm:react-redux@4.4.5",
+    "react-router": "npm:react-router@3.0.0",
     "react-text-truncate": "npm:react-text-truncate@0.8.3",
     "redux": "npm:redux@3.6.0",
+    "reselect": "npm:reselect@2.5.4",
     "spectrum-colorpicker": "npm:spectrum-colorpicker@1.8.0",
     "timeago": "npm:timeago@1.5.3",
     "tokenize-text": "npm:tokenize-text@1.1.3",
@@ -413,8 +415,8 @@ System.config({
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
       "babylon": "npm:babylon@6.13.1",
-      "debug": "npm:debug@2.2.0",
-      "globals": "npm:globals@9.12.0",
+      "debug": "npm:debug@2.3.2",
+      "globals": "npm:globals@9.13.0",
       "invariant": "npm:invariant@2.2.1",
       "lodash": "npm:lodash@4.16.6",
       "process": "github:jspm/nodelibs-process@0.1.2"
@@ -491,8 +493,8 @@ System.config({
       "get-stdin": "npm:get-stdin@4.0.1",
       "meow": "npm:meow@3.7.0"
     },
-    "npm:debug@2.2.0": {
-      "ms": "npm:ms@0.7.1"
+    "npm:debug@2.3.2": {
+      "ms": "npm:ms@0.7.2"
     },
     "npm:domain-browser@1.1.7": {
       "events": "github:jspm/nodelibs-events@0.1.1",
@@ -506,9 +508,8 @@ System.config({
       "is-arrayish": "npm:is-arrayish@0.2.1",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
-    "npm:fbjs@0.8.5": {
+    "npm:fbjs@0.8.6": {
       "core-js": "npm:core-js@1.2.7",
-      "immutable": "npm:immutable@3.8.1",
       "isomorphic-fetch": "npm:isomorphic-fetch@2.2.1",
       "loose-envify": "npm:loose-envify@1.3.0",
       "object-assign": "npm:object-assign@4.1.0",
@@ -525,7 +526,7 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:globals@9.12.0": {
+    "npm:globals@9.13.0": {
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
     "npm:graceful-fs@4.1.10": {
@@ -538,6 +539,13 @@ System.config({
     },
     "npm:has-ansi@2.0.0": {
       "ansi-regex": "npm:ansi-regex@2.0.0"
+    },
+    "npm:history@3.2.1": {
+      "invariant": "npm:invariant@2.2.1",
+      "loose-envify": "npm:loose-envify@1.3.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "query-string": "npm:query-string@4.2.3",
+      "warning": "npm:warning@3.0.0"
     },
     "npm:hosted-git-info@2.1.5": {
       "url": "github:jspm/nodelibs-url@0.1.0"
@@ -554,9 +562,6 @@ System.config({
     },
     "npm:immutability-helper@2.0.0": {
       "invariant": "npm:invariant@2.2.1"
-    },
-    "npm:immutable@3.8.1": {
-      "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
     "npm:indent-string@2.1.0": {
       "repeating": "npm:repeating@2.0.1"
@@ -682,6 +687,10 @@ System.config({
     "npm:punycode@1.3.2": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
+    "npm:query-string@4.2.3": {
+      "object-assign": "npm:object-assign@4.1.0",
+      "strict-uri-encode": "npm:strict-uri-encode@1.1.0"
+    },
     "npm:react-dom@15.3.2": {
       "react": "npm:react@15.3.2"
     },
@@ -694,6 +703,15 @@ System.config({
       "react": "npm:react@15.3.2",
       "redux": "npm:redux@3.6.0"
     },
+    "npm:react-router@3.0.0": {
+      "history": "npm:history@3.2.1",
+      "hoist-non-react-statics": "npm:hoist-non-react-statics@1.2.0",
+      "invariant": "npm:invariant@2.2.1",
+      "loose-envify": "npm:loose-envify@1.3.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "react": "npm:react@15.3.2",
+      "warning": "npm:warning@3.0.0"
+    },
     "npm:react-text-truncate@0.8.3": {
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
@@ -701,7 +719,7 @@ System.config({
       "react-dom": "npm:react-dom@15.3.2"
     },
     "npm:react@15.3.2": {
-      "fbjs": "npm:fbjs@0.8.5",
+      "fbjs": "npm:fbjs@0.8.6",
       "loose-envify": "npm:loose-envify@1.3.0",
       "object-assign": "npm:object-assign@4.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
@@ -755,7 +773,7 @@ System.config({
     },
     "npm:regexpu-core@2.0.0": {
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "regenerate": "npm:regenerate@1.3.1",
+      "regenerate": "npm:regenerate@1.3.2",
       "regjsgen": "npm:regjsgen@0.2.0",
       "regjsparser": "npm:regjsparser@0.1.5",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
@@ -841,6 +859,10 @@ System.config({
     },
     "npm:vm-browserify@0.0.4": {
       "indexof": "npm:indexof@0.0.1"
+    },
+    "npm:warning@3.0.0": {
+      "loose-envify": "npm:loose-envify@1.3.0",
+      "process": "github:jspm/nodelibs-process@0.1.2"
     }
   }
 });

@@ -22,6 +22,7 @@ import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
+import { thisURL } from '../nav-utils';
 
 type Props = {
   entryInfo: EntryInfo,
@@ -342,16 +343,13 @@ Entry.propTypes = {
 type OwnProps = {
   entryInfo: EntryInfo,
 };
-const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
-  return {
-    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
-    thisURL: state.thisURL,
-    baseURL: state.baseURL,
-    sessionID: state.sessionID,
-  };
-};
 export default connect(
-  mapStateToProps,
+  (state: AppState, ownProps: OwnProps) => ({
+    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+    thisURL: thisURL(state),
+    baseURL: state.navInfo.baseURL,
+    sessionID: state.sessionID,
+  }),
   mapStateToUpdateStore,
   undefined,
   { 'withRef': true },

@@ -10,7 +10,6 @@ export type SquadInfo = {
   subscribed: bool,
   editable: bool,
   closed: bool,
-  onscreen: bool,
   color: string, // hex, without "#" or "0x"
 }
 
@@ -22,6 +21,5 @@ export const squadInfoPropType = React.PropTypes.shape({
   subscribed: React.PropTypes.bool.isRequired,
   editable: React.PropTypes.bool.isRequired,
   closed: React.PropTypes.bool.isRequired,
-  onscreen: React.PropTypes.bool.isRequired,
   color: React.PropTypes.string.isRequired,
 });

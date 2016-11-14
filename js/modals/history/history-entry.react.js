@@ -142,14 +142,9 @@ HistoryEntry.propTypes = {
   baseURL: React.PropTypes.string.isRequired,
 }
 
-type OwnProps = {
-  entryInfo: HistoryEntryInfo,
-};
-const mapStateToProps = (state: AppState, ownProps: OwnProps) => {
-  return {
-    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
-    sessionID: state.sessionID,
-    baseURL: state.baseURL,
-  };
-};
-export default connect(mapStateToProps)(HistoryEntry);
+type OwnProps = { entryInfo: HistoryEntryInfo };
+export default connect((state: AppState, ownProps: OwnProps) => ({
+  squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+  sessionID: state.sessionID,
+  baseURL: state.navInfo.baseURL,
+}))(HistoryEntry);

@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from '../redux-reducer';
+
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -7,7 +9,7 @@ import { connect } from 'react-redux';
 import NewSquadModal from '../modals/new-squad-modal.react';
 import LogInToCreateSquadModal
   from '../modals/account/log-in-to-create-squad-modal.react';
-import { mapStateToPropsByName } from '../redux-utils';
+import { monthURL } from '../nav-utils';
 
 export type NavID = "home" | "new";
 type Props = {
@@ -95,9 +97,8 @@ TypeaheadActionOption.defaultProps = {
   frozen: false,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "thisURL",
-  "monthURL",
-  "loggedIn",
-]);
-export default connect(mapStateToProps)(TypeaheadActionOption);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  monthURL: monthURL(state),
+  loggedIn: state.loggedIn,
+}))(TypeaheadActionOption);

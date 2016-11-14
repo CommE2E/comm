@@ -3,6 +3,7 @@
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
 import type { NavID } from './typeahead-action-option.react';
+import type { AppState } from '../redux-reducer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -16,12 +17,11 @@ import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadSquadOption from './typeahead-squad-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SearchIndex from './search-index';
-import { mapStateToPropsByName } from '../redux-utils';
+import { currentNavID } from '../nav-utils';
 
 type Props = {
   baseURL: string,
   currentNavID: string,
-  currentNavName: string,
   squadInfos: {[id: string]: SquadInfo},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -54,10 +54,17 @@ class Typeahead extends React.Component {
       searchActive: false,
       frozen: false,
       frozenNavID: null,
-      typeaheadValue: props.currentNavName,
+      typeaheadValue: Typeahead.getCurrentNavName(props),
       searchResults: [],
     };
     this.buildSearchIndex();
+  }
+
+  static getCurrentNavName(props: Props) {
+    if (props.currentNavID === "home") {
+      return TypeaheadActionOption.homeText;
+    }
+    return props.squadInfos[currentNavID].name;
   }
 
   componentDidUpdate() {
@@ -292,7 +299,7 @@ class Typeahead extends React.Component {
           invariant(this.input, "ref should be set");
           this.input.focus();
         } else {
-          typeaheadValue = this.props.currentNavName;
+          typeaheadValue = Typeahead.getCurrentNavName(this.props);
         }
         return {
           active: active,
@@ -368,16 +375,13 @@ class Typeahead extends React.Component {
 Typeahead.propTypes = {
   baseURL: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
-  currentNavName: React.PropTypes.string.isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "currentNavID",
-  "currentNavName",
-  "squadInfos",
-]);
-export default connect(mapStateToProps)(Typeahead);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  currentNavID: currentNavID(state),
+  squadInfos: state.squadInfos,
+}))(Typeahead);

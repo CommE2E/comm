@@ -1,5 +1,7 @@
 // @flow
 
+import type { AppState } from '../../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
@@ -9,7 +11,7 @@ import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validEmailRegex } from './account-regexes';
 import VerifyEmailModal from './verify-email-modal.react';
-import { mapStateToPropsByName } from '../../redux-utils';
+import { thisURL, monthURL } from '../../nav-utils';
 
 type Tab = "general" | "delete";
 type Props = {
@@ -381,12 +383,11 @@ UserSettingsModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
 };
 
-const mapStateToProps = mapStateToPropsByName([
-  "baseURL",
-  "thisURL",
-  "monthURL",
-  "username",
-  "email",
-  "emailVerified",
-]);
-export default connect(mapStateToProps)(UserSettingsModal);
+export default connect((state: AppState) => ({
+  baseURL: state.navInfo.baseURL,
+  thisURL: thisURL(state),
+  monthURL: monthURL(state),
+  username: state.username,
+  email: state.email,
+  emailVerified: state.emailVerified,
+}))(UserSettingsModal);
