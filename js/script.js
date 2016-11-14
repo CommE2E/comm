@@ -8,9 +8,11 @@ import type { AppState } from './redux-reducer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
-//import { Router, Route, browserHistory } from 'react-router'
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import { Router, Route } from 'react-router';
+import createBrowserHistory from 'history/lib/createBrowserHistory';
+import useBasename from 'history/lib/useBasename';
 
 import App from './app.react';
 import reducer from './redux-reducer';
@@ -30,12 +32,10 @@ declare var home: ?bool;
 declare var squad_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
-// Any changes here need to be synced with the state
 const store = createStore(
   reducer,
   ({
     navInfo: {
-      baseURL: base_url,
       year: year,
       month: month,
       home: home,
@@ -54,11 +54,19 @@ const store = createStore(
   }: AppState),
 );
 
-    //<Router history={browserHistory}>
-    //</Router>
+const history = useBasename(createBrowserHistory)({ basename: base_url });
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Router history={history}>
+      <Route
+        path="/"
+        component={App}
+      />
+      <Route
+        path="(home/)(squad/:squadID/)(year/:year/)(month/:month/)"
+        component={App}
+      />
+    </Router>
   </Provider>,
   document.getElementById('react-root'),
 );

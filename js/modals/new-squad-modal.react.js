@@ -11,7 +11,6 @@ import ColorPicker from './color-picker.react';
 import { monthURL } from '../nav-utils';
 
 type Props = {
-  baseURL: string,
   monthURL: string,
   onClose: () => void,
 };
@@ -289,7 +288,7 @@ class NewSquadModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON(this.props.baseURL, 'new_squad.php', {
+    const response = await fetchJSON('new_squad.php', {
       'name': name,
       'description': this.state.description,
       'type': this.state.closed ? "closed" : "open",
@@ -337,12 +336,10 @@ class NewSquadModal extends React.Component {
 }
 
 NewSquadModal.propTypes = {
-  baseURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   monthURL: monthURL(state),
 }))(NewSquadModal);

@@ -6,7 +6,6 @@ export type LoadingStatus = "inactive" | "loading" | "error";
 
 type Props = {
   status: LoadingStatus,
-  baseURL: string,
   className: ?string,
 }
 
@@ -22,7 +21,7 @@ export default function LoadingIndicator(props: Props) {
     return (
       <img
         className={cssClassNames}
-        src={props.baseURL + "images/ajax-loader.gif"}
+        src="images/ajax-loader.gif"
         alt="loading"
       />
     );

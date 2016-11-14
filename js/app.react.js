@@ -4,13 +4,13 @@ import type { SquadInfo } from './squad-info';
 import { squadInfoPropType } from './squad-info';
 import type { EntryInfo } from './calendar/entry-info';
 import { entryInfoPropType } from './calendar/entry-info';
-import type { AppState } from './redux-reducer';
+import type { AppState, UpdateStore } from './redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
-import url from 'url';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import ModalManager from './modals/modal-manager.react';
 import AccountBar from './account-bar.react';
@@ -21,13 +21,20 @@ import VerifyEmailModal from './modals/account/verify-email-modal.react';
 import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import { getDate } from './date-utils';
-import { thisURL } from './nav-utils';
+import { urlForYearAndMonth, thisNavURLFragment } from './nav-utils';
+import { mapStateToUpdateStore } from './redux-utils'
 
 type Props = {
-  thisURL: string,
+  thisNavURLFragment: string,
   year: number,
   month: number, // 1-indexed
   show: string,
+  updateStore: UpdateStore,
+  params: {
+    year: string,
+    month: string,
+    splat: string,
+  },
 };
 
 class App extends React.Component {
@@ -36,6 +43,7 @@ class App extends React.Component {
   modalManager: ?ModalManager;
 
   componentDidMount() {
+    console.log(this.props);
     if (this.props.show === 'reset_password') {
       this.setModal(
         <ResetPasswordModal />
@@ -51,31 +59,24 @@ class App extends React.Component {
     }
   }
 
+  componentWillReceiveProps(newProps: Props) {
+  }
+
   render() {
-    const parsedURL = url.parse(this.props.thisURL, true);
-    const query = parsedURL.query;
-    const urlObj = {
-      protocol: parsedURL.protocol,
-      host: parsedURL.host,
-      pathname: parsedURL.pathname,
-    };
-    invariant(query, "query string should be defined");
-
     const lastMonthDate = getDate(this.props.year, this.props.month - 1, 1);
-    query.month = lastMonthDate.getMonth() + 1;
-    query.year = lastMonthDate.getFullYear();
-    const prevURL = url.format({ ...urlObj, query: query });
-
+    const prevURL = this.props.thisNavURLFragment + urlForYearAndMonth(
+      lastMonthDate.getFullYear(),
+      lastMonthDate.getMonth() + 1,
+    );
     const nextMonthDate = getDate(this.props.year, this.props.month + 1, 1);
-    query.month = nextMonthDate.getMonth() + 1;
-    query.year = nextMonthDate.getFullYear();
-    const nextURL = url.format({ ...urlObj, query: query });
-
+    const nextURL = this.props.thisNavURLFragment + urlForYearAndMonth(
+      nextMonthDate.getFullYear(),
+      nextMonthDate.getMonth() + 1,
+    );
     const monthName = dateFormat(
       getDate(this.props.year, this.props.month, 1),
       "mmmm",
     );
-
     return (
       <div>
         <header>
@@ -124,15 +125,19 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-  thisURL: React.PropTypes.string.isRequired,
+  thisNavURLFragment: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   show: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-  year: state.navInfo.year,
-  month: state.navInfo.month,
-  show: state.show,
-}))(App);
+export default connect(
+  (state: AppState) => ({
+    thisNavURLFragment: thisNavURLFragment(state),
+    year: state.navInfo.year,
+    month: state.navInfo.month,
+    show: state.show,
+  }),
+  mapStateToUpdateStore,
+)(App);

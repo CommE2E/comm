@@ -34,6 +34,7 @@ System.config({
     "core-js": "npm:core-js@1.2.7",
     "dateformat": "npm:dateformat@1.0.12",
     "fetch": "github:github/fetch@1.0.0",
+    "history": "npm:history@3.2.1",
     "immutability-helper": "npm:immutability-helper@2.0.0",
     "invariant": "npm:invariant@2.2.1",
     "jquery": "npm:jquery@3.1.1",

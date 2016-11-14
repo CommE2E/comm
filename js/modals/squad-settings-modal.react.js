@@ -18,7 +18,6 @@ import { thisURL, monthURL } from '../nav-utils';
 type Tab = "general" | "privacy" | "delete";
 type Props = {
   squadInfo: SquadInfo,
-  baseURL: string,
   thisURL: string,
   monthURL: string,
   onClose: () => void,
@@ -268,7 +267,7 @@ class SquadSettingsModal extends React.Component {
         className={classNamesForTab}
         onClick={(e) => this.setState({ "currentTab": tab })}
       >
-        <a href="#">{name}</a>
+        <a>{name}</a>
       </li>
     );
   }
@@ -402,7 +401,7 @@ class SquadSettingsModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON(this.props.baseURL, 'edit_squad.php', {
+    const response = await fetchJSON('edit_squad.php', {
       'name': name,
       'description': this.state.squadInfo.description,
       'squad': this.props.squadInfo.id,
@@ -478,7 +477,7 @@ class SquadSettingsModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON(this.props.baseURL, 'delete_squad.php', {
+    const response = await fetchJSON('delete_squad.php', {
       'squad': this.props.squadInfo.id,
       'password': this.state.accountPassword,
     });
@@ -507,14 +506,12 @@ class SquadSettingsModal extends React.Component {
 
 SquadSettingsModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   thisURL: thisURL(state),
   monthURL: monthURL(state),
 }))(SquadSettingsModal);

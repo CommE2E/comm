@@ -67,8 +67,8 @@ class TypeaheadSquadOption extends React.Component {
 
   onClick(event: SyntheticEvent) {
     if (this.props.squadInfo.authorized) {
-      window.location.href = this.props.monthURL +
-        "&squad=" + this.props.squadInfo.id;
+      window.location.href = "squad/" +
+        `${this.props.squadInfo.id}/${this.props.monthURL}`;
     } else {
       // TODO: make the password entry appear inline
       this.props.freezeTypeahead(this.props.squadInfo.id);

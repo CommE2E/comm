@@ -45,6 +45,7 @@ class LogInToCreateSquadModal extends React.Component {
   }
 
   onClickLogIn(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <LogInModal
         thisURL={this.props.thisURL}
@@ -55,6 +56,7 @@ class LogInToCreateSquadModal extends React.Component {
   }
 
   onClickRegister(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <RegisterModal
         thisURL={this.props.thisURL}

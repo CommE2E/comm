@@ -10,7 +10,6 @@ import fetchJSON from '../../fetch-json';
 import { thisURL } from '../../nav-utils';
 
 type Props = {
-  baseURL: string,
   thisURL: string,
   resetPasswordUsername: string,
   verifyCode: string,
@@ -142,7 +141,7 @@ class ResetPasswordModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON(this.props.baseURL, 'reset_password.php', {
+    const response = await fetchJSON('reset_password.php', {
       'code': this.props.verifyCode,
       'password': this.state.password,
     });
@@ -168,14 +167,12 @@ class ResetPasswordModal extends React.Component {
 }
 
 ResetPasswordModal.propTypes = {
-  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   resetPasswordUsername: React.PropTypes.string.isRequired,
   verifyCode: React.PropTypes.string.isRequired,
 };
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   thisURL: thisURL(state),
   resetPasswordUsername: state.resetPasswordUsername,
   verifyCode: state.verifyCode,

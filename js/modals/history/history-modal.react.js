@@ -30,7 +30,6 @@ import { currentNavID } from '../../nav-utils';
 
 type Props = {
   mode: HistoryMode,
-  baseURL: string,
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
@@ -109,7 +108,7 @@ class HistoryModal extends React.Component {
         year={this.props.year}
         month={this.props.month}
         day={this.props.day}
-        onClick={(event) => this.onClickEntry(entryInfo.id)}
+        onClick={(event) => this.onClickEntry(event, entryInfo.id)}
         restoreEntryInfo={this.restoreEntryInfo.bind(this)}
         key={entryInfo.id}
       />
@@ -155,7 +154,6 @@ class HistoryModal extends React.Component {
             <span className="history-date">{prettyDate}</span>
             <LoadingIndicator
               status={loadingStatus}
-              baseURL={this.props.baseURL}
               className="history-loading"
             />
           </div>
@@ -171,7 +169,7 @@ class HistoryModal extends React.Component {
       dayLoadingStatus: "loading",
       entries: [],
     });
-    const response = await fetchJSON(this.props.baseURL, 'day_history.php', {
+    const response = await fetchJSON('day_history.php', {
       'day': this.props.day,
       'month': this.props.month,
       'year': this.props.year,
@@ -192,7 +190,7 @@ class HistoryModal extends React.Component {
       entryLoadingStatus: "loading",
       revisions: [],
     });
-    const response = await fetchJSON(this.props.baseURL, 'entry_history.php', {
+    const response = await fetchJSON('entry_history.php', {
       'id': entryID,
     });
     if (!response.result) {
@@ -205,7 +203,8 @@ class HistoryModal extends React.Component {
     });
   }
 
-  async onClickEntry(entryID: string) {
+  async onClickEntry(event: SyntheticEvent, entryID: string) {
+    event.preventDefault();
     if (this.state.currentEntryID === entryID) {
       this.setState({
         mode: "entry",
@@ -222,6 +221,7 @@ class HistoryModal extends React.Component {
   }
 
   onClickAllEntries(event: SyntheticEvent) {
+    event.preventDefault();
     this.setState({
       mode: "day",
       animateModeChange: true,
@@ -252,7 +252,6 @@ class HistoryModal extends React.Component {
 
 HistoryModal.propTypes = {
   mode: React.PropTypes.string.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
@@ -269,7 +268,6 @@ HistoryModal.defaultProps = {
 export default connect(
   (state: AppState) => ({
     currentNavID: currentNavID(state),
-    baseURL: state.navInfo.baseURL,
   }),
   mapStateToUpdateStore,
 )(HistoryModal);

@@ -72,7 +72,7 @@ class TypeaheadActionOption extends React.Component {
         );
       }
     } else if (this.props.navID == 'home') {
-      window.location.href = this.props.monthURL + "&home";
+      window.location.href = `home/${this.props.monthURL}`;
     } 
   }
 
@@ -98,7 +98,6 @@ TypeaheadActionOption.defaultProps = {
 };
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   monthURL: monthURL(state),
   loggedIn: state.loggedIn,
 }))(TypeaheadActionOption);

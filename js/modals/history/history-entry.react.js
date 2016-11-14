@@ -26,7 +26,6 @@ type Props = {
   sessionID: string,
   onClick: (event: SyntheticEvent) => Promise<void>,
   restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
-  baseURL: string,
 };
 type State = {
   restoreLoadingStatus: LoadingStatus,
@@ -61,7 +60,6 @@ class HistoryEntry extends React.Component {
           </span>
           <LoadingIndicator
             status={this.state.restoreLoadingStatus}
-            baseURL={this.props.baseURL}
             className="restore-loading"
           />
         </span>
@@ -102,9 +100,10 @@ class HistoryEntry extends React.Component {
     );
   }
 
-  async onRestore() {
+  async onRestore(event: SyntheticEvent) {
+    event.preventDefault();
     this.setState({ restoreLoadingStatus: "loading" });
-    const response = await fetchJSON(this.props.baseURL, 'restore_entry.php', {
+    const response = await fetchJSON('restore_entry.php', {
       'id': this.props.entryInfo.id,
       'session_id': this.props.sessionID,
       'timestamp': Date.now(),
@@ -139,12 +138,10 @@ HistoryEntry.propTypes = {
   sessionID: React.PropTypes.string.isRequired,
   onClick: React.PropTypes.func.isRequired,
   restoreEntryInfo: React.PropTypes.func.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
 }
 
 type OwnProps = { entryInfo: HistoryEntryInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
   squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
   sessionID: state.sessionID,
-  baseURL: state.navInfo.baseURL,
 }))(HistoryEntry);

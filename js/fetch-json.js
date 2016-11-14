@@ -4,13 +4,12 @@ import 'fetch'; // side-effect: window.fetch
 import $ from 'jquery';
 
 async function fetchJSON(
-  baseURL: string,
   url: string,
   data: {[key: string]: mixed},
 ) {
   let json;
   try {
-    const response = await fetch(baseURL + url, {
+    const response = await fetch(url, {
       // Flow gets confused by some enum type, so we need this cast
       'method': ('POST': MethodType),
       // This is necessary to allow cookie headers to get passed down to us

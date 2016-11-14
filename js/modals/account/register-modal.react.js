@@ -12,7 +12,6 @@ import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import { thisURL } from '../../nav-utils';
 
 type Props = {
-  baseURL: string,
   thisURL: string,
   onClose: () => void,
 };
@@ -207,7 +206,7 @@ class RegisterModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON(this.props.baseURL, 'register.php', {
+    const response = await fetchJSON('register.php', {
       'username': this.state.username,
       'email': this.state.email,
       'password': this.state.password,
@@ -262,12 +261,10 @@ class RegisterModal extends React.Component {
 }
 
 RegisterModal.propTypes = {
-  baseURL: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
 };
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   thisURL: thisURL(state),
 }))(RegisterModal);

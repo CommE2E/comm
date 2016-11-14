@@ -6,7 +6,6 @@ import type { EntryInfo } from './calendar/entry-info';
 import invariant from 'invariant';
 
 export type NavInfo = {
-  baseURL: string,
   year: number,
   month: number, // 1-indexed
   home: ?bool,

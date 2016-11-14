@@ -123,7 +123,7 @@ class Day extends React.Component {
             key={squadInfo.id}
             onClick={() => this.createNewEntry(squadInfo.id)}
           >
-            <span href="#" className="select-squad">
+            <span className="select-squad">
               <div className="color-preview" style={style} />
               <span className="select-squad-name">{squadInfo.name}</span>
             </span>
@@ -187,6 +187,7 @@ class Day extends React.Component {
   }
 
   onAddEntry(event: SyntheticEvent) {
+    event.preventDefault();
     if (this.props.onScreenSquadInfos.length === 1) {
       this.createNewEntry(this.props.onScreenSquadInfos[0].id);
     } else if (this.props.onScreenSquadInfos.length > 1) {
@@ -230,6 +231,7 @@ class Day extends React.Component {
   }
 
   onHistory(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <HistoryModal
         mode="day"

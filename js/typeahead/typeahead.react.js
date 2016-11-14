@@ -20,7 +20,6 @@ import SearchIndex from './search-index';
 import { currentNavID } from '../nav-utils';
 
 type Props = {
-  baseURL: string,
   currentNavID: string,
   squadInfos: {[id: string]: SquadInfo},
   setModal: (modal: React.Element<any>) => void,
@@ -64,7 +63,7 @@ class Typeahead extends React.Component {
     if (props.currentNavID === "home") {
       return TypeaheadActionOption.homeText;
     }
-    return props.squadInfos[currentNavID].name;
+    return props.squadInfos[props.currentNavID].name;
   }
 
   componentDidUpdate() {
@@ -223,7 +222,7 @@ class Typeahead extends React.Component {
           ref={(current) => this.current = current}
         >
           <img
-            src={this.props.baseURL + "images/search.svg"}
+            src="images/search.svg"
             alt="search"
             ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
           />
@@ -373,7 +372,6 @@ class Typeahead extends React.Component {
 }
 
 Typeahead.propTypes = {
-  baseURL: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   setModal: React.PropTypes.func.isRequired,
@@ -381,7 +379,6 @@ Typeahead.propTypes = {
 };
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   currentNavID: currentNavID(state),
   squadInfos: state.squadInfos,
 }))(Typeahead);

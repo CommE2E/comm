@@ -12,7 +12,6 @@ import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { monthURL } from './nav-utils';
 
 type Props = {
-  baseURL: string,
   monthURL: string,
   loggedIn: bool,
   username: string,
@@ -64,11 +63,13 @@ class AccountBar extends React.Component {
   }
 
   async onLogOut(event: SyntheticEvent) {
-    await fetchJSON(this.props.baseURL, 'logout.php', {});
+    event.preventDefault();
+    await fetchJSON('logout.php', {});
     window.location.href = this.props.monthURL;
   }
 
   onEditAccount(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <UserSettingsModal
         onClose={this.props.clearModal}
@@ -78,6 +79,7 @@ class AccountBar extends React.Component {
   }
 
   onLogIn(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <LogInModal
         onClose={this.props.clearModal}
@@ -87,6 +89,7 @@ class AccountBar extends React.Component {
   }
 
   onRegister(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <RegisterModal
         onClose={this.props.clearModal}
@@ -97,7 +100,6 @@ class AccountBar extends React.Component {
 }
 
 AccountBar.propTypes = {
-  baseURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
@@ -106,7 +108,6 @@ AccountBar.propTypes = {
 };
 
 export default connect((state: AppState) => ({
-  baseURL: state.navInfo.baseURL,
   monthURL: monthURL(state),
   loggedIn: state.loggedIn,
   username: state.username,

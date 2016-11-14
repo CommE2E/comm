@@ -222,13 +222,14 @@ $js_home = $original_home
   <head>
     <meta charset="utf-8" />
     <title>SquadCal</title>
+    <base href="<?=$base_url?>" />
     <link
       rel="stylesheet"
       type="text/css"
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
     />
-    <link rel="stylesheet" type="text/css" href="<?=$base_url?>style.css" />
-    <link rel="stylesheet" type="text/css" href="<?=$base_url?>spectrum.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="spectrum.css" />
     <script>
       var username = "<?=$username?>";
       var email = "<?=$email?>";
@@ -242,7 +243,7 @@ $js_home = $original_home
       var verify = "<?=$verify?>";
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$js_home?>;
-      var squad_id = <?=$original_squad ? $original_squad : "null"?>;
+      var squad_id = <?=$original_squad ? "'$original_squad'" : "null"?>;
     </script>
   </head>
   <body>
@@ -255,7 +256,7 @@ echo <<<HTML
         <div class="upper-right">
           <img
             class="js-loading"
-            src="{$base_url}images/ajax-loader.gif"
+            src="images/ajax-loader.gif"
             alt="loading"
           />
         </div>
@@ -294,8 +295,8 @@ if ($prev_month === 0) {
   $prev_month = 12;
   $year_of_prev_month = $year - 1;
 }
-$prev_url = $base_url . $nav_url_fragment .
-  "year/{$year_of_prev_month}/month/{$prev_month}";
+$prev_url = $nav_url_fragment .
+  "year/{$year_of_prev_month}/month/{$prev_month}/";
 
 $next_month = $month + 1;
 $year_of_next_month = $year;
@@ -303,8 +304,8 @@ if ($next_month === 13) {
   $next_month = 1;
   $year_of_next_month = $year + 1;
 }
-$next_url = $base_url . $nav_url_fragment .
-  "year/{$year_of_next_month}/month/{$next_month}";
+$next_url = $nav_url_fragment .
+  "year/{$year_of_next_month}/month/{$next_month}/";
 
 $month_name = $month_beginning_timestamp->format('F');
 
@@ -322,8 +323,8 @@ echo <<<HTML
 HTML;
 if (DEV) {
   echo <<<HTML
-    <script src="{$base_url}js/jspm_packages/system.js"></script>
-    <script src="{$base_url}js/config.js"></script>
+    <script src="js/jspm_packages/system.js"></script>
+    <script src="js/config.js"></script>
     <script>
       System.import("script.js");
     </script>
@@ -331,7 +332,7 @@ if (DEV) {
 HTML;
 } else {
   echo <<<HTML
-    <script src="{$base_url}js/build.js"></script>
+    <script src="js/build.js"></script>
 
 HTML;
 }

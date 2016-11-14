@@ -28,7 +28,6 @@ type Props = {
   entryInfo: EntryInfo,
   squadInfo: SquadInfo,
   thisURL: string,
-  baseURL: string,
   sessionID: string,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setModal: (modal: React.Element<any>) => void,
@@ -165,7 +164,6 @@ class Entry extends React.Component {
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
-          baseURL={this.props.baseURL}
           className="entry-loading"
         />
         {actionLinks}
@@ -231,7 +229,7 @@ class Entry extends React.Component {
     } else {
       payload['timestamp'] = Date.now();
     }
-    const response = await fetchJSON(this.props.baseURL, 'save.php', payload);
+    const response = await fetchJSON('save.php', payload);
 
     if (curSaveAttempt === this.saveAttemptIndex) {
       this.setState({ 
@@ -284,6 +282,7 @@ class Entry extends React.Component {
   }
 
   async delete(serverID: ?string, focusOnNextEntry: bool) {
+    event.preventDefault();
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.entryInfo.day.toString();
       const dayEntryInfos = prevState.entryInfos[dayString];
@@ -301,7 +300,7 @@ class Entry extends React.Component {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
-      await fetchJSON(this.props.baseURL, 'delete_entry.php', {
+      await fetchJSON('delete_entry.php', {
         'id': serverID,
         'prev_text': this.props.entryInfo.text,
         'session_id': this.props.sessionID,
@@ -313,6 +312,7 @@ class Entry extends React.Component {
   }
 
   onHistory(event: SyntheticEvent) {
+    event.preventDefault();
     this.props.setModal(
       <HistoryModal
         mode="entry"
@@ -331,7 +331,6 @@ Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
   squadInfo: squadInfoPropType.isRequired,
   thisURL: React.PropTypes.string.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
@@ -347,7 +346,6 @@ export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
     thisURL: thisURL(state),
-    baseURL: state.navInfo.baseURL,
     sessionID: state.sessionID,
   }),
   mapStateToUpdateStore,

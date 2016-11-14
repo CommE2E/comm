@@ -16,7 +16,6 @@ import { mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
   squadInfo: SquadInfo,
-  baseURL: string,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
@@ -69,7 +68,6 @@ class TypeaheadOptionButtons extends React.Component {
         <li>
           <LoadingIndicator
             status={this.state.loadingStatus}
-            baseURL={this.props.baseURL}
             className="squad-nav-option-buttons-loading"
           />
           <a href='#' onClick={this.subscribe.bind(this)}>
@@ -81,6 +79,7 @@ class TypeaheadOptionButtons extends React.Component {
   }
 
   async subscribe(event: SyntheticEvent) {
+    event.preventDefault();
     event.stopPropagation();
     if (this.state.loadingStatus === "loading") {
       return;
@@ -89,7 +88,7 @@ class TypeaheadOptionButtons extends React.Component {
       loadingStatus: "loading",
     });
     const newSubscribed = !this.props.squadInfo.subscribed;
-    const response = await fetchJSON(this.props.baseURL, 'subscribe.php', {
+    const response = await fetchJSON('subscribe.php', {
       'squad': this.props.squadInfo.id,
       'subscribe': newSubscribed ? 1 : 0,
     });
@@ -114,6 +113,7 @@ class TypeaheadOptionButtons extends React.Component {
   }
 
   edit(event: SyntheticEvent) {
+    event.preventDefault();
     event.stopPropagation();
     this.props.freezeTypeahead(this.props.squadInfo.id);
     const onClose = () => {
@@ -132,7 +132,6 @@ class TypeaheadOptionButtons extends React.Component {
 
 TypeaheadOptionButtons.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  baseURL: React.PropTypes.string.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
@@ -141,8 +140,6 @@ TypeaheadOptionButtons.propTypes = {
 };
 
 export default connect(
-  (state: AppState) => ({
-    baseURL: state.navInfo.baseURL,
-  }),
+  undefined,
   mapStateToUpdateStore,
 )(TypeaheadOptionButtons);
