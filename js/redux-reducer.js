@@ -9,7 +9,7 @@ import invariant from 'invariant';
 export type NavInfo = {
   year: number,
   month: number, // 1-indexed
-  home: ?bool,
+  home: bool,
   squadID: ?string,
   entriesLoadingStatus: LoadingStatus,
 }

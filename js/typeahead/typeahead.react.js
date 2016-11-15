@@ -22,6 +22,8 @@ import { currentNavID } from '../nav-utils';
 type Props = {
   currentNavID: string,
   squadInfos: {[id: string]: SquadInfo},
+  currentlyHome: bool,
+  currentSquadID: ?string,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -68,11 +70,28 @@ class Typeahead extends React.Component {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     this.buildSearchIndex();
+    // Navigational event occurred?
     if (this.props.currentNavID !== prevProps.currentNavID) {
-      this.setActive(false);
-      this.setState({
-        typeaheadValue: Typeahead.getCurrentNavName(this.props),
-      });
+      // Update the text at the top of the typeahead
+      this.setState(
+        { typeaheadValue: Typeahead.getCurrentNavName(this.props) },
+        () => {
+          // If the typeahead is active, we should reselect
+          if (this.state.active) {
+            const input = this.input;
+            invariant(input, "ref should be set");
+            input.focus();
+            input.select();
+          }
+        },
+      );
+      // If this was an intentional navigation, close the typeahead
+      if (
+        this.props.currentlyHome !== prevProps.currentlyHome ||
+        this.props.currentSquadID !== prevProps.currentSquadID
+      ) {
+        this.setActive(false);
+      }
     }
   }
 
@@ -388,6 +407,8 @@ class Typeahead extends React.Component {
 Typeahead.propTypes = {
   currentNavID: React.PropTypes.string.isRequired,
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  currentlyHome: React.PropTypes.bool.isRequired,
+  currentSquadID: React.PropTypes.string,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
@@ -395,4 +416,6 @@ Typeahead.propTypes = {
 export default connect((state: AppState) => ({
   currentNavID: currentNavID(state),
   squadInfos: state.squadInfos,
+  currentlyHome: state.navInfo.home,
+  currentSquadID: state.navInfo.squadID,
 }))(Typeahead);

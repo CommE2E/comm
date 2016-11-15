@@ -110,18 +110,23 @@ class TypeaheadOptionButtons extends React.Component {
       })(),
     ]);
     if (response.success) {
-      if (this.mounted) {
-        this.setState({
-          loadingStatus: "inactive",
+      const updateStoreCallback = () => {
+        this.props.updateStore((prevState: AppState) => {
+          const updateParam = { squadInfos: {} };
+          updateParam.squadInfos[this.props.squadInfo.id] = {
+            subscribed: { $set: newSubscribed },
+          };
+          return update(prevState, updateParam);
         });
+      };
+      if (this.mounted) {
+        this.setState(
+          { loadingStatus: "inactive" },
+          updateStoreCallback,
+        );
+      } else {
+        updateStoreCallback();
       }
-      this.props.updateStore((prevState: AppState) => {
-        const updateParam = { squadInfos: {} };
-        updateParam.squadInfos[this.props.squadInfo.id] = {
-          subscribed: { $set: newSubscribed },
-        };
-        return update(prevState, updateParam);
-      });
     } else {
       this.setState({
         loadingStatus: "error",

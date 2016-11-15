@@ -211,10 +211,6 @@ while ($row = $result->fetch_assoc()) {
   );
 }
 
-$js_home = $original_home
-  ? 'true'
-  : ($original_home === false ? 'false' : 'null');
-
 ?>
 <!DOCTYPE html>
 <html lang="en" class="no-js">
@@ -241,7 +237,7 @@ $js_home = $original_home
       var show = "<?=$show?>";
       var verify = "<?=$verify?>";
       var reset_password_username = "<?=$reset_password_username?>";
-      var home = <?=$js_home?>;
+      var home = <?=$original_home ? 'true' : 'false'?>;
       var squad_id = <?=$original_squad ? "'$original_squad'" : "null"?>;
     </script>
   </head>

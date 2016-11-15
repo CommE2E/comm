@@ -26,7 +26,7 @@ declare var year: number;
 declare var show: string;
 declare var verify: string;
 declare var reset_password_username: string;
-declare var home: ?bool;
+declare var home: bool;
 declare var squad_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
