@@ -92,10 +92,23 @@ class TypeaheadOptionButtons extends React.Component {
       loadingStatus: "loading",
     });
     const newSubscribed = !this.props.squadInfo.subscribed;
-    const response = await fetchJSON('subscribe.php', {
-      'squad': this.props.squadInfo.id,
-      'subscribe': newSubscribed ? 1 : 0,
-    });
+    const [ response ] = await Promise.all([
+      fetchJSON('subscribe.php', {
+        'squad': this.props.squadInfo.id,
+        'subscribe': newSubscribed ? 1 : 0,
+      }),
+      (async () => {
+        if (this.props.currentNavID === "home" && newSubscribed) {
+          // If we are on home and just subscribed to a squad we need to load it
+          await fetchEntriesAndUpdateStore(
+            this.props.year,
+            this.props.month,
+            this.props.squadInfo.id,
+            this.props.updateStore,
+          );
+        }
+      })(),
+    ]);
     if (response.success) {
       if (this.mounted) {
         this.setState({
@@ -109,15 +122,6 @@ class TypeaheadOptionButtons extends React.Component {
         };
         return update(prevState, updateParam);
       });
-      if (this.props.currentNavID === "home" && newSubscribed) {
-        // If we are on home and just subscribed to a squad, we need to load it
-        await fetchEntriesAndUpdateStore(
-          this.props.year,
-          this.props.month,
-          this.props.squadInfo.id,
-          this.props.updateStore,
-        );
-      }
     } else {
       this.setState({
         loadingStatus: "error",
