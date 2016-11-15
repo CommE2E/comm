@@ -66,8 +66,14 @@ class Typeahead extends React.Component {
     return props.squadInfos[props.currentNavID].name;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     this.buildSearchIndex();
+    if (this.props.currentNavID !== prevProps.currentNavID) {
+      this.setActive(false);
+      this.setState({
+        typeaheadValue: Typeahead.getCurrentNavName(this.props),
+      });
+    }
   }
 
   buildSearchIndex() {
@@ -286,18 +292,15 @@ class Typeahead extends React.Component {
   }
 
   setActive(active: bool) {
+    let setFocus = null;
     this.setState(
       (prevState, props) => {
         if (prevState.frozen || active === prevState.active) {
           return {};
         }
         let typeaheadValue = prevState.typeaheadValue;
-        if (active) {
-          invariant(this.input, "ref should be set");
-          this.input.select();
-          invariant(this.input, "ref should be set");
-          this.input.focus();
-        } else {
+        setFocus = active;
+        if (!active) {
           typeaheadValue = Typeahead.getCurrentNavName(this.props);
         }
         return {
@@ -305,6 +308,16 @@ class Typeahead extends React.Component {
           searchActive: prevState.searchActive && active,
           typeaheadValue: typeaheadValue,
         };
+      },
+      () => {
+        const input = this.input;
+        invariant(input, "ref should be set");
+        if (setFocus === true) {
+          input.select();
+          input.focus();
+        } else if (setFocus === false) {
+          input.blur();
+        }
       },
     );
   }
@@ -344,7 +357,8 @@ class Typeahead extends React.Component {
   }
 
   unfreeze() {
-    this.setState({ frozen: false, frozenNavID: null, active: false });
+    this.setState({ frozen: false, frozenNavID: null });
+    this.setActive(false);
   }
 
   isActive() {

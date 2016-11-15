@@ -211,7 +211,9 @@ class Entry extends React.Component {
     }
 
     const curSaveAttempt = ++this.saveAttemptIndex;
-    this.setState({ loadingStatus: "loading" });
+    if (this.mounted) {
+      this.setState({ loadingStatus: "loading" });
+    }
 
     const entryID = serverID ? serverID : "-1";
     const payload: Object = {
@@ -231,7 +233,7 @@ class Entry extends React.Component {
     }
     const response = await fetchJSON('save.php', payload);
 
-    if (curSaveAttempt === this.saveAttemptIndex) {
+    if (this.mounted && curSaveAttempt === this.saveAttemptIndex) {
       this.setState({ 
         loadingStatus: response.success ? "inactive" : "error",
       });
@@ -250,6 +252,7 @@ class Entry extends React.Component {
       const needsUpdate = this.needsUpdateAfterCreation;
       if (needsUpdate && !this.mounted) {
         await this.delete(newServerID, false);
+        return;
       }
       this.creating = false;
       this.needsUpdateAfterCreation = false;
@@ -260,20 +263,18 @@ class Entry extends React.Component {
         );
         await this.save(newServerID, this.textarea.value);
       }
-      if (this.mounted) {
-        // This is to update the server ID in the Redux store
-        this.props.updateStore((prevState: AppState) => {
-          const dayString = this.props.entryInfo.day.toString();
-          const entryInfo = prevState.entryInfos[dayString];
-          invariant(this.props.entryInfo.localID, "localID should be set");
-          const localIDString = this.props.entryInfo.localID.toString();
-          const saveObj = {};
-          saveObj[dayString] = {};
-          saveObj[dayString][localIDString] = {};
-          saveObj[dayString][localIDString]["id"] = { $set: newServerID };
-          return update(prevState, { entryInfos: saveObj });
-        });
-      }
+      // This is to update the server ID in the Redux store
+      this.props.updateStore((prevState: AppState) => {
+        const dayString = this.props.entryInfo.day.toString();
+        const entryInfo = prevState.entryInfos[dayString];
+        invariant(this.props.entryInfo.localID, "localID should be set");
+        const localIDString = this.props.entryInfo.localID.toString();
+        const saveObj = {};
+        saveObj[dayString] = {};
+        saveObj[dayString][localIDString] = {};
+        saveObj[dayString][localIDString]["id"] = { $set: newServerID };
+        return update(prevState, { entryInfos: saveObj });
+      });
     }
   }
 

@@ -11,11 +11,10 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { Router, Route } from 'react-router';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
-import useBasename from 'history/lib/useBasename';
 
 import App from './app.react';
 import reducer from './redux-reducer';
+import history from './router-history';
 
 declare var username: string;
 declare var email: string;
@@ -24,7 +23,6 @@ declare var squad_infos: {[id: string]: SquadInfo};
 declare var entry_infos: {[day: string]: {[id: string]: EntryInfo}};
 declare var month: number;
 declare var year: number;
-declare var base_url: string;
 declare var show: string;
 declare var verify: string;
 declare var reset_password_username: string;
@@ -40,6 +38,7 @@ const store = createStore(
       month: month,
       home: home,
       squadID: squad_id,
+      entriesLoadingStatus: "inactive",
     },
     loggedIn: !!email,
     username: username,
@@ -54,7 +53,6 @@ const store = createStore(
   }: AppState),
 );
 
-const history = useBasename(createBrowserHistory)({ basename: base_url });
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>

@@ -174,8 +174,7 @@ if (user_logged_in()) {
 }
 
 // Fetch the actual text for each day
-$days_in_month = $month_beginning_timestamp->format('t');
-$entries = array_fill(1, $days_in_month, array());
+$entries = array_fill(1, 31, array());
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
@@ -255,7 +254,7 @@ echo <<<HTML
         <h1>SquadCal</h1>
         <div class="upper-right">
           <img
-            class="js-loading"
+            class="page-loading"
             src="images/ajax-loader.gif"
             alt="loading"
           />
@@ -313,9 +312,9 @@ echo <<<HTML
           </div>
         </div>
         <h2 class="upper-center">
-          <a href="{$prev_url}">&lt;</a>
+          <a href="{$prev_url}" class="previous-month-link">&lt;</a>
           $month_name $year
-          <a href="{$next_url}">&gt;</a>
+          <a href="{$next_url}" class="next-month-link">&gt;</a>
         </h2>
       </header>
     </div>

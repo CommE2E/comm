@@ -13,6 +13,7 @@ import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import SquadSettingsModal from '../modals/squad-settings-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
+import { currentNavID, fetchEntriesAndUpdateStore } from '../nav-utils';
 
 type Props = {
   squadInfo: SquadInfo,
@@ -20,6 +21,9 @@ type Props = {
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
+  currentNavID: string,
+  year: number,
+  month: number,
   updateStore: UpdateStore,
 };
 type State = {
@@ -105,6 +109,15 @@ class TypeaheadOptionButtons extends React.Component {
         };
         return update(prevState, updateParam);
       });
+      if (this.props.currentNavID === "home" && newSubscribed) {
+        // If we are on home and just subscribed to a squad, we need to load it
+        await fetchEntriesAndUpdateStore(
+          this.props.year,
+          this.props.month,
+          this.props.squadInfo.id,
+          this.props.updateStore,
+        );
+      }
     } else {
       this.setState({
         loadingStatus: "error",
@@ -136,10 +149,17 @@ TypeaheadOptionButtons.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
+  currentNavID: React.PropTypes.string.isRequired,
+  year: React.PropTypes.number.isRequired,
+  month: React.PropTypes.number.isRequired,
   updateStore: React.PropTypes.func.isRequired,
 };
 
 export default connect(
-  undefined,
+  (state: AppState) => ({
+    currentNavID: currentNavID(state),
+    year: state.navInfo.year,
+    month: state.navInfo.month,
+  }),
   mapStateToUpdateStore,
 )(TypeaheadOptionButtons);

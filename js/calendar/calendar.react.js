@@ -11,7 +11,8 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import Day from './day.react';
-import { getDate} from '../date-utils';
+import { getDate } from '../date-utils';
+import { onScreenSquadInfos } from '../squad-utils';
 
 type Props = {
   year: number,
@@ -19,6 +20,7 @@ type Props = {
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
+  onScreenSquadInfos: SquadInfo[],
 };
 
 class Calendar extends React.Component {
@@ -55,10 +57,13 @@ class Calendar extends React.Component {
       if (curDayOfMonth < 1 || curDayOfMonth > totalDaysInMonth) {
         columns.push(<td key={curDayOfMonth} />);
       } else {
-        const entries = _.sortBy(
-          this.props.entryInfos[curDayOfMonth.toString()],
-          "creationTime",
-        );
+        const entries = _.chain(this.props.entryInfos[curDayOfMonth.toString()])
+          .filter(
+            (entryInfo) => entryInfo.year === this.props.year &&
+              entryInfo.month === this.props.month &&
+              _.some(this.props.onScreenSquadInfos, ['id', entryInfo.squadID])
+          ).sortBy("creationTime")
+          .value();
         columns.push(
           <Day
             year={this.props.year}
@@ -107,10 +112,12 @@ Calendar.propTypes = {
   ).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
+  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
 };
 
 export default connect((state: AppState) => ({
   year: state.navInfo.year,
   month: state.navInfo.month,
   entryInfos: state.entryInfos,
+  onScreenSquadInfos: onScreenSquadInfos(state),
 }))(Calendar);

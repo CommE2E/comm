@@ -2,24 +2,29 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
-import type { AppState } from '../redux-reducer';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import LogInModal from './account/log-in-modal.react';
-import { thisURL, monthURL } from '../nav-utils';
+import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
+import { mapStateToUpdateStore } from '../redux-utils'
+import history from '../router-history';
 
 type Props = {
   squadInfo: SquadInfo,
-  thisURL: string,
   monthURL: string,
   loggedIn: bool,
+  year: number,
+  month: number,
   setModal: (modal: React.Element<any>) => void,
   onClose: () => void,
+  updateStore: UpdateStore,
 };
 type State = {
   password: string,
@@ -119,8 +124,23 @@ class SquadLoginModal extends React.Component {
       'password': this.state.password,
     });
     if (response.success) {
-      window.location.href = this.props.monthURL
-        + "&squad=" + this.props.squadInfo.id;
+      this.props.updateStore((prevState: AppState) => {
+        const updateObj = {};
+        updateObj[this.props.squadInfo.id] = {
+          authorized: { $set: true },
+        };
+        return update(prevState, {
+          squadInfos: updateObj,
+        });
+      });
+      this.props.onClose();
+      history.push(`squad/${this.props.squadInfo.id}/${this.props.monthURL}`);
+      await fetchEntriesAndUpdateStore(
+        this.props.year,
+        this.props.month,
+        this.props.squadInfo.id,
+        this.props.updateStore,
+      );
       return;
     }
 
@@ -144,7 +164,6 @@ class SquadLoginModal extends React.Component {
     event.preventDefault();
     this.props.setModal(
       <LogInModal
-        thisURL={this.props.thisURL}
         onClose={this.props.onClose}
         setModal={this.props.setModal}
       />
@@ -155,15 +174,21 @@ class SquadLoginModal extends React.Component {
 
 SquadLoginModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
+  year: React.PropTypes.number.isRequired,
+  month: React.PropTypes.number.isRequired,
   setModal: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-  monthURL: monthURL(state),
-  loggedIn: state.loggedIn,
-}))(SquadLoginModal);
+export default connect(
+  (state: AppState) => ({
+    monthURL: monthURL(state),
+    loggedIn: state.loggedIn,
+    year: state.navInfo.year,
+    month: state.navInfo.month,
+  }),
+  mapStateToUpdateStore,
+)(SquadLoginModal);

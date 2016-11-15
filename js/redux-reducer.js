@@ -2,6 +2,7 @@
 
 import type { SquadInfo } from './squad-info';
 import type { EntryInfo } from './calendar/entry-info';
+import type { LoadingStatus } from './loading-indicator.react';
 
 import invariant from 'invariant';
 
@@ -10,6 +11,7 @@ export type NavInfo = {
   month: number, // 1-indexed
   home: ?bool,
   squadID: ?string,
+  entriesLoadingStatus: LoadingStatus,
 }
 
 export type AppState = {

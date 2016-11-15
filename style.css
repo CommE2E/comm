@@ -171,6 +171,7 @@ div.squad-nav {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
+  float: left;
 }
 div.squad-nav-current {
   min-width: 170px;
@@ -341,6 +342,16 @@ div.nav-button:hover > div.nav-menu {
 
 h2.upper-center {
   text-align: center;
+}
+h2.upper-center > a.previous-month-link {
+  position: absolute;
+  left: 50%;
+  margin-left: -100px;
+}
+h2.upper-center > a.next-month-link {
+  position: absolute;
+  right: 50%;
+  margin-right: -100px;
 }
 
 div.lower-left {
@@ -891,7 +902,8 @@ div.new-squad-privacy-container {
   margin-top: -6px;
 }
 
-img.js-loading {
-  margin-top: 5px;
-  margin-right: 7px;
+img.page-loading {
+  margin-top: 7px;
+  margin-right: 10px;
+  float: left;
 }
