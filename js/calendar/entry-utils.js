@@ -4,12 +4,12 @@ import type { EntryInfo } from './entry-info';
 
 import invariant from 'invariant';
 
-function entryID(entryInfo: EntryInfo): string {
+function entryKey(entryInfo: EntryInfo): string {
   if (entryInfo.localID) {
-    return entryInfo.localID.toString();
+    return entryInfo.localID;
   }
   invariant(entryInfo.id, "localID should exist if ID does not");
   return entryInfo.id;
 }
 
-export { entryID }
+export { entryKey }

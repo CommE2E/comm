@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
-import { entryID } from './entry-utils';
+import { entryKey } from './entry-utils';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
 import { onScreenSquadInfos } from '../squad-utils';
@@ -56,7 +56,7 @@ class Day extends React.Component {
       pickerOpen: false,
       hovered: false,
     };
-    this.curLocalID = 1;
+    this.curLocalID = 0;
     this.entries = new Map();
   }
 
@@ -102,15 +102,15 @@ class Day extends React.Component {
     }
 
     const entries = this.props.entryInfos.map((entryInfo, i) => {
-      const id = entryID(entryInfo);
+      const key = entryKey(entryInfo);
       return <Entry
         entryInfo={entryInfo}
         focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan.bind(this)}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         tabIndex={this.props.startingTabIndex + i}
-        key={id}
-        ref={(entry) => this.entries.set(id, entry)}
+        key={key}
+        ref={(entry) => this.entries.set(key, entry)}
       />;
     });
 
@@ -206,7 +206,7 @@ class Day extends React.Component {
   }
 
   createNewEntry(squadID: string) {
-    const localID = this.curLocalID++;
+    const localID = `local${this.curLocalID++}`;
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.day.toString();
       const dayEntryInfos = prevState.entryInfos[dayString];
@@ -221,7 +221,7 @@ class Day extends React.Component {
       };
       const saveObj = {};
       saveObj[dayString] = {};
-      saveObj[dayString][localID.toString()] = { $set: newEntryInfo };
+      saveObj[dayString][localID] = { $set: newEntryInfo };
       return update(prevState, { entryInfos: saveObj });
     });
   }
@@ -248,7 +248,7 @@ class Day extends React.Component {
       (entryInfo) => entryInfo.creationTime > time,
     );
     if (entryInfo) {
-      const entry = this.entries.get(entryID(entryInfo));
+      const entry = this.entries.get(entryKey(entryInfo));
       invariant(entry, "entry for entryinfo should be defined");
       entry.getWrappedInstance().setFocus();
     }

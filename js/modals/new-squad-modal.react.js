@@ -293,7 +293,7 @@ class NewSquadModal extends React.Component {
     const description = this.state.description;
     const closed = this.state.closed;
     const color = this.state.color;
-    const response = await fetchJSON('new_squad.php', {
+    const response: {[key: string]: any} = await fetchJSON('new_squad.php', {
       'name': name,
       'description': description,
       'type': closed ? "closed" : "open",

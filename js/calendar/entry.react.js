@@ -265,15 +265,29 @@ class Entry extends React.Component {
       }
       // This is to update the server ID in the Redux store
       this.props.updateStore((prevState: AppState) => {
+        const localID = this.props.entryInfo.localID;
+        invariant(localID, "we should have a localID");
         const dayString = this.props.entryInfo.day.toString();
-        const entryInfo = prevState.entryInfos[dayString];
-        invariant(this.props.entryInfo.localID, "localID should be set");
-        const localIDString = this.props.entryInfo.localID.toString();
-        const saveObj = {};
-        saveObj[dayString] = {};
-        saveObj[dayString][localIDString] = {};
-        saveObj[dayString][localIDString]["id"] = { $set: newServerID };
-        return update(prevState, { entryInfos: saveObj });
+        const dayEntryInfos = prevState.entryInfos[dayString];
+        let newDayEntryInfos;
+        // If an entry with this serverID already got into the store somehow
+        // (likely through an unrelated request), we need to dedup them.
+        if (dayEntryInfos[newServerID]) {
+          // It's fair to assume the serverID entry is newer than the localID
+          // entry, and this probably won't happen often, so for now we can just
+          // keep the serverID entry.
+          newDayEntryInfos = _.omitBy(dayEntryInfos, (candidate) =>
+            candidate.localID === localID
+          );
+        } else {
+          newDayEntryInfos = _.mapKeys(dayEntryInfos, (entryInfo, oldKey) =>
+            entryInfo.localID === localID ? newServerID : oldKey
+          );
+          newDayEntryInfos[newServerID].id = newServerID;
+        }
+        const updateObj = {};
+        updateObj[dayString] = { $set: newDayEntryInfos };
+        return update(prevState, { entryInfos: updateObj });
       });
     }
   }

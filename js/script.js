@@ -55,12 +55,32 @@ const store = createStore(
   }: AppState),
 );
 
-// Warning: our root index route resolution only works on load. For one,
-// thisNavURLFragment's inputs don't get updated when the Redux store changes.
-// But the real reason we do it this way is that we want to enforce the
-// condition (home || squadID) for simplicity. We could probably get around the
-// former issue using react-router's onEnter. Note that having the route config
-// itself be a Redux container isn't supported by react-router.
+// Okay, so the way Redux and react-router interact in this app is a bit complex
+// and worth explaining. On the initial load, the navInfo in the Redux store is
+// the ground truth for navigational state (rather than react-router's parsed
+// route). The reason for this is that the user may have entered in a URL that
+// needs to get redirected. In that case, the server returns the Redux state in
+// the post-redirection state (so as to enable us to make certain guarantees
+// about the Redux state at all times), but obviously the initial route is
+// incorrect. The <Redirect> below looks at the Redux store to determine how to
+// set the route, and the initial route replaced with one that is consistent
+// with the Redux state.
+//
+// However, the normal propagation throughout the rest of the app's lifetime is
+// reversed: the ground truth is in the react-router route, and this gets passed
+// down to the <App> component, which then updates the Redux store.
+// Consequently, to change the navigational state throughout the app, use
+// the react-router history.push method. The reason for this is that actual
+// back/forward browser events need to change Redux state, and our way of
+// intercepting them is through react-router.
+//
+// Warning: our <Redirect> logic below only works on load. For one, the
+// thisNavURLFragment call below only happens once, and consequently the
+// <Redirect> doesn't get updated when the Redux store changes. In fact,
+// changing route configs dynamically is not well supported in react-router
+// anyways. If we ever need to support browser.push('/'), we could look into
+// using react-router's onEnter method to do the redirect dynamically based on
+// Redux state.
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>

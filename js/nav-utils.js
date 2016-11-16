@@ -77,16 +77,21 @@ async function fetchEntriesAndUpdateStore(
     });
     return;
   }
-  // TODO: here, make sure we keep localIDs as keys if we can
-  // TODO: make sure localIDs don't collide with serverIDs
-  // TODO: in Entry when we set the serverID, rekey the entryInfo in Redux
   updateStore((prevState: AppState) => {
     const newEntries = _.chain(response.result)
       .groupBy((entryInfo) => entryInfo.day)
       .mapValues(
-        (entryInfoGroup) => _.chain(entryInfoGroup)
+        (entryInfoGroup, day) => _.chain(entryInfoGroup)
           .keyBy('id')
-          .mapValues((result) => ({ $set: result }))
+          .mapValues((result) => {
+            // Try to preserve localIDs. This is because we use them as React
+            // keys and we would prefer not to have to change those.
+            const currentEntryInfo = prevState.entryInfos[day][result.id];
+            if (currentEntryInfo && currentEntryInfo.localID) {
+              result.localID = currentEntryInfo.localID;
+            }
+            return { $set: result };
+          })
           .value(),
       ).value();
     return update(prevState, {
