@@ -1,27 +1,22 @@
 // @flow
 
 import type { NavInfo, AppState, UpdateStore } from './redux-reducer';
-import type { SquadInfo } from './squad-info';
 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 import update from 'immutability-helper';
+import invariant from 'invariant';
 
 import fetchJSON from './fetch-json';
 
 const currentNavID = createSelector(
   (state: AppState) => state.navInfo,
-  (state: AppState) => state.squadInfos,
-  (navInfo: NavInfo, squadInfos: {[id: string]: SquadInfo}) => {
+  (navInfo: NavInfo) => {
     if (navInfo.home) {
       return "home";
-    } else if (navInfo.squadID) {
-      return navInfo.squadID;
-    } else if (_.some(squadInfos, 'subscribed')) {
-      return "home";
-    } else {
-      return "254";
     }
+    invariant(navInfo.squadID, "either home or squadID should be set");
+    return navInfo.squadID;
   },
 );
 
@@ -41,10 +36,9 @@ const thisNavURLFragment = createSelector(
   (navInfo: NavInfo) => {
     if (navInfo.home) {
       return "home/";
-    } else if (navInfo.squadID) {
-      return `squad/${navInfo.squadID}/`;
     }
-    return "";
+    invariant(navInfo.squadID, "either home or squadID should be set");
+    return `squad/${navInfo.squadID}/`;
   },
 );
 

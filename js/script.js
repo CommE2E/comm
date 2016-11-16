@@ -8,13 +8,12 @@ import type { AppState } from './redux-reducer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import { Router, Route } from 'react-router';
 
-import App from './app.react';
 import reducer from './redux-reducer';
-import history from './router-history';
+import AppRouter from './app-router.react';
 
 declare var username: string;
 declare var email: string;
@@ -30,6 +29,14 @@ declare var home: bool;
 declare var squad_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
+if (!home && !squad_id) {
+  if (_.some(squad_infos, 'subscribed')) {
+    home = true;
+  } else {
+    squad_id = "254";
+  }
+}
+
 const store = createStore(
   reducer,
   ({
@@ -54,17 +61,6 @@ const store = createStore(
 );
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <Route
-        path="/"
-        component={App}
-      />
-      <Route
-        path="(home/)(squad/:squadID/)(year/:year/)(month/:month/)"
-        component={App}
-      />
-    </Router>
-  </Provider>,
+  <Provider store={store}><AppRouter /></Provider>,
   document.getElementById('react-root'),
 );
