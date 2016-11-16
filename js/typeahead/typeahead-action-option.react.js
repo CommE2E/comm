@@ -77,6 +77,7 @@ class TypeaheadActionOption extends React.Component {
         );
       }
     } else if (this.props.navID == 'home') {
+      this.props.unfreezeTypeahead();
       history.push(`home/${this.props.monthURL}`);
       await fetchEntriesAndUpdateStore(
         this.props.year,

@@ -18,12 +18,14 @@ import TypeaheadSquadOption from './typeahead-squad-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SearchIndex from './search-index';
 import { currentNavID } from '../nav-utils';
+import { subscriptionExists } from '../squad-utils';
 
 type Props = {
   currentNavID: string,
   squadInfos: {[id: string]: SquadInfo},
   currentlyHome: bool,
   currentSquadID: ?string,
+  subscriptionExists: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -55,17 +57,17 @@ class Typeahead extends React.Component {
       searchActive: false,
       frozen: false,
       frozenNavID: null,
-      typeaheadValue: Typeahead.getCurrentNavName(props),
+      typeaheadValue: this.getCurrentNavName(),
       searchResults: [],
     };
     this.buildSearchIndex();
   }
 
-  static getCurrentNavName(props: Props) {
-    if (props.currentNavID === "home") {
+  getCurrentNavName() {
+    if (this.props.currentNavID === "home") {
       return TypeaheadActionOption.homeText;
     }
-    return props.squadInfos[props.currentNavID].name;
+    return this.props.squadInfos[this.props.currentNavID].name;
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -74,7 +76,7 @@ class Typeahead extends React.Component {
     if (this.props.currentNavID !== prevProps.currentNavID) {
       // Update the text at the top of the typeahead
       this.setState(
-        { typeaheadValue: Typeahead.getCurrentNavName(this.props) },
+        { typeaheadValue: this.getCurrentNavName() },
         () => {
           // If the typeahead is active, we should reselect
           if (this.state.active) {
@@ -85,13 +87,6 @@ class Typeahead extends React.Component {
           }
         },
       );
-      // If this was an intentional navigation, close the typeahead
-      if (
-        this.props.currentlyHome !== prevProps.currentlyHome ||
-        this.props.currentSquadID !== prevProps.currentSquadID
-      ) {
-        this.setActive(false);
-      }
     }
   }
 
@@ -101,7 +96,7 @@ class Typeahead extends React.Component {
       const squad = this.props.squadInfos[squadID];
       this.searchIndex.addEntry(squadID, squad.name + " " + squad.description);
     }
-    if (_.some(this.props.squadInfos, (squadInfo) => squadInfo.subscribed)) {
+    if (this.props.subscriptionExists) {
       this.searchIndex.addEntry("home", TypeaheadActionOption.homeText);
     }
     this.searchIndex.addEntry("new", TypeaheadActionOption.newText);
@@ -136,17 +131,13 @@ class Typeahead extends React.Component {
         </div>
       );
     } else if (this.state.active) {
-      let subscriptionExists = false;
       const subscribedInfos = [];
       const recommendedInfos = [];
       for (const squadID: string in this.props.squadInfos) {
-        const squadInfo = this.props.squadInfos[squadID];
-        if (squadInfo.subscribed) {
-          subscriptionExists = true;
-        }
         if (squadID === this.props.currentNavID) {
           continue;
         }
+        const squadInfo = this.props.squadInfos[squadID];
         if (squadInfo.subscribed) {
           subscribedInfos.push(squadInfo);
         } else {
@@ -155,7 +146,7 @@ class Typeahead extends React.Component {
       }
 
       const panes = [];
-      if (this.props.currentNavID !== "home" && subscriptionExists) {
+      if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
         panes.push(
           <div className="squad-nav-option-pane" key="home">
             <div className="squad-nav-option-pane-header">
@@ -320,7 +311,7 @@ class Typeahead extends React.Component {
         let typeaheadValue = prevState.typeaheadValue;
         setFocus = active;
         if (!active) {
-          typeaheadValue = Typeahead.getCurrentNavName(this.props);
+          typeaheadValue = this.getCurrentNavName();
         }
         return {
           active: active,
@@ -409,6 +400,7 @@ Typeahead.propTypes = {
   squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
   currentlyHome: React.PropTypes.bool.isRequired,
   currentSquadID: React.PropTypes.string,
+  subscriptionExists: React.PropTypes.bool.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
@@ -418,4 +410,5 @@ export default connect((state: AppState) => ({
   squadInfos: state.squadInfos,
   currentlyHome: state.navInfo.home,
   currentSquadID: state.navInfo.squadID,
+  subscriptionExists: subscriptionExists(state),
 }))(Typeahead);

@@ -26,4 +26,17 @@ const onScreenSquadInfos = createSelector(
   },
 );
 
-export { colorIsDark, onScreenSquadInfos }
+const subscriptionExistsIn = (squadInfos: {[id: string]: SquadInfo}) =>
+  _.some(squadInfos, 'subscribed');
+
+const subscriptionExists = createSelector(
+  (state: AppState) => state.squadInfos,
+  (squadInfos: {[id: string]: SquadInfo}) => subscriptionExistsIn(squadInfos),
+);
+
+export {
+  colorIsDark,
+  onScreenSquadInfos,
+  subscriptionExistsIn,
+  subscriptionExists,
+}

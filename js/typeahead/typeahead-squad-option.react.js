@@ -72,6 +72,7 @@ class TypeaheadSquadOption extends React.Component {
 
   async onClick(event: SyntheticEvent) {
     if (this.props.squadInfo.authorized) {
+      this.props.unfreezeTypeahead();
       history.push(`squad/${this.props.squadInfo.id}/${this.props.monthURL}`);
       await fetchEntriesAndUpdateStore(
         this.props.year,

@@ -11,9 +11,12 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
+import { Router, Route, Redirect } from 'react-router';
 
 import reducer from './redux-reducer';
-import AppRouter from './app-router.react';
+import App from './app.react';
+import history from './router-history';
+import { thisNavURLFragment } from './nav-utils';
 
 declare var username: string;
 declare var email: string;
@@ -60,7 +63,21 @@ const store = createStore(
   }: AppState),
 );
 
+// Warning: our root index route resolution only works on load. For one,
+// thisNavURLFragment's inputs don't get updated when the Redux store changes.
+// But the real reason we do it this way is that we want to enforce the
+// condition (home || squadID) for simplicity. We could probably get around the
+// former issue using react-router's onEnter. Note that having the route config
+// itself be a Redux container isn't supported by react-router.
 ReactDOM.render(
-  <Provider store={store}><AppRouter /></Provider>,
+  <Provider store={store}>
+    <Router history={history}>
+      <Redirect from="/" to={thisNavURLFragment(store.getState())} />
+      <Route
+        path="(home/)(squad/:squadID/)(year/:year/)(month/:month/)"
+        component={App}
+      />
+    </Router>
+  </Provider>,
   document.getElementById('react-root'),
 );

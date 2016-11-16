@@ -8,12 +8,14 @@ import type { AppState, UpdateStore } from '../redux-reducer';
 import React from 'react';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import SquadSettingsModal from '../modals/squad-settings-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
-import { currentNavID, fetchEntriesAndUpdateStore } from '../nav-utils';
+import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
+import history from '../router-history';
 
 type Props = {
   squadInfo: SquadInfo,
@@ -21,9 +23,11 @@ type Props = {
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
-  currentNavID: string,
   year: number,
   month: number,
+  squadInfos: {[id: string]: SquadInfo},
+  monthURL: string,
+  home: bool,
   updateStore: UpdateStore,
 };
 type State = {
@@ -98,7 +102,7 @@ class TypeaheadOptionButtons extends React.Component {
         'subscribe': newSubscribed ? 1 : 0,
       }),
       (async () => {
-        if (this.props.currentNavID === "home" && newSubscribed) {
+        if (this.props.home && newSubscribed) {
           // If we are on home and just subscribed to a squad we need to load it
           await fetchEntriesAndUpdateStore(
             this.props.year,
@@ -109,6 +113,18 @@ class TypeaheadOptionButtons extends React.Component {
         }
       })(),
     ]);
+    // If we are home and just killed the last subscription, redirect out
+    if (this.props.home && !newSubscribed) {
+      const subscriptionExists = _.some(
+        this.props.squadInfos,
+        (squadInfo: SquadInfo) => squadInfo.subscribed &&
+          squadInfo.id !== this.props.squadInfo.id,
+      );
+      if (!subscriptionExists) {
+        // TODO fix this special case of default squad 254
+        history.push(`squad/254/${this.props.monthURL}`);
+      }
+    }
     if (response.success) {
       const updateStoreCallback = () => {
         this.props.updateStore((prevState: AppState) => {
@@ -158,17 +174,21 @@ TypeaheadOptionButtons.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
-  currentNavID: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
+  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  monthURL: React.PropTypes.string.isRequired,
+  home: React.PropTypes.bool.isRequired,
   updateStore: React.PropTypes.func.isRequired,
 };
 
 export default connect(
   (state: AppState) => ({
-    currentNavID: currentNavID(state),
     year: state.navInfo.year,
     month: state.navInfo.month,
+    squadInfos: state.squadInfos,
+    monthURL: monthURL(state),
+    home: state.navInfo.home,
   }),
   mapStateToUpdateStore,
 )(TypeaheadOptionButtons);
