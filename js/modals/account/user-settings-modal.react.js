@@ -1,27 +1,29 @@
 // @flow
 
-import type { AppState } from '../../redux-reducer';
+import type { AppState, UpdateStore } from '../../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validEmailRegex } from './account-regexes';
 import VerifyEmailModal from './verify-email-modal.react';
-import { thisURL, monthURL } from '../../nav-utils';
+import { monthURL } from '../../nav-utils';
+import { mapStateToUpdateStore } from '../../redux-utils';
 
 type Tab = "general" | "delete";
 type Props = {
-  thisURL: string,
   monthURL: string,
   username: string,
   email: string,
   emailVerified: bool,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
+  updateStore: UpdateStore,
 };
 type State = {
   email: string,
@@ -281,16 +283,20 @@ class UserSettingsModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
+    const email = this.state.email;
     const response = await fetchJSON('edit_account.php', {
-      'email': this.state.email,
+      'email': email,
       'new_password': this.state.newPassword,
       'old_password': this.state.currentPassword,
     });
     if (response.success) {
       if (this.state.email !== this.props.email) {
-        window.location.href = this.props.thisURL + "&show=verify_email";
+        this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+        this.props.updateStore((prevState: AppState) => update(prevState, {
+          email: { $set: email },
+        }));
       } else {
-        window.location.href = this.props.thisURL;
+        this.props.onClose();
       }
       return;
     }
@@ -373,19 +379,21 @@ class UserSettingsModal extends React.Component {
 }
 
 UserSettingsModal.propTypes = {
-  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   username: React.PropTypes.string.isRequired,
   email: React.PropTypes.string.isRequired,
   emailVerified: React.PropTypes.bool.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-  monthURL: monthURL(state),
-  username: state.username,
-  email: state.email,
-  emailVerified: state.emailVerified,
-}))(UserSettingsModal);
+export default connect(
+  (state: AppState) => ({
+    monthURL: monthURL(state),
+    username: state.username,
+    email: state.email,
+    emailVerified: state.emailVerified,
+  }),
+  mapStateToUpdateStore,
+)(UserSettingsModal);

@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('squad_lib.php');
 
 header("Content-Type: application/json");
 
@@ -26,7 +27,8 @@ $username = $conn->real_escape_string($_POST['username']);
 $password = $_POST['password'];
 
 $result = $conn->query(
-  "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
+  "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash, ".
+    "username, email, email_verified ".
     "FROM users WHERE username = '$username' OR email = '$username'"
 );
 $user_row = $result->fetch_assoc();
@@ -42,8 +44,13 @@ if ($user_row['hash'] !== $hash) {
   )));
 }
 
-create_user_cookie($user_row['id']);
+$id = intval($user_row['id']);
+create_user_cookie($id);
 
 exit(json_encode(array(
   'success' => true,
+  'username' => $user_row['username'],
+  'email' => $user_row['email'],
+  'email_verified' => (bool)$user_row['email_verified'],
+  'squad_infos' => get_squad_infos($id),
 )));

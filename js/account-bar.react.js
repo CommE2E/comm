@@ -93,6 +93,7 @@ class AccountBar extends React.Component {
     this.props.setModal(
       <RegisterModal
         onClose={this.props.clearModal}
+        setModal={this.props.setModal}
       />
     );
   }

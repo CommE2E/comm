@@ -26,6 +26,7 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   squadInfos: {[id: string]: SquadInfo},
+  newSquadID: ?string,
 };
 
 export type UpdateCallback = (prevState: AppState) => AppState;

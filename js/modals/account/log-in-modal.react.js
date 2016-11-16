@@ -1,19 +1,20 @@
 // @flow
 
-import type { AppState } from '../../redux-reducer';
+import type { AppState, UpdateStore } from '../../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
 import ForgotPasswordModal from './forgot-password-modal.react';
-import { thisURL } from '../../nav-utils';
+import { mapStateToUpdateStore } from '../../redux-utils';
 
 type Props = {
-  thisURL: string,
+  updateStore: UpdateStore,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
 };
@@ -152,7 +153,14 @@ class LogInModal extends React.Component {
       'password': this.state.password,
     });
     if (response.success) {
-      window.location.href = this.props.thisURL;
+      this.props.onClose();
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        squadInfos: { $set: response.squad_infos },
+        email: { $set: response.email },
+        loggedIn: { $set: true },
+        username: { $set: response.username },
+        emailVerified: { $set: response.email_verified },
+      }));
       return;
     }
 
@@ -205,11 +213,12 @@ class LogInModal extends React.Component {
 }
 
 LogInModal.propTypes = {
-  thisURL: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-}))(LogInModal);
+export default connect(
+  undefined,
+  mapStateToUpdateStore,
+)(LogInModal);

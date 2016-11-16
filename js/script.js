@@ -8,7 +8,6 @@ import type { AppState } from './redux-reducer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import _ from 'lodash';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { Router, Route, Redirect } from 'react-router';
@@ -32,14 +31,6 @@ declare var home: bool;
 declare var squad_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
-if (!home && !squad_id) {
-  if (_.some(squad_infos, 'subscribed')) {
-    home = true;
-  } else {
-    squad_id = "254";
-  }
-}
-
 const store = createStore(
   reducer,
   ({
@@ -60,6 +51,7 @@ const store = createStore(
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     squadInfos: squad_infos,
+    newSquadID: null,
   }: AppState),
 );
 

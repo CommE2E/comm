@@ -1,18 +1,20 @@
 // @flow
 
+import type { AppState, UpdateStore } from '../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import type { AppState } from '../redux-reducer';
+import update from 'immutability-helper';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
-import { monthURL } from '../nav-utils';
+import { mapStateToUpdateStore } from '../redux-utils'
 
 type Props = {
-  monthURL: string,
   onClose: () => void,
+  updateStore: UpdateStore,
 };
 type State = {
   name: string,
@@ -288,16 +290,34 @@ class NewSquadModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
+    const description = this.state.description;
+    const closed = this.state.closed;
+    const color = this.state.color;
     const response = await fetchJSON('new_squad.php', {
       'name': name,
-      'description': this.state.description,
-      'type': this.state.closed ? "closed" : "open",
+      'description': description,
+      'type': closed ? "closed" : "open",
       'password': this.state.squadPassword,
-      'color': this.state.color,
+      'color': color,
     });
+    const newSquadID = response.new_squad_id.toString();
     if (response.success) {
-      window.location.href = this.props.monthURL
-        + "&squad=" + response.new_squad_id;
+      this.props.onClose();
+      const updateObj = {};
+      updateObj[newSquadID] = { $set: {
+        id: newSquadID,
+        name: name,
+        description: description,
+        authorized: true,
+        subscribed: true,
+        editable: true,
+        closed: closed,
+        color: color,
+      }};
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        squadInfos: updateObj,
+        newSquadID: { $set: newSquadID },
+      }));
       return;
     }
 
@@ -336,10 +356,11 @@ class NewSquadModal extends React.Component {
 }
 
 NewSquadModal.propTypes = {
-  monthURL: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 }
 
-export default connect((state: AppState) => ({
-  monthURL: monthURL(state),
-}))(NewSquadModal);
+export default connect(
+  undefined,
+  mapStateToUpdateStore,
+)(NewSquadModal);

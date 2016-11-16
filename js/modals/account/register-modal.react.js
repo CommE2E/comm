@@ -1,19 +1,22 @@
 // @flow
 
-import type { AppState } from '../../redux-reducer';
+import type { AppState, UpdateStore } from '../../redux-reducer';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
-import { thisURL } from '../../nav-utils';
+import { mapStateToUpdateStore } from '../../redux-utils';
+import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
-  thisURL: string,
+  updateStore: UpdateStore,
   onClose: () => void,
+  setModal: (modal: React.Element<any>) => void,
 };
 type State = {
   username: string,
@@ -206,13 +209,21 @@ class RegisterModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
+    const username = this.state.username;
+    const email = this.state.email;
     const response = await fetchJSON('register.php', {
-      'username': this.state.username,
-      'email': this.state.email,
+      'username': username,
+      'email': email,
       'password': this.state.password,
     });
     if (response.success) {
-      window.location.href = this.props.thisURL + "&show=verify_email";
+      this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        email: { $set: email },
+        loggedIn: { $set: true },
+        username: { $set: username },
+        emailVerified: { $set: false },
+      }));
       return;
     }
 
@@ -261,10 +272,12 @@ class RegisterModal extends React.Component {
 }
 
 RegisterModal.propTypes = {
-  thisURL: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-}))(RegisterModal);
+export default connect(
+  undefined,
+  mapStateToUpdateStore,
+)(RegisterModal);

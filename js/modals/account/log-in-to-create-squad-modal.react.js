@@ -56,6 +56,7 @@ class LogInToCreateSquadModal extends React.Component {
     this.props.setModal(
       <RegisterModal
         onClose={this.props.onClose}
+        setModal={this.props.setModal}
       />
     );
   }

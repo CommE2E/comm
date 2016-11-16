@@ -3,6 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('verify.php');
+require_once('squad_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -62,7 +63,6 @@ if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
-$viewer_id = get_viewer_id();
 
 $query_string = array();
 parse_str($_SERVER['QUERY_STRING'], $query_string);
@@ -97,47 +97,22 @@ if ($verify) {
   }
 }
 
-$result = $conn->query(
-  "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
-    "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." AS is_authed, ".
-    "r.subscribed, s.color, s.description FROM squads s ".
-    "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id}"
-);
-$rows = array();
+$viewer_id = get_viewer_id();
+$squad_infos = get_squad_infos($viewer_id);
+
 $subscription_exists = false;
-while ($row = $result->fetch_assoc()) {
-  $rows[] = $row;
-  $authorized = $row['is_authed'] || !$row['requires_auth'];
-  $subscribed_authorized = $authorized && $row['subscribed'];
-  if ($subscribed_authorized) {
+foreach ($squad_infos as $squad_info) {
+  if ($squad_info['subscribed']) {
     $subscription_exists = true;
+    break;
   }
 }
-
-$original_home = $home;
-$original_squad = $squad;
 if (!$home && $squad === null) {
   if ($subscription_exists) {
     $home = true;
   } else {
     $squad = 254;
   }
-}
-
-$squad_infos = array();
-foreach ($rows as $row) {
-  $authorized = $row['is_authed'] || !$row['requires_auth'];
-  $subscribed_authorized = $authorized && $row['subscribed'];
-  $squad_infos[$row['id']] = array(
-    'id' => $row['id'],
-    'name' => $row['name'],
-    'description' => $row['description'],
-    'authorized' => $authorized,
-    'subscribed' => $subscribed_authorized,
-    'editable' => (int)$row['role'] >= ROLE_CREATOR,
-    'closed' => (bool)$row['requires_auth'],
-    'color' => $row['color'],
-  );
 }
 if (
   ($home && !$subscription_exists) ||
@@ -237,8 +212,8 @@ while ($row = $result->fetch_assoc()) {
       var show = "<?=$show?>";
       var verify = "<?=$verify?>";
       var reset_password_username = "<?=$reset_password_username?>";
-      var home = <?=$original_home ? 'true' : 'false'?>;
-      var squad_id = <?=$original_squad ? "'$original_squad'" : "null"?>;
+      var home = <?=$home ? 'true' : 'false'?>;
+      var squad_id = <?=$squad ? "'$squad'" : "null"?>;
     </script>
   </head>
   <body>
@@ -277,11 +252,10 @@ HTML;
 HTML;
 }
 
-$nav_url_fragment = "";
-if ($original_home) {
+if ($home) {
   $nav_url_fragment = "home/";
-} else if ($original_squad) {
-  $nav_url_fragment = "squad/{$original_squad}/";
+} else {
+  $nav_url_fragment = "squad/{$squad}/";
 }
 
 $prev_month = $month - 1;

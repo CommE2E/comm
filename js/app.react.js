@@ -19,7 +19,6 @@ import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
 import Calendar from './calendar/calendar.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
-import VerifyEmailModal from './modals/account/verify-email-modal.react';
 import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import { getDate } from './date-utils';
@@ -59,10 +58,6 @@ class App extends React.Component {
     if (this.props.show === 'reset_password') {
       this.setModal(
         <ResetPasswordModal />
-      );
-    } else if (this.props.show === 'verify_email') {
-      this.setModal(
-        <VerifyEmailModal onClose={this.clearModal.bind(this)} />
       );
     } else if (this.props.show === 'verified_email') {
       this.setModal(

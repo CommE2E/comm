@@ -3,7 +3,7 @@
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
 import type { NavID } from './typeahead-action-option.react';
-import type { AppState } from '../redux-reducer';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -17,8 +17,10 @@ import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadSquadOption from './typeahead-squad-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SearchIndex from './search-index';
-import { currentNavID } from '../nav-utils';
+import { currentNavID, monthURL } from '../nav-utils';
 import { subscriptionExists } from '../squad-utils';
+import { mapStateToUpdateStore } from '../redux-utils';
+import history from '../router-history';
 
 type Props = {
   currentNavID: string,
@@ -26,6 +28,9 @@ type Props = {
   currentlyHome: bool,
   currentSquadID: ?string,
   subscriptionExists: bool,
+  newSquadID: ?string,
+  monthURL: string,
+  updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -87,6 +92,17 @@ class Typeahead extends React.Component {
           }
         },
       );
+    }
+    // New squad created by user?
+    if (
+      this.props.newSquadID &&
+      _.size(this.props.squadInfos) > _.size(prevProps.squadInfos) &&
+      this.props.squadInfos[this.props.newSquadID] !== undefined
+    ) {
+      history.push(`squad/${this.props.newSquadID}/${this.props.monthURL}`);
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        newSquadID: { $set: null },
+      }));
     }
   }
 
@@ -401,14 +417,22 @@ Typeahead.propTypes = {
   currentlyHome: React.PropTypes.bool.isRequired,
   currentSquadID: React.PropTypes.string,
   subscriptionExists: React.PropTypes.bool.isRequired,
+  newSquadID: React.PropTypes.string,
+  monthURL: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  currentNavID: currentNavID(state),
-  squadInfos: state.squadInfos,
-  currentlyHome: state.navInfo.home,
-  currentSquadID: state.navInfo.squadID,
-  subscriptionExists: subscriptionExists(state),
-}))(Typeahead);
+export default connect(
+  (state: AppState) => ({
+    currentNavID: currentNavID(state),
+    squadInfos: state.squadInfos,
+    currentlyHome: state.navInfo.home,
+    currentSquadID: state.navInfo.squadID,
+    subscriptionExists: subscriptionExists(state),
+    newSquadID: state.newSquadID,
+    monthURL: monthURL(state),
+  }),
+  mapStateToUpdateStore,
+)(Typeahead);
