@@ -22,12 +22,10 @@ import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
-import { thisURL } from '../nav-utils';
 
 type Props = {
   entryInfo: EntryInfo,
   squadInfo: SquadInfo,
-  thisURL: string,
   sessionID: string,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setModal: (modal: React.Element<any>) => void,
@@ -239,10 +237,30 @@ class Entry extends React.Component {
       });
     }
     if (response.error === 'concurrent_modification') {
+      invariant(serverID, "serverID should be set");
+      const onRefresh = () => {
+        const newText = response.db;
+        this.setState(
+          {
+            text: newText,
+            loadingStatus: "inactive",
+          },
+          this.updateHeight.bind(this),
+        );
+        // We need to update props.entryInfo.text so that prev_text is correct
+        this.props.updateStore((prevState: AppState) => {
+          const dayString = this.props.entryInfo.day.toString();
+          const updateObj = {};
+          updateObj[dayString] = {};
+          updateObj[dayString][serverID] = { text: { $set: newText } };
+          return update(prevState, { entryInfos: updateObj });
+        });
+        this.props.clearModal();
+      };
       this.props.setModal(
         <ConcurrentModificationModal
           onClose={this.props.clearModal}
-          thisURL={this.props.thisURL}
+          onRefresh={onRefresh}
         />
       );
       return;
@@ -345,7 +363,6 @@ class Entry extends React.Component {
 Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
   squadInfo: squadInfoPropType.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
@@ -360,7 +377,6 @@ type OwnProps = {
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
-    thisURL: thisURL(state),
     sessionID: state.sessionID,
   }),
   mapStateToUpdateStore,

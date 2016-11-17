@@ -5,7 +5,7 @@ import React from 'react';
 import Modal from './modal.react';
 
 type Props = {
-  thisURL: string,
+  onRefresh: () => void,
   onClose: () => void,
 };
 
@@ -15,14 +15,14 @@ export default function ConcurrentModificationModal(props: Props) {
       <div className="modal-body">
         <p>
           It looks like somebody is attempting to modify that field at the
-          same time as you! Please refresh the page and try again.
+          same time as you! Please refresh the entry and try again.
         </p>
         <div className="form-footer">
           <span className="form-submit">
             <input
               type="submit"
-              value="Refresh"
-              onClick={(e) => window.location.href = props.thisURL}
+              value="Refresh entry"
+              onClick={props.onRefresh}
             />
           </span>
         </div>
