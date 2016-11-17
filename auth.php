@@ -198,17 +198,16 @@ function delete_cookie($name) {
 
 // $expiration_time in seconds
 function set_cookie($name, $value, $expiration_time) {
-  global $base_url, $https;
+  global $base_url, $base_domain, $https;
 
-  $path = parse_url($base_url, PHP_URL_PATH);
-  $domain = parse_url($base_url, PHP_URL_HOST);
+  $domain = parse_url($base_domain, PHP_URL_HOST);
   $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
 
   setcookie(
     $name,
     $value,
     $expiration_time,
-    $path,
+    $base_url,
     $domain,
     $https, // HTTPS only
     true // no JS access
