@@ -14,6 +14,7 @@ import { validEmailRegex } from './account-regexes';
 import VerifyEmailModal from './verify-email-modal.react';
 import { monthURL } from '../../nav-utils';
 import { mapStateToUpdateStore } from '../../redux-utils';
+import history from '../../router-history';
 
 type Tab = "general" | "delete";
 type Props = {
@@ -356,7 +357,16 @@ class UserSettingsModal extends React.Component {
       'password': this.state.currentPassword,
     });
     if (response.success) {
-      window.location.href = this.props.monthURL;
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        squadInfos: { $set: response.squad_infos },
+        email: { $set: "" },
+        loggedIn: { $set: false },
+        username: { $set: "" },
+        emailVerified: { $set: false },
+      }));
+      // TODO fix this special case of default squad 254
+      history.replace(`squad/254/${this.props.monthURL}`);
+      this.props.onClose();
       return;
     }
 

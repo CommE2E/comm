@@ -1,20 +1,24 @@
 // @flow
 
-import type { AppState } from './redux-reducer';
+import type { AppState, UpdateStore } from './redux-reducer';
 
 import React from 'react';
 import { connect } from 'react-redux';
+import update from 'immutability-helper';
 
 import fetchJSON from './fetch-json';
 import LogInModal from './modals/account/log-in-modal.react';
 import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { monthURL } from './nav-utils';
+import { mapStateToUpdateStore } from './redux-utils';
+import history from './router-history';
 
 type Props = {
   monthURL: string,
   loggedIn: bool,
   username: string,
+  updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -64,8 +68,18 @@ class AccountBar extends React.Component {
 
   async onLogOut(event: SyntheticEvent) {
     event.preventDefault();
-    await fetchJSON('logout.php', {});
-    window.location.href = this.props.monthURL;
+    const response = await fetchJSON('logout.php', {});
+    if (response.success) {
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        squadInfos: { $set: response.squad_infos },
+        email: { $set: "" },
+        loggedIn: { $set: false },
+        username: { $set: "" },
+        emailVerified: { $set: false },
+      }));
+      // TODO fix this special case of default squad 254
+      history.replace(`squad/254/${this.props.monthURL}`);
+    }
   }
 
   onEditAccount(event: SyntheticEvent) {
@@ -104,12 +118,16 @@ AccountBar.propTypes = {
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  monthURL: monthURL(state),
-  loggedIn: state.loggedIn,
-  username: state.username,
-}))(AccountBar);
+export default connect(
+  (state: AppState) => ({
+    monthURL: monthURL(state),
+    loggedIn: state.loggedIn,
+    username: state.username,
+  }),
+  mapStateToUpdateStore,
+)(AccountBar);
