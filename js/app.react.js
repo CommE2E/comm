@@ -14,7 +14,6 @@ import { connect } from 'react-redux';
 import update from 'immutability-helper';
 import { Link, locationShape } from 'react-router';
 
-import ModalManager from './modals/modal-manager.react';
 import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
 import Calendar from './calendar/calendar.react';
@@ -52,13 +51,23 @@ type Props = {
     pathname: string,
   },
 };
+type State = {
+  currentModal: ?React.Element<any>,
+};
 
 class App extends React.Component {
 
   static verifyEmail;
   static resetPassword;
   props: Props;
-  modalManager: ?ModalManager;
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      currentModal: null,
+    };
+  }
 
   componentDidMount() {
     if (!this.props.params.verify) {
@@ -177,19 +186,17 @@ class App extends React.Component {
           setModal={this.setModal.bind(this)}
           clearModal={this.clearModal.bind(this)}
         />
-        <ModalManager ref={(mm) => this.modalManager = mm} />
+        {this.state.currentModal}
       </div>
     );
   }
 
   setModal(modal: React.Element<any>) {
-    invariant(this.modalManager, "modalManager ref not set");
-    this.modalManager.setModal(modal);
+    this.setState({ currentModal: modal });
   }
 
   clearModal() {
-    invariant(this.modalManager, "modalManager ref not set");
-    this.modalManager.clearModal();
+    this.setState({ currentModal: null });
   }
 
   async navigateTo(year: number, month: number) {
