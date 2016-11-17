@@ -7,10 +7,10 @@ define('VERIFY_FIELD_EMAIL', 0);
 define('VERIFY_FIELD_RESET_PASSWORD', 1);
 
 function verify_email($user, $username, $email, $welcome=false) {
-  global $base_url, $conn;
+  global $base_domain, $base_url, $conn;
 
   $code = generate_verification_code($user, VERIFY_FIELD_EMAIL);
-  $link = $base_url . "verify/$code/";
+  $link = $base_domain . $base_url . "verify/$code/";
   $contents = <<<EMAIL
 <html>
   <body style="font-family: sans-serif;">

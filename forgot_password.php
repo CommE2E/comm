@@ -40,7 +40,7 @@ $username = $user_row['username'];
 $email = $user_row['email'];
 
 $code = generate_verification_code($id, VERIFY_FIELD_RESET_PASSWORD);
-$link = $base_url . "verify/$code/";
+$link = $base_domain . $base_url . "verify/$code/";
 $contents = <<<EMAIL
 <html>
   <body style="font-family: sans-serif;">
