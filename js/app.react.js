@@ -107,16 +107,19 @@ class App extends React.Component {
     const newSquadID = newProps.params.squadID
       ? newProps.params.squadID
       : null;
+    const currentDate = new Date();
+    const newYear = newProps.params.year
+      ? parseInt(newProps.params.year)
+      : currentDate.getFullYear();
+    const newMonth = newProps.params.month
+      ? parseInt(newProps.params.month)
+      : currentDate.getMonth() + 1;
     const updateObj: {[key: string]: mixed} = {
       home: { $set: newHome },
       squadID: { $set: newSquadID },
+      year: { $set: newYear },
+      month: { $set: newMonth },
     };
-    if (newProps.params.year) {
-      updateObj.year = { $set: parseInt(newProps.params.year) };
-    }
-    if (newProps.params.month) {
-      updateObj.month = { $set: parseInt(newProps.params.month) };
-    }
     this.props.updateStore((prevState: AppState) => update(prevState, {
       navInfo: updateObj,
     }));
