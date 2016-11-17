@@ -1,18 +1,24 @@
 // @flow
 
+import type { AppState, UpdateStore } from '../../redux-reducer';
+
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import type { AppState } from '../../redux-reducer';
+import update from 'immutability-helper';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { thisURL } from '../../nav-utils';
+import { mapStateToUpdateStore } from '../../redux-utils';
 
 type Props = {
+  onClose: () => void,
+  onSuccess: () => void,
   thisURL: string,
   resetPasswordUsername: string,
   verifyCode: string,
+  updateStore: UpdateStore,
 };
 type State = {
   password: string,
@@ -44,7 +50,7 @@ class ResetPasswordModal extends React.Component {
 
   render() {
     return (
-      <Modal name="Reset password" onClose={() => {}}>
+      <Modal name="Reset password" onClose={this.props.onClose}>
         <div className="modal-body">
           <form method="POST">
             <div className="form-text">
@@ -146,7 +152,14 @@ class ResetPasswordModal extends React.Component {
       'password': this.state.password,
     });
     if (response.success) {
-      window.location.href = this.props.thisURL;
+      this.props.onSuccess();
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        squadInfos: { $set: response.squad_infos },
+        email: { $set: response.email },
+        loggedIn: { $set: true },
+        username: { $set: response.username },
+        emailVerified: { $set: response.email_verified },
+      }));
       return;
     }
 
@@ -167,13 +180,19 @@ class ResetPasswordModal extends React.Component {
 }
 
 ResetPasswordModal.propTypes = {
+  onClose: React.PropTypes.func.isRequired,
+  onSuccess: React.PropTypes.func.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   resetPasswordUsername: React.PropTypes.string.isRequired,
   verifyCode: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-  resetPasswordUsername: state.resetPasswordUsername,
-  verifyCode: state.verifyCode,
-}))(ResetPasswordModal);
+export default connect(
+  (state: AppState) => ({
+    thisURL: thisURL(state),
+    resetPasswordUsername: state.resetPasswordUsername,
+    verifyCode: state.verifyCode,
+  }),
+  mapStateToUpdateStore,
+)(ResetPasswordModal);

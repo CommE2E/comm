@@ -23,6 +23,7 @@ import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import { getDate } from './date-utils';
 import {
+  thisURL,
   urlForYearAndMonth,
   thisNavURLFragment,
   currentNavID,
@@ -30,19 +31,22 @@ import {
 } from './nav-utils';
 import { mapStateToUpdateStore } from './redux-utils'
 import LoadingIndicator from './loading-indicator.react';
+import history from './router-history';
 
 type Props = {
   thisNavURLFragment: string,
   year: number,
   month: number, // 1-indexed
-  show: string,
+  verifyField: ?number,
   updateStore: UpdateStore,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: string,
+  thisURL: string,
   params: {
     year: ?string,
     month: ?string,
     squadID: ?string,
+    verify: ?string,
   },
   location: {
     pathname: string,
@@ -51,19 +55,42 @@ type Props = {
 
 class App extends React.Component {
 
+  static verifyEmail;
+  static resetPassword;
   props: Props;
   modalManager: ?ModalManager;
 
   componentDidMount() {
-    if (this.props.show === 'reset_password') {
-      this.setModal(
-        <ResetPasswordModal />
-      );
-    } else if (this.props.show === 'verified_email') {
+    if (!this.props.params.verify) {
+      return;
+    }
+    if (this.props.verifyField === App.resetPassword) {
+      this.showResetPasswordModal();
+    } else if (this.props.verifyField === App.verifyEmail) {
+      history.replace(this.props.thisURL);
       this.setModal(
         <VerificationSuccessModal onClose={this.clearModal.bind(this)} />
       );
     }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.verifyField !== App.resetPassword) {
+      return;
+    }
+    if (prevProps.params.verify && !this.props.params.verify) {
+      this.clearModal();
+    } else if (!prevProps.params.verify && this.props.params.verify) {
+      this.showResetPasswordModal();
+    }
+  }
+
+  showResetPasswordModal() {
+    const onClose = () => history.push(this.props.thisURL);
+    const onSuccess = () => history.replace(this.props.thisURL);
+    this.setModal(
+      <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />
+    );
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -176,18 +203,23 @@ class App extends React.Component {
 
 }
 
+App.verifyEmail = 0;
+App.resetPassword = 1;
+
 App.propTypes = {
   thisNavURLFragment: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
-  show: React.PropTypes.string.isRequired,
+  verifyField: React.PropTypes.number,
   updateStore: React.PropTypes.func.isRequired,
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
+  thisURL: React.PropTypes.string.isRequired,
   params: React.PropTypes.shape({
     year: React.PropTypes.string,
     month: React.PropTypes.string,
     squadID: React.PropTypes.string,
+    verify: React.PropTypes.string,
   }),
   location: locationShape,
 };
@@ -197,9 +229,10 @@ export default connect(
     thisNavURLFragment: thisNavURLFragment(state),
     year: state.navInfo.year,
     month: state.navInfo.month,
-    show: state.show,
+    verifyField: state.verifyField,
     entriesLoadingStatus: state.navInfo.entriesLoadingStatus,
     currentNavID: currentNavID(state),
+    thisURL: thisURL(state),
   }),
   mapStateToUpdateStore,
 )(App);

@@ -24,8 +24,8 @@ declare var squad_infos: {[id: string]: SquadInfo};
 declare var entry_infos: {[day: string]: {[id: string]: EntryInfo}};
 declare var month: number;
 declare var year: number;
-declare var show: string;
-declare var verify: string;
+declare var verify_code: ?string;
+declare var verify_field: ?number;
 declare var reset_password_username: string;
 declare var home: bool;
 declare var squad_id: ?string;
@@ -46,8 +46,8 @@ const store = createStore(
     email: email,
     emailVerified: email_verified,
     sessionID: sessionID,
-    show: show,
-    verifyCode: verify,
+    verifyCode: verify_code,
+    verifyField: verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     squadInfos: squad_infos,
@@ -81,12 +81,21 @@ const store = createStore(
 // anyways. If we ever need to support browser.push('/'), we could look into
 // using react-router's onEnter method to do the redirect dynamically based on
 // Redux state.
+const navURLFragment = thisNavURLFragment(store.getState());
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <Redirect from="/" to={thisNavURLFragment(store.getState())} />
+      <Redirect from="/" to={navURLFragment} />
+      <Redirect
+        from="/verify/:verify/"
+        to={navURLFragment + "/verify/:verify/"}
+      />
       <Route
-        path="(home/)(squad/:squadID/)(year/:year/)(month/:month/)"
+        path={
+          "(home/)(squad/:squadID/)" +
+          "(year/:year/)(month/:month/)" +
+          "(verify/:verify/)"
+        }
         component={App}
       />
     </Router>

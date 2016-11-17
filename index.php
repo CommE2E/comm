@@ -2,7 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
-require_once('verify.php');
+require_once('verify_lib.php');
 require_once('squad_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
@@ -16,25 +16,13 @@ $year_rewrite_matched = preg_match(
   $_SERVER['REQUEST_URI'],
   $year_matches
 );
-if ($year_rewrite_matched) {
-  $year = (int)$year_matches[1];
-} else if (isset($_GET['year'])) {
-  $year = (int)$_GET['year'];
-} else {
-  $year = idate('Y');
-}
+$year = $year_rewrite_matched ? (int)$year_matches[1] : idate('Y');
 $month_rewrite_matched = preg_match(
   '#/month/([0-9]+)(/|$)#i',
   $_SERVER['REQUEST_URI'],
   $month_matches
 );
-if ($month_rewrite_matched) {
-  $month = (int)$month_matches[1];
-} else if (isset($_GET['month'])) {
-  $month = (int)$_GET['month'];
-} else {
-  $month = idate('m');
-}
+$month = $month_rewrite_matched ? (int)$month_matches[1] : idate('m');
 $squad_rewrite_matched = preg_match(
   '#/squad/([0-9]+)(/|$)#i',
   $_SERVER['REQUEST_URI'],
@@ -47,12 +35,6 @@ if ($home_rewrite_matched) {
 } else if ($squad_rewrite_matched) {
   $home = false;
   $squad = (int)$squad_matches[1];;
-} else if (isset($_GET['home'])) {
-  $home = true;
-  $squad = null;
-} else if (isset($_GET['squad'])) {
-  $home = false;
-  $squad = (int)$_GET['squad'];
 } else {
   $home = false;
   $squad = null;
@@ -64,32 +46,27 @@ if ($month < 1 || $month > 12) {
   exit;
 }
 
-$query_string = array();
-parse_str($_SERVER['QUERY_STRING'], $query_string);
-$show = null;
-if (isset($query_string['show'])) {
-  $show = $query_string['show'];
-}
-$verify = null;
-if (isset($query_string['verify'])) {
-  $verify = $query_string['verify'];
-}
+$verify_rewrite_matched = preg_match(
+  '#/verify/([a-f0-9]+)(/|$)#i',
+  $_SERVER['REQUEST_URI'],
+  $verify_matches
+);
+$verify_code = $verify_rewrite_matched ? $verify_matches[1] : null;
 
 $reset_password_username = null;
-if ($verify) {
-  $verification_result = verify_code($verify);
-  if ($verification_result) {
-    list($verified_user, $verified_field) = $verification_result;
-    if ($verified_field === VERIFY_FIELD_EMAIL) {
+$verify_field = null;
+if ($verify_code) {
+  $verify_result = verify_code($verify_code);
+  if ($verify_result) {
+    list($verify_user, $verify_field) = $verify_result;
+    if ($verify_field === VERIFY_FIELD_EMAIL) {
       $conn->query(
-        "UPDATE users SET email_verified = 1 WHERE id = $verified_user"
+        "UPDATE users SET email_verified = 1 WHERE id = $verify_user"
       );
-      clear_verify_codes($verified_user, $verified_field);
-      $show = 'verified_email';
-    } else if ($verified_field === VERIFY_FIELD_RESET_PASSWORD) {
-      $show = 'reset_password';
+      clear_verify_codes($verify_user, $verify_field);
+    } else if ($verify_field === VERIFY_FIELD_RESET_PASSWORD) {
       $result = $conn->query(
-        "SELECT username FROM users WHERE id = $verified_user"
+        "SELECT username FROM users WHERE id = $verify_user"
       );
       $reset_password_user_row = $result->fetch_assoc();
       $reset_password_username = $reset_password_user_row['username'];
@@ -209,8 +186,8 @@ while ($row = $result->fetch_assoc()) {
       var month = <?=$month?>;
       var year = <?=$year?>;
       var base_url = "<?=$base_url?>";
-      var show = "<?=$show?>";
-      var verify = "<?=$verify?>";
+      var verify_code = <?=$verify_code !== null ? "'$verify_code'" : "null"?>;
+      var verify_field = <?=$verify_field !== null ? $verify_field : 'null'?>;
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$home ? 'true' : 'false'?>;
       var squad_id = <?=$squad ? "'$squad'" : "null"?>;

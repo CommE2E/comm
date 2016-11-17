@@ -2,7 +2,8 @@
 
 require_once('config.php');
 require_once('auth.php');
-require_once('verify.php');
+require_once('verify_lib.php');
+require_once('squad_lib.php');
 
 header("Content-Type: application/json");
 
@@ -47,6 +48,16 @@ if ($field !== VERIFY_FIELD_RESET_PASSWORD) {
   )));
 }
 
+$result = $conn->query(
+  "SELECT username, email, email_verified FROM users WHERE id = $user"
+);
+$user_row = $result->fetch_assoc();
+if (!$user_row) {
+  exit(json_encode(array(
+    'error' => 'invalid_parameters',
+  )));
+}
+
 $salt = md5(openssl_random_pseudo_bytes(32));
 $hash = hash('sha512', $password.$salt);
 $conn->query(
@@ -60,4 +71,8 @@ clear_verify_codes($user, VERIFY_FIELD_RESET_PASSWORD);
 
 exit(json_encode(array(
   'success' => true,
+  'username' => $user_row['username'],
+  'email' => $user_row['email'],
+  'email_verified' => (bool)$user_row['email_verified'],
+  'squad_infos' => get_squad_infos($user),
 )));
