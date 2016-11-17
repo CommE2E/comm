@@ -2,24 +2,30 @@
 
 import type { SquadInfo } from '../squad-info';
 import { squadInfoPropType } from '../squad-info';
-import type { AppState } from '../redux-reducer';
+import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
-import { thisURL, monthURL } from '../nav-utils';
+import { monthURL } from '../nav-utils';
+import { mapStateToUpdateStore } from '../redux-utils';
+import history from '../router-history';
 
 type Tab = "general" | "privacy" | "delete";
 type Props = {
   squadInfo: SquadInfo,
-  thisURL: string,
   monthURL: string,
+  navSquadID: ?string,
+  navHome: bool,
+  squadInfos: {[id: string]: SquadInfo},
+  updateStore: UpdateStore,
   onClose: () => void,
 };
 type State = {
@@ -411,7 +417,16 @@ class SquadSettingsModal extends React.Component {
       'color': this.state.squadInfo.color,
     });
     if (response.success) {
-      window.location.href = this.props.thisURL;
+      this.props.updateStore((prevState: AppState) => {
+        const squadInfo = update(
+          this.state.squadInfo,
+          { name: { $set: name } },
+        );
+        const updateObj = {};
+        updateObj[this.props.squadInfo.id] = { $set: squadInfo };
+        return update(prevState, { squadInfos: updateObj });
+      });
+      this.props.onClose();
       return;
     }
 
@@ -482,7 +497,25 @@ class SquadSettingsModal extends React.Component {
       'password': this.state.accountPassword,
     });
     if (response.success) {
-      window.location.href = this.props.monthURL;
+      this.props.updateStore((prevState: AppState) => {
+        const newSquadInfos = _.omitBy(
+          prevState.squadInfos,
+          (candidate) => candidate.id === this.props.squadInfo.id,
+        );
+        return update(prevState, { squadInfos: { $set: newSquadInfos } });
+      });
+      if (this.props.navHome && !this.otherSubscriptionExists()) {
+        // TODO fix this special case of default squad 254
+        history.replace(`squad/254/${this.props.monthURL}`);
+      } else if (this.props.navSquadID === this.props.squadInfo.id) {
+        if (this.otherSubscriptionExists()) {
+          history.replace(`home/${this.props.monthURL}`);
+        } else {
+          // TODO fix this special case of default squad 254
+          history.replace(`squad/254/${this.props.monthURL}`);
+        }
+      }
+      this.props.onClose();
       return;
     }
 
@@ -502,16 +535,32 @@ class SquadSettingsModal extends React.Component {
     );
   }
 
+  otherSubscriptionExists() {
+    return _.some(
+      this.props.squadInfos,
+      (squadInfo: SquadInfo) => squadInfo.subscribed &&
+        squadInfo.id !== this.props.squadInfo.id,
+    );
+  }
+
 }
 
 SquadSettingsModal.propTypes = {
   squadInfo: squadInfoPropType.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
+  navSquadID: React.PropTypes.string,
+  navHome: React.PropTypes.bool.isRequired,
+  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  updateStore: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
 
-export default connect((state: AppState) => ({
-  thisURL: thisURL(state),
-  monthURL: monthURL(state),
-}))(SquadSettingsModal);
+export default connect(
+  (state: AppState) => ({
+    monthURL: monthURL(state),
+    navSquadID: state.navInfo.squadID,
+    navHome: state.navInfo.home,
+    squadInfos: state.squadInfos,
+  }),
+  mapStateToUpdateStore,
+)(SquadSettingsModal);

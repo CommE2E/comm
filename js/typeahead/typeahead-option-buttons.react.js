@@ -122,7 +122,7 @@ class TypeaheadOptionButtons extends React.Component {
       );
       if (!subscriptionExists) {
         // TODO fix this special case of default squad 254
-        history.push(`squad/254/${this.props.monthURL}`);
+        history.replace(`squad/254/${this.props.monthURL}`);
       }
     }
     if (response.success) {

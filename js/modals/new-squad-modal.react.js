@@ -293,15 +293,15 @@ class NewSquadModal extends React.Component {
     const description = this.state.description;
     const closed = this.state.closed;
     const color = this.state.color;
-    const response: {[key: string]: any} = await fetchJSON('new_squad.php', {
+    const response = await fetchJSON('new_squad.php', {
       'name': name,
       'description': description,
       'type': closed ? "closed" : "open",
       'password': this.state.squadPassword,
       'color': color,
     });
-    const newSquadID = response.new_squad_id.toString();
     if (response.success) {
+      const newSquadID = response.new_squad_id.toString();
       this.props.onClose();
       const updateObj = {};
       updateObj[newSquadID] = { $set: {
