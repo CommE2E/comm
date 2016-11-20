@@ -28,8 +28,17 @@ class HistoryRevision extends React.Component {
 
   componentDidMount() {
     // TODO investigate React replacement for jQuery timeago plugin
-    invariant(this.time instanceof HTMLElement, "time re should be set");
+    invariant(this.time instanceof HTMLElement, "time ref should be set");
     $(this.time).timeago();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.revisionInfo.lastUpdate !== prevProps.revisionInfo.lastUpdate
+    ) {
+      invariant(this.time instanceof HTMLElement, "time ref should be set");
+      $(this.time).timeago();
+    }
   }
 
   render() {

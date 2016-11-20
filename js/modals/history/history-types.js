@@ -21,6 +21,7 @@ export const historyEntryInfoPropType = React.PropTypes.shape({
 
 export type HistoryRevisionInfo = {
   id: string,
+  entryID: string,
   author: ?string,
   text: string,
   lastUpdate: number,
@@ -29,6 +30,7 @@ export type HistoryRevisionInfo = {
 };
 export const historyRevisionInfoPropType = React.PropTypes.shape({
   id: React.PropTypes.string.isRequired,
+  entryID: React.PropTypes.string.isRequired,
   author: React.PropTypes.string,
   text: React.PropTypes.string.isRequired,
   lastUpdate: React.PropTypes.number.isRequired,

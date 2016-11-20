@@ -311,11 +311,11 @@ class Entry extends React.Component {
   }
 
   async onDelete(event: SyntheticEvent) {
+    event.preventDefault();
     await this.delete(this.props.entryInfo.id, true);
   }
 
   async delete(serverID: ?string, focusOnNextEntry: bool) {
-    event.preventDefault();
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.entryInfo.day.toString();
       const dayEntryInfos = prevState.entryInfos[dayString];

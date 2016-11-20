@@ -43,7 +43,7 @@ type State = {
   animateModeChange: bool,
   dayLoadingStatus: LoadingStatus,
   entries: HistoryEntryInfo[],
-  entryLoadingStatus: LoadingStatus,
+  entryLoadingStatuses: {[entryID: string]: LoadingStatus},
   currentEntryID: ?string,
   revisions: HistoryRevisionInfo[],
 };
@@ -56,15 +56,17 @@ class HistoryModal extends React.Component {
 
   constructor(props: Props) {
     super(props);
+    const entryLoadingStatuses = {};
     if (props.mode === "entry") {
       invariant(props.currentEntryID, "entry ID should be set");
+      entryLoadingStatuses[props.currentEntryID] = "loading";
     }
     this.state = {
       mode: props.mode,
       animateModeChange: false,
       dayLoadingStatus: "loading",
       entries: [],
-      entryLoadingStatus: "loading",
+      entryLoadingStatuses: entryLoadingStatuses,
       currentEntryID: props.currentEntryID,
       revisions: [],
     };
@@ -98,9 +100,14 @@ class HistoryModal extends React.Component {
       this.props.day,
     );
     const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
-    const loadingStatus = this.state.mode === "day"
-      ? this.state.dayLoadingStatus
-      : this.state.entryLoadingStatus;
+    let loadingStatus;
+    if (this.state.mode === "day") {
+      loadingStatus = this.state.dayLoadingStatus;
+    } else {
+      invariant(this.state.currentEntryID, "entry ID should be set");
+      loadingStatus =
+        this.state.entryLoadingStatuses[this.state.currentEntryID];
+    }
 
     const entries = this.state.entries.map((entryInfo) =>
       <HistoryEntry
@@ -113,10 +120,14 @@ class HistoryModal extends React.Component {
         key={entryInfo.id}
       />
     );
+
+    const revisionInfos = this.state.revisions.filter(
+      (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
+    );
     const revisions = [];
-    for (let i = 0; i < this.state.revisions.length; i++) {
-      const revisionInfo = this.state.revisions[i];
-      const nextRevisionInfo = this.state.revisions[i + 1];
+    for (let i = 0; i < revisionInfos.length; i++) {
+      const revisionInfo = revisionInfos[i];
+      const nextRevisionInfo = revisionInfos[i + 1];
       const isDeletionOrRestoration = nextRevisionInfo !== undefined &&
         revisionInfo.deleted !== nextRevisionInfo.deleted;
       revisions.push(
@@ -186,36 +197,49 @@ class HistoryModal extends React.Component {
   }
 
   async loadEntry(entryID: string) {
-    this.setState({
-      entryLoadingStatus: "loading",
-      revisions: [],
+    this.setState((prevState, props) => {
+      const statusUpdateObj = {};
+      statusUpdateObj[entryID] = { $set: "loading" };
+      return update(prevState, {
+        mode: { $set: "entry" },
+        currentEntryID: { $set: entryID },
+        entryLoadingStatuses: statusUpdateObj,
+      });
     });
     const response = await fetchJSON('entry_history.php', {
       'id': entryID,
     });
     if (!response.result) {
-      this.setState({ entryLoadingStatus: "error" });
+      this.setState((prevState, props) => {
+        const updateObj = {};
+        updateObj[entryID] = { $set: "error" };
+        return update(prevState, { entryLoadingStatuses: updateObj });
+      });
       return;
     }
-    this.setState({
-      entryLoadingStatus: "inactive",
-      revisions: response.result,
+    this.setState((prevState, props) => {
+      const updateObj = {};
+      // This merge here will preserve time ordering correctly
+      const revisions = _.unionBy(response.result, prevState.revisions, "id");
+      updateObj["revisions"] = { $set: revisions };
+      updateObj["entryLoadingStatuses"] = {};
+      updateObj["entryLoadingStatuses"][entryID] = { $set: "inactive" };
+      const entryIndex = prevState.entries.findIndex(
+        (entryInfo) => entryInfo.id === entryID
+      );
+      const newEntry = update(prevState.entries[entryIndex], {
+        text: { $set: response.result[0].text },
+        deleted: { $set: response.result[0].deleted },
+      });
+      updateObj["entries"] = { $splice: [[ entryIndex, 1, newEntry ]] };
+      return update(prevState, updateObj);
     });
   }
 
   async onClickEntry(event: SyntheticEvent, entryID: string) {
     event.preventDefault();
-    if (this.state.currentEntryID === entryID) {
-      this.setState({
-        mode: "entry",
-        animateModeChange: true,
-      });
-      return;
-    }
     this.setState({
-      mode: "entry",
       animateModeChange: true,
-      currentEntryID: entryID,
     });
     await this.loadEntry(entryID);
   }
@@ -229,14 +253,12 @@ class HistoryModal extends React.Component {
   }
 
   async restoreEntryInfo(entryInfo: EntryInfo) {
-    const id = entryInfo.id;
-    invariant(id, "entry should have ID");
     this.setState({
-      mode: "entry",
       animateModeChange: true,
-      currentEntryID: id,
     });
 
+    const id = entryInfo.id;
+    invariant(id, "entry should have ID");
     this.props.updateStore((prevState: AppState) => {
       const dayString = entryInfo.day.toString();
       const saveObj = {};

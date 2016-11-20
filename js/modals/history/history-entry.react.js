@@ -45,6 +45,12 @@ class HistoryEntry extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.state.deleted !== nextProps.entryInfo.deleted) {
+      this.setState({ deleted: nextProps.entryInfo.deleted });
+    }
+  }
+
   render() {
     let deleted = null;
     if (this.state.deleted) {
