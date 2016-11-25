@@ -1,14 +1,11 @@
 // @flow
 
 import type { LoadingStatus } from '../../loading-indicator.react';
-import type {
-  HistoryMode,
-  HistoryEntryInfo,
-  HistoryRevisionInfo,
-} from './history-types';
+import type { HistoryMode, HistoryRevisionInfo } from './history-types';
 import type { SquadInfo } from '../../squad-info';
 import { squadInfoPropType } from '../../squad-info';
 import type { EntryInfo } from '../../calendar/entry-info';
+import { entryInfoPropType } from '../../calendar/entry-info';
 import type { AppState, UpdateStore } from '../../redux-reducer';
 
 import React from 'react';
@@ -26,7 +23,9 @@ import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import { getDate } from '../../date-utils';
 import { mapStateToUpdateStore } from '../../redux-utils';
-import { currentNavID } from '../../nav-utils';
+import { currentNavID, mergeNewEntriesIntoStore } from '../../nav-utils';
+import { onScreenSquadInfos } from '../../squad-utils';
+import { entryKey } from '../../calendar/entry-utils';
 
 type Props = {
   mode: HistoryMode,
@@ -34,6 +33,8 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   currentNavID: string,
+  onScreenSquadInfos: SquadInfo[],
+  entryInfos: {[id: string]: EntryInfo},
   onClose: () => void,
   currentEntryID?: ?string,
   updateStore: UpdateStore,
@@ -42,7 +43,6 @@ type State = {
   mode: HistoryMode,
   animateModeChange: bool,
   dayLoadingStatus: LoadingStatus,
-  entries: HistoryEntryInfo[],
   entryLoadingStatuses: {[entryID: string]: LoadingStatus},
   currentEntryID: ?string,
   revisions: HistoryRevisionInfo[],
@@ -65,7 +65,6 @@ class HistoryModal extends React.Component {
       mode: props.mode,
       animateModeChange: false,
       dayLoadingStatus: "loading",
-      entries: [],
       entryLoadingStatuses: entryLoadingStatuses,
       currentEntryID: props.currentEntryID,
       revisions: [],
@@ -109,17 +108,23 @@ class HistoryModal extends React.Component {
         this.state.entryLoadingStatuses[this.state.currentEntryID];
     }
 
-    const entries = this.state.entries.map((entryInfo) =>
-      <HistoryEntry
-        entryInfo={entryInfo}
-        year={this.props.year}
-        month={this.props.month}
-        day={this.props.day}
-        onClick={(event) => this.onClickEntry(event, entryInfo.id)}
-        restoreEntryInfo={this.restoreEntryInfo.bind(this)}
-        key={entryInfo.id}
-      />
-    );
+    const entries = _.chain(this.props.entryInfos)
+      .filter(
+        (entryInfo) => entryInfo.year === this.props.year &&
+          entryInfo.month === this.props.month && entryInfo.id &&
+          _.some(this.props.onScreenSquadInfos, ['id', entryInfo.squadID])
+      ).sortBy("creationTime")
+      .map((entryInfo) =>
+        <HistoryEntry
+          entryInfo={entryInfo}
+          year={this.props.year}
+          month={this.props.month}
+          day={this.props.day}
+          onClick={(event) => this.onClickEntry(event, entryInfo.id)}
+          restoreEntryInfo={this.restoreEntryInfo.bind(this)}
+          key={entryInfo.id}
+        />
+      ).value();
 
     const revisionInfos = this.state.revisions.filter(
       (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
@@ -178,7 +183,6 @@ class HistoryModal extends React.Component {
   async loadDay() {
     this.setState({
       dayLoadingStatus: "loading",
-      entries: [],
     });
     const response = await fetchJSON('day_history.php', {
       'day': this.props.day,
@@ -190,10 +194,8 @@ class HistoryModal extends React.Component {
       this.setState({ dayLoadingStatus: "error" });
       return;
     }
-    this.setState({
-      dayLoadingStatus: "inactive",
-      entries: response.result,
-    });
+    mergeNewEntriesIntoStore(this.props.updateStore, response.result);
+    this.setState({ dayLoadingStatus: "inactive" });
   }
 
   async loadEntry(entryID: string) {
@@ -224,15 +226,17 @@ class HistoryModal extends React.Component {
       updateObj["revisions"] = { $set: revisions };
       updateObj["entryLoadingStatuses"] = {};
       updateObj["entryLoadingStatuses"][entryID] = { $set: "inactive" };
-      const entryIndex = prevState.entries.findIndex(
-        (entryInfo) => entryInfo.id === entryID
-      );
-      const newEntry = update(prevState.entries[entryIndex], {
+      return update(prevState, updateObj);
+    });
+    this.props.updateStore((prevState: AppState) => {
+      const dayString = this.props.day.toString();
+      const saveObj = {};
+      saveObj[dayString] = {};
+      saveObj[dayString][entryID] = {
         text: { $set: response.result[0].text },
         deleted: { $set: response.result[0].deleted },
-      });
-      updateObj["entries"] = { $splice: [[ entryIndex, 1, newEntry ]] };
-      return update(prevState, updateObj);
+      };
+      return update(prevState, { entryInfos: saveObj });
     });
   }
 
@@ -278,6 +282,8 @@ HistoryModal.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
+  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
+  entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
@@ -287,9 +293,12 @@ HistoryModal.defaultProps = {
   currentEntryID: null,
 };
 
+type OwnProps = { day: number };
 export default connect(
-  (state: AppState) => ({
+  (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
+    onScreenSquadInfos: onScreenSquadInfos(state),
+    entryInfos: state.entryInfos[ownProps.day.toString()],
   }),
   mapStateToUpdateStore,
 )(HistoryModal);

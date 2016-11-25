@@ -1,7 +1,5 @@
 // @flow
 
-import type { HistoryEntryInfo } from './history-types';
-import { historyEntryInfoPropType } from './history-types';
 import type { SquadInfo } from '../../squad-info';
 import { squadInfoPropType } from '../../squad-info';
 import type { EntryInfo } from '../../calendar/entry-info';
@@ -18,7 +16,7 @@ import { colorIsDark } from '../../squad-utils';
 import fetchJSON from '../../fetch-json';
 
 type Props = {
-  entryInfo: HistoryEntryInfo,
+  entryInfo: EntryInfo,
   squadInfo: SquadInfo,
   year: number,
   month: number, // 1-indexed
@@ -130,13 +128,15 @@ class HistoryEntry extends React.Component {
       month: this.props.month,
       day: this.props.day,
       creationTime: response.creation_time,
+      creator: this.props.entryInfo.creator,
+      deleted: false,
     });
   }
 
 }
 
 HistoryEntry.propTypes = {
-  entryInfo: historyEntryInfoPropType,
+  entryInfo: entryInfoPropType,
   squadInfo: squadInfoPropType,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
@@ -146,7 +146,7 @@ HistoryEntry.propTypes = {
   restoreEntryInfo: React.PropTypes.func.isRequired,
 }
 
-type OwnProps = { entryInfo: HistoryEntryInfo };
+type OwnProps = { entryInfo: EntryInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
   squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
   sessionID: state.sessionID,

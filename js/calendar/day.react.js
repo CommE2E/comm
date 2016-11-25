@@ -26,6 +26,7 @@ type Props = {
   day: number, // 1-indexed
   entryInfos: EntryInfo[],
   onScreenSquadInfos: SquadInfo[],
+  username: string,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
@@ -218,6 +219,8 @@ class Day extends React.Component {
         month: this.props.month,
         day: this.props.day,
         creationTime: Date.now(),
+        creator: this.props.username,
+        deleted: false,
       };
       const saveObj = {};
       saveObj[dayString] = {};
@@ -262,6 +265,7 @@ Day.propTypes = {
   day: React.PropTypes.number.isRequired,
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
   onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
+  username: React.PropTypes.string.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   startingTabIndex: React.PropTypes.number.isRequired,
@@ -271,6 +275,7 @@ Day.propTypes = {
 export default connect(
   (state: AppState) => ({
     onScreenSquadInfos: onScreenSquadInfos(state),
+    username: state.username,
   }),
   mapStateToUpdateStore,
 )(Day);

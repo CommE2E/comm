@@ -37,11 +37,12 @@ $additional_condition = $home ? "r.subscribed = 1" : "d.squad = $squad";
 $viewer_id = get_viewer_id();
 $result = $conn->query(
   "SELECT e.id, DAY(d.date) AS day, e.text, e.creation_time AS creationTime, ".
-    "d.squad AS squadID ".
+    "d.squad AS squadID, e.deleted, u.username AS creator ".
     "FROM entries e ".
     "LEFT JOIN days d ON d.id = e.day ".
     "LEFT JOIN squads s ON s.id = d.squad ".
     "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+    "LEFT JOIN users u ON u.id = e.creator ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
     "e.deleted = 0 AND (s.hash IS NULL OR (r.squad IS NOT NULL AND ".
     "r.role >= ".ROLE_SUCCESSFUL_AUTH.")) AND ".$additional_condition." ".
@@ -54,6 +55,8 @@ while ($row = $result->fetch_assoc()) {
   $row['year'] = $year;
   $row['month'] = $month;
   $row['creationTime'] = intval($row['creationTime']);
+  $row['deleted'] = (bool)$row['deleted'];
+  $row['creator'] = $row['creator'] ?: null;
   $entries[] = $row;
 }
 

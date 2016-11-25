@@ -74,6 +74,12 @@ class Entry extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.state.text !== nextProps.entryInfo.text) {
+      this.setState({ text: nextProps.entryInfo.text });
+    }
+  }
+
   focus() {
     invariant(
       this.textarea instanceof HTMLTextAreaElement,
@@ -241,10 +247,7 @@ class Entry extends React.Component {
       const onRefresh = () => {
         const newText = response.db;
         this.setState(
-          {
-            text: newText,
-            loadingStatus: "inactive",
-          },
+          { loadingStatus: "inactive" },
           this.updateHeight.bind(this),
         );
         // We need to update props.entryInfo.text so that prev_text is correct

@@ -1,6 +1,7 @@
 // @flow
 
 import type { NavInfo, AppState, UpdateStore } from './redux-reducer';
+import type { EntryInfo } from './calendar/entry-info';
 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
@@ -49,36 +50,12 @@ const thisURL = createSelector(
     thisNavURLFragment + monthURL,
 );
 
-async function fetchEntriesAndUpdateStore(
-  year: number,
-  month: number,
-  navID: string,
+function mergeNewEntriesIntoStore(
   updateStore: UpdateStore,
+  entryInfos: EntryInfo[],
 ) {
   updateStore((prevState: AppState) => {
-    return update(prevState, {
-      navInfo: {
-        entriesLoadingStatus: { $set: "loading" },
-      },
-    });
-  });
-  const response = await fetchJSON('month_entries.php', {
-    'month': month,
-    'year': year,
-    'nav': navID,
-  });
-  if (!response.result) {
-    updateStore((prevState: AppState) => {
-      return update(prevState, {
-        navInfo: {
-          entriesLoadingStatus: { $set: "error" },
-        },
-      });
-    });
-    return;
-  }
-  updateStore((prevState: AppState) => {
-    const newEntries = _.chain(response.result)
+    const newEntries = _.chain(entryInfos)
       .groupBy((entryInfo) => entryInfo.day)
       .mapValues(
         (entryInfoGroup, day) => _.chain(entryInfoGroup)
@@ -94,13 +71,35 @@ async function fetchEntriesAndUpdateStore(
           })
           .value(),
       ).value();
-    return update(prevState, {
-      navInfo: {
-        entriesLoadingStatus: { $set: "inactive" },
-      },
-      entryInfos: newEntries,
-    });
+    return update(prevState, { entryInfos: newEntries });
   });
+}
+
+async function fetchEntriesAndUpdateStore(
+  year: number,
+  month: number,
+  navID: string,
+  updateStore: UpdateStore,
+) {
+  // TODO index entriesLoadingStatus by year/month/navID
+  updateStore((prevState: AppState) => update(prevState, {
+    navInfo: { entriesLoadingStatus: { $set: "loading" } },
+  }));
+  const response = await fetchJSON('month_entries.php', {
+    'month': month,
+    'year': year,
+    'nav': navID,
+  });
+  if (!response.result) {
+    updateStore((prevState: AppState) => update(prevState, {
+      navInfo: { entriesLoadingStatus: { $set: "error" } },
+    }));
+    return;
+  }
+  mergeNewEntriesIntoStore(updateStore, response.result);
+  updateStore((prevState: AppState) => update(prevState, {
+    navInfo: { entriesLoadingStatus: { $set: "inactive" } },
+  }));
 }
 
 export {
@@ -109,5 +108,6 @@ export {
   monthURL,
   thisNavURLFragment,
   thisURL,
+  mergeNewEntriesIntoStore,
   fetchEntriesAndUpdateStore,
 };

@@ -57,10 +57,15 @@ class Calendar extends React.Component {
       if (curDayOfMonth < 1 || curDayOfMonth > totalDaysInMonth) {
         columns.push(<td key={curDayOfMonth} />);
       } else {
+        const dayProps = {
+          year: this.props.year,
+          month: this.props.month,
+          day: curDayOfMonth,
+        };
         const entries = _.chain(this.props.entryInfos[curDayOfMonth.toString()])
           .filter(
             (entryInfo) => entryInfo.year === this.props.year &&
-              entryInfo.month === this.props.month &&
+              entryInfo.month === this.props.month && !entryInfo.deleted &&
               _.some(this.props.onScreenSquadInfos, ['id', entryInfo.squadID])
           ).sortBy("creationTime")
           .value();

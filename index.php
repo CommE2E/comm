@@ -130,17 +130,19 @@ $entries = array_fill(1, 31, array());
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.squad FROM entries e ".
+      "d.squad, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+      "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
       "r.subscribed = 1 AND e.deleted = 0 ORDER BY d.date, e.creation_time"
   );
 } else {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.squad FROM entries e ".
+      "d.squad, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
+      "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
       "d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
   );
@@ -160,6 +162,8 @@ while ($row = $result->fetch_assoc()) {
     "month" => $month,
     "day" => $day,
     "creationTime" => intval($row['creation_time']),
+    "deleted" => (bool)$row['deleted'],
+    "creator" => $row['creator'] ?: null,
   );
 }
 
