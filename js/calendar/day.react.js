@@ -213,7 +213,7 @@ class Day extends React.Component {
       const dayEntryInfos = prevState.entryInfos[dayString];
       const newEntryInfo: EntryInfo = {
         localID: localID,
-        squadID: calendarID,
+        calendarID: calendarID,
         text: "",
         year: this.props.year,
         month: this.props.month,

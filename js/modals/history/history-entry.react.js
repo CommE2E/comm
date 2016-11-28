@@ -122,7 +122,7 @@ class HistoryEntry extends React.Component {
     });
     await this.props.restoreEntryInfo({
       id: this.props.entryInfo.id,
-      squadID: this.props.entryInfo.squadID,
+      calendarID: this.props.entryInfo.calendarID,
       text: response.text,
       year: this.props.year,
       month: this.props.month,
@@ -148,6 +148,6 @@ HistoryEntry.propTypes = {
 
 type OwnProps = { entryInfo: EntryInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  calendarInfo: state.calendarInfos[ownProps.entryInfo.squadID],
+  calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
   sessionID: state.sessionID,
 }))(HistoryEntry);

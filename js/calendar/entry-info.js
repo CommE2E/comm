@@ -5,7 +5,7 @@ import React from 'react';
 export type EntryInfo = {
   id?: ?string, // null if local copy without ID yet
   localID?: ?string, // only set if id is unset, local to Day
-  squadID: string,
+  calendarID: string,
   text: string,
   year: number,
   month: number, // 1-indexed
@@ -18,7 +18,7 @@ export type EntryInfo = {
 export const entryInfoPropType = React.PropTypes.shape({
   id: React.PropTypes.string,
   localID: React.PropTypes.string,
-  squadID: React.PropTypes.string.isRequired,
+  calendarID: React.PropTypes.string.isRequired,
   text: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,

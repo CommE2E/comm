@@ -11,7 +11,7 @@ export type HistoryRevisionInfo = {
   text: string,
   lastUpdate: number,
   deleted: bool,
-  squadID: string,
+  calendarID: string,
 };
 export const historyRevisionInfoPropType = React.PropTypes.shape({
   id: React.PropTypes.string.isRequired,
@@ -20,5 +20,5 @@ export const historyRevisionInfoPropType = React.PropTypes.shape({
   text: React.PropTypes.string.isRequired,
   lastUpdate: React.PropTypes.number.isRequired,
   deleted: React.PropTypes.bool.isRequired,
-  squadID: React.PropTypes.string.isRequired,
+  calendarID: React.PropTypes.string.isRequired,
 });

@@ -20,7 +20,7 @@ import { thisNavURLFragment } from './nav-utils';
 declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
-declare var squad_infos: {[id: string]: CalendarInfo};
+declare var calendar_infos: {[id: string]: CalendarInfo};
 declare var entry_infos: {[day: string]: {[id: string]: EntryInfo}};
 declare var month: number;
 declare var year: number;
@@ -28,7 +28,7 @@ declare var verify_code: ?string;
 declare var verify_field: ?number;
 declare var reset_password_username: string;
 declare var home: bool;
-declare var squad_id: ?string;
+declare var calendar_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const store = createStore(
@@ -38,7 +38,7 @@ const store = createStore(
       year: year,
       month: month,
       home: home,
-      calendarID: squad_id,
+      calendarID: calendar_id,
       entriesLoadingStatus: "inactive",
     },
     loggedIn: !!email,
@@ -50,7 +50,7 @@ const store = createStore(
     verifyField: verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
-    calendarInfos: squad_infos,
+    calendarInfos: calendar_infos,
     newCalendarID: null,
   }: AppState),
 );

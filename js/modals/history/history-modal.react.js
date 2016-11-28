@@ -112,7 +112,7 @@ class HistoryModal extends React.Component {
       .filter(
         (entryInfo) => entryInfo.year === this.props.year &&
           entryInfo.month === this.props.month && entryInfo.id &&
-          _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.squadID])
+          _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.calendarID])
       ).sortBy("creationTime")
       .map((entryInfo) =>
         <HistoryEntry

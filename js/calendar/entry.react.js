@@ -230,7 +230,7 @@ class Entry extends React.Component {
       payload['day'] = this.props.entryInfo.day;
       payload['month'] = this.props.entryInfo.month;
       payload['year'] = this.props.entryInfo.year;
-      payload['squad'] = this.props.entryInfo.squadID;
+      payload['squad'] = this.props.entryInfo.calendarID;
       payload['timestamp'] = this.props.entryInfo.creationTime;
     } else {
       payload['timestamp'] = Date.now();
@@ -379,7 +379,7 @@ type OwnProps = {
 };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.squadID],
+    calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionID: state.sessionID,
   }),
   mapStateToUpdateStore,

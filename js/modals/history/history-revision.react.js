@@ -98,5 +98,5 @@ HistoryRevision.propTypes = {
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  calendarInfo: state.calendarInfos[ownProps.revisionInfo.squadID],
+  calendarInfo: state.calendarInfos[ownProps.revisionInfo.calendarID],
 }))(HistoryRevision);

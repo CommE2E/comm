@@ -37,7 +37,7 @@ $additional_condition = $home ? "r.subscribed = 1" : "d.squad = $calendar";
 $viewer_id = get_viewer_id();
 $result = $conn->query(
   "SELECT e.id, DAY(d.date) AS day, e.text, e.creation_time AS creationTime, ".
-    "d.squad AS squadID, e.deleted, u.username AS creator ".
+    "d.squad AS calendarID, e.deleted, u.username AS creator ".
     "FROM entries e ".
     "LEFT JOIN days d ON d.id = e.day ".
     "LEFT JOIN squads s ON s.id = d.squad ".

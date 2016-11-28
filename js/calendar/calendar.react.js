@@ -68,7 +68,7 @@ class Calendar extends React.Component {
               entryInfo.month === this.props.month && !entryInfo.deleted &&
               _.some(
                 this.props.onScreenCalendarInfos,
-                ['id', entryInfo.squadID],
+                ['id', entryInfo.calendarID],
               )
           ).sortBy("creationTime")
           .value();
