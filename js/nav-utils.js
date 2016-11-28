@@ -16,8 +16,8 @@ const currentNavID = createSelector(
     if (navInfo.home) {
       return "home";
     }
-    invariant(navInfo.squadID, "either home or squadID should be set");
-    return navInfo.squadID;
+    invariant(navInfo.calendarID, "either home or calendarID should be set");
+    return navInfo.calendarID;
   },
 );
 
@@ -38,8 +38,8 @@ const thisNavURLFragment = createSelector(
     if (navInfo.home) {
       return "home/";
     }
-    invariant(navInfo.squadID, "either home or squadID should be set");
-    return `squad/${navInfo.squadID}/`;
+    invariant(navInfo.calendarID, "either home or calendarID should be set");
+    return `squad/${navInfo.calendarID}/`;
   },
 );
 

@@ -206,14 +206,14 @@ class Day extends React.Component {
     // TODO: handle case where no onscreen squads
   }
 
-  createNewEntry(squadID: string) {
+  createNewEntry(calendarID: string) {
     const localID = `local${this.curLocalID++}`;
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.day.toString();
       const dayEntryInfos = prevState.entryInfos[dayString];
       const newEntryInfo: EntryInfo = {
         localID: localID,
-        squadID: squadID,
+        squadID: calendarID,
         text: "",
         year: this.props.year,
         month: this.props.month,

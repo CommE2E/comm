@@ -66,7 +66,10 @@ class Calendar extends React.Component {
           .filter(
             (entryInfo) => entryInfo.year === this.props.year &&
               entryInfo.month === this.props.month && !entryInfo.deleted &&
-              _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.squadID])
+              _.some(
+                this.props.onScreenCalendarInfos,
+                ['id', entryInfo.squadID],
+              )
           ).sortBy("creationTime")
           .value();
         columns.push(

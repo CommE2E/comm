@@ -316,7 +316,7 @@ class NewCalendarModal extends React.Component {
       }};
       this.props.updateStore((prevState: AppState) => update(prevState, {
         calendarInfos: updateObj,
-        newSquadID: { $set: newCalendarID },
+        newCalendarID: { $set: newCalendarID },
       }));
       return;
     }

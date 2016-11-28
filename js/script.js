@@ -38,7 +38,7 @@ const store = createStore(
       year: year,
       month: month,
       home: home,
-      squadID: squad_id,
+      calendarID: squad_id,
       entriesLoadingStatus: "inactive",
     },
     loggedIn: !!email,
@@ -51,7 +51,7 @@ const store = createStore(
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     calendarInfos: squad_infos,
-    newSquadID: null,
+    newCalendarID: null,
   }: AppState),
 );
 
@@ -92,7 +92,7 @@ ReactDOM.render(
       />
       <Route
         path={
-          "(home/)(squad/:squadID/)" +
+          "(home/)(squad/:calendarID/)" +
           "(year/:year/)(month/:month/)" +
           "(verify/:verify/)"
         }

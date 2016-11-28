@@ -550,7 +550,7 @@ CalendarSettingsModal.propTypes = {
 export default connect(
   (state: AppState) => ({
     monthURL: monthURL(state),
-    navCalendarID: state.navInfo.squadID,
+    navCalendarID: state.navInfo.calendarID,
     navHome: state.navInfo.home,
     calendarInfos: state.calendarInfos,
   }),

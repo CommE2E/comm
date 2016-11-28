@@ -10,7 +10,7 @@ export type NavInfo = {
   year: number,
   month: number, // 1-indexed
   home: bool,
-  squadID: ?string,
+  calendarID: ?string,
   entriesLoadingStatus: LoadingStatus,
 }
 
@@ -26,7 +26,7 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   calendarInfos: {[id: string]: CalendarInfo},
-  newSquadID: ?string,
+  newCalendarID: ?string,
 };
 
 export type UpdateCallback = (prevState: AppState) => AppState;

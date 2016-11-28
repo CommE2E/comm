@@ -26,9 +26,9 @@ type Props = {
   currentNavID: string,
   calendarInfos: {[id: string]: CalendarInfo},
   currentlyHome: bool,
-  currentSquadID: ?string,
+  currentCalendarID: ?string,
   subscriptionExists: bool,
-  newSquadID: ?string,
+  newCalendarID: ?string,
   monthURL: string,
   updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
@@ -93,15 +93,15 @@ class Typeahead extends React.Component {
         },
       );
     }
-    // New squad created by user?
+    // New calendar created by user?
     if (
-      this.props.newSquadID &&
+      this.props.newCalendarID &&
       _.size(this.props.calendarInfos) > _.size(prevProps.calendarInfos) &&
-      this.props.calendarInfos[this.props.newSquadID] !== undefined
+      this.props.calendarInfos[this.props.newCalendarID] !== undefined
     ) {
-      history.push(`squad/${this.props.newSquadID}/${this.props.monthURL}`);
+      history.push(`squad/${this.props.newCalendarID}/${this.props.monthURL}`);
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        newSquadID: { $set: null },
+        newCalendarID: { $set: null },
       }));
     }
   }
@@ -419,9 +419,9 @@ Typeahead.propTypes = {
   currentNavID: React.PropTypes.string.isRequired,
   calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   currentlyHome: React.PropTypes.bool.isRequired,
-  currentSquadID: React.PropTypes.string,
+  currentCalendarID: React.PropTypes.string,
   subscriptionExists: React.PropTypes.bool.isRequired,
-  newSquadID: React.PropTypes.string,
+  newCalendarID: React.PropTypes.string,
   monthURL: React.PropTypes.string.isRequired,
   updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
@@ -433,9 +433,9 @@ export default connect(
     currentNavID: currentNavID(state),
     calendarInfos: state.calendarInfos,
     currentlyHome: state.navInfo.home,
-    currentSquadID: state.navInfo.squadID,
+    currentCalendarID: state.navInfo.calendarID,
     subscriptionExists: subscriptionExists(state),
-    newSquadID: state.newSquadID,
+    newCalendarID: state.newCalendarID,
     monthURL: monthURL(state),
   }),
   mapStateToUpdateStore,

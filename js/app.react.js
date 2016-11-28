@@ -40,7 +40,7 @@ type Props = {
   params: {
     year: ?string,
     month: ?string,
-    squadID: ?string,
+    calendarID: ?string,
     verify: ?string,
   },
   location: {
@@ -100,8 +100,8 @@ class App extends React.Component {
 
   componentWillReceiveProps(newProps: Props) {
     const newHome = newProps.location.pathname.indexOf("home/") === 0;
-    const newSquadID = newProps.params.squadID
-      ? newProps.params.squadID
+    const newCalendarID = newProps.params.calendarID
+      ? newProps.params.calendarID
       : null;
     const currentDate = new Date();
     const newYear = newProps.params.year
@@ -112,7 +112,7 @@ class App extends React.Component {
       : currentDate.getMonth() + 1;
     const updateObj: {[key: string]: mixed} = {
       home: { $set: newHome },
-      squadID: { $set: newSquadID },
+      calendarID: { $set: newCalendarID },
       year: { $set: newYear },
       month: { $set: newMonth },
     };
@@ -224,7 +224,7 @@ App.propTypes = {
   params: React.PropTypes.shape({
     year: React.PropTypes.string,
     month: React.PropTypes.string,
-    squadID: React.PropTypes.string,
+    calendarID: React.PropTypes.string,
     verify: React.PropTypes.string,
   }),
   location: locationShape,
