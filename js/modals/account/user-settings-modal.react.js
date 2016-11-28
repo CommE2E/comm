@@ -358,14 +358,14 @@ class UserSettingsModal extends React.Component {
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: { $set: response.squad_infos },
+        calendarInfos: { $set: response.calendar_infos },
         email: { $set: "" },
         loggedIn: { $set: false },
         username: { $set: "" },
         emailVerified: { $set: false },
       }));
-      // TODO fix this special case of default squad 254
-      history.replace(`squad/254/${this.props.monthURL}`);
+      // TODO fix this special case of default calendar 254
+      history.replace(`calendar/254/${this.props.monthURL}`);
       this.props.onClose();
       return;
     }

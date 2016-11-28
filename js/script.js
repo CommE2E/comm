@@ -92,7 +92,7 @@ ReactDOM.render(
       />
       <Route
         path={
-          "(home/)(squad/:calendarID/)" +
+          "(home/)(calendar/:calendarID/)" +
           "(year/:year/)(month/:month/)" +
           "(verify/:verify/)"
         }

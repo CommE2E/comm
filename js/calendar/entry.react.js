@@ -36,7 +36,6 @@ type Props = {
 type State = {
   focused: bool,
   hovered: bool,
-  showSquadSelector: bool,
   loadingStatus: LoadingStatus,
   text: string,
 };
@@ -56,7 +55,6 @@ class Entry extends React.Component {
     this.state = {
       focused: false,
       hovered: false,
-      showSquadSelector: false,
       loadingStatus: "inactive",
       text: props.entryInfo.text,
     };

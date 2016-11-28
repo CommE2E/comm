@@ -99,7 +99,9 @@ class Typeahead extends React.Component {
       _.size(this.props.calendarInfos) > _.size(prevProps.calendarInfos) &&
       this.props.calendarInfos[this.props.newCalendarID] !== undefined
     ) {
-      history.push(`squad/${this.props.newCalendarID}/${this.props.monthURL}`);
+      history.push(
+        `calendar/${this.props.newCalendarID}/${this.props.monthURL}`,
+      );
       this.props.updateStore((prevState: AppState) => update(prevState, {
         newCalendarID: { $set: null },
       }));

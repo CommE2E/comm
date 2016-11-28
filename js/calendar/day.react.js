@@ -47,7 +47,7 @@ class Day extends React.Component {
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
-  squadPicker: ?HTMLDivElement;
+  calendarPicker: ?HTMLDivElement;
   entries: Map<string, EntryConnect>;
   curLocalID: number;
 
@@ -115,7 +115,7 @@ class Day extends React.Component {
       />;
     });
 
-    let squadPicker = null;
+    let calendarPicker = null;
     if (this.state.pickerOpen) {
       const options = this.props.onScreenCalendarInfos.map((calendarInfo) => {
         const style = { backgroundColor: "#" + calendarInfo.color };
@@ -131,12 +131,12 @@ class Day extends React.Component {
           </div>
         );
       });
-      squadPicker =
+      calendarPicker =
         <div
           className="pick-calendar"
           tabIndex="0"
-          onBlur={this.onSquadPickerBlur.bind(this)}
-          ref={(elem) => this.squadPicker = elem}
+          onBlur={this.onCalendarPickerBlur.bind(this)}
+          ref={(elem) => this.calendarPicker = elem}
         >{options}</div>;
     }
 
@@ -163,7 +163,7 @@ class Day extends React.Component {
           />
         </div>
         {actionLinks}
-        {squadPicker}
+        {calendarPicker}
       </td>
     );
   }
@@ -196,14 +196,14 @@ class Day extends React.Component {
         { pickerOpen: true },
         () => {
           invariant(
-            this.squadPicker instanceof HTMLDivElement,
-            "squad picker isn't div",
+            this.calendarPicker instanceof HTMLDivElement,
+            "calendar picker isn't div",
           );
-          this.squadPicker.focus();
+          this.calendarPicker.focus();
         },
       );
     }
-    // TODO: handle case where no onscreen squads
+    // TODO: handle case where no onscreen calendars
   }
 
   createNewEntry(calendarID: string) {
@@ -229,7 +229,7 @@ class Day extends React.Component {
     });
   }
 
-  onSquadPickerBlur(event: SyntheticEvent) {
+  onCalendarPickerBlur(event: SyntheticEvent) {
     this.setState({ pickerOpen: false });
   }
 

@@ -120,7 +120,7 @@ class CalendarLoginModal extends React.Component {
 
     this.setState({ inputDisabled: true });
     const response = await fetchJSON('auth_calendar.php', {
-      'squad': this.props.calendarInfo.id,
+      'calendar': this.props.calendarInfo.id,
       'password': this.state.password,
     });
     if (response.success) {
@@ -135,7 +135,7 @@ class CalendarLoginModal extends React.Component {
       });
       this.props.onClose();
       history.push(
-        `squad/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+        `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
       );
       await fetchEntriesAndUpdateStore(
         this.props.year,

@@ -123,7 +123,7 @@ class TypeaheadOptionButtons extends React.Component {
       );
       if (!subscriptionExists) {
         // TODO fix this special case of default calendar 254
-        history.replace(`squad/254/${this.props.monthURL}`);
+        history.replace(`calendar/254/${this.props.monthURL}`);
       }
     }
     if (response.success) {

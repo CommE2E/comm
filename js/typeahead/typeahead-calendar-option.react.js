@@ -74,7 +74,7 @@ class TypeaheadCalendarOption extends React.Component {
     if (this.props.calendarInfo.authorized) {
       this.props.unfreezeTypeahead();
       history.push(
-        `squad/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+        `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
       );
       await fetchEntriesAndUpdateStore(
         this.props.year,

@@ -39,7 +39,7 @@ const thisNavURLFragment = createSelector(
       return "home/";
     }
     invariant(navInfo.calendarID, "either home or calendarID should be set");
-    return `squad/${navInfo.calendarID}/`;
+    return `calendar/${navInfo.calendarID}/`;
   },
 );
 

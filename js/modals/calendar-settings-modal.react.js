@@ -498,13 +498,13 @@ class CalendarSettingsModal extends React.Component {
       });
       if (this.props.navHome && !this.otherSubscriptionExists()) {
         // TODO fix this special case of default calendar 254
-        history.replace(`squad/254/${this.props.monthURL}`);
+        history.replace(`calendar/254/${this.props.monthURL}`);
       } else if (this.props.navCalendarID === this.props.calendarInfo.id) {
         if (this.otherSubscriptionExists()) {
           history.replace(`home/${this.props.monthURL}`);
         } else {
           // TODO fix this special case of default calendar 254
-          history.replace(`squad/254/${this.props.monthURL}`);
+          history.replace(`calendar/254/${this.props.monthURL}`);
         }
       }
       this.props.onClose();

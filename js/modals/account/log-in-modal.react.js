@@ -155,7 +155,7 @@ class LogInModal extends React.Component {
     if (response.success) {
       this.props.onClose();
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: { $set: response.squad_infos },
+        calendarInfos: { $set: response.calendar_infos },
         email: { $set: response.email },
         loggedIn: { $set: true },
         username: { $set: response.username },
