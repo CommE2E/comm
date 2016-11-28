@@ -401,7 +401,7 @@ class CalendarSettingsModal extends React.Component {
     }
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('edit_squad.php', {
+    const response = await fetchJSON('edit_calendar.php', {
       'name': name,
       'description': this.state.calendarInfo.description,
       'squad': this.props.calendarInfo.id,
@@ -484,7 +484,7 @@ class CalendarSettingsModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('delete_squad.php', {
+    const response = await fetchJSON('delete_calendar.php', {
       'squad': this.props.calendarInfo.id,
       'password': this.state.accountPassword,
     });

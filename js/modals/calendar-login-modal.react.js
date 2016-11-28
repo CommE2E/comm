@@ -119,7 +119,7 @@ class CalendarLoginModal extends React.Component {
     event.preventDefault();
 
     this.setState({ inputDisabled: true });
-    const response = await fetchJSON('auth_squad.php', {
+    const response = await fetchJSON('auth_calendar.php', {
       'squad': this.props.calendarInfo.id,
       'password': this.state.password,
     });
