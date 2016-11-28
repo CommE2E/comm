@@ -19,7 +19,7 @@ if (!user_logged_in()) {
 if (
   !isset($_POST['name']) ||
   !isset($_POST['description']) ||
-  !isset($_POST['squad']) ||
+  !isset($_POST['calendar']) ||
   !isset($_POST['type']) ||
   !isset($_POST['color']) ||
   !isset($_POST['personal_password'])
@@ -48,7 +48,7 @@ if ($is_closed) {
 }
 
 $user = get_viewer_id();
-$calendar = (int)$_POST['squad'];
+$calendar = (int)$_POST['calendar'];
 $personal_password = $_POST['personal_password'];
 
 // Three unrelated purposes for this query, all from different tables:

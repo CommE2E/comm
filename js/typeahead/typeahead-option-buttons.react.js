@@ -98,7 +98,7 @@ class TypeaheadOptionButtons extends React.Component {
     const newSubscribed = !this.props.calendarInfo.subscribed;
     const [ response ] = await Promise.all([
       fetchJSON('subscribe.php', {
-        'squad': this.props.calendarInfo.id,
+        'calendar': this.props.calendarInfo.id,
         'subscribe': newSubscribed ? 1 : 0,
       }),
       (async () => {

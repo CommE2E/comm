@@ -96,5 +96,5 @@ $conn->query(
 
 exit(json_encode(array(
   'success' => true,
-  'new_squad_id' => $id,
+  'new_calendar_id' => $id,
 )));

@@ -228,7 +228,7 @@ class Entry extends React.Component {
       payload['day'] = this.props.entryInfo.day;
       payload['month'] = this.props.entryInfo.month;
       payload['year'] = this.props.entryInfo.year;
-      payload['squad'] = this.props.entryInfo.calendarID;
+      payload['calendar'] = this.props.entryInfo.calendarID;
       payload['timestamp'] = this.props.entryInfo.creationTime;
     } else {
       payload['timestamp'] = Date.now();

@@ -12,12 +12,12 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
-if (!isset($_POST['squad'])) {
+if (!isset($_POST['calendar'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
-$calendar = intval($_POST['squad']);
+$calendar = intval($_POST['calendar']);
 
 // First, let's fetch the calendar row and see if it needs authentication
 $result = $conn->query(

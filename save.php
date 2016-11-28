@@ -18,7 +18,7 @@ if ($entry_id === -1) {
     !isset($_POST['day']) ||
     !isset($_POST['month']) ||
     !isset($_POST['year']) ||
-    !isset($_POST['squad'])
+    !isset($_POST['calendar'])
   ) {
     exit(json_encode(array(
       'error' => 'invalid_parameters',
@@ -27,7 +27,7 @@ if ($entry_id === -1) {
   $day = intval($_POST['day']);
   $month = intval($_POST['month']);
   $year = intval($_POST['year']);
-  $calendar = intval($_POST['squad']);
+  $calendar = intval($_POST['calendar']);
   $day_id = get_day_id($calendar, $day, $month, $year);
 } else {
   $result = $conn->query(

@@ -301,7 +301,7 @@ class NewCalendarModal extends React.Component {
       'color': color,
     });
     if (response.success) {
-      const newCalendarID = response.new_squad_id.toString();
+      const newCalendarID = response.new_calendar_id.toString();
       this.props.onClose();
       const updateObj = {};
       updateObj[newCalendarID] = { $set: {

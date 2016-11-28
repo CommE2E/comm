@@ -16,14 +16,14 @@ if (!user_logged_in()) {
     'error' => 'not_logged_in',
   )));
 }
-if (!isset($_POST['squad']) || !isset($_POST['password'])) {
+if (!isset($_POST['calendar']) || !isset($_POST['password'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
 
 $user = get_viewer_id();
-$calendar = (int)$_POST['squad'];
+$calendar = (int)$_POST['calendar'];
 $password = $_POST['password'];
 
 $result = $conn->query(

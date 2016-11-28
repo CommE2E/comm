@@ -11,13 +11,13 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   exit;
 }
 
-if (!isset($_POST['squad']) || !isset($_POST['subscribe'])) {
+if (!isset($_POST['calendar']) || !isset($_POST['subscribe'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
     'test' => $_POST,
   )));
 }
-$calendar = (int)$_POST['squad'];
+$calendar = (int)$_POST['calendar'];
 $subscribe = $_POST['subscribe'] ? 1 : 0;
 
 $can_see = viewer_can_see_calendar($calendar);
