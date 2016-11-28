@@ -27,8 +27,8 @@ if ($entry_id === -1) {
   $day = intval($_POST['day']);
   $month = intval($_POST['month']);
   $year = intval($_POST['year']);
-  $squad = intval($_POST['squad']);
-  $day_id = get_day_id($squad, $day, $month, $year);
+  $calendar = intval($_POST['squad']);
+  $day_id = get_day_id($calendar, $day, $month, $year);
 } else {
   $result = $conn->query(
     "SELECT day, deleted, text FROM entries WHERE id = $entry_id"

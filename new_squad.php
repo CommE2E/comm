@@ -46,8 +46,8 @@ if (strtolower($name) === "home") {
 $result = $conn->query(
   "SELECT id FROM squads WHERE LCASE(name) = LCASE('$name')"
 );
-$squad_row = $result->fetch_assoc();
-if ($squad_row) {
+$calendar_row = $result->fetch_assoc();
+if ($calendar_row) {
   exit(json_encode(array(
     'error' => 'name_taken',
   )));

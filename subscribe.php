@@ -17,10 +17,10 @@ if (!isset($_POST['squad']) || !isset($_POST['subscribe'])) {
     'test' => $_POST,
   )));
 }
-$squad = (int)$_POST['squad'];
+$calendar = (int)$_POST['squad'];
 $subscribe = $_POST['subscribe'] ? 1 : 0;
 
-$can_see = viewer_can_see_squad($squad);
+$can_see = viewer_can_see_calendar($calendar);
 if ($can_see === null) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -36,7 +36,7 @@ $viewer_id = get_viewer_id();
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
   "INSERT INTO roles(squad, user, last_view, role, subscribed) VALUES ".
-    "($squad, $viewer_id, $time, ".ROLE_VIEWED.", $subscribe) ON DUPLICATE ".
+    "($calendar, $viewer_id, $time, ".ROLE_VIEWED.", $subscribe) ON DUPLICATE ".
     "KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
     "role = GREATEST(VALUES(role), role), subscribed = VALUES(subscribed)"
 );

@@ -25,15 +25,15 @@ $month = intval($_POST['month']);
 $year = intval($_POST['year']);
 
 $home = null;
-$squad = null;
+$calendar = null;
 if ($_POST['nav'] === "home") {
   $home = true;
 } else {
   $home = false;
-  $squad = intval($_POST['nav']);
+  $calendar = intval($_POST['nav']);
 }
 
-$additional_condition = $home ? "r.subscribed = 1" : "d.squad = $squad";
+$additional_condition = $home ? "r.subscribed = 1" : "d.squad = $calendar";
 $viewer_id = get_viewer_id();
 $result = $conn->query(
   "SELECT e.id, DAY(d.date) AS day, e.text, e.creation_time AS creationTime, ".

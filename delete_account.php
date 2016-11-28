@@ -2,7 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
-require_once('squad_lib.php');
+require_once('calendar_lib.php');
 
 header("Content-Type: application/json");
 
@@ -63,5 +63,5 @@ $anonymous_viewer = init_anonymous_cookie();
 
 exit(json_encode(array(
   'success' => true,
-  'squad_infos' => get_squad_infos($anonymous_viewer),
+  'calendar_infos' => get_calendar_infos($anonymous_viewer),
 )));

@@ -5,22 +5,22 @@ require_once('auth.php');
 
 // null if invalid parameters
 // false if invalid credentials
-function get_day_id($squad, $day, $month, $year) {
+function get_day_id($calendar, $day, $month, $year) {
   global $conn;
 
   $date = date('Y-m-d', strtotime("$month/$day/$year"));
-  if (!$date || !$squad) {
+  if (!$date || !$calendar) {
     return null;
   }
 
-  $can_see = viewer_can_see_squad($squad);
+  $can_see = viewer_can_see_calendar($calendar);
   if (!$can_see) {
     // can be null or false, see comment above
     return $can_see;
   }
 
   $result = $conn->query(
-    "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
+    "SELECT id FROM days WHERE date = '$date' AND squad = $calendar"
   );
   $existing_row = $result->fetch_assoc();
   if ($existing_row) {
@@ -30,7 +30,7 @@ function get_day_id($squad, $day, $month, $year) {
   $conn->query("INSERT INTO ids(table_name) VALUES('days')");
   $new_day_id = $conn->insert_id;
   $conn->query(
-    "INSERT INTO days(id, date, squad) VALUES ($new_day_id, '$date', $squad)"
+    "INSERT INTO days(id, date, squad) VALUES ($new_day_id, '$date', $calendar)"
   );
   if ($conn->errno === 0) {
     return $new_day_id;
@@ -42,7 +42,7 @@ function get_day_id($squad, $day, $month, $year) {
     // query will have failed. We will recover by re-querying for the ID here,
     // and deleting the extra ID we created from the `ids` table.
     $result = $conn->query(
-      "SELECT id FROM days WHERE date = '$date' AND squad = $squad"
+      "SELECT id FROM days WHERE date = '$date' AND squad = $calendar"
     );
     $existing_row = $result->fetch_assoc();
     $conn->query("DELETE FROM ids WHERE id = $new_day_id");

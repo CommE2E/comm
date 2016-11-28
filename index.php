@@ -3,7 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
-require_once('squad_lib.php');
+require_once('calendar_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -23,21 +23,21 @@ $month_rewrite_matched = preg_match(
   $month_matches
 );
 $month = $month_rewrite_matched ? (int)$month_matches[1] : idate('m');
-$squad_rewrite_matched = preg_match(
-  '#/squad/([0-9]+)(/|$)#i',
+$calendar_rewrite_matched = preg_match(
+  '#/calendar/([0-9]+)(/|$)#i',
   $_SERVER['REQUEST_URI'],
-  $squad_matches
+  $calendar_matches
 );
 $home_rewrite_matched = preg_match('#/home(/|$)#i', $_SERVER['REQUEST_URI']);
 if ($home_rewrite_matched) {
   $home = true;
-  $squad = null;
-} else if ($squad_rewrite_matched) {
+  $calendar = null;
+} else if ($calendar_rewrite_matched) {
   $home = false;
-  $squad = (int)$squad_matches[1];;
+  $calendar = (int)$calendar_matches[1];;
 } else {
   $home = false;
-  $squad = null;
+  $calendar = null;
 }
 
 $month_beginning_timestamp = date_create("$month/1/$year");
@@ -75,37 +75,38 @@ if ($verify_code) {
 }
 
 $viewer_id = get_viewer_id();
-$squad_infos = get_squad_infos($viewer_id);
+$calendar_infos = get_calendar_infos($viewer_id);
 
 $subscription_exists = false;
-foreach ($squad_infos as $squad_info) {
-  if ($squad_info['subscribed']) {
+foreach ($calendar_infos as $calendar_info) {
+  if ($calendar_info['subscribed']) {
     $subscription_exists = true;
     break;
   }
 }
-if (!$home && $squad === null) {
+if (!$home && $calendar === null) {
   if ($subscription_exists) {
     $home = true;
   } else {
-    $squad = 254;
+    $calendar = 254;
   }
 }
 if (
   ($home && !$subscription_exists) ||
   (!$home &&
-    (!isset($squad_infos[$squad]) || !$squad_infos[$squad]['authorized']))
+    (!isset($calendar_infos[$calendar]) ||
+      !$calendar_infos[$calendar]['authorized']))
 ) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }
 
-if ($squad !== null) {
+if ($calendar !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
     "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
-      "VALUES ($squad, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE KEY ".
-      "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+      "VALUES ($calendar, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE ".
+      "KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
       "role = GREATEST(VALUES(role), role), ".
       "subscribed = GREATEST(VALUES(subscribed), subscribed)"
   );
@@ -144,19 +145,19 @@ if ($home) {
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-      "d.squad = $squad AND e.deleted = 0 ORDER BY d.date, e.creation_time"
+      "d.squad = $calendar AND e.deleted = 0 ORDER BY d.date, e.creation_time"
   );
 }
 while ($row = $result->fetch_assoc()) {
-  $entry_squad = intval($row['squad']);
-  if (!$squad_infos[$entry_squad]['authorized']) {
+  $entry_calendar = intval($row['squad']);
+  if (!$calendar_infos[$entry_calendar]['authorized']) {
     continue;
   }
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
   $entries[$day][$entry] = array(
     "id" => (string)$entry,
-    "squadID" => (string)$entry_squad,
+    "calendarID" => (string)$entry_calendar,
     "text" => $row['text'],
     "year" => $year,
     "month" => $month,
@@ -185,7 +186,7 @@ while ($row = $result->fetch_assoc()) {
       var username = "<?=$username?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
-      var squad_infos = <?=json_encode($squad_infos, JSON_FORCE_OBJECT)?>;
+      var calendar_infos = <?=json_encode($calendar_infos, JSON_FORCE_OBJECT)?>;
       var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
@@ -194,7 +195,7 @@ while ($row = $result->fetch_assoc()) {
       var verify_field = <?=$verify_field !== null ? $verify_field : 'null'?>;
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$home ? 'true' : 'false'?>;
-      var squad_id = <?=$squad ? "'$squad'" : "null"?>;
+      var calendar_id = <?=$calendar ? "'$calendar'" : "null"?>;
     </script>
   </head>
   <body>
@@ -236,7 +237,7 @@ HTML;
 if ($home) {
   $nav_url_fragment = "home/";
 } else {
-  $nav_url_fragment = "squad/{$squad}/";
+  $nav_url_fragment = "calendar/{$calendar}/";
 }
 
 $prev_month = $month - 1;

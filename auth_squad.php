@@ -17,34 +17,34 @@ if (!isset($_POST['squad'])) {
     'error' => 'invalid_parameters',
   )));
 }
-$squad = intval($_POST['squad']);
+$calendar = intval($_POST['squad']);
 
-// First, let's fetch the squad row and see if it needs authentication
+// First, let's fetch the calendar row and see if it needs authentication
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM squads WHERE id=$squad"
+    "FROM squads WHERE id=$calendar"
 );
-$squad_row = $result->fetch_assoc();
-if (!$squad_row) {
+$calendar_row = $result->fetch_assoc();
+if (!$calendar_row) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
-if ($squad_row['hash'] === null) {
+if ($calendar_row['hash'] === null) {
   exit(json_encode(array(
     'success' => true,
   )));
 }
 
-// The squad needs authentication, so we need to validate credentials
+// The calendar needs authentication, so we need to validate credentials
 if (!isset($_POST['password'])) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
   )));
 }
 $password = $_POST['password'];
-$hash = hash('sha512', $password.$squad_row['salt']);
-if ($squad_row['hash'] !== $hash) {
+$hash = hash('sha512', $password.$calendar_row['salt']);
+if ($calendar_row['hash'] !== $hash) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));
@@ -55,7 +55,7 @@ $viewer_id = get_viewer_id();
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
   "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
-    "VALUES ($squad, $viewer_id, $time, ".ROLE_SUCCESSFUL_AUTH.", 0) ON ".
+    "VALUES ($calendar, $viewer_id, $time, ".ROLE_SUCCESSFUL_AUTH.", 0) ON ".
     "DUPLICATE KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
     "role = GREATEST(VALUES(role), role), ".
     "subscribed = GREATEST(VALUES(subscribed), subscribed)"

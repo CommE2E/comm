@@ -3,7 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
-require_once('squad_lib.php');
+require_once('calendar_lib.php');
 
 header("Content-Type: application/json");
 
@@ -74,5 +74,5 @@ exit(json_encode(array(
   'username' => $user_row['username'],
   'email' => $user_row['email'],
   'email_verified' => (bool)$user_row['email_verified'],
-  'squad_infos' => get_squad_infos($user),
+  'calendar_infos' => get_calendar_infos($user),
 )));

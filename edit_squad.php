@@ -48,12 +48,12 @@ if ($is_closed) {
 }
 
 $user = get_viewer_id();
-$squad = (int)$_POST['squad'];
+$calendar = (int)$_POST['squad'];
 $personal_password = $_POST['personal_password'];
 
 // Three unrelated purposes for this query, all from different tables:
 // - get hash and salt for viewer password check (users table)
-// - figures out if the squad requires auth (squads table)
+// - figures out if the calendar requires auth (squads table)
 // - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
   "SELECT s.hash IS NOT NULL as squad_requires_auth, ".
@@ -61,7 +61,7 @@ $result = $conn->query(
     "FROM roles r ".
     "LEFT JOIN users u ON u.id = r.user ".
     "LEFT JOIN squads s ON s.id = r.squad ".
-    "WHERE r.squad = $squad AND r.user = $user ".
+    "WHERE r.squad = $calendar AND r.user = $user ".
     "AND r.role >= ".ROLE_CREATOR
 );
 $row = $result->fetch_assoc();
@@ -77,7 +77,7 @@ if ($row['hash'] !== $hash) {
   )));
 }
 
-// If the squad is currently open but is being switched to closed,
+// If the calendar is currently open but is being switched to closed,
 // then a password *must* be specified
 if (!$row['squad_requires_auth'] && $is_closed && trim($new_password) === '') {
   exit(json_encode(array(
@@ -95,8 +95,8 @@ if (strtolower($name) === "home") {
 $result = $conn->query(
   "SELECT id FROM squads WHERE LCASE(name) = LCASE('$name')"
 );
-$squad_row = $result->fetch_assoc();
-if ($squad_row && (int)$squad_row['id'] !== $squad) {
+$calendar_row = $result->fetch_assoc();
+if ($calendar_row && (int)$calendar_row['id'] !== $calendar) {
   exit(json_encode(array(
     'error' => 'name_taken',
   )));
@@ -109,20 +109,20 @@ if ($is_closed && $new_password !== '') {
   $conn->query(
     "UPDATE squads SET name = '$name', description = '$description', ".
       "color = '$color', salt = UNHEX('$salt'), hash = UNHEX('$hash'), ".
-      "edit_rules = $edit_rules WHERE id = $squad"
+      "edit_rules = $edit_rules WHERE id = $calendar"
   );
 } else if ($is_closed) {
-  // We are guaranteed that the squad was closed beforehand, as otherwise
+  // We are guaranteed that the calendar was closed beforehand, as otherwise
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
     "UPDATE squads SET name = '$name', description = '$description', ".
-      "color = '$color' WHERE id = $squad"
+      "color = '$color' WHERE id = $calendar"
   );
 } else {
   $conn->query(
     "UPDATE squads SET name = '$name', description = '$description', ".
       "color = '$color', salt = NULL, hash = NULL, edit_rules = $edit_rules ".
-      "WHERE id = $squad"
+      "WHERE id = $calendar"
   );
 }
 

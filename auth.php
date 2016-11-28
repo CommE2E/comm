@@ -214,8 +214,8 @@ function set_cookie($name, $value, $expiration_time) {
   );
 }
 
-// null if squad does not exist
-function viewer_can_see_squad($squad) {
+// null if calendar does not exist
+function viewer_can_see_calendar($calendar) {
   global $conn;
 
   $viewer_id = get_viewer_id();
@@ -223,13 +223,13 @@ function viewer_can_see_squad($squad) {
     "SELECT s.hash IS NOT NULL AND (r.squad IS NULL OR r.role < ".
       ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM squads s ".
       "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id} ".
-      "WHERE s.id = $squad"
+      "WHERE s.id = $calendar"
   );
-  $squad_row = $result->fetch_assoc();
-  if (!$squad_row) {
+  $calendar_row = $result->fetch_assoc();
+  if (!$calendar_row) {
     return null;
   }
-  return !$squad_row['requires_auth'];
+  return !$calendar_row['requires_auth'];
 }
 
 // null if day does not exist
