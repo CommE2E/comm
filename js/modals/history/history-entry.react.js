@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../../squad-info';
-import { squadInfoPropType } from '../../squad-info';
+import type { CalendarInfo } from '../../calendar-info';
+import { calendarInfoPropType } from '../../calendar-info';
 import type { EntryInfo } from '../../calendar/entry-info';
 import { entryInfoPropType } from '../../calendar/entry-info';
 import type { LoadingStatus } from '../../loading-indicator.react';
@@ -12,12 +12,12 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 
 import LoadingIndicator from '../../loading-indicator.react';
-import { colorIsDark } from '../../squad-utils';
+import { colorIsDark } from '../../calendar-utils';
 import fetchJSON from '../../fetch-json';
 
 type Props = {
   entryInfo: EntryInfo,
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
@@ -73,9 +73,9 @@ class HistoryEntry extends React.Component {
     const textClasses = classNames({
       "entry": true,
       "entry-history-entry": true,
-      "dark-entry": colorIsDark(this.props.squadInfo.color),
+      "dark-entry": colorIsDark(this.props.calendarInfo.color),
     });
-    const textStyle = { backgroundColor: "#" + this.props.squadInfo.color };
+    const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
     const creator = this.props.entryInfo.creator === null
       ? "Anonymous"
       : <span className="entry-username">{this.props.entryInfo.creator}</span>;
@@ -90,7 +90,7 @@ class HistoryEntry extends React.Component {
           {creator}
         </span>
         <span className="entry-calendar">
-          {this.props.squadInfo.name}
+          {this.props.calendarInfo.name}
         </span>
         <div className="clear" />
         {deleted}
@@ -137,7 +137,7 @@ class HistoryEntry extends React.Component {
 
 HistoryEntry.propTypes = {
   entryInfo: entryInfoPropType,
-  squadInfo: squadInfoPropType,
+  calendarInfo: calendarInfoPropType,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
@@ -148,6 +148,6 @@ HistoryEntry.propTypes = {
 
 type OwnProps = { entryInfo: EntryInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+  calendarInfo: state.calendarInfos[ownProps.entryInfo.squadID],
   sessionID: state.sessionID,
 }))(HistoryEntry);

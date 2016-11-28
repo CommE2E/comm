@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { LoadingStatus } from '../loading-indicator.react';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
@@ -18,14 +18,14 @@ import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
 import history from '../router-history';
 
 type Props = {
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
   year: number,
   month: number,
-  squadInfos: {[id: string]: SquadInfo},
+  calendarInfos: {[id: string]: CalendarInfo},
   monthURL: string,
   home: bool,
   updateStore: UpdateStore,
@@ -53,7 +53,7 @@ class TypeaheadOptionButtons extends React.Component {
   }
 
   render() {
-    if (!this.props.squadInfo.authorized) {
+    if (!this.props.calendarInfo.authorized) {
       return (
         <ul className="calendar-nav-option-buttons">
           <li>Closed</li>
@@ -61,7 +61,7 @@ class TypeaheadOptionButtons extends React.Component {
       );
     }
     let editButton = null;
-    if (this.props.squadInfo.editable) {
+    if (this.props.calendarInfo.editable) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit.bind(this)}>
@@ -79,7 +79,7 @@ class TypeaheadOptionButtons extends React.Component {
             className="calendar-nav-option-buttons-loading"
           />
           <a href='#' onClick={this.subscribe.bind(this)}>
-            {this.props.squadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
+            {this.props.calendarInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
           </a>
         </li>
       </ul>
@@ -95,10 +95,10 @@ class TypeaheadOptionButtons extends React.Component {
     this.setState({
       loadingStatus: "loading",
     });
-    const newSubscribed = !this.props.squadInfo.subscribed;
+    const newSubscribed = !this.props.calendarInfo.subscribed;
     const [ response ] = await Promise.all([
       fetchJSON('subscribe.php', {
-        'squad': this.props.squadInfo.id,
+        'squad': this.props.calendarInfo.id,
         'subscribe': newSubscribed ? 1 : 0,
       }),
       (async () => {
@@ -107,7 +107,7 @@ class TypeaheadOptionButtons extends React.Component {
           await fetchEntriesAndUpdateStore(
             this.props.year,
             this.props.month,
-            this.props.squadInfo.id,
+            this.props.calendarInfo.id,
             this.props.updateStore,
           );
         }
@@ -116,9 +116,9 @@ class TypeaheadOptionButtons extends React.Component {
     // If we are home and just killed the last subscription, redirect out
     if (this.props.home && !newSubscribed) {
       const subscriptionExists = _.some(
-        this.props.squadInfos,
-        (squadInfo: SquadInfo) => squadInfo.subscribed &&
-          squadInfo.id !== this.props.squadInfo.id,
+        this.props.calendarInfos,
+        (calendarInfo: CalendarInfo) => calendarInfo.subscribed &&
+          calendarInfo.id !== this.props.calendarInfo.id,
       );
       if (!subscriptionExists) {
         // TODO fix this special case of default squad 254
@@ -128,8 +128,8 @@ class TypeaheadOptionButtons extends React.Component {
     if (response.success) {
       const updateStoreCallback = () => {
         this.props.updateStore((prevState: AppState) => {
-          const updateParam = { squadInfos: {} };
-          updateParam.squadInfos[this.props.squadInfo.id] = {
+          const updateParam = { calendarInfos: {} };
+          updateParam.calendarInfos[this.props.calendarInfo.id] = {
             subscribed: { $set: newSubscribed },
           };
           return update(prevState, updateParam);
@@ -153,14 +153,14 @@ class TypeaheadOptionButtons extends React.Component {
   edit(event: SyntheticEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.props.freezeTypeahead(this.props.squadInfo.id);
+    this.props.freezeTypeahead(this.props.calendarInfo.id);
     const onClose = () => {
       this.props.unfreezeTypeahead();
       this.props.clearModal();
     }
     this.props.setModal(
       <SquadSettingsModal
-        squadInfo={this.props.squadInfo}
+        calendarInfo={this.props.calendarInfo}
         onClose={onClose}
       />
     );
@@ -169,14 +169,14 @@ class TypeaheadOptionButtons extends React.Component {
 }
 
 TypeaheadOptionButtons.propTypes = {
-  squadInfo: squadInfoPropType.isRequired,
+  calendarInfo: calendarInfoPropType.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
-  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   monthURL: React.PropTypes.string.isRequired,
   home: React.PropTypes.bool.isRequired,
   updateStore: React.PropTypes.func.isRequired,
@@ -186,7 +186,7 @@ export default connect(
   (state: AppState) => ({
     year: state.navInfo.year,
     month: state.navInfo.month,
-    squadInfos: state.squadInfos,
+    calendarInfos: state.calendarInfos,
     monthURL: monthURL(state),
     home: state.navInfo.home,
   }),

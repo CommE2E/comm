@@ -2,8 +2,8 @@
 
 import type { EntryInfo } from './entry-info';
 import { entryInfoPropType } from './entry-info';
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { AppState } from '../redux-reducer';
 
 import React from 'react';
@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 
 import Day from './day.react';
 import { getDate } from '../date-utils';
-import { onScreenSquadInfos } from '../squad-utils';
+import { onScreenCalendarInfos } from '../calendar-utils';
 
 type Props = {
   year: number,
@@ -20,7 +20,7 @@ type Props = {
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
-  onScreenSquadInfos: SquadInfo[],
+  onScreenCalendarInfos: CalendarInfo[],
 };
 
 class Calendar extends React.Component {
@@ -66,7 +66,7 @@ class Calendar extends React.Component {
           .filter(
             (entryInfo) => entryInfo.year === this.props.year &&
               entryInfo.month === this.props.month && !entryInfo.deleted &&
-              _.some(this.props.onScreenSquadInfos, ['id', entryInfo.squadID])
+              _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.squadID])
           ).sortBy("creationTime")
           .value();
         columns.push(
@@ -117,12 +117,13 @@ Calendar.propTypes = {
   ).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
-  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
+  onScreenCalendarInfos:
+    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
 };
 
 export default connect((state: AppState) => ({
   year: state.navInfo.year,
   month: state.navInfo.month,
   entryInfos: state.entryInfos,
-  onScreenSquadInfos: onScreenSquadInfos(state),
+  onScreenCalendarInfos: onScreenCalendarInfos(state),
 }))(Calendar);

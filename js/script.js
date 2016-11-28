@@ -2,7 +2,7 @@
 
 import 'babel-polyfill';
 
-import type { SquadInfo } from './squad-info';
+import type { CalendarInfo } from './calendar-info';
 import type { EntryInfo } from './calendar/entry-info';
 import type { AppState } from './redux-reducer';
 
@@ -20,7 +20,7 @@ import { thisNavURLFragment } from './nav-utils';
 declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
-declare var squad_infos: {[id: string]: SquadInfo};
+declare var squad_infos: {[id: string]: CalendarInfo};
 declare var entry_infos: {[day: string]: {[id: string]: EntryInfo}};
 declare var month: number;
 declare var year: number;
@@ -50,7 +50,7 @@ const store = createStore(
     verifyField: verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
-    squadInfos: squad_infos,
+    calendarInfos: squad_infos,
     newSquadID: null,
   }: AppState),
 );

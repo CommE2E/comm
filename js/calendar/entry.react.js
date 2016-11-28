@@ -2,8 +2,8 @@
 
 import type { EntryInfo } from './entry-info';
 import { entryInfoPropType } from './entry-info';
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { LoadingStatus } from '../loading-indicator.react';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import LoadingIndicator from '../loading-indicator.react';
-import { colorIsDark } from '../squad-utils';
+import { colorIsDark } from '../calendar-utils';
 import fetchJSON from '../fetch-json';
 import Modernizr from '../modernizr-custom';
 import ConcurrentModificationModal from
@@ -25,7 +25,7 @@ import { mapStateToUpdateStore } from '../redux-utils';
 
 type Props = {
   entryInfo: EntryInfo,
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   sessionID: string,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setModal: (modal: React.Element<any>) => void,
@@ -136,7 +136,7 @@ class Entry extends React.Component {
           </a>
           {historyButton}
           <span className="right-action-links action-links-text">
-            {this.props.squadInfo.name}
+            {this.props.calendarInfo.name}
           </span>
           <div className="clear"></div>
         </div>
@@ -145,10 +145,10 @@ class Entry extends React.Component {
 
     const entryClasses = classNames({
       "entry": true,
-      "dark-entry": colorIsDark(this.props.squadInfo.color),
+      "dark-entry": colorIsDark(this.props.calendarInfo.color),
       "focused-entry": this.state.focused || this.state.hovered,
     });
-    const style = { backgroundColor: "#" + this.props.squadInfo.color };
+    const style = { backgroundColor: "#" + this.props.calendarInfo.color };
     return (
       <div
         className={entryClasses}
@@ -365,7 +365,7 @@ class Entry extends React.Component {
 
 Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
-  squadInfo: squadInfoPropType.isRequired,
+  calendarInfo: calendarInfoPropType.isRequired,
   sessionID: React.PropTypes.string.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
@@ -379,7 +379,7 @@ type OwnProps = {
 };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    squadInfo: state.squadInfos[ownProps.entryInfo.squadID],
+    calendarInfo: state.calendarInfos[ownProps.entryInfo.squadID],
     sessionID: state.sessionID,
   }),
   mapStateToUpdateStore,

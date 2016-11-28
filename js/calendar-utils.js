@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from './redux-reducer';
-import type { SquadInfo } from './squad-info';
+import type { CalendarInfo } from './calendar-info';
 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
@@ -15,28 +15,29 @@ function colorIsDark(color: string) {
   return red * 0.299 + green * 0.587 + blue * 0.114 < 187;
 }
 
-const onScreenSquadInfos = createSelector(
+const onScreenCalendarInfos = createSelector(
   currentNavID,
-  (state: AppState) => state.squadInfos,
-  (currentNavID: string, squadInfos: {[id: string]: SquadInfo}) => {
+  (state: AppState) => state.calendarInfos,
+  (currentNavID: string, calendarInfos: {[id: string]: CalendarInfo}) => {
     if (currentNavID !== "home") {
-      return [ squadInfos[currentNavID] ];
+      return [ calendarInfos[currentNavID] ];
     }
-    return _.filter(squadInfos, 'subscribed');
+    return _.filter(calendarInfos, 'subscribed');
   },
 );
 
-const subscriptionExistsIn = (squadInfos: {[id: string]: SquadInfo}) =>
-  _.some(squadInfos, 'subscribed');
+const subscriptionExistsIn = (calendarInfos: {[id: string]: CalendarInfo}) =>
+  _.some(calendarInfos, 'subscribed');
 
 const subscriptionExists = createSelector(
-  (state: AppState) => state.squadInfos,
-  (squadInfos: {[id: string]: SquadInfo}) => subscriptionExistsIn(squadInfos),
+  (state: AppState) => state.calendarInfos,
+  (calendarInfos: {[id: string]: CalendarInfo}) =>
+    subscriptionExistsIn(calendarInfos),
 );
 
 export {
   colorIsDark,
-  onScreenSquadInfos,
+  onScreenCalendarInfos,
   subscriptionExistsIn,
   subscriptionExists,
 }

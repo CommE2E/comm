@@ -2,8 +2,8 @@
 
 import type { LoadingStatus } from '../../loading-indicator.react';
 import type { HistoryMode, HistoryRevisionInfo } from './history-types';
-import type { SquadInfo } from '../../squad-info';
-import { squadInfoPropType } from '../../squad-info';
+import type { CalendarInfo } from '../../calendar-info';
+import { calendarInfoPropType } from '../../calendar-info';
 import type { EntryInfo } from '../../calendar/entry-info';
 import { entryInfoPropType } from '../../calendar/entry-info';
 import type { AppState, UpdateStore } from '../../redux-reducer';
@@ -24,7 +24,7 @@ import HistoryRevision from './history-revision.react';
 import { getDate } from '../../date-utils';
 import { mapStateToUpdateStore } from '../../redux-utils';
 import { currentNavID, mergeNewEntriesIntoStore } from '../../nav-utils';
-import { onScreenSquadInfos } from '../../squad-utils';
+import { onScreenCalendarInfos } from '../../calendar-utils';
 import { entryKey } from '../../calendar/entry-utils';
 
 type Props = {
@@ -33,7 +33,7 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   currentNavID: string,
-  onScreenSquadInfos: SquadInfo[],
+  onScreenCalendarInfos: CalendarInfo[],
   entryInfos: {[id: string]: EntryInfo},
   onClose: () => void,
   currentEntryID?: ?string,
@@ -112,7 +112,7 @@ class HistoryModal extends React.Component {
       .filter(
         (entryInfo) => entryInfo.year === this.props.year &&
           entryInfo.month === this.props.month && entryInfo.id &&
-          _.some(this.props.onScreenSquadInfos, ['id', entryInfo.squadID])
+          _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.squadID])
       ).sortBy("creationTime")
       .map((entryInfo) =>
         <HistoryEntry
@@ -282,7 +282,8 @@ HistoryModal.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
-  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
+  onScreenCalendarInfos:
+    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
@@ -297,7 +298,7 @@ type OwnProps = { day: number };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
-    onScreenSquadInfos: onScreenSquadInfos(state),
+    onScreenCalendarInfos: onScreenCalendarInfos(state),
     entryInfos: state.entryInfos[ownProps.day.toString()],
   }),
   mapStateToUpdateStore,

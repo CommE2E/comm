@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
@@ -20,16 +20,16 @@ import history from '../router-history';
 
 type Tab = "general" | "privacy" | "delete";
 type Props = {
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   monthURL: string,
   navSquadID: ?string,
   navHome: bool,
-  squadInfos: {[id: string]: SquadInfo},
+  calendarInfos: {[id: string]: CalendarInfo},
   updateStore: UpdateStore,
   onClose: () => void,
 };
 type State = {
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   inputDisabled: bool,
   errorMessage: string,
   newSquadPassword: string,
@@ -49,7 +49,7 @@ class SquadSettingsModal extends React.Component {
   constructor(props: Props) {
     super(props);
     this.state = {
-      squadInfo: props.squadInfo,
+      calendarInfo: props.calendarInfo,
       inputDisabled: false,
       errorMessage: "",
       newSquadPassword: "",
@@ -74,7 +74,7 @@ class SquadSettingsModal extends React.Component {
             <div className="form-content">
               <input
                 type="text"
-                value={this.state.squadInfo.name}
+                value={this.state.calendarInfo.name}
                 onChange={this.onChangeName.bind(this)}
                 disabled={this.state.inputDisabled}
                 ref={(input) => this.nameInput = input}
@@ -85,7 +85,7 @@ class SquadSettingsModal extends React.Component {
             <div className="form-title">Description</div>
             <div className="form-content">
               <textarea
-                value={this.state.squadInfo.description}
+                value={this.state.calendarInfo.description}
                 placeholder="Squad description"
                 onChange={this.onChangeDescription.bind(this)}
                 disabled={this.state.inputDisabled}
@@ -97,7 +97,7 @@ class SquadSettingsModal extends React.Component {
             <div className="form-content">
               <ColorPicker
                 id="edit-squad-color"
-                value={this.state.squadInfo.color}
+                value={this.state.calendarInfo.color}
                 disabled={this.state.inputDisabled}
                 onChange={this.onChangeColor.bind(this)}
               />
@@ -107,12 +107,12 @@ class SquadSettingsModal extends React.Component {
       );
     } else if (this.state.currentTab === "privacy") {
       let squadPasswordInputs = null;
-      if (this.state.squadInfo.closed) {
+      if (this.state.calendarInfo.closed) {
         // Note: these depend on props, not state
-        const passwordPlaceholder = this.props.squadInfo.closed
+        const passwordPlaceholder = this.props.calendarInfo.closed
           ? "New squad password (optional)"
           : "New squad password";
-        const confirmPlaceholder = this.props.squadInfo.closed
+        const confirmPlaceholder = this.props.calendarInfo.closed
           ? "Confirm squad password (optional)"
           : "Confirm squad password";
         squadPasswordInputs = (
@@ -150,7 +150,7 @@ class SquadSettingsModal extends React.Component {
                   name="edit-squad-type"
                   id="edit-squad-open"
                   value={false}
-                  checked={!this.state.squadInfo.closed}
+                  checked={!this.state.calendarInfo.closed}
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
@@ -169,7 +169,7 @@ class SquadSettingsModal extends React.Component {
                   name="edit-squad-type"
                   id="edit-squad-closed"
                   value={true}
-                  checked={this.state.squadInfo.closed}
+                  checked={this.state.calendarInfo.closed}
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
@@ -283,9 +283,7 @@ class SquadSettingsModal extends React.Component {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => {
       return update(prevState, {
-        squadInfo: {
-          name: { $set: target.value },
-        }
+        calendarInfo: { name: { $set: target.value } },
       });
     });
   }
@@ -295,9 +293,7 @@ class SquadSettingsModal extends React.Component {
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState((prevState, props) => {
       return update(prevState, {
-        squadInfo: {
-          description: { $set: target.value },
-        }
+        calendarInfo: { description: { $set: target.value } },
       });
     });
   }
@@ -305,9 +301,7 @@ class SquadSettingsModal extends React.Component {
   onChangeColor(color: string) {
     this.setState((prevState, props) => {
       return update(prevState, {
-        squadInfo: {
-          color: { $set: color },
-        }
+        calendarInfo: { color: { $set: color } },
       });
     });
   }
@@ -317,9 +311,7 @@ class SquadSettingsModal extends React.Component {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => {
       return update(prevState, {
-        squadInfo: {
-          closed: { $set: target.value === "true" },
-        }
+        calendarInfo: { closed: { $set: target.value === "true" } },
       });
     });
   }
@@ -345,14 +337,12 @@ class SquadSettingsModal extends React.Component {
   async onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
-    const name = this.state.squadInfo.name.trim();
+    const name = this.state.calendarInfo.name.trim();
     if (name === '') {
       this.setState(
         (prevState, props) => {
           return update(prevState, {
-            squadInfo: {
-              name: { $set: this.props.squadInfo.name },
-            },
+            calendarInfo: { name: { $set: this.props.calendarInfo.name } },
             errorMessage: { $set: "empty squad name" },
             currentTab: { $set: "general" },
           });
@@ -365,10 +355,12 @@ class SquadSettingsModal extends React.Component {
       return;
     }
 
-    if (this.state.squadInfo.closed) {
+    if (this.state.calendarInfo.closed) {
       // If the squad is currently open but is being switched to closed,
       // then a password *must* be specified
-      if (!this.props.squadInfo.closed && this.state.newSquadPassword === '') {
+      if (
+        !this.props.calendarInfo.closed && this.state.newSquadPassword === ''
+      ) {
         this.setState(
           {
             newSquadPassword: "",
@@ -409,22 +401,22 @@ class SquadSettingsModal extends React.Component {
     this.setState({ inputDisabled: true });
     const response = await fetchJSON('edit_squad.php', {
       'name': name,
-      'description': this.state.squadInfo.description,
-      'squad': this.props.squadInfo.id,
-      'type': this.state.squadInfo.closed ? "closed" : "open",
+      'description': this.state.calendarInfo.description,
+      'squad': this.props.calendarInfo.id,
+      'type': this.state.calendarInfo.closed ? "closed" : "open",
       'personal_password': this.state.accountPassword,
       'new_password': this.state.newSquadPassword,
-      'color': this.state.squadInfo.color,
+      'color': this.state.calendarInfo.color,
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => {
-        const squadInfo = update(
-          this.state.squadInfo,
+        const calendarInfo = update(
+          this.state.calendarInfo,
           { name: { $set: name } },
         );
         const updateObj = {};
-        updateObj[this.props.squadInfo.id] = { $set: squadInfo };
-        return update(prevState, { squadInfos: updateObj });
+        updateObj[this.props.calendarInfo.id] = { $set: calendarInfo };
+        return update(prevState, { calendarInfos: updateObj });
       });
       this.props.onClose();
       return;
@@ -449,9 +441,7 @@ class SquadSettingsModal extends React.Component {
       this.setState(
         (prevState, props) => {
           return update(prevState, {
-            squadInfo: {
-              name: { $set: this.props.squadInfo.name },
-            },
+            calendarInfo: { name: { $set: this.props.calendarInfo.name } },
             errorMessage: { $set: "squad name already taken" },
             inputDisabled: { $set: false },
             currentTab: { $set: "general" },
@@ -466,11 +456,11 @@ class SquadSettingsModal extends React.Component {
       this.setState(
         (prevState, props) => {
           return update(prevState, {
-            squadInfo: {
-              name: { $set: this.props.squadInfo.name },
-              description: { $set: this.props.squadInfo.description },
-              closed: { $set: this.props.squadInfo.closed },
-              color: { $set: this.props.squadInfo.color },
+            calendarInfo: {
+              name: { $set: this.props.calendarInfo.name },
+              description: { $set: this.props.calendarInfo.description },
+              closed: { $set: this.props.calendarInfo.closed },
+              color: { $set: this.props.calendarInfo.color },
             },
             newSquadPassword: { $set: "" },
             confirmSquadPassword: { $set: "" },
@@ -493,21 +483,21 @@ class SquadSettingsModal extends React.Component {
 
     this.setState({ inputDisabled: true });
     const response = await fetchJSON('delete_squad.php', {
-      'squad': this.props.squadInfo.id,
+      'squad': this.props.calendarInfo.id,
       'password': this.state.accountPassword,
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => {
-        const newSquadInfos = _.omitBy(
-          prevState.squadInfos,
-          (candidate) => candidate.id === this.props.squadInfo.id,
+        const newCalendarInfos = _.omitBy(
+          prevState.calendarInfos,
+          (candidate) => candidate.id === this.props.calendarInfo.id,
         );
-        return update(prevState, { squadInfos: { $set: newSquadInfos } });
+        return update(prevState, { calendarInfos: { $set: newCalendarInfos } });
       });
       if (this.props.navHome && !this.otherSubscriptionExists()) {
         // TODO fix this special case of default squad 254
         history.replace(`squad/254/${this.props.monthURL}`);
-      } else if (this.props.navSquadID === this.props.squadInfo.id) {
+      } else if (this.props.navSquadID === this.props.calendarInfo.id) {
         if (this.otherSubscriptionExists()) {
           history.replace(`home/${this.props.monthURL}`);
         } else {
@@ -537,20 +527,20 @@ class SquadSettingsModal extends React.Component {
 
   otherSubscriptionExists() {
     return _.some(
-      this.props.squadInfos,
-      (squadInfo: SquadInfo) => squadInfo.subscribed &&
-        squadInfo.id !== this.props.squadInfo.id,
+      this.props.calendarInfos,
+      (calendarInfo: CalendarInfo) => calendarInfo.subscribed &&
+        calendarInfo.id !== this.props.calendarInfo.id,
     );
   }
 
 }
 
 SquadSettingsModal.propTypes = {
-  squadInfo: squadInfoPropType.isRequired,
+  calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   navSquadID: React.PropTypes.string,
   navHome: React.PropTypes.bool.isRequired,
-  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   updateStore: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
@@ -560,7 +550,7 @@ export default connect(
     monthURL: monthURL(state),
     navSquadID: state.navInfo.squadID,
     navHome: state.navInfo.home,
-    squadInfos: state.squadInfos,
+    calendarInfos: state.calendarInfos,
   }),
   mapStateToUpdateStore,
 )(SquadSettingsModal);

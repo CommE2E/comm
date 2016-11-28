@@ -2,8 +2,8 @@
 
 import type { HistoryRevisionInfo } from './history-types';
 import { historyRevisionInfoPropType } from './history-types';
-import type { SquadInfo } from '../../squad-info';
-import { squadInfoPropType } from '../../squad-info';
+import type { CalendarInfo } from '../../calendar-info';
+import { calendarInfoPropType } from '../../calendar-info';
 import type { AppState } from '../../redux-reducer';
 
 import React from 'react';
@@ -14,11 +14,11 @@ import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 
-import { colorIsDark } from '../../squad-utils';
+import { colorIsDark } from '../../calendar-utils';
 
 type Props = {
   revisionInfo: HistoryRevisionInfo,
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   isDeletionOrRestoration: bool,
 }
 
@@ -51,9 +51,9 @@ class HistoryRevision extends React.Component {
       const textClasses = classNames({
         "entry": true,
         "entry-history-entry": true,
-        "dark-entry": colorIsDark(this.props.squadInfo.color),
+        "dark-entry": colorIsDark(this.props.calendarInfo.color),
       });
-      const textStyle = { backgroundColor: "#" + this.props.squadInfo.color };
+      const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
       change = (
         <div className={textClasses} style={textStyle}>
           {this.props.revisionInfo.text}
@@ -92,11 +92,11 @@ class HistoryRevision extends React.Component {
 
 HistoryRevision.propTypes = {
   revisionInfo: historyRevisionInfoPropType,
-  squadInfo: squadInfoPropType,
+  calendarInfo: calendarInfoPropType,
   isDeletionOrRestoration: React.PropTypes.bool.isRequired,
 };
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  squadInfo: state.squadInfos[ownProps.revisionInfo.squadID],
+  calendarInfo: state.calendarInfos[ownProps.revisionInfo.squadID],
 }))(HistoryRevision);

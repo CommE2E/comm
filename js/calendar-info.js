@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export type SquadInfo = {
+export type CalendarInfo = {
   id: string,
   name: string,
   description: string,
@@ -13,7 +13,7 @@ export type SquadInfo = {
   color: string, // hex, without "#" or "0x"
 }
 
-export const squadInfoPropType = React.PropTypes.shape({
+export const calendarInfoPropType = React.PropTypes.shape({
   id: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
   description: React.PropTypes.string.isRequired,

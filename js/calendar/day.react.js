@@ -2,8 +2,8 @@
 
 import type { EntryInfo } from './entry-info';
 import { entryInfoPropType } from './entry-info';
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
@@ -18,14 +18,14 @@ import Modernizr from '../modernizr-custom';
 import { entryKey } from './entry-utils';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
-import { onScreenSquadInfos } from '../squad-utils';
+import { onScreenCalendarInfos } from '../calendar-utils';
 
 type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
   entryInfos: EntryInfo[],
-  onScreenSquadInfos: SquadInfo[],
+  onScreenCalendarInfos: CalendarInfo[],
   username: string,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -117,16 +117,16 @@ class Day extends React.Component {
 
     let squadPicker = null;
     if (this.state.pickerOpen) {
-      const options = this.props.onScreenSquadInfos.map((squadInfo) => {
-        const style = { backgroundColor: "#" + squadInfo.color };
+      const options = this.props.onScreenCalendarInfos.map((calendarInfo) => {
+        const style = { backgroundColor: "#" + calendarInfo.color };
         return (
           <div
-            key={squadInfo.id}
-            onClick={() => this.createNewEntry(squadInfo.id)}
+            key={calendarInfo.id}
+            onClick={() => this.createNewEntry(calendarInfo.id)}
           >
             <span className="select-calendar">
               <div className="color-preview" style={style} />
-              <span className="select-calendar-name">{squadInfo.name}</span>
+              <span className="select-calendar-name">{calendarInfo.name}</span>
             </span>
           </div>
         );
@@ -189,9 +189,9 @@ class Day extends React.Component {
 
   onAddEntry(event: SyntheticEvent) {
     event.preventDefault();
-    if (this.props.onScreenSquadInfos.length === 1) {
-      this.createNewEntry(this.props.onScreenSquadInfos[0].id);
-    } else if (this.props.onScreenSquadInfos.length > 1) {
+    if (this.props.onScreenCalendarInfos.length === 1) {
+      this.createNewEntry(this.props.onScreenCalendarInfos[0].id);
+    } else if (this.props.onScreenCalendarInfos.length > 1) {
       this.setState(
         { pickerOpen: true },
         () => {
@@ -264,7 +264,8 @@ Day.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
-  onScreenSquadInfos: React.PropTypes.arrayOf(squadInfoPropType).isRequired,
+  onScreenCalendarInfos:
+    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   username: React.PropTypes.string.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
@@ -274,7 +275,7 @@ Day.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    onScreenSquadInfos: onScreenSquadInfos(state),
+    onScreenCalendarInfos: onScreenCalendarInfos(state),
     username: state.username,
   }),
   mapStateToUpdateStore,

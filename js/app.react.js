@@ -1,9 +1,5 @@
 // @flow
 
-import type { SquadInfo } from './squad-info';
-import { squadInfoPropType } from './squad-info';
-import type { EntryInfo } from './calendar/entry-info';
-import { entryInfoPropType } from './calendar/entry-info';
 import type { AppState, UpdateStore } from './redux-reducer';
 import type { LoadingStatus } from './loading-indicator.react';
 

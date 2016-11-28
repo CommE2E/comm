@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
@@ -17,7 +17,7 @@ import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
 
 type Props = {
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   monthURL: string,
   loggedIn: bool,
   year: number,
@@ -73,7 +73,7 @@ class SquadLoginModal extends React.Component {
             <div className="form-text">
               <div className="form-float-title">Squad</div>
               <div className="form-float-content">
-                {this.props.squadInfo.name}
+                {this.props.calendarInfo.name}
               </div>
             </div>
             <div className="clear">
@@ -120,25 +120,27 @@ class SquadLoginModal extends React.Component {
 
     this.setState({ inputDisabled: true });
     const response = await fetchJSON('auth_squad.php', {
-      'squad': this.props.squadInfo.id,
+      'squad': this.props.calendarInfo.id,
       'password': this.state.password,
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => {
         const updateObj = {};
-        updateObj[this.props.squadInfo.id] = {
+        updateObj[this.props.calendarInfo.id] = {
           authorized: { $set: true },
         };
         return update(prevState, {
-          squadInfos: updateObj,
+          calendarInfos: updateObj,
         });
       });
       this.props.onClose();
-      history.push(`squad/${this.props.squadInfo.id}/${this.props.monthURL}`);
+      history.push(
+        `squad/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+      );
       await fetchEntriesAndUpdateStore(
         this.props.year,
         this.props.month,
-        this.props.squadInfo.id,
+        this.props.calendarInfo.id,
         this.props.updateStore,
       );
       return;
@@ -173,7 +175,7 @@ class SquadLoginModal extends React.Component {
 }
 
 SquadLoginModal.propTypes = {
-  squadInfo: squadInfoPropType.isRequired,
+  calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   year: React.PropTypes.number.isRequired,

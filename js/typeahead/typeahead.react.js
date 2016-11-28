@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { NavID } from './typeahead-action-option.react';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
@@ -14,17 +14,17 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import TypeaheadActionOption from './typeahead-action-option.react';
-import TypeaheadSquadOption from './typeahead-squad-option.react';
+import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import SearchIndex from './search-index';
 import { currentNavID, monthURL } from '../nav-utils';
-import { subscriptionExists } from '../squad-utils';
+import { subscriptionExists } from '../calendar-utils';
 import { mapStateToUpdateStore } from '../redux-utils';
 import history from '../router-history';
 
 type Props = {
   currentNavID: string,
-  squadInfos: {[id: string]: SquadInfo},
+  calendarInfos: {[id: string]: CalendarInfo},
   currentlyHome: bool,
   currentSquadID: ?string,
   subscriptionExists: bool,
@@ -72,7 +72,7 @@ class Typeahead extends React.Component {
     if (this.props.currentNavID === "home") {
       return TypeaheadActionOption.homeText;
     }
-    return this.props.squadInfos[this.props.currentNavID].name;
+    return this.props.calendarInfos[this.props.currentNavID].name;
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -96,8 +96,8 @@ class Typeahead extends React.Component {
     // New squad created by user?
     if (
       this.props.newSquadID &&
-      _.size(this.props.squadInfos) > _.size(prevProps.squadInfos) &&
-      this.props.squadInfos[this.props.newSquadID] !== undefined
+      _.size(this.props.calendarInfos) > _.size(prevProps.calendarInfos) &&
+      this.props.calendarInfos[this.props.newSquadID] !== undefined
     ) {
       history.push(`squad/${this.props.newSquadID}/${this.props.monthURL}`);
       this.props.updateStore((prevState: AppState) => update(prevState, {
@@ -108,9 +108,12 @@ class Typeahead extends React.Component {
 
   buildSearchIndex() {
     this.searchIndex = new SearchIndex();
-    for (const squadID in this.props.squadInfos) {
-      const squad = this.props.squadInfos[squadID];
-      this.searchIndex.addEntry(squadID, squad.name + " " + squad.description);
+    for (const calendarID in this.props.calendarInfos) {
+      const calendar = this.props.calendarInfos[calendarID];
+      this.searchIndex.addEntry(
+        calendarID,
+        calendar.name + " " + calendar.description,
+      );
     }
     if (this.props.subscriptionExists) {
       this.searchIndex.addEntry("home", TypeaheadActionOption.homeText);
@@ -149,15 +152,15 @@ class Typeahead extends React.Component {
     } else if (this.state.active) {
       const subscribedInfos = [];
       const recommendedInfos = [];
-      for (const squadID: string in this.props.squadInfos) {
-        if (squadID === this.props.currentNavID) {
+      for (const calendarID: string in this.props.calendarInfos) {
+        if (calendarID === this.props.currentNavID) {
           continue;
         }
-        const squadInfo = this.props.squadInfos[squadID];
-        if (squadInfo.subscribed) {
-          subscribedInfos.push(squadInfo);
+        const calendarInfo = this.props.calendarInfos[calendarID];
+        if (calendarInfo.subscribed) {
+          subscribedInfos.push(calendarInfo);
         } else {
-          recommendedInfos.push(squadInfo);
+          recommendedInfos.push(calendarInfo);
         }
       }
 
@@ -173,8 +176,8 @@ class Typeahead extends React.Component {
         );
       }
       const subscribedOptions = [];
-      for (const squadInfo of subscribedInfos) {
-        subscribedOptions.push(this.buildSquadOption(squadInfo));
+      for (const calendarInfo of subscribedInfos) {
+        subscribedOptions.push(this.buildCalendarOption(calendarInfo));
       }
       if (subscribedOptions.length > 0) {
         panes.push(
@@ -187,8 +190,8 @@ class Typeahead extends React.Component {
         );
       }
       const recommendedOptions = [];
-      for (const squadInfo of recommendedInfos) {
-        recommendedOptions.push(this.buildSquadOption(squadInfo));
+      for (const calendarInfo of recommendedInfos) {
+        recommendedOptions.push(this.buildCalendarOption(calendarInfo));
       }
       if (recommendedOptions.length > 0) {
         panes.push(
@@ -220,11 +223,12 @@ class Typeahead extends React.Component {
 
     let rightAligned = null;
     if (this.state.active) {
-      const currentSquadInfo = this.props.squadInfos[this.props.currentNavID];
-      if (currentSquadInfo !== undefined) {
+      const currentCalendarInfo =
+        this.props.calendarInfos[this.props.currentNavID];
+      if (currentCalendarInfo !== undefined) {
         rightAligned = (
           <TypeaheadOptionButtons
-            squadInfo={currentSquadInfo}
+            calendarInfo={currentCalendarInfo}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
             freezeTypeahead={this.freeze.bind(this)}
@@ -277,9 +281,9 @@ class Typeahead extends React.Component {
   }
 
   buildOption(navID: string) {
-    const squadInfo = this.props.squadInfos[navID];
-    if (squadInfo !== undefined) {
-      return this.buildSquadOption(squadInfo);
+    const calendarInfo = this.props.calendarInfos[navID];
+    if (calendarInfo !== undefined) {
+      return this.buildCalendarOption(calendarInfo);
     } else if (navID === "home") {
       return this.buildActionOption("home", TypeaheadActionOption.homeText);
     } else if (navID === "new") {
@@ -303,16 +307,16 @@ class Typeahead extends React.Component {
     );
   }
 
-  buildSquadOption(squadInfo: SquadInfo) {
+  buildCalendarOption(calendarInfo: CalendarInfo) {
     return (
-      <TypeaheadSquadOption
-        squadInfo={squadInfo}
+      <TypeaheadCalendarOption
+        calendarInfo={calendarInfo}
         freezeTypeahead={this.freeze.bind(this)}
         unfreezeTypeahead={this.unfreeze.bind(this)}
-        frozen={this.state.frozenNavID === squadInfo.id}
+        frozen={this.state.frozenNavID === calendarInfo.id}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
-        key={squadInfo.id}
+        key={calendarInfo.id}
       />
     );
   }
@@ -413,7 +417,7 @@ class Typeahead extends React.Component {
 
 Typeahead.propTypes = {
   currentNavID: React.PropTypes.string.isRequired,
-  squadInfos: React.PropTypes.objectOf(squadInfoPropType).isRequired,
+  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   currentlyHome: React.PropTypes.bool.isRequired,
   currentSquadID: React.PropTypes.string,
   subscriptionExists: React.PropTypes.bool.isRequired,
@@ -427,7 +431,7 @@ Typeahead.propTypes = {
 export default connect(
   (state: AppState) => ({
     currentNavID: currentNavID(state),
-    squadInfos: state.squadInfos,
+    calendarInfos: state.calendarInfos,
     currentlyHome: state.navInfo.home,
     currentSquadID: state.navInfo.squadID,
     subscriptionExists: subscriptionExists(state),

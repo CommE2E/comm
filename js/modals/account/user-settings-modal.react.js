@@ -358,7 +358,7 @@ class UserSettingsModal extends React.Component {
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        squadInfos: { $set: response.squad_infos },
+        calendarInfos: { $set: response.squad_infos },
         email: { $set: "" },
         loggedIn: { $set: false },
         username: { $set: "" },

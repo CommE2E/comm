@@ -154,7 +154,7 @@ class ResetPasswordModal extends React.Component {
     if (response.success) {
       this.props.onSuccess();
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        squadInfos: { $set: response.squad_infos },
+        calendarInfos: { $set: response.squad_infos },
         email: { $set: response.email },
         loggedIn: { $set: true },
         username: { $set: response.username },

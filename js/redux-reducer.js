@@ -1,6 +1,6 @@
 // @flow
 
-import type { SquadInfo } from './squad-info';
+import type { CalendarInfo } from './calendar-info';
 import type { EntryInfo } from './calendar/entry-info';
 import type { LoadingStatus } from './loading-indicator.react';
 
@@ -25,7 +25,7 @@ export type AppState = {
   verifyField: ?number,
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
-  squadInfos: {[id: string]: SquadInfo},
+  calendarInfos: {[id: string]: CalendarInfo},
   newSquadID: ?string,
 };
 

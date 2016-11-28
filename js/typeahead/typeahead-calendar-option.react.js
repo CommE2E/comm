@@ -1,7 +1,7 @@
 // @flow
 
-import type { SquadInfo } from '../squad-info';
-import { squadInfoPropType } from '../squad-info';
+import type { CalendarInfo } from '../calendar-info';
+import { calendarInfoPropType } from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
@@ -16,7 +16,7 @@ import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
 
 type Props = {
-  squadInfo: SquadInfo,
+  calendarInfo: CalendarInfo,
   monthURL: string,
   year: number,
   month: number,
@@ -28,19 +28,19 @@ type Props = {
   updateStore: UpdateStore,
 };
 
-class TypeaheadSquadOption extends React.Component {
+class TypeaheadCalendarOption extends React.Component {
 
   static defaultProps: { frozen: bool };
   props: Props;
 
   render() {
     let descriptionDiv = null;
-    if (this.props.squadInfo.description) {
+    if (this.props.calendarInfo.description) {
       descriptionDiv = (
         <div className="calendar-nav-option-description">
           <TextTruncate
             line={2}
-            text={this.props.squadInfo.description}
+            text={this.props.calendarInfo.description}
           />
         </div>
       );
@@ -55,14 +55,14 @@ class TypeaheadSquadOption extends React.Component {
       >
         <div>
           <TypeaheadOptionButtons
-            squadInfo={this.props.squadInfo}
+            calendarInfo={this.props.calendarInfo}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
             freezeTypeahead={this.props.freezeTypeahead}
             unfreezeTypeahead={this.props.unfreezeTypeahead}
           />
           <div className="calendar-nav-option-name">
-            {this.props.squadInfo.name}
+            {this.props.calendarInfo.name}
           </div>
         </div>
         {descriptionDiv}
@@ -71,25 +71,27 @@ class TypeaheadSquadOption extends React.Component {
   }
 
   async onClick(event: SyntheticEvent) {
-    if (this.props.squadInfo.authorized) {
+    if (this.props.calendarInfo.authorized) {
       this.props.unfreezeTypeahead();
-      history.push(`squad/${this.props.squadInfo.id}/${this.props.monthURL}`);
+      history.push(
+        `squad/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+      );
       await fetchEntriesAndUpdateStore(
         this.props.year,
         this.props.month,
-        this.props.squadInfo.id,
+        this.props.calendarInfo.id,
         this.props.updateStore,
       );
     } else {
       // TODO: make the password entry appear inline
-      this.props.freezeTypeahead(this.props.squadInfo.id);
+      this.props.freezeTypeahead(this.props.calendarInfo.id);
       const onClose = () => {
         this.props.unfreezeTypeahead();
         this.props.clearModal();
       }
       this.props.setModal(
         <SquadLoginModal
-          squadInfo={this.props.squadInfo}
+          calendarInfo={this.props.calendarInfo}
           setModal={this.props.setModal}
           onClose={onClose}
         />
@@ -99,8 +101,8 @@ class TypeaheadSquadOption extends React.Component {
 
 }
 
-TypeaheadSquadOption.propTypes = {
-  squadInfo: squadInfoPropType.isRequired,
+TypeaheadCalendarOption.propTypes = {
+  calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
@@ -112,7 +114,7 @@ TypeaheadSquadOption.propTypes = {
   updateStore: React.PropTypes.func.isRequired,
 };
 
-TypeaheadSquadOption.defaultProps = {
+TypeaheadCalendarOption.defaultProps = {
   frozen: false,
 };
 
@@ -123,4 +125,4 @@ export default connect(
     month: state.navInfo.month,
   }),
   mapStateToUpdateStore,
-)(TypeaheadSquadOption);
+)(TypeaheadCalendarOption);

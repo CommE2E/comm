@@ -301,11 +301,11 @@ class NewSquadModal extends React.Component {
       'color': color,
     });
     if (response.success) {
-      const newSquadID = response.new_squad_id.toString();
+      const newCalendarID = response.new_squad_id.toString();
       this.props.onClose();
       const updateObj = {};
-      updateObj[newSquadID] = { $set: {
-        id: newSquadID,
+      updateObj[newCalendarID] = { $set: {
+        id: newCalendarID,
         name: name,
         description: description,
         authorized: true,
@@ -315,8 +315,8 @@ class NewSquadModal extends React.Component {
         color: color,
       }};
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        squadInfos: updateObj,
-        newSquadID: { $set: newSquadID },
+        calendarInfos: updateObj,
+        newSquadID: { $set: newCalendarID },
       }));
       return;
     }
