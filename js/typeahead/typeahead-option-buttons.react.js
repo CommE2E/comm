@@ -55,7 +55,7 @@ class TypeaheadOptionButtons extends React.Component {
   render() {
     if (!this.props.squadInfo.authorized) {
       return (
-        <ul className="squad-nav-option-buttons">
+        <ul className="calendar-nav-option-buttons">
           <li>Closed</li>
         </ul>
       );
@@ -71,12 +71,12 @@ class TypeaheadOptionButtons extends React.Component {
       );
     }
     return (
-      <ul className="squad-nav-option-buttons">
+      <ul className="calendar-nav-option-buttons">
         {editButton}
         <li>
           <LoadingIndicator
             status={this.state.loadingStatus}
-            className="squad-nav-option-buttons-loading"
+            className="calendar-nav-option-buttons-loading"
           />
           <a href='#' onClick={this.subscribe.bind(this)}>
             {this.props.squadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}

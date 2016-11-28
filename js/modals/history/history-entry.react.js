@@ -89,7 +89,7 @@ class HistoryEntry extends React.Component {
           {"created by "}
           {creator}
         </span>
-        <span className="entry-squad">
+        <span className="entry-calendar">
           {this.props.squadInfo.name}
         </span>
         <div className="clear" />

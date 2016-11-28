@@ -160,7 +160,7 @@ div.upper-right {
   padding: 6px;
   right: 0;
 }
-div.squad-nav {
+div.calendar-nav {
   padding: 3px 12px;
   z-index: 2;
   position: relative;
@@ -173,21 +173,21 @@ div.squad-nav {
   cursor: pointer;
   float: left;
 }
-div.squad-nav-current {
+div.calendar-nav-current {
   min-width: 170px;
   padding: 2px 0;
 }
-div.squad-nav-active div.squad-nav-current {
+div.calendar-nav-active div.calendar-nav-current {
   cursor: default;
 }
-div.squad-nav-current > img {
+div.calendar-nav-current > img {
   float: left;
   height: 24px;
   margin-right: 3px;
   margin-bottom: -7px;
   cursor: pointer;
 }
-span.squad-nav-first-symbol {
+span.calendar-nav-first-symbol {
   float: right;
   font-size: 8px;
   line-height: 9px;
@@ -205,32 +205,32 @@ input.typeahead {
   font-size: 15px;
   width: 125px;
 }
-div.squad-nav-active input.typeahead {
+div.calendar-nav-active input.typeahead {
   width: 100%;
 }
 input.typeahead:focus {
   outline-width: 0;
 }
-span.squad-nav-symbols {
+span.calendar-nav-symbols {
   padding-left: 10px;
   float: right;
 }
-span.squad-nav-second-symbol {
+span.calendar-nav-second-symbol {
   float: right;
   font-size: 8px;
   clear: right;
 }
-div.squad-nav-dropdown {
+div.calendar-nav-dropdown {
   border-top: 1px solid #C8C8C8;
   margin-top: 3px;
   padding-top: 3px;
   width: 400px;
   cursor: default;
 }
-div.squad-nav-option-pane {
+div.calendar-nav-option-pane {
   padding: 2px 0;
 }
-div.squad-nav-option-pane-header {
+div.calendar-nav-option-pane-header {
   border-bottom: 1px solid #C8C8C8;
   padding: 0 4px;
   text-transform: uppercase;
@@ -238,19 +238,19 @@ div.squad-nav-option-pane-header {
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
 }
-div.squad-nav-option {
+div.calendar-nav-option {
   cursor: pointer;
   padding-left: 28px;
   padding-bottom: 6px;
   padding-top: 3px;
 }
-div.squad-nav-option-name {
+div.calendar-nav-option-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
 }
-ul.squad-nav-option-buttons {
+ul.calendar-nav-option-buttons {
   text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
@@ -258,18 +258,18 @@ ul.squad-nav-option-buttons {
   float: right;
   padding-left: 10px;
 }
-ul.squad-nav-option-buttons > li {
+ul.calendar-nav-option-buttons > li {
   list-style-type: none;
   display: inline-block;
 }
-ul.squad-nav-option-buttons > li + li:before {
+ul.calendar-nav-option-buttons > li + li:before {
   content: "·";
   padding: 0 3px
 }
-ul.squad-nav-option-buttons a:hover {
+ul.calendar-nav-option-buttons a:hover {
   text-decoration: underline;
 }
-.squad-nav-option-buttons-loading {
+.calendar-nav-option-buttons-loading {
   position: relative;
   padding-left: 3px;
   top: 2px;
@@ -284,20 +284,20 @@ span.loading-indicator-error {
   color: red;
   line-height: 0;
 }
-div.squad-nav-option-description {
+div.calendar-nav-option-description {
   font-size: 11px;
   font-family: sans-serif;
   font-weight: initial;
   color: #444444;
   padding-top: 4px;
 }
-div.squad-nav-option:hover {
+div.calendar-nav-option:hover {
   background-color: #E8E8E8;
 }
-div.squad-nav-frozen-option {
+div.calendar-nav-frozen-option {
   background-color: #E8E8E8;
 }
-div.squad-nav-no-results {
+div.calendar-nav-no-results {
   text-align: center;
   font-style: italic;
   color: #777777;
@@ -687,7 +687,7 @@ time.entry-time {
   font-size: 12px;
   color: gray;
 }
-span.entry-squad {
+span.entry-calendar {
   float: right;
   padding-right: 11px;
   font-size: 12px;
@@ -795,7 +795,7 @@ div.entry-history-deleted {
   color: red;
 }
 
-div.pick-squad {
+div.pick-calendar {
   position: absolute;
   left: 4px;
   bottom: 20px;
@@ -811,22 +811,22 @@ div.pick-squad {
   cursor: pointer;
   outline: none;
 }
-span.select-squad {
+span.select-calendar {
   color: black;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
 }
-div.pick-squad > div {
+div.pick-calendar > div {
   border-bottom: 1px solid #D3D3D3;
   padding: 1px 10px 1px 25px;
   position: relative;
 }
-div.pick-squad > div:hover {
+div.pick-calendar > div:hover {
   background-color: #F2F2F2;
 }
-div.pick-squad > div:last-child {
+div.pick-calendar > div:last-child {
   border-bottom: none;
 }
 div.color-preview {
@@ -838,20 +838,20 @@ div.color-preview {
   border: 1px solid lightgray;
   border-radius: 2px;
 }
-div.select-squad-name {
+div.select-calendar-name {
   padding-top: 1px;
 }
 
-div.edit-squad-color-container {
+div.edit-calendar-color-container {
   margin-top: -5px;
 }
 div.form-textarea-container {
   margin-top: 1px;
 }
-div.edit-squad-privacy-container {
+div.edit-calendar-privacy-container {
   margin-bottom: 6px;
 }
-div.edit-squad-account-password {
+div.edit-calendar-account-password {
   border-top: 2px solid #EFEFEF;
   padding-top: 4px;
   margin-top: 2px;
@@ -897,7 +897,7 @@ ul.tab-panel li.delete-tab > a {
   color: #ff0000 !important;
 }
 
-div.new-squad-privacy-container {
+div.new-calendar-privacy-container {
   margin-bottom: 3px;
   margin-top: -6px;
 }

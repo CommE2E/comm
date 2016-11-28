@@ -109,7 +109,7 @@ class NewSquadModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="new-squad-privacy-container">
+            <div className="new-calendar-privacy-container">
               <div className="modal-radio-selector">
                 <div className="form-title">Privacy</div>
                 <div className="form-enum-selector">

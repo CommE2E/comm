@@ -128,18 +128,18 @@ class Typeahead extends React.Component {
         );
       } else {
         results = (
-          <div className="squad-nav-no-results">
+          <div className="calendar-nav-no-results">
             No results
           </div>
         );
       }
       dropdown = (
         <div
-          className="squad-nav-dropdown"
+          className="calendar-nav-dropdown"
           ref={(dropdown) => this.dropdown = dropdown}
         >
-          <div className="squad-nav-option-pane" key="results">
-            <div className="squad-nav-option-pane-header">
+          <div className="calendar-nav-option-pane" key="results">
+            <div className="calendar-nav-option-pane-header">
               Results
             </div>
             {results}
@@ -164,8 +164,8 @@ class Typeahead extends React.Component {
       const panes = [];
       if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
         panes.push(
-          <div className="squad-nav-option-pane" key="home">
-            <div className="squad-nav-option-pane-header">
+          <div className="calendar-nav-option-pane" key="home">
+            <div className="calendar-nav-option-pane-header">
               Home
             </div>
             {this.buildActionOption("home", TypeaheadActionOption.homeText)}
@@ -178,8 +178,8 @@ class Typeahead extends React.Component {
       }
       if (subscribedOptions.length > 0) {
         panes.push(
-          <div className="squad-nav-option-pane" key="subscribed">
-            <div className="squad-nav-option-pane-header">
+          <div className="calendar-nav-option-pane" key="subscribed">
+            <div className="calendar-nav-option-pane-header">
               Subscribed
             </div>
             {subscribedOptions}
@@ -192,8 +192,8 @@ class Typeahead extends React.Component {
       }
       if (recommendedOptions.length > 0) {
         panes.push(
-          <div className="squad-nav-option-pane" key="recommended">
-            <div className="squad-nav-option-pane-header">
+          <div className="calendar-nav-option-pane" key="recommended">
+            <div className="calendar-nav-option-pane-header">
               Recommended
             </div>
             {recommendedOptions}
@@ -201,8 +201,8 @@ class Typeahead extends React.Component {
         );
       }
       panes.push(
-        <div className="squad-nav-option-pane" key="actions">
-          <div className="squad-nav-option-pane-header">
+        <div className="calendar-nav-option-pane" key="actions">
+          <div className="calendar-nav-option-pane-header">
             Actions
           </div>
           {this.buildActionOption("new", TypeaheadActionOption.newText)}
@@ -210,7 +210,7 @@ class Typeahead extends React.Component {
       );
       dropdown = (
         <div
-          className="squad-nav-dropdown"
+          className="calendar-nav-dropdown"
           ref={(dropdown) => this.dropdown = dropdown}
         >
           {panes}
@@ -234,9 +234,9 @@ class Typeahead extends React.Component {
       }
     } else {
       rightAligned = (  
-        <span className="squad-nav-symbols">
-          <span className="squad-nav-first-symbol">&#x25B2;</span>
-          <span className="squad-nav-second-symbol">&#x25BC;</span>
+        <span className="calendar-nav-symbols">
+          <span className="calendar-nav-first-symbol">&#x25B2;</span>
+          <span className="calendar-nav-second-symbol">&#x25BC;</span>
         </span>
       );
     }
@@ -245,12 +245,12 @@ class Typeahead extends React.Component {
       <div
         onMouseDown={this.onMouseDown.bind(this)}
         className={classNames({
-          'squad-nav': true,
-          'squad-nav-active': this.state.active },
+          'calendar-nav': true,
+          'calendar-nav-active': this.state.active },
         )}
       >
         <div
-          className="squad-nav-current"
+          className="calendar-nav-current"
           ref={(current) => this.current = current}
         >
           <img

@@ -124,16 +124,16 @@ class Day extends React.Component {
             key={squadInfo.id}
             onClick={() => this.createNewEntry(squadInfo.id)}
           >
-            <span className="select-squad">
+            <span className="select-calendar">
               <div className="color-preview" style={style} />
-              <span className="select-squad-name">{squadInfo.name}</span>
+              <span className="select-calendar-name">{squadInfo.name}</span>
             </span>
           </div>
         );
       });
       squadPicker =
         <div
-          className="pick-squad"
+          className="pick-calendar"
           tabIndex="0"
           onBlur={this.onSquadPickerBlur.bind(this)}
           ref={(elem) => this.squadPicker = elem}

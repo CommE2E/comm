@@ -37,7 +37,7 @@ class TypeaheadSquadOption extends React.Component {
     let descriptionDiv = null;
     if (this.props.squadInfo.description) {
       descriptionDiv = (
-        <div className="squad-nav-option-description">
+        <div className="calendar-nav-option-description">
           <TextTruncate
             line={2}
             text={this.props.squadInfo.description}
@@ -48,8 +48,8 @@ class TypeaheadSquadOption extends React.Component {
     return (
       <div
         className={classNames(
-          "squad-nav-option",
-          {'squad-nav-frozen-option': this.props.frozen},
+          "calendar-nav-option",
+          {'calendar-nav-frozen-option': this.props.frozen},
         )}
         onClick={this.onClick.bind(this)}
       >
@@ -61,7 +61,7 @@ class TypeaheadSquadOption extends React.Component {
             freezeTypeahead={this.props.freezeTypeahead}
             unfreezeTypeahead={this.props.unfreezeTypeahead}
           />
-          <div className="squad-nav-option-name">
+          <div className="calendar-nav-option-name">
             {this.props.squadInfo.name}
           </div>
         </div>

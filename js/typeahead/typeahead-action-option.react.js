@@ -40,13 +40,13 @@ class TypeaheadActionOption extends React.Component {
     return (
       <div
         className={classNames(
-          "squad-nav-option",
-          {'squad-nav-frozen-option': this.props.frozen},
+          "calendar-nav-option",
+          {'calendar-nav-frozen-option': this.props.frozen},
         )}
         onClick={this.onClick.bind(this)}
       >
         <div>
-          <div className="squad-nav-option-name">
+          <div className="calendar-nav-option-name">
             {this.props.name}
           </div>
           <div className="clear" />

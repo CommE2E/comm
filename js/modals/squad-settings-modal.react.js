@@ -92,7 +92,7 @@ class SquadSettingsModal extends React.Component {
               ></textarea>
             </div>
           </div>
-          <div className="edit-squad-color-container">
+          <div className="edit-calendar-color-container">
             <div className="form-title color-title">Color</div>
             <div className="form-content">
               <ColorPicker
@@ -140,7 +140,7 @@ class SquadSettingsModal extends React.Component {
         );
       }
       mainContent = (
-        <div className="edit-squad-privacy-container">
+        <div className="edit-calendar-privacy-container">
           <div className="modal-radio-selector">
             <div className="form-title">Privacy</div>
             <div className="form-enum-selector">
@@ -234,7 +234,7 @@ class SquadSettingsModal extends React.Component {
         <div className="modal-body">
           <form method="POST">
             {mainContent}
-            <div className="edit-squad-account-password">
+            <div className="edit-calendar-account-password">
               <p className="confirm-account-password">
                 Please enter your account password to confirm your identity
               </p>
