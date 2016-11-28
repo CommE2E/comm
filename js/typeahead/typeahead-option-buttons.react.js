@@ -12,7 +12,7 @@ import _ from 'lodash';
 
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
-import SquadSettingsModal from '../modals/squad-settings-modal.react';
+import CalendarSettingsModal from '../modals/calendar-settings-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
 import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
 import history from '../router-history';
@@ -103,7 +103,8 @@ class TypeaheadOptionButtons extends React.Component {
       }),
       (async () => {
         if (this.props.home && newSubscribed) {
-          // If we are on home and just subscribed to a squad we need to load it
+          // If we are on home and just subscribed to a calendar,
+          // we need to load it
           await fetchEntriesAndUpdateStore(
             this.props.year,
             this.props.month,
@@ -121,7 +122,7 @@ class TypeaheadOptionButtons extends React.Component {
           calendarInfo.id !== this.props.calendarInfo.id,
       );
       if (!subscriptionExists) {
-        // TODO fix this special case of default squad 254
+        // TODO fix this special case of default calendar 254
         history.replace(`squad/254/${this.props.monthURL}`);
       }
     }
@@ -159,7 +160,7 @@ class TypeaheadOptionButtons extends React.Component {
       this.props.clearModal();
     }
     this.props.setModal(
-      <SquadSettingsModal
+      <CalendarSettingsModal
         calendarInfo={this.props.calendarInfo}
         onClose={onClose}
       />

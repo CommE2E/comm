@@ -32,7 +32,7 @@ type State = {
   errorMessage: string,
 };
 
-class SquadLoginModal extends React.Component {
+class CalendarLoginModal extends React.Component {
 
   props: Props;
   state: State;
@@ -71,7 +71,7 @@ class SquadLoginModal extends React.Component {
         <div className="modal-body">
           <form method="POST">
             <div className="form-text">
-              <div className="form-float-title">Squad</div>
+              <div className="form-float-title">Calendar</div>
               <div className="form-float-content">
                 {this.props.calendarInfo.name}
               </div>
@@ -174,7 +174,7 @@ class SquadLoginModal extends React.Component {
 
 }
 
-SquadLoginModal.propTypes = {
+CalendarLoginModal.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
@@ -193,4 +193,4 @@ export default connect(
     month: state.navInfo.month,
   }),
   mapStateToUpdateStore,
-)(SquadLoginModal);
+)(CalendarLoginModal);

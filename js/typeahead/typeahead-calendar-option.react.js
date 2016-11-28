@@ -10,7 +10,7 @@ import TextTruncate from 'react-text-truncate';
 import { connect } from 'react-redux';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import SquadLoginModal from '../modals/squad-login-modal.react';
+import CalendarLoginModal from '../modals/calendar-login-modal.react';
 import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
@@ -90,7 +90,7 @@ class TypeaheadCalendarOption extends React.Component {
         this.props.clearModal();
       }
       this.props.setModal(
-        <SquadLoginModal
+        <CalendarLoginModal
           calendarInfo={this.props.calendarInfo}
           setModal={this.props.setModal}
           onClose={onClose}

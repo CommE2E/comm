@@ -6,9 +6,9 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 
-import NewSquadModal from '../modals/new-squad-modal.react';
-import LogInToCreateSquadModal
-  from '../modals/account/log-in-to-create-squad-modal.react';
+import NewCalendarModal from '../modals/new-calendar-modal.react';
+import LogInToCreateCalendarModal
+  from '../modals/account/log-in-to-create-calendar-modal.react';
 import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
@@ -64,13 +64,13 @@ class TypeaheadActionOption extends React.Component {
       }
       if (this.props.loggedIn) {
         this.props.setModal(
-          <NewSquadModal
+          <NewCalendarModal
             onClose={onClose}
           />
         );
       } else {
         this.props.setModal(
-          <LogInToCreateSquadModal 
+          <LogInToCreateCalendarModal 
             onClose={onClose}
             setModal={this.props.setModal}
           />
@@ -91,7 +91,7 @@ class TypeaheadActionOption extends React.Component {
 }
 
 TypeaheadActionOption.homeText = "Home";
-TypeaheadActionOption.newText = "New squad...";
+TypeaheadActionOption.newText = "New calendar...";
 
 TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,

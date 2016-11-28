@@ -22,7 +22,7 @@ type Tab = "general" | "privacy" | "delete";
 type Props = {
   calendarInfo: CalendarInfo,
   monthURL: string,
-  navSquadID: ?string,
+  navCalendarID: ?string,
   navHome: bool,
   calendarInfos: {[id: string]: CalendarInfo},
   updateStore: UpdateStore,
@@ -32,18 +32,18 @@ type State = {
   calendarInfo: CalendarInfo,
   inputDisabled: bool,
   errorMessage: string,
-  newSquadPassword: string,
-  confirmSquadPassword: string,
+  newCalendarPassword: string,
+  confirmCalendarPassword: string,
   accountPassword: string,
   currentTab: Tab,
 };
 
-class SquadSettingsModal extends React.Component {
+class CalendarSettingsModal extends React.Component {
 
   props: Props;
   state: State;
   nameInput: ?HTMLInputElement;
-  newSquadPasswordInput: ?HTMLInputElement;
+  newCalendarPasswordInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
@@ -52,8 +52,8 @@ class SquadSettingsModal extends React.Component {
       calendarInfo: props.calendarInfo,
       inputDisabled: false,
       errorMessage: "",
-      newSquadPassword: "",
-      confirmSquadPassword: "",
+      newCalendarPassword: "",
+      confirmCalendarPassword: "",
       accountPassword: "",
       currentTab: "general",
     };
@@ -70,7 +70,7 @@ class SquadSettingsModal extends React.Component {
       mainContent = (
         <div>
           <div>
-            <div className="form-title">Squad name</div>
+            <div className="form-title">Calendar name</div>
             <div className="form-content">
               <input
                 type="text"
@@ -86,7 +86,7 @@ class SquadSettingsModal extends React.Component {
             <div className="form-content">
               <textarea
                 value={this.state.calendarInfo.description}
-                placeholder="Squad description"
+                placeholder="Calendar description"
                 onChange={this.onChangeDescription.bind(this)}
                 disabled={this.state.inputDisabled}
               ></textarea>
@@ -96,7 +96,7 @@ class SquadSettingsModal extends React.Component {
             <div className="form-title color-title">Color</div>
             <div className="form-content">
               <ColorPicker
-                id="edit-squad-color"
+                id="edit-calendar-color"
                 value={this.state.calendarInfo.color}
                 disabled={this.state.inputDisabled}
                 onChange={this.onChangeColor.bind(this)}
@@ -106,33 +106,33 @@ class SquadSettingsModal extends React.Component {
         </div>
       );
     } else if (this.state.currentTab === "privacy") {
-      let squadPasswordInputs = null;
+      let calendarPasswordInputs = null;
       if (this.state.calendarInfo.closed) {
         // Note: these depend on props, not state
         const passwordPlaceholder = this.props.calendarInfo.closed
-          ? "New squad password (optional)"
-          : "New squad password";
+          ? "New calendar password (optional)"
+          : "New calendar password";
         const confirmPlaceholder = this.props.calendarInfo.closed
-          ? "Confirm squad password (optional)"
-          : "Confirm squad password";
-        squadPasswordInputs = (
+          ? "Confirm calendar password (optional)"
+          : "Confirm calendar password";
+        calendarPasswordInputs = (
           <div>
             <div className="form-enum-password">
               <input
                 type="password"
                 placeholder={passwordPlaceholder}
-                value={this.state.newSquadPassword}
-                onChange={this.onChangeNewSquadPassword.bind(this)}
+                value={this.state.newCalendarPassword}
+                onChange={this.onChangeNewCalendarPassword.bind(this)}
                 disabled={this.state.inputDisabled}
-                ref={(input) => this.newSquadPasswordInput = input}
+                ref={(input) => this.newCalendarPasswordInput = input}
               />
             </div>
             <div className="form-enum-password">
               <input
                 type="password"
                 placeholder={confirmPlaceholder}
-                value={this.state.confirmSquadPassword}
-                onChange={this.onChangeConfirmSquadPassword.bind(this)}
+                value={this.state.confirmCalendarPassword}
+                onChange={this.onChangeConfirmCalendarPassword.bind(this)}
                 disabled={this.state.inputDisabled}
               />
             </div>
@@ -147,18 +147,18 @@ class SquadSettingsModal extends React.Component {
               <div className="form-enum-container">
                 <input
                   type="radio"
-                  name="edit-squad-type"
-                  id="edit-squad-open"
+                  name="edit-calendar-type"
+                  id="edit-calendar-open"
                   value={false}
                   checked={!this.state.calendarInfo.closed}
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
                 <div className="form-enum-option">
-                  <label htmlFor="edit-squad-open">
+                  <label htmlFor="edit-calendar-open">
                     Open
                     <span className="form-enum-description">
-                      Anybody can view the contents of an open squad.
+                      Anybody can view the contents of an open calendar.
                     </span>
                   </label>
                 </div>
@@ -166,22 +166,22 @@ class SquadSettingsModal extends React.Component {
               <div className="form-enum-container">
                 <input
                   type="radio"
-                  name="edit-squad-type"
-                  id="edit-squad-closed"
+                  name="edit-calendar-type"
+                  id="edit-calendar-closed"
                   value={true}
                   checked={this.state.calendarInfo.closed}
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
                 <div className="form-enum-option">
-                  <label htmlFor="edit-squad-closed">
+                  <label htmlFor="edit-calendar-closed">
                     Closed
                     <span className="form-enum-description">
                       Only people with the password can view the contents of
-                      a closed squad.
+                      a closed calendar.
                     </span>
                   </label>
-                  {squadPasswordInputs}
+                  {calendarPasswordInputs}
                 </div>
               </div>
             </div>
@@ -192,8 +192,8 @@ class SquadSettingsModal extends React.Component {
       mainContent = (
         <div>
           <p className="italic">
-            Your squad will be permanently deleted. There is no way to reverse
-            this.
+            Your calendar will be permanently deleted. There is no way to
+            reverse this.
           </p>
         </div>
       );
@@ -225,7 +225,7 @@ class SquadSettingsModal extends React.Component {
     }
 
     return (
-      <Modal name="Squad settings" onClose={this.props.onClose} size="large">
+      <Modal name="Calendar settings" onClose={this.props.onClose} size="large">
         <ul className="tab-panel">
           {this.buildTab("general", "General")}
           {this.buildTab("privacy", "Privacy")}
@@ -316,16 +316,16 @@ class SquadSettingsModal extends React.Component {
     });
   }
 
-  onChangeNewSquadPassword(event: SyntheticEvent) {
+  onChangeNewCalendarPassword(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ newSquadPassword: target.value });
+    this.setState({ newCalendarPassword: target.value });
   }
 
-  onChangeConfirmSquadPassword(event: SyntheticEvent) {
+  onChangeConfirmCalendarPassword(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ confirmSquadPassword: target.value });
+    this.setState({ confirmCalendarPassword: target.value });
   }
 
   onChangeAccountPassword(event: SyntheticEvent) {
@@ -343,7 +343,7 @@ class SquadSettingsModal extends React.Component {
         (prevState, props) => {
           return update(prevState, {
             calendarInfo: { name: { $set: this.props.calendarInfo.name } },
-            errorMessage: { $set: "empty squad name" },
+            errorMessage: { $set: "empty calendar name" },
             currentTab: { $set: "general" },
           });
         },
@@ -356,42 +356,44 @@ class SquadSettingsModal extends React.Component {
     }
 
     if (this.state.calendarInfo.closed) {
-      // If the squad is currently open but is being switched to closed,
+      // If the calendar is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
-        !this.props.calendarInfo.closed && this.state.newSquadPassword === ''
+        !this.props.calendarInfo.closed && this.state.newCalendarPassword === ''
       ) {
         this.setState(
           {
-            newSquadPassword: "",
-            confirmSquadPassword: "",
+            newCalendarPassword: "",
+            confirmCalendarPassword: "",
             errorMessage: "empty password",
             currentTab: "privacy",
           },
           () => {
             invariant(
-              this.newSquadPasswordInput,
-              "newSquadPasswordInput ref unset",
+              this.newCalendarPasswordInput,
+              "newCalendarPasswordInput ref unset",
             );
-            this.newSquadPasswordInput.focus();
+            this.newCalendarPasswordInput.focus();
           },
         );
         return;
       }
-      if (this.state.newSquadPassword !== this.state.confirmSquadPassword) {
+      if (
+        this.state.newCalendarPassword !== this.state.confirmCalendarPassword
+      ) {
         this.setState(
           {
-            newSquadPassword: "",
-            confirmSquadPassword: "",
+            newCalendarPassword: "",
+            confirmCalendarPassword: "",
             errorMessage: "passwords don't match",
             currentTab: "privacy",
           },
           () => {
             invariant(
-              this.newSquadPasswordInput,
-              "newSquadPasswordInput ref unset",
+              this.newCalendarPasswordInput,
+              "newCalendarPasswordInput ref unset",
             );
-            this.newSquadPasswordInput.focus();
+            this.newCalendarPasswordInput.focus();
           },
         );
         return;
@@ -405,7 +407,7 @@ class SquadSettingsModal extends React.Component {
       'squad': this.props.calendarInfo.id,
       'type': this.state.calendarInfo.closed ? "closed" : "open",
       'personal_password': this.state.accountPassword,
-      'new_password': this.state.newSquadPassword,
+      'new_password': this.state.newCalendarPassword,
       'color': this.state.calendarInfo.color,
     });
     if (response.success) {
@@ -442,7 +444,7 @@ class SquadSettingsModal extends React.Component {
         (prevState, props) => {
           return update(prevState, {
             calendarInfo: { name: { $set: this.props.calendarInfo.name } },
-            errorMessage: { $set: "squad name already taken" },
+            errorMessage: { $set: "calendar name already taken" },
             inputDisabled: { $set: false },
             currentTab: { $set: "general" },
           });
@@ -462,8 +464,8 @@ class SquadSettingsModal extends React.Component {
               closed: { $set: this.props.calendarInfo.closed },
               color: { $set: this.props.calendarInfo.color },
             },
-            newSquadPassword: { $set: "" },
-            confirmSquadPassword: { $set: "" },
+            newCalendarPassword: { $set: "" },
+            confirmCalendarPassword: { $set: "" },
             accountPassword: { $set: "" },
             errorMessage: { $set: "unknown error" },
             inputDisabled: { $set: false },
@@ -495,13 +497,13 @@ class SquadSettingsModal extends React.Component {
         return update(prevState, { calendarInfos: { $set: newCalendarInfos } });
       });
       if (this.props.navHome && !this.otherSubscriptionExists()) {
-        // TODO fix this special case of default squad 254
+        // TODO fix this special case of default calendar 254
         history.replace(`squad/254/${this.props.monthURL}`);
-      } else if (this.props.navSquadID === this.props.calendarInfo.id) {
+      } else if (this.props.navCalendarID === this.props.calendarInfo.id) {
         if (this.otherSubscriptionExists()) {
           history.replace(`home/${this.props.monthURL}`);
         } else {
-          // TODO fix this special case of default squad 254
+          // TODO fix this special case of default calendar 254
           history.replace(`squad/254/${this.props.monthURL}`);
         }
       }
@@ -535,10 +537,10 @@ class SquadSettingsModal extends React.Component {
 
 }
 
-SquadSettingsModal.propTypes = {
+CalendarSettingsModal.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  navSquadID: React.PropTypes.string,
+  navCalendarID: React.PropTypes.string,
   navHome: React.PropTypes.bool.isRequired,
   calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   updateStore: React.PropTypes.func.isRequired,
@@ -548,9 +550,9 @@ SquadSettingsModal.propTypes = {
 export default connect(
   (state: AppState) => ({
     monthURL: monthURL(state),
-    navSquadID: state.navInfo.squadID,
+    navCalendarID: state.navInfo.squadID,
     navHome: state.navInfo.home,
     calendarInfos: state.calendarInfos,
   }),
   mapStateToUpdateStore,
-)(SquadSettingsModal);
+)(CalendarSettingsModal);
