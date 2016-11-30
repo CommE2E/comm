@@ -29,7 +29,7 @@ $password = $_POST['password'];
 $result = $conn->query(
   "SELECT LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
     "FROM roles r LEFT JOIN users u ON u.id = r.user ".
-    "WHERE r.squad = $calendar AND r.user = $user ".
+    "WHERE r.calendar = $calendar AND r.user = $user ".
     "AND r.role >= ".ROLE_CREATOR
 );
 $row = $result->fetch_assoc();
@@ -45,8 +45,8 @@ if ($row['hash'] !== $hash) {
   )));
 }
 
-$conn->query("DELETE FROM squads WHERE id = $calendar");
-$conn->query("DELETE FROM roles WHERE squad = $calendar");
+$conn->query("DELETE FROM calendars WHERE id = $calendar");
+$conn->query("DELETE FROM roles WHERE calendar = $calendar");
 $conn->query("DELETE FROM ids WHERE id = $calendar");
 
 exit(json_encode(array(

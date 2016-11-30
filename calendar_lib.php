@@ -6,10 +6,10 @@ require_once('auth.php');
 function get_calendar_infos($viewer_id) {
   global $conn;
   $result = $conn->query(
-    "SELECT s.id, s.name, r.role, s.hash IS NOT NULL AS requires_auth, ".
-      "r.squad IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." AS is_authed, ".
-      "r.subscribed, s.color, s.description FROM squads s ".
-      "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id}"
+    "SELECT c.id, c.name, r.role, c.hash IS NOT NULL AS requires_auth, ".
+      "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
+      "AS is_authed, r.subscribed, c.color, c.description FROM calendars c ".
+      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id}"
   );
   $calendar_infos = array();
   while ($row = $result->fetch_assoc()) {

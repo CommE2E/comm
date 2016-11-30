@@ -119,13 +119,13 @@ function create_user_cookie($user_id) {
   // MySQL can't handle constraint violations on UPDATE, so need to pull all the
   // membership rows to PHP, delete them, and then recreate them :(
   $result = $conn->query(
-    "SELECT squad, last_view, role, subscribed FROM roles ".
+    "SELECT calendar, last_view, role, subscribed FROM roles ".
       "WHERE user = $anonymous_cookie_id"
   );
   $new_rows = array();
   while ($row = $result->fetch_assoc()) {
     $new_rows[] = "(".implode(", ", array(
-      $row['squad'],
+      $row['calendar'],
       $user_id,
       $row['last_view'],
       $row['role'],
@@ -134,7 +134,7 @@ function create_user_cookie($user_id) {
   }
   if ($new_rows) {
     $conn->query(
-      "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+      "INSERT INTO roles(calendar, user, last_view, role, subscribed) ".
         "VALUES ".implode(', ', $new_rows)." ".
         "ON DUPLICATE KEY ".
         "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
@@ -220,10 +220,10 @@ function viewer_can_see_calendar($calendar) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT s.hash IS NOT NULL AND (r.squad IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM squads s ".
-      "LEFT JOIN roles r ON r.squad = s.id AND r.user = {$viewer_id} ".
-      "WHERE s.id = $calendar"
+    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM calendars c ".
+      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
+      "WHERE c.id = $calendar"
   );
   $calendar_row = $result->fetch_assoc();
   if (!$calendar_row) {
@@ -238,10 +238,10 @@ function viewer_can_see_day($day) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT s.hash IS NOT NULL AND (r.squad IS NULL OR r.role < ".
+    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
       ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM days d ".
-      "LEFT JOIN squads s ON s.id = d.squad ".
-      "LEFT JOIN roles r ON r.squad = d.squad AND r.user = {$viewer_id} ".
+      "LEFT JOIN calendars c ON c.id = d.calendar ".
+      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
       "WHERE d.id = $day"
   );
   $day_row = $result->fetch_assoc();
@@ -257,11 +257,11 @@ function viewer_can_see_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT s.hash IS NOT NULL AND (r.squad IS NULL OR r.role < ".
+    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
       ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN squads s ON s.id = d.squad ".
-      "LEFT JOIN roles r ON r.squad = d.squad AND r.user = {$viewer_id} ".
+      "LEFT JOIN calendars c ON c.id = d.calendar ".
+      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
       "WHERE e.id = $entry"
   );
   $entry_row = $result->fetch_assoc();

@@ -104,7 +104,7 @@ if (
 if ($calendar !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
-    "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+    "INSERT INTO roles(calendar, user, last_view, role, subscribed) ".
       "VALUES ($calendar, $viewer_id, $time, ".ROLE_VIEWED.", 0) ON DUPLICATE ".
       "KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
       "role = GREATEST(VALUES(role), role), ".
@@ -131,9 +131,9 @@ $entries = array_fill(1, 31, array());
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.squad, e.deleted, u.username AS creator FROM entries e ".
+      "d.calendar, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = $viewer_id ".
       "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
       "r.subscribed = 1 AND e.deleted = 0 ORDER BY d.date, e.creation_time"
@@ -141,15 +141,15 @@ if ($home) {
 } else {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.squad, e.deleted, u.username AS creator FROM entries e ".
+      "d.calendar, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-      "d.squad = $calendar AND e.deleted = 0 ORDER BY d.date, e.creation_time"
+      "d.calendar = $calendar AND e.deleted = 0 ORDER BY d.date, e.creation_time"
   );
 }
 while ($row = $result->fetch_assoc()) {
-  $entry_calendar = intval($row['squad']);
+  $entry_calendar = intval($row['calendar']);
   if (!$calendar_infos[$entry_calendar]['authorized']) {
     continue;
   }

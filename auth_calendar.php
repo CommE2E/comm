@@ -22,7 +22,7 @@ $calendar = intval($_POST['calendar']);
 // First, let's fetch the calendar row and see if it needs authentication
 $result = $conn->query(
   "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM squads WHERE id=$calendar"
+    "FROM calendars WHERE id=$calendar"
 );
 $calendar_row = $result->fetch_assoc();
 if (!$calendar_row) {
@@ -54,7 +54,7 @@ $viewer_id = get_viewer_id();
 
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+  "INSERT INTO roles(calendar, user, last_view, role, subscribed) ".
     "VALUES ($calendar, $viewer_id, $time, ".ROLE_SUCCESSFUL_AUTH.", 0) ON ".
     "DUPLICATE KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
     "role = GREATEST(VALUES(role), role), ".

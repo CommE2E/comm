@@ -32,7 +32,7 @@ if (!$can_see) {
 
 $result = $conn->query(
   "SELECT r.id, u.username AS author, r.text, r.last_update AS lastUpdate, ".
-    "r.deleted, d.squad AS calendarID, r.entry AS entryID ".
+    "r.deleted, d.calendar AS calendarID, r.entry AS entryID ".
     "FROM revisions r LEFT JOIN users u ON u.id = r.author ".
     "LEFT JOIN entries e ON e.id = r.entry ".
     "LEFT JOIN days d ON d.id = e.day ".

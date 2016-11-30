@@ -44,7 +44,7 @@ if (strtolower($name) === "home") {
   )));
 }
 $result = $conn->query(
-  "SELECT id FROM squads WHERE LCASE(name) = LCASE('$name')"
+  "SELECT id FROM calendars WHERE LCASE(name) = LCASE('$name')"
 );
 $calendar_row = $result->fetch_assoc();
 if ($calendar_row) {
@@ -65,7 +65,7 @@ if ($is_closed) {
 }
 
 $time = round(microtime(true) * 1000); // in milliseconds
-$conn->query("INSERT INTO ids(table_name) VALUES('squads')");
+$conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
 $edit_rules = $is_closed ? 1 : 0; // temporary hack
@@ -73,7 +73,7 @@ if ($is_closed) {
   $salt = md5(openssl_random_pseudo_bytes(32));
   $hash = hash('sha512', $password.$salt);
   $conn->query(
-    "INSERT INTO squads".
+    "INSERT INTO calendars".
       "(id, name, description, salt, hash, edit_rules, ".
       "creator, creation_time, color) ".
       "VALUES ($id, '$name', '$description', UNHEX('$salt'), UNHEX('$hash'), ".
@@ -81,7 +81,7 @@ if ($is_closed) {
   );
 } else {
   $conn->query(
-    "INSERT INTO squads".
+    "INSERT INTO calendars".
       "(id, name, description, salt, hash, edit_rules, ".
       "creator, creation_time, color) ".
       "VALUES ($id, '$name', '$description', NULL, NULL, $edit_rules, ".
@@ -90,7 +90,7 @@ if ($is_closed) {
 }
 
 $conn->query(
-  "INSERT INTO roles(squad, user, last_view, role, subscribed) ".
+  "INSERT INTO roles(calendar, user, last_view, role, subscribed) ".
     "VALUES ($id, $creator, $time, ".ROLE_CREATOR.", 1)"
 );
 

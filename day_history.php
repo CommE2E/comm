@@ -34,17 +34,17 @@ if ($_POST['nav'] === "home") {
   $calendar = intval($_POST['nav']);
 }
 
-$additional_condition = $home ? "r.subscribed = 1" : "d.squad = $calendar";
+$additional_condition = $home ? "r.subscribed = 1" : "d.calendar = $calendar";
 $viewer_id = get_viewer_id();
 $result = $conn->query(
   "SELECT e.id, u.username AS creator, e.text, e.deleted, ".
-    "d.squad AS calendarID, e.creation_time AS creationTime FROM entries e ".
+    "d.calendar AS calendarID, e.creation_time AS creationTime FROM entries e ".
     "LEFT JOIN users u ON u.id = e.creator ".
     "LEFT JOIN days d ON d.id = e.day ".
-    "LEFT JOIN squads s ON s.id = d.squad ".
-    "LEFT JOIN roles r ON r.squad = d.squad AND r.user = $viewer_id ".
+    "LEFT JOIN calendars c ON c.id = d.calendar ".
+    "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = $viewer_id ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-    "DAY(d.date) = $day AND (s.hash IS NULL OR (r.squad IS NOT NULL AND ".
+    "DAY(d.date) = $day AND (c.hash IS NULL OR (r.calendar IS NOT NULL AND ".
     "r.role >= ".ROLE_SUCCESSFUL_AUTH.")) AND ".$additional_condition." ".
     "ORDER BY e.creation_time DESC"
 );
