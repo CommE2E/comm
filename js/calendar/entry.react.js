@@ -225,6 +225,7 @@ class Entry extends React.Component {
       'entry_id': entryID,
     };
     if (!serverID) {
+      console.log('falsey serverID passed in');
       payload['day'] = this.props.entryInfo.day;
       payload['month'] = this.props.entryInfo.month;
       payload['year'] = this.props.entryInfo.year;
