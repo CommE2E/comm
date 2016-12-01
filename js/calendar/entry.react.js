@@ -73,7 +73,7 @@ class Entry extends React.Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.state.text !== nextProps.entryInfo.text) {
+    if (this.props.entryInfo.text !== nextProps.entryInfo.text) {
       this.setState({ text: nextProps.entryInfo.text });
     }
   }
