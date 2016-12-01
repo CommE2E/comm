@@ -78,6 +78,20 @@ class Entry extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (this.mounted && !prevProps.entryInfo.id && this.props.entryInfo.id) {
+      this.creating = false;
+      if (this.needsUpdateAfterCreation) {
+        this.needsUpdateAfterCreation = false;
+        invariant(
+          this.textarea instanceof HTMLTextAreaElement,
+          "textarea ref not set",
+        );
+        this.save(this.props.entryInfo.id, this.textarea.value).then();
+      }
+    }
+  }
+
   focus() {
     invariant(
       this.textarea instanceof HTMLTextAreaElement,
@@ -225,7 +239,6 @@ class Entry extends React.Component {
       'entry_id': entryID,
     };
     if (!serverID) {
-      console.log('falsey serverID passed in');
       payload['day'] = this.props.entryInfo.day;
       payload['month'] = this.props.entryInfo.month;
       payload['year'] = this.props.entryInfo.year;
@@ -274,16 +287,8 @@ class Entry extends React.Component {
         await this.delete(newServerID, false);
         return;
       }
-      this.creating = false;
-      this.needsUpdateAfterCreation = false;
-      if (needsUpdate && this.mounted) {
-        invariant(
-          this.textarea instanceof HTMLTextAreaElement,
-          "textarea ref not set",
-        );
-        await this.save(newServerID, this.textarea.value);
-      }
-      // This is to update the server ID in the Redux store
+      // This is to update the server ID in the Redux store. It may trigger an
+      // update in componentDidUpdate.
       this.props.updateStore((prevState: AppState) => {
         const localID = this.props.entryInfo.localID;
         invariant(localID, "we should have a localID");
