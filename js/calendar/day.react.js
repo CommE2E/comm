@@ -253,7 +253,7 @@ class Day extends React.Component {
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));
       invariant(entry, "entry for entryinfo should be defined");
-      entry.getWrappedInstance().setFocus();
+      entry.getWrappedInstance().focus();
     }
   }
 

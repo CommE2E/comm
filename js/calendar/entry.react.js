@@ -17,7 +17,6 @@ import _ from 'lodash';
 import LoadingIndicator from '../loading-indicator.react';
 import { colorIsDark } from '../calendar-utils';
 import fetchJSON from '../fetch-json';
-import Modernizr from '../modernizr-custom';
 import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
@@ -35,7 +34,6 @@ type Props = {
 };
 type State = {
   focused: bool,
-  hovered: bool,
   loadingStatus: LoadingStatus,
   text: string,
 };
@@ -54,7 +52,6 @@ class Entry extends React.Component {
     super(props);
     this.state = {
       focused: false,
-      hovered: false,
       loadingStatus: "inactive",
       text: props.entryInfo.text,
     };
@@ -100,11 +97,11 @@ class Entry extends React.Component {
     this.textarea.focus();
   }
 
-  setFocus() {
-    this.setState(
-      { hovered: true },
-      this.focus.bind(this),
-    );
+  onMouseDown(event: SyntheticEvent) {
+    if (this.state.focused) {
+      // Don't lose focus when some non-textarea part is clicked
+      event.preventDefault();
+    }
   }
 
   componentWillUnmount() {
@@ -122,7 +119,7 @@ class Entry extends React.Component {
 
   render() {
     let actionLinks = null;
-    if (this.state.focused || this.state.hovered || Modernizr.touchevents) {
+    if (this.state.focused) {
       let historyButton = null;
       if (this.props.entryInfo.id) {
         historyButton = (
@@ -158,15 +155,14 @@ class Entry extends React.Component {
     const entryClasses = classNames({
       "entry": true,
       "dark-entry": colorIsDark(this.props.calendarInfo.color),
-      "focused-entry": this.state.focused || this.state.hovered,
+      "focused-entry": this.state.focused,
     });
     const style = { backgroundColor: "#" + this.props.calendarInfo.color };
     return (
       <div
         className={entryClasses}
         style={style}
-        onMouseEnter={() => this.setState({ hovered: true })}
-        onMouseLeave={() => this.setState({ hovered: false })}
+        onMouseDown={this.onMouseDown.bind(this)}
       >
         <textarea
           rows="1"
