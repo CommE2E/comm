@@ -75,12 +75,14 @@ function mergeNewEntriesIntoStore(
   });
 }
 
+let saveAttemptIndex = 0;
 async function fetchEntriesAndUpdateStore(
   year: number,
   month: number,
   navID: string,
   updateStore: UpdateStore,
 ) {
+  const curSaveAttempt = ++saveAttemptIndex;
   // TODO index entriesLoadingStatus by year/month/navID
   updateStore((prevState: AppState) => update(prevState, {
     navInfo: { entriesLoadingStatus: { $set: "loading" } },
@@ -91,15 +93,19 @@ async function fetchEntriesAndUpdateStore(
     'nav': navID,
   });
   if (!response.result) {
-    updateStore((prevState: AppState) => update(prevState, {
-      navInfo: { entriesLoadingStatus: { $set: "error" } },
-    }));
+    if (curSaveAttempt === saveAttemptIndex) {
+      updateStore((prevState: AppState) => update(prevState, {
+        navInfo: { entriesLoadingStatus: { $set: "error" } },
+      }));
+    }
     return;
   }
   mergeNewEntriesIntoStore(updateStore, response.result);
-  updateStore((prevState: AppState) => update(prevState, {
-    navInfo: { entriesLoadingStatus: { $set: "inactive" } },
-  }));
+  if (curSaveAttempt === saveAttemptIndex) {
+    updateStore((prevState: AppState) => update(prevState, {
+      navInfo: { entriesLoadingStatus: { $set: "inactive" } },
+    }));
+  }
 }
 
 export {
