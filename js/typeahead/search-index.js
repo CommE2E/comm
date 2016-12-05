@@ -1,6 +1,13 @@
 // @flow
 
+import type { AppState } from '../redux-reducer';
+import type { CalendarInfo } from '../calendar-info';
+
 import Tokenizer from 'tokenize-text';
+import { createSelector } from 'reselect';
+
+import { subscriptionExists } from '../calendar-utils';
+import TypeaheadActionOption from './typeahead-action-option.react';
 
 type Token = {
   index: number,
@@ -82,4 +89,24 @@ class SearchIndex {
 
 }
 
-export default SearchIndex;
+const searchIndex = createSelector(
+  (state: AppState) => state.calendarInfos,
+  subscriptionExists,
+  (calendarInfos: {[id: string]: CalendarInfo}, subscriptionExists: bool) => {
+    const searchIndex = new SearchIndex();
+    for (const calendarID in calendarInfos) {
+      const calendar = calendarInfos[calendarID];
+      searchIndex.addEntry(
+        calendarID,
+        calendar.name + " " + calendar.description,
+      );
+    }
+    if (subscriptionExists) {
+      searchIndex.addEntry("home", TypeaheadActionOption.homeText);
+    }
+    searchIndex.addEntry("new", TypeaheadActionOption.newText);
+    return searchIndex;
+  },
+);
+
+export { SearchIndex, searchIndex };

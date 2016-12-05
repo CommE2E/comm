@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import SearchIndex from './search-index';
+import { SearchIndex, searchIndex } from './search-index';
 import { currentNavID, monthURL } from '../nav-utils';
 import { subscriptionExists } from '../calendar-utils';
 import { mapStateToUpdateStore } from '../redux-utils';
@@ -30,6 +30,7 @@ type Props = {
   subscriptionExists: bool,
   newCalendarID: ?string,
   monthURL: string,
+  searchIndex: SearchIndex,
   updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -53,8 +54,6 @@ class Typeahead extends React.Component {
   current: ?HTMLElement;
   magnifyingGlass: ?HTMLElement;
 
-  searchIndex: SearchIndex;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -65,7 +64,6 @@ class Typeahead extends React.Component {
       typeaheadValue: this.getCurrentNavName(),
       searchResults: [],
     };
-    this.buildSearchIndex();
   }
 
   getCurrentNavName() {
@@ -76,7 +74,6 @@ class Typeahead extends React.Component {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    this.buildSearchIndex();
     // Navigational event occurred?
     if (this.props.currentNavID !== prevProps.currentNavID) {
       // Update the text at the top of the typeahead
@@ -106,21 +103,6 @@ class Typeahead extends React.Component {
         newCalendarID: { $set: null },
       }));
     }
-  }
-
-  buildSearchIndex() {
-    this.searchIndex = new SearchIndex();
-    for (const calendarID in this.props.calendarInfos) {
-      const calendar = this.props.calendarInfos[calendarID];
-      this.searchIndex.addEntry(
-        calendarID,
-        calendar.name + " " + calendar.description,
-      );
-    }
-    if (this.props.subscriptionExists) {
-      this.searchIndex.addEntry("home", TypeaheadActionOption.homeText);
-    }
-    this.searchIndex.addEntry("new", TypeaheadActionOption.newText);
   }
 
   render() {
@@ -295,12 +277,16 @@ class Typeahead extends React.Component {
   }
 
   buildActionOption(navID: NavID, name: string) {
+    const onTransition = () => {
+      this.unfreeze();
+      this.setActive(false);
+    };
     return (
       <TypeaheadActionOption
         navID={navID}
         name={name}
         freezeTypeahead={this.freeze.bind(this)}
-        unfreezeTypeahead={this.unfreeze.bind(this)}
+        onTransition={onTransition}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         frozen={this.state.frozenNavID === navID}
@@ -310,11 +296,16 @@ class Typeahead extends React.Component {
   }
 
   buildCalendarOption(calendarInfo: CalendarInfo) {
+    const onTransition = () => {
+      this.unfreeze();
+      this.setActive(false);
+    };
     return (
       <TypeaheadCalendarOption
         calendarInfo={calendarInfo}
         freezeTypeahead={this.freeze.bind(this)}
         unfreezeTypeahead={this.unfreeze.bind(this)}
+        onTransition={onTransition}
         frozen={this.state.frozenNavID === calendarInfo.id}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
@@ -390,7 +381,6 @@ class Typeahead extends React.Component {
 
   unfreeze() {
     this.setState({ frozen: false, frozenNavID: null });
-    this.setActive(false);
   }
 
   isActive() {
@@ -410,7 +400,7 @@ class Typeahead extends React.Component {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
       typeaheadValue: target.value,
-      searchResults: this.searchIndex.getSearchResults(target.value),
+      searchResults: this.props.searchIndex.getSearchResults(target.value),
       searchActive: target.value.trim() !== "",
     });
   }
@@ -425,6 +415,7 @@ Typeahead.propTypes = {
   subscriptionExists: React.PropTypes.bool.isRequired,
   newCalendarID: React.PropTypes.string,
   monthURL: React.PropTypes.string.isRequired,
+  searchIndex: React.PropTypes.instanceOf(SearchIndex),
   updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
@@ -439,6 +430,7 @@ export default connect(
     subscriptionExists: subscriptionExists(state),
     newCalendarID: state.newCalendarID,
     monthURL: monthURL(state),
+    searchIndex: searchIndex(state),
   }),
   mapStateToUpdateStore,
 )(Typeahead);

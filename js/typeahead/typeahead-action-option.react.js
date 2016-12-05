@@ -24,7 +24,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
-  unfreezeTypeahead: () => void,
+  onTransition: () => void,
   updateStore: UpdateStore,
   frozen?: bool,
 };
@@ -59,7 +59,7 @@ class TypeaheadActionOption extends React.Component {
     if (this.props.navID === 'new') {
       this.props.freezeTypeahead(this.props.navID);
       const onClose = () => {
-        this.props.unfreezeTypeahead();
+        this.props.onTransition();
         this.props.clearModal();
       }
       if (this.props.loggedIn) {
@@ -77,7 +77,7 @@ class TypeaheadActionOption extends React.Component {
         );
       }
     } else if (this.props.navID == 'home') {
-      this.props.unfreezeTypeahead();
+      this.props.onTransition();
       history.push(`home/${this.props.monthURL}`);
       await fetchEntriesAndUpdateStore(
         this.props.year,
@@ -103,7 +103,7 @@ TypeaheadActionOption.propTypes = {
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
-  unfreezeTypeahead: React.PropTypes.func.isRequired,
+  onTransition: React.PropTypes.func.isRequired,
   updateStore: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
 };

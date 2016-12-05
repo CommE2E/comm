@@ -135,7 +135,7 @@ class Day extends React.Component {
         <div
           className="pick-calendar"
           tabIndex="0"
-          onBlur={this.onCalendarPickerBlur.bind(this)}
+          onBlur={() => this.setState({ pickerOpen: false })}
           ref={(elem) => this.calendarPicker = elem}
         >{options}</div>;
     }
@@ -227,10 +227,6 @@ class Day extends React.Component {
       saveObj[dayString][localID] = { $set: newEntryInfo };
       return update(prevState, { entryInfos: saveObj });
     });
-  }
-
-  onCalendarPickerBlur(event: SyntheticEvent) {
-    this.setState({ pickerOpen: false });
   }
 
   onHistory(event: SyntheticEvent) {

@@ -22,6 +22,7 @@ type Props = {
   month: number,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: () => void,
+  onTransition: () => void,
   frozen?: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -72,7 +73,7 @@ class TypeaheadCalendarOption extends React.Component {
 
   async onClick(event: SyntheticEvent) {
     if (this.props.calendarInfo.authorized) {
-      this.props.unfreezeTypeahead();
+      this.props.onTransition();
       history.push(
         `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
       );
@@ -86,7 +87,7 @@ class TypeaheadCalendarOption extends React.Component {
       // TODO: make the password entry appear inline
       this.props.freezeTypeahead(this.props.calendarInfo.id);
       const onClose = () => {
-        this.props.unfreezeTypeahead();
+        this.props.onTransition();
         this.props.clearModal();
       }
       this.props.setModal(
@@ -108,6 +109,7 @@ TypeaheadCalendarOption.propTypes = {
   month: React.PropTypes.number.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
+  onTransition: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
