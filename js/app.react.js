@@ -19,6 +19,7 @@ import VerificationSuccessModal
 import { getDate } from './date-utils';
 import {
   thisURL,
+  monthURL,
   urlForYearAndMonth,
   thisNavURLFragment,
   currentNavID,
@@ -37,6 +38,8 @@ type Props = {
   entriesLoadingStatus: LoadingStatus,
   currentNavID: string,
   thisURL: string,
+  monthURL: string,
+  newCalendarID: ?string,
   params: {
     year: ?string,
     month: ?string,
@@ -80,13 +83,21 @@ class App extends React.Component {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.verifyField !== App.resetPassword) {
-      return;
+    if (this.props.verifyField === App.resetPassword) {
+      if (prevProps.params.verify && !this.props.params.verify) {
+        this.clearModal();
+      } else if (!prevProps.params.verify && this.props.params.verify) {
+        this.showResetPasswordModal();
+      }
     }
-    if (prevProps.params.verify && !this.props.params.verify) {
-      this.clearModal();
-    } else if (!prevProps.params.verify && this.props.params.verify) {
-      this.showResetPasswordModal();
+    // New calendar created by user?
+    if (this.props.newCalendarID) {
+      history.push(
+        `calendar/${this.props.newCalendarID}/${this.props.monthURL}`,
+      );
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        newCalendarID: { $set: null },
+      }));
     }
   }
 
@@ -221,6 +232,8 @@ App.propTypes = {
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
+  monthURL: React.PropTypes.string.isRequired,
+  newCalendarID: React.PropTypes.string,
   params: React.PropTypes.shape({
     year: React.PropTypes.string,
     month: React.PropTypes.string,
@@ -239,6 +252,11 @@ export default connect(
     entriesLoadingStatus: state.navInfo.entriesLoadingStatus,
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
+    monthURL: monthURL(state),
+    newCalendarID:
+      state.newCalendarID && state.calendarInfos[state.newCalendarID]
+        ? state.newCalendarID
+        : null,
   }),
   mapStateToUpdateStore,
 )(App);

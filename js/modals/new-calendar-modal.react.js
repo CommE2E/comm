@@ -314,6 +314,14 @@ class NewCalendarModal extends React.Component {
         closed: closed,
         color: color,
       }};
+      // The "newCalendarID" state is a bit of a hack. Basically, we can't
+      // immediately navigate to the new calendar because we don't have it in
+      // the Redux store until after the below callback is executed. But Redux
+      // doesn't give us any way to execute something after updating the store;
+      // we have to watch the store to catch changes. This component is about to
+      // die, so instead of having it monitor for when the Redux store has the
+      // new calendar, we (arbitrarily) let the App component do it. This is how
+      // we communicate the new calendar ID to the App component.
       this.props.updateStore((prevState: AppState) => update(prevState, {
         calendarInfos: updateObj,
         newCalendarID: { $set: newCalendarID },

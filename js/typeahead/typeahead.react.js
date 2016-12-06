@@ -17,10 +17,8 @@ import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import { SearchIndex, searchIndex } from './search-index';
-import { currentNavID, monthURL } from '../nav-utils';
+import { currentNavID } from '../nav-utils';
 import { subscriptionExists } from '../calendar-utils';
-import { mapStateToUpdateStore } from '../redux-utils';
-import history from '../router-history';
 
 type Props = {
   currentNavID: string,
@@ -28,10 +26,7 @@ type Props = {
   currentlyHome: bool,
   currentCalendarID: ?string,
   subscriptionExists: bool,
-  newCalendarID: ?string,
-  monthURL: string,
   searchIndex: SearchIndex,
-  updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -89,19 +84,6 @@ class Typeahead extends React.Component {
           }
         },
       );
-    }
-    // New calendar created by user?
-    if (
-      this.props.newCalendarID &&
-      _.size(this.props.calendarInfos) > _.size(prevProps.calendarInfos) &&
-      this.props.calendarInfos[this.props.newCalendarID] !== undefined
-    ) {
-      history.push(
-        `calendar/${this.props.newCalendarID}/${this.props.monthURL}`,
-      );
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        newCalendarID: { $set: null },
-      }));
     }
   }
 
@@ -413,24 +395,16 @@ Typeahead.propTypes = {
   currentlyHome: React.PropTypes.bool.isRequired,
   currentCalendarID: React.PropTypes.string,
   subscriptionExists: React.PropTypes.bool.isRequired,
-  newCalendarID: React.PropTypes.string,
-  monthURL: React.PropTypes.string.isRequired,
   searchIndex: React.PropTypes.instanceOf(SearchIndex),
-  updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
 
-export default connect(
-  (state: AppState) => ({
-    currentNavID: currentNavID(state),
-    calendarInfos: state.calendarInfos,
-    currentlyHome: state.navInfo.home,
-    currentCalendarID: state.navInfo.calendarID,
-    subscriptionExists: subscriptionExists(state),
-    newCalendarID: state.newCalendarID,
-    monthURL: monthURL(state),
-    searchIndex: searchIndex(state),
-  }),
-  mapStateToUpdateStore,
-)(Typeahead);
+export default connect((state: AppState) => ({
+  currentNavID: currentNavID(state),
+  calendarInfos: state.calendarInfos,
+  currentlyHome: state.navInfo.home,
+  currentCalendarID: state.navInfo.calendarID,
+  subscriptionExists: subscriptionExists(state),
+  searchIndex: searchIndex(state),
+}))(Typeahead);
