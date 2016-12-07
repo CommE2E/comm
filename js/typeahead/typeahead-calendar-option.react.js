@@ -46,6 +46,9 @@ class TypeaheadCalendarOption extends React.Component {
         </div>
       );
     }
+    const colorPreviewStyle = {
+      backgroundColor: "#" + this.props.calendarInfo.color,
+    };
     return (
       <div
         className={classNames(
@@ -54,6 +57,7 @@ class TypeaheadCalendarOption extends React.Component {
         )}
         onClick={this.onClick.bind(this)}
       >
+        <div className="calendar-nav-color-preview" style={colorPreviewStyle} />
         <div>
           <TypeaheadOptionButtons
             calendarInfo={this.props.calendarInfo}
