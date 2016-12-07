@@ -66,6 +66,13 @@ class Day extends React.Component {
       invariant(this.entryContainer, "entryContainer ref not set");
       this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
     }
+    if (this.state.pickerOpen && !prevState.pickerOpen) {
+      invariant(
+        this.calendarPicker instanceof HTMLDivElement,
+        "calendar picker isn't div",
+      );
+      this.calendarPicker.focus();
+    }
   }
 
   render() {
@@ -136,6 +143,7 @@ class Day extends React.Component {
           className="pick-calendar"
           tabIndex="0"
           onBlur={() => this.setState({ pickerOpen: false })}
+          onKeyDown={this.onPickerKeyDown.bind(this)}
           ref={(elem) => this.calendarPicker = elem}
         >{options}</div>;
     }
@@ -192,18 +200,16 @@ class Day extends React.Component {
     if (this.props.onScreenCalendarInfos.length === 1) {
       this.createNewEntry(this.props.onScreenCalendarInfos[0].id);
     } else if (this.props.onScreenCalendarInfos.length > 1) {
-      this.setState(
-        { pickerOpen: true },
-        () => {
-          invariant(
-            this.calendarPicker instanceof HTMLDivElement,
-            "calendar picker isn't div",
-          );
-          this.calendarPicker.focus();
-        },
-      );
+      this.setState({ pickerOpen: true });
     }
     // TODO: handle case where no onscreen calendars
+  }
+
+  // Throw away typechecking here because SyntheticEvent isn't typed
+  onPickerKeyDown(event: any) {
+    if (event.keyCode === 27) {
+      this.setState({ pickerOpen: false });
+    }
   }
 
   createNewEntry(calendarID: string) {

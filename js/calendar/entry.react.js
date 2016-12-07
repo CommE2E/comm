@@ -168,6 +168,7 @@ class Entry extends React.Component {
           rows="1"
           className="entry-text"
           onChange={this.onChange.bind(this)}
+          onKeyDown={this.onKeyDown.bind(this)}
           value={this.state.text}
           onFocus={() => this.setState({ focused: true })}
           onBlur={this.onBlur.bind(this)}
@@ -202,6 +203,17 @@ class Entry extends React.Component {
       this.updateHeight.bind(this),
     );
     await this.save(this.props.entryInfo.id, target.value);
+  }
+
+  // Throw away typechecking here because SyntheticEvent isn't typed
+  onKeyDown(event: any) {
+    if (event.keyCode === 27) {
+      invariant(
+        this.textarea instanceof HTMLTextAreaElement,
+        "textarea ref not set",
+      );
+      this.textarea.blur();
+    }
   }
 
   async save(serverID: ?string, newText: string) {
