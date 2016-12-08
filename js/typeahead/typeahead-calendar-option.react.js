@@ -3,17 +3,21 @@
 import type { CalendarInfo } from '../calendar-info';
 import { calendarInfoPropType } from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
+import type { LoadingStatus } from '../loading-indicator.react';
 
 import React from 'react';
 import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
 import { connect } from 'react-redux';
+import invariant from 'invariant';
+import update from 'immutability-helper';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import CalendarLoginModal from '../modals/calendar-login-modal.react';
 import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
+import LoadingIndicator from '../loading-indicator.react';
+import fetchJSON from '../fetch-json';
 
 type Props = {
   calendarInfo: CalendarInfo,
@@ -21,18 +25,45 @@ type Props = {
   year: number,
   month: number,
   freezeTypeahead: (navID: string) => void,
-  unfreezeTypeahead: () => void,
+  unfreezeTypeahead: (navID: string) => void,
   onTransition: () => void,
   frozen?: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   updateStore: UpdateStore,
 };
+type State = {
+  passwordEntryValue: string,
+  passwordEntryOpen: bool,
+  passwordEntryLoadingStatus: LoadingStatus,
+};
 
 class TypeaheadCalendarOption extends React.Component {
 
   static defaultProps: { frozen: bool };
   props: Props;
+  state: State;
+
+  passwordEntryInput: ?HTMLInputElement;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      passwordEntryValue: "",
+      passwordEntryOpen: false,
+      passwordEntryLoadingStatus: "inactive",
+    };
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.state.passwordEntryOpen && !prevState.passwordEntryOpen) {
+      invariant(
+        this.passwordEntryInput instanceof HTMLInputElement,
+        "passwordEntryInput ref not set",
+      );
+      this.passwordEntryInput.focus();
+    }
+  }
 
   render() {
     let descriptionDiv = null;
@@ -45,6 +76,35 @@ class TypeaheadCalendarOption extends React.Component {
           />
         </div>
       );
+    }
+    let passwordEntry = null;
+    if (this.state.passwordEntryOpen) {
+      passwordEntry =
+        <div className="calendar-password-entry">
+          <input
+            type="submit"
+            value="Enter"
+            className="calendar-password-entry-submit"
+            onClick={this.onSubmitPassword.bind(this)}
+            disabled={this.state.passwordEntryLoadingStatus === "loading"}
+          />
+          <LoadingIndicator
+            status={this.state.passwordEntryLoadingStatus}
+            className="calendar-pasword-entry-loading"
+          />
+          <div className="calendar-password-entry-input-container">
+            <input
+              type="password"
+              className="calendar-password-entry-input"
+              value={this.state.passwordEntryValue}
+              onChange={this.onPasswordEntryChange.bind(this)}
+              onBlur={this.onPasswordEntryBlur.bind(this)}
+              onKeyDown={this.onPasswordEntryKeyDown.bind(this)}
+              placeholder="Password"
+              ref={(input) => this.passwordEntryInput = input}
+            />
+          </div>
+        </div>;
     }
     const colorPreviewStyle = {
       backgroundColor: "#" + this.props.calendarInfo.color,
@@ -71,6 +131,7 @@ class TypeaheadCalendarOption extends React.Component {
           </div>
         </div>
         {descriptionDiv}
+        {passwordEntry}
       </div>
     );
   }
@@ -88,18 +149,81 @@ class TypeaheadCalendarOption extends React.Component {
         this.props.updateStore,
       );
     } else {
-      // TODO: make the password entry appear inline
       this.props.freezeTypeahead(this.props.calendarInfo.id);
-      const onClose = () => {
-        this.props.onTransition();
-        this.props.clearModal();
-      }
-      this.props.setModal(
-        <CalendarLoginModal
-          calendarInfo={this.props.calendarInfo}
-          setModal={this.props.setModal}
-          onClose={onClose}
-        />
+      this.setState({ passwordEntryOpen: true });
+    }
+  }
+
+  onPasswordEntryChange(event: SyntheticEvent) {
+    const target = event.target;
+    invariant(target instanceof HTMLInputElement, "target not input");
+    this.setState({ passwordEntryValue: target.value });
+  }
+
+  onPasswordEntryBlur(event: SyntheticEvent) {
+    this.setState({ passwordEntryOpen: false });
+    this.props.unfreezeTypeahead(this.props.calendarInfo.id);
+  }
+
+  // Throw away typechecking here because SyntheticEvent isn't typed
+  async onPasswordEntryKeyDown(event: any) {
+    if (event.keyCode === 27) {
+      invariant(
+        this.passwordEntryInput instanceof HTMLInputElement,
+        "passwordEntryInput ref not set",
+      );
+      this.passwordEntryInput.blur();
+    } else if (event.keyCode === 13) {
+      await this.onSubmitPassword(event);
+    }
+  }
+
+  async onSubmitPassword(event: SyntheticEvent) {
+    event.preventDefault();
+
+    this.setState({ passwordEntryLoadingStatus: "loading" });
+    invariant(
+      this.passwordEntryInput instanceof HTMLInputElement,
+      "passwordEntryInput ref not set",
+    );
+    const response = await fetchJSON('auth_calendar.php', {
+      'calendar': this.props.calendarInfo.id,
+      'password': this.state.passwordEntryValue,
+    });
+    if (response.success) {
+      this.setState({ passwordEntryLoadingStatus: "inactive" });
+      this.props.updateStore((prevState: AppState) => {
+        const updateObj = {};
+        updateObj[this.props.calendarInfo.id] = {
+          authorized: { $set: true },
+        };
+        return update(prevState, {
+          calendarInfos: updateObj,
+        });
+      });
+      this.props.onTransition();
+      history.push(
+        `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+      );
+      await fetchEntriesAndUpdateStore(
+        this.props.year,
+        this.props.month,
+        this.props.calendarInfo.id,
+        this.props.updateStore,
+      );
+    } else {
+      this.setState(
+        {
+          passwordEntryLoadingStatus: "error",
+          passwordEntryValue: "",
+        },
+        () => {
+          invariant(
+            this.passwordEntryInput instanceof HTMLInputElement,
+            "passwordEntryInput ref not set",
+          );
+          this.passwordEntryInput.focus();
+        },
       );
     }
   }

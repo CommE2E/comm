@@ -33,8 +33,7 @@ type Props = {
 type State = {
   active: bool,
   searchActive: bool,
-  frozen: bool,
-  frozenNavID: ?string,
+  frozenNavIDs: {[id: string]: bool},
   typeaheadValue: string,
   searchResults: string[],
 };
@@ -54,8 +53,7 @@ class Typeahead extends React.Component {
     this.state = {
       active: false,
       searchActive: false,
-      frozen: false,
-      frozenNavID: null,
+      frozenNavIDs: {},
       typeaheadValue: this.getCurrentNavName(),
       searchResults: [],
     };
@@ -260,7 +258,7 @@ class Typeahead extends React.Component {
 
   buildActionOption(navID: NavID, name: string) {
     const onTransition = () => {
-      this.unfreeze();
+      this.unfreeze(navID);
       this.setActive(false);
     };
     return (
@@ -271,7 +269,7 @@ class Typeahead extends React.Component {
         onTransition={onTransition}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
-        frozen={this.state.frozenNavID === navID}
+        frozen={!!this.state.frozenNavIDs[navID]}
         key={navID}
       />
     );
@@ -279,7 +277,7 @@ class Typeahead extends React.Component {
 
   buildCalendarOption(calendarInfo: CalendarInfo) {
     const onTransition = () => {
-      this.unfreeze();
+      this.unfreeze(calendarInfo.id);
       this.setActive(false);
     };
     return (
@@ -288,7 +286,7 @@ class Typeahead extends React.Component {
         freezeTypeahead={this.freeze.bind(this)}
         unfreezeTypeahead={this.unfreeze.bind(this)}
         onTransition={onTransition}
-        frozen={this.state.frozenNavID === calendarInfo.id}
+        frozen={!!this.state.frozenNavIDs[calendarInfo.id]}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         key={calendarInfo.id}
@@ -300,7 +298,8 @@ class Typeahead extends React.Component {
     let setFocus = null;
     this.setState(
       (prevState, props) => {
-        if (prevState.frozen || active === prevState.active) {
+        const frozen = !_.isEmpty(prevState.frozenNavIDs);
+        if (frozen || active === prevState.active) {
           return {};
         }
         let typeaheadValue = prevState.typeaheadValue;
@@ -344,6 +343,14 @@ class Typeahead extends React.Component {
     invariant(current, "ref should be set");
     invariant(magnifyingGlass, "ref should be set");
     if (target === this.input) {
+      target.focus();
+      invariant(this.input, "ref should be set");
+      // In some browsers, HTML elements keep state about what was selected when
+      // they lost focus. If previously something was selected and we focus on
+      // it, that is selected again (until an onMouseUp event clears it). This
+      // is a bit confusing in my opinion, so we clear any selection here so
+      // that the focus behaves consistently.
+      this.input.selectionStart = this.input.selectionEnd;
       return;
     }
     if (
@@ -357,12 +364,27 @@ class Typeahead extends React.Component {
     }
   }
 
-  freeze(navID: ?string) {
-    this.setState({ frozen: true, frozenNavID: navID });
+  freeze(navID: string) {
+    this.setState((prevState, props) => {
+      const updateObj = {};
+      updateObj[navID] = { $set: true };
+      return update(prevState, { frozenNavIDs: updateObj });
+    });
   }
 
-  unfreeze() {
-    this.setState({ frozen: false, frozenNavID: null });
+  unfreeze(navID: string) {
+    this.setState(
+      (prevState, props) => {
+        const newFrozenNavIDs = _.omit(prevState.frozenNavIDs, [ navID ]);
+        return update(prevState, { frozenNavIDs: { $set: newFrozenNavIDs } });
+      },
+      () => {
+        invariant(this.input, "ref should be set");
+        if (this.input !== document.activeElement) {
+          this.setActive(false);
+        }
+      },
+    );
   }
 
   isActive() {

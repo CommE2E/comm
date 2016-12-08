@@ -258,6 +258,7 @@ ul.calendar-nav-option-buttons {
   list-style-type: none;
   float: right;
   padding-left: 10px;
+  padding-right: 4px;
 }
 ul.calendar-nav-option-buttons > li {
   list-style-type: none;
@@ -916,4 +917,55 @@ img.page-loading {
   margin-top: 7px;
   margin-right: 10px;
   float: left;
+}
+
+div.calendar-password-entry-input-container {
+  overflow: hidden;
+  padding-right: 6px;
+}
+input.calendar-password-entry-input {
+  font-size: 14px;
+  padding: 2px;
+  width: 100%;
+  margin-top: 5px;
+  border-radius: 3px;
+  border: 1px solid #DDDDDD;
+}
+input.calendar-password-entry-input:focus {
+  outline: none;
+}
+
+input.calendar-password-entry-submit {
+  float: right;
+  padding: 3px 5px;
+  font-size: 9px;
+  margin-right: 3px;
+  border-radius: 3px;
+  border: 1px solid #C8C8C8;
+  background-color: #F8F8F8;
+  text-transform: uppercase;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  color: #777777;
+  margin-top: 6px;
+  margin-left: 3px;
+}
+input.calendar-password-entry-submit:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+input.calendar-password-entry-submit:disabled {
+  cursor: initial;
+  text-decoration: none;
+  color: #999999;
+}
+img.calendar-pasword-entry-loading {
+  float: right;
+  width: 14px;
+  padding: 9px 1px 0px 3px;
+}
+span.calendar-pasword-entry-loading {
+  float: right;
+  line-height: 14px;
+  padding: 9px 3px 0px 5px;
 }

@@ -83,7 +83,6 @@ async function fetchEntriesAndUpdateStore(
   updateStore: UpdateStore,
 ) {
   const curSaveAttempt = ++saveAttemptIndex;
-  // TODO index entriesLoadingStatus by year/month/navID
   updateStore((prevState: AppState) => update(prevState, {
     navInfo: { entriesLoadingStatus: { $set: "loading" } },
   }));

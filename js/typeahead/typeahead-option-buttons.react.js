@@ -22,7 +22,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
-  unfreezeTypeahead: () => void,
+  unfreezeTypeahead: (navID: string) => void,
   year: number,
   month: number,
   calendarInfos: {[id: string]: CalendarInfo},
@@ -156,7 +156,7 @@ class TypeaheadOptionButtons extends React.Component {
     event.stopPropagation();
     this.props.freezeTypeahead(this.props.calendarInfo.id);
     const onClose = () => {
-      this.props.unfreezeTypeahead();
+      this.props.unfreezeTypeahead(this.props.calendarInfo.id);
       this.props.clearModal();
     }
     this.props.setModal(
