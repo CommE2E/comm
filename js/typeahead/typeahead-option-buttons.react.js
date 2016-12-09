@@ -8,14 +8,12 @@ import type { AppState, UpdateStore } from '../redux-reducer';
 import React from 'react';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
-import _ from 'lodash';
 
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import CalendarSettingsModal from '../modals/calendar-settings-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
-import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
-import history from '../router-history';
+import { fetchEntriesAndUpdateStore } from '../nav-utils';
 
 type Props = {
   calendarInfo: CalendarInfo,
@@ -25,8 +23,6 @@ type Props = {
   unfreezeTypeahead: (navID: string) => void,
   year: number,
   month: number,
-  calendarInfos: {[id: string]: CalendarInfo},
-  monthURL: string,
   home: bool,
   updateStore: UpdateStore,
 };
@@ -114,40 +110,29 @@ class TypeaheadOptionButtons extends React.Component {
         }
       })(),
     ]);
-    // If we are home and just killed the last subscription, redirect out
-    if (this.props.home && !newSubscribed) {
-      const subscriptionExists = _.some(
-        this.props.calendarInfos,
-        (calendarInfo: CalendarInfo) => calendarInfo.subscribed &&
-          calendarInfo.id !== this.props.calendarInfo.id,
-      );
-      if (!subscriptionExists) {
-        // TODO fix this special case of default calendar 254
-        history.replace(`calendar/254/${this.props.monthURL}`);
-      }
-    }
-    if (response.success) {
-      const updateStoreCallback = () => {
-        this.props.updateStore((prevState: AppState) => {
-          const updateParam = { calendarInfos: {} };
-          updateParam.calendarInfos[this.props.calendarInfo.id] = {
-            subscribed: { $set: newSubscribed },
-          };
-          return update(prevState, updateParam);
-        });
-      };
-      if (this.mounted) {
-        this.setState(
-          { loadingStatus: "inactive" },
-          updateStoreCallback,
-        );
-      } else {
-        updateStoreCallback();
-      }
-    } else {
+    if (!response.success) {
       this.setState({
         loadingStatus: "error",
       });
+      return;
+    }
+
+    const updateStoreCallback = () => {
+      this.props.updateStore((prevState: AppState) => {
+        const updateParam = { calendarInfos: {} };
+        updateParam.calendarInfos[this.props.calendarInfo.id] = {
+          subscribed: { $set: newSubscribed },
+        };
+        return update(prevState, updateParam);
+      });
+    };
+    if (this.mounted) {
+      this.setState(
+        { loadingStatus: "inactive" },
+        updateStoreCallback,
+      );
+    } else {
+      updateStoreCallback();
     }
   }
 
@@ -177,8 +162,6 @@ TypeaheadOptionButtons.propTypes = {
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
-  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
-  monthURL: React.PropTypes.string.isRequired,
   home: React.PropTypes.bool.isRequired,
   updateStore: React.PropTypes.func.isRequired,
 };
@@ -187,8 +170,6 @@ export default connect(
   (state: AppState) => ({
     year: state.navInfo.year,
     month: state.navInfo.month,
-    calendarInfos: state.calendarInfos,
-    monthURL: monthURL(state),
     home: state.navInfo.home,
   }),
   mapStateToUpdateStore,

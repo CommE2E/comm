@@ -12,7 +12,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { Router, Route } from 'react-router';
 
-import reducer from './redux-reducer';
+import { reducer } from './redux-reducer';
 import App from './app.react';
 import history from './router-history';
 import {

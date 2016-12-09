@@ -1,6 +1,7 @@
 // @flow
 
-import type { AppState, UpdateStore } from './redux-reducer';
+import type { AppState, NavInfo, UpdateStore } from './redux-reducer';
+import { navInfoPropType } from './redux-reducer';
 import type { LoadingStatus } from './loading-indicator.react';
 
 import React from 'react';
@@ -29,14 +30,12 @@ import {
 import { mapStateToUpdateStore } from './redux-utils'
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
-import { navInfoFromURL } from './url-utils';
+import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
 type Props = {
   thisNavURLFragment: string,
-  year: number,
-  month: number, // 1-indexed
+  navInfo: NavInfo,
   verifyField: ?number,
-  verifyCode: ?string,
   updateStore: UpdateStore,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: string,
@@ -107,31 +106,41 @@ class App extends React.Component {
   }
 
   componentWillReceiveProps(newProps: Props) {
-    if (newProps.location.pathname === this.props.location.pathname) {
-      return;
+    if (newProps.location.pathname !== this.props.location.pathname) {
+      const newNavInfo = navInfoFromURL(newProps.location.pathname);
+      if (_.isEqual(newNavInfo, newProps.navInfo)) {
+        return;
+      }
+      const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
+      this.props.updateStore((prevState: AppState) => update(prevState, {
+        navInfo: updateObj,
+      }));
+    } else if (!_.isEqual(newProps.navInfo, this.props.navInfo)) {
+      const newURL = canonicalURLFromReduxState(
+        newProps.navInfo,
+        newProps.location.pathname,
+      );
+      if (newURL === newProps.location.pathname) {
+        return;
+      }
+      history.replace(newURL);
     }
-    const newNavInfo = navInfoFromURL(newProps.location.pathname);
-    const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
-    this.props.updateStore((prevState: AppState) => update(prevState, {
-      navInfo: updateObj,
-    }));
   }
 
   render() {
-    const lastMonthDate = getDate(this.props.year, this.props.month - 1, 1);
+    const year = this.props.navInfo.year;
+    const month = this.props.navInfo.month;
+    const lastMonthDate = getDate(year, month - 1, 1);
     const prevURL = this.props.thisNavURLFragment + urlForYearAndMonth(
       lastMonthDate.getFullYear(),
       lastMonthDate.getMonth() + 1,
     );
-    const nextMonthDate = getDate(this.props.year, this.props.month + 1, 1);
+    const nextMonthDate = getDate(year, month + 1, 1);
     const nextURL = this.props.thisNavURLFragment + urlForYearAndMonth(
       nextMonthDate.getFullYear(),
       nextMonthDate.getMonth() + 1,
     );
-    const monthName = dateFormat(
-      getDate(this.props.year, this.props.month, 1),
-      "mmmm",
-    );
+    const monthName = dateFormat(getDate(year, month, 1), "mmmm");
     return (
       <div>
         <header>
@@ -165,7 +174,7 @@ class App extends React.Component {
             {" "}
             {monthName}
             {" "}
-            {this.props.year}
+            {year}
             {" "}
             <Link
               to={nextURL}
@@ -210,10 +219,8 @@ App.resetPassword = 1;
 
 App.propTypes = {
   thisNavURLFragment: React.PropTypes.string.isRequired,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
+  navInfo: navInfoPropType.isRequired,
   verifyField: React.PropTypes.number,
-  verifyCode: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
@@ -226,10 +233,8 @@ App.propTypes = {
 export default connect(
   (state: AppState) => ({
     thisNavURLFragment: thisNavURLFragment(state),
-    year: state.navInfo.year,
-    month: state.navInfo.month,
+    navInfo: state.navInfo,
     verifyField: state.verifyField,
-    verifyCode: state.navInfo.verify,
     entriesLoadingStatus: state.entriesLoadingStatus,
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),

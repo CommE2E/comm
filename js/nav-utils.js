@@ -27,20 +27,23 @@ function urlForYearAndMonth(year: number, month: number) {
 
 const monthURL = createSelector(
   (state: AppState) => state.navInfo,
-  (navInfo: NavInfo) => {
-    return urlForYearAndMonth(navInfo.year, navInfo.month);
-  },
+  (navInfo: NavInfo) => urlForYearAndMonth(navInfo.year, navInfo.month),
 );
+
+function urlForHomeAndCalendarID(home: bool, calendarID: ?string) {
+  if (home) {
+    return "home/";
+  }
+  invariant(calendarID, "either home or calendarID should be set");
+  return `calendar/${calendarID}/`;
+}
 
 const thisNavURLFragment = createSelector(
   (state: AppState) => state.navInfo,
-  (navInfo: NavInfo) => {
-    if (navInfo.home) {
-      return "home/";
-    }
-    invariant(navInfo.calendarID, "either home or calendarID should be set");
-    return `calendar/${navInfo.calendarID}/`;
-  },
+  (navInfo: NavInfo) => urlForHomeAndCalendarID(
+    navInfo.home,
+    navInfo.calendarID
+  ),
 );
 
 const thisURL = createSelector(
@@ -111,6 +114,7 @@ export {
   currentNavID,
   urlForYearAndMonth,
   monthURL,
+  urlForHomeAndCalendarID,
   thisNavURLFragment,
   thisURL,
   mergeNewEntriesIntoStore,

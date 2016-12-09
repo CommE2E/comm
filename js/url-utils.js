@@ -1,11 +1,11 @@
 // @flow
 
-import type { NavInfo } from './redux-reducer';
 import type { Store } from 'redux';
+import type { NavInfo } from './redux-reducer';
 
 import invariant from 'invariant';
 
-import { thisNavURLFragment } from './nav-utils';
+import { thisNavURLFragment, urlForHomeAndCalendarID } from './nav-utils';
 
 type PartialNavInfo = {
   year?: number,
@@ -46,6 +46,21 @@ function partialNavInfoFromURL(url: string): PartialNavInfo {
   return returnObj;
 }
 
+function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
+  const partialNavInfo = partialNavInfoFromURL(currentURL);
+  let newURL = urlForHomeAndCalendarID(navInfo.home, navInfo.calendarID);
+  if (partialNavInfo.year !== undefined) {
+    newURL += `year/${navInfo.year}/`;
+  }
+  if (partialNavInfo.month !== undefined) {
+    newURL += `month/${navInfo.month}/`;
+  }
+  if (navInfo.verify) {
+    newURL += `verify/${navInfo.verify}/`;
+  }
+  return newURL;
+}
+
 // This function returns an "onEnter" handler for our single react-router Route.
 // We use it to redirect the URL to be consistent with the initial Redux state
 // determined on the server side. However, for the rest of the application URL
@@ -57,18 +72,10 @@ function redirectURLFromInitialReduxState(store: Store) {
       return;
     }
     urlRedirectedFromInitialReduxState = true;
-    let newURL = thisNavURLFragment(store.getState());
-    const reduxNavInfo = store.getState().navInfo;
-    const partialNavInfo = partialNavInfoFromURL(nextState.location.pathname);
-    if (partialNavInfo.year !== undefined) {
-      newURL += `year/${reduxNavInfo.year}/`;
-    }
-    if (partialNavInfo.month !== undefined) {
-      newURL += `month/${reduxNavInfo.month}/`;
-    }
-    if (reduxNavInfo.verify) {
-      newURL += `verify/${reduxNavInfo.verify}/`;
-    }
+    const newURL = canonicalURLFromReduxState(
+      store.getState().navInfo,
+      nextState.location.pathname,
+    );
     if (nextState.location.pathname !== newURL) {
       replace(newURL);
     }
@@ -104,6 +111,7 @@ function navInfoFromURL(url: string): NavInfo {
 }
 
 export {
+  canonicalURLFromReduxState,
   redirectURLFromInitialReduxState,
   redirectURLFromAppTransition,
   navInfoFromURL,

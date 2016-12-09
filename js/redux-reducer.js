@@ -4,7 +4,11 @@ import type { CalendarInfo } from './calendar-info';
 import type { EntryInfo } from './calendar/entry-info';
 import type { LoadingStatus } from './loading-indicator.react';
 
+import React from 'react';
 import invariant from 'invariant';
+import update from 'immutability-helper';
+
+import { subscriptionExists } from './calendar-utils';
 
 export type NavInfo = {
   year: number,
@@ -13,6 +17,14 @@ export type NavInfo = {
   calendarID: ?string,
   verify: ?string,
 };
+
+export const navInfoPropType = React.PropTypes.shape({
+  year: React.PropTypes.number.isRequired,
+  month: React.PropTypes.number.isRequired,
+  home: React.PropTypes.bool.isRequired,
+  calendarID: React.PropTypes.string,
+  verify: React.PropTypes.string,
+});
 
 export type AppState = {
   navInfo: NavInfo,
@@ -36,9 +48,36 @@ export type Action =
   { type: "@@redux/INIT" } |
   { type: "GENERIC", callback: UpdateCallback };
 
-export default function reducer(state: AppState, action: Action) {
+function ensureNavValidity(state: AppState): AppState {
+  // TODO stop defaulting to calendar 254
+  if (state.navInfo.home && !subscriptionExists(state)) {
+    return update(state, { navInfo: {
+      home: { $set: false },
+      calendarID: { $set: "254" },
+    }});
+  } else if (
+    state.navInfo.calendarID &&
+    (!state.calendarInfos[state.navInfo.calendarID] ||
+      !state.calendarInfos[state.navInfo.calendarID].authorized)
+  ) {
+    if (subscriptionExists(state)) {
+      return update(state, { navInfo: {
+        home: { $set: true },
+        calendarID: { $set: null },
+      }});
+    } else {
+      return update(state, { navInfo: {
+        home: { $set: false },
+        calendarID: { $set: "254" },
+      }});
+    }
+  }
+  return state;
+}
+
+export function reducer(state: AppState, action: Action) {
   if (action.type === "GENERIC") {
-    return action.callback(state);
+    return ensureNavValidity(action.callback(state));
   }
   return state;
 }

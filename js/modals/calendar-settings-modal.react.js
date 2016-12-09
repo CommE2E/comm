@@ -14,17 +14,11 @@ import _ from 'lodash';
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
-import { monthURL } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils';
-import history from '../router-history';
 
 type Tab = "general" | "privacy" | "delete";
 type Props = {
   calendarInfo: CalendarInfo,
-  monthURL: string,
-  navCalendarID: ?string,
-  navHome: bool,
-  calendarInfos: {[id: string]: CalendarInfo},
   updateStore: UpdateStore,
   onClose: () => void,
 };
@@ -496,17 +490,6 @@ class CalendarSettingsModal extends React.Component {
         );
         return update(prevState, { calendarInfos: { $set: newCalendarInfos } });
       });
-      if (this.props.navHome && !this.otherSubscriptionExists()) {
-        // TODO fix this special case of default calendar 254
-        history.replace(`calendar/254/${this.props.monthURL}`);
-      } else if (this.props.navCalendarID === this.props.calendarInfo.id) {
-        if (this.otherSubscriptionExists()) {
-          history.replace(`home/${this.props.monthURL}`);
-        } else {
-          // TODO fix this special case of default calendar 254
-          history.replace(`calendar/254/${this.props.monthURL}`);
-        }
-      }
       this.props.onClose();
       return;
     }
@@ -527,32 +510,15 @@ class CalendarSettingsModal extends React.Component {
     );
   }
 
-  otherSubscriptionExists() {
-    return _.some(
-      this.props.calendarInfos,
-      (calendarInfo: CalendarInfo) => calendarInfo.subscribed &&
-        calendarInfo.id !== this.props.calendarInfo.id,
-    );
-  }
-
 }
 
 CalendarSettingsModal.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
-  monthURL: React.PropTypes.string.isRequired,
-  navCalendarID: React.PropTypes.string,
-  navHome: React.PropTypes.bool.isRequired,
-  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   updateStore: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
 }
 
 export default connect(
-  (state: AppState) => ({
-    monthURL: monthURL(state),
-    navCalendarID: state.navInfo.calendarID,
-    navHome: state.navInfo.home,
-    calendarInfos: state.calendarInfos,
-  }),
+  null,
   mapStateToUpdateStore,
 )(CalendarSettingsModal);

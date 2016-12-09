@@ -12,13 +12,10 @@ import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validEmailRegex } from './account-regexes';
 import VerifyEmailModal from './verify-email-modal.react';
-import { monthURL } from '../../nav-utils';
 import { mapStateToUpdateStore } from '../../redux-utils';
-import history from '../../router-history';
 
 type Tab = "general" | "delete";
 type Props = {
-  monthURL: string,
   username: string,
   email: string,
   emailVerified: bool,
@@ -364,8 +361,6 @@ class UserSettingsModal extends React.Component {
         username: { $set: "" },
         emailVerified: { $set: false },
       }));
-      // TODO fix this special case of default calendar 254
-      history.replace(`calendar/254/${this.props.monthURL}`);
       this.props.onClose();
       return;
     }
@@ -389,7 +384,6 @@ class UserSettingsModal extends React.Component {
 }
 
 UserSettingsModal.propTypes = {
-  monthURL: React.PropTypes.string.isRequired,
   username: React.PropTypes.string.isRequired,
   email: React.PropTypes.string.isRequired,
   emailVerified: React.PropTypes.bool.isRequired,
@@ -400,7 +394,6 @@ UserSettingsModal.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    monthURL: monthURL(state),
     username: state.username,
     email: state.email,
     emailVerified: state.emailVerified,
