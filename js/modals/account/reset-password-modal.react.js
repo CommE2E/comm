@@ -192,7 +192,7 @@ export default connect(
   (state: AppState) => ({
     thisURL: thisURL(state),
     resetPasswordUsername: state.resetPasswordUsername,
-    verifyCode: state.verifyCode,
+    verifyCode: state.navInfo.verify,
   }),
   mapStateToUpdateStore,
 )(ResetPasswordModal);

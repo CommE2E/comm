@@ -7,7 +7,7 @@ export type LoadingStatus = "inactive" | "loading" | "error";
 type Props = {
   status: LoadingStatus,
   className: ?string,
-}
+};
 
 export default function LoadingIndicator(props: Props) {
   if (props.status === "inactive") {

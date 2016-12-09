@@ -10,12 +10,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import { Router, Route, Redirect } from 'react-router';
+import { Router, Route } from 'react-router';
 
 import reducer from './redux-reducer';
 import App from './app.react';
 import history from './router-history';
-import { thisNavURLFragment } from './nav-utils';
+import {
+  redirectURLFromInitialReduxState,
+  redirectURLFromAppTransition,
+} from './url-utils';
 
 declare var username: string;
 declare var email: string;
@@ -39,64 +42,30 @@ const store = createStore(
       month: month,
       home: home,
       calendarID: calendar_id,
-      entriesLoadingStatus: "inactive",
+      verify: verify_code,
     },
     loggedIn: !!email,
     username: username,
     email: email,
     emailVerified: email_verified,
     sessionID: sessionID,
-    verifyCode: verify_code,
     verifyField: verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     calendarInfos: calendar_infos,
     newCalendarID: null,
+    entriesLoadingStatus: "inactive",
   }: AppState),
 );
 
-// Okay, so the way Redux and react-router interact in this app is a bit complex
-// and worth explaining. On the initial load, the navInfo in the Redux store is
-// the ground truth for navigational state (rather than react-router's parsed
-// route). The reason for this is that the user may have entered in a URL that
-// needs to get redirected. In that case, the server returns the Redux state in
-// the post-redirection state (so as to enable us to make certain guarantees
-// about the Redux state at all times), but obviously the initial route is
-// incorrect. The <Redirect> below looks at the Redux store to determine how to
-// set the route, and the initial route replaced with one that is consistent
-// with the Redux state.
-//
-// However, the normal propagation throughout the rest of the app's lifetime is
-// reversed: the ground truth is in the react-router route, and this gets passed
-// down to the <App> component, which then updates the Redux store.
-// Consequently, to change the navigational state throughout the app, use
-// the react-router history.push method. The reason for this is that actual
-// back/forward browser events need to change Redux state, and our way of
-// intercepting them is through react-router.
-//
-// Warning: our <Redirect> logic below only works on load. For one, the
-// thisNavURLFragment call below only happens once, and consequently the
-// <Redirect> doesn't get updated when the Redux store changes. In fact,
-// changing route configs dynamically is not well supported in react-router
-// anyways. If we ever need to support browser.push('/'), we could look into
-// using react-router's onEnter method to do the redirect dynamically based on
-// Redux state.
-const navURLFragment = thisNavURLFragment(store.getState());
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <Redirect from="/" to={navURLFragment} />
-      <Redirect
-        from="/verify/:verify/"
-        to={navURLFragment + "/verify/:verify/"}
-      />
       <Route
-        path={
-          "(home/)(calendar/:calendarID/)" +
-          "(year/:year/)(month/:month/)" +
-          "(verify/:verify/)"
-        }
+        path="*"
         component={App}
+        onEnter={redirectURLFromInitialReduxState(store)}
+        onChange={redirectURLFromAppTransition(store)}
       />
     </Router>
   </Provider>,

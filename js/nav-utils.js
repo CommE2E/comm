@@ -84,7 +84,7 @@ async function fetchEntriesAndUpdateStore(
 ) {
   const curSaveAttempt = ++saveAttemptIndex;
   updateStore((prevState: AppState) => update(prevState, {
-    navInfo: { entriesLoadingStatus: { $set: "loading" } },
+    entriesLoadingStatus: { $set: "loading" },
   }));
   const response = await fetchJSON('month_entries.php', {
     'month': month,
@@ -94,7 +94,7 @@ async function fetchEntriesAndUpdateStore(
   if (!response.result) {
     if (curSaveAttempt === saveAttemptIndex) {
       updateStore((prevState: AppState) => update(prevState, {
-        navInfo: { entriesLoadingStatus: { $set: "error" } },
+        entriesLoadingStatus: { $set: "error" },
       }));
     }
     return;
@@ -102,7 +102,7 @@ async function fetchEntriesAndUpdateStore(
   mergeNewEntriesIntoStore(updateStore, response.result);
   if (curSaveAttempt === saveAttemptIndex) {
     updateStore((prevState: AppState) => update(prevState, {
-      navInfo: { entriesLoadingStatus: { $set: "inactive" } },
+      entriesLoadingStatus: { $set: "inactive" },
     }));
   }
 }

@@ -11,8 +11,8 @@ export type NavInfo = {
   month: number, // 1-indexed
   home: bool,
   calendarID: ?string,
-  entriesLoadingStatus: LoadingStatus,
-}
+  verify: ?string,
+};
 
 export type AppState = {
   navInfo: NavInfo,
@@ -21,12 +21,12 @@ export type AppState = {
   email: string,
   emailVerified: bool,
   sessionID: string,
-  verifyCode: ?string,
   verifyField: ?number,
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   calendarInfos: {[id: string]: CalendarInfo},
   newCalendarID: ?string,
+  entriesLoadingStatus: LoadingStatus,
 };
 
 export type UpdateCallback = (prevState: AppState) => AppState;

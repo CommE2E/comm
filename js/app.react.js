@@ -9,6 +9,7 @@ import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 import { Link, locationShape } from 'react-router';
+import _ from 'lodash';
 
 import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
@@ -28,24 +29,20 @@ import {
 import { mapStateToUpdateStore } from './redux-utils'
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
+import { navInfoFromURL } from './url-utils';
 
 type Props = {
   thisNavURLFragment: string,
   year: number,
   month: number, // 1-indexed
   verifyField: ?number,
+  verifyCode: ?string,
   updateStore: UpdateStore,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: string,
   thisURL: string,
   monthURL: string,
   newCalendarID: ?string,
-  params: {
-    year: ?string,
-    month: ?string,
-    calendarID: ?string,
-    verify: ?string,
-  },
   location: {
     pathname: string,
   },
@@ -69,7 +66,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.params.verify) {
+    if (!this.props.verifyCode) {
       return;
     }
     if (this.props.verifyField === App.resetPassword) {
@@ -84,9 +81,9 @@ class App extends React.Component {
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.verifyField === App.resetPassword) {
-      if (prevProps.params.verify && !this.props.params.verify) {
+      if (prevProps.verifyCode && !this.props.verifyCode) {
         this.clearModal();
-      } else if (!prevProps.params.verify && this.props.params.verify) {
+      } else if (!prevProps.verifyCode && this.props.verifyCode) {
         this.showResetPasswordModal();
       }
     }
@@ -110,23 +107,11 @@ class App extends React.Component {
   }
 
   componentWillReceiveProps(newProps: Props) {
-    const newHome = newProps.location.pathname.indexOf("home/") === 0;
-    const newCalendarID = newProps.params.calendarID
-      ? newProps.params.calendarID
-      : null;
-    const currentDate = new Date();
-    const newYear = newProps.params.year
-      ? parseInt(newProps.params.year)
-      : currentDate.getFullYear();
-    const newMonth = newProps.params.month
-      ? parseInt(newProps.params.month)
-      : currentDate.getMonth() + 1;
-    const updateObj: {[key: string]: mixed} = {
-      home: { $set: newHome },
-      calendarID: { $set: newCalendarID },
-      year: { $set: newYear },
-      month: { $set: newMonth },
-    };
+    if (newProps.location.pathname === this.props.location.pathname) {
+      return;
+    }
+    const newNavInfo = navInfoFromURL(newProps.location.pathname);
+    const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
     this.props.updateStore((prevState: AppState) => update(prevState, {
       navInfo: updateObj,
     }));
@@ -228,18 +213,13 @@ App.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   verifyField: React.PropTypes.number,
+  verifyCode: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string.isRequired,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   newCalendarID: React.PropTypes.string,
-  params: React.PropTypes.shape({
-    year: React.PropTypes.string,
-    month: React.PropTypes.string,
-    calendarID: React.PropTypes.string,
-    verify: React.PropTypes.string,
-  }),
   location: locationShape,
 };
 
@@ -249,7 +229,8 @@ export default connect(
     year: state.navInfo.year,
     month: state.navInfo.month,
     verifyField: state.verifyField,
-    entriesLoadingStatus: state.navInfo.entriesLoadingStatus,
+    verifyCode: state.navInfo.verify,
+    entriesLoadingStatus: state.entriesLoadingStatus,
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
     monthURL: monthURL(state),
