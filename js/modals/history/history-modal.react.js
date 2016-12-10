@@ -32,7 +32,7 @@ type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
-  currentNavID: string,
+  currentNavID: ?string,
   onScreenCalendarInfos: CalendarInfo[],
   entryInfos: {[id: string]: EntryInfo},
   onClose: () => void,
@@ -56,6 +56,10 @@ class HistoryModal extends React.Component {
 
   constructor(props: Props) {
     super(props);
+    invariant(
+      props.currentNavID,
+      "currentNavID should be set before history-modal opened",
+    );
     const entryLoadingStatuses = {};
     if (props.mode === "entry") {
       invariant(props.currentEntryID, "entry ID should be set");
@@ -78,6 +82,12 @@ class HistoryModal extends React.Component {
       promises.push(this.loadEntry(this.state.currentEntryID));
     }
     Promise.all(promises).then();
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    if (!newProps.currentNavID) {
+      newProps.onClose();
+    }
   }
 
   render() {
@@ -184,6 +194,10 @@ class HistoryModal extends React.Component {
     this.setState({
       dayLoadingStatus: "loading",
     });
+    invariant(
+      this.props.currentNavID,
+      "currentNavID should be set before history-modal opened",
+    );
     const response = await fetchJSON('day_history.php', {
       'day': this.props.day,
       'month': this.props.month,
@@ -281,7 +295,7 @@ HistoryModal.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
-  currentNavID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string,
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,

@@ -9,13 +9,11 @@ import update from 'immutability-helper';
 
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
-import { thisURL } from '../../nav-utils';
 import { mapStateToUpdateStore } from '../../redux-utils';
 
 type Props = {
   onClose: () => void,
   onSuccess: () => void,
-  thisURL: string,
   resetPasswordUsername: string,
   verifyCode: string,
   updateStore: UpdateStore,
@@ -182,7 +180,6 @@ class ResetPasswordModal extends React.Component {
 ResetPasswordModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   onSuccess: React.PropTypes.func.isRequired,
-  thisURL: React.PropTypes.string.isRequired,
   resetPasswordUsername: React.PropTypes.string.isRequired,
   verifyCode: React.PropTypes.string.isRequired,
   updateStore: React.PropTypes.func.isRequired,
@@ -190,7 +187,6 @@ ResetPasswordModal.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    thisURL: thisURL(state),
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
   }),

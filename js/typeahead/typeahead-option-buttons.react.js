@@ -13,7 +13,7 @@ import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import CalendarSettingsModal from '../modals/calendar-settings-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
-import { fetchEntriesAndUpdateStore } from '../nav-utils';
+import { fetchEntriesAndUpdateStore, currentNavID } from '../nav-utils';
 
 type Props = {
   calendarInfo: CalendarInfo,
@@ -24,6 +24,7 @@ type Props = {
   year: number,
   month: number,
   home: bool,
+  currentNavID: ?string,
   updateStore: UpdateStore,
 };
 type State = {
@@ -55,6 +56,9 @@ class TypeaheadOptionButtons extends React.Component {
           <li>Closed</li>
         </ul>
       );
+    }
+    if (!this.props.currentNavID) {
+      return null;
     }
     let editButton = null;
     if (this.props.calendarInfo.editable) {
@@ -163,6 +167,7 @@ TypeaheadOptionButtons.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   home: React.PropTypes.bool.isRequired,
+  currentNavID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
 };
 
@@ -171,6 +176,7 @@ export default connect(
     year: state.navInfo.year,
     month: state.navInfo.month,
     home: state.navInfo.home,
+    currentNavID: currentNavID(state),
   }),
   mapStateToUpdateStore,
 )(TypeaheadOptionButtons);

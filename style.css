@@ -173,6 +173,10 @@ div.calendar-nav {
   cursor: pointer;
   float: left;
 }
+div.calendar-nav-overlay {
+  z-index: 4;
+  cursor: default;
+}
 div.calendar-nav-current {
   min-width: 170px;
   padding: 2px 0;
@@ -186,6 +190,9 @@ div.calendar-nav-current > img {
   margin-right: 3px;
   margin-bottom: -7px;
   cursor: pointer;
+}
+div.calendar-nav-overlay > div.calendar-nav-current > img {
+  cursor: default;
 }
 span.calendar-nav-first-symbol {
   float: right;
@@ -298,6 +305,9 @@ div.calendar-nav-option:hover {
 }
 div.calendar-nav-frozen-option {
   background-color: #E8E8E8;
+}
+div.calendar-nav-open-option {
+  cursor: default;
 }
 div.calendar-nav-no-results {
   text-align: center;

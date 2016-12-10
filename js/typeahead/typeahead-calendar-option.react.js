@@ -55,13 +55,21 @@ class TypeaheadCalendarOption extends React.Component {
     };
   }
 
+  openAndFocusPasswordEntry() {
+    this.setState({ passwordEntryOpen: true });
+  }
+
+  focusPasswordEntry() {
+    invariant(
+      this.passwordEntryInput instanceof HTMLInputElement,
+      "passwordEntryInput ref not set",
+    );
+    this.passwordEntryInput.focus();
+  }
+
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.passwordEntryOpen && !prevState.passwordEntryOpen) {
-      invariant(
-        this.passwordEntryInput instanceof HTMLInputElement,
-        "passwordEntryInput ref not set",
-      );
-      this.passwordEntryInput.focus();
+      this.focusPasswordEntry();
     }
   }
 
@@ -100,6 +108,7 @@ class TypeaheadCalendarOption extends React.Component {
               onChange={this.onPasswordEntryChange.bind(this)}
               onBlur={this.onPasswordEntryBlur.bind(this)}
               onKeyDown={this.onPasswordEntryKeyDown.bind(this)}
+              onMouseDown={this.onPasswordEntryMouseDown.bind(this)}
               placeholder="Password"
               ref={(input) => this.passwordEntryInput = input}
             />
@@ -111,10 +120,11 @@ class TypeaheadCalendarOption extends React.Component {
     };
     return (
       <div
-        className={classNames(
-          "calendar-nav-option",
-          {'calendar-nav-frozen-option': this.props.frozen},
-        )}
+        className={classNames({
+          'calendar-nav-option': true,
+          'calendar-nav-open-option': this.state.passwordEntryOpen,
+          'calendar-nav-frozen-option': this.props.frozen,
+        })}
         onClick={this.onClick.bind(this)}
       >
         <div className="calendar-nav-color-preview" style={colorPreviewStyle} />
@@ -178,14 +188,14 @@ class TypeaheadCalendarOption extends React.Component {
     }
   }
 
+  onPasswordEntryMouseDown(event: SyntheticEvent) {
+    event.stopPropagation();
+  }
+
   async onSubmitPassword(event: SyntheticEvent) {
     event.preventDefault();
 
     this.setState({ passwordEntryLoadingStatus: "loading" });
-    invariant(
-      this.passwordEntryInput instanceof HTMLInputElement,
-      "passwordEntryInput ref not set",
-    );
     const response = await fetchJSON('auth_calendar.php', {
       'calendar': this.props.calendarInfo.id,
       'password': this.state.passwordEntryValue,
@@ -217,13 +227,7 @@ class TypeaheadCalendarOption extends React.Component {
           passwordEntryLoadingStatus: "error",
           passwordEntryValue: "",
         },
-        () => {
-          invariant(
-            this.passwordEntryInput instanceof HTMLInputElement,
-            "passwordEntryInput ref not set",
-          );
-          this.passwordEntryInput.focus();
-        },
+        this.focusPasswordEntry.bind(this),
       );
     }
   }
@@ -248,11 +252,14 @@ TypeaheadCalendarOption.defaultProps = {
   frozen: false,
 };
 
+type OwnProps = { calendarInfo: CalendarInfo };
 export default connect(
-  (state: AppState) => ({
+  (state: AppState, ownProps: OwnProps) => ({
     monthURL: monthURL(state),
     year: state.navInfo.year,
     month: state.navInfo.month,
   }),
   mapStateToUpdateStore,
+  undefined,
+  { 'withRef': true },
 )(TypeaheadCalendarOption);

@@ -91,12 +91,11 @@ if (!$home && $calendar === null) {
     $calendar = 254;
   }
 }
-if (
-  ($home && !$subscription_exists) ||
-  (!$home &&
-    (!isset($calendar_infos[$calendar]) ||
-      !$calendar_infos[$calendar]['authorized']))
-) {
+if ($home && !$subscription_exists) {
+  $home = false;
+  $calendar = 254;
+}
+if (!$home && !isset($calendar_infos[$calendar])) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
 }

@@ -21,7 +21,7 @@ import { currentNavID } from '../nav-utils';
 import { subscriptionExists } from '../calendar-utils';
 
 type Props = {
-  currentNavID: string,
+  currentNavID: ?string,
   calendarInfos: {[id: string]: CalendarInfo},
   currentlyHome: bool,
   currentCalendarID: ?string,
@@ -37,6 +37,9 @@ type State = {
   typeaheadValue: string,
   searchResults: string[],
 };
+type TypeaheadCalendarOptionConnect = {
+  getWrappedInstance: () => TypeaheadCalendarOption,
+};
 
 class Typeahead extends React.Component {
 
@@ -47,34 +50,83 @@ class Typeahead extends React.Component {
   dropdown: ?HTMLElement;
   current: ?HTMLElement;
   magnifyingGlass: ?HTMLElement;
+  promptedCalendarOption: ?TypeaheadCalendarOptionConnect;
 
   constructor(props: Props) {
     super(props);
+    let active = false;
+    const frozenNavIDs = {};
+    if (!props.currentNavID) {
+      frozenNavIDs["unauthorized"] = true;
+      invariant(
+        props.currentCalendarID,
+        "no currentNavID only if unauthorized currentCalendarID",
+      );
+      frozenNavIDs[props.currentCalendarID] = true;
+      active = true;
+    }
     this.state = {
-      active: false,
+      active: active,
       searchActive: false,
-      frozenNavIDs: {},
-      typeaheadValue: this.getCurrentNavName(),
+      frozenNavIDs: frozenNavIDs,
+      typeaheadValue: Typeahead.getCurrentNavName(props),
       searchResults: [],
     };
   }
 
-  getCurrentNavName() {
-    if (this.props.currentNavID === "home") {
+  static getCurrentNavName(props: Props) {
+    if (props.currentNavID === "home") {
       return TypeaheadActionOption.homeText;
+    } else if (props.currentNavID) {
+      return props.calendarInfos[props.currentNavID].name;
+    } else {
+      return "";
     }
-    return this.props.calendarInfos[this.props.currentNavID].name;
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidMount() {
+    if (!this.props.currentNavID) {
+      invariant(
+        this.promptedCalendarOption,
+        "no currentNavID only if unauthorized currentCalendarID",
+      );
+      this.promptedCalendarOption
+        .getWrappedInstance()
+        .openAndFocusPasswordEntry();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
     // Navigational event occurred?
-    if (this.props.currentNavID !== prevProps.currentNavID) {
-      // Update the text at the top of the typeahead
+    if (nextProps.currentNavID !== this.props.currentNavID) {
+      let navigateToUnauthorized = false;
+      const updateObj = {};
+      updateObj.typeaheadValue = Typeahead.getCurrentNavName(nextProps);
+      if (!this.props.currentNavID) {
+        this.unfreezeAll();
+      } else if (!nextProps.currentNavID) {
+        updateObj.active = true;
+        navigateToUnauthorized = true;
+        this.freeze("unauthorized");
+        invariant(
+          nextProps.currentCalendarID,
+          "no currentNavID only if unauthorized currentCalendarID",
+        );
+        this.freeze(nextProps.currentCalendarID);
+      }
       this.setState(
-        { typeaheadValue: this.getCurrentNavName() },
+        updateObj,
         () => {
-          // If the typeahead is active, we should reselect
-          if (this.state.active) {
+          if (navigateToUnauthorized) {
+            invariant(
+              this.promptedCalendarOption,
+              "no currentNavID only if unauthorized currentCalendarID",
+            );
+            this.promptedCalendarOption
+              .getWrappedInstance()
+              .openAndFocusPasswordEntry();
+          } else if (this.state.active) {
+            // If the typeahead is active, we should reselect
             const input = this.input;
             invariant(input, "ref should be set");
             input.focus();
@@ -167,14 +219,16 @@ class Typeahead extends React.Component {
           </div>
         );
       }
-      panes.push(
-        <div className="calendar-nav-option-pane" key="actions">
-          <div className="calendar-nav-option-pane-header">
-            Actions
+      if (this.props.currentNavID) {
+        panes.push(
+          <div className="calendar-nav-option-pane" key="actions">
+            <div className="calendar-nav-option-pane-header">
+              Actions
+            </div>
+            {this.buildActionOption("new", TypeaheadActionOption.newText)}
           </div>
-          {this.buildActionOption("new", TypeaheadActionOption.newText)}
-        </div>
-      );
+        );
+      }
       dropdown = (
         <div
           className="calendar-nav-dropdown"
@@ -187,9 +241,9 @@ class Typeahead extends React.Component {
 
     let rightAligned = null;
     if (this.state.active) {
-      const currentCalendarInfo =
+      const currentCalendarInfo = this.props.currentNavID &&
         this.props.calendarInfos[this.props.currentNavID];
-      if (currentCalendarInfo !== undefined) {
+      if (currentCalendarInfo) {
         rightAligned = (
           <TypeaheadOptionButtons
             calendarInfo={currentCalendarInfo}
@@ -214,8 +268,9 @@ class Typeahead extends React.Component {
         onMouseDown={this.onMouseDown.bind(this)}
         className={classNames({
           'calendar-nav': true,
-          'calendar-nav-active': this.state.active },
-        )}
+          'calendar-nav-active': this.state.active,
+          'calendar-nav-overlay': !this.props.currentNavID,
+        })}
       >
         <div
           className="calendar-nav-current"
@@ -258,7 +313,7 @@ class Typeahead extends React.Component {
 
   buildActionOption(navID: NavID, name: string) {
     const onTransition = () => {
-      this.unfreeze(navID);
+      this.unfreezeAll();
       this.setActive(false);
     };
     return (
@@ -277,8 +332,16 @@ class Typeahead extends React.Component {
 
   buildCalendarOption(calendarInfo: CalendarInfo) {
     const onTransition = () => {
-      this.unfreeze(calendarInfo.id);
+      this.unfreezeAll();
       this.setActive(false);
+    };
+    const possiblySetPromptedRef = (option) => {
+      if (
+        !this.props.currentNavID &&
+        calendarInfo.id === this.props.currentCalendarID
+      ) {
+        this.promptedCalendarOption = option;
+      }
     };
     return (
       <TypeaheadCalendarOption
@@ -289,6 +352,7 @@ class Typeahead extends React.Component {
         frozen={!!this.state.frozenNavIDs[calendarInfo.id]}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
+        ref={possiblySetPromptedRef}
         key={calendarInfo.id}
       />
     );
@@ -305,7 +369,7 @@ class Typeahead extends React.Component {
         let typeaheadValue = prevState.typeaheadValue;
         setFocus = active;
         if (!active) {
-          typeaheadValue = this.getCurrentNavName();
+          typeaheadValue = Typeahead.getCurrentNavName(this.props);
         }
         return {
           active: active,
@@ -387,6 +451,20 @@ class Typeahead extends React.Component {
     );
   }
 
+  unfreezeAll() {
+    this.setState(
+      (prevState, props) => {
+        return update(prevState, { frozenNavIDs: { $set: {} } });
+      },
+      () => {
+        invariant(this.input, "ref should be set");
+        if (this.input !== document.activeElement) {
+          this.setActive(false);
+        }
+      },
+    );
+  }
+
   isActive() {
     return this.state.active;
   }
@@ -412,7 +490,7 @@ class Typeahead extends React.Component {
 }
 
 Typeahead.propTypes = {
-  currentNavID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string,
   calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
   currentlyHome: React.PropTypes.bool.isRequired,
   currentCalendarID: React.PropTypes.string,

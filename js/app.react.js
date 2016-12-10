@@ -38,7 +38,7 @@ type Props = {
   verifyField: ?number,
   updateStore: UpdateStore,
   entriesLoadingStatus: LoadingStatus,
-  currentNavID: string,
+  currentNavID: ?string,
   thisURL: string,
   monthURL: string,
   newCalendarID: ?string,
@@ -65,10 +65,15 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.verifyCode) {
-      return;
-    }
-    if (this.props.verifyField === App.resetPassword) {
+    if (!this.props.currentNavID) {
+      this.setModal(<div className="modal-overlay" />);
+      // verify stuff should never happen when navigated to an unauthorized
+      // calendar, but just in case it does we will ignore the verify stuff
+      if (this.props.verifyField) {
+        history.replace(this.props.thisURL);
+      }
+    } else if (!this.props.verifyCode) {
+    } else if (this.props.verifyField === App.resetPassword) {
       this.showResetPasswordModal();
     } else if (this.props.verifyField === App.verifyEmail) {
       history.replace(this.props.thisURL);
@@ -79,8 +84,14 @@ class App extends React.Component {
   }
 
   componentDidUpdate(prevProps: Props) {
+    if (!this.props.currentNavID && prevProps.currentNavID) {
+      this.setModal(<div className="modal-overlay" />);
+    } else if (this.props.currentNavID && !prevProps.currentNavID) {
+      this.clearModal();
+    }
     if (this.props.verifyField === App.resetPassword) {
-      if (prevProps.verifyCode && !this.props.verifyCode) {
+      if (!this.props.currentNavID) {
+      } else if (prevProps.verifyCode && !this.props.verifyCode) {
         this.clearModal();
       } else if (!prevProps.verifyCode && this.props.verifyCode) {
         this.showResetPasswordModal();
@@ -204,6 +215,10 @@ class App extends React.Component {
   }
 
   async navigateTo(year: number, month: number) {
+    invariant(
+      this.props.currentNavID,
+      "if no currentNavID, nav links should be disabled",
+    );
     await fetchEntriesAndUpdateStore(
       year,
       month,
@@ -223,7 +238,7 @@ App.propTypes = {
   verifyField: React.PropTypes.number,
   updateStore: React.PropTypes.func.isRequired,
   entriesLoadingStatus: React.PropTypes.string.isRequired,
-  currentNavID: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   newCalendarID: React.PropTypes.string,

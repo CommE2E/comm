@@ -1,6 +1,7 @@
 // @flow
 
 import type { NavInfo, AppState, UpdateStore } from './redux-reducer';
+import type { CalendarInfo } from './calendar-info';
 import type { EntryInfo } from './calendar/entry-info';
 
 import { createSelector } from 'reselect';
@@ -12,11 +13,17 @@ import fetchJSON from './fetch-json';
 
 const currentNavID = createSelector(
   (state: AppState) => state.navInfo,
-  (navInfo: NavInfo) => {
+  (state: AppState) => state.calendarInfos,
+  (navInfo: NavInfo, calendarInfos: {[id: string]: CalendarInfo}) => {
     if (navInfo.home) {
       return "home";
     }
     invariant(navInfo.calendarID, "either home or calendarID should be set");
+    const calendarInfo = calendarInfos[navInfo.calendarID];
+    invariant(calendarInfo, `calendar ${navInfo.calendarID} should exist`);
+    if (!calendarInfo.authorized) {
+      return null;
+    }
     return navInfo.calendarID;
   },
 );

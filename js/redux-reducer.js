@@ -57,8 +57,7 @@ function ensureNavValidity(state: AppState): AppState {
     }});
   } else if (
     state.navInfo.calendarID &&
-    (!state.calendarInfos[state.navInfo.calendarID] ||
-      !state.calendarInfos[state.navInfo.calendarID].authorized)
+    !state.calendarInfos[state.navInfo.calendarID]
   ) {
     if (subscriptionExists(state)) {
       return update(state, { navInfo: {

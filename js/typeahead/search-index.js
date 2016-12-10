@@ -8,6 +8,7 @@ import { createSelector } from 'reselect';
 
 import { subscriptionExists } from '../calendar-utils';
 import TypeaheadActionOption from './typeahead-action-option.react';
+import { currentNavID } from '../nav-utils';
 
 type Token = {
   index: number,
@@ -92,7 +93,12 @@ class SearchIndex {
 const searchIndex = createSelector(
   (state: AppState) => state.calendarInfos,
   subscriptionExists,
-  (calendarInfos: {[id: string]: CalendarInfo}, subscriptionExists: bool) => {
+  currentNavID,
+  (
+    calendarInfos: {[id: string]: CalendarInfo},
+    subscriptionExists: bool,
+    currentNavID: ?string,
+  ) => {
     const searchIndex = new SearchIndex();
     for (const calendarID in calendarInfos) {
       const calendar = calendarInfos[calendarID];
@@ -104,7 +110,9 @@ const searchIndex = createSelector(
     if (subscriptionExists) {
       searchIndex.addEntry("home", TypeaheadActionOption.homeText);
     }
-    searchIndex.addEntry("new", TypeaheadActionOption.newText);
+    if (currentNavID) {
+      searchIndex.addEntry("new", TypeaheadActionOption.newText);
+    }
     return searchIndex;
   },
 );

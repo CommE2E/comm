@@ -61,6 +61,12 @@ class Day extends React.Component {
     this.entries = new Map();
   }
 
+  componentWillReceiveProps(newProps: Props) {
+    if (newProps.onScreenCalendarInfos.length === 0) {
+      this.setState({ pickerOpen: false });
+    }
+  }
+
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.entryInfos.length > prevProps.entryInfos.length) {
       invariant(this.entryContainer, "entryContainer ref not set");
@@ -124,6 +130,10 @@ class Day extends React.Component {
 
     let calendarPicker = null;
     if (this.state.pickerOpen) {
+      invariant(
+        this.props.onScreenCalendarInfos.length > 0,
+        "onScreenCalendarInfos should exist if pickerOpen",
+      );
       const options = this.props.onScreenCalendarInfos.map((calendarInfo) => {
         const style = { backgroundColor: "#" + calendarInfo.color };
         return (
@@ -197,12 +207,15 @@ class Day extends React.Component {
 
   onAddEntry(event: SyntheticEvent) {
     event.preventDefault();
+    invariant(
+      this.props.onScreenCalendarInfos.length > 0,
+      "onAddEntry shouldn't be clicked if no onScreenCalendarInfos",
+    );
     if (this.props.onScreenCalendarInfos.length === 1) {
       this.createNewEntry(this.props.onScreenCalendarInfos[0].id);
     } else if (this.props.onScreenCalendarInfos.length > 1) {
       this.setState({ pickerOpen: true });
     }
-    // TODO: handle case where no onscreen calendars
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
