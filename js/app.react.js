@@ -67,19 +67,16 @@ class App extends React.Component {
   componentDidMount() {
     if (!this.props.currentNavID) {
       this.setModal(<div className="modal-overlay" />);
-      // verify stuff should never happen when navigated to an unauthorized
-      // calendar, but just in case it does we will ignore the verify stuff
-      if (this.props.verifyField) {
+    }
+    if (this.props.navInfo.verify) {
+      if (this.props.verifyField === App.resetPassword) {
+        this.showResetPasswordModal();
+      } else if (this.props.verifyField === App.verifyEmail) {
         history.replace(this.props.thisURL);
+        this.setModal(
+          <VerificationSuccessModal onClose={this.clearModal.bind(this)} />
+        );
       }
-    } else if (!this.props.verifyCode) {
-    } else if (this.props.verifyField === App.resetPassword) {
-      this.showResetPasswordModal();
-    } else if (this.props.verifyField === App.verifyEmail) {
-      history.replace(this.props.thisURL);
-      this.setModal(
-        <VerificationSuccessModal onClose={this.clearModal.bind(this)} />
-      );
     }
   }
 
@@ -99,9 +96,9 @@ class App extends React.Component {
       this.clearModal();
     }
     if (this.props.verifyField === App.resetPassword) {
-      if (prevProps.verifyCode && !this.props.verifyCode) {
+      if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
         this.clearModal();
-      } else if (!prevProps.verifyCode && this.props.verifyCode) {
+      } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {
         this.showResetPasswordModal();
       }
     }
