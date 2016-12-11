@@ -9,8 +9,7 @@ import { connect } from 'react-redux';
 import NewCalendarModal from '../modals/new-calendar-modal.react';
 import LogInToCreateCalendarModal
   from '../modals/account/log-in-to-create-calendar-modal.react';
-import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
-import { mapStateToUpdateStore } from '../redux-utils'
+import { monthURL } from '../nav-utils';
 import history from '../router-history';
 
 export type NavID = "home" | "new";
@@ -18,14 +17,11 @@ type Props = {
   navID: NavID,
   name: string,
   monthURL: string,
-  year: number,
-  month: number,
   loggedIn: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   onTransition: () => void,
-  updateStore: UpdateStore,
   frozen?: bool,
 };
 
@@ -79,12 +75,6 @@ class TypeaheadActionOption extends React.Component {
     } else if (this.props.navID == 'home') {
       this.props.onTransition();
       history.push(`home/${this.props.monthURL}`);
-      await fetchEntriesAndUpdateStore(
-        this.props.year,
-        this.props.month,
-        "home",
-        this.props.updateStore,
-      );
     } 
   }
 
@@ -97,14 +87,11 @@ TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   onTransition: React.PropTypes.func.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
 };
 
@@ -112,12 +99,7 @@ TypeaheadActionOption.defaultProps = {
   frozen: false,
 };
 
-export default connect(
-  (state: AppState) => ({
-    monthURL: monthURL(state),
-    loggedIn: state.loggedIn,
-    year: state.navInfo.year,
-    month: state.navInfo.month,
-  }),
-  mapStateToUpdateStore,
-)(TypeaheadActionOption);
+export default connect((state: AppState) => ({
+  monthURL: monthURL(state),
+  loggedIn: state.loggedIn,
+}))(TypeaheadActionOption);

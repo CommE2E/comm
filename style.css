@@ -173,7 +173,7 @@ div.calendar-nav {
   cursor: pointer;
   float: left;
 }
-div.calendar-nav-overlay {
+div.calendar-nav-null-state {
   z-index: 4;
   cursor: default;
 }
@@ -191,7 +191,7 @@ div.calendar-nav-current > img {
   margin-bottom: -7px;
   cursor: pointer;
 }
-div.calendar-nav-overlay > div.calendar-nav-current > img {
+div.calendar-nav-null-state > div.calendar-nav-current > img {
   cursor: default;
 }
 span.calendar-nav-first-symbol {
@@ -326,17 +326,17 @@ div.calendar-nav-color-preview {
   border-radius: 2px;
 }
 
-div.nav-button {
+div.account-button {
   position: relative;
   display: inline;
 }
-div.nav-button > img {
+div.account-button > img {
   opacity: 0.5;
   height: 36px;
   float: left;
   padding-right: 1px;
 }
-div.nav-button > div.nav-menu {
+div.account-button > div.account-menu {
   display: none;
   position: absolute;
   right: 4px;
@@ -350,14 +350,14 @@ div.nav-button > div.nav-menu {
   border-radius: 3px;
   white-space: nowrap;
 }
-div.nav-button > div.nav-menu > div {
+div.account-button > div.account-menu > div {
   border-bottom: 1px solid #D3D3D3;
   padding: 3px 25px;
 }
-div.nav-button > div.nav-menu > div:last-child {
+div.account-button > div.account-menu > div:last-child {
   border-bottom: none;
 }
-div.nav-button:hover > div.nav-menu {
+div.account-button:hover > div.account-menu {
   display: block;
 }
 
@@ -388,7 +388,10 @@ div.lower-left {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
 }
-div.lower-left > div.nav-button > div.nav-menu {
+div.lower-left-null-state {
+  z-index: 4;
+}
+div.lower-left > div.account-button > div.account-menu {
   left: 0px;
   right: 0px;
   bottom: 22px;
@@ -396,7 +399,7 @@ div.lower-left > div.nav-button > div.nav-menu {
   top: initial;
   text-align: left;
 }
-div.lower-left > div.nav-button > div.nav-menu > div {
+div.lower-left > div.account-button > div.account-menu > div {
   padding: 3px 22px;
 }
 span.username {

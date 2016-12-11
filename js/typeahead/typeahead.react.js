@@ -269,7 +269,7 @@ class Typeahead extends React.Component {
         className={classNames({
           'calendar-nav': true,
           'calendar-nav-active': this.state.active,
-          'calendar-nav-overlay': !this.props.currentNavID,
+          'calendar-nav-null-state': !this.props.currentNavID,
         })}
       >
         <div

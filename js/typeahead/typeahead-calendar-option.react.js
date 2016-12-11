@@ -13,7 +13,7 @@ import invariant from 'invariant';
 import update from 'immutability-helper';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import { monthURL, fetchEntriesAndUpdateStore } from '../nav-utils';
+import { monthURL } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
 import LoadingIndicator from '../loading-indicator.react';
@@ -22,8 +22,6 @@ import fetchJSON from '../fetch-json';
 type Props = {
   calendarInfo: CalendarInfo,
   monthURL: string,
-  year: number,
-  month: number,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
   onTransition: () => void,
@@ -152,12 +150,6 @@ class TypeaheadCalendarOption extends React.Component {
       history.push(
         `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
       );
-      await fetchEntriesAndUpdateStore(
-        this.props.year,
-        this.props.month,
-        this.props.calendarInfo.id,
-        this.props.updateStore,
-      );
     } else {
       this.props.freezeTypeahead(this.props.calendarInfo.id);
       this.setState({ passwordEntryOpen: true });
@@ -215,12 +207,6 @@ class TypeaheadCalendarOption extends React.Component {
       history.push(
         `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
       );
-      await fetchEntriesAndUpdateStore(
-        this.props.year,
-        this.props.month,
-        this.props.calendarInfo.id,
-        this.props.updateStore,
-      );
     } else {
       this.setState(
         {
@@ -237,8 +223,6 @@ class TypeaheadCalendarOption extends React.Component {
 TypeaheadCalendarOption.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   onTransition: React.PropTypes.func.isRequired,
@@ -256,8 +240,6 @@ type OwnProps = { calendarInfo: CalendarInfo };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     monthURL: monthURL(state),
-    year: state.navInfo.year,
-    month: state.navInfo.month,
   }),
   mapStateToUpdateStore,
   undefined,

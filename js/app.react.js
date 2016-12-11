@@ -85,13 +85,21 @@ class App extends React.Component {
 
   componentDidUpdate(prevProps: Props) {
     if (!this.props.currentNavID && prevProps.currentNavID) {
-      this.setModal(<div className="modal-overlay" />);
+      // If there is no current modal, set a blank overlay
+      this.setState((prevState, props) => {
+        if (prevState.currentModal !== null) {
+          return prevState;
+        }
+        return update(prevState, { currentModal: {
+          $set: <div className="modal-overlay" />,
+        }});
+      });
     } else if (this.props.currentNavID && !prevProps.currentNavID) {
+      // This can't be done in componentWillReceiveProps since it looks at props
       this.clearModal();
     }
     if (this.props.verifyField === App.resetPassword) {
-      if (!this.props.currentNavID) {
-      } else if (prevProps.verifyCode && !this.props.verifyCode) {
+      if (prevProps.verifyCode && !this.props.verifyCode) {
         this.clearModal();
       } else if (!prevProps.verifyCode && this.props.verifyCode) {
         this.showResetPasswordModal();
@@ -105,6 +113,20 @@ class App extends React.Component {
       this.props.updateStore((prevState: AppState) => update(prevState, {
         newCalendarID: { $set: null },
       }));
+    }
+    // Whenever parameters change we should re-request the page
+    if (
+      this.props.currentNavID &&
+      (this.props.currentNavID !== prevProps.currentNavID ||
+        this.props.navInfo.year !== prevProps.navInfo.year ||
+        this.props.navInfo.month !== prevProps.navInfo.month)
+    ) {
+      fetchEntriesAndUpdateStore(
+        this.props.navInfo.year,
+        this.props.navInfo.month,
+        this.props.currentNavID,
+        this.props.updateStore,
+      ).then();
     }
   }
 
@@ -167,34 +189,18 @@ class App extends React.Component {
               clearModal={this.clearModal.bind(this)}
             />
           </div>
-          <div className="lower-left">
-            <AccountBar
-              setModal={this.setModal.bind(this)}
-              clearModal={this.clearModal.bind(this)}
-            />
-          </div>
+          <AccountBar
+            setModal={this.setModal.bind(this)}
+            clearModal={this.clearModal.bind(this)}
+          />
           <h2 className="upper-center">
-            <Link
-              to={prevURL}
-              onClick={(event) => this.navigateTo(
-                lastMonthDate.getFullYear(),
-                lastMonthDate.getMonth() + 1,
-              )}
-              className="previous-month-link"
-            >&lt;</Link>
+            <Link to={prevURL} className="previous-month-link">&lt;</Link>
             {" "}
             {monthName}
             {" "}
             {year}
             {" "}
-            <Link
-              to={nextURL}
-              onClick={(event) => this.navigateTo(
-                nextMonthDate.getFullYear(),
-                nextMonthDate.getMonth() + 1,
-              )}
-              className="next-month-link"
-            >&gt;</Link>
+            <Link to={nextURL} className="next-month-link">&gt;</Link>
           </h2>
         </header>
         <Calendar
@@ -211,20 +217,11 @@ class App extends React.Component {
   }
 
   clearModal() {
-    this.setState({ currentModal: null });
-  }
-
-  async navigateTo(year: number, month: number) {
-    invariant(
-      this.props.currentNavID,
-      "if no currentNavID, nav links should be disabled",
-    );
-    await fetchEntriesAndUpdateStore(
-      year,
-      month,
-      this.props.currentNavID,
-      this.props.updateStore
-    );
+    if (this.props.currentNavID) {
+      this.setState({ currentModal: null });
+    } else {
+      this.setModal(<div className="modal-overlay" />);
+    }
   }
 
 }
