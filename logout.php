@@ -14,16 +14,15 @@ if ($https && !isset($_SERVER['HTTPS'])) {
 }
 
 if (isset($_COOKIE['user'])) {
-  $cookie_hash = $conn->real_escape_string($_COOKIE['user']);
+  list($cookie_id, $cookie_password) = explode(':', $_COOKIE['user']);
+  $cookie_id = intval($cookie_id);
   $result = $conn->query(
-    "SELECT id FROM cookies ".
-      "WHERE hash = UNHEX('$cookie_hash') AND user IS NOT NULL"
+    "SELECT hash FROM cookies WHERE id = $cookie_id AND user IS NOT NULL"
   );
   $cookie_row = $result->fetch_assoc();
-  if ($cookie_row) {
-    $id = $cookie_row['id'];
-    $conn->query("DELETE FROM cookies WHERE id = $id");
-    $conn->query("DELETE FROM ids WHERE id = $id");
+  if ($cookie_row && password_verify($cookie_password, $cookie_row['hash'])) {
+    $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
+    $conn->query("DELETE FROM ids WHERE id = $cookie_id");
   }
 }
 

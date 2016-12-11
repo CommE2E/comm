@@ -37,19 +37,19 @@ function init_cookie() {
   if (!isset($_COOKIE['user'])) {
     return array(init_anonymous_cookie(), false);
   }
-  $cookie_hash = $conn->real_escape_string($_COOKIE['user']);
+  list($cookie_id, $cookie_password) = explode(':', $_COOKIE['user']);
+  $cookie_id = intval($cookie_id);
   $result = $conn->query(
-    "SELECT id, user, last_update FROM cookies ".
-      "WHERE hash = UNHEX('$cookie_hash') AND user IS NOT NULL"
+    "SELECT hash, user, last_update FROM cookies ".
+      "WHERE id = $cookie_id AND user IS NOT NULL"
   );
   $cookie_row = $result->fetch_assoc();
-  if (!$cookie_row) {
+  if (!$cookie_row || !password_verify($cookie_password, $cookie_row['hash'])) {
     delete_cookie('user');
     return array(init_anonymous_cookie(), false);
   }
 
   $time = round(microtime(true) * 1000); // in milliseconds
-  $cookie_id = $cookie_row['id'];
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
     // Cookie is expired. Delete it...
     delete_cookie('user');
@@ -62,7 +62,7 @@ function init_cookie() {
     "UPDATE cookies SET last_update = $time WHERE id = $cookie_id"
   );
 
-  add_cookie('user', $cookie_hash, $time);
+  add_cookie('user', "$cookie_id:$cookie_password", $time);
   return array((int)$cookie_row['user'], true);
 }
 
@@ -70,7 +70,7 @@ function init_cookie() {
 function init_anonymous_cookie() {
   global $conn;
 
-  list($cookie_id, $cookie_hash) = get_anonymous_cookie();
+  list($cookie_id, $cookie_password) = get_anonymous_cookie();
   $time = round(microtime(true) * 1000); // in milliseconds
 
   if ($cookie_id) {
@@ -78,16 +78,17 @@ function init_anonymous_cookie() {
       "UPDATE cookies SET last_update = $time WHERE id = $cookie_id"
     );
   } else {
-    $cookie_hash = hash('sha256', openssl_random_pseudo_bytes(32));
+    $cookie_password = bin2hex(openssl_random_pseudo_bytes(32));
+    $cookie_hash = password_hash($cookie_password, PASSWORD_BCRYPT);
     $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
     $cookie_id = $conn->insert_id;
     $conn->query(
       "INSERT INTO cookies(id, hash, user, creation_time, last_update) ".
-        "VALUES ($cookie_id, UNHEX('$cookie_hash'), NULL, $time, $time)"
+        "VALUES ($cookie_id, '$cookie_hash', NULL, $time, $time)"
     );
   }
 
-  add_cookie('anonymous', $cookie_hash, $time);
+  add_cookie('anonymous', "$cookie_id:$cookie_password", $time);
 
   return $cookie_id;
 }
@@ -96,15 +97,16 @@ function init_anonymous_cookie() {
 function create_user_cookie($user_id) {
   global $conn;
 
-  $cookie_hash = hash('sha256', openssl_random_pseudo_bytes(32));
+  $cookie_password = bin2hex(openssl_random_pseudo_bytes(32));
+  $cookie_hash = password_hash($cookie_password, PASSWORD_BCRYPT);
   $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
   $cookie_id = $conn->insert_id;
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
     "INSERT INTO cookies(id, hash, user, creation_time, last_update) ".
-      "VALUES ($cookie_id, UNHEX('$cookie_hash'), $user_id, $time, $time)"
+      "VALUES ($cookie_id, '$cookie_hash', $user_id, $time, $time)"
   );
-  add_cookie('user', $cookie_hash, $time);
+  add_cookie('user', "$cookie_id:$cookie_password", $time);
 
   // We can kill the anonymous cookie now
   // We want to do this regardless of get_anonymous_cookie since that function can
@@ -160,30 +162,27 @@ function get_anonymous_cookie() {
   }
 
   // We already have a cookie! Let's look up the session
-  $cookie_hash = $conn->real_escape_string($_COOKIE['anonymous']);
+  list($cookie_id, $cookie_password) = explode(':', $_COOKIE['anonymous']);
+  $cookie_id = intval($cookie_id);
   $result = $conn->query(
-    "SELECT id, last_update FROM cookies ".
-      "WHERE hash = UNHEX('$cookie_hash') AND user IS NULL"
+    "SELECT last_update, hash FROM cookies ".
+      "WHERE id = $cookie_id AND user IS NULL"
   );
-
   $cookie_row = $result->fetch_assoc();
-  if (!$cookie_row) {
+  if (!$cookie_row || !password_verify($cookie_password, $cookie_row['hash'])) {
     return array(null, null);
   }
 
   // Is the cookie expired?
   $time = round(microtime(true) * 1000); // in milliseconds
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
-    $old_cookie_id = $cookie_row['id'];
-    $conn->query("DELETE FROM cookies WHERE id = $old_cookie_id");
-    $conn->query("DELETE FROM ids WHERE id = $old_cookie_id");
-    $conn->query(
-      "DELETE FROM roles WHERE user = $old_cookie_id"
-    );
+    $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
+    $conn->query("DELETE FROM ids WHERE id = $cookie_id");
+    $conn->query("DELETE FROM roles WHERE user = $cookie_id");
     return array(null, null);
   }
 
-  return array((int)$cookie_row['id'], $cookie_hash);
+  return array($cookie_id, $cookie_password);
 }
 
 // $current_time in milliseconds
