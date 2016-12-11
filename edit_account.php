@@ -33,8 +33,7 @@ $new_password = $_POST['new_password'];
 $email = $_POST['email'];
 
 $result = $conn->query(
-  "SELECT username, email, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE id=\"$user\""
+  "SELECT username, email, hash FROM users WHERE id=\"$user\""
 );
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
@@ -42,8 +41,7 @@ if (!$user_row) {
     'error' => 'internal_error',
   )));
 }
-$hash = hash('sha512', $old_password.$user_row['salt']);
-if ($user_row['hash'] !== $hash) {
+if (!password_verify($old_password, $user_row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));
@@ -75,9 +73,8 @@ if ($user_row['email'] !== $email) {
 
 $change_password = "";
 if ($new_password !== '') {
-  $salt = md5(openssl_random_pseudo_bytes(32));
-  $hash = hash('sha512', $new_password.$salt);
-  $change_password = "salt = UNHEX('$salt'), hash = UNHEX('$hash')";
+  $hash = password_hash($new_password, PASSWORD_BCRYPT);
+  $change_password = "hash = '$hash'";
 }
 
 $set_clause = implode(

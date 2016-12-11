@@ -58,12 +58,8 @@ if (!$user_row) {
   )));
 }
 
-$salt = md5(openssl_random_pseudo_bytes(32));
-$hash = hash('sha512', $password.$salt);
-$conn->query(
-  "UPDATE users SET salt = UNHEX('$salt'), hash = UNHEX('$hash') ".
-    "WHERE id = $user"
-);
+$hash = password_hash($password, PASSWORD_BCRYPT);
+$conn->query("UPDATE users SET hash = '$hash' WHERE id = $user");
 
 create_user_cookie($user);
 

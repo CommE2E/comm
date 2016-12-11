@@ -27,7 +27,7 @@ $calendar = (int)$_POST['calendar'];
 $password = $_POST['password'];
 
 $result = $conn->query(
-  "SELECT LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
+  "SELECT hash ".
     "FROM roles r LEFT JOIN users u ON u.id = r.user ".
     "WHERE r.calendar = $calendar AND r.user = $user ".
     "AND r.role >= ".ROLE_CREATOR
@@ -38,8 +38,7 @@ if (!$row) {
     'error' => 'internal_error',
   )));
 }
-$hash = hash('sha512', $password.$row['salt']);
-if ($row['hash'] !== $hash) {
+if (!password_verify($password, $row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));

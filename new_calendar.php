@@ -70,21 +70,20 @@ $id = $conn->insert_id;
 $creator = get_viewer_id();
 $edit_rules = $is_closed ? 1 : 0; // temporary hack
 if ($is_closed) {
-  $salt = md5(openssl_random_pseudo_bytes(32));
-  $hash = hash('sha512', $password.$salt);
+  $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
     "INSERT INTO calendars".
-      "(id, name, description, salt, hash, edit_rules, ".
+      "(id, name, description, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', UNHEX('$salt'), UNHEX('$hash'), ".
+      "VALUES ($id, '$name', '$description', '$hash', ".
       "$edit_rules, $creator, $time, '$color')"
   );
 } else {
   $conn->query(
     "INSERT INTO calendars".
-      "(id, name, description, salt, hash, edit_rules, ".
+      "(id, name, description, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', NULL, NULL, $edit_rules, ".
+      "VALUES ($id, '$name', '$description', NULL, $edit_rules, ".
       "$creator, $time, '$color')"
   );
 }

@@ -26,18 +26,14 @@ if (!isset($_POST['password'])) {
 $user = get_viewer_id();
 $password = $_POST['password'];
 
-$result = $conn->query(
-  "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM users WHERE id = $user"
-);
+$result = $conn->query("SELECT hash FROM users WHERE id = $user");
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
   exit(json_encode(array(
     'error' => 'internal_error',
   )));
 }
-$hash = hash('sha512', $password.$user_row['salt']);
-if ($user_row['hash'] !== $hash) {
+if (!password_verify($password, $user_row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));

@@ -20,10 +20,7 @@ if (!isset($_POST['calendar'])) {
 $calendar = intval($_POST['calendar']);
 
 // First, let's fetch the calendar row and see if it needs authentication
-$result = $conn->query(
-  "SELECT LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash ".
-    "FROM calendars WHERE id=$calendar"
-);
+$result = $conn->query("SELECT hash FROM calendars WHERE id=$calendar");
 $calendar_row = $result->fetch_assoc();
 if (!$calendar_row) {
   exit(json_encode(array(
@@ -42,9 +39,7 @@ if (!isset($_POST['password'])) {
     'error' => 'invalid_parameters',
   )));
 }
-$password = $_POST['password'];
-$hash = hash('sha512', $password.$calendar_row['salt']);
-if ($calendar_row['hash'] !== $hash) {
+if (!password_verify($_POST['password'], $calendar_row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));

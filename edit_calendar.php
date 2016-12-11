@@ -52,12 +52,11 @@ $calendar = (int)$_POST['calendar'];
 $personal_password = $_POST['personal_password'];
 
 // Three unrelated purposes for this query, all from different tables:
-// - get hash and salt for viewer password check (users table)
+// - get hash for viewer password check (users table)
 // - figures out if the calendar requires auth (calendars table)
 // - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
-  "SELECT c.hash IS NOT NULL AS requires_auth, ".
-    "LOWER(HEX(u.salt)) AS salt, LOWER(HEX(u.hash)) AS hash ".
+  "SELECT c.hash IS NOT NULL AS requires_auth, u.hash ".
     "FROM roles r ".
     "LEFT JOIN users u ON u.id = r.user ".
     "LEFT JOIN calendars c ON c.id = r.calendar ".
@@ -70,8 +69,7 @@ if (!$row) {
     'error' => 'internal_error',
   )));
 }
-$hash = hash('sha512', $personal_password.$row['salt']);
-if ($row['hash'] !== $hash) {
+if (!password_verify($personal_password, $row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));
@@ -104,12 +102,11 @@ if ($calendar_row && (int)$calendar_row['id'] !== $calendar) {
 
 $edit_rules = $is_closed ? 1 : 0; // temporary hack
 if ($is_closed && $new_password !== '') {
-  $salt = md5(openssl_random_pseudo_bytes(32));
-  $hash = hash('sha512', $new_password.$salt);
+  $hash = password_hash($new_password, PASSWORD_BCRYPT);
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color', salt = UNHEX('$salt'), hash = UNHEX('$hash'), ".
-      "edit_rules = $edit_rules WHERE id = $calendar"
+      "color = '$color', hash = '$hash', edit_rules = $edit_rules ".
+      "WHERE id = $calendar"
   );
 } else if ($is_closed) {
   // We are guaranteed that the calendar was closed beforehand, as otherwise
@@ -121,7 +118,7 @@ if ($is_closed && $new_password !== '') {
 } else {
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color', salt = NULL, hash = NULL, edit_rules = $edit_rules ".
+      "color = '$color', hash = NULL, edit_rules = $edit_rules ".
       "WHERE id = $calendar"
   );
 }

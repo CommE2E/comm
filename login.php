@@ -27,8 +27,7 @@ $username = $conn->real_escape_string($_POST['username']);
 $password = $_POST['password'];
 
 $result = $conn->query(
-  "SELECT id, LOWER(HEX(salt)) AS salt, LOWER(HEX(hash)) AS hash, ".
-    "username, email, email_verified ".
+  "SELECT id, hash, username, email, email_verified ".
     "FROM users WHERE username = '$username' OR email = '$username'"
 );
 $user_row = $result->fetch_assoc();
@@ -37,8 +36,7 @@ if (!$user_row) {
     'error' => 'invalid_parameters',
   )));
 }
-$hash = hash('sha512', $password.$user_row['salt']);
-if ($user_row['hash'] !== $hash) {
+if (!password_verify($password, $user_row['hash'])) {
   exit(json_encode(array(
     'error' => 'invalid_credentials',
   )));

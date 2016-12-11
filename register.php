@@ -75,14 +75,13 @@ if ($matching_email_row['count'] !== '0') {
   )));
 }
 
-$salt = md5(openssl_random_pseudo_bytes(32));
-$hash = hash('sha512', $password.$salt);
+$hash = password_hash($password, PASSWORD_BCRYPT);
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('users')");
 $id = $conn->insert_id;
 $conn->query(
-  "INSERT INTO users(id, username, salt, hash, email, creation_time) ".
-    "VALUES ($id, '$username', UNHEX('$salt'), UNHEX('$hash'), '$email', $time)"
+  "INSERT INTO users(id, username, hash, email, creation_time) ".
+    "VALUES ($id, '$username', '$hash', '$email', $time)"
 );
 
 create_user_cookie($id);
