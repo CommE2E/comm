@@ -178,7 +178,6 @@ class App extends React.Component {
           <div className="upper-right">
             <LoadingIndicator
               status={this.props.entriesLoadingStatus}
-              // TODO error-handling stuff
               className="page-loading"
             />
             <Typeahead

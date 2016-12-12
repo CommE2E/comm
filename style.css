@@ -927,8 +927,14 @@ div.new-calendar-privacy-container {
 }
 
 img.page-loading {
-  margin-top: 7px;
+  margin-top: 8px;
   margin-right: 10px;
+  float: left;
+}
+span.page-loading {
+  margin-top: 16px;
+  margin-right: 10px;
+  font-size: 28px;
   float: left;
 }
 
