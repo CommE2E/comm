@@ -57,11 +57,8 @@ class TypeaheadOptionButtons extends React.Component {
         </ul>
       );
     }
-    if (!this.props.currentNavID) {
-      return null;
-    }
     let editButton = null;
-    if (this.props.calendarInfo.editable) {
+    if (this.props.calendarInfo.editable && this.props.currentNavID) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit.bind(this)}>
