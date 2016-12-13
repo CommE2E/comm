@@ -39,20 +39,18 @@ if (!password_verify($password, $user_row['hash'])) {
   )));
 }
 
-$conn->query("DELETE FROM users WHERE id = $user");
-$conn->query("DELETE FROM roles WHERE user = $user");
-$conn->query("DELETE FROM verifications WHERE user = $user");
-$conn->query("DELETE FROM ids WHERE id = $user");
+$conn->query(
+  "DELETE u, iu, v, iv, c, ic, r FROM users u ".
+    "LEFT JOIN ids iu ON iu.id = u.id ".
+    "INNER JOIN verifications v ON v.user = u.id ".
+    "LEFT JOIN ids iv ON iv.id = v.id ".
+    "INNER JOIN cookies c ON c.user = u.id ".
+    "LEFT JOIN ids ic ON ic.id = c.id ".
+    "INNER JOIN roles r ON r.user = u.id ".
+    "WHERE u.id = $user"
+);
 
-$result = $conn->query("SELECT id FROM cookies WHERE user = $user");
-$delete_ids = array();
-while ($row = $result->fetch_assoc()) {
-  $delete_ids[] = "id = ".$row['id'];
-}
-if ($delete_ids) {
-  $conn->query("DELETE FROM ids WHERE ".implode(' OR ', $delete_ids));
-}
-$conn->query("DELETE FROM cookies WHERE user = $user");
+// TODO figure out what to do what calendars this account admins
 
 delete_cookie('user');
 $anonymous_viewer = init_anonymous_cookie();

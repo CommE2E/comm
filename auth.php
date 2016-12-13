@@ -53,8 +53,10 @@ function init_cookie() {
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
     // Cookie is expired. Delete it...
     delete_cookie('user');
-    $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
-    $conn->query("DELETE FROM ids WHERE id = $cookie_id");
+    $conn->query(
+      "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
+        "WHERE c.id = $cookie_id"
+    );
     return array(init_anonymous_cookie(), false);
   }
 
@@ -147,8 +149,10 @@ function create_user_cookie($user_id) {
       "DELETE FROM roles WHERE user = $anonymous_cookie_id"
     );
   }
-  $conn->query("DELETE FROM cookies WHERE id = $anonymous_cookie_id");
-  $conn->query("DELETE FROM ids WHERE id = $anonymous_cookie_id");
+  $conn->query(
+    "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
+      "WHERE c.id = $anonymous_cookie_id"
+  );
 }
 
 // Returns array(int: cookie_id, string: cookie_hash)
@@ -176,8 +180,10 @@ function get_anonymous_cookie() {
   // Is the cookie expired?
   $time = round(microtime(true) * 1000); // in milliseconds
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
-    $conn->query("DELETE FROM cookies WHERE id = $cookie_id");
-    $conn->query("DELETE FROM ids WHERE id = $cookie_id");
+    $conn->query(
+      "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
+        "WHERE c.id = $cookie_id"
+    );
     $conn->query("DELETE FROM roles WHERE user = $cookie_id");
     return array(null, null);
   }

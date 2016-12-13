@@ -48,7 +48,7 @@ function generate_verification_code($user, $field) {
   global $conn;
   $code = bin2hex(openssl_random_pseudo_bytes(4));
   $hash = password_hash($code, PASSWORD_BCRYPT);
-  $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
+  $conn->query("INSERT INTO ids(table_name) VALUES('verifications')");
   $id = $conn->insert_id;
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
@@ -78,8 +78,10 @@ function verify_code($hex) {
   $time = round(microtime(true) * 1000); // in milliseconds
   if ($row['creation_time'] + $verify_code_lifetime * 1000 < $time) {
     // Code is expired. Delete it...
-    $conn->query("DELETE FROM verifications WHERE id = $id");
-    $conn->query("DELETE FROM ids WHERE id = $id");
+    $conn->query(
+      "DELETE v, i FROM verifications v LEFT JOIN ids i ON i.id = v.id ".
+        "WHERE v.id = $id"
+    );
     return null;
   }
 
@@ -89,17 +91,8 @@ function verify_code($hex) {
 // Call this function after a successful verification
 function clear_verify_codes($user, $field) {
   global $conn;
-  $result = $conn->query(
-    "SELECT id FROM verifications WHERE user = $user AND field = $field"
-  );
-  $delete_ids = array();
-  while ($row = $result->fetch_assoc()) {
-    $delete_ids[] = "id = ".$row['id'];
-  }
-  if ($delete_ids) {
-    $conn->query("DELETE FROM ids WHERE ".implode(' OR ', $delete_ids));
-  }
   $conn->query(
-    "DELETE FROM verifications WHERE user = $user AND field = $field"
+    "DELETE v, i FROM verifications v LEFT JOIN ids i ON i.id = v.id ".
+      "WHERE v.user = $user AND v.field = $field"
   );
 }
