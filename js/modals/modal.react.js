@@ -4,6 +4,8 @@ import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 
+import { zoomTo } from '../zoom-animate';
+
 export type ModalSize = "large" | "small";
 type Props = {
   name: string,
@@ -17,10 +19,14 @@ class Modal extends React.Component {
   static defaultProps: { size: ModalSize };
   props: Props;
   overlay: ?HTMLDivElement;
+  container: ?HTMLDivElement;
 
   componentDidMount() {
     invariant(this.overlay, "overlay ref unset");
     this.overlay.focus();
+    const container = this.container;
+    invariant(container, "overlay ref unset");
+    zoomTo(container).then();
   }
 
   render() {
@@ -36,7 +42,7 @@ class Modal extends React.Component {
         tabIndex={0}
         onKeyDown={this.onKeyDown.bind(this)}
       >
-        <div className={modalClasses}>
+        <div className={modalClasses} ref={(container) => this.container = container}>
           <div className="modal-header">
             <span className="modal-close" onClick={this.props.onClose}>×</span>
             <h2>{this.props.name}</h2>

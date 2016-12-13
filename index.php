@@ -174,6 +174,7 @@ while ($row = $result->fetch_assoc()) {
     <meta charset="utf-8" />
     <title>SquadCal</title>
     <base href="<?=$base_url?>" />
+    <meta name="viewport" content="width=960, initial-scale=1" id="meta-viewport" />
     <link
       rel="stylesheet"
       type="text/css"
