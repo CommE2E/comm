@@ -377,13 +377,12 @@ h2.upper-center > a.next-month-link {
 
 div.lower-left {
   position: fixed;
-  left: 0;
-  bottom: 0;
-  padding: 3px 16px;
+  left: -1px;
+  bottom: -1px;
+  padding: 3px 14px;
   z-index: 3;
-  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.2);
-  border-radius: 2px;
-  border: 1px solid #E8E8E8;
+  border-radius: 0 5px 0 0;
+  border: 1px solid #C8C8C8;
   background-color: #F8F8F8;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
