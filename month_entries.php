@@ -49,6 +49,19 @@ $result = $conn->query(
     "ORDER BY e.creation_time DESC"
 );
 
+if ($calendar !== null) {
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $conn->query(
+    "INSERT INTO roles(calendar, user, ".
+      "creation_time, last_view, role, subscribed) ".
+      "VALUES ($calendar, $viewer_id, $time, $time, ".
+      ROLE_VIEWED.", 0) ON DUPLICATE KEY UPDATE ".
+      "creation_time = LEAST(VALUES(creation_time), creation_time), ".
+      "last_view = GREATEST(VALUES(last_view), last_view), ".
+      "role = GREATEST(VALUES(role), role)"
+  );
+}
+
 $entries = array();
 while ($row = $result->fetch_assoc()) {
   $row['day'] = intval($row['day']);
