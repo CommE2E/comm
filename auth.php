@@ -123,7 +123,7 @@ function create_user_cookie($user_id) {
   // MySQL can't handle constraint violations on UPDATE, so need to pull all the
   // membership rows to PHP, delete them, and then recreate them :(
   $result = $conn->query(
-    "SELECT calendar, last_view, role, subscribed FROM roles ".
+    "SELECT calendar, creation_time, last_view, role, subscribed FROM roles ".
       "WHERE user = $anonymous_cookie_id"
   );
   $new_rows = array();
@@ -131,6 +131,7 @@ function create_user_cookie($user_id) {
     $new_rows[] = "(".implode(", ", array(
       $row['calendar'],
       $user_id,
+      $row['creation_time'],
       $row['last_view'],
       $row['role'],
       $row['subscribed']
@@ -138,10 +139,12 @@ function create_user_cookie($user_id) {
   }
   if ($new_rows) {
     $conn->query(
-      "INSERT INTO roles(calendar, user, last_view, role, subscribed) ".
+      "INSERT INTO roles(calendar, user, ".
+        "creation_time, last_view, role, subscribed) ".
         "VALUES ".implode(', ', $new_rows)." ".
-        "ON DUPLICATE KEY ".
-        "UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+        "ON DUPLICATE KEY UPDATE ".
+        "creation_time = LEAST(VALUES(creation_time), creation_time), ".
+        "last_view = GREATEST(VALUES(last_view), last_view), ".
         "role = GREATEST(VALUES(role), role), ".
         "subscribed = GREATEST(VALUES(subscribed), subscribed)"
     );

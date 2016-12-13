@@ -35,9 +35,12 @@ if (!$can_see) {
 $viewer_id = get_viewer_id();
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO roles(calendar, user, last_view, role, subscribed) VALUES ".
-    "($calendar, $viewer_id, $time, ".ROLE_VIEWED.", $subscribe) ON DUPLICATE ".
-    "KEY UPDATE last_view = GREATEST(VALUES(last_view), last_view), ".
+  "INSERT INTO roles(calendar, user, ".
+    "creation_time, last_view, role, subscribed) ".
+    "VALUES ($calendar, $viewer_id, $time, $time, ".
+    ROLE_VIEWED.", $subscribe) ON DUPLICATE KEY UPDATE ".
+    "creation_time = LEAST(VALUES(creation_time), creation_time), ".
+    "last_view = GREATEST(VALUES(last_view), last_view), ".
     "role = GREATEST(VALUES(role), role), subscribed = VALUES(subscribed)"
 );
 
