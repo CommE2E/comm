@@ -2,7 +2,9 @@ header, tr {
   font-family: 'Anaheim', sans-serif;
 }
 body {
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   background-color: #FFFAF0;
 }
 a {
@@ -25,6 +27,9 @@ textarea.entry-text {
   overflow-y: hidden;
   padding-right: 15px;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
 }
 * {
   padding: 0;
@@ -295,7 +300,9 @@ span.loading-indicator-error {
 }
 div.calendar-nav-option-description {
   font-size: 11px;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   font-weight: initial;
   color: #444444;
   padding-top: 4px;
@@ -506,7 +513,9 @@ div.large-modal div.modal-body div.form-title {
 }
 div.modal-body div.form-content {
   display: inline-block;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   font-size: 15px;
 }
 div.modal-body div.form-subtitle {
@@ -534,7 +543,9 @@ div.form-enum-selector div.form-enum-option {
 }
 div.form-enum-selector span.form-enum-description {
   display: block;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   font-weight: normal;
   font-size: 13px;
   max-width: 260px;
