@@ -21,7 +21,7 @@ const onScreenCalendarInfos = createSelector(
   (currentNavID: string, calendarInfos: {[id: string]: CalendarInfo}) => {
     if (currentNavID === "home") {
       return _.filter(calendarInfos, 'subscribed');
-    } else if (currentNavID) {
+    } else if (currentNavID && calendarInfos[currentNavID]) {
       return [ calendarInfos[currentNavID] ];
     } else {
       return [];

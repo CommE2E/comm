@@ -115,7 +115,9 @@ class Day extends React.Component {
       );
     }
 
-    const entries = this.props.entryInfos.map((entryInfo, i) => {
+    const entries = this.props.entryInfos.filter((entryInfo) =>
+      _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.calendarID])
+    ).map((entryInfo, i) => {
       const key = entryKey(entryInfo);
       return <Entry
         entryInfo={entryInfo}
