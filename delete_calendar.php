@@ -47,13 +47,13 @@ if (!password_verify($password, $row['hash'])) {
 $conn->query(
   "DELETE c, ic, d, id, e, ie, re, ir, ro FROM calendars c ".
     "LEFT JOIN ids ic ON ic.id = c.id ".
-    "INNER JOIN days d ON d.calendar = c.id ".
+    "LEFT JOIN days d ON d.calendar = c.id ".
     "LEFT JOIN ids id ON id.id = d.id ".
-    "INNER JOIN entries e ON e.day = d.id ".
+    "LEFT JOIN entries e ON e.day = d.id ".
     "LEFT JOIN ids ie ON ie.id = e.id ".
-    "INNER JOIN revisions re ON re.entry = e.id ".
+    "LEFT JOIN revisions re ON re.entry = e.id ".
     "LEFT JOIN ids ir ON ir.id = re.id ".
-    "INNER JOIN roles ro ON ro.calendar = c.id ".
+    "LEFT JOIN roles ro ON ro.calendar = c.id ".
     "WHERE c.id = $calendar"
 );
 
