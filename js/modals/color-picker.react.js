@@ -1,9 +1,7 @@
 // @flow
 
 import React from 'react';
-
-import $ from 'jquery';
-import 'spectrum-colorpicker'; // side effect: $.spectrum
+import { ChromePicker } from 'react-color';
 
 type Props = {
   id: string,
@@ -11,36 +9,65 @@ type Props = {
   disabled: bool,
   onChange: (hex: string) => void,
 };
+type State = {
+  pickerOpen: bool,
+}
+type Color = {
+  hex: string,
+}
 
 class ColorPicker extends React.Component {
 
   props: Props;
+  state: State;
 
-  componentDidMount() {
-    $('input#' + this.props.id).spectrum({
-      cancelText: "Cancel",
-      chooseText: "Choose",
-      preferredFormat: "hex",
-      color: this.props.value,
-      change: this.onChangeColor.bind(this),
-    });
-    $('div.sp-replacer').attr('tabindex', 0);
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      pickerOpen: false,
+    }
   }
 
   render() {
+    let picker = null;
+    if (this.state.pickerOpen) {
+      picker = (
+        <div className="color-picker-selector">
+          <ChromePicker
+            color={this.props.value}
+            onChangeComplete={this.onChangeColor.bind(this)}
+            disableAlpha={true}
+          />
+        </div>
+      );
+    }
+    const style = { backgroundColor: `#${this.props.value}` };
     return (
-      <input
-        type="text"
-        id={this.props.id}
-        disabled={this.props.disabled}
-        onChange={this.onChangeColor.bind(this)}
-      />
+      <div
+        className="color-picker-container"
+        tabIndex="0"
+        onClick={() => this.setState({ pickerOpen: true })}
+        onBlur={() => this.setState({ pickerOpen: false })}
+        onKeyDown={this.onPickerKeyDown.bind(this)}
+      >
+        <div className="color-picker-button">
+          <div className="color-picker-preview" style={style} />
+          <div className="color-picker-down-symbol">▼</div>
+        </div>
+        {picker}
+      </div>
     );
   }
 
-  onChangeColor(tinycolor: any) {
-    const color = tinycolor.toHexString().substring(1, 7);
-    this.props.onChange(color);
+  // Throw away typechecking here because SyntheticEvent isn't typed
+  onPickerKeyDown(event: any) {
+    if (event.keyCode === 27) { // Esc
+      this.setState({ pickerOpen: false });
+    }
+  }
+
+  onChangeColor(color: Color) {
+    this.props.onChange(color.hex.substring(1, 7));
   }
 
 }

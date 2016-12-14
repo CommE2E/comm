@@ -40,7 +40,7 @@ class NewCalendarModal extends React.Component {
     this.state = {
       name: "",
       description: "",
-      color: "#fff8dd",
+      color: "fff8dd",
       closed: undefined,
       calendarPassword: "",
       confirmCalendarPassword: "",

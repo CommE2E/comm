@@ -38,15 +38,15 @@ System.config({
     "immutability-helper": "npm:immutability-helper@2.0.0",
     "invariant": "npm:invariant@2.2.1",
     "jquery": "npm:jquery@3.1.1",
-    "lodash": "npm:lodash@4.16.6",
+    "lodash": "npm:lodash@4.17.2",
     "react": "npm:react@15.3.2",
+    "react-color": "npm:react-color@2.10.0",
     "react-dom": "npm:react-dom@15.3.2",
     "react-redux": "npm:react-redux@4.4.5",
     "react-router": "npm:react-router@3.0.0",
     "react-text-truncate": "npm:react-text-truncate@0.8.3",
     "redux": "npm:redux@3.6.0",
     "reselect": "npm:reselect@2.5.4",
-    "spectrum-colorpicker": "npm:spectrum-colorpicker@1.8.0",
     "timeago": "npm:timeago@1.5.3",
     "tokenize-text": "npm:tokenize-text@1.1.3",
     "url": "github:jspm/nodelibs-url@0.1.0",
@@ -124,7 +124,7 @@ System.config({
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
       "esutils": "npm:esutils@2.0.2",
-      "lodash": "npm:lodash@4.16.6"
+      "lodash": "npm:lodash@4.17.2"
     },
     "npm:babel-helper-call-delegate@6.18.0": {
       "babel-helper-hoist-variables": "npm:babel-helper-hoist-variables@6.18.0",
@@ -136,7 +136,7 @@ System.config({
       "babel-helper-function-name": "npm:babel-helper-function-name@6.18.0",
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.6"
+      "lodash": "npm:lodash@4.17.2"
     },
     "npm:babel-helper-explode-assignable-expression@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
@@ -165,7 +165,7 @@ System.config({
     "npm:babel-helper-regex@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.6"
+      "lodash": "npm:lodash@4.17.2"
     },
     "npm:babel-helper-remap-async-to-generator@6.18.0": {
       "babel-helper-function-name": "npm:babel-helper-function-name@6.18.0",
@@ -210,7 +210,7 @@ System.config({
       "babel-template": "npm:babel-template@6.16.0",
       "babel-traverse": "npm:babel-traverse@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
-      "lodash": "npm:lodash@4.16.6"
+      "lodash": "npm:lodash@4.17.2"
     },
     "npm:babel-plugin-transform-es2015-classes@6.18.0": {
       "babel-helper-define-map": "npm:babel-helper-define-map@6.18.0",
@@ -408,7 +408,7 @@ System.config({
       "babel-traverse": "npm:babel-traverse@6.18.0",
       "babel-types": "npm:babel-types@6.18.0",
       "babylon": "npm:babylon@6.13.1",
-      "lodash": "npm:lodash@4.16.6"
+      "lodash": "npm:lodash@4.17.2"
     },
     "npm:babel-traverse@6.18.0": {
       "babel-code-frame": "npm:babel-code-frame@6.16.0",
@@ -419,13 +419,13 @@ System.config({
       "debug": "npm:debug@2.3.2",
       "globals": "npm:globals@9.13.0",
       "invariant": "npm:invariant@2.2.1",
-      "lodash": "npm:lodash@4.16.6",
+      "lodash": "npm:lodash@4.17.2",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:babel-types@6.18.0": {
       "babel-runtime": "npm:babel-runtime@6.18.0",
       "esutils": "npm:esutils@2.0.2",
-      "lodash": "npm:lodash@4.16.6",
+      "lodash": "npm:lodash@4.17.2",
       "to-fast-properties": "npm:to-fast-properties@1.0.2"
     },
     "npm:babylon@6.13.1": {
@@ -692,13 +692,21 @@ System.config({
       "object-assign": "npm:object-assign@4.1.0",
       "strict-uri-encode": "npm:strict-uri-encode@1.1.0"
     },
+    "npm:react-color@2.10.0": {
+      "lodash": "npm:lodash@4.17.2",
+      "material-colors": "npm:material-colors@1.2.0",
+      "path": "github:jspm/nodelibs-path@0.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "reactcss": "npm:reactcss@1.1.1",
+      "tinycolor2": "npm:tinycolor2@1.4.1"
+    },
     "npm:react-dom@15.3.2": {
       "react": "npm:react@15.3.2"
     },
     "npm:react-redux@4.4.5": {
       "hoist-non-react-statics": "npm:hoist-non-react-statics@1.2.0",
       "invariant": "npm:invariant@2.2.1",
-      "lodash": "npm:lodash@4.16.6",
+      "lodash": "npm:lodash@4.17.2",
       "loose-envify": "npm:loose-envify@1.3.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "react": "npm:react@15.3.2",
@@ -723,6 +731,14 @@ System.config({
       "fbjs": "npm:fbjs@0.8.6",
       "loose-envify": "npm:loose-envify@1.3.0",
       "object-assign": "npm:object-assign@4.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.2"
+    },
+    "npm:reactcss@1.1.1": {
+      "classnames": "npm:classnames@2.2.5",
+      "lodash": "npm:lodash@4.17.2",
+      "merge": "npm:merge@1.2.0",
+      "object-assign": "npm:object-assign@4.1.0",
+      "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:read-pkg-up@1.0.1": {
@@ -762,7 +778,7 @@ System.config({
       "strip-indent": "npm:strip-indent@1.0.1"
     },
     "npm:redux@3.6.0": {
-      "lodash": "npm:lodash@4.16.6",
+      "lodash": "npm:lodash@4.17.2",
       "lodash-es": "npm:lodash-es@4.16.6",
       "loose-envify": "npm:loose-envify@1.3.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
@@ -804,9 +820,6 @@ System.config({
     "npm:spdx-license-ids@1.2.2": {
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
-    "npm:spectrum-colorpicker@1.8.0": {
-      "process": "github:jspm/nodelibs-process@0.1.2"
-    },
     "npm:stream-browserify@1.0.0": {
       "events": "github:jspm/nodelibs-events@0.1.1",
       "inherits": "npm:inherits@2.0.1",
@@ -833,6 +846,9 @@ System.config({
     },
     "npm:timeago@1.5.3": {
       "jquery": "npm:jquery@3.1.1"
+    },
+    "npm:tinycolor2@1.4.1": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:tokenize-text@1.1.3": {
       "lodash": "npm:lodash@3.10.1",

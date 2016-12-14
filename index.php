@@ -182,7 +182,6 @@ while ($row = $result->fetch_assoc()) {
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
     />
     <link rel="stylesheet" type="text/css" href="style.css" />
-    <link rel="stylesheet" type="text/css" href="spectrum.css" />
     <script>
       var username = "<?=$username?>";
       var email = "<?=$email?>";

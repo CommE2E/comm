@@ -222,7 +222,7 @@ class Day extends React.Component {
 
   // Throw away typechecking here because SyntheticEvent isn't typed
   onPickerKeyDown(event: any) {
-    if (event.keyCode === 27) {
+    if (event.keyCode === 27) { // Esc
       this.setState({ pickerOpen: false });
     }
   }
