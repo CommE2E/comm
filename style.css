@@ -11,6 +11,18 @@ a {
   text-decoration: none;
   color: #2A5DB0;
 }
+input[type='text'], input[type='password'], textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-border-radius: 0;
+  border: 1px solid #DDDDDD;
+  border-radius: 1px;
+}
+input[type='submit'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-border-radius: 0;
+}
 
 table {
   height: 100%;
@@ -490,11 +502,26 @@ div.large-modal div.modal-body input[type='password'],
 div.large-modal div.modal-body textarea {
   width: 275px;
 }
-div.modal-body textarea {
-  border-color: #DDDDDD;
-}
 div.modal-body input[type='submit'] {
-  font-size: 16px;
+  padding: 3px 9px;
+  font-size: 12px;
+  margin-right: 3px;
+  border-radius: 3px;
+  border: 1px solid #C8C8C8;
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  color: #444444;
+  margin-top: 1px;
+  cursor: pointer;
+}
+div.modal-body input[type='submit']:hover {
+  text-decoration: underline;
+}
+div.modal-body input[type='submit']:disabled {
+  cursor: initial;
+  text-decoration: none;
+  color: #999999;
 }
 
 div.modal-body div.form-title {
@@ -958,7 +985,6 @@ input.calendar-password-entry-input {
   width: 100%;
   margin-top: 5px;
   border-radius: 3px;
-  border: 1px solid #DDDDDD;
 }
 input.calendar-password-entry-input:focus {
   outline: none;
@@ -978,9 +1004,9 @@ input.calendar-password-entry-submit {
   color: #777777;
   margin-top: 6px;
   margin-left: 3px;
+  cursor: pointer;
 }
 input.calendar-password-entry-submit:hover {
-  cursor: pointer;
   text-decoration: underline;
 }
 input.calendar-password-entry-submit:disabled {
