@@ -166,6 +166,7 @@ class Typeahead extends React.Component {
         </div>
       );
     } else if (this.state.active) {
+      const currentInfos = [];
       const subscribedInfos = [];
       const recommendedInfos = [];
       for (const calendarID: string in this.props.calendarInfos) {
@@ -173,7 +174,12 @@ class Typeahead extends React.Component {
           continue;
         }
         const calendarInfo = this.props.calendarInfos[calendarID];
-        if (calendarInfo.subscribed) {
+        if (
+          !this.props.currentNavID &&
+          calendarID === this.props.currentCalendarID
+        ) {
+          currentInfos.push(calendarInfo);
+        } else if (calendarInfo.subscribed) {
           subscribedInfos.push(calendarInfo);
         } else {
           recommendedInfos.push(calendarInfo);
@@ -188,6 +194,20 @@ class Typeahead extends React.Component {
               Home
             </div>
             {this.buildActionOption("home", TypeaheadActionOption.homeText)}
+          </div>
+        );
+      }
+      const currentOptions = [];
+      for (const calendarInfo of currentInfos) {
+        currentOptions.push(this.buildCalendarOption(calendarInfo));
+      }
+      if (currentOptions.length > 0) {
+        panes.push(
+          <div className="calendar-nav-option-pane" key="current">
+            <div className="calendar-nav-option-pane-header">
+              Current
+            </div>
+            {currentOptions}
           </div>
         );
       }
