@@ -169,6 +169,10 @@ while ($row = $result->fetch_assoc()) {
   );
 }
 
+$fonts_css_url = DEV
+  ? "fonts/local-fonts.css"
+  : "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
+
 ?>
 <!DOCTYPE html>
 <html lang="en" class="no-js">
@@ -176,11 +180,7 @@ while ($row = $result->fetch_assoc()) {
     <meta charset="utf-8" />
     <title>SquadCal</title>
     <base href="<?=$base_url?>" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim"
-    />
+    <link rel="stylesheet" type="text/css" href="<?=$fonts_css_url?>" />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script>
       var username = "<?=$username?>";
