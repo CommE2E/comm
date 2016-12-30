@@ -16,9 +16,13 @@ import { connect } from 'react-redux';
 import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
+import TypeaheadPageablePane from './typeahead-pageable-pane.react';
 import { SearchIndex, searchIndex } from './search-index';
 import { currentNavID } from '../nav-utils';
-import { subscriptionExists } from '../calendar-utils';
+import {
+  typeaheadSortedCalendarInfos,
+  subscriptionExists,
+} from '../calendar-utils';
 
 type Props = {
   currentNavID: ?string,
@@ -27,6 +31,7 @@ type Props = {
   currentCalendarID: ?string,
   subscriptionExists: bool,
   searchIndex: SearchIndex,
+  sortedCalendarInfos: {[id: string]: CalendarInfo[]},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -40,6 +45,9 @@ type State = {
 type TypeaheadCalendarOptionConnect = {
   getWrappedInstance: () => TypeaheadCalendarOption,
 };
+declare class SVGElement {
+  parentNode: Element;
+}
 
 class Typeahead extends React.Component {
 
@@ -166,25 +174,9 @@ class Typeahead extends React.Component {
         </div>
       );
     } else if (this.state.active) {
-      const currentInfos = [];
-      const subscribedInfos = [];
-      const recommendedInfos = [];
-      for (const calendarID: string in this.props.calendarInfos) {
-        if (calendarID === this.props.currentNavID) {
-          continue;
-        }
-        const calendarInfo = this.props.calendarInfos[calendarID];
-        if (
-          !this.props.currentNavID &&
-          calendarID === this.props.currentCalendarID
-        ) {
-          currentInfos.push(calendarInfo);
-        } else if (calendarInfo.subscribed) {
-          subscribedInfos.push(calendarInfo);
-        } else {
-          recommendedInfos.push(calendarInfo);
-        }
-      }
+      const currentInfos = this.props.sortedCalendarInfos.current;
+      const subscribedInfos = this.props.sortedCalendarInfos.subscribed;
+      const recommendedInfos = this.props.sortedCalendarInfos.recommended;
 
       const panes = [];
       if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
@@ -197,10 +189,9 @@ class Typeahead extends React.Component {
           </div>
         );
       }
-      const currentOptions = [];
-      for (const calendarInfo of currentInfos) {
-        currentOptions.push(this.buildCalendarOption(calendarInfo));
-      }
+      const currentOptions = currentInfos.map(
+        (calendarInfo) => this.buildCalendarOption(calendarInfo),
+      );
       if (currentOptions.length > 0) {
         panes.push(
           <div className="calendar-nav-option-pane" key="current">
@@ -211,24 +202,18 @@ class Typeahead extends React.Component {
           </div>
         );
       }
-      const subscribedOptions = [];
-      for (const calendarInfo of subscribedInfos) {
-        subscribedOptions.push(this.buildCalendarOption(calendarInfo));
-      }
-      if (subscribedOptions.length > 0) {
-        panes.push(
-          <div className="calendar-nav-option-pane" key="subscribed">
-            <div className="calendar-nav-option-pane-header">
-              Subscribed
-            </div>
-            {subscribedOptions}
-          </div>
-        );
-      }
-      const recommendedOptions = [];
-      for (const calendarInfo of recommendedInfos) {
-        recommendedOptions.push(this.buildCalendarOption(calendarInfo));
-      }
+      panes.push(
+        <TypeaheadPageablePane
+          paneTitle="Subscribed"
+          pageSize={5}
+          totalResults={subscribedInfos.length}
+          resultsBetween={this.subscribedCalendarOptionsForPage.bind(this)}
+          key="subscribed"
+        />
+      );
+      const recommendedOptions = recommendedInfos.map(
+        (calendarInfo) => this.buildCalendarOption(calendarInfo),
+      );
       if (recommendedOptions.length > 0) {
         panes.push(
           <div className="calendar-nav-option-pane" key="recommended">
@@ -418,11 +403,17 @@ class Typeahead extends React.Component {
       event.preventDefault();
       return;
     }
-    const target = event.target;
+    let target = event.target;
+    while (!(target instanceof HTMLElement)) {
+      invariant(
+        target instanceof SVGElement,
+        "non-HTMLElements in typeahead should be SVGElements",
+      );
+      target = target.parentNode;
+    }
     const dropdown = this.dropdown;
     const current = this.current;
     const magnifyingGlass = this.magnifyingGlass;
-    invariant(target instanceof HTMLElement, "target isn't element");
     invariant(dropdown, "ref should be set");
     invariant(current, "ref should be set");
     invariant(magnifyingGlass, "ref should be set");
@@ -507,6 +498,11 @@ class Typeahead extends React.Component {
     });
   }
 
+  subscribedCalendarOptionsForPage(start: number, end: number) {
+    return this.props.sortedCalendarInfos.subscribed.slice(start, end)
+      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+  }
+
 }
 
 Typeahead.propTypes = {
@@ -527,4 +523,5 @@ export default connect((state: AppState) => ({
   currentCalendarID: state.navInfo.calendarID,
   subscriptionExists: subscriptionExists(state),
   searchIndex: searchIndex(state),
+  sortedCalendarInfos: typeaheadSortedCalendarInfos(state),
 }))(Typeahead);

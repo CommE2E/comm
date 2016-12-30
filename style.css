@@ -264,7 +264,7 @@ div.calendar-nav-option-pane {
 }
 div.calendar-nav-option-pane-header {
   border-bottom: 1px solid #C8C8C8;
-  padding: 0 4px;
+  padding: 0 0 0 4px;
   text-transform: uppercase;
   color: #777777;
   font-family: 'Open Sans', sans-serif;
@@ -276,6 +276,7 @@ div.calendar-nav-option {
   padding-bottom: 6px;
   padding-top: 3px;
   position: relative;
+  clear: both;
 }
 div.calendar-nav-option-name {
   white-space: nowrap;
@@ -351,6 +352,23 @@ div.calendar-nav-color-preview {
   top: 7px;
   border: 1px solid #D3D3D3;
   border-radius: 2px;
+}
+div.calendar-nav-pager {
+  float: right;
+  line-height: 13px;
+}
+a.calendar-nav-pager-button {
+  vertical-align: top;
+}
+svg.calendar-nav-pager-svg {
+  display: inline-block;
+  fill: #777777;
+}
+a.calendar-nav-pager-button > svg.calendar-nav-pager-svg {
+  fill: #2A5DB0;
+}
+span.calendar-nav-pager-status {
+  vertical-align: top;
 }
 
 div.account-button {

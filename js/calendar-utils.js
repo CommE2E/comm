@@ -18,7 +18,7 @@ function colorIsDark(color: string) {
 const onScreenCalendarInfos = createSelector(
   currentNavID,
   (state: AppState) => state.calendarInfos,
-  (currentNavID: string, calendarInfos: {[id: string]: CalendarInfo}) => {
+  (currentNavID: ?string, calendarInfos: {[id: string]: CalendarInfo}) => {
     if (currentNavID === "home") {
       return _.filter(calendarInfos, 'subscribed');
     } else if (currentNavID && calendarInfos[currentNavID]) {
@@ -26,6 +26,39 @@ const onScreenCalendarInfos = createSelector(
     } else {
       return [];
     }
+  },
+);
+
+const typeaheadSortedCalendarInfos = createSelector(
+  (state: AppState) => state.calendarInfos,
+  currentNavID,
+  (state: AppState) => state.navInfo.calendarID,
+  (
+    calendarInfos: {[id: string]: CalendarInfo},
+    currentNavID: ?string,
+    currentCalendarID: ?string,
+  ) => {
+    const currentInfos = [];
+    const subscribedInfos = [];
+    const recommendedInfos = [];
+    for (const calendarID: string in calendarInfos) {
+      if (calendarID === currentNavID) {
+        continue;
+      }
+      const calendarInfo = calendarInfos[calendarID];
+      if (!currentNavID && calendarID === currentCalendarID) {
+        currentInfos.push(calendarInfo);
+      } else if (calendarInfo.subscribed) {
+        subscribedInfos.push(calendarInfo);
+      } else {
+        recommendedInfos.push(calendarInfo);
+      }
+    }
+    return {
+      current: currentInfos,
+      subscribed: subscribedInfos,
+      recommended: recommendedInfos,
+    };
   },
 );
 
@@ -41,6 +74,7 @@ const subscriptionExists = createSelector(
 export {
   colorIsDark,
   onScreenCalendarInfos,
+  typeaheadSortedCalendarInfos,
   subscriptionExistsIn,
   subscriptionExists,
 }
