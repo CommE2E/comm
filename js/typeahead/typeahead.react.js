@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import TypeaheadPageablePane from './typeahead-pageable-pane.react';
+import TypeaheadPane from './typeahead-pane.react';
 import { SearchIndex, searchIndex } from './search-index';
 import { currentNavID } from '../nav-utils';
 import {
@@ -174,64 +174,61 @@ class Typeahead extends React.Component {
         </div>
       );
     } else if (this.state.active) {
-      const currentInfos = this.props.sortedCalendarInfos.current;
-      const subscribedInfos = this.props.sortedCalendarInfos.subscribed;
-      const recommendedInfos = this.props.sortedCalendarInfos.recommended;
-
       const panes = [];
-      if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
-        panes.push(
-          <div className="calendar-nav-option-pane" key="home">
-            <div className="calendar-nav-option-pane-header">
-              Home
-            </div>
-            {this.buildActionOption("home", TypeaheadActionOption.homeText)}
-          </div>
-        );
-      }
-      const currentOptions = currentInfos.map(
+      const currentOptions = this.props.sortedCalendarInfos.current.map(
         (calendarInfo) => this.buildCalendarOption(calendarInfo),
       );
-      if (currentOptions.length > 0) {
+      panes.push(
+        <TypeaheadPane
+          paneTitle="Current"
+          pageSize={1}
+          totalResults={currentOptions.length}
+          resultsBetween={() => currentOptions}
+          key="current"
+        />
+      );
+      if (this.props.currentNavID !== "home" && this.props.subscriptionExists) {
+        const homeOption =
+          this.buildActionOption("home", TypeaheadActionOption.homeText);
         panes.push(
-          <div className="calendar-nav-option-pane" key="current">
-            <div className="calendar-nav-option-pane-header">
-              Current
-            </div>
-            {currentOptions}
-          </div>
+          <TypeaheadPane
+            paneTitle="Home"
+            pageSize={1}
+            totalResults={1}
+            resultsBetween={() => [ homeOption ]}
+            key="home"
+          />
         );
       }
       panes.push(
-        <TypeaheadPageablePane
+        <TypeaheadPane
           paneTitle="Subscribed"
           pageSize={5}
-          totalResults={subscribedInfos.length}
+          totalResults={this.props.sortedCalendarInfos.subscribed.length}
           resultsBetween={this.subscribedCalendarOptionsForPage.bind(this)}
           key="subscribed"
         />
       );
-      const recommendedOptions = recommendedInfos.map(
-        (calendarInfo) => this.buildCalendarOption(calendarInfo),
+      panes.push(
+        <TypeaheadPane
+          paneTitle="Recommended"
+          pageSize={3}
+          totalResults={this.props.sortedCalendarInfos.recommended.length}
+          resultsBetween={this.recommendedCalendarOptionsForPage.bind(this)}
+          key="recommended"
+        />
       );
-      if (recommendedOptions.length > 0) {
-        panes.push(
-          <div className="calendar-nav-option-pane" key="recommended">
-            <div className="calendar-nav-option-pane-header">
-              Recommended
-            </div>
-            {recommendedOptions}
-          </div>
-        );
-      }
       if (this.props.currentNavID) {
+        const newOption =
+          this.buildActionOption("new", TypeaheadActionOption.newText);
         panes.push(
-          <div className="calendar-nav-option-pane" key="actions">
-            <div className="calendar-nav-option-pane-header">
-              Actions
-            </div>
-            {this.buildActionOption("new", TypeaheadActionOption.newText)}
-          </div>
+          <TypeaheadPane
+            paneTitle="Actions"
+            pageSize={1}
+            totalResults={1}
+            resultsBetween={() => [ newOption ]}
+            key="actions"
+          />
         );
       }
       dropdown = (
@@ -500,6 +497,11 @@ class Typeahead extends React.Component {
 
   subscribedCalendarOptionsForPage(start: number, end: number) {
     return this.props.sortedCalendarInfos.subscribed.slice(start, end)
+      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+  }
+
+  recommendedCalendarOptionsForPage(start: number, end: number) {
+    return this.props.sortedCalendarInfos.recommended.slice(start, end)
       .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
   }
 
