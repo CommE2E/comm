@@ -269,6 +269,7 @@ div.calendar-nav-option-pane-header {
   color: #777777;
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
+  position: relative;
 }
 div.calendar-nav-option {
   cursor: pointer;
@@ -276,7 +277,6 @@ div.calendar-nav-option {
   padding-bottom: 6px;
   padding-top: 3px;
   position: relative;
-  clear: both;
 }
 div.calendar-nav-option-name {
   white-space: nowrap;
@@ -354,8 +354,9 @@ div.calendar-nav-color-preview {
   border-radius: 2px;
 }
 div.calendar-nav-pager {
-  float: right;
-  line-height: 13px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
 }
 a.calendar-nav-pager-button {
   vertical-align: top;
