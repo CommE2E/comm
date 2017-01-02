@@ -184,30 +184,38 @@ class Typeahead extends React.Component {
   render() {
     let dropdown = null;
     if (this.state.searchActive) {
-      let results;
+      let resultsPane;
       if (this.state.searchResults.length !== 0) {
-        results = this.state.searchResults.map(
-          (navID) => this.buildOption(navID)
+        resultsPane = (
+          <TypeaheadPane
+            paneTitle="Results"
+            pageSize={10}
+            totalResults={this.state.searchResults.length}
+            resultsBetween={this.searchResultOptionsForPage.bind(this)}
+            key="results"
+          />
         );
       } else {
-        results = (
-          <div className="calendar-nav-no-results">
+        const noResults = (
+          <div className="calendar-nav-no-results" key="none">
             No results
           </div>
+        );
+        resultsPane = (
+          <TypeaheadPane
+            paneTitle="Results"
+            pageSize={1}
+            totalResults={1}
+            resultsBetween={() => [ noResults ]}
+            key="results"
+          />
         );
       }
       dropdown = (
         <div
           className="calendar-nav-dropdown"
           ref={(dropdown) => this.dropdown = dropdown}
-        >
-          <div className="calendar-nav-option-pane" key="results">
-            <div className="calendar-nav-option-pane-header">
-              Results
-            </div>
-            {results}
-          </div>
-        </div>
+        >{resultsPane}</div>
       );
     } else if (this.state.active) {
       const panes = [];
@@ -347,8 +355,9 @@ class Typeahead extends React.Component {
       return this.buildActionOption("home", TypeaheadActionOption.homeText);
     } else if (navID === "new") {
       return this.buildActionOption("new", TypeaheadActionOption.newText);
+    } else {
+      invariant(false, "invalid navID passed to buildOption");
     }
-    return null;
   }
 
   buildActionOption(navID: NavID, name: string) {
@@ -536,13 +545,14 @@ class Typeahead extends React.Component {
     });
   }
 
+  searchResultOptionsForPage(start: number, end: number) {
+    return this.state.searchResults.slice(start, end)
+      .map((navID) => this.buildOption(navID));
+  }
+
   subscribedCalendarOptionsForPage(start: number, end: number) {
     return this.props.sortedCalendarInfos.subscribed.slice(start, end)
       .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
-  }
-
-  recommendedCalendarOptionsForPage(start: number, end: number) {
-    return this.props.sortedCalendarInfos.recommended.slice(start, end)
   }
 
   sampleRecommendations(props: Props) {

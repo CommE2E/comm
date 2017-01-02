@@ -4,17 +4,15 @@ import React from 'react';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
-import TypeaheadCalendarOption from './typeahead-calendar-option.react';
-
 type Props = {
   paneTitle: string,
   pageSize: number,
   totalResults: number,
-  resultsBetween: (start: number, end: number) => TypeaheadCalendarOption[],
+  resultsBetween: (start: number, end: number) => React.Element<any>[],
 };
 type State = {
   currentPage: number,
-  currentResults: TypeaheadCalendarOption[],
+  currentResults: React.Element<any>[],
 };
 
 class TypeaheadPane extends React.Component {
