@@ -41,6 +41,7 @@ type State = {
   frozenNavIDs: {[id: string]: bool},
   typeaheadValue: string,
   searchResults: string[],
+  recommendedCalendars: CalendarInfo[],
 };
 type TypeaheadCalendarOptionConnect = {
   getWrappedInstance: () => TypeaheadCalendarOption,
@@ -50,6 +51,8 @@ declare class SVGElement {
 }
 
 class Typeahead extends React.Component {
+
+  static recommendationSize;
 
   props: Props;
   state: State;
@@ -73,12 +76,14 @@ class Typeahead extends React.Component {
       frozenNavIDs[props.currentCalendarID] = true;
       active = true;
     }
+    const recommendedCalendars = this.sampleRecommendations(props);
     this.state = {
-      active: active,
+      active,
       searchActive: false,
-      frozenNavIDs: frozenNavIDs,
+      frozenNavIDs,
       typeaheadValue: Typeahead.getCurrentNavName(props),
       searchResults: [],
+      recommendedCalendars,
     };
   }
 
@@ -106,9 +111,9 @@ class Typeahead extends React.Component {
 
   componentWillReceiveProps(nextProps: Props) {
     // Navigational event occurred?
+    const updateObj = {};
+    let navigateToUnauthorized = false;
     if (nextProps.currentNavID !== this.props.currentNavID) {
-      let navigateToUnauthorized = false;
-      const updateObj = {};
       updateObj.typeaheadValue = Typeahead.getCurrentNavName(nextProps);
       if (!this.props.currentNavID) {
         this.unfreezeAll();
@@ -122,6 +127,37 @@ class Typeahead extends React.Component {
         );
         this.freeze(nextProps.currentCalendarID);
       }
+    }
+
+    if (
+      nextProps.sortedCalendarInfos.recommended !==
+        this.props.sortedCalendarInfos.recommended
+    ) {
+      const stillValidRecommendations = _.filter(
+        this.state.recommendedCalendars,
+        (calendarInfo: CalendarInfo) => _.some(
+          nextProps.sortedCalendarInfos.recommended,
+          { id: calendarInfo.id },
+        ),
+      );
+      let newRecommendationsNeeded =
+        Typeahead.recommendationSize - stillValidRecommendations.length;
+      if (newRecommendationsNeeded > 0) {
+        const randomCalendarInfos =
+          _.chain(nextProps.sortedCalendarInfos.recommended)
+            .filter((calendarInfo: CalendarInfo) => !_.some(
+              stillValidRecommendations,
+              { id: calendarInfo.id },
+            )).sampleSize(newRecommendationsNeeded)
+            .value();
+        updateObj.recommendedCalendars = update(
+          stillValidRecommendations,
+          { $push: randomCalendarInfos },
+        );
+      }
+    }
+
+    if (updateObj) {
       this.setState(
         updateObj,
         () => {
@@ -133,7 +169,7 @@ class Typeahead extends React.Component {
             this.promptedCalendarOption
               .getWrappedInstance()
               .openAndFocusPasswordEntry();
-          } else if (this.state.active) {
+          } else if (updateObj.typeaheadValue && this.state.active) {
             // If the typeahead is active, we should reselect
             const input = this.input;
             invariant(input, "ref should be set");
@@ -200,6 +236,7 @@ class Typeahead extends React.Component {
           />
         );
       }
+      // TODO we need to fix bug on new subscription
       panes.push(
         <TypeaheadPane
           paneTitle="Subscribed"
@@ -209,12 +246,14 @@ class Typeahead extends React.Component {
           key="subscribed"
         />
       );
+      const recommendedOptions = this.state.recommendedCalendars
+        .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
       panes.push(
         <TypeaheadPane
           paneTitle="Recommended"
-          pageSize={3}
-          totalResults={this.props.sortedCalendarInfos.recommended.length}
-          resultsBetween={this.recommendedCalendarOptionsForPage.bind(this)}
+          pageSize={Typeahead.recommendationSize}
+          totalResults={recommendedOptions.length}
+          resultsBetween={() => recommendedOptions}
           key="recommended"
         />
       );
@@ -369,14 +408,17 @@ class Typeahead extends React.Component {
           return {};
         }
         let typeaheadValue = prevState.typeaheadValue;
+        let recommendedCalendars = prevState.recommendedCalendars;
         setFocus = active;
         if (!active) {
-          typeaheadValue = Typeahead.getCurrentNavName(this.props);
+          typeaheadValue = Typeahead.getCurrentNavName(props);
+          recommendedCalendars = this.sampleRecommendations(props);
         }
         return {
-          active: active,
+          active,
           searchActive: prevState.searchActive && active,
-          typeaheadValue: typeaheadValue,
+          typeaheadValue,
+          recommendedCalendars,
         };
       },
       () => {
@@ -502,10 +544,18 @@ class Typeahead extends React.Component {
 
   recommendedCalendarOptionsForPage(start: number, end: number) {
     return this.props.sortedCalendarInfos.recommended.slice(start, end)
-      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+  }
+
+  sampleRecommendations(props: Props) {
+    return _.sampleSize(
+      props.sortedCalendarInfos.recommended,
+      Typeahead.recommendationSize,
+    );
   }
 
 }
+
+Typeahead.recommendationSize = 3;
 
 Typeahead.propTypes = {
   currentNavID: React.PropTypes.string,
@@ -514,6 +564,9 @@ Typeahead.propTypes = {
   currentCalendarID: React.PropTypes.string,
   subscriptionExists: React.PropTypes.bool.isRequired,
   searchIndex: React.PropTypes.instanceOf(SearchIndex),
+  sortedCalendarInfos: React.PropTypes.objectOf(
+    React.PropTypes.arrayOf(calendarInfoPropType),
+  ).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
 };
