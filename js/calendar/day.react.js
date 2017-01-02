@@ -20,6 +20,7 @@ import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
 import { onScreenCalendarInfos } from '../calendar-utils';
 import CalendarPicker from './calendar-picker.react';
+import { htmlTargetFromEvent } from '../vector-utils';
 
 type Props = {
   year: number,
@@ -166,7 +167,7 @@ class Day extends React.Component {
   }
 
   onClick(event: SyntheticEvent) {
-    invariant(event.target instanceof HTMLElement, "target isn't element");
+    const target = htmlTargetFromEvent(event);
     invariant(
       this.entryContainer instanceof HTMLDivElement,
       "entryContainer isn't div",
@@ -176,9 +177,9 @@ class Day extends React.Component {
       "entryContainerSpacer isn't div",
     );
     if (
-      event.target === this.entryContainer ||
-      event.target === this.entryContainerSpacer ||
-      (this.actionLinks && event.target === this.actionLinks)
+      target === this.entryContainer ||
+      target === this.entryContainerSpacer ||
+      (this.actionLinks && target === this.actionLinks)
     ) {
       this.onAddEntry(event);
     }

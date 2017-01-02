@@ -4,6 +4,8 @@ import React from 'react';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
+import { LeftPager, RightPager } from '../pager-vectors.react';
+
 type Props = {
   paneTitle: string,
   pageSize: number,
@@ -67,21 +69,7 @@ class TypeaheadPane extends React.Component {
     let pager = null;
     if (this.props.totalResults > this.state.currentResults.length) {
       let leftPager = (
-        <svg
-          height="13px"
-          width="13px"
-          className="calendar-nav-pager-svg"
-          viewBox="0 0 512 512"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlSpace="preserve"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-        >
-          <polygon points={
-            "352,128.4 319.7,96 160,256 160,256 160,256 319.7,416 " +
-            "352,383.6 224.7,256"
-          }/>
-        </svg>
+        <LeftPager size="13px" className="calendar-nav-pager-svg" />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
@@ -93,21 +81,7 @@ class TypeaheadPane extends React.Component {
         );
       }
       let rightPager = (
-        <svg
-          height="13px"
-          width="13px"
-          className="calendar-nav-pager-svg"
-          viewBox="0 0 512 512"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlSpace="preserve"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-        >
-          <polygon points={
-            "160,128.4 192.3,96 352,256 352,256 352,256 192.3,416 " +
-            "160,383.6 287.3,256 "
-          }/>
-        </svg>
+        <RightPager size="13px" className="calendar-nav-pager-svg" />
       );
       if (
         this.props.pageSize * (this.state.currentPage + 1)
@@ -148,11 +122,11 @@ class TypeaheadPane extends React.Component {
 
   onBackPagerClick(event: SyntheticEvent) {
     event.preventDefault();
-    invariant(
-      this.state.currentPage > 0,
-      "can't go back from 0",
-    );
     this.setState((prevState, props) => {
+      invariant(
+        prevState.currentPage > 0,
+        "can't go back from 0",
+      );
       const newPage = prevState.currentPage - 1;
       const newResults = props.resultsBetween(
         this.firstIndex(this.props, newPage),
@@ -171,12 +145,11 @@ class TypeaheadPane extends React.Component {
 
   onNextPagerClick(event: SyntheticEvent) {
     event.preventDefault();
-    invariant(
-      this.props.pageSize * (this.state.currentPage + 1)
-        < this.props.totalResults,
-      "page is too high",
-    );
     this.setState((prevState, props) => {
+      invariant(
+        props.pageSize * (prevState.currentPage + 1) < props.totalResults,
+        "page is too high",
+      );
       const newPage = prevState.currentPage + 1;
       const newResults = props.resultsBetween(
         this.firstIndex(this.props, newPage),

@@ -887,7 +887,7 @@ div.pick-calendar {
   position: absolute;
   left: 4px;
   bottom: 20px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
   z-index: 1;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
@@ -906,12 +906,12 @@ span.select-calendar {
   text-overflow: ellipsis;
   max-width: 150px;
 }
-div.pick-calendar > div {
+div.pick-calendar > div.pick-calendar-option {
   border-bottom: 1px solid #D3D3D3;
   padding: 1px 10px 1px 25px;
   position: relative;
 }
-div.pick-calendar > div:hover {
+div.pick-calendar > div.pick-calendar-option:hover {
   background-color: #F2F2F2;
 }
 div.pick-calendar > div:last-child {
@@ -928,6 +928,35 @@ div.color-preview {
 }
 div.select-calendar-name {
   padding-top: 1px;
+}
+div.calendar-picker-pager-container {
+  text-align: center;
+  height: 15px;
+  margin-top: -2px;
+  min-width: 120px;
+  cursor: default;
+  background-color: #EAEAEA;
+  position: relative;
+  border-radius: 0 0 3px 3px;
+}
+div.calendar-picker-pager {
+  position: relative;
+  top: -2px;
+}
+span.calendar-picker-pager-status {
+  text-transform: uppercase;
+  color: #777777;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 9px;
+}
+svg.calendar-picker-pager-svg {
+  fill: #777777;
+  vertical-align: middle;
+}
+a.calendar-picker-pager-button {
+}
+a.calendar-picker-pager-button > svg.calendar-picker-pager-svg {
+  fill: #2A5DB0;
 }
 
 div.edit-calendar-color-container {

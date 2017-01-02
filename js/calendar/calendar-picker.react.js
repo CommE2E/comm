@@ -9,17 +9,36 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 
 import { onScreenCalendarInfos } from '../calendar-utils';
+import { LeftPager, RightPager } from '../pager-vectors.react';
+import { htmlTargetFromEvent } from '../vector-utils';
 
 type Props = {
   onScreenCalendarInfos: CalendarInfo[],
   createNewEntry: (calendarID: string) => void,
   closePicker: () => void,
 };
+type State = {
+  currentPage: number,
+};
 
 class CalendarPicker extends React.Component {
 
+  static pageSize;
+
   props: Props;
+  state: State;
   pickerDiv: ?HTMLDivElement;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      currentPage: 0,
+    };
+    invariant(
+      props.onScreenCalendarInfos.length > 0,
+      "CalendarPicker can't be open when onScreenCalendarInfos is empty",
+    );
+  }
 
   componentDidMount() {
     invariant(this.pickerDiv, "pickerDiv ref unset");
@@ -27,32 +46,86 @@ class CalendarPicker extends React.Component {
   }
 
   render() {
+    const length = this.props.onScreenCalendarInfos.length;
     invariant(
-      this.props.onScreenCalendarInfos.length > 0,
+      length > 0,
       "CalendarPicker can't be open when onScreenCalendarInfos is empty",
     );
-    const options = this.props.onScreenCalendarInfos.map((calendarInfo) => {
-      const style = { backgroundColor: "#" + calendarInfo.color };
-      return (
-        <div
-          key={calendarInfo.id}
-          onClick={() => this.props.createNewEntry(calendarInfo.id)}
-        >
-          <span className="select-calendar">
-            <div className="color-preview" style={style} />
-            <span className="select-calendar-name">{calendarInfo.name}</span>
-          </span>
+    const firstIndex = CalendarPicker.pageSize * this.state.currentPage;
+    const secondIndex = Math.min(
+      CalendarPicker.pageSize * (this.state.currentPage + 1),
+      length,
+    );
+
+    let pager = null;
+    if (length > CalendarPicker.pageSize) {
+      let leftPager = (
+        <LeftPager size="13px" className="calendar-picker-pager-svg" />
+      );
+      if (this.state.currentPage > 0) {
+        leftPager = (
+          <a
+            href="#"
+            className="calendar-picker-pager-button"
+            onClick={this.onBackPagerClick.bind(this)}
+          >{leftPager}</a>
+        );
+      }
+      let rightPager = (
+        <RightPager size="13px" className="calendar-picker-pager-svg" />
+      );
+      if (CalendarPicker.pageSize * (this.state.currentPage + 1) < length) {
+        rightPager = (
+          <a
+            href="#"
+            className="calendar-picker-pager-button"
+            onClick={this.onNextPagerClick.bind(this)}
+          >{rightPager}</a>
+        );
+      }
+      pager = (
+        <div className="calendar-picker-pager-container" key="pager">
+          <div className="calendar-picker-pager">
+            {leftPager}
+            <span className="calendar-picker-pager-status">
+              {`${firstIndex + 1}–${secondIndex} of ${length}`}
+            </span>
+            {rightPager}
+          </div>
         </div>
       );
-    });
+    }
+
+    const options = this.props.onScreenCalendarInfos
+      .slice(firstIndex, secondIndex)
+      .map((calendarInfo) => {
+        const style = { backgroundColor: "#" + calendarInfo.color };
+        return (
+          <div
+            className="pick-calendar-option"
+            key={calendarInfo.id}
+            onClick={() => this.props.createNewEntry(calendarInfo.id)}
+          >
+            <span className="select-calendar">
+              <div className="color-preview" style={style} />
+              <span className="select-calendar-name">{calendarInfo.name}</span>
+            </span>
+          </div>
+        );
+      });
+
     return (
       <div
         className="pick-calendar"
         tabIndex="0"
         onBlur={this.props.closePicker}
         onKeyDown={this.onPickerKeyDown.bind(this)}
+        onMouseDown={this.onMouseDown.bind(this)}
         ref={(elem) => this.pickerDiv = elem}
-      >{options}</div>
+      >
+        {options}
+        {pager}
+      </div>
     );
   }
 
@@ -63,7 +136,41 @@ class CalendarPicker extends React.Component {
     }
   }
 
+  onMouseDown(event: SyntheticEvent) {
+    const target = htmlTargetFromEvent(event);
+    invariant(this.pickerDiv, "pickerDiv ref not set");
+    if (this.pickerDiv.contains(target)) {
+      // This prevents onBlur from firing
+      event.preventDefault();
+    }
+  }
+
+  onBackPagerClick(event: SyntheticEvent) {
+    event.preventDefault();
+    this.setState((prevState, props) => {
+      invariant(
+        prevState.currentPage > 0,
+        "can't go back from 0",
+      );
+      return { currentPage: prevState.currentPage - 1 };
+    });
+  }
+
+  onNextPagerClick(event: SyntheticEvent) {
+    event.preventDefault();
+    this.setState((prevState, props) => {
+      invariant(
+        CalendarPicker.pageSize * (prevState.currentPage + 1)
+          < props.onScreenCalendarInfos.length,
+        "page is too high",
+      );
+      return { currentPage: prevState.currentPage + 1 };
+    });
+  }
+
 }
+
+CalendarPicker.pageSize = 5;
 
 CalendarPicker.propTypes = {
   onScreenCalendarInfos:

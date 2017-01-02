@@ -23,6 +23,7 @@ import {
   typeaheadSortedCalendarInfos,
   subscriptionExists,
 } from '../calendar-utils';
+import { htmlTargetFromEvent } from '../vector-utils';
 
 type Props = {
   currentNavID: ?string,
@@ -46,9 +47,6 @@ type State = {
 type TypeaheadCalendarOptionConnect = {
   getWrappedInstance: () => TypeaheadCalendarOption,
 };
-declare class SVGElement {
-  parentNode: Element;
-}
 
 class Typeahead extends React.Component {
 
@@ -450,14 +448,7 @@ class Typeahead extends React.Component {
       event.preventDefault();
       return;
     }
-    let target = event.target;
-    while (!(target instanceof HTMLElement)) {
-      invariant(
-        target instanceof SVGElement,
-        "non-HTMLElements in typeahead should be SVGElements",
-      );
-      target = target.parentNode;
-    }
+    const target = htmlTargetFromEvent(event);
     const dropdown = this.dropdown;
     const current = this.current;
     const magnifyingGlass = this.magnifyingGlass;
