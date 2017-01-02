@@ -236,7 +236,6 @@ class Typeahead extends React.Component {
           />
         );
       }
-      // TODO we need to fix bug on new subscription
       panes.push(
         <TypeaheadPane
           paneTitle="Subscribed"

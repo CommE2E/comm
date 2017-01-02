@@ -26,9 +26,9 @@ class TypeaheadPane extends React.Component {
     super(props);
     this.state = {
       currentPage: 0,
-      currentResults: this.props.resultsBetween(
-        this.firstIndex(0),
-        this.secondIndex(0),
+      currentResults: props.resultsBetween(
+        this.firstIndex(props, 0),
+        this.secondIndex(props, 0),
       ),
     };
     invariant(
@@ -38,24 +38,30 @@ class TypeaheadPane extends React.Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.resultsBetween !== nextProps.resultsBetween) {
+    // This is a bit hacky, since it's possible for the responses of
+    // resultsBetween to change for the range comprising our current page,
+    // without us being informed about it by a change in these values
+    if (
+      this.props.totalResults !== nextProps.totalResults ||
+      this.props.resultsBetween !== nextProps.resultsBetween
+    ) {
       this.setState((prevState, props) => {
         return update(prevState, {
           currentResults: { $set: props.resultsBetween(
-            this.firstIndex(prevState.currentPage),
-            this.secondIndex(prevState.currentPage),
+            this.firstIndex(props, prevState.currentPage),
+            this.secondIndex(props, prevState.currentPage),
           ) },
         });
       });
     }
   }
 
-  firstIndex(page: number) {
-    return this.props.pageSize * page;
+  firstIndex(props: Props, page: number) {
+    return props.pageSize * page;
   }
 
-  secondIndex(page: number) {
-    return Math.min(this.props.pageSize * (page + 1), this.props.totalResults);
+  secondIndex(props: Props, page: number) {
+    return Math.min(props.pageSize * (page + 1), props.totalResults);
   }
 
   render() {
@@ -124,8 +130,8 @@ class TypeaheadPane extends React.Component {
           {leftPager}
           <span className="calendar-nav-pager-status">
             {
-              `${this.firstIndex(this.state.currentPage) + 1}–` +
-              `${this.secondIndex(this.state.currentPage)} ` +
+              `${this.firstIndex(this.props, this.state.currentPage) + 1}–` +
+              `${this.secondIndex(this.props, this.state.currentPage)} ` +
               `of ${this.props.totalResults}`
             }
           </span>
@@ -153,8 +159,8 @@ class TypeaheadPane extends React.Component {
     this.setState((prevState, props) => {
       const newPage = prevState.currentPage - 1;
       const newResults = props.resultsBetween(
-        this.firstIndex(newPage),
-        this.secondIndex(newPage),
+        this.firstIndex(this.props, newPage),
+        this.secondIndex(this.props, newPage),
       );
       invariant(
         newResults.length <= props.pageSize,
@@ -177,8 +183,8 @@ class TypeaheadPane extends React.Component {
     this.setState((prevState, props) => {
       const newPage = prevState.currentPage + 1;
       const newResults = props.resultsBetween(
-        this.firstIndex(newPage),
-        this.secondIndex(newPage),
+        this.firstIndex(this.props, newPage),
+        this.secondIndex(this.props, newPage),
       );
       invariant(
         newResults.length <= props.pageSize,
