@@ -43,14 +43,12 @@ class TypeaheadPane extends React.Component {
       this.props.totalResults !== nextProps.totalResults ||
       this.props.resultsBetween !== nextProps.resultsBetween
     ) {
-      this.setState((prevState, props) => {
-        return update(prevState, {
-          currentResults: { $set: props.resultsBetween(
-            this.firstIndex(props, prevState.currentPage),
-            this.secondIndex(props, prevState.currentPage),
-          ) },
-        });
-      });
+      this.setState((prevState, props) => update(prevState, {
+        currentResults: { $set: props.resultsBetween(
+          this.firstIndex(props, prevState.currentPage),
+          this.secondIndex(props, prevState.currentPage),
+        ) },
+      }));
     }
   }
 

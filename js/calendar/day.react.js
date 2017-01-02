@@ -19,6 +19,7 @@ import { entryKey } from './entry-utils';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
 import { onScreenCalendarInfos } from '../calendar-utils';
+import CalendarPicker from './calendar-picker.react';
 
 type Props = {
   year: number,
@@ -47,7 +48,6 @@ class Day extends React.Component {
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
-  calendarPicker: ?HTMLDivElement;
   entries: Map<string, EntryConnect>;
   curLocalID: number;
 
@@ -71,13 +71,6 @@ class Day extends React.Component {
     if (this.props.entryInfos.length > prevProps.entryInfos.length) {
       invariant(this.entryContainer, "entryContainer ref not set");
       this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
-    }
-    if (this.state.pickerOpen && !prevState.pickerOpen) {
-      invariant(
-        this.calendarPicker instanceof HTMLDivElement,
-        "calendar picker isn't div",
-      );
-      this.calendarPicker.focus();
     }
   }
 
@@ -136,28 +129,12 @@ class Day extends React.Component {
         this.props.onScreenCalendarInfos.length > 0,
         "onScreenCalendarInfos should exist if pickerOpen",
       );
-      const options = this.props.onScreenCalendarInfos.map((calendarInfo) => {
-        const style = { backgroundColor: "#" + calendarInfo.color };
-        return (
-          <div
-            key={calendarInfo.id}
-            onClick={() => this.createNewEntry(calendarInfo.id)}
-          >
-            <span className="select-calendar">
-              <div className="color-preview" style={style} />
-              <span className="select-calendar-name">{calendarInfo.name}</span>
-            </span>
-          </div>
-        );
-      });
-      calendarPicker =
-        <div
-          className="pick-calendar"
-          tabIndex="0"
-          onBlur={() => this.setState({ pickerOpen: false })}
-          onKeyDown={this.onPickerKeyDown.bind(this)}
-          ref={(elem) => this.calendarPicker = elem}
-        >{options}</div>;
+      calendarPicker = (
+        <CalendarPicker
+          createNewEntry={this.createNewEntry.bind(this)}
+          closePicker={() => this.setState({ pickerOpen: false })}
+        />
+      );
     }
 
     const entryContainerClasses = classNames(
@@ -217,13 +194,6 @@ class Day extends React.Component {
       this.createNewEntry(this.props.onScreenCalendarInfos[0].id);
     } else if (this.props.onScreenCalendarInfos.length > 1) {
       this.setState({ pickerOpen: true });
-    }
-  }
-
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onPickerKeyDown(event: any) {
-    if (event.keyCode === 27) { // Esc
-      this.setState({ pickerOpen: false });
     }
   }
 
