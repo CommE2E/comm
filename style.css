@@ -904,7 +904,7 @@ span.select-calendar {
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
+  width: 110px;
 }
 div.pick-calendar > div.pick-calendar-option {
   border-bottom: 1px solid #D3D3D3;
@@ -933,7 +933,6 @@ div.calendar-picker-pager-container {
   text-align: center;
   height: 15px;
   margin-top: -2px;
-  min-width: 120px;
   cursor: default;
   background-color: #EAEAEA;
   position: relative;
