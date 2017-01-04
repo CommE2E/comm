@@ -21,6 +21,7 @@ import { mapStateToUpdateStore } from '../redux-utils';
 import { onScreenCalendarInfos } from '../calendar-utils';
 import CalendarPicker from './calendar-picker.react';
 import { htmlTargetFromEvent } from '../vector-utils';
+import { AddVector, HistoryVector } from '../vectors.react';
 
 type Props = {
   year: number,
@@ -94,7 +95,7 @@ class Day extends React.Component {
             className="add-entry-button"
             onClick={this.onAddEntry.bind(this)}
           >
-            <span className="add">+</span>
+            <AddVector size="10px" className="add" />
             <span className="action-links-text">Add</span>
           </a>
           <a
@@ -102,7 +103,7 @@ class Day extends React.Component {
             className="day-history-button"
             onClick={this.onHistory.bind(this)}
           >
-            <span className="history">≡</span>
+            <HistoryVector size="10px" className="history" />
             <span className="action-links-text">History</span>
           </a>
         </div>

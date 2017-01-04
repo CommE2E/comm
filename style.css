@@ -125,7 +125,7 @@ span.action-links-text {
   font-size: 11px;
   position: relative;
   bottom: 1px;
-  padding-left: 6px;
+  padding-left: 5px;
 }
 span.right-action-links {
   float: right;
@@ -135,23 +135,21 @@ span.right-action-links {
   display: inline-block;
   overflow: hidden;
 }
-span.delete {
-  font-size: 14px;
-  margin-right: -1px;
+div.action-links svg {
+  fill: gray;
 }
-span.history {
-  font-size: 24px;
-  position: relative;
-  margin-right: -2px;
-  top: 1px;
-  line-height: 0;
-}
-span.add {
-  font-size: 22px;
-  font-weight: 900;
+div.action-links svg.history {
   position: relative;
   top: 1px;
-  line-height: 0;
+}
+div.dark-entry div.action-links svg {
+  fill: lightgray;
+}
+div.action-links a:hover svg {
+  fill: black;
+}
+div.dark-entry div.action-links a:hover svg {
+  fill: white;
 }
 div.focused-entry {
   z-index: 3 !important;

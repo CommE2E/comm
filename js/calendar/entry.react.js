@@ -21,6 +21,7 @@ import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
+import { HistoryVector, DeleteVector } from '../vectors.react';
 
 type Props = {
   entryInfo: EntryInfo,
@@ -128,7 +129,7 @@ class Entry extends React.Component {
             className="entry-history-button"
             onClick={this.onHistory.bind(this)}
           >
-            <span className="history">≡</span>
+            <HistoryVector size="10px" className="history" />
             <span className="action-links-text">History</span>
           </a>
         );
@@ -140,7 +141,7 @@ class Entry extends React.Component {
             className="delete-entry-button"
             onClick={this.onDelete.bind(this)}
           >
-            <span className="delete">✖</span>
+            <DeleteVector size="10px" className="delete" />
             <span className="action-links-text">Delete</span>
           </a>
           {historyButton}
