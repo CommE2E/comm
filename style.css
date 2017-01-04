@@ -219,12 +219,6 @@ div.calendar-nav-current > img {
 div.calendar-nav-null-state > div.calendar-nav-current > img {
   cursor: default;
 }
-span.calendar-nav-first-symbol {
-  float: right;
-  font-size: 8px;
-  line-height: 9px;
-  padding-top: 1px;
-}
 div.typeahead-container {
   overflow: hidden;
 }
@@ -246,11 +240,15 @@ input.typeahead:focus {
 span.calendar-nav-symbols {
   padding-left: 10px;
   float: right;
+  width: 8px;
 }
-span.calendar-nav-second-symbol {
-  float: right;
-  font-size: 8px;
-  clear: right;
+svg.calendar-nav-first-symbol {
+  position: absolute;
+  top: 5px;
+}
+svg.calendar-nav-second-symbol {
+  position: absolute;
+  top: 14px;
 }
 div.calendar-nav-dropdown {
   border-top: 1px solid #C8C8C8;

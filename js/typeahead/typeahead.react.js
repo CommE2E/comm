@@ -24,6 +24,7 @@ import {
   subscriptionExists,
 } from '../calendar-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
+import { UpCaret, DownCaret } from '../vectors.react';
 
 type Props = {
   currentNavID: ?string,
@@ -303,8 +304,16 @@ class Typeahead extends React.Component {
     } else {
       rightAligned = (  
         <span className="calendar-nav-symbols">
-          <span className="calendar-nav-first-symbol">&#x25B2;</span>
-          <span className="calendar-nav-second-symbol">&#x25BC;</span>
+          <UpCaret
+            className="calendar-nav-first-symbol"
+            height="12px"
+            width="7px"
+          />
+          <DownCaret
+            className="calendar-nav-second-symbol"
+            height="12px"
+            width="7px"
+          />
         </span>
       );
     }

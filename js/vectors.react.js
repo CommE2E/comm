@@ -7,23 +7,20 @@ type SVGProps = {
   width: string,
   className: string,
   viewBox: string,
-  children?: Element<any>,
+  preserveAspectRatio?: string,
+  // I can't figure out how to get Flow to work for this
+  children?: any,
 };
 
 function SVG(props: SVGProps) {
   return (
     <svg
-      height={props.height}
-      width={props.width}
-      className={props.className}
-      viewBox={props.viewBox}
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       xmlSpace="preserve"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-    >
-      {props.children}
-    </svg>
+      {...props}
+    />
   );
 }
 
@@ -65,17 +62,17 @@ export function RightPager(props: PagerProps) {
 }
 
 type CaretProps = {
-  size: string,
+  height: string,
+  width: string,
   className: string,
 };
 
 export function UpCaret(props: CaretProps) {
   return (
     <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
       viewBox="0 0 8 8"
+      preserveAspectRatio="none"
+      {...props}
     >
       <path d="M4 2l-4 4h8l-4-4z" />
     </SVG>
@@ -85,10 +82,9 @@ export function UpCaret(props: CaretProps) {
 export function DownCaret(props: CaretProps) {
   return (
     <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
       viewBox="0 0 8 8"
+      preserveAspectRatio="none"
+      {...props}
     >
       <path d="M0 2l4 4 4-4h-8z" />
     </SVG>
