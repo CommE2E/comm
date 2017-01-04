@@ -54,7 +54,7 @@ if (!$last_revision_row['deleted']) {
     'error' => 'entry_not_deleted',
   )));
 }
-$text = $last_revision_row['text'];
+$text = $conn->real_escape_string($last_revision_row['text']);
 $viewer_id = get_viewer_id();
 
 $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");

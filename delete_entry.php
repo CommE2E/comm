@@ -71,12 +71,13 @@ if (
   )));
 }
 
+$escaped_text = $conn->real_escape_string($text);
 $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
 $revision_id = $conn->insert_id;
 $conn->query(
   "INSERT INTO revisions(id, entry, author, text, creation_time, ".
     "session_id, last_update, deleted) VALUES ($revision_id, $id, ".
-    "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 1)"
+    "$viewer_id, '$escaped_text', $timestamp, '$session_id', $timestamp, 1)"
 );
 $conn->query("UPDATE entries SET deleted = 1 WHERE id = $id");
 
