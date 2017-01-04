@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 import classNames from 'classnames';
+import invariant from 'invariant';
 
 import fetchJSON from './fetch-json';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -13,6 +14,8 @@ import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { mapStateToUpdateStore } from './redux-utils';
 import { currentNavID } from './nav-utils';
+import { UpCaret, DownCaret } from './vectors.react';
+import { htmlTargetFromEvent } from './vector-utils';
 
 type Props = {
   loggedIn: bool,
@@ -22,10 +25,29 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
+type State = {
+  expanded: bool,
+}
 
 class AccountBar extends React.Component {
 
   props: Props;
+  state: State;
+  menu: ?HTMLDivElement;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      expanded: false,
+    };
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.state.expanded && !prevState.expanded) {
+      invariant(this.menu, "menu ref should be set");
+      this.menu.focus();
+    }
+  }
 
   render() {
     const classes = classNames({
@@ -33,25 +55,44 @@ class AccountBar extends React.Component {
       'lower-left-null-state': !this.props.currentNavID,
     });
     if (this.props.loggedIn) {
+      let menu = null;
+      if (this.state.expanded) {
+        menu = (
+          <div
+            className="account-menu"
+            tabIndex="0"
+            onBlur={() => this.setState({ expanded: false })}
+            onKeyDown={this.onMenuKeyDown.bind(this)}
+            ref={(elem) => this.menu = elem}
+          >
+            <div>
+              <a
+                href="#"
+                onClick={this.onLogOut.bind(this)}
+              >Log out</a>
+            </div>
+            <div>
+              <a
+                href="#"
+                onClick={this.onEditAccount.bind(this)}
+              >Edit account</a>
+            </div>
+          </div>
+        );
+      }
+      const caret = this.state.expanded
+        ? <DownCaret size="10px" className="account-caret" />
+        : <UpCaret size="10px" className="account-caret" />;
       return (
-        <div className={classes}>
+        <div
+          className={classes}
+          onMouseDown={this.onMouseDown.bind(this)}
+        >
+          {menu}
           <div className="account-button">
             {"logged in as "}
             <span className="username">{this.props.username}</span>
-            <div className="account-menu">
-              <div>
-                <a
-                  href="#"
-                  onClick={this.onLogOut.bind(this)}
-                >Log out</a>
-              </div>
-              <div>
-                <a
-                  href="#"
-                  onClick={this.onEditAccount.bind(this)}
-                >Edit account</a>
-              </div>
-            </div>
+            {caret}
           </div>
         </div>
       );
@@ -74,8 +115,33 @@ class AccountBar extends React.Component {
     }
   }
 
+  // Throw away typechecking here because SyntheticEvent isn't typed
+  onMenuKeyDown(event: any) {
+    if (event.keyCode === 27) { // Esc
+      this.setState({ expanded: false });
+    }
+  }
+
+  onMouseDown(event: SyntheticEvent) {
+    if (!this.state.expanded) {
+      // This prevents onBlur from firing on div.account-menu
+      event.preventDefault();
+      this.setState({ expanded: true });
+      return;
+    }
+    const target = htmlTargetFromEvent(event);
+    invariant(this.menu, "menu ref not set");
+    if (this.menu.contains(target)) {
+      // This prevents onBlur from firing on div.account-menu
+      event.preventDefault();
+    } else {
+      this.setState({ expanded: false });
+    }
+  }
+
   async onLogOut(event: SyntheticEvent) {
     event.preventDefault();
+    this.setState({ expanded: false });
     const response = await fetchJSON('logout.php', {});
     if (response.success) {
       this.props.updateStore((prevState: AppState) => update(prevState, {
@@ -90,6 +156,7 @@ class AccountBar extends React.Component {
 
   onEditAccount(event: SyntheticEvent) {
     event.preventDefault();
+    // This will blur the focus off the menu which will set expanded to false
     this.props.setModal(
       <UserSettingsModal
         onClose={this.props.clearModal}

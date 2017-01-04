@@ -4,7 +4,7 @@ import React from 'react';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
-import { LeftPager, RightPager } from '../pager-vectors.react';
+import { LeftPager, RightPager } from '../vectors.react';
 
 type Props = {
   paneTitle: string,

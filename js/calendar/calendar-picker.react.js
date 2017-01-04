@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 
 import { onScreenCalendarInfos } from '../calendar-utils';
-import { LeftPager, RightPager } from '../pager-vectors.react';
+import { LeftPager, RightPager } from '../vectors.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 
 type Props = {

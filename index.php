@@ -220,10 +220,6 @@ if (user_logged_in()) {
   echo <<<HTML
             logged in as
             <span class="username">$username</span>
-            <div class="account-menu">
-              <div><a href="#">Log out</a></div>
-              <div><a href="#">Edit account</a></div>
-            </div>
 
 HTML;
 } else {
