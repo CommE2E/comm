@@ -8,7 +8,8 @@ function get_calendar_infos($viewer_id) {
   $result = $conn->query(
     "SELECT c.id, c.name, r.role, c.hash IS NOT NULL AS requires_auth, ".
       "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-      "AS is_authed, r.subscribed, c.color, c.description FROM calendars c ".
+      "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".
+      "FROM calendars c ".
       "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id}"
   );
   $calendar_infos = array();
@@ -21,9 +22,10 @@ function get_calendar_infos($viewer_id) {
       'description' => $row['description'],
       'authorized' => $authorized,
       'subscribed' => $subscribed_authorized,
-      'editable' => (int)$row['role'] >= ROLE_CREATOR,
+      'canChangeSettings' => (int)$row['role'] >= ROLE_CREATOR,
       'closed' => (bool)$row['requires_auth'],
       'color' => $row['color'],
+      'editRules' => (int)$row['edit_rules'],
     );
   }
   return $calendar_infos;

@@ -310,9 +310,10 @@ class NewCalendarModal extends React.Component {
         description: description,
         authorized: true,
         subscribed: true,
-        editable: true,
+        canChangeSettings: true,
         closed: closed,
         color: color,
+        editRules: closed ? 1 : 0,
       }};
       // The "newCalendarID" state is a bit of a hack. Basically, we can't
       // immediately navigate to the new calendar because we don't have it in

@@ -68,7 +68,7 @@ $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
-$edit_rules = $is_closed ? 1 : 0; // temporary hack
+$edit_rules = $is_closed ? 1 : 0;
 if ($is_closed) {
   $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
