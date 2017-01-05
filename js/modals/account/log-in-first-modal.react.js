@@ -9,11 +9,12 @@ import LogInModal from './log-in-modal.react';
 import RegisterModal from './register-modal.react';
 
 type Props = {
+  inOrderTo: string,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
 };
 
-class LogInToCreateCalendarModal extends React.Component {
+class LogInFirstModal extends React.Component {
 
   props: Props;
 
@@ -22,7 +23,7 @@ class LogInToCreateCalendarModal extends React.Component {
       <Modal name="Log in or register" onClose={this.props.onClose}>
         <div className="modal-body">
           <p>
-            {"In order to create a new calendar, you'll first need to "}
+            {`In order to ${this.props.inOrderTo}, you'll first need to `}
             <a
               href="#"
               className="show-login-modal"
@@ -63,9 +64,10 @@ class LogInToCreateCalendarModal extends React.Component {
 
 }
 
-LogInToCreateCalendarModal.propTypes = {
+LogInFirstModal.propTypes = {
+  inOrderTo: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
 };
 
-export default LogInToCreateCalendarModal;
+export default LogInFirstModal;

@@ -7,8 +7,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 
 import NewCalendarModal from '../modals/new-calendar-modal.react';
-import LogInToCreateCalendarModal
-  from '../modals/account/log-in-to-create-calendar-modal.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import { monthURL } from '../nav-utils';
 import history from '../router-history';
 
@@ -66,7 +65,8 @@ class TypeaheadActionOption extends React.Component {
         );
       } else {
         this.props.setModal(
-          <LogInToCreateCalendarModal 
+          <LogInFirstModal
+            inOrderTo="create a new calendar"
             onClose={onClose}
             setModal={this.props.setModal}
           />
