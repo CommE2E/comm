@@ -24,7 +24,7 @@ $id = intval($_POST['id']);
 $timestamp = intval($_POST['timestamp']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
-$can_see = viewer_can_see_entry($id);
+$can_see = viewer_can_edit_entry($id);
 if ($can_see === null) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',

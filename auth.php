@@ -278,3 +278,52 @@ function viewer_can_see_entry($entry) {
   }
   return !$entry_row['requires_auth'];
 }
+
+function edit_rules_helper($mysql_row) {
+  if (!$mysql_row) {
+    return null;
+  }
+  if ($mysql_row['requires_auth']) {
+    return false;
+  }
+  if (!user_logged_in() && intval($mysql_row['edit_rules']) === 1) {
+    return false;
+  }
+  return true;
+}
+
+// null if calendar does not exist
+// false if the viewer can't see into the calendar, or can't edit it
+// true if the viewer can see into and edit the calendar
+function viewer_can_edit_calendar($calendar) {
+  global $conn;
+
+  $viewer_id = get_viewer_id();
+  $result = $conn->query(
+    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth, c.edit_rules FROM calendars c ".
+      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
+      "WHERE c.id = $calendar"
+  );
+  return edit_rules_helper($result->fetch_assoc());
+}
+
+// null if entry does not exist
+// false if the viewer can't see into the calendar, or can't edit it
+// true if the viewer can see into and edit the calendar
+// note that this function does not check if the entry is deleted
+function viewer_can_edit_entry($entry) {
+  global $conn;
+
+  $viewer_id = get_viewer_id();
+  $result = $conn->query(
+    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
+      ROLE_SUCCESSFUL_AUTH.") AS requires_auth, c.edit_rules ".
+      "FROM entries e ".
+      "LEFT JOIN days d ON d.id = e.day ".
+      "LEFT JOIN calendars c ON c.id = d.calendar ".
+      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
+      "WHERE e.id = $entry"
+  );
+  return edit_rules_helper($result->fetch_assoc());
+}

@@ -28,7 +28,9 @@ if ($entry_id === -1) {
   $month = intval($_POST['month']);
   $year = intval($_POST['year']);
   $calendar = intval($_POST['calendar']);
-  $day_id = get_day_id($calendar, $day, $month, $year);
+  // For the case of a new entry, the privacy check to make sure that the user
+  // is allowed to edit this calendar happens here
+  $day_id = get_editable_day_id($calendar, $day, $month, $year);
 } else {
   $result = $conn->query(
     "SELECT day, deleted, text FROM entries WHERE id = $entry_id"
@@ -45,6 +47,12 @@ if ($entry_id === -1) {
     )));
   }
   $day_id = intval($entry_row['day']);
+  // For the case of an existing entry, the privacy check to make sure that the
+  // user is allowed to edit this calendar (and entry) happens here
+  $can_edit = viewer_can_edit_entry($entry_id);
+  if (!$can_edit) {
+    $day_id = $can_edit;
+  }
 }
 if ($day_id === null) {
   exit(json_encode(array(

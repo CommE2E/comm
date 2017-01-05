@@ -5,7 +5,7 @@ require_once('auth.php');
 
 // null if invalid parameters
 // false if invalid credentials
-function get_day_id($calendar, $day, $month, $year) {
+function get_editable_day_id($calendar, $day, $month, $year) {
   global $conn;
 
   $date = date('Y-m-d', strtotime("$month/$day/$year"));
@@ -13,7 +13,7 @@ function get_day_id($calendar, $day, $month, $year) {
     return null;
   }
 
-  $can_see = viewer_can_see_calendar($calendar);
+  $can_see = viewer_can_edit_calendar($calendar);
   if (!$can_see) {
     // can be null or false, see comment above
     return $can_see;
