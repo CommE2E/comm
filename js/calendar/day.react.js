@@ -22,6 +22,7 @@ import { onScreenCalendarInfos } from '../calendar-utils';
 import CalendarPicker from './calendar-picker.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 
 type Props = {
   year: number,
@@ -30,6 +31,7 @@ type Props = {
   entryInfos: EntryInfo[],
   onScreenCalendarInfos: CalendarInfo[],
   username: string,
+  loggedIn: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
@@ -200,6 +202,20 @@ class Day extends React.Component {
   }
 
   createNewEntry(calendarID: string) {
+    const calendarInfo = this.props.onScreenCalendarInfos.find(
+      (calendarInfo) => calendarInfo.id === calendarID,
+    );
+    invariant(calendarInfo, "matching CalendarInfo not found");
+    if (calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+      this.props.setModal(
+        <LogInFirstModal
+          inOrderTo="edit this calendar"
+          onClose={this.props.clearModal}
+          setModal={this.props.setModal}
+        />
+      );
+      return;
+    }
     const localID = `local${this.curLocalID++}`;
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.day.toString();
@@ -256,6 +272,7 @@ Day.propTypes = {
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   username: React.PropTypes.string.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   startingTabIndex: React.PropTypes.number.isRequired,
@@ -266,6 +283,7 @@ export default connect(
   (state: AppState) => ({
     onScreenCalendarInfos: onScreenCalendarInfos(state),
     username: state.username,
+    loggedIn: state.loggedIn,
   }),
   mapStateToUpdateStore,
 )(Day);

@@ -22,11 +22,13 @@ import ConcurrentModificationModal from
 import HistoryModal from '../modals/history/history-modal.react';
 import { mapStateToUpdateStore } from '../redux-utils';
 import { HistoryVector, DeleteVector } from '../vectors.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 
 type Props = {
   entryInfo: EntryInfo,
   calendarInfo: CalendarInfo,
   sessionID: string,
+  loggedIn: bool,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -197,6 +199,16 @@ class Entry extends React.Component {
   }
 
   async onChange(event: SyntheticEvent) {
+    if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+      this.props.setModal(
+        <LogInFirstModal
+          inOrderTo="edit this calendar"
+          onClose={this.props.clearModal}
+          setModal={this.props.setModal}
+        />
+      );
+      return;
+    }
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState(
@@ -380,6 +392,7 @@ Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
   calendarInfo: calendarInfoPropType.isRequired,
   sessionID: React.PropTypes.string.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
@@ -394,6 +407,7 @@ export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionID: state.sessionID,
+    loggedIn: state.loggedIn,
   }),
   mapStateToUpdateStore,
   undefined,
