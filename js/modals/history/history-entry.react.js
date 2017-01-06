@@ -22,6 +22,7 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   sessionID: string,
+  loggedIn: bool,
   onClick: (event: SyntheticEvent) => Promise<void>,
   restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
 };
@@ -52,20 +53,27 @@ class HistoryEntry extends React.Component {
   render() {
     let deleted = null;
     if (this.state.deleted) {
+      let restore = null;
+      if (this.props.calendarInfo.editRules < 1 || this.props.loggedIn) {
+        restore = (
+          <span>
+            <span className="restore-entry-label">
+              (<a
+                href="#"
+                onClick={this.onRestore.bind(this)}
+              >restore</a>)
+            </span>
+            <LoadingIndicator
+              status={this.state.restoreLoadingStatus}
+              className="restore-loading"
+            />
+          </span>
+        );
+      }
       deleted = (
         <span className="deleted-entry">
           <span className="deleted-entry-label">deleted</span>
-          <span className="restore-entry-label">
-            (<a
-              href="#"
-              className="restore-entry-button"
-              onClick={this.onRestore.bind(this)}
-            >restore</a>)
-          </span>
-          <LoadingIndicator
-            status={this.state.restoreLoadingStatus}
-            className="restore-loading"
-          />
+          {restore}
         </span>
       );
     }
@@ -142,6 +150,7 @@ HistoryEntry.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   sessionID: React.PropTypes.string.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
   onClick: React.PropTypes.func.isRequired,
   restoreEntryInfo: React.PropTypes.func.isRequired,
 }
@@ -150,4 +159,5 @@ type OwnProps = { entryInfo: EntryInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
   calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
   sessionID: state.sessionID,
+  loggedIn: state.loggedIn,
 }))(HistoryEntry);
