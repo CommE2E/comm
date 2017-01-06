@@ -340,10 +340,24 @@ class Entry extends React.Component {
 
   async onDelete(event: SyntheticEvent) {
     event.preventDefault();
+    if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+      this.props.setModal(
+        <LogInFirstModal
+          inOrderTo="edit this calendar"
+          onClose={this.props.clearModal}
+          setModal={this.props.setModal}
+        />
+      );
+      return;
+    }
     await this.delete(this.props.entryInfo.id, true);
   }
 
   async delete(serverID: ?string, focusOnNextEntry: bool) {
+    invariant(
+      this.props.calendarInfo.editRules < 1 || this.props.loggedIn,
+      "calendar should be editable if delete triggered",
+    );
     this.props.updateStore((prevState: AppState) => {
       const dayString = this.props.entryInfo.day.toString();
       const dayEntryInfos = prevState.entryInfos[dayString];
