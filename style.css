@@ -560,7 +560,7 @@ div.form-enum-selector div.form-enum-option {
   font-size: 15px;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
-  padding-left: 4px;
+  padding-left: 3px;
 }
 div.form-enum-selector span.form-enum-description {
   display: block;

@@ -69,22 +69,23 @@ $conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
 $edit_rules = $is_closed ? 1 : 0;
+$visibility_rules = $is_closed ? 1 : 0;
 if ($is_closed) {
   $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
     "INSERT INTO calendars".
-      "(id, name, description, hash, edit_rules, ".
+      "(id, name, description, visibility_rules, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', '$hash', ".
+      "VALUES ($id, '$name', '$description', $visibility_rules, '$hash', ".
       "$edit_rules, $creator, $time, '$color')"
   );
 } else {
   $conn->query(
     "INSERT INTO calendars".
-      "(id, name, description, hash, edit_rules, ".
+      "(id, name, description, visibility_rules, hash, edit_rules, ".
       "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', NULL, $edit_rules, ".
-      "$creator, $time, '$color')"
+      "VALUES ($id, '$name', '$description', $visibility_rules, NULL, ".
+      "$edit_rules, $creator, $time, '$color')"
   );
 }
 
