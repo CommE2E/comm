@@ -22,7 +22,8 @@ if (
   !isset($_POST['calendar']) ||
   !isset($_POST['type']) ||
   !isset($_POST['color']) ||
-  !isset($_POST['personal_password'])
+  !isset($_POST['personal_password']) ||
+  !isset($_POST['edit_rules'])
 ) {
   exit(json_encode(array(
     'error' => 'invalid_parameters',
@@ -50,6 +51,7 @@ if ($is_closed) {
 $user = get_viewer_id();
 $calendar = (int)$_POST['calendar'];
 $personal_password = $_POST['personal_password'];
+$edit_rules = (int)$_POST['edit_rules'];
 
 // Three unrelated purposes for this query, all from different tables:
 // - get hash for viewer password check (users table)
@@ -100,7 +102,6 @@ if ($calendar_row && (int)$calendar_row['id'] !== $calendar) {
   )));
 }
 
-$edit_rules = $is_closed ? 1 : 0; // temporary hack
 if ($is_closed && $new_password !== '') {
   $hash = password_hash($new_password, PASSWORD_BCRYPT);
   $conn->query(
@@ -113,7 +114,7 @@ if ($is_closed && $new_password !== '') {
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color' WHERE id = $calendar"
+      "color = '$color', edit_rules = $edit_rules WHERE id = $calendar"
   );
 } else {
   $conn->query(

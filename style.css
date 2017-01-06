@@ -545,6 +545,7 @@ div.modal-body div.form-subtitle {
 
 div.form-enum-selector {
   display: inline-block;
+  padding-bottom: 4px;
 }
 div.form-enum-selector > div.form-enum-container {
   padding-top: 5px;
@@ -559,6 +560,7 @@ div.form-enum-selector div.form-enum-option {
   font-size: 15px;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
+  padding-left: 4px;
 }
 div.form-enum-selector span.form-enum-description {
   display: block;

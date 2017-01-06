@@ -111,7 +111,7 @@ class NewCalendarModal extends React.Component {
             </div>
             <div className="new-calendar-privacy-container">
               <div className="modal-radio-selector">
-                <div className="form-title">Privacy</div>
+                <div className="form-title">Visibility</div>
                 <div className="form-enum-selector">
                   <div className="form-enum-container">
                     <input

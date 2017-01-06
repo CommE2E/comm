@@ -136,7 +136,7 @@ class CalendarSettingsModal extends React.Component {
       mainContent = (
         <div className="edit-calendar-privacy-container">
           <div className="modal-radio-selector">
-            <div className="form-title">Privacy</div>
+            <div className="form-title">Visibility</div>
             <div className="form-enum-selector">
               <div className="form-enum-container">
                 <input
@@ -176,6 +176,51 @@ class CalendarSettingsModal extends React.Component {
                     </span>
                   </label>
                   {calendarPasswordInputs}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-radio-selector">
+            <div className="form-title">Who can edit?</div>
+            <div className="form-enum-selector">
+              <div className="form-enum-container">
+                <input
+                  type="radio"
+                  name="edit-calendar-edit-rules"
+                  id="edit-calendar-edit-rules-anybody"
+                  value={0}
+                  checked={this.state.calendarInfo.editRules === 0}
+                  onChange={this.onChangeEditRules.bind(this)}
+                  disabled={this.state.inputDisabled}
+                />
+                <div className="form-enum-option">
+                  <label htmlFor="edit-calendar-edit-rules-anybody">
+                    Anybody
+                    <span className="form-enum-description">
+                      Anybody who can view the contents of the calendar can also
+                      edit them.
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div className="form-enum-container">
+                <input
+                  type="radio"
+                  name="edit-calendar-edit-rules"
+                  id="edit-calendar-edit-rules-logged-in"
+                  value={1}
+                  checked={this.state.calendarInfo.editRules === 1}
+                  onChange={this.onChangeEditRules.bind(this)}
+                  disabled={this.state.inputDisabled}
+                />
+                <div className="form-enum-option">
+                  <label htmlFor="edit-calendar-edit-rules-logged-in">
+                    Logged In
+                    <span className="form-enum-description">
+                      Only users who are logged in can edit the contents of the
+                      calendar.
+                    </span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -275,39 +320,39 @@ class CalendarSettingsModal extends React.Component {
   onChangeName(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState((prevState, props) => {
-      return update(prevState, {
-        calendarInfo: { name: { $set: target.value } },
-      });
-    });
+    this.setState((prevState, props) => update(prevState, {
+      calendarInfo: { name: { $set: target.value } },
+    }));
   }
 
   onChangeDescription(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
-    this.setState((prevState, props) => {
-      return update(prevState, {
-        calendarInfo: { description: { $set: target.value } },
-      });
-    });
+    this.setState((prevState, props) => update(prevState, {
+      calendarInfo: { description: { $set: target.value } },
+    }));
   }
 
   onChangeColor(color: string) {
-    this.setState((prevState, props) => {
-      return update(prevState, {
-        calendarInfo: { color: { $set: color } },
-      });
-    });
+    this.setState((prevState, props) => update(prevState, {
+      calendarInfo: { color: { $set: color } },
+    }));
   }
 
   onChangeClosed(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState((prevState, props) => {
-      return update(prevState, {
-        calendarInfo: { closed: { $set: target.value === "true" } },
-      });
-    });
+    this.setState((prevState, props) => update(prevState, {
+      calendarInfo: { closed: { $set: target.value === "true" } },
+    }));
+  }
+
+  onChangeEditRules(event: SyntheticEvent) {
+    const target = event.target;
+    invariant(target instanceof HTMLInputElement, "target not input");
+    this.setState((prevState, props) => update(prevState, {
+      calendarInfo: { editRules: { $set: parseInt(target.value) } },
+    }));
   }
 
   onChangeNewCalendarPassword(event: SyntheticEvent) {
@@ -334,13 +379,11 @@ class CalendarSettingsModal extends React.Component {
     const name = this.state.calendarInfo.name.trim();
     if (name === '') {
       this.setState(
-        (prevState, props) => {
-          return update(prevState, {
-            calendarInfo: { name: { $set: this.props.calendarInfo.name } },
-            errorMessage: { $set: "empty calendar name" },
-            currentTab: { $set: "general" },
-          });
-        },
+        (prevState, props) => update(prevState, {
+          calendarInfo: { name: { $set: this.props.calendarInfo.name } },
+          errorMessage: { $set: "empty calendar name" },
+          currentTab: { $set: "general" },
+        }),
         () => {
           invariant(this.nameInput, "nameInput ref unset");
           this.nameInput.focus();
@@ -403,6 +446,7 @@ class CalendarSettingsModal extends React.Component {
       'personal_password': this.state.accountPassword,
       'new_password': this.state.newCalendarPassword,
       'color': this.state.calendarInfo.color,
+      'edit_rules': this.state.calendarInfo.editRules,
     });
     if (response.success) {
       this.props.updateStore((prevState: AppState) => {
@@ -457,6 +501,7 @@ class CalendarSettingsModal extends React.Component {
               description: { $set: this.props.calendarInfo.description },
               closed: { $set: this.props.calendarInfo.closed },
               color: { $set: this.props.calendarInfo.color },
+              editRules: { $set: this.props.calendarInfo.editRules },
             },
             newCalendarPassword: { $set: "" },
             confirmCalendarPassword: { $set: "" },
