@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('calendar_lib.php');
 
 header("Content-Type: application/json");
 
@@ -38,7 +39,7 @@ if (!user_logged_in()) {
 
 $visibility_rules = intval($_POST['visibility_rules']);
 $password = null;
-if ($visibility_rules >= 1) {
+if ($visibility_rules >= VISIBILITY_CLOSED) {
   if (!isset($_POST['password'])) {
     exit(json_encode(array(
       'error' => 'invalid_parameters',
@@ -53,8 +54,10 @@ $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
-$edit_rules = $visibility_rules >= 1 ? 1 : 0;
-if ($visibility_rules >= 1) {
+$edit_rules = $visibility_rules >= VISIBILITY_CLOSED
+  ? EDIT_LOGGED_IN
+  : EDIT_ANYBODY;
+if ($visibility_rules >= VISIBILITY_CLOSED) {
   $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
     "INSERT INTO calendars".

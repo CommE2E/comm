@@ -3,6 +3,12 @@
 require_once('config.php');
 require_once('auth.php');
 
+define("VISIBILITY_OPEN", 0);
+define("VISIBILITY_CLOSED", 1);
+define("VISIBILITY_SECRET", 2);
+define("EDIT_ANYBODY", 0);
+define("EDIT_LOGGED_IN", 1);
+
 function get_calendar_infos($viewer_id) {
   global $conn;
   $result = $conn->query(
