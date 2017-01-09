@@ -330,36 +330,22 @@ class NewCalendarModal extends React.Component {
       return;
     }
 
-    if (response.error === 'name_taken') {
-      this.setState(
-        {
-          name: "",
-          inputDisabled: false,
-          errorMessage: "calendar name already taken",
-        },
-        () => {
-          invariant(this.nameInput, "nameInput ref unset");
-          this.nameInput.focus();
-        },
-      );
-    } else {
-      this.setState(
-        {
-          name: "",
-          description: "",
-          color: "",
-          closed: undefined,
-          calendarPassword: "",
-          confirmCalendarPassword: "",
-          inputDisabled: false,
-          errorMessage: "unknown error",
-        },
-        () => {
-          invariant(this.nameInput, "nameInput ref unset");
-          this.nameInput.focus();
-        },
-      );
-    }
+    this.setState(
+      {
+        name: "",
+        description: "",
+        color: "",
+        closed: undefined,
+        calendarPassword: "",
+        confirmCalendarPassword: "",
+        inputDisabled: false,
+        errorMessage: "unknown error",
+      },
+      () => {
+        invariant(this.nameInput, "nameInput ref unset");
+        this.nameInput.focus();
+      },
+    );
   }
 
 }

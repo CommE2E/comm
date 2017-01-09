@@ -477,21 +477,6 @@ class CalendarSettingsModal extends React.Component {
           this.accountPasswordInput.focus();
         },
       );
-    } else if (response.error === 'name_taken') {
-      this.setState(
-        (prevState, props) => {
-          return update(prevState, {
-            calendarInfo: { name: { $set: this.props.calendarInfo.name } },
-            errorMessage: { $set: "calendar name already taken" },
-            inputDisabled: { $set: false },
-            currentTab: { $set: "general" },
-          });
-        },
-        () => {
-          invariant(this.nameInput, "nameInput ref unset");
-          this.nameInput.focus();
-        },
-      );
     } else {
       this.setState(
         (prevState, props) => {

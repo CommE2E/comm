@@ -87,21 +87,6 @@ if (!$row['requires_auth'] && $is_closed && trim($new_password) === '') {
 
 $name = $conn->real_escape_string($_POST['name']);
 $description = $conn->real_escape_string($_POST['description']);
-if (strtolower($name) === "home") {
-  exit(json_encode(array(
-    'error' => 'name_taken',
-  )));
-}
-$result = $conn->query(
-  "SELECT id FROM calendars WHERE LCASE(name) = LCASE('$name')"
-);
-$calendar_row = $result->fetch_assoc();
-if ($calendar_row && (int)$calendar_row['id'] !== $calendar) {
-  exit(json_encode(array(
-    'error' => 'name_taken',
-  )));
-}
-
 if ($is_closed && $new_password !== '') {
   $hash = password_hash($new_password, PASSWORD_BCRYPT);
   $conn->query(

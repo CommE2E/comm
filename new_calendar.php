@@ -36,23 +36,6 @@ if (!user_logged_in()) {
   )));
 }
 
-$name = $conn->real_escape_string($_POST['name']);
-$description = $conn->real_escape_string($_POST['description']);
-if (strtolower($name) === "home") {
-  exit(json_encode(array(
-    'error' => 'name_taken',
-  )));
-}
-$result = $conn->query(
-  "SELECT id FROM calendars WHERE LCASE(name) = LCASE('$name')"
-);
-$calendar_row = $result->fetch_assoc();
-if ($calendar_row) {
-  exit(json_encode(array(
-    'error' => 'name_taken',
-  )));
-}
-
 $is_closed = $_POST['type'] === 'closed';
 $password = null;
 if ($is_closed) {
@@ -64,6 +47,8 @@ if ($is_closed) {
   $password = $_POST['password'];
 }
 
+$name = $conn->real_escape_string($_POST['name']);
+$description = $conn->real_escape_string($_POST['description']);
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
