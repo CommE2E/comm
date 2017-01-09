@@ -12,7 +12,7 @@ define("EDIT_LOGGED_IN", 1);
 function get_calendar_infos($viewer_id) {
   global $conn;
   $result = $conn->query(
-    "SELECT c.id, c.name, r.role, c.hash IS NOT NULL AS requires_auth, ".
+    "SELECT c.id, c.name, r.role, c.visibility_rules, ".
       "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
       "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".
       "FROM calendars c ".
@@ -20,7 +20,11 @@ function get_calendar_infos($viewer_id) {
   );
   $calendar_infos = array();
   while ($row = $result->fetch_assoc()) {
-    $authorized = $row['is_authed'] || !$row['requires_auth'];
+    $authorized = $row['is_authed'] ||
+      (int)$row['visibility_rules'] < VISIBILITY_CLOSED;
+    if (!$authorized && (int)$row['visibility_rules'] >= VISIBILITY_SECRET) {
+      continue;
+    }
     $subscribed_authorized = $authorized && $row['subscribed'];
     $calendar_infos[$row['id']] = array(
       'id' => $row['id'],
@@ -29,7 +33,7 @@ function get_calendar_infos($viewer_id) {
       'authorized' => $authorized,
       'subscribed' => $subscribed_authorized,
       'canChangeSettings' => (int)$row['role'] >= ROLE_CREATOR,
-      'closed' => (bool)$row['requires_auth'],
+      'visibilityRules' => (int)$row['visibility_rules'],
       'color' => $row['color'],
       'editRules' => (int)$row['edit_rules'],
     );

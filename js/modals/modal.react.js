@@ -24,13 +24,17 @@ class Modal extends React.Component {
   }
 
   render() {
+    const overlayClasses = classNames(
+      "modal-overlay",
+      { "large-modal-overlay": this.props.size === "large" },
+    );
     const modalClasses = classNames(
       "modal",
       { "large-modal": this.props.size === "large" },
     );
     return (
       <div
-        className="modal-overlay"
+        className={overlayClasses}
         ref={(overlay) => this.overlay = overlay}
         onClick={this.onBackgroundClick.bind(this)}
         tabIndex={0}

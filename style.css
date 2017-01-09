@@ -431,6 +431,9 @@ div.modal-overlay {
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
 }
+div.large-modal-overlay {
+  padding-top: 50px;
+}
 div.modal {
   position: relative;
   background-color: white;

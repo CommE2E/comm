@@ -1,7 +1,13 @@
 // @flow
 
 import type { CalendarInfo } from '../calendar-info';
-import { calendarInfoPropType } from '../calendar-info';
+import {
+  calendarInfoPropType,
+  visibilityRules,
+  editRules,
+  assertVisibilityRules,
+  assertEditRules,
+} from '../calendar-info';
 import type { AppState, UpdateStore } from '../redux-reducer';
 
 import React from 'react';
@@ -101,12 +107,14 @@ class CalendarSettingsModal extends React.Component {
       );
     } else if (this.state.currentTab === "privacy") {
       let calendarPasswordInputs = null;
-      if (this.state.calendarInfo.closed) {
+      if (this.state.calendarInfo.visibilityRules >= visibilityRules.CLOSED) {
+        const currentlyClosed =
+          this.props.calendarInfo.visibilityRules >= visibilityRules.CLOSED;
         // Note: these depend on props, not state
-        const passwordPlaceholder = this.props.calendarInfo.closed
+        const passwordPlaceholder = currentlyClosed
           ? "New calendar password (optional)"
           : "New calendar password";
-        const confirmPlaceholder = this.props.calendarInfo.closed
+        const confirmPlaceholder = currentlyClosed
           ? "Confirm calendar password (optional)"
           : "Confirm calendar password";
         calendarPasswordInputs = (
@@ -133,6 +141,14 @@ class CalendarSettingsModal extends React.Component {
           </div>
         );
       }
+      const closedPasswordEntry =
+        this.state.calendarInfo.visibilityRules === visibilityRules.CLOSED
+          ? calendarPasswordInputs
+          : null;
+      const secretPasswordEntry =
+        this.state.calendarInfo.visibilityRules === visibilityRules.SECRET
+          ? calendarPasswordInputs
+          : null;
       mainContent = (
         <div className="edit-calendar-privacy-container">
           <div className="modal-radio-selector">
@@ -143,8 +159,11 @@ class CalendarSettingsModal extends React.Component {
                   type="radio"
                   name="edit-calendar-type"
                   id="edit-calendar-open"
-                  value={false}
-                  checked={!this.state.calendarInfo.closed}
+                  value={visibilityRules.OPEN}
+                  checked={
+                    this.state.calendarInfo.visibilityRules ===
+                    visibilityRules.OPEN
+                  }
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
@@ -162,8 +181,11 @@ class CalendarSettingsModal extends React.Component {
                   type="radio"
                   name="edit-calendar-type"
                   id="edit-calendar-closed"
-                  value={true}
-                  checked={this.state.calendarInfo.closed}
+                  value={visibilityRules.CLOSED}
+                  checked={
+                    this.state.calendarInfo.visibilityRules ===
+                    visibilityRules.CLOSED
+                  }
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
@@ -175,7 +197,32 @@ class CalendarSettingsModal extends React.Component {
                       a closed calendar.
                     </span>
                   </label>
-                  {calendarPasswordInputs}
+                  {closedPasswordEntry}
+                </div>
+              </div>
+              <div className="form-enum-container">
+                <input
+                  type="radio"
+                  name="edit-calendar-type"
+                  id="edit-calendar-secret"
+                  value={visibilityRules.SECRET}
+                  checked={
+                    this.state.calendarInfo.visibilityRules ===
+                    visibilityRules.SECRET
+                  }
+                  onChange={this.onChangeClosed.bind(this)}
+                  disabled={this.state.inputDisabled}
+                />
+                <div className="form-enum-option">
+                  <label htmlFor="edit-calendar-secret">
+                    Secret
+                    <span className="form-enum-description">
+                      Only people with the password can view the calendar, and
+                      it won't appear in search results or recommendations.
+                      Share the URL and password with your friends to add them.
+                    </span>
+                  </label>
+                  {secretPasswordEntry}
                 </div>
               </div>
             </div>
@@ -343,7 +390,9 @@ class CalendarSettingsModal extends React.Component {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => update(prevState, {
-      calendarInfo: { closed: { $set: target.value === "true" } },
+      calendarInfo: { visibilityRules: {
+        $set: assertVisibilityRules(parseInt(target.value)),
+      } },
     }));
   }
 
@@ -351,7 +400,9 @@ class CalendarSettingsModal extends React.Component {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => update(prevState, {
-      calendarInfo: { editRules: { $set: parseInt(target.value) } },
+      calendarInfo: { editRules: {
+        $set: assertEditRules(parseInt(target.value)),
+      } },
     }));
   }
 
@@ -392,11 +443,11 @@ class CalendarSettingsModal extends React.Component {
       return;
     }
 
-    if (this.state.calendarInfo.closed) {
+    if (this.state.calendarInfo.visibilityRules >= visibilityRules.CLOSED) {
       // If the calendar is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
-        !this.props.calendarInfo.closed &&
+        this.props.calendarInfo.visibilityRules < visibilityRules.CLOSED &&
         this.state.newCalendarPassword.trim() === ''
       ) {
         this.setState(
@@ -443,7 +494,7 @@ class CalendarSettingsModal extends React.Component {
       'name': name,
       'description': this.state.calendarInfo.description,
       'calendar': this.props.calendarInfo.id,
-      'visibility_rules': this.state.calendarInfo.closed ? 1 : 0,
+      'visibility_rules': this.state.calendarInfo.visibilityRules,
       'personal_password': this.state.accountPassword,
       'new_password': this.state.newCalendarPassword,
       'color': this.state.calendarInfo.color,
@@ -485,7 +536,9 @@ class CalendarSettingsModal extends React.Component {
             calendarInfo: {
               name: { $set: this.props.calendarInfo.name },
               description: { $set: this.props.calendarInfo.description },
-              closed: { $set: this.props.calendarInfo.closed },
+              visibilityRules: {
+                $set: this.props.calendarInfo.visibilityRules,
+              },
               color: { $set: this.props.calendarInfo.color },
               editRules: { $set: this.props.calendarInfo.editRules },
             },

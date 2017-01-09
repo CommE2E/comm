@@ -1,6 +1,8 @@
 // @flow
 
 import type { AppState, UpdateStore } from '../redux-reducer';
+import type { VisibilityRules } from '../calendar-info';
+import { visibilityRules, assertVisibilityRules } from '../calendar-info';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -20,7 +22,7 @@ type State = {
   name: string,
   description: string,
   color: string,
-  closed: ?bool,
+  visibilityRules: ?VisibilityRules,
   calendarPassword: string,
   confirmCalendarPassword: string,
   inputDisabled: bool,
@@ -41,7 +43,7 @@ class NewCalendarModal extends React.Component {
       name: "",
       description: "",
       color: "fff8dd",
-      closed: undefined,
+      visibilityRules: undefined,
       calendarPassword: "",
       confirmCalendarPassword: "",
       inputDisabled: false,
@@ -56,7 +58,11 @@ class NewCalendarModal extends React.Component {
 
   render() {
     let calendarPasswordInputs = null;
-    if (this.state.closed) {
+    if (
+      this.state.visibilityRules !== undefined &&
+      this.state.visibilityRules !== null &&
+      this.state.visibilityRules >= visibilityRules.CLOSED
+    ) {
       calendarPasswordInputs = (
         <div>
           <div className="form-enum-password">
@@ -81,6 +87,14 @@ class NewCalendarModal extends React.Component {
         </div>
       );
     }
+    const closedPasswordEntry =
+      this.state.visibilityRules === visibilityRules.CLOSED
+        ? calendarPasswordInputs
+        : null;
+    const secretPasswordEntry =
+      this.state.visibilityRules === visibilityRules.SECRET
+        ? calendarPasswordInputs
+        : null;
     return (
       <Modal name="New calendar" onClose={this.props.onClose} size="large">
         <div className="modal-body">
@@ -118,8 +132,10 @@ class NewCalendarModal extends React.Component {
                       type="radio"
                       name="new-calendar-type"
                       id="new-calendar-open"
-                      value={false}
-                      checked={this.state.closed === false}
+                      value={visibilityRules.OPEN}
+                      checked={
+                        this.state.visibilityRules === visibilityRules.OPEN
+                      }
                       onChange={this.onChangeClosed.bind(this)}
                       disabled={this.state.inputDisabled}
                       ref={(input) => this.openPrivacyInput = input}
@@ -138,8 +154,10 @@ class NewCalendarModal extends React.Component {
                       type="radio"
                       name="new-calendar-type"
                       id="new-calendar-closed"
-                      value={true}
-                      checked={this.state.closed === true}
+                      value={visibilityRules.CLOSED}
+                      checked={
+                        this.state.visibilityRules === visibilityRules.CLOSED
+                      }
                       onChange={this.onChangeClosed.bind(this)}
                       disabled={this.state.inputDisabled}
                     />
@@ -151,7 +169,32 @@ class NewCalendarModal extends React.Component {
                           a closed calendar.
                         </span>
                       </label>
-                      {calendarPasswordInputs}
+                      {closedPasswordEntry}
+                    </div>
+                  </div>
+                  <div className="form-enum-container">
+                    <input
+                      type="radio"
+                      name="new-calendar-type"
+                      id="new-calendar-secret"
+                      value={visibilityRules.SECRET}
+                      checked={
+                        this.state.visibilityRules === visibilityRules.SECRET
+                      }
+                      onChange={this.onChangeClosed.bind(this)}
+                      disabled={this.state.inputDisabled}
+                    />
+                    <div className="form-enum-option">
+                      <label htmlFor="new-calendar-secret">
+                        Secret
+                        <span className="form-enum-description">
+                          Only people with the password can view the calendar,
+                          and it won't appear in search results or
+                          recommendations. Share the URL and password with your
+                          friends to add them.
+                        </span>
+                      </label>
+                      {secretPasswordEntry}
                     </div>
                   </div>
                 </div>
@@ -206,7 +249,9 @@ class NewCalendarModal extends React.Component {
   onChangeClosed(event: SyntheticEvent) {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ closed: target.value === "true" });
+    this.setState({
+      visibilityRules: assertVisibilityRules(parseInt(target.value)),
+    });
   }
 
   onChangeCalendarPassword(event: SyntheticEvent) {
@@ -239,10 +284,15 @@ class NewCalendarModal extends React.Component {
       return;
     }
 
-    if (this.state.closed === undefined) {
+    const ourVisibilityRules = this.state.visibilityRules;
+    invariant(
+      ourVisibilityRules !== null,
+      "visibilityRules state should never be set to null",
+    );
+    if (ourVisibilityRules === undefined) {
       this.setState(
         {
-          errorMessage: "privacy unspecified",
+          errorMessage: "visibility unspecified",
         },
         () => {
           invariant(this.openPrivacyInput, "openPrivacyInput ref unset");
@@ -252,7 +302,7 @@ class NewCalendarModal extends React.Component {
       return;
     }
 
-    if (this.state.closed) {
+    if (ourVisibilityRules >= visibilityRules.CLOSED) {
       if (this.state.calendarPassword === '') {
         this.setState(
           {
@@ -291,12 +341,11 @@ class NewCalendarModal extends React.Component {
 
     this.setState({ inputDisabled: true });
     const description = this.state.description;
-    const closed = this.state.closed;
     const color = this.state.color;
     const response = await fetchJSON('new_calendar.php', {
       'name': name,
       'description': description,
-      'visibility_rules': closed ? 1 : 0,
+      'visibility_rules': ourVisibilityRules,
       'password': this.state.calendarPassword,
       'color': color,
     });
@@ -311,9 +360,9 @@ class NewCalendarModal extends React.Component {
         authorized: true,
         subscribed: true,
         canChangeSettings: true,
-        closed: closed,
+        visibilityRules: ourVisibilityRules,
         color: color,
-        editRules: closed ? 1 : 0,
+        editRules: ourVisibilityRules >= visibilityRules.CLOSED ? 1 : 0,
       }};
       // The "newCalendarID" state is a bit of a hack. Basically, we can't
       // immediately navigate to the new calendar because we don't have it in
@@ -335,7 +384,7 @@ class NewCalendarModal extends React.Component {
         name: "",
         description: "",
         color: "",
-        closed: undefined,
+        visibilityRules: undefined,
         calendarPassword: "",
         confirmCalendarPassword: "",
         inputDisabled: false,
