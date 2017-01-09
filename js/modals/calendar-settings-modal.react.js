@@ -396,7 +396,8 @@ class CalendarSettingsModal extends React.Component {
       // If the calendar is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
-        !this.props.calendarInfo.closed && this.state.newCalendarPassword === ''
+        !this.props.calendarInfo.closed &&
+        this.state.newCalendarPassword.trim() === ''
       ) {
         this.setState(
           {
@@ -442,7 +443,7 @@ class CalendarSettingsModal extends React.Component {
       'name': name,
       'description': this.state.calendarInfo.description,
       'calendar': this.props.calendarInfo.id,
-      'type': this.state.calendarInfo.closed ? "closed" : "open",
+      'visibility_rules': this.state.calendarInfo.closed ? 1 : 0,
       'personal_password': this.state.accountPassword,
       'new_password': this.state.newCalendarPassword,
       'color': this.state.calendarInfo.color,

@@ -20,9 +20,9 @@ if (
   !isset($_POST['name']) ||
   !isset($_POST['description']) ||
   !isset($_POST['calendar']) ||
-  !isset($_POST['type']) ||
   !isset($_POST['color']) ||
   !isset($_POST['personal_password']) ||
+  !isset($_POST['visibility_rules']) ||
   !isset($_POST['edit_rules'])
 ) {
   exit(json_encode(array(
@@ -37,9 +37,9 @@ if (!preg_match('/^[a-f0-9]{6}$/', $color)) {
   )));
 }
 
-$is_closed = $_POST['type'] === 'closed';
+$visibility_rules = intval($_POST['visibility_rules']);
 $new_password = null;
-if ($is_closed) {
+if ($visibility_rules >= 1) {
   if (!isset($_POST['new_password'])) {
     exit(json_encode(array(
       'error' => 'invalid_parameters',
@@ -58,7 +58,7 @@ $edit_rules = (int)$_POST['edit_rules'];
 // - figures out if the calendar requires auth (calendars table)
 // - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
-  "SELECT c.hash IS NOT NULL AS requires_auth, u.hash ".
+  "SELECT c.visibility_rules, u.hash ".
     "FROM roles r ".
     "LEFT JOIN users u ON u.id = r.user ".
     "LEFT JOIN calendars c ON c.id = r.calendar ".
@@ -79,7 +79,11 @@ if (!password_verify($personal_password, $row['hash'])) {
 
 // If the calendar is currently open but is being switched to closed,
 // then a password *must* be specified
-if (!$row['requires_auth'] && $is_closed && trim($new_password) === '') {
+if (
+  intval($row['visibility_rules']) < 1 &&
+  $visibility_rules >= 1 &&
+  trim($new_password) === ''
+) {
   exit(json_encode(array(
     'error' => 'empty_password',
   )));
@@ -87,24 +91,27 @@ if (!$row['requires_auth'] && $is_closed && trim($new_password) === '') {
 
 $name = $conn->real_escape_string($_POST['name']);
 $description = $conn->real_escape_string($_POST['description']);
-if ($is_closed && $new_password !== '') {
+if ($visibility_rules >= 1 && trim($new_password) !== '') {
   $hash = password_hash($new_password, PASSWORD_BCRYPT);
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color', hash = '$hash', edit_rules = $edit_rules ".
+      "color = '$color', visibility_rules = $visibility_rules, ".
+      "hash = '$hash', edit_rules = $edit_rules ".
       "WHERE id = $calendar"
   );
-} else if ($is_closed) {
+} else if ($visibility_rules >= 1) {
   // We are guaranteed that the calendar was closed beforehand, as otherwise
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color', edit_rules = $edit_rules WHERE id = $calendar"
+      "color = '$color', visibility_rules = $visibility_rules, ".
+      "edit_rules = $edit_rules WHERE id = $calendar"
   );
 } else {
   $conn->query(
     "UPDATE calendars SET name = '$name', description = '$description', ".
-      "color = '$color', hash = NULL, edit_rules = $edit_rules ".
+      "color = '$color', visiblity_rules = $visibility_rules, hash = NULL, ".
+      "edit_rules = $edit_rules ".
       "WHERE id = $calendar"
   );
 }

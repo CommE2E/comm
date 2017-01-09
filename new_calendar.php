@@ -15,7 +15,7 @@ if ($https && !isset($_SERVER['HTTPS'])) {
 if (
   !isset($_POST['name']) ||
   !isset($_POST['description']) ||
-  !isset($_POST['type']) ||
+  !isset($_POST['visibility_rules']) ||
   !isset($_POST['color'])
 ) {
   exit(json_encode(array(
@@ -36,9 +36,9 @@ if (!user_logged_in()) {
   )));
 }
 
-$is_closed = $_POST['type'] === 'closed';
+$visibility_rules = intval($_POST['visibility_rules']);
 $password = null;
-if ($is_closed) {
+if ($visibility_rules >= 1) {
   if (!isset($_POST['password'])) {
     exit(json_encode(array(
       'error' => 'invalid_parameters',
@@ -53,9 +53,8 @@ $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
-$edit_rules = $is_closed ? 1 : 0;
-$visibility_rules = $is_closed ? 1 : 0;
-if ($is_closed) {
+$edit_rules = $visibility_rules >= 1 ? 1 : 0;
+if ($visibility_rules >= 1) {
   $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
     "INSERT INTO calendars".

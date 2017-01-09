@@ -296,7 +296,7 @@ class NewCalendarModal extends React.Component {
     const response = await fetchJSON('new_calendar.php', {
       'name': name,
       'description': description,
-      'type': closed ? "closed" : "open",
+      'visibility_rules': closed ? 1 : 0,
       'password': this.state.calendarPassword,
       'color': color,
     });
