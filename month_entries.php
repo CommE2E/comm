@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('calendar_lib.php');
 
 header("Content-Type: application/json");
 
@@ -44,8 +45,9 @@ $result = $conn->query(
     "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = $viewer_id ".
     "LEFT JOIN users u ON u.id = e.creator ".
     "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-    "e.deleted = 0 AND (c.hash IS NULL OR (r.calendar IS NOT NULL AND ".
-    "r.role >= ".ROLE_SUCCESSFUL_AUTH.")) AND ".$additional_condition." ".
+    "e.deleted = 0 AND (c.visibility_rules < ".VISIBILITY_CLOSED." OR ".
+    "(r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH.")) AND ".
+    $additional_condition." ".
     "ORDER BY e.creation_time DESC"
 );
 

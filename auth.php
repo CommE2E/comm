@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('calendar_lib.php');
 
 define("ROLE_VIEWED", 0);
 define("ROLE_SUCCESSFUL_AUTH", 5);
@@ -228,8 +229,9 @@ function viewer_can_see_calendar($calendar) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM calendars c ".
+    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth FROM calendars c ".
       "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
       "WHERE c.id = $calendar"
   );
@@ -246,8 +248,9 @@ function viewer_can_see_day($day) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM days d ".
+    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth FROM days d ".
       "LEFT JOIN calendars c ON c.id = d.calendar ".
       "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
       "WHERE d.id = $day"
@@ -265,8 +268,9 @@ function viewer_can_see_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth FROM entries e ".
+    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN calendars c ON c.id = d.calendar ".
       "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
@@ -300,8 +304,9 @@ function viewer_can_edit_calendar($calendar) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth, c.edit_rules FROM calendars c ".
+    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth, c.edit_rules FROM calendars c ".
       "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
       "WHERE c.id = $calendar"
   );
@@ -317,9 +322,9 @@ function viewer_can_edit_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.hash IS NOT NULL AND (r.calendar IS NULL OR r.role < ".
-      ROLE_SUCCESSFUL_AUTH.") AS requires_auth, c.edit_rules ".
-      "FROM entries e ".
+    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth, c.edit_rules FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN calendars c ON c.id = d.calendar ".
       "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
