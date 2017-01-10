@@ -409,6 +409,10 @@ div.lower-left-null-state {
 }
 div.account-button {
   padding: 3px 4px 3px 8px;
+  font-size: 0;
+}
+div.account-button > span {
+  font-size: 16px;
 }
 div.account-menu {
   outline: none;

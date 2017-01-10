@@ -90,7 +90,7 @@ class AccountBar extends React.Component {
         >
           {menu}
           <div className="account-button">
-            {"logged in as "}
+            <span>logged in as </span>
             <span className="username">{this.props.username}</span>
             {caret}
           </div>

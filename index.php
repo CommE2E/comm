@@ -222,7 +222,7 @@ echo <<<HTML
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
-            logged in as
+            <span>logged in as </span>
             <span class="username">$username</span>
             <svg
               version="1.1"
