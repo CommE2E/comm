@@ -69,7 +69,7 @@ class TypeaheadPane extends React.Component {
     let pager = null;
     if (this.props.totalResults > this.state.currentResults.length) {
       let leftPager = (
-        <LeftPager size="13px" className="calendar-nav-pager-svg" />
+        <LeftPager className="calendar-nav-pager-svg" />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
@@ -81,7 +81,7 @@ class TypeaheadPane extends React.Component {
         );
       }
       let rightPager = (
-        <RightPager size="13px" className="calendar-nav-pager-svg" />
+        <RightPager className="calendar-nav-pager-svg" />
       );
       if (
         this.props.pageSize * (this.state.currentPage + 1)

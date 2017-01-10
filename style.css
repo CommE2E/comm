@@ -137,6 +137,8 @@ span.right-action-links {
 }
 div.action-links svg {
   fill: gray;
+  width: 10px;
+  height: 10px;
 }
 div.action-links svg.history {
   position: relative;
@@ -207,9 +209,11 @@ div.calendar-nav-current {
 div.calendar-nav-active div.calendar-nav-current {
   cursor: default;
 }
-div.calendar-nav-current > img {
+svg.search-vector {
+  fill: #000000;
   float: left;
   height: 24px;
+  width: 24px;
   margin-right: 3px;
   margin-bottom: -7px;
   cursor: pointer;
@@ -243,10 +247,14 @@ span.calendar-nav-symbols {
 svg.calendar-nav-first-symbol {
   position: absolute;
   top: 5px;
+  height: 12px;
+  width: 7px;
 }
 svg.calendar-nav-second-symbol {
   position: absolute;
   top: 14px;
+  height: 12px;
+  width: 7px;
 }
 div.calendar-nav-dropdown {
   border-top: 1px solid #C8C8C8;
@@ -360,6 +368,8 @@ a.calendar-nav-pager-button {
 svg.calendar-nav-pager-svg {
   display: inline-block;
   fill: #777777;
+  width: 13px;
+  height: 13px;
 }
 a.calendar-nav-pager-button > svg.calendar-nav-pager-svg {
   fill: #2A5DB0;
@@ -418,6 +428,8 @@ svg.account-caret {
   padding-left: 6px;
   fill: #2A5DB0;
   cursor: pointer;
+  height: 10px;
+  width: 10px;
 }
 
 div.modal-overlay {
@@ -921,6 +933,8 @@ span.calendar-picker-pager-status {
 svg.calendar-picker-pager-svg {
   fill: #777777;
   vertical-align: middle;
+  width: 13px;
+  height: 13px;
 }
 a.calendar-picker-pager-button {
 }

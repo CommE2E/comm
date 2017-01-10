@@ -131,7 +131,7 @@ class Entry extends React.Component {
             className="entry-history-button"
             onClick={this.onHistory.bind(this)}
           >
-            <HistoryVector size="10px" className="history" />
+            <HistoryVector className="history" />
             <span className="action-links-text">History</span>
           </a>
         );
@@ -143,7 +143,7 @@ class Entry extends React.Component {
             className="delete-entry-button"
             onClick={this.onDelete.bind(this)}
           >
-            <DeleteVector size="10px" className="delete" />
+            <DeleteVector className="delete" />
             <span className="action-links-text">Delete</span>
           </a>
           {historyButton}

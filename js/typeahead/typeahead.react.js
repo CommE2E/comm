@@ -24,7 +24,7 @@ import {
   subscriptionExists,
 } from '../calendar-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
-import { UpCaret, DownCaret } from '../vectors.react';
+import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
 
 type Props = {
   currentNavID: ?string,
@@ -314,16 +314,8 @@ class Typeahead extends React.Component {
     } else {
       rightAligned = (  
         <span className="calendar-nav-symbols">
-          <UpCaret
-            className="calendar-nav-first-symbol"
-            height="12px"
-            width="7px"
-          />
-          <DownCaret
-            className="calendar-nav-second-symbol"
-            height="12px"
-            width="7px"
-          />
+          <UpCaret className="calendar-nav-first-symbol" />
+          <DownCaret className="calendar-nav-second-symbol" />
         </span>
       );
     }
@@ -341,11 +333,11 @@ class Typeahead extends React.Component {
           className="calendar-nav-current"
           ref={(current) => this.current = current}
         >
-          <img
-            src="images/search.svg"
-            alt="search"
+          <span
             ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
-          />
+          >
+            <MagnifyingGlass className="search-vector" />
+          </span>
           {rightAligned}
           <div className="typeahead-container">
             <input

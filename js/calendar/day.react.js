@@ -97,7 +97,7 @@ class Day extends React.Component {
             className="add-entry-button"
             onClick={this.onAddEntry.bind(this)}
           >
-            <AddVector size="10px" className="add" />
+            <AddVector className="add" />
             <span className="action-links-text">Add</span>
           </a>
           <a
@@ -105,7 +105,7 @@ class Day extends React.Component {
             className="day-history-button"
             onClick={this.onHistory.bind(this)}
           >
-            <HistoryVector size="10px" className="history" />
+            <HistoryVector className="history" />
             <span className="action-links-text">History</span>
           </a>
         </div>

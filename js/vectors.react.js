@@ -3,8 +3,6 @@
 import React from 'react';
 
 type SVGProps = {
-  height: string,
-  width: string,
   className: string,
   viewBox: string,
   preserveAspectRatio?: string,
@@ -24,121 +22,94 @@ function SVG(props: SVGProps) {
   );
 }
 
-type PagerProps = {
-  size: string,
-  className: string,
-};
-
-export function LeftPager(props: PagerProps) {
+export function LeftPager(props: { className: string }) {
   return (
-    <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
-      viewBox="0 0 512 512"
-    >
+    <SVG className={props.className} viewBox="0 0 512 512">
       <polygon points={
         "352,128.4 319.7,96 160,256 160,256 160,256 319.7,416 " +
         "352,383.6 224.7,256"
-      }/>
+      } />
     </SVG>
   );
 }
 
-export function RightPager(props: PagerProps) {
+export function RightPager(props: { className: string }) {
   return (
-    <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
-      viewBox="0 0 512 512"
-    >
+    <SVG className={props.className} viewBox="0 0 512 512">
       <polygon points={
         "160,128.4 192.3,96 352,256 352,256 352,256 192.3,416 " +
         "160,383.6 287.3,256 "
-      }/>
+      } />
     </SVG>
   );
 }
 
-type CaretProps = {
-  height: string,
-  width: string,
-  className: string,
-};
-
-export function UpCaret(props: CaretProps) {
+export function UpCaret(props: { className: string }) {
   return (
     <SVG
       viewBox="0 0 8 8"
       preserveAspectRatio="none"
-      {...props}
+      className={props.className}
     >
       <path d="M4 2l-4 4h8l-4-4z" />
     </SVG>
   );
 }
 
-export function DownCaret(props: CaretProps) {
+export function DownCaret(props: { className: string }) {
   return (
     <SVG
       viewBox="0 0 8 8"
       preserveAspectRatio="none"
-      {...props}
+      className={props.className}
     >
       <path d="M0 2l4 4 4-4h-8z" />
     </SVG>
   );
 }
 
-type ActionLinksProps = {
-  size: string,
-  className: string,
-};
-
-export function DeleteVector(props: ActionLinksProps) {
+export function DeleteVector(props: { className: string }) {
   return (
-    <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
-      viewBox="0 0 8 8"
-    >
+    <SVG className={props.className} viewBox="0 0 8 8">
       <path d={
         "M1.406 0l-1.406 1.406.688.719 1.781 1.781-1.781 1.781-.688.719 " +
         "1.406 1.406.719-.688 1.781-1.781 1.781 1.781.719.688 1.406-1.406" +
         "-.688-.719-1.781-1.781 1.781-1.781.688-.719-1.406-1.406-.719.688" +
         "-1.781 1.781-1.781-1.781-.719-.688z"
-      }/>
+      } />
     </SVG>
   );
 }
 
-export function AddVector(props: ActionLinksProps) {
+export function AddVector(props: { className: string }) {
   return (
-    <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
-      viewBox="0 0 8 8"
-    >
+    <SVG className={props.className} viewBox="0 0 8 8">
       <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
     </SVG>
   );
 }
 
-export function HistoryVector(props: ActionLinksProps) {
+export function HistoryVector(props: { className: string }) {
   return (
-    <SVG
-      height={props.size}
-      width={props.size}
-      className={props.className}
-      viewBox="0 0 8 8"
-    >
+    <SVG className={props.className} viewBox="0 0 8 8">
       <path d={
         "M.094 0c-.06 0-.094.034-.094.094v5.813c0 .06.034.094.094.094h5." +
         "906l2 2v-7.906000000000001c0-.06-.034-.094-.094-.094h-7.813z"
-      }/>
+      } />
+    </SVG>
+  );
+}
+
+export function MagnifyingGlass(props: { className: string }) {
+  return (
+    <SVG className={props.className} viewBox="0 0 24 24">
+      <path d={
+        "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 "+
+        "9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v."+
+        "79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 "+
+        "14 7.01 14 9.5 11.99 14 9.5 14z"
+      } />
+      <path d="M0 0h24v24H0z" fill="none" />
     </SVG>
   );
 }

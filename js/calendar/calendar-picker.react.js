@@ -60,7 +60,7 @@ class CalendarPicker extends React.Component {
     let pager = null;
     if (length > CalendarPicker.pageSize) {
       let leftPager = (
-        <LeftPager size="13px" className="calendar-picker-pager-svg" />
+        <LeftPager className="calendar-picker-pager-svg" />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
@@ -72,7 +72,7 @@ class CalendarPicker extends React.Component {
         );
       }
       let rightPager = (
-        <RightPager size="13px" className="calendar-picker-pager-svg" />
+        <RightPager className="calendar-picker-pager-svg" />
       );
       if (CalendarPicker.pageSize * (this.state.currentPage + 1) < length) {
         rightPager = (

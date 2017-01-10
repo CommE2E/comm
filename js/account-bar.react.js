@@ -81,8 +81,8 @@ class AccountBar extends React.Component {
         );
       }
       const caret = this.state.expanded
-        ? <DownCaret height="10px" width="10px" className="account-caret" />
-        : <UpCaret height="10px" width="10px" className="account-caret" />;
+        ? <DownCaret className="account-caret" />
+        : <UpCaret className="account-caret" />;
       return (
         <div
           className={classes}
