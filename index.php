@@ -224,6 +224,19 @@ if (user_logged_in()) {
   echo <<<HTML
             logged in as
             <span class="username">$username</span>
+            <svg
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xml:space="preserve"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 8 8"
+              preserveAspectRatio="none"
+              height="10px"
+              width="10px"
+              class="account-caret"
+            >
+              <path d="M4 2l-4 4h8l-4-4z"></path>
+            </svg>
 
 HTML;
 } else {
@@ -269,6 +282,7 @@ echo <<<HTML
           <a href="{$next_url}" class="next-month-link">&gt;</a>
         </h2>
       </header>
+      <div class="modal-overlay"></div>
     </div>
 
 HTML;
