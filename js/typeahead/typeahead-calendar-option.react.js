@@ -20,7 +20,8 @@ import LoadingIndicator from '../loading-indicator.react';
 import fetchJSON from '../fetch-json';
 
 type Props = {
-  calendarInfo: CalendarInfo,
+  calendarInfo?: CalendarInfo,
+  secretCalendarID?: string,
   monthURL: string,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
@@ -39,6 +40,7 @@ type State = {
 class TypeaheadCalendarOption extends React.Component {
 
   static defaultProps: { frozen: bool };
+  static secretText;
   props: Props;
   state: State;
 
@@ -73,7 +75,7 @@ class TypeaheadCalendarOption extends React.Component {
 
   render() {
     let descriptionDiv = null;
-    if (this.props.calendarInfo.description) {
+    if (this.props.calendarInfo && this.props.calendarInfo.description) {
       descriptionDiv = (
         <div className="calendar-nav-option-description">
           <TextTruncate
@@ -113,9 +115,32 @@ class TypeaheadCalendarOption extends React.Component {
           </div>
         </div>;
     }
-    const colorPreviewStyle = {
-      backgroundColor: "#" + this.props.calendarInfo.color,
-    };
+    let colorPreview = null;
+    let optionButtons = null;
+    let name = null;
+    if (this.props.calendarInfo) {
+      const colorPreviewStyle = {
+        backgroundColor: "#" + this.props.calendarInfo.color,
+      };
+      colorPreview = (
+        <div
+          className="calendar-nav-color-preview"
+          style={colorPreviewStyle}
+        />
+      );
+      optionButtons = (
+        <TypeaheadOptionButtons
+          calendarInfo={this.props.calendarInfo}
+          setModal={this.props.setModal}
+          clearModal={this.props.clearModal}
+          freezeTypeahead={this.props.freezeTypeahead}
+          unfreezeTypeahead={this.props.unfreezeTypeahead}
+        />
+      );
+      name = this.props.calendarInfo.name;
+    } else {
+      name = TypeaheadCalendarOption.secretText;
+    }
     return (
       <div
         className={classNames({
@@ -125,17 +150,11 @@ class TypeaheadCalendarOption extends React.Component {
         })}
         onClick={this.onClick.bind(this)}
       >
-        <div className="calendar-nav-color-preview" style={colorPreviewStyle} />
+        {colorPreview}
         <div>
-          <TypeaheadOptionButtons
-            calendarInfo={this.props.calendarInfo}
-            setModal={this.props.setModal}
-            clearModal={this.props.clearModal}
-            freezeTypeahead={this.props.freezeTypeahead}
-            unfreezeTypeahead={this.props.unfreezeTypeahead}
-          />
+          {optionButtons}
           <div className="calendar-nav-option-name">
-            {this.props.calendarInfo.name}
+            {name}
           </div>
         </div>
         {descriptionDiv}
@@ -144,14 +163,23 @@ class TypeaheadCalendarOption extends React.Component {
     );
   }
 
+  getID() {
+    const id = this.props.calendarInfo
+      ? this.props.calendarInfo.id
+      : this.props.secretCalendarID;
+    invariant(id, "id should exist");
+    return id;
+  }
+
   async onClick(event: SyntheticEvent) {
-    if (this.props.calendarInfo.authorized) {
+    const id = this.getID();
+    if (this.props.calendarInfo && this.props.calendarInfo.authorized) {
       this.props.onTransition();
       history.push(
-        `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+        `calendar/${id}/${this.props.monthURL}`,
       );
     } else {
-      this.props.freezeTypeahead(this.props.calendarInfo.id);
+      this.props.freezeTypeahead(id);
       this.setState({ passwordEntryOpen: true });
     }
   }
@@ -164,7 +192,7 @@ class TypeaheadCalendarOption extends React.Component {
 
   onPasswordEntryBlur(event: SyntheticEvent) {
     this.setState({ passwordEntryOpen: false });
-    this.props.unfreezeTypeahead(this.props.calendarInfo.id);
+    this.props.unfreezeTypeahead(this.getID());
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
@@ -188,24 +216,23 @@ class TypeaheadCalendarOption extends React.Component {
     event.preventDefault();
 
     this.setState({ passwordEntryLoadingStatus: "loading" });
+    const id = this.getID();
     const response = await fetchJSON('auth_calendar.php', {
-      'calendar': this.props.calendarInfo.id,
+      'calendar': id,
       'password': this.state.passwordEntryValue,
     });
     if (response.success) {
       this.setState({ passwordEntryLoadingStatus: "inactive" });
       this.props.updateStore((prevState: AppState) => {
         const updateObj = {};
-        updateObj[this.props.calendarInfo.id] = {
-          authorized: { $set: true },
-        };
+        updateObj[id] = { $set: response.calendar_info };
         return update(prevState, {
           calendarInfos: updateObj,
         });
       });
       this.props.onTransition();
       history.push(
-        `calendar/${this.props.calendarInfo.id}/${this.props.monthURL}`,
+        `calendar/${id}/${this.props.monthURL}`,
       );
     } else {
       this.setState(
@@ -220,8 +247,11 @@ class TypeaheadCalendarOption extends React.Component {
 
 }
 
+TypeaheadCalendarOption.secretText = "Secret Calendar";
+
 TypeaheadCalendarOption.propTypes = {
-  calendarInfo: calendarInfoPropType.isRequired,
+  calendarInfo: calendarInfoPropType,
+  secretCalendarID: React.PropTypes.string,
   monthURL: React.PropTypes.string.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,

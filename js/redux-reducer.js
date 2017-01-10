@@ -55,21 +55,6 @@ function ensureNavValidity(state: AppState): AppState {
       home: { $set: false },
       calendarID: { $set: "254" },
     }});
-  } else if (
-    state.navInfo.calendarID &&
-    !state.calendarInfos[state.navInfo.calendarID]
-  ) {
-    if (subscriptionExists(state)) {
-      return update(state, { navInfo: {
-        home: { $set: true },
-        calendarID: { $set: null },
-      }});
-    } else {
-      return update(state, { navInfo: {
-        home: { $set: false },
-        calendarID: { $set: "254" },
-      }});
-    }
   }
   return state;
 }

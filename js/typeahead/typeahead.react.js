@@ -218,9 +218,19 @@ class Typeahead extends React.Component {
       );
     } else if (this.state.active) {
       const panes = [];
-      const currentOptions = this.props.sortedCalendarInfos.current.map(
-        (calendarInfo) => this.buildCalendarOption(calendarInfo),
-      );
+      let currentOptions = [];
+      if (this.props.sortedCalendarInfos.current.length > 0) {
+        currentOptions = this.props.sortedCalendarInfos.current.map(
+          (calendarInfo) => this.buildCalendarOption(calendarInfo),
+        );
+      } else if (
+        this.props.currentCalendarID &&
+        !this.props.calendarInfos[this.props.currentCalendarID]
+      ) {
+        currentOptions = [
+          this.buildSecretOption(this.props.currentCalendarID)
+        ];
+      }
       panes.push(
         <TypeaheadPane
           paneTitle="Current"
@@ -362,6 +372,8 @@ class Typeahead extends React.Component {
       return this.buildActionOption("home", TypeaheadActionOption.homeText);
     } else if (navID === "new") {
       return this.buildActionOption("new", TypeaheadActionOption.newText);
+    } else if (navID === this.props.currentCalendarID) {
+      return this.buildSecretOption(navID);
     } else {
       invariant(false, "invalid navID passed to buildOption");
     }
@@ -410,6 +422,26 @@ class Typeahead extends React.Component {
         clearModal={this.props.clearModal}
         ref={possiblySetPromptedRef}
         key={calendarInfo.id}
+      />
+    );
+  }
+
+  buildSecretOption(secretCalendarID: string) {
+    const onTransition = () => {
+      this.unfreezeAll();
+      this.setActive(false);
+    };
+    return (
+      <TypeaheadCalendarOption
+        secretCalendarID={secretCalendarID}
+        freezeTypeahead={this.freeze.bind(this)}
+        unfreezeTypeahead={this.unfreeze.bind(this)}
+        onTransition={onTransition}
+        frozen={!!this.state.frozenNavIDs[secretCalendarID]}
+        setModal={this.props.setModal}
+        clearModal={this.props.clearModal}
+        ref={(option) => this.promptedCalendarOption = option}
+        key={secretCalendarID}
       />
     );
   }

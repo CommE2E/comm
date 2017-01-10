@@ -20,8 +20,7 @@ const currentNavID = createSelector(
     }
     invariant(navInfo.calendarID, "either home or calendarID should be set");
     const calendarInfo = calendarInfos[navInfo.calendarID];
-    invariant(calendarInfo, `calendar ${navInfo.calendarID} should exist`);
-    if (!calendarInfo.authorized) {
+    if (!calendarInfo || !calendarInfo.authorized) {
       return null;
     }
     return navInfo.calendarID;

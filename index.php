@@ -96,8 +96,12 @@ if ($home && !$subscription_exists) {
   $calendar = 254;
 }
 if (!$home && !isset($calendar_infos[$calendar])) {
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
+  $result = $conn->query("SELECT id FROM calendars WHERE id = $calendar");
+  $calendar_id_check_row = $result->fetch_assoc();
+  if (!$calendar_id_check_row) {
+    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+    exit;
+  }
 }
 
 if ($calendar !== null) {

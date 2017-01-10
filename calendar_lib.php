@@ -9,15 +9,17 @@ define("VISIBILITY_SECRET", 2);
 define("EDIT_ANYBODY", 0);
 define("EDIT_LOGGED_IN", 1);
 
-function get_calendar_infos($viewer_id) {
+function get_calendar_infos($viewer_id, $specific_condition="") {
   global $conn;
-  $result = $conn->query(
-    "SELECT c.id, c.name, r.role, c.visibility_rules, ".
-      "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-      "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".
-      "FROM calendars c ".
-      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id}"
-  );
+  $query = "SELECT c.id, c.name, r.role, c.visibility_rules, ".
+    "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
+    "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".
+    "FROM calendars c ".
+    "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id}";
+  if ($specific_condition) {
+    $query .= " WHERE $specific_condition";
+  }
+  $result = $conn->query($query);
   $calendar_infos = array();
   while ($row = $result->fetch_assoc()) {
     $authorized = $row['is_authed'] ||

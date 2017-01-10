@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('calendar_lib.php');
 
 header("Content-Type: application/json");
 
@@ -58,6 +59,8 @@ $conn->query(
     "role = GREATEST(VALUES(role), role)"
 );
 
+$calendar_infos = get_calendar_infos($viewer_id, "c.id = $calendar");
 exit(json_encode(array(
   'success' => true,
+  'calendar_info' => $calendar_infos[$calendar],
 )));
