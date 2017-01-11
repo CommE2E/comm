@@ -5,10 +5,6 @@ import type { EntryInfo } from './calendar/entry-info';
 import type { LoadingStatus } from './loading-indicator.react';
 
 import React from 'react';
-import invariant from 'invariant';
-import update from 'immutability-helper';
-
-import { subscriptionExists } from './calendar-utils';
 
 export type NavInfo = {
   year: number,
@@ -48,20 +44,9 @@ export type Action =
   { type: "@@redux/INIT" } |
   { type: "GENERIC", callback: UpdateCallback };
 
-function ensureNavValidity(state: AppState): AppState {
-  // TODO stop defaulting to calendar 254
-  if (state.navInfo.home && !subscriptionExists(state)) {
-    return update(state, { navInfo: {
-      home: { $set: false },
-      calendarID: { $set: "254" },
-    }});
-  }
-  return state;
-}
-
 export function reducer(state: AppState, action: Action) {
   if (action.type === "GENERIC") {
-    return ensureNavValidity(action.callback(state));
+    return action.callback(state);
   }
   return state;
 }

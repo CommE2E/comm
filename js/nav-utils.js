@@ -11,12 +11,23 @@ import invariant from 'invariant';
 
 import fetchJSON from './fetch-json';
 
+const subscriptionExists = createSelector(
+  (state: AppState) => state.calendarInfos,
+  (calendarInfos: {[id: string]: CalendarInfo}) =>
+    _.some(calendarInfos, 'subscribed'),
+);
+
 const currentNavID = createSelector(
   (state: AppState) => state.navInfo,
   (state: AppState) => state.calendarInfos,
-  (navInfo: NavInfo, calendarInfos: {[id: string]: CalendarInfo}) => {
+  subscriptionExists,
+  (
+    navInfo: NavInfo,
+    calendarInfos: {[id: string]: CalendarInfo},
+    subscriptionExists: bool,
+  ) => {
     if (navInfo.home) {
-      return "home";
+      return subscriptionExists ? "home" : null;
     }
     invariant(navInfo.calendarID, "either home or calendarID should be set");
     const calendarInfo = calendarInfos[navInfo.calendarID];
@@ -117,6 +128,7 @@ async function fetchEntriesAndUpdateStore(
 }
 
 export {
+  subscriptionExists,
   currentNavID,
   urlForYearAndMonth,
   monthURL,

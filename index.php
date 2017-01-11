@@ -29,15 +29,23 @@ $calendar_rewrite_matched = preg_match(
   $calendar_matches
 );
 $home_rewrite_matched = preg_match('#/home(/|$)#i', $_SERVER['REQUEST_URI']);
-if ($home_rewrite_matched) {
-  $home = true;
-  $calendar = null;
-} else if ($calendar_rewrite_matched) {
+if (!$home_rewrite_matched && $calendar_rewrite_matched) {
   $home = false;
   $calendar = (int)$calendar_matches[1];;
 } else {
-  $home = false;
+  $home = true;
   $calendar = null;
+}
+
+$viewer_id = get_viewer_id();
+$calendar_infos = get_calendar_infos($viewer_id);
+if (!$home && !isset($calendar_infos[$calendar])) {
+  $result = $conn->query("SELECT id FROM calendars WHERE id = $calendar");
+  $calendar_id_check_row = $result->fetch_assoc();
+  if (!$calendar_id_check_row) {
+    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+    exit;
+  }
 }
 
 $month_beginning_timestamp = date_create("$month/1/$year");
@@ -71,36 +79,6 @@ if ($verify_code) {
       $reset_password_user_row = $result->fetch_assoc();
       $reset_password_username = $reset_password_user_row['username'];
     }
-  }
-}
-
-$viewer_id = get_viewer_id();
-$calendar_infos = get_calendar_infos($viewer_id);
-
-$subscription_exists = false;
-foreach ($calendar_infos as $calendar_info) {
-  if ($calendar_info['subscribed']) {
-    $subscription_exists = true;
-    break;
-  }
-}
-if (!$home && $calendar === null) {
-  if ($subscription_exists) {
-    $home = true;
-  } else {
-    $calendar = 254;
-  }
-}
-if ($home && !$subscription_exists) {
-  $home = false;
-  $calendar = 254;
-}
-if (!$home && !isset($calendar_infos[$calendar])) {
-  $result = $conn->query("SELECT id FROM calendars WHERE id = $calendar");
-  $calendar_id_check_row = $result->fetch_assoc();
-  if (!$calendar_id_check_row) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    exit;
   }
 }
 

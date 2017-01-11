@@ -62,19 +62,8 @@ const typeaheadSortedCalendarInfos = createSelector(
   },
 );
 
-const subscriptionExistsIn = (calendarInfos: {[id: string]: CalendarInfo}) =>
-  _.some(calendarInfos, 'subscribed');
-
-const subscriptionExists = createSelector(
-  (state: AppState) => state.calendarInfos,
-  (calendarInfos: {[id: string]: CalendarInfo}) =>
-    subscriptionExistsIn(calendarInfos),
-);
-
 export {
   colorIsDark,
   onScreenCalendarInfos,
   typeaheadSortedCalendarInfos,
-  subscriptionExistsIn,
-  subscriptionExists,
 }

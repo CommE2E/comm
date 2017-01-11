@@ -6,10 +6,9 @@ import type { CalendarInfo } from '../calendar-info';
 import Tokenizer from 'tokenize-text';
 import { createSelector } from 'reselect';
 
-import { subscriptionExists } from '../calendar-utils';
 import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
-import { currentNavID } from '../nav-utils';
+import { currentNavID, subscriptionExists } from '../nav-utils';
 
 type Token = {
   index: number,

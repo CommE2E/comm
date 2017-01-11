@@ -18,11 +18,8 @@ import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import TypeaheadPane from './typeahead-pane.react';
 import { SearchIndex, searchIndex } from './search-index';
-import { currentNavID } from '../nav-utils';
-import {
-  typeaheadSortedCalendarInfos,
-  subscriptionExists,
-} from '../calendar-utils';
+import { currentNavID, subscriptionExists } from '../nav-utils';
+import { typeaheadSortedCalendarInfos } from '../calendar-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
 
@@ -67,12 +64,13 @@ class Typeahead extends React.Component {
     let active = false;
     const frozenNavIDs = {};
     if (!props.currentNavID) {
+      // This gets unset by a unfreezeAll() call
       frozenNavIDs["unauthorized"] = true;
-      invariant(
-        props.currentCalendarID,
-        "no currentNavID only if unauthorized currentCalendarID",
-      );
-      frozenNavIDs[props.currentCalendarID] = true;
+      if (props.currentCalendarID) {
+        // This gets unset by the same unfreezeAll() call. We do this to make
+        // sure that the password entry is frozen open on the right option.
+        frozenNavIDs[props.currentCalendarID] = true;
+      }
       active = true;
     }
     const recommendedCalendars = this.sampleRecommendations(props);
@@ -87,7 +85,7 @@ class Typeahead extends React.Component {
   }
 
   static getCurrentNavName(props: Props) {
-    if (props.currentNavID === "home") {
+    if (props.currentlyHome) {
       return TypeaheadActionOption.homeText;
     } else if (props.currentNavID) {
       return props.calendarInfos[props.currentNavID].name;
@@ -97,11 +95,7 @@ class Typeahead extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.currentNavID) {
-      invariant(
-        this.promptedCalendarOption,
-        "no currentNavID only if unauthorized currentCalendarID",
-      );
+    if (this.promptedCalendarOption) {
       this.promptedCalendarOption
         .getWrappedInstance()
         .openAndFocusPasswordEntry();
@@ -111,20 +105,21 @@ class Typeahead extends React.Component {
   componentWillReceiveProps(nextProps: Props) {
     // Navigational event occurred?
     const updateObj = {};
-    let navigateToUnauthorized = false;
+    let navigateToNullState = false;
     if (nextProps.currentNavID !== this.props.currentNavID) {
       updateObj.typeaheadValue = Typeahead.getCurrentNavName(nextProps);
       if (!this.props.currentNavID) {
         this.unfreezeAll();
       } else if (!nextProps.currentNavID) {
         updateObj.active = true;
-        navigateToUnauthorized = true;
+        navigateToNullState = true;
+        // This gets unset by above unfreezeAll() call
         this.freeze("unauthorized");
-        invariant(
-          nextProps.currentCalendarID,
-          "no currentNavID only if unauthorized currentCalendarID",
-        );
-        this.freeze(nextProps.currentCalendarID);
+        if (nextProps.currentCalendarID) {
+          // This gets unset by the same unfreezeAll() call. We do this to make
+          // sure that the password entry is frozen open on the right option.
+          this.freeze(nextProps.currentCalendarID);
+        }
       }
     }
 
@@ -160,16 +155,13 @@ class Typeahead extends React.Component {
       this.setState(
         updateObj,
         () => {
-          if (navigateToUnauthorized) {
-            invariant(
-              this.promptedCalendarOption,
-              "no currentNavID only if unauthorized currentCalendarID",
-            );
+          if (navigateToNullState && this.promptedCalendarOption) {
             this.promptedCalendarOption
               .getWrappedInstance()
               .openAndFocusPasswordEntry();
           } else if (updateObj.typeaheadValue && this.state.active) {
-            // If the typeahead is active, we should reselect
+            // If the typeahead is active and currentNavID changed,
+            // we should reselect the typeahead
             const input = this.input;
             invariant(input, "ref should be set");
             input.focus();
@@ -443,8 +435,14 @@ class Typeahead extends React.Component {
     this.setState(
       (prevState, props) => {
         const frozen = !_.isEmpty(prevState.frozenNavIDs);
-        if (frozen || active === prevState.active) {
+        if (active === prevState.active || (frozen && active)) {
           return {};
+        }
+        if (frozen && !active) {
+          return {
+            typeaheadValue: Typeahead.getCurrentNavName(props),
+            searchActive: false,
+          };
         }
         let typeaheadValue = prevState.typeaheadValue;
         let recommendedCalendars = prevState.recommendedCalendars;
