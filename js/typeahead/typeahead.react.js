@@ -137,7 +137,7 @@ class Typeahead extends React.Component {
           { id: calendarInfo.id },
         ),
       );
-      let newRecommendationsNeeded = Typeahead.getRecommendationSize(this.props)
+      let newRecommendationsNeeded = Typeahead.getRecommendationSize(nextProps)
         - stillValidRecommendations.length;
       if (newRecommendationsNeeded > 0) {
         const randomCalendarInfos =
@@ -151,6 +151,11 @@ class Typeahead extends React.Component {
           stillValidRecommendations,
           { $push: randomCalendarInfos },
         );
+      } else if (
+        stillValidRecommendations.length <
+          this.state.recommendedCalendars.length
+      ) {
+        updateObj.recommendedCalendars = stillValidRecommendations;
       }
     }
 
@@ -172,6 +177,34 @@ class Typeahead extends React.Component {
           }
         },
       );
+    }
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    // Usually, focus on the input is coupled with the typeahead being active.
+    // This is only violated in the null state, where the typeahead is frozen
+    // open. If the typeahead encounters a state where it is no longer frozen,
+    // it needs to reconcile the active state and input focus, such that the
+    // typeahead is active if and only if the input is focused.
+    if (
+      _.isEmpty(nextState.frozenNavIDs) &&
+      !_.isEmpty(this.state.frozenNavIDs) &&
+      this.input !== document.activeElement &&
+      this.state.active
+    ) {
+      // We either need to focus the typeahead (so we have the onBlur there to
+      // close the typeahead), or we need to go ahead and close the typeahead.
+      // Only when we're going from home null state to home do we focus the
+      // typeahead. That's because that gets triggered by clicking Subscribe,
+      // which doesn't seem like it should close the typeahead.
+      if (
+        (this.props.currentNavID === null && this.props.currentlyHome) &&
+        (nextProps.currentNavID !== null && nextProps.currentlyHome)
+      ) {
+        this.setActive(true);
+      } else {
+        this.setActive(false);
+      }
     }
   }
 
@@ -262,7 +295,7 @@ class Typeahead extends React.Component {
       panes.push(
         <TypeaheadPane
           paneTitle="Recommended"
-          pageSize={Typeahead.getRecommendationSize(this.props)}
+          pageSize={recommendedOptions.length}
           totalResults={recommendedOptions.length}
           resultsBetween={() => recommendedOptions}
           key="recommended"
@@ -368,8 +401,7 @@ class Typeahead extends React.Component {
 
   buildActionOption(navID: NavID, name: string) {
     const onTransition = () => {
-      this.unfreezeAll();
-      this.setActive(false);
+      this.unfreezeAll(() => this.setActive(false));
     };
     return (
       <TypeaheadActionOption
@@ -387,8 +419,7 @@ class Typeahead extends React.Component {
 
   buildCalendarOption(calendarInfo: CalendarInfo) {
     const onTransition = () => {
-      this.unfreezeAll();
-      this.setActive(false);
+      this.unfreezeAll(() => this.setActive(false));
     };
     const possiblySetPromptedRef = (option) => {
       if (
@@ -415,8 +446,7 @@ class Typeahead extends React.Component {
 
   buildSecretOption(secretCalendarID: string) {
     const onTransition = () => {
-      this.unfreezeAll();
-      this.setActive(false);
+      this.unfreezeAll(() => this.setActive(false));
     };
     return (
       <TypeaheadCalendarOption
@@ -534,18 +564,8 @@ class Typeahead extends React.Component {
     );
   }
 
-  unfreezeAll() {
-    this.setState(
-      (prevState, props) => {
-        return update(prevState, { frozenNavIDs: { $set: {} } });
-      },
-      () => {
-        invariant(this.input, "ref should be set");
-        if (this.input !== document.activeElement) {
-          this.setActive(false);
-        }
-      },
-    );
+  unfreezeAll(callback?: () => void) {
+    this.setState( { frozenNavIDs: {} }, callback);
   }
 
   isActive() {
