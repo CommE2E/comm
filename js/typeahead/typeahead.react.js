@@ -49,6 +49,7 @@ type TypeaheadCalendarOptionConnect = {
 class Typeahead extends React.Component {
 
   static recommendationSize;
+  static homeNullStateRecommendationSize;
 
   props: Props;
   state: State;
@@ -73,7 +74,7 @@ class Typeahead extends React.Component {
       }
       active = true;
     }
-    const recommendedCalendars = this.sampleRecommendations(props);
+    const recommendedCalendars = Typeahead.sampleRecommendations(props);
     this.state = {
       active,
       searchActive: false,
@@ -125,7 +126,9 @@ class Typeahead extends React.Component {
 
     if (
       nextProps.sortedCalendarInfos.recommended !==
-        this.props.sortedCalendarInfos.recommended
+        this.props.sortedCalendarInfos.recommended ||
+      Typeahead.getRecommendationSize(nextProps) >
+        Typeahead.getRecommendationSize(this.props)
     ) {
       const stillValidRecommendations = _.filter(
         this.state.recommendedCalendars,
@@ -134,8 +137,8 @@ class Typeahead extends React.Component {
           { id: calendarInfo.id },
         ),
       );
-      let newRecommendationsNeeded =
-        Typeahead.recommendationSize - stillValidRecommendations.length;
+      let newRecommendationsNeeded = Typeahead.getRecommendationSize(this.props)
+        - stillValidRecommendations.length;
       if (newRecommendationsNeeded > 0) {
         const randomCalendarInfos =
           _.chain(nextProps.sortedCalendarInfos.recommended)
@@ -259,7 +262,7 @@ class Typeahead extends React.Component {
       panes.push(
         <TypeaheadPane
           paneTitle="Recommended"
-          pageSize={Typeahead.recommendationSize}
+          pageSize={Typeahead.getRecommendationSize(this.props)}
           totalResults={recommendedOptions.length}
           resultsBetween={() => recommendedOptions}
           key="recommended"
@@ -449,7 +452,7 @@ class Typeahead extends React.Component {
         setFocus = active;
         if (!active) {
           typeaheadValue = Typeahead.getCurrentNavName(props);
-          recommendedCalendars = this.sampleRecommendations(props);
+          recommendedCalendars = Typeahead.sampleRecommendations(props);
         }
         return {
           active,
@@ -577,16 +580,25 @@ class Typeahead extends React.Component {
       .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
   }
 
-  sampleRecommendations(props: Props) {
+  static getRecommendationSize(props: Props) {
+    if (props.currentlyHome && props.currentNavID === null) {
+      return Typeahead.homeNullStateRecommendationSize;
+    } else {
+      return Typeahead.recommendationSize;
+    }
+  }
+
+  static sampleRecommendations(props: Props) {
     return _.sampleSize(
       props.sortedCalendarInfos.recommended,
-      Typeahead.recommendationSize,
+      Typeahead.getRecommendationSize(props),
     );
   }
 
 }
 
 Typeahead.recommendationSize = 3;
+Typeahead.homeNullStateRecommendationSize = 6;
 
 Typeahead.propTypes = {
   currentNavID: React.PropTypes.string,
