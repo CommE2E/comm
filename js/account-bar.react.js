@@ -90,7 +90,7 @@ class AccountBar extends React.Component {
         >
           {menu}
           <div className="account-button">
-            <span>logged in as </span>
+            <span>{"logged in as "}</span>
             <span className="username">{this.props.username}</span>
             {caret}
           </div>
@@ -100,15 +100,17 @@ class AccountBar extends React.Component {
       return (
         <div className={classes}>
           <div className="account-button">
-            <a
-              href="#"
-              onClick={this.onLogIn.bind(this)}
-            >Log in</a>
-            {" · "}
-            <a
-              href="#"
-              onClick={this.onRegister.bind(this)}
-            >Register</a>
+            <span>
+              <a
+                href="#"
+                onClick={this.onLogIn.bind(this)}
+              >Log in</a>
+              {" · "}
+              <a
+                href="#"
+                onClick={this.onRegister.bind(this)}
+              >Register</a>
+            </span>
           </div>
         </div>
       );

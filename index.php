@@ -241,8 +241,10 @@ if (user_logged_in()) {
 HTML;
 } else {
   echo <<<HTML
-            <a href="#">Log in</a> ·
-            <a href="#">Register</a>
+            <span>
+              <a href="#">Log in</a> ·
+              <a href="#">Register</a>
+            </span>
 
 HTML;
 }
