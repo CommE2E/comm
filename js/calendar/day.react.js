@@ -86,7 +86,8 @@ class Day extends React.Component {
     const tdClasses = classNames("day", { "current-day": isToday });
 
     let actionLinks = null;
-    if (this.state.hovered || Modernizr.touchevents) {
+    const hovered = this.state.hovered || Modernizr.touchevents;
+    if (hovered) {
       actionLinks = (
         <div
           className="action-links day-action-links"
@@ -143,7 +144,7 @@ class Day extends React.Component {
 
     const entryContainerClasses = classNames(
       "entry-container",
-      { "focused-entry-container": this.state.hovered },
+      { "focused-entry-container": hovered },
     );
     return (
       <td
