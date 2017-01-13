@@ -31,6 +31,7 @@ import { mapStateToUpdateStore } from './redux-utils'
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
+import IntroModal from './modals/intro-modal.react';
 
 type Props = {
   thisNavURLFragment: string,
@@ -66,7 +67,11 @@ class App extends React.Component {
 
   componentDidMount() {
     if (!this.props.currentNavID) {
-      this.setModal(<div className="modal-overlay" />);
+      if (this.props.navInfo.home) {
+        this.setModal(<IntroModal />);
+      } else {
+        this.setModal(<div className="modal-overlay" />);
+      }
     }
     if (this.props.navInfo.verify) {
       if (this.props.verifyField === App.resetPassword) {
@@ -87,9 +92,10 @@ class App extends React.Component {
         if (prevState.currentModal !== null) {
           return prevState;
         }
-        return update(prevState, { currentModal: {
-          $set: <div className="modal-overlay" />,
-        }});
+        const overlay = props.navInfo.home
+          ? <IntroModal />
+          : <div className="modal-overlay" />;
+        return update(prevState, { currentModal: { $set: overlay }});
       });
     } else if (this.props.currentNavID && !prevProps.currentNavID) {
       // This can't be done in componentWillReceiveProps since it looks at props
@@ -215,6 +221,8 @@ class App extends React.Component {
   clearModal() {
     if (this.props.currentNavID) {
       this.setState({ currentModal: null });
+    } else if (this.props.navInfo.home) {
+      this.setModal(<IntroModal />);
     } else {
       this.setModal(<div className="modal-overlay" />);
     }

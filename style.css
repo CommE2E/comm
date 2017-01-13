@@ -1102,3 +1102,33 @@ div.color-picker-selector {
   left: 4px;
   top: 34px;
 }
+
+div.intro-modal {
+  padding: 10px 21px 12px 21px;
+  border-radius: 5px;
+  border: 1px solid #C8C8C8;
+  background-color: #F8F8F8;
+  width: 306px;
+  position: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+}
+h3.intro-modal-welcome {
+  text-align: center;
+  padding-bottom: 8px;
+  font-weight: 600;
+  font-size: 21px;
+}
+span.bold {
+  font-weight: 600;
+}
+div.intro-modal ol {
+  margin-left: 10px;
+}
+div.intro-modal ol > li {
+  padding-bottom: 6px;
+}
+div.intro-modal ol > li:last-child {
+  padding-bottom: 0;
+}
