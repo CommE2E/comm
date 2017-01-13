@@ -47,11 +47,22 @@ if (!$home && !isset($calendar_infos[$calendar])) {
     exit;
   }
 }
+$current_calendar_authorized = !$home
+  && isset($calendar_infos[$calendar])
+  && $calendar_infos[$calendar]['authorized'];
 
 $month_beginning_timestamp = date_create("$month/1/$year");
 if ($month < 1 || $month > 12) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
+}
+
+$subscription_exists = false;
+foreach ($calendar_infos as $calendar_info) {
+  if ($calendar_info['subscribed']) {
+    $subscription_exists = true;
+    break;
+  }
 }
 
 $verify_rewrite_matched = preg_match(
@@ -200,56 +211,15 @@ echo <<<HTML
 HTML;
 if (user_logged_in()) {
   echo <<<HTML
-            <span>logged in as </span>
-            <span class="username">$username</span>
-            <svg
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              xml:space="preserve"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
-              viewBox="0 0 8 8"
-              preserveAspectRatio="none"
-              height="10px"
-              width="10px"
-              class="account-caret"
-            >
-              <path d="M4 2l-4 4h8l-4-4z"></path>
-            </svg>
+            <span>logged in as $username</span>
 
 HTML;
 } else {
   echo <<<HTML
-            <span>
-              <a href="#">Log in</a> ·
-              <a href="#">Register</a>
-            </span>
+            <span>Log in · Register</span>
 
 HTML;
 }
-
-if ($home) {
-  $nav_url_fragment = "home/";
-} else {
-  $nav_url_fragment = "calendar/{$calendar}/";
-}
-
-$prev_month = $month - 1;
-$year_of_prev_month = $year;
-if ($prev_month === 0) {
-  $prev_month = 12;
-  $year_of_prev_month = $year - 1;
-}
-$prev_url = $nav_url_fragment .
-  "year/{$year_of_prev_month}/month/{$prev_month}/";
-
-$next_month = $month + 1;
-$year_of_next_month = $year;
-if ($next_month === 13) {
-  $next_month = 1;
-  $year_of_next_month = $year + 1;
-}
-$next_url = $nav_url_fragment .
-  "year/{$year_of_next_month}/month/{$next_month}/";
 
 $month_name = $month_beginning_timestamp->format('F');
 
@@ -257,12 +227,18 @@ echo <<<HTML
           </div>
         </div>
         <h2 class="upper-center">
-          <a href="{$prev_url}" class="previous-month-link">&lt;</a>
           $month_name $year
-          <a href="{$next_url}" class="next-month-link">&gt;</a>
         </h2>
       </header>
+
+HTML;
+if (($home && !$subscription_exists) || !$current_calendar_authorized) {
+  echo <<<HTML
       <div class="modal-overlay"></div>
+
+HTML;
+}
+echo <<<HTML
     </div>
 
 HTML;

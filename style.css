@@ -424,9 +424,7 @@ div.account-menu > div {
 span.username {
   display: inline-block;
   color: #2A5DB0;
-}
-span.username:hover {
-  cursor: default;
+  cursor: pointer;
 }
 svg.account-caret {
   padding-left: 6px;
