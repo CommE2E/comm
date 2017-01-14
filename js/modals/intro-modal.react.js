@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-import { LeftPager, RightPager, DownArrow } from '../vectors.react';
 import LogInModal from './account/log-in-modal.react';
 import RegisterModal from './account/register-modal.react';
 
@@ -13,9 +12,6 @@ type Props = {
 type State = {
   screenWidth: number,
   screenHeight: number,
-  showFirstGuide: bool,
-  showSecondGuide: bool,
-  showThirdGuide: bool,
 };
 
 class IntroModal extends React.Component {
@@ -32,9 +28,6 @@ class IntroModal extends React.Component {
     this.state = {
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
-      showFirstGuide: false,
-      showSecondGuide: false,
-      showThirdGuide: false,
     };
     this.onResizeCallback = this.onResize.bind(this);
   }
@@ -55,8 +48,7 @@ class IntroModal extends React.Component {
   }
 
   render() {
-    const maxWidth = (350 + 432 + 60 + IntroModal.maxDistanceFromTypeahead);
-    if (this.state.screenWidth < maxWidth || this.state.screenHeight < 310) {
+    if (this.state.screenWidth < 782 || this.state.screenHeight < 310) {
       return <div className="modal-overlay" />;
     }
     let modalLeft = (this.state.screenWidth - 350) / 2;
@@ -69,49 +61,6 @@ class IntroModal extends React.Component {
       modalLeft = 0;
     }
 
-    const firstOutlineWidth = modalLeft - 10;
-    const secondOutlineLeft = modalLeft + 360;
-    const secondOutlineWidth = typeaheadLeftEdge - secondOutlineLeft - 10;
-
-    const thirdOutlineWidth = modalLeft + 175;
-
-    let firstGuide = null;
-    if (this.state.showFirstGuide) {
-      firstGuide = (
-        <div
-          className="intro-first-outline-container"
-          style={{ width: firstOutlineWidth }}
-        >
-          <div className="intro-first-outline" />
-          <DownArrow className="intro-first-outline-arrow" />
-        </div>
-      );
-    }
-    let secondGuide = null;
-    if (this.state.showSecondGuide) {
-      secondGuide = (
-        <div
-          className="intro-second-outline-container"
-          style={{ left: secondOutlineLeft, width: secondOutlineWidth }}
-        >
-          <div className="intro-second-outline" />
-          <RightPager className="intro-second-outline-arrow" />
-        </div>
-      );
-    }
-    let thirdGuide = null;
-    if (this.state.showThirdGuide) {
-      thirdGuide = (
-        <div
-          className="intro-third-outline-container"
-          style={{ width: thirdOutlineWidth }}
-        >
-          <div className="intro-third-outline" />
-          <LeftPager className="intro-third-outline-arrow" />
-        </div>
-      );
-    }
-
     return (
       <div className="modal-overlay">
         <div className="intro-modal" style={{ left: modalLeft }}>
@@ -121,35 +70,24 @@ class IntroModal extends React.Component {
               {"If you already have an account, "}
               <a
                 onClick={this.onLogIn.bind(this)}
-                onMouseOver={() => this.setState({ showFirstGuide: true })}
-                onMouseOut={() => this.setState({ showFirstGuide: false })}
                 className="intro-link"
               >log in</a>.
             </li>
             <li>
               If you're just browsing, have a look at some calendars and
               {" maybe "}
-              <span
-                onMouseOver={() => this.setState({ showSecondGuide: true })}
-                onMouseOut={() => this.setState({ showSecondGuide: false })}
-                className="intro-guide"
-              >subscribe</span>.
+              <span className="intro-guide">subscribe</span>.
             </li>
             <li>
               If you want to save your subscriptions or create a new
-              {"calendar, "}
+              {" calendar, "}
               <a
                 onClick={this.onRegister.bind(this)}
-                onMouseOver={() => this.setState({ showThirdGuide: true })}
-                onMouseOut={() => this.setState({ showThirdGuide: false })}
                 className="intro-link"
               >register</a> an account.
             </li>
           </ol>
         </div>
-        {firstGuide}
-        {secondGuide}
-        {thirdGuide}
       </div>
     );
   }
@@ -176,7 +114,7 @@ class IntroModal extends React.Component {
 
 }
 
-IntroModal.maxDistanceFromTypeahead = 50;
+IntroModal.maxDistanceFromTypeahead = 30;
 
 IntroModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
