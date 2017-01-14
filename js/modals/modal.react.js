@@ -4,7 +4,7 @@ import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 
-export type ModalSize = "large" | "small";
+export type ModalSize = "small" | "large";
 type Props = {
   name: string,
   onClose: () => void,
@@ -26,6 +26,7 @@ class Modal extends React.Component {
   render() {
     const overlayClasses = classNames(
       "modal-overlay",
+      { "small-modal-overlay": this.props.size === "small" },
       { "large-modal-overlay": this.props.size === "large" },
     );
     const modalClasses = classNames(
@@ -69,7 +70,7 @@ class Modal extends React.Component {
 Modal.propTypes = {
   name: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
-  size: React.PropTypes.string,
+  size: React.PropTypes.oneOf(["small", "large"]),
 }
 
 Modal.defaultProps = {

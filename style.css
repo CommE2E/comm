@@ -441,9 +441,11 @@ div.modal-overlay {
   z-index: 3;
   width: 100%;
   height: 100%;
-  padding-top: 100px;
   background-color: rgba(0,0,0,0.4);
   overflow: auto;
+}
+div.small-modal-overlay {
+  padding-top: 100px;
 }
 div.large-modal-overlay {
   padding-top: 50px;
@@ -1113,6 +1115,7 @@ div.intro-modal {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
+  margin-top: 100px;
 }
 h3.intro-modal-welcome {
   text-align: center;
