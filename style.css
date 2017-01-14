@@ -1110,36 +1110,11 @@ div.intro-modal {
   border-radius: 5px;
   border: 1px solid #C8C8C8;
   background-color: #F8F8F8;
-  width: 306px;
+  width: 310px;
   position: fixed;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
   margin-top: 100px;
-}
-h3.intro-modal-welcome {
-  text-align: center;
-  padding-bottom: 8px;
-  font-weight: 600;
-  font-size: 21px;
-}
-a.intro-link {
-  font-weight: 600;
-  cursor: pointer;
-}
-a.intro-link:hover {
-  text-decoration: underline;
-}
-span.intro-guide {
-  color: #2A5DB0;
-  font-weight: 600;
-}
-div.intro-modal ol {
-  margin-left: 10px;
-}
-div.intro-modal ol > li {
-  padding-bottom: 6px;
-}
-div.intro-modal ol > li:last-child {
-  padding-bottom: 0;
+  box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
 }
