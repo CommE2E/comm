@@ -68,7 +68,12 @@ class App extends React.Component {
   componentDidMount() {
     if (!this.props.currentNavID) {
       if (this.props.navInfo.home) {
-        this.setModal(<IntroModal />);
+        this.setModal(
+          <IntroModal
+            setModal={this.setModal.bind(this)}
+            clearModal={this.clearModal.bind(this)}
+          />
+        );
       } else {
         this.setModal(<div className="modal-overlay" />);
       }
@@ -93,7 +98,10 @@ class App extends React.Component {
           return prevState;
         }
         const overlay = props.navInfo.home
-          ? <IntroModal />
+          ? <IntroModal
+              setModal={this.setModal.bind(this)}
+              clearModal={this.clearModal.bind(this)}
+            />
           : <div className="modal-overlay" />;
         return update(prevState, { currentModal: { $set: overlay }});
       });
@@ -222,7 +230,12 @@ class App extends React.Component {
     if (this.props.currentNavID) {
       this.setState({ currentModal: null });
     } else if (this.props.navInfo.home) {
-      this.setModal(<IntroModal />);
+      this.setModal(
+        <IntroModal
+          setModal={this.setModal.bind(this)}
+          clearModal={this.clearModal.bind(this)}
+        />
+      );
     } else {
       this.setModal(<div className="modal-overlay" />);
     }

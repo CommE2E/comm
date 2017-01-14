@@ -1123,7 +1123,15 @@ h3.intro-modal-welcome {
   font-weight: 600;
   font-size: 21px;
 }
-span.bold {
+a.intro-link {
+  font-weight: 600;
+  cursor: pointer;
+}
+a.intro-link:hover {
+  text-decoration: underline;
+}
+span.intro-guide {
+  color: #2A5DB0;
   font-weight: 600;
 }
 div.intro-modal ol {
@@ -1134,4 +1142,66 @@ div.intro-modal ol > li {
 }
 div.intro-modal ol > li:last-child {
   padding-bottom: 0;
+}
+div.intro-first-outline-container {
+  box-sizing: border-box;
+  position: fixed;
+  height: 100%;
+  padding-bottom: 40px;
+  padding-left: 40px;
+  padding-top: 151px;
+}
+div.intro-first-outline {
+  border-top: 2px solid #333333;
+  border-left: 2px solid #333333;
+  height: 100%;
+  width: 100%;
+  border-radius: 10px 0 0 0;
+}
+svg.intro-first-outline-arrow {
+  width: 24px;
+  position: relative;
+  right: 11px;
+  bottom: 14px;
+  fill: #333333;
+}
+div.intro-second-outline-container {
+  box-sizing: border-box;
+  position: fixed;
+  padding-top: 186px;
+}
+div.intro-second-outline {
+  border-top: 2px solid #333333;
+  height: 100%;
+  width: 100%;
+}
+svg.intro-second-outline-arrow {
+  float: right;
+  width: 24px;
+  position: relative;
+  left: 10px;
+  bottom: 13px;
+  fill: #333333;
+}
+div.intro-third-outline-container {
+  box-sizing: border-box;
+  position: fixed;
+  padding-top: 289px;
+  padding-left: 158px;
+  padding-bottom: 16px;
+  height: 100%;
+}
+div.intro-third-outline {
+  border-bottom: 2px solid #333333;
+  border-right: 2px solid #333333;
+  border-radius: 0 0 10px 0;
+  height: 100%;
+  width: 100%;
+}
+svg.intro-third-outline-arrow {
+  width: 24px;
+  position: relative;
+  bottom: 13px;
+  right: 9px;
+  fill: #333333;
 }
