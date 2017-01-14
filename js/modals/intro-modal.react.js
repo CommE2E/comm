@@ -12,6 +12,9 @@ type State = {
 class IntroModal extends React.Component {
 
   static maxDistanceFromTypeahead;
+  // This needs to be bound, but we need to pass the same reference to
+  // window.removeEventListener that we pass to window.addEventListener
+  onResizeCallback: () => void;
   props: Props;
   state: State;
 
@@ -21,10 +24,15 @@ class IntroModal extends React.Component {
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
     };
+    this.onResizeCallback = this.onResize.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener("resize", this.onResize.bind(this));
+    window.addEventListener("resize", this.onResizeCallback);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResizeCallback);
   }
 
   onResize() {
