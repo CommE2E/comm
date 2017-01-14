@@ -47,9 +47,6 @@ if (!$home && !isset($calendar_infos[$calendar])) {
     exit;
   }
 }
-$current_calendar_authorized = !$home
-  && isset($calendar_infos[$calendar])
-  && $calendar_infos[$calendar]['authorized'];
 
 $month_beginning_timestamp = date_create("$month/1/$year");
 if ($month < 1 || $month > 12) {
@@ -57,12 +54,18 @@ if ($month < 1 || $month > 12) {
   exit;
 }
 
-$subscription_exists = false;
-foreach ($calendar_infos as $calendar_info) {
-  if ($calendar_info['subscribed']) {
-    $subscription_exists = true;
-    break;
+$null_state = null;
+if ($home) {
+  $null_state = true;
+  foreach ($calendar_infos as $calendar_info) {
+    if ($calendar_info['subscribed']) {
+      $null_state = false;
+      break;
+    }
   }
+} else {
+  $null_state = isset($calendar_infos[$calendar])
+    && $calendar_infos[$calendar]['authorized'];
 }
 
 $verify_rewrite_matched = preg_match(
@@ -232,7 +235,7 @@ echo <<<HTML
       </header>
 
 HTML;
-if (($home && !$subscription_exists) || !$current_calendar_authorized) {
+if ($null_state) {
   echo <<<HTML
       <div class="modal-overlay"></div>
 
