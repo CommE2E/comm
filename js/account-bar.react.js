@@ -24,6 +24,7 @@ type Props = {
   updateStore: UpdateStore,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
+  modalExists: bool,
 };
 type State = {
   expanded: bool,
@@ -52,7 +53,8 @@ class AccountBar extends React.Component {
   render() {
     const classes = classNames({
       'lower-left': true,
-      'lower-left-null-state': !this.props.currentNavID,
+      'lower-left-null-state': !this.props.currentNavID &&
+        !this.props.modalExists,
     });
     if (this.props.loggedIn) {
       let menu = null;
@@ -196,6 +198,7 @@ AccountBar.propTypes = {
   updateStore: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
+  modalExists: React.PropTypes.bool.isRequired,
 };
 
 export default connect(

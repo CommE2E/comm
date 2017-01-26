@@ -108,9 +108,7 @@ const searchIndex = createSelector(
         TypeaheadCalendarOption.secretText,
       );
     }
-    if (subscriptionExists) {
-      searchIndex.addEntry("home", TypeaheadActionOption.homeText);
-    }
+    searchIndex.addEntry("home", TypeaheadActionOption.homeText);
     for (const calendarID in calendarInfos) {
       const calendar = calendarInfos[calendarID];
       searchIndex.addEntry(
@@ -118,9 +116,7 @@ const searchIndex = createSelector(
         calendar.name + " " + calendar.description,
       );
     }
-    if (currentNavID) {
-      searchIndex.addEntry("new", TypeaheadActionOption.newText);
-    }
+    searchIndex.addEntry("new", TypeaheadActionOption.newText);
     return searchIndex;
   },
 );

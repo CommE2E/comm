@@ -20,6 +20,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
+  unfreezeTypeahead: (navID: string) => void,
   onTransition: () => void,
   frozen?: bool,
 };
@@ -54,6 +55,7 @@ class TypeaheadActionOption extends React.Component {
     if (this.props.navID === 'new') {
       this.props.freezeTypeahead(this.props.navID);
       const onClose = () => {
+        this.props.unfreezeTypeahead(this.props.navID);
         this.props.onTransition();
         this.props.clearModal();
       }
@@ -73,8 +75,8 @@ class TypeaheadActionOption extends React.Component {
         );
       }
     } else if (this.props.navID == 'home') {
-      this.props.onTransition();
       history.push(`home/${this.props.monthURL}`);
+      this.props.onTransition();
     } 
   }
 
@@ -91,6 +93,7 @@ TypeaheadActionOption.propTypes = {
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
+  unfreezeTypeahead: React.PropTypes.func.isRequired,
   onTransition: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
 };

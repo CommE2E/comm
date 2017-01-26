@@ -21,6 +21,7 @@ type Props = {
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
+  focusTypeahead: () => void,
   year: number,
   month: number,
   home: bool,
@@ -118,6 +119,15 @@ class TypeaheadOptionButtons extends React.Component {
       return;
     }
 
+    // If this subscription action causes us to leave the null home state, then
+    // we need to make sure that the typeahead is active iff it's focused. The
+    // default resolution in Typeahead would be to close the typeahead, but it's
+    // more natural to leave the typeahead open in this situation, so we choose
+    // to focus the typeahead input field instead.
+    if (!this.props.currentNavID && this.props.home && newSubscribed) {
+      this.props.focusTypeahead();
+    }
+
     const updateStoreCallback = () => {
       this.props.updateStore((prevState: AppState) => {
         const updateParam = { calendarInfos: {} };
@@ -161,6 +171,7 @@ TypeaheadOptionButtons.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
+  focusTypeahead: React.PropTypes.func.isRequired,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   home: React.PropTypes.bool.isRequired,

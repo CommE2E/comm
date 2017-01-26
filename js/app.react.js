@@ -48,6 +48,10 @@ type Props = {
   },
 };
 type State = {
+  // In null state cases, currentModal can be set to something, but modalExists
+  // will be false. This is because we need to know if a modal is overlaid over
+  // the null state
+  modalExists: bool,
   currentModal: ?React.Element<any>,
 };
 
@@ -60,19 +64,21 @@ class App extends React.Component {
 
   constructor(props: Props) {
     super(props);
+    let currentModal = null;
+    if (!props.currentNavID) {
+      if (props.navInfo.home) {
+        currentModal = <IntroModal />;
+      } else {
+        currentModal = <div className="modal-overlay" />;
+      }
+    }
     this.state = {
-      currentModal: null,
+      modalExists: false,
+      currentModal: currentModal,
     };
   }
 
   componentDidMount() {
-    if (!this.props.currentNavID) {
-      if (this.props.navInfo.home) {
-        this.setModal(<IntroModal />);
-      } else {
-        this.setModal(<div className="modal-overlay" />);
-      }
-    }
     if (this.props.navInfo.verify) {
       if (this.props.verifyField === App.resetPassword) {
         this.showResetPasswordModal();
@@ -86,21 +92,6 @@ class App extends React.Component {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!this.props.currentNavID && prevProps.currentNavID) {
-      // If there is no current modal, set a blank overlay
-      this.setState((prevState, props) => {
-        if (prevState.currentModal !== null) {
-          return prevState;
-        }
-        const overlay = props.navInfo.home
-          ? <IntroModal />
-          : <div className="modal-overlay" />;
-        return update(prevState, { currentModal: { $set: overlay }});
-      });
-    } else if (this.props.currentNavID && !prevProps.currentNavID) {
-      // This can't be done in componentWillReceiveProps since it looks at props
-      this.clearModal();
-    }
     if (this.props.verifyField === App.resetPassword) {
       if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
         this.clearModal();
@@ -117,20 +108,6 @@ class App extends React.Component {
         newCalendarID: { $set: null },
       }));
     }
-    // Whenever parameters change we should re-request the page
-    if (
-      this.props.currentNavID &&
-      (this.props.currentNavID !== prevProps.currentNavID ||
-        this.props.navInfo.year !== prevProps.navInfo.year ||
-        this.props.navInfo.month !== prevProps.navInfo.month)
-    ) {
-      fetchEntriesAndUpdateStore(
-        this.props.navInfo.year,
-        this.props.navInfo.month,
-        this.props.currentNavID,
-        this.props.updateStore,
-      ).then();
-    }
   }
 
   showResetPasswordModal() {
@@ -144,22 +121,54 @@ class App extends React.Component {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(newProps.location.pathname);
-      if (_.isEqual(newNavInfo, newProps.navInfo)) {
-        return;
+      if (!_.isEqual(newNavInfo, newProps.navInfo)) {
+        const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
+        this.props.updateStore((prevState: AppState) => update(prevState, {
+          navInfo: updateObj,
+        }));
       }
-      const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        navInfo: updateObj,
-      }));
     } else if (!_.isEqual(newProps.navInfo, this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
         newProps.navInfo,
         newProps.location.pathname,
       );
-      if (newURL === newProps.location.pathname) {
-        return;
+      if (newURL !== newProps.location.pathname) {
+        history.replace(newURL);
       }
-      history.replace(newURL);
+    }
+
+    if (!this.state.modalExists) {
+      let newModal = undefined;
+      if (
+        (newProps.navInfo.home && !newProps.currentNavID) &&
+        (!this.props.navInfo.home || this.props.currentNavID)
+      ) {
+        newModal = <IntroModal />;
+      } else if (
+        (newProps.navInfo.calendarID && !newProps.currentNavID) &&
+        (!this.props.navInfo.calendarID || this.props.currentNavID)
+      ) {
+        newModal = <div className="modal-overlay" />;
+      } else if (newProps.currentNavID && !this.props.currentNavID) {
+        newModal = null;
+      }
+      if (newModal !== undefined) {
+        this.setState({ currentModal: newModal });
+      }
+    }
+
+    if (
+      newProps.currentNavID &&
+      (newProps.currentNavID !== this.props.currentNavID ||
+        newProps.navInfo.year !== this.props.navInfo.year ||
+        newProps.navInfo.month !== this.props.navInfo.month)
+    ) {
+      fetchEntriesAndUpdateStore(
+        newProps.navInfo.year,
+        newProps.navInfo.month,
+        newProps.currentNavID,
+        newProps.updateStore,
+      ).then();
     }
   }
 
@@ -189,11 +198,13 @@ class App extends React.Component {
             <Typeahead
               setModal={this.setModal.bind(this)}
               clearModal={this.clearModal.bind(this)}
+              modalExists={this.state.modalExists}
             />
           </div>
           <AccountBar
             setModal={this.setModal.bind(this)}
             clearModal={this.clearModal.bind(this)}
+            modalExists={this.state.modalExists}
           />
           <h2 className="upper-center">
             <Link to={prevURL} className="previous-month-link">&lt;</Link>
@@ -215,17 +226,23 @@ class App extends React.Component {
   }
 
   setModal(modal: React.Element<any>) {
-    this.setState({ currentModal: modal });
+    this.setState({
+      currentModal: modal,
+      modalExists: true,
+    });
   }
 
   clearModal() {
-    if (this.props.currentNavID) {
-      this.setState({ currentModal: null });
-    } else if (this.props.navInfo.home) {
-      this.setModal(<IntroModal />);
-    } else {
-      this.setModal(<div className="modal-overlay" />);
+    let currentModal = null;
+    if (!this.props.currentNavID && this.props.navInfo.home) {
+      currentModal = <IntroModal />;
+    } else if (!this.props.currentNavID) {
+      currentModal = <div className="modal-overlay" />;
     }
+    this.setState({
+      currentModal,
+      modalExists: false,
+    });
   }
 
 }

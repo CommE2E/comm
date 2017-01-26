@@ -64,8 +64,8 @@ if ($home) {
     }
   }
 } else {
-  $null_state = isset($calendar_infos[$calendar])
-    && $calendar_infos[$calendar]['authorized'];
+  $null_state = !isset($calendar_infos[$calendar])
+    || !$calendar_infos[$calendar]['authorized'];
 }
 
 $verify_rewrite_matched = preg_match(

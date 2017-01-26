@@ -13,7 +13,7 @@ import invariant from 'invariant';
 import update from 'immutability-helper';
 
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
-import { monthURL } from '../nav-utils';
+import { currentNavID, monthURL } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
 import history from '../router-history';
 import LoadingIndicator from '../loading-indicator.react';
@@ -23,12 +23,16 @@ type Props = {
   calendarInfo?: CalendarInfo,
   secretCalendarID?: string,
   monthURL: string,
+  currentNavID: ?string,
+  currentCalendarID: ?string,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
+  focusTypeahead: () => void,
   onTransition: () => void,
   frozen?: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
+  typeaheadFocused: bool,
   updateStore: UpdateStore,
 };
 type State = {
@@ -50,13 +54,30 @@ class TypeaheadCalendarOption extends React.Component {
     super(props);
     this.state = {
       passwordEntryValue: "",
-      passwordEntryOpen: false,
+      passwordEntryOpen:
+        TypeaheadCalendarOption.forCurrentAndUnauthorizedCalendar(props),
       passwordEntryLoadingStatus: "inactive",
     };
   }
 
-  openAndFocusPasswordEntry() {
-    this.setState({ passwordEntryOpen: true });
+  // This function tells you if the calendar this nav option represents is the
+  // one we are currently navigated to, AND we aren't authorized to view it, AND
+  // this nav option isn't being shown as part of search results.
+  static forCurrentAndUnauthorizedCalendar(props: Props) {
+    return !props.currentNavID &&
+      props.currentCalendarID === TypeaheadCalendarOption.getID(props) &&
+      !props.typeaheadFocused;
+  }
+
+  componentDidMount() {
+    if (TypeaheadCalendarOption.forCurrentAndUnauthorizedCalendar(this.props)) {
+      this.props.freezeTypeahead(TypeaheadCalendarOption.getID(this.props));
+      this.focusPasswordEntry();
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
   }
 
   focusPasswordEntry() {
@@ -135,6 +156,7 @@ class TypeaheadCalendarOption extends React.Component {
           clearModal={this.props.clearModal}
           freezeTypeahead={this.props.freezeTypeahead}
           unfreezeTypeahead={this.props.unfreezeTypeahead}
+          focusTypeahead={this.props.focusTypeahead}
         />
       );
       name = this.props.calendarInfo.name;
@@ -146,7 +168,8 @@ class TypeaheadCalendarOption extends React.Component {
         className={classNames({
           'calendar-nav-option': true,
           'calendar-nav-open-option': this.state.passwordEntryOpen,
-          'calendar-nav-frozen-option': this.props.frozen,
+          'calendar-nav-frozen-option': this.props.frozen ||
+            this.state.passwordEntryOpen,
         })}
         onClick={this.onClick.bind(this)}
       >
@@ -163,21 +186,19 @@ class TypeaheadCalendarOption extends React.Component {
     );
   }
 
-  getID() {
-    const id = this.props.calendarInfo
-      ? this.props.calendarInfo.id
-      : this.props.secretCalendarID;
+  static getID(props: Props) {
+    const id = props.calendarInfo
+      ? props.calendarInfo.id
+      : props.secretCalendarID;
     invariant(id, "id should exist");
     return id;
   }
 
   async onClick(event: SyntheticEvent) {
-    const id = this.getID();
+    const id = TypeaheadCalendarOption.getID(this.props);
     if (this.props.calendarInfo && this.props.calendarInfo.authorized) {
+      history.push(`calendar/${id}/${this.props.monthURL}`);
       this.props.onTransition();
-      history.push(
-        `calendar/${id}/${this.props.monthURL}`,
-      );
     } else {
       this.props.freezeTypeahead(id);
       this.setState({ passwordEntryOpen: true });
@@ -192,7 +213,7 @@ class TypeaheadCalendarOption extends React.Component {
 
   onPasswordEntryBlur(event: SyntheticEvent) {
     this.setState({ passwordEntryOpen: false });
-    this.props.unfreezeTypeahead(this.getID());
+    this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
@@ -216,7 +237,7 @@ class TypeaheadCalendarOption extends React.Component {
     event.preventDefault();
 
     this.setState({ passwordEntryLoadingStatus: "loading" });
-    const id = this.getID();
+    const id = TypeaheadCalendarOption.getID(this.props);
     const response = await fetchJSON('auth_calendar.php', {
       'calendar': id,
       'password': this.state.passwordEntryValue,
@@ -230,10 +251,13 @@ class TypeaheadCalendarOption extends React.Component {
           calendarInfos: updateObj,
         });
       });
+      this.props.unfreezeTypeahead(id);
       this.props.onTransition();
-      history.push(
-        `calendar/${id}/${this.props.monthURL}`,
-      );
+      if (this.props.currentCalendarID !== id) {
+        history.push(
+          `calendar/${id}/${this.props.monthURL}`,
+        );
+      }
     } else {
       this.setState(
         {
@@ -253,12 +277,16 @@ TypeaheadCalendarOption.propTypes = {
   calendarInfo: calendarInfoPropType,
   secretCalendarID: React.PropTypes.string,
   monthURL: React.PropTypes.string.isRequired,
+  currentNavID: React.PropTypes.string,
+  currentCalendarID: React.PropTypes.string,
   freezeTypeahead: React.PropTypes.func.isRequired,
   unfreezeTypeahead: React.PropTypes.func.isRequired,
+  focusTypeahead: React.PropTypes.func.isRequired,
   onTransition: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
+  typeaheadFocused: React.PropTypes.bool.isRequired,
   updateStore: React.PropTypes.func.isRequired,
 };
 
@@ -266,12 +294,11 @@ TypeaheadCalendarOption.defaultProps = {
   frozen: false,
 };
 
-type OwnProps = { calendarInfo: CalendarInfo };
 export default connect(
-  (state: AppState, ownProps: OwnProps) => ({
+  (state: AppState) => ({
     monthURL: monthURL(state),
+    currentNavID: currentNavID(state),
+    currentCalendarID: state.navInfo.calendarID,
   }),
   mapStateToUpdateStore,
-  undefined,
-  { 'withRef': true },
 )(TypeaheadCalendarOption);
