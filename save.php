@@ -122,7 +122,7 @@ if (
 }
 
 $multi_query = "UPDATE entries SET last_update = $timestamp, ".
-  "text = '$text' WHERE id = $entry_id; "
+  "text = '$text' WHERE id = $entry_id; ";
 if (
   $viewer_id === intval($last_revision_row['author']) &&
   $session_id === $last_revision_row['session_id'] &&
@@ -152,7 +152,7 @@ if (
   $multi_query .=
     "INSERT INTO revisions(id, entry, author, text, creation_time, ".
       "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
-      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0);"
+      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0);";
 }
 $conn->multi_query($multi_query);
 
