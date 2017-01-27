@@ -120,16 +120,17 @@ if (
     'error' => 'database_corruption',
   )));
 }
+
+$multi_query = "UPDATE entries SET last_update = $timestamp, ".
+  "text = '$text' WHERE id = $entry_id; "
 if (
   $viewer_id === intval($last_revision_row['author']) &&
   $session_id === $last_revision_row['session_id'] &&
   intval($last_revision_row['last_update']) + 120000 > $timestamp
 ) {
   $revision_id = $last_revision_row['id'];
-  $conn->query(
-    "UPDATE revisions SET last_update = $timestamp, text = '$text' ".
-      "WHERE id = $revision_id"
-  );
+  $multi_query .= "UPDATE revisions SET last_update = $timestamp, ".
+    "text = '$text' WHERE id = $revision_id;";
 } else if (
   $session_id !== $last_revision_row['session_id'] &&
   $_POST['prev_text'] !== $last_revision_row['text']
@@ -148,16 +149,12 @@ if (
 } else {
   $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
   $revision_id = $conn->insert_id;
-  $conn->query(
+  $multi_query .=
     "INSERT INTO revisions(id, entry, author, text, creation_time, ".
       "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
-      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0)"
-  );
+      "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0);"
 }
-$conn->query(
-  "UPDATE entries SET last_update = $timestamp, text = '$text' ".
-    "WHERE id = $entry_id"
-);
+$conn->multi_query($multi_query);
 
 exit(json_encode(array(
   'success' => true,
