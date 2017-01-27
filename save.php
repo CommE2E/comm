@@ -33,7 +33,7 @@ if ($entry_id === -1) {
   $day_id = get_editable_day_id($calendar, $day, $month, $year);
 } else {
   $result = $conn->query(
-    "SELECT day, deleted, text FROM entries WHERE id = $entry_id"
+    "SELECT day, deleted FROM entries WHERE id = $entry_id"
   );
   $entry_row = $result->fetch_assoc();
   if (!$entry_row) {
@@ -103,8 +103,10 @@ if ($entry_id === -1) {
 }
 
 $result = $conn->query(
-  "SELECT id, author, text, session_id, last_update, deleted FROM revisions ".
-    "WHERE entry = $entry_id ORDER BY last_update DESC LIMIT 1"
+  "SELECT r.id, r.author, r.text, r.session_id, ".
+    "r.last_update, r.deleted, e.text AS entry_text ".
+    "FROM revisions r LEFT JOIN entries e ON r.entry = e.id ".
+    "WHERE r.entry = $entry_id ORDER BY r.last_update DESC LIMIT 1"
 );
 $last_revision_row = $result->fetch_assoc();
 if (!$last_revision_row) {
@@ -114,7 +116,7 @@ if (!$last_revision_row) {
 }
 if (
   $last_revision_row['deleted'] ||
-  $last_revision_row['text'] !== $entry_row['text']
+  $last_revision_row['text'] !== $last_revision_row['entry_text']
 ) {
   exit(json_encode(array(
     'error' => 'database_corruption',
