@@ -50,7 +50,7 @@ $conn->query(
     "WHERE u.id = $user"
 );
 
-// TODO figure out what to do what calendars this account admins
+// TODO figure out what to do with calendars this account admins
 
 delete_cookie('user');
 $anonymous_viewer = init_anonymous_cookie();

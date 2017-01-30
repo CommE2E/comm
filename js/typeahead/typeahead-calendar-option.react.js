@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
+import css from '../style.css';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import { currentNavID, monthURL } from '../nav-utils';
 import { mapStateToUpdateStore } from '../redux-utils'
@@ -98,7 +99,7 @@ class TypeaheadCalendarOption extends React.Component {
     let descriptionDiv = null;
     if (this.props.calendarInfo && this.props.calendarInfo.description) {
       descriptionDiv = (
-        <div className="calendar-nav-option-description">
+        <div className={css['calendar-nav-option-description']}>
           <TextTruncate
             line={2}
             text={this.props.calendarInfo.description}
@@ -109,22 +110,22 @@ class TypeaheadCalendarOption extends React.Component {
     let passwordEntry = null;
     if (this.state.passwordEntryOpen) {
       passwordEntry =
-        <div className="calendar-password-entry">
+        <div className={css['calendar-password-entry']}>
           <input
             type="submit"
             value="Enter"
-            className="calendar-password-entry-submit"
+            className={css['calendar-password-entry-submit']}
             onClick={this.onSubmitPassword.bind(this)}
             disabled={this.state.passwordEntryLoadingStatus === "loading"}
           />
           <LoadingIndicator
             status={this.state.passwordEntryLoadingStatus}
-            className="calendar-pasword-entry-loading"
+            className={css['calendar-pasword-entry-loading']}
           />
-          <div className="calendar-password-entry-input-container">
+          <div className={css['calendar-password-entry-input-container']}>
             <input
               type="password"
-              className="calendar-password-entry-input"
+              className={css['calendar-password-entry-input']}
               value={this.state.passwordEntryValue}
               onChange={this.onPasswordEntryChange.bind(this)}
               onBlur={this.onPasswordEntryBlur.bind(this)}
@@ -145,7 +146,7 @@ class TypeaheadCalendarOption extends React.Component {
       };
       colorPreview = (
         <div
-          className="calendar-nav-color-preview"
+          className={css['calendar-nav-color-preview']}
           style={colorPreviewStyle}
         />
       );
@@ -166,9 +167,9 @@ class TypeaheadCalendarOption extends React.Component {
     return (
       <div
         className={classNames({
-          'calendar-nav-option': true,
-          'calendar-nav-open-option': this.state.passwordEntryOpen,
-          'calendar-nav-frozen-option': this.props.frozen ||
+          [css['calendar-nav-option']]: true,
+          [css['calendar-nav-open-option']]: this.state.passwordEntryOpen,
+          [css['calendar-nav-frozen-option']]: this.props.frozen ||
             this.state.passwordEntryOpen,
         })}
         onClick={this.onClick.bind(this)}
@@ -176,7 +177,7 @@ class TypeaheadCalendarOption extends React.Component {
         {colorPreview}
         <div>
           {optionButtons}
-          <div className="calendar-nav-option-name">
+          <div className={css['calendar-nav-option-name']}>
             {name}
           </div>
         </div>

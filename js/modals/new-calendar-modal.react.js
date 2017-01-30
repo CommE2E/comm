@@ -9,6 +9,7 @@ import invariant from 'invariant';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
+import css from '../style.css';
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
@@ -65,7 +66,7 @@ class NewCalendarModal extends React.Component {
     ) {
       calendarPasswordInputs = (
         <div>
-          <div className="form-enum-password">
+          <div className={css['form-enum-password']}>
             <input
               type="password"
               placeholder="New calendar password"
@@ -75,7 +76,7 @@ class NewCalendarModal extends React.Component {
               ref={(input) => this.calendarPasswordInput = input}
             />
           </div>
-          <div className="form-enum-password">
+          <div className={css['form-enum-password']}>
             <input
               type="password"
               placeholder="Confirm calendar password"
@@ -97,11 +98,11 @@ class NewCalendarModal extends React.Component {
         : null;
     return (
       <Modal name="New calendar" onClose={this.props.onClose} size="large">
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
             <div>
-              <div className="form-title">Calendar name</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Calendar name</div>
+              <div className={css['form-content']}>
                 <input
                   type="text"
                   value={this.state.name}
@@ -112,9 +113,9 @@ class NewCalendarModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="form-textarea-container">
-              <div className="form-title">Description</div>
-              <div className="form-content">
+            <div className={css['form-textarea-container']}>
+              <div className={css['form-title']}>Description</div>
+              <div className={css['form-content']}>
                 <textarea
                   value={this.state.description}
                   placeholder="Calendar description"
@@ -123,11 +124,11 @@ class NewCalendarModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="new-calendar-privacy-container">
-              <div className="modal-radio-selector">
-                <div className="form-title">Visibility</div>
-                <div className="form-enum-selector">
-                  <div className="form-enum-container">
+            <div className={css['new-calendar-privacy-container']}>
+              <div className={css['modal-radio-selector']}>
+                <div className={css['form-title']}>Visibility</div>
+                <div className={css['form-enum-selector']}>
+                  <div className={css['form-enum-container']}>
                     <input
                       type="radio"
                       name="new-calendar-type"
@@ -140,16 +141,16 @@ class NewCalendarModal extends React.Component {
                       disabled={this.state.inputDisabled}
                       ref={(input) => this.openPrivacyInput = input}
                     />
-                    <div className="form-enum-option">
+                    <div className={css['form-enum-option']}>
                       <label htmlFor="new-calendar-open">
                         Open
-                        <span className="form-enum-description">
+                        <span className={css['form-enum-description']}>
                           Anybody can view the contents of an open calendar.
                         </span>
                       </label>
                     </div>
                   </div>
-                  <div className="form-enum-container">
+                  <div className={css['form-enum-container']}>
                     <input
                       type="radio"
                       name="new-calendar-type"
@@ -161,10 +162,10 @@ class NewCalendarModal extends React.Component {
                       onChange={this.onChangeClosed.bind(this)}
                       disabled={this.state.inputDisabled}
                     />
-                    <div className="form-enum-option">
+                    <div className={css['form-enum-option']}>
                       <label htmlFor="new-calendar-closed">
                         Closed
-                        <span className="form-enum-description">
+                        <span className={css['form-enum-description']}>
                           Only people with the password can view the contents of
                           a closed calendar.
                         </span>
@@ -172,7 +173,7 @@ class NewCalendarModal extends React.Component {
                       {closedPasswordEntry}
                     </div>
                   </div>
-                  <div className="form-enum-container">
+                  <div className={css['form-enum-container']}>
                     <input
                       type="radio"
                       name="new-calendar-type"
@@ -184,10 +185,10 @@ class NewCalendarModal extends React.Component {
                       onChange={this.onChangeClosed.bind(this)}
                       disabled={this.state.inputDisabled}
                     />
-                    <div className="form-enum-option">
+                    <div className={css['form-enum-option']}>
                       <label htmlFor="new-calendar-secret">
                         Secret
-                        <span className="form-enum-description">
+                        <span className={css['form-enum-description']}>
                           Only people with the password can view the calendar,
                           and it won't appear in search results or
                           recommendations. Share the URL and password with your
@@ -201,8 +202,10 @@ class NewCalendarModal extends React.Component {
               </div>
             </div>
             <div>
-              <div className="form-title color-title">Color</div>
-              <div className="form-content">
+              <div className={`${css['form-title']} ${css['color-title']}`}>
+                Color
+              </div>
+              <div className={css['form-content']}>
                 <ColorPicker
                   id="new-calendar-color"
                   value={this.state.color}
@@ -211,11 +214,11 @@ class NewCalendarModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
-              <span className="form-submit">
+              <span className={css['form-submit']}>
                 <input
                   type="submit"
                   value="Save"

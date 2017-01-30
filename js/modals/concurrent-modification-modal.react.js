@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import css from '../style.css';
 import Modal from './modal.react';
 
 type Props = {
@@ -12,13 +13,13 @@ type Props = {
 export default function ConcurrentModificationModal(props: Props) {
   return (
     <Modal name="Concurrent modification" onClose={props.onClose}>
-      <div className="modal-body">
+      <div className={css['modal-body']}>
         <p>
           It looks like somebody is attempting to modify that field at the
           same time as you! Please refresh the entry and try again.
         </p>
-        <div className="form-footer">
-          <span className="form-submit">
+        <div className={css['form-footer']}>
+          <span className={css['form-submit']}>
             <input
               type="submit"
               value="Refresh entry"

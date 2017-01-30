@@ -3,6 +3,8 @@
 import React from 'react';
 import { ChromePicker } from 'react-color';
 
+import css from '../style.css';
+
 type Props = {
   id: string,
   value: string,
@@ -32,7 +34,7 @@ class ColorPicker extends React.Component {
     let picker = null;
     if (this.state.pickerOpen) {
       picker = (
-        <div className="color-picker-selector">
+        <div className={css['color-picker-selector']}>
           <ChromePicker
             color={this.props.value}
             onChangeComplete={this.onChangeColor.bind(this)}
@@ -44,15 +46,15 @@ class ColorPicker extends React.Component {
     const style = { backgroundColor: `#${this.props.value}` };
     return (
       <div
-        className="color-picker-container"
+        className={css['color-picker-container']}
         tabIndex="0"
         onClick={() => this.setState({ pickerOpen: true })}
         onBlur={() => this.setState({ pickerOpen: false })}
         onKeyDown={this.onPickerKeyDown.bind(this)}
       >
-        <div className="color-picker-button">
-          <div className="color-picker-preview" style={style} />
-          <div className="color-picker-down-symbol">▼</div>
+        <div className={css['color-picker-button']}>
+          <div className={css['color-picker-preview']} style={style} />
+          <div className={css['color-picker-down-symbol']}>▼</div>
         </div>
         {picker}
       </div>

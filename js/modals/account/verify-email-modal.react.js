@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 export default function VerifyEmailModal(props: Props) {
   return (
     <Modal name="Verify email" onClose={props.onClose}>
-      <div className="modal-body">
+      <div className={css['modal-body']}>
         <p>
           We've sent you an email to verify your email address. Just click on
           the link in the email to complete the verification process.

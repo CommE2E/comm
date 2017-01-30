@@ -8,6 +8,7 @@ import update from 'immutability-helper';
 import classNames from 'classnames';
 import invariant from 'invariant';
 
+import css from './style.css';
 import fetchJSON from './fetch-json';
 import LogInModal from './modals/account/log-in-modal.react';
 import RegisterModal from './modals/account/register-modal.react';
@@ -52,8 +53,8 @@ class AccountBar extends React.Component {
 
   render() {
     const classes = classNames({
-      'lower-left': true,
-      'lower-left-null-state': !this.props.currentNavID &&
+      [css['lower-left']]: true,
+      [css['lower-left-null-state']]: !this.props.currentNavID &&
         !this.props.modalExists,
     });
     if (this.props.loggedIn) {
@@ -61,7 +62,7 @@ class AccountBar extends React.Component {
       if (this.state.expanded) {
         menu = (
           <div
-            className="account-menu"
+            className={css['account-menu']}
             tabIndex="0"
             onBlur={() => this.setState({ expanded: false })}
             onKeyDown={this.onMenuKeyDown.bind(this)}
@@ -83,17 +84,17 @@ class AccountBar extends React.Component {
         );
       }
       const caret = this.state.expanded
-        ? <DownCaret className="account-caret" />
-        : <UpCaret className="account-caret" />;
+        ? <DownCaret className={css['account-caret']} />
+        : <UpCaret className={css['account-caret']} />;
       return (
         <div
           className={classes}
           onMouseDown={this.onMouseDown.bind(this)}
         >
           {menu}
-          <div className="account-button">
+          <div className={css['account-button']}>
             <span>{"logged in as "}</span>
-            <span className="username">{this.props.username}</span>
+            <span className={css['username']}>{this.props.username}</span>
             {caret}
           </div>
         </div>
@@ -101,7 +102,7 @@ class AccountBar extends React.Component {
     } else {
       return (
         <div className={classes}>
-          <div className="account-button">
+          <div className={css['account-button']}>
             <span>
               <a
                 href="#"

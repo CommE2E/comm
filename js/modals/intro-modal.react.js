@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import css from '../style.css';
+
 type Props = {
 };
 type State = {
@@ -44,7 +46,7 @@ class IntroModal extends React.Component {
 
   render() {
     if (this.state.screenWidth < 786 || this.state.screenHeight < 310) {
-      return <div className="modal-overlay" />;
+      return <div className={css['modal-overlay']} />;
     }
     let modalLeft = (this.state.screenWidth - 350) / 2;
     const rightEdge = modalLeft + 354;
@@ -57,8 +59,8 @@ class IntroModal extends React.Component {
     }
 
     return (
-      <div className="modal-overlay">
-        <div className="intro-modal" style={{ left: modalLeft }}>
+      <div className={css['modal-overlay']}>
+        <div className={css['intro-modal']} style={{ left: modalLeft }}>
           <p>
             You're home, but you're not subscribed to any calendars, so there's
             nothing to show. You can browse and subscribe to some calendars

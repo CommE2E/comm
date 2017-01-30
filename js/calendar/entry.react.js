@@ -14,6 +14,7 @@ import update from 'immutability-helper';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { colorIsDark } from '../calendar-utils';
 import fetchJSON from '../fetch-json';
@@ -128,37 +129,39 @@ class Entry extends React.Component {
         historyButton = (
           <a
             href="#"
-            className="entry-history-button"
+            className={css['entry-history-button']}
             onClick={this.onHistory.bind(this)}
           >
-            <HistoryVector className="history" />
-            <span className="action-links-text">History</span>
+            <HistoryVector className={css['history']} />
+            <span className={css['action-links-text']}>History</span>
           </a>
         );
       }
       actionLinks = (
-        <div className="action-links">
+        <div className={css['action-links']}>
           <a
             href="#"
-            className="delete-entry-button"
+            className={css['delete-entry-button']}
             onClick={this.onDelete.bind(this)}
           >
-            <DeleteVector className="delete" />
-            <span className="action-links-text">Delete</span>
+            <DeleteVector className={css['delete']} />
+            <span className={css['action-links-text']}>Delete</span>
           </a>
           {historyButton}
-          <span className="right-action-links action-links-text">
+          <span className={
+            `${css['right-action-links']} ${css['action-links-text']}`
+          }>
             {this.props.calendarInfo.name}
           </span>
-          <div className="clear"></div>
+          <div className={css['clear']}></div>
         </div>
       );
     }
 
     const entryClasses = classNames({
-      "entry": true,
-      "dark-entry": colorIsDark(this.props.calendarInfo.color),
-      "focused-entry": this.state.focused,
+      [css['entry']]: true,
+      [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
+      [css['focused-entry']]: this.state.focused,
     });
     const style = { backgroundColor: "#" + this.props.calendarInfo.color };
     return (
@@ -169,7 +172,7 @@ class Entry extends React.Component {
       >
         <textarea
           rows="1"
-          className="entry-text"
+          className={css['entry-text']}
           onChange={this.onChange.bind(this)}
           onKeyDown={this.onKeyDown.bind(this)}
           value={this.state.text}
@@ -180,7 +183,7 @@ class Entry extends React.Component {
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
-          className="entry-loading"
+          className={css['entry-loading']}
         />
         {actionLinks}
       </div>

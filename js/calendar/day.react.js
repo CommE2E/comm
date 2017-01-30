@@ -13,6 +13,7 @@ import update from 'immutability-helper';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
+import css from '../style.css';
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
 import { entryKey } from './entry-utils';
@@ -83,31 +84,31 @@ class Day extends React.Component {
     const isToday = today.getDate() === this.props.day &&
       today.getMonth() === this.props.month - 1 &&
       today.getFullYear() === this.props.year;
-    const tdClasses = classNames("day", { "current-day": isToday });
+    const tdClasses = classNames(css['day'], { [css['current-day']]: isToday });
 
     let actionLinks = null;
     const hovered = this.state.hovered || Modernizr.touchevents;
     if (hovered) {
       actionLinks = (
         <div
-          className="action-links day-action-links"
+          className={`${css['action-links']} ${css['day-action-links']}`}
           ref={(elem) => this.actionLinks = elem}
         >
           <a
             href="#"
-            className="add-entry-button"
+            className={css['add-entry-button']}
             onClick={this.onAddEntry.bind(this)}
           >
-            <AddVector className="add" />
-            <span className="action-links-text">Add</span>
+            <AddVector className={css['add']} />
+            <span className={css['action-links-text']}>Add</span>
           </a>
           <a
             href="#"
-            className="day-history-button"
+            className={css['day-history-button']}
             onClick={this.onHistory.bind(this)}
           >
-            <HistoryVector className="history" />
-            <span className="action-links-text">History</span>
+            <HistoryVector className={css['history']} />
+            <span className={css['action-links-text']}>History</span>
           </a>
         </div>
       );
@@ -143,8 +144,8 @@ class Day extends React.Component {
     }
 
     const entryContainerClasses = classNames(
-      "entry-container",
-      { "focused-entry-container": hovered },
+      css['entry-container'],
+      { [css['focused-entry-container']]: hovered },
     );
     return (
       <td
@@ -160,7 +161,7 @@ class Day extends React.Component {
         >
           {entries}
           <div
-            className="entry-container-spacer"
+            className={css['entry-container-spacer']}
             ref={(elem) => this.entryContainerSpacer = elem}
           />
         </div>

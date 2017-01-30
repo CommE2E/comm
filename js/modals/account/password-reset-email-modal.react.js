@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 export default function PasswordResetEmailModal(props: Props) {
   return (
     <Modal name="Password reset email sent" onClose={props.onClose}>
-      <div className="modal-body">
+      <div className={css['modal-body']}>
         <p>
           {"We've sent you an email with instructions on how to reset "}
           {"your password. Note that the email will expire in a day."}

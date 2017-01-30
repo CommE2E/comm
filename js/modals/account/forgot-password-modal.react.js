@@ -3,6 +3,7 @@
 import React from 'react';
 import invariant from 'invariant';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
@@ -41,11 +42,11 @@ class ForgotPasswordModal extends React.Component {
   render() {
     return (
       <Modal name="Reset password" onClose={this.props.onClose}>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
             <div>
-              <div className="form-title">Username</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Username</div>
+              <div className={css['form-content']}>
                 <input
                   type="text"
                   placeholder="Username or email"
@@ -56,11 +57,11 @@ class ForgotPasswordModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
-              <span className="form-submit">
+              <span className={css['form-submit']}>
                 <input
                   type="submit"
                   value="Reset"

@@ -17,6 +17,7 @@ import update from 'immutability-helper';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import css from '../style.css';
 import Modal from './modal.react';
 import fetchJSON from '../fetch-json';
 import ColorPicker from './color-picker.react';
@@ -70,8 +71,8 @@ class CalendarSettingsModal extends React.Component {
       mainContent = (
         <div>
           <div>
-            <div className="form-title">Calendar name</div>
-            <div className="form-content">
+            <div className={css['form-title']}>Calendar name</div>
+            <div className={css['form-content']}>
               <input
                 type="text"
                 value={this.state.calendarInfo.name}
@@ -81,9 +82,9 @@ class CalendarSettingsModal extends React.Component {
               />
             </div>
           </div>
-          <div className="form-textarea-container">
-            <div className="form-title">Description</div>
-            <div className="form-content">
+          <div className={css['form-textarea-container']}>
+            <div className={css['form-title']}>Description</div>
+            <div className={css['form-content']}>
               <textarea
                 value={this.state.calendarInfo.description}
                 placeholder="Calendar description"
@@ -92,9 +93,11 @@ class CalendarSettingsModal extends React.Component {
               ></textarea>
             </div>
           </div>
-          <div className="edit-calendar-color-container">
-            <div className="form-title color-title">Color</div>
-            <div className="form-content">
+          <div className={css['edit-calendar-color-container']}>
+            <div className={`${css['form-title']} ${css['color-title']}`}>
+              Color
+            </div>
+            <div className={css['form-content']}>
               <ColorPicker
                 id="edit-calendar-color"
                 value={this.state.calendarInfo.color}
@@ -119,7 +122,7 @@ class CalendarSettingsModal extends React.Component {
           : "Confirm calendar password";
         calendarPasswordInputs = (
           <div>
-            <div className="form-enum-password">
+            <div className={css['form-enum-password']}>
               <input
                 type="password"
                 placeholder={passwordPlaceholder}
@@ -129,7 +132,7 @@ class CalendarSettingsModal extends React.Component {
                 ref={(input) => this.newCalendarPasswordInput = input}
               />
             </div>
-            <div className="form-enum-password">
+            <div className={css['form-enum-password']}>
               <input
                 type="password"
                 placeholder={confirmPlaceholder}
@@ -150,11 +153,11 @@ class CalendarSettingsModal extends React.Component {
           ? calendarPasswordInputs
           : null;
       mainContent = (
-        <div className="edit-calendar-privacy-container">
-          <div className="modal-radio-selector">
-            <div className="form-title">Visibility</div>
-            <div className="form-enum-selector">
-              <div className="form-enum-container">
+        <div className={css['edit-calendar-privacy-container']}>
+          <div className={css['modal-radio-selector']}>
+            <div className={css['form-title']}>Visibility</div>
+            <div className={css['form-enum-selector']}>
+              <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-calendar-type"
@@ -167,16 +170,16 @@ class CalendarSettingsModal extends React.Component {
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-enum-option">
+                <div className={css['form-enum-option']}>
                   <label htmlFor="edit-calendar-open">
                     Open
-                    <span className="form-enum-description">
+                    <span className={css['form-enum-description']}>
                       Anybody can view the contents of an open calendar.
                     </span>
                   </label>
                 </div>
               </div>
-              <div className="form-enum-container">
+              <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-calendar-type"
@@ -189,10 +192,10 @@ class CalendarSettingsModal extends React.Component {
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-enum-option">
+                <div className={css['form-enum-option']}>
                   <label htmlFor="edit-calendar-closed">
                     Closed
-                    <span className="form-enum-description">
+                    <span className={css['form-enum-description']}>
                       Only people with the password can view the contents of
                       a closed calendar.
                     </span>
@@ -200,7 +203,7 @@ class CalendarSettingsModal extends React.Component {
                   {closedPasswordEntry}
                 </div>
               </div>
-              <div className="form-enum-container">
+              <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-calendar-type"
@@ -213,10 +216,10 @@ class CalendarSettingsModal extends React.Component {
                   onChange={this.onChangeClosed.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-enum-option">
+                <div className={css['form-enum-option']}>
                   <label htmlFor="edit-calendar-secret">
                     Secret
-                    <span className="form-enum-description">
+                    <span className={css['form-enum-description']}>
                       Only people with the password can view the calendar, and
                       it won't appear in search results or recommendations.
                       Share the URL and password with your friends to add them.
@@ -227,10 +230,10 @@ class CalendarSettingsModal extends React.Component {
               </div>
             </div>
           </div>
-          <div className="modal-radio-selector">
-            <div className="form-title">Who can edit?</div>
-            <div className="form-enum-selector">
-              <div className="form-enum-container">
+          <div className={css['modal-radio-selector']}>
+            <div className={css['form-title']}>Who can edit?</div>
+            <div className={css['form-enum-selector']}>
+              <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-calendar-edit-rules"
@@ -240,17 +243,17 @@ class CalendarSettingsModal extends React.Component {
                   onChange={this.onChangeEditRules.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-enum-option">
+                <div className={css['form-enum-option']}>
                   <label htmlFor="edit-calendar-edit-rules-anybody">
                     Anybody
-                    <span className="form-enum-description">
+                    <span className={css['form-enum-description']}>
                       Anybody who can view the contents of the calendar can also
                       edit them.
                     </span>
                   </label>
                 </div>
               </div>
-              <div className="form-enum-container">
+              <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-calendar-edit-rules"
@@ -260,10 +263,10 @@ class CalendarSettingsModal extends React.Component {
                   onChange={this.onChangeEditRules.bind(this)}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-enum-option">
+                <div className={css['form-enum-option']}>
                   <label htmlFor="edit-calendar-edit-rules-logged-in">
                     Logged In
-                    <span className="form-enum-description">
+                    <span className={css['form-enum-description']}>
                       Only users who are logged in can edit the contents of the
                       calendar.
                     </span>
@@ -277,7 +280,7 @@ class CalendarSettingsModal extends React.Component {
     } else if (this.state.currentTab === "delete") {
       mainContent = (
         <div>
-          <p className="italic">
+          <p className={css['italic']}>
             Your calendar will be permanently deleted. There is no way to
             reverse this.
           </p>
@@ -288,7 +291,7 @@ class CalendarSettingsModal extends React.Component {
     let buttons = null;
     if (this.state.currentTab === "delete") {
       buttons = (
-        <span className="form-submit">
+        <span className={css['form-submit']}>
           <input
             type="submit"
             value="Delete"
@@ -299,7 +302,7 @@ class CalendarSettingsModal extends React.Component {
       );
     } else {
       buttons = (
-        <span className="form-submit">
+        <span className={css['form-submit']}>
           <input
             type="submit"
             value="Save"
@@ -312,20 +315,20 @@ class CalendarSettingsModal extends React.Component {
 
     return (
       <Modal name="Calendar settings" onClose={this.props.onClose} size="large">
-        <ul className="tab-panel">
+        <ul className={css['tab-panel']}>
           {this.buildTab("general", "General")}
           {this.buildTab("privacy", "Privacy")}
           {this.buildTab("delete", "Delete")}
         </ul>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
             {mainContent}
-            <div className="edit-calendar-account-password">
-              <p className="confirm-account-password">
+            <div className={css['edit-calendar-account-password']}>
+              <p className={css['confirm-account-password']}>
                 Please enter your account password to confirm your identity
               </p>
-              <div className="form-title">Account password</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Account password</div>
+              <div className={css['form-content']}>
                 <input
                   type="password"
                   placeholder="Personal account password"
@@ -336,8 +339,8 @@ class CalendarSettingsModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
               {buttons}
@@ -351,8 +354,8 @@ class CalendarSettingsModal extends React.Component {
   buildTab(tab: Tab, name: string) {
     const currentTab = this.state.currentTab;
     const classNamesForTab = classNames({
-      'current-tab': currentTab === tab,
-      'delete-tab': currentTab === tab && tab === "delete",
+      [css['current-tab']]: currentTab === tab,
+      [css['delete-tab']]: currentTab === tab && tab === "delete",
     });
     return (
       <li

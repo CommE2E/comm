@@ -11,6 +11,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 
+import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
 import { colorIsDark } from '../../calendar-utils';
 import fetchJSON from '../../fetch-json';
@@ -57,7 +58,7 @@ class HistoryEntry extends React.Component {
       if (this.props.calendarInfo.editRules < 1 || this.props.loggedIn) {
         restore = (
           <span>
-            <span className="restore-entry-label">
+            <span className={css['restore-entry-label']}>
               (<a
                 href="#"
                 onClick={this.onRestore.bind(this)}
@@ -65,49 +66,51 @@ class HistoryEntry extends React.Component {
             </span>
             <LoadingIndicator
               status={this.state.restoreLoadingStatus}
-              className="restore-loading"
+              className={css['restore-loading']}
             />
           </span>
         );
       }
       deleted = (
-        <span className="deleted-entry">
-          <span className="deleted-entry-label">deleted</span>
+        <span className={css['deleted-entry']}>
+          <span className={css['deleted-entry-label']}>deleted</span>
           {restore}
         </span>
       );
     }
 
     const textClasses = classNames({
-      "entry": true,
-      "entry-history-entry": true,
-      "dark-entry": colorIsDark(this.props.calendarInfo.color),
+      [css['entry']]: true,
+      [css['entry-history-entry']]: true,
+      [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
     });
     const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
     const creator = this.props.entryInfo.creator === null
       ? "Anonymous"
-      : <span className="entry-username">{this.props.entryInfo.creator}</span>;
+      : <span className={css['entry-username']}>
+          {this.props.entryInfo.creator}
+        </span>;
 
     return (
       <li>
         <div className={textClasses} style={textStyle}>
           {this.props.entryInfo.text}
         </div>
-        <span className="entry-author">
+        <span className={css['entry-author']}>
           {"created by "}
           {creator}
         </span>
-        <span className="entry-calendar">
+        <span className={css['entry-calendar']}>
           {this.props.calendarInfo.name}
         </span>
-        <div className="clear" />
+        <div className={css['clear']} />
         {deleted}
         <a
           href="#"
-          className="revision-history-button"
+          className={css['revision-history-button']}
           onClick={this.props.onClick}
         >revision history &gt;</a>
-        <div className="clear" />
+        <div className={css['clear']} />
       </li>
     );
   }

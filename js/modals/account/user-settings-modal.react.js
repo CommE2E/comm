@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validEmailRegex } from './account-regexes';
@@ -67,14 +68,19 @@ class UserSettingsModal extends React.Component {
       let verificationStatus = null;
       if (this.state.emailVerified === true) {
         verificationStatus = (
-          <div className="form-subtitle verified-status-true">Verified</div>
+          <div
+            className={`${css['form-subtitle']} ${css['verified-status-true']}`}
+          >Verified</div>
         );
       } else if (this.state.emailVerified === false) {
         verificationStatus = (
-          <div className="form-subtitle">
-            <span className="verified-status-false">Not verified</span>
+          <div className={css['form-subtitle']}>
+            <span className={css['verified-status-false']}>Not verified</span>
             {" - "}
-            <a href="#" onClick={this.onClickResendVerificationEmail.bind(this)}>
+            <a
+              href="#"
+              onClick={this.onClickResendVerificationEmail.bind(this)}
+            >
               resend verification email
             </a>
           </div>
@@ -82,13 +88,13 @@ class UserSettingsModal extends React.Component {
       }
       mainContent = (
         <div>
-          <div className="form-text">
-            <div className="form-title">Username</div>
-            <div className="form-content">{this.props.username}</div>
+          <div className={css['form-text']}>
+            <div className={css['form-title']}>Username</div>
+            <div className={css['form-content']}>{this.props.username}</div>
           </div>
           <div>
-            <div className="form-title">Email</div>
-            <div className="form-content">
+            <div className={css['form-title']}>Email</div>
+            <div className={css['form-content']}>
               <input
                 type="text"
                 placeholder="Email"
@@ -101,8 +107,8 @@ class UserSettingsModal extends React.Component {
             </div>
           </div>
           <div>
-            <div className="form-title">New password (optional)</div>
-            <div className="form-content">
+            <div className={css['form-title']}>New password (optional)</div>
+            <div className={css['form-content']}>
               <div>
                 <input
                   type="password"
@@ -128,7 +134,7 @@ class UserSettingsModal extends React.Component {
       );
     } else if (this.state.currentTab === "delete") {
       mainContent = (
-        <p className="italic">
+        <p className={css['italic']}>
           Your account will be permanently deleted. There is no way to reverse
           this.
         </p>
@@ -138,7 +144,7 @@ class UserSettingsModal extends React.Component {
     let buttons = null;
     if (this.state.currentTab === "delete") {
       buttons = (
-        <span className="form-submit">
+        <span className={css['form-submit']}>
           <input
             type="submit"
             value="Delete account"
@@ -149,7 +155,7 @@ class UserSettingsModal extends React.Component {
       );
     } else {
       buttons = (
-        <span className="form-submit">
+        <span className={css['form-submit']}>
           <input
             type="submit"
             value="Update account"
@@ -162,19 +168,19 @@ class UserSettingsModal extends React.Component {
 
     return (
       <Modal name="Edit account" onClose={this.props.onClose} size="large">
-        <ul className="tab-panel">
+        <ul className={css['tab-panel']}>
           {this.buildTab("general", "General")}
           {this.buildTab("delete", "Delete")}
         </ul>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
             {mainContent}
-            <div className="user-settings-current-password">
-              <p className="confirm-account-password">
+            <div className={css['user-settings-current-password']}>
+              <p className={css['confirm-account-password']}>
                 Please enter your current password to confirm your identity
               </p>
-              <div className="form-title">Current password</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Current password</div>
+              <div className={css['form-content']}>
                 <input
                   type="password"
                   placeholder="Current password"
@@ -185,8 +191,8 @@ class UserSettingsModal extends React.Component {
                 />
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
               {buttons}
@@ -200,8 +206,8 @@ class UserSettingsModal extends React.Component {
   buildTab(tab: Tab, name: string) {
     const currentTab = this.state.currentTab;
     const classNamesForTab = classNames({
-      'current-tab': currentTab === tab,
-      'delete-tab': currentTab === tab && tab === "delete",
+      [css['current-tab']]: currentTab === tab,
+      [css['delete-tab']]: currentTab === tab && tab === "delete",
     });
     return (
       <li

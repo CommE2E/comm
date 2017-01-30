@@ -14,6 +14,7 @@ import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 
+import css from '../../style.css';
 import { colorIsDark } from '../../calendar-utils';
 
 type Props = {
@@ -44,14 +45,14 @@ class HistoryRevision extends React.Component {
   render() {
     let change;
     if (this.props.isDeletionOrRestoration && this.props.revisionInfo.deleted) {
-      change = <div className="entry-history-deleted">Deleted</div>;
+      change = <div className={css['entry-history-deleted']}>Deleted</div>;
     } else if (this.props.isDeletionOrRestoration) {
-      change = <div className="entry-history-restored">Restored</div>;
+      change = <div className={css['entry-history-restored']}>Restored</div>;
     } else {
       const textClasses = classNames({
-        "entry": true,
-        "entry-history-entry": true,
-        "dark-entry": colorIsDark(this.props.calendarInfo.color),
+        [css['entry']]: true,
+        [css['entry-history-entry']]: true,
+        [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
       });
       const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
       change = (
@@ -63,7 +64,7 @@ class HistoryRevision extends React.Component {
 
     const author = this.props.revisionInfo.author === null
       ? "Anonymous"
-      : <span className="entry-username">
+      : <span className={css['entry-username']}>
           {this.props.revisionInfo.author}
         </span>;
 
@@ -72,18 +73,18 @@ class HistoryRevision extends React.Component {
     return (
       <li>
         {change}
-        <span className="entry-author">
+        <span className={css['entry-author']}>
           {"updated by "}
           {author}
         </span>
         <time
-          className="timeago entry-time"
+          className={css['entry-time']}
           dateTime={date.toISOString()}
           ref={(elem) => this.time = elem}
         >
           {hovertext}
         </time>
-        <div className="clear" />
+        <div className={css['clear']} />
       </li>
     );
   }

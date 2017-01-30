@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import update from 'immutability-helper';
 import _ from 'lodash';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import LoadingIndicator from '../../loading-indicator.react';
@@ -97,7 +98,7 @@ class HistoryModal extends React.Component {
         <a
           href="#"
           onClick={this.onClickAllEntries.bind(this)}
-          className="all-history-button"
+          className={css['all-history-button']}
         >
           &lt; all entries
         </a>
@@ -157,30 +158,30 @@ class HistoryModal extends React.Component {
     const animate = this.state.animateModeChange;
     const dayMode = this.state.mode === "day";
     const dayClasses = classNames({
-      "day-history": true,
-      "day-history-visible": dayMode && !animate,
-      "day-history-invisible": !dayMode && !animate,
-      "day-history-visible-animate": dayMode && animate,
-      "day-history-invisible-animate": !dayMode && animate,
+      [css['day-history']]: true,
+      [css['day-history-visible']]: dayMode && !animate,
+      [css['day-history-invisible']]: !dayMode && !animate,
+      [css['day-history-visible-animate']]: dayMode && animate,
+      [css['day-history-invisible-animate']]: !dayMode && animate,
     });
     const entryMode = this.state.mode === "entry";
     const entryClasses = classNames({
-      "entry-history": true,
-      "entry-history-visible": entryMode && !animate,
-      "entry-history-invisible": !entryMode && !animate,
-      "entry-history-visible-animate": entryMode && animate,
-      "entry-history-invisible-animate": !entryMode && animate,
+      [css['entry-history']]: true,
+      [css['entry-history-visible']]: entryMode && !animate,
+      [css['entry-history-invisible']]: !entryMode && !animate,
+      [css['entry-history-visible-animate']]: entryMode && animate,
+      [css['entry-history-invisible-animate']]: !entryMode && animate,
     });
 
     return (
       <Modal name="History" onClose={this.props.onClose}>
-        <div className="modal-body history-modal-body">
-          <div className="history-header">
+        <div className={`${css['modal-body']} ${css['history-modal-body']}`}>
+          <div className={css['history-header']}>
             {allHistoryButton}
-            <span className="history-date">{prettyDate}</span>
+            <span className={css['history-date']}>{prettyDate}</span>
             <LoadingIndicator
               status={loadingStatus}
-              className="history-loading"
+              className={css['history-loading']}
             />
           </div>
           <div className={dayClasses}><ul>{entries}</ul></div>

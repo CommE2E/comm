@@ -4,6 +4,8 @@ import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 
+import css from '../style.css';
+
 export type ModalSize = "small" | "large";
 type Props = {
   name: string,
@@ -25,13 +27,13 @@ class Modal extends React.Component {
 
   render() {
     const overlayClasses = classNames(
-      "modal-overlay",
-      { "small-modal-overlay": this.props.size === "small" },
-      { "large-modal-overlay": this.props.size === "large" },
+      css['modal-overlay'],
+      { [css['small-modal-overlay']]: this.props.size === "small" },
+      { [css['large-modal-overlay']]: this.props.size === "large" },
     );
     const modalClasses = classNames(
-      "modal",
-      { "large-modal": this.props.size === "large" },
+      css['modal'],
+      { [css['large-modal']]: this.props.size === "large" },
     );
     return (
       <div
@@ -42,8 +44,11 @@ class Modal extends React.Component {
         onKeyDown={this.onKeyDown.bind(this)}
       >
         <div className={modalClasses}>
-          <div className="modal-header">
-            <span className="modal-close" onClick={this.props.onClose}>×</span>
+          <div className={css['modal-header']}>
+            <span
+              className={css['modal-close']}
+              onClick={this.props.onClose}
+            >×</span>
             <h2>{this.props.name}</h2>
           </div>
           {this.props.children}

@@ -9,6 +9,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
+import css from '../style.css';
 import fetchJSON from '../fetch-json';
 import LoadingIndicator from '../loading-indicator.react';
 import CalendarSettingsModal from '../modals/calendar-settings-modal.react';
@@ -53,7 +54,7 @@ class TypeaheadOptionButtons extends React.Component {
   render() {
     if (!this.props.calendarInfo.authorized) {
       return (
-        <ul className="calendar-nav-option-buttons">
+        <ul className={css['calendar-nav-option-buttons']}>
           <li>Closed</li>
         </ul>
       );
@@ -69,12 +70,12 @@ class TypeaheadOptionButtons extends React.Component {
       );
     }
     return (
-      <ul className="calendar-nav-option-buttons">
+      <ul className={css['calendar-nav-option-buttons']}>
         {editButton}
         <li>
           <LoadingIndicator
             status={this.state.loadingStatus}
-            className="calendar-nav-option-buttons-loading"
+            className={css['calendar-nav-option-buttons-loading']}
           />
           <a href='#' onClick={this.subscribe.bind(this)}>
             {this.props.calendarInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}

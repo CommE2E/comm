@@ -4,6 +4,7 @@ import React from 'react';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
+import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';
 
 type Props = {
@@ -69,19 +70,19 @@ class TypeaheadPane extends React.Component {
     let pager = null;
     if (this.props.totalResults > this.state.currentResults.length) {
       let leftPager = (
-        <LeftPager className="calendar-nav-pager-svg" />
+        <LeftPager className={css['calendar-nav-pager-svg']} />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
           <a
             href="#"
-            className="calendar-nav-pager-button"
+            className={css['calendar-nav-pager-button']}
             onClick={this.onBackPagerClick.bind(this)}
           >{leftPager}</a>
         );
       }
       let rightPager = (
-        <RightPager className="calendar-nav-pager-svg" />
+        <RightPager className={css['calendar-nav-pager-svg']} />
       );
       if (
         this.props.pageSize * (this.state.currentPage + 1)
@@ -90,15 +91,15 @@ class TypeaheadPane extends React.Component {
         rightPager = (
           <a
             href="#"
-            className="calendar-nav-pager-button"
+            className={css['calendar-nav-pager-button']}
             onClick={this.onNextPagerClick.bind(this)}
           >{rightPager}</a>
         );
       }
       pager = (
-        <div className="calendar-nav-pager">
+        <div className={css['calendar-nav-pager']}>
           {leftPager}
-          <span className="calendar-nav-pager-status">
+          <span className={css['calendar-nav-pager-status']}>
             {
               `${this.firstIndex(this.props, this.state.currentPage) + 1}–` +
               `${this.secondIndex(this.props, this.state.currentPage)} ` +
@@ -110,8 +111,8 @@ class TypeaheadPane extends React.Component {
       );
     }
     return (
-      <div className="calendar-nav-option-pane">
-        <div className="calendar-nav-option-pane-header">
+      <div className={css['calendar-nav-option-pane']}>
+        <div className={css['calendar-nav-option-pane-header']}>
           {this.props.paneTitle}
           {pager}
         </div>

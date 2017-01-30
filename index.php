@@ -169,15 +169,24 @@ $fonts_css_url = DEV
   ? "fonts/local-fonts.css"
   : "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
 
-?>
+echo <<<HTML
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
     <meta charset="utf-8" />
     <title>SquadCal</title>
-    <base href="<?=$base_url?>" />
-    <link rel="stylesheet" type="text/css" href="<?=$fonts_css_url?>" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <base href="{$base_url}" />
+    <link rel="stylesheet" type="text/css" href="{$fonts_css_url}" />
+    <link rel="stylesheet" type="text/css" href="basic.css" />
+
+HTML;
+if (!DEV) {
+  echo <<<HTML
+    <link rel="stylesheet" type="text/css" href="js/prod.build.css" />
+
+HTML;
+}
+?>
     <script>
       var username = "<?=$username?>";
       var email = "<?=$email?>";
@@ -247,16 +256,12 @@ echo <<<HTML
 HTML;
 if (DEV) {
   echo <<<HTML
-    <script src="js/jspm_packages/system.js"></script>
-    <script src="js/config.js"></script>
-    <script>
-      System.import("script.js");
-    </script>
+    <script src="js/dev.build.js"></script>
 
 HTML;
 } else {
   echo <<<HTML
-    <script src="js/build.js"></script>
+    <script src="js/prod.build.js"></script>
 
 HTML;
 }

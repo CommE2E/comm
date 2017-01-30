@@ -7,6 +7,7 @@ import invariant from 'invariant';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { mapStateToUpdateStore } from '../../redux-utils';
@@ -49,17 +50,17 @@ class ResetPasswordModal extends React.Component {
   render() {
     return (
       <Modal name="Reset password" onClose={this.props.onClose}>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
-            <div className="form-text">
-              <div className="form-title">Username</div>
-              <div className="form-content">
+            <div className={css['form-text']}>
+              <div className={css['form-title']}>Username</div>
+              <div className={css['form-content']}>
                 {this.props.resetPasswordUsername}
               </div>
             </div>
             <div>
-              <div className="form-title">Password</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Password</div>
+              <div className={css['form-content']}>
                 <div>
                   <input
                     type="password"
@@ -81,11 +82,11 @@ class ResetPasswordModal extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
-              <span className="form-submit">
+              <span className={css['form-submit']}>
                 <input
                   type="submit"
                   value="Update"

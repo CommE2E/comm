@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import css from './style.css';
+
 export type LoadingStatus = "inactive" | "loading" | "error";
 
 type Props = {
@@ -13,7 +15,7 @@ export default function LoadingIndicator(props: Props) {
   if (props.status === "inactive") {
     return null;
   }
-  let cssClassNames = "loading-indicator-" + props.status;
+  let cssClassNames = css[`loading-indicator-${props.status}`];
   if (props.className) {
     cssClassNames += " " + props.className;
   }

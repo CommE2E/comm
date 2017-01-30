@@ -6,6 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 
+import css from '../style.css';
 import NewCalendarModal from '../modals/new-calendar-modal.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import { monthURL } from '../nav-utils';
@@ -36,16 +37,16 @@ class TypeaheadActionOption extends React.Component {
     return (
       <div
         className={classNames(
-          "calendar-nav-option",
-          {'calendar-nav-frozen-option': this.props.frozen},
+          css['calendar-nav-option'],
+          {[css['calendar-nav-frozen-option']]: this.props.frozen},
         )}
         onClick={this.onClick.bind(this)}
       >
         <div>
-          <div className="calendar-nav-option-name">
+          <div className={css['calendar-nav-option-name']}>
             {this.props.name}
           </div>
-          <div className="clear" />
+          <div className={css['clear']} />
         </div>
       </div>
     );

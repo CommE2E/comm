@@ -12,6 +12,7 @@ import update from 'immutability-helper';
 import { Link, locationShape } from 'react-router';
 import _ from 'lodash';
 
+import css from './style.css';
 import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
 import Calendar from './calendar/calendar.react';
@@ -69,7 +70,7 @@ class App extends React.Component {
       if (props.navInfo.home) {
         currentModal = <IntroModal />;
       } else {
-        currentModal = <div className="modal-overlay" />;
+        currentModal = <div className={css['modal-overlay']} />;
       }
     }
     this.state = {
@@ -148,7 +149,7 @@ class App extends React.Component {
         (newProps.navInfo.calendarID && !newProps.currentNavID) &&
         (!this.props.navInfo.calendarID || this.props.currentNavID)
       ) {
-        newModal = <div className="modal-overlay" />;
+        newModal = <div className={css['modal-overlay']} />;
       } else if (newProps.currentNavID && !this.props.currentNavID) {
         newModal = null;
       }
@@ -190,10 +191,10 @@ class App extends React.Component {
       <div>
         <header>
           <h1>SquadCal</h1>
-          <div className="upper-right">
+          <div className={css['upper-right']}>
             <LoadingIndicator
               status={this.props.entriesLoadingStatus}
-              className="page-loading"
+              className={css['page-loading']}
             />
             <Typeahead
               setModal={this.setModal.bind(this)}
@@ -206,14 +207,18 @@ class App extends React.Component {
             clearModal={this.clearModal.bind(this)}
             modalExists={this.state.modalExists}
           />
-          <h2 className="upper-center">
-            <Link to={prevURL} className="previous-month-link">&lt;</Link>
+          <h2 className={css['upper-center']}>
+            <Link to={prevURL} className={css['previous-month-link']}>
+              &lt;
+            </Link>
             {" "}
             {monthName}
             {" "}
             {year}
             {" "}
-            <Link to={nextURL} className="next-month-link">&gt;</Link>
+            <Link to={nextURL} className={css['next-month-link']}>
+              &gt;
+            </Link>
           </h2>
         </header>
         <Calendar
@@ -237,7 +242,7 @@ class App extends React.Component {
     if (!this.props.currentNavID && this.props.navInfo.home) {
       currentModal = <IntroModal />;
     } else if (!this.props.currentNavID) {
-      currentModal = <div className="modal-overlay" />;
+      currentModal = <div className={css['modal-overlay']} />;
     }
     this.setState({
       currentModal,

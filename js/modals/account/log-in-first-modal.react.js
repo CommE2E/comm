@@ -4,6 +4,7 @@ import type { AppState } from '../../redux-reducer';
 
 import React from 'react';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
 import RegisterModal from './register-modal.react';
@@ -21,18 +22,18 @@ class LogInFirstModal extends React.Component {
   render() {
     return (
       <Modal name="Log in or register" onClose={this.props.onClose}>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <p>
             {`In order to ${this.props.inOrderTo}, you'll first need to `}
             <a
               href="#"
-              className="show-login-modal"
+              className={css['show-login-modal']}
               onClick={this.onClickLogIn.bind(this)}
             >log in</a>
             {" or "}
             <a
               href="#"
-              className="show-register-modal"
+              className={css['show-register-modal']}
               onClick={this.onClickRegister.bind(this)}
             >register</a>
             {" a new account."}

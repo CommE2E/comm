@@ -7,6 +7,7 @@ import invariant from 'invariant';
 import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
+import css from '../../style.css';
 import Modal from '../modal.react';
 import fetchJSON from '../../fetch-json';
 import { validUsernameRegex, validEmailRegex } from './account-regexes';
@@ -50,11 +51,11 @@ class LogInModal extends React.Component {
   render() {
     return (
       <Modal name="Log in" onClose={this.props.onClose}>
-        <div className="modal-body">
+        <div className={css['modal-body']}>
           <form method="POST">
             <div>
-              <div className="form-title">Username</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Username</div>
+              <div className={css['form-content']}>
                 <input
                   type="text"
                   placeholder="Username or email"
@@ -66,8 +67,8 @@ class LogInModal extends React.Component {
               </div>
             </div>
             <div>
-              <div className="form-title">Password</div>
-              <div className="form-content">
+              <div className={css['form-title']}>Password</div>
+              <div className={css['form-content']}>
                 <input
                   type="password"
                   placeholder="Password"
@@ -76,18 +77,18 @@ class LogInModal extends React.Component {
                   ref={(input) => this.passwordInput = input}
                   disabled={this.state.inputDisabled}
                 />
-                <div className="form-subtitle">
+                <div className={css['form-subtitle']}>
                   <a href="#" onClick={this.onClickForgotPassword.bind(this)}>
                     Forgot password?
                   </a>
                 </div>
               </div>
             </div>
-            <div className="form-footer">
-              <span className="modal-form-error">
+            <div className={css['form-footer']}>
+              <span className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </span>
-              <span className="form-submit">
+              <span className={css['form-submit']}>
                 <input
                   type="submit"
                   value="Log in"

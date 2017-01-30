@@ -1,6 +1,6 @@
 // @flow
 
-import 'fetch'; // side-effect: window.fetch
+import 'whatwg-fetch'; // side-effect: window.fetch
 import $ from 'jquery';
 
 async function fetchJSON(

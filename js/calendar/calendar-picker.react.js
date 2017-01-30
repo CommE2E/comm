@@ -8,6 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 
+import css from '../style.css';
 import { onScreenCalendarInfos } from '../calendar-utils';
 import { LeftPager, RightPager } from '../vectors.react';
 import { htmlTargetFromEvent } from '../vector-utils';
@@ -60,34 +61,34 @@ class CalendarPicker extends React.Component {
     let pager = null;
     if (length > CalendarPicker.pageSize) {
       let leftPager = (
-        <LeftPager className="calendar-picker-pager-svg" />
+        <LeftPager className={css['calendar-picker-pager-svg']} />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
           <a
             href="#"
-            className="calendar-picker-pager-button"
+            className={css['calendar-picker-pager-button']}
             onClick={this.onBackPagerClick.bind(this)}
           >{leftPager}</a>
         );
       }
       let rightPager = (
-        <RightPager className="calendar-picker-pager-svg" />
+        <RightPager className={css['calendar-picker-pager-svg']} />
       );
       if (CalendarPicker.pageSize * (this.state.currentPage + 1) < length) {
         rightPager = (
           <a
             href="#"
-            className="calendar-picker-pager-button"
+            className={css['calendar-picker-pager-button']}
             onClick={this.onNextPagerClick.bind(this)}
           >{rightPager}</a>
         );
       }
       pager = (
-        <div className="calendar-picker-pager-container" key="pager">
-          <div className="calendar-picker-pager">
+        <div className={css['calendar-picker-pager-container']} key="pager">
+          <div className={css['calendar-picker-pager']}>
             {leftPager}
-            <span className="calendar-picker-pager-status">
+            <span className={css['calendar-picker-pager-status']}>
               {`${firstIndex + 1}–${secondIndex} of ${length}`}
             </span>
             {rightPager}
@@ -102,13 +103,15 @@ class CalendarPicker extends React.Component {
         const style = { backgroundColor: "#" + calendarInfo.color };
         return (
           <div
-            className="pick-calendar-option"
+            className={css['pick-calendar-option']}
             key={calendarInfo.id}
             onClick={() => this.props.createNewEntry(calendarInfo.id)}
           >
-            <span className="select-calendar">
-              <div className="color-preview" style={style} />
-              <span className="select-calendar-name">{calendarInfo.name}</span>
+            <span className={css['select-calendar']}>
+              <div className={css['color-preview']} style={style} />
+              <span className={css['select-calendar-name']}>
+                {calendarInfo.name}
+              </span>
             </span>
           </div>
         );
@@ -116,7 +119,7 @@ class CalendarPicker extends React.Component {
 
     return (
       <div
-        className="pick-calendar"
+        className={css['pick-calendar']}
         tabIndex="0"
         onBlur={this.props.closePicker}
         onKeyDown={this.onPickerKeyDown.bind(this)}

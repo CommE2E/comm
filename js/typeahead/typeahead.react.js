@@ -13,6 +13,7 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
+import css from '../style.css';
 import TypeaheadActionOption from './typeahead-action-option.react';
 import TypeaheadCalendarOption from './typeahead-calendar-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
@@ -205,7 +206,7 @@ class Typeahead extends React.Component {
         );
       } else {
         const noResults = (
-          <div className="calendar-nav-no-results" key="none">
+          <div className={css['calendar-nav-no-results']} key="none">
             No results
           </div>
         );
@@ -221,7 +222,7 @@ class Typeahead extends React.Component {
       }
       dropdown = (
         <div
-          className="calendar-nav-dropdown"
+          className={css['calendar-nav-dropdown']}
           ref={(dropdown) => this.dropdown = dropdown}
         >{resultsPane}</div>
       );
@@ -295,7 +296,7 @@ class Typeahead extends React.Component {
       );
       dropdown = (
         <div
-          className="calendar-nav-dropdown"
+          className={css['calendar-nav-dropdown']}
           ref={(dropdown) => this.dropdown = dropdown}
         >
           {panes}
@@ -321,9 +322,9 @@ class Typeahead extends React.Component {
       }
     } else {
       rightAligned = (  
-        <span className="calendar-nav-symbols">
-          <UpCaret className="calendar-nav-first-symbol" />
-          <DownCaret className="calendar-nav-second-symbol" />
+        <span className={css['calendar-nav-symbols']}>
+          <UpCaret className={css['calendar-nav-first-symbol']} />
+          <DownCaret className={css['calendar-nav-second-symbol']} />
         </span>
       );
     }
@@ -332,26 +333,26 @@ class Typeahead extends React.Component {
       <div
         onMouseDown={this.onMouseDown.bind(this)}
         className={classNames({
-          'calendar-nav': true,
-          'calendar-nav-active': active,
-          'calendar-nav-null-state': !this.props.currentNavID &&
+          [css['calendar-nav']]: true,
+          [css['calendar-nav-active']]: active,
+          [css['calendar-nav-null-state']]: !this.props.currentNavID &&
             !this.props.modalExists,
         })}
       >
         <div
-          className="calendar-nav-current"
+          className={css['calendar-nav-current']}
           ref={(current) => this.current = current}
         >
           <span
             ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
           >
-            <MagnifyingGlass className="search-vector" />
+            <MagnifyingGlass className={css['search-vector']} />
           </span>
           {rightAligned}
-          <div className="typeahead-container">
+          <div className={css['typeahead-container']}>
             <input
               type="text"
-              className="typeahead"
+              className={css['typeahead']}
               ref={(input) => this.input = input}
               onFocus={this.onFocus.bind(this)}
               onBlur={this.onBlur.bind(this)}
