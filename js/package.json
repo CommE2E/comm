@@ -7,12 +7,16 @@
     "babel-preset-react": "^6.22.0",
     "css-loader": "^0.26.1",
     "extract-text-webpack-plugin": "^2.0.0-rc.2",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.38.0",
+    "react-hot-loader": "^3.0.0-beta.6",
     "style-loader": "^0.13.1",
     "uglifyjs-webpack-plugin": "^0.1.2",
-    "webpack": "^2.2.0"
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.2.0"
   },
   "scripts": {
-    "dev": "webpack --env dev --progress",
+    "dev": "webpack --env dev --progress && webpack-dev-server",
     "prod": "webpack --env prod --progress",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },

@@ -11,6 +11,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { Router, Route } from 'react-router';
+import { AppContainer } from 'react-hot-loader';
 
 import { reducer } from './redux-reducer';
 import App from './app.react';
@@ -58,16 +59,26 @@ const store = createStore(
   }: AppState),
 );
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <Route
-        path="*"
-        component={App}
-        onEnter={redirectURLFromInitialReduxState(store)}
-        onChange={redirectURLFromAppTransition(store)}
-      />
-    </Router>
-  </Provider>,
+const render = (Component) => ReactDOM.render(
+  <AppContainer>
+    <Provider store={store}>
+      <Router history={history}>
+        <Route
+          path="*"
+          component={Component}
+          onEnter={redirectURLFromInitialReduxState(store)}
+          onChange={redirectURLFromAppTransition(store)}
+        />
+      </Router>
+    </Provider>
+  </AppContainer>,
   document.getElementById('react-root'),
 );
+render(App);
+
+declare var module: { hot?: {
+  accept: (string, Function) => void,
+} };
+if (module.hot) {
+  module.hot.accept('./app.react', () => render(App));
+}
