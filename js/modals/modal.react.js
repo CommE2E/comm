@@ -16,7 +16,7 @@ type Props = {
 
 class Modal extends React.Component {
 
-  static defaultProps: { size: ModalSize };
+  static defaultProps = { size: "small" };
   props: Props;
   overlay: ?HTMLDivElement;
 
@@ -77,9 +77,5 @@ Modal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   size: React.PropTypes.oneOf(["small", "large"]),
 }
-
-Modal.defaultProps = {
-  size: "small",
-};
 
 export default Modal;

@@ -28,9 +28,9 @@ type Props = {
 
 class TypeaheadActionOption extends React.Component {
 
-  static defaultProps: { frozen: bool };
-  static homeText;
-  static newText;
+  static defaultProps = { frozen: false };
+  static homeText = "Home";
+  static newText = "New calendar...";
   props: Props;
 
   render() {
@@ -83,9 +83,6 @@ class TypeaheadActionOption extends React.Component {
 
 }
 
-TypeaheadActionOption.homeText = "Home";
-TypeaheadActionOption.newText = "New calendar...";
-
 TypeaheadActionOption.propTypes = {
   navID: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired,
@@ -97,10 +94,6 @@ TypeaheadActionOption.propTypes = {
   unfreezeTypeahead: React.PropTypes.func.isRequired,
   onTransition: React.PropTypes.func.isRequired,
   frozen: React.PropTypes.bool,
-};
-
-TypeaheadActionOption.defaultProps = {
-  frozen: false,
 };
 
 export default connect((state: AppState) => ({

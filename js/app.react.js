@@ -1,5 +1,8 @@
 // @flow
 
+// this plugin causes problems, and react-router has a better locationShape
+'no babel-plugin-flow-react-proptypes';
+
 import type { AppState, NavInfo, UpdateStore } from './redux-reducer';
 import { navInfoPropType } from './redux-reducer';
 import type { LoadingStatus } from './loading-indicator.react';
@@ -58,8 +61,8 @@ type State = {
 
 class App extends React.Component {
 
-  static verifyEmail;
-  static resetPassword;
+  static verifyEmail = 0;
+  static resetPassword = 1;
   props: Props;
   state: State;
 
@@ -251,9 +254,6 @@ class App extends React.Component {
   }
 
 }
-
-App.verifyEmail = 0;
-App.resetPassword = 1;
 
 App.propTypes = {
   thisNavURLFragment: React.PropTypes.string.isRequired,

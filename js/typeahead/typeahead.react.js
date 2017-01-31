@@ -50,8 +50,8 @@ type TypeaheadCalendarOptionConnect = {
 
 class Typeahead extends React.Component {
 
-  static recommendationSize;
-  static homeNullStateRecommendationSize;
+  static recommendationSize = 3;
+  static homeNullStateRecommendationSize = 6;
 
   props: Props;
   state: State;
@@ -578,9 +578,6 @@ class Typeahead extends React.Component {
   }
 
 }
-
-Typeahead.recommendationSize = 3;
-Typeahead.homeNullStateRecommendationSize = 6;
 
 Typeahead.propTypes = {
   currentNavID: React.PropTypes.string,

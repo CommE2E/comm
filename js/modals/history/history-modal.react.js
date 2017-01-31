@@ -51,7 +51,7 @@ type State = {
 
 class HistoryModal extends React.Component {
 
-  static defaultProps: { currentEntryID: ?string };
+  static defaultProps = { currentEntryID: null };
   props: Props;
   state: State;
 
@@ -303,10 +303,6 @@ HistoryModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
-};
-
-HistoryModal.defaultProps = {
-  currentEntryID: null,
 };
 
 type OwnProps = { day: number };

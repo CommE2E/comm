@@ -3,7 +3,7 @@
 import React from 'react';
 
 type SVGProps = {
-  className: string,
+  className?: string,
   viewBox: string,
   preserveAspectRatio?: string,
   // I can't figure out how to get Flow to work for this
@@ -22,7 +22,7 @@ function SVG(props: SVGProps) {
   );
 }
 
-export function LeftPager(props: { className: string }) {
+export function LeftPager(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 512 512">
       <polygon points={
@@ -33,7 +33,7 @@ export function LeftPager(props: { className: string }) {
   );
 }
 
-export function RightPager(props: { className: string }) {
+export function RightPager(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 512 512">
       <polygon points={
@@ -44,7 +44,7 @@ export function RightPager(props: { className: string }) {
   );
 }
 
-export function UpCaret(props: { className: string }) {
+export function UpCaret(props: { className?: string }) {
   return (
     <SVG
       viewBox="0 0 8 8"
@@ -56,7 +56,7 @@ export function UpCaret(props: { className: string }) {
   );
 }
 
-export function DownCaret(props: { className: string }) {
+export function DownCaret(props: { className?: string }) {
   return (
     <SVG
       viewBox="0 0 8 8"
@@ -68,7 +68,7 @@ export function DownCaret(props: { className: string }) {
   );
 }
 
-export function DeleteVector(props: { className: string }) {
+export function DeleteVector(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path d={
@@ -81,7 +81,7 @@ export function DeleteVector(props: { className: string }) {
   );
 }
 
-export function AddVector(props: { className: string }) {
+export function AddVector(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
@@ -89,7 +89,7 @@ export function AddVector(props: { className: string }) {
   );
 }
 
-export function HistoryVector(props: { className: string }) {
+export function HistoryVector(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path d={
@@ -100,7 +100,7 @@ export function HistoryVector(props: { className: string }) {
   );
 }
 
-export function MagnifyingGlass(props: { className: string }) {
+export function MagnifyingGlass(props: { className?: string }) {
   return (
     <SVG className={props.className} viewBox="0 0 24 24">
       <path d={

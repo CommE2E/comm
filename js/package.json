@@ -2,7 +2,9 @@
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
+    "babel-plugin-flow-react-proptypes": "^0.20.0",
     "babel-plugin-transform-class-properties": "^6.22.0",
+    "babel-plugin-transform-react-constant-elements": "^6.22.0",
     "babel-preset-latest": "^6.22.0",
     "babel-preset-react": "^6.22.0",
     "css-loader": "^0.26.1",

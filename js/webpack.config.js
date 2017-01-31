@@ -57,6 +57,9 @@ module.exports = function(env) {
       test: /\.css$/,
       use: ExtractTextPlugin.extract({ loader: cssLoader }),
     });
+    config.module.rules[0].options.plugins.push(
+      'transform-react-constant-elements'
+    );
     config.plugins.push(new ExtractTextPlugin('prod.build.css'));
   } else if (env === 'dev') {
     config.devtool = 'eval-cheap-module-source-map';
@@ -68,13 +71,14 @@ module.exports = function(env) {
       test: /\.css$/,
       use: ['style-loader', cssLoader],
     });
-    config.module.rules[0].options.plugins.push("react-hot-loader/babel");
+    config.module.rules[0].options.plugins.push('flow-react-proptypes');
+    config.module.rules[0].options.plugins.push('react-hot-loader/babel');
     config.entry.splice(
       0,
       0,
       'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:8080',
-      'webpack/hot/only-dev-server',
+      'webpack/hot/only-dev-server'
     );
     config.devServer = {
       hot: true,

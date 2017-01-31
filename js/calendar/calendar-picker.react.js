@@ -24,7 +24,7 @@ type State = {
 
 class CalendarPicker extends React.Component {
 
-  static pageSize;
+  static pageSize = 5;
 
   props: Props;
   state: State;
@@ -172,8 +172,6 @@ class CalendarPicker extends React.Component {
   }
 
 }
-
-CalendarPicker.pageSize = 5;
 
 CalendarPicker.propTypes = {
   onScreenCalendarInfos:

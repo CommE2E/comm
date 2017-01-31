@@ -44,8 +44,8 @@ type State = {
 
 class TypeaheadCalendarOption extends React.Component {
 
-  static defaultProps: { frozen: bool };
-  static secretText;
+  static defaultProps = { frozen: false };
+  static secretText = "Secret Calendar";
   props: Props;
   state: State;
 
@@ -272,8 +272,6 @@ class TypeaheadCalendarOption extends React.Component {
 
 }
 
-TypeaheadCalendarOption.secretText = "Secret Calendar";
-
 TypeaheadCalendarOption.propTypes = {
   calendarInfo: calendarInfoPropType,
   secretCalendarID: React.PropTypes.string,
@@ -289,10 +287,6 @@ TypeaheadCalendarOption.propTypes = {
   clearModal: React.PropTypes.func.isRequired,
   typeaheadFocused: React.PropTypes.bool.isRequired,
   updateStore: React.PropTypes.func.isRequired,
-};
-
-TypeaheadCalendarOption.defaultProps = {
-  frozen: false,
 };
 
 export default connect(
