@@ -182,7 +182,7 @@ echo <<<HTML
 HTML;
 if (!DEV) {
   echo <<<HTML
-    <link rel="stylesheet" type="text/css" href="js/web/prod.build.css" />
+    <link rel="stylesheet" type="text/css" href="dist/prod.build.css" />
 
 HTML;
 }
@@ -256,12 +256,12 @@ echo <<<HTML
 HTML;
 if (DEV) {
   echo <<<HTML
-    <script src="js/web/dev.build.js"></script>
+    <script src="dist/dev.build.js"></script>
 
 HTML;
 } else {
   echo <<<HTML
-    <script src="js/web/prod.build.js"></script>
+    <script src="dist/prod.build.js"></script>
 
 HTML;
 }

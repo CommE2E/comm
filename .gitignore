@@ -1,8 +1,8 @@
-config.php
-.htaccess
-scripts
-js/web/node_modules/*
-!js/web/node_modules/lib
-js/lib/node_modules
-js/web/dev.build.js
-fonts
+server/config.php
+server/.htaccess
+server/scripts
+server/fonts
+lib/node_modules
+web/node_modules/*
+!web/node_modules/lib
+web/dist/dev.build.js

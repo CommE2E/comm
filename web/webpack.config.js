@@ -10,7 +10,7 @@ module.exports = function(env) {
   const config = {
     entry: ['./script.js'],
     output: {
-      filename: env + '.build.js',
+      filename: 'dist/' + env + '.build.js',
       path: __dirname,
     },
     module: {
@@ -68,7 +68,7 @@ module.exports = function(env) {
     config.module.rules[0].options.plugins.push(
       'transform-react-constant-elements'
     );
-    config.plugins.push(new ExtractTextPlugin('prod.build.css'));
+    config.plugins.push(new ExtractTextPlugin('dist/prod.build.css'));
   } else if (env === 'dev') {
     config.devtool = 'eval-cheap-module-source-map';
     config.output.pathinfo = true;
