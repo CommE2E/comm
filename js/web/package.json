@@ -1,0 +1,44 @@
+{
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-flow-react-proptypes": "^0.20.0",
+    "babel-plugin-transform-class-properties": "^6.22.0",
+    "babel-plugin-transform-react-constant-elements": "^6.22.0",
+    "babel-preset-latest": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "css-loader": "^0.26.1",
+    "extract-text-webpack-plugin": "^2.0.0-rc.2",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.38.0",
+    "style-loader": "^0.13.1",
+    "uglifyjs-webpack-plugin": "^0.1.2",
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.2.0"
+  },
+  "scripts": {
+    "dev": "webpack --env dev --progress && webpack-dev-server",
+    "prod": "webpack --env prod --progress",
+    "flow": "flow; test $? -eq 0 -o $? -eq 2"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.22.0",
+    "classnames": "^2.2.5",
+    "dateformat": "^2.0.0",
+    "history": "^3.2.1",
+    "immutability-helper": "^2.1.1",
+    "invariant": "^2.2.2",
+    "jquery": "^3.1.1",
+    "lodash": "^4.17.4",
+    "react": "^15.4.2",
+    "react-color": "^2.11.1",
+    "react-dom": "^15.4.2",
+    "react-hot-loader": "^3.0.0-beta.6",
+    "react-redux": "^5.0.2",
+    "react-router": "^3.0.2",
+    "react-text-truncate": "^0.8.3",
+    "redux": "^3.6.0",
+    "reselect": "^2.5.4",
+    "timeago": "^1.5.4"
+  }
+}
