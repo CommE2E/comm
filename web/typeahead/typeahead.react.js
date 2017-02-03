@@ -6,7 +6,6 @@ import type { NavID } from './typeahead-action-option.react';
 import type { AppState, UpdateStore } from 'lib/model/redux-reducer';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import update from 'immutability-helper';
