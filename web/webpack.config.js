@@ -32,11 +32,20 @@ module.exports = function(env) {
       ],
     },
     resolve: {
+      // This is necessary so that webpack doesn't differentiate the
+      // node_modules/lib symlink from a normal folder
       symlinks: false,
+      // npm uses a tree-link structure for dependencies, which means that we
+      // can get multiple versions of a library if it's used in different parts
+      // of the dependency tree. This is convenient for avoiding versioning
+      // conflicts and the such, but it increases the bundle size a lot.
+      // Instead, here we force all dependencies to use our copies of these big
+      // and common libraries.
       alias: {
         'react': path.resolve('./node_modules/react'),
         'lodash': path.resolve('./node_modules/lodash'),
         'jquery': path.resolve('./node_modules/jquery'),
+        'isomorphic-fetch': path.resolve('./node_modules/isomorphic-fetch'),
       },
     },
     plugins: [
