@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from 'lib/model/redux-reducer';
+import type { AppState } from '../../redux-types';
 
 import React from 'react';
 

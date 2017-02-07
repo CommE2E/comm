@@ -2,11 +2,9 @@
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type {
-  AppState,
-  UpdateStore,
-  LoadingStatus,
-} from 'lib/model/redux-reducer';
+import type { UpdateStore } from 'lib/model/redux-reducer';
+import type { AppState, NavInfo } from '../redux-types';
+import type { LoadingStatus } from '../loading-indicator.react';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -40,7 +38,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   typeaheadFocused: bool,
-  updateStore: UpdateStore,
+  updateStore: UpdateStore<NavInfo, AppState>,
 };
 type State = {
   passwordEntryValue: string,

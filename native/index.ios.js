@@ -1,36 +1,75 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+// @flow
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  TabBarIOS,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import * as TypeaheadText from 'lib/shared/typeahead-text.js';
+import Calendar from './ios-components/calendar';
 
-export default class SquadCal extends Component {
+type Props = {
+};
+type State = {
+  selectedTab: string,
+};
+
+class SquadCal extends React.Component {
+
+  props: Props;
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      selectedTab: 'calendar',
+    };
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          {`Welcome to ${TypeaheadText.homeText}`}
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
+      <TabBarIOS>
+        <Icon.TabBarItemIOS
+          title="Calendar"
+          selected={this.state.selectedTab === 'calendar'}
+          onPress={() => this.setState({ selectedTab: 'calendar' })}
+          iconName="calendar"
+        >
+          <Calendar />
+        </Icon.TabBarItemIOS>
+        <Icon.TabBarItemIOS
+          title="Chat"
+          selected={this.state.selectedTab === 'chat'}
+          onPress={() => this.setState({ selectedTab: 'chat' })}
+          iconName="comments-o"
+        >
+          <View style={styles.container}>
+            <Text style={styles.instructions}>
+              Stay down
+            </Text>
+          </View>
+        </Icon.TabBarItemIOS>
+        <Icon.TabBarItemIOS
+          title="More"
+          selected={this.state.selectedTab === 'more'}
+          onPress={() => this.setState({ selectedTab: 'more' })}
+          iconName="bars"
+        >
+          <View style={styles.container}>
+            <Text style={styles.instructions}>
+              Press Cmd+R to reload,{'\n'}
+              Cmd+D or shake for dev menu
+            </Text>
+          </View>
+        </Icon.TabBarItemIOS>
+      </TabBarIOS>
     );
   }
+
 }
 
 const styles = StyleSheet.create({
@@ -40,11 +79,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
   instructions: {
     textAlign: 'center',
     color: '#333333',
@@ -53,3 +87,5 @@ const styles = StyleSheet.create({
 });
 
 AppRegistry.registerComponent('SquadCal', () => SquadCal);
+
+export default SquadCal;

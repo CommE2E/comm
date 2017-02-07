@@ -1,11 +1,12 @@
 // @flow
 
-import type { AppState, UpdateStore } from 'lib/model/redux-reducer';
+import type { UpdateStore } from 'lib/model/redux-reducer';
 import type { VisibilityRules } from 'lib/model/calendar-info';
 import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/model/calendar-info';
+import type { AppState, NavInfo } from '../redux-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -21,7 +22,7 @@ import ColorPicker from './color-picker.react';
 
 type Props = {
   onClose: () => void,
-  updateStore: UpdateStore,
+  updateStore: UpdateStore<NavInfo, AppState>,
 };
 type State = {
   name: string,

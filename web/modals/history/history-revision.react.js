@@ -4,7 +4,7 @@ import type { HistoryRevisionInfo } from 'lib/model/history-types';
 import { historyRevisionInfoPropType } from 'lib/model/history-types';
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { AppState } from 'lib/model/redux-reducer';
+import type { AppState } from '../../redux-types';
 
 import React from 'react';
 import classNames from 'classnames';

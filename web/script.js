@@ -4,7 +4,7 @@ import 'babel-polyfill';
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
-import type { AppState } from 'lib/model/redux-reducer';
+import type { AppState } from './redux-types';
 
 import React from 'react';
 import ReactDOM from 'react-dom';

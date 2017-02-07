@@ -1,7 +1,7 @@
 // @flow
 
 import type { Store } from 'redux';
-import type { NavInfo, AppState } from 'lib/model/redux-reducer';
+import type { NavInfo, AppState } from './redux-types';
 
 import invariant from 'invariant';
 import { createSelector } from 'reselect';

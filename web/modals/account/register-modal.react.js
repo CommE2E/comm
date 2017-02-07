@@ -1,6 +1,7 @@
 // @flow
 
-import type { AppState, UpdateStore } from 'lib/model/redux-reducer';
+import type { UpdateStore } from 'lib/model/redux-reducer';
+import type { AppState, NavInfo } from '../../redux-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -19,7 +20,7 @@ import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
-  updateStore: UpdateStore,
+  updateStore: UpdateStore<NavInfo, AppState>,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
 };
