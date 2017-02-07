@@ -299,7 +299,7 @@ class UserSettingsModal extends React.Component {
       if (this.state.email !== this.props.email) {
         this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
         this.props.updateStore((prevState: AppState) => update(prevState, {
-          email: { $set: email },
+          userInfo: { email: { $set: email } },
         }));
       } else {
         this.props.onClose();
@@ -364,10 +364,7 @@ class UserSettingsModal extends React.Component {
     if (response.success) {
       this.props.updateStore((prevState: AppState) => update(prevState, {
         calendarInfos: { $set: response.calendar_infos },
-        email: { $set: "" },
-        loggedIn: { $set: false },
-        username: { $set: "" },
-        emailVerified: { $set: false },
+        userInfo: { $set: null },
       }));
       this.props.onClose();
       return;
@@ -402,9 +399,9 @@ UserSettingsModal.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    username: state.username,
-    email: state.email,
-    emailVerified: state.emailVerified,
+    username: state.userInfo && state.userInfo.username,
+    email: state.userInfo && state.userInfo.email,
+    emailVerified: state.userInfo && state.userInfo.emailVerified,
   }),
   mapStateToUpdateStore,
 )(UserSettingsModal);

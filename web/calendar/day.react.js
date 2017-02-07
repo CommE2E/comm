@@ -286,8 +286,8 @@ Day.propTypes = {
 export default connect(
   (state: AppState) => ({
     onScreenCalendarInfos: onScreenCalendarInfos(state),
-    username: state.username,
-    loggedIn: state.loggedIn,
+    username: state.userInfo && state.userInfo.username,
+    loggedIn: !!state.userInfo,
   }),
   mapStateToUpdateStore,
 )(Day);

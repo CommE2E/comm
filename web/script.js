@@ -36,6 +36,9 @@ declare var home: bool;
 declare var calendar_id: ?string;
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
+const userInfo = email
+  ? { username, email, emailVerified: email_verified }
+  : null;
 const store = createStore(
   reducer,
   ({
@@ -46,10 +49,7 @@ const store = createStore(
       calendarID: calendar_id,
       verify: verify_code,
     },
-    loggedIn: !!email,
-    username: username,
-    email: email,
-    emailVerified: email_verified,
+    userInfo,
     sessionID: sessionID,
     verifyField: verify_field,
     resetPasswordUsername: reset_password_username,

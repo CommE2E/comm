@@ -2,6 +2,7 @@
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
+import type { UserInfo } from 'lib/model/redux-reducer';
 import type { LoadingStatus } from './loading-indicator.react';
 
 import React from 'react';
@@ -24,10 +25,7 @@ export const navInfoPropType = React.PropTypes.shape({
 
 export type AppState = {
   navInfo: NavInfo,
-  loggedIn: bool,
-  username: string,
-  email: string,
-  emailVerified: bool,
+  userInfo: ?UserInfo,
   sessionID: string,
   verifyField: ?number,
   resetPasswordUsername: string,

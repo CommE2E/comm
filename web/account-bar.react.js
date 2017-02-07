@@ -153,10 +153,7 @@ class AccountBar extends React.Component {
     if (response.success) {
       this.props.updateStore((prevState: AppState) => update(prevState, {
         calendarInfos: { $set: response.calendar_infos },
-        email: { $set: "" },
-        loggedIn: { $set: false },
-        username: { $set: "" },
-        emailVerified: { $set: false },
+        userInfo: { $set: null },
       }));
     }
   }
@@ -206,8 +203,8 @@ AccountBar.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    loggedIn: state.loggedIn,
-    username: state.username,
+    loggedIn: !!state.userInfo,
+    username: state.userInfo && state.userInfo.username,
     currentNavID: currentNavID(state),
   }),
   mapStateToUpdateStore,

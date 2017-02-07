@@ -162,10 +162,11 @@ class LogInModal extends React.Component {
       this.props.onClose();
       this.props.updateStore((prevState: AppState) => update(prevState, {
         calendarInfos: { $set: response.calendar_infos },
-        email: { $set: response.email },
-        loggedIn: { $set: true },
-        username: { $set: response.username },
-        emailVerified: { $set: response.email_verified },
+        userInfo: { $set: {
+          email: response.email,
+          username: response.username,
+          emailVerified: response.email_verified,
+        } },
       }));
       return;
     }

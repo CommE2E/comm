@@ -225,10 +225,11 @@ class RegisterModal extends React.Component {
     if (response.success) {
       this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
       this.props.updateStore((prevState: AppState) => update(prevState, {
-        email: { $set: email },
-        loggedIn: { $set: true },
-        username: { $set: username },
-        emailVerified: { $set: false },
+        userInfo: { $set: {
+          email: email,
+          username: username,
+          emailVerified: false,
+        } },
       }));
       return;
     }

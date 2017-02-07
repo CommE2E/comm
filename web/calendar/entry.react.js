@@ -426,7 +426,7 @@ export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionID: state.sessionID,
-    loggedIn: state.loggedIn,
+    loggedIn: !!state.userInfo,
   }),
   mapStateToUpdateStore,
   undefined,
