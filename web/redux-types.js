@@ -33,6 +33,5 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   calendarInfos: {[id: string]: CalendarInfo},
-  newCalendarID: ?string,
   entriesLoadingStatus: LoadingStatus,
 };

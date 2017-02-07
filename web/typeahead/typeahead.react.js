@@ -458,10 +458,12 @@ class Typeahead extends React.Component {
         secretCalendarID={secretCalendarID}
         freezeTypeahead={this.freeze.bind(this)}
         unfreezeTypeahead={this.unfreeze.bind(this)}
+        focusTypeahead={this.focusIfNotFocused.bind(this)}
         onTransition={onTransition}
         frozen={!!this.state.frozenNavIDs[secretCalendarID]}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
+        typeaheadFocused={this.state.typeaheadFocused}
         key={secretCalendarID}
       />
     );

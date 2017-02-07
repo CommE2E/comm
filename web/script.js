@@ -55,7 +55,6 @@ const store = createStore(
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     calendarInfos: calendar_infos,
-    newCalendarID: null,
     entriesLoadingStatus: "inactive",
   }: AppState),
 );

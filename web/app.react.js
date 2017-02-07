@@ -48,7 +48,6 @@ type Props = {
   currentNavID: ?string,
   thisURL: string,
   monthURL: string,
-  newCalendarID: ?string,
   location: {
     pathname: string,
   },
@@ -104,15 +103,6 @@ class App extends React.Component {
       } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {
         this.showResetPasswordModal();
       }
-    }
-    // New calendar created by user?
-    if (this.props.newCalendarID) {
-      history.push(
-        `calendar/${this.props.newCalendarID}/${this.props.monthURL}`,
-      );
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        newCalendarID: { $set: null },
-      }));
     }
   }
 
@@ -266,7 +256,6 @@ App.propTypes = {
   currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  newCalendarID: React.PropTypes.string,
   location: locationShape,
 };
 
@@ -279,10 +268,6 @@ export default connect(
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
     monthURL: monthURL(state),
-    newCalendarID:
-      state.newCalendarID && state.calendarInfos[state.newCalendarID]
-        ? state.newCalendarID
-        : null,
   }),
   mapStateToUpdateStore,
 )(App);
