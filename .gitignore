@@ -1,3 +1,4 @@
+.DS_Store
 server/config.php
 server/.htaccess
 server/scripts
