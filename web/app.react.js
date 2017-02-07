@@ -43,7 +43,7 @@ type Props = {
   thisNavURLFragment: string,
   navInfo: NavInfo,
   verifyField: ?number,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,

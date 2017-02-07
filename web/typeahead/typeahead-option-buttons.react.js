@@ -4,7 +4,7 @@ import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { UpdateStore } from 'lib/model/redux-reducer';
 import type { LoadingStatus } from '../loading-indicator.react';
-import type { AppState, NavInfo } from '../redux-types';
+import type { AppState } from '../redux-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -29,7 +29,7 @@ type Props = {
   month: number,
   home: bool,
   currentNavID: ?string,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
 };
 type State = {
   loadingStatus: LoadingStatus,

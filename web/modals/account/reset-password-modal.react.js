@@ -1,7 +1,7 @@
 // @flow
 
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from '../../redux-types';
+import type { AppState } from '../../redux-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -19,7 +19,7 @@ type Props = {
   onSuccess: () => void,
   resetPasswordUsername: string,
   verifyCode: string,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
 };
 type State = {
   password: string,

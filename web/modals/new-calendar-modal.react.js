@@ -6,7 +6,7 @@ import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/model/calendar-info';
-import type { AppState, NavInfo } from '../redux-types';
+import type { AppState } from '../redux-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -22,7 +22,7 @@ import ColorPicker from './color-picker.react';
 
 type Props = {
   onClose: () => void,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
 };
 type State = {
   name: string,

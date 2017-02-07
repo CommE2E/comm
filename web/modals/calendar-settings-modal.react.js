@@ -9,7 +9,7 @@ import {
   assertEditRules,
 } from 'lib/model/calendar-info';
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from '../redux-types';
+import type { AppState } from '../redux-types';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -28,7 +28,7 @@ import ColorPicker from './color-picker.react';
 type Tab = "general" | "privacy" | "delete";
 type Props = {
   calendarInfo: CalendarInfo,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
   onClose: () => void,
 };
 type State = {

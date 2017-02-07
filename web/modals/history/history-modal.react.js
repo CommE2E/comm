@@ -6,7 +6,7 @@ import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
 import { entryInfoPropType } from 'lib/model/entry-info';
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from '../../redux-types';
+import type { AppState } from '../../redux-types';
 import type { LoadingStatus } from '../../loading-indicator.react';
 
 import React from 'react';
@@ -40,7 +40,7 @@ type Props = {
   entryInfos: {[id: string]: EntryInfo},
   onClose: () => void,
   currentEntryID?: ?string,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
 };
 type State = {
   mode: HistoryMode,

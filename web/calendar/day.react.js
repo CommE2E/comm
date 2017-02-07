@@ -5,7 +5,7 @@ import { entryInfoPropType } from 'lib/model/entry-info';
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from '../redux-types'
+import type { AppState } from '../redux-types'
 
 import React from 'react';
 import classNames from 'classnames';
@@ -38,7 +38,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
 };
 type State = {
   pickerOpen: bool,

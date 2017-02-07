@@ -1,7 +1,7 @@
 // @flow
 
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from './redux-types';
+import type { AppState } from './redux-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -24,7 +24,7 @@ type Props = {
   loggedIn: bool,
   username: string,
   currentNavID: ?string,
-  updateStore: UpdateStore<NavInfo, AppState>,
+  updateStore: UpdateStore<AppState>,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,
