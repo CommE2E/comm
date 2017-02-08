@@ -2,8 +2,7 @@
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
-import type { UserInfo } from 'lib/model/redux-reducer';
-import type { LoadingStatus } from './loading-indicator.react';
+import type { UserInfo, LoadingStatus } from 'lib/model/redux-reducer';
 
 import React from 'react';
 
@@ -31,5 +30,5 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[day: string]: {[id: string]: EntryInfo}},
   calendarInfos: {[id: string]: CalendarInfo},
-  entriesLoadingStatus: LoadingStatus,
+  loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
 };

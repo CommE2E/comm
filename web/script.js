@@ -9,9 +9,10 @@ import type { AppState } from './redux-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { Router, Route } from 'react-router';
 import { AppContainer } from 'react-hot-loader';
+import thunk from 'redux-thunk';
 
 import { reducer } from 'lib/model/redux-reducer';
 
@@ -55,8 +56,9 @@ const store = createStore(
     resetPasswordUsername: reset_password_username,
     entryInfos: entry_infos,
     calendarInfos: calendar_infos,
-    entriesLoadingStatus: "inactive",
+    loadingStatuses: {},
   }: AppState),
+  applyMiddleware(thunk),
 );
 
 const render = (Component) => ReactDOM.render(

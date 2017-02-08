@@ -2,8 +2,13 @@
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { LoadingStatus } from '../loading-indicator.react';
+import type {
+  UpdateStore,
+  Dispatch,
+  UpdateCallback,
+  LoadingStatus,
+  BaseAction,
+} from 'lib/model/redux-reducer';
 import type { AppState } from '../redux-types';
 
 import React from 'react';
@@ -11,7 +16,6 @@ import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 import { fetchEntriesAndUpdateStore, currentNavID } from 'lib/shared/nav-utils';
 
 import css from '../style.css';
@@ -30,6 +34,8 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   updateStore: UpdateStore<AppState>,
+  fetchEntriesAndUpdateStore:
+    (year: number, month: number, navID: string) => void,
 };
 type State = {
   loadingStatus: LoadingStatus,
@@ -97,24 +103,20 @@ class TypeaheadOptionButtons extends React.Component {
       loadingStatus: "loading",
     });
     const newSubscribed = !this.props.calendarInfo.subscribed;
-    const [ response ] = await Promise.all([
-      fetchJSON('subscribe.php', {
-        'calendar': this.props.calendarInfo.id,
-        'subscribe': newSubscribed ? 1 : 0,
-      }),
-      (async () => {
-        if (this.props.home && newSubscribed) {
-          // If we are on home and just subscribed to a calendar,
-          // we need to load it
-          await fetchEntriesAndUpdateStore(
-            this.props.year,
-            this.props.month,
-            this.props.calendarInfo.id,
-            this.props.updateStore,
-          );
-        }
-      })(),
-    ]);
+
+    // If we are on home and just subscribed to a calendar,
+    // we need to load it
+    if (this.props.home && newSubscribed) {
+      this.props.fetchEntriesAndUpdateStore(
+        this.props.year,
+        this.props.month,
+        this.props.calendarInfo.id,
+      );
+    }
+    const response = await fetchJSON('subscribe.php', {
+      'calendar': this.props.calendarInfo.id,
+      'subscribe': newSubscribed ? 1 : 0,
+    });
     if (!response.success) {
       this.setState({
         loadingStatus: "error",
@@ -180,6 +182,7 @@ TypeaheadOptionButtons.propTypes = {
   home: React.PropTypes.bool.isRequired,
   currentNavID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
+  fetchEntriesAndUpdateStore: React.PropTypes.func.isRequired,
 };
 
 export default connect(
@@ -189,5 +192,13 @@ export default connect(
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
   }),
-  mapStateToUpdateStore,
+  (dispatch: Dispatch<AppState, BaseAction<AppState>>) => ({
+    updateStore: (callback: UpdateCallback<AppState>) =>
+      dispatch({ type: "GENERIC", callback }),
+    fetchEntriesAndUpdateStore: (
+      year: number,
+      month: number,
+      navID: string,
+    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID, true)),
+  }),
 )(TypeaheadOptionButtons);

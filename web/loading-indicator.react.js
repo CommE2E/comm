@@ -1,10 +1,10 @@
 // @flow
 
+import type { LoadingStatus } from 'lib/model/redux-reducer';
+
 import React from 'react';
 
 import css from './style.css';
-
-export type LoadingStatus = "inactive" | "loading" | "error";
 
 type Props = {
   status: LoadingStatus,

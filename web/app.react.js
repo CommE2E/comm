@@ -3,10 +3,15 @@
 // this plugin causes problems, and react-router has a better locationShape
 'no babel-plugin-flow-react-proptypes';
 
-import type { UpdateStore } from 'lib/model/redux-reducer';
+import type {
+  UpdateStore,
+  Dispatch,
+  UpdateCallback,
+  LoadingStatus,
+  BaseAction,
+} from 'lib/model/redux-reducer';
 import type { AppState, NavInfo } from './redux-types';
 import { navInfoPropType } from './redux-types';
-import type { LoadingStatus } from './loading-indicator.react';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -18,7 +23,6 @@ import _ from 'lodash';
 
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID, fetchEntriesAndUpdateStore } from 'lib/shared/nav-utils';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils'
 import {
   thisURL,
   monthURL,
@@ -27,6 +31,7 @@ import {
   canonicalURLFromReduxState,
   navInfoFromURL,
 } from './url-utils';
+import { createLoadingStatusSelector } from 'lib/utils/loading-utils';
 
 import css from './style.css';
 import AccountBar from './account-bar.react';
@@ -43,11 +48,13 @@ type Props = {
   thisNavURLFragment: string,
   navInfo: NavInfo,
   verifyField: ?number,
-  updateStore: UpdateStore<AppState>,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,
   monthURL: string,
+  updateStore: UpdateStore<AppState>,
+  fetchEntriesAndUpdateStore:
+    (year: number, month: number, navID: string) => void,
   location: {
     pathname: string,
   },
@@ -159,12 +166,11 @@ class App extends React.Component {
         newProps.navInfo.year !== this.props.navInfo.year ||
         newProps.navInfo.month !== this.props.navInfo.month)
     ) {
-      fetchEntriesAndUpdateStore(
+      this.props.fetchEntriesAndUpdateStore(
         newProps.navInfo.year,
         newProps.navInfo.month,
         newProps.currentNavID,
-        newProps.updateStore,
-      ).then();
+      );
     }
   }
 
@@ -251,23 +257,34 @@ App.propTypes = {
   thisNavURLFragment: React.PropTypes.string.isRequired,
   navInfo: navInfoPropType.isRequired,
   verifyField: React.PropTypes.number,
-  updateStore: React.PropTypes.func.isRequired,
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
+  updateStore: React.PropTypes.func.isRequired,
+  fetchEntriesAndUpdateStore: React.PropTypes.func.isRequired,
   location: locationShape,
 };
+
+const loadingStatusSelector = createLoadingStatusSelector('fetchMonthEntries');
 
 export default connect(
   (state: AppState) => ({
     thisNavURLFragment: thisNavURLFragment(state),
     navInfo: state.navInfo,
     verifyField: state.verifyField,
-    entriesLoadingStatus: state.entriesLoadingStatus,
+    entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
     monthURL: monthURL(state),
   }),
-  mapStateToUpdateStore,
+  (dispatch: Dispatch<AppState, BaseAction<AppState>>) => ({
+    updateStore: (callback: UpdateCallback<AppState>) =>
+      dispatch({ type: "GENERIC", callback }),
+    fetchEntriesAndUpdateStore: (
+      year: number,
+      month: number,
+      navID: string,
+    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID, true)),
+  }),
 )(App);
