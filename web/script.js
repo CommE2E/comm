@@ -2,9 +2,10 @@
 
 import 'babel-polyfill';
 
+import type { Store } from 'redux';
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
-import type { AppState } from './redux-types';
+import type { AppState, Action } from './redux-setup';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -14,7 +15,7 @@ import { Router, Route } from 'react-router';
 import { AppContainer } from 'react-hot-loader';
 import thunk from 'redux-thunk';
 
-import { reducer } from 'lib/model/redux-reducer';
+import { reducer } from './redux-setup';
 
 import App from './app.react';
 import history from './router-history';
@@ -40,7 +41,7 @@ const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email
   ? { username, email, emailVerified: email_verified }
   : null;
-const store = createStore(
+const store: Store<AppState, Action> = createStore(
   reducer,
   ({
     navInfo: {

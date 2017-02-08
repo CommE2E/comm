@@ -2,7 +2,7 @@
 
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { AppState } from '../redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';

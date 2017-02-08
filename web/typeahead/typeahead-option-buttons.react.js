@@ -9,7 +9,7 @@ import type {
   LoadingStatus,
   BaseAction,
 } from 'lib/model/redux-reducer';
-import type { AppState } from '../redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';

@@ -6,7 +6,7 @@ import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/model/calendar-info';
-import type { AppState } from '../redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';

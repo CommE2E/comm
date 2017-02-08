@@ -1,7 +1,7 @@
 // @flow
 
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState } from '../../redux-types';
+import type { AppState } from '../../redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';

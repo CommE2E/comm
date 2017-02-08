@@ -10,8 +10,8 @@ import type {
   LoadingStatus,
   BaseAction,
 } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from './redux-types';
-import { navInfoPropType } from './redux-types';
+import type { AppState, NavInfo } from './redux-setup';
+import { navInfoPropType } from './redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';

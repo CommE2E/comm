@@ -1,7 +1,7 @@
 // @flow
 
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from '../redux-types';
+import type { AppState, NavInfo } from '../redux-setup';
 
 import React from 'react';
 import classNames from 'classnames';

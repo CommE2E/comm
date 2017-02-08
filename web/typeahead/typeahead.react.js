@@ -4,7 +4,7 @@ import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { NavID } from './typeahead-action-option.react';
 import type { UpdateStore } from 'lib/model/redux-reducer';
-import type { AppState } from '../redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import classNames from 'classnames';

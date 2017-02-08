@@ -6,7 +6,7 @@ import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
 import { entryInfoPropType } from 'lib/model/entry-info';
 import type { UpdateStore, LoadingStatus } from 'lib/model/redux-reducer';
-import type { AppState } from '../../redux-types';
+import type { AppState } from '../../redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';

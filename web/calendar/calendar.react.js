@@ -4,7 +4,7 @@ import type { EntryInfo } from 'lib/model/entry-info';
 import { entryInfoPropType } from 'lib/model/entry-info';
 import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { AppState } from '../redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import _ from 'lodash';

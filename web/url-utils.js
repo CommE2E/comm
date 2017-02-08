@@ -1,7 +1,7 @@
 // @flow
 
 import type { Store } from 'redux';
-import type { NavInfo, AppState } from './redux-types';
+import type { NavInfo, AppState, Action } from './redux-setup';
 
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
@@ -98,7 +98,7 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
 // determined on the server side. However, for the rest of the application URL
 // changes propagate to Redux, so we turn this off after the initial run.
 let urlRedirectedFromInitialReduxState = false;
-function redirectURLFromInitialReduxState(store: Store) {
+function redirectURLFromInitialReduxState(store: Store<AppState, Action>) {
   return (nextState: Object, replace: Function) => {
     if (urlRedirectedFromInitialReduxState) {
       return;
@@ -117,7 +117,7 @@ function redirectURLFromInitialReduxState(store: Store) {
 // This function returns an "onChange" handler for our single react-router
 // Route. Since we only have a single wildcard route, this handler will be run
 // whenever the URL is changed programmatically on the client side.
-function redirectURLFromAppTransition(store: Store) {
+function redirectURLFromAppTransition(store: Store<AppState, Action>) {
   return (prevState: Object, nextState: Object, replace: Function) => {
     const partialNavInfo = partialNavInfoFromURL(nextState.location.pathname);
     if (!partialNavInfo.home && !partialNavInfo.calendarID) {
