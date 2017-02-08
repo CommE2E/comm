@@ -27,6 +27,7 @@ import { HistoryVector, DeleteVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 
 type Props = {
+  innerRef: (me: Entry) => void,
   entryInfo: EntryInfo,
   calendarInfo: CalendarInfo,
   sessionID: string,
@@ -67,6 +68,7 @@ class Entry extends React.Component {
   }
 
   componentDidMount() {
+    this.props.innerRef(this);
     this.updateHeight();
     // Whenever a new Entry is created, focus on it
     if (!this.props.entryInfo.id) {
@@ -406,7 +408,10 @@ class Entry extends React.Component {
 
 }
 
+export type InnerEntry = Entry;
+
 Entry.propTypes = {
+  innerRef: React.PropTypes.func.isRequired,
   entryInfo: entryInfoPropType.isRequired,
   calendarInfo: calendarInfoPropType.isRequired,
   sessionID: React.PropTypes.string.isRequired,
@@ -428,6 +433,4 @@ export default connect(
     loggedIn: !!state.userInfo,
   }),
   mapStateToUpdateStore,
-  undefined,
-  { 'withRef': true },
 )(Entry);

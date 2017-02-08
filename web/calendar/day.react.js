@@ -6,6 +6,7 @@ import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { UpdateStore } from 'lib/model/redux-reducer';
 import type { AppState } from '../redux-setup'
+import type { InnerEntry } from './entry.react';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -44,9 +45,6 @@ type State = {
   pickerOpen: bool,
   hovered: bool,
 };
-type EntryConnect = {
-  getWrappedInstance: () => Entry,
-};
 
 class Day extends React.Component {
 
@@ -55,7 +53,7 @@ class Day extends React.Component {
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
-  entries: Map<string, EntryConnect>;
+  entries: Map<string, InnerEntry>;
   curLocalID: number;
 
   constructor(props: Props) {
@@ -127,7 +125,7 @@ class Day extends React.Component {
         clearModal={this.props.clearModal}
         tabIndex={this.props.startingTabIndex + i}
         key={key}
-        ref={(entry) => this.entries.set(key, entry)}
+        innerRef={(entry) => this.entries.set(key, entry)}
       />;
     });
 
@@ -262,7 +260,7 @@ class Day extends React.Component {
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));
       invariant(entry, "entry for entryinfo should be defined");
-      entry.getWrappedInstance().focus();
+      entry.focus();
     }
   }
 

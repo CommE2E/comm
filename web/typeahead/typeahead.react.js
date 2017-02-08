@@ -46,9 +46,6 @@ type State = {
   searchResults: string[],
   recommendedCalendars: CalendarInfo[],
 };
-type TypeaheadCalendarOptionConnect = {
-  getWrappedInstance: () => TypeaheadCalendarOption,
-};
 
 class Typeahead extends React.Component {
 
