@@ -7,9 +7,8 @@ import type {
   Dispatch,
   UpdateCallback,
   LoadingStatus,
-  BaseAction,
 } from 'lib/model/redux-reducer';
-import type { AppState } from '../redux-setup';
+import type { AppState, Action } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -192,13 +191,13 @@ export default connect(
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
   }),
-  (dispatch: Dispatch<AppState, BaseAction<AppState>>) => ({
+  (dispatch: Dispatch<AppState, Action>) => ({
     updateStore: (callback: UpdateCallback<AppState>) =>
       dispatch({ type: "GENERIC", callback }),
     fetchEntriesAndUpdateStore: (
       year: number,
       month: number,
       navID: string,
-    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID, true)),
+    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID)),
   }),
 )(TypeaheadOptionButtons);

@@ -8,9 +8,8 @@ import type {
   Dispatch,
   UpdateCallback,
   LoadingStatus,
-  BaseAction,
 } from 'lib/model/redux-reducer';
-import type { AppState, NavInfo } from './redux-setup';
+import type { AppState, NavInfo, Action } from './redux-setup';
 import { navInfoPropType } from './redux-setup';
 
 import React from 'react';
@@ -266,7 +265,8 @@ App.propTypes = {
   location: locationShape,
 };
 
-const loadingStatusSelector = createLoadingStatusSelector('fetchMonthEntries');
+const loadingStatusSelector
+  = createLoadingStatusSelector('FETCH_MONTH_ENTRIES');
 
 export default connect(
   (state: AppState) => ({
@@ -278,13 +278,13 @@ export default connect(
     thisURL: thisURL(state),
     monthURL: monthURL(state),
   }),
-  (dispatch: Dispatch<AppState, BaseAction<AppState>>) => ({
+  (dispatch: Dispatch<AppState, Action>) => ({
     updateStore: (callback: UpdateCallback<AppState>) =>
       dispatch({ type: "GENERIC", callback }),
     fetchEntriesAndUpdateStore: (
       year: number,
       month: number,
       navID: string,
-    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID, true)),
+    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID)),
   }),
 )(App);

@@ -5,8 +5,13 @@ import type { CalendarInfo } from 'lib/model/calendar-info';
 import { calendarInfoPropType } from 'lib/model/calendar-info';
 import type { EntryInfo } from 'lib/model/entry-info';
 import { entryInfoPropType } from 'lib/model/entry-info';
-import type { UpdateStore, LoadingStatus } from 'lib/model/redux-reducer';
-import type { AppState } from '../../redux-setup';
+import type {
+  UpdateStore,
+  UpdateCallback,
+  LoadingStatus,
+  Dispatch,
+} from 'lib/model/redux-reducer';
+import type { AppState, Action } from '../../redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -18,10 +23,13 @@ import _ from 'lodash';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { getDate } from 'lib/utils/date-utils';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
-import { currentNavID, mergeNewEntriesIntoStore } from 'lib/shared/nav-utils';
+import {
+  currentNavID,
+  fetchAllEntriesAndUpdateStore,
+} from 'lib/shared/nav-utils';
 import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
 import { entryKey } from 'lib/shared/entry-utils';
+import { createLoadingStatusSelector } from 'lib/utils/loading-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -39,12 +47,14 @@ type Props = {
   entryInfos: {[id: string]: EntryInfo},
   onClose: () => void,
   currentEntryID?: ?string,
+  dayLoadingStatus: LoadingStatus,
   updateStore: UpdateStore<AppState>,
+  fetchAllEntriesAndUpdateStore:
+    (year: number, month: number, day: number, navID: string) => void,
 };
 type State = {
   mode: HistoryMode,
   animateModeChange: bool,
-  dayLoadingStatus: LoadingStatus,
   entryLoadingStatuses: {[entryID: string]: LoadingStatus},
   currentEntryID: ?string,
   revisions: HistoryRevisionInfo[],
@@ -70,7 +80,6 @@ class HistoryModal extends React.Component {
     this.state = {
       mode: props.mode,
       animateModeChange: false,
-      dayLoadingStatus: "loading",
       entryLoadingStatuses: entryLoadingStatuses,
       currentEntryID: props.currentEntryID,
       revisions: [],
@@ -78,12 +87,11 @@ class HistoryModal extends React.Component {
   }
 
   componentDidMount() {
-    const promises = [this.loadDay()];
+    this.loadDay();
     if (this.state.mode === "entry") {
       invariant(this.state.currentEntryID, "entry ID should be set");
-      promises.push(this.loadEntry(this.state.currentEntryID));
+      this.loadEntry(this.state.currentEntryID).then();
     }
-    Promise.all(promises).then();
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -113,7 +121,7 @@ class HistoryModal extends React.Component {
     const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
     let loadingStatus;
     if (this.state.mode === "day") {
-      loadingStatus = this.state.dayLoadingStatus;
+      loadingStatus = this.props.dayLoadingStatus;
     } else {
       invariant(this.state.currentEntryID, "entry ID should be set");
       loadingStatus =
@@ -192,26 +200,17 @@ class HistoryModal extends React.Component {
     );
   }
 
-  async loadDay() {
-    this.setState({
-      dayLoadingStatus: "loading",
-    });
+  loadDay() {
     invariant(
       this.props.currentNavID,
       "currentNavID should be set before history-modal opened",
     );
-    const response = await fetchJSON('day_history.php', {
-      'day': this.props.day,
-      'month': this.props.month,
-      'year': this.props.year,
-      'nav': this.props.currentNavID,
-    });
-    if (!response.result) {
-      this.setState({ dayLoadingStatus: "error" });
-      return;
-    }
-    mergeNewEntriesIntoStore(this.props.updateStore, response.result);
-    this.setState({ dayLoadingStatus: "inactive" });
+    this.props.fetchAllEntriesAndUpdateStore(
+      this.props.year,
+      this.props.month,
+      this.props.day,
+      this.props.currentNavID,
+    );
   }
 
   async loadEntry(entryID: string) {
@@ -304,7 +303,11 @@ HistoryModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
+  fetchAllEntriesAndUpdateStore: React.PropTypes.func.isRequired,
 };
+
+const dayLoadingStatusSelector
+  = createLoadingStatusSelector("FETCH_ALL_DAY_ENTRIES");
 
 type OwnProps = { day: number };
 export default connect(
@@ -312,6 +315,16 @@ export default connect(
     currentNavID: currentNavID(state),
     onScreenCalendarInfos: onScreenCalendarInfos(state),
     entryInfos: state.entryInfos[ownProps.day.toString()],
+    dayLoadingStatus: dayLoadingStatusSelector(state),
   }),
-  mapStateToUpdateStore,
+  (dispatch: Dispatch<AppState, Action>) => ({
+    updateStore: (callback: UpdateCallback<AppState>) =>
+      dispatch({ type: "GENERIC", callback }),
+    fetchAllEntriesAndUpdateStore: (
+      year: number,
+      month: number,
+      day: number,
+      navID: string,
+    ) => dispatch(fetchAllEntriesAndUpdateStore(year, month, day, navID)),
+  }),
 )(HistoryModal);
