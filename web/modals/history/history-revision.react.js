@@ -1,9 +1,9 @@
 // @flow
 
-import type { HistoryRevisionInfo } from 'lib/model/history-types';
-import { historyRevisionInfoPropType } from 'lib/model/history-types';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
+import type { HistoryRevisionInfo } from 'lib/types/history-types';
+import { historyRevisionInfoPropType } from 'lib/types/history-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../../redux-setup';
 
 import React from 'react';
@@ -14,7 +14,7 @@ import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 
-import { colorIsDark } from 'lib/shared/calendar-utils';
+import { colorIsDark } from 'lib/selectors/calendar-selectors';
 
 import css from '../../style.css';
 

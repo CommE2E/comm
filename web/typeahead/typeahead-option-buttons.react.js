@@ -1,13 +1,13 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type {
   UpdateStore,
   Dispatch,
   UpdateCallback,
   LoadingStatus,
-} from 'lib/model/redux-reducer';
+} from 'lib/types/redux-types';
 import type { AppState, Action } from '../redux-setup';
 
 import React from 'react';
@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
-import { currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/selectors/nav-selectors';
 import { fetchEntriesAndUpdateStore } from 'lib/actions/entry-actions';
 
 import css from '../style.css';

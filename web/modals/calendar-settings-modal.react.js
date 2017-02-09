@@ -1,14 +1,14 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
 import {
   calendarInfoPropType,
   visibilityRules,
   editRules,
   assertVisibilityRules,
   assertEditRules,
-} from 'lib/model/calendar-info';
-import type { UpdateStore } from 'lib/model/redux-reducer';
+} from 'lib/types/calendar-types';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';

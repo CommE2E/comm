@@ -1,8 +1,8 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { UpdateStore, LoadingStatus } from 'lib/model/redux-reducer';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { UpdateStore, LoadingStatus } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import update from 'immutability-helper';
 
-import { currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/selectors/nav-selectors';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils'
 import fetchJSON from 'lib/utils/fetch-json';
 import * as TypeaheadText from 'lib/shared/typeahead-text';

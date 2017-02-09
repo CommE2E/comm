@@ -1,10 +1,10 @@
 // @flow
 
-import type { EntryInfo } from 'lib/model/entry-info';
-import { entryInfoPropType } from 'lib/model/entry-info';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { UpdateStore } from 'lib/model/redux-reducer';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup'
 import type { InnerEntry } from './entry.react';
 
@@ -17,7 +17,7 @@ import { connect } from 'react-redux';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
-import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
+import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 
 import css from '../style.css';
 import Entry from './entry.react';

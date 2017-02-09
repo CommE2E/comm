@@ -1,9 +1,9 @@
 // @flow
 
-import type { EntryInfo } from 'lib/model/entry-info';
-import { entryInfoPropType } from 'lib/model/entry-info';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import { getDate } from 'lib/utils/date-utils';
-import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
+import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 
 import Day from './day.react';
 

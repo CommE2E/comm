@@ -1,10 +1,10 @@
 // @flow
 
-import type { EntryInfo } from 'lib/model/entry-info';
-import { entryInfoPropType } from 'lib/model/entry-info';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { UpdateStore, LoadingStatus } from 'lib/model/redux-reducer';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { UpdateStore, LoadingStatus } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -14,7 +14,7 @@ import update from 'immutability-helper';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { colorIsDark } from 'lib/shared/calendar-utils';
+import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import fetchJSON from 'lib/utils/fetch-json';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 

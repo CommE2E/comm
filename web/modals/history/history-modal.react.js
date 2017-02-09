@@ -1,16 +1,16 @@
 // @flow
 
-import type { HistoryMode, HistoryRevisionInfo } from 'lib/model/history-types';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { EntryInfo } from 'lib/model/entry-info';
-import { entryInfoPropType } from 'lib/model/entry-info';
+import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
 import type {
   UpdateStore,
   UpdateCallback,
   LoadingStatus,
   Dispatch,
-} from 'lib/model/redux-reducer';
+} from 'lib/types/redux-types';
 import type { AppState, Action } from '../../redux-setup';
 
 import React from 'react';
@@ -23,14 +23,14 @@ import _ from 'lodash';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { getDate } from 'lib/utils/date-utils';
-import { currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
   fetchAllEntriesAndUpdateStore,
   fetchAllEntriesAndUpdateStoreKey,
 } from 'lib/actions/entry-actions';
-import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
+import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
-import { createLoadingStatusSelector } from 'lib/utils/loading-utils';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';

@@ -1,17 +1,17 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
-import type { EntryInfo } from 'lib/model/entry-info';
-import { entryInfoPropType } from 'lib/model/entry-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
-import type { LoadingStatus } from 'lib/model/redux-reducer';
+import type { LoadingStatus } from 'lib/types/redux-types';
 
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 
-import { colorIsDark } from 'lib/shared/calendar-utils';
+import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import fetchJSON from 'lib/utils/fetch-json';
 
 import css from '../../style.css';

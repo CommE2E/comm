@@ -1,9 +1,9 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { NavID } from './typeahead-action-option.react';
-import type { UpdateStore } from 'lib/model/redux-reducer';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -13,9 +13,9 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
-import { SearchIndex, searchIndex } from 'lib/shared/search-index';
-import { currentNavID, subscriptionExists } from 'lib/shared/nav-utils';
-import { typeaheadSortedCalendarInfos } from 'lib/shared/calendar-utils';
+import { SearchIndex, searchIndex } from 'lib/selectors/search-index';
+import { currentNavID, subscriptionExists } from 'lib/selectors/nav-selectors';
+import { typeaheadSortedCalendarInfos } from 'lib/selectors/calendar-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 
 import css from '../style.css';

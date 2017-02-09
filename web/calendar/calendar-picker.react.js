@@ -1,14 +1,14 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import { calendarInfoPropType } from 'lib/model/calendar-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 
-import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
+import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 
 import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';

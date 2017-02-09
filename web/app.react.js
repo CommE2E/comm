@@ -8,7 +8,7 @@ import type {
   Dispatch,
   UpdateCallback,
   LoadingStatus,
-} from 'lib/model/redux-reducer';
+} from 'lib/types/redux-types';
 import type { AppState, NavInfo, Action } from './redux-setup';
 import { navInfoPropType } from './redux-setup';
 
@@ -21,7 +21,7 @@ import { Link, locationShape } from 'react-router';
 import _ from 'lodash';
 
 import { getDate } from 'lib/utils/date-utils';
-import { currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesAndUpdateStore,
   fetchEntriesAndUpdateStoreKey,
@@ -34,7 +34,7 @@ import {
   canonicalURLFromReduxState,
   navInfoFromURL,
 } from './url-utils';
-import { createLoadingStatusSelector } from 'lib/utils/loading-utils';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from './style.css';
 import AccountBar from './account-bar.react';

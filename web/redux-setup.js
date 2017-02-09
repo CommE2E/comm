@@ -1,14 +1,14 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import type { EntryInfo } from 'lib/model/entry-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { EntryInfo } from 'lib/types/entry-types';
 import type {
   UserInfo,
   LoadingStatus,
   BaseAction,
-} from 'lib/model/redux-reducer';
+} from 'lib/types/redux-types';
 
-import { baseReducer } from 'lib/model/redux-reducer';
+import baseReducer from 'lib/reducers/master-reducer';
 
 import React from 'react';
 

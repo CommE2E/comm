@@ -3,8 +3,8 @@
 import 'babel-polyfill';
 
 import type { Store } from 'redux';
-import type { CalendarInfo } from 'lib/model/calendar-info';
-import type { EntryInfo } from 'lib/model/entry-info';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { EntryInfo } from 'lib/types/entry-types';
 import type { AppState, Action } from './redux-setup';
 
 import React from 'react';

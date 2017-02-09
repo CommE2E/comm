@@ -1,6 +1,6 @@
 // @flow
 
-import type { UpdateStore } from 'lib/model/redux-reducer';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 
 import React from 'react';
@@ -11,7 +11,7 @@ import invariant from 'invariant';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
-import { currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/selectors/nav-selectors';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
