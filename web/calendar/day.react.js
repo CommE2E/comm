@@ -34,7 +34,7 @@ type Props = {
   day: number, // 1-indexed
   entryInfos: EntryInfo[],
   onScreenCalendarInfos: CalendarInfo[],
-  username: string,
+  username: ?string,
   loggedIn: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -273,7 +273,7 @@ Day.propTypes = {
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
-  username: React.PropTypes.string.isRequired,
+  username: React.PropTypes.string,
   loggedIn: React.PropTypes.bool.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,

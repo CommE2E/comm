@@ -25,12 +25,13 @@ import fetchJSON from 'lib/utils/fetch-json';
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchAllEntriesAndUpdateStore,
-  fetchAllEntriesAndUpdateStoreKey,
+  fetchAllEntriesForDay,
+  fetchAllEntriesForDayActionType,
 } from 'lib/actions/entry-actions';
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { wrapActionPromise } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -50,8 +51,7 @@ type Props = {
   currentEntryID?: ?string,
   dayLoadingStatus: LoadingStatus,
   updateStore: UpdateStore<AppState>,
-  fetchAllEntriesAndUpdateStore:
-    (year: number, month: number, day: number, navID: string) => void,
+  dispatchAction: (actionType: string, promise: Promise<*>) => void,
 };
 type State = {
   mode: HistoryMode,
@@ -206,11 +206,14 @@ class HistoryModal extends React.Component {
       this.props.currentNavID,
       "currentNavID should be set before history-modal opened",
     );
-    this.props.fetchAllEntriesAndUpdateStore(
-      this.props.year,
-      this.props.month,
-      this.props.day,
-      this.props.currentNavID,
+    this.props.dispatchAction(
+      fetchAllEntriesForDayActionType,
+      fetchAllEntriesForDay(
+        this.props.year,
+        this.props.month,
+        this.props.day,
+        this.props.currentNavID,
+      ),
     );
   }
 
@@ -304,11 +307,11 @@ HistoryModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
-  fetchAllEntriesAndUpdateStore: React.PropTypes.func.isRequired,
+  dispatchAction: React.PropTypes.func.isRequired,
 };
 
 const dayLoadingStatusSelector
-  = createLoadingStatusSelector(fetchAllEntriesAndUpdateStoreKey);
+  = createLoadingStatusSelector(fetchAllEntriesForDayActionType);
 
 type OwnProps = { day: number };
 export default connect(
@@ -321,11 +324,7 @@ export default connect(
   (dispatch: Dispatch<AppState, Action>) => ({
     updateStore: (callback: UpdateCallback<AppState>) =>
       dispatch({ type: "GENERIC", callback }),
-    fetchAllEntriesAndUpdateStore: (
-      year: number,
-      month: number,
-      day: number,
-      navID: string,
-    ) => dispatch(fetchAllEntriesAndUpdateStore(year, month, day, navID)),
+    dispatchAction: (actionType: string, promise: Promise<*>) =>
+      dispatch(wrapActionPromise(actionType, promise)),
   }),
 )(HistoryModal);

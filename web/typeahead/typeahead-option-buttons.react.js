@@ -16,7 +16,11 @@ import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { currentNavID } from 'lib/selectors/nav-selectors';
-import { fetchEntriesAndUpdateStore } from 'lib/actions/entry-actions';
+import {
+  fetchEntriesForMonth,
+  fetchEntriesForMonthActionType,
+} from 'lib/actions/entry-actions';
+import { wrapActionPromise } from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -34,8 +38,7 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   updateStore: UpdateStore<AppState>,
-  fetchEntriesAndUpdateStore:
-    (year: number, month: number, navID: string) => void,
+  dispatchAction: (actionType: string, promise: Promise<*>) => void,
 };
 type State = {
   loadingStatus: LoadingStatus,
@@ -107,10 +110,13 @@ class TypeaheadOptionButtons extends React.Component {
     // If we are on home and just subscribed to a calendar,
     // we need to load it
     if (this.props.home && newSubscribed) {
-      this.props.fetchEntriesAndUpdateStore(
-        this.props.year,
-        this.props.month,
-        this.props.calendarInfo.id,
+      this.props.dispatchAction(
+        fetchEntriesForMonthActionType,
+        fetchEntriesForMonth(
+          this.props.year,
+          this.props.month,
+          this.props.calendarInfo.id,
+        ),
       );
     }
     const response = await fetchJSON('subscribe.php', {
@@ -182,7 +188,7 @@ TypeaheadOptionButtons.propTypes = {
   home: React.PropTypes.bool.isRequired,
   currentNavID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
-  fetchEntriesAndUpdateStore: React.PropTypes.func.isRequired,
+  dispatchAction: React.PropTypes.func.isRequired,
 };
 
 export default connect(
@@ -195,10 +201,7 @@ export default connect(
   (dispatch: Dispatch<AppState, Action>) => ({
     updateStore: (callback: UpdateCallback<AppState>) =>
       dispatch({ type: "GENERIC", callback }),
-    fetchEntriesAndUpdateStore: (
-      year: number,
-      month: number,
-      navID: string,
-    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID)),
+    dispatchAction: (actionType: string, promise: Promise<*>) =>
+      dispatch(wrapActionPromise(actionType, promise)),
   }),
 )(TypeaheadOptionButtons);

@@ -1,7 +1,7 @@
 // @flow
 
-import type { UpdateStore } from 'lib/types/redux-types';
-import type { AppState } from './redux-setup';
+import type { Dispatch } from 'lib/types/redux-types';
+import type { AppState, Action } from './redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -12,6 +12,8 @@ import invariant from 'invariant';
 import fetchJSON from 'lib/utils/fetch-json';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
+import { logOut, logOutActionType } from 'lib/actions/user-actions';
+import { wrapActionPromise } from 'lib/utils/action-utils';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -22,9 +24,9 @@ import { htmlTargetFromEvent } from './vector-utils';
 
 type Props = {
   loggedIn: bool,
-  username: string,
+  username: ?string,
   currentNavID: ?string,
-  updateStore: UpdateStore<AppState>,
+  dispatchAction: (actionType: string, promise: Promise<*>) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,
@@ -146,16 +148,10 @@ class AccountBar extends React.Component {
     }
   }
 
-  async onLogOut(event: SyntheticEvent) {
+  onLogOut(event: SyntheticEvent) {
     event.preventDefault();
+    this.props.dispatchAction(logOutActionType, logOut());
     this.setState({ expanded: false });
-    const response = await fetchJSON('logout.php', {});
-    if (response.success) {
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: { $set: response.calendar_infos },
-        userInfo: { $set: null },
-      }));
-    }
   }
 
   onEditAccount(event: SyntheticEvent) {
@@ -193,9 +189,9 @@ class AccountBar extends React.Component {
 
 AccountBar.propTypes = {
   loggedIn: React.PropTypes.bool.isRequired,
-  username: React.PropTypes.string.isRequired,
+  username: React.PropTypes.string,
   currentNavID: React.PropTypes.string,
-  updateStore: React.PropTypes.func.isRequired,
+  dispatchAction: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   modalExists: React.PropTypes.bool.isRequired,
@@ -207,5 +203,8 @@ export default connect(
     username: state.userInfo && state.userInfo.username,
     currentNavID: currentNavID(state),
   }),
-  mapStateToUpdateStore,
+  (dispatch: Dispatch<AppState, Action>) => ({
+    dispatchAction: (actionType: string, promise: Promise<*>) =>
+      dispatch(wrapActionPromise(actionType, promise)),
+  }),
 )(AccountBar);

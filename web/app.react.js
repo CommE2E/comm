@@ -23,9 +23,12 @@ import _ from 'lodash';
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesAndUpdateStore,
-  fetchEntriesAndUpdateStoreKey,
+  fetchEntriesForMonth,
+  fetchEntriesForMonthActionType,
 } from 'lib/actions/entry-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { wrapActionPromise } from 'lib/utils/action-utils';
+
 import {
   thisURL,
   monthURL,
@@ -34,8 +37,6 @@ import {
   canonicalURLFromReduxState,
   navInfoFromURL,
 } from './url-utils';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-
 import css from './style.css';
 import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
@@ -56,8 +57,7 @@ type Props = {
   thisURL: string,
   monthURL: string,
   updateStore: UpdateStore<AppState>,
-  fetchEntriesAndUpdateStore:
-    (year: number, month: number, navID: string) => void,
+  dispatchAction: (actionType: string, promise: Promise<*>) => void,
   location: {
     pathname: string,
   },
@@ -169,10 +169,13 @@ class App extends React.Component {
         newProps.navInfo.year !== this.props.navInfo.year ||
         newProps.navInfo.month !== this.props.navInfo.month)
     ) {
-      this.props.fetchEntriesAndUpdateStore(
-        newProps.navInfo.year,
-        newProps.navInfo.month,
-        newProps.currentNavID,
+      this.props.dispatchAction(
+        fetchEntriesForMonthActionType,
+        fetchEntriesForMonth(
+          newProps.navInfo.year,
+          newProps.navInfo.month,
+          newProps.currentNavID,
+        ),
       );
     }
   }
@@ -265,12 +268,12 @@ App.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
   updateStore: React.PropTypes.func.isRequired,
-  fetchEntriesAndUpdateStore: React.PropTypes.func.isRequired,
+  dispatchAction: React.PropTypes.func.isRequired,
   location: locationShape,
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesAndUpdateStoreKey);
+  = createLoadingStatusSelector(fetchEntriesForMonthActionType);
 
 export default connect(
   (state: AppState) => ({
@@ -285,10 +288,7 @@ export default connect(
   (dispatch: Dispatch<AppState, Action>) => ({
     updateStore: (callback: UpdateCallback<AppState>) =>
       dispatch({ type: "GENERIC", callback }),
-    fetchEntriesAndUpdateStore: (
-      year: number,
-      month: number,
-      navID: string,
-    ) => dispatch(fetchEntriesAndUpdateStore(year, month, navID)),
+    dispatchAction: (actionType: string, promise: Promise<*>) =>
+      dispatch(wrapActionPromise(actionType, promise)),
   }),
 )(App);
