@@ -23,11 +23,11 @@ import _ from 'lodash';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { getDate } from 'lib/utils/date-utils';
+import { currentNavID } from 'lib/shared/nav-utils';
 import {
-  currentNavID,
   fetchAllEntriesAndUpdateStore,
   fetchAllEntriesAndUpdateStoreKey,
-} from 'lib/shared/nav-utils';
+} from 'lib/actions/entry-actions';
 import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/utils/loading-utils';

@@ -21,11 +21,11 @@ import { Link, locationShape } from 'react-router';
 import _ from 'lodash';
 
 import { getDate } from 'lib/utils/date-utils';
+import { currentNavID } from 'lib/shared/nav-utils';
 import {
-  currentNavID,
   fetchEntriesAndUpdateStore,
   fetchEntriesAndUpdateStoreKey,
-} from 'lib/shared/nav-utils';
+} from 'lib/actions/entry-actions';
 import {
   thisURL,
   monthURL,

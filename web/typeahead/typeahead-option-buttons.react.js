@@ -15,7 +15,8 @@ import { connect } from 'react-redux';
 import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
-import { fetchEntriesAndUpdateStore, currentNavID } from 'lib/shared/nav-utils';
+import { currentNavID } from 'lib/shared/nav-utils';
+import { fetchEntriesAndUpdateStore } from 'lib/actions/entry-actions';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
