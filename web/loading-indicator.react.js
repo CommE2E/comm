@@ -1,6 +1,6 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/redux-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 
 import React from 'react';
 

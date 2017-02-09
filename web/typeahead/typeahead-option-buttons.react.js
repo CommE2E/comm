@@ -6,8 +6,8 @@ import type {
   UpdateStore,
   Dispatch,
   UpdateCallback,
-  LoadingStatus,
 } from 'lib/types/redux-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, Action } from '../redux-setup';
 
 import React from 'react';

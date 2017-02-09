@@ -8,9 +8,9 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type {
   UpdateStore,
   UpdateCallback,
-  LoadingStatus,
   Dispatch,
 } from 'lib/types/redux-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, Action } from '../../redux-setup';
 
 import React from 'react';

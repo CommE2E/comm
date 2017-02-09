@@ -2,7 +2,8 @@
 
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
-import type { UpdateStore, LoadingStatus } from 'lib/types/redux-types';
+import type { UpdateStore } from 'lib/types/redux-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
