@@ -5,13 +5,9 @@ import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type {
-  UpdateStore,
-  UpdateCallback,
-  Dispatch,
-} from 'lib/types/redux-types';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState, Action } from '../../redux-setup';
+import type { AppState } from '../../redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -31,7 +27,7 @@ import {
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { wrapActionPromise } from 'lib/utils/action-utils';
+import { killThisLater } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -51,7 +47,7 @@ type Props = {
   currentEntryID?: ?string,
   dayLoadingStatus: LoadingStatus,
   updateStore: UpdateStore<AppState>,
-  dispatchAction: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
 };
 type State = {
   mode: HistoryMode,
@@ -206,7 +202,7 @@ class HistoryModal extends React.Component {
       this.props.currentNavID,
       "currentNavID should be set before history-modal opened",
     );
-    this.props.dispatchAction(
+    this.props.dispatchActionPromise(
       fetchAllEntriesForDayActionType,
       fetchAllEntriesForDay(
         this.props.year,
@@ -307,7 +303,7 @@ HistoryModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
-  dispatchAction: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
 const dayLoadingStatusSelector
@@ -321,10 +317,5 @@ export default connect(
     entryInfos: state.entryInfos[ownProps.day.toString()],
     dayLoadingStatus: dayLoadingStatusSelector(state),
   }),
-  (dispatch: Dispatch<AppState, Action>) => ({
-    updateStore: (callback: UpdateCallback<AppState>) =>
-      dispatch({ type: "GENERIC", callback }),
-    dispatchAction: (actionType: string, promise: Promise<*>) =>
-      dispatch(wrapActionPromise(actionType, promise)),
-  }),
+  killThisLater,
 )(HistoryModal);

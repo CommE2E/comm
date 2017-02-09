@@ -11,7 +11,11 @@ import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import { validEmailRegex } from 'lib/shared/account-regexes';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
+import {
+  deleteAccount,
+  deleteAccountActionType,
+} from 'lib/actions/user-actions';
+import { killThisLater } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -25,6 +29,7 @@ type Props = {
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
   updateStore: UpdateStore<AppState>,
+  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
 };
 type State = {
   email: string,
@@ -354,36 +359,40 @@ class UserSettingsModal extends React.Component {
     }
   }
 
-  async onDelete(event: SyntheticEvent) {
+  onDelete(event: SyntheticEvent) {
     event.preventDefault();
-
-    this.setState({ inputDisabled: true });
-    const response = await fetchJSON('delete_account.php', {
-      'password': this.state.currentPassword,
-    });
-    if (response.success) {
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: { $set: response.calendar_infos },
-        userInfo: { $set: null },
-      }));
-      this.props.onClose();
-      return;
-    }
-
-    const errorMessage = response.error === "invalid_credentials"
-      ? "wrong password"
-      : "unknown error";
-    this.setState(
-      {
-        currentPassword: "",
-        errorMessage: errorMessage,
-        inputDisabled: false,
-      },
-      () => {
-        invariant(this.currentPasswordInput, "currentPasswordInput ref unset");
-        this.currentPasswordInput.focus();
-      },
+    this.props.dispatchActionPromise(
+      deleteAccountActionType,
+      this.deleteAction(),
     );
+  }
+
+  async deleteAction() {
+    this.setState({ inputDisabled: true });
+    try {
+      const response = await deleteAccount(this.state.currentPassword);
+      this.props.onClose();
+      return response;
+    } catch(e) {
+      const errorMessage = e.message === "invalid_credentials"
+        ? "wrong password"
+        : "unknown error";
+      this.setState(
+        {
+          currentPassword: "",
+          errorMessage: errorMessage,
+          inputDisabled: false,
+        },
+        () => {
+          invariant(
+            this.currentPasswordInput,
+            "currentPasswordInput ref unset",
+          );
+          this.currentPasswordInput.focus();
+        },
+      );
+      throw e;
+    }
   }
 
 }
@@ -395,6 +404,7 @@ UserSettingsModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   updateStore: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
 export default connect(
@@ -403,5 +413,5 @@ export default connect(
     email: state.userInfo && state.userInfo.email,
     emailVerified: state.userInfo && state.userInfo.emailVerified,
   }),
-  mapStateToUpdateStore,
+  killThisLater,
 )(UserSettingsModal);

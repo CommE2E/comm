@@ -1,7 +1,6 @@
 // @flow
 
-import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState, Action } from './redux-setup';
+import type { AppState } from './redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -13,7 +12,7 @@ import fetchJSON from 'lib/utils/fetch-json';
 import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionType } from 'lib/actions/user-actions';
-import { wrapActionPromise } from 'lib/utils/action-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -26,7 +25,7 @@ type Props = {
   loggedIn: bool,
   username: ?string,
   currentNavID: ?string,
-  dispatchAction: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,
@@ -150,7 +149,7 @@ class AccountBar extends React.Component {
 
   onLogOut(event: SyntheticEvent) {
     event.preventDefault();
-    this.props.dispatchAction(logOutActionType, logOut());
+    this.props.dispatchActionPromise(logOutActionType, logOut());
     this.setState({ expanded: false });
   }
 
@@ -191,7 +190,7 @@ AccountBar.propTypes = {
   loggedIn: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string,
   currentNavID: React.PropTypes.string,
-  dispatchAction: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   modalExists: React.PropTypes.bool.isRequired,
@@ -203,8 +202,5 @@ export default connect(
     username: state.userInfo && state.userInfo.username,
     currentNavID: currentNavID(state),
   }),
-  (dispatch: Dispatch<AppState, Action>) => ({
-    dispatchAction: (actionType: string, promise: Promise<*>) =>
-      dispatch(wrapActionPromise(actionType, promise)),
-  }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(AccountBar);

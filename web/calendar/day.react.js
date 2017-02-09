@@ -4,20 +4,22 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup'
 import type { InnerEntry } from './entry.react';
 
 import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import update from 'immutability-helper';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  createLocalEntry,
+  createLocalEntryActionType,
+} from 'lib/actions/entry-actions';
 
 import css from '../style.css';
 import Entry from './entry.react';
@@ -39,7 +41,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
-  updateStore: UpdateStore<AppState>,
+  dispatchActionPayload: (actionType: string, payload: *) => void,
 };
 type State = {
   pickerOpen: bool,
@@ -54,7 +56,6 @@ class Day extends React.Component {
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
   entries: Map<string, InnerEntry>;
-  curLocalID: number;
 
   constructor(props: Props) {
     super(props);
@@ -62,7 +63,6 @@ class Day extends React.Component {
       pickerOpen: false,
       hovered: false,
     };
-    this.curLocalID = 0;
     this.entries = new Map();
   }
 
@@ -218,26 +218,16 @@ class Day extends React.Component {
       );
       return;
     }
-    const localID = `local${this.curLocalID++}`;
-    this.props.updateStore((prevState: AppState) => {
-      const dayString = this.props.day.toString();
-      const dayEntryInfos = prevState.entryInfos[dayString];
-      const newEntryInfo: EntryInfo = {
-        localID: localID,
-        calendarID: calendarID,
-        text: "",
-        year: this.props.year,
-        month: this.props.month,
-        day: this.props.day,
-        creationTime: Date.now(),
-        creator: this.props.username,
-        deleted: false,
-      };
-      const saveObj = {};
-      saveObj[dayString] = {};
-      saveObj[dayString][localID] = { $set: newEntryInfo };
-      return update(prevState, { entryInfos: saveObj });
-    });
+    this.props.dispatchActionPayload(
+      createLocalEntryActionType,
+      createLocalEntry(
+        calendarID,
+        this.props.year,
+        this.props.month,
+        this.props.day,
+        this.props.username,
+      ),
+    );
   }
 
   onHistory(event: SyntheticEvent) {
@@ -278,7 +268,7 @@ Day.propTypes = {
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   startingTabIndex: React.PropTypes.number.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
+  dispatchActionPayload: React.PropTypes.func.isRequired,
 };
 
 export default connect(
@@ -287,5 +277,5 @@ export default connect(
     username: state.userInfo && state.userInfo.username,
     loggedIn: !!state.userInfo,
   }),
-  mapStateToUpdateStore,
+  includeDispatchActionProps({ dispatchActionPayload: true }),
 )(Day);

@@ -3,20 +3,14 @@
 // this plugin causes problems, and react-router has a better locationShape
 'no babel-plugin-flow-react-proptypes';
 
-import type {
-  UpdateStore,
-  Dispatch,
-  UpdateCallback,
-} from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState, NavInfo, Action } from './redux-setup';
+import type { AppState, NavInfo } from './redux-setup';
 import { navInfoPropType } from './redux-setup';
 
 import React from 'react';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 import { Link, locationShape } from 'react-router';
 import _ from 'lodash';
 
@@ -27,7 +21,7 @@ import {
   fetchEntriesForMonthActionType,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { wrapActionPromise } from 'lib/utils/action-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import {
   thisURL,
@@ -56,8 +50,8 @@ type Props = {
   currentNavID: ?string,
   thisURL: string,
   monthURL: string,
-  updateStore: UpdateStore<AppState>,
-  dispatchAction: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPayload: (actionType: string, payload: *) => void,
   location: {
     pathname: string,
   },
@@ -128,10 +122,7 @@ class App extends React.Component {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(newProps.location.pathname);
       if (!_.isEqual(newNavInfo, newProps.navInfo)) {
-        const updateObj = _.mapValues(newNavInfo, val => ({ $set: val }));
-        this.props.updateStore((prevState: AppState) => update(prevState, {
-          navInfo: updateObj,
-        }));
+        this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
       }
     } else if (!_.isEqual(newProps.navInfo, this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
@@ -169,7 +160,7 @@ class App extends React.Component {
         newProps.navInfo.year !== this.props.navInfo.year ||
         newProps.navInfo.month !== this.props.navInfo.month)
     ) {
-      this.props.dispatchAction(
+      this.props.dispatchActionPromise(
         fetchEntriesForMonthActionType,
         fetchEntriesForMonth(
           newProps.navInfo.year,
@@ -267,8 +258,8 @@ App.propTypes = {
   currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
-  dispatchAction: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
+  dispatchActionPayload: React.PropTypes.func.isRequired,
   location: locationShape,
 };
 
@@ -285,10 +276,8 @@ export default connect(
     thisURL: thisURL(state),
     monthURL: monthURL(state),
   }),
-  (dispatch: Dispatch<AppState, Action>) => ({
-    updateStore: (callback: UpdateCallback<AppState>) =>
-      dispatch({ type: "GENERIC", callback }),
-    dispatchAction: (actionType: string, promise: Promise<*>) =>
-      dispatch(wrapActionPromise(actionType, promise)),
+  includeDispatchActionProps({
+    dispatchActionPromise: true,
+    dispatchActionPayload: true,
   }),
 )(App);

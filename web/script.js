@@ -14,6 +14,9 @@ import { createStore, applyMiddleware } from 'redux';
 import { Router, Route } from 'react-router';
 import { AppContainer } from 'react-hot-loader';
 import thunk from 'redux-thunk';
+import {
+  composeWithDevTools,
+} from 'redux-devtools-extension/logOnlyInProduction';
 
 import { reducer } from './redux-setup';
 
@@ -59,7 +62,7 @@ const store: Store<AppState, Action> = createStore(
     calendarInfos: calendar_infos,
     loadingStatuses: {},
   }: AppState),
-  applyMiddleware(thunk),
+  composeWithDevTools({})(applyMiddleware(thunk)),
 );
 
 const render = (Component) => ReactDOM.render(

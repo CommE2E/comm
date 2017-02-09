@@ -37,8 +37,15 @@ export type AppState = {
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
 };
 
-export type Action = BaseAction<AppState>;
+export type Action = BaseAction<AppState> |
+  { type: "REFLECT_ROUTE_CHANGE", payload: NavInfo };
 
 export function reducer(state: AppState, action: Action) {
+  if (action.type === "REFLECT_ROUTE_CHANGE") {
+    return {
+      ...state,
+      navInfo: action.payload,
+    };
+  }
   return baseReducer(state, action);
 }

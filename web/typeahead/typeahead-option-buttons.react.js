@@ -2,13 +2,9 @@
 
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
-import type {
-  UpdateStore,
-  Dispatch,
-  UpdateCallback,
-} from 'lib/types/redux-types';
+import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState, Action } from '../redux-setup';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -20,7 +16,7 @@ import {
   fetchEntriesForMonth,
   fetchEntriesForMonthActionType,
 } from 'lib/actions/entry-actions';
-import { wrapActionPromise } from 'lib/utils/action-utils';
+import { killThisLater } from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -38,7 +34,7 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   updateStore: UpdateStore<AppState>,
-  dispatchAction: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
 };
 type State = {
   loadingStatus: LoadingStatus,
@@ -110,7 +106,7 @@ class TypeaheadOptionButtons extends React.Component {
     // If we are on home and just subscribed to a calendar,
     // we need to load it
     if (this.props.home && newSubscribed) {
-      this.props.dispatchAction(
+      this.props.dispatchActionPromise(
         fetchEntriesForMonthActionType,
         fetchEntriesForMonth(
           this.props.year,
@@ -188,7 +184,7 @@ TypeaheadOptionButtons.propTypes = {
   home: React.PropTypes.bool.isRequired,
   currentNavID: React.PropTypes.string,
   updateStore: React.PropTypes.func.isRequired,
-  dispatchAction: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
 export default connect(
@@ -198,10 +194,5 @@ export default connect(
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
   }),
-  (dispatch: Dispatch<AppState, Action>) => ({
-    updateStore: (callback: UpdateCallback<AppState>) =>
-      dispatch({ type: "GENERIC", callback }),
-    dispatchAction: (actionType: string, promise: Promise<*>) =>
-      dispatch(wrapActionPromise(actionType, promise)),
-  }),
+  killThisLater,
 )(TypeaheadOptionButtons);
