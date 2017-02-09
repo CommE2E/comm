@@ -21,7 +21,11 @@ import { Link, locationShape } from 'react-router';
 import _ from 'lodash';
 
 import { getDate } from 'lib/utils/date-utils';
-import { currentNavID, fetchEntriesAndUpdateStore } from 'lib/shared/nav-utils';
+import {
+  currentNavID,
+  fetchEntriesAndUpdateStore,
+  fetchEntriesAndUpdateStoreKey,
+} from 'lib/shared/nav-utils';
 import {
   thisURL,
   monthURL,
@@ -266,7 +270,7 @@ App.propTypes = {
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector('FETCH_MONTH_ENTRIES');
+  = createLoadingStatusSelector(fetchEntriesAndUpdateStoreKey);
 
 export default connect(
   (state: AppState) => ({

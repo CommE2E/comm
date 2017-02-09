@@ -26,6 +26,7 @@ import { getDate } from 'lib/utils/date-utils';
 import {
   currentNavID,
   fetchAllEntriesAndUpdateStore,
+  fetchAllEntriesAndUpdateStoreKey,
 } from 'lib/shared/nav-utils';
 import { onScreenCalendarInfos } from 'lib/shared/calendar-utils';
 import { entryKey } from 'lib/shared/entry-utils';
@@ -307,7 +308,7 @@ HistoryModal.propTypes = {
 };
 
 const dayLoadingStatusSelector
-  = createLoadingStatusSelector("FETCH_ALL_DAY_ENTRIES");
+  = createLoadingStatusSelector(fetchAllEntriesAndUpdateStoreKey);
 
 type OwnProps = { day: number };
 export default connect(
