@@ -1,15 +1,18 @@
 // @flow
 
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
-import fetchJSON from 'lib/utils/fetch-json';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  resetPasswordActionType,
+  resetPassword,
+} from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -19,12 +22,12 @@ type Props = {
   onSuccess: () => void,
   resetPasswordUsername: string,
   verifyCode: string,
-  updateStore: UpdateStore<AppState>,
+  inputDisabled: bool,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   password: string,
   confirmPassword: string,
-  inputDisabled: bool,
   errorMessage: string,
 };
 
@@ -39,7 +42,6 @@ class ResetPasswordModal extends React.Component {
     this.state = {
       password: "",
       confirmPassword: "",
-      inputDisabled: false,
       errorMessage: "",
     };
   }
@@ -70,7 +72,7 @@ class ResetPasswordModal extends React.Component {
                     value={this.state.password}
                     onChange={this.onChangePassword.bind(this)}
                     ref={(input) => this.passwordInput = input}
-                    disabled={this.state.inputDisabled}
+                    disabled={this.props.inputDisabled}
                   />
                 </div>
                 <div>
@@ -79,7 +81,7 @@ class ResetPasswordModal extends React.Component {
                     placeholder="Confirm password"
                     value={this.state.confirmPassword}
                     onChange={this.onChangeConfirmPassword.bind(this)}
-                    disabled={this.state.inputDisabled}
+                    disabled={this.props.inputDisabled}
                   />
                 </div>
               </div>
@@ -93,7 +95,7 @@ class ResetPasswordModal extends React.Component {
                   type="submit"
                   value="Update"
                   onClick={this.onSubmit.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </span>
             </div>
@@ -115,7 +117,7 @@ class ResetPasswordModal extends React.Component {
     this.setState({ confirmPassword: target.value });
   }
 
-  async onSubmit(event: SyntheticEvent) {
+  onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
     if (this.state.password === '') {
@@ -147,36 +149,34 @@ class ResetPasswordModal extends React.Component {
       return;
     }
 
-    this.setState({ inputDisabled: true });
-    const response = await fetchJSON('reset_password.php', {
-      'code': this.props.verifyCode,
-      'password': this.state.password,
-    });
-    if (response.success) {
-      this.props.onSuccess();
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: { $set: response.calendar_infos },
-        userInfo: { $set: {
-          email: response.email,
-          username: response.username,
-          emailVerified: response.email_verified,
-        } },
-      }));
-      return;
-    }
-
-    this.setState(
-      {
-        password: "",
-        confirmPassword: "",
-        inputDisabled: false,
-        errorMessage: "unknown error",
-      },
-      () => {
-        invariant(this.passwordInput, "passwordInput ref unset");
-        this.passwordInput.focus();
-      },
+    this.props.dispatchActionPromise(
+      resetPasswordActionType,
+      this.resetPasswordAction(),
     );
+  }
+
+  async resetPasswordAction() {
+    try {
+      const response = await resetPassword(
+        this.props.verifyCode,
+        this.state.password,
+      );
+      this.props.onSuccess();
+      return response;
+    } catch (e) {
+      this.setState(
+        {
+          password: "",
+          confirmPassword: "",
+          errorMessage: "unknown error",
+        },
+        () => {
+          invariant(this.passwordInput, "passwordInput ref unset");
+          this.passwordInput.focus();
+        },
+      );
+      throw e;
+    }
   }
 
 }
@@ -186,13 +186,18 @@ ResetPasswordModal.propTypes = {
   onSuccess: React.PropTypes.func.isRequired,
   resetPasswordUsername: React.PropTypes.string.isRequired,
   verifyCode: React.PropTypes.string.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 };
+
+const loadingStatusSelector
+  = createLoadingStatusSelector(resetPasswordActionType);
 
 export default connect(
   (state: AppState) => ({
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
+    inputDisabled: loadingStatusSelector(state) === "loading",
   }),
-  mapStateToUpdateStore,
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(ResetPasswordModal);

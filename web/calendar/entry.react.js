@@ -17,7 +17,6 @@ import invariant from 'invariant';
 import { connect } from 'react-redux';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
-import fetchJSON from 'lib/utils/fetch-json';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import {
   saveEntryActionType,
