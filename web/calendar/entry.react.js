@@ -4,20 +4,29 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux-setup';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
-import update from 'immutability-helper';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import fetchJSON from 'lib/utils/fetch-json';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  saveEntryActionType,
+  concurrentModificationResetActionType,
+  saveEntry,
+  deleteEntryActionType,
+  deleteEntry,
+} from 'lib/actions/entry-actions';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -37,7 +46,8 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   tabIndex: number,
-  updateStore: UpdateStore<AppState>,
+  dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   focused: bool,
@@ -52,7 +62,8 @@ class Entry extends React.Component {
   textarea: ?HTMLTextAreaElement;
   creating: bool;
   needsUpdateAfterCreation: bool;
-  saveAttemptIndex: number;
+  needsDeleteAfterCreation: bool;
+  nextSaveAttemptIndex: number;
   mounted: bool;
 
   constructor(props: Props) {
@@ -64,7 +75,8 @@ class Entry extends React.Component {
     };
     this.creating = false;
     this.needsUpdateAfterCreation = false;
-    this.saveAttemptIndex = 0;
+    this.needsDeleteAfterCreation = false;
+    this.nextSaveAttemptIndex = 0;
     this.mounted = true;
   }
 
@@ -78,22 +90,11 @@ class Entry extends React.Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.entryInfo.text !== nextProps.entryInfo.text) {
+    if (
+      !this.state.focused &&
+        this.props.entryInfo.text !== nextProps.entryInfo.text
+    ) {
       this.setState({ text: nextProps.entryInfo.text });
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.mounted && !prevProps.entryInfo.id && this.props.entryInfo.id) {
-      this.creating = false;
-      if (this.needsUpdateAfterCreation) {
-        this.needsUpdateAfterCreation = false;
-        invariant(
-          this.textarea instanceof HTMLTextAreaElement,
-          "textarea ref not set",
-        );
-        this.save(this.props.entryInfo.id, this.textarea.value).then();
-      }
     }
   }
 
@@ -201,11 +202,11 @@ class Entry extends React.Component {
       "textarea ref not set",
     );
     if (this.textarea.value.trim() === "") {
-      await this.delete(this.props.entryInfo.id, false);
+      this.delete(this.props.entryInfo.id, false);
     }
   }
 
-  async onChange(event: SyntheticEvent) {
+  onChange(event: SyntheticEvent) {
     if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
@@ -222,7 +223,7 @@ class Entry extends React.Component {
       { "text": target.value },
       this.updateHeight.bind(this),
     );
-    await this.save(this.props.entryInfo.id, target.value);
+    this.save(this.props.entryInfo.id, target.value);
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
@@ -236,7 +237,7 @@ class Entry extends React.Component {
     }
   }
 
-  async save(serverID: ?string, newText: string) {
+  save(serverID: ?string, newText: string) {
     if (newText.trim() === "") {
       // We don't save the empty string, since as soon as the element loses
       // focus it'll get deleted
@@ -254,98 +255,83 @@ class Entry extends React.Component {
       }
     }
 
-    const curSaveAttempt = ++this.saveAttemptIndex;
+    this.props.dispatchActionPromise(
+      saveEntryActionType,
+      this.saveAction(serverID, newText),
+    );
+  }
+
+  async saveAction(serverID: ?string, newText: string) {
+    const curSaveAttempt = this.nextSaveAttemptIndex++;
     if (this.mounted) {
       this.setState({ loadingStatus: "loading" });
     }
-
-    const entryID = serverID ? serverID : "-1";
-    const payload: Object = {
-      'text': newText,
-      'prev_text': this.props.entryInfo.text,
-      'session_id': this.props.sessionID,
-      'entry_id': entryID,
-    };
-    if (!serverID) {
-      payload['day'] = this.props.entryInfo.day;
-      payload['month'] = this.props.entryInfo.month;
-      payload['year'] = this.props.entryInfo.year;
-      payload['calendar'] = this.props.entryInfo.calendarID;
-      payload['timestamp'] = this.props.entryInfo.creationTime;
-    } else {
-      payload['timestamp'] = Date.now();
-    }
-    const response = await fetchJSON('save.php', payload);
-
-    if (this.mounted && curSaveAttempt === this.saveAttemptIndex) {
-      this.setState({ 
-        loadingStatus: response.success ? "inactive" : "error",
-      });
-    }
-    if (response.error === 'concurrent_modification') {
-      invariant(serverID, "serverID should be set");
-      const onRefresh = () => {
-        const newText = response.db;
-        this.setState(
-          { loadingStatus: "inactive" },
-          this.updateHeight.bind(this),
-        );
-        // We need to update props.entryInfo.text so that prev_text is correct
-        this.props.updateStore((prevState: AppState) => {
-          const dayString = this.props.entryInfo.day.toString();
-          const updateObj = {};
-          updateObj[dayString] = {};
-          updateObj[dayString][serverID] = { text: { $set: newText } };
-          return update(prevState, { entryInfos: updateObj });
-        });
-        this.props.clearModal();
-      };
-      this.props.setModal(
-        <ConcurrentModificationModal
-          onClose={this.props.clearModal}
-          onRefresh={onRefresh}
-        />
+    try {
+      const response = await saveEntry(
+        serverID,
+        newText,
+        this.props.entryInfo.text,
+        this.props.sessionID,
+        this.props.entryInfo.year,
+        this.props.entryInfo.month,
+        this.props.entryInfo.day,
+        this.props.entryInfo.calendarID,
+        this.props.entryInfo.creationTime,
       );
-      return;
-    }
-    if (!serverID && response.entry_id) {
-      const newServerID = response.entry_id.toString();
-      const needsUpdate = this.needsUpdateAfterCreation;
-      if (needsUpdate && !this.mounted) {
-        await this.delete(newServerID, false);
-        return;
+      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.setState({ loadingStatus: "inactive" });
       }
-      // This is to update the server ID in the Redux store. It may trigger an
-      // update in componentDidUpdate.
-      this.props.updateStore((prevState: AppState) => {
+      const payload = {
+        localID: (null: ?string),
+        serverID: serverID ? serverID : response.entry_id.toString(),
+        day: this.props.entryInfo.day,
+        text: newText,
+      }
+      if (!serverID && response.entry_id) {
         const localID = this.props.entryInfo.localID;
-        invariant(localID, "we should have a localID");
-        const dayString = this.props.entryInfo.day.toString();
-        const dayEntryInfos = prevState.entryInfos[dayString];
-        let newDayEntryInfos;
-        // If an entry with this serverID already got into the store somehow
-        // (likely through an unrelated request), we need to dedup them.
-        if (dayEntryInfos[newServerID]) {
-          // It's fair to assume the serverID entry is newer than the localID
-          // entry, and this probably won't happen often, so for now we can just
-          // keep the serverID entry.
-          newDayEntryInfos = _.omitBy(dayEntryInfos, (candidate) =>
-            candidate.localID === localID
-          );
-        } else {
-          newDayEntryInfos = _.mapKeys(dayEntryInfos, (entryInfo, oldKey) =>
-            entryInfo.localID === localID ? newServerID : oldKey
-          );
-          newDayEntryInfos[newServerID].id = newServerID;
+        invariant(localID, "if there's no serverID, there should be a localID");
+        payload.localID = localID;
+        const newServerID = response.entry_id.toString();
+        this.creating = false;
+        if (this.needsUpdateAfterCreation) {
+          this.needsUpdateAfterCreation = false;
+          this.save(newServerID, this.state.text);
         }
-        const updateObj = {};
-        updateObj[dayString] = { $set: newDayEntryInfos };
-        return update(prevState, { entryInfos: updateObj });
-      });
+        if (this.needsDeleteAfterCreation) {
+          this.needsDeleteAfterCreation = false;
+          this.delete(newServerID, false);
+        }
+      }
+      return payload;
+    } catch(e) {
+      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.setState({ loadingStatus: "error" });
+      }
+      if (e instanceof ServerError && e.message === 'concurrent_modification') {
+        invariant(serverID, "serverID should be set");
+        const onRefresh = () => {
+          this.setState(
+            { loadingStatus: "inactive" },
+            this.updateHeight.bind(this),
+          );
+          this.props.dispatchActionPayload(
+            concurrentModificationResetActionType,
+            { serverID, day: this.props.entryInfo.day, dbText: e.result.db },
+          );
+          this.props.clearModal();
+        };
+        this.props.setModal(
+          <ConcurrentModificationModal
+            onClose={this.props.clearModal}
+            onRefresh={onRefresh}
+          />
+        );
+      }
+      throw e;
     }
   }
 
-  async onDelete(event: SyntheticEvent) {
+  onDelete(event: SyntheticEvent) {
     event.preventDefault();
     if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
@@ -357,39 +343,38 @@ class Entry extends React.Component {
       );
       return;
     }
-    await this.delete(this.props.entryInfo.id, true);
+    this.delete(this.props.entryInfo.id, true);
   }
 
-  async delete(serverID: ?string, focusOnNextEntry: bool) {
+  delete(serverID: ?string, focusOnNextEntry: bool) {
+    this.props.dispatchActionPromise(
+      deleteEntryActionType,
+      this.deleteAction(serverID, focusOnNextEntry),
+      undefined,
+      {
+        localID: this.props.entryInfo.localID,
+        serverID: serverID,
+        day: this.props.entryInfo.day,
+      },
+    );
+  }
+
+  async deleteAction(serverID: ?string, focusOnNextEntry: bool) {
     invariant(
       this.props.calendarInfo.editRules < 1 || this.props.loggedIn,
       "calendar should be editable if delete triggered",
     );
-    this.props.updateStore((prevState: AppState) => {
-      const dayString = this.props.entryInfo.day.toString();
-      const dayEntryInfos = prevState.entryInfos[dayString];
-      const newDayEntryInfos = _.omitBy(dayEntryInfos, (candidate) => {
-        const ei = this.props.entryInfo;
-        return (!!candidate.id && candidate.id === serverID) ||
-          (!!candidate.localID && candidate.localID === ei.localID);
-      });
-      const saveObj = {};
-      saveObj[dayString] = { $set: newDayEntryInfos };
-      return update(prevState, { entryInfos: saveObj });
-    });
-
     if (focusOnNextEntry) {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
-      await fetchJSON('delete_entry.php', {
-        'id': serverID,
-        'prev_text': this.props.entryInfo.text,
-        'session_id': this.props.sessionID,
-        'timestamp': Date.now(),
-      });
+      await deleteEntry(
+        serverID,
+        this.props.entryInfo.text,
+        this.props.sessionID,
+      );
     } else if (this.creating) {
-      this.needsUpdateAfterCreation = true;
+      this.needsDeleteAfterCreation = true;
     }
   }
 
@@ -421,7 +406,8 @@ Entry.propTypes = {
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   tabIndex: React.PropTypes.number.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
+  dispatchActionPayload: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 }
 
 type OwnProps = {
@@ -433,5 +419,8 @@ export default connect(
     sessionID: state.sessionID,
     loggedIn: !!state.userInfo,
   }),
-  mapStateToUpdateStore,
+  includeDispatchActionProps({
+    dispatchActionPromise: true,
+    dispatchActionPayload: true,
+  }),
 )(Entry);

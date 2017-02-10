@@ -1,6 +1,7 @@
 // @flow
 
 import type { AppState } from './redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -25,7 +26,7 @@ type Props = {
   loggedIn: bool,
   username: ?string,
   currentNavID: ?string,
-  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: DispatchActionPromise,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,

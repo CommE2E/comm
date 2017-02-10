@@ -2,6 +2,7 @@
 
 import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -29,7 +30,7 @@ type Props = {
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
   updateStore: UpdateStore<AppState>,
-  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   email: string,

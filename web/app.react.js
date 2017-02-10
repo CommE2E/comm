@@ -6,6 +6,10 @@
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, NavInfo } from './redux-setup';
 import { navInfoPropType } from './redux-setup';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -50,8 +54,8 @@ type Props = {
   currentNavID: ?string,
   thisURL: string,
   monthURL: string,
-  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
-  dispatchActionPayload: (actionType: string, payload: *) => void,
+  dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
   location: {
     pathname: string,
   },
@@ -258,8 +262,8 @@ App.propTypes = {
   currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
   monthURL: React.PropTypes.string.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
   dispatchActionPayload: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
   location: locationShape,
 };
 

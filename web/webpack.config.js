@@ -27,6 +27,7 @@ module.exports = function(env) {
             plugins: [
               ['transform-class-properties', { spec: true }],
               'transform-object-rest-spread',
+              ['transform-builtin-extend', { globals: ["Error"] }],
             ],
           },
         },

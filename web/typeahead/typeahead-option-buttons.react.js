@@ -4,6 +4,7 @@ import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -34,7 +35,7 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   updateStore: UpdateStore<AppState>,
-  dispatchActionPromise: (actionType: string, promise: Promise<*>) => void,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   loadingStatus: LoadingStatus,
