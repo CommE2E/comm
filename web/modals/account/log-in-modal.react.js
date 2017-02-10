@@ -6,7 +6,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import {
@@ -15,7 +14,6 @@ import {
 } from 'lib/shared/account-regexes';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import { logInActionType, logIn } from 'lib/actions/user-actions';
-import { ServerError } from 'lib/utils/fetch-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
@@ -155,24 +153,17 @@ class LogInModal extends React.Component {
       return;
     }
 
-    this.props.dispatchActionPromise(logInActionType, this.submit());
+    this.props.dispatchActionPromise(logInActionType, this.logInAction());
   }
 
-  async submit() {
+  async logInAction() {
     try {
-      const response = await logIn(
+      const result = await logIn(
         this.state.usernameOrEmail,
         this.state.password,
       );
       this.props.onClose();
-      return {
-        calendarInfos: response.calendar_infos,
-        userInfo: {
-          email: response.email,
-          username: response.username,
-          emailVerified: response.email_verified,
-        },
-      };
+      return result;
     } catch (e) {
       if (e.message === 'invalid_parameters') {
         this.setState(

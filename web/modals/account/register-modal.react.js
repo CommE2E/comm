@@ -1,26 +1,28 @@
 // @flow
 
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
 import fetchJSON from 'lib/utils/fetch-json';
 import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { registerActionType, register } from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
-  updateStore: UpdateStore<AppState>,
+  dispatchActionPromise: DispatchActionPromise,
+  inputDisabled: bool,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
 };
@@ -29,7 +31,6 @@ type State = {
   email: string,
   password: string,
   confirmPassword: string,
-  inputDisabled: bool,
   errorMessage: string,
 };
 
@@ -48,7 +49,6 @@ class RegisterModal extends React.Component {
       email: "",
       password: "",
       confirmPassword: "",
-      inputDisabled: false,
       errorMessage: "",
     };
   }
@@ -72,7 +72,7 @@ class RegisterModal extends React.Component {
                   value={this.state.username}
                   onChange={this.onChangeUsername.bind(this)}
                   ref={(input) => this.usernameInput = input}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
             </div>
@@ -85,7 +85,7 @@ class RegisterModal extends React.Component {
                   value={this.state.email}
                   onChange={this.onChangeEmail.bind(this)}
                   ref={(input) => this.emailInput = input}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
             </div>
@@ -99,7 +99,7 @@ class RegisterModal extends React.Component {
                     value={this.state.password}
                     onChange={this.onChangePassword.bind(this)}
                     ref={(input) => this.passwordInput = input}
-                    disabled={this.state.inputDisabled}
+                    disabled={this.props.inputDisabled}
                   />
                 </div>
                 <div>
@@ -108,7 +108,7 @@ class RegisterModal extends React.Component {
                     placeholder="Confirm password"
                     value={this.state.confirmPassword}
                     onChange={this.onChangeConfirmPassword.bind(this)}
-                    disabled={this.state.inputDisabled}
+                    disabled={this.props.inputDisabled}
                   />
                 </div>
               </div>
@@ -122,7 +122,7 @@ class RegisterModal extends React.Component {
                   type="submit"
                   value="Register"
                   onClick={this.onSubmit.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </span>
             </div>
@@ -156,7 +156,7 @@ class RegisterModal extends React.Component {
     this.setState({ confirmPassword: target.value });
   }
 
-  async onSubmit(event: SyntheticEvent) {
+  onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
     if (this.state.password === '') {
@@ -171,9 +171,7 @@ class RegisterModal extends React.Component {
           this.passwordInput.focus();
         },
       );
-      return;
-    }
-    if (this.state.password !== this.state.confirmPassword) {
+    } else if (this.state.password !== this.state.confirmPassword) {
       this.setState(
         {
           password: "",
@@ -185,9 +183,7 @@ class RegisterModal extends React.Component {
           this.passwordInput.focus();
         },
       );
-      return;
-    }
-    if (this.state.username.search(validUsernameRegex) === -1) {
+    } else if (this.state.username.search(validUsernameRegex) === -1) {
       this.setState(
         {
           username: "",
@@ -198,9 +194,7 @@ class RegisterModal extends React.Component {
           this.usernameInput.focus();
         },
       );
-      return;
-    }
-    if (this.state.email.search(validEmailRegex) === -1) {
+    } else if (this.state.email.search(validEmailRegex) === -1) {
       this.setState(
         {
           email: "",
@@ -211,80 +205,78 @@ class RegisterModal extends React.Component {
           this.emailInput.focus();
         },
       );
-      return;
-    }
-
-    this.setState({ inputDisabled: true });
-    const username = this.state.username;
-    const email = this.state.email;
-    const response = await fetchJSON('register.php', {
-      'username': username,
-      'email': email,
-      'password': this.state.password,
-    });
-    if (response.success) {
-      this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        userInfo: { $set: {
-          email: email,
-          username: username,
-          emailVerified: false,
-        } },
-      }));
-      return;
-    }
-
-    if (response.error === 'username_taken') {
-      this.setState(
-        {
-          username: "",
-          inputDisabled: false,
-          errorMessage: "username already taken",
-        },
-        () => {
-          invariant(this.usernameInput, "usernameInput ref unset");
-          this.usernameInput.focus();
-        },
-      );
-    } else if (response.error === 'email_taken') {
-      this.setState(
-        {
-          email: "",
-          inputDisabled: false,
-          errorMessage: "email already taken",
-        },
-        () => {
-          invariant(this.emailInput, "emailInput ref unset");
-          this.emailInput.focus();
-        },
-      );
     } else {
-      this.setState(
-        {
-          username: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          inputDisabled: false,
-          errorMessage: "unknown error",
-        },
-        () => {
-          invariant(this.usernameInput, "usernameInput ref unset");
-          this.usernameInput.focus();
-        },
+      this.props.dispatchActionPromise(
+        registerActionType,
+        this.registerAction(),
       );
+    }
+  }
+
+  async registerAction() {
+    try {
+      const result = await register(
+        this.state.username,
+        this.state.email,
+        this.state.password,
+      );
+      this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+      return result;
+    } catch (e) {
+      if (e.message === 'username_taken') {
+        this.setState(
+          {
+            username: "",
+            errorMessage: "username already taken",
+          },
+          () => {
+            invariant(this.usernameInput, "usernameInput ref unset");
+            this.usernameInput.focus();
+          },
+        );
+      } else if (e.message === 'email_taken') {
+        this.setState(
+          {
+            email: "",
+            errorMessage: "email already taken",
+          },
+          () => {
+            invariant(this.emailInput, "emailInput ref unset");
+            this.emailInput.focus();
+          },
+        );
+      } else {
+        this.setState(
+          {
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            errorMessage: "unknown error",
+          },
+          () => {
+            invariant(this.usernameInput, "usernameInput ref unset");
+            this.usernameInput.focus();
+          },
+        );
+      }
     }
   }
 
 }
 
 RegisterModal.propTypes = {
-  updateStore: React.PropTypes.func.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
 };
 
+const loadingStatusSelector = createLoadingStatusSelector(registerActionType);
+
 export default connect(
-  undefined,
-  mapStateToUpdateStore,
+  (state: AppState) => ({
+    inputDisabled: loadingStatusSelector(state) === "loading",
+  }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(RegisterModal);
