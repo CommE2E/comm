@@ -15,7 +15,6 @@ import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import {

@@ -1,20 +1,23 @@
 // @flow
 
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { VisibilityRules } from 'lib/types/calendar-types';
 import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
-import fetchJSON from 'lib/utils/fetch-json';
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  newCalendarActionType,
+  newCalendar,
+} from 'lib/actions/calendar-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../style.css';
 import Modal from './modal.react';
@@ -22,7 +25,8 @@ import ColorPicker from './color-picker.react';
 
 type Props = {
   onClose: () => void,
-  updateStore: UpdateStore<AppState>,
+  inputDisabled: bool,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   name: string,
@@ -31,7 +35,6 @@ type State = {
   visibilityRules: ?VisibilityRules,
   calendarPassword: string,
   confirmCalendarPassword: string,
-  inputDisabled: bool,
   errorMessage: string,
 };
 
@@ -52,7 +55,6 @@ class NewCalendarModal extends React.Component {
       visibilityRules: undefined,
       calendarPassword: "",
       confirmCalendarPassword: "",
-      inputDisabled: false,
       errorMessage: "",
     };
   }
@@ -77,7 +79,7 @@ class NewCalendarModal extends React.Component {
               placeholder="New calendar password"
               value={this.state.calendarPassword}
               onChange={this.onChangeCalendarPassword.bind(this)}
-              disabled={this.state.inputDisabled}
+              disabled={this.props.inputDisabled}
               ref={(input) => this.calendarPasswordInput = input}
             />
           </div>
@@ -87,7 +89,7 @@ class NewCalendarModal extends React.Component {
               placeholder="Confirm calendar password"
               value={this.state.confirmCalendarPassword}
               onChange={this.onChangeConfirmCalendarPassword.bind(this)}
-              disabled={this.state.inputDisabled}
+              disabled={this.props.inputDisabled}
             />
           </div>
         </div>
@@ -113,7 +115,7 @@ class NewCalendarModal extends React.Component {
                   value={this.state.name}
                   placeholder="Calendar name"
                   onChange={this.onChangeName.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                   ref={(input) => this.nameInput = input}
                 />
               </div>
@@ -125,7 +127,7 @@ class NewCalendarModal extends React.Component {
                   value={this.state.description}
                   placeholder="Calendar description"
                   onChange={this.onChangeDescription.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
             </div>
@@ -143,7 +145,7 @@ class NewCalendarModal extends React.Component {
                         this.state.visibilityRules === visibilityRules.OPEN
                       }
                       onChange={this.onChangeClosed.bind(this)}
-                      disabled={this.state.inputDisabled}
+                      disabled={this.props.inputDisabled}
                       ref={(input) => this.openPrivacyInput = input}
                     />
                     <div className={css['form-enum-option']}>
@@ -165,7 +167,7 @@ class NewCalendarModal extends React.Component {
                         this.state.visibilityRules === visibilityRules.CLOSED
                       }
                       onChange={this.onChangeClosed.bind(this)}
-                      disabled={this.state.inputDisabled}
+                      disabled={this.props.inputDisabled}
                     />
                     <div className={css['form-enum-option']}>
                       <label htmlFor="new-calendar-closed">
@@ -188,7 +190,7 @@ class NewCalendarModal extends React.Component {
                         this.state.visibilityRules === visibilityRules.SECRET
                       }
                       onChange={this.onChangeClosed.bind(this)}
-                      disabled={this.state.inputDisabled}
+                      disabled={this.props.inputDisabled}
                     />
                     <div className={css['form-enum-option']}>
                       <label htmlFor="new-calendar-secret">
@@ -214,7 +216,7 @@ class NewCalendarModal extends React.Component {
                 <ColorPicker
                   id="new-calendar-color"
                   value={this.state.color}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                   onChange={this.onChangeColor.bind(this)}
                 />
               </div>
@@ -228,7 +230,7 @@ class NewCalendarModal extends React.Component {
                   type="submit"
                   value="Save"
                   onClick={this.onSubmit.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </span>
             </div>
@@ -274,7 +276,7 @@ class NewCalendarModal extends React.Component {
     this.setState({ confirmCalendarPassword: target.value });
   }
 
-  async onSubmit(event: SyntheticEvent) {
+  onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
     const name = this.state.name.trim();
@@ -347,67 +349,57 @@ class NewCalendarModal extends React.Component {
       }
     }
 
-    this.setState({ inputDisabled: true });
-    const description = this.state.description;
-    const color = this.state.color;
-    const response = await fetchJSON('new_calendar.php', {
-      'name': name,
-      'description': description,
-      'visibility_rules': ourVisibilityRules,
-      'password': this.state.calendarPassword,
-      'color': color,
-    });
-    if (response.success) {
-      const newCalendarID = response.new_calendar_id.toString();
-      this.props.onClose();
-      const updateObj = {};
-      updateObj[newCalendarID] = { $set: {
-        id: newCalendarID,
-        name: name,
-        description: description,
-        authorized: true,
-        subscribed: true,
-        canChangeSettings: true,
-        visibilityRules: ourVisibilityRules,
-        color: color,
-        editRules: ourVisibilityRules >= visibilityRules.CLOSED ? 1 : 0,
-      }};
-      this.props.updateStore((prevState: AppState) => update(prevState, {
-        calendarInfos: updateObj,
-        navInfo: {
-          home: { $set: false },
-          calendarID: { $set: newCalendarID },
-        },
-      }));
-      return;
-    }
-
-    this.setState(
-      {
-        name: "",
-        description: "",
-        color: "",
-        visibilityRules: undefined,
-        calendarPassword: "",
-        confirmCalendarPassword: "",
-        inputDisabled: false,
-        errorMessage: "unknown error",
-      },
-      () => {
-        invariant(this.nameInput, "nameInput ref unset");
-        this.nameInput.focus();
-      },
+    this.props.dispatchActionPromise(
+      newCalendarActionType,
+      this.newCalendarAction(name, ourVisibilityRules),
     );
+  }
+
+  async newCalendarAction(name: string, ourVisibilityRules: VisibilityRules) {
+    try {
+      const response = await newCalendar(
+        name,
+        this.state.description,
+        ourVisibilityRules,
+        this.state.calendarPassword,
+        this.state.color,
+      );
+      this.props.onClose();
+      return response;
+    } catch (e) {
+      this.setState(
+        {
+          name: "",
+          description: "",
+          color: "",
+          visibilityRules: undefined,
+          calendarPassword: "",
+          confirmCalendarPassword: "",
+          errorMessage: "unknown error",
+        },
+        () => {
+          invariant(this.nameInput, "nameInput ref unset");
+          this.nameInput.focus();
+        },
+      );
+      throw e;
+    }
   }
 
 }
 
 NewCalendarModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 }
 
+const loadingStatusSelector
+  = createLoadingStatusSelector(newCalendarActionType);
+
 export default connect(
-  undefined,
-  mapStateToUpdateStore,
+  (state: AppState) => ({
+    inputDisabled: loadingStatusSelector(state) === "loading",
+  }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(NewCalendarModal);

@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import invariant from 'invariant';
 
-import { mapStateToUpdateStore } from 'lib/shared/redux-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionType } from 'lib/actions/user-actions';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
