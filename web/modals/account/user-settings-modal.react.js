@@ -1,6 +1,5 @@
 // @flow
 
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
@@ -8,15 +7,18 @@ import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
-import fetchJSON from 'lib/utils/fetch-json';
 import { validEmailRegex } from 'lib/shared/account-regexes';
 import {
-  deleteAccount,
   deleteAccountActionType,
+  deleteAccount,
+  changeUserSettingsActionType,
+  changeUserSettings,
+  resendVerificationEmailActionType,
+  resendVerificationEmail,
 } from 'lib/actions/user-actions';
-import { killThisLater } from 'lib/utils/action-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -27,9 +29,9 @@ type Props = {
   username: string,
   email: string,
   emailVerified: bool,
+  inputDisabled: bool,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
-  updateStore: UpdateStore<AppState>,
   dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
@@ -38,7 +40,6 @@ type State = {
   newPassword: string,
   confirmNewPassword: string,
   currentPassword: string,
-  inputDisabled: bool,
   errorMessage: string,
   currentTab: Tab,
 };
@@ -59,7 +60,6 @@ class UserSettingsModal extends React.Component {
       newPassword: "",
       confirmNewPassword: "",
       currentPassword: "",
-      inputDisabled: false,
       errorMessage: "",
       currentTab: "general",
     };
@@ -109,7 +109,7 @@ class UserSettingsModal extends React.Component {
                 value={this.state.email}
                 onChange={this.onChangeEmail.bind(this)}
                 ref={(input) => this.emailInput = input}
-                disabled={this.state.inputDisabled}
+                disabled={this.props.inputDisabled}
               />
               {verificationStatus}
             </div>
@@ -124,7 +124,7 @@ class UserSettingsModal extends React.Component {
                   value={this.state.newPassword}
                   onChange={this.onChangeNewPassword.bind(this)}
                   ref={(input) => this.newPasswordInput = input}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
               <div>
@@ -133,7 +133,7 @@ class UserSettingsModal extends React.Component {
                   placeholder="Confirm new password (optional)"
                   value={this.state.confirmNewPassword}
                   onChange={this.onChangeConfirmNewPassword.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
             </div>
@@ -157,7 +157,7 @@ class UserSettingsModal extends React.Component {
             type="submit"
             value="Delete account"
             onClick={this.onDelete.bind(this)}
-            disabled={this.state.inputDisabled}
+            disabled={this.props.inputDisabled}
           />
         </span>
       );
@@ -168,7 +168,7 @@ class UserSettingsModal extends React.Component {
             type="submit"
             value="Update account"
             onClick={this.onSubmit.bind(this)}
-            disabled={this.state.inputDisabled}
+            disabled={this.props.inputDisabled}
           />
         </span>
       );
@@ -194,7 +194,7 @@ class UserSettingsModal extends React.Component {
                   placeholder="Current password"
                   value={this.state.currentPassword}
                   onChange={this.onChangeCurrentPassword.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                   ref={(input) => this.currentPasswordInput = input}
                 />
               </div>
@@ -256,13 +256,20 @@ class UserSettingsModal extends React.Component {
     this.setState({ currentPassword: target.value });
   }
 
-  async onClickResendVerificationEmail(event: SyntheticEvent) {
+  onClickResendVerificationEmail(event: SyntheticEvent) {
     event.preventDefault();
-    await fetchJSON('resend_verification.php', {});
+    this.props.dispatchActionPromise(
+      resendVerificationEmailActionType,
+      this.resendVerificationEmailAction(),
+    );
+  }
+
+  async resendVerificationEmailAction() {
+    await resendVerificationEmail();
     this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
   }
 
-  async onSubmit(event: SyntheticEvent) {
+  onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
     if (this.state.newPassword !== this.state.confirmNewPassword) {
@@ -294,69 +301,70 @@ class UserSettingsModal extends React.Component {
       return;
     }
 
-    this.setState({ inputDisabled: true });
+    this.props.dispatchActionPromise(
+      changeUserSettingsActionType,
+      this.changeUserSettingsAction(),
+    );
+  }
+
+  async changeUserSettingsAction() {
     const email = this.state.email;
-    const response = await fetchJSON('edit_account.php', {
-      'email': email,
-      'new_password': this.state.newPassword,
-      'old_password': this.state.currentPassword,
-    });
-    if (response.success) {
-      if (this.state.email !== this.props.email) {
+    try {
+      const result = await changeUserSettings(
+        this.state.currentPassword,
+        email,
+        this.state.newPassword,
+      );
+      if (email !== this.props.email) {
         this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
-        this.props.updateStore((prevState: AppState) => update(prevState, {
-          userInfo: { email: { $set: email } },
-        }));
       } else {
         this.props.onClose();
       }
-      return;
-    }
-
-    if (response.error === 'invalid_credentials') {
-      this.setState(
-        {
-          currentPassword: "",
-          inputDisabled: false,
-          errorMessage: "wrong current password",
-        },
-        () => {
-          invariant(
-            this.currentPasswordInput,
-            "currentPasswordInput ref unset",
-          );
-          this.currentPasswordInput.focus();
-        },
-      );
-    } else if (response.error === 'email_taken') {
-      this.setState(
-        {
-          email: this.props.email,
-          emailVerified: this.props.emailVerified,
-          inputDisabled: false,
-          errorMessage: "email already taken",
-        },
-        () => {
-          invariant(this.emailInput, "emailInput ref unset");
-          this.emailInput.focus();
-        },
-      );
-    } else {
-      this.setState(
-        {
-          email: this.props.email,
-          emailVerified: this.props.emailVerified,
-          newPassword: "",
-          confirmNewPassword: "",
-          currentPassword: "",
-          inputDisabled: false,
-          errorMessage: "unknown error",
-        },
-        () => {
-          invariant(this.emailInput, "emailInput ref unset");
-          this.emailInput.focus();
-        },
-      );
+      return result;
+    } catch (e) {
+      if (e.message === 'invalid_credentials') {
+        this.setState(
+          {
+            currentPassword: "",
+            errorMessage: "wrong current password",
+          },
+          () => {
+            invariant(
+              this.currentPasswordInput,
+              "currentPasswordInput ref unset",
+            );
+            this.currentPasswordInput.focus();
+          },
+        );
+      } else if (e.message === 'email_taken') {
+        this.setState(
+          {
+            email: this.props.email,
+            emailVerified: this.props.emailVerified,
+            errorMessage: "email already taken",
+          },
+          () => {
+            invariant(this.emailInput, "emailInput ref unset");
+            this.emailInput.focus();
+          },
+        );
+      } else {
+        this.setState(
+          {
+            email: this.props.email,
+            emailVerified: this.props.emailVerified,
+            newPassword: "",
+            confirmNewPassword: "",
+            currentPassword: "",
+            errorMessage: "unknown error",
+          },
+          () => {
+            invariant(this.emailInput, "emailInput ref unset");
+            this.emailInput.focus();
+          },
+        );
+      }
+      throw e;
     }
   }
 
@@ -369,7 +377,6 @@ class UserSettingsModal extends React.Component {
   }
 
   async deleteAction() {
-    this.setState({ inputDisabled: true });
     try {
       const response = await deleteAccount(this.state.currentPassword);
       this.props.onClose();
@@ -382,7 +389,6 @@ class UserSettingsModal extends React.Component {
         {
           currentPassword: "",
           errorMessage: errorMessage,
-          inputDisabled: false,
         },
         () => {
           invariant(
@@ -402,17 +408,27 @@ UserSettingsModal.propTypes = {
   username: React.PropTypes.string.isRequired,
   email: React.PropTypes.string.isRequired,
   emailVerified: React.PropTypes.bool.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
 };
+
+const deleteAccountLoadingStatusSelector
+  = createLoadingStatusSelector(deleteAccountActionType);
+const changeUserSettingsLoadingStatusSelector
+  = createLoadingStatusSelector(changeUserSettingsActionType);
+const resendVerificationEmailLoadingStatusSelector
+  = createLoadingStatusSelector(resendVerificationEmailActionType);
 
 export default connect(
   (state: AppState) => ({
     username: state.userInfo && state.userInfo.username,
     email: state.userInfo && state.userInfo.email,
     emailVerified: state.userInfo && state.userInfo.emailVerified,
+    inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
+      changeUserSettingsLoadingStatusSelector(state) === "loading" ||
+      resendVerificationEmailLoadingStatusSelector(state) === "loading"
   }),
-  killThisLater,
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(UserSettingsModal);
