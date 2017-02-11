@@ -7,7 +7,6 @@ import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
-import fetchJSON from 'lib/utils/fetch-json';
 import {
   validUsernameRegex,
   validEmailRegex,

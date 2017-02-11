@@ -5,7 +5,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 import classNames from 'classnames';
 import invariant from 'invariant';
 
