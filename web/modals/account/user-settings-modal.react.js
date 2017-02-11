@@ -428,7 +428,7 @@ export default connect(
     emailVerified: state.userInfo && state.userInfo.emailVerified,
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
-      resendVerificationEmailLoadingStatusSelector(state) === "loading"
+      resendVerificationEmailLoadingStatusSelector(state) === "loading",
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(UserSettingsModal);
