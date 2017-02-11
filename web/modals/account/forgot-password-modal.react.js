@@ -1,13 +1,22 @@
 // @flow
 
+import type { AppState } from '../../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+
 import React from 'react';
 import invariant from 'invariant';
+import { connect } from 'react-redux';
 
-import fetchJSON from 'lib/utils/fetch-json';
 import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  forgotPasswordActionType,
+  forgotPassword,
+} from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -16,10 +25,11 @@ import PasswordResetEmailModal from './password-reset-email-modal.react';
 type Props = {
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
+  inputDisabled: bool,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   usernameOrEmail: string,
-  inputDisabled: bool,
   errorMessage: string,
 };
 
@@ -33,7 +43,6 @@ class ForgotPasswordModal extends React.Component {
     super(props);
     this.state = {
       usernameOrEmail: "",
-      inputDisabled: false,
       errorMessage: "",
     };
   }
@@ -57,7 +66,7 @@ class ForgotPasswordModal extends React.Component {
                   value={this.state.usernameOrEmail}
                   onChange={this.onChangeUsernameOrEmail.bind(this)}
                   ref={(input) => this.usernameOrEmailInput = input}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </div>
             </div>
@@ -70,7 +79,7 @@ class ForgotPasswordModal extends React.Component {
                   type="submit"
                   value="Reset"
                   onClick={this.onSubmit.bind(this)}
-                  disabled={this.state.inputDisabled}
+                  disabled={this.props.inputDisabled}
                 />
               </span>
             </div>
@@ -86,7 +95,7 @@ class ForgotPasswordModal extends React.Component {
     this.setState({ usernameOrEmail: target.value });
   }
 
-  async onSubmit(event: SyntheticEvent) {
+  onSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
     if (
@@ -109,34 +118,37 @@ class ForgotPasswordModal extends React.Component {
       return;
     }
 
-    this.setState({ inputDisabled: true });
-    const response = await fetchJSON(
-      'forgot_password.php',
-      { 'username': this.state.usernameOrEmail },
+    this.props.dispatchActionPromise(
+      forgotPasswordActionType,
+      this.forgotPasswordAction(),
     );
-    if (response.success) {
+  }
+
+  async forgotPasswordAction() {
+    try {
+      await forgotPassword(this.state.usernameOrEmail);
       this.props.setModal(
         <PasswordResetEmailModal onClose={this.props.onClose} />
       );
-      return;
+    } catch (e) {
+      this.setState(
+        {
+          usernameOrEmail: "",
+          errorMessage: e.message === 'invalid_user'
+            ? "user doesn't exist"
+            : "unknown error",
+        },
+        () => {
+          invariant(
+            this.usernameOrEmailInput,
+            "usernameOrEmailInput ref unset",
+          );
+          this.usernameOrEmailInput.focus();
+        },
+      );
+      throw e;
     }
 
-    this.setState(
-      {
-        usernameOrEmail: "",
-        inputDisabled: false,
-        errorMessage: response.error === 'invalid_user'
-          ? "user doesn't exist"
-          : "unknown error",
-      },
-      () => {
-        invariant(
-          this.usernameOrEmailInput,
-          "usernameOrEmailInput ref unset",
-        );
-        this.usernameOrEmailInput.focus();
-      },
-    );
   }
 
 }
@@ -144,6 +156,16 @@ class ForgotPasswordModal extends React.Component {
 ForgotPasswordModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
-export default ForgotPasswordModal;
+const loadingStatusSelector
+  = createLoadingStatusSelector(forgotPasswordActionType);
+
+export default connect(
+  (state: AppState) => ({
+    inputDisabled: loadingStatusSelector(state) === "loading",
+  }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
+)(ForgotPasswordModal);
