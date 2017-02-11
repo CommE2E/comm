@@ -5,7 +5,6 @@ import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../../redux-setup';
@@ -15,20 +14,20 @@ import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 import _ from 'lodash';
 
-import fetchJSON from 'lib/utils/fetch-json';
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchAllEntriesForDay,
   fetchAllEntriesForDayActionType,
+  fetchAllEntriesForDay,
+  fetchRevisionsForEntryActionType,
+  fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { killThisLater } from 'lib/utils/action-utils';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -47,13 +46,12 @@ type Props = {
   onClose: () => void,
   currentEntryID?: ?string,
   dayLoadingStatus: LoadingStatus,
-  updateStore: UpdateStore<AppState>,
+  entryLoadingStatus: LoadingStatus,
   dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   mode: HistoryMode,
   animateModeChange: bool,
-  entryLoadingStatuses: {[entryID: string]: LoadingStatus},
   currentEntryID: ?string,
   revisions: HistoryRevisionInfo[],
 };
@@ -70,15 +68,9 @@ class HistoryModal extends React.Component {
       props.currentNavID,
       "currentNavID should be set before history-modal opened",
     );
-    const entryLoadingStatuses = {};
-    if (props.mode === "entry") {
-      invariant(props.currentEntryID, "entry ID should be set");
-      entryLoadingStatuses[props.currentEntryID] = "loading";
-    }
     this.state = {
       mode: props.mode,
       animateModeChange: false,
-      entryLoadingStatuses: entryLoadingStatuses,
       currentEntryID: props.currentEntryID,
       revisions: [],
     };
@@ -88,7 +80,7 @@ class HistoryModal extends React.Component {
     this.loadDay();
     if (this.state.mode === "entry") {
       invariant(this.state.currentEntryID, "entry ID should be set");
-      this.loadEntry(this.state.currentEntryID).then();
+      this.loadEntry(this.state.currentEntryID);
     }
   }
 
@@ -117,14 +109,9 @@ class HistoryModal extends React.Component {
       this.props.day,
     );
     const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
-    let loadingStatus;
-    if (this.state.mode === "day") {
-      loadingStatus = this.props.dayLoadingStatus;
-    } else {
-      invariant(this.state.currentEntryID, "entry ID should be set");
-      loadingStatus =
-        this.state.entryLoadingStatuses[this.state.currentEntryID];
-    }
+    const loadingStatus = this.state.mode === "day"
+      ? this.props.dayLoadingStatus
+      : this.props.entryLoadingStatus;
 
     const entries = _.chain(this.props.entryInfos)
       .filter(
@@ -139,7 +126,7 @@ class HistoryModal extends React.Component {
           month={this.props.month}
           day={this.props.day}
           onClick={(event) => this.onClickEntry(event, entryInfo.id)}
-          restoreEntryInfo={this.restoreEntryInfo.bind(this)}
+          animateAndLoadEntry={this.animateAndLoadEntry.bind(this)}
           key={entryInfo.id}
         />
       ).value();
@@ -214,46 +201,27 @@ class HistoryModal extends React.Component {
     );
   }
 
-  async loadEntry(entryID: string) {
+  loadEntry(entryID: string) {
+    this.setState({ mode: "entry", currentEntryID: entryID });
+    this.props.dispatchActionPromise(
+      fetchRevisionsForEntryActionType,
+      this.fetchRevisionsForEntryAction(entryID),
+    );
+  }
+
+  async fetchRevisionsForEntryAction(entryID: string) {
+    const response = await fetchRevisionsForEntry(entryID);
     this.setState((prevState, props) => {
-      const statusUpdateObj = {};
-      statusUpdateObj[entryID] = { $set: "loading" };
-      return update(prevState, {
-        mode: { $set: "entry" },
-        currentEntryID: { $set: entryID },
-        entryLoadingStatuses: statusUpdateObj,
-      });
-    });
-    const response = await fetchJSON('entry_history.php', {
-      'id': entryID,
-    });
-    if (!response.result) {
-      this.setState((prevState, props) => {
-        const updateObj = {};
-        updateObj[entryID] = { $set: "error" };
-        return update(prevState, { entryLoadingStatuses: updateObj });
-      });
-      return;
-    }
-    this.setState((prevState, props) => {
-      const updateObj = {};
       // This merge here will preserve time ordering correctly
       const revisions = _.unionBy(response.result, prevState.revisions, "id");
-      updateObj["revisions"] = { $set: revisions };
-      updateObj["entryLoadingStatuses"] = {};
-      updateObj["entryLoadingStatuses"][entryID] = { $set: "inactive" };
-      return update(prevState, updateObj);
+      return { ...prevState, revisions };
     });
-    this.props.updateStore((prevState: AppState) => {
-      const dayString = this.props.day.toString();
-      const saveObj = {};
-      saveObj[dayString] = {};
-      saveObj[dayString][entryID] = {
-        text: { $set: response.result[0].text },
-        deleted: { $set: response.result[0].deleted },
-      };
-      return update(prevState, { entryInfos: saveObj });
-    });
+    return {
+      day: this.props.day,
+      entryID,
+      text: response.result[0].text,
+      deleted: response.result[0].deleted,
+    };
   }
 
   async onClickEntry(event: SyntheticEvent, entryID: string) {
@@ -272,22 +240,9 @@ class HistoryModal extends React.Component {
     });
   }
 
-  async restoreEntryInfo(entryInfo: EntryInfo) {
-    this.setState({
-      animateModeChange: true,
-    });
-
-    const id = entryInfo.id;
-    invariant(id, "entry should have ID");
-    this.props.updateStore((prevState: AppState) => {
-      const dayString = entryInfo.day.toString();
-      const saveObj = {};
-      saveObj[dayString] = {};
-      saveObj[dayString][id] = { $set: entryInfo };
-      return update(prevState, { entryInfos: saveObj });
-    });
-
-    await this.loadEntry(id);
+  animateAndLoadEntry(entryID: string) {
+    this.setState({ animateModeChange: true });
+    this.loadEntry(entryID);
   }
 
 }
@@ -301,22 +256,25 @@ HistoryModal.propTypes = {
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,
+  dayLoadingStatus: React.PropTypes.string.isRequired,
+  entryLoadingStatus: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
   currentEntryID: React.PropTypes.string,
-  updateStore: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
 const dayLoadingStatusSelector
   = createLoadingStatusSelector(fetchAllEntriesForDayActionType);
+const entryLoadingStatusSelector
+  = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
-type OwnProps = { day: number };
 export default connect(
-  (state: AppState, ownProps: OwnProps) => ({
+  (state: AppState, ownProps: { day: number }) => ({
     currentNavID: currentNavID(state),
     onScreenCalendarInfos: onScreenCalendarInfos(state),
     entryInfos: state.entryInfos[ownProps.day.toString()],
     dayLoadingStatus: dayLoadingStatusSelector(state),
+    entryLoadingStatus: entryLoadingStatusSelector(state),
   }),
-  killThisLater,
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(HistoryModal);

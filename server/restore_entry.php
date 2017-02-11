@@ -37,8 +37,7 @@ if (!$can_see) {
 }
 
 $result = $conn->query(
-  "SELECT r.id, r.author, r.text, r.session_id, r.last_update, r.deleted, ".
-    "e.creation_time ".
+  "SELECT r.id, r.author, r.text, r.session_id, r.last_update, r.deleted ".
     "FROM revisions r LEFT JOIN entries e ON r.entry = e.id ".
     "LEFT JOIN days d ON d.id = e.day ".
     "WHERE r.entry = $id ORDER BY r.last_update DESC LIMIT 1"
@@ -68,6 +67,4 @@ $conn->query("UPDATE entries SET deleted = 0 WHERE id = $id");
 
 exit(json_encode(array(
   'success' => true,
-  'creation_time' => intval($last_revision_row['creation_time']),
-  'text' => $text,
 )));

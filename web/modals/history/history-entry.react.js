@@ -6,55 +6,47 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import invariant from 'invariant';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
-import fetchJSON from 'lib/utils/fetch-json';
+import {
+  restoreEntryActionType,
+  restoreEntry,
+} from 'lib/actions/entry-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
 
 type Props = {
   entryInfo: EntryInfo,
-  calendarInfo: CalendarInfo,
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
+  onClick: (event: SyntheticEvent) => void,
+  animateAndLoadEntry: (entryID: string) => void,
+  calendarInfo: CalendarInfo,
   sessionID: string,
   loggedIn: bool,
-  onClick: (event: SyntheticEvent) => Promise<void>,
-  restoreEntryInfo: (entryInfo: EntryInfo) => Promise<void>,
+  restoreLoadingStatus: LoadingStatus,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
-  restoreLoadingStatus: LoadingStatus,
-  deleted: bool,
 }
 
 class HistoryEntry extends React.Component {
 
   props: Props;
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      restoreLoadingStatus: "inactive",
-      deleted: props.entryInfo.deleted,
-    };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.state.deleted !== nextProps.entryInfo.deleted) {
-      this.setState({ deleted: nextProps.entryInfo.deleted });
-    }
-  }
 
   render() {
     let deleted = null;
-    if (this.state.deleted) {
+    if (this.props.entryInfo.deleted) {
       let restore = null;
       if (this.props.calendarInfo.editRules < 1 || this.props.loggedIn) {
         restore = (
@@ -66,7 +58,7 @@ class HistoryEntry extends React.Component {
               >restore</a>)
             </span>
             <LoadingIndicator
-              status={this.state.restoreLoadingStatus}
+              status={this.props.restoreLoadingStatus}
               className={css['restore-loading']}
             />
           </span>
@@ -116,52 +108,47 @@ class HistoryEntry extends React.Component {
     );
   }
 
-  async onRestore(event: SyntheticEvent) {
+  onRestore(event: SyntheticEvent) {
     event.preventDefault();
-    this.setState({ restoreLoadingStatus: "loading" });
-    const response = await fetchJSON('restore_entry.php', {
-      'id': this.props.entryInfo.id,
-      'session_id': this.props.sessionID,
-      'timestamp': Date.now(),
-    });
-    if (!response.success) {
-      this.setState({ restoreLoadingStatus: "error" });
-      return;
-    }
-    this.setState({
-      restoreLoadingStatus: "inactive",
-      deleted: false,
-    });
-    await this.props.restoreEntryInfo({
-      id: this.props.entryInfo.id,
-      calendarID: this.props.entryInfo.calendarID,
-      text: response.text,
-      year: this.props.year,
-      month: this.props.month,
-      day: this.props.day,
-      creationTime: response.creation_time,
-      creator: this.props.entryInfo.creator,
-      deleted: false,
-    });
+    this.props.dispatchActionPromise(
+      restoreEntryActionType,
+      this.restoreEntryAction(),
+    );
+  }
+
+  async restoreEntryAction() {
+    const entryID = this.props.entryInfo.id;
+    invariant(entryID, "entry should have ID");
+    await restoreEntry(entryID, this.props.sessionID);
+    this.props.animateAndLoadEntry(entryID);
+    return { ...this.props.entryInfo, deleted: false };
   }
 
 }
 
 HistoryEntry.propTypes = {
   entryInfo: entryInfoPropType,
-  calendarInfo: calendarInfoPropType,
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
+  onClick: React.PropTypes.func.isRequired,
+  animateAndLoadEntry: React.PropTypes.func.isRequired,
+  calendarInfo: calendarInfoPropType,
   sessionID: React.PropTypes.string.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
-  onClick: React.PropTypes.func.isRequired,
-  restoreEntryInfo: React.PropTypes.func.isRequired,
+  restoreLoadingStatus: React.PropTypes.string.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
 }
 
-type OwnProps = { entryInfo: EntryInfo };
-export default connect((state: AppState, ownProps: OwnProps) => ({
-  calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
-  sessionID: state.sessionID,
-  loggedIn: !!state.userInfo,
-}))(HistoryEntry);
+const loadingStatusSelector
+  = createLoadingStatusSelector(restoreEntryActionType);
+
+export default connect(
+  (state: AppState, ownProps: { entryInfo: EntryInfo }) => ({
+    calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
+    sessionID: state.sessionID,
+    loggedIn: !!state.userInfo,
+    restoreLoadingStatus: loadingStatusSelector(state),
+  }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
+)(HistoryEntry);
