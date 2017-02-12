@@ -110,9 +110,12 @@ class HistoryEntry extends React.Component {
 
   onRestore(event: SyntheticEvent) {
     event.preventDefault();
+    const entryID = this.props.entryInfo.id;
+    invariant(entryID, "entryInfo.id (serverID) should be set");
     this.props.dispatchActionPromise(
       restoreEntryActionType,
       this.restoreEntryAction(),
+      { customKeyName: `${restoreEntryActionType}:${entryID}` },
     );
   }
 
@@ -140,15 +143,19 @@ HistoryEntry.propTypes = {
   dispatchActionPromise: React.PropTypes.func.isRequired,
 }
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(restoreEntryActionType);
-
 export default connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfo }) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
-    sessionID: state.sessionID,
-    loggedIn: !!state.userInfo,
-    restoreLoadingStatus: loadingStatusSelector(state),
-  }),
+  (state: AppState, ownProps: { entryInfo: EntryInfo }) => {
+    const entryID = ownProps.entryInfo.id;
+    invariant(entryID, "entryInfo.id (serverID) should be set");
+    return {
+      calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
+      sessionID: state.sessionID,
+      loggedIn: !!state.userInfo,
+      restoreLoadingStatus: createLoadingStatusSelector(
+        restoreEntryActionType,
+        `${restoreEntryActionType}:${entryID}`,
+      )(state),
+    };
+  },
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(HistoryEntry);
