@@ -8,7 +8,6 @@ import type { AppState } from '../redux-setup';
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
-import update from 'immutability-helper';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
@@ -126,10 +125,10 @@ class Typeahead extends React.Component {
               { id: calendarInfo.id },
             )).sampleSize(newRecommendationsNeeded)
             .value();
-        updateObj.recommendedCalendars = update(
-          stillValidRecommendations,
-          { $push: randomCalendarInfos },
-        );
+        updateObj.recommendedCalendars = [
+          ...stillValidRecommendations,
+          ...randomCalendarInfos,
+        ];
       } else if (newRecommendationsNeeded < 0) {
         updateObj.recommendedCalendars =
           stillValidRecommendations.slice(0, recommendationSize);
@@ -509,18 +508,20 @@ class Typeahead extends React.Component {
   }
 
   freeze(navID: string) {
-    this.setState((prevState, props) => {
-      const updateObj = {};
-      updateObj[navID] = { $set: true };
-      return update(prevState, { frozenNavIDs: updateObj });
-    });
+    this.setState((prevState, props) => ({
+      ...prevState,
+      frozenNavIDs: {
+        ...prevState.frozenNavIDs,
+        [navID]: true,
+      },
+    }));
   }
 
   unfreeze(navID: string) {
     this.setState(
       (prevState, props) => {
         const newFrozenNavIDs = _.omit(prevState.frozenNavIDs, [ navID ]);
-        return update(prevState, { frozenNavIDs: { $set: newFrozenNavIDs } });
+        return { ...prevState, frozenNavIDs: newFrozenNavIDs };
       },
     );
   }

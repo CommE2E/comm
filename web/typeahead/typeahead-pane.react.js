@@ -2,7 +2,6 @@
 
 import React from 'react';
 import invariant from 'invariant';
-import update from 'immutability-helper';
 
 import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';
@@ -46,11 +45,12 @@ class TypeaheadPane extends React.Component {
       this.props.totalResults !== nextProps.totalResults ||
       this.props.resultsBetween !== nextProps.resultsBetween
     ) {
-      this.setState((prevState, props) => update(prevState, {
-        currentResults: { $set: props.resultsBetween(
+      this.setState((prevState, props) => ({
+        ...prevState,
+        currentResults: props.resultsBetween(
           this.firstIndex(props, prevState.currentPage),
           this.secondIndex(props, prevState.currentPage),
-        ) },
+        ),
       }));
     }
   }
@@ -137,10 +137,11 @@ class TypeaheadPane extends React.Component {
         newResults.length <= props.pageSize,
         "results larger than page size",
       );
-      return update(prevState, {
-        currentPage: { $set: newPage },
-        currentResults: { $set: newResults },
-      });
+      return {
+        ...prevState,
+        currentPage: newPage,
+        currentResults: newResults,
+      };
     });
   }
 
@@ -160,10 +161,11 @@ class TypeaheadPane extends React.Component {
         newResults.length <= props.pageSize,
         "results larger than page size",
       );
-      return update(prevState, {
-        currentPage: { $set: newPage },
-        currentResults: { $set: newResults },
-      });
+      return {
+        ...prevState,
+        currentPage: newPage,
+        currentResults: newResults,
+      };
     });
   }
 
