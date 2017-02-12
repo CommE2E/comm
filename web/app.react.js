@@ -21,8 +21,8 @@ import _ from 'lodash';
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesForMonth,
   fetchEntriesForMonthActionType,
+  fetchEntriesForMonth,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
