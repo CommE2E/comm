@@ -42,7 +42,7 @@ type Props = {
   day: number, // 1-indexed
   currentNavID: ?string,
   onScreenCalendarInfos: CalendarInfo[],
-  entryInfos: {[id: string]: EntryInfo},
+  entryInfos: ?{[id: string]: EntryInfo},
   onClose: () => void,
   currentEntryID?: ?string,
   dayLoadingStatus: LoadingStatus,
@@ -255,7 +255,7 @@ HistoryModal.propTypes = {
   currentNavID: React.PropTypes.string,
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
-  entryInfos: React.PropTypes.objectOf(entryInfoPropType).isRequired,
+  entryInfos: React.PropTypes.objectOf(entryInfoPropType),
   dayLoadingStatus: React.PropTypes.string.isRequired,
   entryLoadingStatus: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
