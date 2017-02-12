@@ -3,7 +3,6 @@
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { NavID } from './typeahead-action-option.react';
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';

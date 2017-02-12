@@ -2,22 +2,24 @@
 
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
-import type { UpdateStore } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
 
-import fetchJSON from 'lib/utils/fetch-json';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesForMonth,
   fetchEntriesForMonthActionType,
+  fetchEntriesForMonth,
 } from 'lib/actions/entry-actions';
-import { killThisLater } from 'lib/utils/action-utils';
+import {
+  subscribeActionType,
+  subscribe,
+} from 'lib/actions/calendar-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -34,30 +36,16 @@ type Props = {
   month: number,
   home: bool,
   currentNavID: ?string,
-  updateStore: UpdateStore<AppState>,
+  loadingStatus: LoadingStatus,
   dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
-  loadingStatus: LoadingStatus,
 };
 
 class TypeaheadOptionButtons extends React.Component {
 
   props: Props;
   state: State;
-  mounted: bool;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      loadingStatus: "inactive",
-    };
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
 
   render() {
     if (!this.props.calendarInfo.authorized) {
@@ -82,10 +70,10 @@ class TypeaheadOptionButtons extends React.Component {
         {editButton}
         <li>
           <LoadingIndicator
-            status={this.state.loadingStatus}
+            status={this.props.loadingStatus}
             className={css['calendar-nav-option-buttons-loading']}
           />
-          <a href='#' onClick={this.subscribe.bind(this)}>
+          <a href='#' onClick={this.onSubscribe.bind(this)}>
             {this.props.calendarInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
           </a>
         </li>
@@ -93,19 +81,21 @@ class TypeaheadOptionButtons extends React.Component {
     );
   }
 
-  async subscribe(event: SyntheticEvent) {
+  onSubscribe(event: SyntheticEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if (this.state.loadingStatus === "loading") {
+    if (this.props.loadingStatus === "loading") {
       return;
     }
-    this.setState({
-      loadingStatus: "loading",
-    });
     const newSubscribed = !this.props.calendarInfo.subscribed;
 
-    // If we are on home and just subscribed to a calendar,
-    // we need to load it
+    this.props.dispatchActionPromise(
+      subscribeActionType,
+      this.subscribeAction(newSubscribed),
+      { customKeyName: `${subscribeActionType}:${this.props.calendarInfo.id}` },
+    );
+
+    // If we are on home and just subscribed to a calendar, we need to load it
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
         fetchEntriesForMonthActionType,
@@ -116,17 +106,10 @@ class TypeaheadOptionButtons extends React.Component {
         ),
       );
     }
-    const response = await fetchJSON('subscribe.php', {
-      'calendar': this.props.calendarInfo.id,
-      'subscribe': newSubscribed ? 1 : 0,
-    });
-    if (!response.success) {
-      this.setState({
-        loadingStatus: "error",
-      });
-      return;
-    }
+  }
 
+  async subscribeAction(newSubscribed: bool) {
+    await subscribe(this.props.calendarInfo.id, newSubscribed);
     // If this subscription action causes us to leave the null home state, then
     // we need to make sure that the typeahead is active iff it's focused. The
     // default resolution in Typeahead would be to close the typeahead, but it's
@@ -135,24 +118,10 @@ class TypeaheadOptionButtons extends React.Component {
     if (!this.props.currentNavID && this.props.home && newSubscribed) {
       this.props.focusTypeahead();
     }
-
-    const updateStoreCallback = () => {
-      this.props.updateStore((prevState: AppState) => {
-        const updateParam = { calendarInfos: {} };
-        updateParam.calendarInfos[this.props.calendarInfo.id] = {
-          subscribed: { $set: newSubscribed },
-        };
-        return update(prevState, updateParam);
-      });
+    return {
+      calendarID: this.props.calendarInfo.id,
+      newSubscribed,
     };
-    if (this.mounted) {
-      this.setState(
-        { loadingStatus: "inactive" },
-        updateStoreCallback,
-      );
-    } else {
-      updateStoreCallback();
-    }
   }
 
   edit(event: SyntheticEvent) {
@@ -184,16 +153,20 @@ TypeaheadOptionButtons.propTypes = {
   month: React.PropTypes.number.isRequired,
   home: React.PropTypes.bool.isRequired,
   currentNavID: React.PropTypes.string,
-  updateStore: React.PropTypes.func.isRequired,
+  loadingStatus: React.PropTypes.string.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
 export default connect(
-  (state: AppState) => ({
+  (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
     year: state.navInfo.year,
     month: state.navInfo.month,
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
+    loadingStatus: createLoadingStatusSelector(
+      subscribeActionType,
+      `${subscribeActionType}:${ownProps.calendarInfo.id}`,
+    )(state),
   }),
-  killThisLater,
+  includeDispatchActionProps({ dispatchActionPromise: true }),
 )(TypeaheadOptionButtons);
