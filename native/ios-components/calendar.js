@@ -5,6 +5,11 @@ import { View, StyleSheet, Text } from 'react-native';
 
 import * as TypeaheadText from 'lib/shared/typeahead-text.js';
 
+type Props = {
+};
+type State = {
+};
+
 class Calendar extends React.Component {
 
   props: Props;
@@ -13,7 +18,6 @@ class Calendar extends React.Component {
   constructor(props: Props) {
     super(props);
     this.state = {
-      selectedTab: 'calendar',
     };
   }
 
