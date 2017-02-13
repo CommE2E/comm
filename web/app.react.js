@@ -29,7 +29,6 @@ import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import {
   thisURL,
-  monthURL,
   urlForYearAndMonth,
   thisNavURLFragment,
   canonicalURLFromReduxState,
@@ -53,7 +52,6 @@ type Props = {
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,
-  monthURL: string,
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   location: {
@@ -261,7 +259,6 @@ App.propTypes = {
   entriesLoadingStatus: React.PropTypes.string.isRequired,
   currentNavID: React.PropTypes.string,
   thisURL: React.PropTypes.string.isRequired,
-  monthURL: React.PropTypes.string.isRequired,
   dispatchActionPayload: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
   location: locationShape,
@@ -278,7 +275,6 @@ export default connect(
     entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
-    monthURL: monthURL(state),
   }),
   includeDispatchActionProps({
     dispatchActionPromise: true,
