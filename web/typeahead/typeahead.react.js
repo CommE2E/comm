@@ -8,7 +8,12 @@ import type { AppState } from '../redux-setup';
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _ from 'lodash';
+import _flow from 'lodash/fp/flow';
+import _filter from 'lodash/fp/filter';
+import _some from 'lodash/fp/some';
+import _isEmpty from 'lodash/fp/isEmpty';
+import _omit from 'lodash/fp/omit';
+import _sampleSize from 'lodash/fp/sampleSize';
 import { connect } from 'react-redux';
 
 import { SearchIndex, searchIndex } from 'lib/selectors/search-index';
@@ -107,24 +112,20 @@ class Typeahead extends React.Component {
       Typeahead.getRecommendationSize(nextProps) >
         Typeahead.getRecommendationSize(this.props)
     ) {
-      const stillValidRecommendations = _.filter(
-        this.state.recommendedCalendars,
-        (calendarInfo: CalendarInfo) => _.some(
-          nextProps.sortedCalendarInfos.recommended,
-          { id: calendarInfo.id },
-        ),
-      );
+      const stillValidRecommendations = _filter(
+        (calendarInfo: CalendarInfo) => _some({ id: calendarInfo.id })
+          (nextProps.sortedCalendarInfos.recommended),
+      )(this.state.recommendedCalendars);
       const recommendationSize = Typeahead.getRecommendationSize(nextProps);
       const newRecommendationsNeeded = recommendationSize
         - stillValidRecommendations.length;
       if (newRecommendationsNeeded > 0) {
-        const randomCalendarInfos =
-          _.chain(nextProps.sortedCalendarInfos.recommended)
-            .filter((calendarInfo: CalendarInfo) => !_.some(
-              stillValidRecommendations,
-              { id: calendarInfo.id },
-            )).sampleSize(newRecommendationsNeeded)
-            .value();
+        const randomCalendarInfos = _flow(
+          _filter((calendarInfo: CalendarInfo) =>
+            !_some({ id: calendarInfo.id })(stillValidRecommendations),
+          ),
+          _sampleSize(newRecommendationsNeeded),
+        )(nextProps.sortedCalendarInfos.recommended);
         updateObj.recommendedCalendars = [
           ...stillValidRecommendations,
           ...randomCalendarInfos,
@@ -372,7 +373,7 @@ class Typeahead extends React.Component {
     // clicked, the nav ID will be frozen, and focus will be lost by the
     // typeahead input field, but the typeahead will not close, and we want to
     // avoid resetting search results.
-    if (_.isEmpty(this.state.frozenNavIDs)) {
+    if (_isEmpty(this.state.frozenNavIDs)) {
       this.setState({
         typeaheadFocused: false,
         searchActive: false,
@@ -467,7 +468,7 @@ class Typeahead extends React.Component {
   static isActive(props: Props, state: State) {
     return state.typeaheadFocused ||
       !props.currentNavID ||
-      !_.isEmpty(state.frozenNavIDs);
+      !_isEmpty(state.frozenNavIDs);
   }
 
   // This method makes sure that this.state.typeaheadFocused iff typeahead input
@@ -520,7 +521,7 @@ class Typeahead extends React.Component {
   unfreeze(navID: string) {
     this.setState(
       (prevState, props) => {
-        const newFrozenNavIDs = _.omit(prevState.frozenNavIDs, [ navID ]);
+        const newFrozenNavIDs = _omit([ navID ])(prevState.frozenNavIDs);
         return { ...prevState, frozenNavIDs: newFrozenNavIDs };
       },
     );
@@ -572,10 +573,8 @@ class Typeahead extends React.Component {
   }
 
   static sampleRecommendations(props: Props) {
-    return _.sampleSize(
-      props.sortedCalendarInfos.recommended,
-      Typeahead.getRecommendationSize(props),
-    );
+    return _sampleSize(Typeahead.getRecommendationSize(props))
+      (props.sortedCalendarInfos.recommended);
   }
 
 }

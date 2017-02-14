@@ -7,7 +7,7 @@ import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
-import _ from 'lodash';
+import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
 
 import { getDate } from 'lib/utils/date-utils';
@@ -62,10 +62,8 @@ class Calendar extends React.Component {
           month: this.props.month,
           day: curDayOfMonth,
         };
-        const entries = _.filter(
-          this.props.daysToEntries[curDayOfMonth],
-          ['deleted', false],
-        );
+        const entries = _filter(['deleted', false])
+          (this.props.daysToEntries[curDayOfMonth]);
         columns.push(
           <Day
             year={this.props.year}

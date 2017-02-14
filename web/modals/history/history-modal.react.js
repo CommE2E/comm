@@ -14,7 +14,10 @@ import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
-import _ from 'lodash';
+import _flow from 'lodash/fp/flow';
+import _unionBy from 'lodash/fp/unionBy';
+import _map from 'lodash/fp/map';
+import _filter from 'lodash/fp/filter';
 
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
@@ -112,9 +115,9 @@ class HistoryModal extends React.Component {
       ? this.props.dayLoadingStatus
       : this.props.entryLoadingStatus;
 
-    const entries = _.chain(this.props.entryInfos)
-      .filter((entryInfo: EntryInfo) => entryInfo.id)
-      .map((entryInfo: EntryInfo) => {
+    const entries = _flow(
+      _filter((entryInfo: EntryInfo) => entryInfo.id),
+      _map((entryInfo: EntryInfo) => {
         const serverID = entryInfo.id;
         invariant(serverID, "serverID should be set");
         return (
@@ -128,7 +131,8 @@ class HistoryModal extends React.Component {
             key={serverID}
           />
         );
-      }).value();
+      }),
+    )(this.props.entryInfos);
 
     const revisionInfos = this.state.revisions.filter(
       (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
@@ -212,7 +216,7 @@ class HistoryModal extends React.Component {
     const response = await fetchRevisionsForEntry(entryID);
     this.setState((prevState, props) => {
       // This merge here will preserve time ordering correctly
-      const revisions = _.unionBy(response.result, prevState.revisions, "id");
+      const revisions = _unionBy("id")(response.result)(prevState.revisions);
       return { ...prevState, revisions };
     });
     return {

@@ -16,7 +16,7 @@ import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 import { Link, locationShape } from 'react-router';
-import _ from 'lodash';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
@@ -123,10 +123,10 @@ class App extends React.Component {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(newProps.location.pathname);
-      if (!_.isEqual(newNavInfo, newProps.navInfo)) {
+      if (!_isEqual(newNavInfo, newProps.navInfo)) {
         this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
       }
-    } else if (!_.isEqual(newProps.navInfo, this.props.navInfo)) {
+    } else if (!_isEqual(newProps.navInfo, this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
         newProps.navInfo,
         newProps.location.pathname,

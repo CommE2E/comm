@@ -17,7 +17,7 @@ import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
-import _ from 'lodash';
+import _keyBy from 'lodash/fp/keyBy';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 
@@ -47,7 +47,7 @@ const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email
   ? { username, email, emailVerified: email_verified }
   : null;
-const entryInfos = _.keyBy(entry_infos, 'id');
+const entryInfos = _keyBy('id')(entry_infos);
 const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
 
 const store: Store<AppState, Action> = createStore(

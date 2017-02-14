@@ -9,7 +9,7 @@ import type { InnerEntry } from './entry.react';
 
 import React from 'react';
 import classNames from 'classnames';
-import _ from 'lodash';
+import _some from 'lodash/fp/some';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
@@ -115,7 +115,7 @@ class Day extends React.Component {
     }
 
     const entries = this.props.entryInfos.filter((entryInfo) =>
-      _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.calendarID])
+      _some(['id', entryInfo.calendarID])(this.props.onScreenCalendarInfos),
     ).map((entryInfo, i) => {
       const key = entryKey(entryInfo);
       return <Entry
