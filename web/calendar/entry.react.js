@@ -16,6 +16,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
+import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import {
@@ -36,7 +37,7 @@ import { HistoryVector, DeleteVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 
 type Props = {
-  innerRef: (me: Entry) => void,
+  innerRef: (key: string, me: Entry) => void,
   entryInfo: EntryInfo,
   calendarInfo: CalendarInfo,
   sessionID: string,
@@ -80,7 +81,7 @@ class Entry extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.props.innerRef(this);
+    this.props.innerRef(entryKey(this.props.entryInfo), this);
     this.updateHeight();
     // Whenever a new Entry is created, focus on it
     if (!this.props.entryInfo.id) {

@@ -125,7 +125,7 @@ class Day extends React.PureComponent {
         clearModal={this.props.clearModal}
         tabIndex={this.props.startingTabIndex + i}
         key={key}
-        innerRef={(entry) => this.entries.set(key, entry)}
+        innerRef={this.entryRef}
       />;
     });
 
@@ -155,10 +155,7 @@ class Day extends React.PureComponent {
         onMouseLeave={this.onMouseLeave}
       >
         <h2>{this.props.day}</h2>
-        <div
-          className={entryContainerClasses}
-          ref={this.entryContainerRef}
-        >
+        <div className={entryContainerClasses} ref={this.entryContainerRef}>
           {entries}
           <div
             className={css['entry-container-spacer']}
@@ -181,6 +178,10 @@ class Day extends React.PureComponent {
 
   entryContainerSpacerRef = (entryContainerSpacer: ?HTMLDivElement) => {
     this.entryContainerSpacer = entryContainerSpacer;
+  }
+
+  entryRef = (key: string, entry: InnerEntry) => {
+    this.entries.set(key, entry);
   }
 
   closePicker = () => {
