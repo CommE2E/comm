@@ -11,17 +11,16 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import { getDate } from 'lib/utils/date-utils';
-import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 
 import Day from './day.react';
+import { currentMonthDaysToEntries } from '../selectors/calendar-selectors';
 
 type Props = {
   year: number,
   month: number, // 1-indexed
-  entryInfos: {[day: string]: {[id: string]: EntryInfo}},
+  daysToEntries: {[day: number]: {[id: string]: EntryInfo}},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
-  onScreenCalendarInfos: CalendarInfo[],
 };
 
 class Calendar extends React.Component {
@@ -63,16 +62,10 @@ class Calendar extends React.Component {
           month: this.props.month,
           day: curDayOfMonth,
         };
-        const entries = _.chain(this.props.entryInfos[curDayOfMonth.toString()])
-          .filter(
-            (entryInfo) => entryInfo.year === this.props.year &&
-              entryInfo.month === this.props.month && !entryInfo.deleted &&
-              _.some(
-                this.props.onScreenCalendarInfos,
-                ['id', entryInfo.calendarID],
-              )
-          ).sortBy("creationTime")
-          .value();
+        const entries = _.filter(
+          this.props.daysToEntries[curDayOfMonth],
+          ['deleted', false],
+        );
         columns.push(
           <Day
             year={this.props.year}
@@ -116,18 +109,15 @@ class Calendar extends React.Component {
 Calendar.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
-  entryInfos: React.PropTypes.objectOf(
-    React.PropTypes.objectOf(entryInfoPropType),
+  daysToEntries: React.PropTypes.objectOf(
+    React.PropTypes.arrayOf(entryInfoPropType),
   ).isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
-  onScreenCalendarInfos:
-    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
 };
 
 export default connect((state: AppState) => ({
   year: state.navInfo.year,
   month: state.navInfo.month,
-  entryInfos: state.entryInfos,
-  onScreenCalendarInfos: onScreenCalendarInfos(state),
+  daysToEntries: currentMonthDaysToEntries(state),
 }))(Calendar);

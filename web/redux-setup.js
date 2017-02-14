@@ -32,7 +32,8 @@ export type AppState = {
   sessionID: string,
   verifyField: ?number,
   resetPasswordUsername: string,
-  entryInfos: {[day: string]: {[id: string]: EntryInfo}},
+  entryInfos: {[id: string]: EntryInfo},
+  daysToEntries: {[day: string]: string[]},
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
 };

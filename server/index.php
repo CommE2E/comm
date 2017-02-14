@@ -124,7 +124,7 @@ if (user_logged_in()) {
 }
 
 // Fetch the actual text for each day
-$entries = array_fill(1, 31, array());
+$entries = array();
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
@@ -152,7 +152,7 @@ while ($row = $result->fetch_assoc()) {
   }
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
-  $entries[$day][$entry] = array(
+  $entries[$entry] = array(
     "id" => (string)$entry,
     "calendarID" => (string)$entry_calendar,
     "text" => $row['text'],
@@ -192,7 +192,7 @@ HTML;
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
       var calendar_infos = <?=json_encode($calendar_infos, JSON_FORCE_OBJECT)?>;
-      var entry_infos = <?=json_encode($entries, JSON_FORCE_OBJECT)?>;
+      var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
       var base_url = "<?=$base_url?>";

@@ -283,7 +283,6 @@ class Entry extends React.Component {
       const payload = {
         localID: (null: ?string),
         serverID: serverID ? serverID : response.entry_id.toString(),
-        day: this.props.entryInfo.day,
         text: newText,
       }
       if (!serverID && response.entry_id) {
@@ -315,7 +314,7 @@ class Entry extends React.Component {
           );
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { serverID, day: this.props.entryInfo.day, dbText: e.result.db },
+            { id: serverID, dbText: e.result.db },
           );
           this.props.clearModal();
         };
@@ -353,7 +352,6 @@ class Entry extends React.Component {
       {
         localID: this.props.entryInfo.localID,
         serverID: serverID,
-        day: this.props.entryInfo.day,
       },
     );
   }

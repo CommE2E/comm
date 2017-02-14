@@ -124,7 +124,7 @@ class HistoryEntry extends React.Component {
     invariant(entryID, "entry should have ID");
     await restoreEntry(entryID, this.props.sessionID);
     this.props.animateAndLoadEntry(entryID);
-    return { ...this.props.entryInfo, deleted: false };
+    return entryID;
   }
 
 }

@@ -17,6 +17,9 @@ import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
+import _ from 'lodash';
+
+import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 
 import { reducer } from './redux-setup';
 
@@ -31,7 +34,7 @@ declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
 declare var calendar_infos: {[id: string]: CalendarInfo};
-declare var entry_infos: {[day: string]: {[id: string]: EntryInfo}};
+declare var entry_infos: EntryInfo[];
 declare var month: number;
 declare var year: number;
 declare var verify_code: ?string;
@@ -44,6 +47,9 @@ const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email
   ? { username, email, emailVerified: email_verified }
   : null;
+const entryInfos = _.keyBy(entry_infos, 'id');
+const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
+
 const store: Store<AppState, Action> = createStore(
   reducer,
   ({
@@ -58,7 +64,8 @@ const store: Store<AppState, Action> = createStore(
     sessionID: sessionID,
     verifyField: verify_field,
     resetPasswordUsername: reset_password_username,
-    entryInfos: entry_infos,
+    entryInfos,
+    daysToEntries,
     calendarInfos: calendar_infos,
     loadingStatuses: {},
   }: AppState),

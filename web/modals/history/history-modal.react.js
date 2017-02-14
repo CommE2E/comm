@@ -24,7 +24,6 @@ import {
   fetchRevisionsForEntryActionType,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
-import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
@@ -34,6 +33,7 @@ import Modal from '../modal.react';
 import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
+import { currentMonthDaysToEntries } from '../../selectors/calendar-selectors';
 
 type Props = {
   mode: HistoryMode,
@@ -41,8 +41,7 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   currentNavID: ?string,
-  onScreenCalendarInfos: CalendarInfo[],
-  entryInfos: ?{[id: string]: EntryInfo},
+  entryInfos: ?EntryInfo[],
   onClose: () => void,
   currentEntryID?: ?string,
   dayLoadingStatus: LoadingStatus,
@@ -114,22 +113,22 @@ class HistoryModal extends React.Component {
       : this.props.entryLoadingStatus;
 
     const entries = _.chain(this.props.entryInfos)
-      .filter(
-        (entryInfo) => entryInfo.year === this.props.year &&
-          entryInfo.month === this.props.month && entryInfo.id &&
-          _.some(this.props.onScreenCalendarInfos, ['id', entryInfo.calendarID])
-      ).sortBy("creationTime")
-      .map((entryInfo) =>
-        <HistoryEntry
-          entryInfo={entryInfo}
-          year={this.props.year}
-          month={this.props.month}
-          day={this.props.day}
-          onClick={(event) => this.onClickEntry(event, entryInfo.id)}
-          animateAndLoadEntry={this.animateAndLoadEntry.bind(this)}
-          key={entryInfo.id}
-        />
-      ).value();
+      .filter((entryInfo: EntryInfo) => entryInfo.id)
+      .map((entryInfo: EntryInfo) => {
+        const serverID = entryInfo.id;
+        invariant(serverID, "serverID should be set");
+        return (
+          <HistoryEntry
+            entryInfo={entryInfo}
+            year={this.props.year}
+            month={this.props.month}
+            day={this.props.day}
+            onClick={(event) => this.onClickEntry(event, serverID)}
+            animateAndLoadEntry={this.animateAndLoadEntry.bind(this)}
+            key={serverID}
+          />
+        );
+      }).value();
 
     const revisionInfos = this.state.revisions.filter(
       (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
@@ -217,7 +216,6 @@ class HistoryModal extends React.Component {
       return { ...prevState, revisions };
     });
     return {
-      day: this.props.day,
       entryID,
       text: response.result[0].text,
       deleted: response.result[0].deleted,
@@ -253,9 +251,7 @@ HistoryModal.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   currentNavID: React.PropTypes.string,
-  onScreenCalendarInfos:
-    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
-  entryInfos: React.PropTypes.objectOf(entryInfoPropType),
+  entryInfos: React.PropTypes.arrayOf(entryInfoPropType),
   dayLoadingStatus: React.PropTypes.string.isRequired,
   entryLoadingStatus: React.PropTypes.string.isRequired,
   onClose: React.PropTypes.func.isRequired,
@@ -271,8 +267,7 @@ const entryLoadingStatusSelector
 export default connect(
   (state: AppState, ownProps: { day: number }) => ({
     currentNavID: currentNavID(state),
-    onScreenCalendarInfos: onScreenCalendarInfos(state),
-    entryInfos: state.entryInfos[ownProps.day.toString()],
+    entryInfos: currentMonthDaysToEntries(state)[ownProps.day],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
   }),
