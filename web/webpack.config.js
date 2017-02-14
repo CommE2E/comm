@@ -90,7 +90,6 @@ module.exports = function(env) {
       test: /\.css$/,
       use: ['style-loader', cssLoader],
     });
-    config.module.rules[0].options.plugins.push('flow-react-proptypes');
     config.module.rules[0].options.plugins.push('react-hot-loader/babel');
     config.entry.splice(
       0,

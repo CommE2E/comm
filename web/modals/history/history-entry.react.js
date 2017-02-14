@@ -29,7 +29,7 @@ type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
-  onClick: (event: SyntheticEvent) => void,
+  onClick: (entryID: string) => void,
   animateAndLoadEntry: (entryID: string) => void,
   calendarInfo: CalendarInfo,
   sessionID: string,
@@ -40,7 +40,7 @@ type Props = {
 type State = {
 }
 
-class HistoryEntry extends React.Component {
+class HistoryEntry extends React.PureComponent {
 
   props: Props;
 
@@ -54,7 +54,7 @@ class HistoryEntry extends React.Component {
             <span className={css['restore-entry-label']}>
               (<a
                 href="#"
-                onClick={this.onRestore.bind(this)}
+                onClick={this.onRestore}
               >restore</a>)
             </span>
             <LoadingIndicator
@@ -101,14 +101,14 @@ class HistoryEntry extends React.Component {
         <a
           href="#"
           className={css['revision-history-button']}
-          onClick={this.props.onClick}
+          onClick={this.onClick}
         >revision history &gt;</a>
         <div className={css['clear']} />
       </li>
     );
   }
 
-  onRestore(event: SyntheticEvent) {
+  onRestore = (event: SyntheticEvent) => {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
@@ -117,6 +117,13 @@ class HistoryEntry extends React.Component {
       this.restoreEntryAction(),
       { customKeyName: `${restoreEntryActionType}:${entryID}` },
     );
+  }
+
+  onClick = (event: SyntheticEvent) => {
+    event.preventDefault();
+    const entryID = this.props.entryInfo.id;
+    invariant(entryID, "entryInfo.id (serverID) should be set");
+    this.props.onClick(entryID);
   }
 
   async restoreEntryAction() {

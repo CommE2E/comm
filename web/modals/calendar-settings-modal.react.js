@@ -45,7 +45,7 @@ type State = {
   currentTab: Tab,
 };
 
-class CalendarSettingsModal extends React.Component {
+class CalendarSettingsModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -81,9 +81,9 @@ class CalendarSettingsModal extends React.Component {
               <input
                 type="text"
                 value={this.state.calendarInfo.name}
-                onChange={this.onChangeName.bind(this)}
+                onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
-                ref={(input) => this.nameInput = input}
+                ref={this.nameInputRef}
               />
             </div>
           </div>
@@ -93,7 +93,7 @@ class CalendarSettingsModal extends React.Component {
               <textarea
                 value={this.state.calendarInfo.description}
                 placeholder="Calendar description"
-                onChange={this.onChangeDescription.bind(this)}
+                onChange={this.onChangeDescription}
                 disabled={this.props.inputDisabled}
               ></textarea>
             </div>
@@ -107,7 +107,7 @@ class CalendarSettingsModal extends React.Component {
                 id="edit-calendar-color"
                 value={this.state.calendarInfo.color}
                 disabled={this.props.inputDisabled}
-                onChange={this.onChangeColor.bind(this)}
+                onChange={this.onChangeColor}
               />
             </div>
           </div>
@@ -132,9 +132,9 @@ class CalendarSettingsModal extends React.Component {
                 type="password"
                 placeholder={passwordPlaceholder}
                 value={this.state.newCalendarPassword}
-                onChange={this.onChangeNewCalendarPassword.bind(this)}
+                onChange={this.onChangeNewCalendarPassword}
                 disabled={this.props.inputDisabled}
-                ref={(input) => this.newCalendarPasswordInput = input}
+                ref={this.newCalendarPasswordInputRef}
               />
             </div>
             <div className={css['form-enum-password']}>
@@ -142,7 +142,7 @@ class CalendarSettingsModal extends React.Component {
                 type="password"
                 placeholder={confirmPlaceholder}
                 value={this.state.confirmCalendarPassword}
-                onChange={this.onChangeConfirmCalendarPassword.bind(this)}
+                onChange={this.onChangeConfirmCalendarPassword}
                 disabled={this.props.inputDisabled}
               />
             </div>
@@ -172,7 +172,7 @@ class CalendarSettingsModal extends React.Component {
                     this.state.calendarInfo.visibilityRules ===
                     visibilityRules.OPEN
                   }
-                  onChange={this.onChangeClosed.bind(this)}
+                  onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
@@ -194,7 +194,7 @@ class CalendarSettingsModal extends React.Component {
                     this.state.calendarInfo.visibilityRules ===
                     visibilityRules.CLOSED
                   }
-                  onChange={this.onChangeClosed.bind(this)}
+                  onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
@@ -218,7 +218,7 @@ class CalendarSettingsModal extends React.Component {
                     this.state.calendarInfo.visibilityRules ===
                     visibilityRules.SECRET
                   }
-                  onChange={this.onChangeClosed.bind(this)}
+                  onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
@@ -245,7 +245,7 @@ class CalendarSettingsModal extends React.Component {
                   id="edit-calendar-edit-rules-anybody"
                   value={0}
                   checked={this.state.calendarInfo.editRules === 0}
-                  onChange={this.onChangeEditRules.bind(this)}
+                  onChange={this.onChangeEditRules}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
@@ -265,7 +265,7 @@ class CalendarSettingsModal extends React.Component {
                   id="edit-calendar-edit-rules-logged-in"
                   value={1}
                   checked={this.state.calendarInfo.editRules === 1}
-                  onChange={this.onChangeEditRules.bind(this)}
+                  onChange={this.onChangeEditRules}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
@@ -300,7 +300,7 @@ class CalendarSettingsModal extends React.Component {
           <input
             type="submit"
             value="Delete"
-            onClick={this.onDelete.bind(this)}
+            onClick={this.onDelete}
             disabled={this.props.inputDisabled}
           />
         </span>
@@ -311,7 +311,7 @@ class CalendarSettingsModal extends React.Component {
           <input
             type="submit"
             value="Save"
-            onClick={this.onSubmit.bind(this)}
+            onClick={this.onSubmit}
             disabled={this.props.inputDisabled}
           />
         </span>
@@ -338,9 +338,9 @@ class CalendarSettingsModal extends React.Component {
                   type="password"
                   placeholder="Personal account password"
                   value={this.state.accountPassword}
-                  onChange={this.onChangeAccountPassword.bind(this)}
+                  onChange={this.onChangeAccountPassword}
                   disabled={this.props.inputDisabled}
-                  ref={(input) => this.accountPasswordInput = input}
+                  ref={this.accountPasswordInputRef}
                 />
               </div>
             </div>
@@ -372,7 +372,21 @@ class CalendarSettingsModal extends React.Component {
     );
   }
 
-  onChangeName(event: SyntheticEvent) {
+  nameInputRef = (nameInput: ?HTMLInputElement) => {
+    this.nameInput = nameInput;
+  }
+
+  newCalendarPasswordInputRef = (
+    newCalendarPasswordInput: ?HTMLInputElement,
+  ) => {
+    this.newCalendarPasswordInput = newCalendarPasswordInput;
+  }
+
+  accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
+    this.accountPasswordInput = accountPasswordInput;
+  }
+
+  onChangeName = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState: State, props) => ({
@@ -384,7 +398,7 @@ class CalendarSettingsModal extends React.Component {
     }));
   }
 
-  onChangeDescription(event: SyntheticEvent) {
+  onChangeDescription = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState((prevState, props) => ({
@@ -396,7 +410,7 @@ class CalendarSettingsModal extends React.Component {
     }));
   }
 
-  onChangeColor(color: string) {
+  onChangeColor = (color: string) => {
     this.setState((prevState, props) => ({
       ...prevState,
       calendarInfo: {
@@ -406,7 +420,7 @@ class CalendarSettingsModal extends React.Component {
     }));
   }
 
-  onChangeClosed(event: SyntheticEvent) {
+  onChangeClosed = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => ({
@@ -418,7 +432,7 @@ class CalendarSettingsModal extends React.Component {
     }));
   }
 
-  onChangeEditRules(event: SyntheticEvent) {
+  onChangeEditRules = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => ({
@@ -430,25 +444,25 @@ class CalendarSettingsModal extends React.Component {
     }));
   }
 
-  onChangeNewCalendarPassword(event: SyntheticEvent) {
+  onChangeNewCalendarPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ newCalendarPassword: target.value });
   }
 
-  onChangeConfirmCalendarPassword(event: SyntheticEvent) {
+  onChangeConfirmCalendarPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmCalendarPassword: target.value });
   }
 
-  onChangeAccountPassword(event: SyntheticEvent) {
+  onChangeAccountPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ accountPassword: target.value });
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     const name = this.state.calendarInfo.name.trim();
@@ -579,7 +593,7 @@ class CalendarSettingsModal extends React.Component {
     }
   }
 
-  onDelete(event: SyntheticEvent) {
+  onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteCalendarActionType,

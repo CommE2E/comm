@@ -11,12 +11,9 @@ type State = {
   screenHeight: number,
 };
 
-class IntroModal extends React.Component {
+class IntroModal extends React.PureComponent {
 
   static maxDistanceFromTypeahead = 30;
-  // This needs to be bound, but we need to pass the same reference to
-  // window.removeEventListener that we pass to window.addEventListener
-  onResizeCallback: () => void;
   props: Props;
   state: State;
 
@@ -26,18 +23,17 @@ class IntroModal extends React.Component {
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
     };
-    this.onResizeCallback = this.onResize.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener("resize", this.onResizeCallback);
+    window.addEventListener("resize", this.onResize);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.onResizeCallback);
+    window.removeEventListener("resize", this.onResize);
   }
 
-  onResize() {
+  onResize = () => {
     this.setState({
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,

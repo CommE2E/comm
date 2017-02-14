@@ -31,7 +31,7 @@ type State = {
   errorMessage: string,
 };
 
-class ResetPasswordModal extends React.Component {
+class ResetPasswordModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -70,8 +70,8 @@ class ResetPasswordModal extends React.Component {
                     type="password"
                     placeholder="Password"
                     value={this.state.password}
-                    onChange={this.onChangePassword.bind(this)}
-                    ref={(input) => this.passwordInput = input}
+                    onChange={this.onChangePassword}
+                    ref={this.passwordInputRef}
                     disabled={this.props.inputDisabled}
                   />
                 </div>
@@ -80,7 +80,7 @@ class ResetPasswordModal extends React.Component {
                     type="password"
                     placeholder="Confirm password"
                     value={this.state.confirmPassword}
-                    onChange={this.onChangeConfirmPassword.bind(this)}
+                    onChange={this.onChangeConfirmPassword}
                     disabled={this.props.inputDisabled}
                   />
                 </div>
@@ -94,7 +94,7 @@ class ResetPasswordModal extends React.Component {
                 <input
                   type="submit"
                   value="Update"
-                  onClick={this.onSubmit.bind(this)}
+                  onClick={this.onSubmit}
                   disabled={this.props.inputDisabled}
                 />
               </span>
@@ -105,19 +105,23 @@ class ResetPasswordModal extends React.Component {
     );
   }
 
-  onChangePassword(event: SyntheticEvent) {
+  passwordInputRef = (passwordInput: ?HTMLInputElement) => {
+    this.passwordInput = passwordInput;
+  }
+
+  onChangePassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onChangeConfirmPassword(event: SyntheticEvent) {
+  onChangeConfirmPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmPassword: target.value });
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (this.state.password === '') {

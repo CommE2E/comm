@@ -26,7 +26,7 @@ type Props = {
   frozen?: bool,
 };
 
-class TypeaheadActionOption extends React.Component {
+class TypeaheadActionOption extends React.PureComponent {
 
   static defaultProps = { frozen: false };
   props: Props;
@@ -38,7 +38,7 @@ class TypeaheadActionOption extends React.Component {
           css['calendar-nav-option'],
           {[css['calendar-nav-frozen-option']]: this.props.frozen},
         )}
-        onClick={this.onClick.bind(this)}
+        onClick={this.onClick}
       >
         <div>
           <div className={css['calendar-nav-option-name']}>
@@ -50,7 +50,7 @@ class TypeaheadActionOption extends React.Component {
     );
   }
 
-  async onClick(event: SyntheticEvent) {
+  onClick = (event: SyntheticEvent) => {
     if (this.props.navID === 'new') {
       this.props.freezeTypeahead(this.props.navID);
       const onClose = () => {

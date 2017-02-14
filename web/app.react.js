@@ -1,8 +1,5 @@
 // @flow
 
-// this plugin causes problems, and react-router has a better locationShape
-'no babel-plugin-flow-react-proptypes';
-
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, NavInfo } from './redux-setup';
 import { navInfoPropType } from './redux-setup';
@@ -66,7 +63,7 @@ type State = {
   currentModal: ?React.Element<any>,
 };
 
-class App extends React.Component {
+class App extends React.PureComponent {
 
   static verifyEmail = 0;
   static resetPassword = 1;
@@ -96,7 +93,7 @@ class App extends React.Component {
       } else if (this.props.verifyField === App.verifyEmail) {
         history.replace(this.props.thisURL);
         this.setModal(
-          <VerificationSuccessModal onClose={this.clearModal.bind(this)} />
+          <VerificationSuccessModal onClose={this.clearModal} />
         );
       }
     }
@@ -197,14 +194,14 @@ class App extends React.Component {
               className={css['page-loading']}
             />
             <Typeahead
-              setModal={this.setModal.bind(this)}
-              clearModal={this.clearModal.bind(this)}
+              setModal={this.setModal}
+              clearModal={this.clearModal}
               modalExists={this.state.modalExists}
             />
           </div>
           <AccountBar
-            setModal={this.setModal.bind(this)}
-            clearModal={this.clearModal.bind(this)}
+            setModal={this.setModal}
+            clearModal={this.clearModal}
             modalExists={this.state.modalExists}
           />
           <h2 className={css['upper-center']}>
@@ -222,22 +219,22 @@ class App extends React.Component {
           </h2>
         </header>
         <Calendar
-          setModal={this.setModal.bind(this)}
-          clearModal={this.clearModal.bind(this)}
+          setModal={this.setModal}
+          clearModal={this.clearModal}
         />
         {this.state.currentModal}
       </div>
     );
   }
 
-  setModal(modal: React.Element<any>) {
+  setModal = (modal: React.Element<any>) => {
     this.setState({
       currentModal: modal,
       modalExists: true,
     });
   }
 
-  clearModal() {
+  clearModal = () => {
     let currentModal = null;
     if (!this.props.currentNavID && this.props.navInfo.home) {
       currentModal = <IntroModal />;

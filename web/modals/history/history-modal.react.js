@@ -58,7 +58,7 @@ type State = {
   revisions: HistoryRevisionInfo[],
 };
 
-class HistoryModal extends React.Component {
+class HistoryModal extends React.PureComponent {
 
   static defaultProps = { currentEntryID: null };
   props: Props;
@@ -98,7 +98,7 @@ class HistoryModal extends React.Component {
       allHistoryButton = (
         <a
           href="#"
-          onClick={this.onClickAllEntries.bind(this)}
+          onClick={this.onClickAllEntries}
           className={css['all-history-button']}
         >
           &lt; all entries
@@ -126,8 +126,8 @@ class HistoryModal extends React.Component {
             year={this.props.year}
             month={this.props.month}
             day={this.props.day}
-            onClick={(event) => this.onClickEntry(event, serverID)}
-            animateAndLoadEntry={this.animateAndLoadEntry.bind(this)}
+            onClick={this.onClickEntry}
+            animateAndLoadEntry={this.animateAndLoadEntry}
             key={serverID}
           />
         );
@@ -226,15 +226,12 @@ class HistoryModal extends React.Component {
     };
   }
 
-  async onClickEntry(event: SyntheticEvent, entryID: string) {
-    event.preventDefault();
-    this.setState({
-      animateModeChange: true,
-    });
-    await this.loadEntry(entryID);
+  onClickEntry = (entryID: string) => {
+    this.setState({ animateModeChange: true });
+    this.loadEntry(entryID);
   }
 
-  onClickAllEntries(event: SyntheticEvent) {
+  onClickAllEntries = (event: SyntheticEvent) => {
     event.preventDefault();
     this.setState({
       mode: "day",
@@ -242,7 +239,7 @@ class HistoryModal extends React.Component {
     });
   }
 
-  animateAndLoadEntry(entryID: string) {
+  animateAndLoadEntry = (entryID: string) => {
     this.setState({ animateModeChange: true });
     this.loadEntry(entryID);
   }

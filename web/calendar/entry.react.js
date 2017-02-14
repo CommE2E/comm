@@ -54,7 +54,7 @@ type State = {
   text: string,
 };
 
-class Entry extends React.Component {
+class Entry extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -105,7 +105,7 @@ class Entry extends React.Component {
     this.textarea.focus();
   }
 
-  onMouseDown(event: SyntheticEvent) {
+  onMouseDown = (event: SyntheticEvent) => {
     if (this.state.focused) {
       // Don't lose focus when some non-textarea part is clicked
       event.preventDefault();
@@ -134,7 +134,7 @@ class Entry extends React.Component {
           <a
             href="#"
             className={css['entry-history-button']}
-            onClick={this.onHistory.bind(this)}
+            onClick={this.onHistory}
           >
             <HistoryVector className={css['history']} />
             <span className={css['action-links-text']}>History</span>
@@ -146,7 +146,7 @@ class Entry extends React.Component {
           <a
             href="#"
             className={css['delete-entry-button']}
-            onClick={this.onDelete.bind(this)}
+            onClick={this.onDelete}
           >
             <DeleteVector className={css['delete']} />
             <span className={css['action-links-text']}>Delete</span>
@@ -172,18 +172,18 @@ class Entry extends React.Component {
       <div
         className={entryClasses}
         style={style}
-        onMouseDown={this.onMouseDown.bind(this)}
+        onMouseDown={this.onMouseDown}
       >
         <textarea
           rows="1"
           className={css['entry-text']}
-          onChange={this.onChange.bind(this)}
-          onKeyDown={this.onKeyDown.bind(this)}
+          onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
           value={this.state.text}
-          onFocus={() => this.setState({ focused: true })}
-          onBlur={this.onBlur.bind(this)}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
           tabIndex={this.props.tabIndex}
-          ref={(textarea) => this.textarea = textarea}
+          ref={this.textareaRef}
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
@@ -194,7 +194,15 @@ class Entry extends React.Component {
     );
   }
 
-  async onBlur(event: SyntheticEvent) {
+  textareaRef = (textarea: ?HTMLTextAreaElement) => {
+    this.textarea = textarea;
+  }
+
+  onFocus = () => {
+    this.setState({ focused: true });
+  }
+
+  onBlur = (event: SyntheticEvent) => {
     this.setState({ focused: false });
     invariant(
       this.textarea instanceof HTMLTextAreaElement,
@@ -205,7 +213,7 @@ class Entry extends React.Component {
     }
   }
 
-  onChange(event: SyntheticEvent) {
+  onChange = (event: SyntheticEvent) => {
     if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
@@ -226,7 +234,7 @@ class Entry extends React.Component {
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onKeyDown(event: any) {
+  onKeyDown = (event: any) => {
     if (event.keyCode === 27) {
       invariant(
         this.textarea instanceof HTMLTextAreaElement,
@@ -329,7 +337,7 @@ class Entry extends React.Component {
     }
   }
 
-  onDelete(event: SyntheticEvent) {
+  onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
@@ -375,7 +383,7 @@ class Entry extends React.Component {
     }
   }
 
-  onHistory(event: SyntheticEvent) {
+  onHistory = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <HistoryModal

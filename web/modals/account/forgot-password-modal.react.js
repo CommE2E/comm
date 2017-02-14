@@ -33,7 +33,7 @@ type State = {
   errorMessage: string,
 };
 
-class ForgotPasswordModal extends React.Component {
+class ForgotPasswordModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -64,8 +64,8 @@ class ForgotPasswordModal extends React.Component {
                   type="text"
                   placeholder="Username or email"
                   value={this.state.usernameOrEmail}
-                  onChange={this.onChangeUsernameOrEmail.bind(this)}
-                  ref={(input) => this.usernameOrEmailInput = input}
+                  onChange={this.onChangeUsernameOrEmail}
+                  ref={this.usernameOrEmailInputRef}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -78,7 +78,7 @@ class ForgotPasswordModal extends React.Component {
                 <input
                   type="submit"
                   value="Reset"
-                  onClick={this.onSubmit.bind(this)}
+                  onClick={this.onSubmit}
                   disabled={this.props.inputDisabled}
                 />
               </span>
@@ -89,13 +89,17 @@ class ForgotPasswordModal extends React.Component {
     );
   }
 
-  onChangeUsernameOrEmail(event: SyntheticEvent) {
+  usernameOrEmailInputRef = (usernameOrEmailInput: ?HTMLInputElement) => {
+    this.usernameOrEmailInput = usernameOrEmailInput;
+  }
+
+  onChangeUsernameOrEmail = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ usernameOrEmail: target.value });
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (

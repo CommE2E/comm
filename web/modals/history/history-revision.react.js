@@ -24,7 +24,7 @@ type Props = {
   isDeletionOrRestoration: bool,
 }
 
-class HistoryRevision extends React.Component {
+class HistoryRevision extends React.PureComponent {
 
   time: ?HTMLElement;
 
@@ -81,13 +81,17 @@ class HistoryRevision extends React.Component {
         <time
           className={css['entry-time']}
           dateTime={date.toISOString()}
-          ref={(elem) => this.time = elem}
+          ref={this.timeRef}
         >
           {hovertext}
         </time>
         <div className={css['clear']} />
       </li>
     );
+  }
+
+  timeRef = (time: ?HTMLElement) => {
+    this.time = time;
   }
 
 }

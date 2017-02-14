@@ -15,7 +15,7 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
 };
 
-class LogInFirstModal extends React.Component {
+class LogInFirstModal extends React.PureComponent {
 
   props: Props;
 
@@ -28,13 +28,13 @@ class LogInFirstModal extends React.Component {
             <a
               href="#"
               className={css['show-login-modal']}
-              onClick={this.onClickLogIn.bind(this)}
+              onClick={this.onClickLogIn}
             >log in</a>
             {" or "}
             <a
               href="#"
               className={css['show-register-modal']}
-              onClick={this.onClickRegister.bind(this)}
+              onClick={this.onClickRegister}
             >register</a>
             {" a new account."}
           </p>
@@ -43,7 +43,7 @@ class LogInFirstModal extends React.Component {
     );
   }
 
-  onClickLogIn(event: SyntheticEvent) {
+  onClickLogIn = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <LogInModal
@@ -53,7 +53,7 @@ class LogInFirstModal extends React.Component {
     );
   }
 
-  onClickRegister(event: SyntheticEvent) {
+  onClickRegister = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <RegisterModal

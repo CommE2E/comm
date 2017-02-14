@@ -23,7 +23,7 @@ type Props = {
   clearModal: () => void,
 };
 
-class Calendar extends React.Component {
+class Calendar extends React.PureComponent {
 
   props: Props;
 

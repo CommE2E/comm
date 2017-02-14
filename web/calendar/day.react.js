@@ -48,7 +48,7 @@ type State = {
   hovered: bool,
 };
 
-class Day extends React.Component {
+class Day extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -92,12 +92,12 @@ class Day extends React.Component {
       actionLinks = (
         <div
           className={`${css['action-links']} ${css['day-action-links']}`}
-          ref={(elem) => this.actionLinks = elem}
+          ref={this.actionLinksRef}
         >
           <a
             href="#"
             className={css['add-entry-button']}
-            onClick={this.onAddEntry.bind(this)}
+            onClick={this.onAddEntry}
           >
             <AddVector className={css['add']} />
             <span className={css['action-links-text']}>Add</span>
@@ -105,7 +105,7 @@ class Day extends React.Component {
           <a
             href="#"
             className={css['day-history-button']}
-            onClick={this.onHistory.bind(this)}
+            onClick={this.onHistory}
           >
             <HistoryVector className={css['history']} />
             <span className={css['action-links-text']}>History</span>
@@ -120,7 +120,7 @@ class Day extends React.Component {
       const key = entryKey(entryInfo);
       return <Entry
         entryInfo={entryInfo}
-        focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan.bind(this)}
+        focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         tabIndex={this.props.startingTabIndex + i}
@@ -137,8 +137,8 @@ class Day extends React.Component {
       );
       calendarPicker = (
         <CalendarPicker
-          createNewEntry={this.createNewEntry.bind(this)}
-          closePicker={() => this.setState({ pickerOpen: false })}
+          createNewEntry={this.createNewEntry}
+          closePicker={this.closePicker}
         />
       );
     }
@@ -150,19 +150,19 @@ class Day extends React.Component {
     return (
       <td
         className={tdClasses}
-        onClick={this.onClick.bind(this)}
-        onMouseEnter={() => this.setState({ hovered: true })}
-        onMouseLeave={() => this.setState({ hovered: false })}
+        onClick={this.onClick}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
       >
         <h2>{this.props.day}</h2>
         <div
           className={entryContainerClasses}
-          ref={(elem) => this.entryContainer = elem}
+          ref={this.entryContainerRef}
         >
           {entries}
           <div
             className={css['entry-container-spacer']}
-            ref={(elem) => this.entryContainerSpacer = elem}
+            ref={this.entryContainerSpacerRef}
           />
         </div>
         {actionLinks}
@@ -171,7 +171,31 @@ class Day extends React.Component {
     );
   }
 
-  onClick(event: SyntheticEvent) {
+  actionLinksRef = (actionLinks: ?HTMLDivElement) => {
+    this.actionLinks = actionLinks;
+  }
+
+  entryContainerRef = (entryContainer: ?HTMLDivElement) => {
+    this.entryContainer = entryContainer;
+  }
+
+  entryContainerSpacerRef = (entryContainerSpacer: ?HTMLDivElement) => {
+    this.entryContainerSpacer = entryContainerSpacer;
+  }
+
+  closePicker = () => {
+    this.setState({ pickerOpen: false });
+  }
+
+  onMouseEnter = () => {
+    this.setState({ hovered: true });
+  }
+
+  onMouseLeave = () => {
+    this.setState({ hovered: false });
+  }
+
+  onClick = (event: SyntheticEvent) => {
     const target = htmlTargetFromEvent(event);
     invariant(
       this.entryContainer instanceof HTMLDivElement,
@@ -190,7 +214,7 @@ class Day extends React.Component {
     }
   }
 
-  onAddEntry(event: SyntheticEvent) {
+  onAddEntry = (event: SyntheticEvent) => {
     event.preventDefault();
     invariant(
       this.props.onScreenCalendarInfos.length > 0,
@@ -203,7 +227,7 @@ class Day extends React.Component {
     }
   }
 
-  createNewEntry(calendarID: string) {
+  createNewEntry = (calendarID: string) => {
     const calendarInfo = this.props.onScreenCalendarInfos.find(
       (calendarInfo) => calendarInfo.id === calendarID,
     );
@@ -230,7 +254,7 @@ class Day extends React.Component {
     );
   }
 
-  onHistory(event: SyntheticEvent) {
+  onHistory = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <HistoryModal
@@ -243,7 +267,7 @@ class Day extends React.Component {
     );
   }
 
-  focusOnFirstEntryNewerThan(time: number) {
+  focusOnFirstEntryNewerThan = (time: number) => {
     const entryInfo = this.props.entryInfos.find(
       (entryInfo) => entryInfo.creationTime > time,
     );

@@ -44,7 +44,7 @@ type State = {
   currentTab: Tab,
 };
 
-class UserSettingsModal extends React.Component {
+class UserSettingsModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -85,10 +85,7 @@ class UserSettingsModal extends React.Component {
           <div className={css['form-subtitle']}>
             <span className={css['verified-status-false']}>Not verified</span>
             {" - "}
-            <a
-              href="#"
-              onClick={this.onClickResendVerificationEmail.bind(this)}
-            >
+            <a href="#" onClick={this.onClickResendVerificationEmail}>
               resend verification email
             </a>
           </div>
@@ -107,8 +104,8 @@ class UserSettingsModal extends React.Component {
                 type="text"
                 placeholder="Email"
                 value={this.state.email}
-                onChange={this.onChangeEmail.bind(this)}
-                ref={(input) => this.emailInput = input}
+                onChange={this.onChangeEmail}
+                ref={this.emailInputRef}
                 disabled={this.props.inputDisabled}
               />
               {verificationStatus}
@@ -122,8 +119,8 @@ class UserSettingsModal extends React.Component {
                   type="password"
                   placeholder="New password (optional)"
                   value={this.state.newPassword}
-                  onChange={this.onChangeNewPassword.bind(this)}
-                  ref={(input) => this.newPasswordInput = input}
+                  onChange={this.onChangeNewPassword}
+                  ref={this.newPasswordInputRef}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -132,7 +129,7 @@ class UserSettingsModal extends React.Component {
                   type="password"
                   placeholder="Confirm new password (optional)"
                   value={this.state.confirmNewPassword}
-                  onChange={this.onChangeConfirmNewPassword.bind(this)}
+                  onChange={this.onChangeConfirmNewPassword}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -156,7 +153,7 @@ class UserSettingsModal extends React.Component {
           <input
             type="submit"
             value="Delete account"
-            onClick={this.onDelete.bind(this)}
+            onClick={this.onDelete}
             disabled={this.props.inputDisabled}
           />
         </span>
@@ -167,7 +164,7 @@ class UserSettingsModal extends React.Component {
           <input
             type="submit"
             value="Update account"
-            onClick={this.onSubmit.bind(this)}
+            onClick={this.onSubmit}
             disabled={this.props.inputDisabled}
           />
         </span>
@@ -193,9 +190,9 @@ class UserSettingsModal extends React.Component {
                   type="password"
                   placeholder="Current password"
                   value={this.state.currentPassword}
-                  onChange={this.onChangeCurrentPassword.bind(this)}
+                  onChange={this.onChangeCurrentPassword}
                   disabled={this.props.inputDisabled}
-                  ref={(input) => this.currentPasswordInput = input}
+                  ref={this.currentPasswordInputRef}
                 />
               </div>
             </div>
@@ -209,6 +206,18 @@ class UserSettingsModal extends React.Component {
         </div>
       </Modal>
     );
+  }
+
+  emailInputRef = (emailInput: ?HTMLInputElement) => {
+    this.emailInput = emailInput;
+  }
+
+  newPasswordInputRef = (newPasswordInput: ?HTMLInputElement) => {
+    this.newPasswordInput = newPasswordInput;
+  }
+
+  currentPasswordInputRef = (currentPasswordInput: ?HTMLInputElement) => {
+    this.currentPasswordInput = currentPasswordInput;
   }
 
   buildTab(tab: Tab, name: string) {
@@ -227,7 +236,7 @@ class UserSettingsModal extends React.Component {
     );
   }
 
-  onChangeEmail(event: SyntheticEvent) {
+  onChangeEmail = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
@@ -238,25 +247,25 @@ class UserSettingsModal extends React.Component {
     });
   }
 
-  onChangeNewPassword(event: SyntheticEvent) {
+  onChangeNewPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ newPassword: target.value });
   }
 
-  onChangeConfirmNewPassword(event: SyntheticEvent) {
+  onChangeConfirmNewPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmNewPassword: target.value });
   }
 
-  onChangeCurrentPassword(event: SyntheticEvent) {
+  onChangeCurrentPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ currentPassword: target.value });
   }
 
-  onClickResendVerificationEmail(event: SyntheticEvent) {
+  onClickResendVerificationEmail = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       resendVerificationEmailActionType,
@@ -269,7 +278,7 @@ class UserSettingsModal extends React.Component {
     this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (this.state.newPassword !== this.state.confirmNewPassword) {
@@ -368,7 +377,7 @@ class UserSettingsModal extends React.Component {
     }
   }
 
-  onDelete(event: SyntheticEvent) {
+  onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteAccountActionType,

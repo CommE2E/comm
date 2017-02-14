@@ -42,7 +42,7 @@ type Props = {
 type State = {
 };
 
-class TypeaheadOptionButtons extends React.Component {
+class TypeaheadOptionButtons extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -59,7 +59,7 @@ class TypeaheadOptionButtons extends React.Component {
     if (this.props.calendarInfo.canChangeSettings && this.props.currentNavID) {
       editButton = (
         <li>
-          <a href='#' onClick={this.edit.bind(this)}>
+          <a href='#' onClick={this.edit}>
             Settings
           </a>
         </li>
@@ -73,7 +73,7 @@ class TypeaheadOptionButtons extends React.Component {
             status={this.props.loadingStatus}
             className={css['calendar-nav-option-buttons-loading']}
           />
-          <a href='#' onClick={this.onSubscribe.bind(this)}>
+          <a href='#' onClick={this.onSubscribe}>
             {this.props.calendarInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
           </a>
         </li>
@@ -81,7 +81,7 @@ class TypeaheadOptionButtons extends React.Component {
     );
   }
 
-  onSubscribe(event: SyntheticEvent) {
+  onSubscribe = (event: SyntheticEvent) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.loadingStatus === "loading") {
@@ -124,7 +124,7 @@ class TypeaheadOptionButtons extends React.Component {
     };
   }
 
-  edit(event: SyntheticEvent) {
+  edit = (event: SyntheticEvent) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.freezeTypeahead(this.props.calendarInfo.id);

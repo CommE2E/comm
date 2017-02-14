@@ -18,7 +18,7 @@ type Color = {
   hex: string,
 }
 
-class ColorPicker extends React.Component {
+class ColorPicker extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -37,7 +37,7 @@ class ColorPicker extends React.Component {
         <div className={css['color-picker-selector']}>
           <ChromePicker
             color={this.props.value}
-            onChangeComplete={this.onChangeColor.bind(this)}
+            onChangeComplete={this.onChangeColor}
             disableAlpha={true}
           />
         </div>
@@ -48,9 +48,9 @@ class ColorPicker extends React.Component {
       <div
         className={css['color-picker-container']}
         tabIndex="0"
-        onClick={() => this.setState({ pickerOpen: true })}
-        onBlur={() => this.setState({ pickerOpen: false })}
-        onKeyDown={this.onPickerKeyDown.bind(this)}
+        onClick={this.onClick}
+        onBlur={this.onBlur}
+        onKeyDown={this.onPickerKeyDown}
       >
         <div className={css['color-picker-button']}>
           <div className={css['color-picker-preview']} style={style} />
@@ -62,14 +62,22 @@ class ColorPicker extends React.Component {
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onPickerKeyDown(event: any) {
+  onPickerKeyDown = (event: any) => {
     if (event.keyCode === 27) { // Esc
       this.setState({ pickerOpen: false });
     }
   }
 
-  onChangeColor(color: Color) {
+  onChangeColor = (color: Color) => {
     this.props.onChange(color.hex.substring(1, 7));
+  }
+
+  onClick = () => {
+    this.setState({ pickerOpen: true });
+  }
+
+  onBlur = () => {
+    this.setState({ pickerOpen: false });
   }
 
 }

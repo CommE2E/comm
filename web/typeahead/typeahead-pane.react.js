@@ -17,7 +17,7 @@ type State = {
   currentResults: React.Element<any>[],
 };
 
-class TypeaheadPane extends React.Component {
+class TypeaheadPane extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -77,7 +77,7 @@ class TypeaheadPane extends React.Component {
           <a
             href="#"
             className={css['calendar-nav-pager-button']}
-            onClick={this.onBackPagerClick.bind(this)}
+            onClick={this.onBackPagerClick}
           >{leftPager}</a>
         );
       }
@@ -92,7 +92,7 @@ class TypeaheadPane extends React.Component {
           <a
             href="#"
             className={css['calendar-nav-pager-button']}
-            onClick={this.onNextPagerClick.bind(this)}
+            onClick={this.onNextPagerClick}
           >{rightPager}</a>
         );
       }
@@ -121,7 +121,7 @@ class TypeaheadPane extends React.Component {
     );
   }
 
-  onBackPagerClick(event: SyntheticEvent) {
+  onBackPagerClick = (event: SyntheticEvent) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(
@@ -145,7 +145,7 @@ class TypeaheadPane extends React.Component {
     });
   }
 
-  onNextPagerClick(event: SyntheticEvent) {
+  onNextPagerClick = (event: SyntheticEvent) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(

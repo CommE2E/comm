@@ -14,7 +14,7 @@ type Props = {
   size?: ModalSize,
 };
 
-class Modal extends React.Component {
+class Modal extends React.PureComponent {
 
   static defaultProps = { size: "small" };
   props: Props;
@@ -38,10 +38,10 @@ class Modal extends React.Component {
     return (
       <div
         className={overlayClasses}
-        ref={(overlay) => this.overlay = overlay}
-        onClick={this.onBackgroundClick.bind(this)}
+        ref={this.overlayRef}
+        onClick={this.onBackgroundClick}
         tabIndex={0}
-        onKeyDown={this.onKeyDown.bind(this)}
+        onKeyDown={this.onKeyDown}
       >
         <div className={modalClasses}>
           <div className={css['modal-header']}>
@@ -57,14 +57,18 @@ class Modal extends React.Component {
     );
   }
 
-  onBackgroundClick(event: SyntheticEvent) {
+  overlayRef = (overlay: ?HTMLDivElement) => {
+    this.overlay = overlay;
+  }
+
+  onBackgroundClick = (event: SyntheticEvent) => {
     if (event.target === this.overlay) {
       this.props.onClose();
     }
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onKeyDown(event: any) {
+  onKeyDown = (event: any) => {
     if (event.keyCode === 27) {
       this.props.onClose();
     }

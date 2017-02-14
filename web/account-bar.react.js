@@ -32,7 +32,7 @@ type State = {
   expanded: bool,
 }
 
-class AccountBar extends React.Component {
+class AccountBar extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -65,20 +65,20 @@ class AccountBar extends React.Component {
           <div
             className={css['account-menu']}
             tabIndex="0"
-            onBlur={() => this.setState({ expanded: false })}
-            onKeyDown={this.onMenuKeyDown.bind(this)}
-            ref={(elem) => this.menu = elem}
+            onBlur={this.onBlur}
+            onKeyDown={this.onMenuKeyDown}
+            ref={this.menuRef}
           >
             <div>
               <a
                 href="#"
-                onClick={this.onLogOut.bind(this)}
+                onClick={this.onLogOut}
               >Log out</a>
             </div>
             <div>
               <a
                 href="#"
-                onClick={this.onEditAccount.bind(this)}
+                onClick={this.onEditAccount}
               >Edit account</a>
             </div>
           </div>
@@ -88,10 +88,7 @@ class AccountBar extends React.Component {
         ? <DownCaret className={css['account-caret']} />
         : <UpCaret className={css['account-caret']} />;
       return (
-        <div
-          className={classes}
-          onMouseDown={this.onMouseDown.bind(this)}
-        >
+        <div className={classes} onMouseDown={this.onMouseDown}>
           {menu}
           <div className={css['account-button']}>
             <span>{"logged in as "}</span>
@@ -105,15 +102,9 @@ class AccountBar extends React.Component {
         <div className={classes}>
           <div className={css['account-button']}>
             <span>
-              <a
-                href="#"
-                onClick={this.onLogIn.bind(this)}
-              >Log in</a>
+              <a href="#" onClick={this.onLogIn}>Log in</a>
               {" · "}
-              <a
-                href="#"
-                onClick={this.onRegister.bind(this)}
-              >Register</a>
+              <a href="#" onClick={this.onRegister}>Register</a>
             </span>
           </div>
         </div>
@@ -121,14 +112,22 @@ class AccountBar extends React.Component {
     }
   }
 
+  menuRef = (menu: ?HTMLDivElement) => {
+    this.menu = menu;
+  }
+
+  onBlur = () => {
+    this.setState({ expanded: false });
+  }
+
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onMenuKeyDown(event: any) {
+  onMenuKeyDown = (event: any) => {
     if (event.keyCode === 27) { // Esc
       this.setState({ expanded: false });
     }
   }
 
-  onMouseDown(event: SyntheticEvent) {
+  onMouseDown = (event: SyntheticEvent) => {
     if (!this.state.expanded) {
       // This prevents onBlur from firing on div.account-menu
       event.preventDefault();
@@ -145,13 +144,13 @@ class AccountBar extends React.Component {
     }
   }
 
-  onLogOut(event: SyntheticEvent) {
+  onLogOut = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(logOutActionType, logOut());
     this.setState({ expanded: false });
   }
 
-  onEditAccount(event: SyntheticEvent) {
+  onEditAccount = (event: SyntheticEvent) => {
     event.preventDefault();
     // This will blur the focus off the menu which will set expanded to false
     this.props.setModal(
@@ -162,7 +161,7 @@ class AccountBar extends React.Component {
     );
   }
 
-  onLogIn(event: SyntheticEvent) {
+  onLogIn = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <LogInModal
@@ -172,7 +171,7 @@ class AccountBar extends React.Component {
     );
   }
 
-  onRegister(event: SyntheticEvent) {
+  onRegister = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <RegisterModal

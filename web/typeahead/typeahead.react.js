@@ -50,7 +50,15 @@ type State = {
   recommendedCalendars: CalendarInfo[],
 };
 
-class Typeahead extends React.Component {
+const emptyArray = [];
+const noResults = [(
+  <div className={css['calendar-nav-no-results']} key="none">
+    No results
+  </div>
+)];
+const noResultsFunc = () => noResults;
+
+class Typeahead extends React.PureComponent {
 
   static recommendationSize = 3;
   static homeNullStateRecommendationSize = 6;
@@ -198,65 +206,48 @@ class Typeahead extends React.Component {
             paneTitle="Results"
             pageSize={10}
             totalResults={this.state.searchResults.length}
-            resultsBetween={this.searchResultOptionsForPage.bind(this)}
+            resultsBetween={this.searchResultOptionsForPage}
             key="results"
           />
         );
       } else {
-        const noResults = (
-          <div className={css['calendar-nav-no-results']} key="none">
-            No results
-          </div>
-        );
         resultsPane = (
           <TypeaheadPane
             paneTitle="Results"
             pageSize={1}
             totalResults={1}
-            resultsBetween={() => [ noResults ]}
+            resultsBetween={noResultsFunc}
             key="results"
           />
         );
       }
       dropdown = (
-        <div
-          className={css['calendar-nav-dropdown']}
-          ref={(dropdown) => this.dropdown = dropdown}
-        >{resultsPane}</div>
+        <div className={css['calendar-nav-dropdown']} ref={this.dropdownRef}>
+          {resultsPane}
+        </div>
       );
     } else if (active) {
       const panes = [];
-      let currentOptions = [];
-      if (this.props.sortedCalendarInfos.current.length > 0) {
-        currentOptions = this.props.sortedCalendarInfos.current.map(
-          (calendarInfo) => this.buildCalendarOption(calendarInfo),
-        );
-      } else if (
-        this.props.currentCalendarID &&
-        !this.props.calendarInfos[this.props.currentCalendarID]
-      ) {
-        currentOptions = [
-          this.buildSecretOption(this.props.currentCalendarID)
-        ];
-      }
+      const haveCurrentPane =
+        this.props.sortedCalendarInfos.current.length > 0 ||
+        (this.props.currentCalendarID &&
+          !this.props.calendarInfos[this.props.currentCalendarID]);
       panes.push(
         <TypeaheadPane
           paneTitle="Current"
           pageSize={1}
-          totalResults={currentOptions.length}
-          resultsBetween={() => currentOptions}
+          totalResults={haveCurrentPane ? 1 : 0}
+          resultsBetween={this.resultsBetweenForCurrentPane}
           key="current"
         />
       );
       if (!this.props.currentlyHome) {
-        const homeOption =
-          this.buildActionOption("home", TypeaheadText.homeText);
         panes.push(
           <TypeaheadPane
             paneTitle="Home"
             pageSize={1}
             totalResults={1}
-            resultsBetween={() => [ homeOption ]}
+            resultsBetween={this.resultsBetweenForHomePane}
             key="home"
           />
         );
@@ -266,37 +257,30 @@ class Typeahead extends React.Component {
           paneTitle="Subscribed"
           pageSize={5}
           totalResults={this.props.sortedCalendarInfos.subscribed.length}
-          resultsBetween={this.subscribedCalendarOptionsForPage.bind(this)}
+          resultsBetween={this.resultsBetweenForSubscribedPane}
           key="subscribed"
         />
       );
-      const recommendedOptions = this.state.recommendedCalendars
-        .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
       panes.push(
         <TypeaheadPane
           paneTitle="Recommended"
-          pageSize={recommendedOptions.length}
-          totalResults={recommendedOptions.length}
-          resultsBetween={() => recommendedOptions}
+          pageSize={this.state.recommendedCalendars.length}
+          totalResults={this.state.recommendedCalendars.length}
+          resultsBetween={this.resultsBetweenForRecommendedPane}
           key="recommended"
         />
       );
-      const newOption =
-        this.buildActionOption("new", TypeaheadText.newText);
       panes.push(
         <TypeaheadPane
           paneTitle="Actions"
           pageSize={1}
           totalResults={1}
-          resultsBetween={() => [ newOption ]}
+          resultsBetween={this.resultsBetweenForActionsPane}
           key="actions"
         />
       );
       dropdown = (
-        <div
-          className={css['calendar-nav-dropdown']}
-          ref={(dropdown) => this.dropdown = dropdown}
-        >
+        <div className={css['calendar-nav-dropdown']} ref={this.dropdownRef}>
           {panes}
         </div>
       );
@@ -312,9 +296,9 @@ class Typeahead extends React.Component {
             calendarInfo={currentCalendarInfo}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
-            freezeTypeahead={this.freeze.bind(this)}
-            unfreezeTypeahead={this.unfreeze.bind(this)}
-            focusTypeahead={this.focusIfNotFocused.bind(this)}
+            freezeTypeahead={this.freeze}
+            unfreezeTypeahead={this.unfreeze}
+            focusTypeahead={this.focusIfNotFocused}
           />
         );
       }
@@ -329,7 +313,7 @@ class Typeahead extends React.Component {
 
     return (
       <div
-        onMouseDown={this.onMouseDown.bind(this)}
+        onMouseDown={this.onMouseDown}
         className={classNames({
           [css['calendar-nav']]: true,
           [css['calendar-nav-active']]: active,
@@ -337,13 +321,8 @@ class Typeahead extends React.Component {
             !this.props.modalExists,
         })}
       >
-        <div
-          className={css['calendar-nav-current']}
-          ref={(current) => this.current = current}
-        >
-          <span
-            ref={(magnifyingGlass) => this.magnifyingGlass = magnifyingGlass}
-          >
+        <div className={css['calendar-nav-current']} ref={this.currentRef}>
+          <span ref={this.magnifyingGlassRef}>
             <MagnifyingGlass className={css['search-vector']} />
           </span>
           {rightAligned}
@@ -351,12 +330,12 @@ class Typeahead extends React.Component {
             <input
               type="text"
               className={css['typeahead']}
-              ref={(input) => this.input = input}
-              onFocus={this.onFocus.bind(this)}
-              onBlur={this.onBlur.bind(this)}
-              onKeyDown={this.onKeyDown.bind(this)}
+              ref={this.inputRef}
+              onFocus={this.onFocus}
+              onBlur={this.onBlur}
+              onKeyDown={this.onKeyDown}
               value={this.state.typeaheadValue}
-              onChange={this.onChange.bind(this)}
+              onChange={this.onChange}
             />
           </div>
         </div>
@@ -365,10 +344,26 @@ class Typeahead extends React.Component {
     );
   }
 
+  inputRef = (input: ?HTMLInputElement) => {
+    this.input = input;
+  }
+
+  dropdownRef = (dropdown: ?HTMLElement) => {
+    this.dropdown = dropdown;
+  }
+
+  currentRef = (current: ?HTMLElement) => {
+    this.current = current;
+  }
+
+  magnifyingGlassRef = (magnifyingGlass: ?HTMLElement) => {
+    this.magnifyingGlass = magnifyingGlass;
+  }
+
   // This gets triggered when the typeahead input field loses focus. It's
   // worth noting that onMouseDown() uses event.preventDefault() to keep the
   // focus on the typeahead input field when you click in some neutral spaces.
-  onBlur() {
+  onBlur = () => {
     // There are nav options that have their own input fields. If those are
     // clicked, the nav ID will be frozen, and focus will be lost by the
     // typeahead input field, but the typeahead will not close, and we want to
@@ -384,7 +379,7 @@ class Typeahead extends React.Component {
     }
   }
 
-  onFocus() {
+  onFocus = () => {
     this.setState({ typeaheadFocused: true });
   }
 
@@ -412,8 +407,8 @@ class Typeahead extends React.Component {
       <TypeaheadActionOption
         navID={navID}
         name={name}
-        freezeTypeahead={this.freeze.bind(this)}
-        unfreezeTypeahead={this.unfreeze.bind(this)}
+        freezeTypeahead={this.freeze}
+        unfreezeTypeahead={this.unfreeze}
         onTransition={onTransition}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
@@ -431,9 +426,9 @@ class Typeahead extends React.Component {
     return (
       <TypeaheadCalendarOption
         calendarInfo={calendarInfo}
-        freezeTypeahead={this.freeze.bind(this)}
-        unfreezeTypeahead={this.unfreeze.bind(this)}
-        focusTypeahead={this.focusIfNotFocused.bind(this)}
+        freezeTypeahead={this.freeze}
+        unfreezeTypeahead={this.unfreeze}
+        focusTypeahead={this.focusIfNotFocused}
         onTransition={onTransition}
         frozen={!!this.state.frozenNavIDs[calendarInfo.id]}
         setModal={this.props.setModal}
@@ -452,9 +447,9 @@ class Typeahead extends React.Component {
     return (
       <TypeaheadCalendarOption
         secretCalendarID={secretCalendarID}
-        freezeTypeahead={this.freeze.bind(this)}
-        unfreezeTypeahead={this.unfreeze.bind(this)}
-        focusTypeahead={this.focusIfNotFocused.bind(this)}
+        freezeTypeahead={this.freeze}
+        unfreezeTypeahead={this.unfreeze}
+        focusTypeahead={this.focusIfNotFocused}
         onTransition={onTransition}
         frozen={!!this.state.frozenNavIDs[secretCalendarID]}
         setModal={this.props.setModal}
@@ -471,9 +466,38 @@ class Typeahead extends React.Component {
       !_isEmpty(state.frozenNavIDs);
   }
 
+  resultsBetweenForCurrentPane = () => {
+    if (this.props.sortedCalendarInfos.current.length > 0) {
+      return this.props.sortedCalendarInfos.current.map(
+        (calendarInfo) => this.buildCalendarOption(calendarInfo),
+      );
+    } else if (
+      this.props.currentCalendarID &&
+      !this.props.calendarInfos[this.props.currentCalendarID]
+    ) {
+      return [
+        this.buildSecretOption(this.props.currentCalendarID)
+      ];
+    }
+    return emptyArray;
+  }
+
+  resultsBetweenForHomePane = () => {
+    return [ this.buildActionOption("home", TypeaheadText.homeText) ];
+  }
+
+  resultsBetweenForRecommendedPane = () => {
+    return this.state.recommendedCalendars
+      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+  }
+
+  resultsBetweenForActionsPane = () => {
+    return [ this.buildActionOption("new", TypeaheadText.newText) ];
+  }
+
   // This method makes sure that this.state.typeaheadFocused iff typeahead input
   // field is focused
-  onMouseDown(event: SyntheticEvent) {
+  onMouseDown = (event: SyntheticEvent) => {
     if (!Typeahead.isActive(this.props, this.state)) {
       this.setState({ typeaheadFocused: true });
       // This prevents a possible focus event on input.typeahead from overriding
@@ -508,7 +532,7 @@ class Typeahead extends React.Component {
     }
   }
 
-  freeze(navID: string) {
+  freeze = (navID: string) => {
     this.setState((prevState, props) => ({
       ...prevState,
       frozenNavIDs: {
@@ -518,7 +542,7 @@ class Typeahead extends React.Component {
     }));
   }
 
-  unfreeze(navID: string) {
+  unfreeze = (navID: string) => {
     this.setState(
       (prevState, props) => {
         const newFrozenNavIDs = _omit([ navID ])(prevState.frozenNavIDs);
@@ -527,14 +551,14 @@ class Typeahead extends React.Component {
     );
   }
 
-  onKeyDown(event: SyntheticEvent) {
+  onKeyDown = (event: SyntheticEvent) => {
     if (event.keyCode == 27 /* esc key */ && this.state.typeaheadFocused) {
       invariant(this.input, "ref should be set");
       this.input.blur();
     }
   }
 
-  onChange(event: SyntheticEvent) {
+  onChange = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
@@ -544,7 +568,7 @@ class Typeahead extends React.Component {
     });
   }
 
-  focusIfNotFocused() {
+  focusIfNotFocused = () => {
     if (this.state.typeaheadFocused) {
       return;
     }
@@ -554,12 +578,12 @@ class Typeahead extends React.Component {
     input.select();
   }
 
-  searchResultOptionsForPage(start: number, end: number) {
+  searchResultOptionsForPage = (start: number, end: number) => {
     return this.state.searchResults.slice(start, end)
       .map((navID) => this.buildOption(navID));
   }
 
-  subscribedCalendarOptionsForPage(start: number, end: number) {
+  resultsBetweenForSubscribedPane = (start: number, end: number) => {
     return this.props.sortedCalendarInfos.subscribed.slice(start, end)
       .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
   }

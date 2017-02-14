@@ -33,7 +33,7 @@ type State = {
   errorMessage: string,
 };
 
-class RegisterModal extends React.Component {
+class RegisterModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -69,8 +69,8 @@ class RegisterModal extends React.Component {
                   type="text"
                   placeholder="Username"
                   value={this.state.username}
-                  onChange={this.onChangeUsername.bind(this)}
-                  ref={(input) => this.usernameInput = input}
+                  onChange={this.onChangeUsername}
+                  ref={this.usernameInputRef}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -82,8 +82,8 @@ class RegisterModal extends React.Component {
                   type="text"
                   placeholder="Email"
                   value={this.state.email}
-                  onChange={this.onChangeEmail.bind(this)}
-                  ref={(input) => this.emailInput = input}
+                  onChange={this.onChangeEmail}
+                  ref={this.emailInputRef}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -96,8 +96,8 @@ class RegisterModal extends React.Component {
                     type="password"
                     placeholder="Password"
                     value={this.state.password}
-                    onChange={this.onChangePassword.bind(this)}
-                    ref={(input) => this.passwordInput = input}
+                    onChange={this.onChangePassword}
+                    ref={this.passwordInputRef}
                     disabled={this.props.inputDisabled}
                   />
                 </div>
@@ -106,7 +106,7 @@ class RegisterModal extends React.Component {
                     type="password"
                     placeholder="Confirm password"
                     value={this.state.confirmPassword}
-                    onChange={this.onChangeConfirmPassword.bind(this)}
+                    onChange={this.onChangeConfirmPassword}
                     disabled={this.props.inputDisabled}
                   />
                 </div>
@@ -120,7 +120,7 @@ class RegisterModal extends React.Component {
                 <input
                   type="submit"
                   value="Register"
-                  onClick={this.onSubmit.bind(this)}
+                  onClick={this.onSubmit}
                   disabled={this.props.inputDisabled}
                 />
               </span>
@@ -131,31 +131,43 @@ class RegisterModal extends React.Component {
     );
   }
 
-  onChangeUsername(event: SyntheticEvent) {
+  usernameInputRef = (usernameInput: ?HTMLInputElement) => {
+    this.usernameInput = usernameInput;
+  }
+
+  emailInputRef = (emailInput: ?HTMLInputElement) => {
+    this.emailInput = emailInput;
+  }
+
+  passwordInputRef = (passwordInput: ?HTMLInputElement) => {
+    this.passwordInput = passwordInput;
+  }
+
+  onChangeUsername = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ username: target.value });
   }
 
-  onChangeEmail(event: SyntheticEvent) {
+  onChangeEmail = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ email: target.value });
   }
 
-  onChangePassword(event: SyntheticEvent) {
+  onChangePassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onChangeConfirmPassword(event: SyntheticEvent) {
+  onChangeConfirmPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmPassword: target.value });
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (this.state.password === '') {

@@ -23,7 +23,7 @@ type State = {
   currentPage: number,
 };
 
-class CalendarPicker extends React.Component {
+class CalendarPicker extends React.PureComponent {
 
   static pageSize = 5;
 
@@ -69,7 +69,7 @@ class CalendarPicker extends React.Component {
           <a
             href="#"
             className={css['calendar-picker-pager-button']}
-            onClick={this.onBackPagerClick.bind(this)}
+            onClick={this.onBackPagerClick}
           >{leftPager}</a>
         );
       }
@@ -81,7 +81,7 @@ class CalendarPicker extends React.Component {
           <a
             href="#"
             className={css['calendar-picker-pager-button']}
-            onClick={this.onNextPagerClick.bind(this)}
+            onClick={this.onNextPagerClick}
           >{rightPager}</a>
         );
       }
@@ -123,9 +123,9 @@ class CalendarPicker extends React.Component {
         className={css['pick-calendar']}
         tabIndex="0"
         onBlur={this.props.closePicker}
-        onKeyDown={this.onPickerKeyDown.bind(this)}
-        onMouseDown={this.onMouseDown.bind(this)}
-        ref={(elem) => this.pickerDiv = elem}
+        onKeyDown={this.onPickerKeyDown}
+        onMouseDown={this.onMouseDown}
+        ref={this.pickerDivRef}
       >
         {options}
         {pager}
@@ -133,14 +133,18 @@ class CalendarPicker extends React.Component {
     );
   }
 
+  pickerDivRef = (pickerDiv: ?HTMLDivElement) => {
+    this.pickerDiv = pickerDiv;
+  }
+
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onPickerKeyDown(event: any) {
+  onPickerKeyDown = (event: any) => {
     if (event.keyCode === 27) { // Esc
       this.props.closePicker();
     }
   }
 
-  onMouseDown(event: SyntheticEvent) {
+  onMouseDown = (event: SyntheticEvent) => {
     const target = htmlTargetFromEvent(event);
     invariant(this.pickerDiv, "pickerDiv ref not set");
     if (this.pickerDiv.contains(target)) {
@@ -149,7 +153,7 @@ class CalendarPicker extends React.Component {
     }
   }
 
-  onBackPagerClick(event: SyntheticEvent) {
+  onBackPagerClick = (event: SyntheticEvent) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(
@@ -160,7 +164,7 @@ class CalendarPicker extends React.Component {
     });
   }
 
-  onNextPagerClick(event: SyntheticEvent) {
+  onNextPagerClick = (event: SyntheticEvent) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(

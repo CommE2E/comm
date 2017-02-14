@@ -31,7 +31,7 @@ type State = {
   errorMessage: string,
 };
 
-class LogInModal extends React.Component {
+class LogInModal extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -64,8 +64,8 @@ class LogInModal extends React.Component {
                   type="text"
                   placeholder="Username or email"
                   value={this.state.usernameOrEmail}
-                  onChange={this.onChangeUsernameOrEmail.bind(this)}
-                  ref={(input) => this.usernameOrEmailInput = input}
+                  onChange={this.onChangeUsernameOrEmail}
+                  ref={this.usernameOrEmailInputRef}
                   disabled={this.props.inputDisabled}
                 />
               </div>
@@ -77,12 +77,12 @@ class LogInModal extends React.Component {
                   type="password"
                   placeholder="Password"
                   value={this.state.password}
-                  onChange={this.onChangePassword.bind(this)}
-                  ref={(input) => this.passwordInput = input}
+                  onChange={this.onChangePassword}
+                  ref={this.passwordInputRef}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-subtitle']}>
-                  <a href="#" onClick={this.onClickForgotPassword.bind(this)}>
+                  <a href="#" onClick={this.onClickForgotPassword}>
                     Forgot password?
                   </a>
                 </div>
@@ -96,7 +96,7 @@ class LogInModal extends React.Component {
                 <input
                   type="submit"
                   value="Log in"
-                  onClick={this.onSubmit.bind(this)}
+                  onClick={this.onSubmit}
                   disabled={this.props.inputDisabled}
                 />
               </span>
@@ -107,19 +107,27 @@ class LogInModal extends React.Component {
     );
   }
 
-  onChangeUsernameOrEmail(event: SyntheticEvent) {
+  usernameOrEmailInputRef = (usernameOrEmailInput: ?HTMLInputElement) => {
+    this.usernameOrEmailInput = usernameOrEmailInput;
+  }
+
+  passwordInputRef = (passwordInput: ?HTMLInputElement) => {
+    this.passwordInput = passwordInput;
+  }
+
+  onChangeUsernameOrEmail = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ usernameOrEmail: target.value });
   }
 
-  onChangePassword(event: SyntheticEvent) {
+  onChangePassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onClickForgotPassword(event: SyntheticEvent) {
+  onClickForgotPassword = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.setModal(
       <ForgotPasswordModal
@@ -129,7 +137,7 @@ class LogInModal extends React.Component {
     );
   }
 
-  onSubmit(event: SyntheticEvent) {
+  onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (

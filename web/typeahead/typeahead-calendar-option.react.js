@@ -49,7 +49,7 @@ type State = {
   passwordEntryOpen: bool,
 };
 
-class TypeaheadCalendarOption extends React.Component {
+class TypeaheadCalendarOption extends React.PureComponent {
 
   static defaultProps = { frozen: false };
   props: Props;
@@ -86,7 +86,7 @@ class TypeaheadCalendarOption extends React.Component {
     this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
   }
 
-  focusPasswordEntry() {
+  focusPasswordEntry = () => {
     invariant(
       this.passwordEntryInput instanceof HTMLInputElement,
       "passwordEntryInput ref not set",
@@ -120,7 +120,7 @@ class TypeaheadCalendarOption extends React.Component {
             type="submit"
             value="Enter"
             className={css['calendar-password-entry-submit']}
-            onClick={this.onSubmitPassword.bind(this)}
+            onClick={this.onSubmitPassword}
             disabled={this.props.passwordEntryLoadingStatus === "loading"}
           />
           <LoadingIndicator
@@ -132,12 +132,12 @@ class TypeaheadCalendarOption extends React.Component {
               type="password"
               className={css['calendar-password-entry-input']}
               value={this.state.passwordEntryValue}
-              onChange={this.onPasswordEntryChange.bind(this)}
-              onBlur={this.onPasswordEntryBlur.bind(this)}
-              onKeyDown={this.onPasswordEntryKeyDown.bind(this)}
-              onMouseDown={this.onPasswordEntryMouseDown.bind(this)}
+              onChange={this.onPasswordEntryChange}
+              onBlur={this.onPasswordEntryBlur}
+              onKeyDown={this.onPasswordEntryKeyDown}
+              onMouseDown={this.onPasswordEntryMouseDown}
               placeholder="Password"
-              ref={(input) => this.passwordEntryInput = input}
+              ref={this.passwordEntryInputRef}
             />
           </div>
         </div>;
@@ -177,7 +177,7 @@ class TypeaheadCalendarOption extends React.Component {
           [css['calendar-nav-frozen-option']]: this.props.frozen ||
             this.state.passwordEntryOpen,
         })}
-        onClick={this.onClick.bind(this)}
+        onClick={this.onClick}
       >
         {colorPreview}
         <div>
@@ -192,6 +192,10 @@ class TypeaheadCalendarOption extends React.Component {
     );
   }
 
+  passwordEntryInputRef = (passwordEntryInput: ?HTMLInputElement) => {
+    this.passwordEntryInput = passwordEntryInput;
+  }
+
   static getID(props: OwnProps) {
     const id = props.calendarInfo
       ? props.calendarInfo.id
@@ -200,7 +204,7 @@ class TypeaheadCalendarOption extends React.Component {
     return id;
   }
 
-  async onClick(event: SyntheticEvent) {
+  onClick = (event: SyntheticEvent) => {
     const id = TypeaheadCalendarOption.getID(this.props);
     if (this.props.calendarInfo && this.props.calendarInfo.authorized) {
       history.push(`calendar/${id}/${this.props.monthURL}`);
@@ -211,19 +215,19 @@ class TypeaheadCalendarOption extends React.Component {
     }
   }
 
-  onPasswordEntryChange(event: SyntheticEvent) {
+  onPasswordEntryChange = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ passwordEntryValue: target.value });
   }
 
-  onPasswordEntryBlur(event: SyntheticEvent) {
+  onPasswordEntryBlur = (event: SyntheticEvent) => {
     this.setState({ passwordEntryOpen: false });
     this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
-  onPasswordEntryKeyDown(event: any) {
+  onPasswordEntryKeyDown = (event: any) => {
     if (event.keyCode === 27) {
       invariant(
         this.passwordEntryInput instanceof HTMLInputElement,
@@ -235,11 +239,11 @@ class TypeaheadCalendarOption extends React.Component {
     }
   }
 
-  onPasswordEntryMouseDown(event: SyntheticEvent) {
+  onPasswordEntryMouseDown = (event: SyntheticEvent) => {
     event.stopPropagation();
   }
 
-  onSubmitPassword(event: SyntheticEvent) {
+  onSubmitPassword = (event: SyntheticEvent) => {
     event.preventDefault();
     const id = TypeaheadCalendarOption.getID(this.props);
     this.props.dispatchActionPromise(
@@ -257,10 +261,7 @@ class TypeaheadCalendarOption extends React.Component {
       this.props.onTransition();
       return response;
     } catch (e) {
-      this.setState(
-        { passwordEntryValue: "" },
-        this.focusPasswordEntry.bind(this),
-      );
+      this.setState({ passwordEntryValue: "" }, this.focusPasswordEntry);
       throw e;
     }
   }
