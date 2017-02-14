@@ -14,6 +14,43 @@ import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 
+type OptionProps = {
+  calendarInfo: CalendarInfo,
+  createNewEntry: (calendarID: string) => void,
+};
+class CalendarPickerOption extends React.PureComponent {
+
+  props: OptionProps;
+  style: { backgroundColor: string };
+
+  constructor(props: OptionProps) {
+    super(props);
+    this.style = { backgroundColor: "#" + props.calendarInfo.color };
+  }
+
+  componentWillReceiveProps(nextProps: OptionProps) {
+    this.style = { backgroundColor: "#" + nextProps.calendarInfo.color };
+  }
+
+  render() {
+    return (
+      <div className={css['pick-calendar-option']} onClick={this.onClick}>
+        <span className={css['select-calendar']}>
+          <div className={css['color-preview']} style={this.style} />
+          <span className={css['select-calendar-name']}>
+            {this.props.calendarInfo.name}
+          </span>
+        </span>
+      </div>
+    );
+  }
+
+  onClick = () => {
+    this.props.createNewEntry(this.props.calendarInfo.id);
+  }
+
+}
+
 type Props = {
   onScreenCalendarInfos: CalendarInfo[],
   createNewEntry: (calendarID: string) => void,
@@ -100,23 +137,13 @@ class CalendarPicker extends React.PureComponent {
 
     const options = this.props.onScreenCalendarInfos
       .slice(firstIndex, secondIndex)
-      .map((calendarInfo) => {
-        const style = { backgroundColor: "#" + calendarInfo.color };
-        return (
-          <div
-            className={css['pick-calendar-option']}
-            key={calendarInfo.id}
-            onClick={() => this.props.createNewEntry(calendarInfo.id)}
-          >
-            <span className={css['select-calendar']}>
-              <div className={css['color-preview']} style={style} />
-              <span className={css['select-calendar-name']}>
-                {calendarInfo.name}
-              </span>
-            </span>
-          </div>
-        );
-      });
+      .map((calendarInfo) => (
+        <CalendarPickerOption
+          calendarInfo={calendarInfo}
+          createNewEntry={this.props.createNewEntry}
+          key={calendarInfo.id}
+        />
+      ));
 
     return (
       <div
