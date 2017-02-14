@@ -29,7 +29,36 @@ import css from '../style.css';
 import Modal from './modal.react';
 import ColorPicker from './color-picker.react';
 
-type Tab = "general" | "privacy" | "delete";
+type TabType = "general" | "privacy" | "delete";
+type TabProps = {
+  name: string,
+  tabType: TabType,
+  selected: bool,
+  onClick: (tabType: TabType) => void,
+};
+class Tab extends React.PureComponent {
+
+  props: TabProps;
+
+  render() {
+    const classNamesForTab = classNames({
+      [css['current-tab']]: this.props.selected,
+      [css['delete-tab']]: this.props.selected &&
+        this.props.tabType === "delete",
+    });
+    return (
+      <li className={classNamesForTab} onClick={this.onClick}>
+        <a>{this.props.name}</a>
+      </li>
+    );
+  }
+
+  onClick = () => {
+    return this.props.onClick(this.props.tabType);
+  }
+
+}
+
 type Props = {
   calendarInfo: CalendarInfo,
   onClose: () => void,
@@ -42,7 +71,7 @@ type State = {
   newCalendarPassword: string,
   confirmCalendarPassword: string,
   accountPassword: string,
-  currentTab: Tab,
+  currentTabType: TabType,
 };
 
 class CalendarSettingsModal extends React.PureComponent {
@@ -61,7 +90,7 @@ class CalendarSettingsModal extends React.PureComponent {
       newCalendarPassword: "",
       confirmCalendarPassword: "",
       accountPassword: "",
-      currentTab: "general",
+      currentTabType: "general",
     };
   }
 
@@ -72,7 +101,7 @@ class CalendarSettingsModal extends React.PureComponent {
 
   render() {
     let mainContent = null;
-    if (this.state.currentTab === "general") {
+    if (this.state.currentTabType === "general") {
       mainContent = (
         <div>
           <div>
@@ -113,7 +142,7 @@ class CalendarSettingsModal extends React.PureComponent {
           </div>
         </div>
       );
-    } else if (this.state.currentTab === "privacy") {
+    } else if (this.state.currentTabType === "privacy") {
       let calendarPasswordInputs = null;
       if (this.state.calendarInfo.visibilityRules >= visibilityRules.CLOSED) {
         const currentlyClosed =
@@ -282,7 +311,7 @@ class CalendarSettingsModal extends React.PureComponent {
           </div>
         </div>
       );
-    } else if (this.state.currentTab === "delete") {
+    } else if (this.state.currentTabType === "delete") {
       mainContent = (
         <div>
           <p className={css['italic']}>
@@ -294,7 +323,7 @@ class CalendarSettingsModal extends React.PureComponent {
     }
 
     let buttons = null;
-    if (this.state.currentTab === "delete") {
+    if (this.state.currentTabType === "delete") {
       buttons = (
         <span className={css['form-submit']}>
           <input
@@ -321,9 +350,27 @@ class CalendarSettingsModal extends React.PureComponent {
     return (
       <Modal name="Calendar settings" onClose={this.props.onClose} size="large">
         <ul className={css['tab-panel']}>
-          {this.buildTab("general", "General")}
-          {this.buildTab("privacy", "Privacy")}
-          {this.buildTab("delete", "Delete")}
+          <Tab
+            name="General"
+            tabType="general"
+            onClick={this.setTab}
+            selected={this.state.currentTabType === "general"}
+            key="general"
+          />
+          <Tab
+            name="Privacy"
+            tabType="privacy"
+            onClick={this.setTab}
+            selected={this.state.currentTabType === "privacy"}
+            key="privacy"
+          />
+          <Tab
+            name="Delete"
+            tabType="delete"
+            onClick={this.setTab}
+            selected={this.state.currentTabType === "delete"}
+            key="delete"
+          />
         </ul>
         <div className={css['modal-body']}>
           <form method="POST">
@@ -356,21 +403,9 @@ class CalendarSettingsModal extends React.PureComponent {
     );
   }
 
-  buildTab(tab: Tab, name: string) {
-    const currentTab = this.state.currentTab;
-    const classNamesForTab = classNames({
-      [css['current-tab']]: currentTab === tab,
-      [css['delete-tab']]: currentTab === tab && tab === "delete",
-    });
-    return (
-      <li
-        className={classNamesForTab}
-        onClick={(e) => this.setState({ "currentTab": tab })}
-      >
-        <a>{name}</a>
-      </li>
-    );
-  }
+  setTab = (tabType: TabType) => {
+    this.setState({ currentTabType: tabType });
+  };
 
   nameInputRef = (nameInput: ?HTMLInputElement) => {
     this.nameInput = nameInput;
@@ -475,7 +510,7 @@ class CalendarSettingsModal extends React.PureComponent {
             name: this.props.calendarInfo.name,
           },
           errorMessage: "empty calendar name",
-          currentTab: "general",
+          currentTabType: "general",
         }),
         () => {
           invariant(this.nameInput, "nameInput ref unset");
@@ -497,7 +532,7 @@ class CalendarSettingsModal extends React.PureComponent {
             newCalendarPassword: "",
             confirmCalendarPassword: "",
             errorMessage: "empty password",
-            currentTab: "privacy",
+            currentTabType: "privacy",
           },
           () => {
             invariant(
@@ -517,7 +552,7 @@ class CalendarSettingsModal extends React.PureComponent {
             newCalendarPassword: "",
             confirmCalendarPassword: "",
             errorMessage: "passwords don't match",
-            currentTab: "privacy",
+            currentTabType: "privacy",
           },
           () => {
             invariant(
@@ -581,7 +616,7 @@ class CalendarSettingsModal extends React.PureComponent {
             confirmCalendarPassword: { $set: "" },
             accountPassword: { $set: "" },
             errorMessage: { $set: "unknown error" },
-            currentTab: { $set: "general" },
+            currentTabType: { $set: "general" },
           }),
           () => {
             invariant(this.nameInput, "nameInput ref unset");

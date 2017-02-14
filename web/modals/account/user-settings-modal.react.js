@@ -24,7 +24,36 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
-type Tab = "general" | "delete";
+type TabType = "general" | "delete";
+type TabProps = {
+  name: string,
+  tabType: TabType,
+  selected: bool,
+  onClick: (tabType: TabType) => void,
+};
+class Tab extends React.PureComponent {
+
+  props: TabProps;
+
+  render() {
+    const classNamesForTab = classNames({
+      [css['current-tab']]: this.props.selected,
+      [css['delete-tab']]: this.props.selected &&
+        this.props.tabType === "delete",
+    });
+    return (
+      <li className={classNamesForTab} onClick={this.onClick}>
+        <a>{this.props.name}</a>
+      </li>
+    );
+  }
+
+  onClick = () => {
+    return this.props.onClick(this.props.tabType);
+  }
+
+}
+
 type Props = {
   username: string,
   email: string,
@@ -41,7 +70,7 @@ type State = {
   confirmNewPassword: string,
   currentPassword: string,
   errorMessage: string,
-  currentTab: Tab,
+  currentTabType: TabType,
 };
 
 class UserSettingsModal extends React.PureComponent {
@@ -61,7 +90,7 @@ class UserSettingsModal extends React.PureComponent {
       confirmNewPassword: "",
       currentPassword: "",
       errorMessage: "",
-      currentTab: "general",
+      currentTabType: "general",
     };
   }
 
@@ -72,7 +101,7 @@ class UserSettingsModal extends React.PureComponent {
 
   render() {
     let mainContent = null;
-    if (this.state.currentTab === "general") {
+    if (this.state.currentTabType === "general") {
       let verificationStatus = null;
       if (this.state.emailVerified === true) {
         verificationStatus = (
@@ -137,7 +166,7 @@ class UserSettingsModal extends React.PureComponent {
           </div>
         </div>
       );
-    } else if (this.state.currentTab === "delete") {
+    } else if (this.state.currentTabType === "delete") {
       mainContent = (
         <p className={css['italic']}>
           Your account will be permanently deleted. There is no way to reverse
@@ -147,7 +176,7 @@ class UserSettingsModal extends React.PureComponent {
     }
 
     let buttons = null;
-    if (this.state.currentTab === "delete") {
+    if (this.state.currentTabType === "delete") {
       buttons = (
         <span className={css['form-submit']}>
           <input
@@ -174,8 +203,20 @@ class UserSettingsModal extends React.PureComponent {
     return (
       <Modal name="Edit account" onClose={this.props.onClose} size="large">
         <ul className={css['tab-panel']}>
-          {this.buildTab("general", "General")}
-          {this.buildTab("delete", "Delete")}
+          <Tab
+            name="General"
+            tabType="general"
+            onClick={this.setTab}
+            selected={this.state.currentTabType === "general"}
+            key="general"
+          />
+          <Tab
+            name="Delete"
+            tabType="delete"
+            onClick={this.setTab}
+            selected={this.state.currentTabType === "delete"}
+            key="delete"
+          />
         </ul>
         <div className={css['modal-body']}>
           <form method="POST">
@@ -220,21 +261,9 @@ class UserSettingsModal extends React.PureComponent {
     this.currentPasswordInput = currentPasswordInput;
   }
 
-  buildTab(tab: Tab, name: string) {
-    const currentTab = this.state.currentTab;
-    const classNamesForTab = classNames({
-      [css['current-tab']]: currentTab === tab,
-      [css['delete-tab']]: currentTab === tab && tab === "delete",
-    });
-    return (
-      <li
-        className={classNamesForTab}
-        onClick={(e) => this.setState({ "currentTab": tab })}
-      >
-        <a>{name}</a>
-      </li>
-    );
-  }
+  setTab = (tabType: TabType) => {
+    this.setState({ currentTabType: tabType });
+  };
 
   onChangeEmail = (event: SyntheticEvent) => {
     const target = event.target;
@@ -287,6 +316,7 @@ class UserSettingsModal extends React.PureComponent {
           newPassword: "",
           confirmNewPassword: "",
           errorMessage: "passwords don't match",
+          currentTabType: "general",
         },
         () => {
           invariant(this.newPasswordInput, "newPasswordInput ref unset");
@@ -301,6 +331,7 @@ class UserSettingsModal extends React.PureComponent {
         {
           email: "",
           errorMessage: "invalid email address",
+          currentTabType: "general",
         },
         () => {
           invariant(this.emailInput, "emailInput ref unset");
@@ -351,6 +382,7 @@ class UserSettingsModal extends React.PureComponent {
             email: this.props.email,
             emailVerified: this.props.emailVerified,
             errorMessage: "email already taken",
+            currentTabType: "general",
           },
           () => {
             invariant(this.emailInput, "emailInput ref unset");
@@ -366,6 +398,7 @@ class UserSettingsModal extends React.PureComponent {
             confirmNewPassword: "",
             currentPassword: "",
             errorMessage: "unknown error",
+            currentTabType: "general",
           },
           () => {
             invariant(this.emailInput, "emailInput ref unset");
