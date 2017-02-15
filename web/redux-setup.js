@@ -6,9 +6,9 @@ import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 
-import baseReducer from 'lib/reducers/master-reducer';
-
 import React from 'react';
+
+import baseReducer from 'lib/reducers/master-reducer';
 
 export type NavInfo = {
   year: number,
