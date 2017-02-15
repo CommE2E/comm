@@ -2,33 +2,35 @@
 
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-
-import * as TypeaheadText from 'lib/shared/typeahead-text.js';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Props = {
 };
 type State = {
 };
 
-class Calendar extends React.Component {
+class Chat extends React.PureComponent {
 
   props: Props;
   state: State;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-    };
-  }
+  static navigationOptions = {
+    tabBar: {
+      label: 'Chat',
+      icon: ({ tintColor }) => (
+        <Icon
+          name="comments-o"
+          style={[styles.icon, { color: tintColor }]}
+        />
+      ),
+    },
+  };
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          {`Welcome to ${TypeaheadText.homeText}`}
-        </Text>
         <Text style={styles.instructions}>
-          To get started, edit index.ios.js
+          Stay down
         </Text>
       </View>
     );
@@ -37,16 +39,14 @@ class Calendar extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  icon: {
+    fontSize: 28,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
   },
   instructions: {
     textAlign: 'center',
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Calendar;
+export default Chat;
