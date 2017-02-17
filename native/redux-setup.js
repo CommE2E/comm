@@ -14,7 +14,7 @@ import invariant from 'invariant';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
-import { RootNavigator } from './navigation-setup';
+import { RootNavigator, defaultNavigationState } from './navigation-setup';
 
 export type NavInfo = BaseNavInfo & {
   home: bool,
@@ -54,22 +54,7 @@ export const defaultState = ({
   navInfo: {
     home: true,
     calendarID: null,
-    navigationState: {
-      index: 1,
-      routes: [
-        {
-          key: 'App',
-          routeName: 'App',
-          index: 0,
-          routes: [
-            { key: 'Calendar', routeName: 'Calendar' },
-            { key: 'Chat', routeName: 'Chat' },
-            { key: 'More', routeName: 'More' },
-          ],
-        },
-        { key: 'LogIn', routeName: 'LogIn' },
-      ],
-    },
+    navigationState: defaultNavigationState,
   },
   userInfo: null,
   entryInfos: {},

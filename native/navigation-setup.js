@@ -5,7 +5,7 @@ import { TabNavigator, StackNavigator } from 'react-navigation';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import More from './more/more.react';
-import LogIn from './account/log-in-modal.react';
+import LoggedOutModal from './account/logged-out-modal.react';
 
 const AppNavigator = TabNavigator(
   {
@@ -20,7 +20,7 @@ const AppNavigator = TabNavigator(
 
 export const RootNavigator = StackNavigator(
   {
-    LogIn: { screen: LogIn },
+    LoggedOutModal: { screen: LoggedOutModal },
     App: { screen: AppNavigator },
   },
   {
@@ -28,3 +28,20 @@ export const RootNavigator = StackNavigator(
     mode: 'modal',
   },
 );
+
+export const defaultNavigationState = {
+  index: 1,
+  routes: [
+    {
+      key: 'App',
+      routeName: 'App',
+      index: 0,
+      routes: [
+        { key: 'Calendar', routeName: 'Calendar' },
+        { key: 'Chat', routeName: 'Chat' },
+        { key: 'More', routeName: 'More' },
+      ],
+    },
+    { key: 'LoggedOutModal', routeName: 'LoggedOutModal' },
+  ],
+};

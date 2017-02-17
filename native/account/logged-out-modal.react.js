@@ -5,12 +5,14 @@ import type { NavigationScreenProp } from 'react-navigation';
 import React from 'react';
 import { View, StyleSheet, Text, Button } from 'react-native';
 
-class LogInModal extends React.PureComponent {
+class LoggedOutModal extends React.PureComponent {
 
   props: {
     navigation: NavigationScreenProp<*, *>,
   };
-  state: {};
+  state: {
+    mode: "prompt" | "log-in" | "register",
+  };
 
   static propTypes = {
     navigation: React.PropTypes.shape({
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#257BAB',
   },
   instructions: {
     textAlign: 'center',
@@ -52,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LogInModal;
+export default LoggedOutModal;
