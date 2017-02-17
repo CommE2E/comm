@@ -4,9 +4,8 @@ import type { NavigationScreenProp } from 'react-navigation';
 
 import React from 'react';
 import { View, StyleSheet, Text, Button } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
-class More extends React.PureComponent {
+class LogInModal extends React.PureComponent {
 
   props: {
     navigation: NavigationScreenProp<*, *>,
@@ -19,43 +18,27 @@ class More extends React.PureComponent {
     }).isRequired,
   };
 
-  static navigationOptions = {
-    tabBar: {
-      label: 'More',
-      icon: ({ tintColor }) => (
-        <Icon
-          name="bars"
-          style={[styles.icon, { color: tintColor }]}
-        />
-      ),
-    },
-  };
-
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
+          log in please??
         </Text>
         <Button
           onPress={this.onPress}
-          title="Log out"
+          title="Log in"
         />
       </View>
     );
   }
 
   onPress = () => {
-    this.props.navigation.navigate('LogIn');
+    this.props.navigation.goBack();
   }
 
 }
 
 const styles = StyleSheet.create({
-  icon: {
-    fontSize: 28,
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -69,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default More;
+export default LogInModal;

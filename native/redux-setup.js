@@ -6,15 +6,15 @@ import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { NavigationState } from './navigation-setup';
-import { navigationState } from './navigation-setup';
+import type { NavigationState } from 'react-navigation';
+import { ReactNavigationPropTypes } from 'react-navigation';
 
 import React from 'react';
 import invariant from 'invariant';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
-import { AppNavigator } from './navigation-setup';
+import { RootNavigator } from './navigation-setup';
 
 export type NavInfo = {
   home: bool,
@@ -25,7 +25,7 @@ export type NavInfo = {
 export const navInfoPropType = React.PropTypes.shape({
   home: React.PropTypes.bool.isRequired,
   calendarID: React.PropTypes.string,
-  navigationState: navigationState,
+  navigationState: ReactNavigationPropTypes.navigationState,
 });
 
 export type AppState = {
@@ -41,17 +41,36 @@ export type Action = BaseAction<AppState>;
 
 function reduceNavInfo(state: ?NavInfo, action: Action) {
   if (!state) {
-    invariant(
-      action.type === "@@redux/INIT",
-      "Redux store should already be initialized",
-    );
-    return {
+    const initialState = {
+      index: 1,
+      routes: [
+        {
+          key: 'App',
+          routeName: 'App',
+          index: 0,
+          routes: [
+            { key: 'Calendar', routeName: 'Calendar' },
+            { key: 'Chat', routeName: 'Chat' },
+            { key: 'More', routeName: 'More' },
+          ],
+        },
+        { key: 'LogIn', routeName: 'LogIn' },
+      ],
+    };
+    state = {
       home: true,
       calendarID: null,
-      navigationState: AppNavigator.router.getStateForAction(
-        action,
-        undefined,
-      ),
+      navigationState: initialState,
+    };
+  }
+  const navigationState = RootNavigator.router.getStateForAction(
+    action,
+    state.navigationState,
+  )
+  if (navigationState && navigationState !== state.navigationState) {
+    return {
+      ...state,
+      navigationState,
     };
   }
   return state;
