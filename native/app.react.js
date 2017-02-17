@@ -1,7 +1,7 @@
 // @flow
 
 import type { NavigationState } from 'react-navigation';
-import { ReactNavigationPropTypes } from 'react-navigation';
+import ReactNavigationPropTypes from 'react-navigation/lib/PropTypes';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState, Action } from './redux-setup';
 
@@ -14,7 +14,7 @@ import { composeWithDevTools } from 'remote-redux-devtools';
 import thunk from 'redux-thunk';
 
 import { RootNavigator } from './navigation-setup';
-import { reducer } from './redux-setup';
+import { reducer, defaultState } from './redux-setup';
 
 class AppWithNavigationState extends React.PureComponent {
 
@@ -44,6 +44,7 @@ const ConnectedAppWithNavigationState = connect(
 )(AppWithNavigationState);
 const store = createStore(
   reducer,
+  defaultState,
   composeWithDevTools(applyMiddleware(thunk)),
 );
 const App = (props: {}) =>

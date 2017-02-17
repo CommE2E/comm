@@ -7,7 +7,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { NavigationState } from 'react-navigation';
-import { ReactNavigationPropTypes } from 'react-navigation';
+import ReactNavigationPropTypes from 'react-navigation/lib/PropTypes';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -16,7 +16,7 @@ import baseReducer from 'lib/reducers/master-reducer';
 
 import { RootNavigator } from './navigation-setup';
 
-export type NavInfo = {
+export type NavInfo = BaseNavInfo & {
   home: bool,
   calendarID: ?string,
   navigationState: NavigationState,
@@ -39,9 +39,22 @@ export type AppState = {
 
 export type Action = BaseAction<AppState>;
 
-function reduceNavInfo(state: ?NavInfo, action: Action) {
-  if (!state) {
-    const initialState = {
+function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
+  const navigationState = RootNavigator.router.getStateForAction(
+    action,
+    state.navigationState,
+  )
+  if (navigationState && navigationState !== state.navigationState) {
+    return { ...state, navigationState };
+  }
+  return state;
+}
+
+export const defaultState = ({
+  navInfo: {
+    home: true,
+    calendarID: null,
+    navigationState: {
       index: 1,
       routes: [
         {
@@ -56,30 +69,19 @@ function reduceNavInfo(state: ?NavInfo, action: Action) {
         },
         { key: 'LogIn', routeName: 'LogIn' },
       ],
-    };
-    state = {
-      home: true,
-      calendarID: null,
-      navigationState: initialState,
-    };
-  }
-  const navigationState = RootNavigator.router.getStateForAction(
-    action,
-    state.navigationState,
-  )
-  if (navigationState && navigationState !== state.navigationState) {
-    return {
-      ...state,
-      navigationState,
-    };
-  }
-  return state;
-}
+    },
+  },
+  userInfo: null,
+  entryInfos: {},
+  daysToEntries: {},
+  calendarInfos: {},
+  loadingStatuses: {},
+}: AppState);
 
-export function reducer(state: ?AppState, action: Action) {
-  const possiblyMutatedState = {
-    ...state,
-    navInfo: reduceNavInfo(state && state.navInfo, action),
-  };
-  return baseReducer(possiblyMutatedState, action);
+export function reducer(state: AppState, action: Action) {
+  const navInfo = reduceNavInfo(state && state.navInfo, action);
+  if (navInfo && navInfo !== state.navInfo) {
+    state = { ...state, navInfo };
+  }
+  return baseReducer(state, action);
 }
