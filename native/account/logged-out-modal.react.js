@@ -3,15 +3,24 @@
 import type { NavigationScreenProp } from 'react-navigation';
 
 import React from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableHighlight,
+  LayoutAnimation,
+} from 'react-native';
 
 class LoggedOutModal extends React.PureComponent {
 
   props: {
     navigation: NavigationScreenProp<*, *>,
   };
+
   state: {
     mode: "prompt" | "log-in" | "register",
+  } = {
+    mode: "prompt",
   };
 
   static propTypes = {
@@ -20,22 +29,55 @@ class LoggedOutModal extends React.PureComponent {
     }).isRequired,
   };
 
+  static navigationOptions = {
+    cardStack: {
+      gesturesEnabled: false,
+    },
+  };
+
+  componentWillUpdate() {
+    LayoutAnimation.spring();
+  }
+
   render() {
+    const alignSelf = this.state.mode === "prompt" ? "center" : "flex-start";
     return (
       <View style={styles.container}>
-        <Text style={styles.instructions}>
-          log in please??
-        </Text>
-        <Button
-          onPress={this.onPress}
-          title="Log in"
-        />
+        <View style={styles.headerContainer}>
+          <Text style={[styles.header, { alignSelf }]}>
+            SquadCal
+          </Text>
+        </View>
+        <TouchableHighlight
+          onPress={this.onPressLogIn}
+          style={styles.button}
+          underlayColor='#E0E0E0'
+          activeOpacity={1}
+        >
+          <Text style={styles.buttonText}>
+            LOG IN
+          </Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          onPress={this.onPressRegister}
+          style={styles.button}
+          underlayColor='#E0E0E0'
+          activeOpacity={1}
+        >
+          <Text style={styles.buttonText}>
+            REGISTER
+          </Text>
+        </TouchableHighlight>
       </View>
     );
   }
 
-  onPress = () => {
+  onPressLogIn = () => {
     this.props.navigation.goBack();
+  }
+
+  onPressRegister = () => {
+    this.setState({ mode: "register" });
   }
 
 }
@@ -43,14 +85,42 @@ class LoggedOutModal extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#257BAB',
+    backgroundColor: '#f88742',
+    paddingTop: 50,
+    paddingBottom: 50,
   },
-  instructions: {
+  headerContainer: {
+    flex: 4,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  header: {
+    flex: 1,
+    fontFamily: 'Anaheim-Regular',
+    color: 'white',
+    fontSize: 48,
     textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  },
+  button: {
+    paddingBottom: 6,
+    paddingTop: 6,
+    paddingLeft: 18,
+    paddingRight: 18,
+    marginLeft: 40,
+    marginRight: 40,
+    marginTop: 10,
+    marginBottom: 10,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    alignSelf: 'stretch',
+  },
+  buttonText: {
+    fontSize: 22,
+    fontFamily: 'OpenSans-Semibold',
+    color: '#f88742',
+    textAlign: 'center',
   },
 });
 

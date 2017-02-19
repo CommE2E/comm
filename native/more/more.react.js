@@ -47,7 +47,7 @@ class More extends React.PureComponent {
   }
 
   onPress = () => {
-    this.props.navigation.navigate('LogIn');
+    this.props.navigation.navigate('LoggedOutModal');
   }
 
 }

@@ -7,7 +7,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { NavigationState } from 'react-navigation';
-import ReactNavigationPropTypes from 'react-navigation/lib/PropTypes';
+import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 
 import React from 'react';
 import invariant from 'invariant';

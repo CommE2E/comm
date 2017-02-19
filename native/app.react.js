@@ -1,7 +1,7 @@
 // @flow
 
 import type { NavigationState } from 'react-navigation';
-import ReactNavigationPropTypes from 'react-navigation/lib/PropTypes';
+import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState, Action } from './redux-setup';
 
