@@ -7,8 +7,10 @@ import {
   View,
   StyleSheet,
   Text,
-  TouchableHighlight,
-  LayoutAnimation,
+  TouchableOpacity,
+  Animated,
+  Easing,
+  Image,
 } from 'react-native';
 
 class LoggedOutModal extends React.PureComponent {
@@ -19,8 +21,10 @@ class LoggedOutModal extends React.PureComponent {
 
   state: {
     mode: "prompt" | "log-in" | "register",
+    paddingTop: Animated.Value,
   } = {
     mode: "prompt",
+    paddingTop: new Animated.Value(200),
   };
 
   static propTypes = {
@@ -35,39 +39,37 @@ class LoggedOutModal extends React.PureComponent {
     },
   };
 
-  componentWillUpdate() {
-    LayoutAnimation.spring();
-  }
-
   render() {
-    const alignSelf = this.state.mode === "prompt" ? "center" : "flex-start";
+    const padding = { paddingTop: this.state.paddingTop };
     return (
       <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={[styles.header, { alignSelf }]}>
-            SquadCal
-          </Text>
+        <Image
+          source={require("../img/logged-out-modal-background.jpg")}
+          style={styles.loggedOutModalBackgroundContainer}
+        />
+        <Animated.Text style={[styles.header, padding]}>
+          SquadCal
+        </Animated.Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={this.onPressLogIn}
+            style={styles.button}
+            activeOpacity={0.6}
+          >
+            <Text style={styles.buttonText}>
+              LOG IN
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.onPressRegister}
+            style={styles.button}
+            activeOpacity={0.6}
+          >
+            <Text style={styles.buttonText}>
+              REGISTER
+            </Text>
+          </TouchableOpacity>
         </View>
-        <TouchableHighlight
-          onPress={this.onPressLogIn}
-          style={styles.button}
-          underlayColor='#E0E0E0'
-          activeOpacity={1}
-        >
-          <Text style={styles.buttonText}>
-            LOG IN
-          </Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          onPress={this.onPressRegister}
-          style={styles.button}
-          underlayColor='#E0E0E0'
-          activeOpacity={1}
-        >
-          <Text style={styles.buttonText}>
-            REGISTER
-          </Text>
-        </TouchableHighlight>
       </View>
     );
   }
@@ -77,31 +79,39 @@ class LoggedOutModal extends React.PureComponent {
   }
 
   onPressRegister = () => {
-    this.setState({ mode: "register" });
+    Animated.timing(
+      this.state.paddingTop,
+      {
+        easing: Easing.out(Easing.exp),
+        toValue: 40,
+      },
+    ).start();
   }
 
 }
 
 const styles = StyleSheet.create({
+  loggedOutModalBackgroundContainer: {
+    position: 'absolute',
+  },
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f88742',
     paddingTop: 50,
     paddingBottom: 50,
-  },
-  headerContainer: {
-    flex: 4,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    backgroundColor: 'transparent',
   },
   header: {
-    flex: 1,
     fontFamily: 'Anaheim-Regular',
     color: 'white',
     fontSize: 48,
     textAlign: 'center',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: 20,
   },
   button: {
     paddingBottom: 6,
@@ -112,15 +122,14 @@ const styles = StyleSheet.create({
     marginRight: 40,
     marginTop: 10,
     marginBottom: 10,
-    borderRadius: 12,
-    backgroundColor: 'white',
-    alignSelf: 'stretch',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFFAA',
   },
   buttonText: {
     fontSize: 22,
     fontFamily: 'OpenSans-Semibold',
-    color: '#f88742',
     textAlign: 'center',
+    color: '#000000FF',
   },
 });
 
