@@ -13,6 +13,10 @@ import {
   Image,
 } from 'react-native';
 
+import LogInPanel from './log-in-panel.react';
+import RegisterPanel from './register-panel.react';
+import ConnectedStatusBar from '../connected-status-bar.react';
+
 class LoggedOutModal extends React.PureComponent {
 
   props: {
@@ -41,6 +45,12 @@ class LoggedOutModal extends React.PureComponent {
 
   render() {
     const padding = { paddingTop: this.state.paddingTop };
+    let content = null;
+    if (this.state.mode === "log-in") {
+      content = <LogInPanel navigateToApp={this.props.navigation.goBack} />;
+    } else if (this.state.mode === "register") {
+      content = <RegisterPanel navigateToApp={this.props.navigation.goBack} />;
+    }
     return (
       <View style={styles.container}>
         <Image
@@ -50,6 +60,7 @@ class LoggedOutModal extends React.PureComponent {
         <Animated.Text style={[styles.header, padding]}>
           SquadCal
         </Animated.Text>
+        {content}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
@@ -66,16 +77,24 @@ class LoggedOutModal extends React.PureComponent {
             activeOpacity={0.6}
           >
             <Text style={styles.buttonText}>
-              REGISTER
+              SIGN UP
             </Text>
           </TouchableOpacity>
         </View>
+        <ConnectedStatusBar barStyle="light-content" />
       </View>
     );
   }
 
   onPressLogIn = () => {
-    this.props.navigation.goBack();
+    Animated.timing(
+      this.state.paddingTop,
+      {
+        easing: Easing.out(Easing.exp),
+        toValue: 0,
+      },
+    ).start();
+    this.setState({ mode: "log-in" });
   }
 
   onPressRegister = () => {
@@ -83,9 +102,10 @@ class LoggedOutModal extends React.PureComponent {
       this.state.paddingTop,
       {
         easing: Easing.out(Easing.exp),
-        toValue: 40,
+        toValue: 0,
       },
     ).start();
+    this.setState({ mode: "register" });
   }
 
 }
@@ -96,7 +116,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 40,
     paddingBottom: 50,
     backgroundColor: 'transparent',
   },
