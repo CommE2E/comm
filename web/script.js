@@ -1,6 +1,7 @@
 // @flow
 
 import 'babel-polyfill';
+import 'isomorphic-fetch';
 
 import type { Store } from 'redux';
 import type { CalendarInfo } from 'lib/types/calendar-types';
@@ -20,6 +21,7 @@ import {
 import _keyBy from 'lodash/fp/keyBy';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
+import { registerConfig } from 'lib/utils/config';
 
 import { reducer } from './redux-setup';
 
@@ -42,6 +44,8 @@ declare var verify_field: ?number;
 declare var reset_password_username: string;
 declare var home: bool;
 declare var calendar_id: ?string;
+
+registerConfig({ urlPrefix: "" });
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email

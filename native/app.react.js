@@ -8,10 +8,13 @@ import type { AppState, Action } from './redux-setup';
 import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, Platform, UIManager } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import { composeWithDevTools } from 'remote-redux-devtools';
 import thunk from 'redux-thunk';
+import invariant from 'invariant';
+
+import { registerConfig } from 'lib/utils/config';
 
 import { RootNavigator } from './navigation-setup';
 import { reducer, defaultState } from './redux-setup';
@@ -35,6 +38,25 @@ class AppWithNavigationState extends React.PureComponent {
     return <RootNavigator navigation={navigation} />;
   }
 
+}
+
+let urlPrefix;
+if (!__DEV__) {
+  urlPrefix = "https://squadcal.org/";
+} else if (Platform.OS === "android") {
+  // This is a magic IP address that forwards to the emulator's host
+  urlPrefix = "http://10.0.2.2/~ashoat/squadcal/";
+} else if (Platform.OS === "ios") {
+  // Since iOS is simulated and not emulated, we can use localhost
+  urlPrefix = "http://localhost/~ashoat/squadcal/";
+} else {
+  invariant(false, "unsupported platform");
+}
+registerConfig({ urlPrefix });
+
+if (Platform.OS === "android") {
+  UIManager.setLayoutAnimationEnabledExperimental &&
+    UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
 const ConnectedAppWithNavigationState = connect(
