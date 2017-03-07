@@ -72,6 +72,7 @@ const store: Store<AppState, Action> = createStore(
     daysToEntries,
     calendarInfos: calendar_infos,
     loadingStatuses: {},
+    cookie: null,
   }: AppState),
   composeWithDevTools({})(applyMiddleware(thunk)),
 );

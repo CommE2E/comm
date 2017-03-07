@@ -16,7 +16,10 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import {
   deleteCalendarActionType,
   deleteCalendar,
@@ -62,8 +65,18 @@ class Tab extends React.PureComponent {
 type Props = {
   calendarInfo: CalendarInfo,
   onClose: () => void,
+  // Redux state
   inputDisabled: bool,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  deleteCalendar:
+    (calendarID: string, currentAccountPassword: string) => Promise<Object>,
+  changeCalendarSettings: (
+    currentAccountPassword: string,
+    newCalendarPassword: string,
+    newCalendarInfo: CalendarInfo,
+  ) => Promise<Object>,
 };
 type State = {
   calendarInfo: CalendarInfo,
@@ -578,7 +591,7 @@ class CalendarSettingsModal extends React.PureComponent {
         ...this.state.calendarInfo,
         name,
       };
-      const response = await changeCalendarSettings(
+      const response = await this.props.changeCalendarSettings(
         this.state.accountPassword,
         this.state.newCalendarPassword,
         newCalendarInfo,
@@ -638,7 +651,7 @@ class CalendarSettingsModal extends React.PureComponent {
 
   async deleteCalendarAction() {
     try {
-      const response = await deleteCalendar(
+      const response = await this.props.deleteCalendar(
         this.props.calendarInfo.id,
         this.state.accountPassword,
       );
@@ -672,10 +685,16 @@ CalendarSettingsModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   inputDisabled: React.PropTypes.bool.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  deleteCalendar: React.PropTypes.func.isRequired,
+  changeCalendarSettings: React.PropTypes.func.isRequired,
 }
 
+const deleteCalendarServerCallSelector
+  = createBoundServerCallSelector(deleteCalendar);
 const deleteCalendarLoadingStatusSelector
   = createLoadingStatusSelector(deleteCalendarActionType);
+const changeCalendarSettingsServerCallSelector
+  = createBoundServerCallSelector(changeCalendarSettings);
 const changeCalendarSettingsLoadingStatusSelector
   = createLoadingStatusSelector(changeCalendarSettingsActionType);
 
@@ -683,6 +702,8 @@ export default connect(
   (state: AppState) => ({
     inputDisabled: deleteCalendarLoadingStatusSelector(state) === "loading" ||
       changeCalendarSettingsLoadingStatusSelector(state) === "loading",
+    deleteCalendar: deleteCalendarServerCallSelector(state),
+    changeCalendarSettings: changeCalendarSettingsServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(CalendarSettingsModal);

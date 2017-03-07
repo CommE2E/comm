@@ -2,6 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { LogInResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -11,7 +12,10 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import { logInActionType, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -20,10 +24,17 @@ import Modal from '../modal.react';
 import ForgotPasswordModal from './forgot-password-modal.react';
 
 type Props = {
-  dispatchActionPromise: DispatchActionPromise,
-  inputDisabled: bool,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
+  // Redux state
+  inputDisabled: bool,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  logIn: (
+    username: string,
+    password: string,
+  ) => Promise<LogInResult>,
 };
 type State = {
   usernameOrEmail: string,
@@ -165,7 +176,7 @@ class LogInModal extends React.PureComponent {
 
   async logInAction() {
     try {
-      const result = await logIn(
+      const result = await this.props.logIn(
         this.state.usernameOrEmail,
         this.state.password,
       );
@@ -220,17 +231,20 @@ class LogInModal extends React.PureComponent {
 }
 
 LogInModal.propTypes = {
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
+  logIn: React.PropTypes.func.isRequired,
 };
 
+const logInServerCallSelector = createBoundServerCallSelector(logIn);
 const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    logIn: logInServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(LogInModal);

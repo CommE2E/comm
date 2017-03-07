@@ -7,6 +7,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import type { EntryInfo } from 'lib/types/entry-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -22,7 +23,10 @@ import {
   fetchEntriesForMonth,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import {
   thisURL,
@@ -43,17 +47,25 @@ import history from './router-history';
 import IntroModal from './modals/intro-modal.react';
 
 type Props = {
+  location: {
+    pathname: string,
+  },
+  // Redux state
   thisNavURLFragment: string,
   navInfo: NavInfo,
   verifyField: ?number,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,
+  // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
-  location: {
-    pathname: string,
-  },
+  // async functions that hit server APIs
+  fetchEntriesForMonth: (
+    year: number,
+    month: number,
+    navID: string,
+  ) => Promise<EntryInfo[]>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -161,7 +173,7 @@ class App extends React.PureComponent {
     ) {
       this.props.dispatchActionPromise(
         fetchEntriesForMonthActionType,
-        fetchEntriesForMonth(
+        this.props.fetchEntriesForMonth(
           newProps.navInfo.year,
           newProps.navInfo.month,
           newProps.currentNavID,
@@ -250,6 +262,7 @@ class App extends React.PureComponent {
 }
 
 App.propTypes = {
+  location: locationShape,
   thisNavURLFragment: React.PropTypes.string.isRequired,
   navInfo: navInfoPropType.isRequired,
   verifyField: React.PropTypes.number,
@@ -258,9 +271,11 @@ App.propTypes = {
   thisURL: React.PropTypes.string.isRequired,
   dispatchActionPayload: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
-  location: locationShape,
+  fetchEntriesForMonth: React.PropTypes.func.isRequired,
 };
 
+const fetchEntriesForMonthServerCallSelector
+  = createBoundServerCallSelector(fetchEntriesForMonth);
 const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesForMonthActionType);
 
@@ -272,6 +287,7 @@ export default connect(
     entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
+    fetchEntriesForMonth: fetchEntriesForMonthServerCallSelector(state),
   }),
   includeDispatchActionProps({
     dispatchActionPromise: true,

@@ -10,6 +10,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import type { SaveResult } from 'lib/actions/entry-actions';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -18,7 +19,10 @@ import { connect } from 'react-redux';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import {
   saveEntryActionType,
   concurrentModificationResetActionType,
@@ -39,15 +43,34 @@ import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 type Props = {
   innerRef: (key: string, me: Entry) => void,
   entryInfo: EntryInfo,
-  calendarInfo: CalendarInfo,
-  sessionID: string,
-  loggedIn: bool,
   focusOnFirstEntryNewerThan: (time: number) => void,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   tabIndex: number,
+  // Redux state
+  calendarInfo: CalendarInfo,
+  sessionID: string,
+  loggedIn: bool,
+  // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  saveEntry: (
+    serverID: ?string,
+    newText: string,
+    prevText: string,
+    sessionID: string,
+    year: number,
+    month: number,
+    day: number,
+    calendarID: string,
+    creationTime: number,
+  ) => Promise<SaveResult>,
+  deleteEntry: (
+    serverID: string,
+    prevText: string,
+    sessionID: string,
+  ) => Promise<void>,
 };
 type State = {
   focused: bool,
@@ -275,7 +298,7 @@ class Entry extends React.PureComponent {
       this.setState({ loadingStatus: "loading" });
     }
     try {
-      const response = await saveEntry(
+      const response = await this.props.saveEntry(
         serverID,
         newText,
         this.props.entryInfo.text,
@@ -374,7 +397,7 @@ class Entry extends React.PureComponent {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
-      await deleteEntry(
+      await this.props.deleteEntry(
         serverID,
         this.props.entryInfo.text,
         this.props.sessionID,
@@ -405,16 +428,22 @@ export type InnerEntry = Entry;
 Entry.propTypes = {
   innerRef: React.PropTypes.func.isRequired,
   entryInfo: entryInfoPropType.isRequired,
-  calendarInfo: calendarInfoPropType.isRequired,
-  sessionID: React.PropTypes.string.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
   focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
   clearModal: React.PropTypes.func.isRequired,
   tabIndex: React.PropTypes.number.isRequired,
+  calendarInfo: calendarInfoPropType.isRequired,
+  sessionID: React.PropTypes.string.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
   dispatchActionPayload: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  saveEntry: React.PropTypes.func.isRequired,
+  deleteEntry: React.PropTypes.func.isRequired,
 }
+
+const saveEntryServerCallSelector = createBoundServerCallSelector(saveEntry);
+const deleteEntryServerCallSelector
+  = createBoundServerCallSelector(deleteEntry);
 
 type OwnProps = {
   entryInfo: EntryInfo,
@@ -424,6 +453,8 @@ export default connect(
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionID: state.sessionID,
     loggedIn: !!state.userInfo,
+    saveEntry: saveEntryServerCallSelector(state),
+    deleteEntry: deleteEntryServerCallSelector(state),
   }),
   includeDispatchActionProps({
     dispatchActionPromise: true,

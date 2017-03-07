@@ -2,6 +2,8 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -17,7 +19,10 @@ import {
   resendVerificationEmailActionType,
   resendVerificationEmail,
 } from 'lib/actions/user-actions';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
@@ -55,13 +60,23 @@ class Tab extends React.PureComponent {
 }
 
 type Props = {
+  onClose: () => void,
+  setModal: (modal: React.Element<any>) => void,
+  // Redux state
   username: string,
   email: string,
   emailVerified: bool,
   inputDisabled: bool,
-  onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  deleteAccount: (password: string) => Promise<CalendarInfo[]>,
+  changeUserSettings: (
+    currentPassword: string,
+    newEmail: string,
+    newPassword: string,
+  ) => Promise<ChangeUserSettingsResult>,
+  resendVerificationEmail: () => Promise<void>,
 };
 type State = {
   email: string,
@@ -303,7 +318,7 @@ class UserSettingsModal extends React.PureComponent {
   }
 
   async resendVerificationEmailAction() {
-    await resendVerificationEmail();
+    await this.props.resendVerificationEmail();
     this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
   }
 
@@ -350,7 +365,7 @@ class UserSettingsModal extends React.PureComponent {
   async changeUserSettingsAction() {
     const email = this.state.email;
     try {
-      const result = await changeUserSettings(
+      const result = await this.props.changeUserSettings(
         this.state.currentPassword,
         email,
         this.state.newPassword,
@@ -420,7 +435,9 @@ class UserSettingsModal extends React.PureComponent {
 
   async deleteAction() {
     try {
-      const response = await deleteAccount(this.state.currentPassword);
+      const response = await this.props.deleteAccount(
+        this.state.currentPassword,
+      );
       this.props.onClose();
       return response;
     } catch(e) {
@@ -447,19 +464,28 @@ class UserSettingsModal extends React.PureComponent {
 }
 
 UserSettingsModal.propTypes = {
+  onClose: React.PropTypes.func.isRequired,
+  setModal: React.PropTypes.func.isRequired,
   username: React.PropTypes.string.isRequired,
   email: React.PropTypes.string.isRequired,
   emailVerified: React.PropTypes.bool.isRequired,
   inputDisabled: React.PropTypes.bool.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  deleteAccount: React.PropTypes.func.isRequired,
+  changeUserSettings: React.PropTypes.func.isRequired,
+  resendVerificationEmail: React.PropTypes.func.isRequired,
 };
 
+const deleteAccountServerCallSelector
+  = createBoundServerCallSelector(deleteAccount);
 const deleteAccountLoadingStatusSelector
   = createLoadingStatusSelector(deleteAccountActionType);
+const changeUserSettingsServerCallSelector
+  = createBoundServerCallSelector(changeUserSettings);
 const changeUserSettingsLoadingStatusSelector
   = createLoadingStatusSelector(changeUserSettingsActionType);
+const resendVerificationEmailServerCallSelector
+  = createBoundServerCallSelector(resendVerificationEmail);
 const resendVerificationEmailLoadingStatusSelector
   = createLoadingStatusSelector(resendVerificationEmailActionType);
 
@@ -471,6 +497,9 @@ export default connect(
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",
+    deleteAccount: deleteAccountServerCallSelector(state),
+    changeUserSettings: changeUserSettingsServerCallSelector(state),
+    resendVerificationEmail: resendVerificationEmailServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(UserSettingsModal);

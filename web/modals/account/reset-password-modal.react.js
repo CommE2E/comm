@@ -2,12 +2,16 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { LogInResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import {
   resetPasswordActionType,
   resetPassword,
@@ -20,10 +24,14 @@ import Modal from '../modal.react';
 type Props = {
   onClose: () => void,
   onSuccess: () => void,
+  // Redux state
   resetPasswordUsername: string,
   verifyCode: string,
   inputDisabled: bool,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  resetPassword: (code: string, password: string) => Promise<LogInResult>,
 };
 type State = {
   password: string,
@@ -161,7 +169,7 @@ class ResetPasswordModal extends React.PureComponent {
 
   async resetPasswordAction() {
     try {
-      const response = await resetPassword(
+      const response = await this.props.resetPassword(
         this.props.verifyCode,
         this.state.password,
       );
@@ -192,8 +200,11 @@ ResetPasswordModal.propTypes = {
   verifyCode: React.PropTypes.string.isRequired,
   inputDisabled: React.PropTypes.bool.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  resetPassword: React.PropTypes.func.isRequired, 
 };
 
+const resetPasswordServerCallSelector
+  = createBoundServerCallSelector(resetPassword);
 const loadingStatusSelector
   = createLoadingStatusSelector(resetPasswordActionType);
 
@@ -202,6 +213,7 @@ export default connect(
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
     inputDisabled: loadingStatusSelector(state) === "loading",
+    resetPassword: resetPasswordServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(ResetPasswordModal);

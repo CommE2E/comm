@@ -11,7 +11,10 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import {
   forgotPasswordActionType,
   forgotPassword,
@@ -25,8 +28,12 @@ import PasswordResetEmailModal from './password-reset-email-modal.react';
 type Props = {
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
+  // Redux state
   inputDisabled: bool,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  forgotPassword: (usernameOrEmail: string) => Promise<void>,
 };
 type State = {
   usernameOrEmail: string,
@@ -130,7 +137,7 @@ class ForgotPasswordModal extends React.PureComponent {
 
   async forgotPasswordAction() {
     try {
-      await forgotPassword(this.state.usernameOrEmail);
+      await this.props.forgotPassword(this.state.usernameOrEmail);
       this.props.setModal(
         <PasswordResetEmailModal onClose={this.props.onClose} />
       );
@@ -162,14 +169,18 @@ ForgotPasswordModal.propTypes = {
   setModal: React.PropTypes.func.isRequired,
   inputDisabled: React.PropTypes.bool.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  forgotPassword: React.PropTypes.func.isRequired, 
 };
 
+const forgotPasswordServerCallSelector
+  = createBoundServerCallSelector(forgotPassword);
 const loadingStatusSelector
   = createLoadingStatusSelector(forgotPasswordActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    forgotPassword: forgotPasswordServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(ForgotPasswordModal);

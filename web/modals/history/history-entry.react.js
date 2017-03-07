@@ -19,7 +19,10 @@ import {
   restoreEntry,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
@@ -31,11 +34,15 @@ type Props = {
   day: number, // 1-indexed
   onClick: (entryID: string) => void,
   animateAndLoadEntry: (entryID: string) => void,
+  // Redux state
   calendarInfo: CalendarInfo,
   sessionID: string,
   loggedIn: bool,
   restoreLoadingStatus: LoadingStatus,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  restoreEntry: (entryID: string, sessionID: string) => Promise<void>,
 };
 type State = {
 }
@@ -129,7 +136,7 @@ class HistoryEntry extends React.PureComponent {
   async restoreEntryAction() {
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entry should have ID");
-    await restoreEntry(entryID, this.props.sessionID);
+    await this.props.restoreEntry(entryID, this.props.sessionID);
     this.props.animateAndLoadEntry(entryID);
     return entryID;
   }
@@ -148,7 +155,11 @@ HistoryEntry.propTypes = {
   loggedIn: React.PropTypes.bool.isRequired,
   restoreLoadingStatus: React.PropTypes.string.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  restoreEntry: React.PropTypes.func.isRequired,
 }
+
+const restoreEntryServerCallSelector
+  = createBoundServerCallSelector(restoreEntry);
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfo }) => {
@@ -162,6 +173,7 @@ export default connect(
         restoreEntryActionType,
         `${restoreEntryActionType}:${entryID}`,
       )(state),
+      restoreEntry: restoreEntryServerCallSelector(state),
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),

@@ -29,7 +29,10 @@ import {
 } from 'lib/actions/entry-actions';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -43,13 +46,23 @@ type Props = {
   year: number,
   month: number, // 1-indexed
   day: number, // 1-indexed
-  currentNavID: ?string,
-  entryInfos: ?EntryInfo[],
   onClose: () => void,
   currentEntryID?: ?string,
+  // Redux state
+  currentNavID: ?string,
+  entryInfos: ?EntryInfo[],
   dayLoadingStatus: LoadingStatus,
   entryLoadingStatus: LoadingStatus,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  fetchAllEntriesForDay: (
+    year: number,
+    month: number,
+    day: number,
+    navID: string,
+  ) => Promise<EntryInfo[]>,
+  fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
 };
 type State = {
   mode: HistoryMode,
@@ -195,7 +208,7 @@ class HistoryModal extends React.PureComponent {
     );
     this.props.dispatchActionPromise(
       fetchAllEntriesForDayActionType,
-      fetchAllEntriesForDay(
+      this.props.fetchAllEntriesForDay(
         this.props.year,
         this.props.month,
         this.props.day,
@@ -213,16 +226,16 @@ class HistoryModal extends React.PureComponent {
   }
 
   async fetchRevisionsForEntryAction(entryID: string) {
-    const response = await fetchRevisionsForEntry(entryID);
+    const result = await this.props.fetchRevisionsForEntry(entryID);
     this.setState((prevState, props) => {
       // This merge here will preserve time ordering correctly
-      const revisions = _unionBy("id")(response.result)(prevState.revisions);
+      const revisions = _unionBy("id")(result)(prevState.revisions);
       return { ...prevState, revisions };
     });
     return {
       entryID,
-      text: response.result[0].text,
-      deleted: response.result[0].deleted,
+      text: result[0].text,
+      deleted: result[0].deleted,
     };
   }
 
@@ -251,17 +264,23 @@ HistoryModal.propTypes = {
   year: React.PropTypes.number.isRequired,
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
+  onClose: React.PropTypes.func.isRequired,
+  currentEntryID: React.PropTypes.string,
   currentNavID: React.PropTypes.string,
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType),
   dayLoadingStatus: React.PropTypes.string.isRequired,
   entryLoadingStatus: React.PropTypes.string.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  currentEntryID: React.PropTypes.string,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  fetchAllEntriesForDay: React.PropTypes.func.isRequired,
+  fetchRevisionsForEntry: React.PropTypes.func.isRequired,
 };
 
+const fetchAllEntriesForDayServerCallSelector
+  = createBoundServerCallSelector(fetchAllEntriesForDay);
 const dayLoadingStatusSelector
   = createLoadingStatusSelector(fetchAllEntriesForDayActionType);
+const fetchRevisionsForEntryServerCallSelector
+  = createBoundServerCallSelector(fetchRevisionsForEntry);
 const entryLoadingStatusSelector
   = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
@@ -271,6 +290,8 @@ export default connect(
     entryInfos: currentMonthDaysToEntries(state)[ownProps.day],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
+    fetchAllEntriesForDay: fetchAllEntriesForDayServerCallSelector(state),
+    fetchRevisionsForEntry: fetchRevisionsForEntryServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(HistoryModal);

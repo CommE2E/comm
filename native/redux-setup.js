@@ -35,6 +35,7 @@ export type AppState = {
   daysToEntries: {[day: string]: string[]},
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
+  cookie: ?string,
 };
 
 export type Action = BaseAction<AppState>;
@@ -61,6 +62,7 @@ export const defaultState = ({
   daysToEntries: {},
   calendarInfos: {},
   loadingStatuses: {},
+  cookie: "",
 }: AppState);
 
 export function reducer(state: AppState, action: Action) {

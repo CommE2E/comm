@@ -35,12 +35,14 @@ type Props = {
   month: number, // 1-indexed
   day: number, // 1-indexed
   entryInfos: EntryInfo[],
-  onScreenCalendarInfos: CalendarInfo[],
-  username: ?string,
-  loggedIn: bool,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   startingTabIndex: number,
+  // Redux state
+  onScreenCalendarInfos: CalendarInfo[],
+  username: ?string,
+  loggedIn: bool,
+  // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
 };
 type State = {
@@ -286,13 +288,13 @@ Day.propTypes = {
   month: React.PropTypes.number.isRequired,
   day: React.PropTypes.number.isRequired,
   entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
+  startingTabIndex: React.PropTypes.number.isRequired,
   onScreenCalendarInfos:
     React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
   username: React.PropTypes.string,
   loggedIn: React.PropTypes.bool.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  startingTabIndex: React.PropTypes.number.isRequired,
   dispatchActionPayload: React.PropTypes.func.isRequired,
 };
 

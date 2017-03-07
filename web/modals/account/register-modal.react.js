@@ -2,6 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { RegisterResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -11,7 +12,10 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import { registerActionType, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -20,10 +24,18 @@ import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
-  dispatchActionPromise: DispatchActionPromise,
-  inputDisabled: bool,
   onClose: () => void,
   setModal: (modal: React.Element<any>) => void,
+  // Redux state
+  inputDisabled: bool,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<RegisterResult>,
 };
 type State = {
   username: string,
@@ -226,7 +238,7 @@ class RegisterModal extends React.PureComponent {
 
   async registerAction() {
     try {
-      const result = await register(
+      const result = await this.props.register(
         this.state.username,
         this.state.email,
         this.state.password,
@@ -277,17 +289,20 @@ class RegisterModal extends React.PureComponent {
 }
 
 RegisterModal.propTypes = {
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
   onClose: React.PropTypes.func.isRequired,
   setModal: React.PropTypes.func.isRequired,
+  inputDisabled: React.PropTypes.bool.isRequired,
+  dispatchActionPromise: React.PropTypes.func.isRequired,
+  register: React.PropTypes.func.isRequired,
 };
 
+const registerServerCallSelector = createBoundServerCallSelector(register);
 const loadingStatusSelector = createLoadingStatusSelector(registerActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    register: registerServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(RegisterModal);

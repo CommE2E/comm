@@ -19,7 +19,10 @@ import {
   authCalendar,
 } from 'lib/actions/calendar-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
@@ -38,11 +41,18 @@ type Props = {
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   typeaheadFocused: bool,
+  // Redux state
   monthURL: string,
   currentNavID: ?string,
   currentCalendarID: ?string,
   passwordEntryLoadingStatus: LoadingStatus,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  authCalendar: (
+    calendarID: string,
+    calendarPassword: string,
+  ) => Promise<CalendarInfo>;
 };
 type State = {
   passwordEntryValue: string,
@@ -256,7 +266,10 @@ class TypeaheadCalendarOption extends React.PureComponent {
   async authCalendarAction() {
     const id = TypeaheadCalendarOption.getID(this.props);
     try {
-      const response = await authCalendar(id, this.state.passwordEntryValue);
+      const response = await this.props.authCalendar(
+        id,
+        this.state.passwordEntryValue,
+      );
       this.props.unfreezeTypeahead(id);
       this.props.onTransition();
       return response;
@@ -284,7 +297,11 @@ TypeaheadCalendarOption.propTypes = {
   currentCalendarID: React.PropTypes.string,
   passwordEntryLoadingStatus: React.PropTypes.string.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  authCalendar: React.PropTypes.func.isRequired,
 };
+
+const authCalendarServerCallSelector
+  = createBoundServerCallSelector(authCalendar);
 
 type OwnProps = { calendarInfo?: CalendarInfo, secretCalendarID?: string };
 export default connect(
@@ -298,6 +315,7 @@ export default connect(
         authCalendarActionType,
         `${authCalendarActionType}:${id}`,
       )(state),
+      authCalendar: authCalendarServerCallSelector(state),
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),

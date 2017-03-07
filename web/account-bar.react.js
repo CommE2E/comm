@@ -2,6 +2,7 @@
 
 import type { AppState } from './redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { CalendarInfo } from 'lib/types/calendar-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -10,7 +11,10 @@ import invariant from 'invariant';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionType } from 'lib/actions/user-actions';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -20,13 +24,17 @@ import { UpCaret, DownCaret } from './vectors.react';
 import { htmlTargetFromEvent } from './vector-utils';
 
 type Props = {
-  loggedIn: bool,
-  username: ?string,
-  currentNavID: ?string,
-  dispatchActionPromise: DispatchActionPromise,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,
+  // Redux state
+  loggedIn: bool,
+  username: ?string,
+  currentNavID: ?string,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  logOut: () => Promise<CalendarInfo[]>,
 };
 type State = {
   expanded: bool,
@@ -146,7 +154,7 @@ class AccountBar extends React.PureComponent {
 
   onLogOut = (event: SyntheticEvent) => {
     event.preventDefault();
-    this.props.dispatchActionPromise(logOutActionType, logOut());
+    this.props.dispatchActionPromise(logOutActionType, this.props.logOut());
     this.setState({ expanded: false });
   }
 
@@ -184,20 +192,23 @@ class AccountBar extends React.PureComponent {
 }
 
 AccountBar.propTypes = {
+  setModal: React.PropTypes.func.isRequired,
+  clearModal: React.PropTypes.func.isRequired,
+  modalExists: React.PropTypes.bool.isRequired,
   loggedIn: React.PropTypes.bool.isRequired,
   username: React.PropTypes.string,
   currentNavID: React.PropTypes.string,
   dispatchActionPromise: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  modalExists: React.PropTypes.bool.isRequired,
 };
+
+const logOutServerCallSelector = createBoundServerCallSelector(logOut);
 
 export default connect(
   (state: AppState) => ({
     loggedIn: !!state.userInfo,
     username: state.userInfo && state.userInfo.username,
     currentNavID: currentNavID(state),
+    logOut: logOutServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(AccountBar);

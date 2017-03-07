@@ -7,12 +7,16 @@ import {
 } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { CalendarInfo } from 'lib/types/calendar-types';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 import {
   newCalendarActionType,
   newCalendar,
@@ -25,8 +29,18 @@ import ColorPicker from './color-picker.react';
 
 type Props = {
   onClose: () => void,
+  // Redux state
   inputDisabled: bool,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  newCalendar: (
+    name: string,
+    description: string,
+    ourVisibilityRules: VisibilityRules,
+    password: string,
+    color: string,
+  ) => Promise<CalendarInfo>,
 };
 type State = {
   name: string,
@@ -369,7 +383,7 @@ class NewCalendarModal extends React.PureComponent {
 
   async newCalendarAction(name: string, ourVisibilityRules: VisibilityRules) {
     try {
-      const response = await newCalendar(
+      const response = await this.props.newCalendar(
         name,
         this.state.description,
         ourVisibilityRules,
@@ -404,14 +418,18 @@ NewCalendarModal.propTypes = {
   onClose: React.PropTypes.func.isRequired,
   inputDisabled: React.PropTypes.bool.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  newCalendar: React.PropTypes.func.isRequired,
 }
 
+const newCalendarServerCallSelector
+  = createBoundServerCallSelector(newCalendar);
 const loadingStatusSelector
   = createLoadingStatusSelector(newCalendarActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    newCalendar: newCalendarServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(NewCalendarModal);

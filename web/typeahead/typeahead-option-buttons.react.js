@@ -5,6 +5,7 @@ import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
+import type { EntryInfo } from 'lib/types/entry-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -19,7 +20,10 @@ import {
   subscribe,
 } from 'lib/actions/calendar-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  createBoundServerCallSelector,
+} from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -32,12 +36,24 @@ type Props = {
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
   focusTypeahead: () => void,
+  // Redux state
   year: number,
   month: number,
   home: bool,
   currentNavID: ?string,
   loadingStatus: LoadingStatus,
+  // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  subscribe: (
+    calendarID: string,
+    newSubscribed: bool,
+  ) => Promise<void>,
+  fetchEntriesForMonth: (
+    year: number,
+    month: number,
+    navID: string,
+  ) => Promise<EntryInfo[]>,
 };
 type State = {
 };
@@ -99,7 +115,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
         fetchEntriesForMonthActionType,
-        fetchEntriesForMonth(
+        this.props.fetchEntriesForMonth(
           this.props.year,
           this.props.month,
           this.props.calendarInfo.id,
@@ -109,7 +125,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
   }
 
   async subscribeAction(newSubscribed: bool) {
-    await subscribe(this.props.calendarInfo.id, newSubscribed);
+    await this.props.subscribe(this.props.calendarInfo.id, newSubscribed);
     // If this subscription action causes us to leave the null home state, then
     // we need to make sure that the typeahead is active iff it's focused. The
     // default resolution in Typeahead would be to close the typeahead, but it's
@@ -155,7 +171,13 @@ TypeaheadOptionButtons.propTypes = {
   currentNavID: React.PropTypes.string,
   loadingStatus: React.PropTypes.string.isRequired,
   dispatchActionPromise: React.PropTypes.func.isRequired,
+  subscribe: React.PropTypes.func.isRequired,
+  fetchEntriesForMonth: React.PropTypes.func.isRequired,
 };
+
+const fetchEntriesForMonthServerCallSelector
+  = createBoundServerCallSelector(fetchEntriesForMonth);
+const subscribeServerCallSelector = createBoundServerCallSelector(subscribe);
 
 export default connect(
   (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
@@ -167,6 +189,8 @@ export default connect(
       subscribeActionType,
       `${subscribeActionType}:${ownProps.calendarInfo.id}`,
     )(state),
+    subscribe: subscribeServerCallSelector(state),
+    fetchEntriesForMonth: fetchEntriesForMonthServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
 )(TypeaheadOptionButtons);
