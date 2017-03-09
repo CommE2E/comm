@@ -209,8 +209,16 @@ function delete_cookie($name) {
 function set_cookie($name, $value, $expiration_time) {
   global $base_url, $base_domain, $https;
 
-  $domain = parse_url($base_domain, PHP_URL_HOST);
-  $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
+  if (DEV && $_SERVER['HTTP_HOST'] == '10.0.2.2') {
+    // Since Android for local development runs on an emulator (as opposed to a
+    // simulator), it can't access the local server via localhost. Instead,
+    // there's a magic IP (10.0.2.2) that forwards to the local server. We need
+    // to set the hostname on the cookie correspondingly so Android keeps it.
+    $domain = "10.0.2.2";
+  } else {
+    $domain = parse_url($base_domain, PHP_URL_HOST);
+    $domain = preg_replace("/^www\.(.*)/", "$1", $domain);
+  }
 
   setcookie(
     $name,
