@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
   newCalendarActionType,
@@ -421,15 +421,14 @@ NewCalendarModal.propTypes = {
   newCalendar: React.PropTypes.func.isRequired,
 }
 
-const newCalendarServerCallSelector
-  = createBoundServerCallSelector(newCalendar);
 const loadingStatusSelector
   = createLoadingStatusSelector(newCalendarActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    newCalendar: newCalendarServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ newCalendar }),
 )(NewCalendarModal);

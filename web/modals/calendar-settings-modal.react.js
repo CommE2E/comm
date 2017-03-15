@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
   deleteCalendarActionType,
@@ -689,12 +689,8 @@ CalendarSettingsModal.propTypes = {
   changeCalendarSettings: React.PropTypes.func.isRequired,
 }
 
-const deleteCalendarServerCallSelector
-  = createBoundServerCallSelector(deleteCalendar);
 const deleteCalendarLoadingStatusSelector
   = createLoadingStatusSelector(deleteCalendarActionType);
-const changeCalendarSettingsServerCallSelector
-  = createBoundServerCallSelector(changeCalendarSettings);
 const changeCalendarSettingsLoadingStatusSelector
   = createLoadingStatusSelector(changeCalendarSettingsActionType);
 
@@ -702,8 +698,8 @@ export default connect(
   (state: AppState) => ({
     inputDisabled: deleteCalendarLoadingStatusSelector(state) === "loading" ||
       changeCalendarSettingsLoadingStatusSelector(state) === "loading",
-    deleteCalendar: deleteCalendarServerCallSelector(state),
-    changeCalendarSettings: changeCalendarSettingsServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ deleteCalendar, changeCalendarSettings }),
 )(CalendarSettingsModal);

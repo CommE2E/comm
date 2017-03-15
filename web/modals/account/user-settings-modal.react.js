@@ -21,7 +21,7 @@ import {
 } from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -476,16 +476,10 @@ UserSettingsModal.propTypes = {
   resendVerificationEmail: React.PropTypes.func.isRequired,
 };
 
-const deleteAccountServerCallSelector
-  = createBoundServerCallSelector(deleteAccount);
 const deleteAccountLoadingStatusSelector
   = createLoadingStatusSelector(deleteAccountActionType);
-const changeUserSettingsServerCallSelector
-  = createBoundServerCallSelector(changeUserSettings);
 const changeUserSettingsLoadingStatusSelector
   = createLoadingStatusSelector(changeUserSettingsActionType);
-const resendVerificationEmailServerCallSelector
-  = createBoundServerCallSelector(resendVerificationEmail);
 const resendVerificationEmailLoadingStatusSelector
   = createLoadingStatusSelector(resendVerificationEmailActionType);
 
@@ -497,9 +491,12 @@ export default connect(
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",
-    deleteAccount: deleteAccountServerCallSelector(state),
-    changeUserSettings: changeUserSettingsServerCallSelector(state),
-    resendVerificationEmail: resendVerificationEmailServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({
+    deleteAccount,
+    changeUserSettings,
+    resendVerificationEmail,
+  }),
 )(UserSettingsModal);

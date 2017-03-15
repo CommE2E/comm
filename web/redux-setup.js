@@ -39,7 +39,7 @@ export type AppState = {
   cookie: ?string,
 };
 
-export type Action = BaseAction<AppState> |
+export type Action = BaseAction |
   { type: "REFLECT_ROUTE_CHANGE", payload: NavInfo };
 
 export function reducer(state: AppState, action: Action) {

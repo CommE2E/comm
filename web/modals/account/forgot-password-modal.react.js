@@ -13,7 +13,7 @@ import {
 } from 'lib/shared/account-regexes';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
   forgotPasswordActionType,
@@ -172,15 +172,14 @@ ForgotPasswordModal.propTypes = {
   forgotPassword: React.PropTypes.func.isRequired, 
 };
 
-const forgotPasswordServerCallSelector
-  = createBoundServerCallSelector(forgotPassword);
 const loadingStatusSelector
   = createLoadingStatusSelector(forgotPasswordActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    forgotPassword: forgotPasswordServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ forgotPassword }),
 )(ForgotPasswordModal);

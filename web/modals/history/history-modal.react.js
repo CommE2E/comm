@@ -31,7 +31,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
@@ -275,12 +275,8 @@ HistoryModal.propTypes = {
   fetchRevisionsForEntry: React.PropTypes.func.isRequired,
 };
 
-const fetchAllEntriesForDayServerCallSelector
-  = createBoundServerCallSelector(fetchAllEntriesForDay);
 const dayLoadingStatusSelector
   = createLoadingStatusSelector(fetchAllEntriesForDayActionType);
-const fetchRevisionsForEntryServerCallSelector
-  = createBoundServerCallSelector(fetchRevisionsForEntry);
 const entryLoadingStatusSelector
   = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
@@ -290,8 +286,8 @@ export default connect(
     entryInfos: currentMonthDaysToEntries(state)[ownProps.day],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
-    fetchAllEntriesForDay: fetchAllEntriesForDayServerCallSelector(state),
-    fetchRevisionsForEntry: fetchRevisionsForEntryServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ fetchAllEntriesForDay, fetchRevisionsForEntry }),
 )(HistoryModal);

@@ -14,7 +14,7 @@ import {
 } from 'lib/shared/account-regexes';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import { logInActionType, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -238,13 +238,13 @@ LogInModal.propTypes = {
   logIn: React.PropTypes.func.isRequired,
 };
 
-const logInServerCallSelector = createBoundServerCallSelector(logIn);
 const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    logIn: logInServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ logIn }),
 )(LogInModal);

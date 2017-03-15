@@ -21,7 +21,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
   saveEntryActionType,
@@ -441,10 +441,6 @@ Entry.propTypes = {
   deleteEntry: React.PropTypes.func.isRequired,
 }
 
-const saveEntryServerCallSelector = createBoundServerCallSelector(saveEntry);
-const deleteEntryServerCallSelector
-  = createBoundServerCallSelector(deleteEntry);
-
 type OwnProps = {
   entryInfo: EntryInfo,
 };
@@ -453,11 +449,11 @@ export default connect(
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionID: state.sessionID,
     loggedIn: !!state.userInfo,
-    saveEntry: saveEntryServerCallSelector(state),
-    deleteEntry: deleteEntryServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({
     dispatchActionPromise: true,
     dispatchActionPayload: true,
   }),
+  bindServerCalls({ saveEntry, deleteEntry }),
 )(Entry);

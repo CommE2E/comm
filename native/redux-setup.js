@@ -38,7 +38,7 @@ export type AppState = {
   cookie: ?string,
 };
 
-export type Action = BaseAction<AppState>;
+export type Action = BaseAction;
 
 function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
   const navigationState = RootNavigator.router.getStateForAction(

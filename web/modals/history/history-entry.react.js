@@ -21,7 +21,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import css from '../../style.css';
@@ -158,9 +158,6 @@ HistoryEntry.propTypes = {
   restoreEntry: React.PropTypes.func.isRequired,
 }
 
-const restoreEntryServerCallSelector
-  = createBoundServerCallSelector(restoreEntry);
-
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfo }) => {
     const entryID = ownProps.entryInfo.id;
@@ -173,8 +170,9 @@ export default connect(
         restoreEntryActionType,
         `${restoreEntryActionType}:${entryID}`,
       )(state),
-      restoreEntry: restoreEntryServerCallSelector(state),
+      cookie: state.cookie,
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ restoreEntry }),
 )(HistoryEntry);

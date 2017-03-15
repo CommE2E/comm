@@ -25,7 +25,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import {
@@ -274,8 +274,6 @@ App.propTypes = {
   fetchEntriesForMonth: React.PropTypes.func.isRequired,
 };
 
-const fetchEntriesForMonthServerCallSelector
-  = createBoundServerCallSelector(fetchEntriesForMonth);
 const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesForMonthActionType);
 
@@ -287,10 +285,11 @@ export default connect(
     entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
-    fetchEntriesForMonth: fetchEntriesForMonthServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({
     dispatchActionPromise: true,
     dispatchActionPayload: true,
   }),
+  bindServerCalls({ fetchEntriesForMonth }),
 )(App);

@@ -14,7 +14,7 @@ import {
 } from 'lib/shared/account-regexes';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import { registerActionType, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -296,13 +296,13 @@ RegisterModal.propTypes = {
   register: React.PropTypes.func.isRequired,
 };
 
-const registerServerCallSelector = createBoundServerCallSelector(register);
 const loadingStatusSelector = createLoadingStatusSelector(registerActionType);
 
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    register: registerServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ register }),
 )(RegisterModal);

@@ -21,7 +21,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import css from '../style.css';
@@ -300,9 +300,6 @@ TypeaheadCalendarOption.propTypes = {
   authCalendar: React.PropTypes.func.isRequired,
 };
 
-const authCalendarServerCallSelector
-  = createBoundServerCallSelector(authCalendar);
-
 type OwnProps = { calendarInfo?: CalendarInfo, secretCalendarID?: string };
 export default connect(
   (state: AppState, ownProps: OwnProps) => {
@@ -315,8 +312,9 @@ export default connect(
         authCalendarActionType,
         `${authCalendarActionType}:${id}`,
       )(state),
-      authCalendar: authCalendarServerCallSelector(state),
+      cookie: state.cookie,
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ authCalendar }),
 )(TypeaheadCalendarOption);

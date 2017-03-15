@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
   resetPasswordActionType,
@@ -203,8 +203,6 @@ ResetPasswordModal.propTypes = {
   resetPassword: React.PropTypes.func.isRequired, 
 };
 
-const resetPasswordServerCallSelector
-  = createBoundServerCallSelector(resetPassword);
 const loadingStatusSelector
   = createLoadingStatusSelector(resetPasswordActionType);
 
@@ -213,7 +211,8 @@ export default connect(
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
     inputDisabled: loadingStatusSelector(state) === "loading",
-    resetPassword: resetPasswordServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ resetPassword }),
 )(ResetPasswordModal);

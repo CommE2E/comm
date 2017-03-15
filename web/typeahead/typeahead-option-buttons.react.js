@@ -22,7 +22,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import css from '../style.css';
@@ -175,10 +175,6 @@ TypeaheadOptionButtons.propTypes = {
   fetchEntriesForMonth: React.PropTypes.func.isRequired,
 };
 
-const fetchEntriesForMonthServerCallSelector
-  = createBoundServerCallSelector(fetchEntriesForMonth);
-const subscribeServerCallSelector = createBoundServerCallSelector(subscribe);
-
 export default connect(
   (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
     year: state.navInfo.year,
@@ -189,8 +185,8 @@ export default connect(
       subscribeActionType,
       `${subscribeActionType}:${ownProps.calendarInfo.id}`,
     )(state),
-    subscribe: subscribeServerCallSelector(state),
-    fetchEntriesForMonth: fetchEntriesForMonthServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ subscribe, fetchEntriesForMonth }),
 )(TypeaheadOptionButtons);

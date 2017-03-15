@@ -13,7 +13,7 @@ import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionType } from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 
 import css from './style.css';
@@ -201,14 +201,13 @@ AccountBar.propTypes = {
   dispatchActionPromise: React.PropTypes.func.isRequired,
 };
 
-const logOutServerCallSelector = createBoundServerCallSelector(logOut);
-
 export default connect(
   (state: AppState) => ({
     loggedIn: !!state.userInfo,
     username: state.userInfo && state.userInfo.username,
     currentNavID: currentNavID(state),
-    logOut: logOutServerCallSelector(state),
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ logOut }),
 )(AccountBar);
