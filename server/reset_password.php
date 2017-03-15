@@ -14,11 +14,7 @@ if ($https && !isset($_SERVER['HTTPS'])) {
   )));
 }
 
-if (user_logged_in()) {
-  exit(json_encode(array(
-    'error' => 'already_logged_in',
-  )));
-}
+get_viewer_info();
 
 if (!isset($_POST['password']) || !isset($_POST['code'])) {
   exit(json_encode(array(

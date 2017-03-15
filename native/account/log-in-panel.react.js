@@ -30,7 +30,6 @@ import {
 } from 'lib/utils/action-utils';
 import { logInActionType, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import sleep from 'lib/utils/sleep';
 
 import { TextInput } from '../modal-components.react';
 
@@ -183,7 +182,6 @@ class LogInPanel extends React.PureComponent {
 
   async logInAction() {
     try {
-      await sleep(500);
       const result = await this.props.logIn(
         this.state.usernameOrEmailInputText,
         this.state.passwordInputText,

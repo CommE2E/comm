@@ -25,7 +25,6 @@ import {
 } from 'lib/utils/action-utils';
 import { registerActionType, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import sleep from 'lib/utils/sleep';
 
 import { TextInput } from '../modal-components.react';
 
@@ -224,7 +223,6 @@ class RegisterPanel extends React.PureComponent {
 
   async registerAction() {
     try {
-      await sleep(500);
       const result = await this.props.register(
         this.state.usernameInputText,
         this.state.emailInputText,
