@@ -21,7 +21,7 @@ import invariant from 'invariant';
 
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import { registerActionType, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -294,13 +294,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const registerServerCallSelector = createBoundServerCallSelector(register);
 const loadingStatusSelector = createLoadingStatusSelector(registerActionType);
 
 export default connect(
   (state: AppState) => ({
+    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
-    register: registerServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ register }),
 )(RegisterPanel);

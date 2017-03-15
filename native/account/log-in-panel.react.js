@@ -26,7 +26,7 @@ import {
 } from 'lib/shared/account-regexes';
 import {
   includeDispatchActionProps,
-  createBoundServerCallSelector,
+  bindServerCalls,
 } from 'lib/utils/action-utils';
 import { logInActionType, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -313,14 +313,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const logInServerCallSelector = createBoundServerCallSelector(logIn);
 const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
 
 export default connect(
   (state: AppState) => ({
+    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
-    logIn: logInServerCallSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ logIn }),
 )(LogInPanel);
-

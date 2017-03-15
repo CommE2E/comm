@@ -62,7 +62,7 @@ export const defaultState = ({
   daysToEntries: {},
   calendarInfos: {},
   loadingStatuses: {},
-  cookie: "",
+  cookie: null,
 }: AppState);
 
 export function reducer(state: AppState, action: Action) {
