@@ -154,10 +154,10 @@ class LogInPanel extends React.PureComponent {
       this.state.usernameOrEmailInputText.search(validEmailRegex) === -1
     ) {
       Alert.alert(
-        'Invalid username',
-        'Alphanumeric usernames or emails only',
+        "Invalid username",
+        "Alphanumeric usernames or emails only",
         [
-          { text: 'OK', onPress: this.onInvalidUsernameAlertAcknowledged },
+          { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
         ],
         { cancelable: false },
       );
@@ -168,7 +168,7 @@ class LogInPanel extends React.PureComponent {
     this.props.dispatchActionPromise(logInActionType, this.logInAction());
   }
 
-  onInvalidUsernameAlertAcknowledged = () => {
+  onUsernameOrEmailAlertAcknowledged = () => {
     this.setState(
       {
         usernameOrEmailInputText: "",
@@ -191,26 +191,26 @@ class LogInPanel extends React.PureComponent {
     } catch (e) {
       if (e.message === 'invalid_parameters') {
         Alert.alert(
-          'Invalid username',
+          "Invalid username",
           "User doesn't exist",
           [
-            { text: 'OK', onPress: this.onInvalidParametersAlertAcknowledged },
+            { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
           ],
           { cancelable: false },
         );
       } else if (e.message === 'invalid_credentials') {
         Alert.alert(
-          'Incorrect password',
-          'The password you entered is incorrect',
+          "Incorrect password",
+          "The password you entered is incorrect",
           [
-            { text: 'OK', onPress: this.onInvalidCredentialsAlertAcknowledged },
+            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
           ],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
+          "Unknown error",
+          "Uhh... try again?",
           [
             { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
           ],
@@ -221,19 +221,7 @@ class LogInPanel extends React.PureComponent {
     }
   }
 
-  onInvalidParametersAlertAcknowledged = () => {
-    this.setState(
-      {
-        usernameOrEmailInputText: "",
-      },
-      () => {
-        invariant(this.usernameOrEmailInput, "ref should exist");
-        this.usernameOrEmailInput.focus();
-      },
-    );
-  }
-
-  onInvalidCredentialsAlertAcknowledged = () => {
+  onPasswordAlertAcknowledged = () => {
     this.setState(
       {
         passwordInputText: "",
@@ -257,7 +245,6 @@ class LogInPanel extends React.PureComponent {
       },
     );
   }
-
 
 }
 

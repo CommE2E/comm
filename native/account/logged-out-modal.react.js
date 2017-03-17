@@ -11,11 +11,25 @@ import {
   Animated,
   Easing,
   Image,
+  EmitterSubscription,
+  Keyboard,
+  Alert,
 } from 'react-native';
+import invariant from 'invariant';
 
 import LogInPanel from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
+
+type KeyboardEvent = {
+  duration: number,
+  endCoordinates: {
+    width: number,
+    height: number,
+    screenX: number,
+    screenY: number,
+  },
+};
 
 class LoggedOutModal extends React.PureComponent {
 
@@ -28,7 +42,7 @@ class LoggedOutModal extends React.PureComponent {
     paddingTop: Animated.Value,
   } = {
     mode: "prompt",
-    paddingTop: new Animated.Value(200),
+    paddingTop: new Animated.Value(250),
   };
 
   static propTypes = {
@@ -42,6 +56,49 @@ class LoggedOutModal extends React.PureComponent {
       gesturesEnabled: false,
     },
   };
+
+  keyboardDidShowListener: ?EmitterSubscription;
+  keyboardDidHideListener: ?EmitterSubscription;
+
+  componentWillMount() {
+    this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardWillShow',
+      this.keyboardDidShow,
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      'keyboardWillHide',
+      this.keyboardDidHide,
+    );
+  }
+
+  componentWillUnmount() {
+    invariant(this.keyboardDidShowListener, "should be set");
+    this.keyboardDidShowListener.remove();
+    invariant(this.keyboardDidHideListener, "should be set");
+    this.keyboardDidHideListener.remove();
+  }
+
+  keyboardDidShow = (event: KeyboardEvent) => {
+    Animated.timing(
+      this.state.paddingTop,
+      {
+        duration: event.duration,
+        easing: Easing.inOut(Easing.ease),
+        toValue: 250 - event.endCoordinates.height,
+      },
+    ).start();
+  }
+
+  keyboardDidHide = (event: KeyboardEvent) => {
+    Animated.timing(
+      this.state.paddingTop,
+      {
+        duration: event.duration,
+        easing: Easing.inOut(Easing.ease),
+        toValue: 250,
+      },
+    ).start();
+  }
 
   render() {
     const padding = { paddingTop: this.state.paddingTop };
@@ -57,10 +114,10 @@ class LoggedOutModal extends React.PureComponent {
           source={require("../img/logged-out-modal-background.jpg")}
           style={styles.loggedOutModalBackgroundContainer}
         />
-        <Animated.Text style={[styles.header, padding]}>
-          SquadCal
-        </Animated.Text>
-        {content}
+        <Animated.View style={[styles.animationContainer, padding]}>
+          <Text style={styles.header}>SquadCal</Text>
+          {content}
+        </Animated.View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
@@ -87,24 +144,10 @@ class LoggedOutModal extends React.PureComponent {
   }
 
   onPressLogIn = () => {
-    Animated.timing(
-      this.state.paddingTop,
-      {
-        easing: Easing.out(Easing.exp),
-        toValue: 0,
-      },
-    ).start();
     this.setState({ mode: "log-in" });
   }
 
   onPressRegister = () => {
-    Animated.timing(
-      this.state.paddingTop,
-      {
-        easing: Easing.out(Easing.exp),
-        toValue: 0,
-      },
-    ).start();
     this.setState({ mode: "register" });
   }
 
@@ -119,6 +162,9 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 50,
     backgroundColor: 'transparent',
+  },
+  animationContainer: {
+    flex: 1,
   },
   header: {
     fontFamily: 'Anaheim-Regular',

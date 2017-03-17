@@ -283,6 +283,7 @@ class RegisterModal extends React.PureComponent {
           },
         );
       }
+      throw e;
     }
   }
 

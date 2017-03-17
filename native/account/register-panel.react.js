@@ -14,6 +14,7 @@ import {
   Platform,
   ActivityIndicator,
   Keyboard,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -25,6 +26,10 @@ import {
 } from 'lib/utils/action-utils';
 import { registerActionType, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  validUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-regexes';
 
 import { TextInput } from '../modal-components.react';
 
@@ -217,8 +222,88 @@ class RegisterPanel extends React.PureComponent {
   }
 
   onSubmit = () => {
-    Keyboard.dismiss();
-    this.props.dispatchActionPromise(registerActionType, this.registerAction());
+    if (this.state.passwordInputText === '') {
+      Alert.alert(
+        "Empty password",
+        "Password cannot be empty",
+        [
+          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+    } else if (
+      this.state.passwordInputText !== this.state.confirmPasswordInputText
+    ) {
+      Alert.alert(
+        "Passwords don't match",
+        "Password fields must contain the same password",
+        [
+          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+    } else if (this.state.usernameInputText.search(validUsernameRegex) === -1) {
+      Alert.alert(
+        "Invalid username",
+        "Alphanumeric usernames only",
+        [
+          { text: 'OK', onPress: this.onUsernameAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+    } else if (this.state.emailInputText.search(validEmailRegex) === -1) {
+      Alert.alert(
+        "Invalid email address",
+        "Valid email addresses only",
+        [
+          { text: 'OK', onPress: this.onEmailAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+    } else {
+      Keyboard.dismiss();
+      this.props.dispatchActionPromise(
+        registerActionType,
+        this.registerAction(),
+      );
+    }
+  }
+
+  onPasswordAlertAcknowledged = () => {
+    this.setState(
+      {
+        passwordInputText: "",
+        confirmPasswordInputText: "",
+      },
+      () => {
+        invariant(this.passwordInput, "ref should exist");
+        this.passwordInput.focus();
+      },
+    );
+  }
+
+  onUsernameAlertAcknowledged = () => {
+    this.setState(
+      {
+        usernameInputText: "",
+      },
+      () => {
+        invariant(this.usernameInput, "ref should exist");
+        this.usernameInput.focus();
+      },
+    );
+  }
+
+  onEmailAlertAcknowledged = () => {
+    this.setState(
+      {
+        emailInputText: "",
+      },
+      () => {
+        invariant(this.emailInput, "ref should exist");
+        this.emailInput.focus();
+      },
+    );
   }
 
   async registerAction() {
@@ -231,8 +316,51 @@ class RegisterPanel extends React.PureComponent {
       this.props.navigateToApp();
       return result;
     } catch (e) {
+      if (e.message === 'username_taken') {
+        Alert.alert(
+          "Username taken",
+          "An account with that username already exists",
+          [
+            { text: 'OK', onPress: this.onUsernameAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
+      } else if (e.message === 'email_taken') {
+        Alert.alert(
+          "Email taken",
+          "An account with that email already exists",
+          [
+            { text: 'OK', onPress: this.onEmailAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
+      } else {
+        Alert.alert(
+          "Unknown error",
+          "Uhh... try again?",
+          [
+            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
+      }
       throw e;
     }
+  }
+
+  onUnknownErrorAlertAcknowledged = () => {
+    this.setState(
+      {
+        usernameInputText: "",
+        emailInputText: "",
+        passwordInputText: "",
+        confirmPasswordInputText: "",
+      },
+      () => {
+        invariant(this.usernameInput, "ref should exist");
+        this.usernameInput.focus();
+      },
+    );
   }
 
 }
