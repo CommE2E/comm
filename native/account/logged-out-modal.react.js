@@ -103,21 +103,13 @@ class LoggedOutModal extends React.PureComponent {
   render() {
     const padding = { paddingTop: this.state.paddingTop };
     let content = null;
+    let buttons = null;
     if (this.state.mode === "log-in") {
       content = <LogInPanel navigateToApp={this.props.navigation.goBack} />;
     } else if (this.state.mode === "register") {
       content = <RegisterPanel navigateToApp={this.props.navigation.goBack} />;
-    }
-    return (
-      <View style={styles.container}>
-        <Image
-          source={require("../img/logged-out-modal-background.jpg")}
-          style={styles.loggedOutModalBackgroundContainer}
-        />
-        <Animated.View style={[styles.animationContainer, padding]}>
-          <Text style={styles.header}>SquadCal</Text>
-          {content}
-        </Animated.View>
+    } else {
+      buttons = (
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
@@ -138,7 +130,20 @@ class LoggedOutModal extends React.PureComponent {
             </Text>
           </TouchableOpacity>
         </View>
+      );
+    }
+    return (
+      <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
+        <Image
+          source={require("../img/logged-out-modal-background.jpg")}
+          style={styles.loggedOutModalBackgroundContainer}
+        />
+        <Animated.View style={[styles.animationContainer, padding]}>
+          <Text style={styles.header}>SquadCal</Text>
+          {content}
+        </Animated.View>
+        {buttons}
       </View>
     );
   }
