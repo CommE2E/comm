@@ -14,6 +14,8 @@ import {
   EmitterSubscription,
   Keyboard,
   Alert,
+  Platform,
+  Dimensions,
 } from 'react-native';
 import invariant from 'invariant';
 
@@ -30,21 +32,20 @@ type KeyboardEvent = {
     screenY: number,
   },
 };
+type LoggedOutMode = "prompt" | "log-in" | "register";
+type Props = {
+  navigation: NavigationScreenProp<*, *>,
+};
+type State = {
+  mode: LoggedOutMode,
+  activeAlert: bool,
+  paddingTop: Animated.Value,
+};
 
 class LoggedOutModal extends React.PureComponent {
 
-  props: {
-    navigation: NavigationScreenProp<*, *>,
-  };
-
-  state: {
-    mode: "prompt" | "log-in" | "register",
-    paddingTop: Animated.Value,
-  } = {
-    mode: "prompt",
-    paddingTop: new Animated.Value(250),
-  };
-
+  props: Props;
+  state: State;
   static propTypes = {
     navigation: React.PropTypes.shape({
       navigate: React.PropTypes.func.isRequired,
@@ -57,47 +58,87 @@ class LoggedOutModal extends React.PureComponent {
     },
   };
 
-  keyboardDidShowListener: ?EmitterSubscription;
-  keyboardDidHideListener: ?EmitterSubscription;
+  keyboardShowListener: ?EmitterSubscription;
+  keyboardHideListener: ?EmitterSubscription;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      mode: "prompt",
+      activeAlert: false,
+      paddingTop: new Animated.Value(
+        LoggedOutModal.currentPaddingTop("prompt", 0),
+      ),
+    };
+  }
 
   componentWillMount() {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      'keyboardWillShow',
-      this.keyboardDidShow,
+    this.keyboardShowListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      this.keyboardShow,
     );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      'keyboardWillHide',
-      this.keyboardDidHide,
+    this.keyboardHideListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      this.keyboardHide,
     );
   }
 
   componentWillUnmount() {
-    invariant(this.keyboardDidShowListener, "should be set");
-    this.keyboardDidShowListener.remove();
-    invariant(this.keyboardDidHideListener, "should be set");
-    this.keyboardDidHideListener.remove();
+    invariant(this.keyboardShowListener, "should be set");
+    this.keyboardShowListener.remove();
+    invariant(this.keyboardHideListener, "should be set");
+    this.keyboardHideListener.remove();
   }
 
-  keyboardDidShow = (event: KeyboardEvent) => {
+  static currentPaddingTop(
+    mode: LoggedOutMode,
+    keyboardHeight: number,
+  ) {
+    const { height } = Dimensions.get('window');
+    const heightWithoutPadding = height - 90;
+    let containerSize = Platform.OS === "ios" ? 62 : 59;
+    if (mode === "log-in") {
+      containerSize += 165;
+    } else if (mode === "register") {
+      containerSize += 246;
+    }
+    const test = (heightWithoutPadding - containerSize - keyboardHeight) / 2;
+    console.log(test);
+    return test;
+  }
+
+  keyboardShow = (event: KeyboardEvent) => {
+    const duration = event.duration ? event.duration : 250;
     Animated.timing(
       this.state.paddingTop,
       {
-        duration: event.duration,
+        duration,
         easing: Easing.inOut(Easing.ease),
-        toValue: 250 - event.endCoordinates.height,
+        toValue: LoggedOutModal.currentPaddingTop(
+          this.state.mode,
+          event.endCoordinates.height,
+        ),
       },
     ).start();
   }
 
-  keyboardDidHide = (event: KeyboardEvent) => {
+  keyboardHide = (event: ?KeyboardEvent) => {
+    if (this.state.activeAlert) {
+      return;
+    }
+    const duration = (event && event.duration) ? event.duration : 250;
     Animated.timing(
       this.state.paddingTop,
       {
-        duration: event.duration,
+        duration,
         easing: Easing.inOut(Easing.ease),
-        toValue: 250,
+        toValue: LoggedOutModal.currentPaddingTop(this.state.mode, 0),
       },
     ).start();
+  }
+
+  setActiveAlert = (activeAlert: bool) => {
+    this.setState({ activeAlert });
   }
 
   render() {
@@ -105,9 +146,19 @@ class LoggedOutModal extends React.PureComponent {
     let content = null;
     let buttons = null;
     if (this.state.mode === "log-in") {
-      content = <LogInPanel navigateToApp={this.props.navigation.goBack} />;
+      content = (
+        <LogInPanel
+          navigateToApp={this.props.navigation.goBack}
+          setActiveAlert={this.setActiveAlert}
+        />
+      );
     } else if (this.state.mode === "register") {
-      content = <RegisterPanel navigateToApp={this.props.navigation.goBack} />;
+      content = (
+        <RegisterPanel
+          navigateToApp={this.props.navigation.goBack}
+          setActiveAlert={this.setActiveAlert}
+        />
+      );
     } else {
       buttons = (
         <View style={styles.buttonContainer}>

@@ -37,6 +37,7 @@ class RegisterPanel extends React.PureComponent {
 
   props: {
     navigateToApp: () => void,
+    setActiveAlert: (activeAlert: bool) => void,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
@@ -50,6 +51,7 @@ class RegisterPanel extends React.PureComponent {
   };
   static propTypes = {
     navigateToApp: React.PropTypes.func.isRequired,
+    setActiveAlert: React.PropTypes.func.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     register: React.PropTypes.func.isRequired,
@@ -223,6 +225,7 @@ class RegisterPanel extends React.PureComponent {
 
   onSubmit = () => {
     if (this.state.passwordInputText === '') {
+      this.props.setActiveAlert(true);
       Alert.alert(
         "Empty password",
         "Password cannot be empty",
@@ -234,6 +237,7 @@ class RegisterPanel extends React.PureComponent {
     } else if (
       this.state.passwordInputText !== this.state.confirmPasswordInputText
     ) {
+      this.props.setActiveAlert(true);
       Alert.alert(
         "Passwords don't match",
         "Password fields must contain the same password",
@@ -243,6 +247,7 @@ class RegisterPanel extends React.PureComponent {
         { cancelable: false },
       );
     } else if (this.state.usernameInputText.search(validUsernameRegex) === -1) {
+      this.props.setActiveAlert(true);
       Alert.alert(
         "Invalid username",
         "Alphanumeric usernames only",
@@ -252,6 +257,7 @@ class RegisterPanel extends React.PureComponent {
         { cancelable: false },
       );
     } else if (this.state.emailInputText.search(validEmailRegex) === -1) {
+      this.props.setActiveAlert(true);
       Alert.alert(
         "Invalid email address",
         "Valid email addresses only",
@@ -270,6 +276,7 @@ class RegisterPanel extends React.PureComponent {
   }
 
   onPasswordAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         passwordInputText: "",
@@ -283,6 +290,7 @@ class RegisterPanel extends React.PureComponent {
   }
 
   onUsernameAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         usernameInputText: "",
@@ -316,6 +324,7 @@ class RegisterPanel extends React.PureComponent {
       this.props.navigateToApp();
       return result;
     } catch (e) {
+      this.props.setActiveAlert(true);
       if (e.message === 'username_taken') {
         Alert.alert(
           "Username taken",
@@ -349,6 +358,7 @@ class RegisterPanel extends React.PureComponent {
   }
 
   onUnknownErrorAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         usernameInputText: "",

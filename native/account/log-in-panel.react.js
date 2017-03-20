@@ -37,6 +37,7 @@ class LogInPanel extends React.PureComponent {
 
   props: {
     navigateToApp: () => void,
+    setActiveAlert: (activeAlert: bool) => void,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
@@ -49,6 +50,7 @@ class LogInPanel extends React.PureComponent {
   };
   static propTypes = {
     navigateToApp: React.PropTypes.func.isRequired,
+    setActiveAlert: React.PropTypes.func.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     logIn: React.PropTypes.func.isRequired,
@@ -153,6 +155,7 @@ class LogInPanel extends React.PureComponent {
       this.state.usernameOrEmailInputText.search(validUsernameRegex) === -1 &&
       this.state.usernameOrEmailInputText.search(validEmailRegex) === -1
     ) {
+      this.props.setActiveAlert(true);
       Alert.alert(
         "Invalid username",
         "Alphanumeric usernames or emails only",
@@ -169,6 +172,7 @@ class LogInPanel extends React.PureComponent {
   }
 
   onUsernameOrEmailAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         usernameOrEmailInputText: "",
@@ -189,6 +193,7 @@ class LogInPanel extends React.PureComponent {
       this.props.navigateToApp();
       return result;
     } catch (e) {
+      this.props.setActiveAlert(true);
       if (e.message === 'invalid_parameters') {
         Alert.alert(
           "Invalid username",
@@ -222,6 +227,7 @@ class LogInPanel extends React.PureComponent {
   }
 
   onPasswordAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         passwordInputText: "",
@@ -234,6 +240,7 @@ class LogInPanel extends React.PureComponent {
   }
 
   onUnknownErrorAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         usernameOrEmailInputText: "",
