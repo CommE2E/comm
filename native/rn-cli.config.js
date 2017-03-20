@@ -1,4 +1,4 @@
-const defaultConfig = require('react-native/local-cli/default.config.js');
+const defaultConfig = require('react-native/local-cli/core/default.config.js');
 const path = require('path');
 
 module.exports = {

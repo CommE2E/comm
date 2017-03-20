@@ -9,9 +9,9 @@
   "dependencies": {
     "invariant": "^2.2.2",
     "react": "15.4.2",
-    "react-native": "^0.41.2",
+    "react-native": "^0.42.3",
     "react-native-vector-icons": "^4.0.0",
-    "react-navigation": "^1.0.0-beta.5",
+    "react-navigation": "^1.0.0-beta.7",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0"
@@ -20,7 +20,7 @@
     "babel-jest": "18.0.0",
     "babel-preset-react-native": "1.9.1",
     "flow": "^0.2.3",
-    "flow-bin": "^0.37.0",
+    "flow-bin": "^0.38.0",
     "jest": "18.1.0",
     "react-test-renderer": "15.4.2",
     "remote-redux-devtools": "^0.5.7"
