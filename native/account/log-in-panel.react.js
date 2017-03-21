@@ -15,6 +15,8 @@ import {
   ActivityIndicator,
   Alert,
   Keyboard,
+  Animated,
+  TouchableNativeFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -38,6 +40,7 @@ class LogInPanel extends React.PureComponent {
   props: {
     navigateToApp: () => void,
     setActiveAlert: (activeAlert: bool) => void,
+    opacityValue: Animated.Value,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
@@ -51,6 +54,7 @@ class LogInPanel extends React.PureComponent {
   static propTypes = {
     navigateToApp: React.PropTypes.func.isRequired,
     setActiveAlert: React.PropTypes.func.isRequired,
+    opacityValue: React.PropTypes.object.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     logIn: React.PropTypes.func.isRequired,
@@ -80,8 +84,33 @@ class LogInPanel extends React.PureComponent {
         </View>
       );
     }
+    let submitButton;
+    if (Platform.OS === "android") {
+      submitButton = (
+        <TouchableNativeFeedback onPress={this.onSubmit}>
+          <View style={[styles.submitContentContainer, styles.submitButton]}>
+            <Text style={styles.submitContentText}>LOG IN</Text>
+            {buttonIcon}
+          </View>
+        </TouchableNativeFeedback>
+      );
+    } else {
+      submitButton = (
+        <TouchableHighlight
+          onPress={this.onSubmit}
+          style={styles.submitButton}
+          underlayColor="#A0A0A0DD"
+        >
+          <View style={styles.submitContentContainer}>
+            <Text style={styles.submitContentText}>LOG IN</Text>
+            {buttonIcon}
+          </View>
+        </TouchableHighlight>
+      );
+    }
+    const opacityStyle = { opacity: this.props.opacityValue };
     return (
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, opacityStyle]}>
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
@@ -115,17 +144,8 @@ class LogInPanel extends React.PureComponent {
             ref={this.passwordInputRef}
           />
         </View>
-        <TouchableHighlight
-          onPress={this.onSubmit}
-          style={styles.submitButton}
-          underlayColor="#A0A0A0DD"
-        >
-          <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>LOG IN</Text>
-            {buttonIcon}
-          </View>
-        </TouchableHighlight>
-      </View>
+        {submitButton}
+      </Animated.View>
     );
   }
 

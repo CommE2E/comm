@@ -16,8 +16,10 @@ import {
   Alert,
   Platform,
   Dimensions,
+  BackAndroid,
 } from 'react-native';
 import invariant from 'invariant';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import LogInPanel from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
@@ -38,8 +40,8 @@ type Props = {
 };
 type State = {
   mode: LoggedOutMode,
-  activeAlert: bool,
   paddingTop: Animated.Value,
+  opacityValue: Animated.Value,
 };
 
 class LoggedOutModal extends React.PureComponent {
@@ -61,14 +63,22 @@ class LoggedOutModal extends React.PureComponent {
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
 
+  opacityHitsZeroListenerID: number;
+
+  nextMode: LoggedOutMode = "prompt";
+  activeAlert: bool = false;
+  activeKeyboard: bool = false;
+  opacityChangeQueued: bool = false;
+  keyboardHeight: number = 0;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       mode: "prompt",
-      activeAlert: false,
       paddingTop: new Animated.Value(
         LoggedOutModal.currentPaddingTop("prompt", 0),
       ),
+      opacityValue: new Animated.Value(0),
     };
   }
 
@@ -81,6 +91,7 @@ class LoggedOutModal extends React.PureComponent {
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       this.keyboardHide,
     );
+    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   componentWillUnmount() {
@@ -88,75 +99,168 @@ class LoggedOutModal extends React.PureComponent {
     this.keyboardShowListener.remove();
     invariant(this.keyboardHideListener, "should be set");
     this.keyboardHideListener.remove();
+    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+  }
+
+  hardwareBack = () => {
+    if (this.nextMode !== "prompt") {
+      this.goBackToPrompt();
+      return true;
+    }
+    return false;
   }
 
   static currentPaddingTop(
     mode: LoggedOutMode,
     keyboardHeight: number,
   ) {
-    const { height } = Dimensions.get('window');
-    const heightWithoutPadding = height - 90;
-    let containerSize = Platform.OS === "ios" ? 62 : 59;
+    let { height } = Dimensions.get('window');
+    if (Platform.OS === "android") {
+      // Android's Dimensions.get doesn't include the status bar
+      height -= 24;
+    }
+    let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
     if (mode === "log-in") {
       containerSize += 165;
     } else if (mode === "register") {
       containerSize += 246;
+    } else {
+      // This is arbitrary and artificial... actually centering just looks a bit
+      // weird because the buttons are at the bottom
+      containerSize += 80;
     }
-    const test = (heightWithoutPadding - containerSize - keyboardHeight) / 2;
-    console.log(test);
-    return test;
+    return (height - containerSize - keyboardHeight) / 2;
+  }
+
+  animateToSecondMode(inputDuration: ?number) {
+    const duration = inputDuration ? inputDuration : 150;
+    const animations = [
+      Animated.timing(
+        this.state.paddingTop,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: LoggedOutModal.currentPaddingTop(
+            this.state.mode,
+            this.keyboardHeight,
+          ),
+        },
+      ),
+    ];
+    if (this.opacityChangeQueued) {
+      animations.push(
+        Animated.timing(
+          this.state.opacityValue,
+          {
+            duration,
+            easing: Easing.out(Easing.ease),
+            toValue: 1,
+          },
+        ),
+      );
+    }
+    Animated.parallel(animations).start();
   }
 
   keyboardShow = (event: KeyboardEvent) => {
-    const duration = event.duration ? event.duration : 250;
-    Animated.timing(
-      this.state.paddingTop,
-      {
-        duration,
-        easing: Easing.inOut(Easing.ease),
-        toValue: LoggedOutModal.currentPaddingTop(
-          this.state.mode,
-          event.endCoordinates.height,
+    this.keyboardHeight = event.endCoordinates.height;
+    if (this.activeKeyboard) {
+      // We do this because the Android keyboard can change in height and we
+      // don't want to bother animating between those events
+      return;
+    }
+    this.activeKeyboard = true;
+    this.animateToSecondMode(event.duration);
+    this.opacityChangeQueued = false;
+  }
+
+  animateBackToPrompt(inputDuration: ?number) {
+    const duration = inputDuration ? inputDuration : 250;
+    const animations = [
+      Animated.timing(
+        this.state.paddingTop,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: LoggedOutModal.currentPaddingTop(this.nextMode, 0),
+        },
+      ),
+    ];
+    if (this.opacityChangeQueued) {
+      animations.push(
+        Animated.timing(
+          this.state.opacityValue,
+          {
+            duration,
+            easing: Easing.out(Easing.ease),
+            toValue: 0,
+          },
         ),
-      },
-    ).start();
+      );
+    }
+    Animated.parallel(animations).start();
   }
 
   keyboardHide = (event: ?KeyboardEvent) => {
-    if (this.state.activeAlert) {
+    this.keyboardHeight = 0;
+    if (this.activeAlert) {
       return;
     }
-    const duration = (event && event.duration) ? event.duration : 250;
-    Animated.timing(
-      this.state.paddingTop,
-      {
-        duration,
-        easing: Easing.inOut(Easing.ease),
-        toValue: LoggedOutModal.currentPaddingTop(this.state.mode, 0),
-      },
-    ).start();
+    this.activeKeyboard = false;
+    this.animateBackToPrompt(event && event.duration);
+    this.opacityChangeQueued = false;
   }
 
   setActiveAlert = (activeAlert: bool) => {
-    this.setState({ activeAlert });
+    this.activeAlert = activeAlert;
+  }
+
+  goBackToPrompt = () => {
+    this.opacityHitsZeroListenerID =
+      this.state.opacityValue.addListener(this.opacityListener);
+    this.opacityChangeQueued = true;
+    this.nextMode = "prompt";
+    if (this.activeKeyboard) {
+      // If keyboard is currently active, keyboardHide will handle the
+      // animation. This is so we can run all animations in parallel
+      Keyboard.dismiss();
+    } else {
+      this.animateBackToPrompt(null);
+    }
+  }
+
+  opacityListener = (animatedUpdate: { value: number }) => {
+    if (animatedUpdate.value === 0) {
+      this.setState({ mode: "prompt" });
+      this.state.opacityValue.removeListener(this.opacityHitsZeroListenerID);
+    }
   }
 
   render() {
-    const padding = { paddingTop: this.state.paddingTop };
-    let content = null;
+    const statusBar = <ConnectedStatusBar barStyle="light-content" />;
+    const background = (
+      <Image
+        source={require("../img/logged-out-modal-background.jpg")}
+        style={styles.loggedOutModalBackgroundContainer}
+      />
+    );
+
+    let panel = null;
     let buttons = null;
     if (this.state.mode === "log-in") {
-      content = (
+      panel = (
         <LogInPanel
           navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
+          opacityValue={this.state.opacityValue}
         />
       );
     } else if (this.state.mode === "register") {
-      content = (
+      panel = (
         <RegisterPanel
           navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
+          opacityValue={this.state.opacityValue}
         />
       );
     } else {
@@ -183,28 +287,72 @@ class LoggedOutModal extends React.PureComponent {
         </View>
       );
     }
-    return (
-      <View style={styles.container}>
-        <ConnectedStatusBar barStyle="light-content" />
-        <Image
-          source={require("../img/logged-out-modal-background.jpg")}
-          style={styles.loggedOutModalBackgroundContainer}
-        />
-        <Animated.View style={[styles.animationContainer, padding]}>
+
+    const padding = { paddingTop: this.state.paddingTop };
+    const opacity = { opacity: this.state.opacityValue };
+    const animatedContent = (
+      <Animated.View style={[styles.animationContainer, padding]}>
+        <View>
           <Text style={styles.header}>SquadCal</Text>
-          {content}
-        </Animated.View>
-        {buttons}
-      </View>
+          <Animated.View style={[styles.backButton, opacity]}>
+            <TouchableOpacity activeOpacity={0.6} onPress={this.goBackToPrompt}>
+              <Icon
+                name="arrow-circle-o-left"
+                size={36}
+                color="#FFFFFFAA"
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+        {panel}
+      </Animated.View>
     );
+
+    // Man, you gotta wonder sometimes if React Native is really worth it.
+    // The iOS order causes some extremely strange layout bugs on Android.
+    // The Android order makes the buttons in prompt mode not clickable.
+    let content;
+    if (Platform.OS === "ios") {
+      return (
+        <View style={styles.container}>
+          {statusBar}
+          {background}
+          {animatedContent}
+          {buttons}
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          {statusBar}
+          {background}
+          {buttons}
+          {animatedContent}
+        </View>
+      );
+    }
   }
 
   onPressLogIn = () => {
+    this.opacityChangeQueued = true;
+    this.nextMode = "log-in";
     this.setState({ mode: "log-in" });
+    if (this.activeKeyboard) {
+      // If keyboard isn't currently active, keyboardShow will handle the
+      // animation. This is so we can run all animations in parallel
+      this.animateToSecondMode(null);
+    }
   }
 
   onPressRegister = () => {
+    this.opacityChangeQueued = true;
+    this.nextMode = "register";
     this.setState({ mode: "register" });
+    if (this.activeKeyboard) {
+      // If keyboard isn't currently active, keyboardShow will handle the
+      // animation. This is so we can run all animations in parallel
+      this.animateToSecondMode(null);
+    }
   }
 
 }
@@ -215,8 +363,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingTop: 40,
-    paddingBottom: 50,
     backgroundColor: 'transparent',
   },
   animationContainer: {
@@ -227,6 +373,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 48,
     textAlign: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 40,
+    top: 13,
   },
   buttonContainer: {
     position: 'absolute',

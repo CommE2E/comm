@@ -15,6 +15,8 @@ import {
   ActivityIndicator,
   Keyboard,
   Alert,
+  Animated,
+  TouchableNativeFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -38,6 +40,7 @@ class RegisterPanel extends React.PureComponent {
   props: {
     navigateToApp: () => void,
     setActiveAlert: (activeAlert: bool) => void,
+    opacityValue: Animated.Value,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
@@ -52,6 +55,7 @@ class RegisterPanel extends React.PureComponent {
   static propTypes = {
     navigateToApp: React.PropTypes.func.isRequired,
     setActiveAlert: React.PropTypes.func.isRequired,
+    opacityValue: React.PropTypes.object.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     register: React.PropTypes.func.isRequired,
@@ -91,8 +95,33 @@ class RegisterPanel extends React.PureComponent {
         </View>
       );
     }
+    let submitButton;
+    if (Platform.OS === "android") {
+      submitButton = (
+        <TouchableNativeFeedback onPress={this.onSubmit}>
+          <View style={[styles.submitContentContainer, styles.submitButton]}>
+            <Text style={styles.submitContentText}>SIGN UP</Text>
+            {buttonIcon}
+          </View>
+        </TouchableNativeFeedback>
+      );
+    } else {
+      submitButton = (
+        <TouchableHighlight
+          onPress={this.onSubmit}
+          style={styles.submitButton}
+          underlayColor="#A0A0A0DD"
+        >
+          <View style={styles.submitContentContainer}>
+            <Text style={styles.submitContentText}>SIGN UP</Text>
+            {buttonIcon}
+          </View>
+        </TouchableHighlight>
+      );
+    }
+    const opacityStyle = { opacity: this.props.opacityValue };
     return (
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, opacityStyle]}>
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
@@ -162,17 +191,8 @@ class RegisterPanel extends React.PureComponent {
             ref={this.confirmPasswordInputRef}
           />
         </View>
-        <TouchableHighlight
-          onPress={this.onSubmit}
-          style={styles.submitButton}
-          underlayColor="#A0A0A0DD"
-        >
-          <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>SIGN UP</Text>
-            {buttonIcon}
-          </View>
-        </TouchableHighlight>
-      </View>
+        {submitButton}
+      </Animated.View>
     );
   }
 
