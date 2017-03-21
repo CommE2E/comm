@@ -17,10 +17,13 @@ import {
   Keyboard,
   Animated,
   TouchableNativeFeedback,
+  Image,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import OnePassword from 'react-native-onepassword';
 
 import {
   validUsernameRegex,
@@ -41,6 +44,7 @@ class LogInPanel extends React.PureComponent {
     navigateToApp: () => void,
     setActiveAlert: (activeAlert: bool) => void,
     opacityValue: Animated.Value,
+    onePasswordSupported: bool,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
@@ -55,6 +59,7 @@ class LogInPanel extends React.PureComponent {
     navigateToApp: React.PropTypes.func.isRequired,
     setActiveAlert: React.PropTypes.func.isRequired,
     opacityValue: React.PropTypes.object.isRequired,
+    onePasswordSupported: React.PropTypes.bool.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     logIn: React.PropTypes.func.isRequired,
@@ -108,6 +113,19 @@ class LogInPanel extends React.PureComponent {
         </TouchableHighlight>
       );
     }
+    let onePassword = null;
+    let passwordStyle = {};
+    if (this.props.onePasswordSupported) {
+      onePassword = (
+        <TouchableWithoutFeedback onPress={this.onPressOnePassword}>
+          <Image
+            source={require("../img/onepassword.png")}
+            style={styles.onePasswordImage}
+          />
+        </TouchableWithoutFeedback>
+      );
+      passwordStyle = { paddingRight: 30 };
+    }
     const opacityStyle = { opacity: this.props.opacityValue };
     return (
       <Animated.View style={[styles.container, opacityStyle]}>
@@ -132,7 +150,7 @@ class LogInPanel extends React.PureComponent {
         <View>
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
-            style={styles.input}
+            style={[styles.input, passwordStyle]}
             value={this.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
@@ -143,6 +161,7 @@ class LogInPanel extends React.PureComponent {
             editable={this.props.loadingStatus !== "loading"}
             ref={this.passwordInputRef}
           />
+          {onePassword}
         </View>
         {submitButton}
       </Animated.View>
@@ -273,6 +292,17 @@ class LogInPanel extends React.PureComponent {
     );
   }
 
+  onPressOnePassword = async () => {
+    try {
+      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      this.setState({
+        usernameOrEmailInputText: credentials.username,
+        passwordInputText: credentials.password,
+      });
+      this.onSubmit();
+    } catch (e) { }
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -322,6 +352,14 @@ const styles = StyleSheet.create({
   loadingIndicatorContainer: {
     width: 14,
     paddingBottom: 2,
+  },
+  onePasswordImage: {
+    position: 'absolute',
+    top: 8,
+    right: 5,
+    width: 24,
+    height: 24,
+    opacity: 0.6,
   },
 });
 

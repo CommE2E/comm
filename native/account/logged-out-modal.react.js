@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import OnePassword from 'react-native-onepassword';
 
 import LogInPanel from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
@@ -42,6 +43,7 @@ type State = {
   mode: LoggedOutMode,
   paddingTop: Animated.Value,
   opacityValue: Animated.Value,
+  onePasswordSupported: bool,
 };
 
 class LoggedOutModal extends React.PureComponent {
@@ -66,10 +68,10 @@ class LoggedOutModal extends React.PureComponent {
   opacityHitsZeroListenerID: number;
 
   nextMode: LoggedOutMode = "prompt";
-  activeAlert: bool = false;
-  activeKeyboard: bool = false;
-  opacityChangeQueued: bool = false;
-  keyboardHeight: number = 0;
+  activeAlert = false;
+  activeKeyboard = false;
+  opacityChangeQueued = false;
+  keyboardHeight = 0;
 
   constructor(props: Props) {
     super(props);
@@ -79,7 +81,19 @@ class LoggedOutModal extends React.PureComponent {
         LoggedOutModal.currentPaddingTop("prompt", 0),
       ),
       opacityValue: new Animated.Value(0),
+      onePasswordSupported: false,
     };
+    this.determineOnePasswordSupport().then();
+  }
+
+  async determineOnePasswordSupport() {
+    let onePasswordSupported;
+    try {
+      onePasswordSupported = await OnePassword.isSupported();
+    } catch (e) {
+      onePasswordSupported = false;
+    }
+    this.setState({ onePasswordSupported });
   }
 
   componentWillMount() {
@@ -253,6 +267,7 @@ class LoggedOutModal extends React.PureComponent {
           navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.opacityValue}
+          onePasswordSupported={this.state.onePasswordSupported}
         />
       );
     } else if (this.state.mode === "register") {
@@ -261,6 +276,7 @@ class LoggedOutModal extends React.PureComponent {
           navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.opacityValue}
+          onePasswordSupported={this.state.onePasswordSupported}
         />
       );
     } else {
