@@ -6,6 +6,8 @@ import type { NavInfo, AppState, Action } from './redux-setup';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
+import { partialNavInfoFromURL } from 'lib/utils/url-utils';
+
 function urlForYearAndMonth(year: number, month: number) {
   return `year/${year}/month/${month}/`;
 }
@@ -37,46 +39,6 @@ const thisURL = createSelector(
   (monthURL: string, thisNavURLFragment: string) =>
     thisNavURLFragment + monthURL,
 );
-
-
-type PartialNavInfo = {
-  year?: number,
-  month?: number, // 1-indexed
-  home?: bool,
-  calendarID?: string,
-  verify?: string,
-};
-
-function partialNavInfoFromURL(url: string): PartialNavInfo {
-  const yearMatches = new RegExp('(/|^)year/([0-9]+)(/|$)', 'i').exec(url);
-  const monthMatches = new RegExp('(/|^)month/([0-9]+)(/|$)', 'i').exec(url);
-  const calendarMatches = new RegExp('(/|^)calendar/([0-9]+)(/|$)', 'i')
-    .exec(url);
-  const verifyMatches = new RegExp('(/|^)verify/([a-f0-9]+)(/|$)', 'i')
-    .exec(url);
-  const homeTest = new RegExp('(/|^)home(/|$)', 'i').test(url);
-  invariant(
-    !homeTest || !calendarMatches,
-    'home and calendar should never be set at the same time',
-  );
-  const returnObj = {};
-  if (yearMatches) {
-    returnObj.year = parseInt(yearMatches[2]);
-  }
-  if (monthMatches) {
-    returnObj.month = parseInt(monthMatches[2]);
-  }
-  if (calendarMatches) {
-    returnObj.calendarID = calendarMatches[2];
-  }
-  if (verifyMatches) {
-    returnObj.verify = verifyMatches[2];
-  }
-  if (homeTest) {
-    returnObj.home = true;
-  }
-  return returnObj;
-}
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const partialNavInfo = partialNavInfoFromURL(currentURL);

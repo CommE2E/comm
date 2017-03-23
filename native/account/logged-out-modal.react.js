@@ -1,6 +1,7 @@
 // @flow
 
 import type { NavigationScreenProp } from 'react-navigation';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import React from 'react';
 import {
@@ -17,10 +18,14 @@ import {
   Platform,
   Dimensions,
   BackAndroid,
+  Linking,
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
+import { connect } from 'react-redux';
+
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import LogInPanel from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
@@ -38,6 +43,8 @@ type KeyboardEvent = {
 type LoggedOutMode = "prompt" | "log-in" | "register";
 type Props = {
   navigation: NavigationScreenProp<*, *>,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
 };
 type State = {
   mode: LoggedOutMode,
@@ -54,6 +61,7 @@ class LoggedOutModal extends React.PureComponent {
     navigation: React.PropTypes.shape({
       navigate: React.PropTypes.func.isRequired,
     }).isRequired,
+    dispatchActionPayload: React.PropTypes.func.isRequired,
   };
 
   static navigationOptions = {
@@ -65,7 +73,7 @@ class LoggedOutModal extends React.PureComponent {
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
 
-  opacityHitsZeroListenerID: number;
+  opacityHitsZeroListenerID: ?number;
 
   nextMode: LoggedOutMode = "prompt";
   activeAlert = false;
@@ -106,6 +114,26 @@ class LoggedOutModal extends React.PureComponent {
       this.keyboardHide,
     );
     BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+    this.handleInitialURL().then();
+    Linking.addEventListener('url', this.handleURLChange);
+  }
+
+  async handleInitialURL() {
+    const url = await Linking.getInitialURL();
+    if (url) {
+      this.dispatchActionForURL(url);
+    }
+  }
+
+  handleURLChange = (event: { url: string }) => {
+    this.dispatchActionForURL(event.url);
+  }
+
+  dispatchActionForURL(url: string) {
+    if (!url.startsWith("http")) {
+      return;
+    }
+    this.props.dispatchActionPayload("HANDLE_URL", url);
   }
 
   componentWillUnmount() {
@@ -114,6 +142,7 @@ class LoggedOutModal extends React.PureComponent {
     invariant(this.keyboardHideListener, "should be set");
     this.keyboardHideListener.remove();
     BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+    Linking.removeEventListener('url', this.handleURLChange);
   }
 
   hardwareBack = () => {
@@ -255,7 +284,7 @@ class LoggedOutModal extends React.PureComponent {
     const background = (
       <Image
         source={require("../img/logged-out-modal-background.jpg")}
-        style={styles.loggedOutModalBackgroundContainer}
+        style={styles.modalBackgroundContainer}
       />
     );
 
@@ -374,7 +403,7 @@ class LoggedOutModal extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
-  loggedOutModalBackgroundContainer: {
+  modalBackgroundContainer: {
     position: 'absolute',
   },
   container: {
@@ -422,4 +451,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoggedOutModal;
+export default connect(
+  null,
+  includeDispatchActionProps({ dispatchActionPayload: true }),
+)(LoggedOutModal);

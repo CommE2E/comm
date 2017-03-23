@@ -6,6 +6,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import More from './more/more.react';
 import LoggedOutModal from './account/logged-out-modal.react';
+import VerificationModal from './account/verification-modal.react';
 
 const AppNavigator = TabNavigator(
   {
@@ -21,6 +22,7 @@ const AppNavigator = TabNavigator(
 export const RootNavigator = StackNavigator(
   {
     LoggedOutModal: { screen: LoggedOutModal },
+    VerificationModal: { screen: VerificationModal },
     App: { screen: AppNavigator },
   },
   {

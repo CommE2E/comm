@@ -1,4 +1,4 @@
-package com.squadcal;
+package org.squadcal;
 
 import android.app.Application;
 
