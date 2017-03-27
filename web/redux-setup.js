@@ -5,6 +5,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
+import type { VerifyField } from 'lib/utils/verify-utils';
 
 import React from 'react';
 
@@ -30,7 +31,7 @@ export type AppState = {
   navInfo: NavInfo,
   userInfo: ?UserInfo,
   sessionID: string,
-  verifyField: ?number,
+  verifyField: ?VerifyField,
   resetPasswordUsername: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},

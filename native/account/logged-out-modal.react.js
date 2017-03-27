@@ -56,10 +56,18 @@ type State = {
 class LoggedOutModal extends React.PureComponent {
 
   props: Props;
-  state: State;
+  state: State = {
+    mode: "prompt",
+    paddingTop: new Animated.Value(
+      LoggedOutModal.currentPaddingTop("prompt", 0),
+    ),
+    opacityValue: new Animated.Value(0),
+    onePasswordSupported: false,
+  };
   static propTypes = {
     navigation: React.PropTypes.shape({
       navigate: React.PropTypes.func.isRequired,
+      goBack: React.PropTypes.func.isRequired,
     }).isRequired,
     dispatchActionPayload: React.PropTypes.func.isRequired,
   };
@@ -83,14 +91,6 @@ class LoggedOutModal extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      mode: "prompt",
-      paddingTop: new Animated.Value(
-        LoggedOutModal.currentPaddingTop("prompt", 0),
-      ),
-      opacityValue: new Animated.Value(0),
-      onePasswordSupported: false,
-    };
     this.determineOnePasswordSupport().then();
   }
 
@@ -217,7 +217,7 @@ class LoggedOutModal extends React.PureComponent {
     this.opacityChangeQueued = false;
   }
 
-  animateBackToPrompt(inputDuration: ?number) {
+  animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
     const animations = [
       Animated.timing(
@@ -250,7 +250,7 @@ class LoggedOutModal extends React.PureComponent {
       return;
     }
     this.activeKeyboard = false;
-    this.animateBackToPrompt(event && event.duration);
+    this.animateKeyboardDownOrBackToPrompt(event && event.duration);
     this.opacityChangeQueued = false;
   }
 
@@ -268,13 +268,13 @@ class LoggedOutModal extends React.PureComponent {
       // animation. This is so we can run all animations in parallel
       Keyboard.dismiss();
     } else {
-      this.animateBackToPrompt(null);
+      this.animateKeyboardDownOrBackToPrompt(null);
     }
   }
 
   opacityListener = (animatedUpdate: { value: number }) => {
     if (animatedUpdate.value === 0) {
-      this.setState({ mode: "prompt" });
+      this.setState({ mode: this.nextMode });
       this.state.opacityValue.removeListener(this.opacityHitsZeroListenerID);
     }
   }
@@ -293,7 +293,6 @@ class LoggedOutModal extends React.PureComponent {
     if (this.state.mode === "log-in") {
       panel = (
         <LogInPanel
-          navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.opacityValue}
           onePasswordSupported={this.state.onePasswordSupported}
@@ -302,7 +301,6 @@ class LoggedOutModal extends React.PureComponent {
     } else if (this.state.mode === "register") {
       panel = (
         <RegisterPanel
-          navigateToApp={this.props.navigation.goBack}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.opacityValue}
           onePasswordSupported={this.state.onePasswordSupported}

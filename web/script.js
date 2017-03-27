@@ -22,6 +22,7 @@ import _keyBy from 'lodash/fp/keyBy';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { registerConfig } from 'lib/utils/config';
+import { assertVerifyField } from 'lib/utils/verify-utils';
 
 import { reducer } from './redux-setup';
 
@@ -66,7 +67,7 @@ const store: Store<AppState, Action> = createStore(
     },
     userInfo,
     sessionID: sessionID,
-    verifyField: verify_field,
+    verifyField: verify_field ? assertVerifyField(verify_field) : verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos,
     daysToEntries,

@@ -8,6 +8,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
+import type { VerifyField } from 'lib/utils/verify-utils';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -27,6 +28,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { verifyField } from 'lib/utils/verify-utils';
 
 import {
   thisURL,
@@ -53,7 +55,7 @@ type Props = {
   // Redux state
   thisNavURLFragment: string,
   navInfo: NavInfo,
-  verifyField: ?number,
+  verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,
@@ -77,8 +79,6 @@ type State = {
 
 class App extends React.PureComponent {
 
-  static verifyEmail = 0;
-  static resetPassword = 1;
   props: Props;
   state: State;
 
@@ -100,9 +100,9 @@ class App extends React.PureComponent {
 
   componentDidMount() {
     if (this.props.navInfo.verify) {
-      if (this.props.verifyField === App.resetPassword) {
+      if (this.props.verifyField === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
-      } else if (this.props.verifyField === App.verifyEmail) {
+      } else if (this.props.verifyField === verifyField.EMAIL) {
         history.replace(this.props.thisURL);
         this.setModal(
           <VerificationSuccessModal onClose={this.clearModal} />
@@ -112,7 +112,7 @@ class App extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.verifyField === App.resetPassword) {
+    if (this.props.verifyField === verifyField.RESET_PASSWORD) {
       if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
         this.clearModal();
       } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {

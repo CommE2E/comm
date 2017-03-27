@@ -3,7 +3,8 @@
 import type { NavigationState } from 'react-navigation';
 import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState, Action } from './redux-setup';
+import type { AppState } from './redux-setup';
+import type { Action } from './navigation-setup';
 
 import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
@@ -49,6 +50,8 @@ if (!__DEV__) {
 } else if (Platform.OS === "ios") {
   // Since iOS is simulated and not emulated, we can use localhost
   urlPrefix = "http://localhost/~ashoat/squadcal/";
+  // Uncomment below and update IP address if testing on physical device
+  //urlPrefix = "http://192.168.1.3/~ashoat/squadcal/";
 } else {
   invariant(false, "unsupported platform");
 }

@@ -2,26 +2,21 @@
 
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
-import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
-import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { NavigationState } from 'react-navigation';
 import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
+import type { NavInfo, Action } from './navigation-setup';
 
 import React from 'react';
 import invariant from 'invariant';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { partialNavInfoFromURL } from 'lib/utils/url-utils';
 
-import { RootNavigator, defaultNavigationState } from './navigation-setup';
-
-export type NavInfo = BaseNavInfo & {
-  home: bool,
-  calendarID: ?string,
-  navigationState: NavigationState,
-};
+import {
+  RootNavigator,
+  defaultNavigationState,
+  reduceNavInfo,
+} from './navigation-setup';
 
 export const navInfoPropType = React.PropTypes.shape({
   home: React.PropTypes.bool.isRequired,
@@ -38,64 +33,6 @@ export type AppState = {
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
 };
-
-export type Action = BaseAction |
-  { type: "HANDLE_URL", payload: string };
-
-function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
-  // React Navigation actions
-  const navigationState = RootNavigator.router.getStateForAction(
-    action,
-    state.navigationState,
-  )
-  if (navigationState && navigationState !== state.navigationState) {
-    return { ...state, navigationState };
-  }
-  // Deep linking
-  if (action.type === "HANDLE_URL") {
-    // Handle verification links. TODO also handle other URLs
-    const partialNavInfo = partialNavInfoFromURL(action.payload);
-    if (partialNavInfo.verify) {
-      // Special-case behavior if there's already a VerificationModal
-      const currentRoute =
-        state.navigationState.routes[state.navigationState.index];
-      if (currentRoute.key === 'VerificationModal') {
-        const newRoute = {
-          ...currentRoute,
-          params: {
-            verifyCode: partialNavInfo.verify,
-          },
-        };
-        const newRoutes = [...state.navigationState.routes];
-        newRoutes[state.navigationState.index] = newRoute;
-        return {
-          ...state,
-          navigationState: {
-            index: state.navigationState.index,
-            routes: newRoutes,
-          },
-        };
-      }
-      return {
-        ...state,
-        navigationState: {
-          index: state.navigationState.index + 1,
-          routes: [
-            ...state.navigationState.routes,
-            {
-              key: 'VerificationModal',
-              routeName: 'VerificationModal',
-              params: {
-                verifyCode: partialNavInfo.verify,
-              },
-            },
-          ],
-        },
-      };
-    }
-  }
-  return state;
-}
 
 export const defaultState = ({
   navInfo: {
@@ -116,7 +53,7 @@ export function reducer(state: AppState, action: Action) {
   if (navInfo && navInfo !== state.navInfo) {
     state = { ...state, navInfo };
   }
-  if (action.type === "HANDLE_URL") {
+  if (action.type === "HANDLE_URL" || action.type === "NAVIGATE_TO_APP") {
     return state;
   }
   return baseReducer(state, action);

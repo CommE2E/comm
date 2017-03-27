@@ -63,4 +63,3 @@ mail(
 exit(json_encode(array(
   'success' => true,
 )));
-

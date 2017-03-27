@@ -41,7 +41,6 @@ import { TextInput } from '../modal-components.react';
 class LogInPanel extends React.PureComponent {
 
   props: {
-    navigateToApp: () => void,
     setActiveAlert: (activeAlert: bool) => void,
     opacityValue: Animated.Value,
     onePasswordSupported: bool,
@@ -56,7 +55,6 @@ class LogInPanel extends React.PureComponent {
     ) => Promise<LogInResult>,
   };
   static propTypes = {
-    navigateToApp: React.PropTypes.func.isRequired,
     setActiveAlert: React.PropTypes.func.isRequired,
     opacityValue: React.PropTypes.object.isRequired,
     onePasswordSupported: React.PropTypes.bool.isRequired,
@@ -225,12 +223,10 @@ class LogInPanel extends React.PureComponent {
 
   async logInAction() {
     try {
-      const result = await this.props.logIn(
+      return await this.props.logIn(
         this.state.usernameOrEmailInputText,
         this.state.passwordInputText,
       );
-      this.props.navigateToApp();
-      return result;
     } catch (e) {
       this.props.setActiveAlert(true);
       if (e.message === 'invalid_parameters') {
