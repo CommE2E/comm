@@ -90,7 +90,10 @@ class LogInPanel extends React.PureComponent {
     let submitButton;
     if (Platform.OS === "android") {
       submitButton = (
-        <TouchableNativeFeedback onPress={this.onSubmit}>
+        <TouchableNativeFeedback
+          onPress={this.onSubmit}
+          disabled={this.props.loadingStatus === "loading"}
+        >
           <View style={[styles.submitContentContainer, styles.submitButton]}>
             <Text style={styles.submitContentText}>LOG IN</Text>
             {buttonIcon}
@@ -103,6 +106,7 @@ class LogInPanel extends React.PureComponent {
           onPress={this.onSubmit}
           style={styles.submitButton}
           underlayColor="#A0A0A0DD"
+          disabled={this.props.loadingStatus === "loading"}
         >
           <View style={styles.submitContentContainer}>
             <Text style={styles.submitContentText}>LOG IN</Text>
