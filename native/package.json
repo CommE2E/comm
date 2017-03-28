@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "test": "jest",
+    "devtools": "react-devtools"
   },
   "dependencies": {
     "invariant": "^2.2.2",
@@ -23,6 +24,7 @@
     "flow": "^0.2.3",
     "flow-bin": "^0.38.0",
     "jest": "18.1.0",
+    "react-devtools": "^2.0.12",
     "react-test-renderer": "15.4.2",
     "remote-redux-devtools": "^0.5.7"
   },
