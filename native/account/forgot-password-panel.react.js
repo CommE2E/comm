@@ -9,11 +9,6 @@ import { connect } from 'react-redux';
 import {
   StyleSheet,
   View,
-  ActivityIndicator,
-  Platform,
-  TouchableNativeFeedback,
-  TouchableHighlight,
-  Text,
   Animated,
   Alert,
   Keyboard,
@@ -36,6 +31,11 @@ import {
 } from 'lib/shared/account-regexes';
 
 import { TextInput } from '../modal-components.react';
+import {
+  PanelButton,
+  PanelOnePasswordButton,
+  Panel,
+} from './panel-components.react';
 
 class ForgotPasswordPanel extends React.PureComponent {
 
@@ -66,51 +66,8 @@ class ForgotPasswordPanel extends React.PureComponent {
   usernameOrEmailInput: ?TextInput;
 
   render() {
-    let buttonIcon;
-    if (this.props.loadingStatus === "loading") {
-      buttonIcon = (
-        <View style={styles.loadingIndicatorContainer}>
-          <ActivityIndicator color="#555" />
-        </View>
-      );
-    } else {
-      buttonIcon = (
-        <View style={styles.submitContentIconContainer}>
-          <Icon name="arrow-right" size={16} color="#555" />
-        </View>
-      );
-    }
-    let submitButton;
-    if (Platform.OS === "android") {
-      submitButton = (
-        <TouchableNativeFeedback
-          onPress={this.onSubmit}
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={[styles.submitContentContainer, styles.submitButton]}>
-            <Text style={styles.submitContentText}>RESET PASSWORD</Text>
-            {buttonIcon}
-          </View>
-        </TouchableNativeFeedback>
-      );
-    } else {
-      submitButton = (
-        <TouchableHighlight
-          onPress={this.onSubmit}
-          style={styles.submitButton}
-          underlayColor="#A0A0A0DD"
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>RESET PASSWORD</Text>
-            {buttonIcon}
-          </View>
-        </TouchableHighlight>
-      );
-    }
-    const opacityStyle = { opacity: this.props.opacityValue };
     return (
-      <Animated.View style={[styles.container, opacityStyle]}>
+      <Panel opacityValue={this.props.opacityValue}>
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
@@ -129,8 +86,12 @@ class ForgotPasswordPanel extends React.PureComponent {
             ref={this.usernameOrEmailInputRef}
           />
         </View>
-        {submitButton}
-      </Animated.View>
+        <PanelButton
+          text="RESET PASSWORD"
+          loadingStatus={this.props.loadingStatus}
+          onSubmit={this.onSubmit}
+        />
+      </Panel>
     );
   }
 
@@ -211,45 +172,6 @@ class ForgotPasswordPanel extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
-  submitContentIconContainer: {
-    width: 14,
-    paddingBottom: 5,
-  },
-  loadingIndicatorContainer: {
-    width: 14,
-    paddingBottom: 2,
-  },
-  submitButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderBottomRightRadius: 6,
-  },
-  submitContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingLeft: 18,
-    paddingTop: 6,
-    paddingRight: 18,
-    paddingBottom: 6,
-  },
-  submitContentText: {
-    fontSize: 18,
-    fontFamily: 'OpenSans-Semibold',
-    color: "#555",
-    paddingRight: 7,
-  },
-  container: {
-    paddingBottom: 37,
-    paddingTop: 6,
-    paddingLeft: 18,
-    paddingRight: 18,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 40,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFFAA',
-  },
   input: {
     paddingLeft: 35,
   },

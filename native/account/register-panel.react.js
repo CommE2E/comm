@@ -9,16 +9,10 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  TouchableHighlight,
-  Text,
   Platform,
-  ActivityIndicator,
   Keyboard,
   Alert,
   Animated,
-  TouchableNativeFeedback,
-  Image,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -37,6 +31,11 @@ import {
 } from 'lib/shared/account-regexes';
 
 import { TextInput } from '../modal-components.react';
+import {
+  PanelButton,
+  PanelOnePasswordButton,
+  Panel,
+} from './panel-components.react';
 
 class RegisterPanel extends React.PureComponent {
 
@@ -80,68 +79,16 @@ class RegisterPanel extends React.PureComponent {
   confirmPasswordInput: ?TextInput;
 
   render() {
-    let buttonIcon;
-    if (this.props.loadingStatus === "loading") {
-      buttonIcon = (
-        <View style={styles.loadingIndicatorContainer}>
-          <ActivityIndicator color="#555" />
-        </View>
-      );
-    } else {
-      buttonIcon = (
-        <View style={styles.submitContentIconContainer}>
-          <Icon
-            name="arrow-right"
-            size={16}
-            color="#555"
-          />
-        </View>
-      );
-    }
-    let submitButton;
-    if (Platform.OS === "android") {
-      submitButton = (
-        <TouchableNativeFeedback
-          onPress={this.onSubmit}
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={[styles.submitContentContainer, styles.submitButton]}>
-            <Text style={styles.submitContentText}>SIGN UP</Text>
-            {buttonIcon}
-          </View>
-        </TouchableNativeFeedback>
-      );
-    } else {
-      submitButton = (
-        <TouchableHighlight
-          onPress={this.onSubmit}
-          style={styles.submitButton}
-          underlayColor="#A0A0A0DD"
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>SIGN UP</Text>
-            {buttonIcon}
-          </View>
-        </TouchableHighlight>
-      );
-    }
     let onePassword = null;
     let passwordStyle = {};
     if (this.props.onePasswordSupported) {
       onePassword = (
-        <TouchableWithoutFeedback onPress={this.onPressOnePassword}>
-          <Image
-            source={require("../img/onepassword.png")}
-            style={styles.onePasswordImage}
-          />
-        </TouchableWithoutFeedback>
+        <PanelOnePasswordButton onPress={this.onPressOnePassword} />
       );
       passwordStyle = { paddingRight: 30 };
     }
-    const opacityStyle = { opacity: this.props.opacityValue };
     return (
-      <Animated.View style={[styles.container, opacityStyle]}>
+      <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
@@ -212,8 +159,12 @@ class RegisterPanel extends React.PureComponent {
             ref={this.confirmPasswordInputRef}
           />
         </View>
-        {submitButton}
-      </Animated.View>
+        <PanelButton
+          text="SIGN UP"
+          loadingStatus={this.props.loadingStatus}
+          onSubmit={this.onSubmit}
+        />
+      </Panel>
     );
   }
 
@@ -432,14 +383,6 @@ class RegisterPanel extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: Platform.OS === 'ios' ? 37 : 36,
-    paddingTop: 6,
-    paddingLeft: 18,
-    paddingRight: 18,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 40,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFFAA',
     zIndex: 2,
   },
   input: {
@@ -453,42 +396,6 @@ const styles = StyleSheet.create({
   envelopeIcon: {
     left: 3,
     bottom: 10,
-  },
-  submitButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderBottomRightRadius: 6,
-  },
-  submitContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingLeft: 18,
-    paddingTop: 6,
-    paddingRight: 18,
-    paddingBottom: 6,
-  },
-  submitContentText: {
-    fontSize: 18,
-    fontFamily: 'OpenSans-Semibold',
-    color: "#555",
-    paddingRight: 7,
-  },
-  submitContentIconContainer: {
-    width: 14,
-    paddingBottom: 5,
-  },
-  loadingIndicatorContainer: {
-    width: 14,
-    paddingBottom: 2,
-  },
-  onePasswordImage: {
-    position: 'absolute',
-    top: 8,
-    right: 5,
-    width: 24,
-    height: 24,
-    opacity: 0.6,
   },
 });
 
