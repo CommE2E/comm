@@ -133,6 +133,7 @@ class VerificationModal extends React.PureComponent {
       handleVerificationCodeActionType,
       this.handleVerificationCodeAction(code),
     );
+    Keyboard.dismiss();
     this.keyboardShowListener = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
       this.keyboardShow,
@@ -329,10 +330,10 @@ class VerificationModal extends React.PureComponent {
 
   keyboardHide = (event: ?KeyboardEvent) => {
     this.keyboardHeight = 0;
+    this.activeKeyboard = false;
     if (this.activeAlert) {
       return;
     }
-    this.activeKeyboard = false;
     this.animateKeyboardDownOrBackToSimpleText(event && event.duration);
     this.opacityChangeQueued = false;
   }
