@@ -159,7 +159,6 @@ class ForgotPasswordModal extends React.PureComponent {
       );
       throw e;
     }
-
   }
 
 }

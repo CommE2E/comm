@@ -19,7 +19,6 @@ import {
   ActivityIndicator,
   Animated,
   Platform,
-  Dimensions,
   Keyboard,
   TouchableHighlight,
   EmitterSubscription,
@@ -42,6 +41,7 @@ import {
 import { verifyField } from 'lib/utils/verify-utils';
 import sleep from 'lib/utils/sleep';
 
+import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 
@@ -109,7 +109,6 @@ class VerificationModal extends React.PureComponent {
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
-  opacityHitsZeroListenerID: ?number;
   nextMode: VerificationModalMode = "simple-text";
 
   constructor(props: Props) {
@@ -185,12 +184,22 @@ class VerificationModal extends React.PureComponent {
   }
 
   onResetPasswordSuccess = () => {
-    this.opacityHitsZeroListenerID =
-      this.state.resetPasswordPanelOpacityValue.addListener(
-        this.opacityListener,
-      );
+    let opacityListenerID = -1;
+    const opacityListener = (animatedUpdate: { value: number }) => {
+      if (animatedUpdate.value === 0) {
+        this.setState({ mode: this.nextMode });
+        this.state.resetPasswordPanelOpacityValue.removeListener(
+          opacityListenerID,
+        );
+      }
+    }
+    opacityListenerID = this.state.resetPasswordPanelOpacityValue.addListener(
+      opacityListener,
+    );
+
     this.opacityChangeQueued = true;
     this.nextMode = "simple-text";
+
     if (this.activeKeyboard) {
       // If keyboard is currently active, keyboardHide will handle the
       // animation. This is so we can run all animations in parallel
@@ -198,21 +207,13 @@ class VerificationModal extends React.PureComponent {
     } else {
       this.animateKeyboardDownOrBackToSimpleText(null);
     }
+
     this.inCoupleSecondsNavigateToApp().then();
   }
 
   async inCoupleSecondsNavigateToApp() {
     await sleep(1750);
     this.props.dispatchActionPayload("NAVIGATE_TO_APP", null);
-  }
-
-  opacityListener = (animatedUpdate: { value: number }) => {
-    if (animatedUpdate.value === 0) {
-      this.setState({ mode: this.nextMode });
-      this.state.resetPasswordPanelOpacityValue.removeListener(
-        this.opacityHitsZeroListenerID,
-      );
-    }
   }
 
   async handleVerificationCodeAction(code: string) {
@@ -248,18 +249,13 @@ class VerificationModal extends React.PureComponent {
     mode: VerificationModalMode,
     keyboardHeight: number,
   ) {
-    let { height } = Dimensions.get('window');
-    if (Platform.OS === "android") {
-      // Android's Dimensions.get doesn't include the status bar
-      height -= 24;
-    }
     let containerSize = 0;
     if (mode === "simple-text") {
       containerSize = 90;
     } else if (mode === "reset-password") {
       containerSize = 165;
     }
-    return (height - containerSize - keyboardHeight) / 2;
+    return (windowHeight - containerSize - keyboardHeight) / 2;
   }
 
   animateToResetPassword(inputDuration: ?number) {

@@ -2,6 +2,7 @@
 
 import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type { InnerLogInPanel } from './log-in-panel.react';
 
 import React from 'react';
 import {
@@ -16,9 +17,9 @@ import {
   Keyboard,
   Alert,
   Platform,
-  Dimensions,
   BackAndroid,
   Linking,
+  Dimensions,
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -26,9 +27,12 @@ import OnePassword from 'react-native-onepassword';
 import { connect } from 'react-redux';
 
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import sleep from 'lib/utils/sleep';
 
+import { windowHeight, windowWidth } from '../dimensions';
 import LogInPanel from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
+import ForgotPasswordPanel from './forgot-password-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 
 type KeyboardEvent = {
@@ -41,6 +45,7 @@ type KeyboardEvent = {
   },
 };
 type LoggedOutMode = "prompt" | "log-in" | "register";
+type LogInMode = "log-in" | "forgot-password" | "forgot-password-success";
 type Props = {
   navigation: NavigationScreenProp<*, *>,
   // Redux dispatch functions
@@ -48,8 +53,13 @@ type Props = {
 };
 type State = {
   mode: LoggedOutMode,
-  paddingTop: Animated.Value,
-  opacityValue: Animated.Value,
+  logInMode: LogInMode,
+  nextLogInMode: LogInMode,
+  panelPaddingTop: Animated.Value,
+  footerPaddingTop: Animated.Value,
+  panelOpacity: Animated.Value,
+  forgotPasswordLinkOpacity: Animated.Value,
+  logInPanelTransition: Animated.Value,
   onePasswordSupported: bool,
 };
 
@@ -58,10 +68,17 @@ class LoggedOutModal extends React.PureComponent {
   props: Props;
   state: State = {
     mode: "prompt",
-    paddingTop: new Animated.Value(
-      LoggedOutModal.currentPaddingTop("prompt", 0),
+    logInMode: "log-in",
+    nextLogInMode: "log-in",
+    panelPaddingTop: new Animated.Value(
+      LoggedOutModal.calculatePanelPaddingTop("prompt", 0),
     ),
-    opacityValue: new Animated.Value(0),
+    footerPaddingTop: new Animated.Value(
+      LoggedOutModal.calculateFooterPaddingTop(0),
+    ),
+    panelOpacity: new Animated.Value(0),
+    forgotPasswordLinkOpacity: new Animated.Value(0),
+    logInPanelTransition: new Animated.Value(0),
     onePasswordSupported: false,
   };
   static propTypes = {
@@ -81,13 +98,13 @@ class LoggedOutModal extends React.PureComponent {
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
 
-  opacityHitsZeroListenerID: ?number;
-
   nextMode: LoggedOutMode = "prompt";
   activeAlert = false;
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
+  lastPanelPaddingTopValue: ?number = null;
+  logInPanel: ?InnerLogInPanel = null;
 
   constructor(props: Props) {
     super(props);
@@ -146,6 +163,12 @@ class LoggedOutModal extends React.PureComponent {
   }
 
   hardwareBack = () => {
+    if (this.nextMode === "log-in") {
+      const returnValue = this.backFromLogInMode();
+      if (returnValue) {
+        return true;
+      }
+    }
     if (this.nextMode !== "prompt") {
       this.goBackToPrompt();
       return true;
@@ -153,15 +176,10 @@ class LoggedOutModal extends React.PureComponent {
     return false;
   }
 
-  static currentPaddingTop(
+  static calculatePanelPaddingTop(
     mode: LoggedOutMode,
     keyboardHeight: number,
   ) {
-    let { height } = Dimensions.get('window');
-    if (Platform.OS === "android") {
-      // Android's Dimensions.get doesn't include the status bar
-      height -= 24;
-    }
     let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
     if (mode === "log-in") {
       containerSize += 165;
@@ -172,28 +190,61 @@ class LoggedOutModal extends React.PureComponent {
       // weird because the buttons are at the bottom
       containerSize += 80;
     }
-    return (height - containerSize - keyboardHeight) / 2;
+    return (windowHeight - containerSize - keyboardHeight) / 2;
   }
 
-  animateToSecondMode(inputDuration: ?number) {
+  static calculateFooterPaddingTop(keyboardHeight: number) {
+    const textHeight = Platform.OS === "ios" ? 17 : 19;
+    return windowHeight - keyboardHeight - textHeight - 20;
+  }
+
+  animateToSecondMode(inputDuration: ?number, realKeyboardHeight: ?number) {
     const duration = inputDuration ? inputDuration : 150;
-    const animations = [
+    if (!realKeyboardHeight) {
+      realKeyboardHeight = this.keyboardHeight;
+    }
+    const animations = [];
+    const newPanelPaddingTopValue = LoggedOutModal.calculatePanelPaddingTop(
+      this.state.mode,
+      this.keyboardHeight,
+    );
+    if (newPanelPaddingTopValue !== this.lastPanelPaddingTopValue) {
+      this.lastPanelPaddingTopValue = newPanelPaddingTopValue;
+      animations.push(
+        Animated.timing(
+          this.state.panelPaddingTop,
+          {
+            duration,
+            easing: Easing.out(Easing.ease),
+            toValue: newPanelPaddingTopValue,
+          },
+        ),
+      );
+    }
+    animations.push(
       Animated.timing(
-        this.state.paddingTop,
+        this.state.footerPaddingTop,
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: LoggedOutModal.currentPaddingTop(
-            this.state.mode,
-            this.keyboardHeight,
-          ),
+          toValue: LoggedOutModal.calculateFooterPaddingTop(realKeyboardHeight),
         },
       ),
-    ];
+    );
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(
-          this.state.opacityValue,
+          this.state.panelOpacity,
+          {
+            duration,
+            easing: Easing.out(Easing.ease),
+            toValue: 1,
+          },
+        ),
+      );
+      animations.push(
+        Animated.timing(
+          this.state.forgotPasswordLinkOpacity,
           {
             duration,
             easing: Easing.out(Easing.ease),
@@ -206,33 +257,56 @@ class LoggedOutModal extends React.PureComponent {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
-    this.keyboardHeight = event.endCoordinates.height;
-    if (this.activeKeyboard) {
+    if (!this.activeKeyboard) {
       // We do this because the Android keyboard can change in height and we
-      // don't want to bother animating between those events
-      return;
+      // don't want to bother moving the panel between those events
+      this.keyboardHeight = event.endCoordinates.height;
     }
     this.activeKeyboard = true;
-    this.animateToSecondMode(event.duration);
+    this.animateToSecondMode(event.duration, event.endCoordinates.height);
     this.opacityChangeQueued = false;
   }
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
+    this.lastPanelPaddingTopValue = LoggedOutModal.calculatePanelPaddingTop(
+      this.nextMode,
+      0,
+    );
     const animations = [
       Animated.timing(
-        this.state.paddingTop,
+        this.state.panelPaddingTop,
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: LoggedOutModal.currentPaddingTop(this.nextMode, 0),
+          toValue: this.lastPanelPaddingTopValue,
+        },
+      ),
+      Animated.timing(
+        this.state.footerPaddingTop,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: LoggedOutModal.calculateFooterPaddingTop(
+            this.keyboardHeight,
+          ),
         },
       ),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(
-          this.state.opacityValue,
+          this.state.panelOpacity,
+          {
+            duration,
+            easing: Easing.out(Easing.ease),
+            toValue: 0,
+          },
+        ),
+      );
+      animations.push(
+        Animated.timing(
+          this.state.forgotPasswordLinkOpacity,
           {
             duration,
             easing: Easing.out(Easing.ease),
@@ -246,10 +320,10 @@ class LoggedOutModal extends React.PureComponent {
 
   keyboardHide = (event: ?KeyboardEvent) => {
     this.keyboardHeight = 0;
+    this.activeKeyboard = false;
     if (this.activeAlert) {
       return;
     }
-    this.activeKeyboard = false;
     this.animateKeyboardDownOrBackToPrompt(event && event.duration);
     this.opacityChangeQueued = false;
   }
@@ -259,23 +333,24 @@ class LoggedOutModal extends React.PureComponent {
   }
 
   goBackToPrompt = () => {
-    this.opacityHitsZeroListenerID =
-      this.state.opacityValue.addListener(this.opacityListener);
+    let opacityListenerID = -1;
+    const opacityListener = (animatedUpdate: { value: number }) => {
+      if (animatedUpdate.value === 0) {
+        this.setState({ mode: this.nextMode });
+        this.state.panelOpacity.removeListener(opacityListenerID);
+      }
+    }
+    opacityListenerID = this.state.panelOpacity.addListener(opacityListener);
+
     this.opacityChangeQueued = true;
     this.nextMode = "prompt";
+
     if (this.activeKeyboard) {
       // If keyboard is currently active, keyboardHide will handle the
       // animation. This is so we can run all animations in parallel
       Keyboard.dismiss();
     } else {
       this.animateKeyboardDownOrBackToPrompt(null);
-    }
-  }
-
-  opacityListener = (animatedUpdate: { value: number }) => {
-    if (animatedUpdate.value === 0) {
-      this.setState({ mode: this.nextMode });
-      this.state.opacityValue.removeListener(this.opacityHitsZeroListenerID);
     }
   }
 
@@ -291,18 +366,97 @@ class LoggedOutModal extends React.PureComponent {
     let panel = null;
     let buttons = null;
     if (this.state.mode === "log-in") {
+      const logInPanelDynamicStyle = {
+        left: this.state.logInPanelTransition.interpolate({
+          inputRange: [0, 2],
+          outputRange: [0, windowWidth * -2],
+        }),
+        right: this.state.logInPanelTransition.interpolate({
+          inputRange: [0, 2],
+          outputRange: [0, windowWidth * 2],
+        }),
+      };
+      const logInPanel = (
+        <Animated.View style={[styles.logInSubPanel, logInPanelDynamicStyle]}>
+          <LogInPanel
+            setActiveAlert={this.setActiveAlert}
+            opacityValue={this.state.panelOpacity}
+            onePasswordSupported={this.state.onePasswordSupported}
+            innerRef={this.logInPanelRef}
+          />
+        </Animated.View>
+      );
+      let forgotPasswordPanel = null;
+      if (
+        this.state.nextLogInMode !== "log-in" ||
+          this.state.logInMode !== "log-in"
+      ) {
+        const forgotPasswordPanelDynamicStyle = {
+          left: this.state.logInPanelTransition.interpolate({
+            inputRange: [0, 2],
+            outputRange: [windowWidth, windowWidth * -1],
+          }),
+          right: this.state.logInPanelTransition.interpolate({
+            inputRange: [0, 2],
+            outputRange: [windowWidth * -1, windowWidth],
+          }),
+        };
+        forgotPasswordPanel = (
+          <Animated.View
+            style={[styles.logInSubPanel, forgotPasswordPanelDynamicStyle]}
+          >
+            <ForgotPasswordPanel
+              setActiveAlert={this.setActiveAlert}
+              opacityValue={this.state.panelOpacity}
+              onSuccess={this.onForgotPasswordSuccess}
+            />
+          </Animated.View>
+        );
+      }
+      let forgotPasswordSuccess = null;
+      if (
+        this.state.nextLogInMode === "forgot-password-success" ||
+          this.state.logInMode === "forgot-password-success"
+      ) {
+        const forgotPasswordSuccessDynamicStyle = {
+          left: this.state.logInPanelTransition.interpolate({
+            inputRange: [0, 2],
+            outputRange: [windowWidth * 2, 0],
+          }),
+          right: this.state.logInPanelTransition.interpolate({
+            inputRange: [0, 2],
+            outputRange: [windowWidth * -2, 0],
+          }),
+        };
+        forgotPasswordSuccess = (
+          <Animated.View
+            style={[styles.logInSubPanel, forgotPasswordSuccessDynamicStyle]}
+          >
+            <Icon
+              name="check-circle"
+              size={48}
+              color="#88FF88DD"
+              style={styles.forgotPasswordSuccessIcon}
+            />
+            <Text style={styles.forgotPasswordSuccessText}>
+              Okay, we've sent that account an email. Check your inbox to
+              complete the process.
+            </Text>
+          </Animated.View>
+        );
+      }
       panel = (
-        <LogInPanel
-          setActiveAlert={this.setActiveAlert}
-          opacityValue={this.state.opacityValue}
-          onePasswordSupported={this.state.onePasswordSupported}
-        />
+        <View>
+          {logInPanel}
+          {forgotPasswordPanel}
+          {forgotPasswordSuccess}
+        </View>
       );
     } else if (this.state.mode === "register") {
       panel = (
         <RegisterPanel
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.state.opacityValue}
+          opacityValue={this.state.panelOpacity}
           onePasswordSupported={this.state.onePasswordSupported}
         />
       );
@@ -331,14 +485,34 @@ class LoggedOutModal extends React.PureComponent {
       );
     }
 
-    const padding = { paddingTop: this.state.paddingTop };
-    const opacity = { opacity: this.state.opacityValue };
+    let forgotPasswordLink = null;
+    if (this.state.mode === "log-in") {
+      const dynamicStyle = {
+        opacity: this.state.forgotPasswordLinkOpacity,
+        top: this.state.footerPaddingTop,
+      };
+      forgotPasswordLink = (
+        <Animated.View
+          style={[styles.forgotPasswordTextContainer, dynamicStyle]}
+        >
+          <TouchableOpacity
+            activeOpacity={0.6}
+            onPress={this.onPressForgotPassword}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      );
+    }
+
+    const padding = { paddingTop: this.state.panelPaddingTop };
+    const opacity = { opacity: this.state.panelOpacity };
     const animatedContent = (
       <Animated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
           <Animated.View style={[styles.backButton, opacity]}>
-            <TouchableOpacity activeOpacity={0.6} onPress={this.goBackToPrompt}>
+            <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
               <Icon
                 name="arrow-circle-o-left"
                 size={36}
@@ -362,6 +536,7 @@ class LoggedOutModal extends React.PureComponent {
           {background}
           {animatedContent}
           {buttons}
+          {forgotPasswordLink}
         </View>
       );
     } else {
@@ -371,9 +546,14 @@ class LoggedOutModal extends React.PureComponent {
           {background}
           {buttons}
           {animatedContent}
+          {forgotPasswordLink}
         </View>
       );
     }
+  }
+
+  logInPanelRef = (logInPanel: ?InnerLogInPanel) => {
+    this.logInPanel = logInPanel;
   }
 
   onPressLogIn = () => {
@@ -396,6 +576,121 @@ class LoggedOutModal extends React.PureComponent {
       // animation. This is so we can run all animations in parallel
       this.animateToSecondMode(null);
     }
+  }
+
+  onPressForgotPassword = () => {
+    this.setState({ nextLogInMode: "forgot-password" });
+
+    const duration = 350;
+    const animations = [
+      Animated.timing(
+        this.state.forgotPasswordLinkOpacity,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 0,
+        },
+      ),
+      Animated.timing(
+        this.state.logInPanelTransition,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 1,
+        },
+      ),
+    ];
+
+    let listenerID = -1;
+    const listener = (animatedUpdate: { value: number }) => {
+      if (animatedUpdate.value === 1) {
+        this.setState({ logInMode: this.state.nextLogInMode });
+        this.state.logInPanelTransition.removeListener(listenerID);
+      }
+    }
+    listenerID = this.state.logInPanelTransition.addListener(listener);
+
+    Animated.parallel(animations).start();
+  }
+
+  backFromLogInMode = () => {
+    if (this.state.nextLogInMode === "log-in") {
+      return false;
+    }
+
+    this.setState({
+      logInMode: this.state.nextLogInMode,
+      nextLogInMode: "log-in",
+    });
+    invariant(this.logInPanel, "ref should be set");
+    this.logInPanel.focusUsernameOrEmailInput();
+
+    const duration = 350;
+    const animations = [
+      Animated.timing(
+        this.state.forgotPasswordLinkOpacity,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 1,
+        },
+      ),
+      Animated.timing(
+        this.state.logInPanelTransition,
+        {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 0,
+        },
+      ),
+    ];
+
+    let listenerID = -1;
+    const listener = (animatedUpdate: { value: number }) => {
+      if (animatedUpdate.value === 0) {
+        this.setState({ logInMode: this.state.nextLogInMode });
+        this.state.logInPanelTransition.removeListener(listenerID);
+      }
+    }
+    listenerID = this.state.logInPanelTransition.addListener(listener);
+
+    Animated.parallel(animations).start();
+    return true;
+  }
+
+  onForgotPasswordSuccess = () => {
+    if (this.state.nextLogInMode === "log-in") {
+      return;
+    }
+
+    this.setState({ nextLogInMode: "forgot-password-success" });
+
+    const duration = 350;
+
+    let listenerID = -1;
+    const listener = (animatedUpdate: { value: number }) => {
+      if (animatedUpdate.value === 2) {
+        this.setState({ logInMode: this.state.nextLogInMode });
+        this.state.logInPanelTransition.removeListener(listenerID);
+      }
+    }
+    listenerID = this.state.logInPanelTransition.addListener(listener);
+
+    Animated.timing(
+      this.state.logInPanelTransition,
+      {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: 2,
+      },
+    ).start();
+
+    this.inCoupleSecondsNavigateToLogIn().then();
+  }
+
+  async inCoupleSecondsNavigateToLogIn() {
+    await sleep(2350);
+    this.backFromLogInMode();
   }
 
 }
@@ -446,6 +741,31 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Semibold',
     textAlign: 'center',
     color: '#000000FF',
+  },
+  forgotPasswordTextContainer: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    right: 20,
+  },
+  forgotPasswordText: {
+    color: '#8899FF',
+  },
+  logInSubPanel: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  forgotPasswordSuccessIcon: {
+    marginTop: 40,
+    textAlign: 'center',
+  },
+  forgotPasswordSuccessText: {
+    marginTop: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 18,
   },
 });
 

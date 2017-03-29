@@ -265,8 +265,8 @@ class RegisterPanel extends React.PureComponent {
   }
 
   onSubmit = () => {
+    this.props.setActiveAlert(true);
     if (this.state.passwordInputText === '') {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Empty password",
         "Password cannot be empty",
@@ -278,7 +278,6 @@ class RegisterPanel extends React.PureComponent {
     } else if (
       this.state.passwordInputText !== this.state.confirmPasswordInputText
     ) {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Passwords don't match",
         "Password fields must contain the same password",
@@ -288,7 +287,6 @@ class RegisterPanel extends React.PureComponent {
         { cancelable: false },
       );
     } else if (this.state.usernameInputText.search(validUsernameRegex) === -1) {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Invalid username",
         "Alphanumeric usernames only",
@@ -298,7 +296,6 @@ class RegisterPanel extends React.PureComponent {
         { cancelable: false },
       );
     } else if (this.state.emailInputText.search(validEmailRegex) === -1) {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Invalid email address",
         "Valid email addresses only",
@@ -357,13 +354,14 @@ class RegisterPanel extends React.PureComponent {
 
   async registerAction() {
     try {
-      return await this.props.register(
+      const result = await this.props.register(
         this.state.usernameInputText,
         this.state.emailInputText,
         this.state.passwordInputText,
       );
+      this.props.setActiveAlert(false);
+      return result;
     } catch (e) {
-      this.props.setActiveAlert(true);
       if (e.message === 'username_taken') {
         Alert.alert(
           "Username taken",

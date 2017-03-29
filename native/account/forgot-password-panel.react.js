@@ -1,82 +1,69 @@
 // @flow
 
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { LogInResult } from 'lib/actions/user-actions';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
+import { connect } from 'react-redux';
 import {
-  View,
   StyleSheet,
+  View,
+  ActivityIndicator,
+  Platform,
+  TouchableNativeFeedback,
   TouchableHighlight,
   Text,
-  Platform,
-  ActivityIndicator,
+  Animated,
   Alert,
   Keyboard,
-  Animated,
-  TouchableNativeFeedback,
-  Image,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-regexes';
+  forgotPasswordActionType,
+  forgotPassword,
+} from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { logInActionType, logIn } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  validUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-regexes';
 
 import { TextInput } from '../modal-components.react';
 
-class LogInPanel extends React.PureComponent {
+class ForgotPasswordPanel extends React.PureComponent {
 
   props: {
     setActiveAlert: (activeAlert: bool) => void,
     opacityValue: Animated.Value,
-    onePasswordSupported: bool,
-    innerRef: (logInPanel: LogInPanel) => void,
+    onSuccess: () => void,
     // Redux state
     loadingStatus: LoadingStatus,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    logIn: (
-      username: string,
-      password: string,
-    ) => Promise<LogInResult>,
+    forgotPassword: (usernameOrEmail: string) => Promise<void>,
   };
   static propTypes = {
     setActiveAlert: React.PropTypes.func.isRequired,
     opacityValue: React.PropTypes.object.isRequired,
-    onePasswordSupported: React.PropTypes.bool.isRequired,
-    innerRef: React.PropTypes.func.isRequired,
+    onSuccess: React.PropTypes.func.isRequired,
     loadingStatus: React.PropTypes.string.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
-    logIn: React.PropTypes.func.isRequired,
+    forgotPassword: React.PropTypes.func.isRequired,
   };
   state: {
     usernameOrEmailInputText: string,
-    passwordInputText: string,
   } = {
     usernameOrEmailInputText: "",
-    passwordInputText: "",
   };
   usernameOrEmailInput: ?TextInput;
-  passwordInput: ?TextInput;
-
-  componentDidMount() {
-    this.props.innerRef(this);
-  }
 
   render() {
     let buttonIcon;
@@ -101,7 +88,7 @@ class LogInPanel extends React.PureComponent {
           disabled={this.props.loadingStatus === "loading"}
         >
           <View style={[styles.submitContentContainer, styles.submitButton]}>
-            <Text style={styles.submitContentText}>LOG IN</Text>
+            <Text style={styles.submitContentText}>RESET PASSWORD</Text>
             {buttonIcon}
           </View>
         </TouchableNativeFeedback>
@@ -115,24 +102,11 @@ class LogInPanel extends React.PureComponent {
           disabled={this.props.loadingStatus === "loading"}
         >
           <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>LOG IN</Text>
+            <Text style={styles.submitContentText}>RESET PASSWORD</Text>
             {buttonIcon}
           </View>
         </TouchableHighlight>
       );
-    }
-    let onePassword = null;
-    let passwordStyle = {};
-    if (this.props.onePasswordSupported) {
-      onePassword = (
-        <TouchableWithoutFeedback onPress={this.onPressOnePassword}>
-          <Image
-            source={require("../img/onepassword.png")}
-            style={styles.onePasswordImage}
-          />
-        </TouchableWithoutFeedback>
-      );
-      passwordStyle = { paddingRight: 30 };
     }
     const opacityStyle = { opacity: this.props.opacityValue };
     return (
@@ -148,28 +122,12 @@ class LogInPanel extends React.PureComponent {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
-            returnKeyType='next'
-            blurOnSubmit={false}
-            onSubmitEditing={this.focusPasswordInput}
-            editable={this.props.loadingStatus !== "loading"}
-            ref={this.usernameOrEmailInputRef}
-          />
-        </View>
-        <View>
-          <Icon name="lock" size={22} color="#777" style={styles.icon} />
-          <TextInput
-            style={[styles.input, passwordStyle]}
-            value={this.state.passwordInputText}
-            onChangeText={this.onChangePasswordInputText}
-            placeholder="Password"
-            secureTextEntry={true}
             returnKeyType='go'
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
             editable={this.props.loadingStatus !== "loading"}
-            ref={this.passwordInputRef}
+            ref={this.usernameOrEmailInputRef}
           />
-          {onePassword}
         </View>
         {submitButton}
       </Animated.View>
@@ -180,26 +138,8 @@ class LogInPanel extends React.PureComponent {
     this.usernameOrEmailInput = usernameOrEmailInput;
   }
 
-  focusUsernameOrEmailInput = () => {
-    invariant(this.usernameOrEmailInput, "ref should be set");
-    this.usernameOrEmailInput.focus();
-  }
-
-  passwordInputRef = (passwordInput: ?TextInput) => {
-    this.passwordInput = passwordInput;
-  }
-
-  focusPasswordInput = () => {
-    invariant(this.passwordInput, "ref should be set");
-    this.passwordInput.focus();
-  }
-
   onChangeUsernameOrEmailInputText = (text: string) => {
     this.setState({ usernameOrEmailInputText: text });
-  }
-
-  onChangePasswordInputText = (text: string) => {
-    this.setState({ passwordInputText: text });
   }
 
   onSubmit = () => {
@@ -220,7 +160,10 @@ class LogInPanel extends React.PureComponent {
     }
 
     Keyboard.dismiss();
-    this.props.dispatchActionPromise(logInActionType, this.logInAction());
+    this.props.dispatchActionPromise(
+      forgotPasswordActionType,
+      this.forgotPasswordAction(),
+    );
   }
 
   onUsernameOrEmailAlertAcknowledged = () => {
@@ -235,31 +178,19 @@ class LogInPanel extends React.PureComponent {
       },
     );
   }
-
-  async logInAction() {
+  
+  async forgotPasswordAction() {
     try {
-      const result = await this.props.logIn(
-        this.state.usernameOrEmailInputText,
-        this.state.passwordInputText,
-      );
+      await this.props.forgotPassword(this.state.usernameOrEmailInputText);
       this.props.setActiveAlert(false);
-      return result;
+      this.props.onSuccess();
     } catch (e) {
-      if (e.message === 'invalid_parameters') {
+      if (e.message === 'invalid_user') {
         Alert.alert(
-          "Invalid username",
           "User doesn't exist",
+          "No user with that username or email exists",
           [
             { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-          ],
-          { cancelable: false },
-        );
-      } else if (e.message === 'invalid_credentials') {
-        Alert.alert(
-          "Incorrect password",
-          "The password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
           ],
           { cancelable: false },
         );
@@ -268,7 +199,7 @@ class LogInPanel extends React.PureComponent {
           "Unknown error",
           "Uhh... try again?",
           [
-            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
+            { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
           ],
           { cancelable: false },
         );
@@ -277,67 +208,16 @@ class LogInPanel extends React.PureComponent {
     }
   }
 
-  onPasswordAlertAcknowledged = () => {
-    this.props.setActiveAlert(false);
-    this.setState(
-      {
-        passwordInputText: "",
-      },
-      () => {
-        invariant(this.passwordInput, "passwordInput ref unset");
-        this.passwordInput.focus();
-      },
-    );
-  }
-
-  onUnknownErrorAlertAcknowledged = () => {
-    this.props.setActiveAlert(false);
-    this.setState(
-      {
-        usernameOrEmailInputText: "",
-        passwordInputText: "",
-      },
-      () => {
-        invariant(this.usernameOrEmailInput, "ref should exist");
-        this.usernameOrEmailInput.focus();
-      },
-    );
-  }
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState({
-        usernameOrEmailInputText: credentials.username,
-        passwordInputText: credentials.password,
-      });
-      this.onSubmit();
-    } catch (e) { }
-  }
-
 }
 
-export type InnerLogInPanel = LogInPanel;
-
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 37,
-    paddingTop: 6,
-    paddingLeft: 18,
-    paddingRight: 18,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 40,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFFAA',
+  submitContentIconContainer: {
+    width: 14,
+    paddingBottom: 5,
   },
-  input: {
-    paddingLeft: 35,
-  },
-  icon: {
-    position: 'absolute',
-    bottom: 8,
-    left: 4,
+  loadingIndicatorContainer: {
+    width: 14,
+    paddingBottom: 2,
   },
   submitButton: {
     position: 'absolute',
@@ -359,25 +239,29 @@ const styles = StyleSheet.create({
     color: "#555",
     paddingRight: 7,
   },
-  submitContentIconContainer: {
-    width: 14,
-    paddingBottom: 5,
+  container: {
+    paddingBottom: 37,
+    paddingTop: 6,
+    paddingLeft: 18,
+    paddingRight: 18,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 40,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFFAA',
   },
-  loadingIndicatorContainer: {
-    width: 14,
-    paddingBottom: 2,
+  input: {
+    paddingLeft: 35,
   },
-  onePasswordImage: {
+  icon: {
     position: 'absolute',
-    top: 8,
-    right: 5,
-    width: 24,
-    height: 24,
-    opacity: 0.6,
+    bottom: 8,
+    left: 4,
   },
 });
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
+const loadingStatusSelector
+  = createLoadingStatusSelector(forgotPasswordActionType);
 
 export default connect(
   (state: AppState) => ({
@@ -385,5 +269,5 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ logIn }),
-)(LogInPanel);
+  bindServerCalls({ forgotPassword }),
+)(ForgotPasswordPanel);

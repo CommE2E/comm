@@ -197,8 +197,8 @@ class ResetPasswordPanel extends React.PureComponent {
   }
 
   onSubmit = () => {
+    this.props.setActiveAlert(true);
     if (this.state.passwordInputText === '') {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Empty password",
         "Password cannot be empty",
@@ -211,7 +211,6 @@ class ResetPasswordPanel extends React.PureComponent {
     } else if (
       this.state.passwordInputText !== this.state.confirmPasswordInputText
     ) {
-      this.props.setActiveAlert(true);
       Alert.alert(
         "Passwords don't match",
         "Password fields must contain the same password",
@@ -245,12 +244,13 @@ class ResetPasswordPanel extends React.PureComponent {
 
   async resetPasswordAction() {
     try {
-      const response = await this.props.resetPassword(
+      const result = await this.props.resetPassword(
         this.props.verifyCode,
         this.state.passwordInputText,
       );
+      this.props.setActiveAlert(false);
       this.props.onSuccess();
-      return response;
+      return result;
     } catch (e) {
       Alert.alert(
         "Unknown error",
