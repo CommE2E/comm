@@ -6,6 +6,12 @@
 	<array>
 		<string>applinks:squadcal.org</string>
 		<string>applinks:*.squadcal.org</string>
+		<string>webcredentials:squadcal.org</string>
+		<string>webcredentials:*.squadcal.org</string>
+	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)org.squadcal.app</string>
 	</array>
 </dict>
 </plist>

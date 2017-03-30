@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import { getInternetCredentials } from 'react-native-keychain';
 
 import {
   validUsernameRegex,
@@ -74,6 +75,12 @@ class LogInPanel extends React.PureComponent {
 
   componentDidMount() {
     this.props.innerRef(this);
+    this.attemptToFetchCredentials().then();
+  }
+
+  async attemptToFetchCredentials() {
+    const credentials = await getInternetCredentials("squadcal.org");
+    console.log(credentials);
   }
 
   render() {
