@@ -6,9 +6,10 @@ import type { AppState } from '../redux-setup';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 
 import React from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import { View, StyleSheet, Text, Button, Alert, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
+import invariant from 'invariant';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -18,12 +19,17 @@ import {
 import { logOutActionType, logOut } from 'lib/actions/user-actions';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
+import {
+  fetchNativeSharedWebCredentials,
+  deleteNativeCredentialsFor,
+} from '../account/native-credentials';
 
 class More extends React.PureComponent {
 
   props: {
     navigation: NavigationScreenProp<*, *>,
     // Redux state
+    username: ?string,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
@@ -35,6 +41,7 @@ class More extends React.PureComponent {
     navigation: React.PropTypes.shape({
       navigate: React.PropTypes.func.isRequired,
     }).isRequired,
+    username: React.PropTypes.string,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     logOut: React.PropTypes.func.isRequired,
   };
@@ -67,12 +74,57 @@ class More extends React.PureComponent {
     );
   }
 
-  onPress = () => {
-    this.props.dispatchActionPromise(logOutActionType, this.logOutAction());
+  onPress = async () => {
+    const alertTitle = Platform.OS === "ios"
+      ? "Keep Login Info in Keychain"
+      : "Keep Login Info";
+    const sharedWebCredentials = await fetchNativeSharedWebCredentials();
+    const alertDescription = sharedWebCredentials
+      ? "We will automatically fill out log-in forms with your credentials " +
+        "in the app and keep them available on squadcal.org in Safari."
+      : "We will automatically fill out log-in forms with your credentials " +
+        "in the app.";
+    Alert.alert(
+      alertTitle,
+      alertDescription,
+      [
+        { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
+        {
+          text: 'Remove',
+          onPress: this.logOutAndDeleteNativeCredentialsWrapper,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: false },
+    );
   }
 
-  async logOutAction() {
+  logOutButKeepNativeCredentialsWrapper = () => {
+    this.props.dispatchActionPromise(
+      logOutActionType,
+      this.logOutButKeepNativeCredentials(),
+    );
+  }
+
+  async logOutButKeepNativeCredentials() {
     await this.props.logOut();
+    this.props.navigation.navigate('LoggedOutModal');
+  }
+
+  logOutAndDeleteNativeCredentialsWrapper = () => {
+    this.props.dispatchActionPromise(
+      logOutActionType,
+      this.logOutAndDeleteNativeCredentials(),
+    );
+  }
+
+  async logOutAndDeleteNativeCredentials() {
+    const username = this.props.username;
+    invariant(username, "can't log out if not logged in");
+    await Promise.all([
+      this.props.logOut(),
+      deleteNativeCredentialsFor(username),
+    ]);
     this.props.navigation.navigate('LoggedOutModal');
   }
 
@@ -100,6 +152,7 @@ registerFetchKey(logOutActionType);
 export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
+    username: state.userInfo && state.userInfo.username,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ logOut }),

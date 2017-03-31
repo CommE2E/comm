@@ -36,6 +36,7 @@ import {
   PanelOnePasswordButton,
   Panel,
 } from './panel-components.react';
+import { setNativeCredentials } from './native-credentials';
 
 class RegisterPanel extends React.PureComponent {
 
@@ -311,6 +312,10 @@ class RegisterPanel extends React.PureComponent {
         this.state.passwordInputText,
       );
       this.props.setActiveAlert(false);
+      await setNativeCredentials({
+        username: result.username,
+        password: this.state.passwordInputText,
+      });
       return result;
     } catch (e) {
       if (e.message === 'username_taken') {

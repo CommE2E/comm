@@ -17,7 +17,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
-import { getInternetCredentials } from 'react-native-keychain';
 
 import {
   validUsernameRegex,
@@ -36,6 +35,10 @@ import {
   PanelOnePasswordButton,
   Panel,
 } from './panel-components.react';
+import {
+  fetchNativeCredentials,
+  setNativeCredentials,
+} from './native-credentials';
 
 class LogInPanel extends React.PureComponent {
 
@@ -79,8 +82,13 @@ class LogInPanel extends React.PureComponent {
   }
 
   async attemptToFetchCredentials() {
-    const credentials = await getInternetCredentials("squadcal.org");
-    console.log(credentials);
+    const credentials = await fetchNativeCredentials();
+    if (credentials) {
+      this.setState({
+        usernameOrEmailInputText: credentials.username,
+        passwordInputText: credentials.password,
+      });
+    }
   }
 
   render() {
@@ -204,6 +212,10 @@ class LogInPanel extends React.PureComponent {
         this.state.passwordInputText,
       );
       this.props.setActiveAlert(false);
+      await setNativeCredentials({
+        username: result.userInfo.username,
+        password: this.state.passwordInputText,
+      });
       return result;
     } catch (e) {
       if (e.message === 'invalid_parameters') {
