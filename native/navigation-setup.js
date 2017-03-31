@@ -6,6 +6,7 @@ import type { NavigationState } from 'react-navigation';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
+import _findIndex from 'lodash/fp/findIndex';
 
 import { partialNavInfoFromURL } from 'lib/utils/url-utils';
 
@@ -89,6 +90,11 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
       ...state,
       navigationState: removeModals(state.navigationState),
     };
+  } else if (action.type === "LOG_OUT_SUCCESS") {
+    return {
+      ...state,
+      navigationState: ensureLoggedOutModalPresence(state.navigationState),
+    };
   }
   return state;
 }
@@ -157,6 +163,26 @@ function removeModals(state: NavigationState): NavigationState {
   } else {
     return { index, routes: newRoutes };
   }
+}
+
+function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
+  const currentModalIndex =
+    _findIndex(['routeName', 'LoggedOutModal'])(state.routes);
+  if (currentModalIndex >= 0 && state.index >= currentModalIndex) {
+    return state;
+  } else if (currentModalIndex >= 0) {
+    return {
+      index: currentModalIndex,
+      routes: state.routes,
+    };
+  }
+  return {
+    index: state.routes.length,
+    routes: [
+      ...state.routes,
+      { key: 'LoggedOutModal', routeName: 'LoggedOutModal' },
+    ],
+  };
 }
 
 export {

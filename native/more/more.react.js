@@ -102,13 +102,8 @@ class More extends React.PureComponent {
   logOutButKeepNativeCredentialsWrapper = () => {
     this.props.dispatchActionPromise(
       logOutActionType,
-      this.logOutButKeepNativeCredentials(),
+      this.props.logOut(),
     );
-  }
-
-  async logOutButKeepNativeCredentials() {
-    await this.props.logOut();
-    this.props.navigation.navigate('LoggedOutModal');
   }
 
   logOutAndDeleteNativeCredentialsWrapper = () => {
@@ -125,7 +120,6 @@ class More extends React.PureComponent {
       this.props.logOut(),
       deleteNativeCredentialsFor(username),
     ]);
-    this.props.navigation.navigate('LoggedOutModal');
   }
 
 }
