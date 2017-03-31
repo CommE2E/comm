@@ -1,17 +1,11 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  exit(json_encode(array(
-    'error' => 'tls_failure',
-  )));
-}
+async_start();
 
 if (isset($_COOKIE['user'])) {
   list($cookie_id, $cookie_password) = explode(':', $_COOKIE['user']);
@@ -29,7 +23,7 @@ if (isset($_COOKIE['user'])) {
 delete_cookie('user');
 $anonymous_viewer = init_anonymous_cookie();
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'calendar_infos' => get_calendar_infos($anonymous_viewer),
-)));
+));

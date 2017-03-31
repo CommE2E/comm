@@ -1,21 +1,16 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (!user_logged_in()) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'not_logged_in',
-  )));
+  ));
 }
 if (
   !isset($_POST['name']) ||
@@ -26,25 +21,25 @@ if (
   !isset($_POST['visibility_rules']) ||
   !isset($_POST['edit_rules'])
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $color = strtolower($_POST['color']);
 if (!preg_match('/^[a-f0-9]{6}$/', $color)) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $visibility_rules = intval($_POST['visibility_rules']);
 $new_password = null;
 if ($visibility_rules >= VISIBILITY_CLOSED) {
   if (!isset($_POST['new_password'])) {
-    exit(json_encode(array(
+    async_end(array(
       'error' => 'invalid_parameters',
-    )));
+    ));
   }
   $new_password = $_POST['new_password'];
 }
@@ -68,14 +63,14 @@ $result = $conn->query(
 );
 $row = $result->fetch_assoc();
 if (!$row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'internal_error',
-  )));
+  ));
 }
 if (!password_verify($personal_password, $row['hash'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 // If the calendar is currently open but is being switched to closed,
@@ -85,9 +80,9 @@ if (
   $visibility_rules >= VISIBILITY_CLOSED &&
   trim($new_password) === ''
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'empty_password',
-  )));
+  ));
 }
 
 $name = $conn->real_escape_string($_POST['name']);
@@ -117,6 +112,6 @@ if ($visibility_rules >= VISIBILITY_CLOSED && trim($new_password) !== '') {
   );
 }
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
-)));
+));

@@ -1,33 +1,28 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (!isset($_POST['id'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 $id = intval($_POST['id']);
 
 $can_see = viewer_can_see_entry($id);
 if ($can_see === null) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 if (!$can_see) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 $result = $conn->query(
@@ -45,7 +40,7 @@ while ($row = $result->fetch_assoc()) {
   $revisions[] = $row;
 }
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'result' => $revisions,
-)));
+));

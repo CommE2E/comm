@@ -1,25 +1,20 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (
   !isset($_POST['month']) ||
   !isset($_POST['year']) ||
   !isset($_POST['nav'])
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $month = intval($_POST['month']);
@@ -75,7 +70,7 @@ while ($row = $result->fetch_assoc()) {
   $entries[] = $row;
 }
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'result' => $entries,
-)));
+));

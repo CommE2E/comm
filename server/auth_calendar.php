@@ -1,22 +1,16 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  exit(json_encode(array(
-    'error' => 'tls_failure',
-  )));
-}
+async_start();
 
 if (!isset($_POST['calendar'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 $calendar = intval($_POST['calendar']);
 
@@ -24,26 +18,26 @@ $calendar = intval($_POST['calendar']);
 $result = $conn->query("SELECT hash FROM calendars WHERE id=$calendar");
 $calendar_row = $result->fetch_assoc();
 if (!$calendar_row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 if ($calendar_row['hash'] === null) {
-  exit(json_encode(array(
+  async_end(array(
     'success' => true,
-  )));
+  ));
 }
 
 // The calendar needs authentication, so we need to validate credentials
 if (!isset($_POST['password'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 if (!password_verify($_POST['password'], $calendar_row['hash'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 $viewer_id = get_viewer_id();
@@ -60,7 +54,7 @@ $conn->query(
 );
 
 $calendar_infos = get_calendar_infos($viewer_id, "c.id = $calendar");
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'calendar_info' => $calendar_infos[$calendar],
-)));
+));

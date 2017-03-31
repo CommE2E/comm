@@ -1,24 +1,16 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  exit(json_encode(array(
-    'error' => 'tls_failure',
-  )));
-}
-
-get_viewer_info();
+async_start();
 
 if (!isset($_POST['username'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 $username = $_POST['username'];
 
@@ -28,9 +20,9 @@ $result = $conn->query(
 );
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_user',
-  )));
+  ));
 }
 $id = $user_row['id'];
 $username = $user_row['username'];
@@ -60,6 +52,6 @@ mail(
     "Content-type: text/html; charset=iso-8859-1\r\n"
 );
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
-)));
+));

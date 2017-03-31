@@ -1,35 +1,30 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (!isset($_POST['calendar']) || !isset($_POST['subscribe'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
     'test' => $_POST,
-  )));
+  ));
 }
 $calendar = (int)$_POST['calendar'];
 $subscribe = $_POST['subscribe'] ? 1 : 0;
 
 $can_see = viewer_can_see_calendar($calendar);
 if ($can_see === null) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 if (!$can_see) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 $viewer_id = get_viewer_id();
@@ -44,6 +39,6 @@ $conn->query(
     "role = GREATEST(VALUES(role), role), subscribed = VALUES(subscribed)"
 );
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
-)));
+));

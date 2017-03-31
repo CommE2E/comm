@@ -1,17 +1,11 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  exit(json_encode(array(
-    'error' => 'tls_failure',
-  )));
-}
+async_start();
 
 if (
   !isset($_POST['name']) ||
@@ -19,31 +13,31 @@ if (
   !isset($_POST['visibility_rules']) ||
   !isset($_POST['color'])
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $color = strtolower($_POST['color']);
 if (!preg_match('/^[a-f0-9]{6}$/', $color)) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 if (!user_logged_in()) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'not_logged_in',
-  )));
+  ));
 }
 
 $visibility_rules = intval($_POST['visibility_rules']);
 $password = null;
 if ($visibility_rules >= VISIBILITY_CLOSED) {
   if (!isset($_POST['password'])) {
-    exit(json_encode(array(
+    async_end(array(
       'error' => 'invalid_parameters',
-    )));
+    ));
   }
   $password = $_POST['password'];
 }
@@ -82,7 +76,7 @@ $conn->query(
     "VALUES ($id, $creator, $time, $time, ".ROLE_CREATOR.", 1)"
 );
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'new_calendar_id' => $id,
-)));
+));

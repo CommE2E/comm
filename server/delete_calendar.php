@@ -1,25 +1,20 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (!user_logged_in()) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'not_logged_in',
-  )));
+  ));
 }
 if (!isset($_POST['calendar']) || !isset($_POST['password'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $user = get_viewer_id();
@@ -34,14 +29,14 @@ $result = $conn->query(
 );
 $row = $result->fetch_assoc();
 if (!$row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'internal_error',
-  )));
+  ));
 }
 if (!password_verify($password, $row['hash'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 $conn->query(
@@ -57,6 +52,6 @@ $conn->query(
     "WHERE c.id = $calendar"
 );
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
-)));
+));

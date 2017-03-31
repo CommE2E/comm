@@ -1,16 +1,11 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 if (!user_logged_in()) {
   exit(json_encode(array(
@@ -18,9 +13,9 @@ if (!user_logged_in()) {
   )));
 }
 if (!isset($_POST['password'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 
 $user = get_viewer_id();
@@ -29,14 +24,14 @@ $password = $_POST['password'];
 $result = $conn->query("SELECT hash FROM users WHERE id = $user");
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'internal_error',
-  )));
+  ));
 }
 if (!password_verify($password, $user_row['hash'])) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 $conn->query(
@@ -55,7 +50,7 @@ $conn->query(
 delete_cookie('user');
 $anonymous_viewer = init_anonymous_cookie();
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'calendar_infos' => get_calendar_infos($anonymous_viewer),
-)));
+));

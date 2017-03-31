@@ -1,16 +1,11 @@
 <?php
 
+require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('day_lib.php');
 
-header("Content-Type: application/json");
-
-if ($https && !isset($_SERVER['HTTPS'])) {
-  // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
-  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-  exit;
-}
+async_start();
 
 $entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : -1;
 if ($entry_id === -1) {
@@ -20,9 +15,9 @@ if ($entry_id === -1) {
     !isset($_POST['year']) ||
     !isset($_POST['calendar'])
   ) {
-    exit(json_encode(array(
+    async_end(array(
       'error' => 'invalid_parameters',
-    )));
+    ));
   }
   $day = intval($_POST['day']);
   $month = intval($_POST['month']);
@@ -37,14 +32,14 @@ if ($entry_id === -1) {
   );
   $entry_row = $result->fetch_assoc();
   if (!$entry_row) {
-    exit(json_encode(array(
+    async_end(array(
       'error' => 'invalid_parameters',
-    )));
+    ));
   }
   if ($entry_row['deleted']) {
-    exit(json_encode(array(
+    async_end(array(
       'error' => 'entry_deleted',
-    )));
+    ));
   }
   $day_id = intval($entry_row['day']);
   // For the case of an existing entry, the privacy check to make sure that the
@@ -55,14 +50,14 @@ if ($entry_id === -1) {
   }
 }
 if ($day_id === null) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 if (!$day_id) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_credentials',
-  )));
+  ));
 }
 
 if (
@@ -70,9 +65,9 @@ if (
   !isset($_POST['text']) ||
   !isset($_POST['session_id'])
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'invalid_parameters',
-  )));
+  ));
 }
 $timestamp = intval($_POST['timestamp']);
 $text = $conn->real_escape_string($_POST['text']);
@@ -94,12 +89,12 @@ if ($entry_id === -1) {
       "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
       "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0)"
   );
-  exit(json_encode(array(
+  async_end(array(
     'success' => true,
     'day_id' => $day_id,
     'entry_id' => $entry_id,
     'new_time' => $timestamp,
-  )));
+  ));
 }
 
 $result = $conn->query(
@@ -110,17 +105,17 @@ $result = $conn->query(
 );
 $last_revision_row = $result->fetch_assoc();
 if (!$last_revision_row) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'unknown_error',
-  )));
+  ));
 }
 if (
   $last_revision_row['deleted'] ||
   $last_revision_row['text'] !== $last_revision_row['entry_text']
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'database_corruption',
-  )));
+  ));
 }
 
 $multi_query = "UPDATE entries SET last_update = $timestamp, ".
@@ -137,17 +132,17 @@ if (
   $session_id !== $last_revision_row['session_id'] &&
   $_POST['prev_text'] !== $last_revision_row['text']
 ) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'concurrent_modification',
     'db' => $last_revision_row['text'],
     'ui' => $_POST['prev_text'],
-  )));
+  ));
 } else if (intval($last_revision_row['last_update']) >= $timestamp) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'old_timestamp',
     'old_time' => intval($last_revision_row['last_update']),
     'new_time' => $timestamp,
-  )));
+  ));
 } else {
   $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
   $revision_id = $conn->insert_id;
@@ -158,9 +153,9 @@ if (
 }
 $conn->multi_query($multi_query);
 
-exit(json_encode(array(
+async_end(array(
   'success' => true,
   'day_id' => $day_id,
   'entry_id' => $entry_id,
   'new_time' => $timestamp,
-)));
+));
