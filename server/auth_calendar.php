@@ -53,7 +53,7 @@ $conn->query(
     "role = GREATEST(VALUES(role), role)"
 );
 
-$calendar_infos = get_calendar_infos($viewer_id, "c.id = $calendar");
+$calendar_infos = get_calendar_infos("c.id = $calendar");
 async_end(array(
   'success' => true,
   'calendar_info' => $calendar_infos[$calendar],

@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
+require_once('calendar_lib.php');
 
 function async_exit($payload) {
   exit(json_encode($payload));
@@ -30,5 +31,10 @@ function async_start() {
 
 function async_end($payload) {
   // If there's been a cookie invalidation, tell the user about it
+  if (cookie_has_changed()) {
+    $payload['cookie_change'] = array(
+      'calendar_infos' => get_calendar_infos(),
+    );
+  }
   async_exit($payload);
 }

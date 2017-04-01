@@ -4,7 +4,6 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
-require_once('calendar_lib.php');
 
 async_start();
 
@@ -58,5 +57,4 @@ async_end(array(
   'username' => $user_row['username'],
   'email' => $user_row['email'],
   'email_verified' => (bool)$user_row['email_verified'],
-  'calendar_infos' => get_calendar_infos($user),
 ));

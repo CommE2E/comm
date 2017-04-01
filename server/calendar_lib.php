@@ -9,8 +9,9 @@ define("VISIBILITY_SECRET", 2);
 define("EDIT_ANYBODY", 0);
 define("EDIT_LOGGED_IN", 1);
 
-function get_calendar_infos($viewer_id, $specific_condition="") {
+function get_calendar_infos($specific_condition="") {
   global $conn;
+  $viewer_id = get_viewer_id();
   $query = "SELECT c.id, c.name, r.role, c.visibility_rules, ".
     "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
     "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".

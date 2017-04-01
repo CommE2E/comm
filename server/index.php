@@ -37,8 +37,7 @@ if (!$home_rewrite_matched && $calendar_rewrite_matched) {
   $calendar = null;
 }
 
-$viewer_id = get_viewer_id();
-$calendar_infos = get_calendar_infos($viewer_id);
+$calendar_infos = get_calendar_infos();
 if (!$home && !isset($calendar_infos[$calendar])) {
   $result = $conn->query("SELECT id FROM calendars WHERE id = $calendar");
   $calendar_id_check_row = $result->fetch_assoc();
@@ -96,6 +95,7 @@ if ($verify_code) {
   }
 }
 
+$viewer_id = get_viewer_id();
 if ($calendar !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(

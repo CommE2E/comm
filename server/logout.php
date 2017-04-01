@@ -3,7 +3,6 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
-require_once('calendar_lib.php');
 
 async_start();
 
@@ -21,9 +20,8 @@ if (isset($_COOKIE['user'])) {
 }
 
 delete_cookie('user');
-$anonymous_viewer = init_anonymous_cookie();
+init_anonymous_cookie();
 
 async_end(array(
   'success' => true,
-  'calendar_infos' => get_calendar_infos($anonymous_viewer),
 ));
