@@ -33,6 +33,16 @@ function get_viewer_info() {
   return $current_viewer_info;
 }
 
+// If the main cookie the client sent was invalidated for whatever reason.
+// If the client sends us both a user and an anonymous cookie for some weird
+// reason, we won't bother checking the anonymous cookie unless the user one
+// is invalid. Also, we won't consider the cookie invalidated if we're gonna
+// replace it anyways.
+function cookie_invalidated() {
+  global $inbound_cookie_invalidated;
+  return $inbound_cookie_invalidated;
+}
+
 // When the cookie the client sent doesn't match up with the cookie we end up
 // using for them, along with sending the client the new cookie, we want to make
 // sure to update some client data (CalendarInfo, UserInfo, etc.)
@@ -60,7 +70,7 @@ function init_cookie() {
     $inbound_cookie_invalidated;
 
   if (!isset($_COOKIE['user'])) {
-    init_anonymous_cookie();
+    init_anonymous_cookie(true);
     return;
   }
   list($cookie_id, $cookie_password) = explode(':', $_COOKIE['user']);
@@ -72,7 +82,7 @@ function init_cookie() {
   $cookie_row = $result->fetch_assoc();
   if (!$cookie_row || !password_verify($cookie_password, $cookie_row['hash'])) {
     delete_cookie('user');
-    init_anonymous_cookie();
+    init_anonymous_cookie(true);
     $inbound_cookie_invalidated = true;
     return;
   }
@@ -85,7 +95,7 @@ function init_cookie() {
       "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
         "WHERE c.id = $cookie_id"
     );
-    init_anonymous_cookie();
+    init_anonymous_cookie(true);
     $inbound_cookie_invalidated = true;
     return;
   }
@@ -99,10 +109,10 @@ function init_cookie() {
 }
 
 // Returns cookie ID
-function init_anonymous_cookie() {
-  global $conn, $current_viewer_info;
+function init_anonymous_cookie($initial_run = false) {
+  global $conn, $current_viewer_info, $inbound_cookie_invalidated;
 
-  list($cookie_id, $cookie_password) = get_anonymous_cookie();
+  list($cookie_id, $cookie_password) = get_anonymous_cookie($initial_run);
   $time = round(microtime(true) * 1000); // in milliseconds
 
   if ($cookie_id) {
@@ -123,11 +133,15 @@ function init_anonymous_cookie() {
   add_cookie('anonymous', "$cookie_id:$cookie_password", $time);
 
   $current_viewer_info = array((int)$cookie_id, false);
+  if (!$initial_run) {
+    // We no longer care about the inbound cookie and whether it was invalidated
+    $inbound_cookie_invalidated = false;
+  }
 }
 
 // Creates a new user cookie and merges with any existing anonymous cookie
 function create_user_cookie($user_id) {
-  global $conn, $current_viewer_info;
+  global $conn, $current_viewer_info, $inbound_cookie_invalidated;
 
   $cookie_password = bin2hex(openssl_random_pseudo_bytes(32));
   $cookie_hash = password_hash($cookie_password, PASSWORD_BCRYPT);
@@ -139,13 +153,16 @@ function create_user_cookie($user_id) {
       "VALUES ($cookie_id, '$cookie_hash', $user_id, $time, $time)"
   );
   add_cookie('user', "$cookie_id:$cookie_password", $time);
+
   $current_viewer_info = array($user_id, true);
+  // We no longer care about the inbound cookie and whether it was invalidated
+  $inbound_cookie_invalidated = false;
 
   // We can kill the anonymous cookie now
   // We want to do this regardless of get_anonymous_cookie since that function can
   // return null when there is a cookie on the client
   delete_cookie('anonymous');
-  list($anonymous_cookie_id, $_) = get_anonymous_cookie();
+  list($anonymous_cookie_id, $_) = get_anonymous_cookie(false);
   if (!$anonymous_cookie_id) {
     return;
   }
@@ -191,7 +208,7 @@ function create_user_cookie($user_id) {
 
 // Returns array(int: cookie_id, string: cookie_hash)
 // If no anonymous cookie, returns (null, null)
-function get_anonymous_cookie() {
+function get_anonymous_cookie($initial_run) {
   global $conn, $cookie_lifetime, $inbound_cookie_invalidated;
 
   // First, let's see if we already have a valid cookie
@@ -208,7 +225,9 @@ function get_anonymous_cookie() {
   );
   $cookie_row = $result->fetch_assoc();
   if (!$cookie_row || !password_verify($cookie_password, $cookie_row['hash'])) {
-    $inbound_cookie_invalidated = true;
+    if ($initial_run) {
+      $inbound_cookie_invalidated = true;
+    }
     return array(null, null);
   }
 
@@ -220,7 +239,9 @@ function get_anonymous_cookie() {
         "WHERE c.id = $cookie_id"
     );
     $conn->query("DELETE FROM roles WHERE user = $cookie_id");
-    $inbound_cookie_invalidated = true;
+    if ($initial_run) {
+      $inbound_cookie_invalidated = true;
+    }
     return array(null, null);
   }
 

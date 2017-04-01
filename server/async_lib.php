@@ -32,8 +32,10 @@ function async_start() {
 function async_end($payload) {
   // If there's been a cookie invalidation, tell the user about it
   if (cookie_has_changed()) {
+    $cookie_invalidated = cookie_invalidated();
     $payload['cookie_change'] = array(
       'calendar_infos' => get_calendar_infos(),
+      'cookie_invalidated' => $cookie_invalidated,
     );
   }
   async_exit($payload);

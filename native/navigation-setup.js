@@ -2,11 +2,13 @@
 
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
+import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { NavigationState } from 'react-navigation';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
+import { Alert } from 'react-native';
 
 import { partialNavInfoFromURL } from 'lib/utils/url-utils';
 
@@ -94,6 +96,14 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     return {
       ...state,
       navigationState: ensureLoggedOutModalPresence(state.navigationState),
+    };
+  } else if (action.type === "SET_COOKIE") {
+    return {
+      ...state,
+      navigationState: logOutIfCookieInvalidated(
+        state.navigationState,
+        action.payload,
+      ),
     };
   }
   return state;
@@ -183,6 +193,28 @@ function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
       { key: 'LoggedOutModal', routeName: 'LoggedOutModal' },
     ],
   };
+}
+
+type SetCookiePayload = {
+  cookie: ?string,
+  calendarInfos: {[id: string]: CalendarInfo},
+  cookieInvalidated: bool,
+};
+function logOutIfCookieInvalidated(
+  state: NavigationState,
+  payload: SetCookiePayload,
+): NavigationState {
+  if (payload.cookieInvalidated) {
+    Alert.alert(
+      "Session invalidated",
+      "We're sorry, but your session was invalidated by the server. " +
+        "Please log in again.",
+      [ { text: 'OK' } ],
+      { cancelable: false },
+    );
+    return ensureLoggedOutModalPresence(state);
+  }
+  return state;
 }
 
 export {
