@@ -17,6 +17,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { logOutActionType, logOut } from 'lib/actions/user-actions';
+import { pingActionType, ping } from 'lib/actions/ping-actions';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
@@ -34,6 +35,7 @@ class More extends React.PureComponent {
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
     logOut: () => Promise<CalendarInfo[]>,
+    ping: () => Promise<void>,
   };
   state: {};
 
@@ -44,6 +46,7 @@ class More extends React.PureComponent {
     username: React.PropTypes.string,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     logOut: React.PropTypes.func.isRequired,
+    ping: React.PropTypes.func.isRequired,
   };
 
   static navigationOptions = {
@@ -66,15 +69,19 @@ class More extends React.PureComponent {
           Cmd+D or shake for dev menu
         </Text>
         <Button
-          onPress={this.onPress}
+          onPress={this.onPressLogOut}
           title="Log out"
+        />
+        <Button
+          onPress={this.onPressPing}
+          title="Ping"
         />
         <ConnectedStatusBar />
       </View>
     );
   }
 
-  onPress = async () => {
+  onPressLogOut = async () => {
     const alertTitle = Platform.OS === "ios"
       ? "Keep Login Info in Keychain"
       : "Keep Login Info";
@@ -122,6 +129,13 @@ class More extends React.PureComponent {
     ]);
   }
 
+  onPressPing = () => {
+    this.props.dispatchActionPromise(
+      pingActionType,
+      this.props.ping(),
+    );
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -149,5 +163,5 @@ export default connect(
     username: state.userInfo && state.userInfo.username,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ logOut }),
+  bindServerCalls({ logOut, ping }),
 )(More);
