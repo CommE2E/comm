@@ -20,7 +20,7 @@ import { logOutActionType, logOut } from 'lib/actions/user-actions';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
-  fetchNativeSharedWebCredentials,
+  getNativeSharedWebCredentials,
   deleteNativeCredentialsFor,
 } from '../account/native-credentials';
 
@@ -78,7 +78,7 @@ class More extends React.PureComponent {
     const alertTitle = Platform.OS === "ios"
       ? "Keep Login Info in Keychain"
       : "Keep Login Info";
-    const sharedWebCredentials = await fetchNativeSharedWebCredentials();
+    const sharedWebCredentials = await getNativeSharedWebCredentials();
     const alertDescription = sharedWebCredentials
       ? "We will automatically fill out log-in forms with your credentials " +
         "in the app and keep them available on squadcal.org in Safari."

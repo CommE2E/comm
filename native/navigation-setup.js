@@ -90,7 +90,7 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
       ...state,
       navigationState: removeModals(state.navigationState),
     };
-  } else if (action.type === "LOG_OUT_SUCCESS") {
+  } else if (action.type === "LOG_OUT_STARTED") {
     return {
       ...state,
       navigationState: ensureLoggedOutModalPresence(state.navigationState),

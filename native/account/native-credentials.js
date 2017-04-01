@@ -42,6 +42,16 @@ async function fetchNativeKeychainCredentials(): Promise<?Credentials> {
   }
 }
 
+function getNativeSharedWebCredentials(): ?Credentials {
+  if (Platform.OS !== "ios") {
+    return null;
+  }
+  if (storedSharedWebCredentials.state !== "determined") {
+    return null;
+  }
+  return storedSharedWebCredentials.credentials;
+}
+
 async function fetchNativeSharedWebCredentials(): Promise<?Credentials> {
   if (Platform.OS !== "ios") {
     return null;
@@ -97,11 +107,30 @@ async function setNativeSharedWebCredentials(credentials: Credentials) {
   if (Platform.OS !== "ios") {
     return;
   }
-  const current = await fetchNativeSharedWebCredentials();
+  const currentKeychainCredentials = await fetchNativeKeychainCredentials();
+  // If the password entered is the same as what we've got in the native
+  // keychain, then assume that nothing has been changed. We exit early here
+  // because if there are already shared web credentials, the
+  // setSharedWebCredentials call below will pop up an alert regardless of
+  // whether the credentials we pass it are the same as what it already has.
   if (
-    current &&
-      credentials.username === current.username &&
-      credentials.password === current.password
+    currentKeychainCredentials &&
+    credentials.username === currentKeychainCredentials.username &&
+    credentials.password === currentKeychainCredentials.password
+  ) {
+    return;
+  }
+  // You might think we should just check fetchNativeSharedWebCredentials to
+  // see if the new shared web credentials we are about to pass to
+  // setSharedWebCredentials are the same as what it already has. But it turns
+  // out that that will trigger an alert too, which isn't worth it because we're
+  // only checking it to prevent an unnecessary alert. The smart thing we can do
+  // is check our internal cache.
+  const cachedSharedWebCredentials = getNativeSharedWebCredentials();
+  if (
+    cachedSharedWebCredentials &&
+      credentials.username === cachedSharedWebCredentials.username &&
+      credentials.password === cachedSharedWebCredentials.password
   ) {
     return;
   }
@@ -168,7 +197,7 @@ async function deleteNativeCredentialsFor(username: string) {
 
 export {
   fetchNativeCredentials,
-  fetchNativeSharedWebCredentials,
+  getNativeSharedWebCredentials,
   setNativeCredentials,
   deleteNativeCredentialsFor,
 };
