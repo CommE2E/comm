@@ -9,11 +9,12 @@ import type { Action } from './navigation-setup';
 import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
-import { AppRegistry, Platform, UIManager } from 'react-native';
+import { AppRegistry, Platform, UIManager, AsyncStorage } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import { composeWithDevTools } from 'remote-redux-devtools';
 import thunk from 'redux-thunk';
 import invariant from 'invariant';
+import { autoRehydrate, persistStore } from 'redux-persist';
 
 import { registerConfig } from 'lib/utils/config';
 import { setCookie } from 'lib/utils/action-utils';
@@ -26,49 +27,16 @@ import {
   setNativeCookie,
 } from './account/native-credentials';
 
-type AppProps = {
-  navigationState: NavigationState,
-  cookie: ?string,
-  dispatch: Dispatch<AppState, Action>,
-};
 class AppWithNavigationState extends React.PureComponent {
 
   static propTypes = {
     navigationState: ReactNavigationPropTypes.navigationState,
-    cookie: React.PropTypes.string,
     dispatch: React.PropTypes.func.isRequired,
   };
-  props: AppProps;
-
-  constructor(props: AppProps) {
-    super(props);
-    this.getInitialNativeCookie().then();
-  }
-
-  async getInitialNativeCookie() {
-    // In general, when the app starts we preference the cookie from the native
-    // store rather than what we have in Redux. The exception is when the cookie
-    // in Redux represents a higher level of authentication. This situation can
-    // happen if redux-persist persists faster than the native Android cookie
-    // manager, which can take up to 10s to persist new cookies.
-    const nativeCookie = await getNativeCookie();
-    if (
-      nativeCookie &&
-      (
-        nativeCookie.startsWith("user=") ||
-        !this.props.cookie ||
-        !this.props.cookie.startsWith("user=")
-      )
-    ) {
-      setCookie(this.props.dispatch, this.props.cookie, nativeCookie, null);
-    } else if (nativeCookie !== this.props.cookie) {
-      invariant(
-        this.props.cookie,
-        "flow can't tell, but the conditionals guarantee this",
-      );
-      await setNativeCookie(this.props.cookie);
-    }
-  }
+  props: {
+    navigationState: NavigationState,
+    dispatch: Dispatch<AppState, Action>,
+  };
 
   render() {
     const navigation = addNavigationHelpers({
@@ -108,13 +76,15 @@ if (Platform.OS === "android") {
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     navigationState: state.navInfo.navigationState,
-    cookie: state.cookie,
   }),
 )(AppWithNavigationState);
 const store = createStore(
   reducer,
   defaultState,
-  composeWithDevTools(applyMiddleware(thunk)),
+  composeWithDevTools(
+    applyMiddleware(thunk),
+    autoRehydrate(),
+  ),
 );
 const App = (props: {}) =>
   <Provider store={store}>
@@ -122,3 +92,20 @@ const App = (props: {}) =>
   </Provider>;
 
 AppRegistry.registerComponent('SquadCal', () => App);
+
+const postRehydrationCallback = async () => {
+  const cookie = store.getState().cookie;
+  if (cookie) {
+    await setNativeCookie(cookie);
+  } else {
+    const nativeCookie = await getNativeCookie();
+    if (nativeCookie) {
+      setCookie(store.dispatch, cookie, nativeCookie, null);
+    }
+  }
+};
+persistStore(
+  store,
+  { storage: AsyncStorage },
+  () => postRehydrationCallback().then(),
+);

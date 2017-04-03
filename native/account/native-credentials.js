@@ -267,9 +267,7 @@ function setNativeCookie(cookie: string) {
     CookieManager.setFromResponse(
       getConfig().urlPrefix,
       constructedCookieHeader,
-      response => response
-        ? resolve()
-        : reject(new Error("failed to set native cookie")),
+      alwaysNull => resolve(),
     );
   });
 }

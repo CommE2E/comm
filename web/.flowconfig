@@ -2,8 +2,10 @@
 .*/node_modules/fbjs/.*
 
 [include]
+../lib
 
 [libs]
 
 [options]
 module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
+module.name_mapper='^lib/(.*)$' -> '<PROJECT_ROOT>/../lib/\1'
