@@ -52,6 +52,9 @@ registerConfig({
   // We can't securely cache credentials on web, so we have no way to recover
   // from a cookie invalidation
   resolveInvalidatedCookie: null,
+  // We use httponly cookies on web to protect against XSS attacks, so we have
+  // no access to the cookies from JavaScript
+  getNativeCookie: null,
 });
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);

@@ -197,8 +197,8 @@ function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
 
 type SetCookiePayload = {
   cookie: ?string,
-  calendarInfos: {[id: string]: CalendarInfo},
-  cookieInvalidated: bool,
+  calendarInfos?: {[id: string]: CalendarInfo},
+  cookieInvalidated?: bool,
 };
 function logOutIfCookieInvalidated(
   state: NavigationState,

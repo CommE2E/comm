@@ -11,8 +11,10 @@ import {
   setSharedWebCredentials,
   resetInternetCredentials,
 } from 'react-native-keychain';
+import CookieManager from 'react-native-cookies';
 
 import { logInActionType, logIn } from 'lib/actions/user-actions';
+import { getConfig } from 'lib/utils/config';
 
 type Credentials = {
   username: string,
@@ -231,10 +233,27 @@ async function resolveInvalidatedCookie(
   }
 }
 
+function getNativeCookie() {
+  return new Promise((resolve, reject) => {
+    CookieManager.get(getConfig().urlPrefix, (err, res) => {
+      if (err) {
+        reject(new Error(err));
+      } else if (res.user) {
+        resolve(`user=${decodeURIComponent(res.user)}`);
+      } else if (res.anonymous) {
+        resolve(`anonymous=${decodeURIComponent(res.anonymous)}`);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
+
 export {
   fetchNativeCredentials,
   getNativeSharedWebCredentials,
   setNativeCredentials,
   deleteNativeCredentialsFor,
   resolveInvalidatedCookie,
+  getNativeCookie,
 };

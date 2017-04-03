@@ -16,21 +16,40 @@ import thunk from 'redux-thunk';
 import invariant from 'invariant';
 
 import { registerConfig } from 'lib/utils/config';
+import { setCookie } from 'lib/utils/action-utils';
 
 import { RootNavigator } from './navigation-setup';
 import { reducer, defaultState } from './redux-setup';
-import { resolveInvalidatedCookie } from './account/native-credentials';
+import {
+  resolveInvalidatedCookie,
+  getNativeCookie,
+} from './account/native-credentials';
 
+type AppProps = {
+  navigationState: NavigationState,
+  cookie: ?string,
+  dispatch: Dispatch<AppState, Action>,
+};
 class AppWithNavigationState extends React.PureComponent {
 
   static propTypes = {
     navigationState: ReactNavigationPropTypes.navigationState,
+    cookie: React.PropTypes.string,
     dispatch: React.PropTypes.func.isRequired,
   };
-  props: {
-    navigationState: NavigationState,
-    dispatch: Dispatch<AppState, Action>,
-  };
+  props: AppProps;
+
+  constructor(props: AppProps) {
+    super(props);
+    this.getInitialNativeCookie().then();
+  }
+
+  async getInitialNativeCookie() {
+    const nativeCookie = await getNativeCookie();
+    if (nativeCookie) {
+      setCookie(this.props.dispatch, this.props.cookie, nativeCookie, null);
+    }
+  }
 
   render() {
     const navigation = addNavigationHelpers({
@@ -59,6 +78,7 @@ if (!__DEV__) {
 registerConfig({
   urlPrefix,
   resolveInvalidatedCookie,
+  getNativeCookie,
 });
 
 if (Platform.OS === "android") {
@@ -69,6 +89,7 @@ if (Platform.OS === "android") {
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     navigationState: state.navInfo.navigationState,
+    cookie: state.cookie,
   }),
 )(AppWithNavigationState);
 const store = createStore(
