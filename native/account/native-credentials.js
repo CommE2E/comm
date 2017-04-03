@@ -12,6 +12,7 @@ import {
   resetInternetCredentials,
 } from 'react-native-keychain';
 import CookieManager from 'react-native-cookies';
+import URL from 'url-parse';
 
 import { logInActionType, logIn } from 'lib/actions/user-actions';
 import { getConfig } from 'lib/utils/config';
@@ -249,6 +250,30 @@ function getNativeCookie() {
   });
 }
 
+function setNativeCookie(cookie: string) {
+  const maxAge = 2592000; // 30 days, in seconds
+  const date = new Date();
+  date.setDate(date.getDate() + 30);
+  const parsedURL = new URL(getConfig().urlPrefix);
+  const secure = parsedURL.protocol.toLowerCase() === "https:"
+    ? "secure; "
+    : "";
+  const cookieParts = cookie.split("=");
+  const encodedCookie = `${cookieParts[0]}=${encodeURIComponent(cookieParts[1])}`;
+  const constructedCookieHeader =
+    `${encodedCookie}; domain=${parsedURL.host}; path=${parsedURL.pathname}; ` +
+    `expires=${date.toUTCString()}; Max-Age=${maxAge}; ${secure}httponly`;
+  return new Promise((resolve, reject) => {
+    CookieManager.setFromResponse(
+      getConfig().urlPrefix,
+      constructedCookieHeader,
+      response => response
+        ? resolve()
+        : reject(new Error("failed to set native cookie")),
+    );
+  });
+}
+
 export {
   fetchNativeCredentials,
   getNativeSharedWebCredentials,
@@ -256,4 +281,5 @@ export {
   deleteNativeCredentialsFor,
   resolveInvalidatedCookie,
   getNativeCookie,
+  setNativeCookie,
 };

@@ -23,6 +23,7 @@ import { reducer, defaultState } from './redux-setup';
 import {
   resolveInvalidatedCookie,
   getNativeCookie,
+  setNativeCookie,
 } from './account/native-credentials';
 
 type AppProps = {
@@ -45,9 +46,27 @@ class AppWithNavigationState extends React.PureComponent {
   }
 
   async getInitialNativeCookie() {
+    // In general, when the app starts we preference the cookie from the native
+    // store rather than what we have in Redux. The exception is when the cookie
+    // in Redux represents a higher level of authentication. This situation can
+    // happen if redux-persist persists faster than the native Android cookie
+    // manager, which can take up to 10s to persist new cookies.
     const nativeCookie = await getNativeCookie();
-    if (nativeCookie) {
+    if (
+      nativeCookie &&
+      (
+        nativeCookie.startsWith("user=") ||
+        !this.props.cookie ||
+        !this.props.cookie.startsWith("user=")
+      )
+    ) {
       setCookie(this.props.dispatch, this.props.cookie, nativeCookie, null);
+    } else if (nativeCookie !== this.props.cookie) {
+      invariant(
+        this.props.cookie,
+        "flow can't tell, but the conditionals guarantee this",
+      );
+      await setNativeCookie(this.props.cookie);
     }
   }
 

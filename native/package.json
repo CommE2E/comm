@@ -11,13 +11,15 @@
     "invariant": "^2.2.2",
     "react": "15.4.2",
     "react-native": "^0.42.3",
+    "react-native-cookies": "^2.0.0",
     "react-native-keychain": "^1.1.0",
     "react-native-onepassword": "^1.0.4",
     "react-native-vector-icons": "^4.0.0",
     "react-navigation": "^1.0.0-beta.7",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "url-parse": "^1.1.8"
   },
   "devDependencies": {
     "babel-jest": "18.0.0",

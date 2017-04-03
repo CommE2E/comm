@@ -58,7 +58,7 @@ function cookie_has_changed() {
   if ($original_viewer_info === null && $current_viewer_info === null) {
     return false;
   }
-  return $original_viewer_info[0] !== $current_viewer_info[0];
+  return $original_viewer_info[2] !== $current_viewer_info[2];
 }
 
 // Returns array(
@@ -107,7 +107,11 @@ function init_cookie() {
   );
 
   add_cookie('user', "$cookie_id:$cookie_password", $time);
-  $current_viewer_info = array((int)$cookie_row['user'], true);
+  $current_viewer_info = array(
+    (int)$cookie_row['user'],
+    true,
+    "user=$cookie_id:$cookie_password",
+  );
 }
 
 // Returns cookie ID
@@ -134,7 +138,11 @@ function init_anonymous_cookie($initial_run = false) {
 
   add_cookie('anonymous', "$cookie_id:$cookie_password", $time);
 
-  $current_viewer_info = array((int)$cookie_id, false);
+  $current_viewer_info = array(
+    (int)$cookie_id,
+    false,
+    "anonymous=$cookie_id:$cookie_password",
+  );
   if (!$initial_run) {
     // We no longer care about the inbound cookie and whether it was invalidated
     $inbound_cookie_invalidated = false;
@@ -156,7 +164,12 @@ function create_user_cookie($user_id) {
   );
   add_cookie('user', "$cookie_id:$cookie_password", $time);
 
-  $current_viewer_info = array($user_id, true);
+  $current_viewer_info = array(
+    $user_id,
+    true,
+    "user=$cookie_id:$cookie_password",
+  );
+
   // We no longer care about the inbound cookie and whether it was invalidated
   $inbound_cookie_invalidated = false;
 
