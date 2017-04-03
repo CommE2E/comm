@@ -22,6 +22,7 @@ function user_logged_in() {
 $original_viewer_info = null;
 $current_viewer_info = null;
 $inbound_cookie_invalidated = false;
+$cookie_sent_from_client = true;
 
 // See init_cookie return
 function get_viewer_info() {
@@ -49,8 +50,9 @@ function cookie_invalidated() {
 function cookie_has_changed() {
   global $original_viewer_info,
     $current_viewer_info,
-    $inbound_cookie_invalidated;
-  if ($inbound_cookie_invalidated) {
+    $inbound_cookie_invalidated,
+    $cookie_sent_from_client;
+  if ($inbound_cookie_invalidated || !$cookie_sent_from_client) {
     return true;
   }
   if ($original_viewer_info === null && $current_viewer_info === null) {
@@ -209,10 +211,18 @@ function create_user_cookie($user_id) {
 // Returns array(int: cookie_id, string: cookie_hash)
 // If no anonymous cookie, returns (null, null)
 function get_anonymous_cookie($initial_run) {
-  global $conn, $cookie_lifetime, $inbound_cookie_invalidated;
+  global $conn,
+    $cookie_lifetime,
+    $inbound_cookie_invalidated,
+    $cookie_sent_from_client;
 
   // First, let's see if we already have a valid cookie
   if (!isset($_COOKIE['anonymous'])) {
+    // If we get here on the first run, that means there was no cookie sent by
+    // the client at all
+    if ($initial_run) {
+      $cookie_sent_from_client = false;
+    }
     return array(null, null);
   }
 

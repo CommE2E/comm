@@ -1,5 +1,8 @@
 // @flow
 
+import type { FetchJSON } from 'lib/utils/fetch-json';
+import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
+
 import { Platform } from 'react-native';
 import {
   getInternetCredentials,
@@ -8,6 +11,8 @@ import {
   setSharedWebCredentials,
   resetInternetCredentials,
 } from 'react-native-keychain';
+
+import { logInActionType, logIn } from 'lib/actions/user-actions';
 
 type Credentials = {
   username: string,
@@ -195,9 +200,41 @@ async function deleteNativeCredentialsFor(username: string) {
   ]);
 }
 
+async function resolveInvalidatedCookie(
+  fetchJSON: FetchJSON,
+  dispatchRecoveryAttempt: DispatchRecoveryAttempt,
+) {
+  const keychainCredentials = await fetchNativeKeychainCredentials();
+  if (keychainCredentials) {
+    const newCookie = await dispatchRecoveryAttempt(
+      logInActionType,
+      logIn(
+        fetchJSON,
+        keychainCredentials.username,
+        keychainCredentials.password,
+      ),
+    );
+    if (newCookie) {
+      return;
+    }
+  }
+  const sharedWebCredentials = getNativeSharedWebCredentials();
+  if (sharedWebCredentials) {
+    await dispatchRecoveryAttempt(
+      logInActionType,
+      logIn(
+        fetchJSON,
+        sharedWebCredentials.username,
+        sharedWebCredentials.password,
+      ),
+    );
+  }
+}
+
 export {
   fetchNativeCredentials,
   getNativeSharedWebCredentials,
   setNativeCredentials,
   deleteNativeCredentialsFor,
+  resolveInvalidatedCookie,
 };

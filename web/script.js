@@ -46,7 +46,13 @@ declare var reset_password_username: string;
 declare var home: bool;
 declare var calendar_id: ?string;
 
-registerConfig({ urlPrefix: "" });
+registerConfig({
+  // We can use paths local to the <base href> on web
+  urlPrefix: "",
+  // We can't securely cache credentials on web, so we have no way to recover
+  // from a cookie invalidation
+  resolveInvalidatedCookie: null,
+});
 
 const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email

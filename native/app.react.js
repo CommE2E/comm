@@ -19,6 +19,7 @@ import { registerConfig } from 'lib/utils/config';
 
 import { RootNavigator } from './navigation-setup';
 import { reducer, defaultState } from './redux-setup';
+import { resolveInvalidatedCookie } from './account/native-credentials';
 
 class AppWithNavigationState extends React.PureComponent {
 
@@ -55,7 +56,10 @@ if (!__DEV__) {
 } else {
   invariant(false, "unsupported platform");
 }
-registerConfig({ urlPrefix });
+registerConfig({
+  urlPrefix,
+  resolveInvalidatedCookie,
+});
 
 if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental &&
