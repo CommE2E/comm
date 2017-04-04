@@ -263,10 +263,13 @@ function setNativeCookie(cookie: string) {
   const constructedCookieHeader =
     `${encodedCookie}; domain=${parsedURL.host}; path=${parsedURL.pathname}; ` +
     `expires=${date.toUTCString()}; Max-Age=${maxAge}; ${secure}httponly`;
+  const cookieInput = Platform.OS === "ios"
+    ? { 'Set-Cookie': constructedCookieHeader }
+    : constructedCookieHeader;
   return new Promise((resolve, reject) => {
     CookieManager.setFromResponse(
       getConfig().urlPrefix,
-      constructedCookieHeader,
+      cookieInput,
       alwaysNull => resolve(),
     );
   });

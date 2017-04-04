@@ -95,6 +95,7 @@ class More extends React.PureComponent {
       alertTitle,
       alertDescription,
       [
+        { text: 'Cancel', style: 'cancel' },
         { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
         {
           text: 'Remove',
