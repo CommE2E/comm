@@ -4,7 +4,6 @@ require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
 require_once('calendar_lib.php');
-require_once('json_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -192,8 +191,8 @@ HTML;
       var username = "<?=$username?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
-      var calendar_infos = <?=utf8_json_encode($calendar_infos, JSON_FORCE_OBJECT)?>;
-      var entry_infos = <?=utf8_json_encode($entries)?>;
+      var calendar_infos = <?=json_encode($calendar_infos, JSON_FORCE_OBJECT)?>;
+      var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
       var base_url = "<?=$base_url?>";
