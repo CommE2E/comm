@@ -103,7 +103,6 @@ class More extends React.PureComponent {
           style: 'destructive',
         },
       ],
-      { cancelable: false },
     );
   }
 
