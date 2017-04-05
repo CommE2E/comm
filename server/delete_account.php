@@ -7,9 +7,9 @@ require_once('auth.php');
 async_start();
 
 if (!user_logged_in()) {
-  exit(json_encode(array(
+  async_end(array(
     'error' => 'not_logged_in',
-  )));
+  ));
 }
 if (!isset($_POST['password'])) {
   async_end(array(

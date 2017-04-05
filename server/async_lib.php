@@ -3,9 +3,10 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
+require_once('json_lib.php');
 
 function async_exit($payload) {
-  exit(json_encode($payload));
+  exit(utf8_json_encode($payload));
 }
 
 function async_start() {
