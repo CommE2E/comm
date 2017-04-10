@@ -9,6 +9,7 @@ import type { NavInfo, Action } from './navigation-setup';
 
 import React from 'react';
 import invariant from 'invariant';
+import { REHYDRATE } from 'redux-persist/constants';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
@@ -32,6 +33,7 @@ export type AppState = {
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
+  rehydrateConcluded: bool,
 };
 
 export const defaultState = ({
@@ -46,12 +48,23 @@ export const defaultState = ({
   calendarInfos: {},
   loadingStatuses: {},
   cookie: null,
+  rehydrateConcluded: false,
 }: AppState);
+
+export const reduxBlacklist = __DEV__
+  ? ['loadingStatuses', 'rehydrateConcluded']
+  : ['loadingStatuses', 'rehydrateConcluded', 'navInfo'];
 
 export function reducer(state: AppState, action: Action) {
   const navInfo = reduceNavInfo(state && state.navInfo, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = { ...state, navInfo };
+  }
+  if (action.type === REHYDRATE) {
+    return {
+      ...state,
+      rehydrateConcluded: true,
+    };
   }
   if (action.type === "HANDLE_URL" || action.type === "NAVIGATE_TO_APP") {
     return state;

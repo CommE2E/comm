@@ -1,7 +1,14 @@
 // @flow
 
 import type { NavigationScreenProp } from 'react-navigation';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import type { AppState } from '../redux-setup';
+import type { Dispatch } from 'lib/types/redux-types';
+import type { Action } from '../navigation-setup';
+import type { PingResult } from 'lib/actions/ping-actions';
 
 import React from 'react';
 import {
@@ -17,18 +24,25 @@ import {
   Platform,
   BackAndroid,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
 import { connect } from 'react-redux';
 
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import {
+  includeDispatchActionProps,
+  fetchNewCookieFromNativeCredentials,
+  bindCookieAndUtilsIntoServerCall,
+} from 'lib/utils/action-utils';
+import { pingActionType, ping } from 'lib/actions/ping-actions';
 
 import { windowHeight } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
+import { getNativeCookie, setNativeCookie } from './native-credentials';
 
 type KeyboardEvent = {
   duration: number,
@@ -39,11 +53,17 @@ type KeyboardEvent = {
     screenY: number,
   },
 };
-type LoggedOutMode = "prompt" | "log-in" | "register";
+type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
   navigation: NavigationScreenProp<*, *>,
+  // Redux state
+  rehydrateConcluded: bool,
+  cookie: ?string,
+  loggedIn: bool,
   // Redux dispatch functions
+  dispatch: Dispatch<AppState, Action>,
   dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   mode: LoggedOutMode,
@@ -51,6 +71,7 @@ type State = {
   footerPaddingTop: Animated.Value,
   panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
+  buttonOpacity: Animated.Value,
   onePasswordSupported: bool,
 };
 
@@ -58,7 +79,7 @@ class LoggedOutModal extends React.PureComponent {
 
   props: Props;
   state: State = {
-    mode: "prompt",
+    mode: "loading",
     panelPaddingTop: new Animated.Value(
       LoggedOutModal.calculatePanelPaddingTop("prompt", 0),
     ),
@@ -67,6 +88,7 @@ class LoggedOutModal extends React.PureComponent {
     ),
     panelOpacity: new Animated.Value(0),
     forgotPasswordLinkOpacity: new Animated.Value(0),
+    buttonOpacity: new Animated.Value(0),
     onePasswordSupported: false,
   };
   static propTypes = {
@@ -74,7 +96,12 @@ class LoggedOutModal extends React.PureComponent {
       navigate: React.PropTypes.func.isRequired,
       goBack: React.PropTypes.func.isRequired,
     }).isRequired,
+    rehydrateConcluded: React.PropTypes.bool.isRequired,
+    cookie: React.PropTypes.string,
+    loggedIn: React.PropTypes.bool.isRequired,
+    dispatch: React.PropTypes.func.isRequired,
     dispatchActionPayload: React.PropTypes.func.isRequired,
+    dispatchActionPromise: React.PropTypes.func.isRequired,
   };
 
   static navigationOptions = {
@@ -86,7 +113,7 @@ class LoggedOutModal extends React.PureComponent {
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
 
-  nextMode: LoggedOutMode = "prompt";
+  nextMode: LoggedOutMode = "loading";
   activeAlert = false;
   activeKeyboard = false;
   opacityChangeQueued = false;
@@ -96,6 +123,10 @@ class LoggedOutModal extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
+    if (props.rehydrateConcluded) {
+      this.state.mode = "prompt";
+      this.nextMode = "prompt";
+    }
     this.determineOnePasswordSupport().then();
   }
 
@@ -107,6 +138,102 @@ class LoggedOutModal extends React.PureComponent {
       onePasswordSupported = false;
     }
     this.setState({ onePasswordSupported });
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.props.rehydrateConcluded && nextProps.rehydrateConcluded) {
+      this.onInitialAppLoad(nextProps).then();
+    }
+  }
+
+  // This gets triggered when an app is killed and restarted
+  // Not when it is returned from being backgrounded
+  async onInitialAppLoad(nextProps: Props) {
+    // First, let's make sure that the native cookie and Redux are in sync
+    let cookie = nextProps.cookie;
+    if (cookie) {
+      await setNativeCookie(cookie);
+    } else {
+      const nativeCookie = await getNativeCookie();
+      if (nativeCookie) {
+        cookie = nativeCookie;
+        nextProps.dispatchActionPayload("SET_COOKIE", { cookie });
+      }
+    }
+
+    const showPrompt = () => {
+      this.nextMode = "prompt";
+      this.setState({ mode: "prompt" });
+      Animated.timing(
+        this.state.buttonOpacity,
+        {
+          duration: 250,
+          easing: Easing.out(Easing.ease),
+          toValue: 1.0,
+        },
+      ).start();
+    };
+
+    // If we're not logged in, try native credentials
+    if (!nextProps.loggedIn && (!cookie || !cookie.startsWith("user="))) {
+      // If this succeeds it will dispatch LOG_IN_SUCCESS
+      const newCookie = await fetchNewCookieFromNativeCredentials(
+        nextProps.dispatch,
+        cookie,
+        "APP_START_NATIVE_CREDENTIALS_AUTO_LOG_IN",
+      );
+      if (!newCookie || !newCookie.startsWith("user=")) {
+        showPrompt();
+      }
+      return;
+    }
+
+    // Are we possibly already logged in?
+    if (nextProps.loggedIn) {
+      if (cookie && cookie.startsWith("user=")) {
+        nextProps.dispatchActionPayload("NAVIGATE_TO_APP", null);
+        return;
+      }
+      // This is an unusual error state that should never happen
+      const newCookie = await fetchNewCookieFromNativeCredentials(
+        nextProps.dispatch,
+        cookie,
+        "APP_START_REDUX_LOGGED_IN_BUT_INVALID_COOKIE",
+      );
+      if (newCookie && newCookie.startsWith("user=")) {
+        // If this happens we know that LOG_IN_SUCCESS has been dispatched
+        return;
+      }
+      // Looks like we failed to recover. We'll handle resetting Redux state to
+      // match our cookie in the ping call below
+      if (newCookie) {
+        cookie = newCookie;
+      }
+    }
+
+    // We are here either because the user cookie exists but Redux says we're
+    // not logged in, or because Redux says we're logged in but we don't have
+    // a user cookie and we failed to acquire one above
+    const boundPing = bindCookieAndUtilsIntoServerCall(
+      ping,
+      nextProps.dispatch,
+      cookie,
+    );
+    nextProps.dispatchActionPromise(
+      pingActionType,
+      (async () => {
+        try {
+          const result = await boundPing();
+          if (!result.userInfo) {
+            showPrompt();
+          }
+          return result;
+        } catch (e) {
+          showPrompt();
+          throw e;
+        }
+      })(),
+    );
   }
 
   componentWillMount() {
@@ -372,9 +499,10 @@ class LoggedOutModal extends React.PureComponent {
           onePasswordSupported={this.state.onePasswordSupported}
         />
       );
-    } else {
+    } else if (this.state.mode === "prompt") {
+      const opacityStyle = { opacity: this.state.buttonOpacity };
       buttons = (
-        <View style={styles.buttonContainer}>
+        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
             style={styles.button}
@@ -393,7 +521,15 @@ class LoggedOutModal extends React.PureComponent {
               SIGN UP
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
+      );
+    } else if (this.state.mode === "loading") {
+      panel = (
+        <ActivityIndicator
+          color="white"
+          size="large"
+          style={styles.loadingIndicator}
+        />
       );
     }
 
@@ -552,9 +688,19 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: '#8899FF',
   },
+  loadingIndicator: {
+    paddingTop: 15,
+  },
 });
 
 export default connect(
-  null,
-  includeDispatchActionProps({ dispatchActionPayload: true }),
+  (state: AppState) => ({
+    rehydrateConcluded: state.rehydrateConcluded,
+    cookie: state.cookie,
+    loggedIn: !!state.userInfo,
+  }),
+  includeDispatchActionProps({
+    dispatchActionPayload: true,
+    dispatchActionPromise: true,
+  }),
 )(LoggedOutModal);

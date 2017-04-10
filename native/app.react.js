@@ -20,11 +20,10 @@ import { registerConfig } from 'lib/utils/config';
 import { setCookie } from 'lib/utils/action-utils';
 
 import { RootNavigator } from './navigation-setup';
-import { reducer, defaultState } from './redux-setup';
+import { reducer, defaultState, reduxBlacklist } from './redux-setup';
 import {
   resolveInvalidatedCookie,
   getNativeCookie,
-  setNativeCookie,
 } from './account/native-credentials';
 
 class AppWithNavigationState extends React.PureComponent {
@@ -93,19 +92,7 @@ const App = (props: {}) =>
 
 AppRegistry.registerComponent('SquadCal', () => App);
 
-const postRehydrationCallback = async () => {
-  const cookie = store.getState().cookie;
-  if (cookie) {
-    await setNativeCookie(cookie);
-  } else {
-    const nativeCookie = await getNativeCookie();
-    if (nativeCookie) {
-      setCookie(store.dispatch, cookie, nativeCookie, null);
-    }
-  }
-};
 persistStore(
   store,
-  { storage: AsyncStorage },
-  () => postRehydrationCallback().then(),
+  { storage: AsyncStorage, blacklist: reduxBlacklist },
 );

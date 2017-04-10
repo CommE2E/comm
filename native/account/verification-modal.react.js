@@ -482,8 +482,8 @@ export default connect(
     cookie: state.cookie,
   }),
   includeDispatchActionProps({
-    dispatchActionPromise: true,
     dispatchActionPayload: true,
+    dispatchActionPromise: true,
   }),
   bindServerCalls({ handleVerificationCode }),
 )(VerificationModal);

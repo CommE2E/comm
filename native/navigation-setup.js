@@ -4,6 +4,7 @@ import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { NavigationState } from 'react-navigation';
+import type { PingResult } from 'lib/actions/ping-actions';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
@@ -101,6 +102,14 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     return {
       ...state,
       navigationState: logOutIfCookieInvalidated(
+        state.navigationState,
+        action.payload,
+      ),
+    };
+  } else if (action.type === "PING_SUCCESS") {
+    return {
+      ...state,
+      navigationState: removeModalsIfPingIndicatesLoggedIn(
         state.navigationState,
         action.payload,
       ),
@@ -205,16 +214,30 @@ function logOutIfCookieInvalidated(
   payload: SetCookiePayload,
 ): NavigationState {
   if (payload.cookieInvalidated) {
-    Alert.alert(
-      "Session invalidated",
-      "We're sorry, but your session was invalidated by the server. " +
-        "Please log in again.",
-      [ { text: 'OK' } ],
-      { cancelable: false },
-    );
-    return ensureLoggedOutModalPresence(state);
+    const newState = ensureLoggedOutModalPresence(state);
+    if (state !== newState) {
+      Alert.alert(
+        "Session invalidated",
+        "We're sorry, but your session was invalidated by the server. " +
+          "Please log in again.",
+        [ { text: 'OK' } ],
+      );
+    }
+    return newState;
   }
   return state;
+}
+
+function removeModalsIfPingIndicatesLoggedIn(
+  state: NavigationState,
+  payload: PingResult,
+): NavigationState {
+  if (!payload.userInfo) {
+    // The SET_COOKIE action should handle logging somebody out as a result of a
+    // cookie invalidation triggered by a ping server call
+    return state;
+  }
+  return removeModals(state);
 }
 
 export {

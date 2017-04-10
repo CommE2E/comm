@@ -3,7 +3,7 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { RegisterResult } from 'lib/actions/user-actions';
+import type { UserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import {
@@ -53,7 +53,7 @@ class RegisterPanel extends React.PureComponent {
       username: string,
       email: string,
       password: string,
-    ) => Promise<RegisterResult>,
+    ) => Promise<UserInfo>,
   };
   static propTypes = {
     setActiveAlert: React.PropTypes.func.isRequired,
