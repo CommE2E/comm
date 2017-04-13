@@ -10,6 +10,11 @@ import type { NavInfo, Action } from './navigation-setup';
 import React from 'react';
 import invariant from 'invariant';
 import { REHYDRATE } from 'redux-persist/constants';
+import thunk from 'redux-thunk';
+import { AsyncStorage } from 'react-native';
+import { createStore, applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'remote-redux-devtools';
+import { autoRehydrate, persistStore } from 'redux-persist';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
@@ -19,7 +24,7 @@ import {
   reduceNavInfo,
 } from './navigation-setup';
 
-export const navInfoPropType = React.PropTypes.shape({
+const navInfoPropType = React.PropTypes.shape({
   home: React.PropTypes.bool.isRequired,
   calendarID: React.PropTypes.string,
   navigationState: ReactNavigationPropTypes.navigationState,
@@ -36,7 +41,7 @@ export type AppState = {
   rehydrateConcluded: bool,
 };
 
-export const defaultState = ({
+const defaultState = ({
   navInfo: {
     home: true,
     calendarID: null,
@@ -51,11 +56,11 @@ export const defaultState = ({
   rehydrateConcluded: false,
 }: AppState);
 
-export const reduxBlacklist = __DEV__
+const blacklist = __DEV__
   ? ['loadingStatuses', 'rehydrateConcluded']
   : ['loadingStatuses', 'rehydrateConcluded', 'navInfo'];
 
-export function reducer(state: AppState, action: Action) {
+function reducer(state: AppState, action: Action) {
   const navInfo = reduceNavInfo(state && state.navInfo, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = { ...state, navInfo };
@@ -71,3 +76,18 @@ export function reducer(state: AppState, action: Action) {
   }
   return baseReducer(state, action);
 }
+
+const store = createStore(
+  reducer,
+  defaultState,
+  composeWithDevTools(
+    applyMiddleware(thunk),
+    autoRehydrate(),
+  ),
+);
+const persistor = persistStore(store, { storage: AsyncStorage, blacklist });
+
+export {
+  store,
+  persistor,
+};

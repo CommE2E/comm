@@ -7,45 +7,19 @@ import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
 
 import React from 'react';
-import { createStore, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
-import { AppRegistry, Platform, UIManager, AsyncStorage } from 'react-native';
+import { AppRegistry, Platform, UIManager } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
-import { composeWithDevTools } from 'remote-redux-devtools';
-import thunk from 'redux-thunk';
 import invariant from 'invariant';
-import { autoRehydrate, persistStore } from 'redux-persist';
 
 import { registerConfig } from 'lib/utils/config';
-import { setCookie } from 'lib/utils/action-utils';
 
 import { RootNavigator } from './navigation-setup';
-import { reducer, defaultState, reduxBlacklist } from './redux-setup';
+import { store } from './redux-setup';
 import {
   resolveInvalidatedCookie,
   getNativeCookie,
 } from './account/native-credentials';
-
-class AppWithNavigationState extends React.PureComponent {
-
-  static propTypes = {
-    navigationState: ReactNavigationPropTypes.navigationState,
-    dispatch: React.PropTypes.func.isRequired,
-  };
-  props: {
-    navigationState: NavigationState,
-    dispatch: Dispatch<AppState, Action>,
-  };
-
-  render() {
-    const navigation = addNavigationHelpers({
-      dispatch: this.props.dispatch,
-      state: this.props.navigationState,
-    });
-    return <RootNavigator navigation={navigation} />;
-  }
-
-}
 
 let urlPrefix;
 if (!__DEV__) {
@@ -72,27 +46,34 @@ if (Platform.OS === "android") {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+class AppWithNavigationState extends React.PureComponent {
+
+  static propTypes = {
+    navigationState: ReactNavigationPropTypes.navigationState,
+    dispatch: React.PropTypes.func.isRequired,
+  };
+  props: {
+    navigationState: NavigationState,
+    dispatch: Dispatch<AppState, Action>,
+  };
+
+  render() {
+    const navigation = addNavigationHelpers({
+      dispatch: this.props.dispatch,
+      state: this.props.navigationState,
+    });
+    return <RootNavigator navigation={navigation} />;
+  }
+
+}
+
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     navigationState: state.navInfo.navigationState,
   }),
 )(AppWithNavigationState);
-const store = createStore(
-  reducer,
-  defaultState,
-  composeWithDevTools(
-    applyMiddleware(thunk),
-    autoRehydrate(),
-  ),
-);
 const App = (props: {}) =>
   <Provider store={store}>
     <ConnectedAppWithNavigationState />
   </Provider>;
-
 AppRegistry.registerComponent('SquadCal', () => App);
-
-persistStore(
-  store,
-  { storage: AsyncStorage, blacklist: reduxBlacklist },
-);
