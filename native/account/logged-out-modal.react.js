@@ -125,6 +125,7 @@ class LoggedOutModal extends React.PureComponent {
     super(props);
     if (props.rehydrateConcluded) {
       this.state.mode = "prompt";
+      this.state.buttonOpacity = new Animated.Value(1);
       this.nextMode = "prompt";
     }
     this.determineOnePasswordSupport().then();
@@ -192,6 +193,8 @@ class LoggedOutModal extends React.PureComponent {
     if (nextProps.loggedIn) {
       if (cookie && cookie.startsWith("user=")) {
         nextProps.dispatchActionPayload("NAVIGATE_TO_APP", null);
+        // Send out a ping to check if our cookie is invalidated
+        LoggedOutModal.dispatchPing(nextProps, cookie, () => {});
         return;
       }
       // This is an unusual error state that should never happen
@@ -214,26 +217,35 @@ class LoggedOutModal extends React.PureComponent {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
+    LoggedOutModal.dispatchPing(nextProps, cookie, showPrompt);
+  }
+
+  static dispatchPing(props: Props, cookie: ?string, callback: () => void) {
     const boundPing = bindCookieAndUtilsIntoServerCall(
       ping,
-      nextProps.dispatch,
+      props.dispatch,
       cookie,
     );
-    nextProps.dispatchActionPromise(
+    props.dispatchActionPromise(
       pingActionType,
-      (async () => {
-        try {
-          const result = await boundPing();
-          if (!result.userInfo) {
-            showPrompt();
-          }
-          return result;
-        } catch (e) {
-          showPrompt();
-          throw e;
-        }
-      })(),
+      LoggedOutModal.pingAction(boundPing, callback),
     );
+  }
+
+  static async pingAction(
+    ping: () => Promise<PingResult>,
+    callback: () => void,
+  ) {
+    try {
+      const result = await ping();
+      if (!result.userInfo) {
+        callback();
+      }
+      return result;
+    } catch (e) {
+      callback();
+      throw e;
+    }
   }
 
   componentWillMount() {

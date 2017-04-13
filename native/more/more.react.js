@@ -4,6 +4,7 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { PingResult } from 'lib/actions/ping-actions';
 
 import React from 'react';
 import { View, StyleSheet, Text, Button, Alert, Platform } from 'react-native';
@@ -35,7 +36,7 @@ class More extends React.PureComponent {
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
     logOut: () => Promise<CalendarInfo[]>,
-    ping: () => Promise<void>,
+    ping: () => Promise<PingResult>,
   };
   state: {};
 
