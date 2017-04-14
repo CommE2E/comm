@@ -9,6 +9,7 @@ import type { PingResult } from 'lib/actions/ping-actions';
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
+import _includes from 'lodash/fp/includes';
 import { Alert } from 'react-native';
 
 import { partialNavInfoFromURL } from 'lib/utils/url-utils';
@@ -160,15 +161,15 @@ function handleURL(
   };
 }
 
-function removeModals(state: NavigationState): NavigationState {
+function removeModals(
+  state: NavigationState,
+  modals: string[] = ['LoggedOutModal', 'VerificationModal'],
+): NavigationState {
   const newRoutes = [];
   let index = state.index;
   for (let i = 0; i < state.routes.length; i++) {
     const route = state.routes[i];
-    if (
-      route.routeName === 'LoggedOutModal' ||
-        route.routeName === 'VerificationModal'
-    ) {
+    if (_includes(route.routeName)(modals)) {
       if (i <= state.index) {
         invariant(index !== 0, 'Attempting to remove only route');
         index--;
@@ -237,7 +238,7 @@ function removeModalsIfPingIndicatesLoggedIn(
     // cookie invalidation triggered by a ping server call
     return state;
   }
-  return removeModals(state);
+  return removeModals(state, ['LoggedOutModal']);
 }
 
 export {
