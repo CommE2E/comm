@@ -23,7 +23,6 @@ import {
   Keyboard,
   Platform,
   BackAndroid,
-  Linking,
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
@@ -258,26 +257,6 @@ class LoggedOutModal extends React.PureComponent {
       this.keyboardHide,
     );
     BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
-    this.handleInitialURL().then();
-    Linking.addEventListener('url', this.handleURLChange);
-  }
-
-  async handleInitialURL() {
-    const url = await Linking.getInitialURL();
-    if (url) {
-      this.dispatchActionForURL(url);
-    }
-  }
-
-  handleURLChange = (event: { url: string }) => {
-    this.dispatchActionForURL(event.url);
-  }
-
-  dispatchActionForURL(url: string) {
-    if (!url.startsWith("http")) {
-      return;
-    }
-    this.props.dispatchActionPayload("HANDLE_URL", url);
   }
 
   componentWillUnmount() {
@@ -286,7 +265,6 @@ class LoggedOutModal extends React.PureComponent {
     invariant(this.keyboardHideListener, "should be set");
     this.keyboardHideListener.remove();
     BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
-    Linking.removeEventListener('url', this.handleURLChange);
   }
 
   hardwareBack = () => {

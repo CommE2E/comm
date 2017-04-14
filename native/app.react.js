@@ -6,7 +6,10 @@ import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
 import type { PingResult } from 'lib/actions/ping-actions';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -15,6 +18,7 @@ import {
   Platform,
   UIManager,
   AppState as NativeAppState,
+  Linking,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
@@ -67,6 +71,7 @@ class AppWithNavigationState extends React.PureComponent {
     loggedIn: bool,
     // Redux dispatch functions
     dispatch: Dispatch<AppState, Action>,
+    dispatchActionPayload: DispatchActionPayload,
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
     ping: () => Promise<PingResult>,
@@ -76,6 +81,7 @@ class AppWithNavigationState extends React.PureComponent {
     navigationState: ReactNavigationPropTypes.navigationState,
     loggedIn: React.PropTypes.bool.isRequired,
     dispatch: React.PropTypes.func.isRequired,
+    dispatchActionPayload: React.PropTypes.func.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     ping: React.PropTypes.func.isRequired,
   };
@@ -83,10 +89,31 @@ class AppWithNavigationState extends React.PureComponent {
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
+    this.handleInitialURL().then();
+    Linking.addEventListener('url', this.handleURLChange);
+  }
+
+  async handleInitialURL() {
+    const url = await Linking.getInitialURL();
+    if (url) {
+      this.dispatchActionForURL(url);
+    }
+  }
+
+  handleURLChange = (event: { url: string }) => {
+    this.dispatchActionForURL(event.url);
+  }
+
+  dispatchActionForURL(url: string) {
+    if (!url.startsWith("http")) {
+      return;
+    }
+    this.props.dispatchActionPayload("HANDLE_URL", url);
   }
 
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
+    Linking.removeEventListener('url', this.handleURLChange);
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
@@ -118,9 +145,13 @@ const ConnectedAppWithNavigationState = connect(
     navigationState: state.navInfo.navigationState,
     loggedIn: !!state.userInfo,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps({
+    dispatchActionPayload: true,
+    dispatchActionPromise: true,
+  }),
   bindServerCalls({ ping }),
 )(AppWithNavigationState);
+
 const App = (props: {}) =>
   <Provider store={store}>
     <ConnectedAppWithNavigationState />
