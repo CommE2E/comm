@@ -79,6 +79,9 @@ module.exports = function(env) {
     config.module.rules[0].options.plugins.push(
       'transform-react-constant-elements'
     );
+    config.module.rules[0].options.plugins.push(
+      'transform-remove-console'
+    );
     config.plugins.push(new ExtractTextPlugin('prod.build.css'));
   } else if (env === 'dev') {
     config.devtool = 'eval-cheap-module-source-map';
