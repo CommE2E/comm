@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "babel-jest": "18.0.0",
+    "babel-plugin-transform-remove-console": "^6.8.1",
     "babel-preset-react-native": "1.9.1",
     "flow": "^0.2.3",
     "flow-bin": "^0.38.0",

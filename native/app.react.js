@@ -37,6 +37,14 @@ import {
   getNativeCookie,
 } from './account/native-credentials';
 
+// We have transform-remove-console in .babelrc, but it doesn't work (RN#10412)
+if (!__DEV__) {
+  console = {
+    log: () => {},
+    error: () => {},
+  };
+}
+
 let urlPrefix;
 if (!__DEV__) {
   urlPrefix = "https://squadcal.org/";
