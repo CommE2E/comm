@@ -17,8 +17,14 @@ import { partialNavInfoFromURL } from 'lib/utils/url-utils';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import More from './more/more.react';
-import LoggedOutModal from './account/logged-out-modal.react';
-import VerificationModal from './account/verification-modal.react';
+import {
+  LoggedOutModal,
+  LoggedOutModalRouteName,
+} from './account/logged-out-modal.react';
+import {
+  VerificationModal,
+  VerificationModalRouteName,
+} from './account/verification-modal.react';
 
 export type NavInfo = BaseNavInfo & {
   home: bool,
@@ -43,8 +49,8 @@ const AppNavigator = TabNavigator(
 
 const RootNavigator = StackNavigator(
   {
-    LoggedOutModal: { screen: LoggedOutModal },
-    VerificationModal: { screen: VerificationModal },
+    [LoggedOutModalRouteName]: { screen: LoggedOutModal },
+    [VerificationModalRouteName]: { screen: VerificationModal },
     App: { screen: AppNavigator },
   },
   {
@@ -66,7 +72,7 @@ const defaultNavigationState = {
         { key: 'More', routeName: 'More' },
       ],
     },
-    { key: 'LoggedOutModal', routeName: 'LoggedOutModal' },
+    { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
   ],
 };
 
@@ -163,13 +169,14 @@ function handleURL(
 
 function removeModals(
   state: NavigationState,
-  modals: string[] = ['LoggedOutModal', 'VerificationModal'],
+  modalRouteNames: string[]
+    = [LoggedOutModalRouteName, VerificationModalRouteName],
 ): NavigationState {
   const newRoutes = [];
   let index = state.index;
   for (let i = 0; i < state.routes.length; i++) {
     const route = state.routes[i];
-    if (_includes(route.routeName)(modals)) {
+    if (_includes(route.routeName)(modalRouteNames)) {
       if (i <= state.index) {
         invariant(index !== 0, 'Attempting to remove only route');
         index--;
@@ -187,7 +194,7 @@ function removeModals(
 
 function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
   const currentModalIndex =
-    _findIndex(['routeName', 'LoggedOutModal'])(state.routes);
+    _findIndex(['routeName', LoggedOutModalRouteName])(state.routes);
   if (currentModalIndex >= 0 && state.index >= currentModalIndex) {
     return state;
   } else if (currentModalIndex >= 0) {
@@ -200,7 +207,7 @@ function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
     index: state.routes.length,
     routes: [
       ...state.routes,
-      { key: 'LoggedOutModal', routeName: 'LoggedOutModal' },
+      { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
     ],
   };
 }
@@ -238,11 +245,13 @@ function removeModalsIfPingIndicatesLoggedIn(
     // cookie invalidation triggered by a ping server call
     return state;
   }
-  return removeModals(state, ['LoggedOutModal']);
+  return removeModals(state, [LoggedOutModalRouteName]);
 }
 
 export {
   RootNavigator,
   defaultNavigationState,
   reduceNavInfo,
+  LoggedOutModalRouteName,
+  VerificationModalRouteName,
 };

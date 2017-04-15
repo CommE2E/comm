@@ -44,6 +44,7 @@ import sleep from 'lib/utils/sleep';
 import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
+import { createIsForegroundSelector } from '../nav-selectors';
 
 type KeyboardEvent = {
   duration: number,
@@ -60,6 +61,8 @@ type VerificationModalNavProps = {
 };
 type Props = {
   navigation: NavigationScreenProp<VerificationModalNavProps, *>,
+  // Redux state
+  isForeground: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -76,7 +79,7 @@ type State = {
   resetPasswordPanelOpacityValue: Animated.Value,
   onePasswordSupported: bool,
 };
-class VerificationModal extends React.PureComponent {
+class InnerVerificationModal extends React.PureComponent {
 
   props: Props;
   static propTypes = {
@@ -88,6 +91,7 @@ class VerificationModal extends React.PureComponent {
       }).isRequired,
       goBack: React.PropTypes.func.isRequired,
     }).isRequired,
+    isForeground: React.PropTypes.bool.isRequired,
     dispatchActionPayload: React.PropTypes.func.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
     handleVerificationCode: React.PropTypes.func.isRequired,
@@ -95,7 +99,7 @@ class VerificationModal extends React.PureComponent {
   state: State = {
     mode: "simple-text",
     paddingTop: new Animated.Value(
-      VerificationModal.currentPaddingTop("simple-text", 0),
+      InnerVerificationModal.currentPaddingTop("simple-text", 0),
     ),
     verifyField: null,
     errorMessage: null,
@@ -127,13 +131,46 @@ class VerificationModal extends React.PureComponent {
   }
 
   componentWillMount() {
-    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
     const code = this.props.navigation.state.params.verifyCode;
     this.props.dispatchActionPromise(
       handleVerificationCodeActionType,
       this.handleVerificationCodeAction(code),
     );
     Keyboard.dismiss();
+  }
+
+  componentDidMount() {
+    if (this.props.isForeground) {
+      this.onForeground();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const nextCode = nextProps.navigation.state.params.verifyCode;
+    if (nextCode !== this.props.navigation.state.params.verifyCode) {
+      Keyboard.dismiss();
+      this.setState({
+        mode: "simple-text",
+        paddingTop: new Animated.Value(
+          InnerVerificationModal.currentPaddingTop("simple-text", 0),
+        ),
+        verifyField: null,
+        errorMessage: null,
+        resetPasswordUsername: null,
+      });
+      this.props.dispatchActionPromise(
+        handleVerificationCodeActionType,
+        this.handleVerificationCodeAction(nextCode),
+      );
+    }
+    if (!this.props.isForeground && nextProps.isForeground) {
+      this.onForeground();
+    } else if (this.props.isForeground && !nextProps.isForeground) {
+      this.onBackground();
+    }
+  }
+
+  onForeground() {
     this.keyboardShowListener = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
       this.keyboardShow,
@@ -142,40 +179,22 @@ class VerificationModal extends React.PureComponent {
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       this.keyboardHide,
     );
+    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
-  componentWillUnmount() {
+  onBackground() {
+    if (this.keyboardShowListener) {
+      this.keyboardShowListener.remove();
+    }
+    if (this.keyboardHideListener) {
+      this.keyboardHideListener.remove();
+    }
     BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
-    invariant(this.keyboardShowListener, "should be set");
-    this.keyboardShowListener.remove();
-    invariant(this.keyboardHideListener, "should be set");
-    this.keyboardHideListener.remove();
   }
 
   hardwareBack = () => {
     this.props.navigation.goBack();
     return true;
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const nextCode = nextProps.navigation.state.params.verifyCode;
-    if (nextCode === this.props.navigation.state.params.verifyCode) {
-      return;
-    }
-    Keyboard.dismiss();
-    this.setState({
-      mode: "simple-text",
-      paddingTop: new Animated.Value(
-        VerificationModal.currentPaddingTop("simple-text", 0),
-      ),
-      verifyField: null,
-      errorMessage: null,
-      resetPasswordUsername: null,
-    });
-    this.props.dispatchActionPromise(
-      handleVerificationCodeActionType,
-      this.handleVerificationCodeAction(nextCode),
-    );
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
@@ -267,7 +286,7 @@ class VerificationModal extends React.PureComponent {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: VerificationModal.currentPaddingTop(
+          toValue: InnerVerificationModal.currentPaddingTop(
             this.state.mode,
             this.keyboardHeight,
           ),
@@ -309,7 +328,7 @@ class VerificationModal extends React.PureComponent {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: VerificationModal.currentPaddingTop(this.nextMode, 0),
+          toValue: InnerVerificationModal.currentPaddingTop(this.nextMode, 0),
         },
       ),
     ];
@@ -477,13 +496,22 @@ const styles = StyleSheet.create({
 
 registerFetchKey(handleVerificationCodeActionType);
 
-export default connect(
+const VerificationModalRouteName = 'VerificationModal';
+const isForegroundSelector =
+  createIsForegroundSelector(VerificationModalRouteName);
+const VerificationModal = connect(
   (state: AppState) => ({
     cookie: state.cookie,
+    isForeground: isForegroundSelector(state),
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,
     dispatchActionPromise: true,
   }),
   bindServerCalls({ handleVerificationCode }),
-)(VerificationModal);
+)(InnerVerificationModal);
+
+export {
+  VerificationModal,
+  VerificationModalRouteName,
+};

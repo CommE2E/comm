@@ -42,6 +42,7 @@ import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { getNativeCookie, setNativeCookie } from './native-credentials';
+import { createIsForegroundSelector } from '../nav-selectors';
 
 type KeyboardEvent = {
   duration: number,
@@ -59,6 +60,7 @@ type Props = {
   rehydrateConcluded: bool,
   cookie: ?string,
   loggedIn: bool,
+  isForeground: bool,
   // Redux dispatch functions
   dispatch: Dispatch<AppState, Action>,
   dispatchActionPayload: DispatchActionPayload,
@@ -74,16 +76,16 @@ type State = {
   onePasswordSupported: bool,
 };
 
-class LoggedOutModal extends React.PureComponent {
+class InnerLoggedOutModal extends React.PureComponent {
 
   props: Props;
   state: State = {
     mode: "loading",
     panelPaddingTop: new Animated.Value(
-      LoggedOutModal.calculatePanelPaddingTop("prompt", 0),
+      InnerLoggedOutModal.calculatePanelPaddingTop("prompt", 0),
     ),
     footerPaddingTop: new Animated.Value(
-      LoggedOutModal.calculateFooterPaddingTop(0),
+      InnerLoggedOutModal.calculateFooterPaddingTop(0),
     ),
     panelOpacity: new Animated.Value(0),
     forgotPasswordLinkOpacity: new Animated.Value(0),
@@ -98,6 +100,7 @@ class LoggedOutModal extends React.PureComponent {
     rehydrateConcluded: React.PropTypes.bool.isRequired,
     cookie: React.PropTypes.string,
     loggedIn: React.PropTypes.bool.isRequired,
+    isForeground: React.PropTypes.bool.isRequired,
     dispatch: React.PropTypes.func.isRequired,
     dispatchActionPayload: React.PropTypes.func.isRequired,
     dispatchActionPromise: React.PropTypes.func.isRequired,
@@ -140,10 +143,43 @@ class LoggedOutModal extends React.PureComponent {
     this.setState({ onePasswordSupported });
   }
 
+  componentDidMount() {
+    if (this.props.isForeground) {
+      this.onForeground();
+    }
+  }
+
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.rehydrateConcluded && nextProps.rehydrateConcluded) {
       this.onInitialAppLoad(nextProps).then();
     }
+    if (!this.props.isForeground && nextProps.isForeground) {
+      this.onForeground();
+    } else if (this.props.isForeground && !nextProps.isForeground) {
+      this.onBackground();
+    }
+  }
+
+  onForeground() {
+    this.keyboardShowListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      this.keyboardShow,
+    );
+    this.keyboardHideListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      this.keyboardHide,
+    );
+    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+  }
+
+  onBackground() {
+    if (this.keyboardShowListener) {
+      this.keyboardShowListener.remove();
+    }
+    if (this.keyboardHideListener) {
+      this.keyboardHideListener.remove();
+    }
+    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   // This gets triggered when an app is killed and restarted
@@ -193,7 +229,7 @@ class LoggedOutModal extends React.PureComponent {
       if (cookie && cookie.startsWith("user=")) {
         nextProps.dispatchActionPayload("NAVIGATE_TO_APP", null);
         // Send out a ping to check if our cookie is invalidated
-        LoggedOutModal.dispatchPing(nextProps, cookie, () => {});
+        InnerLoggedOutModal.dispatchPing(nextProps, cookie, () => {});
         return;
       }
       // This is an unusual error state that should never happen
@@ -216,7 +252,7 @@ class LoggedOutModal extends React.PureComponent {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
-    LoggedOutModal.dispatchPing(nextProps, cookie, showPrompt);
+    InnerLoggedOutModal.dispatchPing(nextProps, cookie, showPrompt);
   }
 
   static dispatchPing(props: Props, cookie: ?string, callback: () => void) {
@@ -227,7 +263,7 @@ class LoggedOutModal extends React.PureComponent {
     );
     props.dispatchActionPromise(
       pingActionType,
-      LoggedOutModal.pingAction(boundPing, callback),
+      InnerLoggedOutModal.pingAction(boundPing, callback),
     );
   }
 
@@ -245,26 +281,6 @@ class LoggedOutModal extends React.PureComponent {
       callback();
       throw e;
     }
-  }
-
-  componentWillMount() {
-    this.keyboardShowListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      this.keyboardShow,
-    );
-    this.keyboardHideListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      this.keyboardHide,
-    );
-    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  componentWillUnmount() {
-    invariant(this.keyboardShowListener, "should be set");
-    this.keyboardShowListener.remove();
-    invariant(this.keyboardHideListener, "should be set");
-    this.keyboardHideListener.remove();
-    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   hardwareBack = () => {
@@ -310,10 +326,11 @@ class LoggedOutModal extends React.PureComponent {
       realKeyboardHeight = this.keyboardHeight;
     }
     const animations = [];
-    const newPanelPaddingTopValue = LoggedOutModal.calculatePanelPaddingTop(
-      this.state.mode,
-      this.keyboardHeight,
-    );
+    const newPanelPaddingTopValue =
+      InnerLoggedOutModal.calculatePanelPaddingTop(
+        this.state.mode,
+        this.keyboardHeight,
+      );
     if (newPanelPaddingTopValue !== this.lastPanelPaddingTopValue) {
       this.lastPanelPaddingTopValue = newPanelPaddingTopValue;
       animations.push(
@@ -333,7 +350,9 @@ class LoggedOutModal extends React.PureComponent {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: LoggedOutModal.calculateFooterPaddingTop(realKeyboardHeight),
+          toValue: InnerLoggedOutModal.calculateFooterPaddingTop(
+            realKeyboardHeight,
+          ),
         },
       ),
     );
@@ -375,10 +394,11 @@ class LoggedOutModal extends React.PureComponent {
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
-    this.lastPanelPaddingTopValue = LoggedOutModal.calculatePanelPaddingTop(
-      this.nextMode,
-      0,
-    );
+    this.lastPanelPaddingTopValue =
+      InnerLoggedOutModal.calculatePanelPaddingTop(
+        this.nextMode,
+        0,
+      );
     const animations = [
       Animated.timing(
         this.state.panelPaddingTop,
@@ -393,7 +413,7 @@ class LoggedOutModal extends React.PureComponent {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: LoggedOutModal.calculateFooterPaddingTop(
+          toValue: InnerLoggedOutModal.calculateFooterPaddingTop(
             this.keyboardHeight,
           ),
         },
@@ -683,14 +703,23 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
+const LoggedOutModalRouteName = 'LoggedOutModal';
+const isForegroundSelector =
+  createIsForegroundSelector(LoggedOutModalRouteName);
+const LoggedOutModal = connect(
   (state: AppState) => ({
     rehydrateConcluded: state.rehydrateConcluded,
     cookie: state.cookie,
     loggedIn: !!state.userInfo,
+    isForeground: isForegroundSelector(state),
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,
     dispatchActionPromise: true,
   }),
-)(LoggedOutModal);
+)(InnerLoggedOutModal);
+
+export {
+  LoggedOutModal,
+  LoggedOutModalRouteName,
+};
