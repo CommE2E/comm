@@ -29,6 +29,7 @@ import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   includeDispatchActionProps,
@@ -93,17 +94,17 @@ class InnerLoggedOutModal extends React.PureComponent {
     onePasswordSupported: false,
   };
   static propTypes = {
-    navigation: React.PropTypes.shape({
-      navigate: React.PropTypes.func.isRequired,
-      goBack: React.PropTypes.func.isRequired,
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+      goBack: PropTypes.func.isRequired,
     }).isRequired,
-    rehydrateConcluded: React.PropTypes.bool.isRequired,
-    cookie: React.PropTypes.string,
-    loggedIn: React.PropTypes.bool.isRequired,
-    isForeground: React.PropTypes.bool.isRequired,
-    dispatch: React.PropTypes.func.isRequired,
-    dispatchActionPayload: React.PropTypes.func.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
+    rehydrateConcluded: PropTypes.bool.isRequired,
+    cookie: PropTypes.string,
+    loggedIn: PropTypes.bool.isRequired,
+    isForeground: PropTypes.bool.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
   };
 
   static navigationOptions = {

@@ -15,6 +15,7 @@ import { AsyncStorage } from 'react-native';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'remote-redux-devtools';
 import { autoRehydrate, persistStore } from 'redux-persist';
+import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
@@ -24,9 +25,9 @@ import {
   reduceNavInfo,
 } from './navigation-setup';
 
-const navInfoPropType = React.PropTypes.shape({
-  home: React.PropTypes.bool.isRequired,
-  calendarID: React.PropTypes.string,
+const navInfoPropType = PropTypes.shape({
+  home: PropTypes.bool.isRequired,
+  calendarID: PropTypes.string,
   navigationState: ReactNavigationPropTypes.navigationState,
 });
 

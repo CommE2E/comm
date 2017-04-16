@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import PropTypes from 'prop-types';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -53,15 +54,15 @@ class ResetPasswordPanel extends React.PureComponent {
     resetPassword: (code: string, password: string) => Promise<LogInResult>,
   };
   static propTypes = {
-    verifyCode: React.PropTypes.string.isRequired,
-    username: React.PropTypes.string.isRequired,
-    onePasswordSupported: React.PropTypes.bool.isRequired,
-    onSuccess: React.PropTypes.func.isRequired,
-    setActiveAlert: React.PropTypes.func.isRequired,
-    opacityValue: React.PropTypes.object.isRequired,
-    loadingStatus: React.PropTypes.string.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    resetPassword: React.PropTypes.func.isRequired,
+    verifyCode: PropTypes.string.isRequired,
+    username: PropTypes.string.isRequired,
+    onePasswordSupported: PropTypes.bool.isRequired,
+    onSuccess: PropTypes.func.isRequired,
+    setActiveAlert: PropTypes.func.isRequired,
+    opacityValue: PropTypes.object.isRequired,
+    loadingStatus: PropTypes.string.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    resetPassword: PropTypes.func.isRequired,
   };
   state: {
     passwordInputText: string,

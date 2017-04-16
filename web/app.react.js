@@ -14,8 +14,9 @@ import React from 'react';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
-import { Link, locationShape } from 'react-router';
+import { Link } from 'react-router-dom';
 import _isEqual from 'lodash/fp/isEqual';
+import PropTypes from 'prop-types';
 
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
@@ -103,11 +104,18 @@ class App extends React.PureComponent {
       if (this.props.verifyField === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
       } else if (this.props.verifyField === verifyField.EMAIL) {
-        history.replace(this.props.thisURL);
+        history.replace(`/${this.props.thisURL}`);
         this.setModal(
           <VerificationSuccessModal onClose={this.clearModal} />
         );
       }
+    }
+    const newURL = canonicalURLFromReduxState(
+      this.props.navInfo,
+      this.props.location.pathname,
+    );
+    if (this.props.location.pathname !== newURL) {
+      history.replace(newURL);
     }
   }
 
@@ -122,8 +130,8 @@ class App extends React.PureComponent {
   }
 
   showResetPasswordModal() {
-    const onClose = () => history.push(this.props.thisURL);
-    const onSuccess = () => history.replace(this.props.thisURL);
+    const onClose = () => history.push(`/${this.props.thisURL}`);
+    const onSuccess = () => history.replace(`/${this.props.thisURL}`);
     this.setModal(
       <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />
     );
@@ -132,6 +140,12 @@ class App extends React.PureComponent {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(newProps.location.pathname);
+      if (!newNavInfo.home && !newNavInfo.calendarID) {
+        const strippedPathname = newProps.location.pathname.replace(/^\//, '');
+        history.replace(`/${this.props.thisNavURLFragment}${strippedPathname}`);
+        newNavInfo.home = newProps.navInfo.home;
+        newNavInfo.calendarID = newProps.navInfo.calendarID;
+      }
       if (!_isEqual(newNavInfo, newProps.navInfo)) {
         this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
       }
@@ -186,12 +200,12 @@ class App extends React.PureComponent {
     const year = this.props.navInfo.year;
     const month = this.props.navInfo.month;
     const lastMonthDate = getDate(year, month - 1, 1);
-    const prevURL = this.props.thisNavURLFragment + urlForYearAndMonth(
+    const prevURL = "/" + this.props.thisNavURLFragment + urlForYearAndMonth(
       lastMonthDate.getFullYear(),
       lastMonthDate.getMonth() + 1,
     );
     const nextMonthDate = getDate(year, month + 1, 1);
-    const nextURL = this.props.thisNavURLFragment + urlForYearAndMonth(
+    const nextURL = "/" + this.props.thisNavURLFragment + urlForYearAndMonth(
       nextMonthDate.getFullYear(),
       nextMonthDate.getMonth() + 1,
     );
@@ -262,16 +276,18 @@ class App extends React.PureComponent {
 }
 
 App.propTypes = {
-  location: locationShape,
-  thisNavURLFragment: React.PropTypes.string.isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }).isRequired,
+  thisNavURLFragment: PropTypes.string.isRequired,
   navInfo: navInfoPropType.isRequired,
-  verifyField: React.PropTypes.number,
-  entriesLoadingStatus: React.PropTypes.string.isRequired,
-  currentNavID: React.PropTypes.string,
-  thisURL: React.PropTypes.string.isRequired,
-  dispatchActionPayload: React.PropTypes.func.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  fetchEntriesForMonth: React.PropTypes.func.isRequired,
+  verifyField: PropTypes.number,
+  entriesLoadingStatus: PropTypes.string.isRequired,
+  currentNavID: PropTypes.string,
+  thisURL: PropTypes.string.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  fetchEntriesForMonth: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector

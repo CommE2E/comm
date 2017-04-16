@@ -15,6 +15,7 @@ import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   includeDispatchActionProps,
@@ -682,11 +683,11 @@ class CalendarSettingsModal extends React.PureComponent {
 
 CalendarSettingsModal.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  deleteCalendar: React.PropTypes.func.isRequired,
-  changeCalendarSettings: React.PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  deleteCalendar: PropTypes.func.isRequired,
+  changeCalendarSettings: PropTypes.func.isRequired,
 }
 
 const deleteCalendarLoadingStatusSelector

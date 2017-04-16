@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import sleep from 'lib/utils/sleep';
 
@@ -30,10 +31,10 @@ class LogInPanelContainer extends React.PureComponent {
     forgotPasswordLinkOpacity: Animated.Value,
   };
   static propTypes = {
-    onePasswordSupported: React.PropTypes.bool.isRequired,
-    setActiveAlert: React.PropTypes.func.isRequired,
-    opacityValue: React.PropTypes.object.isRequired,
-    forgotPasswordLinkOpacity: React.PropTypes.object.isRequired,
+    onePasswordSupported: PropTypes.bool.isRequired,
+    setActiveAlert: PropTypes.func.isRequired,
+    opacityValue: PropTypes.object.isRequired,
+    forgotPasswordLinkOpacity: PropTypes.object.isRequired,
   };
   state: {
     panelTransition: Animated.Value,

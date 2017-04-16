@@ -5,6 +5,8 @@ import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { NavID } from './typeahead-action-option.react';
 import type { AppState } from '../redux-setup';
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
@@ -604,18 +606,18 @@ class Typeahead extends React.PureComponent {
 }
 
 Typeahead.propTypes = {
-  currentNavID: React.PropTypes.string,
-  calendarInfos: React.PropTypes.objectOf(calendarInfoPropType).isRequired,
-  currentlyHome: React.PropTypes.bool.isRequired,
-  currentCalendarID: React.PropTypes.string,
-  subscriptionExists: React.PropTypes.bool.isRequired,
-  searchIndex: React.PropTypes.instanceOf(SearchIndex),
-  sortedCalendarInfos: React.PropTypes.objectOf(
-    React.PropTypes.arrayOf(calendarInfoPropType),
+  currentNavID: PropTypes.string,
+  calendarInfos: PropTypes.objectOf(calendarInfoPropType).isRequired,
+  currentlyHome: PropTypes.bool.isRequired,
+  currentCalendarID: PropTypes.string,
+  subscriptionExists: PropTypes.bool.isRequired,
+  searchIndex: PropTypes.instanceOf(SearchIndex),
+  sortedCalendarInfos: PropTypes.objectOf(
+    PropTypes.arrayOf(calendarInfoPropType),
   ).isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  modalExists: React.PropTypes.bool.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  modalExists: PropTypes.bool.isRequired,
 };
 
 export default connect((state: AppState) => ({

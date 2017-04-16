@@ -12,6 +12,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import {
@@ -145,17 +146,17 @@ class HistoryEntry extends React.PureComponent {
 
 HistoryEntry.propTypes = {
   entryInfo: entryInfoPropType,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  day: React.PropTypes.number.isRequired,
-  onClick: React.PropTypes.func.isRequired,
-  animateAndLoadEntry: React.PropTypes.func.isRequired,
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  day: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
+  animateAndLoadEntry: PropTypes.func.isRequired,
   calendarInfo: calendarInfoPropType,
-  sessionID: React.PropTypes.string.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
-  restoreLoadingStatus: React.PropTypes.string.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  restoreEntry: React.PropTypes.func.isRequired,
+  sessionID: PropTypes.string.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  restoreLoadingStatus: PropTypes.string.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  restoreEntry: PropTypes.func.isRequired,
 }
 
 export default connect(

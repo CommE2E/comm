@@ -28,10 +28,6 @@ import { reducer } from './redux-setup';
 
 import App from './app.react';
 import history from './router-history';
-import {
-  redirectURLFromInitialReduxState,
-  redirectURLFromAppTransition,
-} from './url-utils';
 
 declare var username: string;
 declare var email: string;
@@ -91,12 +87,7 @@ const render = (Component) => ReactDOM.render(
   <AppContainer>
     <Provider store={store}>
       <Router history={history}>
-        <Route
-          path="*"
-          component={Component}
-          onEnter={redirectURLFromInitialReduxState(store)}
-          onChange={redirectURLFromAppTransition(store)}
-        />
+        <Route path="*" component={Component} />
       </Router>
     </Provider>
   </AppContainer>,

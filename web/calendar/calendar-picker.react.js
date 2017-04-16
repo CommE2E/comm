@@ -7,6 +7,7 @@ import type { AppState } from '../redux-setup';
 import React from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
 
@@ -207,9 +208,9 @@ class CalendarPicker extends React.PureComponent {
 
 CalendarPicker.propTypes = {
   onScreenCalendarInfos:
-    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
-  createNewEntry: React.PropTypes.func.isRequired,
-  closePicker: React.PropTypes.func.isRequired,
+    PropTypes.arrayOf(calendarInfoPropType).isRequired,
+  createNewEntry: PropTypes.func.isRequired,
+  closePicker: PropTypes.func.isRequired,
 };
 
 export default connect((state: AppState) => ({

@@ -7,7 +7,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
 
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
@@ -19,12 +19,12 @@ export type NavInfo = {
   verify: ?string,
 };
 
-export const navInfoPropType = React.PropTypes.shape({
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  home: React.PropTypes.bool.isRequired,
-  calendarID: React.PropTypes.string,
-  verify: React.PropTypes.string,
+export const navInfoPropType = PropTypes.shape({
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  home: PropTypes.bool.isRequired,
+  calendarID: PropTypes.string,
+  verify: PropTypes.string,
 });
 
 export type AppState = {

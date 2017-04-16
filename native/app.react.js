@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { registerConfig } from 'lib/utils/config';
 import {
@@ -85,13 +86,13 @@ class AppWithNavigationState extends React.PureComponent {
     ping: () => Promise<PingResult>,
   };
   static propTypes = {
-    cookie: React.PropTypes.string,
+    cookie: PropTypes.string,
     navigationState: ReactNavigationPropTypes.navigationState,
-    loggedIn: React.PropTypes.bool.isRequired,
-    dispatch: React.PropTypes.func.isRequired,
-    dispatchActionPayload: React.PropTypes.func.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    ping: React.PropTypes.func.isRequired,
+    loggedIn: PropTypes.bool.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    ping: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
 

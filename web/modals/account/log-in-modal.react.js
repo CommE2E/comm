@@ -7,6 +7,7 @@ import type { LogInResult } from 'lib/actions/user-actions';
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   validUsernameRegex,
@@ -231,11 +232,11 @@ class LogInModal extends React.PureComponent {
 }
 
 LogInModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  logIn: React.PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  logIn: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionType);

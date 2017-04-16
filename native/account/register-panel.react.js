@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import PropTypes from 'prop-types';
 
 import {
   includeDispatchActionProps,
@@ -56,12 +57,12 @@ class RegisterPanel extends React.PureComponent {
     ) => Promise<UserInfo>,
   };
   static propTypes = {
-    setActiveAlert: React.PropTypes.func.isRequired,
-    opacityValue: React.PropTypes.object.isRequired,
-    onePasswordSupported: React.PropTypes.bool.isRequired,
-    loadingStatus: React.PropTypes.string.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    register: React.PropTypes.func.isRequired,
+    setActiveAlert: PropTypes.func.isRequired,
+    opacityValue: PropTypes.object.isRequired,
+    onePasswordSupported: PropTypes.bool.isRequired,
+    loadingStatus: PropTypes.string.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    register: PropTypes.func.isRequired,
   };
   state: {
     usernameInputText: string,

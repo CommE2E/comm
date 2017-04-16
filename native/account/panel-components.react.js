@@ -16,6 +16,7 @@ import {
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import PropTypes from 'prop-types';
 
 class PanelButton extends React.PureComponent {
 
@@ -25,9 +26,9 @@ class PanelButton extends React.PureComponent {
     onSubmit: () => void,
   };
   static propTypes = {
-    text: React.PropTypes.string.isRequired,
-    loadingStatus: React.PropTypes.string.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
+    text: PropTypes.string.isRequired,
+    loadingStatus: PropTypes.string.isRequired,
+    onSubmit: PropTypes.func.isRequired,
   };
 
   render() {

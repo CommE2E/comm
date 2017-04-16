@@ -8,6 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionType } from 'lib/actions/user-actions';
@@ -192,13 +193,13 @@ class AccountBar extends React.PureComponent {
 }
 
 AccountBar.propTypes = {
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  modalExists: React.PropTypes.bool.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
-  username: React.PropTypes.string,
-  currentNavID: React.PropTypes.string,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  modalExists: PropTypes.bool.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  username: PropTypes.string,
+  currentNavID: PropTypes.string,
+  dispatchActionPromise: PropTypes.func.isRequired,
 };
 
 export default connect(

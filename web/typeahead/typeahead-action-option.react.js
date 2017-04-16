@@ -5,6 +5,7 @@ import type { AppState, NavInfo } from '../redux-setup';
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import css from '../style.css';
 import NewCalendarModal from '../modals/new-calendar-modal.react';
@@ -74,7 +75,7 @@ class TypeaheadActionOption extends React.PureComponent {
         );
       }
     } else if (this.props.navID == 'home') {
-      history.push(`home/${this.props.monthURL}`);
+      history.push(`/home/${this.props.monthURL}`);
       this.props.onTransition();
     } 
   }
@@ -82,16 +83,16 @@ class TypeaheadActionOption extends React.PureComponent {
 }
 
 TypeaheadActionOption.propTypes = {
-  navID: React.PropTypes.string.isRequired,
-  name: React.PropTypes.string.isRequired,
-  monthURL: React.PropTypes.string.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  freezeTypeahead: React.PropTypes.func.isRequired,
-  unfreezeTypeahead: React.PropTypes.func.isRequired,
-  onTransition: React.PropTypes.func.isRequired,
-  frozen: React.PropTypes.bool,
+  navID: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  monthURL: PropTypes.string.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  freezeTypeahead: PropTypes.func.isRequired,
+  unfreezeTypeahead: PropTypes.func.isRequired,
+  onTransition: PropTypes.func.isRequired,
+  frozen: PropTypes.bool,
 };
 
 export default connect((state: AppState) => ({

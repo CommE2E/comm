@@ -7,6 +7,7 @@ import type { LogInResult } from 'lib/actions/user-actions';
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   includeDispatchActionProps,
@@ -194,13 +195,13 @@ class ResetPasswordModal extends React.PureComponent {
 }
 
 ResetPasswordModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  onSuccess: React.PropTypes.func.isRequired,
-  resetPasswordUsername: React.PropTypes.string.isRequired,
-  verifyCode: React.PropTypes.string.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  resetPassword: React.PropTypes.func.isRequired, 
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+  resetPasswordUsername: PropTypes.string.isRequired,
+  verifyCode: PropTypes.string.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  resetPassword: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector

@@ -28,6 +28,7 @@ import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import PropTypes from 'prop-types';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -83,18 +84,18 @@ class InnerVerificationModal extends React.PureComponent {
 
   props: Props;
   static propTypes = {
-    navigation: React.PropTypes.shape({
-      state: React.PropTypes.shape({
-        params: React.PropTypes.shape({
-          verifyCode: React.PropTypes.string.isRequired,
+    navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          verifyCode: PropTypes.string.isRequired,
         }).isRequired,
       }).isRequired,
-      goBack: React.PropTypes.func.isRequired,
+      goBack: PropTypes.func.isRequired,
     }).isRequired,
-    isForeground: React.PropTypes.bool.isRequired,
-    dispatchActionPayload: React.PropTypes.func.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    handleVerificationCode: React.PropTypes.func.isRequired,
+    isForeground: PropTypes.bool.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    handleVerificationCode: PropTypes.func.isRequired,
   };
   state: State = {
     mode: "simple-text",

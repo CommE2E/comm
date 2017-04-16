@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 // @flow
 
 import React from 'react';
@@ -172,10 +173,10 @@ class TypeaheadPane extends React.PureComponent {
 }
 
 TypeaheadPane.propTypes = {
-  paneTitle: React.PropTypes.string.isRequired,
-  pageSize: React.PropTypes.number.isRequired,
-  totalResults: React.PropTypes.number.isRequired,
-  resultsBetween: React.PropTypes.func.isRequired,
+  paneTitle: PropTypes.string.isRequired,
+  pageSize: PropTypes.number.isRequired,
+  totalResults: PropTypes.number.isRequired,
+  resultsBetween: PropTypes.func.isRequired,
 };
 
 export default TypeaheadPane;

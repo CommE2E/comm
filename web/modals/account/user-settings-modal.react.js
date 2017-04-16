@@ -9,6 +9,7 @@ import React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { validEmailRegex } from 'lib/shared/account-regexes';
 import {
@@ -464,16 +465,16 @@ class UserSettingsModal extends React.PureComponent {
 }
 
 UserSettingsModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  username: React.PropTypes.string.isRequired,
-  email: React.PropTypes.string.isRequired,
-  emailVerified: React.PropTypes.bool.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  deleteAccount: React.PropTypes.func.isRequired,
-  changeUserSettings: React.PropTypes.func.isRequired,
-  resendVerificationEmail: React.PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
+  emailVerified: PropTypes.bool.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  deleteAccount: PropTypes.func.isRequired,
+  changeUserSettings: PropTypes.func.isRequired,
+  resendVerificationEmail: PropTypes.func.isRequired,
 };
 
 const deleteAccountLoadingStatusSelector

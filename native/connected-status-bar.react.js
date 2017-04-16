@@ -6,6 +6,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { StatusBar } from 'react-native';
+import PropTypes from 'prop-types';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -13,7 +14,7 @@ class ConnectedStatusBar extends React.PureComponent {
 
   props: Object;
   static propTypes = {
-    globalLoadingStatus: React.PropTypes.string.isRequired,
+    globalLoadingStatus: PropTypes.string.isRequired,
   };
 
   render() {

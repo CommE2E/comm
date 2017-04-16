@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ChromePicker } from 'react-color';
+import PropTypes from 'prop-types';
 
 import css from '../style.css';
 
@@ -83,10 +84,10 @@ class ColorPicker extends React.PureComponent {
 }
 
 ColorPicker.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  value: React.PropTypes.string.isRequired,
-  disabled: React.PropTypes.bool.isRequired,
-  onChange: React.PropTypes.func.isRequired,
+  id: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
 }
 
 export default ColorPicker;

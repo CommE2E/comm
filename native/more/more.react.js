@@ -11,6 +11,7 @@ import { View, StyleSheet, Text, Button, Alert, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -41,13 +42,13 @@ class More extends React.PureComponent {
   state: {};
 
   static propTypes = {
-    navigation: React.PropTypes.shape({
-      navigate: React.PropTypes.func.isRequired,
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
     }).isRequired,
-    username: React.PropTypes.string,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    logOut: React.PropTypes.func.isRequired,
-    ping: React.PropTypes.func.isRequired,
+    username: PropTypes.string,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    logOut: PropTypes.func.isRequired,
+    ping: PropTypes.func.isRequired,
   };
 
   static navigationOptions = {

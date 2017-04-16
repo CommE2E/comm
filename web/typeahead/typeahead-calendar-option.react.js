@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
@@ -217,7 +218,7 @@ class TypeaheadCalendarOption extends React.PureComponent {
   onClick = (event: SyntheticEvent) => {
     const id = TypeaheadCalendarOption.getID(this.props);
     if (this.props.calendarInfo && this.props.calendarInfo.authorized) {
-      history.push(`calendar/${id}/${this.props.monthURL}`);
+      history.push(`/calendar/${id}/${this.props.monthURL}`);
       this.props.onTransition();
     } else {
       this.props.freezeTypeahead(id);
@@ -283,21 +284,21 @@ class TypeaheadCalendarOption extends React.PureComponent {
 
 TypeaheadCalendarOption.propTypes = {
   calendarInfo: calendarInfoPropType,
-  secretCalendarID: React.PropTypes.string,
-  freezeTypeahead: React.PropTypes.func.isRequired,
-  unfreezeTypeahead: React.PropTypes.func.isRequired,
-  focusTypeahead: React.PropTypes.func.isRequired,
-  onTransition: React.PropTypes.func.isRequired,
-  frozen: React.PropTypes.bool,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  typeaheadFocused: React.PropTypes.bool.isRequired,
-  monthURL: React.PropTypes.string.isRequired,
-  currentNavID: React.PropTypes.string,
-  currentCalendarID: React.PropTypes.string,
-  passwordEntryLoadingStatus: React.PropTypes.string.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  authCalendar: React.PropTypes.func.isRequired,
+  secretCalendarID: PropTypes.string,
+  freezeTypeahead: PropTypes.func.isRequired,
+  unfreezeTypeahead: PropTypes.func.isRequired,
+  focusTypeahead: PropTypes.func.isRequired,
+  onTransition: PropTypes.func.isRequired,
+  frozen: PropTypes.bool,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  typeaheadFocused: PropTypes.bool.isRequired,
+  monthURL: PropTypes.string.isRequired,
+  currentNavID: PropTypes.string,
+  currentCalendarID: PropTypes.string,
+  passwordEntryLoadingStatus: PropTypes.string.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  authCalendar: PropTypes.func.isRequired,
 };
 
 type OwnProps = { calendarInfo?: CalendarInfo, secretCalendarID?: string };

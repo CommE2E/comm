@@ -13,6 +13,7 @@ import 'timeago'; // side effect: $.timeago
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 
@@ -99,7 +100,7 @@ class HistoryRevision extends React.PureComponent {
 HistoryRevision.propTypes = {
   revisionInfo: historyRevisionInfoPropType,
   calendarInfo: calendarInfoPropType,
-  isDeletionOrRestoration: React.PropTypes.bool.isRequired,
+  isDeletionOrRestoration: PropTypes.bool.isRequired,
 };
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };

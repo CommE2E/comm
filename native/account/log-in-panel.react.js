@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import PropTypes from 'prop-types';
 
 import {
   validUsernameRegex,
@@ -58,13 +59,13 @@ class LogInPanel extends React.PureComponent {
     ) => Promise<LogInResult>,
   };
   static propTypes = {
-    setActiveAlert: React.PropTypes.func.isRequired,
-    opacityValue: React.PropTypes.object.isRequired,
-    onePasswordSupported: React.PropTypes.bool.isRequired,
-    innerRef: React.PropTypes.func.isRequired,
-    loadingStatus: React.PropTypes.string.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    logIn: React.PropTypes.func.isRequired,
+    setActiveAlert: PropTypes.func.isRequired,
+    opacityValue: PropTypes.object.isRequired,
+    onePasswordSupported: PropTypes.bool.isRequired,
+    innerRef: PropTypes.func.isRequired,
+    loadingStatus: PropTypes.string.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    logIn: PropTypes.func.isRequired,
   };
   state: {
     usernameOrEmailInputText: string,

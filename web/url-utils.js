@@ -42,7 +42,7 @@ const thisURL = createSelector(
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const partialNavInfo = partialNavInfoFromURL(currentURL);
-  let newURL = urlForHomeAndCalendarID(navInfo.home, navInfo.calendarID);
+  let newURL = `/${urlForHomeAndCalendarID(navInfo.home, navInfo.calendarID)}`;
   if (partialNavInfo.year !== undefined) {
     newURL += `year/${navInfo.year}/`;
   }
@@ -53,41 +53,6 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
     newURL += `verify/${navInfo.verify}/`;
   }
   return newURL;
-}
-
-// This function returns an "onEnter" handler for our single react-router Route.
-// We use it to redirect the URL to be consistent with the initial Redux state
-// determined on the server side. However, for the rest of the application URL
-// changes propagate to Redux, so we turn this off after the initial run.
-let urlRedirectedFromInitialReduxState = false;
-function redirectURLFromInitialReduxState(store: Store<AppState, Action>) {
-  return (nextState: Object, replace: Function) => {
-    if (urlRedirectedFromInitialReduxState) {
-      return;
-    }
-    urlRedirectedFromInitialReduxState = true;
-    const newURL = canonicalURLFromReduxState(
-      store.getState().navInfo,
-      nextState.location.pathname,
-    );
-    if (nextState.location.pathname !== newURL) {
-      replace(newURL);
-    }
-  };
-}
-
-// This function returns an "onChange" handler for our single react-router
-// Route. Since we only have a single wildcard route, this handler will be run
-// whenever the URL is changed programmatically on the client side.
-function redirectURLFromAppTransition(store: Store<AppState, Action>) {
-  return (prevState: Object, nextState: Object, replace: Function) => {
-    const partialNavInfo = partialNavInfoFromURL(nextState.location.pathname);
-    if (!partialNavInfo.home && !partialNavInfo.calendarID) {
-      replace(
-        thisNavURLFragment(store.getState()) + nextState.location.pathname,
-      );
-    }
-  };
 }
 
 // Given a URL, this function parses out a navInfo object, leaving values as
@@ -111,7 +76,5 @@ export {
   thisNavURLFragment,
   thisURL,
   canonicalURLFromReduxState,
-  redirectURLFromInitialReduxState,
-  redirectURLFromAppTransition,
   navInfoFromURL,
 };

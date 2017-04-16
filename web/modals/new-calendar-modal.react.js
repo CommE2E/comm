@@ -12,6 +12,7 @@ import type { CalendarInfo } from 'lib/types/calendar-types';
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   includeDispatchActionProps,
@@ -415,10 +416,10 @@ class NewCalendarModal extends React.PureComponent {
 }
 
 NewCalendarModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  newCalendar: React.PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  newCalendar: PropTypes.func.isRequired,
 }
 
 const loadingStatusSelector

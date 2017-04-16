@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -51,12 +52,12 @@ class ForgotPasswordPanel extends React.PureComponent {
     forgotPassword: (usernameOrEmail: string) => Promise<void>,
   };
   static propTypes = {
-    setActiveAlert: React.PropTypes.func.isRequired,
-    opacityValue: React.PropTypes.object.isRequired,
-    onSuccess: React.PropTypes.func.isRequired,
-    loadingStatus: React.PropTypes.string.isRequired,
-    dispatchActionPromise: React.PropTypes.func.isRequired,
-    forgotPassword: React.PropTypes.func.isRequired,
+    setActiveAlert: PropTypes.func.isRequired,
+    opacityValue: PropTypes.object.isRequired,
+    onSuccess: PropTypes.func.isRequired,
+    loadingStatus: PropTypes.string.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    forgotPassword: PropTypes.func.isRequired,
   };
   state: {
     usernameOrEmailInputText: string,

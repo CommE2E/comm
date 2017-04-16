@@ -9,6 +9,7 @@ import type { AppState } from '../redux-setup';
 import React from 'react';
 import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { getDate } from 'lib/utils/date-utils';
 
@@ -105,13 +106,13 @@ class Calendar extends React.PureComponent {
 }
 
 Calendar.propTypes = {
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  daysToEntries: React.PropTypes.objectOf(
-    React.PropTypes.arrayOf(entryInfoPropType),
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  daysToEntries: PropTypes.objectOf(
+    PropTypes.arrayOf(entryInfoPropType),
   ).isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
 };
 
 export default connect((state: AppState) => ({

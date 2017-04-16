@@ -6,6 +6,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   validUsernameRegex,
@@ -164,11 +165,11 @@ class ForgotPasswordModal extends React.PureComponent {
 }
 
 ForgotPasswordModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  forgotPassword: React.PropTypes.func.isRequired, 
+  onClose: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  forgotPassword: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector

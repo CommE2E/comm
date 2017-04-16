@@ -2,11 +2,12 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { UserInfo } from 'libtypes/user-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
   validUsernameRegex,
@@ -290,11 +291,11 @@ class RegisterModal extends React.PureComponent {
 }
 
 RegisterModal.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  inputDisabled: React.PropTypes.bool.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  register: React.PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  inputDisabled: PropTypes.bool.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionType);

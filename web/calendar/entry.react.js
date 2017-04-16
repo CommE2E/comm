@@ -16,6 +16,7 @@ import React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
@@ -426,19 +427,19 @@ class Entry extends React.PureComponent {
 export type InnerEntry = Entry;
 
 Entry.propTypes = {
-  innerRef: React.PropTypes.func.isRequired,
+  innerRef: PropTypes.func.isRequired,
   entryInfo: entryInfoPropType.isRequired,
-  focusOnFirstEntryNewerThan: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  tabIndex: React.PropTypes.number.isRequired,
+  focusOnFirstEntryNewerThan: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  tabIndex: PropTypes.number.isRequired,
   calendarInfo: calendarInfoPropType.isRequired,
-  sessionID: React.PropTypes.string.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
-  dispatchActionPayload: React.PropTypes.func.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  saveEntry: React.PropTypes.func.isRequired,
-  deleteEntry: React.PropTypes.func.isRequired,
+  sessionID: PropTypes.string.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  saveEntry: PropTypes.func.isRequired,
+  deleteEntry: PropTypes.func.isRequired,
 }
 
 type OwnProps = {

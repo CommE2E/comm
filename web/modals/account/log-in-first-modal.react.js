@@ -3,6 +3,7 @@
 import type { AppState } from '../../redux-setup';
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -66,9 +67,9 @@ class LogInFirstModal extends React.PureComponent {
 }
 
 LogInFirstModal.propTypes = {
-  inOrderTo: React.PropTypes.string.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  setModal: React.PropTypes.func.isRequired,
+  inOrderTo: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
 };
 
 export default LogInFirstModal;

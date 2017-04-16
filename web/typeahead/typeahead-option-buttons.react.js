@@ -7,6 +7,8 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { EntryInfo } from 'lib/types/entry-types';
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -160,19 +162,19 @@ class TypeaheadOptionButtons extends React.PureComponent {
 
 TypeaheadOptionButtons.propTypes = {
   calendarInfo: calendarInfoPropType.isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  freezeTypeahead: React.PropTypes.func.isRequired,
-  unfreezeTypeahead: React.PropTypes.func.isRequired,
-  focusTypeahead: React.PropTypes.func.isRequired,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  home: React.PropTypes.bool.isRequired,
-  currentNavID: React.PropTypes.string,
-  loadingStatus: React.PropTypes.string.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  subscribe: React.PropTypes.func.isRequired,
-  fetchEntriesForMonth: React.PropTypes.func.isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  freezeTypeahead: PropTypes.func.isRequired,
+  unfreezeTypeahead: PropTypes.func.isRequired,
+  focusTypeahead: PropTypes.func.isRequired,
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  home: PropTypes.bool.isRequired,
+  currentNavID: PropTypes.string,
+  loadingStatus: PropTypes.string.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  subscribe: PropTypes.func.isRequired,
+  fetchEntriesForMonth: PropTypes.func.isRequired,
 };
 
 export default connect(

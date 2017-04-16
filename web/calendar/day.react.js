@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import _some from 'lodash/fp/some';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
@@ -284,18 +285,17 @@ class Day extends React.PureComponent {
 }
 
 Day.propTypes = {
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  day: React.PropTypes.number.isRequired,
-  entryInfos: React.PropTypes.arrayOf(entryInfoPropType).isRequired,
-  setModal: React.PropTypes.func.isRequired,
-  clearModal: React.PropTypes.func.isRequired,
-  startingTabIndex: React.PropTypes.number.isRequired,
-  onScreenCalendarInfos:
-    React.PropTypes.arrayOf(calendarInfoPropType).isRequired,
-  username: React.PropTypes.string,
-  loggedIn: React.PropTypes.bool.isRequired,
-  dispatchActionPayload: React.PropTypes.func.isRequired,
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  day: PropTypes.number.isRequired,
+  entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
+  setModal: PropTypes.func.isRequired,
+  clearModal: PropTypes.func.isRequired,
+  startingTabIndex: PropTypes.number.isRequired,
+  onScreenCalendarInfos: PropTypes.arrayOf(calendarInfoPropType).isRequired,
+  username: PropTypes.string,
+  loggedIn: PropTypes.bool.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
 };
 
 export default connect(

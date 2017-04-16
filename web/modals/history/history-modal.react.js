@@ -18,6 +18,7 @@ import _flow from 'lodash/fp/flow';
 import _unionBy from 'lodash/fp/unionBy';
 import _map from 'lodash/fp/map';
 import _filter from 'lodash/fp/filter';
+import PropTypes from 'prop-types';
 
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
@@ -260,19 +261,19 @@ class HistoryModal extends React.PureComponent {
 }
 
 HistoryModal.propTypes = {
-  mode: React.PropTypes.string.isRequired,
-  year: React.PropTypes.number.isRequired,
-  month: React.PropTypes.number.isRequired,
-  day: React.PropTypes.number.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  currentEntryID: React.PropTypes.string,
-  currentNavID: React.PropTypes.string,
-  entryInfos: React.PropTypes.arrayOf(entryInfoPropType),
-  dayLoadingStatus: React.PropTypes.string.isRequired,
-  entryLoadingStatus: React.PropTypes.string.isRequired,
-  dispatchActionPromise: React.PropTypes.func.isRequired,
-  fetchAllEntriesForDay: React.PropTypes.func.isRequired,
-  fetchRevisionsForEntry: React.PropTypes.func.isRequired,
+  mode: PropTypes.string.isRequired,
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  day: PropTypes.number.isRequired,
+  onClose: PropTypes.func.isRequired,
+  currentEntryID: PropTypes.string,
+  currentNavID: PropTypes.string,
+  entryInfos: PropTypes.arrayOf(entryInfoPropType),
+  dayLoadingStatus: PropTypes.string.isRequired,
+  entryLoadingStatus: PropTypes.string.isRequired,
+  dispatchActionPromise: PropTypes.func.isRequired,
+  fetchAllEntriesForDay: PropTypes.func.isRequired,
+  fetchRevisionsForEntry: PropTypes.func.isRequired,
 };
 
 const dayLoadingStatusSelector
