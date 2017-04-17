@@ -3,14 +3,24 @@
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
-import type { NavigationState } from 'react-navigation';
+import type {
+  NavigationState,
+  NavigationScreenProp,
+  NavigationRoute,
+  NavigationAction,
+  NavigationRouter,
+} from 'react-navigation';
 import type { PingResult } from 'lib/actions/ping-actions';
+import type { AppState } from './redux-setup';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _includes from 'lodash/fp/includes';
-import { Alert } from 'react-native';
+import { Alert, BackAndroid } from 'react-native';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import { partialNavInfoFromURL } from 'lib/utils/url-utils';
 
@@ -25,6 +35,7 @@ import {
   VerificationModal,
   VerificationModalRouteName,
 } from './account/verification-modal.react';
+import { createIsForegroundSelector } from './nav-selectors';
 
 export type NavInfo = BaseNavInfo & {
   home: bool,
@@ -46,12 +57,70 @@ const AppNavigator = TabNavigator(
     initialRouteName: 'Calendar',
   },
 );
+type WrappedAppNavigatorProps = {
+  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
+  isForeground: bool,
+  atInitialRoute: bool,
+};
+class WrappedAppNavigator extends React.PureComponent {
+
+  props: WrappedAppNavigatorProps;
+  static propTypes = {
+    navigation: PropTypes.shape({
+      goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    isForeground: PropTypes.bool.isRequired,
+    atInitialRoute: PropTypes.bool.isRequired,
+  };
+
+  componentDidMount() {
+    if (this.props.isForeground) {
+      this.onForeground();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: WrappedAppNavigatorProps) {
+    if (!this.props.isForeground && nextProps.isForeground) {
+      this.onForeground();
+    } else if (this.props.isForeground && !nextProps.isForeground) {
+      this.onBackground();
+    }
+  }
+
+  onForeground() {
+    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+  }
+
+  onBackground() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+  }
+
+  hardwareBack = () => {
+    if (this.props.atInitialRoute) {
+      return false;
+    }
+    this.props.navigation.goBack(null);
+    return true;
+  }
+
+  render() {
+    return <AppNavigator navigation={this.props.navigation} />;
+  }
+
+}
+const AppRouteName = 'App';
+const isForegroundSelector = createIsForegroundSelector(AppRouteName);
+const ReduxWrappedAppNavigator = connect((state: AppState) => ({
+  isForeground: isForegroundSelector(state),
+  atInitialRoute: state.navInfo.navigationState.routes[0].index === 0,
+}))(WrappedAppNavigator);
+ReduxWrappedAppNavigator.router = AppNavigator.router;
 
 const RootNavigator = StackNavigator(
   {
     [LoggedOutModalRouteName]: { screen: LoggedOutModal },
     [VerificationModalRouteName]: { screen: VerificationModal },
-    App: { screen: AppNavigator },
+    [AppRouteName]: { screen: ReduxWrappedAppNavigator },
   },
   {
     headerMode: 'none',
@@ -64,7 +133,7 @@ const defaultNavigationState = {
   routes: [
     {
       key: 'App',
-      routeName: 'App',
+      routeName: AppRouteName,
       index: 0,
       routes: [
         { key: 'Calendar', routeName: 'Calendar' },
