@@ -4,7 +4,6 @@ import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
-import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 import type { NavInfo, Action } from './navigation-setup';
 
 import React from 'react';
@@ -21,15 +20,9 @@ import baseReducer from 'lib/reducers/master-reducer';
 
 import {
   RootNavigator,
-  defaultNavigationState,
+  defaultNavInfo,
   reduceNavInfo,
 } from './navigation-setup';
-
-const navInfoPropType = PropTypes.shape({
-  home: PropTypes.bool.isRequired,
-  calendarID: PropTypes.string,
-  navigationState: ReactNavigationPropTypes.navigationState,
-});
 
 export type AppState = {
   navInfo: NavInfo,
@@ -43,11 +36,7 @@ export type AppState = {
 };
 
 const defaultState = ({
-  navInfo: {
-    home: true,
-    calendarID: null,
-    navigationState: defaultNavigationState,
-  },
+  navInfo: defaultNavInfo,
   userInfo: null,
   entryInfos: {},
   daysToEntries: {},

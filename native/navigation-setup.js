@@ -12,6 +12,7 @@ import type {
 } from 'react-navigation';
 import type { PingResult } from 'lib/actions/ping-actions';
 import type { AppState } from './redux-setup';
+import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
@@ -42,6 +43,11 @@ export type NavInfo = BaseNavInfo & {
   calendarID: ?string,
   navigationState: NavigationState,
 };
+const navInfoPropType = PropTypes.shape({
+  home: PropTypes.bool.isRequired,
+  calendarID: PropTypes.string,
+  navigationState: ReactNavigationPropTypes.navigationState,
+});
 
 export type Action = BaseAction |
   { type: "HANDLE_URL", payload: string } |
@@ -144,6 +150,11 @@ const defaultNavigationState = {
     { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
   ],
 };
+const defaultNavInfo = {
+  home: true,
+  calendarID: null,
+  navigationState: defaultNavigationState,
+};
 
 function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
   // React Navigation actions
@@ -169,19 +180,13 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
       ...state,
       navigationState: removeModals(state.navigationState),
     };
-  } else if (action.type === "LOG_OUT_STARTED") {
-    return {
-      ...state,
-      navigationState: ensureLoggedOutModalPresence(state.navigationState),
-    };
+  } else if (
+    action.type === "LOG_OUT_STARTED" ||
+      action.type === "DELETE_SUCCESS"
+  ) {
+    return resetNavInfoAndEnsureLoggedOutModalPresence(state);
   } else if (action.type === "SET_COOKIE") {
-    return {
-      ...state,
-      navigationState: logOutIfCookieInvalidated(
-        state.navigationState,
-        action.payload,
-      ),
-    };
+    return logOutIfCookieInvalidated(state, action.payload);
   } else if (action.type === "PING_SUCCESS") {
     return {
       ...state,
@@ -261,23 +266,36 @@ function removeModals(
   }
 }
 
-function ensureLoggedOutModalPresence(state: NavigationState): NavigationState {
+function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
+  const navigationState = {
+    ...state.navigationState,
+    routes: [
+      ...state.navigationState.routes,
+    ],
+  };
+  navigationState.routes[0] = defaultNavInfo.navigationState.routes[0];
   const currentModalIndex =
-    _findIndex(['routeName', LoggedOutModalRouteName])(state.routes);
-  if (currentModalIndex >= 0 && state.index >= currentModalIndex) {
-    return state;
+    _findIndex(['routeName', LoggedOutModalRouteName])(navigationState.routes);
+  if (currentModalIndex >= 0 && navigationState.index >= currentModalIndex) {
+    return { ...defaultNavInfo, navigationState };
   } else if (currentModalIndex >= 0) {
     return {
-      index: currentModalIndex,
-      routes: state.routes,
+      ...defaultNavInfo,
+      navigationState: {
+        ...navigationState,
+        index: currentModalIndex,
+      },
     };
   }
   return {
-    index: state.routes.length,
-    routes: [
-      ...state.routes,
-      { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
-    ],
+    ...defaultNavInfo,
+    navigationState: {
+      index: navigationState.routes.length,
+      routes: [
+        ...navigationState.routes,
+        { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
+      ],
+    },
   };
 }
 
@@ -287,11 +305,11 @@ type SetCookiePayload = {
   cookieInvalidated?: bool,
 };
 function logOutIfCookieInvalidated(
-  state: NavigationState,
+  state: NavInfo,
   payload: SetCookiePayload,
-): NavigationState {
+): NavInfo {
   if (payload.cookieInvalidated) {
-    const newState = ensureLoggedOutModalPresence(state);
+    const newState = resetNavInfoAndEnsureLoggedOutModalPresence(state);
     if (state !== newState) {
       Alert.alert(
         "Session invalidated",
@@ -318,8 +336,9 @@ function removeModalsIfPingIndicatesLoggedIn(
 }
 
 export {
+  navInfoPropType,
   RootNavigator,
-  defaultNavigationState,
+  defaultNavInfo,
   reduceNavInfo,
   LoggedOutModalRouteName,
   VerificationModalRouteName,
