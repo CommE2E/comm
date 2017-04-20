@@ -4,6 +4,7 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('calendar_lib.php');
+require_once('entry_lib.php');
 
 async_start();
 
@@ -28,7 +29,17 @@ if ($user_logged_in) {
   );
 }
 
-async_end(array(
+$return = array(
+  'success' => true,
   'user_info' => $user_info,
   'calendar_infos' => get_calendar_infos(),
-));
+);
+
+if (!empty($_POST['inner_entry_query'])) {
+  $entries = get_entry_infos($_POST['inner_entry_query']);
+  if ($entries !== null) {
+    $return['entries'] = $entries;
+  }
+}
+
+async_end($return);

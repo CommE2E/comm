@@ -3,6 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
+require_once('entry_lib.php');
 
 async_start();
 
@@ -33,11 +34,20 @@ if (!password_verify($password, $user_row['hash'])) {
 $id = intval($user_row['id']);
 create_user_cookie($id);
 
-async_end(array(
+$return = array(
   'success' => true,
   'user_info' => array(
     'username' => $user_row['username'],
     'email' => $user_row['email'],
     'email_verified' => (bool)$user_row['email_verified'],
   ),
-));
+);
+
+if (!empty($_POST['inner_entry_query'])) {
+  $entries = get_entry_infos($_POST['inner_entry_query']);
+  if ($entries !== null) {
+    $return['entries'] = $entries;
+  }
+}
+
+async_end($return);
