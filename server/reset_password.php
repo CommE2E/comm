@@ -54,7 +54,9 @@ clear_verify_codes($user, VERIFY_FIELD_RESET_PASSWORD);
 
 async_end(array(
   'success' => true,
-  'username' => $user_row['username'],
-  'email' => $user_row['email'],
-  'email_verified' => (bool)$user_row['email_verified'],
+  'user_info' => array(
+    'username' => $user_row['username'],
+    'email' => $user_row['email'],
+    'email_verified' => (bool)$user_row['email_verified'],
+  ),
 ));
