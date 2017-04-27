@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState, NavInfo } from '../redux-setup';
+import type { AppState } from '../redux-setup';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 
@@ -16,20 +16,26 @@ import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
 
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import {
+  yearAssertingSelector,
+  monthAssertingSelector,
+} from '../selectors/nav-selectors';
 
 const currentMonthDaysToEntries = createSelector(
-  (state: AppState) => state.navInfo,
   (state: AppState) => state.entryInfos,
   (state: AppState) => state.daysToEntries,
   onScreenCalendarInfos,
+  yearAssertingSelector,
+  monthAssertingSelector,
   (
-    navInfo: NavInfo,
     entryInfos: {[id: string]: EntryInfo},
     daysToEntries: {[day: string]: string[]},
     onScreenCalendarInfos: CalendarInfo[],
+    year: number,
+    month: number,
   ) => _flow(
     _pickBy((entryIDs: string[], dayString: string) =>
-      dayString.endsWith(`/${navInfo.month}/${navInfo.year}`),
+      dayString.endsWith(`/${month}/${year}`),
     ),
     _mapKeys((dayString: string) =>
       parseInt(dayString.substr(0, dayString.indexOf('/'))),

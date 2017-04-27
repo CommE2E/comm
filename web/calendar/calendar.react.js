@@ -15,6 +15,10 @@ import { getDate } from 'lib/utils/date-utils';
 
 import Day from './day.react';
 import { currentMonthDaysToEntries } from '../selectors/calendar-selectors';
+import {
+  yearAssertingSelector,
+  monthAssertingSelector,
+} from '../selectors/nav-selectors';
 
 type Props = {
   year: number,
@@ -116,7 +120,7 @@ Calendar.propTypes = {
 };
 
 export default connect((state: AppState) => ({
-  year: state.navInfo.year,
-  month: state.navInfo.month,
+  year: yearAssertingSelector(state),
+  month: monthAssertingSelector(state),
   daysToEntries: currentMonthDaysToEntries(state),
 }))(Calendar);

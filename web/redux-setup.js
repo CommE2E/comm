@@ -12,16 +12,16 @@ import PropTypes from 'prop-types';
 import baseReducer from 'lib/reducers/master-reducer';
 
 export type NavInfo = {
-  year: number,
-  month: number, // 1-indexed
+  startDate: string,
+  endDate: string,
   home: bool,
   calendarID: ?string,
   verify: ?string,
 };
 
 export const navInfoPropType = PropTypes.shape({
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
+  startDate: PropTypes.string.isRequired,
+  endDate: PropTypes.string.isRequired,
   home: PropTypes.bool.isRequired,
   calendarID: PropTypes.string,
   verify: PropTypes.string,

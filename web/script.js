@@ -23,6 +23,10 @@ import _keyBy from 'lodash/fp/keyBy';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { registerConfig } from 'lib/utils/config';
 import { assertVerifyField } from 'lib/utils/verify-utils';
+import {
+  startDateForYearAndMonth,
+  endDateForYearAndMonth,
+} from 'lib/utils/date-utils';
 
 import { reducer } from './redux-setup';
 
@@ -59,14 +63,16 @@ const userInfo = email
   : null;
 const entryInfos = _keyBy('id')(entry_infos);
 const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
+const startDate = startDateForYearAndMonth(year, month);
+const endDate = endDateForYearAndMonth(year, month);
 
 const store: Store<AppState, Action> = createStore(
   reducer,
   ({
     navInfo: {
-      year: year,
-      month: month,
-      home: home,
+      startDate,
+      endDate,
+      home,
       calendarID: calendar_id,
       verify: verify_code,
     },

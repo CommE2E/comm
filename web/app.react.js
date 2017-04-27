@@ -9,6 +9,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
+import type { EntriesResult } from 'lib/actions/entry-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -21,8 +22,8 @@ import PropTypes from 'prop-types';
 import { getDate } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesForMonthActionType,
-  fetchEntriesForMonth,
+  fetchEntriesAndSetRangeActionType,
+  fetchEntriesAndSetRange,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -48,6 +49,10 @@ import VerificationSuccessModal
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
 import IntroModal from './modals/intro-modal.react';
+import {
+  yearAssertingSelector,
+  monthAssertingSelector,
+} from './selectors/nav-selectors';
 
 type Props = {
   location: {
@@ -60,15 +65,17 @@ type Props = {
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
   thisURL: string,
+  year: number,
+  month: number,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchEntriesForMonth: (
-    year: number,
-    month: number,
+  fetchEntriesAndSetRange: (
+    startDate: string,
+    endDate: string,
     navID: string,
-  ) => Promise<EntryInfo[]>,
+  ) => Promise<EntriesResult>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -182,14 +189,14 @@ class App extends React.PureComponent {
     if (
       newProps.currentNavID &&
       (newProps.currentNavID !== this.props.currentNavID ||
-        newProps.navInfo.year !== this.props.navInfo.year ||
-        newProps.navInfo.month !== this.props.navInfo.month)
+        newProps.navInfo.startDate !== this.props.navInfo.startDate ||
+        newProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
       this.props.dispatchActionPromise(
-        fetchEntriesForMonthActionType,
-        this.props.fetchEntriesForMonth(
-          newProps.navInfo.year,
-          newProps.navInfo.month,
+        fetchEntriesAndSetRangeActionType,
+        this.props.fetchEntriesAndSetRange(
+          newProps.navInfo.startDate,
+          newProps.navInfo.endDate,
           newProps.currentNavID,
         ),
       );
@@ -197,8 +204,8 @@ class App extends React.PureComponent {
   }
 
   render() {
-    const year = this.props.navInfo.year;
-    const month = this.props.navInfo.month;
+    const year = this.props.year;
+    const month = this.props.month;
     const lastMonthDate = getDate(year, month - 1, 1);
     const prevURL = "/" + this.props.thisNavURLFragment + urlForYearAndMonth(
       lastMonthDate.getFullYear(),
@@ -285,13 +292,15 @@ App.propTypes = {
   entriesLoadingStatus: PropTypes.string.isRequired,
   currentNavID: PropTypes.string,
   thisURL: PropTypes.string.isRequired,
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  fetchEntriesForMonth: PropTypes.func.isRequired,
+  fetchEntriesAndSetRange: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesForMonthActionType);
+  = createLoadingStatusSelector(fetchEntriesAndSetRangeActionType);
 
 export default connect(
   (state: AppState) => ({
@@ -301,11 +310,13 @@ export default connect(
     entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
     thisURL: thisURL(state),
+    year: yearAssertingSelector(state),
+    month: monthAssertingSelector(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,
     dispatchActionPromise: true,
   }),
-  bindServerCalls({ fetchEntriesForMonth }),
+  bindServerCalls({ fetchEntriesAndSetRange }),
 )(App);

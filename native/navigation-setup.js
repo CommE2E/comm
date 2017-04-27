@@ -23,7 +23,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { partialNavInfoFromURL } from 'lib/utils/url-utils';
+import { infoFromURL } from 'lib/utils/url-utils';
 
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
@@ -203,8 +203,8 @@ function handleURL(
   state: NavigationState,
   url: string,
 ): NavigationState {
-  const partialNavInfo = partialNavInfoFromURL(url);
-  if (!partialNavInfo.verify) {
+  const urlInfo = infoFromURL(url);
+  if (!urlInfo.verify) {
     // TODO correctly handle non-verify URLs
     return state;
   }
@@ -215,7 +215,7 @@ function handleURL(
     const newRoute = {
       ...currentRoute,
       params: {
-        verifyCode: partialNavInfo.verify,
+        verifyCode: urlInfo.verify,
       },
     };
     const newRoutes = [...state.routes];
@@ -234,7 +234,7 @@ function handleURL(
         key: 'VerificationModal',
         routeName: 'VerificationModal',
         params: {
-          verifyCode: partialNavInfo.verify,
+          verifyCode: urlInfo.verify,
         },
       },
     ],

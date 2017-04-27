@@ -5,7 +5,7 @@ import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { EntriesResult } from 'lib/actions/entry-actions';
 
 import PropTypes from 'prop-types';
 
@@ -14,8 +14,8 @@ import { connect } from 'react-redux';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesForMonthActionType,
-  fetchEntriesForMonth,
+  fetchEntriesAndSetRangeActionType,
+  fetchEntriesAndSetRange,
 } from 'lib/actions/entry-actions';
 import {
   subscribeActionType,
@@ -39,8 +39,8 @@ type Props = {
   unfreezeTypeahead: (navID: string) => void,
   focusTypeahead: () => void,
   // Redux state
-  year: number,
-  month: number,
+  startDate: string,
+  endDate: string,
   home: bool,
   currentNavID: ?string,
   loadingStatus: LoadingStatus,
@@ -51,11 +51,11 @@ type Props = {
     calendarID: string,
     newSubscribed: bool,
   ) => Promise<void>,
-  fetchEntriesForMonth: (
-    year: number,
-    month: number,
+  fetchEntriesAndSetRange: (
+    startDate: string,
+    endDate: string,
     navID: string,
-  ) => Promise<EntryInfo[]>,
+  ) => Promise<EntriesResult>,
 };
 type State = {
 };
@@ -116,10 +116,10 @@ class TypeaheadOptionButtons extends React.PureComponent {
     // If we are on home and just subscribed to a calendar, we need to load it
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
-        fetchEntriesForMonthActionType,
-        this.props.fetchEntriesForMonth(
-          this.props.year,
-          this.props.month,
+        fetchEntriesAndSetRangeActionType,
+        this.props.fetchEntriesAndSetRange(
+          this.props.startDate,
+          this.props.endDate,
           this.props.calendarInfo.id,
         ),
       );
@@ -167,20 +167,20 @@ TypeaheadOptionButtons.propTypes = {
   freezeTypeahead: PropTypes.func.isRequired,
   unfreezeTypeahead: PropTypes.func.isRequired,
   focusTypeahead: PropTypes.func.isRequired,
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
+  startDate: PropTypes.string.isRequired,
+  endDate: PropTypes.string.isRequired,
   home: PropTypes.bool.isRequired,
   currentNavID: PropTypes.string,
   loadingStatus: PropTypes.string.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   subscribe: PropTypes.func.isRequired,
-  fetchEntriesForMonth: PropTypes.func.isRequired,
+  fetchEntriesAndSetRange: PropTypes.func.isRequired,
 };
 
 export default connect(
   (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
-    year: state.navInfo.year,
-    month: state.navInfo.month,
+    startDate: state.navInfo.startDate,
+    endDate: state.navInfo.endDate,
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
     loadingStatus: createLoadingStatusSelector(
@@ -190,5 +190,5 @@ export default connect(
     cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ subscribe, fetchEntriesForMonth }),
+  bindServerCalls({ subscribe, fetchEntriesAndSetRange }),
 )(TypeaheadOptionButtons);
