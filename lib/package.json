@@ -8,6 +8,7 @@
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
   "dependencies": {
+    "dateformat": "^2.0.0",
     "invariant": "^2.2.2",
     "isomorphic-fetch": "^2.2.1",
     "jquery-param": "^0.2.0",

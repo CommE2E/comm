@@ -27,7 +27,10 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { logInActionType, logIn } from 'lib/actions/user-actions';
+import {
+  logInActionType,
+  logInAndFetchEntries,
+} from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import { TextInput } from '../modal-components.react';
@@ -53,7 +56,7 @@ class LogInPanel extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    logIn: (
+    logInAndFetchEntries: (
       username: string,
       password: string,
     ) => Promise<LogInResult>,
@@ -65,7 +68,7 @@ class LogInPanel extends React.PureComponent {
     innerRef: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    logIn: PropTypes.func.isRequired,
+    logInAndFetchEntries: PropTypes.func.isRequired,
   };
   state: {
     usernameOrEmailInputText: string,
@@ -208,7 +211,7 @@ class LogInPanel extends React.PureComponent {
 
   async logInAction() {
     try {
-      const result = await this.props.logIn(
+      const result = await this.props.logInAndFetchEntries(
         this.state.usernameOrEmailInputText,
         this.state.passwordInputText,
       );
@@ -312,5 +315,5 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ logIn }),
+  bindServerCalls({ logInAndFetchEntries }),
 )(LogInPanel);

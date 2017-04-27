@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   resetPasswordActionType,
-  resetPassword,
+  resetPasswordAndFetchEntries,
 } from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
@@ -51,7 +51,10 @@ class ResetPasswordPanel extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    resetPassword: (code: string, password: string) => Promise<LogInResult>,
+    resetPasswordAndFetchEntries: (
+      code: string,
+      password: string,
+    ) => Promise<LogInResult>,
   };
   static propTypes = {
     verifyCode: PropTypes.string.isRequired,
@@ -62,7 +65,7 @@ class ResetPasswordPanel extends React.PureComponent {
     opacityValue: PropTypes.object.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    resetPassword: PropTypes.func.isRequired,
+    resetPasswordAndFetchEntries: PropTypes.func.isRequired,
   };
   state: {
     passwordInputText: string,
@@ -200,7 +203,7 @@ class ResetPasswordPanel extends React.PureComponent {
 
   async resetPasswordAction() {
     try {
-      const result = await this.props.resetPassword(
+      const result = await this.props.resetPasswordAndFetchEntries(
         this.props.verifyCode,
         this.state.passwordInputText,
       );
@@ -267,5 +270,5 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ resetPassword }),
+  bindServerCalls({ resetPasswordAndFetchEntries }),
 )(ResetPasswordPanel);
