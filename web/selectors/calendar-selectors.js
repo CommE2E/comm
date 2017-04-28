@@ -16,6 +16,8 @@ import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
 
 import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { padMonthOrDay } from 'lib/utils/date-utils';
+
 import {
   yearAssertingSelector,
   monthAssertingSelector,
@@ -35,11 +37,9 @@ const currentMonthDaysToEntries = createSelector(
     month: number,
   ) => _flow(
     _pickBy((entryIDs: string[], dayString: string) =>
-      dayString.endsWith(`/${month}/${year}`),
+      dayString.startsWith(`${year}-${padMonthOrDay(month)}-`),
     ),
-    _mapKeys((dayString: string) =>
-      parseInt(dayString.substr(0, dayString.indexOf('/'))),
-    ),
+    _mapKeys((dayString: string) => parseInt(dayString.substr(-2))),
     _mapValues((entryIDs: string[]) => _flow(
       _map((entryID: string) => entryInfos[entryID]),
       _compact,
