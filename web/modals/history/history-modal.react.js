@@ -20,7 +20,7 @@ import _map from 'lodash/fp/map';
 import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 
-import { getDate } from 'lib/utils/date-utils';
+import { getDate, padMonthOrDay } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
   fetchAllEntriesForDayActionType,
@@ -34,13 +34,13 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
-import { currentMonthDaysToEntries } from '../../selectors/calendar-selectors';
 
 type Props = {
   mode: HistoryMode,
@@ -281,10 +281,16 @@ const dayLoadingStatusSelector
 const entryLoadingStatusSelector
   = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
+type OwnProps = {
+  year: number,
+  month: number,
+  day: number,
+};
 export default connect(
-  (state: AppState, ownProps: { day: number }) => ({
+  (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
-    entryInfos: currentMonthDaysToEntries(state)[ownProps.day],
+    entryInfos: currentDaysToEntries(state)
+      [`${ownProps.year}-${padMonthOrDay(ownProps.month)}-${ownProps.day}`],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
     cookie: state.cookie,

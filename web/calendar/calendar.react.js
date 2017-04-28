@@ -11,10 +11,10 @@ import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { getDate } from 'lib/utils/date-utils';
+import { getDate, padMonthOrDay } from 'lib/utils/date-utils';
+import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
 
 import Day from './day.react';
-import { currentMonthDaysToEntries } from '../selectors/calendar-selectors';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
@@ -23,7 +23,7 @@ import {
 type Props = {
   year: number,
   month: number, // 1-indexed
-  daysToEntries: {[day: number]: {[id: string]: EntryInfo}},
+  daysToEntries: {[dayString: string]: {[id: string]: EntryInfo}},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -67,8 +67,10 @@ class Calendar extends React.PureComponent {
           month: this.props.month,
           day: curDayOfMonth,
         };
+        const paddedMonth = padMonthOrDay(this.props.month);
+        const dayString = `${this.props.year}-${paddedMonth}-${curDayOfMonth}`;
         const entries = _filter(['deleted', false])
-          (this.props.daysToEntries[curDayOfMonth]);
+          (this.props.daysToEntries[dayString]);
         columns.push(
           <Day
             year={this.props.year}
@@ -122,5 +124,5 @@ Calendar.propTypes = {
 export default connect((state: AppState) => ({
   year: yearAssertingSelector(state),
   month: monthAssertingSelector(state),
-  daysToEntries: currentMonthDaysToEntries(state),
+  daysToEntries: currentDaysToEntries(state),
 }))(Calendar);
