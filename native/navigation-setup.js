@@ -12,7 +12,6 @@ import type {
 } from 'react-navigation';
 import type { PingResult } from 'lib/actions/ping-actions';
 import type { AppState } from './redux-setup';
-import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';

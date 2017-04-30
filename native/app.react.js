@@ -1,7 +1,6 @@
 // @flow
 
 import type { NavigationState } from 'react-navigation';
-import { PropTypes as ReactNavigationPropTypes } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
@@ -87,7 +86,7 @@ class AppWithNavigationState extends React.PureComponent {
   };
   static propTypes = {
     cookie: PropTypes.string,
-    navigationState: ReactNavigationPropTypes.navigationState,
+    navigationState: PropTypes.object.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,

@@ -15,15 +15,13 @@ class Chat extends React.PureComponent {
   state: State;
 
   static navigationOptions = {
-    tabBar: {
-      label: 'Chat',
-      icon: ({ tintColor }) => (
-        <Icon
-          name="comments-o"
-          style={[styles.icon, { color: tintColor }]}
-        />
-      ),
-    },
+    tabBarLabel: 'Chat',
+    tabBarIcon: ({ tintColor }) => (
+      <Icon
+        name="comments-o"
+        style={[styles.icon, { color: tintColor }]}
+      />
+    ),
   };
 
   render() {

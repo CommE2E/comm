@@ -17,15 +17,13 @@ class Calendar extends React.PureComponent {
   state: State;
 
   static navigationOptions = {
-    tabBar: {
-      label: 'Calendar',
-      icon: ({ tintColor }) => (
-        <Icon
-          name="calendar"
-          style={[styles.icon, { color: tintColor }]}
-        />
-      ),
-    },
+    tabBarLabel: 'Calendar',
+    tabBarIcon: ({ tintColor }) => (
+      <Icon
+        name="calendar"
+        style={[styles.icon, { color: tintColor }]}
+      />
+    ),
   };
 
   constructor(props: Props) {

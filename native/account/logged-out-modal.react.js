@@ -108,9 +108,7 @@ class InnerLoggedOutModal extends React.PureComponent {
   };
 
   static navigationOptions = {
-    cardStack: {
-      gesturesEnabled: false,
-    },
+    gesturesEnabled: false,
   };
 
   keyboardShowListener: ?EmitterSubscription;

@@ -52,15 +52,13 @@ class More extends React.PureComponent {
   };
 
   static navigationOptions = {
-    tabBar: {
-      label: 'More',
-      icon: ({ tintColor }) => (
-        <Icon
-          name="bars"
-          style={[styles.icon, { color: tintColor }]}
-        />
-      ),
-    },
+    tabBarLabel: 'More',
+    tabBarIcon: ({ tintColor }) => (
+      <Icon
+        name="bars"
+        style={[styles.icon, { color: tintColor }]}
+      />
+    ),
   };
 
   render() {
