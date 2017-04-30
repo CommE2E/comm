@@ -82,6 +82,7 @@ const store: Store<AppState, Action> = createStore(
     resetPasswordUsername: reset_password_username,
     entryInfos,
     daysToEntries,
+    entriesWithinRangeLastUpdated: Date.now(),
     calendarInfos: calendar_infos,
     loadingStatuses: {},
     cookie: undefined,

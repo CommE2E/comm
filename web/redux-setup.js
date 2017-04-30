@@ -1,5 +1,6 @@
 // @flow
 
+import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
@@ -11,11 +12,7 @@ import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
-export type NavInfo = {
-  startDate: string,
-  endDate: string,
-  home: bool,
-  calendarID: ?string,
+export type NavInfo = BaseNavInfo & {
   verify: ?string,
 };
 
@@ -35,6 +32,7 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
+  entriesWithinRangeLastUpdated: number,
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,

@@ -29,6 +29,7 @@ export type AppState = {
   userInfo: ?UserInfo,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
+  entriesWithinRangeLastUpdated: number,
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
@@ -40,6 +41,7 @@ const defaultState = ({
   userInfo: null,
   entryInfos: {},
   daysToEntries: {},
+  entriesWithinRangeLastUpdated: 0,
   calendarInfos: {},
   loadingStatuses: {},
   cookie: null,
@@ -48,7 +50,12 @@ const defaultState = ({
 
 const blacklist = __DEV__
   ? ['loadingStatuses', 'rehydrateConcluded']
-  : ['loadingStatuses', 'rehydrateConcluded', 'navInfo'];
+  : [
+      'loadingStatuses',
+      'rehydrateConcluded',
+      'navInfo',
+      'entriesWithinRangeLastUpdated',
+    ];
 
 function reducer(state: AppState, action: Action) {
   const navInfo = reduceNavInfo(state && state.navInfo, action);

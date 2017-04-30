@@ -24,6 +24,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { infoFromURL } from 'lib/utils/url-utils';
+import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
 
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
@@ -39,15 +40,8 @@ import {
 import { createIsForegroundSelector } from './nav-selectors';
 
 export type NavInfo = BaseNavInfo & {
-  home: bool,
-  calendarID: ?string,
   navigationState: NavigationState,
 };
-const navInfoPropType = PropTypes.shape({
-  home: PropTypes.bool.isRequired,
-  calendarID: PropTypes.string,
-  navigationState: ReactNavigationPropTypes.navigationState,
-});
 
 export type Action = BaseAction |
   { type: "HANDLE_URL", payload: string } |
@@ -150,7 +144,10 @@ const defaultNavigationState = {
     { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
   ],
 };
-const defaultNavInfo = {
+
+const defaultNavInfo: NavInfo = {
+  startDate: fifteenDaysEarlier().valueOf(),
+  endDate: fifteenDaysLater().valueOf(),
   home: true,
   calendarID: null,
   navigationState: defaultNavigationState,
@@ -184,6 +181,11 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     action.type === "LOG_OUT_STARTED" ||
       action.type === "DELETE_SUCCESS"
   ) {
+    // Since this call and the logOutIfCookieInvalidated call below take the
+    // whole navInfo, they have the potential to reset startDate/endDate. No
+    // corresponding reset of entriesWithinRangeLastUpdated occurs, though.
+    // This is because we trust we won't get logged in again without the range
+    // and the entries within the range being updated from the server.
     return resetNavInfoAndEnsureLoggedOutModalPresence(state);
   } else if (action.type === "SET_COOKIE") {
     return logOutIfCookieInvalidated(state, action.payload);
@@ -336,7 +338,6 @@ function removeModalsIfPingIndicatesLoggedIn(
 }
 
 export {
-  navInfoPropType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
