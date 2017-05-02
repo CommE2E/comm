@@ -9,7 +9,8 @@ import type {
 } from 'lib/utils/action-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
-import type { EntriesResult } from 'lib/actions/entry-actions';
+import type { CalendarResult } from 'lib/actions/entry-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -20,7 +21,10 @@ import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
 
 import { getDate } from 'lib/utils/date-utils';
-import { currentNavID } from 'lib/selectors/nav-selectors';
+import {
+  currentNavID,
+  currentCalendarQuery,
+} from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesAndSetRangeActionType,
   fetchEntriesAndSetRange,
@@ -67,15 +71,14 @@ type Props = {
   thisURL: string,
   year: number,
   month: number,
+  currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   fetchEntriesAndSetRange: (
-    startDate: string,
-    endDate: string,
-    navID: string,
-  ) => Promise<EntriesResult>,
+    calendarQuery: CalendarQuery,
+  ) => Promise<CalendarResult>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -192,13 +195,9 @@ class App extends React.PureComponent {
         newProps.navInfo.startDate !== this.props.navInfo.startDate ||
         newProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
-      this.props.dispatchActionPromise(
+      newProps.dispatchActionPromise(
         fetchEntriesAndSetRangeActionType,
-        this.props.fetchEntriesAndSetRange(
-          newProps.navInfo.startDate,
-          newProps.navInfo.endDate,
-          newProps.currentNavID,
-        ),
+        newProps.fetchEntriesAndSetRange(newProps.currentCalendarQuery()),
       );
     }
   }
@@ -294,6 +293,7 @@ App.propTypes = {
   thisURL: PropTypes.string.isRequired,
   year: PropTypes.number.isRequired,
   month: PropTypes.number.isRequired,
+  currentCalendarQuery: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntriesAndSetRange: PropTypes.func.isRequired,
@@ -312,6 +312,7 @@ export default connect(
     thisURL: thisURL(state),
     year: yearAssertingSelector(state),
     month: monthAssertingSelector(state),
+    currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps({

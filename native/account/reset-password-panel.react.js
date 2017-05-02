@@ -4,6 +4,7 @@ import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LogInResult } from 'lib/actions/user-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import {
@@ -29,6 +30,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import { TextInput } from '../modal-components.react';
 import {
@@ -48,6 +50,7 @@ class ResetPasswordPanel extends React.PureComponent {
     opacityValue: Animated.Value,
     // Redux state
     loadingStatus: LoadingStatus,
+    currentCalendarQuery: () => CalendarQuery,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
@@ -64,6 +67,7 @@ class ResetPasswordPanel extends React.PureComponent {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     loadingStatus: PropTypes.string.isRequired,
+    currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     resetPasswordAndFetchEntries: PropTypes.func.isRequired,
   };
@@ -181,9 +185,12 @@ class ResetPasswordPanel extends React.PureComponent {
       return;
     }
     Keyboard.dismiss();
+    const calendarQuery = this.props.currentCalendarQuery();
     this.props.dispatchActionPromise(
       resetPasswordActionType,
-      this.resetPasswordAction(),
+      this.resetPasswordAction(calendarQuery),
+      undefined,
+      { calendarQuery },
     );
   }
 
@@ -201,11 +208,12 @@ class ResetPasswordPanel extends React.PureComponent {
     );
   }
 
-  async resetPasswordAction() {
+  async resetPasswordAction(calendarQuery: CalendarQuery) {
     try {
       const result = await this.props.resetPasswordAndFetchEntries(
         this.props.verifyCode,
         this.state.passwordInputText,
+        calendarQuery,
       );
       this.props.setActiveAlert(false);
       this.props.onSuccess();
@@ -268,6 +276,7 @@ export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
+    currentCalendarQuery: currentCalendarQuery(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ resetPasswordAndFetchEntries }),

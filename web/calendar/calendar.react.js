@@ -11,7 +11,7 @@ import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { getDate, padMonthOrDay } from 'lib/utils/date-utils';
+import { getDate, dateString } from 'lib/utils/date-utils';
 import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
 
 import Day from './day.react';
@@ -67,8 +67,8 @@ class Calendar extends React.PureComponent {
           month: this.props.month,
           day: curDayOfMonth,
         };
-        const paddedMonth = padMonthOrDay(this.props.month);
-        const dayString = `${this.props.year}-${paddedMonth}-${curDayOfMonth}`;
+        const dayString =
+          dateString(this.props.year, this.props.month, curDayOfMonth);
         const entries = _filter(['deleted', false])
           (this.props.daysToEntries[dayString]);
         columns.push(

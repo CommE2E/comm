@@ -178,13 +178,8 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     };
   } else if (
     action.type === "LOG_OUT_STARTED" ||
-      action.type === "DELETE_SUCCESS"
+      action.type === "DELETE_ACCOUNT_SUCCESS"
   ) {
-    // Since this call and the logOutIfCookieInvalidated call below take the
-    // whole navInfo, they have the potential to reset startDate/endDate. No
-    // corresponding reset of entriesWithinRangeLastUpdated occurs, though.
-    // This is because we trust we won't get logged in again without the range
-    // and the entries within the range being updated from the server.
     return resetNavInfoAndEnsureLoggedOutModalPresence(state);
   } else if (action.type === "SET_COOKIE") {
     return logOutIfCookieInvalidated(state, action.payload);

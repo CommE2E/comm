@@ -5,17 +5,21 @@ import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
-import type { EntriesResult } from 'lib/actions/entry-actions';
+import type { CalendarResult } from 'lib/actions/entry-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import PropTypes from 'prop-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesAndSetRangeActionType,
-  fetchEntriesAndSetRange,
+  currentNavID,
+  currentCalendarQuery,
+} from 'lib/selectors/nav-selectors';
+import {
+  fetchEntriesActionType,
+  fetchEntries,
 } from 'lib/actions/entry-actions';
 import {
   subscribeActionType,
@@ -39,11 +43,10 @@ type Props = {
   unfreezeTypeahead: (navID: string) => void,
   focusTypeahead: () => void,
   // Redux state
-  startDate: string,
-  endDate: string,
   home: bool,
   currentNavID: ?string,
   loadingStatus: LoadingStatus,
+  currentCalendarQuery: CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -51,11 +54,7 @@ type Props = {
     calendarID: string,
     newSubscribed: bool,
   ) => Promise<void>,
-  fetchEntriesAndSetRange: (
-    startDate: string,
-    endDate: string,
-    navID: string,
-  ) => Promise<EntriesResult>,
+  fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
 type State = {
 };
@@ -116,12 +115,11 @@ class TypeaheadOptionButtons extends React.PureComponent {
     // If we are on home and just subscribed to a calendar, we need to load it
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
-        fetchEntriesAndSetRangeActionType,
-        this.props.fetchEntriesAndSetRange(
-          this.props.startDate,
-          this.props.endDate,
-          this.props.calendarInfo.id,
-        ),
+        fetchEntriesActionType,
+        this.props.fetchEntries({
+          ...this.props.currentCalendarQuery,
+          navID: this.props.calendarInfo.id,
+        }),
       );
     }
   }
@@ -167,28 +165,26 @@ TypeaheadOptionButtons.propTypes = {
   freezeTypeahead: PropTypes.func.isRequired,
   unfreezeTypeahead: PropTypes.func.isRequired,
   focusTypeahead: PropTypes.func.isRequired,
-  startDate: PropTypes.string.isRequired,
-  endDate: PropTypes.string.isRequired,
   home: PropTypes.bool.isRequired,
   currentNavID: PropTypes.string,
   loadingStatus: PropTypes.string.isRequired,
+  currentCalendarQuery: PropTypes.object.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   subscribe: PropTypes.func.isRequired,
-  fetchEntriesAndSetRange: PropTypes.func.isRequired,
+  fetchEntries: PropTypes.func.isRequired,
 };
 
 export default connect(
   (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
-    startDate: state.navInfo.startDate,
-    endDate: state.navInfo.endDate,
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
     loadingStatus: createLoadingStatusSelector(
       subscribeActionType,
       `${subscribeActionType}:${ownProps.calendarInfo.id}`,
     )(state),
+    currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ subscribe, fetchEntriesAndSetRange }),
+  bindServerCalls({ subscribe, fetchEntries }),
 )(TypeaheadOptionButtons);

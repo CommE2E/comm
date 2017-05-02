@@ -5,6 +5,8 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import type { PingResult } from 'lib/actions/ping-actions';
+import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import { View, StyleSheet, Text, Button, Alert, Platform } from 'react-native';
@@ -20,6 +22,7 @@ import {
 } from 'lib/utils/action-utils';
 import { logOutActionType, logOut } from 'lib/actions/user-actions';
 import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
@@ -33,11 +36,12 @@ class More extends React.PureComponent {
     navigation: NavigationScreenProp<*, *>,
     // Redux state
     username: ?string,
+    pingStartingPayload: () => PingStartingPayload,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
     logOut: () => Promise<CalendarInfo[]>,
-    ping: () => Promise<PingResult>,
+    ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
   };
   state: {};
 
@@ -46,6 +50,7 @@ class More extends React.PureComponent {
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     username: PropTypes.string,
+    pingStartingPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
@@ -130,9 +135,12 @@ class More extends React.PureComponent {
   }
 
   onPressPing = () => {
+    const startingPayload = this.props.pingStartingPayload();
     this.props.dispatchActionPromise(
       pingActionType,
-      this.props.ping(),
+      this.props.ping(startingPayload.calendarQuery),
+      undefined,
+      startingPayload,
     );
   }
 
@@ -161,6 +169,7 @@ export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
     username: state.userInfo && state.userInfo.username,
+    pingStartingPayload: pingStartingPayload(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ logOut, ping }),

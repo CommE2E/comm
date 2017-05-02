@@ -17,6 +17,7 @@ import { autoRehydrate, persistStore } from 'redux-persist';
 import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
+import { newSessionID } from 'lib/selectors/session-selectors';
 
 import {
   RootNavigator,
@@ -27,9 +28,10 @@ import {
 export type AppState = {
   navInfo: NavInfo,
   userInfo: ?UserInfo,
+  sessionID: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
-  entriesWithinRangeLastUpdated: number,
+  lastUserInteraction: {[section: string]: number},
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
@@ -39,9 +41,10 @@ export type AppState = {
 const defaultState = ({
   navInfo: defaultNavInfo,
   userInfo: null,
+  sessionID: newSessionID(),
   entryInfos: {},
   daysToEntries: {},
-  entriesWithinRangeLastUpdated: 0,
+  lastUserInteraction: { calendar: 0, sessionReset: Date.now() },
   calendarInfos: {},
   loadingStatuses: {},
   cookie: null,
@@ -49,12 +52,18 @@ const defaultState = ({
 }: AppState);
 
 const blacklist = __DEV__
-  ? ['loadingStatuses', 'rehydrateConcluded']
+  ? [
+      'sessionID',
+      'lastUserInteraction',
+      'loadingStatuses',
+      'rehydrateConcluded',
+    ]
   : [
+      'sessionID',
+      'lastUserInteraction',
       'loadingStatuses',
       'rehydrateConcluded',
       'navInfo',
-      'entriesWithinRangeLastUpdated',
     ];
 
 function reducer(state: AppState, action: Action) {

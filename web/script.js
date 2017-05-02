@@ -27,6 +27,7 @@ import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
+import { newSessionID } from 'lib/selectors/session-selectors';
 
 import { reducer } from './redux-setup';
 
@@ -55,9 +56,10 @@ registerConfig({
   // We use httponly cookies on web to protect against XSS attacks, so we have
   // no access to the cookies from JavaScript
   getNativeCookie: null,
+  // Never reset the calendar range
+  calendarRangeInactivityLimit: null,
 });
 
-const sessionID = Math.floor(0x80000000 * Math.random()).toString(36);
 const userInfo = email
   ? { username, email, emailVerified: email_verified }
   : null;
@@ -77,12 +79,12 @@ const store: Store<AppState, Action> = createStore(
       verify: verify_code,
     },
     userInfo,
-    sessionID: sessionID,
+    sessionID: newSessionID(),
     verifyField: verify_field ? assertVerifyField(verify_field) : verify_field,
     resetPasswordUsername: reset_password_username,
     entryInfos,
     daysToEntries,
-    entriesWithinRangeLastUpdated: Date.now(),
+    lastUserInteraction: { calendar: Date.now(), sessionReset: Date.now() },
     calendarInfos: calendar_infos,
     loadingStatuses: {},
     cookie: undefined,

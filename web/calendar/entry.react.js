@@ -32,6 +32,11 @@ import {
   deleteEntry,
 } from 'lib/actions/entry-actions';
 import { ServerError } from 'lib/utils/fetch-utils';
+import {
+  currentSessionID,
+  nextSessionID,
+  sessionStartingPayload,
+} from 'lib/selectors/session-selectors';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -50,7 +55,9 @@ type Props = {
   tabIndex: number,
   // Redux state
   calendarInfo: CalendarInfo,
-  sessionID: string,
+  sessionID: () => string,
+  nextSessionID: () => ?string,
+  sessionStartingPayload: () => { newSessionID?: string },
   loggedIn: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -286,10 +293,12 @@ class Entry extends React.PureComponent {
         this.creating = true;
       }
     }
-
+    const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
       saveEntryActionType,
       this.saveAction(serverID, newText),
+      undefined,
+      startingPayload,
     );
   }
 
@@ -303,7 +312,7 @@ class Entry extends React.PureComponent {
         serverID,
         newText,
         this.props.entryInfo.text,
-        this.props.sessionID,
+        this.props.sessionID(),
         this.props.entryInfo.year,
         this.props.entryInfo.month,
         this.props.entryInfo.day,
@@ -378,14 +387,19 @@ class Entry extends React.PureComponent {
   }
 
   delete(serverID: ?string, focusOnNextEntry: bool) {
+    const startingPayload: {[key: string]: ?string} = {
+      localID: this.props.entryInfo.localID,
+      serverID: serverID,
+    };
+    const nextSessionID = this.props.nextSessionID();
+    if (nextSessionID) {
+      startingPayload.newSessionID = nextSessionID;
+    }
     this.props.dispatchActionPromise(
       deleteEntryActionType,
       this.deleteAction(serverID, focusOnNextEntry),
       undefined,
-      {
-        localID: this.props.entryInfo.localID,
-        serverID: serverID,
-      },
+      startingPayload,
     );
   }
 
@@ -401,7 +415,7 @@ class Entry extends React.PureComponent {
       await this.props.deleteEntry(
         serverID,
         this.props.entryInfo.text,
-        this.props.sessionID,
+        this.props.sessionID(),
       );
     } else if (this.creating) {
       this.needsDeleteAfterCreation = true;
@@ -434,7 +448,9 @@ Entry.propTypes = {
   clearModal: PropTypes.func.isRequired,
   tabIndex: PropTypes.number.isRequired,
   calendarInfo: calendarInfoPropType.isRequired,
-  sessionID: PropTypes.string.isRequired,
+  sessionID: PropTypes.func.isRequired,
+  nextSessionID: PropTypes.func.isRequired,
+  sessionStartingPayload: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -448,7 +464,9 @@ type OwnProps = {
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
-    sessionID: state.sessionID,
+    sessionID: currentSessionID(state),
+    nextSessionID: nextSessionID(state),
+    sessionStartingPayload: sessionStartingPayload(state),
     loggedIn: !!state.userInfo,
     cookie: state.cookie,
   }),

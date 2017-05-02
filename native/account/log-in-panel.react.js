@@ -4,6 +4,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LogInResult } from 'lib/actions/user-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import {
@@ -32,6 +33,7 @@ import {
   logInAndFetchEntries,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import { TextInput } from '../modal-components.react';
 import {
@@ -53,6 +55,7 @@ class LogInPanel extends React.PureComponent {
     innerRef: (logInPanel: LogInPanel) => void,
     // Redux state
     loadingStatus: LoadingStatus,
+    currentCalendarQuery: () => CalendarQuery,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
@@ -67,6 +70,7 @@ class LogInPanel extends React.PureComponent {
     onePasswordSupported: PropTypes.bool.isRequired,
     innerRef: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string.isRequired,
+    currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logInAndFetchEntries: PropTypes.func.isRequired,
   };
@@ -193,7 +197,13 @@ class LogInPanel extends React.PureComponent {
     }
 
     Keyboard.dismiss();
-    this.props.dispatchActionPromise(logInActionType, this.logInAction());
+    const calendarQuery = this.props.currentCalendarQuery();
+    this.props.dispatchActionPromise(
+      logInActionType,
+      this.logInAction(calendarQuery),
+      undefined,
+      { calendarQuery },
+    );
   }
 
   onUsernameOrEmailAlertAcknowledged = () => {
@@ -209,11 +219,12 @@ class LogInPanel extends React.PureComponent {
     );
   }
 
-  async logInAction() {
+  async logInAction(calendarQuery: CalendarQuery) {
     try {
       const result = await this.props.logInAndFetchEntries(
         this.state.usernameOrEmailInputText,
         this.state.passwordInputText,
+        calendarQuery,
       );
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -313,6 +324,7 @@ export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
+    currentCalendarQuery: currentCalendarQuery(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ logInAndFetchEntries }),

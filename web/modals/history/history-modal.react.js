@@ -8,6 +8,7 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../../redux-setup';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -20,11 +21,11 @@ import _map from 'lodash/fp/map';
 import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 
-import { getDate, padMonthOrDay } from 'lib/utils/date-utils';
+import { getDate, dateString } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchAllEntriesForDayActionType,
-  fetchAllEntriesForDay,
+  fetchEntriesActionType,
+  fetchEntries,
   fetchRevisionsForEntryActionType,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
@@ -57,12 +58,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchAllEntriesForDay: (
-    year: number,
-    month: number,
-    day: number,
-    navID: string,
-  ) => Promise<EntryInfo[]>,
+  fetchEntries: (calendarQuery: CalendarQuery) => Promise<EntryInfo[]>,
   fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
 };
 type State = {
@@ -203,18 +199,20 @@ class HistoryModal extends React.PureComponent {
   }
 
   loadDay() {
+    const currentNavID = this.props.currentNavID;
     invariant(
-      this.props.currentNavID,
+      currentNavID,
       "currentNavID should be set before history-modal opened",
     );
+    const date = dateString(this.props.year, this.props.month, this.props.day);
     this.props.dispatchActionPromise(
-      fetchAllEntriesForDayActionType,
-      this.props.fetchAllEntriesForDay(
-        this.props.year,
-        this.props.month,
-        this.props.day,
-        this.props.currentNavID,
-      ),
+      fetchEntriesActionType,
+      this.props.fetchEntries({
+        navID: currentNavID,
+        startDate: date,
+        endDate: date,
+        includeDeleted: true,
+      }),
     );
   }
 
@@ -272,12 +270,12 @@ HistoryModal.propTypes = {
   dayLoadingStatus: PropTypes.string.isRequired,
   entryLoadingStatus: PropTypes.string.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  fetchAllEntriesForDay: PropTypes.func.isRequired,
+  fetchEntries: PropTypes.func.isRequired,
   fetchRevisionsForEntry: PropTypes.func.isRequired,
 };
 
 const dayLoadingStatusSelector
-  = createLoadingStatusSelector(fetchAllEntriesForDayActionType);
+  = createLoadingStatusSelector(fetchEntriesActionType);
 const entryLoadingStatusSelector
   = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
@@ -290,11 +288,11 @@ export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
     entryInfos: currentDaysToEntries(state)
-      [`${ownProps.year}-${padMonthOrDay(ownProps.month)}-${ownProps.day}`],
+      [dateString(ownProps.year, ownProps.month, ownProps.day)],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ fetchAllEntriesForDay, fetchRevisionsForEntry }),
+  bindServerCalls({ fetchEntries, fetchRevisionsForEntry }),
 )(HistoryModal);

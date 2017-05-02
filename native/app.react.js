@@ -9,6 +9,8 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -29,6 +31,8 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingStartingPayload } from 'lib/selectors/ping-selectors';
+import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 
 import { RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
@@ -63,6 +67,7 @@ registerConfig({
   urlPrefix,
   resolveInvalidatedCookie,
   getNativeCookie,
+  calendarRangeInactivityLimit: sessionInactivityLimit,
 });
 
 if (Platform.OS === "android") {
@@ -77,17 +82,19 @@ class AppWithNavigationState extends React.PureComponent {
     cookie: ?string,
     navigationState: NavigationState,
     loggedIn: bool,
+    pingStartingPayload: () => PingStartingPayload,
     // Redux dispatch functions
     dispatch: Dispatch<AppState, Action>,
     dispatchActionPayload: DispatchActionPayload,
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    ping: () => Promise<PingResult>,
+    ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
   };
   static propTypes = {
     cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,
     loggedIn: PropTypes.bool.isRequired,
+    pingStartingPayload: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -128,11 +135,28 @@ class AppWithNavigationState extends React.PureComponent {
     if (
       this.currentState &&
       this.currentState.match(/inactive|background/) &&
-      nextAppState === "active" &&
-      (this.props.loggedIn ||
-        (this.props.cookie && this.props.cookie.startsWith("user=")))
+      nextAppState === "active"
     ) {
-      this.props.dispatchActionPromise(pingActionType, this.props.ping());
+      const startingPayload = this.props.pingStartingPayload();
+      if (
+        (this.props.loggedIn ||
+          (this.props.cookie && this.props.cookie.startsWith("user=")))
+      ) {
+        this.props.dispatchActionPromise(
+          pingActionType,
+          this.props.ping(startingPayload.calendarQuery),
+          undefined,
+          startingPayload,
+        );
+      } else if (startingPayload.newSessionID) {
+        // Normally, the PING_STARTED will handle setting a new sessionID if the
+        // user hasn't interacted in a bit. Since we don't run pings when logged
+        // out, we use another action for it.
+        this.props.dispatchActionPayload(
+          "NEW_SESSION_ID",
+          startingPayload.newSessionID,
+        );
+      }
     }
     this.currentState = nextAppState;
   }
@@ -152,6 +176,7 @@ const ConnectedAppWithNavigationState = connect(
     cookie: state.cookie,
     navigationState: state.navInfo.navigationState,
     loggedIn: !!state.userInfo,
+    pingStartingPayload: pingStartingPayload(state),
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,

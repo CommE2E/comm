@@ -9,6 +9,8 @@ import type { AppState } from '../redux-setup';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { Action } from '../navigation-setup';
 import type { PingResult } from 'lib/actions/ping-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import React from 'react';
 import {
@@ -37,6 +39,7 @@ import {
   bindCookieAndUtilsIntoServerCall,
 } from 'lib/utils/action-utils';
 import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import { windowHeight } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
@@ -62,6 +65,7 @@ type Props = {
   cookie: ?string,
   loggedIn: bool,
   isForeground: bool,
+  pingStartingPayload: () => PingStartingPayload,
   // Redux dispatch functions
   dispatch: Dispatch<AppState, Action>,
   dispatchActionPayload: DispatchActionPayload,
@@ -102,6 +106,7 @@ class InnerLoggedOutModal extends React.PureComponent {
     cookie: PropTypes.string,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
+    pingStartingPayload: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -260,18 +265,26 @@ class InnerLoggedOutModal extends React.PureComponent {
       props.dispatch,
       cookie,
     );
+    const startingPayload = props.pingStartingPayload();
     props.dispatchActionPromise(
       pingActionType,
-      InnerLoggedOutModal.pingAction(boundPing, callback),
+      InnerLoggedOutModal.pingAction(
+        boundPing,
+        callback,
+        startingPayload.calendarQuery,
+      ),
+      undefined,
+      startingPayload,
     );
   }
 
   static async pingAction(
-    ping: () => Promise<PingResult>,
+    ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
     callback: () => void,
+    calendarQuery: CalendarQuery,
   ) {
     try {
-      const result = await ping();
+      const result = await ping(calendarQuery);
       if (!result.userInfo) {
         callback();
       }
@@ -711,6 +724,7 @@ const LoggedOutModal = connect(
     cookie: state.cookie,
     loggedIn: !!state.userInfo,
     isForeground: isForegroundSelector(state),
+    pingStartingPayload: pingStartingPayload(state),
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,

@@ -32,7 +32,7 @@ export type AppState = {
   resetPasswordUsername: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
-  entriesWithinRangeLastUpdated: number,
+  lastUserInteraction: {[section: string]: number},
   calendarInfos: {[id: string]: CalendarInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
