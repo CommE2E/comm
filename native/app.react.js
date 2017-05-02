@@ -75,6 +75,11 @@ if (Platform.OS === "android") {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// We can't push yet, so we rely on pings to keep Redux state updated with the
+// server. As a result, we do them fairly frequently (once every 3s) while the
+// app is active and the user is logged in.
+const pingFrequency = 3 * 1000;
+
 class AppWithNavigationState extends React.PureComponent {
 
   props: {
@@ -101,11 +106,13 @@ class AppWithNavigationState extends React.PureComponent {
     ping: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
+  activePingSubscription: ?number = null;
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL().then();
     Linking.addEventListener('url', this.handleURLChange);
+    this.activePingSubscription = setInterval(this.ping, pingFrequency);
   }
 
   async handleInitialURL() {
@@ -129,36 +136,54 @@ class AppWithNavigationState extends React.PureComponent {
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
     Linking.removeEventListener('url', this.handleURLChange);
+    if (this.activePingSubscription) {
+      clearInterval(this.activePingSubscription);
+      this.activePingSubscription = null;
+    }
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
+    const lastState = this.currentState;
+    this.currentState = nextAppState;
     if (
+      lastState &&
+      lastState.match(/inactive|background/) &&
+      this.currentState === "active" &&
+      !this.activePingSubscription
+    ) {
+      this.activePingSubscription = setInterval(this.ping, pingFrequency);
+    } else if (
+      lastState === "active" &&
       this.currentState &&
       this.currentState.match(/inactive|background/) &&
-      nextAppState === "active"
+      this.activePingSubscription
     ) {
-      const startingPayload = this.props.pingStartingPayload();
-      if (
-        (this.props.loggedIn ||
-          (this.props.cookie && this.props.cookie.startsWith("user=")))
-      ) {
-        this.props.dispatchActionPromise(
-          pingActionType,
-          this.props.ping(startingPayload.calendarQuery),
-          undefined,
-          startingPayload,
-        );
-      } else if (startingPayload.newSessionID) {
-        // Normally, the PING_STARTED will handle setting a new sessionID if the
-        // user hasn't interacted in a bit. Since we don't run pings when logged
-        // out, we use another action for it.
-        this.props.dispatchActionPayload(
-          "NEW_SESSION_ID",
-          startingPayload.newSessionID,
-        );
-      }
+      clearInterval(this.activePingSubscription);
+      this.activePingSubscription = null;
     }
-    this.currentState = nextAppState;
+  }
+
+  ping = () => {
+    const startingPayload = this.props.pingStartingPayload();
+    if (
+      (this.props.loggedIn ||
+        (this.props.cookie && this.props.cookie.startsWith("user=")))
+    ) {
+      this.props.dispatchActionPromise(
+        pingActionType,
+        this.props.ping(startingPayload.calendarQuery),
+        undefined,
+        startingPayload,
+      );
+    } else if (startingPayload.newSessionID) {
+      // Normally, the PING_STARTED will handle setting a new sessionID if the
+      // user hasn't interacted in a bit. Since we don't run pings when logged
+      // out, we use another action for it.
+      this.props.dispatchActionPayload(
+        "NEW_SESSION_ID",
+        startingPayload.newSessionID,
+      );
+    }
   }
 
   render() {

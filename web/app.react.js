@@ -11,6 +11,8 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
+import type { PingResult } from 'lib/actions/ping-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -19,6 +21,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
+import Visibility from 'visibilityjs';
 
 import { getDate } from 'lib/utils/date-utils';
 import {
@@ -35,6 +38,8 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { verifyField } from 'lib/utils/verify-utils';
+import { pingStartingPayload } from 'lib/selectors/ping-selectors';
+import { pingActionType, ping } from 'lib/actions/ping-actions';
 
 import {
   thisURL,
@@ -72,6 +77,7 @@ type Props = {
   year: number,
   month: number,
   currentCalendarQuery: () => CalendarQuery,
+  pingStartingPayload: () => PingStartingPayload,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -79,6 +85,7 @@ type Props = {
   fetchEntriesAndSetRange: (
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
+  ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -87,6 +94,11 @@ type State = {
   modalExists: bool,
   currentModal: ?React.Element<any>,
 };
+
+// We can't push yet, so we rely on pings to keep Redux state updated with the
+// server. As a result, we do them fairly frequently (once every 3s) while the
+// tab has focus.
+const pingFrequency = 3 * 1000;
 
 class App extends React.PureComponent {
 
@@ -127,6 +139,17 @@ class App extends React.PureComponent {
     if (this.props.location.pathname !== newURL) {
       history.replace(newURL);
     }
+    Visibility.every(pingFrequency, this.ping);
+  }
+
+  ping = () => {
+    const startingPayload = this.props.pingStartingPayload();
+    this.props.dispatchActionPromise(
+      pingActionType,
+      this.props.ping(startingPayload.calendarQuery),
+      undefined,
+      startingPayload,
+    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -294,9 +317,11 @@ App.propTypes = {
   year: PropTypes.number.isRequired,
   month: PropTypes.number.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
+  pingStartingPayload: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntriesAndSetRange: PropTypes.func.isRequired,
+  ping: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector
@@ -313,11 +338,12 @@ export default connect(
     year: yearAssertingSelector(state),
     month: monthAssertingSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
+    pingStartingPayload: pingStartingPayload(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,
     dispatchActionPromise: true,
   }),
-  bindServerCalls({ fetchEntriesAndSetRange }),
+  bindServerCalls({ fetchEntriesAndSetRange, ping }),
 )(App);

@@ -43,6 +43,7 @@
     "redux-devtools-extension": "^2.13.0",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.0",
-    "timeago": "^1.5.4"
+    "timeago": "^1.5.4",
+    "visibilityjs": "^1.2.4"
   }
 }
