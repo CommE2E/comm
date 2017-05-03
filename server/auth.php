@@ -61,6 +61,36 @@ function cookie_has_changed() {
   return $original_viewer_info[2] !== $current_viewer_info[2];
 }
 
+function get_input_user_cookie() {
+  if (isset($_COOKIE['user'])) {
+    return $_COOKIE['user'];
+  }
+  if (!isset($_POST['cookie'])) {
+    return null;
+  }
+  $matches = array();
+  $num_matches = preg_match("/user=(.+)/", $_POST['cookie'], $matches);
+  if (!$num_matches) {
+    return null;
+  }
+  return $matches[1];
+}
+
+function get_input_anonymous_cookie() {
+  if (isset($_COOKIE['anonymous'])) {
+    return $_COOKIE['anonymous'];
+  }
+  if (!isset($_POST['cookie'])) {
+    return null;
+  }
+  $matches = array();
+  $num_matches = preg_match("/anonymous=(.+)/", $_POST['cookie'], $matches);
+  if (!$num_matches) {
+    return null;
+  }
+  return $matches[1];
+}
+
 // Returns array(
 //   int: either a user ID or a cookie ID (for anonymous),
 //   bool: whether or not the viewer is a user
@@ -71,11 +101,12 @@ function init_cookie() {
     $current_viewer_info,
     $inbound_cookie_invalidated;
 
-  if (!isset($_COOKIE['user'])) {
+  $user_cookie = get_input_user_cookie();
+  if ($user_cookie === null) {
     init_anonymous_cookie(true);
     return;
   }
-  list($cookie_id, $cookie_password) = explode(':', $_COOKIE['user']);
+  list($cookie_id, $cookie_password) = explode(':', $user_cookie);
   $cookie_id = intval($cookie_id);
   $result = $conn->query(
     "SELECT hash, user, last_update FROM cookies ".
@@ -230,17 +261,24 @@ function get_anonymous_cookie($initial_run) {
     $cookie_sent_from_client;
 
   // First, let's see if we already have a valid cookie
-  if (!isset($_COOKIE['anonymous'])) {
+  $anonymous_cookie = get_input_anonymous_cookie();
+  if ($anonymous_cookie === null) {
     // If we get here on the first run, that means there was no cookie sent by
     // the client at all
     if ($initial_run) {
+      // Note that this function (get_anonymous_cookie) can get called with
+      // $initial_run === true in situations where a user cookie was specified,
+      // but it was invalid. In those situations setting
+      // $cookie_sent_from_client to false isn't quite correct, but it doesn't
+      // matter since in all those situations $inbound_cookie_invalidated gets
+      // set to true anyways, and $cookie_sent_from_client is thus irrelevant.
       $cookie_sent_from_client = false;
     }
     return array(null, null);
   }
 
   // We already have a cookie! Let's look up the session
-  list($cookie_id, $cookie_password) = explode(':', $_COOKIE['anonymous']);
+  list($cookie_id, $cookie_password) = explode(':', $anonymous_cookie);
   $cookie_id = intval($cookie_id);
   $result = $conn->query(
     "SELECT last_update, hash FROM cookies ".

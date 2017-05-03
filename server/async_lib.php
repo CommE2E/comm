@@ -37,6 +37,10 @@ function async_end($payload) {
       'calendar_infos' => get_calendar_infos(),
       'cookie_invalidated' => $cookie_invalidated,
     );
+    // Only include in the raw response since on web we want it to be httponly
+    if (isset($_POST['cookie'])) {
+      $payload['cookie_change']['cookie'] = get_viewer_info()[2];
+    }
   }
   async_exit($payload);
 }

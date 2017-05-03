@@ -55,7 +55,7 @@ registerConfig({
   resolveInvalidatedCookie: null,
   // We use httponly cookies on web to protect against XSS attacks, so we have
   // no access to the cookies from JavaScript
-  getNativeCookie: null,
+  getNewCookie: null,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
 });

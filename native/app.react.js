@@ -66,7 +66,12 @@ if (!__DEV__) {
 registerConfig({
   urlPrefix,
   resolveInvalidatedCookie,
-  getNativeCookie,
+  getNewCookie: async (response: Object) => {
+    if (response.cookie_change && response.cookie_change.cookie) {
+      return response.cookie_change.cookie;
+    }
+    return null;
+  },
   calendarRangeInactivityLimit: sessionInactivityLimit,
 });
 
