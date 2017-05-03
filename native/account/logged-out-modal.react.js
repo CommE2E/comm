@@ -21,10 +21,9 @@ import {
   Animated,
   Easing,
   Image,
-  EmitterSubscription,
   Keyboard,
   Platform,
-  BackAndroid,
+  BackHandler,
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
@@ -116,8 +115,8 @@ class InnerLoggedOutModal extends React.PureComponent {
     gesturesEnabled: false,
   };
 
-  keyboardShowListener: ?EmitterSubscription;
-  keyboardHideListener: ?EmitterSubscription;
+  keyboardShowListener: ?Object;
+  keyboardHideListener: ?Object;
 
   nextMode: LoggedOutMode = "loading";
   activeAlert = false;
@@ -173,7 +172,7 @@ class InnerLoggedOutModal extends React.PureComponent {
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       this.keyboardHide,
     );
-    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
@@ -183,7 +182,7 @@ class InnerLoggedOutModal extends React.PureComponent {
     if (this.keyboardHideListener) {
       this.keyboardHideListener.remove();
     }
-    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   // This gets triggered when an app is killed and restarted
@@ -406,18 +405,19 @@ class InnerLoggedOutModal extends React.PureComponent {
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
-    this.lastPanelPaddingTopValue =
+    const newLastPanelPaddingTopValue =
       InnerLoggedOutModal.calculatePanelPaddingTop(
         this.nextMode,
         0,
       );
+    this.lastPanelPaddingTopValue = newLastPanelPaddingTopValue;
     const animations = [
       Animated.timing(
         this.state.panelPaddingTop,
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: this.lastPanelPaddingTopValue,
+          toValue: newLastPanelPaddingTopValue,
         },
       ),
       Animated.timing(
@@ -471,10 +471,11 @@ class InnerLoggedOutModal extends React.PureComponent {
   }
 
   goBackToPrompt = () => {
-    let opacityListenerID = -1;
+    let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
         this.setState({ mode: this.nextMode });
+        invariant(opacityListenerID, "should be set");
         this.state.panelOpacity.removeListener(opacityListenerID);
       }
     }

@@ -10,7 +10,7 @@
   "dependencies": {
     "invariant": "^2.2.2",
     "react": "^16.0.0-alpha.6",
-    "react-native": "^0.43.4",
+    "react-native": "^0.44.0",
     "react-native-cookies": "^2.0.0",
     "react-native-keychain": "^1.2.0",
     "react-native-onepassword": "^1.0.4",
@@ -27,7 +27,7 @@
     "babel-jest": "19.0.0",
     "babel-plugin-transform-remove-console": "^6.8.1",
     "babel-preset-react-native": "1.9.1",
-    "flow-bin": "^0.40.0",
+    "flow-bin": "^0.42.0",
     "jest": "^19.0.2",
     "react-devtools": "^2.0.12",
     "react-test-renderer": "^15.5.4",

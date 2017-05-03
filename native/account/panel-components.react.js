@@ -1,6 +1,7 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type { StyleObj } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
 import {
@@ -91,7 +92,7 @@ function PanelOnePasswordButton(props: { onPress: () => Promise<void> }) {
 type PanelProps = {
   opacityValue: Animated.Value,
   children?: React.Element<any>,
-  style?: StyleSheet.Styles,
+  style?: StyleObj,
 };
 function Panel(props: PanelProps) {
   const opacityStyle = { opacity: props.opacityValue };

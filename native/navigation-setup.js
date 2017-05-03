@@ -17,7 +17,7 @@ import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _includes from 'lodash/fp/includes';
-import { Alert, BackAndroid } from 'react-native';
+import { Alert, BackHandler } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -87,11 +87,11 @@ class WrappedAppNavigator extends React.PureComponent {
   }
 
   onForeground() {
-    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
-    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   hardwareBack = () => {

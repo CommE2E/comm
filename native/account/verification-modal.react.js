@@ -15,13 +15,12 @@ import {
   Text,
   View,
   StyleSheet,
-  BackAndroid,
+  BackHandler,
   ActivityIndicator,
   Animated,
   Platform,
   Keyboard,
   TouchableHighlight,
-  EmitterSubscription,
   Easing,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -109,8 +108,8 @@ class InnerVerificationModal extends React.PureComponent {
     onePasswordSupported: false,
   };
   activeAlert = false;
-  keyboardShowListener: ?EmitterSubscription;
-  keyboardHideListener: ?EmitterSubscription;
+  keyboardShowListener: ?Object;
+  keyboardHideListener: ?Object;
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
@@ -180,7 +179,7 @@ class InnerVerificationModal extends React.PureComponent {
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       this.keyboardHide,
     );
-    BackAndroid.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
@@ -190,7 +189,7 @@ class InnerVerificationModal extends React.PureComponent {
     if (this.keyboardHideListener) {
       this.keyboardHideListener.remove();
     }
-    BackAndroid.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   hardwareBack = () => {
@@ -205,10 +204,11 @@ class InnerVerificationModal extends React.PureComponent {
   }
 
   onResetPasswordSuccess = () => {
-    let opacityListenerID = -1;
+    let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
         this.setState({ mode: this.nextMode });
+        invariant(opacityListenerID, "should be set");
         this.state.resetPasswordPanelOpacityValue.removeListener(
           opacityListenerID,
         );
