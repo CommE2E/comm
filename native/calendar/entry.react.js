@@ -24,13 +24,15 @@ class Entry extends React.PureComponent {
   };
 
   render() {
-    const textStyle = {
+    const entryStyle = {
       backgroundColor: `#${this.props.calendarInfo.color}`,
+    };
+    const textStyle = {
       color: colorIsDark(this.props.calendarInfo.color) ? 'white' : 'black',
     };
     return (
       <View style={styles.container}>
-        <View style={styles.entry}>
+        <View style={[styles.entry, entryStyle]}>
           <Text style={[styles.text, textStyle]}>
             {this.props.entryInfo.text}
           </Text>
@@ -43,9 +45,12 @@ class Entry extends React.PureComponent {
 
 const styles = StyleSheet.create({
   container: {
-    marginLeft: 2,
-    marginRight: 2,
-    backgroundColor: '#DDDDDD',
+    marginLeft: 5,
+    marginRight: 5,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#DDDDDD',
+    backgroundColor: '#FFFFFF',
   },
   entry: {
     borderRadius: 8,

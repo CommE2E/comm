@@ -57,9 +57,11 @@ class Calendar extends React.PureComponent {
     invariant(row.section.key, "should be set");
     return (
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionHeaderText}>
-          {prettyDate(row.section.key)}
-        </Text>
+        <View>
+          <Text style={styles.sectionHeaderText}>
+            {prettyDate(row.section.key)}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -70,9 +72,8 @@ class Calendar extends React.PureComponent {
     // is an issue (RN#13784) where empty sections don't render a footer.
     return (
       <View style={styles.sectionFooter}>
-        <Text style={styles.sectionHeaderText}>
-          test
-        </Text>
+        <View>
+        </View>
       </View>
     );
   }
@@ -106,29 +107,38 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#EEEEEE',
     marginTop: contentVerticalOffset,
   },
   sectionHeader: {
     marginTop: 5,
-    marginLeft: 2,
-    marginRight: 2,
+    marginLeft: 5,
+    marginRight: 5,
     padding: 5,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    backgroundColor: '#DDDDDD',
+    backgroundColor: '#FFFFFF',
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderTopWidth: 2,
+    borderColor: '#DDDDDD',
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
   },
   sectionHeaderText: {
     fontWeight: 'bold',
+    color: '#555555',
   },
   sectionFooter: {
     marginBottom: 5,
-    marginLeft: 2,
-    marginRight: 2,
+    marginLeft: 5,
+    marginRight: 5,
     padding: 5,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    backgroundColor: '#DDDDDD',
+    backgroundColor: '#FFFFFF',
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#DDDDDD',
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
   },
 });
 
