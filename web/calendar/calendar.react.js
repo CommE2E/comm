@@ -10,6 +10,7 @@ import React from 'react';
 import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { getDate, dateString } from 'lib/utils/date-utils';
 import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
@@ -23,7 +24,7 @@ import {
 type Props = {
   year: number,
   month: number, // 1-indexed
-  daysToEntries: {[dayString: string]: {[id: string]: EntryInfo}},
+  daysToEntries: {[dayString: string]: EntryInfo[]},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
 };
@@ -62,15 +63,14 @@ class Calendar extends React.PureComponent {
       if (curDayOfMonth < 1 || curDayOfMonth > totalDaysInMonth) {
         columns.push(<td key={curDayOfMonth} />);
       } else {
-        const dayProps = {
-          year: this.props.year,
-          month: this.props.month,
-          day: curDayOfMonth,
-        };
         const dayString =
           dateString(this.props.year, this.props.month, curDayOfMonth);
-        const entries = _filter(['deleted', false])
-          (this.props.daysToEntries[dayString]);
+        const entries = this.props.daysToEntries[dayString];
+        invariant(
+          entries,
+          "the currentDaysToEntries selector should make sure all dayStrings " +
+            `in the current range have entries, but ${dayString} did not`,
+        );
         columns.push(
           <Day
             year={this.props.year}

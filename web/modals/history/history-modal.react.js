@@ -35,7 +35,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
+import { allDaysToEntries } from '../../selectors/entry-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -287,7 +287,7 @@ type OwnProps = {
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
-    entryInfos: currentDaysToEntries(state)
+    entryInfos: allDaysToEntries(state)
       [dateString(ownProps.year, ownProps.month, ownProps.day)],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
