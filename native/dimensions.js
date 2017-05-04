@@ -10,7 +10,10 @@ if (Platform.OS === "android") {
 const windowHeight = height;
 const windowWidth = width;
 
+const contentVerticalOffset = Platform.OS === "ios" ? 20 : 0;
+
 export {
   windowHeight,
   windowWidth,
+  contentVerticalOffset,
 };
