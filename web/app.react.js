@@ -29,8 +29,8 @@ import {
   currentCalendarQuery,
 } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesAndSetRangeActionType,
-  fetchEntriesAndSetRange,
+  fetchEntriesActionType,
+  fetchEntries,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -82,7 +82,7 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchEntriesAndSetRange: (
+  fetchEntries: (
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
   ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
@@ -219,8 +219,8 @@ class App extends React.PureComponent {
         newProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
       newProps.dispatchActionPromise(
-        fetchEntriesAndSetRangeActionType,
-        newProps.fetchEntriesAndSetRange(newProps.currentCalendarQuery()),
+        fetchEntriesActionType,
+        newProps.fetchEntries(newProps.currentCalendarQuery()),
       );
     }
   }
@@ -320,12 +320,12 @@ App.propTypes = {
   pingStartingPayload: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  fetchEntriesAndSetRange: PropTypes.func.isRequired,
+  fetchEntries: PropTypes.func.isRequired,
   ping: PropTypes.func.isRequired,
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesAndSetRangeActionType);
+  = createLoadingStatusSelector(fetchEntriesActionType);
 
 export default connect(
   (state: AppState) => ({
@@ -345,5 +345,5 @@ export default connect(
     dispatchActionPayload: true,
     dispatchActionPromise: true,
   }),
-  bindServerCalls({ fetchEntriesAndSetRange, ping }),
+  bindServerCalls({ fetchEntries, ping }),
 )(App);

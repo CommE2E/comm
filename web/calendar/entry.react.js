@@ -26,10 +26,10 @@ import {
 } from 'lib/utils/action-utils';
 import {
   saveEntryActionType,
-  concurrentModificationResetActionType,
   saveEntry,
   deleteEntryActionType,
   deleteEntry,
+  concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
 import { ServerError } from 'lib/utils/fetch-utils';
 import {
@@ -121,10 +121,7 @@ class Entry extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (
-      !this.state.focused &&
-        this.props.entryInfo.text !== nextProps.entryInfo.text
-    ) {
+    if (!this.state.focused && this.state.text !== nextProps.entryInfo.text) {
       this.setState({ text: nextProps.entryInfo.text });
     }
   }
@@ -235,12 +232,11 @@ class Entry extends React.PureComponent {
   }
 
   onBlur = (event: SyntheticEvent) => {
-    this.setState({ focused: false });
-    invariant(
-      this.textarea instanceof HTMLTextAreaElement,
-      "textarea ref not set",
-    );
-    if (this.textarea.value.trim() === "") {
+    this.setState({
+      focused: false,
+      text: this.props.entryInfo.text,
+    });
+    if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id, false);
     }
   }
@@ -259,7 +255,7 @@ class Entry extends React.PureComponent {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState(
-      { "text": target.value },
+      { text: target.value },
       this.updateHeight.bind(this),
     );
     this.save(this.props.entryInfo.id, target.value);
@@ -293,6 +289,7 @@ class Entry extends React.PureComponent {
         this.creating = true;
       }
     }
+
     const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
       saveEntryActionType,
@@ -324,14 +321,15 @@ class Entry extends React.PureComponent {
       }
       const payload = {
         localID: (null: ?string),
-        serverID: serverID ? serverID : response.entry_id.toString(),
+        serverID: serverID,
         text: newText,
       }
       if (!serverID && response.entry_id) {
+        const newServerID = response.entry_id.toString();
+        payload.serverID = newServerID;
         const localID = this.props.entryInfo.localID;
         invariant(localID, "if there's no serverID, there should be a localID");
         payload.localID = localID;
-        const newServerID = response.entry_id.toString();
         this.creating = false;
         if (this.needsUpdateAfterCreation) {
           this.needsUpdateAfterCreation = false;
