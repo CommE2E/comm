@@ -44,7 +44,7 @@ import sleep from 'lib/utils/sleep';
 import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
-import { createIsForegroundSelector } from '../nav-selectors';
+import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
 type KeyboardEvent = {
   duration: number,

@@ -25,7 +25,10 @@ import { connect } from 'react-redux';
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
 
-import Calendar from './calendar/calendar.react';
+import {
+  Calendar,
+  CalendarRouteName,
+} from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import More from './more/more.react';
 import {
@@ -36,7 +39,7 @@ import {
   VerificationModal,
   VerificationModalRouteName,
 } from './account/verification-modal.react';
-import { createIsForegroundSelector } from './nav-selectors';
+import { createIsForegroundSelector } from './selectors/nav-selectors';
 
 export type NavInfo = BaseNavInfo & {
   navigationState: NavigationState,
@@ -48,12 +51,12 @@ export type Action = BaseAction |
 
 const AppNavigator = TabNavigator(
   {
-    Calendar: { screen: Calendar },
+    [CalendarRouteName]: { screen: Calendar },
     Chat: { screen: Chat },
     More: { screen: More },
   },
   {
-    initialRouteName: 'Calendar',
+    initialRouteName: CalendarRouteName,
   },
 );
 type WrappedAppNavigatorProps = {
@@ -337,4 +340,5 @@ export {
   reduceNavInfo,
   LoggedOutModalRouteName,
   VerificationModalRouteName,
+  AppRouteName,
 };

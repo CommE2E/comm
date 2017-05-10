@@ -45,7 +45,7 @@ import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { getNativeCookie, setNativeCookie } from './native-credentials';
-import { createIsForegroundSelector } from '../nav-selectors';
+import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
 type KeyboardEvent = {
   duration: number,

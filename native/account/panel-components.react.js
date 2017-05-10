@@ -1,7 +1,9 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { StyleObj } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type {
+  StyleObj,
+} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
 import {
