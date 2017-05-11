@@ -10,7 +10,7 @@
   "dependencies": {
     "invariant": "^2.2.2",
     "react": "^16.0.0-alpha.12",
-    "react-native": "git+https://github.com/facebook/react-native.git",
+    "react-native": "^0.45.0-rc.0",
     "react-native-cookies": "^3.0.0",
     "react-native-keychain": "^1.2.0",
     "react-native-onepassword": "^1.0.4",
