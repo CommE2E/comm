@@ -7,7 +7,13 @@ import type { CalendarItem } from '../selectors/entry-selectors';
 import type { SectionBase } from '../react-native-types';
 
 import React from 'react';
-import { View, StyleSheet, Text, SectionList } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  SectionList,
+  AppState as NativeAppState,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -18,6 +24,7 @@ import _map from 'lodash/fp/map';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate } from 'lib/utils/date-utils';
+import { sessionExpired } from 'lib/selectors/session-selectors';
 
 import Entry from './entry.react';
 import { contentVerticalOffset } from '../dimensions';
@@ -36,6 +43,8 @@ type SectionWithHeights = SectionBase<CalendarItemWithHeight>;
 type Props = {
   sectionListData: $ReadOnlyArray<Section>,
   tabActive: bool,
+  sessionID: string,
+  sessionExpired: () => bool,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -43,6 +52,7 @@ class InnerCalendar extends React.PureComponent {
   state: {
     textToMeasure: string[],
     sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
+    readyToShowSectionList: bool,
   };
   static propTypes = {
     sectionListData: PropTypes.arrayOf(PropTypes.shape({
@@ -53,6 +63,8 @@ class InnerCalendar extends React.PureComponent {
       key: PropTypes.string.isRequired,
     })).isRequired,
     tabActive: PropTypes.bool.isRequired,
+    sessionID: PropTypes.string.isRequired,
+    sessionExpired: PropTypes.func.isRequired,
   };
   static navigationOptions = {
     tabBarLabel: 'Calendar',
@@ -66,6 +78,8 @@ class InnerCalendar extends React.PureComponent {
   textHeightMeasurer: ?TextHeightMeasurer = null;
   sectionList: ?SectionList<SectionWithHeights> = null;
   textHeights: ?{ [text: string]: number } = null;
+  currentState: ?string = NativeAppState.currentState;
+  queuedScrollToToday = true;
 
   constructor(props: Props) {
     super(props);
@@ -75,6 +89,7 @@ class InnerCalendar extends React.PureComponent {
     this.state = {
       textToMeasure,
       sectionListDataWithHeights: null,
+      readyToShowSectionList: false,
     };
   }
 
@@ -92,23 +107,64 @@ class InnerCalendar extends React.PureComponent {
     return textToMeasure;
   }
 
+  componentDidMount() {
+    NativeAppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    NativeAppState.removeEventListener('change', this.handleAppStateChange);
+  }
+
+  handleAppStateChange = (nextAppState: ?string) => {
+    // If upon foregrounding we find the session expired we scroll to today
+    const lastState = this.currentState;
+    this.currentState = nextAppState;
+    if (
+      lastState &&
+      lastState.match(/inactive|background/) &&
+      this.currentState === "active" &&
+      this.props.sessionExpired() &&
+      this.sectionList
+    ) {
+      this.scrollToToday();
+    }
+  }
+
   componentWillReceiveProps(newProps: Props) {
-    //if (this.props.tabActive && !newProps.tabActive && this.sectionList) {
-    //  this.scrollToToday();
-    //}
+    // If the sessionID gets reset and the user isn't looking we scroll to today
+    if (
+      newProps.sessionID !== this.props.sessionID &&
+      !newProps.tabActive &&
+      this.sectionList
+    ) {
+      this.scrollToToday(false);
+    }
+    // When the sectionListData changes we may need to recalculate some heights
     if (newProps.sectionListData !== this.props.sectionListData) {
+      // If we had no entries and just got some we'll scroll to today
+      if (!this.queuedScrollToToday) {
+        this.queuedScrollToToday = this.state.textToMeasure.length === 0;
+      }
       const newTextToMeasure = InnerCalendar.textToMeasureFromSectionListData(
         newProps.sectionListData,
       );
       if (!_isEqual(this.state.textToMeasure)(newTextToMeasure)) {
+        // In this case, we have new text and need to measure its height
+        this.textHeights = null;
         this.setState({ textToMeasure: newTextToMeasure });
-      } else {
+      } else if (this.textHeights) {
+        // In this case, we already have the height of all the text
         this.mergeHeightsIntoSectionListData(newProps.sectionListData);
+      } else {
+        // In this case, the text is unchanged but we don't have its height yet
+        // We don't do anything since we're still waiting on the text
       }
     }
   }
 
-  mergeHeightsIntoSectionListData(sectionListData: $ReadOnlyArray<Section>) {
+  mergeHeightsIntoSectionListData(
+    sectionListData: $ReadOnlyArray<Section>
+  ) {
     const sectionListDataWithHeights = _map((section: Section) => ({
       ...section,
       data: _map((calendarItem: CalendarItem) => {
@@ -135,15 +191,31 @@ class InnerCalendar extends React.PureComponent {
     this.setState({ sectionListDataWithHeights });
   }
 
-  scrollToToday() {
+  scrollToToday = (animated: ?bool = undefined) => {
+    if (animated === undefined) {
+      animated = this.props.tabActive;
+    }
+    invariant(this.state.sectionListDataWithHeights, "should be set");
     const todayIndex = _findIndex(['key', dateString(new Date())])
-      (this.props.sectionListData);
-    invariant(this.sectionList, "sectionList should be set");
-    this.sectionList.scrollToLocation({
-      sectionIndex: todayIndex,
-      itemIndex: 0,
-      viewPosition: 0.5,
-    });
+      (this.state.sectionListDataWithHeights);
+    const sectionList = this.sectionList;
+    invariant(sectionList, "sectionList should be set");
+    setTimeout(
+      () => {
+        sectionList.scrollToLocation({
+          sectionIndex: todayIndex,
+          itemIndex: 0,
+          animated,
+          viewPosition: 0.5,
+          viewOffset: 29,
+        });
+        setTimeout(
+          () => this.setState({ readyToShowSectionList: true }),
+          50,
+        );
+      },
+      550,
+    );
   }
 
   renderItem = (row) => {
@@ -190,8 +262,8 @@ class InnerCalendar extends React.PureComponent {
     );
   }
 
-  onAdd = (dateString: string) => {
-    console.log(dateString);
+  onAdd = (dayString: string) => {
+    console.log(dayString);
   }
 
   static keyExtractor = (item: CalendarItem) => {
@@ -250,16 +322,21 @@ class InnerCalendar extends React.PureComponent {
   }
 
   render() {
+    const sectionListDataWithHeights = this.state.sectionListDataWithHeights;
     let sectionList = null;
-    if (this.state.sectionListDataWithHeights) {
+    if (sectionListDataWithHeights) {
+      const sectionListStyle = {
+        opacity: this.state.readyToShowSectionList ? 1 : 0,
+      };
       sectionList = (
         <SectionList
-          sections={this.state.sectionListDataWithHeights}
+          sections={sectionListDataWithHeights}
           renderItem={this.renderItem}
           renderSectionHeader={InnerCalendar.renderSectionHeader}
           keyExtractor={InnerCalendar.keyExtractor}
           getItemLayout={InnerCalendar.getItemLayout}
-          style={styles.sectionList}
+          style={[styles.sectionList, sectionListStyle]}
+          onLayout={this.onSectionListLayout}
           ref={this.sectionListRef}
         />
       );
@@ -285,7 +362,23 @@ class InnerCalendar extends React.PureComponent {
     this.sectionList = sectionList;
   }
 
-  allHeightsMeasured = (newTextHeights: { [text: string]: number }) => {
+  onSectionListLayout = (event: SyntheticEvent) => {
+    invariant(this.sectionList, "should be set");
+    if (this.queuedScrollToToday) {
+      this.scrollToToday(false);
+      this.queuedScrollToToday = false;
+    } else {
+      this.setState({ readyToShowSectionList: true });
+    }
+  }
+
+  allHeightsMeasured = (
+    textToMeasure: string[],
+    newTextHeights: { [text: string]: number },
+  ) => {
+    if (textToMeasure !== this.state.textToMeasure) {
+      return;
+    }
     this.textHeights = newTextHeights;
     this.mergeHeightsIntoSectionListData(this.props.sectionListData);
   }
@@ -355,6 +448,8 @@ const Calendar = connect(
   (state: AppState) => ({
     sectionListData: calendarSectionListData(state),
     tabActive: activeTabSelector(state),
+    sessionID: state.sessionID,
+    sessionExpired: sessionExpired(state),
   }),
 )(InnerCalendar);
 

@@ -138,7 +138,7 @@ const defaultNavigationState = {
       routeName: AppRouteName,
       index: 0,
       routes: [
-        { key: 'Calendar', routeName: 'Calendar' },
+        { key: 'Calendar', routeName: CalendarRouteName },
         { key: 'Chat', routeName: 'Chat' },
         { key: 'More', routeName: 'More' },
       ],

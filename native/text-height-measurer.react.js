@@ -17,7 +17,10 @@ const measureBatchSize = 10;
 type TextToHeight = { [text: string]: number };
 type Props = {
   textToMeasure: string[],
-  allHeightsMeasuredCallback: (heights: TextToHeight) => void,
+  allHeightsMeasuredCallback: (
+    textToMeasure: string[],
+    heights: TextToHeight,
+  ) => void,
   style: StyleObj,
 };
 type State = {
@@ -43,6 +46,10 @@ class TextHeightMeasurer extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.resetInternalState(this.props.textToMeasure);
+  }
+
+  componentDidMount() {
+    this.newBatch();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -83,7 +90,10 @@ class TextHeightMeasurer extends React.PureComponent {
       invariant(this.nextTextToHeight, "nextTextToHeight should be set");
       this.currentTextToHeight = this.nextTextToHeight;
       this.nextTextToHeight = null;
-      this.props.allHeightsMeasuredCallback(this.currentTextToHeight);
+      this.props.allHeightsMeasuredCallback(
+        this.props.textToMeasure,
+        this.currentTextToHeight,
+      );
       this.setState({ currentlyMeasuring: null });
     } else if (this.leftInBatch === 0) {
       this.newBatch();
@@ -104,28 +114,27 @@ class TextHeightMeasurer extends React.PureComponent {
   }
 
   render() {
-    if (_isEmpty(this.state.currentlyMeasuring)) {
+    const set = this.state.currentlyMeasuring;
+    if (_isEmpty(set)) {
       return null;
     }
-    const set = this.state.currentlyMeasuring;
     invariant(set, "should be set");
-    const dummies = _map((text: string) => (
-      <Text
-        style={[styles.text, this.props.style]}
-        onLayout={(event) => this.onTextLayout(text, event)}
-        key={text}
-      >
-        {text}
-      </Text>
-    ))(_toArray(this.state.currentlyMeasuring));
-    return <View style={styles.container}>{dummies}</View>;
+    const dummies =
+      _toArray(this.state.currentlyMeasuring).map((text: string) => (
+        <Text
+          style={[styles.text, this.props.style]}
+          onLayout={(event) => this.onTextLayout(text, event)}
+          key={text}
+        >
+          {text}
+        </Text>
+      ));
+    return <View>{dummies}</View>;
   }
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-  },
   text: {
     opacity: 0,
     position: 'absolute',
