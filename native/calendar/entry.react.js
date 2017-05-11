@@ -39,7 +39,7 @@ import {
 type Props = {
   entryInfo: EntryInfoWithHeight,
   // Redux state
-  calendarInfo: CalendarInfo,
+  calendarInfo: ?CalendarInfo,
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
   // Redux dispatch functions
@@ -61,7 +61,7 @@ class Entry extends React.PureComponent {
   
   props: Props;
   static propTypes = {
-    entryInfo: entryInfoPropType,
+    entryInfo: entryInfoPropType.isRequired,
     calendarInfo: calendarInfoPropType,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
@@ -73,6 +73,7 @@ class Entry extends React.PureComponent {
     loadingStatus: LoadingStatus,
     focused: bool,
     height: number,
+    color: string,
   };
   textInput: ?TextInput;
   creating = false;
@@ -83,11 +84,17 @@ class Entry extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
+    invariant(props.calendarInfo, "should be set");
     this.state = {
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       focused: false,
       height: props.entryInfo.textHeight + 10,
+      // On log out, it's possible for the calendar to be deauthorized before
+      // the log out animation completes. To avoid having rendering issues in
+      // that case, we cache the color in state and don't reset it when the
+      // calendarInfo is undefined.
+      color: props.calendarInfo.color,
     };
   }
 
@@ -102,6 +109,12 @@ class Entry extends React.PureComponent {
         height: nextProps.entryInfo.textHeight + 10,
       });
     }
+    if (
+      nextProps.calendarInfo &&
+      nextProps.calendarInfo.color !== this.state.color
+    ) {
+      this.setState({ color: nextProps.calendarInfo.color });
+    }
   }
 
   componentWillUnmount() {
@@ -109,19 +122,10 @@ class Entry extends React.PureComponent {
   }
 
   render() {
-    const entryStyle = {
-      backgroundColor: `#${this.props.calendarInfo.color}`,
-    };
-    const textColor = colorIsDark(this.props.calendarInfo.color)
-      ? 'white'
-      : 'black';
-    const textStyle = {
-      color: textColor,
-    };
-    const textInputStyle = {
-      color: textColor,
-      height: this.state.height,
-    };
+    const entryStyle = { backgroundColor: `#${this.state.color}` };
+    const textColor = colorIsDark(this.state.color) ? 'white' : 'black';
+    const textStyle = { color: textColor };
+    const textInputStyle = { color: textColor, height: this.state.height };
     return (
       <View style={styles.container}>
         <View style={[styles.entry, entryStyle]}>

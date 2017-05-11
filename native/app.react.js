@@ -4,12 +4,11 @@ import type { NavigationState } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
-import type { PingResult } from 'lib/actions/ping-actions';
+import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
@@ -176,7 +175,7 @@ class AppWithNavigationState extends React.PureComponent {
     ) {
       this.props.dispatchActionPromise(
         pingActionType,
-        this.props.ping(startingPayload.calendarQuery),
+        this.pingAction(startingPayload),
         undefined,
         startingPayload,
       );
@@ -189,6 +188,14 @@ class AppWithNavigationState extends React.PureComponent {
         startingPayload.newSessionID,
       );
     }
+  }
+
+  async pingAction(startingPayload: PingStartingPayload) {
+    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    return {
+      ...pingResult,
+      loggedIn: startingPayload.loggedIn,
+    };
   }
 
   render() {

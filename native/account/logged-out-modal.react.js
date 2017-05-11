@@ -8,9 +8,8 @@ import type {
 import type { AppState } from '../redux-setup';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { Action } from '../navigation-setup';
-import type { PingResult } from 'lib/actions/ping-actions';
+import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
-import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import React from 'react';
 import {
@@ -270,7 +269,7 @@ class InnerLoggedOutModal extends React.PureComponent {
       InnerLoggedOutModal.pingAction(
         boundPing,
         callback,
-        startingPayload.calendarQuery,
+        startingPayload,
       ),
       undefined,
       startingPayload,
@@ -280,14 +279,17 @@ class InnerLoggedOutModal extends React.PureComponent {
   static async pingAction(
     ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
     callback: () => void,
-    calendarQuery: CalendarQuery,
+    startingPayload: PingStartingPayload,
   ) {
     try {
-      const result = await ping(calendarQuery);
+      const result = await ping(startingPayload.calendarQuery);
       if (!result.userInfo) {
         callback();
       }
-      return result;
+      return {
+        ...result,
+        loggedIn: startingPayload.loggedIn,
+      };
     } catch (e) {
       callback();
       throw e;

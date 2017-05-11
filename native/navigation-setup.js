@@ -10,7 +10,7 @@ import type {
   NavigationAction,
   NavigationRouter,
 } from 'react-navigation';
-import type { PingResult } from 'lib/actions/ping-actions';
+import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
@@ -324,11 +324,12 @@ function logOutIfCookieInvalidated(
 
 function removeModalsIfPingIndicatesLoggedIn(
   state: NavigationState,
-  payload: PingResult,
+  payload: PingSuccessPayload,
 ): NavigationState {
-  if (!payload.userInfo) {
+  if (!payload.userInfo || payload.loggedIn) {
     // The SET_COOKIE action should handle logging somebody out as a result of a
-    // cookie invalidation triggered by a ping server call
+    // cookie invalidation triggered by a ping server call. PING_SUCCESS is only
+    // handling specific log ins that occur from LoggedOutModal.
     return state;
   }
   return removeModals(state, [LoggedOutModalRouteName]);

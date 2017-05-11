@@ -4,8 +4,7 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarInfo } from 'lib/types/calendar-types';
-import type { PingResult } from 'lib/actions/ping-actions';
-import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
+import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
@@ -138,10 +137,18 @@ class More extends React.PureComponent {
     const startingPayload = this.props.pingStartingPayload();
     this.props.dispatchActionPromise(
       pingActionType,
-      this.props.ping(startingPayload.calendarQuery),
+      this.pingAction(startingPayload),
       undefined,
       startingPayload,
     );
+  }
+
+  async pingAction(startingPayload: PingStartingPayload) {
+    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    return {
+      ...pingResult,
+      loggedIn: startingPayload.loggedIn,
+    };
   }
 
 }

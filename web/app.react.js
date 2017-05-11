@@ -11,8 +11,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
-import type { PingStartingPayload } from 'lib/selectors/ping-selectors';
-import type { PingResult } from 'lib/actions/ping-actions';
+import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -146,10 +145,18 @@ class App extends React.PureComponent {
     const startingPayload = this.props.pingStartingPayload();
     this.props.dispatchActionPromise(
       pingActionType,
-      this.props.ping(startingPayload.calendarQuery),
+      this.pingAction(startingPayload),
       undefined,
       startingPayload,
     );
+  }
+
+  async pingAction(startingPayload: PingStartingPayload) {
+    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    return {
+      ...pingResult,
+      loggedIn: startingPayload.loggedIn,
+    };
   }
 
   componentDidUpdate(prevProps: Props) {
