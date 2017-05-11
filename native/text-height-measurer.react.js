@@ -9,8 +9,6 @@ import PropTypes from 'prop-types';
 import { Text, View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 import _isEmpty from 'lodash/fp/isEmpty';
-import _map from 'lodash/fp/map';
-import _toArray from 'lodash/fp/toArray';
 
 const measureBatchSize = 10;
 
@@ -119,16 +117,15 @@ class TextHeightMeasurer extends React.PureComponent {
       return null;
     }
     invariant(set, "should be set");
-    const dummies =
-      _toArray(this.state.currentlyMeasuring).map((text: string) => (
-        <Text
-          style={[styles.text, this.props.style]}
-          onLayout={(event) => this.onTextLayout(text, event)}
-          key={text}
-        >
-          {text}
-        </Text>
-      ));
+    const dummies = Array.from(set).map((text: string) => (
+      <Text
+        style={[styles.text, this.props.style]}
+        onLayout={(event) => this.onTextLayout(text, event)}
+        key={text}
+      >
+        {text}
+      </Text>
+    ));
     return <View>{dummies}</View>;
   }
 
