@@ -41,21 +41,14 @@ class TextHeightMeasurer extends React.PureComponent {
   leftToMeasure: Set<string> = new Set();
   leftInBatch = 0;
 
-  constructor(props: Props) {
-    super(props);
+  componentDidMount() {
     this.resetInternalState(this.props.textToMeasure);
   }
 
-  componentDidMount() {
-    this.newBatch();
-  }
-
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.textToMeasure === this.props.textToMeasure) {
-      return;
+    if (nextProps.textToMeasure !== this.props.textToMeasure) {
+      this.resetInternalState(nextProps.textToMeasure);
     }
-    this.resetInternalState(nextProps.textToMeasure);
-    this.newBatch();
   }
 
   // resets this.leftToMeasure and this.nextTextToHeight
@@ -72,6 +65,11 @@ class TextHeightMeasurer extends React.PureComponent {
       }
     }
     this.nextTextToHeight = nextNextTextToHeight;
+    if (this.leftToMeasure.size === 0) {
+      this.done(newTextToMeasure);
+    } else {
+      this.newBatch();
+    }
   }
 
   onTextLayout(
@@ -83,19 +81,23 @@ class TextHeightMeasurer extends React.PureComponent {
     this.leftToMeasure.delete(text);
     this.leftInBatch--;
     if (this.leftToMeasure.size === 0) {
-      // We're done!!
-      invariant(this.leftInBatch === 0, "batch should be complete");
-      invariant(this.nextTextToHeight, "nextTextToHeight should be set");
-      this.currentTextToHeight = this.nextTextToHeight;
-      this.nextTextToHeight = null;
-      this.props.allHeightsMeasuredCallback(
-        this.props.textToMeasure,
-        this.currentTextToHeight,
-      );
-      this.setState({ currentlyMeasuring: null });
+      this.done(this.props.textToMeasure);
     } else if (this.leftInBatch === 0) {
       this.newBatch();
     }
+  }
+
+  done(textToMeasure: string[]) {
+    invariant(this.leftToMeasure.size === 0, "should be 0 left to measure");
+    invariant(this.leftInBatch === 0, "batch should be complete");
+    invariant(this.nextTextToHeight, "nextTextToHeight should be set");
+    this.currentTextToHeight = this.nextTextToHeight;
+    this.nextTextToHeight = null;
+    this.props.allHeightsMeasuredCallback(
+      textToMeasure,
+      this.currentTextToHeight,
+    );
+    this.setState({ currentlyMeasuring: null });
   }
 
   newBatch() {

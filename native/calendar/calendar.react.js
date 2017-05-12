@@ -5,6 +5,10 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
 import type { CalendarItem } from '../selectors/entry-selectors';
 import type { SectionBase } from '../react-native-types';
+import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { CalendarResult } from 'lib/actions/entry-actions';
+import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import React from 'react';
 import {
@@ -13,6 +17,8 @@ import {
   Text,
   SectionList,
   AppState as NativeAppState,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -21,10 +27,20 @@ import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _isEqual from 'lodash/fp/isEqual';
 import _map from 'lodash/fp/map';
+import _find from 'lodash/fp/find';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { dateString, prettyDate } from 'lib/utils/date-utils';
+import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
 import { sessionExpired } from 'lib/selectors/session-selectors';
+import {
+  fetchEntriesAndAppendRangeActionType,
+  fetchEntriesWithRange,
+} from 'lib/actions/entry-actions';
+import {
+  includeDispatchActionProps,
+  bindServerCalls,
+} from 'lib/utils/action-utils';
+import { simpleNavID } from 'lib/selectors/nav-selectors';
 
 import Entry from './entry.react';
 import { contentVerticalOffset } from '../dimensions';
@@ -32,19 +48,34 @@ import { calendarSectionListData } from '../selectors/entry-selectors';
 import { Button } from '../shared-components';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
+import ListLoadingIndicator from './list-loading-indicator.react';
 
 type Section = SectionBase<CalendarItem>;
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
-export type CalendarItemWithHeight = {
-  entryInfo?: EntryInfoWithHeight,
-  footerForDateString?: string,
-};
+export type CalendarItemWithHeight =
+  {
+    itemType: "entryInfo",
+    entryInfo: EntryInfoWithHeight,
+  } | {
+    itemType: "footer",
+    dateString: string,
+  };
 type SectionWithHeights = SectionBase<CalendarItemWithHeight>;
 type Props = {
+  // Redux state
   sectionListData: $ReadOnlyArray<Section>,
   tabActive: bool,
   sessionID: string,
   sessionExpired: () => bool,
+  startDate: string,
+  endDate: string,
+  simpleNavID: string,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  fetchEntriesWithRange: (
+    calendarQuery: CalendarQuery,
+  ) => Promise<CalendarResult>,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -53,6 +84,8 @@ class InnerCalendar extends React.PureComponent {
     textToMeasure: string[],
     sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
     readyToShowSectionList: bool,
+    newStartDate: string,
+    newEndDate: string,
   };
   static propTypes = {
     sectionListData: PropTypes.arrayOf(PropTypes.shape({
@@ -65,6 +98,11 @@ class InnerCalendar extends React.PureComponent {
     tabActive: PropTypes.bool.isRequired,
     sessionID: PropTypes.string.isRequired,
     sessionExpired: PropTypes.func.isRequired,
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
+    simpleNavID: PropTypes.string.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    fetchEntriesWithRange: PropTypes.func.isRequired,
   };
   static navigationOptions = {
     tabBarLabel: 'Calendar',
@@ -90,6 +128,8 @@ class InnerCalendar extends React.PureComponent {
       textToMeasure,
       sectionListDataWithHeights: null,
       readyToShowSectionList: false,
+      newStartDate: this.props.startDate,
+      newEndDate: this.props.endDate,
     };
   }
 
@@ -99,7 +139,7 @@ class InnerCalendar extends React.PureComponent {
     const textToMeasure = [];
     for (let section of sectionListData) {
       for (let item of section.data) {
-        if (item.entryInfo) {
+        if (item.itemType === "entryInfo") {
           textToMeasure.push(item.entryInfo.text);
         }
       }
@@ -160,6 +200,12 @@ class InnerCalendar extends React.PureComponent {
         // We don't do anything since we're still waiting on the text
       }
     }
+    if (newProps.startDate !== this.state.newStartDate) {
+      this.setState({ newStartDate: newProps.startDate });
+    }
+    if (newProps.endDate !== this.state.newEndDate) {
+      this.setState({ newEndDate: newProps.endDate });
+    }
   }
 
   mergeHeightsIntoSectionListData(
@@ -168,11 +214,10 @@ class InnerCalendar extends React.PureComponent {
     const sectionListDataWithHeights = _map((section: Section) => ({
       ...section,
       data: _map((calendarItem: CalendarItem) => {
-        if (calendarItem.footerForDateString) {
+        if (calendarItem.itemType === "footer") {
           return calendarItem;
         }
         const entryInfo = calendarItem.entryInfo;
-        invariant(entryInfo, "entryInfo should be set");
         invariant(this.textHeights, "textHeights should be set");
         const textHeight = this.textHeights[entryInfo.text];
         invariant(
@@ -198,24 +243,15 @@ class InnerCalendar extends React.PureComponent {
     invariant(this.state.sectionListDataWithHeights, "should be set");
     const todayIndex = _findIndex(['key', dateString(new Date())])
       (this.state.sectionListDataWithHeights);
-    const sectionList = this.sectionList;
-    invariant(sectionList, "sectionList should be set");
-    setTimeout(
-      () => {
-        sectionList.scrollToLocation({
-          sectionIndex: todayIndex,
-          itemIndex: 0,
-          animated,
-          viewPosition: 0.5,
-          viewOffset: 29,
-        });
-        setTimeout(
-          () => this.setState({ readyToShowSectionList: true }),
-          50,
-        );
-      },
-      550,
-    );
+    invariant(this.sectionList, "sectionList should be set");
+    this.sectionList.scrollToLocation({
+      sectionIndex: todayIndex,
+      itemIndex: 0,
+      animated,
+      viewPosition: 0.5,
+      viewOffset: Platform.OS === "ios" ? 29 : 0,
+    });
+    setTimeout(() => this.setState({ readyToShowSectionList: true }), 50);
   }
 
   renderItem = (row) => {
@@ -266,13 +302,19 @@ class InnerCalendar extends React.PureComponent {
     console.log(dayString);
   }
 
-  static keyExtractor = (item: CalendarItem) => {
-    if (item.entryInfo) {
+  static keyExtractor = (item: CalendarItemWithHeight | SectionWithHeights) => {
+    if (item.data) {
+      invariant(typeof item.key === "string", "key should be string");
+      // Something having to do with onViewableItemsChanged calls keyExtractor
+      // with sections. This condition should only catch sections
+      return item.key;
+    } else if (item.itemType === "entryInfo") {
+      invariant(item.entryInfo, 'test');
       return entryKey(item.entryInfo);
-    } else {
-      invariant(item.footerForDateString, "should be set");
-      return item.footerForDateString + "/footer";
+    } else if (item.itemType === "footer") {
+      return item.dateString + "/footer";
     }
+    invariant(false, "keyExtractor could not extract key");
   }
 
   static getItemLayout = (
@@ -311,13 +353,12 @@ class InnerCalendar extends React.PureComponent {
       return 29;
     }
     invariant(calendarItem, "should be set");
-    if (calendarItem.footerForDateString) {
+    if (calendarItem.itemType === "footer") {
       // handle section footer
       return 40;
     }
     // handle entry
     const entryInfo = calendarItem.entryInfo;
-    invariant(entryInfo, "should be set");
     return 20 + entryInfo.textHeight;
   }
 
@@ -328,6 +369,14 @@ class InnerCalendar extends React.PureComponent {
       const sectionListStyle = {
         opacity: this.state.readyToShowSectionList ? 1 : 0,
       };
+      const ListHeaderComponent =
+        this.state.newStartDate === this.props.startDate
+          ? undefined
+          : ListLoadingIndicator;
+      const ListFooterComponent =
+        this.state.newEndDate === this.props.endDate
+          ? undefined
+          : ListLoadingIndicator;
       sectionList = (
         <SectionList
           sections={sectionListDataWithHeights}
@@ -335,10 +384,26 @@ class InnerCalendar extends React.PureComponent {
           renderSectionHeader={InnerCalendar.renderSectionHeader}
           keyExtractor={InnerCalendar.keyExtractor}
           getItemLayout={InnerCalendar.getItemLayout}
-          style={[styles.sectionList, sectionListStyle]}
           onLayout={this.onSectionListLayout}
+          initialNumToRender={31}
+          onViewableItemsChanged={this.onViewableItemsChanged}
+          ListHeaderComponent={ListHeaderComponent}
+          ListFooterComponent={ListFooterComponent}
+          style={[styles.sectionList, sectionListStyle]}
           ref={this.sectionListRef}
         />
+      );
+    }
+    let loadingIndicator = null;
+    if (!sectionListDataWithHeights || !this.state.readyToShowSectionList) {
+      loadingIndicator = (
+        <View style={styles.loadingIndicatorContainer}>
+          <ActivityIndicator
+            color="black"
+            size="large"
+            style={styles.loadingIndicator}
+          />
+        </View>
       );
     }
     return (
@@ -349,6 +414,7 @@ class InnerCalendar extends React.PureComponent {
           style={styles.text}
           ref={this.textHeightMeasurerRef}
         />
+        {loadingIndicator}
         {sectionList}
       </View>
     );
@@ -381,6 +447,49 @@ class InnerCalendar extends React.PureComponent {
     }
     this.textHeights = newTextHeights;
     this.mergeHeightsIntoSectionListData(this.props.sectionListData);
+  }
+
+  onViewableItemsChanged = (info: {
+    viewableItems: ViewToken[],
+    changed: ViewToken[],
+  }) => {
+    if (!this.state.readyToShowSectionList) {
+      return;
+    }
+    const firstItem =
+      _find({ key: this.state.newStartDate })(info.viewableItems);
+    const lastItem = _find({ key: this.state.newEndDate })(info.viewableItems);
+    let start: ?Date = null;
+    let end: ?Date = null;
+    if (firstItem) {
+      start = dateFromString(this.props.startDate);
+      start.setDate(start.getDate() - 31);
+      end = dateFromString(this.props.startDate);
+      end.setDate(end.getDate() - 1);
+    } else if (lastItem) {
+      start = dateFromString(this.props.endDate);
+      start.setDate(start.getDate() + 1);
+      end = dateFromString(this.props.endDate);
+      end.setDate(end.getDate() + 31);
+    }
+    if (!start || !end) {
+      return;
+    }
+    const startDate = dateString(start);
+    const endDate = dateString(end);
+    if (firstItem) {
+      this.setState({ newStartDate: startDate });
+    } else if (lastItem) {
+      this.setState({ newEndDate: endDate });
+    }
+    this.props.dispatchActionPromise(
+      fetchEntriesAndAppendRangeActionType,
+      this.props.fetchEntriesWithRange({
+        navID: this.props.simpleNavID,
+        startDate,
+        endDate,
+      }),
+    );
   }
 
 }
@@ -440,6 +549,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Arial',
   },
+  loadingIndicator: {
+    flex: 1,
+  },
+  loadingIndicatorContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
 });
 
 const CalendarRouteName = 'Calendar';
@@ -450,7 +569,13 @@ const Calendar = connect(
     tabActive: activeTabSelector(state),
     sessionID: state.sessionID,
     sessionExpired: sessionExpired(state),
+    startDate: state.navInfo.startDate,
+    endDate: state.navInfo.endDate,
+    simpleNavID: simpleNavID(state),
+    cookie: state.cookie,
   }),
+  includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ fetchEntriesWithRange }),
 )(InnerCalendar);
 
 export {
