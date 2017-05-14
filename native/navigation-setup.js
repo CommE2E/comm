@@ -56,6 +56,7 @@ const AppNavigator = TabNavigator(
     More: { screen: More },
   },
   {
+    lazy: false,
     initialRouteName: CalendarRouteName,
   },
 );

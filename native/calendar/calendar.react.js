@@ -28,6 +28,7 @@ import _findIndex from 'lodash/fp/findIndex';
 import _isEqual from 'lodash/fp/isEqual';
 import _map from 'lodash/fp/map';
 import _find from 'lodash/fp/find';
+import _difference from 'lodash/fp/difference';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -45,10 +46,10 @@ import { simpleNavID } from 'lib/selectors/nav-selectors';
 import Entry from './entry.react';
 import { contentVerticalOffset } from '../dimensions';
 import { calendarSectionListData } from '../selectors/entry-selectors';
-import { Button } from '../shared-components';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from './list-loading-indicator.react';
+import SectionFooter from './section-footer.react';
 
 type Section = SectionBase<CalendarItem>;
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
@@ -60,10 +61,10 @@ export type CalendarItemWithHeight =
     itemType: "footer",
     dateString: string,
   };
-type SectionWithHeights = SectionBase<CalendarItemWithHeight>;
+type SectionWithHeights = SectionBase<CalendarItemWithHeight> & { key: string };
 type Props = {
   // Redux state
-  sectionListData: $ReadOnlyArray<Section>,
+  sectionListData: ?$ReadOnlyArray<Section>,
   tabActive: bool,
   sessionID: string,
   sessionExpired: () => bool,
@@ -77,24 +78,24 @@ type Props = {
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
 };
+type State = {
+  textToMeasure: string[],
+  sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
+  readyToShowSectionList: bool,
+};
 class InnerCalendar extends React.PureComponent {
 
   props: Props;
-  state: {
-    textToMeasure: string[],
-    sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
-    readyToShowSectionList: bool,
-    newStartDate: string,
-    newEndDate: string,
-  };
+  state: State;
   static propTypes = {
     sectionListData: PropTypes.arrayOf(PropTypes.shape({
       data: PropTypes.arrayOf(PropTypes.shape({
+        itemType: PropTypes.oneOf(["entryInfo", "footer"]),
         entryInfo: entryInfoPropType,
-        footerForDateString: PropTypes.string,
+        dateString: PropTypes.string,
       })).isRequired,
       key: PropTypes.string.isRequired,
-    })).isRequired,
+    })),
     tabActive: PropTypes.bool.isRequired,
     sessionID: PropTypes.string.isRequired,
     sessionExpired: PropTypes.func.isRequired,
@@ -117,19 +118,23 @@ class InnerCalendar extends React.PureComponent {
   sectionList: ?SectionList<SectionWithHeights> = null;
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
-  queuedScrollToToday = true;
+  loadingNewEntriesFromScroll = false;
+  sectionListShrinking = false;
 
   constructor(props: Props) {
     super(props);
-    const textToMeasure = InnerCalendar.textToMeasureFromSectionListData(
-      props.sectionListData,
-    );
+    let textToMeasure = null;
+    if (props.sectionListData) {
+      textToMeasure = InnerCalendar.textToMeasureFromSectionListData(
+        props.sectionListData,
+      );
+    } else {
+      textToMeasure = [];
+    }
     this.state = {
       textToMeasure,
       sectionListDataWithHeights: null,
       readyToShowSectionList: false,
-      newStartDate: this.props.startDate,
-      newEndDate: this.props.endDate,
     };
   }
 
@@ -171,40 +176,80 @@ class InnerCalendar extends React.PureComponent {
   }
 
   componentWillReceiveProps(newProps: Props) {
-    // If the sessionID gets reset and the user isn't looking we scroll to today
-    if (
-      newProps.sessionID !== this.props.sessionID &&
-      !newProps.tabActive &&
-      this.sectionList
-    ) {
-      this.scrollToToday(false);
-    }
     // When the sectionListData changes we may need to recalculate some heights
     if (newProps.sectionListData !== this.props.sectionListData) {
-      // If we had no entries and just got some we'll scroll to today
-      if (!this.queuedScrollToToday) {
-        this.queuedScrollToToday = this.state.textToMeasure.length === 0;
-      }
-      const newTextToMeasure = InnerCalendar.textToMeasureFromSectionListData(
-        newProps.sectionListData,
-      );
-      if (!_isEqual(this.state.textToMeasure)(newTextToMeasure)) {
-        // In this case, we have new text and need to measure its height
-        this.textHeights = null;
-        this.setState({ textToMeasure: newTextToMeasure });
-      } else if (this.textHeights) {
-        // In this case, we already have the height of all the text
-        this.mergeHeightsIntoSectionListData(newProps.sectionListData);
+      const newSectionListData = newProps.sectionListData;
+      if (!newSectionListData) {
+        this.setState({
+          textToMeasure: [],
+          sectionListDataWithHeights: null,
+          readyToShowSectionList: false,
+        });
       } else {
-        // In this case, the text is unchanged but we don't have its height yet
-        // We don't do anything since we're still waiting on the text
+        // If we had no entries and just got some we'll scroll to today
+        const newTextToMeasure = InnerCalendar.textToMeasureFromSectionListData(
+          newSectionListData,
+        );
+
+        let allTextAlreadyMeasured = false;
+        if (this.textHeights) {
+          allTextAlreadyMeasured = true;
+          for (let text of newTextToMeasure) {
+            if (this.textHeights[text] === undefined) {
+              allTextAlreadyMeasured = false;
+              break;
+            }
+          }
+        }
+
+        if (allTextAlreadyMeasured) {
+          this.mergeHeightsIntoSectionListData(newSectionListData);
+        } else {
+          const newText =
+            _difference(newTextToMeasure)(this.state.textToMeasure);
+          if (newText.length === 0) {
+            // Since we don't have everything in textHeights, but we do have
+            // everything in textToMeasure, we can conclude that we're just
+            // waiting for the measurement to complete and then we'll be good.
+          } else {
+            // We set textHeights to null here since if a future set of text
+            // came in before we completed text measurement that was a subset
+            // of the earlier text, we would end up merging directly there, but
+            // then when the measurement for the middle text came in it would
+            // override the newer text heights.
+            this.textHeights = null;
+            this.setState({ textToMeasure: newTextToMeasure });
+          }
+        }
       }
     }
-    if (newProps.startDate !== this.state.newStartDate) {
-      this.setState({ newStartDate: newProps.startDate });
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    // If the sessionID gets reset and the user isn't looking we scroll to today
+    if (
+      this.props.sessionID !== prevProps.sessionID &&
+      !this.props.tabActive &&
+      this.sectionList
+    ) {
+      this.scrollToToday();
     }
-    if (newProps.endDate !== this.state.newEndDate) {
-      this.setState({ newEndDate: newProps.endDate });
+    const lastSLDWH = prevState.sectionListDataWithHeights;
+    const newSLDWH = this.state.sectionListDataWithHeights;
+    if (lastSLDWH && newSLDWH) {
+      if (newSLDWH.length < lastSLDWH.length) {
+        // If there are fewer sections in our new data, which happens when the
+        // current calendar query gets reset due to inactivity, let's reset the
+        // scroll position to the center (today). Once we're done, we can allow
+        // scrolling logic once again.
+        setTimeout(() => this.scrollToToday(), 50);
+        setTimeout(() => this.sectionListShrinking = false, 200);
+      } else if (newSLDWH.length > lastSLDWH.length) {
+        // If there are more sections in our new data, that means we just new
+        // entries that were fetched in response to a scroll load, which means
+        // we can reenable the scrollers.
+        this.loadingNewEntriesFromScroll = false;
+      }
     }
   }
 
@@ -233,6 +278,18 @@ class InnerCalendar extends React.PureComponent {
         };
       })(section.data),
     }))(sectionListData);
+    if (
+      this.state.sectionListDataWithHeights &&
+      sectionListDataWithHeights.length <
+        this.state.sectionListDataWithHeights.length
+    ) {
+      // We know that this is going to shrink our SectionList, which may cause
+      // either of the ListLoadingIndicators to come into view. When our
+      // SectionList shrinks, componentDidUpdate will trigger scrollToToday (we
+      // can't do it any earlier because of SectionList weirdness). After that
+      // happens, we will reset this back.
+      this.sectionListShrinking = true;
+    }
     this.setState({ sectionListDataWithHeights });
   }
 
@@ -251,7 +308,6 @@ class InnerCalendar extends React.PureComponent {
       viewPosition: 0.5,
       viewOffset: Platform.OS === "ios" ? 29 : 0,
     });
-    setTimeout(() => this.setState({ readyToShowSectionList: true }), 50);
   }
 
   renderItem = (row) => {
@@ -264,6 +320,9 @@ class InnerCalendar extends React.PureComponent {
 
   static renderSectionHeader = (row) => {
     invariant(row.section.key, "should be set");
+    if (row.section.key === "TopLoader" || row.section.key === "BottomLoader") {
+      return <ListLoadingIndicator />;
+    }
     let date = prettyDate(row.section.key);
     if (dateString(new Date()) === row.section.key) {
       date += " (today)";
@@ -282,19 +341,10 @@ class InnerCalendar extends React.PureComponent {
   renderSectionFooter = (row) => {
     // Eventually we will pass this function directly into SectionList, but
     // that functionality is only in RN master as of this time, and also there
-    // is an issue (RN#13784) where empty sections don't render a footer.
+    // is an issue (RN#13784) where empty sections don't render a footer. Also,
+    // scrollToLocation doesn't take the renderSectionFooter prop into account.
     return (
-      <View style={styles.sectionFooter}>
-        <Button
-          onSubmit={() => this.onAdd(row.item.footerForDateString)}
-          style={styles.addButton}
-        >
-          <View style={styles.addButtonContents}>
-            <Icon name="plus" style={styles.addIcon} />
-            <Text style={styles.actionLinksText}>Add</Text>
-          </View>
-        </Button>
-      </View>
+      <SectionFooter dateString={row.item.dateString} onAdd={this.onAdd} />
     );
   }
 
@@ -329,6 +379,7 @@ class InnerCalendar extends React.PureComponent {
       offset += InnerCalendar.itemHeight(
         curItemIndex,
         data[curSectionIndex].data[curItemIndex],
+        data[curSectionIndex].key,
       );
       curItemIndex++;
       if (curItemIndex === data[curSectionIndex].data.length) {
@@ -339,6 +390,7 @@ class InnerCalendar extends React.PureComponent {
     const length = InnerCalendar.itemHeight(
       curItemIndex,
       data[curSectionIndex].data[curItemIndex],
+      data[curSectionIndex].key,
     );
     return { length, offset, index: flattenedIndex };
   }
@@ -346,18 +398,24 @@ class InnerCalendar extends React.PureComponent {
   static itemHeight(
     itemIndex: number,
     calendarItem: ?CalendarItemWithHeight,
+    sectionKey: string,
   ): number {
     // TODO test these values on Android
     if (itemIndex === -1) {
-      // handle section header
-      return 29;
+      if (sectionKey === "TopLoader" || sectionKey === "BottomLoader") {
+        // handle ListLoadingIndicator
+        return 56;
+      } else {
+        // handle section header
+        return 29;
+      }
     }
     invariant(calendarItem, "should be set");
     if (calendarItem.itemType === "footer") {
       // handle section footer
       return 40;
     }
-    // handle entry
+    // handle Entry
     const entryInfo = calendarItem.entryInfo;
     return 20 + entryInfo.textHeight;
   }
@@ -369,14 +427,6 @@ class InnerCalendar extends React.PureComponent {
       const sectionListStyle = {
         opacity: this.state.readyToShowSectionList ? 1 : 0,
       };
-      const ListHeaderComponent =
-        this.state.newStartDate === this.props.startDate
-          ? undefined
-          : ListLoadingIndicator;
-      const ListFooterComponent =
-        this.state.newEndDate === this.props.endDate
-          ? undefined
-          : ListLoadingIndicator;
       sectionList = (
         <SectionList
           sections={sectionListDataWithHeights}
@@ -387,8 +437,6 @@ class InnerCalendar extends React.PureComponent {
           onLayout={this.onSectionListLayout}
           initialNumToRender={31}
           onViewableItemsChanged={this.onViewableItemsChanged}
-          ListHeaderComponent={ListHeaderComponent}
-          ListFooterComponent={ListFooterComponent}
           style={[styles.sectionList, sectionListStyle]}
           ref={this.sectionListRef}
         />
@@ -429,13 +477,12 @@ class InnerCalendar extends React.PureComponent {
   }
 
   onSectionListLayout = (event: SyntheticEvent) => {
-    invariant(this.sectionList, "should be set");
-    if (this.queuedScrollToToday) {
-      this.scrollToToday(false);
-      this.queuedScrollToToday = false;
-    } else {
-      this.setState({ readyToShowSectionList: true });
-    }
+    // This onLayout call should only trigger when the user logs in or starts
+    // the app. We wait until now to scroll the calendar SectionList to today
+    // because SectionList.scrollToLocation has some quirky behavior when you
+    // call it before layout.
+    this.scrollToToday(false);
+    setTimeout(() => this.setState({ readyToShowSectionList: true }), 50);
   }
 
   allHeightsMeasured = (
@@ -446,19 +493,24 @@ class InnerCalendar extends React.PureComponent {
       return;
     }
     this.textHeights = newTextHeights;
-    this.mergeHeightsIntoSectionListData(this.props.sectionListData);
+    if (this.props.sectionListData) {
+      this.mergeHeightsIntoSectionListData(this.props.sectionListData);
+    }
   }
 
   onViewableItemsChanged = (info: {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
-    if (!this.state.readyToShowSectionList) {
+    if (
+      !this.state.readyToShowSectionList ||
+      this.loadingNewEntriesFromScroll ||
+      this.sectionListShrinking
+    ) {
       return;
     }
-    const firstItem =
-      _find({ key: this.state.newStartDate })(info.viewableItems);
-    const lastItem = _find({ key: this.state.newEndDate })(info.viewableItems);
+    const firstItem = _find({ key: "TopLoader" })(info.viewableItems);
+    const lastItem = _find({ key: "BottomLoader" })(info.viewableItems);
     let start: ?Date = null;
     let end: ?Date = null;
     if (firstItem) {
@@ -471,23 +523,16 @@ class InnerCalendar extends React.PureComponent {
       start.setDate(start.getDate() + 1);
       end = dateFromString(this.props.endDate);
       end.setDate(end.getDate() + 31);
-    }
-    if (!start || !end) {
+    } else {
       return;
     }
-    const startDate = dateString(start);
-    const endDate = dateString(end);
-    if (firstItem) {
-      this.setState({ newStartDate: startDate });
-    } else if (lastItem) {
-      this.setState({ newEndDate: endDate });
-    }
+    this.loadingNewEntriesFromScroll = true;
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionType,
       this.props.fetchEntriesWithRange({
         navID: this.props.simpleNavID,
-        startDate,
-        endDate,
+        startDate: dateString(start),
+        endDate: dateString(end),
       }),
     );
   }
@@ -513,33 +558,6 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     padding: 5,
-    fontWeight: 'bold',
-    color: '#555555',
-  },
-  sectionFooter: {
-    backgroundColor: 'white',
-    height: 40,
-  },
-  addButton: {
-    position: 'absolute',
-    backgroundColor: '#EEEEEE',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 5,
-    margin: 5,
-  },
-  addButtonContents: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addIcon: {
-    fontSize: 14,
-    paddingRight: 6,
-    color: '#555555',
-  },
-  actionLinksText: {
     fontWeight: 'bold',
     color: '#555555',
   },

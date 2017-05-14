@@ -10,7 +10,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 import _isEmpty from 'lodash/fp/isEmpty';
 
-const measureBatchSize = 10;
+const measureBatchSize = 50;
 
 type TextToHeight = { [text: string]: number };
 type Props = {
