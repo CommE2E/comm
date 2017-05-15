@@ -21,6 +21,9 @@ import {
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import shallowequal from 'shallowequal';
+import _omit from 'lodash/fp/omit';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import {
@@ -56,10 +59,18 @@ type Props = {
     calendarID: string,
     creationTime: number,
   ) => Promise<SaveResult>,
-}
-class Entry extends React.PureComponent {
+};
+type State = {
+  text: string,
+  loadingStatus: LoadingStatus,
+  focused: bool,
+  height: number,
+  color: string,
+};
+class Entry extends React.Component {
   
   props: Props;
+  state: State;
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
     calendarInfo: calendarInfoPropType,
@@ -67,13 +78,6 @@ class Entry extends React.PureComponent {
     sessionID: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     saveEntry: PropTypes.func.isRequired,
-  };
-  state: {
-    text: string,
-    loadingStatus: LoadingStatus,
-    focused: bool,
-    height: number,
-    color: string,
   };
   textInput: ?TextInput;
   creating = false;
@@ -117,17 +121,30 @@ class Entry extends React.PureComponent {
     }
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    const omitEntryInfo = _omit(["entryInfo"]);
+    return !shallowequal(nextState, this.state) ||
+      !shallowequal(omitEntryInfo(nextProps), omitEntryInfo(this.props)) ||
+      !_isEqual(nextProps.entryInfo, this.props.entryInfo);
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
 
   render() {
-    const entryStyle = { backgroundColor: `#${this.state.color}` };
+    const containerStyle = {
+      height: this.state.height + 10,
+    };
+    const entryStyle = {
+      backgroundColor: `#${this.state.color}`,
+      height: this.state.height,
+    };
     const textColor = colorIsDark(this.state.color) ? 'white' : 'black';
     const textStyle = { color: textColor };
     const textInputStyle = { color: textColor, height: this.state.height };
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, containerStyle]}>
         <View style={[styles.entry, entryStyle]}>
           <TextInput
             style={[styles.textInput, textInputStyle]}

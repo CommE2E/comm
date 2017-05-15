@@ -21,6 +21,7 @@
     "redux-persist": "^4.7.1",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.0",
+    "shallowequal": "^0.2.2",
     "url-parse": "^1.1.8"
   },
   "devDependencies": {

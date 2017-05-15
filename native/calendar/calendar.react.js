@@ -19,6 +19,7 @@ import {
   AppState as NativeAppState,
   Platform,
   ActivityIndicator,
+  InteractionManager,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -29,6 +30,7 @@ import _isEqual from 'lodash/fp/isEqual';
 import _map from 'lodash/fp/map';
 import _find from 'lodash/fp/find';
 import _difference from 'lodash/fp/difference';
+import _filter from 'lodash/fp/filter';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -82,6 +84,7 @@ type State = {
   textToMeasure: string[],
   sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
   readyToShowSectionList: bool,
+  initialNumToRender: number,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -120,6 +123,7 @@ class InnerCalendar extends React.PureComponent {
   currentState: ?string = NativeAppState.currentState;
   loadingNewEntriesFromScroll = false;
   sectionListShrinking = false;
+  currentScrollPosition: ?number = null;
 
   constructor(props: Props) {
     super(props);
@@ -135,6 +139,7 @@ class InnerCalendar extends React.PureComponent {
       textToMeasure,
       sectionListDataWithHeights: null,
       readyToShowSectionList: false,
+      initialNumToRender: 31,
     };
   }
 
@@ -245,12 +250,61 @@ class InnerCalendar extends React.PureComponent {
         setTimeout(() => this.scrollToToday(), 50);
         setTimeout(() => this.sectionListShrinking = false, 200);
       } else if (newSLDWH.length > lastSLDWH.length) {
-        // If there are more sections in our new data, that means we just new
-        // entries that were fetched in response to a scroll load, which means
-        // we can reenable the scrollers.
-        this.loadingNewEntriesFromScroll = false;
+        if (
+          dateFromString(newSLDWH[1].key) < dateFromString(lastSLDWH[1].key)
+        ) {
+          this.updateScrollPositionAfterPrepend(lastSLDWH, newSLDWH);
+        } else {
+          this.loadingNewEntriesFromScroll = false;
+        }
       }
     }
+  }
+
+  /**
+   * When prepending list items, SectionList isn't smart about preserving scroll
+   * position. If we're at the start of the list before prepending, SectionList
+   * will just keep us at the front after prepending. But we want to preserve
+   * the previous on-screen items, so we have to do a calculation to get the new
+   * scroll position. (And deal with the inherent glitchiness of trying to time
+   * that change with the items getting prepended... *sigh*.)
+   */
+  updateScrollPositionAfterPrepend(
+    lastSLDWH: $ReadOnlyArray<SectionWithHeights>,
+    newSLDWH: $ReadOnlyArray<SectionWithHeights>,
+  ) {
+    invariant(
+      this.currentScrollPosition !== undefined &&
+        this.currentScrollPosition !== null,
+      "currentScrollPosition should be set",
+    );
+    const currentScrollPosition =
+      Math.max(this.currentScrollPosition, 0);
+    const existingKeys = new Set(
+      _map((section: SectionWithHeights) => section.key)(lastSLDWH),
+    );
+    const newSections = _filter(
+      (section: SectionWithHeights) => !existingKeys.has(section.key),
+    )(newSLDWH);
+    const heightOfNewSections =
+      InnerCalendar.heightOfSections(newSections);
+    const [itemIndex, sectionIndex, offset] =
+      InnerCalendar.getScrollPositionParams(
+        currentScrollPosition + heightOfNewSections,
+        newSLDWH,
+      );
+    const sectionList = this.sectionList;
+    invariant(sectionList, "sectionList should be set");
+    sectionList.scrollToLocation({
+      sectionIndex,
+      itemIndex: itemIndex + 1,
+      animated: false,
+      viewPosition: 0,
+      viewOffset: Platform.OS === "ios" ? (29 - offset) : offset * -1,
+    });
+    InteractionManager.runAfterInteractions(() => {
+      this.loadingNewEntriesFromScroll = false;
+    });
   }
 
   mergeHeightsIntoSectionListData(
@@ -290,7 +344,11 @@ class InnerCalendar extends React.PureComponent {
       // happens, we will reset this back.
       this.sectionListShrinking = true;
     }
-    this.setState({ sectionListDataWithHeights });
+    if (this.state.sectionListDataWithHeights) {
+      this.setState({ sectionListDataWithHeights, initialNumToRender: 0 });
+    } else {
+      this.setState({ sectionListDataWithHeights });
+    }
   }
 
   scrollToToday = (animated: ?bool = undefined) => {
@@ -420,6 +478,62 @@ class InnerCalendar extends React.PureComponent {
     return 20 + entryInfo.textHeight;
   }
 
+  static getScrollPositionParams(
+    currentScrollPosition: number,
+    data: $ReadOnlyArray<SectionWithHeights>,
+  ): [number, number, number] {
+    let curPosition = 0;
+    let curSectionIndex = 0;
+    let curItemIndex = -1;
+    while (true) {
+      const curItemHeight = InnerCalendar.itemHeight(
+        curItemIndex,
+        data[curSectionIndex].data[curItemIndex],
+        data[curSectionIndex].key,
+      );
+      if (curPosition + curItemHeight > currentScrollPosition) {
+        break;
+      }
+      curPosition += curItemHeight;
+      curItemIndex++;
+      if (curItemIndex === data[curSectionIndex].data.length) {
+        curItemIndex = -1;
+        curSectionIndex++;
+      }
+    }
+    return [curItemIndex, curSectionIndex, currentScrollPosition - curPosition];
+  }
+
+  initialScrollIndex = () => {
+    const data = this.state.sectionListDataWithHeights;
+    invariant(data, "should be set");
+    const todayIndex = _findIndex(['key', dateString(new Date())])(data);
+    let flattenedIndex = 0;
+    for (let sectionIndex = 0; sectionIndex < todayIndex; sectionIndex++) {
+      flattenedIndex += data[sectionIndex].data.length + 1;
+    }
+    return flattenedIndex;
+  }
+
+  static heightOfSections(data: $ReadOnlyArray<SectionWithHeights>): number {
+    let height = 0;
+    let curSectionIndex = 0;
+    let curItemIndex = -1;
+    while (curSectionIndex < data.length) {
+      height += InnerCalendar.itemHeight(
+        curItemIndex,
+        data[curSectionIndex].data[curItemIndex],
+        data[curSectionIndex].key,
+      );
+      curItemIndex++;
+      if (curItemIndex === data[curSectionIndex].data.length) {
+        curItemIndex = -1;
+        curSectionIndex++;
+      }
+    }
+    return height;
+  }
+
   render() {
     const sectionListDataWithHeights = this.state.sectionListDataWithHeights;
     let sectionList = null;
@@ -435,8 +549,9 @@ class InnerCalendar extends React.PureComponent {
           keyExtractor={InnerCalendar.keyExtractor}
           getItemLayout={InnerCalendar.getItemLayout}
           onLayout={this.onSectionListLayout}
-          initialNumToRender={31}
+          initialNumToRender={this.state.initialNumToRender}
           onViewableItemsChanged={this.onViewableItemsChanged}
+          onScroll={this.onScroll}
           style={[styles.sectionList, sectionListStyle]}
           ref={this.sectionListRef}
         />
@@ -535,6 +650,10 @@ class InnerCalendar extends React.PureComponent {
         endDate: dateString(end),
       }),
     );
+  }
+
+  onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
+    this.currentScrollPosition = event.nativeEvent.contentOffset.y;
   }
 
 }
