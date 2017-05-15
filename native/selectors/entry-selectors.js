@@ -13,6 +13,12 @@ import { dateString } from 'lib/utils/date-utils';
 
 export type CalendarItem =
   {
+    itemType: "loader",
+    key: string,
+  } | {
+    itemType: "header",
+    dateString: string,
+  } | {
     itemType: "entryInfo",
     entryInfo: EntryInfo,
   } | {
@@ -20,7 +26,7 @@ export type CalendarItem =
     dateString: string,
   };
 
-const calendarSectionListData = createSelector(
+const calendarListData = createSelector(
   (state: BaseAppState) => !!state.userInfo,
   currentDaysToEntries,
   (
@@ -34,25 +40,19 @@ const calendarSectionListData = createSelector(
       daysToEntries[dateString(new Date())] !== undefined,
       "today should have an entry in currentDaysToEntries on native",
     );
-    const result = _mapWithKeys(
-      (entryInfos: EntryInfo[], dayString: string) => ({
-        data: ([
-          ..._map(
-            (entryInfo: EntryInfo) => ({ itemType: "entryInfo", entryInfo }),
-          )(entryInfos),
-          { itemType: "footer", dateString: dayString },
-        ]: CalendarItem[]),
-        key: dayString,
-      }),
-    )(daysToEntries);
-    return [
-      { data: [], key: "TopLoader" },
-      ...result,
-      { data: [], key: "BottomLoader" },
-    ];
+    const items: CalendarItem[] = [{ itemType: "loader", key: "TopLoader" }];
+    for (let dayString in daysToEntries) {
+      items.push({ itemType: "header", dateString: dayString });
+      for (let entryInfo of daysToEntries[dayString]) {
+        items.push({ itemType: "entryInfo", entryInfo });
+      }
+      items.push({ itemType: "footer", dateString: dayString });
+    }
+    items.push({ itemType: "loader", key: "BottomLoader" });
+    return items;
   },
 );
 
 export {
-  calendarSectionListData,
+  calendarListData,
 };

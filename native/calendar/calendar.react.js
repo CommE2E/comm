@@ -4,7 +4,6 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
 import type { CalendarItem } from '../selectors/entry-selectors';
-import type { SectionBase } from '../react-native-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
@@ -15,7 +14,7 @@ import {
   View,
   StyleSheet,
   Text,
-  SectionList,
+  FlatList,
   AppState as NativeAppState,
   Platform,
   ActivityIndicator,
@@ -31,6 +30,7 @@ import _map from 'lodash/fp/map';
 import _find from 'lodash/fp/find';
 import _difference from 'lodash/fp/difference';
 import _filter from 'lodash/fp/filter';
+import _sum from 'lodash/fp/sum';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -47,26 +47,30 @@ import { simpleNavID } from 'lib/selectors/nav-selectors';
 
 import Entry from './entry.react';
 import { contentVerticalOffset } from '../dimensions';
-import { calendarSectionListData } from '../selectors/entry-selectors';
+import { calendarListData } from '../selectors/entry-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from './list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 
-type Section = SectionBase<CalendarItem>;
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
-export type CalendarItemWithHeight =
+type CalendarItemWithHeight =
   {
+    itemType: "loader",
+    key: string,
+  } | {
+    itemType: "header",
+    dateString: string,
+  } | {
     itemType: "entryInfo",
     entryInfo: EntryInfoWithHeight,
   } | {
     itemType: "footer",
     dateString: string,
   };
-type SectionWithHeights = SectionBase<CalendarItemWithHeight> & { key: string };
 type Props = {
   // Redux state
-  sectionListData: ?$ReadOnlyArray<Section>,
+  listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
   sessionID: string,
   sessionExpired: () => bool,
@@ -82,8 +86,8 @@ type Props = {
 };
 type State = {
   textToMeasure: string[],
-  sectionListDataWithHeights: ?$ReadOnlyArray<SectionWithHeights>,
-  readyToShowSectionList: bool,
+  listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
+  readyToShowList: bool,
   initialNumToRender: number,
 };
 class InnerCalendar extends React.PureComponent {
@@ -91,14 +95,24 @@ class InnerCalendar extends React.PureComponent {
   props: Props;
   state: State;
   static propTypes = {
-    sectionListData: PropTypes.arrayOf(PropTypes.shape({
-      data: PropTypes.arrayOf(PropTypes.shape({
-        itemType: PropTypes.oneOf(["entryInfo", "footer"]),
-        entryInfo: entryInfoPropType,
-        dateString: PropTypes.string,
-      })).isRequired,
-      key: PropTypes.string.isRequired,
-    })),
+    listData: PropTypes.arrayOf(PropTypes.oneOfType([
+      PropTypes.shape({
+        itemType: PropTypes.oneOf(["loader"]),
+        key: PropTypes.string.isRequired,
+      }),
+      PropTypes.shape({
+        itemType: PropTypes.oneOf(["header"]),
+        dateString: PropTypes.string.isRequired,
+      }),
+      PropTypes.shape({
+        itemType: PropTypes.oneOf(["entryInfo"]),
+        entryInfo: entryInfoPropType.isRequired,
+      }),
+      PropTypes.shape({
+        itemType: PropTypes.oneOf(["footer"]),
+        dateString: PropTypes.string.isRequired,
+      }),
+    ])),
     tabActive: PropTypes.bool.isRequired,
     sessionID: PropTypes.string.isRequired,
     sessionExpired: PropTypes.func.isRequired,
@@ -118,41 +132,33 @@ class InnerCalendar extends React.PureComponent {
     ),
   };
   textHeightMeasurer: ?TextHeightMeasurer = null;
-  sectionList: ?SectionList<SectionWithHeights> = null;
+  flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
   loadingNewEntriesFromScroll = false;
-  sectionListShrinking = false;
+  listShrinking = false;
   currentScrollPosition: ?number = null;
 
   constructor(props: Props) {
     super(props);
-    let textToMeasure = null;
-    if (props.sectionListData) {
-      textToMeasure = InnerCalendar.textToMeasureFromSectionListData(
-        props.sectionListData,
-      );
-    } else {
-      textToMeasure = [];
-    }
+    const textToMeasure = props.listData
+      ? InnerCalendar.textToMeasureFromListData(props.listData)
+      : [];
     this.state = {
       textToMeasure,
-      sectionListDataWithHeights: null,
-      readyToShowSectionList: false,
+      listDataWithHeights: null,
+      readyToShowList: false,
       initialNumToRender: 31,
     };
   }
 
-  static textToMeasureFromSectionListData(
-    sectionListData: $ReadOnlyArray<Section>,
-  ) {
+  static textToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
     const textToMeasure = [];
-    for (let section of sectionListData) {
-      for (let item of section.data) {
-        if (item.itemType === "entryInfo") {
-          textToMeasure.push(item.entryInfo.text);
-        }
+    for (let item of listData) {
+      if (item.itemType !== "entryInfo") {
+        continue;
       }
+      textToMeasure.push(item.entryInfo.text);
     }
     return textToMeasure;
   }
@@ -174,26 +180,26 @@ class InnerCalendar extends React.PureComponent {
       lastState.match(/inactive|background/) &&
       this.currentState === "active" &&
       this.props.sessionExpired() &&
-      this.sectionList
+      this.flatList
     ) {
       this.scrollToToday();
     }
   }
 
   componentWillReceiveProps(newProps: Props) {
-    // When the sectionListData changes we may need to recalculate some heights
-    if (newProps.sectionListData !== this.props.sectionListData) {
-      const newSectionListData = newProps.sectionListData;
-      if (!newSectionListData) {
+    // When the listData changes we may need to recalculate some heights
+    if (newProps.listData !== this.props.listData) {
+      const newListData = newProps.listData;
+      if (!newListData) {
         this.setState({
           textToMeasure: [],
-          sectionListDataWithHeights: null,
-          readyToShowSectionList: false,
+          listDataWithHeights: null,
+          readyToShowList: false,
         });
       } else {
         // If we had no entries and just got some we'll scroll to today
-        const newTextToMeasure = InnerCalendar.textToMeasureFromSectionListData(
-          newSectionListData,
+        const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
+          newListData,
         );
 
         let allTextAlreadyMeasured = false;
@@ -208,7 +214,7 @@ class InnerCalendar extends React.PureComponent {
         }
 
         if (allTextAlreadyMeasured) {
-          this.mergeHeightsIntoSectionListData(newSectionListData);
+          this.mergeHeightsIntoListData(newListData);
         } else {
           const newText =
             _difference(newTextToMeasure)(this.state.textToMeasure);
@@ -235,25 +241,35 @@ class InnerCalendar extends React.PureComponent {
     if (
       this.props.sessionID !== prevProps.sessionID &&
       !this.props.tabActive &&
-      this.sectionList
+      this.flatList
     ) {
       this.scrollToToday();
     }
-    const lastSLDWH = prevState.sectionListDataWithHeights;
-    const newSLDWH = this.state.sectionListDataWithHeights;
-    if (lastSLDWH && newSLDWH) {
-      if (newSLDWH.length < lastSLDWH.length) {
-        // If there are fewer sections in our new data, which happens when the
+    const lastLDWH = prevState.listDataWithHeights;
+    const newLDWH = this.state.listDataWithHeights;
+    if (lastLDWH && newLDWH) {
+      if (newLDWH.length < lastLDWH.length) {
+        // If there are fewer items in our new data, which happens when the
         // current calendar query gets reset due to inactivity, let's reset the
         // scroll position to the center (today). Once we're done, we can allow
         // scrolling logic once again.
-        setTimeout(() => this.scrollToToday(), 50);
-        setTimeout(() => this.sectionListShrinking = false, 200);
-      } else if (newSLDWH.length > lastSLDWH.length) {
+        this.scrollToToday();
+        InteractionManager.runAfterInteractions(() => {
+          this.listShrinking = false;
+        });
+      } else if (newLDWH.length > lastLDWH.length) {
+        const lastSecondItem = lastLDWH[1];
+        const newSecondItem = newLDWH[1];
+        invariant(
+          newSecondItem.itemType === "header" &&
+            lastSecondItem.itemType === "header",
+          "second item in listData should be a header",
+        );
         if (
-          dateFromString(newSLDWH[1].key) < dateFromString(lastSLDWH[1].key)
+          dateFromString(newSecondItem.dateString) <
+            dateFromString(lastSecondItem.dateString)
         ) {
-          this.updateScrollPositionAfterPrepend(lastSLDWH, newSLDWH);
+          this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
         } else {
           this.loadingNewEntriesFromScroll = false;
         }
@@ -262,16 +278,16 @@ class InnerCalendar extends React.PureComponent {
   }
 
   /**
-   * When prepending list items, SectionList isn't smart about preserving scroll
-   * position. If we're at the start of the list before prepending, SectionList
+   * When prepending list items, FlatList isn't smart about preserving scroll
+   * position. If we're at the start of the list before prepending, FlatList
    * will just keep us at the front after prepending. But we want to preserve
    * the previous on-screen items, so we have to do a calculation to get the new
    * scroll position. (And deal with the inherent glitchiness of trying to time
    * that change with the items getting prepended... *sigh*.)
    */
   updateScrollPositionAfterPrepend(
-    lastSLDWH: $ReadOnlyArray<SectionWithHeights>,
-    newSLDWH: $ReadOnlyArray<SectionWithHeights>,
+    lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
+    newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
   ) {
     invariant(
       this.currentScrollPosition !== undefined &&
@@ -281,73 +297,60 @@ class InnerCalendar extends React.PureComponent {
     const currentScrollPosition =
       Math.max(this.currentScrollPosition, 0);
     const existingKeys = new Set(
-      _map((section: SectionWithHeights) => section.key)(lastSLDWH),
+      _map((item: CalendarItemWithHeight) => InnerCalendar.keyExtractor(item))
+        (lastLDWH),
     );
-    const newSections = _filter(
-      (section: SectionWithHeights) => !existingKeys.has(section.key),
-    )(newSLDWH);
-    const heightOfNewSections =
-      InnerCalendar.heightOfSections(newSections);
-    const [itemIndex, sectionIndex, offset] =
-      InnerCalendar.getScrollPositionParams(
-        currentScrollPosition + heightOfNewSections,
-        newSLDWH,
-      );
-    const sectionList = this.sectionList;
-    invariant(sectionList, "sectionList should be set");
-    sectionList.scrollToLocation({
-      sectionIndex,
-      itemIndex: itemIndex + 1,
+    const newItems = _filter(
+      (item: CalendarItemWithHeight) =>
+        !existingKeys.has(InnerCalendar.keyExtractor(item)),
+    )(newLDWH);
+    const heightOfNewItems = InnerCalendar.heightOfItems(newItems);
+    const flatList = this.flatList;
+    invariant(flatList, "flatList should be set");
+    flatList.scrollToOffset({
+      offset: currentScrollPosition + heightOfNewItems,
       animated: false,
-      viewPosition: 0,
-      viewOffset: Platform.OS === "ios" ? (29 - offset) : offset * -1,
     });
     InteractionManager.runAfterInteractions(() => {
       this.loadingNewEntriesFromScroll = false;
     });
   }
 
-  mergeHeightsIntoSectionListData(
-    sectionListData: $ReadOnlyArray<Section>
-  ) {
-    const sectionListDataWithHeights = _map((section: Section) => ({
-      ...section,
-      data: _map((calendarItem: CalendarItem) => {
-        if (calendarItem.itemType === "footer") {
-          return calendarItem;
-        }
-        const entryInfo = calendarItem.entryInfo;
-        invariant(this.textHeights, "textHeights should be set");
-        const textHeight = this.textHeights[entryInfo.text];
-        invariant(
+  mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
+    const listDataWithHeights = _map((item: CalendarItem) => {
+      if (item.itemType !== "entryInfo") {
+        return item;
+      }
+      const entryInfo = item.entryInfo;
+      invariant(this.textHeights, "textHeights should be set");
+      const textHeight = this.textHeights[entryInfo.text];
+      invariant(
+        textHeight,
+        `height for ${entryKey(entryInfo)} should be set`,
+      );
+      return {
+        ...item,
+        entryInfo: {
+          ...item.entryInfo,
           textHeight,
-          `height for ${entryKey(entryInfo)} should be set`,
-        );
-        return {
-          ...calendarItem,
-          entryInfo: {
-            ...calendarItem.entryInfo,
-            textHeight,
-          },
-        };
-      })(section.data),
-    }))(sectionListData);
+        },
+      };
+    })(listData);
     if (
-      this.state.sectionListDataWithHeights &&
-      sectionListDataWithHeights.length <
-        this.state.sectionListDataWithHeights.length
+      this.state.listDataWithHeights &&
+      listDataWithHeights.length < this.state.listDataWithHeights.length
     ) {
-      // We know that this is going to shrink our SectionList, which may cause
+      // We know that this is going to shrink our FlatList, which may cause
       // either of the ListLoadingIndicators to come into view. When our
-      // SectionList shrinks, componentDidUpdate will trigger scrollToToday (we
-      // can't do it any earlier because of SectionList weirdness). After that
+      // FlatList shrinks, componentDidUpdate will trigger scrollToToday (we
+      // can't do it any earlier because of FlatList weirdness). After that
       // happens, we will reset this back.
-      this.sectionListShrinking = true;
+      this.listShrinking = true;
     }
-    if (this.state.sectionListDataWithHeights) {
-      this.setState({ sectionListDataWithHeights, initialNumToRender: 0 });
+    if (this.state.listDataWithHeights) {
+      this.setState({ listDataWithHeights, initialNumToRender: 0 });
     } else {
-      this.setState({ sectionListDataWithHeights });
+      this.setState({ listDataWithHeights });
     }
   }
 
@@ -355,34 +358,34 @@ class InnerCalendar extends React.PureComponent {
     if (animated === undefined) {
       animated = this.props.tabActive;
     }
-    invariant(this.state.sectionListDataWithHeights, "should be set");
-    const todayIndex = _findIndex(['key', dateString(new Date())])
-      (this.state.sectionListDataWithHeights);
-    invariant(this.sectionList, "sectionList should be set");
-    this.sectionList.scrollToLocation({
-      sectionIndex: todayIndex,
-      itemIndex: 0,
+    invariant(this.state.listDataWithHeights, "should be set");
+    const todayIndex = _findIndex(['dateString', dateString(new Date())])
+      (this.state.listDataWithHeights);
+    invariant(this.flatList, "flatList should be set");
+    this.flatList.scrollToIndex({
+      index: todayIndex,
       animated,
       viewPosition: 0.5,
-      viewOffset: Platform.OS === "ios" ? 29 : 0,
     });
   }
 
-  renderItem = (row) => {
-    if (row.item.entryInfo) {
+  renderItem = (row: { item: CalendarItemWithHeight }) => {
+    if (row.item.itemType === "loader") {
+      return <ListLoadingIndicator />;
+    } else if (row.item.itemType === "header") {
+      return InnerCalendar.renderSectionHeader(row);
+    } else if (row.item.itemType === "entryInfo") {
       return <Entry entryInfo={row.item.entryInfo} />;
-    } else {
+    } else if (row.item.itemType === "footer") {
       return this.renderSectionFooter(row);
     }
+    invariant(false, "renderItem conditions should be exhaustive");
   }
 
-  static renderSectionHeader = (row) => {
-    invariant(row.section.key, "should be set");
-    if (row.section.key === "TopLoader" || row.section.key === "BottomLoader") {
-      return <ListLoadingIndicator />;
-    }
-    let date = prettyDate(row.section.key);
-    if (dateString(new Date()) === row.section.key) {
+  static renderSectionHeader = (row: { item: CalendarItemWithHeight }) => {
+    invariant(row.item.itemType === "header", "itemType should be header");
+    let date = prettyDate(row.item.dateString);
+    if (dateString(new Date()) === row.item.dateString) {
       date += " (today)";
     }
     return (
@@ -396,11 +399,8 @@ class InnerCalendar extends React.PureComponent {
     );
   }
 
-  renderSectionFooter = (row) => {
-    // Eventually we will pass this function directly into SectionList, but
-    // that functionality is only in RN master as of this time, and also there
-    // is an issue (RN#13784) where empty sections don't render a footer. Also,
-    // scrollToLocation doesn't take the renderSectionFooter prop into account.
+  renderSectionFooter = (row: { item: CalendarItemWithHeight }) => {
+    invariant(row.item.itemType === "footer", "itemType should be footer");
     return (
       <SectionFooter dateString={row.item.dateString} onAdd={this.onAdd} />
     );
@@ -410,144 +410,73 @@ class InnerCalendar extends React.PureComponent {
     console.log(dayString);
   }
 
-  static keyExtractor = (item: CalendarItemWithHeight | SectionWithHeights) => {
-    if (item.data) {
-      invariant(typeof item.key === "string", "key should be string");
-      // Something having to do with onViewableItemsChanged calls keyExtractor
-      // with sections. This condition should only catch sections
+  static keyExtractor = (item: CalendarItemWithHeight) => {
+    if (item.itemType === "loader") {
       return item.key;
+    } else if (item.itemType === "header") {
+      return item.dateString + "/header";
     } else if (item.itemType === "entryInfo") {
-      invariant(item.entryInfo, 'test');
       return entryKey(item.entryInfo);
     } else if (item.itemType === "footer") {
       return item.dateString + "/footer";
     }
-    invariant(false, "keyExtractor could not extract key");
+    invariant(false, "keyExtractor conditions should be exhaustive");
   }
 
   static getItemLayout = (
-    data: $ReadOnlyArray<SectionWithHeights>,
+    data: $ReadOnlyArray<CalendarItemWithHeight>,
     // each section header, section footer, and entry gets its own index
-    flattenedIndex: number,
+    index: number,
   ) => {
-    let offset = 0;
-    let curSectionIndex = 0;
-    let curItemIndex = -1;
-    for (let i = 0; i < flattenedIndex; i++) {
-      offset += InnerCalendar.itemHeight(
-        curItemIndex,
-        data[curSectionIndex].data[curItemIndex],
-        data[curSectionIndex].key,
-      );
-      curItemIndex++;
-      if (curItemIndex === data[curSectionIndex].data.length) {
-        curItemIndex = -1;
-        curSectionIndex++;
-      }
-    }
-    const length = InnerCalendar.itemHeight(
-      curItemIndex,
-      data[curSectionIndex].data[curItemIndex],
-      data[curSectionIndex].key,
-    );
-    return { length, offset, index: flattenedIndex };
+    const offset =
+      InnerCalendar.heightOfItems(data.filter((_, i) => i < index));
+    const item = data[index];
+    const length = item ? InnerCalendar.itemHeight(item) : 0;
+    return { length, offset, index };
   }
 
-  static itemHeight(
-    itemIndex: number,
-    calendarItem: ?CalendarItemWithHeight,
-    sectionKey: string,
-  ): number {
+  static itemHeight(item: CalendarItemWithHeight): number {
     // TODO test these values on Android
-    if (itemIndex === -1) {
-      if (sectionKey === "TopLoader" || sectionKey === "BottomLoader") {
-        // handle ListLoadingIndicator
-        return 56;
-      } else {
-        // handle section header
-        return 29;
-      }
-    }
-    invariant(calendarItem, "should be set");
-    if (calendarItem.itemType === "footer") {
-      // handle section footer
+    if (item.itemType === "loader") {
+      return 56;
+    } else if (item.itemType === "header") {
+      return 29;
+    } else if (item.itemType === "entryInfo") {
+      return 20 + item.entryInfo.textHeight;
+    } else if (item.itemType === "footer") {
       return 40;
     }
-    // handle Entry
-    const entryInfo = calendarItem.entryInfo;
-    return 20 + entryInfo.textHeight;
+    invariant(false, "itemHeight conditions should be exhaustive");
   }
 
-  static getScrollPositionParams(
-    currentScrollPosition: number,
-    data: $ReadOnlyArray<SectionWithHeights>,
-  ): [number, number, number] {
-    let curPosition = 0;
-    let curSectionIndex = 0;
-    let curItemIndex = -1;
-    while (true) {
-      const curItemHeight = InnerCalendar.itemHeight(
-        curItemIndex,
-        data[curSectionIndex].data[curItemIndex],
-        data[curSectionIndex].key,
-      );
-      if (curPosition + curItemHeight > currentScrollPosition) {
-        break;
-      }
-      curPosition += curItemHeight;
-      curItemIndex++;
-      if (curItemIndex === data[curSectionIndex].data.length) {
-        curItemIndex = -1;
-        curSectionIndex++;
-      }
-    }
-    return [curItemIndex, curSectionIndex, currentScrollPosition - curPosition];
-  }
-
-  static heightOfSections(data: $ReadOnlyArray<SectionWithHeights>): number {
-    let height = 0;
-    let curSectionIndex = 0;
-    let curItemIndex = -1;
-    while (curSectionIndex < data.length) {
-      height += InnerCalendar.itemHeight(
-        curItemIndex,
-        data[curSectionIndex].data[curItemIndex],
-        data[curSectionIndex].key,
-      );
-      curItemIndex++;
-      if (curItemIndex === data[curSectionIndex].data.length) {
-        curItemIndex = -1;
-        curSectionIndex++;
-      }
-    }
-    return height;
+  static heightOfItems(data: $ReadOnlyArray<CalendarItemWithHeight>): number {
+    return _sum(data.map(InnerCalendar.itemHeight));
   }
 
   render() {
-    const sectionListDataWithHeights = this.state.sectionListDataWithHeights;
-    let sectionList = null;
-    if (sectionListDataWithHeights) {
-      const sectionListStyle = {
-        opacity: this.state.readyToShowSectionList ? 1 : 0,
+    const listDataWithHeights = this.state.listDataWithHeights;
+    let flatList = null;
+    if (listDataWithHeights) {
+      const flatListStyle = {
+        opacity: this.state.readyToShowList ? 1 : 0,
       };
-      sectionList = (
-        <SectionList
-          sections={sectionListDataWithHeights}
+      flatList = (
+        <FlatList
+          data={listDataWithHeights}
           renderItem={this.renderItem}
-          renderSectionHeader={InnerCalendar.renderSectionHeader}
           keyExtractor={InnerCalendar.keyExtractor}
           getItemLayout={InnerCalendar.getItemLayout}
-          onLayout={this.onSectionListLayout}
-          initialNumToRender={this.state.initialNumToRender}
+          onLayout={this.onListLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           onScroll={this.onScroll}
-          style={[styles.sectionList, sectionListStyle]}
-          ref={this.sectionListRef}
+          initialNumToRender={this.state.initialNumToRender}
+          style={[styles.flatList, flatListStyle]}
+          ref={this.flatListRef}
         />
       );
     }
     let loadingIndicator = null;
-    if (!sectionListDataWithHeights || !this.state.readyToShowSectionList) {
+    if (!listDataWithHeights || !this.state.readyToShowList) {
       loadingIndicator = (
         <View style={styles.loadingIndicatorContainer}>
           <ActivityIndicator
@@ -567,26 +496,34 @@ class InnerCalendar extends React.PureComponent {
           ref={this.textHeightMeasurerRef}
         />
         {loadingIndicator}
-        {sectionList}
+        {flatList}
       </View>
     );
+  }
+
+  initialScrollIndex = () => {
+    const data = this.state.listDataWithHeights;
+    invariant(data, "should be set");
+    return _findIndex(['dateString', dateString(new Date())])(data);
   }
 
   textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
     this.textHeightMeasurer = textHeightMeasurer;
   }
 
-  sectionListRef = (sectionList: ?SectionList<SectionWithHeights>) => {
-    this.sectionList = sectionList;
+  flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
+    this.flatList = flatList;
   }
 
-  onSectionListLayout = (event: SyntheticEvent) => {
+  onListLayout = (event: SyntheticEvent) => {
     // This onLayout call should only trigger when the user logs in or starts
-    // the app. We wait until now to scroll the calendar SectionList to today
-    // because SectionList.scrollToLocation has some quirky behavior when you
-    // call it before layout.
+    // the app. We wait until now to scroll the calendar FlatList to today
+    // because FlatList.scrollToItem has some quirky behavior when you call it
+    // before layout.
     this.scrollToToday(false);
-    setTimeout(() => this.setState({ readyToShowSectionList: true }), 50);
+    InteractionManager.runAfterInteractions(() => {
+      this.setState({ readyToShowList: true });
+    });
   }
 
   allHeightsMeasured = (
@@ -597,8 +534,8 @@ class InnerCalendar extends React.PureComponent {
       return;
     }
     this.textHeights = newTextHeights;
-    if (this.props.sectionListData) {
-      this.mergeHeightsIntoSectionListData(this.props.sectionListData);
+    if (this.props.listData) {
+      this.mergeHeightsIntoListData(this.props.listData);
     }
   }
 
@@ -607,9 +544,9 @@ class InnerCalendar extends React.PureComponent {
     changed: ViewToken[],
   }) => {
     if (
-      !this.state.readyToShowSectionList ||
+      !this.state.readyToShowList ||
       this.loadingNewEntriesFromScroll ||
-      this.sectionListShrinking
+      this.listShrinking
     ) {
       return;
     }
@@ -654,7 +591,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  sectionList: {
+  flatList: {
     flex: 1,
     backgroundColor: '#EEEEEE',
     marginTop: contentVerticalOffset,
@@ -691,7 +628,7 @@ const CalendarRouteName = 'Calendar';
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const Calendar = connect(
   (state: AppState) => ({
-    sectionListData: calendarSectionListData(state),
+    listData: calendarListData(state),
     tabActive: activeTabSelector(state),
     sessionID: state.sessionID,
     sessionExpired: sessionExpired(state),
