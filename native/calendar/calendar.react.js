@@ -253,10 +253,8 @@ class InnerCalendar extends React.PureComponent {
         // current calendar query gets reset due to inactivity, let's reset the
         // scroll position to the center (today). Once we're done, we can allow
         // scrolling logic once again.
-        this.scrollToToday();
-        InteractionManager.runAfterInteractions(() => {
-          this.listShrinking = false;
-        });
+        setTimeout(() => this.scrollToToday(), 50);
+        setTimeout(() => this.listShrinking = false, 200);
       } else if (newLDWH.length > lastLDWH.length) {
         const lastSecondItem = lastLDWH[1];
         const newSecondItem = newLDWH[1];
@@ -289,13 +287,6 @@ class InnerCalendar extends React.PureComponent {
     lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
     newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
   ) {
-    invariant(
-      this.currentScrollPosition !== undefined &&
-        this.currentScrollPosition !== null,
-      "currentScrollPosition should be set",
-    );
-    const currentScrollPosition =
-      Math.max(this.currentScrollPosition, 0);
     const existingKeys = new Set(
       _map((item: CalendarItemWithHeight) => InnerCalendar.keyExtractor(item))
         (lastLDWH),
@@ -307,13 +298,30 @@ class InnerCalendar extends React.PureComponent {
     const heightOfNewItems = InnerCalendar.heightOfItems(newItems);
     const flatList = this.flatList;
     invariant(flatList, "flatList should be set");
-    flatList.scrollToOffset({
-      offset: currentScrollPosition + heightOfNewItems,
-      animated: false,
-    });
-    InteractionManager.runAfterInteractions(() => {
-      this.loadingNewEntriesFromScroll = false;
-    });
+    const scrollAction = () => {
+      invariant(
+        this.currentScrollPosition !== undefined &&
+          this.currentScrollPosition !== null,
+        "currentScrollPosition should be set",
+      );
+      const currentScrollPosition =
+        Math.max(this.currentScrollPosition, 0);
+      let offset = currentScrollPosition + heightOfNewItems;
+      if (Platform.OS === "android") {
+        // I am not sure why we do this. I have no idea what's going on.
+        offset += 74;
+      }
+      flatList.scrollToOffset({
+        offset,
+        animated: false,
+      });
+    };
+    if (Platform.OS === "android") {
+      setTimeout(scrollAction, 0);
+    } else {
+      scrollAction();
+    }
+    setTimeout(() => this.loadingNewEntriesFromScroll = false, 1000);
   }
 
   mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
@@ -521,9 +529,7 @@ class InnerCalendar extends React.PureComponent {
     // because FlatList.scrollToItem has some quirky behavior when you call it
     // before layout.
     this.scrollToToday(false);
-    InteractionManager.runAfterInteractions(() => {
-      this.setState({ readyToShowList: true });
-    });
+    setTimeout(() => this.setState({ readyToShowList: true }), 50);
   }
 
   allHeightsMeasured = (
