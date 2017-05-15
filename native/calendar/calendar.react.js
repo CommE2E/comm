@@ -504,17 +504,6 @@ class InnerCalendar extends React.PureComponent {
     return [curItemIndex, curSectionIndex, currentScrollPosition - curPosition];
   }
 
-  initialScrollIndex = () => {
-    const data = this.state.sectionListDataWithHeights;
-    invariant(data, "should be set");
-    const todayIndex = _findIndex(['key', dateString(new Date())])(data);
-    let flattenedIndex = 0;
-    for (let sectionIndex = 0; sectionIndex < todayIndex; sectionIndex++) {
-      flattenedIndex += data[sectionIndex].data.length + 1;
-    }
-    return flattenedIndex;
-  }
-
   static heightOfSections(data: $ReadOnlyArray<SectionWithHeights>): number {
     let height = 0;
     let curSectionIndex = 0;
