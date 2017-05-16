@@ -202,7 +202,7 @@ class Entry extends React.Component {
     this.setState({ focused: false });
     if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id);
-    } else {
+    } else if (this.props.entryInfo.text !== this.state.text) {
       this.save(this.props.entryInfo.id, this.state.text);
     }
   }
