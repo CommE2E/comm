@@ -248,33 +248,44 @@ class InnerCalendar extends React.PureComponent {
     ) {
       this.scrollToToday();
     }
+
     const lastLDWH = prevState.listDataWithHeights;
     const newLDWH = this.state.listDataWithHeights;
-    if (lastLDWH && newLDWH) {
-      if (newLDWH.length < lastLDWH.length) {
-        // If there are fewer items in our new data, which happens when the
-        // current calendar query gets reset due to inactivity, let's reset the
-        // scroll position to the center (today). Once we're done, we can allow
-        // scrolling logic once again.
-        setTimeout(() => this.scrollToToday(), 50);
-        setTimeout(() => this.listShrinking = false, 200);
-      } else if (newLDWH.length > lastLDWH.length) {
-        const lastSecondItem = lastLDWH[1];
-        const newSecondItem = newLDWH[1];
-        invariant(
-          newSecondItem.itemType === "header" &&
-            lastSecondItem.itemType === "header",
-          "second item in listData should be a header",
-        );
-        if (
-          dateFromString(newSecondItem.dateString) <
-            dateFromString(lastSecondItem.dateString)
-        ) {
-          this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
-        } else {
-          this.loadingNewEntriesFromScroll = false;
-        }
-      }
+    if (!lastLDWH || !newLDWH) {
+      return;
+    }
+
+    const lastSecondItem = lastLDWH[1];
+    const newSecondItem = newLDWH[1];
+    invariant(
+      newSecondItem.itemType === "header" &&
+        lastSecondItem.itemType === "header",
+      "second item in listData should be a header",
+    );
+    const lastStartDate = dateFromString(lastSecondItem.dateString);
+    const newStartDate = dateFromString(newSecondItem.dateString);
+
+    const lastPenultimateItem = lastLDWH[lastLDWH.length - 2];
+    const newPenultimateItem = newLDWH[newLDWH.length - 2];
+    invariant(
+      newPenultimateItem.itemType === "footer" &&
+        lastPenultimateItem.itemType === "footer",
+      "penultimate item in listData should be a footer",
+    );
+    const lastEndDate = dateFromString(lastPenultimateItem.dateString);
+    const newEndDate = dateFromString(newPenultimateItem.dateString);
+
+    if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
+      // If there are fewer items in our new data, which happens when the
+      // current calendar query gets reset due to inactivity, let's reset the
+      // scroll position to the center (today). Once we're done, we can allow
+      // scrolling logic once again.
+      setTimeout(() => this.scrollToToday(), 50);
+      setTimeout(() => this.listShrinking = false, 200);
+    } else if (newStartDate < lastStartDate) {
+      this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
+    } else if (newEndDate > lastEndDate) {
+      this.loadingNewEntriesFromScroll = false;
     }
   }
 
