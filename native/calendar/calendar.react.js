@@ -52,6 +52,7 @@ import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from './list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
+import ThreadPicker from './thread-picker.react';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
 type CalendarItemWithHeight =
@@ -89,6 +90,7 @@ type State = {
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
   initialNumToRender: number,
+  pickerOpenForDateString: ?string,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -149,6 +151,7 @@ class InnerCalendar extends React.PureComponent {
       listDataWithHeights: null,
       readyToShowList: false,
       initialNumToRender: 31,
+      pickerOpenForDateString: null,
     };
   }
 
@@ -415,7 +418,7 @@ class InnerCalendar extends React.PureComponent {
   }
 
   onAdd = (dayString: string) => {
-    console.log(dayString);
+    this.setState({ pickerOpenForDateString: dayString });
   }
 
   static keyExtractor = (item: CalendarItemWithHeight) => {
@@ -431,11 +434,10 @@ class InnerCalendar extends React.PureComponent {
     invariant(false, "keyExtractor conditions should be exhaustive");
   }
 
-  static getItemLayout = (
+  static getItemLayout(
     data: $ReadOnlyArray<CalendarItemWithHeight>,
-    // each section header, section footer, and entry gets its own index
     index: number,
-  ) => {
+  ) {
     const offset =
       InnerCalendar.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];
@@ -495,6 +497,15 @@ class InnerCalendar extends React.PureComponent {
         </View>
       );
     }
+    let picker = null;
+    if (this.state.pickerOpenForDateString) {
+      picker = (
+        <ThreadPicker
+          dateString={this.state.pickerOpenForDateString}
+          close={this.closePicker}
+        />
+      );
+    }
     return (
       <View style={styles.container}>
         <TextHeightMeasurer
@@ -505,6 +516,7 @@ class InnerCalendar extends React.PureComponent {
         />
         {loadingIndicator}
         {flatList}
+        {picker}
       </View>
     );
   }
@@ -586,6 +598,10 @@ class InnerCalendar extends React.PureComponent {
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
+  }
+
+  closePicker = () => {
+    this.setState({ pickerOpenForDateString: null });
   }
 
 }

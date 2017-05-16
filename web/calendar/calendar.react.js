@@ -73,9 +73,7 @@ class Calendar extends React.PureComponent {
         );
         columns.push(
           <Day
-            year={this.props.year}
-            month={this.props.month}
-            day={curDayOfMonth} 
+            dayString={dayString}
             entryInfos={entries}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}

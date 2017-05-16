@@ -21,6 +21,7 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
+import { dateString, dateFromString } from 'lib/utils/date-utils'
 
 import css from '../style.css';
 import Entry from './entry.react';
@@ -32,9 +33,7 @@ import { AddVector, HistoryVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 
 type Props = {
-  year: number,
-  month: number, // 1-indexed
-  day: number, // 1-indexed
+  dayString: string,
   entryInfos: EntryInfo[],
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -83,10 +82,7 @@ class Day extends React.PureComponent {
   }
 
   render() {
-    const today = new Date();
-    const isToday = today.getDate() === this.props.day &&
-      today.getMonth() === this.props.month - 1 &&
-      today.getFullYear() === this.props.year;
+    const isToday = dateString(new Date()) === this.props.dayString;
     const tdClasses = classNames(css['day'], { [css['current-day']]: isToday });
 
     let actionLinks = null;
@@ -150,6 +146,7 @@ class Day extends React.PureComponent {
       css['entry-container'],
       { [css['focused-entry-container']]: hovered },
     );
+    const date = dateFromString(this.props.dayString);
     return (
       <td
         className={tdClasses}
@@ -157,7 +154,7 @@ class Day extends React.PureComponent {
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
       >
-        <h2>{this.props.day}</h2>
+        <h2>{date.getDate()}</h2>
         <div className={entryContainerClasses} ref={this.entryContainerRef}>
           {entries}
           <div
@@ -250,9 +247,7 @@ class Day extends React.PureComponent {
       createLocalEntryActionType,
       createLocalEntry(
         calendarID,
-        this.props.year,
-        this.props.month,
-        this.props.day,
+        this.props.dayString,
         this.props.username,
       ),
     );
@@ -263,9 +258,7 @@ class Day extends React.PureComponent {
     this.props.setModal(
       <HistoryModal
         mode="day"
-        year={this.props.year}
-        month={this.props.month}
-        day={this.props.day}
+        dayString={this.props.dayString}
         onClose={this.props.clearModal}
       />
     );
@@ -285,9 +278,7 @@ class Day extends React.PureComponent {
 }
 
 Day.propTypes = {
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
-  day: PropTypes.number.isRequired,
+  dayString: PropTypes.string.isRequired,
   entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,

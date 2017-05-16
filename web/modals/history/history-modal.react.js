@@ -21,7 +21,7 @@ import _map from 'lodash/fp/map';
 import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 
-import { getDate, dateString } from 'lib/utils/date-utils';
+import { dateFromString } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesActionType,
@@ -45,9 +45,7 @@ import HistoryRevision from './history-revision.react';
 
 type Props = {
   mode: HistoryMode,
-  year: number,
-  month: number, // 1-indexed
-  day: number, // 1-indexed
+  dayString: string,
   onClose: () => void,
   currentEntryID?: ?string,
   // Redux state
@@ -115,11 +113,7 @@ class HistoryModal extends React.PureComponent {
         </a>
       );
     }
-    const historyDate = getDate(
-      this.props.year,
-      this.props.month,
-      this.props.day,
-    );
+    const historyDate = dateFromString(this.props.dayString);
     const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
     const loadingStatus = this.state.mode === "day"
       ? this.props.dayLoadingStatus
@@ -133,9 +127,6 @@ class HistoryModal extends React.PureComponent {
         return (
           <HistoryEntry
             entryInfo={entryInfo}
-            year={this.props.year}
-            month={this.props.month}
-            day={this.props.day}
             onClick={this.onClickEntry}
             animateAndLoadEntry={this.animateAndLoadEntry}
             key={serverID}
@@ -204,13 +195,12 @@ class HistoryModal extends React.PureComponent {
       currentNavID,
       "currentNavID should be set before history-modal opened",
     );
-    const date = dateString(this.props.year, this.props.month, this.props.day);
     this.props.dispatchActionPromise(
       fetchEntriesActionType,
       this.props.fetchEntries({
         navID: currentNavID,
-        startDate: date,
-        endDate: date,
+        startDate: this.props.dayString,
+        endDate: this.props.dayString,
         includeDeleted: true,
       }),
     );
@@ -260,9 +250,7 @@ class HistoryModal extends React.PureComponent {
 
 HistoryModal.propTypes = {
   mode: PropTypes.string.isRequired,
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
-  day: PropTypes.number.isRequired,
+  dayString: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   currentEntryID: PropTypes.string,
   currentNavID: PropTypes.string,
@@ -279,16 +267,11 @@ const dayLoadingStatusSelector
 const entryLoadingStatusSelector
   = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
 
-type OwnProps = {
-  year: number,
-  month: number,
-  day: number,
-};
+type OwnProps = { dayString: string };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     currentNavID: currentNavID(state),
-    entryInfos: allDaysToEntries(state)
-      [dateString(ownProps.year, ownProps.month, ownProps.day)],
+    entryInfos: allDaysToEntries(state)[ownProps.dayString],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
     cookie: state.cookie,

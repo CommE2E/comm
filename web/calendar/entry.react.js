@@ -37,6 +37,7 @@ import {
   nextSessionID,
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
+import { dateString } from 'lib/utils/date-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -425,9 +426,11 @@ class Entry extends React.PureComponent {
     this.props.setModal(
       <HistoryModal
         mode="entry"
-        year={this.props.entryInfo.year}
-        month={this.props.entryInfo.month}
-        day={this.props.entryInfo.day}
+        dayString={dateString(
+          this.props.entryInfo.year,
+          this.props.entryInfo.month,
+          this.props.entryInfo.day,
+        )}
         onClose={this.props.clearModal}
         currentEntryID={this.props.entryInfo.id}
       />

@@ -72,7 +72,7 @@ function reducer(state: AppState, action: Action) {
     state = { ...state, navInfo };
   }
   if (action.type === REHYDRATE) {
-    return {
+    state = {
       ...state,
       rehydrateConcluded: true,
     };

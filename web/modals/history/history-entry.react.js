@@ -34,9 +34,6 @@ import LoadingIndicator from '../../loading-indicator.react';
 
 type Props = {
   entryInfo: EntryInfo,
-  year: number,
-  month: number, // 1-indexed
-  day: number, // 1-indexed
   onClick: (entryID: string) => void,
   animateAndLoadEntry: (entryID: string) => void,
   // Redux state
@@ -153,9 +150,6 @@ class HistoryEntry extends React.PureComponent {
 
 HistoryEntry.propTypes = {
   entryInfo: entryInfoPropType,
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
-  day: PropTypes.number.isRequired,
   onClick: PropTypes.func.isRequired,
   animateAndLoadEntry: PropTypes.func.isRequired,
   calendarInfo: calendarInfoPropType,

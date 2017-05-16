@@ -5,7 +5,10 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type { CalendarInfo } from 'lib/types/calendar-types';
 import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import type { SaveResult } from 'lib/actions/entry-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
 
@@ -17,6 +20,7 @@ import {
   StyleSheet,
   Platform,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -27,25 +31,32 @@ import _isEqual from 'lodash/fp/isEqual';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import {
-  sessionStartingPayload,
   currentSessionID,
+  nextSessionID,
+  sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
 import {
   saveEntryActionType,
   saveEntry,
+  deleteEntryActionType,
+  deleteEntry,
+  concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
 import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
   // Redux state
-  calendarInfo: ?CalendarInfo,
+  calendarInfo: CalendarInfo,
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
+  nextSessionID: () => ?string,
   // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   saveEntry: (
@@ -59,6 +70,11 @@ type Props = {
     calendarID: string,
     creationTime: number,
   ) => Promise<SaveResult>,
+  deleteEntry: (
+    serverID: string,
+    prevText: string,
+    sessionID: string,
+  ) => Promise<void>,
 };
 type State = {
   text: string,
@@ -73,11 +89,14 @@ class Entry extends React.Component {
   state: State;
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
-    calendarInfo: calendarInfoPropType,
+    calendarInfo: calendarInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
+    nextSessionID: PropTypes.func.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     saveEntry: PropTypes.func.isRequired,
+    deleteEntry: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
   creating = false;
@@ -128,6 +147,14 @@ class Entry extends React.Component {
       !_isEqual(nextProps.entryInfo, this.props.entryInfo);
   }
 
+  componentDidMount() {
+    // Whenever a new Entry is created, focus on it
+    if (!this.props.entryInfo.id) {
+      invariant(this.textInput, "textInput ref not set");
+      this.textInput.focus();
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
@@ -174,7 +201,7 @@ class Entry extends React.Component {
   onBlur = (event: SyntheticEvent) => {
     this.setState({ focused: false });
     if (this.state.text.trim() === "") {
-      //this.delete(this.props.entryInfo.id, false);
+      this.delete(this.props.entryInfo.id);
     } else {
       this.save(this.props.entryInfo.id, this.state.text);
     }
@@ -269,12 +296,62 @@ class Entry extends React.Component {
         }
         if (this.needsDeleteAfterCreation) {
           this.needsDeleteAfterCreation = false;
-          //this.delete(newServerID, false);
+          this.delete(newServerID);
         }
       }
       return payload;
     } catch(e) {
+      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.setState({ loadingStatus: "error" });
+      }
+      if (e instanceof ServerError && e.message === 'concurrent_modification') {
+        const onRefresh = () => {
+          this.setState({ loadingStatus: "inactive" });
+          this.props.dispatchActionPayload(
+            concurrentModificationResetActionType,
+            { id: serverID, dbText: e.result.db },
+          );
+        };
+        Alert.alert(
+          "Concurrent modification",
+          "It looks like somebody is attempting to modify that field at the " +
+            "same time as you! Please refresh the entry and try again.",
+          [
+            { text: 'OK', onPress: onRefresh },
+          ],
+          { cancelable: false },
+        );
+      }
       throw e;
+    }
+  }
+
+  delete(serverID: ?string) {
+    const startingPayload: {[key: string]: ?string} = {
+      localID: this.props.entryInfo.localID,
+      serverID: serverID,
+    };
+    const nextSessionID = this.props.nextSessionID();
+    if (nextSessionID) {
+      startingPayload.newSessionID = nextSessionID;
+    }
+    this.props.dispatchActionPromise(
+      deleteEntryActionType,
+      this.deleteAction(serverID),
+      undefined,
+      startingPayload,
+    );
+  }
+
+  async deleteAction(serverID: ?string) {
+    if (serverID) {
+      await this.props.deleteEntry(
+        serverID,
+        this.props.entryInfo.text,
+        this.props.sessionID(),
+      );
+    } else if (this.creating) {
+      this.needsDeleteAfterCreation = true;
     }
   }
 
@@ -306,8 +383,12 @@ export default connect(
     calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
     sessionStartingPayload: sessionStartingPayload(state),
     sessionID: currentSessionID(state),
+    nextSessionID: nextSessionID(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ saveEntry }),
+  includeDispatchActionProps({
+    dispatchActionPayload: true,
+    dispatchActionPromise: true,
+  }),
+  bindServerCalls({ saveEntry, deleteEntry }),
 )(Entry);

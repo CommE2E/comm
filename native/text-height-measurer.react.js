@@ -107,7 +107,7 @@ class TextHeightMeasurer extends React.PureComponent {
     const leftToMeasureIter = this.leftToMeasure.values();
     for (; newBatchSize > 0; newBatchSize--) {
       const value = leftToMeasureIter.next().value;
-      invariant(value, "item should exist");
+      invariant(value !== undefined && value !== null, "item should exist");
       newCurrentlyMeasuring.add(value);
     }
     this.setState({ currentlyMeasuring: newCurrentlyMeasuring });
