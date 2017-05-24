@@ -15,7 +15,7 @@
     "react-native-keychain": "^1.2.0",
     "react-native-onepassword": "^1.0.4",
     "react-native-vector-icons": "^4.1.1",
-    "react-navigation": "^1.0.0-beta.10",
+    "react-navigation": "^1.0.0-beta.11",
     "react-redux": "^5.0.4",
     "redux": "^3.6.0",
     "redux-persist": "^4.7.1",
