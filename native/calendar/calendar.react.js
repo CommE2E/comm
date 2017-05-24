@@ -573,8 +573,10 @@ class InnerCalendar extends React.PureComponent {
     // the app. We wait until now to scroll the calendar FlatList to today
     // because FlatList.scrollToItem has some quirky behavior when you call it
     // before layout.
-    this.scrollToToday(false);
-    setTimeout(() => this.setState({ readyToShowList: true }), 50);
+    if (!this.state.readyToShowList) {
+      this.scrollToToday(false);
+      setTimeout(() => this.setState({ readyToShowList: true }), 50);
+    }
   }
 
   allHeightsMeasured = (

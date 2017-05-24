@@ -252,15 +252,15 @@ class Entry extends React.Component {
     }
     let height = event.nativeEvent.contentSize.height;
     // iOS doesn't include the margin on this callback
-    height = Platform.OS === "ios" ? height + 10 : height;
+    height = Platform.OS === "ios" ? height + 10 : height + 5;
     this.setState({ height });
   }
 
-  // On around, onContentSizeChange only gets called once when the TextInput is
+  // On Android, onContentSizeChange only gets called once when the TextInput is
   // first rendered. Which is like, what? Anyways, instead you're supposed to
   // use onChange.
   onChange = (event) => {
-    if (!this.props.focused) {
+    if (Platform.OS !== "android" || !this.props.focused) {
       return;
     }
     this.setState({ height: event.nativeEvent.contentSize.height });
