@@ -28,6 +28,7 @@ import invariant from 'invariant';
 import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { colorIsDark } from 'lib/selectors/calendar-selectors';
 import {
@@ -47,9 +48,14 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { ServerError } from 'lib/utils/fetch-utils';
+import { entryKey } from 'lib/shared/entry-utils';
+
+import { Button } from '../shared-components';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
+  focused: bool,
+  onFocus: (entryKey: string) => void,
   // Redux state
   calendarInfo: CalendarInfo,
   sessionStartingPayload: () => { newSessionID?: string },
@@ -79,7 +85,6 @@ type Props = {
 type State = {
   text: string,
   loadingStatus: LoadingStatus,
-  focused: bool,
   height: number,
   color: string,
 };
@@ -89,6 +94,8 @@ class Entry extends React.Component {
   state: State;
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
+    focused: PropTypes.bool.isRequired,
+    onFocus: PropTypes.func.isRequired,
     calendarInfo: calendarInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
@@ -111,7 +118,6 @@ class Entry extends React.Component {
     this.state = {
       text: props.entryInfo.text,
       loadingStatus: "inactive",
-      focused: false,
       height: props.entryInfo.textHeight + 10,
       // On log out, it's possible for the calendar to be deauthorized before
       // the log out animation completes. To avoid having rendering issues in
@@ -123,9 +129,11 @@ class Entry extends React.Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (
-      !this.state.focused &&
-      nextProps.entryInfo.text !== this.props.entryInfo.text &&
-      nextProps.entryInfo.text !== this.state.text
+      !this.props.focused &&
+      (nextProps.entryInfo.text !== this.props.entryInfo.text &&
+        nextProps.entryInfo.text !== this.state.text) ||
+      (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
+        nextProps.entryInfo.textHeight !== (this.state.height - 10))
     ) {
       this.setState({
         text: nextProps.entryInfo.text,
@@ -137,6 +145,9 @@ class Entry extends React.Component {
       nextProps.calendarInfo.color !== this.state.color
     ) {
       this.setState({ color: nextProps.calendarInfo.color });
+    }
+    if (!nextProps.focused && this.props.focused && this.textInput) {
+      this.textInput.blur();
     }
   }
 
@@ -160,18 +171,46 @@ class Entry extends React.Component {
   }
 
   render() {
-    const containerStyle = {
-      height: this.state.height + 10,
-    };
-    const entryStyle = {
-      backgroundColor: `#${this.state.color}`,
-      height: this.state.height,
-    };
-    const textColor = colorIsDark(this.state.color) ? 'white' : 'black';
+    const darkColor = colorIsDark(this.state.color);
+    let actionLinks = null;
+    if (this.props.focused) {
+      const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
+      const actionLinksTextStyle = { color: actionLinksColor };
+      const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
+      actionLinks = (
+        <View style={styles.actionLinks}>
+          <Button
+            onSubmit={this.onPressDelete}
+            underlayColor={actionLinksUnderlayColor}
+            style={styles.deleteButton}
+          >
+            <View style={styles.deleteButtonContents}>
+              <Icon
+                name="close"
+                size={14}
+                color={actionLinksColor}
+              />
+              <Text style={[styles.actionLinksText, actionLinksTextStyle]}>
+                DELETE
+              </Text>
+            </View>
+          </Button>
+        </View>
+      );
+    }
+    const entryStyle = { backgroundColor: `#${this.state.color}` };
+    const textColor = darkColor ? 'white' : 'black';
     const textStyle = { color: textColor };
-    const textInputStyle = { color: textColor, height: this.state.height };
+    const textInputStyle: Object = {
+      color: textColor,
+    };
+    if (this.props.focused) {
+      textInputStyle.paddingBottom = 0;
+    } else {
+      textInputStyle.height = this.state.height;
+    }
     return (
-      <View style={[styles.container, containerStyle]}>
+      <View style={styles.container}>
         <View style={[styles.entry, entryStyle]}>
           <TextInput
             style={[styles.textInput, textInputStyle]}
@@ -185,6 +224,7 @@ class Entry extends React.Component {
             onChange={this.onChange}
             ref={this.textInputRef}
           />
+          {actionLinks}
         </View>
       </View>
     );
@@ -195,11 +235,10 @@ class Entry extends React.Component {
   }
 
   onFocus = () => {
-    this.setState({ focused: true });
+    this.props.onFocus(entryKey(this.props.entryInfo));
   }
 
   onBlur = (event: SyntheticEvent) => {
-    this.setState({ focused: false });
     if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id);
     } else if (this.props.entryInfo.text !== this.state.text) {
@@ -208,7 +247,7 @@ class Entry extends React.Component {
   }
 
   onContentSizeChange = (event) => {
-    if (!this.state.focused) {
+    if (!this.props.focused) {
       return;
     }
     let height = event.nativeEvent.contentSize.height;
@@ -221,7 +260,7 @@ class Entry extends React.Component {
   // first rendered. Which is like, what? Anyways, instead you're supposed to
   // use onChange.
   onChange = (event) => {
-    if (!this.state.focused) {
+    if (!this.props.focused) {
       return;
     }
     this.setState({ height: event.nativeEvent.contentSize.height });
@@ -326,6 +365,10 @@ class Entry extends React.Component {
     }
   }
 
+  onPressDelete = () => {
+    this.delete(this.props.entryInfo.id);
+  }
+
   delete(serverID: ?string) {
     const startingPayload: {[key: string]: ?string} = {
       localID: this.props.entryInfo.localID,
@@ -375,6 +418,25 @@ const styles = StyleSheet.create({
     margin: 0,
     color: '#333333',
     fontFamily: 'Arial',
+  },
+  actionLinks: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  deleteButton: {
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 10,
+  },
+  deleteButtonContents: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  actionLinksText: {
+    paddingLeft: 5,
+    fontWeight: 'bold',
+    fontSize: 12,
   },
 });
 

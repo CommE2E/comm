@@ -20,12 +20,14 @@ class Button extends React.PureComponent {
     onSubmit: () => void,
     disabled?: bool,
     style?: StyleObj,
+    underlayColor?: string,
     children?: React.Element<any>,
   };
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     style: ViewPropTypes.style,
+    underlayColor: PropTypes.string,
     children: PropTypes.object,
   };
 
@@ -42,11 +44,14 @@ class Button extends React.PureComponent {
         </TouchableNativeFeedback>
       );
     } else {
+      const underlayColor = this.props.underlayColor
+        ? this.props.underlayColor
+        : "#CCCCCCDD";
       return (
         <TouchableHighlight
           onPress={this.props.onSubmit}
           style={this.props.style}
-          underlayColor="#CCCCCCDD"
+          underlayColor={underlayColor}
           disabled={!!this.props.disabled}
         >
           {this.props.children}

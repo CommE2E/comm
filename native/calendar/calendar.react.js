@@ -31,6 +31,9 @@ import _find from 'lodash/fp/find';
 import _difference from 'lodash/fp/difference';
 import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
+import _pick from 'lodash/fp/pick';
+import _size from 'lodash/fp/size';
+import _compact from 'lodash/fp/compact';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -91,6 +94,11 @@ type State = {
   readyToShowList: bool,
   initialNumToRender: number,
   pickerOpenForDateString: ?string,
+  focusedEntries: {[key: string]: bool},
+};
+const viewabilityConfig = {
+  viewAreaCoveragePercentThreshold: 100,
+  waitForInteraction: true,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -152,6 +160,7 @@ class InnerCalendar extends React.PureComponent {
       readyToShowList: false,
       initialNumToRender: 31,
       pickerOpenForDateString: null,
+      focusedEntries: {},
     };
   }
 
@@ -198,6 +207,7 @@ class InnerCalendar extends React.PureComponent {
           textToMeasure: [],
           listDataWithHeights: null,
           readyToShowList: false,
+          focusedEntries: {},
         });
       } else {
         // If we had no entries and just got some we'll scroll to today
@@ -397,7 +407,13 @@ class InnerCalendar extends React.PureComponent {
     } else if (row.item.itemType === "header") {
       return InnerCalendar.renderSectionHeader(row);
     } else if (row.item.itemType === "entryInfo") {
-      return <Entry entryInfo={row.item.entryInfo} />;
+      return (
+        <Entry
+          entryInfo={row.item.entryInfo}
+          focused={!!this.state.focusedEntries[entryKey(row.item.entryInfo)]}
+          onFocus={this.onEntryFocus}
+        />
+      );
     } else if (row.item.itemType === "footer") {
       return this.renderSectionFooter(row);
     }
@@ -489,8 +505,10 @@ class InnerCalendar extends React.PureComponent {
           getItemLayout={InnerCalendar.getItemLayout}
           onLayout={this.onListLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
           onScroll={this.onScroll}
           initialNumToRender={this.state.initialNumToRender}
+          extraData={this.state.focusedEntries}
           style={[styles.flatList, flatListStyle]}
           ref={this.flatListRef}
         />
@@ -546,6 +564,10 @@ class InnerCalendar extends React.PureComponent {
     this.flatList = flatList;
   }
 
+  onEntryFocus = (key: string) => {
+    this.setState({ focusedEntries: { [key]: true } });
+  }
+
   onListLayout = (event: SyntheticEvent) => {
     // This onLayout call should only trigger when the user logs in or starts
     // the app. We wait until now to scroll the calendar FlatList to today
@@ -572,6 +594,16 @@ class InnerCalendar extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
+    const viewableEntries = _compact(_map(
+      (token: ViewToken) => token.item.itemType === "entryInfo"
+        ? entryKey(token.item.entryInfo)
+        : null,
+    )(info.viewableItems));
+    const newFocusedEntries = _pick(viewableEntries)(this.state.focusedEntries);
+    if (_size(newFocusedEntries) < _size(this.state.focusedEntries)) {
+      this.setState({ focusedEntries: newFocusedEntries });
+    }
+
     if (
       !this.state.readyToShowList ||
       this.loadingNewEntriesFromScroll ||
