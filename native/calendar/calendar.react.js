@@ -8,6 +8,7 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { KeyboardEvent } from '../keyboard';
 
 import React from 'react';
 import {
@@ -18,7 +19,7 @@ import {
   AppState as NativeAppState,
   Platform,
   ActivityIndicator,
-  InteractionManager,
+  Keyboard,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -160,6 +161,10 @@ class InnerCalendar extends React.PureComponent {
   // For some reason, we have to delay the scrollToToday call after the first
   // scroll upwards on Android. I don't know why. Might only be on the emulator.
   firstScrollUpOnAndroidComplete = false;
+  // When an entry is focused, we make a note of which one was focused so that
+  // once the keyboard event happens, we know where to move the scrollPos to
+  lastEntryKeyFocused: ?string = null;
+  keyboardShowListener: ?Object;
 
   constructor(props: Props) {
     super(props);
@@ -193,6 +198,12 @@ class InnerCalendar extends React.PureComponent {
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
+    if (this.props.tabActive) {
+      this.keyboardShowListener = Keyboard.addListener(
+        Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+        this.keyboardShow,
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -270,6 +281,24 @@ class InnerCalendar extends React.PureComponent {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
+    if (
+      nextProps.tabActive &&
+      !this.props.tabActive &&
+      !this.keyboardShowListener
+    ) {
+      this.keyboardShowListener = Keyboard.addListener(
+        Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+        this.keyboardShow,
+      );
+    } else if (
+      !nextProps.tabActive &&
+      this.props.tabActive &&
+      this.keyboardShowListener
+    ) {
+      this.keyboardShowListener.remove();
+      this.keyboardShowListener = null;
+    }
+
     // If the sessionID gets reset and the user isn't looking we scroll to today
     if (
       nextProps.sessionID !== this.props.sessionID &&
@@ -333,10 +362,7 @@ class InnerCalendar extends React.PureComponent {
     lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
     newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
   ) {
-    const existingKeys = new Set(
-      _map((item: CalendarItemWithHeight) => InnerCalendar.keyExtractor(item))
-        (lastLDWH),
-    );
+    const existingKeys = new Set(_map(InnerCalendar.keyExtractor)(lastLDWH));
     const newItems = _filter(
       (item: CalendarItemWithHeight) =>
         !existingKeys.has(InnerCalendar.keyExtractor(item)),
@@ -569,17 +595,20 @@ class InnerCalendar extends React.PureComponent {
     );
   }
 
+  static flatListHeight() {
+    return Platform.OS === "android"
+      ? windowHeight - contentVerticalOffset - 50
+      : windowHeight - contentVerticalOffset - 49;
+  }
+
   initialScrollIndex = () => {
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
-    const flatListHeight = Platform.OS === "android"
-      ? windowHeight - contentVerticalOffset - 125
-      : windowHeight - contentVerticalOffset - 49;
     const heightOfTodayHeader = InnerCalendar.itemHeight(data[todayIndex]);
 
     let returnIndex = todayIndex;
-    let heightLeft = (flatListHeight - heightOfTodayHeader) / 2;
+    let heightLeft = (InnerCalendar.flatListHeight() - heightOfTodayHeader) / 2;
     while (heightLeft > 0) {
       heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
     }
@@ -603,7 +632,40 @@ class InnerCalendar extends React.PureComponent {
       visibleEntries: this.extraData.visibleEntries,
       focusedEntries: { [key]: true },
     };
+    this.lastEntryKeyFocused = key;
     this.setState({ extraData: this.extraData });
+  }
+
+  keyboardShow = (event: KeyboardEvent) => {
+    const lastEntryKeyFocused = this.lastEntryKeyFocused;
+    if (!lastEntryKeyFocused) {
+      return;
+    }
+    const data = this.state.listDataWithHeights;
+    invariant(data, "should be set");
+    const index = _findIndex(
+      (item: CalendarItemWithHeight) =>
+        InnerCalendar.keyExtractor(item) === lastEntryKeyFocused,
+    )(data);
+    const itemStart = InnerCalendar.heightOfItems(
+      data.filter((_, i) => i < index),
+    );
+    const itemHeight = InnerCalendar.itemHeight(data[index]);
+    const itemEnd = itemStart + itemHeight;
+    const visibleHeight = InnerCalendar.flatListHeight() -
+      event.endCoordinates.height;
+    invariant(this.currentScrollPosition, "should be set");
+    if (
+      itemStart > this.currentScrollPosition &&
+      itemEnd < this.currentScrollPosition + visibleHeight
+    ) {
+      return;
+    }
+    invariant(this.flatList, "flatList should be set");
+    this.flatList.scrollToOffset({
+      offset: itemStart - (visibleHeight - itemHeight) / 2,
+      animated: true,
+    });
   }
 
   allHeightsMeasured = (

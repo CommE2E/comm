@@ -10,6 +10,7 @@ import type { Dispatch } from 'lib/types/redux-types';
 import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { KeyboardEvent } from '../keyboard';
 
 import React from 'react';
 import {
@@ -46,15 +47,6 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import { getNativeCookie, setNativeCookie } from './native-credentials';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
-type KeyboardEvent = {
-  duration: number,
-  endCoordinates: {
-    width: number,
-    height: number,
-    screenX: number,
-    screenY: number,
-  },
-};
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
   navigation: NavigationScreenProp<*, *>,
@@ -177,9 +169,11 @@ class InnerLoggedOutModal extends React.PureComponent {
   onBackground() {
     if (this.keyboardShowListener) {
       this.keyboardShowListener.remove();
+      this.keyboardShowListener = null;
     }
     if (this.keyboardHideListener) {
       this.keyboardHideListener.remove();
+      this.keyboardHideListener = null;
     }
     BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }

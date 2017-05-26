@@ -8,6 +8,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { VerifyField } from 'lib/utils/verify-utils';
+import type { KeyboardEvent } from '../keyboard';
 
 import React from 'react';
 import {
@@ -46,15 +47,6 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
-type KeyboardEvent = {
-  duration: number,
-  endCoordinates: {
-    width: number,
-    height: number,
-    screenX: number,
-    screenY: number,
-  },
-};
 type VerificationModalMode = "simple-text" | "reset-password";
 type VerificationModalNavProps = {
   verifyCode: string,
@@ -185,9 +177,11 @@ class InnerVerificationModal extends React.PureComponent {
   onBackground() {
     if (this.keyboardShowListener) {
       this.keyboardShowListener.remove();
+      this.keyboardShowListener = null;
     }
     if (this.keyboardHideListener) {
       this.keyboardHideListener.remove();
+      this.keyboardHideListener = null;
     }
     BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
