@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   FlatList,
   TouchableHighlight,
+  LayoutAnimation,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -105,6 +106,7 @@ class ThreadPicker extends React.PureComponent {
 
   threadPicked = (calendarID: string) => {
     this.props.close();
+    LayoutAnimation.easeInEaseOut();
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
       createLocalEntry(calendarID, this.props.dateString, this.props.username),

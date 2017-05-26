@@ -21,6 +21,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Alert,
+  LayoutAnimation,
 } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -112,7 +113,7 @@ class Entry extends React.Component {
   needsUpdateAfterCreation = false;
   needsDeleteAfterCreation = false;
   nextSaveAttemptIndex = 0;
-  mounted = true;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);
@@ -129,9 +130,15 @@ class Entry extends React.Component {
     };
   }
 
+  guardedSetState(input) {
+    if (this.mounted) {
+      this.setState(input);
+    }
+  }
+
   componentWillReceiveProps(nextProps: Props) {
     if (
-      !this.props.focused &&
+      !Entry.isFocused(nextProps) &&
       (nextProps.entryInfo.text !== this.props.entryInfo.text &&
         nextProps.entryInfo.text !== this.state.text) ||
       (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
@@ -160,22 +167,38 @@ class Entry extends React.Component {
       !_isEqual(nextProps.entryInfo, this.props.entryInfo);
   }
 
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (
+      nextState.height !== this.state.height ||
+        Entry.isFocused(nextProps) !== Entry.isFocused(this.props)
+    ) {
+      LayoutAnimation.easeInEaseOut();
+    }
+  }
+
   componentDidMount() {
     // Whenever a new Entry is created, focus on it
     if (!this.props.entryInfo.id) {
       invariant(this.textInput, "textInput ref not set");
       this.textInput.focus();
     }
+    this.mounted = true;
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
+  static isFocused(props: Props) {
+    return props.focused || !props.entryInfo.id;
+  }
+
   render() {
+    const focused = Entry.isFocused(this.props);
+
     const darkColor = colorIsDark(this.state.color);
     let actionLinks = null;
-    if (this.props.focused) {
+    if (focused) {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
@@ -206,13 +229,14 @@ class Entry extends React.Component {
     const textInputStyle: Object = {
       color: textColor,
     };
-    if (this.props.focused) {
+    if (focused) {
       textInputStyle.paddingBottom = 0;
     } else {
       textInputStyle.height = this.state.height;
     }
     let text;
-    if (this.props.visible || !this.props.entryInfo.id) {
+    const visible = this.props.visible || !this.props.entryInfo.id;
+    if (visible || !this.props.entryInfo.id) {
       text = (
         <TextInput
           style={[styles.textInput, textInputStyle]}
@@ -261,27 +285,27 @@ class Entry extends React.Component {
   }
 
   onContentSizeChange = (event) => {
-    if (!this.props.focused) {
+    if (!Entry.isFocused(this.props)) {
       return;
     }
     let height = event.nativeEvent.contentSize.height;
     // iOS doesn't include the margin on this callback
     height = Platform.OS === "ios" ? height + 10 : height + 5;
-    this.setState({ height });
+    this.guardedSetState({ height });
   }
 
   // On Android, onContentSizeChange only gets called once when the TextInput is
   // first rendered. Which is like, what? Anyways, instead you're supposed to
   // use onChange.
   onChange = (event) => {
-    if (Platform.OS !== "android" || !this.props.focused) {
+    if (Platform.OS !== "android" || !Entry.isFocused(this.props)) {
       return;
     }
-    this.setState({ height: event.nativeEvent.contentSize.height });
+    this.guardedSetState({ height: event.nativeEvent.contentSize.height });
   }
 
   onChangeText = (newText: string) => {
-    this.setState({ text: newText });
+    this.guardedSetState({ text: newText });
   }
 
   save(serverID: ?string, newText: string) {
@@ -313,9 +337,7 @@ class Entry extends React.Component {
 
   async saveAction(serverID: ?string, newText: string) {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
-    if (this.mounted) {
-      this.setState({ loadingStatus: "loading" });
-    }
+    this.guardedSetState({ loadingStatus: "loading" });
     try {
       const response = await this.props.saveEntry(
         serverID,
@@ -328,8 +350,8 @@ class Entry extends React.Component {
         this.props.entryInfo.calendarID,
         this.props.entryInfo.creationTime,
       );
-      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.setState({ loadingStatus: "inactive" });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "inactive" });
       }
       const payload = {
         localID: (null: ?string),
@@ -354,12 +376,12 @@ class Entry extends React.Component {
       }
       return payload;
     } catch(e) {
-      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.setState({ loadingStatus: "error" });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "error" });
       }
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
         const onRefresh = () => {
-          this.setState({ loadingStatus: "inactive" });
+          this.guardedSetState({ loadingStatus: "inactive" });
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
             { id: serverID, dbText: e.result.db },
@@ -384,6 +406,7 @@ class Entry extends React.Component {
   }
 
   delete(serverID: ?string) {
+    LayoutAnimation.easeInEaseOut();
     const startingPayload: {[key: string]: ?string} = {
       localID: this.props.entryInfo.localID,
       serverID: serverID,

@@ -165,6 +165,7 @@ class InnerCalendar extends React.PureComponent {
   // once the keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyFocused: ?string = null;
   keyboardShowListener: ?Object;
+  keyboardShownHeight: ?number = null;
 
   constructor(props: Props) {
     super(props);
@@ -493,6 +494,7 @@ class InnerCalendar extends React.PureComponent {
   }
 
   onAdd = (dayString: string) => {
+    Keyboard.dismiss();
     this.setState({ pickerOpenForDateString: dayString });
   }
 
@@ -553,6 +555,7 @@ class InnerCalendar extends React.PureComponent {
           onViewableItemsChanged={this.onViewableItemsChanged}
           onScroll={this.onScroll}
           initialScrollIndex={this.initialScrollIndex()}
+          keyboardShouldPersistTaps="handled"
           extraData={this.extraData}
           style={[styles.flatList, flatListStyle]}
           ref={this.flatListRef}
@@ -632,15 +635,27 @@ class InnerCalendar extends React.PureComponent {
       visibleEntries: this.extraData.visibleEntries,
       focusedEntries: { [key]: true },
     };
-    this.lastEntryKeyFocused = key;
     this.setState({ extraData: this.extraData });
+    const keyboardShownHeight = this.keyboardShownHeight;
+    if (keyboardShownHeight) {
+      this.scrollToKey(key, keyboardShownHeight);
+    } else {
+      this.lastEntryKeyFocused = key;
+    }
   }
 
   keyboardShow = (event: KeyboardEvent) => {
     const lastEntryKeyFocused = this.lastEntryKeyFocused;
-    if (!lastEntryKeyFocused) {
-      return;
+    if (lastEntryKeyFocused) {
+      this.scrollToKey(lastEntryKeyFocused, event.endCoordinates.height);
+    } else {
+      this.keyboardShownHeight = event.endCoordinates.height;
     }
+  }
+
+  scrollToKey(lastEntryKeyFocused: string, keyboardHeight: number) {
+    this.lastEntryKeyFocused = null;
+    this.keyboardShownHeight = null;
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
     const index = _findIndex(
@@ -653,7 +668,7 @@ class InnerCalendar extends React.PureComponent {
     const itemHeight = InnerCalendar.itemHeight(data[index]);
     const itemEnd = itemStart + itemHeight;
     const visibleHeight = InnerCalendar.flatListHeight() -
-      event.endCoordinates.height;
+      keyboardHeight;
     invariant(this.currentScrollPosition, "should be set");
     if (
       itemStart > this.currentScrollPosition &&
