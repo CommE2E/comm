@@ -54,6 +54,7 @@ import { Button } from '../shared-components';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
+  visible: bool,
   focused: bool,
   onFocus: (entryKey: string) => void,
   // Redux state
@@ -94,6 +95,7 @@ class Entry extends React.Component {
   state: State;
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
+    visible: PropTypes.bool.isRequired,
     focused: PropTypes.bool.isRequired,
     onFocus: PropTypes.func.isRequired,
     calendarInfo: calendarInfoPropType.isRequired,
@@ -209,21 +211,33 @@ class Entry extends React.Component {
     } else {
       textInputStyle.height = this.state.height;
     }
+    let text;
+    if (this.props.visible || !this.props.entryInfo.id) {
+      text = (
+        <TextInput
+          style={[styles.textInput, textInputStyle]}
+          underlineColorAndroid="transparent"
+          value={this.state.text}
+          onChangeText={this.onChangeText}
+          multiline={true}
+          onBlur={this.onBlur}
+          onFocus={this.onFocus}
+          onContentSizeChange={this.onContentSizeChange}
+          onChange={this.onChange}
+          ref={this.textInputRef}
+        />
+      );
+    } else {
+      text = (
+        <Text style={[styles.textInput, textInputStyle]}>
+          {this.state.text}
+        </Text>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={[styles.entry, entryStyle]}>
-          <TextInput
-            style={[styles.textInput, textInputStyle]}
-            underlineColorAndroid="transparent"
-            value={this.state.text}
-            onChangeText={this.onChangeText}
-            multiline={true}
-            onBlur={this.onBlur}
-            onFocus={this.onFocus}
-            onContentSizeChange={this.onContentSizeChange}
-            onChange={this.onChange}
-            ref={this.textInputRef}
-          />
+          {text}
           {actionLinks}
         </View>
       </View>

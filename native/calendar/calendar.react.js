@@ -49,7 +49,7 @@ import {
 import { simpleNavID } from 'lib/selectors/nav-selectors';
 
 import Entry from './entry.react';
-import { contentVerticalOffset } from '../dimensions';
+import { contentVerticalOffset, windowHeight } from '../dimensions';
 import { calendarListData } from '../selectors/entry-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
@@ -88,17 +88,23 @@ type Props = {
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
 };
+type ExtraData = {
+  focusedEntries: {[key: string]: bool},
+  visibleEntries: {[key: string]: bool},
+};
 type State = {
   textToMeasure: string[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
   initialNumToRender: number,
   pickerOpenForDateString: ?string,
-  focusedEntries: {[key: string]: bool},
-};
-const viewabilityConfig = {
-  viewAreaCoveragePercentThreshold: 100,
-  waitForInteraction: true,
+  // We actually don't pay much attention to this extraData... we pass
+  // this.extraData around instead. This exists here because sometimes we update
+  // extraData without a corresponding update in something else, and so we need
+  // to trigger a re-render with setState. But in many cases a re-render is
+  // going to get triggered anyways, and in those cases we may update
+  // this.extraData without updating this.state.extraData.
+  extraData: ExtraData,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -148,19 +154,29 @@ class InnerCalendar extends React.PureComponent {
   loadingNewEntriesFromScroll = false;
   listShrinking = false;
   currentScrollPosition: ?number = null;
+  // See comment in State extraData flow type above
+  extraDataUpdateTimeout: ?number = null;
+  extraData: ExtraData;
+  // For some reason, we have to delay the scrollToToday call after the first
+  // scroll upwards on Android. I don't know why. Might only be on the emulator.
+  firstScrollUpOnAndroidComplete = false;
 
   constructor(props: Props) {
     super(props);
     const textToMeasure = props.listData
       ? InnerCalendar.textToMeasureFromListData(props.listData)
       : [];
+    this.extraData = {
+      focusedEntries: {},
+      visibleEntries: {},
+    };
     this.state = {
       textToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
       initialNumToRender: 31,
       pickerOpenForDateString: null,
-      focusedEntries: {},
+      extraData: this.extraData,
     };
   }
 
@@ -203,11 +219,15 @@ class InnerCalendar extends React.PureComponent {
     if (newProps.listData !== this.props.listData) {
       const newListData = newProps.listData;
       if (!newListData) {
+        this.extraData = {
+          focusedEntries: {},
+          visibleEntries: {},
+        };
         this.setState({
           textToMeasure: [],
           listDataWithHeights: null,
           readyToShowList: false,
-          focusedEntries: {},
+          extraData: this.extraData,
         });
       } else {
         // If we had no entries and just got some we'll scroll to today
@@ -292,10 +312,12 @@ class InnerCalendar extends React.PureComponent {
       // scrolling logic once again.
       setTimeout(() => this.scrollToToday(), 50);
       setTimeout(() => this.listShrinking = false, 200);
+      this.firstScrollUpOnAndroidComplete = false;
     } else if (newStartDate < lastStartDate) {
       this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
     } else if (newEndDate > lastEndDate) {
       this.loadingNewEntriesFromScroll = false;
+      this.firstScrollUpOnAndroidComplete = true;
     }
   }
 
@@ -333,19 +355,20 @@ class InnerCalendar extends React.PureComponent {
       let offset = currentScrollPosition + heightOfNewItems;
       if (Platform.OS === "android") {
         // I am not sure why we do this. I have no idea what's going on.
-        offset += 74;
+        offset += 75;
       }
       flatList.scrollToOffset({
         offset,
         animated: false,
       });
     };
-    if (Platform.OS === "android") {
+    if (Platform.OS === "android" && !this.firstScrollUpOnAndroidComplete) {
       setTimeout(scrollAction, 0);
+      this.firstScrollUpOnAndroidComplete = true;
     } else {
       scrollAction();
     }
-    setTimeout(() => this.loadingNewEntriesFromScroll = false, 1000);
+    setTimeout(() => this.loadingNewEntriesFromScroll = false, 500);
   }
 
   mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
@@ -402,19 +425,22 @@ class InnerCalendar extends React.PureComponent {
   }
 
   renderItem = (row: { item: CalendarItemWithHeight }) => {
-    if (row.item.itemType === "loader") {
+    const item = row.item;
+    if (item.itemType === "loader") {
       return <ListLoadingIndicator />;
-    } else if (row.item.itemType === "header") {
+    } else if (item.itemType === "header") {
       return InnerCalendar.renderSectionHeader(row);
-    } else if (row.item.itemType === "entryInfo") {
+    } else if (item.itemType === "entryInfo") {
+      const key = entryKey(item.entryInfo);
       return (
         <Entry
-          entryInfo={row.item.entryInfo}
-          focused={!!this.state.focusedEntries[entryKey(row.item.entryInfo)]}
+          entryInfo={item.entryInfo}
+          focused={!!this.extraData.focusedEntries[key]}
+          visible={!!this.extraData.visibleEntries[key]}
           onFocus={this.onEntryFocus}
         />
       );
-    } else if (row.item.itemType === "footer") {
+    } else if (item.itemType === "footer") {
       return this.renderSectionFooter(row);
     }
     invariant(false, "renderItem conditions should be exhaustive");
@@ -503,12 +529,10 @@ class InnerCalendar extends React.PureComponent {
           renderItem={this.renderItem}
           keyExtractor={InnerCalendar.keyExtractor}
           getItemLayout={InnerCalendar.getItemLayout}
-          onLayout={this.onListLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
           onScroll={this.onScroll}
-          initialNumToRender={this.state.initialNumToRender}
-          extraData={this.state.focusedEntries}
+          initialScrollIndex={this.initialScrollIndex()}
+          extraData={this.extraData}
           style={[styles.flatList, flatListStyle]}
           ref={this.flatListRef}
         />
@@ -553,7 +577,18 @@ class InnerCalendar extends React.PureComponent {
   initialScrollIndex = () => {
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
-    return _findIndex(['dateString', dateString(new Date())])(data);
+    const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
+    const flatListHeight = Platform.OS === "android"
+      ? windowHeight - contentVerticalOffset - 125
+      : windowHeight - contentVerticalOffset - 49;
+    const heightOfTodayHeader = InnerCalendar.itemHeight(data[todayIndex]);
+
+    let returnIndex = todayIndex;
+    let heightLeft = (flatListHeight - heightOfTodayHeader) / 2;
+    while (heightLeft > 0) {
+      heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
+    }
+    return returnIndex + 1;
   }
 
   textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
@@ -562,21 +597,18 @@ class InnerCalendar extends React.PureComponent {
 
   flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
     this.flatList = flatList;
+    if (flatList && !this.state.readyToShowList) {
+      const waitTime = Platform.OS === "android" ? 250 : 50;
+      setTimeout(() => this.setState({ readyToShowList: true }), waitTime);
+    }
   }
 
   onEntryFocus = (key: string) => {
-    this.setState({ focusedEntries: { [key]: true } });
-  }
-
-  onListLayout = (event: SyntheticEvent) => {
-    // This onLayout call should only trigger when the user logs in or starts
-    // the app. We wait until now to scroll the calendar FlatList to today
-    // because FlatList.scrollToItem has some quirky behavior when you call it
-    // before layout.
-    if (!this.state.readyToShowList) {
-      this.scrollToToday(false);
-      setTimeout(() => this.setState({ readyToShowList: true }), 50);
-    }
+    this.extraData = {
+      visibleEntries: this.extraData.visibleEntries,
+      focusedEntries: { [key]: true },
+    };
+    this.setState({ extraData: this.extraData });
   }
 
   allHeightsMeasured = (
@@ -601,9 +633,27 @@ class InnerCalendar extends React.PureComponent {
         ? entryKey(token.item.entryInfo)
         : null,
     )(info.viewableItems));
-    const newFocusedEntries = _pick(viewableEntries)(this.state.focusedEntries);
-    if (_size(newFocusedEntries) < _size(this.state.focusedEntries)) {
-      this.setState({ focusedEntries: newFocusedEntries });
+    const visibleEntries = {};
+    for (let viewableEntry of viewableEntries) {
+      visibleEntries[viewableEntry] = true;
+    }
+    this.extraData = {
+      focusedEntries:
+        _pick(viewableEntries)(this.extraData.focusedEntries),
+      visibleEntries,
+    };
+    const newDataSameAsCurrent =
+      _isEqual(this.state.extraData)(this.extraData);
+    if (
+      !this.extraDataUpdateTimeout &&
+      !newDataSameAsCurrent &&
+      !this.loadingNewEntriesFromScroll
+    ) {
+      this.extraDataUpdateTimeout =
+        setTimeout(this.triggerExtraDataUpdate, 1000);
+    } else if (this.extraDataUpdateTimeout && newDataSameAsCurrent) {
+      clearTimeout(this.extraDataUpdateTimeout);
+      this.extraDataUpdateTimeout = null;
     }
 
     if (
@@ -631,6 +681,10 @@ class InnerCalendar extends React.PureComponent {
       return;
     }
     this.loadingNewEntriesFromScroll = true;
+    if (this.extraDataUpdateTimeout) {
+      clearTimeout(this.extraDataUpdateTimeout);
+      this.extraDataUpdateTimeout = null;
+    }
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionType,
       this.props.fetchEntriesWithRange({
@@ -639,6 +693,18 @@ class InnerCalendar extends React.PureComponent {
         endDate: dateString(end),
       }),
     );
+  }
+
+  // We want to avoid updating extraData too often, as it leads to update cycles
+  // on the FlatList. However, onViewableItemsChanged is primarily responsible
+  // for updating the FlatList, and it likes to send tons of updates in spurts.
+  // To avoid this effect, whenever onViewableItemsChanged triggers we schedule
+  // an extra data update, which we only execute once per second max.
+  triggerExtraDataUpdate = () => {
+    if (!_isEqual(this.state.extraData)(this.extraData)) {
+      this.setState({ extraData: this.extraData });
+    }
+    this.extraDataUpdateTimeout = null;
   }
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
