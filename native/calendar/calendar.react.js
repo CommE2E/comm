@@ -269,18 +269,18 @@ class InnerCalendar extends React.PureComponent {
     }
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentWillUpdate(nextProps: Props, nextState: State) {
     // If the sessionID gets reset and the user isn't looking we scroll to today
     if (
-      this.props.sessionID !== prevProps.sessionID &&
-      !this.props.tabActive &&
+      nextProps.sessionID !== this.props.sessionID &&
+      !nextProps.tabActive &&
       this.flatList
     ) {
       this.scrollToToday();
     }
 
-    const lastLDWH = prevState.listDataWithHeights;
-    const newLDWH = this.state.listDataWithHeights;
+    const lastLDWH = this.state.listDataWithHeights;
+    const newLDWH = nextState.listDataWithHeights;
     if (!lastLDWH || !newLDWH) {
       return;
     }
@@ -353,10 +353,6 @@ class InnerCalendar extends React.PureComponent {
       const currentScrollPosition =
         Math.max(this.currentScrollPosition, 0);
       let offset = currentScrollPosition + heightOfNewItems;
-      if (Platform.OS === "android") {
-        // I am not sure why we do this. I have no idea what's going on.
-        offset += 75;
-      }
       flatList.scrollToOffset({
         offset,
         animated: false,
@@ -499,11 +495,10 @@ class InnerCalendar extends React.PureComponent {
   }
 
   static itemHeight(item: CalendarItemWithHeight): number {
-    // TODO test these values on Android
     if (item.itemType === "loader") {
       return 56;
     } else if (item.itemType === "header") {
-      return 29;
+      return 31;
     } else if (item.itemType === "entryInfo") {
       return 20 + item.entryInfo.textHeight;
     } else if (item.itemType === "footer") {
@@ -588,7 +583,7 @@ class InnerCalendar extends React.PureComponent {
     while (heightLeft > 0) {
       heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
     }
-    return returnIndex + 1;
+    return returnIndex;
   }
 
   textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
@@ -730,6 +725,7 @@ const styles = StyleSheet.create({
     marginTop: contentVerticalOffset,
   },
   sectionHeader: {
+    height: 31,
     backgroundColor: '#EEEEEE',
     borderBottomWidth: 2,
     borderColor: '#FFFFFF',
