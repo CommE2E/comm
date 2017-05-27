@@ -263,10 +263,7 @@ class Entry extends React.Component {
     }
     return (
       <View style={styles.container}>
-        <View
-          style={[styles.entry, entryStyle]}
-          onStartShouldSetResponderCapture={this.onFocus}
-        >
+        <View style={[styles.entry, entryStyle]}>
           {text}
           {actionLinks}
         </View>
@@ -280,7 +277,6 @@ class Entry extends React.Component {
 
   onFocus = () => {
     this.props.onFocus(entryKey(this.props.entryInfo));
-    return false;
   }
 
   onBlur = (event: SyntheticEvent) => {
