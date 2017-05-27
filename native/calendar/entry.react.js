@@ -226,18 +226,13 @@ class Entry extends React.Component {
     const entryStyle = { backgroundColor: `#${this.state.color}` };
     const textStyle: Object = {
       color: darkColor ? 'white' : 'black',
+      height: this.state.height,
     };
-    if (focused) {
-      textStyle.paddingBottom = 0;
-    } else {
-      textStyle.height = this.state.height;
-    }
     let text;
-    const visible = this.props.visible || !this.props.entryInfo.id;
-    if (visible || !this.props.entryInfo.id) {
+    if (this.props.visible || !this.props.entryInfo.id) {
       text = (
         <TextInput
-          style={[styles.textInput, textStyle]}
+          style={[styles.text, textStyle]}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -251,7 +246,7 @@ class Entry extends React.Component {
       );
     } else {
       text = (
-        <Text style={[styles.textInput, textStyle]}>
+        <Text style={[styles.text, textStyle]}>
           {this.state.text}
         </Text>
       );
@@ -448,7 +443,7 @@ const styles = StyleSheet.create({
     margin: 5,
     overflow: 'hidden',
   },
-  textInput: {
+  text: {
     fontSize: 16,
     paddingTop: 5,
     paddingBottom: 5,
@@ -461,6 +456,7 @@ const styles = StyleSheet.create({
   actionLinks: {
     flex: 1,
     flexDirection: 'row',
+    marginTop: -5,
   },
   deleteButton: {
     paddingLeft: 10,
