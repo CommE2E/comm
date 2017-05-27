@@ -154,7 +154,6 @@ class InnerCalendar extends React.PureComponent {
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
   loadingNewEntriesFromScroll = false;
-  listShrinking = false;
   currentScrollPosition: ?number = null;
   // See comment in State extraData flow type above
   extraDataUpdateTimeout: ?number = null;
@@ -167,6 +166,10 @@ class InnerCalendar extends React.PureComponent {
   lastEntryKeyFocused: ?string = null;
   keyboardShowListener: ?Object;
   keyboardShownHeight: ?number = null;
+  // We calculate what we expect to be the expected entries, and then we wait
+  // until they're on actually screen to do stuff
+  expectedEntriesOnScreen: ?string[] = null;
+  expectedEntriesHaveBeenDisplayed = false;
 
   constructor(props: Props) {
     super(props);
@@ -221,6 +224,7 @@ class InnerCalendar extends React.PureComponent {
       lastState.match(/inactive|background/) &&
       this.currentState === "active" &&
       this.props.sessionExpired() &&
+      !this.props.tabActive &&
       this.flatList
     ) {
       this.scrollToToday();
@@ -242,6 +246,8 @@ class InnerCalendar extends React.PureComponent {
           readyToShowList: false,
           extraData: this.extraData,
         });
+        this.expectedEntriesOnScreen = null;
+        this.expectedEntriesHaveBeenDisplayed = false;
       } else {
         // If we had no entries and just got some we'll scroll to today
         const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
@@ -339,12 +345,11 @@ class InnerCalendar extends React.PureComponent {
     if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
       // If there are fewer items in our new data, which happens when the
       // current calendar query gets reset due to inactivity, let's reset the
-      // scroll position to the center (today). Once we're done, we can allow
-      // scrolling logic once again.
+      // scroll position to the center (today)
       setTimeout(() => this.scrollToToday(), 50);
-      setTimeout(() => this.listShrinking = false, 200);
       this.firstScrollUpOnAndroidComplete = false;
     } else if (newStartDate < lastStartDate) {
+      this.loadingNewEntriesFromScroll = false;
       this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
     } else if (newEndDate > lastEndDate) {
       this.loadingNewEntriesFromScroll = false;
@@ -394,7 +399,6 @@ class InnerCalendar extends React.PureComponent {
     } else {
       scrollAction();
     }
-    setTimeout(() => this.loadingNewEntriesFromScroll = false, 500);
   }
 
   mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
@@ -418,15 +422,16 @@ class InnerCalendar extends React.PureComponent {
       };
     })(listData);
     if (
-      this.state.listDataWithHeights &&
+      // At the start, we need to set expectedEntriesOnScreen since we need to
+      // wait for our expected items to appear on screen
+      !this.state.listDataWithHeights ||
+      // We know that this is going to shrink our FlatList. When our FlatList
+      // shrinks, componentWillUpdate will trigger scrollToToday
       listDataWithHeights.length < this.state.listDataWithHeights.length
     ) {
-      // We know that this is going to shrink our FlatList, which may cause
-      // either of the ListLoadingIndicators to come into view. When our
-      // FlatList shrinks, componentDidUpdate will trigger scrollToToday (we
-      // can't do it any earlier because of FlatList weirdness). After that
-      // happens, we will reset this back.
-      this.listShrinking = true;
+      this.expectedEntriesHaveBeenDisplayed = false;
+      this.expectedEntriesOnScreen =
+        InnerCalendar.initialEntriesOnScreen(listDataWithHeights);
     }
     if (this.state.listDataWithHeights) {
       this.setState({ listDataWithHeights, initialNumToRender: 0 });
@@ -546,9 +551,9 @@ class InnerCalendar extends React.PureComponent {
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
-      const flatListStyle = {
-        opacity: this.state.readyToShowList ? 1 : 0,
-      };
+      const flatListStyle = { opacity: this.state.readyToShowList ? 1 : 0 };
+      const initialScrollIndex =
+        InnerCalendar.initialScrollIndex(listDataWithHeights);
       flatList = (
         <FlatList
           data={listDataWithHeights}
@@ -557,7 +562,7 @@ class InnerCalendar extends React.PureComponent {
           getItemLayout={InnerCalendar.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           onScroll={this.onScroll}
-          initialScrollIndex={this.initialScrollIndex()}
+          initialScrollIndex={initialScrollIndex}
           keyboardShouldPersistTaps="handled"
           extraData={this.extraData}
           style={[styles.flatList, flatListStyle]}
@@ -607,9 +612,7 @@ class InnerCalendar extends React.PureComponent {
       : windowHeight - contentVerticalOffset - 49;
   }
 
-  initialScrollIndex = () => {
-    const data = this.state.listDataWithHeights;
-    invariant(data, "should be set");
+  static initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
     const heightOfTodayHeader = InnerCalendar.itemHeight(data[todayIndex]);
 
@@ -621,16 +624,28 @@ class InnerCalendar extends React.PureComponent {
     return returnIndex;
   }
 
+  static initialEntriesOnScreen(data: $ReadOnlyArray<CalendarItemWithHeight>) {
+    const initialScrollIndex = InnerCalendar.initialScrollIndex(data);
+    const flatListHeight = InnerCalendar.flatListHeight();
+    const entries = [];
+    for (
+      let i = initialScrollIndex, height = 0;
+      i < data.length && height < flatListHeight;
+      i++, height += InnerCalendar.itemHeight(data[i])
+    ) {
+      if (data[i].itemType === "entryInfo") {
+        entries.push(entryKey(data[i].entryInfo));
+      }
+    }
+    return entries;
+  }
+
   textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
     this.textHeightMeasurer = textHeightMeasurer;
   }
 
   flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
     this.flatList = flatList;
-    if (flatList && !this.state.readyToShowList) {
-      const waitTime = Platform.OS === "android" ? 250 : 50;
-      setTimeout(() => this.setState({ readyToShowList: true }), waitTime);
-    }
   }
 
   onEntryFocus = (key: string) => {
@@ -709,11 +724,28 @@ class InnerCalendar extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
+    if (this.loadingNewEntriesFromScroll) {
+      return;
+    }
+
     const viewableEntries = _compact(_map(
       (token: ViewToken) => token.item.itemType === "entryInfo"
         ? entryKey(token.item.entryInfo)
         : null,
     )(info.viewableItems));
+    if (!this.expectedEntriesHaveBeenDisplayed) {
+      if (
+        _difference(this.expectedEntriesOnScreen)(viewableEntries).length === 0
+      ) {
+        this.expectedEntriesHaveBeenDisplayed = true;
+        if (!this.state.readyToShowList) {
+          this.setState({ readyToShowList: true });
+        }
+      } else {
+        return;
+      }
+    }
+
     const visibleEntries = {};
     for (let viewableEntry of viewableEntries) {
       visibleEntries[viewableEntry] = true;
@@ -725,11 +757,7 @@ class InnerCalendar extends React.PureComponent {
     };
     const newDataSameAsCurrent =
       _isEqual(this.state.extraData)(this.extraData);
-    if (
-      !this.extraDataUpdateTimeout &&
-      !newDataSameAsCurrent &&
-      !this.loadingNewEntriesFromScroll
-    ) {
+    if (!this.extraDataUpdateTimeout && !newDataSameAsCurrent) {
       this.extraDataUpdateTimeout =
         setTimeout(this.triggerExtraDataUpdate, 1000);
     } else if (this.extraDataUpdateTimeout && newDataSameAsCurrent) {
@@ -737,13 +765,6 @@ class InnerCalendar extends React.PureComponent {
       this.extraDataUpdateTimeout = null;
     }
 
-    if (
-      !this.state.readyToShowList ||
-      this.loadingNewEntriesFromScroll ||
-      this.listShrinking
-    ) {
-      return;
-    }
     const firstItem = _find({ key: "TopLoader" })(info.viewableItems);
     const lastItem = _find({ key: "BottomLoader" })(info.viewableItems);
     let start: ?Date = null;
@@ -762,6 +783,8 @@ class InnerCalendar extends React.PureComponent {
       return;
     }
     this.loadingNewEntriesFromScroll = true;
+    this.expectedEntriesOnScreen = viewableEntries;
+    this.expectedEntriesHaveBeenDisplayed = false;
     if (this.extraDataUpdateTimeout) {
       clearTimeout(this.extraDataUpdateTimeout);
       this.extraDataUpdateTimeout = null;
@@ -782,10 +805,10 @@ class InnerCalendar extends React.PureComponent {
   // To avoid this effect, whenever onViewableItemsChanged triggers we schedule
   // an extra data update, which we only execute once per second max.
   triggerExtraDataUpdate = () => {
+    this.extraDataUpdateTimeout = null;
     if (!_isEqual(this.state.extraData)(this.extraData)) {
       this.setState({ extraData: this.extraData });
     }
-    this.extraDataUpdateTimeout = null;
   }
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
