@@ -19,6 +19,7 @@ type Props = {
     textToMeasure: string[],
     heights: TextToHeight,
   ) => void,
+  minHeight?: number,
   style: StyleObj,
 };
 type State = {
@@ -33,6 +34,7 @@ class TextHeightMeasurer extends React.PureComponent {
   static propTypes = {
     textToMeasure: PropTypes.arrayOf(PropTypes.string).isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
+    minHeight: PropTypes.number,
     style: Text.propTypes.style,
   };
 
@@ -77,7 +79,10 @@ class TextHeightMeasurer extends React.PureComponent {
     event: { nativeEvent: { layout: { height: number }}},
   ) {
     invariant(this.nextTextToHeight, "nextTextToHeight should be set");
-    this.nextTextToHeight[text] = event.nativeEvent.layout.height;
+    this.nextTextToHeight[text] =
+      this.props.minHeight !== undefined && this.props.minHeight !== null
+        ? Math.max(event.nativeEvent.layout.height, this.props.minHeight)
+        : event.nativeEvent.layout.height;
     this.leftToMeasure.delete(text);
     this.leftInBatch--;
     if (this.leftToMeasure.size === 0) {

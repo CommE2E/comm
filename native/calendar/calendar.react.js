@@ -590,6 +590,7 @@ class InnerCalendar extends React.PureComponent {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
+          minHeight={20}
           style={styles.text}
           ref={this.textHeightMeasurerRef}
         />
