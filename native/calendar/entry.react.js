@@ -224,22 +224,20 @@ class Entry extends React.Component {
       );
     }
     const entryStyle = { backgroundColor: `#${this.state.color}` };
-    const textColor = darkColor ? 'white' : 'black';
-    const textStyle = { color: textColor };
-    const textInputStyle: Object = {
-      color: textColor,
+    const textStyle: Object = {
+      color: darkColor ? 'white' : 'black',
     };
     if (focused) {
-      textInputStyle.paddingBottom = 0;
+      textStyle.paddingBottom = 0;
     } else {
-      textInputStyle.height = this.state.height;
+      textStyle.height = this.state.height;
     }
     let text;
     const visible = this.props.visible || !this.props.entryInfo.id;
     if (visible || !this.props.entryInfo.id) {
       text = (
         <TextInput
-          style={[styles.textInput, textInputStyle]}
+          style={[styles.textInput, textStyle]}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -253,14 +251,17 @@ class Entry extends React.Component {
       );
     } else {
       text = (
-        <Text style={[styles.textInput, textInputStyle]}>
+        <Text style={[styles.textInput, textStyle]}>
           {this.state.text}
         </Text>
       );
     }
     return (
       <View style={styles.container}>
-        <View style={[styles.entry, entryStyle]}>
+        <View
+          style={[styles.entry, entryStyle]}
+          onStartShouldSetResponderCapture={this.onFocus}
+        >
           {text}
           {actionLinks}
         </View>
@@ -274,6 +275,7 @@ class Entry extends React.Component {
 
   onFocus = () => {
     this.props.onFocus(entryKey(this.props.entryInfo));
+    return false;
   }
 
   onBlur = (event: SyntheticEvent) => {

@@ -20,6 +20,7 @@ import {
   Platform,
   ActivityIndicator,
   Keyboard,
+  LayoutAnimation,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -348,6 +349,8 @@ class InnerCalendar extends React.PureComponent {
     } else if (newEndDate > lastEndDate) {
       this.loadingNewEntriesFromScroll = false;
       this.firstScrollUpOnAndroidComplete = true;
+    } else if (newLDWH.length > lastLDWH.length) {
+      LayoutAnimation.easeInEaseOut();
     }
   }
 
@@ -631,6 +634,12 @@ class InnerCalendar extends React.PureComponent {
   }
 
   onEntryFocus = (key: string) => {
+    if (
+      _size(this.extraData.focusedEntries) === 1 &&
+      this.extraData.focusedEntries[key]
+    ) {
+      return;
+    }
     this.extraData = {
       visibleEntries: this.extraData.visibleEntries,
       focusedEntries: { [key]: true },
