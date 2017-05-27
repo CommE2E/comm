@@ -204,22 +204,32 @@ class Entry extends React.Component {
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
       actionLinks = (
         <View style={styles.actionLinks}>
-          <Button
-            onSubmit={this.onPressDelete}
-            underlayColor={actionLinksUnderlayColor}
-            style={styles.deleteButton}
-          >
-            <View style={styles.deleteButtonContents}>
-              <Icon
-                name="close"
-                size={14}
-                color={actionLinksColor}
-              />
-              <Text style={[styles.actionLinksText, actionLinksTextStyle]}>
-                DELETE
-              </Text>
-            </View>
-          </Button>
+          <View style={styles.leftLinks}>
+            <Button
+              onSubmit={this.onPressDelete}
+              underlayColor={actionLinksUnderlayColor}
+              style={styles.deleteButton}
+            >
+              <View style={styles.deleteButtonContents}>
+                <Icon
+                  name="close"
+                  size={14}
+                  color={actionLinksColor}
+                />
+                <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+                  DELETE
+                </Text>
+              </View>
+            </Button>
+          </View>
+          <View style={styles.rightLinks}>
+            <Text
+              style={[styles.rightLinksText, actionLinksTextStyle]}
+              numberOfLines={1}
+            >
+              {this.props.calendarInfo.name}
+            </Text>
+          </View>
         </View>
       );
     }
@@ -456,6 +466,7 @@ const styles = StyleSheet.create({
   actionLinks: {
     flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: -5,
   },
   deleteButton: {
@@ -468,8 +479,24 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
-  actionLinksText: {
+  leftLinks: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  leftLinksText: {
     paddingLeft: 5,
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  rightLinks: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  rightLinksText: {
+    paddingTop: 5,
+    paddingRight: 10,
     fontWeight: 'bold',
     fontSize: 12,
   },
