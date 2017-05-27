@@ -98,7 +98,6 @@ type State = {
   textToMeasure: string[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
-  initialNumToRender: number,
   pickerOpenForDateString: ?string,
   // We actually don't pay much attention to this extraData... we pass
   // this.extraData around instead. This exists here because sometimes we update
@@ -184,7 +183,6 @@ class InnerCalendar extends React.PureComponent {
       textToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
-      initialNumToRender: 31,
       pickerOpenForDateString: null,
       extraData: this.extraData,
     };
@@ -433,11 +431,7 @@ class InnerCalendar extends React.PureComponent {
       this.expectedEntriesOnScreen =
         InnerCalendar.initialEntriesOnScreen(listDataWithHeights);
     }
-    if (this.state.listDataWithHeights) {
-      this.setState({ listDataWithHeights, initialNumToRender: 0 });
-    } else {
-      this.setState({ listDataWithHeights });
-    }
+    this.setState({ listDataWithHeights });
   }
 
   scrollToToday = (animated: ?bool = undefined) => {
