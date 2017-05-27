@@ -33,9 +33,9 @@ import _find from 'lodash/fp/find';
 import _difference from 'lodash/fp/difference';
 import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
-import _pick from 'lodash/fp/pick';
+import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
-import _compact from 'lodash/fp/compact';
+import _intersection from 'lodash/fp/intersection';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -146,7 +146,7 @@ class InnerCalendar extends React.PureComponent {
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
-  loadingNewEntriesFromScroll = false;
+  loadingFromScrollState: ("inactive" | "loading" | "willUpdate") = "inactive";
   currentScrollPosition: ?number = null;
   // We don't always want an extraData update to trigger a state update, so we
   // cache the most recent value as a member here
@@ -161,8 +161,11 @@ class InnerCalendar extends React.PureComponent {
   keyboardShownHeight: ?number = null;
   // We calculate what we expect to be the expected entries, and then we wait
   // until they're on actually screen to do stuff
-  expectedEntriesOnScreen: ?string[] = null;
-  expectedEntriesHaveBeenDisplayed = false;
+  expectedKeysOnScreen: ?string[] = null;
+  expectedKeysHaveBeenDisplayed = false;
+  // This is just delayed 100ms after expectedKeysHaveBeenDisplayed to make sure
+  // we don't double-trigger prepends
+  readyForScroll = false;
 
   constructor(props: Props) {
     super(props);
@@ -238,8 +241,9 @@ class InnerCalendar extends React.PureComponent {
           readyToShowList: false,
           extraData: this.latestExtraData,
         });
-        this.expectedEntriesOnScreen = null;
-        this.expectedEntriesHaveBeenDisplayed = false;
+        this.expectedKeysOnScreen = null;
+        this.expectedKeysHaveBeenDisplayed = false;
+        this.readyForScroll = false;
       } else {
         // If we had no entries and just got some we'll scroll to today
         const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
@@ -313,7 +317,43 @@ class InnerCalendar extends React.PureComponent {
     if (!lastLDWH || !newLDWH) {
       return;
     }
+    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
+      = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
 
+    if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
+      // If there are fewer items in our new data, which happens when the
+      // current calendar query gets reset due to inactivity, let's reset the
+      // scroll position to the center (today)
+      setTimeout(() => this.scrollToToday(), 50);
+      this.firstScrollUpOnAndroidComplete = false;
+    } else if (newStartDate < lastStartDate) {
+      this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
+      this.loadingFromScrollState = "willUpdate";
+    } else if (newEndDate > lastEndDate) {
+      this.firstScrollUpOnAndroidComplete = true;
+      this.loadingFromScrollState = "willUpdate";
+    } else if (newLDWH.length > lastLDWH.length) {
+      LayoutAnimation.easeInEaseOut();
+    }
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const lastLDWH = prevState.listDataWithHeights;
+    const newLDWH = this.state.listDataWithHeights;
+    if (!lastLDWH || !newLDWH) {
+      return;
+    }
+    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
+      = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
+    if (newStartDate < lastStartDate || newEndDate > lastEndDate) {
+      this.loadingFromScrollState = "inactive";
+    }
+  }
+
+  static datesFromListData(
+    lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
+    newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
+  ) {
     const lastSecondItem = lastLDWH[1];
     const newSecondItem = newLDWH[1];
     invariant(
@@ -334,21 +374,7 @@ class InnerCalendar extends React.PureComponent {
     const lastEndDate = dateFromString(lastPenultimateItem.dateString);
     const newEndDate = dateFromString(newPenultimateItem.dateString);
 
-    if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
-      // If there are fewer items in our new data, which happens when the
-      // current calendar query gets reset due to inactivity, let's reset the
-      // scroll position to the center (today)
-      setTimeout(() => this.scrollToToday(), 50);
-      this.firstScrollUpOnAndroidComplete = false;
-    } else if (newStartDate < lastStartDate) {
-      this.loadingNewEntriesFromScroll = false;
-      this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
-    } else if (newEndDate > lastEndDate) {
-      this.loadingNewEntriesFromScroll = false;
-      this.firstScrollUpOnAndroidComplete = true;
-    } else if (newLDWH.length > lastLDWH.length) {
-      LayoutAnimation.easeInEaseOut();
-    }
+    return { lastStartDate, newStartDate, lastEndDate, newEndDate };
   }
 
   /**
@@ -414,16 +440,17 @@ class InnerCalendar extends React.PureComponent {
       };
     })(listData);
     if (
-      // At the start, we need to set expectedEntriesOnScreen since we need to
+      // At the start, we need to set expectedKeysOnScreen since we need to
       // wait for our expected items to appear on screen
       !this.state.listDataWithHeights ||
       // We know that this is going to shrink our FlatList. When our FlatList
       // shrinks, componentWillUpdate will trigger scrollToToday
       listDataWithHeights.length < this.state.listDataWithHeights.length
     ) {
-      this.expectedEntriesHaveBeenDisplayed = false;
-      this.expectedEntriesOnScreen =
-        InnerCalendar.initialEntriesOnScreen(listDataWithHeights);
+      this.expectedKeysHaveBeenDisplayed = false;
+      this.readyForScroll = false;
+      this.expectedKeysOnScreen =
+        InnerCalendar.initialKeysOnScreen(listDataWithHeights);
     }
     this.setState({ listDataWithHeights });
   }
@@ -615,7 +642,7 @@ class InnerCalendar extends React.PureComponent {
     return returnIndex;
   }
 
-  static initialEntriesOnScreen(data: $ReadOnlyArray<CalendarItemWithHeight>) {
+  static initialKeysOnScreen(data: $ReadOnlyArray<CalendarItemWithHeight>) {
     const initialScrollIndex = InnerCalendar.initialScrollIndex(data);
     const flatListHeight = InnerCalendar.flatListHeight();
     const entries = [];
@@ -624,9 +651,7 @@ class InnerCalendar extends React.PureComponent {
       i < data.length && height < flatListHeight;
       i++, height += InnerCalendar.itemHeight(data[i])
     ) {
-      if (data[i].itemType === "entryInfo") {
-        entries.push(entryKey(data[i].entryInfo));
-      }
+      entries.push(InnerCalendar.keyExtractor(data[i]));
     }
     return entries;
   }
@@ -724,37 +749,58 @@ class InnerCalendar extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
-    const viewableEntries = _compact(_map(
-      (token: ViewToken) => token.item.itemType === "entryInfo"
-        ? entryKey(token.item.entryInfo)
-        : null,
-    )(info.viewableItems));
-    if (!this.expectedEntriesHaveBeenDisplayed) {
-      if (
-        _difference(this.expectedEntriesOnScreen)(viewableEntries).length === 0
-      ) {
-        this.expectedEntriesHaveBeenDisplayed = true;
-        if (!this.state.readyToShowList) {
-          this.setState({ readyToShowList: true });
-        }
-      } else {
-        return;
-      }
+    const viewableItems = _map(
+      (token: ViewToken) => InnerCalendar.keyExtractor(token.item),
+    )(info.viewableItems);
+    const expectedKeysOnScreen = this.expectedKeysOnScreen;
+    let expectedEntriesDisplayed = false;
+    if (
+      // If we already displayed the new items and triggered the scroll
+      this.loadingFromScrollState !== "loading" &&
+      // But we haven't yet displayed the expected entries
+      !this.expectedKeysHaveBeenDisplayed &&
+      expectedKeysOnScreen &&
+      // And at least one of the expected entries is on the screen
+      _intersection(expectedKeysOnScreen)(viewableItems).length > 0
+    ) {
+      // We have very low standards for what counts as displayed the expected
+      // entries. That's because the sort of scrolls that this technique is
+      // meant to detect are invariably many pages of items, and there are
+      // quirky situations where the expected entries are off a bit from what
+      // actually ends up being displayed.
+      this.expectedKeysHaveBeenDisplayed = true;
+      setTimeout(() => this.readyForScroll = true, 100);
+      expectedEntriesDisplayed = true;
     }
-
-    if (this.loadingNewEntriesFromScroll) {
-      return;
+    if (this.loadingFromScrollState === "loading") {
+      // Maintain the most recent value for expectedKeysOnScreen since we'll
+      // use the most recent scroll position to calculate the new one
+      this.expectedKeysOnScreen = viewableItems;
     }
 
     const visibleEntries = {};
-    for (let viewableEntry of viewableEntries) {
-      visibleEntries[viewableEntry] = true;
+    for (let token of info.viewableItems) {
+      if (token.item.itemType === "entryInfo") {
+        visibleEntries[entryKey(token.item.entryInfo)] = true;
+      }
     }
     this.latestExtraData = {
-      focusedEntries:
-        _pick(viewableEntries)(this.latestExtraData.focusedEntries),
+      focusedEntries: _pickBy((_, key: string) => visibleEntries[key])
+        (this.latestExtraData.focusedEntries),
       visibleEntries,
     };
+
+    if (!this.state.readyToShowList && expectedEntriesDisplayed) {
+      this.setState({
+        readyToShowList: true,
+        extraData: this.latestExtraData,
+      });
+    }
+
+    if (!this.readyForScroll) {
+      // Don't allow triggering start/end load until we see the expected entries
+      return;
+    }
 
     const firstItem = _find({ key: "TopLoader" })(info.viewableItems);
     const lastItem = _find({ key: "BottomLoader" })(info.viewableItems);
@@ -773,9 +819,10 @@ class InnerCalendar extends React.PureComponent {
     } else {
       return;
     }
-    this.loadingNewEntriesFromScroll = true;
-    this.expectedEntriesOnScreen = viewableEntries;
-    this.expectedEntriesHaveBeenDisplayed = false;
+    this.loadingFromScrollState = "loading";
+    this.expectedKeysOnScreen = viewableItems;
+    this.expectedKeysHaveBeenDisplayed = false;
+    this.readyForScroll = false;
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionType,
       this.props.fetchEntriesWithRange({
