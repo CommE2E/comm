@@ -99,12 +99,6 @@ type State = {
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
   pickerOpenForDateString: ?string,
-  // We actually don't pay much attention to this extraData... we pass
-  // this.extraData around instead. This exists here because sometimes we update
-  // extraData without a corresponding update in something else, and so we need
-  // to trigger a re-render with setState. But in many cases a re-render is
-  // going to get triggered anyways, and in those cases we may update
-  // this.extraData without updating this.state.extraData.
   extraData: ExtraData,
 };
 class InnerCalendar extends React.PureComponent {
@@ -154,9 +148,9 @@ class InnerCalendar extends React.PureComponent {
   currentState: ?string = NativeAppState.currentState;
   loadingNewEntriesFromScroll = false;
   currentScrollPosition: ?number = null;
-  // See comment in State extraData flow type above
-  extraDataUpdateTimeout: ?number = null;
-  extraData: ExtraData;
+  // We don't always want an extraData update to trigger a state update, so we
+  // cache the most recent value as a member here
+  latestExtraData: ExtraData;
   // For some reason, we have to delay the scrollToToday call after the first
   // scroll upwards on Android. I don't know why. Might only be on the emulator.
   firstScrollUpOnAndroidComplete = false;
@@ -175,7 +169,7 @@ class InnerCalendar extends React.PureComponent {
     const textToMeasure = props.listData
       ? InnerCalendar.textToMeasureFromListData(props.listData)
       : [];
-    this.extraData = {
+    this.latestExtraData = {
       focusedEntries: {},
       visibleEntries: {},
     };
@@ -184,7 +178,7 @@ class InnerCalendar extends React.PureComponent {
       listDataWithHeights: null,
       readyToShowList: false,
       pickerOpenForDateString: null,
-      extraData: this.extraData,
+      extraData: this.latestExtraData,
     };
   }
 
@@ -234,7 +228,7 @@ class InnerCalendar extends React.PureComponent {
     if (newProps.listData !== this.props.listData) {
       const newListData = newProps.listData;
       if (!newListData) {
-        this.extraData = {
+        this.latestExtraData = {
           focusedEntries: {},
           visibleEntries: {},
         };
@@ -242,7 +236,7 @@ class InnerCalendar extends React.PureComponent {
           textToMeasure: [],
           listDataWithHeights: null,
           readyToShowList: false,
-          extraData: this.extraData,
+          extraData: this.latestExtraData,
         });
         this.expectedEntriesOnScreen = null;
         this.expectedEntriesHaveBeenDisplayed = false;
@@ -460,8 +454,8 @@ class InnerCalendar extends React.PureComponent {
       return (
         <Entry
           entryInfo={item.entryInfo}
-          focused={!!this.extraData.focusedEntries[key]}
-          visible={!!this.extraData.visibleEntries[key]}
+          focused={!!this.state.extraData.focusedEntries[key]}
+          visible={!!this.state.extraData.visibleEntries[key]}
           onFocus={this.onEntryFocus}
         />
       );
@@ -558,7 +552,9 @@ class InnerCalendar extends React.PureComponent {
           onScroll={this.onScroll}
           initialScrollIndex={initialScrollIndex}
           keyboardShouldPersistTaps="handled"
-          extraData={this.extraData}
+          onMomentumScrollEnd={this.onMomentumScrollEnd}
+          onScrollEndDrag={this.onScrollEndDrag}
+          extraData={this.state.extraData}
           style={[styles.flatList, flatListStyle]}
           ref={this.flatListRef}
         />
@@ -645,16 +641,25 @@ class InnerCalendar extends React.PureComponent {
 
   onEntryFocus = (key: string) => {
     if (
-      _size(this.extraData.focusedEntries) === 1 &&
-      this.extraData.focusedEntries[key]
+      _size(this.state.extraData.focusedEntries) === 1 &&
+      this.state.extraData.focusedEntries[key]
     ) {
+      if (
+        _size(this.latestExtraData.focusedEntries) !== 1 ||
+        !this.latestExtraData.focusedEntries[key]
+      ) {
+        this.latestExtraData = {
+          visibleEntries: this.latestExtraData.visibleEntries,
+          focusedEntries: this.state.extraData.focusedEntries,
+        };
+      }
       return;
     }
-    this.extraData = {
-      visibleEntries: this.extraData.visibleEntries,
+    this.latestExtraData = {
+      visibleEntries: this.latestExtraData.visibleEntries,
       focusedEntries: { [key]: true },
     };
-    this.setState({ extraData: this.extraData });
+    this.setState({ extraData: this.latestExtraData });
     const keyboardShownHeight = this.keyboardShownHeight;
     if (keyboardShownHeight) {
       this.scrollToKey(key, keyboardShownHeight);
@@ -719,10 +724,6 @@ class InnerCalendar extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
-    if (this.loadingNewEntriesFromScroll) {
-      return;
-    }
-
     const viewableEntries = _compact(_map(
       (token: ViewToken) => token.item.itemType === "entryInfo"
         ? entryKey(token.item.entryInfo)
@@ -741,24 +742,19 @@ class InnerCalendar extends React.PureComponent {
       }
     }
 
+    if (this.loadingNewEntriesFromScroll) {
+      return;
+    }
+
     const visibleEntries = {};
     for (let viewableEntry of viewableEntries) {
       visibleEntries[viewableEntry] = true;
     }
-    this.extraData = {
+    this.latestExtraData = {
       focusedEntries:
-        _pick(viewableEntries)(this.extraData.focusedEntries),
+        _pick(viewableEntries)(this.latestExtraData.focusedEntries),
       visibleEntries,
     };
-    const newDataSameAsCurrent =
-      _isEqual(this.state.extraData)(this.extraData);
-    if (!this.extraDataUpdateTimeout && !newDataSameAsCurrent) {
-      this.extraDataUpdateTimeout =
-        setTimeout(this.triggerExtraDataUpdate, 1000);
-    } else if (this.extraDataUpdateTimeout && newDataSameAsCurrent) {
-      clearTimeout(this.extraDataUpdateTimeout);
-      this.extraDataUpdateTimeout = null;
-    }
 
     const firstItem = _find({ key: "TopLoader" })(info.viewableItems);
     const lastItem = _find({ key: "BottomLoader" })(info.viewableItems);
@@ -780,10 +776,6 @@ class InnerCalendar extends React.PureComponent {
     this.loadingNewEntriesFromScroll = true;
     this.expectedEntriesOnScreen = viewableEntries;
     this.expectedEntriesHaveBeenDisplayed = false;
-    if (this.extraDataUpdateTimeout) {
-      clearTimeout(this.extraDataUpdateTimeout);
-      this.extraDataUpdateTimeout = null;
-    }
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionType,
       this.props.fetchEntriesWithRange({
@@ -794,20 +786,30 @@ class InnerCalendar extends React.PureComponent {
     );
   }
 
-  // We want to avoid updating extraData too often, as it leads to update cycles
-  // on the FlatList. However, onViewableItemsChanged is primarily responsible
-  // for updating the FlatList, and it likes to send tons of updates in spurts.
-  // To avoid this effect, whenever onViewableItemsChanged triggers we schedule
-  // an extra data update, which we only execute once per second max.
-  triggerExtraDataUpdate = () => {
-    this.extraDataUpdateTimeout = null;
-    if (!_isEqual(this.state.extraData)(this.extraData)) {
-      this.setState({ extraData: this.extraData });
-    }
-  }
-
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
+  }
+
+  // When the user "flicks" the scroll view, this callback gets triggered after
+  // the scrolling ends
+  onMomentumScrollEnd = () => {
+    this.setState({ extraData: this.latestExtraData });
+  }
+
+  // This callback gets triggered when the user lets go of scrolling the scroll
+  // view, regardless of whether it was a "flick" or a pan
+  onScrollEndDrag = () => {
+    // We need to figure out if this was a flick or not. If it's a flick, we'll
+    // let onMomentumScrollEnd handle it once scroll position stabilizes
+    const currentScrollPosition = this.currentScrollPosition;
+    setTimeout(
+      () => {
+        if (this.currentScrollPosition === currentScrollPosition) {
+          this.setState({ extraData: this.latestExtraData });
+        }
+      },
+      50,
+    );
   }
 
   closePicker = () => {
