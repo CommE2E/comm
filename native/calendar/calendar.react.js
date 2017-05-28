@@ -639,7 +639,25 @@ class InnerCalendar extends React.PureComponent {
     this.flatList = flatList;
   }
 
-  onEntryFocus = (key: string) => {
+  onEntryFocus = (key: string, focused: bool) => {
+    if (!focused) {
+      if (_size(this.state.extraData.focusedEntries) === 0) {
+        if (_size(this.latestExtraData.focusedEntries) !== 0) {
+          this.latestExtraData = {
+            visibleEntries: this.latestExtraData.visibleEntries,
+            focusedEntries: this.state.extraData.focusedEntries,
+          };
+        }
+        return;
+      }
+      this.latestExtraData = {
+        visibleEntries: this.latestExtraData.visibleEntries,
+        focusedEntries: {},
+      };
+      this.setState({ extraData: this.latestExtraData });
+      return;
+    }
+
     if (
       _size(this.state.extraData.focusedEntries) === 1 &&
       this.state.extraData.focusedEntries[key]

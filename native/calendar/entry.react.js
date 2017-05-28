@@ -57,7 +57,7 @@ type Props = {
   entryInfo: EntryInfoWithHeight,
   visible: bool,
   focused: bool,
-  onFocus: (entryKey: string) => void,
+  onFocus: (entryKey: string, focused: bool) => void,
   // Redux state
   calendarInfo: CalendarInfo,
   sessionStartingPayload: () => { newSessionID?: string },
@@ -234,7 +234,7 @@ class Entry extends React.Component {
       );
     }
     const entryStyle = { backgroundColor: `#${this.state.color}` };
-    const textStyle: Object = {
+    const textStyle = {
       color: darkColor ? 'white' : 'black',
       height: this.state.height,
     };
@@ -262,30 +262,49 @@ class Entry extends React.Component {
         </Text>
       );
     }
-    return (
-      <View style={styles.container}>
+    let entry;
+    if (Platform.OS === "ios") {
+      // On iOS, we can take the capture away from our child TextInput and
+      // everything still works properly - the keyboard pops open and cursor
+      // appears where the TextInput was pressed. Hooking in here allows us to
+      // speed up our response times to TextInput presses (as onFocus is
+      // painfully slow). On Android, the response time to TextInput onFocus is
+      // faster anyways, and plus stealing the capture here causes problems.
+      entry = (
         <View
           style={[styles.entry, entryStyle]}
-          onStartShouldSetResponder={this.onStartShouldSetResponder}
+          onStartShouldSetResponderCapture={this.onStartShouldSetResponderCapture}
           onResponderGrant={this.onFocus}
           onResponderTerminationRequest={this.onResponderTerminationRequest}
+          onResponderTerminate={this.onResponderTerminate}
         >
           {text}
           {actionLinks}
         </View>
-      </View>
-    );
+      );
+    } else {
+      entry = (
+        <View style={[styles.entry, entryStyle]}>
+          {text}
+          {actionLinks}
+        </View>
+      );
+    }
+    return <View style={styles.container}>{entry}</View>;
   }
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
   }
 
-  onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo));
+  onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
 
-  onStartShouldSetResponder = () => true;
+  onStartShouldSetResponderCapture = () => true;
 
-  onResponderTerminationRequest = (event) => true;
+  onResponderTerminationRequest = () => true;
+
+  onResponderTerminate =
+    () => this.props.onFocus(entryKey(this.props.entryInfo), false);
 
   onBlur = () => {
     if (this.state.text.trim() === "") {
