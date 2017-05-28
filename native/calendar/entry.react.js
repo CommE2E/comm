@@ -50,6 +50,7 @@ import {
 } from 'lib/utils/action-utils';
 import { ServerError } from 'lib/utils/fetch-utils';
 import { entryKey } from 'lib/shared/entry-utils';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { Button } from '../shared-components';
 
@@ -535,6 +536,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
+registerFetchKey(saveEntryActionType);
+registerFetchKey(deleteEntryActionType);
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({

@@ -48,6 +48,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { simpleNavID } from 'lib/selectors/nav-selectors';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import Entry from './entry.react';
 import { contentVerticalOffset, windowHeight } from '../dimensions';
@@ -57,6 +58,7 @@ import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from './list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
+import ConnectedStatusBar from '../connected-status-bar.react';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
 type CalendarItemWithHeight =
@@ -601,6 +603,7 @@ class InnerCalendar extends React.PureComponent {
     }
     return (
       <View style={styles.container}>
+        <ConnectedStatusBar />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
@@ -880,6 +883,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
 });
+
+registerFetchKey(fetchEntriesAndAppendRangeActionType);
 
 const CalendarRouteName = 'Calendar';
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
