@@ -603,7 +603,6 @@ class InnerCalendar extends React.PureComponent {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          minHeight={20}
           style={styles.text}
           ref={this.textHeightMeasurerRef}
         />
@@ -670,17 +669,15 @@ class InnerCalendar extends React.PureComponent {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
+    this.keyboardShownHeight = event.endCoordinates.height;
     const lastEntryKeyFocused = this.lastEntryKeyFocused;
     if (lastEntryKeyFocused) {
       this.scrollToKey(lastEntryKeyFocused, event.endCoordinates.height);
-    } else {
-      this.keyboardShownHeight = event.endCoordinates.height;
+      this.lastEntryKeyFocused = null;
     }
   }
 
   scrollToKey(lastEntryKeyFocused: string, keyboardHeight: number) {
-    this.lastEntryKeyFocused = null;
-    this.keyboardShownHeight = null;
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
     const index = _findIndex(

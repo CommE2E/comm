@@ -114,6 +114,8 @@ class Entry extends React.Component {
   needsDeleteAfterCreation = false;
   nextSaveAttemptIndex = 0;
   mounted = false;
+  deleted = false;
+  currentlySaving: ?string;
 
   constructor(props: Props) {
     super(props);
@@ -155,8 +157,11 @@ class Entry extends React.Component {
     ) {
       this.setState({ color: nextProps.calendarInfo.color });
     }
-    if (!nextProps.focused && this.props.focused && this.textInput) {
-      this.textInput.blur();
+    if (!nextProps.focused && this.props.focused) {
+      if (this.textInput) {
+        this.textInput.blur();
+      }
+      this.onBlur();
     }
   }
 
@@ -177,11 +182,6 @@ class Entry extends React.Component {
   }
 
   componentDidMount() {
-    // Whenever a new Entry is created, focus on it
-    if (!this.props.entryInfo.id) {
-      invariant(this.textInput, "textInput ref not set");
-      this.textInput.focus();
-    }
     this.mounted = true;
   }
 
@@ -239,7 +239,7 @@ class Entry extends React.Component {
       height: this.state.height,
     };
     let text;
-    if (this.props.visible || !this.props.entryInfo.id) {
+    if (this.props.visible || focused) {
       text = (
         <TextInput
           style={[styles.text, textStyle]}
@@ -251,6 +251,7 @@ class Entry extends React.Component {
           onFocus={this.onFocus}
           onContentSizeChange={this.onContentSizeChange}
           onChange={this.onChange}
+          autoFocus={focused}
           ref={this.textInputRef}
         />
       );
@@ -263,7 +264,12 @@ class Entry extends React.Component {
     }
     return (
       <View style={styles.container}>
-        <View style={[styles.entry, entryStyle]}>
+        <View
+          style={[styles.entry, entryStyle]}
+          onStartShouldSetResponder={this.onStartShouldSetResponder}
+          onResponderGrant={this.onFocus}
+          onResponderTerminationRequest={this.onResponderTerminationRequest}
+        >
           {text}
           {actionLinks}
         </View>
@@ -275,11 +281,13 @@ class Entry extends React.Component {
     this.textInput = textInput;
   }
 
-  onFocus = () => {
-    this.props.onFocus(entryKey(this.props.entryInfo));
-  }
+  onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo));
 
-  onBlur = (event: SyntheticEvent) => {
+  onStartShouldSetResponder = () => true;
+
+  onResponderTerminationRequest = (event) => true;
+
+  onBlur = () => {
     if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id);
     } else if (this.props.entryInfo.text !== this.state.text) {
@@ -312,6 +320,11 @@ class Entry extends React.Component {
   }
 
   save(serverID: ?string, newText: string) {
+    if (this.currentlySaving === newText) {
+      return;
+    }
+    this.currentlySaving = newText;
+
     if (newText.trim() === "") {
       // We don't save the empty string, since as soon as the element loses
       // focus it'll get deleted
@@ -409,6 +422,10 @@ class Entry extends React.Component {
   }
 
   delete(serverID: ?string) {
+    if (this.deleted) {
+      return;
+    }
+    this.deleted = true;
     LayoutAnimation.easeInEaseOut();
     const startingPayload: {[key: string]: ?string} = {
       localID: this.props.entryInfo.localID,
