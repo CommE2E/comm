@@ -35,7 +35,6 @@ import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
-import _intersection from 'lodash/fp/intersection';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -146,7 +145,7 @@ class InnerCalendar extends React.PureComponent {
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
-  loadingFromScrollState: ("inactive" | "loading" | "willUpdate") = "inactive";
+  loadingFromScroll = false;
   currentScrollPosition: ?number = null;
   // We don't always want an extraData update to trigger a state update, so we
   // cache the most recent value as a member here
@@ -159,13 +158,9 @@ class InnerCalendar extends React.PureComponent {
   lastEntryKeyFocused: ?string = null;
   keyboardShowListener: ?Object;
   keyboardShownHeight: ?number = null;
-  // We calculate what we expect to be the expected entries, and then we wait
-  // until they're on actually screen to do stuff
-  expectedKeysOnScreen: ?string[] = null;
-  expectedKeysHaveBeenDisplayed = false;
-  // This is just delayed 100ms after expectedKeysHaveBeenDisplayed to make sure
-  // we don't double-trigger prepends
-  readyForScroll = false;
+  // We wait until the loaders leave view before letting them be triggered again
+  topLoaderWaitingToLeaveView = true;
+  bottomLoaderWaitingToLeaveView = true;
 
   constructor(props: Props) {
     super(props);
@@ -241,9 +236,8 @@ class InnerCalendar extends React.PureComponent {
           readyToShowList: false,
           extraData: this.latestExtraData,
         });
-        this.expectedKeysOnScreen = null;
-        this.expectedKeysHaveBeenDisplayed = false;
-        this.readyForScroll = false;
+        this.topLoaderWaitingToLeaveView = true;
+        this.bottomLoaderWaitingToLeaveView = true;
       } else {
         // If we had no entries and just got some we'll scroll to today
         const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
@@ -328,10 +322,8 @@ class InnerCalendar extends React.PureComponent {
       this.firstScrollUpOnAndroidComplete = false;
     } else if (newStartDate < lastStartDate) {
       this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
-      this.loadingFromScrollState = "willUpdate";
     } else if (newEndDate > lastEndDate) {
       this.firstScrollUpOnAndroidComplete = true;
-      this.loadingFromScrollState = "willUpdate";
     } else if (newLDWH.length > lastLDWH.length) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -346,7 +338,7 @@ class InnerCalendar extends React.PureComponent {
     const { lastStartDate, newStartDate, lastEndDate, newEndDate }
       = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
     if (newStartDate < lastStartDate || newEndDate > lastEndDate) {
-      this.loadingFromScrollState = "inactive";
+      this.loadingFromScroll = false;
     }
   }
 
@@ -440,17 +432,15 @@ class InnerCalendar extends React.PureComponent {
       };
     })(listData);
     if (
-      // At the start, we need to set expectedKeysOnScreen since we need to
-      // wait for our expected items to appear on screen
+      // At the start, we need to set LoaderWaitingToLeaveView since we don't
+      // want the loaders to trigger when nothing is there
       !this.state.listDataWithHeights ||
       // We know that this is going to shrink our FlatList. When our FlatList
       // shrinks, componentWillUpdate will trigger scrollToToday
       listDataWithHeights.length < this.state.listDataWithHeights.length
     ) {
-      this.expectedKeysHaveBeenDisplayed = false;
-      this.readyForScroll = false;
-      this.expectedKeysOnScreen =
-        InnerCalendar.initialKeysOnScreen(listDataWithHeights);
+      this.topLoaderWaitingToLeaveView = true;
+      this.bottomLoaderWaitingToLeaveView = true;
     }
     this.setState({ listDataWithHeights });
   }
@@ -642,20 +632,6 @@ class InnerCalendar extends React.PureComponent {
     return returnIndex;
   }
 
-  static initialKeysOnScreen(data: $ReadOnlyArray<CalendarItemWithHeight>) {
-    const initialScrollIndex = InnerCalendar.initialScrollIndex(data);
-    const flatListHeight = InnerCalendar.flatListHeight();
-    const entries = [];
-    for (
-      let i = initialScrollIndex, height = 0;
-      i < data.length && height < flatListHeight;
-      i++, height += InnerCalendar.itemHeight(data[i])
-    ) {
-      entries.push(InnerCalendar.keyExtractor(data[i]));
-    }
-    return entries;
-  }
-
   textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
     this.textHeightMeasurer = textHeightMeasurer;
   }
@@ -718,7 +694,11 @@ class InnerCalendar extends React.PureComponent {
     const itemEnd = itemStart + itemHeight;
     const visibleHeight = InnerCalendar.flatListHeight() -
       keyboardHeight;
-    invariant(this.currentScrollPosition, "should be set");
+    invariant(
+      this.currentScrollPosition !== undefined &&
+        this.currentScrollPosition !== null,
+      "should be set",
+    );
     if (
       itemStart > this.currentScrollPosition &&
       itemEnd < this.currentScrollPosition + visibleHeight
@@ -749,35 +729,6 @@ class InnerCalendar extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
-    const viewableItems = _map(
-      (token: ViewToken) => InnerCalendar.keyExtractor(token.item),
-    )(info.viewableItems);
-    const expectedKeysOnScreen = this.expectedKeysOnScreen;
-    let expectedEntriesDisplayed = false;
-    if (
-      // If we already displayed the new items and triggered the scroll
-      this.loadingFromScrollState !== "loading" &&
-      // But we haven't yet displayed the expected entries
-      !this.expectedKeysHaveBeenDisplayed &&
-      expectedKeysOnScreen &&
-      // And at least one of the expected entries is on the screen
-      _intersection(expectedKeysOnScreen)(viewableItems).length > 0
-    ) {
-      // We have very low standards for what counts as displayed the expected
-      // entries. That's because the sort of scrolls that this technique is
-      // meant to detect are invariably many pages of items, and there are
-      // quirky situations where the expected entries are off a bit from what
-      // actually ends up being displayed.
-      this.expectedKeysHaveBeenDisplayed = true;
-      setTimeout(() => this.readyForScroll = true, 100);
-      expectedEntriesDisplayed = true;
-    }
-    if (this.loadingFromScrollState === "loading") {
-      // Maintain the most recent value for expectedKeysOnScreen since we'll
-      // use the most recent scroll position to calculate the new one
-      this.expectedKeysOnScreen = viewableItems;
-    }
-
     const visibleEntries = {};
     for (let token of info.viewableItems) {
       if (token.item.itemType === "entryInfo") {
@@ -790,28 +741,38 @@ class InnerCalendar extends React.PureComponent {
       visibleEntries,
     };
 
-    if (!this.state.readyToShowList && expectedEntriesDisplayed) {
+    const topLoader = _find({ key: "TopLoader" })(info.viewableItems);
+    const bottomLoader = _find({ key: "BottomLoader" })(info.viewableItems);
+    if (!this.loadingFromScroll) {
+      if (this.topLoaderWaitingToLeaveView && !topLoader) {
+        this.topLoaderWaitingToLeaveView = false;
+      }
+      if (this.bottomLoaderWaitingToLeaveView && !bottomLoader) {
+        this.bottomLoaderWaitingToLeaveView = false;
+      }
+    }
+
+    if (
+      !this.state.readyToShowList &&
+      !this.topLoaderWaitingToLeaveView &&
+      !this.bottomLoaderWaitingToLeaveView
+    ) {
       this.setState({
         readyToShowList: true,
         extraData: this.latestExtraData,
       });
     }
 
-    if (!this.readyForScroll) {
-      // Don't allow triggering start/end load until we see the expected entries
-      return;
-    }
-
-    const firstItem = _find({ key: "TopLoader" })(info.viewableItems);
-    const lastItem = _find({ key: "BottomLoader" })(info.viewableItems);
     let start: ?Date = null;
     let end: ?Date = null;
-    if (firstItem) {
+    if (topLoader && !this.topLoaderWaitingToLeaveView) {
+      this.topLoaderWaitingToLeaveView = true;
       start = dateFromString(this.props.startDate);
       start.setDate(start.getDate() - 31);
       end = dateFromString(this.props.startDate);
       end.setDate(end.getDate() - 1);
-    } else if (lastItem) {
+    } else if (bottomLoader && !this.bottomLoaderWaitingToLeaveView) {
+      this.bottomLoaderWaitingToLeaveView = true;
       start = dateFromString(this.props.endDate);
       start.setDate(start.getDate() + 1);
       end = dateFromString(this.props.endDate);
@@ -819,10 +780,7 @@ class InnerCalendar extends React.PureComponent {
     } else {
       return;
     }
-    this.loadingFromScrollState = "loading";
-    this.expectedKeysOnScreen = viewableItems;
-    this.expectedKeysHaveBeenDisplayed = false;
-    this.readyForScroll = false;
+    this.loadingFromScroll = true;
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionType,
       this.props.fetchEntriesWithRange({
