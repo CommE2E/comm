@@ -569,6 +569,7 @@ class InnerCalendar extends React.PureComponent {
           onScroll={this.onScroll}
           initialScrollIndex={initialScrollIndex}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           onMomentumScrollEnd={this.onMomentumScrollEnd}
           onScrollEndDrag={this.onScrollEndDrag}
           extraData={this.state.extraData}

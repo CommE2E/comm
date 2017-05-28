@@ -299,7 +299,9 @@ class Entry extends React.Component {
 
   onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
 
-  onStartShouldSetResponderCapture = () => true;
+  onStartShouldSetResponderCapture = (
+    event: { nativeEvent: { pageY: number } },
+  ) => event.nativeEvent.pageY < this.state.height + 5;
 
   onResponderTerminationRequest = () => true;
 
