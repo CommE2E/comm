@@ -770,7 +770,8 @@ class InnerCalendar extends React.PureComponent {
     if (
       !this.state.readyToShowList &&
       !this.topLoaderWaitingToLeaveView &&
-      !this.bottomLoaderWaitingToLeaveView
+      !this.bottomLoaderWaitingToLeaveView &&
+      info.viewableItems.length > 0
     ) {
       this.setState({
         readyToShowList: true,
