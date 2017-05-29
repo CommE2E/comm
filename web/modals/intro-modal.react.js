@@ -58,8 +58,8 @@ class IntroModal extends React.PureComponent {
       <div className={css['modal-overlay']}>
         <div className={css['intro-modal']} style={{ left: modalLeft }}>
           <p>
-            You're home, but you're not subscribed to any calendars, so there's
-            nothing to show. You can browse and subscribe to some calendars
+            You're home, but you're not subscribed to any threads, so there's
+            nothing to show. You can browse and subscribe to some threads
             using the dialog at right.
           </p>
         </div>

@@ -54,7 +54,7 @@ type State = {
 
 const emptyArray = [];
 const noResults = [(
-  <div className={css['calendar-nav-no-results']} key="none">
+  <div className={css['thread-nav-no-results']} key="none">
     No results
   </div>
 )];
@@ -224,7 +224,7 @@ class Typeahead extends React.PureComponent {
         );
       }
       dropdown = (
-        <div className={css['calendar-nav-dropdown']} ref={this.dropdownRef}>
+        <div className={css['thread-nav-dropdown']} ref={this.dropdownRef}>
           {resultsPane}
         </div>
       );
@@ -282,7 +282,7 @@ class Typeahead extends React.PureComponent {
         />
       );
       dropdown = (
-        <div className={css['calendar-nav-dropdown']} ref={this.dropdownRef}>
+        <div className={css['thread-nav-dropdown']} ref={this.dropdownRef}>
           {panes}
         </div>
       );
@@ -306,9 +306,9 @@ class Typeahead extends React.PureComponent {
       }
     } else {
       rightAligned = (  
-        <span className={css['calendar-nav-symbols']}>
-          <UpCaret className={css['calendar-nav-first-symbol']} />
-          <DownCaret className={css['calendar-nav-second-symbol']} />
+        <span className={css['thread-nav-symbols']}>
+          <UpCaret className={css['thread-nav-first-symbol']} />
+          <DownCaret className={css['thread-nav-second-symbol']} />
         </span>
       );
     }
@@ -317,13 +317,13 @@ class Typeahead extends React.PureComponent {
       <div
         onMouseDown={this.onMouseDown}
         className={classNames({
-          [css['calendar-nav']]: true,
-          [css['calendar-nav-active']]: active,
-          [css['calendar-nav-null-state']]: !this.props.currentNavID &&
+          [css['thread-nav']]: true,
+          [css['thread-nav-active']]: active,
+          [css['thread-nav-null-state']]: !this.props.currentNavID &&
             !this.props.modalExists,
         })}
       >
-        <div className={css['calendar-nav-current']} ref={this.currentRef}>
+        <div className={css['thread-nav-current']} ref={this.currentRef}>
           <span ref={this.magnifyingGlassRef}>
             <MagnifyingGlass className={css['search-vector']} />
           </span>
@@ -388,7 +388,7 @@ class Typeahead extends React.PureComponent {
   buildOption(navID: string) {
     const threadInfo = this.props.threadInfos[navID];
     if (threadInfo !== undefined) {
-      return this.buildCalendarOption(threadInfo);
+      return this.buildThreadOption(threadInfo);
     } else if (navID === "home") {
       return this.buildActionOption("home", TypeaheadText.homeText);
     } else if (navID === "new") {
@@ -420,7 +420,7 @@ class Typeahead extends React.PureComponent {
     );
   }
 
-  buildCalendarOption(threadInfo: ThreadInfo) {
+  buildThreadOption(threadInfo: ThreadInfo) {
     const onTransition = () => {
       invariant(this.input, "ref should be set");
       this.input.blur();
@@ -471,7 +471,7 @@ class Typeahead extends React.PureComponent {
   resultsBetweenForCurrentPane = () => {
     if (this.props.sortedThreadInfos.current.length > 0) {
       return this.props.sortedThreadInfos.current.map(
-        (threadInfo) => this.buildCalendarOption(threadInfo),
+        (threadInfo) => this.buildThreadOption(threadInfo),
       );
     } else if (
       this.props.currentThreadID &&
@@ -490,7 +490,7 @@ class Typeahead extends React.PureComponent {
 
   resultsBetweenForRecommendedPane = () => {
     return this.state.recommendedThreads
-      .map((threadInfo) => this.buildCalendarOption(threadInfo));
+      .map((threadInfo) => this.buildThreadOption(threadInfo));
   }
 
   resultsBetweenForActionsPane = () => {
@@ -587,7 +587,7 @@ class Typeahead extends React.PureComponent {
 
   resultsBetweenForSubscribedPane = (start: number, end: number) => {
     return this.props.sortedThreadInfos.subscribed.slice(start, end)
-      .map((threadInfo) => this.buildCalendarOption(threadInfo));
+      .map((threadInfo) => this.buildThreadOption(threadInfo));
   }
 
   static getRecommendationSize(props: Props) {

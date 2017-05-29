@@ -185,7 +185,7 @@ div.upper-right {
   padding: 6px;
   right: 0;
 }
-div.calendar-nav {
+div.thread-nav {
   padding: 3px 12px;
   z-index: 2;
   position: relative;
@@ -198,15 +198,15 @@ div.calendar-nav {
   cursor: pointer;
   float: left;
 }
-div.calendar-nav-null-state {
+div.thread-nav-null-state {
   z-index: 4;
   cursor: default;
 }
-div.calendar-nav-current {
+div.thread-nav-current {
   min-width: 170px;
   padding: 2px 0;
 }
-div.calendar-nav-active div.calendar-nav-current {
+div.thread-nav-active div.thread-nav-current {
   cursor: default;
 }
 svg.search-vector {
@@ -218,7 +218,7 @@ svg.search-vector {
   margin-bottom: -7px;
   cursor: pointer;
 }
-div.calendar-nav-null-state > div.calendar-nav-current > img {
+div.thread-nav-null-state > div.thread-nav-current > img {
   cursor: default;
 }
 div.typeahead-container {
@@ -233,40 +233,40 @@ input.typeahead {
   font-size: 15px;
   width: 125px;
 }
-div.calendar-nav-active input.typeahead {
+div.thread-nav-active input.typeahead {
   width: 100%;
 }
 input.typeahead:focus {
   outline-width: 0;
 }
-span.calendar-nav-symbols {
+span.thread-nav-symbols {
   padding-left: 10px;
   float: right;
   width: 8px;
 }
-svg.calendar-nav-first-symbol {
+svg.thread-nav-first-symbol {
   position: absolute;
   top: 5px;
   height: 12px;
   width: 7px;
 }
-svg.calendar-nav-second-symbol {
+svg.thread-nav-second-symbol {
   position: absolute;
   top: 14px;
   height: 12px;
   width: 7px;
 }
-div.calendar-nav-dropdown {
+div.thread-nav-dropdown {
   border-top: 1px solid #C8C8C8;
   margin-top: 3px;
   padding-top: 3px;
   width: 400px;
   cursor: default;
 }
-div.calendar-nav-option-pane {
+div.thread-nav-option-pane {
   padding: 2px 0;
 }
-div.calendar-nav-option-pane-header {
+div.thread-nav-option-pane-header {
   border-bottom: 1px solid #C8C8C8;
   padding: 0 0 0 4px;
   text-transform: uppercase;
@@ -275,20 +275,20 @@ div.calendar-nav-option-pane-header {
   font-size: 9px;
   position: relative;
 }
-div.calendar-nav-option {
+div.thread-nav-option {
   cursor: pointer;
   padding-left: 28px;
   padding-bottom: 6px;
   padding-top: 3px;
   position: relative;
 }
-div.calendar-nav-option-name {
+div.thread-nav-option-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
 }
-ul.calendar-nav-option-buttons {
+ul.thread-nav-option-buttons {
   text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
@@ -297,18 +297,18 @@ ul.calendar-nav-option-buttons {
   padding-left: 10px;
   padding-right: 4px;
 }
-ul.calendar-nav-option-buttons > li {
+ul.thread-nav-option-buttons > li {
   list-style-type: none;
   display: inline-block;
 }
-ul.calendar-nav-option-buttons > li + li:before {
+ul.thread-nav-option-buttons > li + li:before {
   content: "·";
   padding: 0 3px
 }
-ul.calendar-nav-option-buttons a:hover {
+ul.thread-nav-option-buttons a:hover {
   text-decoration: underline;
 }
-.calendar-nav-option-buttons-loading {
+.thread-nav-option-buttons-loading {
   position: relative;
   padding-left: 3px;
   top: 2px;
@@ -323,7 +323,7 @@ span.loading-indicator-error {
   color: red;
   line-height: 0;
 }
-div.calendar-nav-option-description {
+div.thread-nav-option-description {
   font-size: 11px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
@@ -332,23 +332,23 @@ div.calendar-nav-option-description {
   color: #444444;
   padding-top: 4px;
 }
-div.calendar-nav-option:hover {
+div.thread-nav-option:hover {
   background-color: #E8E8E8;
 }
-div.calendar-nav-frozen-option {
+div.thread-nav-frozen-option {
   background-color: #E8E8E8;
 }
-div.calendar-nav-open-option {
+div.thread-nav-open-option {
   cursor: default;
 }
-div.calendar-nav-no-results {
+div.thread-nav-no-results {
   text-align: center;
   font-style: italic;
   color: #777777;
   padding-top: 3px;
   font-size: 12px;
 }
-div.calendar-nav-color-preview {
+div.thread-nav-color-preview {
   width: 12px;
   height: 12px;
   left: 6px;
@@ -357,24 +357,24 @@ div.calendar-nav-color-preview {
   border: 1px solid #D3D3D3;
   border-radius: 2px;
 }
-div.calendar-nav-pager {
+div.thread-nav-pager {
   position: absolute;
   top: 0px;
   right: 0px;
 }
-a.calendar-nav-pager-button {
+a.thread-nav-pager-button {
   vertical-align: top;
 }
-svg.calendar-nav-pager-svg {
+svg.thread-nav-pager-svg {
   display: inline-block;
   fill: #777777;
   width: 13px;
   height: 13px;
 }
-a.calendar-nav-pager-button > svg.calendar-nav-pager-svg {
+a.thread-nav-pager-button > svg.thread-nav-pager-svg {
   fill: #2A5DB0;
 }
-span.calendar-nav-pager-status {
+span.thread-nav-pager-status {
   vertical-align: top;
 }
 
@@ -761,7 +761,7 @@ time.entry-time {
   font-size: 12px;
   color: gray;
 }
-span.entry-calendar {
+span.entry-thread {
   float: right;
   padding-right: 11px;
   font-size: 12px;
@@ -869,7 +869,7 @@ div.entry-history-deleted {
   color: red;
 }
 
-div.pick-calendar {
+div.pick-thead {
   position: absolute;
   left: 4px;
   bottom: 20px;
@@ -885,22 +885,22 @@ div.pick-calendar {
   cursor: pointer;
   outline: none;
 }
-span.select-calendar {
+span.select-thread {
   color: black;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 110px;
 }
-div.pick-calendar > div.pick-calendar-option {
+div.pick-thread > div.pick-thread-option {
   border-bottom: 1px solid #D3D3D3;
   padding: 1px 10px 1px 25px;
   position: relative;
 }
-div.pick-calendar > div.pick-calendar-option:hover {
+div.pick-thread > div.pick-thread-option:hover {
   background-color: #F2F2F2;
 }
-div.pick-calendar > div:last-child {
+div.pick-thread > div:last-child {
   border-bottom: none;
 }
 div.color-preview {
@@ -912,10 +912,10 @@ div.color-preview {
   border: 1px solid lightgray;
   border-radius: 2px;
 }
-div.select-calendar-name {
+div.select-thread-name {
   padding-top: 1px;
 }
-div.calendar-picker-pager-container {
+div.thread-picker-pager-container {
   text-align: center;
   height: 15px;
   margin-top: -2px;
@@ -924,38 +924,38 @@ div.calendar-picker-pager-container {
   position: relative;
   border-radius: 0 0 3px 3px;
 }
-div.calendar-picker-pager {
+div.thread-picker-pager {
   position: relative;
   top: -2px;
 }
-span.calendar-picker-pager-status {
+span.thread-picker-pager-status {
   text-transform: uppercase;
   color: #777777;
   font-family: 'Open Sans', sans-serif;
   font-size: 9px;
 }
-svg.calendar-picker-pager-svg {
+svg.thread-picker-pager-svg {
   fill: #777777;
   vertical-align: middle;
   width: 13px;
   height: 13px;
 }
-a.calendar-picker-pager-button {
+a.thread-picker-pager-button {
 }
-a.calendar-picker-pager-button > svg.calendar-picker-pager-svg {
+a.thread-picker-pager-button > svg.thread-picker-pager-svg {
   fill: #2A5DB0;
 }
 
-div.edit-calendar-color-container {
+div.edit-thread-color-container {
   margin-top: -5px;
 }
 div.form-textarea-container {
   margin-top: 1px;
 }
-div.edit-calendar-privacy-container {
+div.edit-thread-privacy-container {
   margin-bottom: 6px;
 }
-div.edit-calendar-account-password {
+div.edit-thread-account-password {
   border-top: 2px solid #EFEFEF;
   padding-top: 4px;
   margin-top: 2px;
@@ -1001,7 +1001,7 @@ ul.tab-panel li.delete-tab > a {
   color: #ff0000 !important;
 }
 
-div.new-calendar-privacy-container {
+div.new-thread-privacy-container {
   margin-bottom: 3px;
   margin-top: -6px;
 }
@@ -1018,22 +1018,22 @@ span.page-loading {
   float: left;
 }
 
-div.calendar-password-entry-input-container {
+div.thread-password-entry-input-container {
   overflow: hidden;
   padding-right: 6px;
 }
-input.calendar-password-entry-input {
+input.thread-password-entry-input {
   font-size: 14px;
   padding: 2px;
   width: 100%;
   margin-top: 5px;
   border-radius: 3px;
 }
-input.calendar-password-entry-input:focus {
+input.thread-password-entry-input:focus {
   outline: none;
 }
 
-input.calendar-password-entry-submit {
+input.thread-password-entry-submit {
   float: right;
   padding: 3px 5px;
   font-size: 9px;
@@ -1049,20 +1049,20 @@ input.calendar-password-entry-submit {
   margin-left: 3px;
   cursor: pointer;
 }
-input.calendar-password-entry-submit:hover {
+input.thread-password-entry-submit:hover {
   text-decoration: underline;
 }
-input.calendar-password-entry-submit:disabled {
+input.thread-password-entry-submit:disabled {
   cursor: initial;
   text-decoration: none;
   color: #999999;
 }
-img.calendar-pasword-entry-loading {
+img.thread-pasword-entry-loading {
   float: right;
   width: 14px;
   padding: 9px 1px 0px 3px;
 }
-span.calendar-pasword-entry-loading {
+span.thread-pasword-entry-loading {
   float: right;
   line-height: 14px;
   padding: 9px 3px 0px 5px;

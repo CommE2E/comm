@@ -46,7 +46,7 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   loadingStatus: LoadingStatus,
-  currentCalendarQuery: CalendarQuery,
+  currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -67,7 +67,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
   render() {
     if (!this.props.threadInfo.authorized) {
       return (
-        <ul className={css['calendar-nav-option-buttons']}>
+        <ul className={css['thread-nav-option-buttons']}>
           <li>Closed</li>
         </ul>
       );
@@ -83,12 +83,12 @@ class TypeaheadOptionButtons extends React.PureComponent {
       );
     }
     return (
-      <ul className={css['calendar-nav-option-buttons']}>
+      <ul className={css['thread-nav-option-buttons']}>
         {editButton}
         <li>
           <LoadingIndicator
             status={this.props.loadingStatus}
-            className={css['calendar-nav-option-buttons-loading']}
+            className={css['thread-nav-option-buttons-loading']}
           />
           <a href='#' onClick={this.onSubscribe}>
             {this.props.threadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
@@ -117,7 +117,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
       this.props.dispatchActionPromise(
         fetchEntriesActionType,
         this.props.fetchEntries({
-          ...this.props.currentCalendarQuery,
+          ...this.props.currentCalendarQuery(),
           navID: this.props.threadInfo.id,
         }),
       );
@@ -168,7 +168,7 @@ TypeaheadOptionButtons.propTypes = {
   home: PropTypes.bool.isRequired,
   currentNavID: PropTypes.string,
   loadingStatus: PropTypes.string.isRequired,
-  currentCalendarQuery: PropTypes.object.isRequired,
+  currentCalendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   subscribe: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,

@@ -36,13 +36,13 @@ class TypeaheadActionOption extends React.PureComponent {
     return (
       <div
         className={classNames(
-          css['calendar-nav-option'],
-          {[css['calendar-nav-frozen-option']]: this.props.frozen},
+          css['thread-nav-option'],
+          {[css['thread-nav-frozen-option']]: this.props.frozen},
         )}
         onClick={this.onClick}
       >
         <div>
-          <div className={css['calendar-nav-option-name']}>
+          <div className={css['thread-nav-option-name']}>
             {this.props.name}
           </div>
           <div className={css['clear']} />

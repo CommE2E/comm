@@ -141,7 +141,7 @@ class ThreadSettingsModal extends React.PureComponent {
               ></textarea>
             </div>
           </div>
-          <div className={css['edit-calendar-color-container']}>
+          <div className={css['edit-thread-color-container']}>
             <div className={`${css['form-title']} ${css['color-title']}`}>
               Color
             </div>
@@ -201,7 +201,7 @@ class ThreadSettingsModal extends React.PureComponent {
           ? threadPasswordInputs
           : null;
       mainContent = (
-        <div className={css['edit-calendar-privacy-container']}>
+        <div className={css['edit-thread-privacy-container']}>
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Visibility</div>
             <div className={css['form-enum-selector']}>
@@ -389,7 +389,7 @@ class ThreadSettingsModal extends React.PureComponent {
         <div className={css['modal-body']}>
           <form method="POST">
             {mainContent}
-            <div className={css['edit-calendar-account-password']}>
+            <div className={css['edit-thread-account-password']}>
               <p className={css['confirm-account-password']}>
                 Please enter your account password to confirm your identity
               </p>

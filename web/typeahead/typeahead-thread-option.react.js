@@ -115,7 +115,7 @@ class TypeaheadThreadOption extends React.PureComponent {
     let descriptionDiv = null;
     if (this.props.threadInfo && this.props.threadInfo.description) {
       descriptionDiv = (
-        <div className={css['calendar-nav-option-description']}>
+        <div className={css['thread-nav-option-description']}>
           <TextTruncate
             line={2}
             text={this.props.threadInfo.description}
@@ -126,22 +126,22 @@ class TypeaheadThreadOption extends React.PureComponent {
     let passwordEntry = null;
     if (this.state.passwordEntryOpen) {
       passwordEntry =
-        <div className={css['calendar-password-entry']}>
+        <div className={css['thread-password-entry']}>
           <input
             type="submit"
             value="Enter"
-            className={css['calendar-password-entry-submit']}
+            className={css['thread-password-entry-submit']}
             onClick={this.onSubmitPassword}
             disabled={this.props.passwordEntryLoadingStatus === "loading"}
           />
           <LoadingIndicator
             status={this.props.passwordEntryLoadingStatus}
-            className={css['calendar-pasword-entry-loading']}
+            className={css['thread-pasword-entry-loading']}
           />
-          <div className={css['calendar-password-entry-input-container']}>
+          <div className={css['thread-password-entry-input-container']}>
             <input
               type="password"
-              className={css['calendar-password-entry-input']}
+              className={css['thread-password-entry-input']}
               value={this.state.passwordEntryValue}
               onChange={this.onPasswordEntryChange}
               onBlur={this.onPasswordEntryBlur}
@@ -162,7 +162,7 @@ class TypeaheadThreadOption extends React.PureComponent {
       };
       colorPreview = (
         <div
-          className={css['calendar-nav-color-preview']}
+          className={css['thread-nav-color-preview']}
           style={colorPreviewStyle}
         />
       );
@@ -183,9 +183,9 @@ class TypeaheadThreadOption extends React.PureComponent {
     return (
       <div
         className={classNames({
-          [css['calendar-nav-option']]: true,
-          [css['calendar-nav-open-option']]: this.state.passwordEntryOpen,
-          [css['calendar-nav-frozen-option']]: this.props.frozen ||
+          [css['thread-nav-option']]: true,
+          [css['thread-nav-open-option']]: this.state.passwordEntryOpen,
+          [css['thread-nav-frozen-option']]: this.props.frozen ||
             this.state.passwordEntryOpen,
         })}
         onClick={this.onClick}
@@ -193,7 +193,7 @@ class TypeaheadThreadOption extends React.PureComponent {
         {colorPreview}
         <div>
           {optionButtons}
-          <div className={css['calendar-nav-option-name']}>
+          <div className={css['thread-nav-option-name']}>
             {name}
           </div>
         </div>

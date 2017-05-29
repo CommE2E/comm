@@ -103,7 +103,7 @@ class HistoryEntry extends React.PureComponent {
           {"created by "}
           {creator}
         </span>
-        <span className={css['entry-calendar']}>
+        <span className={css['entry-thread']}>
           {this.props.threadInfo.name}
         </span>
         <div className={css['clear']} />

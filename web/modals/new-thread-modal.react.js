@@ -146,7 +146,7 @@ class NewThreadModal extends React.PureComponent {
                 />
               </div>
             </div>
-            <div className={css['new-calendar-privacy-container']}>
+            <div className={css['new-thread-privacy-container']}>
               <div className={css['modal-radio-selector']}>
                 <div className={css['form-title']}>Visibility</div>
                 <div className={css['form-enum-selector']}>

@@ -71,19 +71,19 @@ class TypeaheadPane extends React.PureComponent {
     let pager = null;
     if (this.props.totalResults > this.state.currentResults.length) {
       let leftPager = (
-        <LeftPager className={css['calendar-nav-pager-svg']} />
+        <LeftPager className={css['thread-nav-pager-svg']} />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
           <a
             href="#"
-            className={css['calendar-nav-pager-button']}
+            className={css['thread-nav-pager-button']}
             onClick={this.onBackPagerClick}
           >{leftPager}</a>
         );
       }
       let rightPager = (
-        <RightPager className={css['calendar-nav-pager-svg']} />
+        <RightPager className={css['thread-nav-pager-svg']} />
       );
       if (
         this.props.pageSize * (this.state.currentPage + 1)
@@ -92,15 +92,15 @@ class TypeaheadPane extends React.PureComponent {
         rightPager = (
           <a
             href="#"
-            className={css['calendar-nav-pager-button']}
+            className={css['thread-nav-pager-button']}
             onClick={this.onNextPagerClick}
           >{rightPager}</a>
         );
       }
       pager = (
-        <div className={css['calendar-nav-pager']}>
+        <div className={css['thread-nav-pager']}>
           {leftPager}
-          <span className={css['calendar-nav-pager-status']}>
+          <span className={css['thread-nav-pager-status']}>
             {
               `${this.firstIndex(this.props, this.state.currentPage) + 1}–` +
               `${this.secondIndex(this.props, this.state.currentPage)} ` +
@@ -112,8 +112,8 @@ class TypeaheadPane extends React.PureComponent {
       );
     }
     return (
-      <div className={css['calendar-nav-option-pane']}>
-        <div className={css['calendar-nav-option-pane-header']}>
+      <div className={css['thread-nav-option-pane']}>
+        <div className={css['thread-nav-option-pane-header']}>
           {this.props.paneTitle}
           {pager}
         </div>

@@ -35,10 +35,10 @@ class ThreadPickerOption extends React.PureComponent {
 
   render() {
     return (
-      <div className={css['pick-calendar-option']} onClick={this.onClick}>
-        <span className={css['select-calendar']}>
+      <div className={css['pick-thread-option']} onClick={this.onClick}>
+        <span className={css['select-thread']}>
           <div className={css['color-preview']} style={this.style} />
-          <span className={css['select-calendar-name']}>
+          <span className={css['select-thread-name']}>
             {this.props.threadInfo.name}
           </span>
         </span>
@@ -100,34 +100,34 @@ class ThreadPicker extends React.PureComponent {
     let pager = null;
     if (length > ThreadPicker.pageSize) {
       let leftPager = (
-        <LeftPager className={css['calendar-picker-pager-svg']} />
+        <LeftPager className={css['thread-picker-pager-svg']} />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
           <a
             href="#"
-            className={css['calendar-picker-pager-button']}
+            className={css['thread-picker-pager-button']}
             onClick={this.onBackPagerClick}
           >{leftPager}</a>
         );
       }
       let rightPager = (
-        <RightPager className={css['calendar-picker-pager-svg']} />
+        <RightPager className={css['thread-picker-pager-svg']} />
       );
       if (ThreadPicker.pageSize * (this.state.currentPage + 1) < length) {
         rightPager = (
           <a
             href="#"
-            className={css['calendar-picker-pager-button']}
+            className={css['thread-picker-pager-button']}
             onClick={this.onNextPagerClick}
           >{rightPager}</a>
         );
       }
       pager = (
-        <div className={css['calendar-picker-pager-container']} key="pager">
-          <div className={css['calendar-picker-pager']}>
+        <div className={css['thread-picker-pager-container']} key="pager">
+          <div className={css['thread-picker-pager']}>
             {leftPager}
-            <span className={css['calendar-picker-pager-status']}>
+            <span className={css['thread-picker-pager-status']}>
               {`${firstIndex + 1}–${secondIndex} of ${length}`}
             </span>
             {rightPager}
@@ -148,7 +148,7 @@ class ThreadPicker extends React.PureComponent {
 
     return (
       <div
-        className={css['pick-calendar']}
+        className={css['pick-thread']}
         tabIndex="0"
         onBlur={this.props.closePicker}
         onKeyDown={this.onPickerKeyDown}
