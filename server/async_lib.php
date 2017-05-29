@@ -2,7 +2,7 @@
 
 require_once('config.php');
 require_once('auth.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 
 function async_exit($payload) {
   exit(json_encode($payload));
@@ -34,7 +34,7 @@ function async_end($payload) {
   if (cookie_has_changed()) {
     $cookie_invalidated = cookie_invalidated();
     $payload['cookie_change'] = array(
-      'calendar_infos' => get_calendar_infos(),
+      'calendar_infos' => get_thread_infos(),
       'cookie_invalidated' => $cookie_invalidated,
     );
     // Only include in the raw response since on web we want it to be httponly

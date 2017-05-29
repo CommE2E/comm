@@ -9,19 +9,19 @@ define("VISIBILITY_SECRET", 2);
 define("EDIT_ANYBODY", 0);
 define("EDIT_LOGGED_IN", 1);
 
-function get_calendar_infos($specific_condition="") {
+function get_thread_infos($specific_condition="") {
   global $conn;
   $viewer_id = get_viewer_id();
-  $query = "SELECT c.id, c.name, r.role, c.visibility_rules, ".
-    "r.calendar IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
-    "AS is_authed, r.subscribed, c.color, c.description, c.edit_rules ".
-    "FROM calendars c ".
-    "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id}";
+  $query = "SELECT t.id, t.name, r.role, t.visibility_rules, ".
+    "r.thread IS NOT NULL AND r.role >= ".ROLE_SUCCESSFUL_AUTH." ".
+    "AS is_authed, r.subscribed, t.color, t.description, t.edit_rules ".
+    "FROM threads t ".
+    "LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}";
   if ($specific_condition) {
     $query .= " WHERE $specific_condition";
   }
   $result = $conn->query($query);
-  $calendar_infos = array();
+  $thread_infos = array();
   while ($row = $result->fetch_assoc()) {
     $authorized = $row['is_authed'] ||
       (int)$row['visibility_rules'] < VISIBILITY_CLOSED;
@@ -29,7 +29,7 @@ function get_calendar_infos($specific_condition="") {
       continue;
     }
     $subscribed_authorized = $authorized && $row['subscribed'];
-    $calendar_infos[$row['id']] = array(
+    $thread_infos[$row['id']] = array(
       'id' => $row['id'],
       'name' => $row['name'],
       'description' => $row['description'],
@@ -41,5 +41,5 @@ function get_calendar_infos($specific_condition="") {
       'editRules' => (int)$row['edit_rules'],
     );
   }
-  return $calendar_infos;
+  return $thread_infos;
 }

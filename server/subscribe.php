@@ -12,10 +12,10 @@ if (!isset($_POST['calendar']) || !isset($_POST['subscribe'])) {
     'test' => $_POST,
   ));
 }
-$calendar = (int)$_POST['calendar'];
+$thread = (int)$_POST['calendar'];
 $subscribe = $_POST['subscribe'] ? 1 : 0;
 
-$can_see = viewer_can_see_calendar($calendar);
+$can_see = viewer_can_see_thread($thread);
 if ($can_see === null) {
   async_end(array(
     'error' => 'invalid_parameters',
@@ -30,9 +30,9 @@ if (!$can_see) {
 $viewer_id = get_viewer_id();
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query(
-  "INSERT INTO roles(calendar, user, ".
+  "INSERT INTO roles(thread, user, ".
     "creation_time, last_view, role, subscribed) ".
-    "VALUES ($calendar, $viewer_id, $time, $time, ".
+    "VALUES ($thread, $viewer_id, $time, $time, ".
     ROLE_VIEWED.", $subscribe) ON DUPLICATE KEY UPDATE ".
     "creation_time = LEAST(VALUES(creation_time), creation_time), ".
     "last_view = GREATEST(VALUES(last_view), last_view), ".

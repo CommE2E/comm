@@ -3,7 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -23,25 +23,25 @@ $month_rewrite_matched = preg_match(
   $month_matches
 );
 $month = $month_rewrite_matched ? (int)$month_matches[1] : idate('m');
-$calendar_rewrite_matched = preg_match(
+$thread_rewrite_matched = preg_match(
   '#/calendar/([0-9]+)(/|$)#i',
   $_SERVER['REQUEST_URI'],
-  $calendar_matches
+  $thread_matches
 );
 $home_rewrite_matched = preg_match('#/home(/|$)#i', $_SERVER['REQUEST_URI']);
-if (!$home_rewrite_matched && $calendar_rewrite_matched) {
+if (!$home_rewrite_matched && $thread_rewrite_matched) {
   $home = false;
-  $calendar = (int)$calendar_matches[1];;
+  $thread = (int)$thread_matches[1];;
 } else {
   $home = true;
-  $calendar = null;
+  $thread = null;
 }
 
-$calendar_infos = get_calendar_infos();
-if (!$home && !isset($calendar_infos[$calendar])) {
-  $result = $conn->query("SELECT id FROM calendars WHERE id = $calendar");
-  $calendar_id_check_row = $result->fetch_assoc();
-  if (!$calendar_id_check_row) {
+$thread_infos = get_thread_infos();
+if (!$home && !isset($thread_infos[$thread])) {
+  $result = $conn->query("SELECT id FROM threads WHERE id = $thread");
+  $thread_id_check_row = $result->fetch_assoc();
+  if (!$thread_id_check_row) {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
     exit;
   }
@@ -56,15 +56,15 @@ if ($month < 1 || $month > 12) {
 $null_state = null;
 if ($home) {
   $null_state = true;
-  foreach ($calendar_infos as $calendar_info) {
-    if ($calendar_info['subscribed']) {
+  foreach ($thread_infos as $thread_info) {
+    if ($thread_info['subscribed']) {
       $null_state = false;
       break;
     }
   }
 } else {
-  $null_state = !isset($calendar_infos[$calendar])
-    || !$calendar_infos[$calendar]['authorized'];
+  $null_state = !isset($thread_infos[$thread])
+    || !$thread_infos[$thread]['authorized'];
 }
 
 $verify_rewrite_matched = preg_match(
@@ -96,12 +96,12 @@ if ($verify_code) {
 }
 
 $viewer_id = get_viewer_id();
-if ($calendar !== null) {
+if ($thread !== null) {
   $time = round(microtime(true) * 1000); // in milliseconds
   $conn->query(
-    "INSERT INTO roles(calendar, user, ".
+    "INSERT INTO roles(thread, user, ".
       "creation_time, last_view, role, subscribed) ".
-      "VALUES ($calendar, $viewer_id, $time, $time, ".
+      "VALUES ($thread, $viewer_id, $time, $time, ".
       ROLE_VIEWED.", 0) ON DUPLICATE KEY UPDATE ".
       "creation_time = LEAST(VALUES(creation_time), creation_time), ".
       "last_view = GREATEST(VALUES(last_view), last_view), ".
@@ -128,9 +128,9 @@ $entries = array();
 if ($home) {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.calendar, e.deleted, u.username AS creator FROM entries e ".
+      "d.thread, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = $viewer_id ".
+      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = $viewer_id ".
       "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
       "r.subscribed = 1 AND e.deleted = 0 ORDER BY d.date, e.creation_time"
@@ -138,23 +138,23 @@ if ($home) {
 } else {
   $result = $conn->query(
     "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.calendar, e.deleted, u.username AS creator FROM entries e ".
+      "d.thread, e.deleted, u.username AS creator FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
       "LEFT JOIN users u ON u.id = e.creator ".
       "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-      "d.calendar = $calendar AND e.deleted = 0 ORDER BY d.date, e.creation_time"
+      "d.thread = $thread AND e.deleted = 0 ORDER BY d.date, e.creation_time"
   );
 }
 while ($row = $result->fetch_assoc()) {
-  $entry_calendar = intval($row['calendar']);
-  if (!$calendar_infos[$entry_calendar]['authorized']) {
+  $entry_thread = intval($row['thread']);
+  if (!$thread_infos[$entry_thread]['authorized']) {
     continue;
   }
   $day = intval($row['day']);
   $entry = intval($row['entry_id']);
   $entries[$entry] = array(
     "id" => (string)$entry,
-    "calendarID" => (string)$entry_calendar,
+    "calendarID" => (string)$entry_thread,
     "text" => $row['text'],
     "year" => $year,
     "month" => $month,
@@ -191,7 +191,7 @@ HTML;
       var username = "<?=$username?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
-      var calendar_infos = <?=json_encode($calendar_infos, JSON_FORCE_OBJECT)?>;
+      var calendar_infos = <?=json_encode($thread_infos, JSON_FORCE_OBJECT)?>;
       var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
@@ -200,7 +200,7 @@ HTML;
       var verify_field = <?=$verify_field !== null ? $verify_field : 'null'?>;
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$home ? 'true' : 'false'?>;
-      var calendar_id = <?=$calendar ? "'$calendar'" : "null"?>;
+      var calendar_id = <?=$thread ? "'$thread'" : "null"?>;
     </script>
   </head>
   <body>

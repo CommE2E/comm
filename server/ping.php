@@ -3,7 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 require_once('entry_lib.php');
 
 async_start();
@@ -32,7 +32,7 @@ if ($user_logged_in) {
 $return = array(
   'success' => true,
   'user_info' => $user_info,
-  'calendar_infos' => get_calendar_infos(),
+  'calendar_infos' => get_thread_infos(),
 );
 
 if (!empty($_POST['inner_entry_query'])) {

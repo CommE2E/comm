@@ -3,7 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 
 async_start();
 
@@ -45,7 +45,7 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
 $name = $conn->real_escape_string($_POST['name']);
 $description = $conn->real_escape_string($_POST['description']);
 $time = round(microtime(true) * 1000); // in milliseconds
-$conn->query("INSERT INTO ids(table_name) VALUES('calendars')");
+$conn->query("INSERT INTO ids(table_name) VALUES('threads')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
 $edit_rules = $visibility_rules >= VISIBILITY_CLOSED
@@ -54,7 +54,7 @@ $edit_rules = $visibility_rules >= VISIBILITY_CLOSED
 if ($visibility_rules >= VISIBILITY_CLOSED) {
   $hash = password_hash($password, PASSWORD_BCRYPT);
   $conn->query(
-    "INSERT INTO calendars".
+    "INSERT INTO threads".
       "(id, name, description, visibility_rules, hash, edit_rules, ".
       "creator, creation_time, color) ".
       "VALUES ($id, '$name', '$description', $visibility_rules, '$hash', ".
@@ -62,7 +62,7 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
   );
 } else {
   $conn->query(
-    "INSERT INTO calendars".
+    "INSERT INTO threads".
       "(id, name, description, visibility_rules, hash, edit_rules, ".
       "creator, creation_time, color) ".
       "VALUES ($id, '$name', '$description', $visibility_rules, NULL, ".
@@ -71,7 +71,7 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
 }
 
 $conn->query(
-  "INSERT INTO roles(calendar, user, creation_time, last_view, role, ".
+  "INSERT INTO roles(thread, user, creation_time, last_view, role, ".
     "subscribed) ".
     "VALUES ($id, $creator, $time, $time, ".ROLE_CREATOR.", 1)"
 );

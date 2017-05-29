@@ -3,7 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 
 async_start();
 
@@ -45,20 +45,20 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
 }
 
 $user = get_viewer_id();
-$calendar = (int)$_POST['calendar'];
+$thread = (int)$_POST['calendar'];
 $personal_password = $_POST['personal_password'];
 $edit_rules = (int)$_POST['edit_rules'];
 
 // Three unrelated purposes for this query, all from different tables:
 // - get hash for viewer password check (users table)
-// - figures out if the calendar requires auth (calendars table)
+// - figures out if the thread requires auth (threads table)
 // - makes sure that viewer has the necessary permissions (roles table)
 $result = $conn->query(
-  "SELECT c.visibility_rules, u.hash ".
+  "SELECT t.visibility_rules, u.hash ".
     "FROM roles r ".
     "LEFT JOIN users u ON u.id = r.user ".
-    "LEFT JOIN calendars c ON c.id = r.calendar ".
-    "WHERE r.calendar = $calendar AND r.user = $user ".
+    "LEFT JOIN threads t ON t.id = r.thread ".
+    "WHERE r.thread = $thread AND r.user = $user ".
     "AND r.role >= ".ROLE_CREATOR
 );
 $row = $result->fetch_assoc();
@@ -73,7 +73,7 @@ if (!password_verify($personal_password, $row['hash'])) {
   ));
 }
 
-// If the calendar is currently open but is being switched to closed,
+// If the thread is currently open but is being switched to closed,
 // then a password *must* be specified
 if (
   intval($row['visibility_rules']) < VISIBILITY_CLOSED &&
@@ -90,25 +90,25 @@ $description = $conn->real_escape_string($_POST['description']);
 if ($visibility_rules >= VISIBILITY_CLOSED && trim($new_password) !== '') {
   $hash = password_hash($new_password, PASSWORD_BCRYPT);
   $conn->query(
-    "UPDATE calendars SET name = '$name', description = '$description', ".
+    "UPDATE threads SET name = '$name', description = '$description', ".
       "color = '$color', visibility_rules = $visibility_rules, ".
       "hash = '$hash', edit_rules = $edit_rules ".
-      "WHERE id = $calendar"
+      "WHERE id = $thread"
   );
 } else if ($visibility_rules >= VISIBILITY_CLOSED) {
-  // We are guaranteed that the calendar was closed beforehand, as otherwise
+  // We are guaranteed that the thread was closed beforehand, as otherwise
   // $new_password would have to be set and the above condition would've tripped
   $conn->query(
-    "UPDATE calendars SET name = '$name', description = '$description', ".
+    "UPDATE threads SET name = '$name', description = '$description', ".
       "color = '$color', visibility_rules = $visibility_rules, ".
-      "edit_rules = $edit_rules WHERE id = $calendar"
+      "edit_rules = $edit_rules WHERE id = $thread"
   );
 } else {
   $conn->query(
-    "UPDATE calendars SET name = '$name', description = '$description', ".
+    "UPDATE threads SET name = '$name', description = '$description', ".
       "color = '$color', visiblity_rules = $visibility_rules, hash = NULL, ".
       "edit_rules = $edit_rules ".
-      "WHERE id = $calendar"
+      "WHERE id = $thread"
   );
 }
 

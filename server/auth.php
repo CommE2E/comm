@@ -1,7 +1,7 @@
 <?php
 
 require_once('config.php');
-require_once('calendar_lib.php');
+require_once('thread_lib.php');
 
 define("ROLE_VIEWED", 0);
 define("ROLE_SUCCESSFUL_AUTH", 5);
@@ -217,13 +217,13 @@ function create_user_cookie($user_id) {
   // MySQL can't handle constraint violations on UPDATE, so need to pull all the
   // membership rows to PHP, delete them, and then recreate them :(
   $result = $conn->query(
-    "SELECT calendar, creation_time, last_view, role, subscribed FROM roles ".
+    "SELECT thread, creation_time, last_view, role, subscribed FROM roles ".
       "WHERE user = $anonymous_cookie_id"
   );
   $new_rows = array();
   while ($row = $result->fetch_assoc()) {
     $new_rows[] = "(".implode(", ", array(
-      $row['calendar'],
+      $row['thread'],
       $user_id,
       $row['creation_time'],
       $row['last_view'],
@@ -233,7 +233,7 @@ function create_user_cookie($user_id) {
   }
   if ($new_rows) {
     $conn->query(
-      "INSERT INTO roles(calendar, user, ".
+      "INSERT INTO roles(thread, user, ".
         "creation_time, last_view, role, subscribed) ".
         "VALUES ".implode(', ', $new_rows)." ".
         "ON DUPLICATE KEY UPDATE ".
@@ -345,23 +345,23 @@ function set_cookie($name, $value, $expiration_time) {
   );
 }
 
-// null if calendar does not exist
-function viewer_can_see_calendar($calendar) {
+// null if thread does not exist
+function viewer_can_see_thread($thread) {
   global $conn;
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth FROM calendars c ".
-      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
-      "WHERE c.id = $calendar"
+    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth FROM threads t ".
+      "LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id} ".
+      "WHERE t.id = $thread"
   );
-  $calendar_row = $result->fetch_assoc();
-  if (!$calendar_row) {
+  $thread_row = $result->fetch_assoc();
+  if (!$thread_row) {
     return null;
   }
-  return !$calendar_row['requires_auth'];
+  return !$thread_row['requires_auth'];
 }
 
 // null if day does not exist
@@ -370,11 +370,11 @@ function viewer_can_see_day($day) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
       "AS requires_auth FROM days d ".
-      "LEFT JOIN calendars c ON c.id = d.calendar ".
-      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
+      "LEFT JOIN threads t ON t.id = d.thread ".
+      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
       "WHERE d.id = $day"
   );
   $day_row = $result->fetch_assoc();
@@ -390,12 +390,12 @@ function viewer_can_see_entry($entry) {
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
       "AS requires_auth FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN calendars c ON c.id = d.calendar ".
-      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
+      "LEFT JOIN threads t ON t.id = d.thread ".
+      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
       "WHERE e.id = $entry"
   );
   $entry_row = $result->fetch_assoc();
@@ -418,38 +418,38 @@ function edit_rules_helper($mysql_row) {
   return true;
 }
 
-// null if calendar does not exist
-// false if the viewer can't see into the calendar, or can't edit it
-// true if the viewer can see into and edit the calendar
-function viewer_can_edit_calendar($calendar) {
+// null if thread does not exist
+// false if the viewer can't see into the thread, or can't edit it
+// true if the viewer can see into and edit the thread
+function viewer_can_edit_thread($thread) {
   global $conn;
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth, c.edit_rules FROM calendars c ".
-      "LEFT JOIN roles r ON r.calendar = c.id AND r.user = {$viewer_id} ".
-      "WHERE c.id = $calendar"
+    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth, t.edit_rules FROM threads t ".
+      "LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id} ".
+      "WHERE t.id = $thread"
   );
   return edit_rules_helper($result->fetch_assoc());
 }
 
 // null if entry does not exist
-// false if the viewer can't see into the calendar, or can't edit it
-// true if the viewer can see into and edit the calendar
+// false if the viewer can't see into the thread, or can't edit it
+// true if the viewer can see into and edit the thread
 // note that this function does not check if the entry is deleted
 function viewer_can_edit_entry($entry) {
   global $conn;
 
   $viewer_id = get_viewer_id();
   $result = $conn->query(
-    "SELECT c.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.calendar IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth, c.edit_rules FROM entries e ".
+    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
+      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
+      "AS requires_auth, t.edit_rules FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN calendars c ON c.id = d.calendar ".
-      "LEFT JOIN roles r ON r.calendar = d.calendar AND r.user = {$viewer_id} ".
+      "LEFT JOIN threads t ON t.id = d.thread ".
+      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
       "WHERE e.id = $entry"
   );
   return edit_rules_helper($result->fetch_assoc());

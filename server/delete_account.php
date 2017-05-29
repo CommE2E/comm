@@ -44,7 +44,7 @@ $conn->query(
     "WHERE u.id = $user"
 );
 
-// TODO figure out what to do with calendars this account admins
+// TODO figure out what to do with threads this account admins
 
 delete_cookie('user');
 init_anonymous_cookie();
