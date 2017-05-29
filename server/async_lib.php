@@ -34,7 +34,7 @@ function async_end($payload) {
   if (cookie_has_changed()) {
     $cookie_invalidated = cookie_invalidated();
     $payload['cookie_change'] = array(
-      'calendar_infos' => get_thread_infos(),
+      'thread_infos' => get_thread_infos(),
       'cookie_invalidated' => $cookie_invalidated,
     );
     // Only include in the raw response since on web we want it to be httponly

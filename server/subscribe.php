@@ -6,13 +6,13 @@ require_once('auth.php');
 
 async_start();
 
-if (!isset($_POST['calendar']) || !isset($_POST['subscribe'])) {
+if (!isset($_POST['thread']) || !isset($_POST['subscribe'])) {
   async_end(array(
     'error' => 'invalid_parameters',
     'test' => $_POST,
   ));
 }
-$thread = (int)$_POST['calendar'];
+$thread = (int)$_POST['thread'];
 $subscribe = $_POST['subscribe'] ? 1 : 0;
 
 $can_see = viewer_can_see_thread($thread);

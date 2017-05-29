@@ -103,11 +103,11 @@ class ThreadPicker extends React.PureComponent {
     return <View style={styles.itemSeperator} />;
   }
 
-  threadPicked = (calendarID: string) => {
+  threadPicked = (threadID: string) => {
     this.props.close();
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
-      createLocalEntry(calendarID, this.props.dateString, this.props.username),
+      createLocalEntry(threadID, this.props.dateString, this.props.username),
     );
   }
 

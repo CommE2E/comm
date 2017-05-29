@@ -11,14 +11,14 @@ if (!user_logged_in()) {
     'error' => 'not_logged_in',
   ));
 }
-if (!isset($_POST['calendar']) || !isset($_POST['password'])) {
+if (!isset($_POST['thread']) || !isset($_POST['password'])) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
 }
 
 $user = get_viewer_id();
-$thread = (int)$_POST['calendar'];
+$thread = (int)$_POST['thread'];
 $password = $_POST['password'];
 
 $result = $conn->query(

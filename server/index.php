@@ -154,7 +154,7 @@ while ($row = $result->fetch_assoc()) {
   $entry = intval($row['entry_id']);
   $entries[$entry] = array(
     "id" => (string)$entry,
-    "calendarID" => (string)$entry_thread,
+    "threadID" => (string)$entry_thread,
     "text" => $row['text'],
     "year" => $year,
     "month" => $month,
@@ -191,7 +191,7 @@ HTML;
       var username = "<?=$username?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
-      var calendar_infos = <?=json_encode($thread_infos, JSON_FORCE_OBJECT)?>;
+      var thread_infos = <?=json_encode($thread_infos, JSON_FORCE_OBJECT)?>;
       var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;
@@ -200,7 +200,7 @@ HTML;
       var verify_field = <?=$verify_field !== null ? $verify_field : 'null'?>;
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$home ? 'true' : 'false'?>;
-      var calendar_id = <?=$thread ? "'$thread'" : "null"?>;
+      var thread_id = <?=$thread ? "'$thread'" : "null"?>;
     </script>
   </head>
   <body>

@@ -180,11 +180,11 @@ class App extends React.PureComponent {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(newProps.location.pathname);
-      if (!newNavInfo.home && !newNavInfo.calendarID) {
+      if (!newNavInfo.home && !newNavInfo.threadID) {
         const strippedPathname = newProps.location.pathname.replace(/^\//, '');
         history.replace(`/${this.props.thisNavURLFragment}${strippedPathname}`);
         newNavInfo.home = newProps.navInfo.home;
-        newNavInfo.calendarID = newProps.navInfo.calendarID;
+        newNavInfo.threadID = newProps.navInfo.threadID;
       }
       if (!_isEqual(newNavInfo, newProps.navInfo)) {
         this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
@@ -207,8 +207,8 @@ class App extends React.PureComponent {
       ) {
         newModal = <IntroModal />;
       } else if (
-        (newProps.navInfo.calendarID && !newProps.currentNavID) &&
-        (!this.props.navInfo.calendarID || this.props.currentNavID)
+        (newProps.navInfo.threadID && !newProps.currentNavID) &&
+        (!this.props.navInfo.threadID || this.props.currentNavID)
       ) {
         newModal = <div className={css['modal-overlay']} />;
       } else if (newProps.currentNavID && !this.props.currentNavID) {

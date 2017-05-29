@@ -78,5 +78,5 @@ $conn->query(
 
 async_end(array(
   'success' => true,
-  'new_calendar_id' => $id,
+  'new_thread_id' => $id,
 ));

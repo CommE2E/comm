@@ -17,7 +17,7 @@ import { htmlTargetFromEvent } from '../vector-utils';
 
 type OptionProps = {
   calendarInfo: CalendarInfo,
-  createNewEntry: (calendarID: string) => void,
+  createNewEntry: (threadID: string) => void,
 };
 class CalendarPickerOption extends React.PureComponent {
 
@@ -54,7 +54,7 @@ class CalendarPickerOption extends React.PureComponent {
 
 type Props = {
   onScreenCalendarInfos: CalendarInfo[],
-  createNewEntry: (calendarID: string) => void,
+  createNewEntry: (threadID: string) => void,
   closePicker: () => void,
 };
 type State = {

@@ -15,7 +15,7 @@ if (!user_logged_in()) {
 if (
   !isset($_POST['name']) ||
   !isset($_POST['description']) ||
-  !isset($_POST['calendar']) ||
+  !isset($_POST['thread']) ||
   !isset($_POST['color']) ||
   !isset($_POST['personal_password']) ||
   !isset($_POST['visibility_rules']) ||
@@ -45,7 +45,7 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
 }
 
 $user = get_viewer_id();
-$thread = (int)$_POST['calendar'];
+$thread = (int)$_POST['thread'];
 $personal_password = $_POST['personal_password'];
 $edit_rules = (int)$_POST['edit_rules'];
 

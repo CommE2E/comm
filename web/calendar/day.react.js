@@ -114,7 +114,7 @@ class Day extends React.PureComponent {
     }
 
     const entries = this.props.entryInfos.filter((entryInfo) =>
-      _some(['id', entryInfo.calendarID])(this.props.onScreenCalendarInfos),
+      _some(['id', entryInfo.threadID])(this.props.onScreenCalendarInfos),
     ).map((entryInfo, i) => {
       const key = entryKey(entryInfo);
       return <Entry
@@ -228,9 +228,9 @@ class Day extends React.PureComponent {
     }
   }
 
-  createNewEntry = (calendarID: string) => {
+  createNewEntry = (threadID: string) => {
     const calendarInfo = this.props.onScreenCalendarInfos.find(
-      (calendarInfo) => calendarInfo.id === calendarID,
+      (calendarInfo) => calendarInfo.id === threadID,
     );
     invariant(calendarInfo, "matching CalendarInfo not found");
     if (calendarInfo.editRules >= 1 && !this.props.loggedIn) {
@@ -246,7 +246,7 @@ class Day extends React.PureComponent {
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
       createLocalEntry(
-        calendarID,
+        threadID,
         this.props.dayString,
         this.props.username,
       ),

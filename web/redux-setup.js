@@ -20,7 +20,7 @@ export const navInfoPropType = PropTypes.shape({
   startDate: PropTypes.string.isRequired,
   endDate: PropTypes.string.isRequired,
   home: PropTypes.bool.isRequired,
-  calendarID: PropTypes.string,
+  threadID: PropTypes.string,
   verify: PropTypes.string,
 });
 

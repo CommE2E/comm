@@ -32,7 +32,7 @@ if ($user_logged_in) {
 $return = array(
   'success' => true,
   'user_info' => $user_info,
-  'calendar_infos' => get_thread_infos(),
+  'thread_infos' => get_thread_infos(),
 );
 
 if (!empty($_POST['inner_entry_query'])) {

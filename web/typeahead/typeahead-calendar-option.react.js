@@ -51,7 +51,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   authCalendar: (
-    calendarID: string,
+    threadID: string,
     calendarPassword: string,
   ) => Promise<CalendarInfo>;
 };
@@ -308,7 +308,7 @@ export default connect(
     return {
       monthURL: monthURL(state),
       currentNavID: currentNavID(state),
-      currentCalendarID: state.navInfo.calendarID,
+      currentCalendarID: state.navInfo.threadID,
       passwordEntryLoadingStatus: createLoadingStatusSelector(
         authCalendarActionType,
         `${authCalendarActionType}:${id}`,

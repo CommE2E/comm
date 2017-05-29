@@ -42,7 +42,7 @@ function get_entry_infos($input) {
   $viewer_id = get_viewer_id();
   $result = $conn->query(
     "SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year, ".
-      "e.id, e.text, e.creation_time AS creationTime, d.thread AS calendarID, ".
+      "e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID, ".
       "e.deleted, u.username AS creator ".
       "FROM entries e ".
       "LEFT JOIN days d ON d.id = e.day ".

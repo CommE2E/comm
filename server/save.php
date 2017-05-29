@@ -13,7 +13,7 @@ if ($entry_id === -1) {
     !isset($_POST['day']) ||
     !isset($_POST['month']) ||
     !isset($_POST['year']) ||
-    !isset($_POST['calendar'])
+    !isset($_POST['thread'])
   ) {
     async_end(array(
       'error' => 'invalid_parameters',
@@ -22,7 +22,7 @@ if ($entry_id === -1) {
   $day = intval($_POST['day']);
   $month = intval($_POST['month']);
   $year = intval($_POST['year']);
-  $thread = intval($_POST['calendar']);
+  $thread = intval($_POST['thread']);
   // For the case of a new entry, the privacy check to make sure that the user
   // is allowed to edit this thread happens here
   $day_id = get_editable_day_id($thread, $day, $month, $year);

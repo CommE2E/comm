@@ -72,7 +72,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   deleteCalendar:
-    (calendarID: string, currentAccountPassword: string) => Promise<Object>,
+    (threadID: string, currentAccountPassword: string) => Promise<Object>,
   changeCalendarSettings: (
     currentAccountPassword: string,
     newCalendarPassword: string,

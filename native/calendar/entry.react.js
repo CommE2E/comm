@@ -76,7 +76,7 @@ type Props = {
     year: number,
     month: number,
     day: number,
-    calendarID: string,
+    threadID: string,
     creationTime: number,
   ) => Promise<SaveResult>,
   deleteEntry: (
@@ -385,7 +385,7 @@ class Entry extends React.Component {
         this.props.entryInfo.year,
         this.props.entryInfo.month,
         this.props.entryInfo.day,
-        this.props.entryInfo.calendarID,
+        this.props.entryInfo.threadID,
         this.props.entryInfo.creationTime,
       );
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
@@ -542,7 +542,7 @@ registerFetchKey(deleteEntryActionType);
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
+    calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
     sessionStartingPayload: sessionStartingPayload(state),
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),

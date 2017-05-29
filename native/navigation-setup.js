@@ -152,7 +152,7 @@ const defaultNavInfo: NavInfo = {
   startDate: fifteenDaysEarlier().valueOf(),
   endDate: fifteenDaysLater().valueOf(),
   home: true,
-  calendarID: null,
+  threadID: null,
   navigationState: defaultNavigationState,
 };
 

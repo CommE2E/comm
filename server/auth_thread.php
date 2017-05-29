@@ -7,12 +7,12 @@ require_once('thread_lib.php');
 
 async_start();
 
-if (!isset($_POST['calendar'])) {
+if (!isset($_POST['thread'])) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
 }
-$thread = intval($_POST['calendar']);
+$thread = intval($_POST['thread']);
 
 // First, let's fetch the thread row and see if it needs authentication
 $result = $conn->query("SELECT hash FROM threads WHERE id=$thread");
@@ -56,5 +56,5 @@ $conn->query(
 $thread_infos = get_thread_infos("c.id = $thread");
 async_end(array(
   'success' => true,
-  'calendar_info' => $thread_infos[$thread],
+  'thread_info' => $thread_infos[$thread],
 ));

@@ -166,7 +166,7 @@ export default connect(
     const entryID = ownProps.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
     return {
-      calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
+      calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
       sessionID: currentSessionID(state),
       loggedIn: !!state.userInfo,
       restoreLoadingStatus: createLoadingStatusSelector(

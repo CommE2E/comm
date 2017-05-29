@@ -37,7 +37,7 @@ import history from './router-history';
 declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
-declare var calendar_infos: {[id: string]: CalendarInfo};
+declare var thread_infos: {[id: string]: CalendarInfo};
 declare var entry_infos: EntryInfo[];
 declare var month: number;
 declare var year: number;
@@ -45,7 +45,7 @@ declare var verify_code: ?string;
 declare var verify_field: ?number;
 declare var reset_password_username: string;
 declare var home: bool;
-declare var calendar_id: ?string;
+declare var thread_id: ?string;
 
 registerConfig({
   // We can use paths local to the <base href> on web
@@ -75,7 +75,7 @@ const store: Store<AppState, Action> = createStore(
       startDate,
       endDate,
       home,
-      calendarID: calendar_id,
+      threadID: thread_id,
       verify: verify_code,
     },
     userInfo,
@@ -85,7 +85,7 @@ const store: Store<AppState, Action> = createStore(
     entryInfos,
     daysToEntries,
     lastUserInteraction: { calendar: Date.now(), sessionReset: Date.now() },
-    calendarInfos: calendar_infos,
+    calendarInfos: thread_infos,
     loadingStatuses: {},
     cookie: undefined,
   }: AppState),

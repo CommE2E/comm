@@ -51,7 +51,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   subscribe: (
-    calendarID: string,
+    threadID: string,
     newSubscribed: bool,
   ) => Promise<void>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
@@ -135,7 +135,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
       this.props.focusTypeahead();
     }
     return {
-      calendarID: this.props.calendarInfo.id,
+      threadID: this.props.calendarInfo.id,
       newSubscribed,
     };
   }

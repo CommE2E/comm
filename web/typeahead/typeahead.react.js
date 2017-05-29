@@ -624,7 +624,7 @@ export default connect((state: AppState) => ({
   currentNavID: currentNavID(state),
   calendarInfos: state.calendarInfos,
   currentlyHome: state.navInfo.home,
-  currentCalendarID: state.navInfo.calendarID,
+  currentCalendarID: state.navInfo.threadID,
   subscriptionExists: subscriptionExists(state),
   searchIndex: searchIndex(state),
   sortedCalendarInfos: typeaheadSortedCalendarInfos(state),

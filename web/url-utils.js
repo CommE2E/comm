@@ -28,19 +28,19 @@ const monthURL = createSelector(
   (year: number, month: number) => urlForYearAndMonth(year, month),
 );
 
-function urlForHomeAndCalendarID(home: bool, calendarID: ?string) {
+function urlForHomeAndCalendarID(home: bool, threadID: ?string) {
   if (home) {
     return "home/";
   }
-  invariant(calendarID, "either home or calendarID should be set");
-  return `calendar/${calendarID}/`;
+  invariant(threadID, "either home or threadID should be set");
+  return `calendar/${threadID}/`;
 }
 
 const thisNavURLFragment = createSelector(
   (state: AppState) => state.navInfo,
   (navInfo: NavInfo) => urlForHomeAndCalendarID(
     navInfo.home,
-    navInfo.calendarID
+    navInfo.threadID
   ),
 );
 
@@ -53,7 +53,7 @@ const thisURL = createSelector(
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
-  let newURL = `/${urlForHomeAndCalendarID(navInfo.home, navInfo.calendarID)}`;
+  let newURL = `/${urlForHomeAndCalendarID(navInfo.home, navInfo.threadID)}`;
 
   if (urlInfo.year !== undefined) {
     const year = yearAssertingExtractor(navInfo.startDate, navInfo.endDate);
@@ -80,7 +80,7 @@ function navInfoFromURL(url: string): NavInfo {
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     home: !!urlInfo.home,
-    calendarID: urlInfo.calendarID ? urlInfo.calendarID : null,
+    threadID: urlInfo.threadID ? urlInfo.threadID : null,
     verify: urlInfo.verify ? urlInfo.verify : null,
   };
 }

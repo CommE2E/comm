@@ -13,7 +13,7 @@ class ThreadPickerThread extends React.PureComponent {
 
   props: {
     calendarInfo: CalendarInfo,
-    threadPicked: (calendarID: string) => void,
+    threadPicked: (threadID: string) => void,
   };
   static propTypes = {
     calendarInfo: calendarInfoPropType.isRequired,

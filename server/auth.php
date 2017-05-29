@@ -46,7 +46,7 @@ function cookie_invalidated() {
 
 // When the cookie the client sent doesn't match up with the cookie we end up
 // using for them, along with sending the client the new cookie, we want to make
-// sure to update some client data (CalendarInfo, UserInfo, etc.)
+// sure to update some client data (ThreadInfo, UserInfo, etc.)
 function cookie_has_changed() {
   global $original_viewer_info,
     $current_viewer_info,

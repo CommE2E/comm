@@ -72,7 +72,7 @@ type Props = {
     year: number,
     month: number,
     day: number,
-    calendarID: string,
+    threadID: string,
     creationTime: number,
   ) => Promise<SaveResult>,
   deleteEntry: (
@@ -314,7 +314,7 @@ class Entry extends React.PureComponent {
         this.props.entryInfo.year,
         this.props.entryInfo.month,
         this.props.entryInfo.day,
-        this.props.entryInfo.calendarID,
+        this.props.entryInfo.threadID,
         this.props.entryInfo.creationTime,
       );
       if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
@@ -464,7 +464,7 @@ type OwnProps = {
 };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.calendarID],
+    calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),
     sessionStartingPayload: sessionStartingPayload(state),
