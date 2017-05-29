@@ -2,8 +2,8 @@
 
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux-setup';
 import type {
@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark } from 'lib/selectors/calendar-selectors';
+import { colorIsDark } from 'lib/selectors/thread-selectors';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -55,7 +55,7 @@ type Props = {
   clearModal: () => void,
   tabIndex: number,
   // Redux state
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   sessionID: () => string,
   nextSessionID: () => ?string,
   sessionStartingPayload: () => { newSessionID?: string },
@@ -185,7 +185,7 @@ class Entry extends React.PureComponent {
           <span className={
             `${css['right-action-links']} ${css['action-links-text']}`
           }>
-            {this.props.calendarInfo.name}
+            {this.props.threadInfo.name}
           </span>
           <div className={css['clear']}></div>
         </div>
@@ -194,10 +194,10 @@ class Entry extends React.PureComponent {
 
     const entryClasses = classNames({
       [css['entry']]: true,
-      [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
+      [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
       [css['focused-entry']]: this.state.focused,
     });
-    const style = { backgroundColor: "#" + this.props.calendarInfo.color };
+    const style = { backgroundColor: "#" + this.props.threadInfo.color };
     return (
       <div
         className={entryClasses}
@@ -243,7 +243,7 @@ class Entry extends React.PureComponent {
   }
 
   onChange = (event: SyntheticEvent) => {
-    if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+    if (this.props.threadInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
@@ -372,7 +372,7 @@ class Entry extends React.PureComponent {
 
   onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (this.props.calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+    if (this.props.threadInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
@@ -404,7 +404,7 @@ class Entry extends React.PureComponent {
 
   async deleteAction(serverID: ?string, focusOnNextEntry: bool) {
     invariant(
-      this.props.calendarInfo.editRules < 1 || this.props.loggedIn,
+      this.props.threadInfo.editRules < 1 || this.props.loggedIn,
       "calendar should be editable if delete triggered",
     );
     if (focusOnNextEntry) {
@@ -448,7 +448,7 @@ Entry.propTypes = {
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,
   tabIndex: PropTypes.number.isRequired,
-  calendarInfo: calendarInfoPropType.isRequired,
+  threadInfo: threadInfoPropType.isRequired,
   sessionID: PropTypes.func.isRequired,
   nextSessionID: PropTypes.func.isRequired,
   sessionStartingPayload: PropTypes.func.isRequired,
@@ -464,7 +464,7 @@ type OwnProps = {
 };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
+    threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),
     sessionStartingPayload: sessionStartingPayload(state),

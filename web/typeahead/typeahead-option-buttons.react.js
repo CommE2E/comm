@@ -1,7 +1,7 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
@@ -24,7 +24,7 @@ import {
 import {
   subscribeActionType,
   subscribe,
-} from 'lib/actions/calendar-actions';
+} from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
@@ -33,10 +33,10 @@ import {
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
-import CalendarSettingsModal from '../modals/calendar-settings-modal.react';
+import ThreadSettingsModal from '../modals/thread-settings-modal.react';
 
 type Props = {
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
@@ -65,7 +65,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
   state: State;
 
   render() {
-    if (!this.props.calendarInfo.authorized) {
+    if (!this.props.threadInfo.authorized) {
       return (
         <ul className={css['calendar-nav-option-buttons']}>
           <li>Closed</li>
@@ -73,7 +73,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
       );
     }
     let editButton = null;
-    if (this.props.calendarInfo.canChangeSettings && this.props.currentNavID) {
+    if (this.props.threadInfo.canChangeSettings && this.props.currentNavID) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit}>
@@ -91,7 +91,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
             className={css['calendar-nav-option-buttons-loading']}
           />
           <a href='#' onClick={this.onSubscribe}>
-            {this.props.calendarInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
+            {this.props.threadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
           </a>
         </li>
       </ul>
@@ -104,28 +104,28 @@ class TypeaheadOptionButtons extends React.PureComponent {
     if (this.props.loadingStatus === "loading") {
       return;
     }
-    const newSubscribed = !this.props.calendarInfo.subscribed;
+    const newSubscribed = !this.props.threadInfo.subscribed;
 
     this.props.dispatchActionPromise(
       subscribeActionType,
       this.subscribeAction(newSubscribed),
-      { customKeyName: `${subscribeActionType}:${this.props.calendarInfo.id}` },
+      { customKeyName: `${subscribeActionType}:${this.props.threadInfo.id}` },
     );
 
-    // If we are on home and just subscribed to a calendar, we need to load it
+    // If we are on home and just subscribed to a thread, we need to load it
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
         fetchEntriesActionType,
         this.props.fetchEntries({
           ...this.props.currentCalendarQuery,
-          navID: this.props.calendarInfo.id,
+          navID: this.props.threadInfo.id,
         }),
       );
     }
   }
 
   async subscribeAction(newSubscribed: bool) {
-    await this.props.subscribe(this.props.calendarInfo.id, newSubscribed);
+    await this.props.subscribe(this.props.threadInfo.id, newSubscribed);
     // If this subscription action causes us to leave the null home state, then
     // we need to make sure that the typeahead is active iff it's focused. The
     // default resolution in Typeahead would be to close the typeahead, but it's
@@ -135,7 +135,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
       this.props.focusTypeahead();
     }
     return {
-      threadID: this.props.calendarInfo.id,
+      threadID: this.props.threadInfo.id,
       newSubscribed,
     };
   }
@@ -143,14 +143,14 @@ class TypeaheadOptionButtons extends React.PureComponent {
   edit = (event: SyntheticEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    this.props.freezeTypeahead(this.props.calendarInfo.id);
+    this.props.freezeTypeahead(this.props.threadInfo.id);
     const onClose = () => {
-      this.props.unfreezeTypeahead(this.props.calendarInfo.id);
+      this.props.unfreezeTypeahead(this.props.threadInfo.id);
       this.props.clearModal();
     }
     this.props.setModal(
-      <CalendarSettingsModal
-        calendarInfo={this.props.calendarInfo}
+      <ThreadSettingsModal
+        threadInfo={this.props.threadInfo}
         onClose={onClose}
       />
     );
@@ -159,7 +159,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
 }
 
 TypeaheadOptionButtons.propTypes = {
-  calendarInfo: calendarInfoPropType.isRequired,
+  threadInfo: threadInfoPropType.isRequired,
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,
   freezeTypeahead: PropTypes.func.isRequired,
@@ -175,12 +175,12 @@ TypeaheadOptionButtons.propTypes = {
 };
 
 export default connect(
-  (state: AppState, ownProps: { calendarInfo: CalendarInfo }) => ({
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
     loadingStatus: createLoadingStatusSelector(
       subscribeActionType,
-      `${subscribeActionType}:${ownProps.calendarInfo.id}`,
+      `${subscribeActionType}:${ownProps.threadInfo.id}`,
     )(state),
     currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,

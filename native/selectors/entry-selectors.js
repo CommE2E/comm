@@ -8,7 +8,7 @@ import _map from 'lodash/fp/map';
 const _mapWithKeys = _map.convert({ cap: false });
 import invariant from 'invariant';
 
-import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
+import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
 
 export type CalendarItem =

@@ -1,8 +1,6 @@
 // @flow
 
 import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';

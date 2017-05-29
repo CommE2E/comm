@@ -1,13 +1,13 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import {
-  calendarInfoPropType,
+  threadInfoPropType,
   visibilityRules,
   editRules,
   assertVisibilityRules,
   assertEditRules,
-} from 'lib/types/calendar-types';
+} from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
@@ -22,11 +22,11 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  deleteCalendarActionType,
-  deleteCalendar,
-  changeCalendarSettingsActionType,
-  changeCalendarSettings,
-} from 'lib/actions/calendar-actions';
+  deleteThreadActionType,
+  deleteThread,
+  changeThreadSettingsActionType,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../style.css';
@@ -64,45 +64,45 @@ class Tab extends React.PureComponent {
 }
 
 type Props = {
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   onClose: () => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteCalendar:
+  deleteThread:
     (threadID: string, currentAccountPassword: string) => Promise<Object>,
-  changeCalendarSettings: (
+  changeThreadSettings: (
     currentAccountPassword: string,
-    newCalendarPassword: string,
-    newCalendarInfo: CalendarInfo,
+    newThreadPassword: string,
+    newThreadInfo: ThreadInfo,
   ) => Promise<Object>,
 };
 type State = {
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   errorMessage: string,
-  newCalendarPassword: string,
-  confirmCalendarPassword: string,
+  newThreadPassword: string,
+  confirmThreadPassword: string,
   accountPassword: string,
   currentTabType: TabType,
 };
 
-class CalendarSettingsModal extends React.PureComponent {
+class ThreadSettingsModal extends React.PureComponent {
 
   props: Props;
   state: State;
   nameInput: ?HTMLInputElement;
-  newCalendarPasswordInput: ?HTMLInputElement;
+  newThreadPasswordInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      calendarInfo: props.calendarInfo,
+      threadInfo: props.threadInfo,
       errorMessage: "",
-      newCalendarPassword: "",
-      confirmCalendarPassword: "",
+      newThreadPassword: "",
+      confirmThreadPassword: "",
       accountPassword: "",
       currentTabType: "general",
     };
@@ -119,11 +119,11 @@ class CalendarSettingsModal extends React.PureComponent {
       mainContent = (
         <div>
           <div>
-            <div className={css['form-title']}>Calendar name</div>
+            <div className={css['form-title']}>Thread name</div>
             <div className={css['form-content']}>
               <input
                 type="text"
-                value={this.state.calendarInfo.name}
+                value={this.state.threadInfo.name}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
                 ref={this.nameInputRef}
@@ -134,8 +134,8 @@ class CalendarSettingsModal extends React.PureComponent {
             <div className={css['form-title']}>Description</div>
             <div className={css['form-content']}>
               <textarea
-                value={this.state.calendarInfo.description}
-                placeholder="Calendar description"
+                value={this.state.threadInfo.description}
+                placeholder="Thread description"
                 onChange={this.onChangeDescription}
                 disabled={this.props.inputDisabled}
               ></textarea>
@@ -147,8 +147,8 @@ class CalendarSettingsModal extends React.PureComponent {
             </div>
             <div className={css['form-content']}>
               <ColorPicker
-                id="edit-calendar-color"
-                value={this.state.calendarInfo.color}
+                id="edit-thread-color"
+                value={this.state.threadInfo.color}
                 disabled={this.props.inputDisabled}
                 onChange={this.onChangeColor}
               />
@@ -157,35 +157,35 @@ class CalendarSettingsModal extends React.PureComponent {
         </div>
       );
     } else if (this.state.currentTabType === "privacy") {
-      let calendarPasswordInputs = null;
-      if (this.state.calendarInfo.visibilityRules >= visibilityRules.CLOSED) {
+      let threadPasswordInputs = null;
+      if (this.state.threadInfo.visibilityRules >= visibilityRules.CLOSED) {
         const currentlyClosed =
-          this.props.calendarInfo.visibilityRules >= visibilityRules.CLOSED;
+          this.props.threadInfo.visibilityRules >= visibilityRules.CLOSED;
         // Note: these depend on props, not state
         const passwordPlaceholder = currentlyClosed
-          ? "New calendar password (optional)"
-          : "New calendar password";
+          ? "New thread password (optional)"
+          : "New thread password";
         const confirmPlaceholder = currentlyClosed
-          ? "Confirm calendar password (optional)"
-          : "Confirm calendar password";
-        calendarPasswordInputs = (
+          ? "Confirm thread password (optional)"
+          : "Confirm thread password";
+        threadPasswordInputs = (
           <div>
             <div className={css['form-enum-password']}>
               <input
                 type="password"
                 placeholder={passwordPlaceholder}
-                value={this.state.newCalendarPassword}
-                onChange={this.onChangeNewCalendarPassword}
+                value={this.state.newThreadPassword}
+                onChange={this.onChangeNewThreadPassword}
                 disabled={this.props.inputDisabled}
-                ref={this.newCalendarPasswordInputRef}
+                ref={this.newThreadPasswordInputRef}
               />
             </div>
             <div className={css['form-enum-password']}>
               <input
                 type="password"
                 placeholder={confirmPlaceholder}
-                value={this.state.confirmCalendarPassword}
-                onChange={this.onChangeConfirmCalendarPassword}
+                value={this.state.confirmThreadPassword}
+                onChange={this.onChangeConfirmThreadPassword}
                 disabled={this.props.inputDisabled}
               />
             </div>
@@ -193,12 +193,12 @@ class CalendarSettingsModal extends React.PureComponent {
         );
       }
       const closedPasswordEntry =
-        this.state.calendarInfo.visibilityRules === visibilityRules.CLOSED
-          ? calendarPasswordInputs
+        this.state.threadInfo.visibilityRules === visibilityRules.CLOSED
+          ? threadPasswordInputs
           : null;
       const secretPasswordEntry =
-        this.state.calendarInfo.visibilityRules === visibilityRules.SECRET
-          ? calendarPasswordInputs
+        this.state.threadInfo.visibilityRules === visibilityRules.SECRET
+          ? threadPasswordInputs
           : null;
       mainContent = (
         <div className={css['edit-calendar-privacy-container']}>
@@ -208,21 +208,21 @@ class CalendarSettingsModal extends React.PureComponent {
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
-                  name="edit-calendar-type"
-                  id="edit-calendar-open"
+                  name="edit-thread-type"
+                  id="edit-thread-open"
                   value={visibilityRules.OPEN}
                   checked={
-                    this.state.calendarInfo.visibilityRules ===
+                    this.state.threadInfo.visibilityRules ===
                     visibilityRules.OPEN
                   }
                   onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-calendar-open">
+                  <label htmlFor="edit-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      Anybody can view the contents of an open calendar.
+                      Anybody can view the contents of an open thread.
                     </span>
                   </label>
                 </div>
@@ -230,22 +230,22 @@ class CalendarSettingsModal extends React.PureComponent {
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
-                  name="edit-calendar-type"
-                  id="edit-calendar-closed"
+                  name="edit-thread-type"
+                  id="edit-thread-closed"
                   value={visibilityRules.CLOSED}
                   checked={
-                    this.state.calendarInfo.visibilityRules ===
+                    this.state.threadInfo.visibilityRules ===
                     visibilityRules.CLOSED
                   }
                   onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-calendar-closed">
+                  <label htmlFor="edit-thread-closed">
                     Closed
                     <span className={css['form-enum-description']}>
                       Only people with the password can view the contents of
-                      a closed calendar.
+                      a closed thread.
                     </span>
                   </label>
                   {closedPasswordEntry}
@@ -254,21 +254,21 @@ class CalendarSettingsModal extends React.PureComponent {
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
-                  name="edit-calendar-type"
-                  id="edit-calendar-secret"
+                  name="edit-thread-type"
+                  id="edit-thread-secret"
                   value={visibilityRules.SECRET}
                   checked={
-                    this.state.calendarInfo.visibilityRules ===
+                    this.state.threadInfo.visibilityRules ===
                     visibilityRules.SECRET
                   }
                   onChange={this.onChangeClosed}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-calendar-secret">
+                  <label htmlFor="edit-thread-secret">
                     Secret
                     <span className={css['form-enum-description']}>
-                      Only people with the password can view the calendar, and
+                      Only people with the password can view the thread, and
                       it won't appear in search results or recommendations.
                       Share the URL and password with your friends to add them.
                     </span>
@@ -284,18 +284,18 @@ class CalendarSettingsModal extends React.PureComponent {
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
-                  name="edit-calendar-edit-rules"
-                  id="edit-calendar-edit-rules-anybody"
+                  name="edit-thread-edit-rules"
+                  id="edit-thread-edit-rules-anybody"
                   value={0}
-                  checked={this.state.calendarInfo.editRules === 0}
+                  checked={this.state.threadInfo.editRules === 0}
                   onChange={this.onChangeEditRules}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-calendar-edit-rules-anybody">
+                  <label htmlFor="edit-thread-edit-rules-anybody">
                     Anybody
                     <span className={css['form-enum-description']}>
-                      Anybody who can view the contents of the calendar can also
+                      Anybody who can view the contents of the thread can also
                       edit them.
                     </span>
                   </label>
@@ -304,19 +304,19 @@ class CalendarSettingsModal extends React.PureComponent {
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
-                  name="edit-calendar-edit-rules"
-                  id="edit-calendar-edit-rules-logged-in"
+                  name="edit-thread-edit-rules"
+                  id="edit-thread-edit-rules-logged-in"
                   value={1}
-                  checked={this.state.calendarInfo.editRules === 1}
+                  checked={this.state.threadInfo.editRules === 1}
                   onChange={this.onChangeEditRules}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-calendar-edit-rules-logged-in">
+                  <label htmlFor="edit-thread-edit-rules-logged-in">
                     Logged In
                     <span className={css['form-enum-description']}>
                       Only users who are logged in can edit the contents of the
-                      calendar.
+                      thread.
                     </span>
                   </label>
                 </div>
@@ -329,7 +329,7 @@ class CalendarSettingsModal extends React.PureComponent {
       mainContent = (
         <div>
           <p className={css['italic']}>
-            Your calendar will be permanently deleted. There is no way to
+            Your thread will be permanently deleted. There is no way to
             reverse this.
           </p>
         </div>
@@ -362,7 +362,7 @@ class CalendarSettingsModal extends React.PureComponent {
     }
 
     return (
-      <Modal name="Calendar settings" onClose={this.props.onClose} size="large">
+      <Modal name="Thread settings" onClose={this.props.onClose} size="large">
         <ul className={css['tab-panel']}>
           <Tab
             name="General"
@@ -425,10 +425,10 @@ class CalendarSettingsModal extends React.PureComponent {
     this.nameInput = nameInput;
   }
 
-  newCalendarPasswordInputRef = (
-    newCalendarPasswordInput: ?HTMLInputElement,
+  newThreadPasswordInputRef = (
+    newThreadPasswordInput: ?HTMLInputElement,
   ) => {
-    this.newCalendarPasswordInput = newCalendarPasswordInput;
+    this.newThreadPasswordInput = newThreadPasswordInput;
   }
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
@@ -440,8 +440,8 @@ class CalendarSettingsModal extends React.PureComponent {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState: State, props) => ({
       ...prevState,
-      calendarInfo: {
-        ...prevState.calendarInfo,
+      threadInfo: {
+        ...prevState.threadInfo,
         name: target.value,
       },
     }));
@@ -452,8 +452,8 @@ class CalendarSettingsModal extends React.PureComponent {
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState((prevState, props) => ({
       ...prevState,
-      calendarInfo: {
-        ...prevState.calendarInfo,
+      threadInfo: {
+        ...prevState.threadInfo,
         description: target.value,
       },
     }));
@@ -462,8 +462,8 @@ class CalendarSettingsModal extends React.PureComponent {
   onChangeColor = (color: string) => {
     this.setState((prevState, props) => ({
       ...prevState,
-      calendarInfo: {
-        ...prevState.calendarInfo,
+      threadInfo: {
+        ...prevState.threadInfo,
         color,
       },
     }));
@@ -474,8 +474,8 @@ class CalendarSettingsModal extends React.PureComponent {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => ({
       ...prevState,
-      calendarInfo: {
-        ...prevState.calendarInfo,
+      threadInfo: {
+        ...prevState.threadInfo,
         visibilityRules: assertVisibilityRules(parseInt(target.value)),
       },
     }));
@@ -486,23 +486,23 @@ class CalendarSettingsModal extends React.PureComponent {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState((prevState, props) => ({
       ...prevState,
-      calendarInfo: {
-        ...prevState.calendarInfo,
+      threadInfo: {
+        ...prevState.threadInfo,
         editRules: assertEditRules(parseInt(target.value)),
       },
     }));
   }
 
-  onChangeNewCalendarPassword = (event: SyntheticEvent) => {
+  onChangeNewThreadPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ newCalendarPassword: target.value });
+    this.setState({ newThreadPassword: target.value });
   }
 
-  onChangeConfirmCalendarPassword = (event: SyntheticEvent) => {
+  onChangeConfirmThreadPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState({ confirmCalendarPassword: target.value });
+    this.setState({ confirmThreadPassword: target.value });
   }
 
   onChangeAccountPassword = (event: SyntheticEvent) => {
@@ -514,16 +514,16 @@ class CalendarSettingsModal extends React.PureComponent {
   onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
-    const name = this.state.calendarInfo.name.trim();
+    const name = this.state.threadInfo.name.trim();
     if (name === '') {
       this.setState(
         (prevState, props) => ({
           ...prevState,
-          calendarInfo: {
-            ...prevState.calendarInfo,
-            name: this.props.calendarInfo.name,
+          threadInfo: {
+            ...prevState.threadInfo,
+            name: this.props.threadInfo.name,
           },
-          errorMessage: "empty calendar name",
+          errorMessage: "empty thread name",
           currentTabType: "general",
         }),
         () => {
@@ -534,46 +534,46 @@ class CalendarSettingsModal extends React.PureComponent {
       return;
     }
 
-    if (this.state.calendarInfo.visibilityRules >= visibilityRules.CLOSED) {
-      // If the calendar is currently open but is being switched to closed,
+    if (this.state.threadInfo.visibilityRules >= visibilityRules.CLOSED) {
+      // If the thread is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
-        this.props.calendarInfo.visibilityRules < visibilityRules.CLOSED &&
-        this.state.newCalendarPassword.trim() === ''
+        this.props.threadInfo.visibilityRules < visibilityRules.CLOSED &&
+        this.state.newThreadPassword.trim() === ''
       ) {
         this.setState(
           {
-            newCalendarPassword: "",
-            confirmCalendarPassword: "",
+            newThreadPassword: "",
+            confirmThreadPassword: "",
             errorMessage: "empty password",
             currentTabType: "privacy",
           },
           () => {
             invariant(
-              this.newCalendarPasswordInput,
-              "newCalendarPasswordInput ref unset",
+              this.newThreadPasswordInput,
+              "newThreadPasswordInput ref unset",
             );
-            this.newCalendarPasswordInput.focus();
+            this.newThreadPasswordInput.focus();
           },
         );
         return;
       }
       if (
-        this.state.newCalendarPassword !== this.state.confirmCalendarPassword
+        this.state.newThreadPassword !== this.state.confirmThreadPassword
       ) {
         this.setState(
           {
-            newCalendarPassword: "",
-            confirmCalendarPassword: "",
+            newThreadPassword: "",
+            confirmThreadPassword: "",
             errorMessage: "passwords don't match",
             currentTabType: "privacy",
           },
           () => {
             invariant(
-              this.newCalendarPasswordInput,
-              "newCalendarPasswordInput ref unset",
+              this.newThreadPasswordInput,
+              "newThreadPasswordInput ref unset",
             );
-            this.newCalendarPasswordInput.focus();
+            this.newThreadPasswordInput.focus();
           },
         );
         return;
@@ -581,21 +581,21 @@ class CalendarSettingsModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      changeCalendarSettingsActionType,
-      this.changeCalendarSettingsAction(name),
+      changeThreadSettingsActionType,
+      this.changeThreadSettingsAction(name),
     );
   }
 
-  async changeCalendarSettingsAction(name: string) {
+  async changeThreadSettingsAction(name: string) {
     try {
-      const newCalendarInfo: CalendarInfo = {
-        ...this.state.calendarInfo,
+      const newThreadInfo: ThreadInfo = {
+        ...this.state.threadInfo,
         name,
       };
-      const response = await this.props.changeCalendarSettings(
+      const response = await this.props.changeThreadSettings(
         this.state.accountPassword,
-        this.state.newCalendarPassword,
-        newCalendarInfo,
+        this.state.newThreadPassword,
+        newThreadInfo,
       );
       this.props.onClose();
       return response;
@@ -618,16 +618,16 @@ class CalendarSettingsModal extends React.PureComponent {
         this.setState(
           (prevState, props) => ({
             ...prevState,
-            calendarInfo: {
-              ...prevState.calendarInfo,
-              name: this.props.calendarInfo.name,
-              description: this.props.calendarInfo.description,
-              visibilityRules: this.props.calendarInfo.visibilityRules,
-              color: this.props.calendarInfo.color,
-              editRules: this.props.calendarInfo.editRules,
+            threadInfo: {
+              ...prevState.threadInfo,
+              name: this.props.threadInfo.name,
+              description: this.props.threadInfo.description,
+              visibilityRules: this.props.threadInfo.visibilityRules,
+              color: this.props.threadInfo.color,
+              editRules: this.props.threadInfo.editRules,
             },
-            newCalendarPassword: { $set: "" },
-            confirmCalendarPassword: { $set: "" },
+            newThreadPassword: { $set: "" },
+            confirmThreadPassword: { $set: "" },
             accountPassword: { $set: "" },
             errorMessage: { $set: "unknown error" },
             currentTabType: { $set: "general" },
@@ -645,15 +645,15 @@ class CalendarSettingsModal extends React.PureComponent {
   onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
-      deleteCalendarActionType,
-      this.deleteCalendarAction(),
+      deleteThreadActionType,
+      this.deleteThreadAction(),
     );
   }
 
-  async deleteCalendarAction() {
+  async deleteThreadAction() {
     try {
-      const response = await this.props.deleteCalendar(
-        this.props.calendarInfo.id,
+      const response = await this.props.deleteThread(
+        this.props.threadInfo.id,
         this.state.accountPassword,
       );
       this.props.onClose();
@@ -681,26 +681,26 @@ class CalendarSettingsModal extends React.PureComponent {
 
 }
 
-CalendarSettingsModal.propTypes = {
-  calendarInfo: calendarInfoPropType.isRequired,
+ThreadSettingsModal.propTypes = {
+  threadInfo: threadInfoPropType.isRequired,
   onClose: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  deleteCalendar: PropTypes.func.isRequired,
-  changeCalendarSettings: PropTypes.func.isRequired,
+  deleteThread: PropTypes.func.isRequired,
+  changeThreadSettings: PropTypes.func.isRequired,
 }
 
-const deleteCalendarLoadingStatusSelector
-  = createLoadingStatusSelector(deleteCalendarActionType);
-const changeCalendarSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeCalendarSettingsActionType);
+const deleteThreadLoadingStatusSelector
+  = createLoadingStatusSelector(deleteThreadActionType);
+const changeThreadSettingsLoadingStatusSelector
+  = createLoadingStatusSelector(changeThreadSettingsActionType);
 
 export default connect(
   (state: AppState) => ({
-    inputDisabled: deleteCalendarLoadingStatusSelector(state) === "loading" ||
-      changeCalendarSettingsLoadingStatusSelector(state) === "loading",
+    inputDisabled: deleteThreadLoadingStatusSelector(state) === "loading" ||
+      changeThreadSettingsLoadingStatusSelector(state) === "loading",
     cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ deleteCalendar, changeCalendarSettings }),
-)(CalendarSettingsModal);
+  bindServerCalls({ deleteThread, changeThreadSettings }),
+)(ThreadSettingsModal);

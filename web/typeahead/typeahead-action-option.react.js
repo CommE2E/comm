@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import css from '../style.css';
-import NewCalendarModal from '../modals/new-calendar-modal.react';
+import NewThreadModal from '../modals/new-thread-modal.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import { monthURL } from '../url-utils';
 import history from '../router-history';
@@ -61,14 +61,14 @@ class TypeaheadActionOption extends React.PureComponent {
       }
       if (this.props.loggedIn) {
         this.props.setModal(
-          <NewCalendarModal
+          <NewThreadModal
             onClose={onClose}
           />
         );
       } else {
         this.props.setModal(
           <LogInFirstModal
-            inOrderTo="create a new calendar"
+            inOrderTo="create a new thread"
             onClose={onClose}
             setModal={this.props.setModal}
           />

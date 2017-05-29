@@ -3,7 +3,7 @@
 import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
@@ -39,7 +39,7 @@ class More extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    logOut: () => Promise<CalendarInfo[]>,
+    logOut: () => Promise<ThreadInfo[]>,
     ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
   };
   state: {};

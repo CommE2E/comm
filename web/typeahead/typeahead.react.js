@@ -1,7 +1,7 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { NavID } from './typeahead-action-option.react';
 import type { AppState } from '../redux-setup';
 
@@ -20,12 +20,12 @@ import { connect } from 'react-redux';
 
 import { SearchIndex, searchIndex } from 'lib/selectors/search-index';
 import { currentNavID, subscriptionExists } from 'lib/selectors/nav-selectors';
-import { typeaheadSortedCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { typeaheadSortedThreadInfos } from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 
 import css from '../style.css';
 import TypeaheadActionOption from './typeahead-action-option.react';
-import TypeaheadCalendarOption from './typeahead-calendar-option.react';
+import TypeaheadThreadOption from './typeahead-thread-option.react';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import TypeaheadPane from './typeahead-pane.react';
 import { htmlTargetFromEvent } from '../vector-utils';
@@ -33,12 +33,12 @@ import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
 
 type Props = {
   currentNavID: ?string,
-  calendarInfos: {[id: string]: CalendarInfo},
+  threadInfos: {[id: string]: ThreadInfo},
   currentlyHome: bool,
-  currentCalendarID: ?string,
+  currentThreadID: ?string,
   subscriptionExists: bool,
   searchIndex: SearchIndex,
-  sortedCalendarInfos: {[id: string]: CalendarInfo[]},
+  sortedThreadInfos: {[id: string]: ThreadInfo[]},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
   modalExists: bool,
@@ -49,7 +49,7 @@ type State = {
   frozenNavIDs: {[id: string]: bool},
   typeaheadValue: string,
   searchResults: string[],
-  recommendedCalendars: CalendarInfo[],
+  recommendedThreads: ThreadInfo[],
 };
 
 const emptyArray = [];
@@ -81,7 +81,7 @@ class Typeahead extends React.PureComponent {
       frozenNavIDs: {},
       typeaheadValue: Typeahead.getCurrentNavName(props),
       searchResults: [],
-      recommendedCalendars: Typeahead.sampleRecommendations(props),
+      recommendedThreads: Typeahead.sampleRecommendations(props),
     };
   }
 
@@ -89,7 +89,7 @@ class Typeahead extends React.PureComponent {
     if (props.currentlyHome) {
       return TypeaheadText.homeText;
     } else if (props.currentNavID) {
-      return props.calendarInfos[props.currentNavID].name;
+      return props.threadInfos[props.currentNavID].name;
     } else {
       return "";
     }
@@ -112,42 +112,42 @@ class Typeahead extends React.PureComponent {
     if (!newActive && oldActive) {
       updateObj.typeaheadValue = newName;
       updateObj.searchActive = false;
-      updateObj.recommendedCalendars =
+      updateObj.recommendedThreads =
         Typeahead.sampleRecommendations(nextProps);
     }
 
     if (
-      nextProps.sortedCalendarInfos.recommended !==
-        this.props.sortedCalendarInfos.recommended ||
+      nextProps.sortedThreadInfos.recommended !==
+        this.props.sortedThreadInfos.recommended ||
       Typeahead.getRecommendationSize(nextProps) >
         Typeahead.getRecommendationSize(this.props)
     ) {
       const stillValidRecommendations = _filter(
-        (calendarInfo: CalendarInfo) => _some({ id: calendarInfo.id })
-          (nextProps.sortedCalendarInfos.recommended),
-      )(this.state.recommendedCalendars);
+        (threadInfo: ThreadInfo) => _some({ id: threadInfo.id })
+          (nextProps.sortedThreadInfos.recommended),
+      )(this.state.recommendedThreads);
       const recommendationSize = Typeahead.getRecommendationSize(nextProps);
       const newRecommendationsNeeded = recommendationSize
         - stillValidRecommendations.length;
       if (newRecommendationsNeeded > 0) {
-        const randomCalendarInfos = _flow(
-          _filter((calendarInfo: CalendarInfo) =>
-            !_some({ id: calendarInfo.id })(stillValidRecommendations),
+        const randomThreadInfos = _flow(
+          _filter((threadInfo: ThreadInfo) =>
+            !_some({ id: threadInfo.id })(stillValidRecommendations),
           ),
           _sampleSize(newRecommendationsNeeded),
-        )(nextProps.sortedCalendarInfos.recommended);
-        updateObj.recommendedCalendars = [
+        )(nextProps.sortedThreadInfos.recommended);
+        updateObj.recommendedThreads = [
           ...stillValidRecommendations,
-          ...randomCalendarInfos,
+          ...randomThreadInfos,
         ];
       } else if (newRecommendationsNeeded < 0) {
-        updateObj.recommendedCalendars =
+        updateObj.recommendedThreads =
           stillValidRecommendations.slice(0, recommendationSize);
       } else if (
         stillValidRecommendations.length <
-          this.state.recommendedCalendars.length
+          this.state.recommendedThreads.length
       ) {
-        updateObj.recommendedCalendars = stillValidRecommendations;
+        updateObj.recommendedThreads = stillValidRecommendations;
       }
     }
 
@@ -159,10 +159,10 @@ class Typeahead extends React.PureComponent {
   componentDidUpdate(prevProps: Props, prevState: State) {
     const newName = Typeahead.getCurrentNavName(this.props);
     const oldName = Typeahead.getCurrentNavName(prevProps);
-    // Mirroring functionality in TypeaheadCalendarOption.componentDidUpdate
+    // Mirroring functionality in TypeaheadThreadOption.componentDidUpdate
     const passwordEntryWillBeFocused =
-      !this.props.currentNavID && this.props.currentCalendarID &&
-      (prevProps.currentNavID || !prevProps.currentCalendarID);
+      !this.props.currentNavID && this.props.currentThreadID &&
+      (prevProps.currentNavID || !prevProps.currentThreadID);
     if (
       newName !== oldName &&
       Typeahead.isActive(this.props, this.state) &&
@@ -182,7 +182,7 @@ class Typeahead extends React.PureComponent {
       this.setState({
         typeaheadValue: newName,
         searchActive: false,
-        recommendedCalendars: Typeahead.sampleRecommendations(this.props),
+        recommendedThreads: Typeahead.sampleRecommendations(this.props),
       });
     }
 
@@ -231,9 +231,9 @@ class Typeahead extends React.PureComponent {
     } else if (active) {
       const panes = [];
       const haveCurrentPane =
-        this.props.sortedCalendarInfos.current.length > 0 ||
-        (this.props.currentCalendarID &&
-          !this.props.calendarInfos[this.props.currentCalendarID]);
+        this.props.sortedThreadInfos.current.length > 0 ||
+        (this.props.currentThreadID &&
+          !this.props.threadInfos[this.props.currentThreadID]);
       panes.push(
         <TypeaheadPane
           paneTitle="Current"
@@ -258,7 +258,7 @@ class Typeahead extends React.PureComponent {
         <TypeaheadPane
           paneTitle="Subscribed"
           pageSize={5}
-          totalResults={this.props.sortedCalendarInfos.subscribed.length}
+          totalResults={this.props.sortedThreadInfos.subscribed.length}
           resultsBetween={this.resultsBetweenForSubscribedPane}
           key="subscribed"
         />
@@ -266,8 +266,8 @@ class Typeahead extends React.PureComponent {
       panes.push(
         <TypeaheadPane
           paneTitle="Recommended"
-          pageSize={this.state.recommendedCalendars.length}
-          totalResults={this.state.recommendedCalendars.length}
+          pageSize={this.state.recommendedThreads.length}
+          totalResults={this.state.recommendedThreads.length}
           resultsBetween={this.resultsBetweenForRecommendedPane}
           key="recommended"
         />
@@ -290,12 +290,12 @@ class Typeahead extends React.PureComponent {
 
     let rightAligned = null;
     if (active) {
-      const currentCalendarInfo = this.props.currentNavID &&
-        this.props.calendarInfos[this.props.currentNavID];
-      if (currentCalendarInfo) {
+      const currentThreadInfo = this.props.currentNavID &&
+        this.props.threadInfos[this.props.currentNavID];
+      if (currentThreadInfo) {
         rightAligned = (
           <TypeaheadOptionButtons
-            calendarInfo={currentCalendarInfo}
+            threadInfo={currentThreadInfo}
             setModal={this.props.setModal}
             clearModal={this.props.clearModal}
             freezeTypeahead={this.freeze}
@@ -386,14 +386,14 @@ class Typeahead extends React.PureComponent {
   }
 
   buildOption(navID: string) {
-    const calendarInfo = this.props.calendarInfos[navID];
-    if (calendarInfo !== undefined) {
-      return this.buildCalendarOption(calendarInfo);
+    const threadInfo = this.props.threadInfos[navID];
+    if (threadInfo !== undefined) {
+      return this.buildCalendarOption(threadInfo);
     } else if (navID === "home") {
       return this.buildActionOption("home", TypeaheadText.homeText);
     } else if (navID === "new") {
       return this.buildActionOption("new", TypeaheadText.newText);
-    } else if (navID === this.props.currentCalendarID) {
+    } else if (navID === this.props.currentThreadID) {
       return this.buildSecretOption(navID);
     } else {
       invariant(false, "invalid navID passed to buildOption");
@@ -420,44 +420,44 @@ class Typeahead extends React.PureComponent {
     );
   }
 
-  buildCalendarOption(calendarInfo: CalendarInfo) {
+  buildCalendarOption(threadInfo: ThreadInfo) {
     const onTransition = () => {
       invariant(this.input, "ref should be set");
       this.input.blur();
     }
     return (
-      <TypeaheadCalendarOption
-        calendarInfo={calendarInfo}
+      <TypeaheadThreadOption
+        threadInfo={threadInfo}
         freezeTypeahead={this.freeze}
         unfreezeTypeahead={this.unfreeze}
         focusTypeahead={this.focusIfNotFocused}
         onTransition={onTransition}
-        frozen={!!this.state.frozenNavIDs[calendarInfo.id]}
+        frozen={!!this.state.frozenNavIDs[threadInfo.id]}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         typeaheadFocused={this.state.typeaheadFocused}
-        key={calendarInfo.id}
+        key={threadInfo.id}
       />
     );
   }
 
-  buildSecretOption(secretCalendarID: string) {
+  buildSecretOption(secretThreadID: string) {
     const onTransition = () => {
       invariant(this.input, "ref should be set");
       this.input.blur();
     }
     return (
-      <TypeaheadCalendarOption
-        secretCalendarID={secretCalendarID}
+      <TypeaheadThreadOption
+        secretThreadID={secretThreadID}
         freezeTypeahead={this.freeze}
         unfreezeTypeahead={this.unfreeze}
         focusTypeahead={this.focusIfNotFocused}
         onTransition={onTransition}
-        frozen={!!this.state.frozenNavIDs[secretCalendarID]}
+        frozen={!!this.state.frozenNavIDs[secretThreadID]}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         typeaheadFocused={this.state.typeaheadFocused}
-        key={secretCalendarID}
+        key={secretThreadID}
       />
     );
   }
@@ -469,16 +469,16 @@ class Typeahead extends React.PureComponent {
   }
 
   resultsBetweenForCurrentPane = () => {
-    if (this.props.sortedCalendarInfos.current.length > 0) {
-      return this.props.sortedCalendarInfos.current.map(
-        (calendarInfo) => this.buildCalendarOption(calendarInfo),
+    if (this.props.sortedThreadInfos.current.length > 0) {
+      return this.props.sortedThreadInfos.current.map(
+        (threadInfo) => this.buildCalendarOption(threadInfo),
       );
     } else if (
-      this.props.currentCalendarID &&
-      !this.props.calendarInfos[this.props.currentCalendarID]
+      this.props.currentThreadID &&
+      !this.props.threadInfos[this.props.currentThreadID]
     ) {
       return [
-        this.buildSecretOption(this.props.currentCalendarID)
+        this.buildSecretOption(this.props.currentThreadID)
       ];
     }
     return emptyArray;
@@ -489,8 +489,8 @@ class Typeahead extends React.PureComponent {
   }
 
   resultsBetweenForRecommendedPane = () => {
-    return this.state.recommendedCalendars
-      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+    return this.state.recommendedThreads
+      .map((threadInfo) => this.buildCalendarOption(threadInfo));
   }
 
   resultsBetweenForActionsPane = () => {
@@ -586,8 +586,8 @@ class Typeahead extends React.PureComponent {
   }
 
   resultsBetweenForSubscribedPane = (start: number, end: number) => {
-    return this.props.sortedCalendarInfos.subscribed.slice(start, end)
-      .map((calendarInfo) => this.buildCalendarOption(calendarInfo));
+    return this.props.sortedThreadInfos.subscribed.slice(start, end)
+      .map((threadInfo) => this.buildCalendarOption(threadInfo));
   }
 
   static getRecommendationSize(props: Props) {
@@ -600,20 +600,20 @@ class Typeahead extends React.PureComponent {
 
   static sampleRecommendations(props: Props) {
     return _sampleSize(Typeahead.getRecommendationSize(props))
-      (props.sortedCalendarInfos.recommended);
+      (props.sortedThreadInfos.recommended);
   }
 
 }
 
 Typeahead.propTypes = {
   currentNavID: PropTypes.string,
-  calendarInfos: PropTypes.objectOf(calendarInfoPropType).isRequired,
+  threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
   currentlyHome: PropTypes.bool.isRequired,
-  currentCalendarID: PropTypes.string,
+  currentThreadID: PropTypes.string,
   subscriptionExists: PropTypes.bool.isRequired,
   searchIndex: PropTypes.instanceOf(SearchIndex),
-  sortedCalendarInfos: PropTypes.objectOf(
-    PropTypes.arrayOf(calendarInfoPropType),
+  sortedThreadInfos: PropTypes.objectOf(
+    PropTypes.arrayOf(threadInfoPropType),
   ).isRequired,
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,
@@ -622,10 +622,10 @@ Typeahead.propTypes = {
 
 export default connect((state: AppState) => ({
   currentNavID: currentNavID(state),
-  calendarInfos: state.calendarInfos,
+  threadInfos: state.threadInfos,
   currentlyHome: state.navInfo.home,
-  currentCalendarID: state.navInfo.threadID,
+  currentThreadID: state.navInfo.threadID,
   subscriptionExists: subscriptionExists(state),
   searchIndex: searchIndex(state),
-  sortedCalendarInfos: typeaheadSortedCalendarInfos(state),
+  sortedThreadInfos: typeaheadSortedThreadInfos(state),
 }))(Typeahead);

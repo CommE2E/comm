@@ -1,7 +1,7 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -16,9 +16,9 @@ import PropTypes from 'prop-types';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 import {
-  authCalendarActionType,
-  authCalendar,
-} from 'lib/actions/calendar-actions';
+  authThreadActionType,
+  authThread,
+} from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
@@ -32,8 +32,8 @@ import history from '../router-history';
 import LoadingIndicator from '../loading-indicator.react';
 
 type Props = {
-  calendarInfo?: CalendarInfo,
-  secretCalendarID?: string,
+  threadInfo?: ThreadInfo,
+  secretThreadID?: string,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
   focusTypeahead: () => void,
@@ -45,22 +45,22 @@ type Props = {
   // Redux state
   monthURL: string,
   currentNavID: ?string,
-  currentCalendarID: ?string,
+  currentThreadID: ?string,
   passwordEntryLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  authCalendar: (
+  authThread: (
     threadID: string,
-    calendarPassword: string,
-  ) => Promise<CalendarInfo>;
+    threadPassword: string,
+  ) => Promise<ThreadInfo>;
 };
 type State = {
   passwordEntryValue: string,
   passwordEntryOpen: bool,
 };
 
-class TypeaheadCalendarOption extends React.PureComponent {
+class TypeaheadThreadOption extends React.PureComponent {
 
   static defaultProps = { frozen: false };
   props: Props;
@@ -73,28 +73,28 @@ class TypeaheadCalendarOption extends React.PureComponent {
     this.state = {
       passwordEntryValue: "",
       passwordEntryOpen:
-        TypeaheadCalendarOption.forCurrentAndUnauthorizedCalendar(props),
+        TypeaheadThreadOption.forCurrentAndUnauthorizedThread(props),
     };
   }
 
-  // This function tells you if the calendar this nav option represents is the
-  // one we are currently navigated to, AND we aren't authorized to view it, AND
+  // This function tells you if the thread this nav option represents is the one
+  // we are currently navigated to, AND we aren't authorized to view it, AND
   // this nav option isn't being shown as part of search results.
-  static forCurrentAndUnauthorizedCalendar(props: Props) {
+  static forCurrentAndUnauthorizedThread(props: Props) {
     return !props.currentNavID &&
-      props.currentCalendarID === TypeaheadCalendarOption.getID(props) &&
+      props.currentThreadID === TypeaheadThreadOption.getID(props) &&
       !props.typeaheadFocused;
   }
 
   componentDidMount() {
-    if (TypeaheadCalendarOption.forCurrentAndUnauthorizedCalendar(this.props)) {
-      this.props.freezeTypeahead(TypeaheadCalendarOption.getID(this.props));
+    if (TypeaheadThreadOption.forCurrentAndUnauthorizedThread(this.props)) {
+      this.props.freezeTypeahead(TypeaheadThreadOption.getID(this.props));
       this.focusPasswordEntry();
     }
   }
 
   componentWillUnmount() {
-    this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
+    this.props.unfreezeTypeahead(TypeaheadThreadOption.getID(this.props));
   }
 
   focusPasswordEntry = () => {
@@ -113,12 +113,12 @@ class TypeaheadCalendarOption extends React.PureComponent {
 
   render() {
     let descriptionDiv = null;
-    if (this.props.calendarInfo && this.props.calendarInfo.description) {
+    if (this.props.threadInfo && this.props.threadInfo.description) {
       descriptionDiv = (
         <div className={css['calendar-nav-option-description']}>
           <TextTruncate
             line={2}
-            text={this.props.calendarInfo.description}
+            text={this.props.threadInfo.description}
           />
         </div>
       );
@@ -156,9 +156,9 @@ class TypeaheadCalendarOption extends React.PureComponent {
     let colorPreview = null;
     let optionButtons = null;
     let name = null;
-    if (this.props.calendarInfo) {
+    if (this.props.threadInfo) {
       const colorPreviewStyle = {
-        backgroundColor: "#" + this.props.calendarInfo.color,
+        backgroundColor: "#" + this.props.threadInfo.color,
       };
       colorPreview = (
         <div
@@ -168,7 +168,7 @@ class TypeaheadCalendarOption extends React.PureComponent {
       );
       optionButtons = (
         <TypeaheadOptionButtons
-          calendarInfo={this.props.calendarInfo}
+          threadInfo={this.props.threadInfo}
           setModal={this.props.setModal}
           clearModal={this.props.clearModal}
           freezeTypeahead={this.props.freezeTypeahead}
@@ -176,7 +176,7 @@ class TypeaheadCalendarOption extends React.PureComponent {
           focusTypeahead={this.props.focusTypeahead}
         />
       );
-      name = this.props.calendarInfo.name;
+      name = this.props.threadInfo.name;
     } else {
       name = TypeaheadText.secretText;
     }
@@ -208,16 +208,16 @@ class TypeaheadCalendarOption extends React.PureComponent {
   }
 
   static getID(props: OwnProps) {
-    const id = props.calendarInfo
-      ? props.calendarInfo.id
-      : props.secretCalendarID;
+    const id = props.threadInfo
+      ? props.threadInfo.id
+      : props.secretThreadID;
     invariant(id, "id should exist");
     return id;
   }
 
   onClick = (event: SyntheticEvent) => {
-    const id = TypeaheadCalendarOption.getID(this.props);
-    if (this.props.calendarInfo && this.props.calendarInfo.authorized) {
+    const id = TypeaheadThreadOption.getID(this.props);
+    if (this.props.threadInfo && this.props.threadInfo.authorized) {
       history.push(`/calendar/${id}/${this.props.monthURL}`);
       this.props.onTransition();
     } else {
@@ -234,7 +234,7 @@ class TypeaheadCalendarOption extends React.PureComponent {
 
   onPasswordEntryBlur = (event: SyntheticEvent) => {
     this.setState({ passwordEntryOpen: false });
-    this.props.unfreezeTypeahead(TypeaheadCalendarOption.getID(this.props));
+    this.props.unfreezeTypeahead(TypeaheadThreadOption.getID(this.props));
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
@@ -256,18 +256,18 @@ class TypeaheadCalendarOption extends React.PureComponent {
 
   onSubmitPassword = (event: SyntheticEvent) => {
     event.preventDefault();
-    const id = TypeaheadCalendarOption.getID(this.props);
+    const id = TypeaheadThreadOption.getID(this.props);
     this.props.dispatchActionPromise(
-      authCalendarActionType,
-      this.authCalendarAction(),
-      { customKeyName: `${authCalendarActionType}:${id}` },
+      authThreadActionType,
+      this.authThreadAction(),
+      { customKeyName: `${authThreadActionType}:${id}` },
     );
   }
 
-  async authCalendarAction() {
-    const id = TypeaheadCalendarOption.getID(this.props);
+  async authThreadAction() {
+    const id = TypeaheadThreadOption.getID(this.props);
     try {
-      const response = await this.props.authCalendar(
+      const response = await this.props.authThread(
         id,
         this.state.passwordEntryValue,
       );
@@ -282,9 +282,9 @@ class TypeaheadCalendarOption extends React.PureComponent {
 
 }
 
-TypeaheadCalendarOption.propTypes = {
-  calendarInfo: calendarInfoPropType,
-  secretCalendarID: PropTypes.string,
+TypeaheadThreadOption.propTypes = {
+  threadInfo: threadInfoPropType,
+  secretThreadID: PropTypes.string,
   freezeTypeahead: PropTypes.func.isRequired,
   unfreezeTypeahead: PropTypes.func.isRequired,
   focusTypeahead: PropTypes.func.isRequired,
@@ -295,27 +295,27 @@ TypeaheadCalendarOption.propTypes = {
   typeaheadFocused: PropTypes.bool.isRequired,
   monthURL: PropTypes.string.isRequired,
   currentNavID: PropTypes.string,
-  currentCalendarID: PropTypes.string,
+  currentThreadID: PropTypes.string,
   passwordEntryLoadingStatus: PropTypes.string.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  authCalendar: PropTypes.func.isRequired,
+  authThread: PropTypes.func.isRequired,
 };
 
-type OwnProps = { calendarInfo?: CalendarInfo, secretCalendarID?: string };
+type OwnProps = { threadInfo?: ThreadInfo, secretThreadID?: string };
 export default connect(
   (state: AppState, ownProps: OwnProps) => {
-    const id = TypeaheadCalendarOption.getID(ownProps);
+    const id = TypeaheadThreadOption.getID(ownProps);
     return {
       monthURL: monthURL(state),
       currentNavID: currentNavID(state),
-      currentCalendarID: state.navInfo.threadID,
+      currentThreadID: state.navInfo.threadID,
       passwordEntryLoadingStatus: createLoadingStatusSelector(
-        authCalendarActionType,
-        `${authCalendarActionType}:${id}`,
+        authThreadActionType,
+        `${authThreadActionType}:${id}`,
       )(state),
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ authCalendar }),
-)(TypeaheadCalendarOption);
+  bindServerCalls({ authThread }),
+)(TypeaheadThreadOption);

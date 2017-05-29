@@ -2,7 +2,7 @@
 
 import type { AppState } from './redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -35,7 +35,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: () => Promise<CalendarInfo[]>,
+  logOut: () => Promise<ThreadInfo[]>,
 };
 type State = {
   expanded: bool,

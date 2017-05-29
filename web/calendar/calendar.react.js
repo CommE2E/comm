@@ -2,8 +2,6 @@
 
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -13,7 +11,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
 import { getDate, dateString } from 'lib/utils/date-utils';
-import { currentDaysToEntries } from 'lib/selectors/calendar-selectors';
+import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 
 import Day from './day.react';
 import {

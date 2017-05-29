@@ -4,7 +4,7 @@ import 'babel-polyfill';
 import 'isomorphic-fetch';
 
 import type { Store } from 'redux';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { AppState, Action } from './redux-setup';
 
@@ -37,7 +37,7 @@ import history from './router-history';
 declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
-declare var thread_infos: {[id: string]: CalendarInfo};
+declare var thread_infos: {[id: string]: ThreadInfo};
 declare var entry_infos: EntryInfo[];
 declare var month: number;
 declare var year: number;
@@ -85,7 +85,7 @@ const store: Store<AppState, Action> = createStore(
     entryInfos,
     daysToEntries,
     lastUserInteraction: { calendar: Date.now(), sessionReset: Date.now() },
-    calendarInfos: thread_infos,
+    threadInfos: thread_infos,
     loadingStatuses: {},
     cookie: undefined,
   }: AppState),

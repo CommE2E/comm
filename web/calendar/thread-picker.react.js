@@ -1,7 +1,7 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 
 import React from 'react';
@@ -9,28 +9,28 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
 
 import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 
 type OptionProps = {
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   createNewEntry: (threadID: string) => void,
 };
-class CalendarPickerOption extends React.PureComponent {
+class ThreadPickerOption extends React.PureComponent {
 
   props: OptionProps;
   style: { backgroundColor: string };
 
   constructor(props: OptionProps) {
     super(props);
-    this.style = { backgroundColor: "#" + props.calendarInfo.color };
+    this.style = { backgroundColor: "#" + props.threadInfo.color };
   }
 
   componentWillReceiveProps(nextProps: OptionProps) {
-    this.style = { backgroundColor: "#" + nextProps.calendarInfo.color };
+    this.style = { backgroundColor: "#" + nextProps.threadInfo.color };
   }
 
   render() {
@@ -39,7 +39,7 @@ class CalendarPickerOption extends React.PureComponent {
         <span className={css['select-calendar']}>
           <div className={css['color-preview']} style={this.style} />
           <span className={css['select-calendar-name']}>
-            {this.props.calendarInfo.name}
+            {this.props.threadInfo.name}
           </span>
         </span>
       </div>
@@ -47,13 +47,13 @@ class CalendarPickerOption extends React.PureComponent {
   }
 
   onClick = () => {
-    this.props.createNewEntry(this.props.calendarInfo.id);
+    this.props.createNewEntry(this.props.threadInfo.id);
   }
 
 }
 
 type Props = {
-  onScreenCalendarInfos: CalendarInfo[],
+  onScreenThreadInfos: ThreadInfo[],
   createNewEntry: (threadID: string) => void,
   closePicker: () => void,
 };
@@ -61,7 +61,7 @@ type State = {
   currentPage: number,
 };
 
-class CalendarPicker extends React.PureComponent {
+class ThreadPicker extends React.PureComponent {
 
   static pageSize = 5;
 
@@ -75,8 +75,8 @@ class CalendarPicker extends React.PureComponent {
       currentPage: 0,
     };
     invariant(
-      props.onScreenCalendarInfos.length > 0,
-      "CalendarPicker can't be open when onScreenCalendarInfos is empty",
+      props.onScreenThreadInfos.length > 0,
+      "ThreadPicker can't be open when onScreenThreadInfos is empty",
     );
   }
 
@@ -86,19 +86,19 @@ class CalendarPicker extends React.PureComponent {
   }
 
   render() {
-    const length = this.props.onScreenCalendarInfos.length;
+    const length = this.props.onScreenThreadInfos.length;
     invariant(
       length > 0,
-      "CalendarPicker can't be open when onScreenCalendarInfos is empty",
+      "ThreadPicker can't be open when onScreenThreadInfos is empty",
     );
-    const firstIndex = CalendarPicker.pageSize * this.state.currentPage;
+    const firstIndex = ThreadPicker.pageSize * this.state.currentPage;
     const secondIndex = Math.min(
-      CalendarPicker.pageSize * (this.state.currentPage + 1),
+      ThreadPicker.pageSize * (this.state.currentPage + 1),
       length,
     );
 
     let pager = null;
-    if (length > CalendarPicker.pageSize) {
+    if (length > ThreadPicker.pageSize) {
       let leftPager = (
         <LeftPager className={css['calendar-picker-pager-svg']} />
       );
@@ -114,7 +114,7 @@ class CalendarPicker extends React.PureComponent {
       let rightPager = (
         <RightPager className={css['calendar-picker-pager-svg']} />
       );
-      if (CalendarPicker.pageSize * (this.state.currentPage + 1) < length) {
+      if (ThreadPicker.pageSize * (this.state.currentPage + 1) < length) {
         rightPager = (
           <a
             href="#"
@@ -136,13 +136,13 @@ class CalendarPicker extends React.PureComponent {
       );
     }
 
-    const options = this.props.onScreenCalendarInfos
+    const options = this.props.onScreenThreadInfos
       .slice(firstIndex, secondIndex)
-      .map((calendarInfo) => (
-        <CalendarPickerOption
-          calendarInfo={calendarInfo}
+      .map((threadInfo) => (
+        <ThreadPickerOption
+          threadInfo={threadInfo}
           createNewEntry={this.props.createNewEntry}
-          key={calendarInfo.id}
+          key={threadInfo.id}
         />
       ));
 
@@ -196,8 +196,8 @@ class CalendarPicker extends React.PureComponent {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(
-        CalendarPicker.pageSize * (prevState.currentPage + 1)
-          < props.onScreenCalendarInfos.length,
+        ThreadPicker.pageSize * (prevState.currentPage + 1)
+          < props.onScreenThreadInfos.length,
         "page is too high",
       );
       return { currentPage: prevState.currentPage + 1 };
@@ -206,13 +206,13 @@ class CalendarPicker extends React.PureComponent {
 
 }
 
-CalendarPicker.propTypes = {
-  onScreenCalendarInfos:
-    PropTypes.arrayOf(calendarInfoPropType).isRequired,
+ThreadPicker.propTypes = {
+  onScreenThreadInfos:
+    PropTypes.arrayOf(threadInfoPropType).isRequired,
   createNewEntry: PropTypes.func.isRequired,
   closePicker: PropTypes.func.isRequired,
 };
 
 export default connect((state: AppState) => ({
-  onScreenCalendarInfos: onScreenCalendarInfos(state),
-}))(CalendarPicker);
+  onScreenThreadInfos: onScreenThreadInfos(state),
+}))(ThreadPicker);

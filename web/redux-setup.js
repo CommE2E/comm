@@ -1,7 +1,7 @@
 // @flow
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -33,7 +33,7 @@ export type AppState = {
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
-  calendarInfos: {[id: string]: CalendarInfo},
+  threadInfos: {[id: string]: ThreadInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
 };

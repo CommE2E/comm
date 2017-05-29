@@ -2,7 +2,7 @@
 
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationScreenProp,
@@ -301,7 +301,7 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
 
 type SetCookiePayload = {
   cookie: ?string,
-  calendarInfos?: {[id: string]: CalendarInfo},
+  threadInfos?: {[id: string]: ThreadInfo},
   cookieInvalidated?: bool,
 };
 function logOutIfCookieInvalidated(

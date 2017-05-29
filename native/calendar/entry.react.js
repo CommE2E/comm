@@ -2,8 +2,8 @@
 
 import type { EntryInfoWithHeight } from './calendar.react';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 import type {
   DispatchActionPayload,
@@ -31,7 +31,7 @@ import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { colorIsDark } from 'lib/selectors/calendar-selectors';
+import { colorIsDark } from 'lib/selectors/thread-selectors';
 import {
   currentSessionID,
   nextSessionID,
@@ -60,7 +60,7 @@ type Props = {
   focused: bool,
   onFocus: (entryKey: string, focused: bool) => void,
   // Redux state
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
   nextSessionID: () => ?string,
@@ -100,7 +100,7 @@ class Entry extends React.Component {
     visible: PropTypes.bool.isRequired,
     focused: PropTypes.bool.isRequired,
     onFocus: PropTypes.func.isRequired,
-    calendarInfo: calendarInfoPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
@@ -120,7 +120,7 @@ class Entry extends React.Component {
 
   constructor(props: Props) {
     super(props);
-    invariant(props.calendarInfo, "should be set");
+    invariant(props.threadInfo, "should be set");
     this.state = {
       text: props.entryInfo.text,
       loadingStatus: "inactive",
@@ -128,8 +128,8 @@ class Entry extends React.Component {
       // On log out, it's possible for the calendar to be deauthorized before
       // the log out animation completes. To avoid having rendering issues in
       // that case, we cache the color in state and don't reset it when the
-      // calendarInfo is undefined.
-      color: props.calendarInfo.color,
+      // threadInfo is undefined.
+      color: props.threadInfo.color,
     };
   }
 
@@ -153,10 +153,10 @@ class Entry extends React.Component {
       });
     }
     if (
-      nextProps.calendarInfo &&
-      nextProps.calendarInfo.color !== this.state.color
+      nextProps.threadInfo &&
+      nextProps.threadInfo.color !== this.state.color
     ) {
-      this.setState({ color: nextProps.calendarInfo.color });
+      this.setState({ color: nextProps.threadInfo.color });
     }
     if (!nextProps.focused && this.props.focused) {
       if (this.textInput) {
@@ -228,7 +228,7 @@ class Entry extends React.Component {
               style={[styles.rightLinksText, actionLinksTextStyle]}
               numberOfLines={1}
             >
-              {this.props.calendarInfo.name}
+              {this.props.threadInfo.name}
             </Text>
           </View>
         </View>
@@ -542,7 +542,7 @@ registerFetchKey(deleteEntryActionType);
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
-    calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
+    threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
     sessionStartingPayload: sessionStartingPayload(state),
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),

@@ -1,7 +1,7 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { colorIsDark } from 'lib/selectors/calendar-selectors';
+import { colorIsDark } from 'lib/selectors/thread-selectors';
 import {
   restoreEntryActionType,
   restoreEntry,
@@ -37,7 +37,7 @@ type Props = {
   onClick: (entryID: string) => void,
   animateAndLoadEntry: (entryID: string) => void,
   // Redux state
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   sessionID: () => string,
   loggedIn: bool,
   restoreLoadingStatus: LoadingStatus,
@@ -58,7 +58,7 @@ class HistoryEntry extends React.PureComponent {
     let deleted = null;
     if (this.props.entryInfo.deleted) {
       let restore = null;
-      if (this.props.calendarInfo.editRules < 1 || this.props.loggedIn) {
+      if (this.props.threadInfo.editRules < 1 || this.props.loggedIn) {
         restore = (
           <span>
             <span className={css['restore-entry-label']}>
@@ -85,9 +85,9 @@ class HistoryEntry extends React.PureComponent {
     const textClasses = classNames({
       [css['entry']]: true,
       [css['entry-history-entry']]: true,
-      [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
+      [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
     });
-    const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
+    const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
     const creator = this.props.entryInfo.creator === null
       ? "Anonymous"
       : <span className={css['entry-username']}>
@@ -104,7 +104,7 @@ class HistoryEntry extends React.PureComponent {
           {creator}
         </span>
         <span className={css['entry-calendar']}>
-          {this.props.calendarInfo.name}
+          {this.props.threadInfo.name}
         </span>
         <div className={css['clear']} />
         {deleted}
@@ -152,7 +152,7 @@ HistoryEntry.propTypes = {
   entryInfo: entryInfoPropType,
   onClick: PropTypes.func.isRequired,
   animateAndLoadEntry: PropTypes.func.isRequired,
-  calendarInfo: calendarInfoPropType,
+  threadInfo: threadInfoPropType,
   sessionID: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   restoreLoadingStatus: PropTypes.string.isRequired,
@@ -166,7 +166,7 @@ export default connect(
     const entryID = ownProps.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
     return {
-      calendarInfo: state.calendarInfos[ownProps.entryInfo.threadID],
+      threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
       sessionID: currentSessionID(state),
       loggedIn: !!state.userInfo,
       restoreLoadingStatus: createLoadingStatusSelector(

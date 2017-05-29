@@ -2,8 +2,8 @@
 
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import { historyRevisionInfoPropType } from 'lib/types/history-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 
 import React from 'react';
@@ -15,13 +15,13 @@ import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { colorIsDark } from 'lib/selectors/calendar-selectors';
+import { colorIsDark } from 'lib/selectors/thread-selectors';
 
 import css from '../../style.css';
 
 type Props = {
   revisionInfo: HistoryRevisionInfo,
-  calendarInfo: CalendarInfo,
+  threadInfo: ThreadInfo,
   isDeletionOrRestoration: bool,
 }
 
@@ -54,9 +54,9 @@ class HistoryRevision extends React.PureComponent {
       const textClasses = classNames({
         [css['entry']]: true,
         [css['entry-history-entry']]: true,
-        [css['dark-entry']]: colorIsDark(this.props.calendarInfo.color),
+        [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
       });
-      const textStyle = { backgroundColor: "#" + this.props.calendarInfo.color };
+      const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
       change = (
         <div className={textClasses} style={textStyle}>
           {this.props.revisionInfo.text}
@@ -99,11 +99,11 @@ class HistoryRevision extends React.PureComponent {
 
 HistoryRevision.propTypes = {
   revisionInfo: historyRevisionInfoPropType,
-  calendarInfo: calendarInfoPropType,
+  threadInfo: threadInfoPropType,
   isDeletionOrRestoration: PropTypes.bool.isRequired,
 };
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  calendarInfo: state.calendarInfos[ownProps.revisionInfo.threadID],
+  threadInfo: state.threadInfos[ownProps.revisionInfo.threadID],
 }))(HistoryRevision);

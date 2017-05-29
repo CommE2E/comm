@@ -2,8 +2,8 @@
 
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup'
 import type { InnerEntry } from './entry.react';
 
@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import {
   createLocalEntry,
@@ -27,7 +27,7 @@ import css from '../style.css';
 import Entry from './entry.react';
 import Modernizr from '../modernizr-custom';
 import HistoryModal from '../modals/history/history-modal.react';
-import CalendarPicker from './calendar-picker.react';
+import ThreadPicker from './thread-picker.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
@@ -39,7 +39,7 @@ type Props = {
   clearModal: () => void,
   startingTabIndex: number,
   // Redux state
-  onScreenCalendarInfos: CalendarInfo[],
+  onScreenThreadInfos: ThreadInfo[],
   username: ?string,
   loggedIn: bool,
   // Redux dispatch functions
@@ -69,7 +69,7 @@ class Day extends React.PureComponent {
   }
 
   componentWillReceiveProps(newProps: Props) {
-    if (newProps.onScreenCalendarInfos.length === 0) {
+    if (newProps.onScreenThreadInfos.length === 0) {
       this.setState({ pickerOpen: false });
     }
   }
@@ -114,7 +114,7 @@ class Day extends React.PureComponent {
     }
 
     const entries = this.props.entryInfos.filter((entryInfo) =>
-      _some(['id', entryInfo.threadID])(this.props.onScreenCalendarInfos),
+      _some(['id', entryInfo.threadID])(this.props.onScreenThreadInfos),
     ).map((entryInfo, i) => {
       const key = entryKey(entryInfo);
       return <Entry
@@ -128,14 +128,14 @@ class Day extends React.PureComponent {
       />;
     });
 
-    let calendarPicker = null;
+    let threadPicker = null;
     if (this.state.pickerOpen) {
       invariant(
-        this.props.onScreenCalendarInfos.length > 0,
-        "onScreenCalendarInfos should exist if pickerOpen",
+        this.props.onScreenThreadInfos.length > 0,
+        "onScreenThreadInfos should exist if pickerOpen",
       );
-      calendarPicker = (
-        <CalendarPicker
+      threadPicker = (
+        <ThreadPicker
           createNewEntry={this.createNewEntry}
           closePicker={this.closePicker}
         />
@@ -163,7 +163,7 @@ class Day extends React.PureComponent {
           />
         </div>
         {actionLinks}
-        {calendarPicker}
+        {threadPicker}
       </td>
     );
   }
@@ -218,22 +218,22 @@ class Day extends React.PureComponent {
   onAddEntry = (event: SyntheticEvent) => {
     event.preventDefault();
     invariant(
-      this.props.onScreenCalendarInfos.length > 0,
-      "onAddEntry shouldn't be clicked if no onScreenCalendarInfos",
+      this.props.onScreenThreadInfos.length > 0,
+      "onAddEntry shouldn't be clicked if no onScreenThreadInfos",
     );
-    if (this.props.onScreenCalendarInfos.length === 1) {
-      this.createNewEntry(this.props.onScreenCalendarInfos[0].id);
-    } else if (this.props.onScreenCalendarInfos.length > 1) {
+    if (this.props.onScreenThreadInfos.length === 1) {
+      this.createNewEntry(this.props.onScreenThreadInfos[0].id);
+    } else if (this.props.onScreenThreadInfos.length > 1) {
       this.setState({ pickerOpen: true });
     }
   }
 
   createNewEntry = (threadID: string) => {
-    const calendarInfo = this.props.onScreenCalendarInfos.find(
-      (calendarInfo) => calendarInfo.id === threadID,
+    const threadInfo = this.props.onScreenThreadInfos.find(
+      (onScreenThreadInfo) => onScreenThreadInfo.id === threadID,
     );
-    invariant(calendarInfo, "matching CalendarInfo not found");
-    if (calendarInfo.editRules >= 1 && !this.props.loggedIn) {
+    invariant(threadInfo, "matching ThreadInfo not found");
+    if (threadInfo.editRules >= 1 && !this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
@@ -283,7 +283,7 @@ Day.propTypes = {
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,
   startingTabIndex: PropTypes.number.isRequired,
-  onScreenCalendarInfos: PropTypes.arrayOf(calendarInfoPropType).isRequired,
+  onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
   username: PropTypes.string,
   loggedIn: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
@@ -291,7 +291,7 @@ Day.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    onScreenCalendarInfos: onScreenCalendarInfos(state),
+    onScreenThreadInfos: onScreenThreadInfos(state),
     username: state.userInfo && state.userInfo.username,
     loggedIn: !!state.userInfo,
   }),

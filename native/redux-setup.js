@@ -1,6 +1,6 @@
 // @flow
 
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
@@ -32,7 +32,7 @@ export type AppState = {
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
-  calendarInfos: {[id: string]: CalendarInfo},
+  threadInfos: {[id: string]: ThreadInfo},
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   rehydrateConcluded: bool,
@@ -45,7 +45,7 @@ const defaultState = ({
   entryInfos: {},
   daysToEntries: {},
   lastUserInteraction: { calendar: 0, sessionReset: Date.now() },
-  calendarInfos: {},
+  threadInfos: {},
   loadingStatuses: {},
   cookie: null,
   rehydrateConcluded: false,

@@ -28,7 +28,7 @@ const monthURL = createSelector(
   (year: number, month: number) => urlForYearAndMonth(year, month),
 );
 
-function urlForHomeAndCalendarID(home: bool, threadID: ?string) {
+function urlForHomeAndThreadID(home: bool, threadID: ?string) {
   if (home) {
     return "home/";
   }
@@ -38,7 +38,7 @@ function urlForHomeAndCalendarID(home: bool, threadID: ?string) {
 
 const thisNavURLFragment = createSelector(
   (state: AppState) => state.navInfo,
-  (navInfo: NavInfo) => urlForHomeAndCalendarID(
+  (navInfo: NavInfo) => urlForHomeAndThreadID(
     navInfo.home,
     navInfo.threadID
   ),
@@ -53,7 +53,7 @@ const thisURL = createSelector(
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
-  let newURL = `/${urlForHomeAndCalendarID(navInfo.home, navInfo.threadID)}`;
+  let newURL = `/${urlForHomeAndThreadID(navInfo.home, navInfo.threadID)}`;
 
   if (urlInfo.year !== undefined) {
     const year = yearAssertingExtractor(navInfo.startDate, navInfo.endDate);
@@ -88,7 +88,6 @@ function navInfoFromURL(url: string): NavInfo {
 export {
   urlForYearAndMonth,
   monthURL,
-  urlForHomeAndCalendarID,
   thisNavURLFragment,
   thisURL,
   canonicalURLFromReduxState,

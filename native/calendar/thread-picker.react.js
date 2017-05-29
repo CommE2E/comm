@@ -1,8 +1,8 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { CalendarInfo } from 'lib/types/calendar-types';
-import { calendarInfoPropType } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -17,7 +17,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 
-import { onScreenCalendarInfos } from 'lib/selectors/calendar-selectors';
+import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
 import {
   createLocalEntry,
   createLocalEntryActionType,
@@ -32,7 +32,7 @@ class ThreadPicker extends React.PureComponent {
     dateString: string,
     close: () => void,
     // Redux state
-    onScreenCalendarInfos: $ReadOnlyArray<CalendarInfo>,
+    onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
     username: ?string,
     // Redux dispatch functions
     dispatchActionPayload: (actionType: string, payload: *) => void,
@@ -40,7 +40,7 @@ class ThreadPicker extends React.PureComponent {
   static propTypes = {
     dateString: PropTypes.string.isRequired,
     close: PropTypes.func.isRequired,
-    onScreenCalendarInfos: PropTypes.arrayOf(calendarInfoPropType).isRequired,
+    onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     username: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -70,7 +70,7 @@ class ThreadPicker extends React.PureComponent {
             </TouchableHighlight>
           </View>
           <FlatList
-            data={this.props.onScreenCalendarInfos}
+            data={this.props.onScreenThreadInfos}
             renderItem={this.renderItem}
             keyExtractor={ThreadPicker.keyExtractor}
             getItemLayout={ThreadPicker.getItemLayout}
@@ -82,20 +82,20 @@ class ThreadPicker extends React.PureComponent {
     );
   }
 
-  static keyExtractor(calendarInfo: CalendarInfo) {
-    return calendarInfo.id;
+  static keyExtractor(threadInfo: ThreadInfo) {
+    return threadInfo.id;
   }
 
-  renderItem = (row: { item: CalendarInfo }) => {
+  renderItem = (row: { item: ThreadInfo }) => {
     return (
       <ThreadPickerThread
-        calendarInfo={row.item}
+        threadInfo={row.item}
         threadPicked={this.threadPicked}
       />
     );
   }
 
-  static getItemLayout(data: $ReadOnlyArray<CalendarInfo>, index: number) {
+  static getItemLayout(data: $ReadOnlyArray<ThreadInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => ({
-    onScreenCalendarInfos: onScreenCalendarInfos(state),
+    onScreenThreadInfos: onScreenThreadInfos(state),
     username: state.userInfo && state.userInfo.username,
   }),
   includeDispatchActionProps({ dispatchActionPayload: true }),

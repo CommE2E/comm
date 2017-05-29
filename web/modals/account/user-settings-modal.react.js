@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { CalendarInfo } from 'lib/types/calendar-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 
 import React from 'react';
@@ -71,7 +71,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteAccount: (password: string) => Promise<CalendarInfo[]>,
+  deleteAccount: (password: string) => Promise<ThreadInfo[]>,
   changeUserSettings: (
     currentPassword: string,
     newEmail: string,
