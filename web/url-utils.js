@@ -33,7 +33,7 @@ function urlForHomeAndThreadID(home: bool, threadID: ?string) {
     return "home/";
   }
   invariant(threadID, "either home or threadID should be set");
-  return `calendar/${threadID}/`;
+  return `thread/${threadID}/`;
 }
 
 const thisNavURLFragment = createSelector(

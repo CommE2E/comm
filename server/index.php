@@ -24,7 +24,7 @@ $month_rewrite_matched = preg_match(
 );
 $month = $month_rewrite_matched ? (int)$month_matches[1] : idate('m');
 $thread_rewrite_matched = preg_match(
-  '#/calendar/([0-9]+)(/|$)#i',
+  '#/thread/([0-9]+)(/|$)#i',
   $_SERVER['REQUEST_URI'],
   $thread_matches
 );
