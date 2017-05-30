@@ -9,7 +9,6 @@ async_start();
 if (!isset($_POST['thread']) || !isset($_POST['subscribe'])) {
   async_end(array(
     'error' => 'invalid_parameters',
-    'test' => $_POST,
   ));
 }
 $thread = (int)$_POST['thread'];
