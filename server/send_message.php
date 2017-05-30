@@ -6,13 +6,13 @@ require_once('auth.php');
 
 async_start();
 
-if (!isset($_REQUEST['thread']) || !isset($_REQUEST['text'])) {
+if (!isset($_POST['thread']) || !isset($_POST['text'])) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
 }
-$thread = (int)$_REQUEST['thread'];
-$text = $conn->real_escape_string($_REQUEST['text']);
+$thread = (int)$_POST['thread'];
+$text = $conn->real_escape_string($_POST['text']);
 
 $can_edit = viewer_can_edit_thread($thread);
 if ($can_edit === null) {
