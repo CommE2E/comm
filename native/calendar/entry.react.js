@@ -170,7 +170,7 @@ class Entry extends React.Component {
     const omitEntryInfo = _omit(["entryInfo"]);
     return !shallowequal(nextState, this.state) ||
       !shallowequal(omitEntryInfo(nextProps), omitEntryInfo(this.props)) ||
-      !_isEqual(nextProps.entryInfo, this.props.entryInfo);
+      !_isEqual(nextProps.entryInfo)(this.props.entryInfo);
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {

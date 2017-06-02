@@ -24,7 +24,7 @@ import PropTypes from 'prop-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   resetPasswordActionType,
-  resetPasswordAndFetchEntries,
+  resetPasswordAndFetchInitialData,
 } from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
@@ -54,9 +54,10 @@ class ResetPasswordPanel extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    resetPasswordAndFetchEntries: (
+    resetPasswordAndFetchInitialData: (
       code: string,
       password: string,
+      calendarQuery: CalendarQuery,
     ) => Promise<LogInResult>,
   };
   static propTypes = {
@@ -69,7 +70,7 @@ class ResetPasswordPanel extends React.PureComponent {
     loadingStatus: PropTypes.string.isRequired,
     currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    resetPasswordAndFetchEntries: PropTypes.func.isRequired,
+    resetPasswordAndFetchInitialData: PropTypes.func.isRequired,
   };
   state: {
     passwordInputText: string,
@@ -210,7 +211,7 @@ class ResetPasswordPanel extends React.PureComponent {
 
   async resetPasswordAction(calendarQuery: CalendarQuery) {
     try {
-      const result = await this.props.resetPasswordAndFetchEntries(
+      const result = await this.props.resetPasswordAndFetchInitialData(
         this.props.verifyCode,
         this.state.passwordInputText,
         calendarQuery,
@@ -279,5 +280,5 @@ export default connect(
     currentCalendarQuery: currentCalendarQuery(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ resetPasswordAndFetchEntries }),
+  bindServerCalls({ resetPasswordAndFetchInitialData }),
 )(ResetPasswordPanel);

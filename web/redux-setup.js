@@ -7,6 +7,7 @@ import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
+import type { MessageStore } from 'lib/types/message-types';
 
 import PropTypes from 'prop-types';
 
@@ -34,6 +35,7 @@ export type AppState = {
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
+  messageStore: MessageStore,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
 };

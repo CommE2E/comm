@@ -6,6 +6,10 @@ import 'isomorphic-fetch';
 import type { Store } from 'redux';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
+import type {
+  MessageInfo,
+  MessageTruncationStatus,
+} from 'lib/types/message-types';
 import type { AppState, Action } from './redux-setup';
 
 import React from 'react';
@@ -28,6 +32,7 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 import { newSessionID } from 'lib/selectors/session-selectors';
+import { freshMessageStore } from 'lib/reducers/message-reducer';
 
 import { reducer } from './redux-setup';
 
@@ -46,6 +51,9 @@ declare var verify_field: ?number;
 declare var reset_password_username: string;
 declare var home: bool;
 declare var thread_id: ?string;
+declare var current_as_of: number;
+declare var message_infos: MessageInfo[];
+declare var truncation_status: {[threadID: string]: MessageTruncationStatus};
 
 registerConfig({
   // We can use paths local to the <base href> on web
@@ -67,6 +75,12 @@ const entryInfos = _keyBy('id')(entry_infos);
 const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
 const startDate = startDateForYearAndMonth(year, month);
 const endDate = endDateForYearAndMonth(year, month);
+const messageStore = freshMessageStore(
+  message_infos,
+  truncation_status,
+  thread_infos,
+  current_as_of,
+);
 
 const store: Store<AppState, Action> = createStore(
   reducer,
@@ -86,6 +100,7 @@ const store: Store<AppState, Action> = createStore(
     daysToEntries,
     lastUserInteraction: { calendar: Date.now(), sessionReset: Date.now() },
     threadInfos: thread_infos,
+    messageStore,
     loadingStatuses: {},
     cookie: undefined,
   }: AppState),

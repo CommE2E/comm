@@ -4,6 +4,7 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -53,8 +54,13 @@ $conn->query(
     "role = GREATEST(VALUES(role), role)"
 );
 
+list($message_infos, $truncation_status) =
+  get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
+
 $thread_infos = get_thread_infos("c.id = $thread");
 async_end(array(
   'success' => true,
   'thread_info' => $thread_infos[$thread],
+  'message_infos' => $message_infos,
+  'truncation_status' => $truncation_status[$thread],
 ));

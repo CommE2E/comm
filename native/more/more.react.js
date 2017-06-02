@@ -36,11 +36,13 @@ class More extends React.PureComponent {
     // Redux state
     username: ?string,
     pingStartingPayload: () => PingStartingPayload,
+    currentAsOf: number,
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
     logOut: () => Promise<ThreadInfo[]>,
-    ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
+    ping:
+      (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
   };
   state: {};
 
@@ -50,6 +52,7 @@ class More extends React.PureComponent {
     }).isRequired,
     username: PropTypes.string,
     pingStartingPayload: PropTypes.func.isRequired,
+    currentAsOf: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
@@ -144,7 +147,10 @@ class More extends React.PureComponent {
   }
 
   async pingAction(startingPayload: PingStartingPayload) {
-    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    const pingResult = await this.props.ping(
+      startingPayload.calendarQuery,
+      this.props.currentAsOf,
+    );
     return {
       ...pingResult,
       loggedIn: startingPayload.loggedIn,
@@ -177,6 +183,7 @@ export default connect(
     cookie: state.cookie,
     username: state.userInfo && state.userInfo.username,
     pingStartingPayload: pingStartingPayload(state),
+    currentAsOf: state.messageStore.currentAsOf,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ logOut, ping }),

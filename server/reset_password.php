@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
 require_once('entry_lib.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -53,6 +54,10 @@ create_user_cookie($user);
 
 clear_verify_codes($user, VERIFY_FIELD_RESET_PASSWORD);
 
+$current_as_of = round(microtime(true) * 1000); // in milliseconds
+list($message_infos, $truncation_status) =
+  get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
+
 $return = array(
   'success' => true,
   'user_info' => array(
@@ -60,6 +65,9 @@ $return = array(
     'email' => $user_row['email'],
     'email_verified' => (bool)$user_row['email_verified'],
   ),
+  'message_infos' => $message_infos,
+  'truncation_status' => $truncation_status,
+  'server_time' => $current_as_of,
 );
 
 if (!empty($_POST['inner_entry_query'])) {

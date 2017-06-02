@@ -77,6 +77,7 @@ type Props = {
   month: number,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
+  currentAsOf: number,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -84,7 +85,7 @@ type Props = {
   fetchEntries: (
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
-  ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
+  ping: (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -152,7 +153,10 @@ class App extends React.PureComponent {
   }
 
   async pingAction(startingPayload: PingStartingPayload) {
-    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    const pingResult = await this.props.ping(
+      startingPayload.calendarQuery,
+      this.props.currentAsOf,
+    );
     return {
       ...pingResult,
       loggedIn: startingPayload.loggedIn,
@@ -186,10 +190,10 @@ class App extends React.PureComponent {
         newNavInfo.home = newProps.navInfo.home;
         newNavInfo.threadID = newProps.navInfo.threadID;
       }
-      if (!_isEqual(newNavInfo, newProps.navInfo)) {
+      if (!_isEqual(newNavInfo)(newProps.navInfo)) {
         this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
       }
-    } else if (!_isEqual(newProps.navInfo, this.props.navInfo)) {
+    } else if (!_isEqual(newProps.navInfo)(this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
         newProps.navInfo,
         newProps.location.pathname,
@@ -325,6 +329,7 @@ App.propTypes = {
   month: PropTypes.number.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
+  currentAsOf: PropTypes.number.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
@@ -346,6 +351,7 @@ export default connect(
     month: monthAssertingSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
     pingStartingPayload: pingStartingPayload(state),
+    currentAsOf: state.messageStore.currentAsOf,
     cookie: state.cookie,
   }),
   includeDispatchActionProps({

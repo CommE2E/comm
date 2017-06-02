@@ -4,6 +4,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');
 require_once('thread_lib.php');
+require_once('message_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -165,6 +166,10 @@ while ($row = $result->fetch_assoc()) {
   );
 }
 
+$current_as_of = round(microtime(true) * 1000); // in milliseconds
+list($message_infos, $truncation_status) =
+  get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
+
 $fonts_css_url = DEV
   ? "fonts/local-fonts.css"
   : "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
@@ -201,6 +206,9 @@ HTML;
       var reset_password_username = "<?=$reset_password_username?>";
       var home = <?=$home ? 'true' : 'false'?>;
       var thread_id = <?=$thread ? "'$thread'" : "null"?>;
+      var current_as_of = <?=$current_as_of?>;
+      var message_infos = <?=json_encode($message_infos)?>;
+      var truncation_status = <?=json_encode($truncation_status)?>;
     </script>
   </head>
   <body>

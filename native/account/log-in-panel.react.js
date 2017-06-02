@@ -30,7 +30,7 @@ import {
 } from 'lib/utils/action-utils';
 import {
   logInActionType,
-  logInAndFetchEntries,
+  logInAndFetchInitialData,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
@@ -59,9 +59,10 @@ class LogInPanel extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    logInAndFetchEntries: (
+    logInAndFetchInitialData: (
       username: string,
       password: string,
+      calendarQuery: CalendarQuery,
     ) => Promise<LogInResult>,
   };
   static propTypes = {
@@ -72,7 +73,7 @@ class LogInPanel extends React.PureComponent {
     loadingStatus: PropTypes.string.isRequired,
     currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    logInAndFetchEntries: PropTypes.func.isRequired,
+    logInAndFetchInitialData: PropTypes.func.isRequired,
   };
   state: {
     usernameOrEmailInputText: string,
@@ -221,7 +222,7 @@ class LogInPanel extends React.PureComponent {
 
   async logInAction(calendarQuery: CalendarQuery) {
     try {
-      const result = await this.props.logInAndFetchEntries(
+      const result = await this.props.logInAndFetchInitialData(
         this.state.usernameOrEmailInputText,
         this.state.passwordInputText,
         calendarQuery,
@@ -327,5 +328,5 @@ export default connect(
     currentCalendarQuery: currentCalendarQuery(state),
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ logInAndFetchEntries }),
+  bindServerCalls({ logInAndFetchInitialData }),
 )(LogInPanel);

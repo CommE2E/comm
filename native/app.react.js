@@ -92,18 +92,21 @@ class AppWithNavigationState extends React.PureComponent {
     navigationState: NavigationState,
     loggedIn: bool,
     pingStartingPayload: () => PingStartingPayload,
+    currentAsOf: number,
     // Redux dispatch functions
     dispatch: Dispatch<AppState, Action>,
     dispatchActionPayload: DispatchActionPayload,
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    ping: (calendarQuery: CalendarQuery) => Promise<PingResult>,
+    ping:
+      (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
   };
   static propTypes = {
     cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
+    currentAsOf: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -191,7 +194,10 @@ class AppWithNavigationState extends React.PureComponent {
   }
 
   async pingAction(startingPayload: PingStartingPayload) {
-    const pingResult = await this.props.ping(startingPayload.calendarQuery);
+    const pingResult = await this.props.ping(
+      startingPayload.calendarQuery,
+      this.props.currentAsOf,
+    );
     return {
       ...pingResult,
       loggedIn: startingPayload.loggedIn,
@@ -214,6 +220,7 @@ const ConnectedAppWithNavigationState = connect(
     navigationState: state.navInfo.navigationState,
     loggedIn: !!state.userInfo,
     pingStartingPayload: pingStartingPayload(state),
+    currentAsOf: state.messageStore.currentAsOf,
   }),
   includeDispatchActionProps({
     dispatchActionPayload: true,

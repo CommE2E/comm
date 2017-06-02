@@ -4,6 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserInfo } from 'lib/types/user-types';
+import type { MessageStore } from 'lib/types/message-types';
 import type { NavInfo, Action } from './navigation-setup';
 
 import React from 'react';
@@ -33,6 +34,7 @@ export type AppState = {
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
+  messageStore: MessageStore,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   rehydrateConcluded: bool,
@@ -46,6 +48,11 @@ const defaultState = ({
   daysToEntries: {},
   lastUserInteraction: { calendar: 0, sessionReset: Date.now() },
   threadInfos: {},
+  messageStore: {
+    messages: {},
+    threads: {},
+    currentAsOf: 0,
+  },
   loadingStatuses: {},
   cookie: null,
   rehydrateConcluded: false,
