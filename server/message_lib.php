@@ -83,6 +83,7 @@ SQL;
   $messages = array();
   $thread_to_message_count = array();
   while ($row = $row_result->fetch_assoc()) {
+    $row['time'] = (int)$row['time'];
     $messages[] = $row;
     if (isset($thread_to_message_count[$row['threadID']])) {
       $thread_to_message_count[$row['threadID']] = 1;
@@ -143,6 +144,7 @@ SQL;
       $num_for_thread++;
     }
     if ($num_for_thread <= $max_number_per_thread) {
+      $row['time'] = (int)$row['time'];
       $messages[] = $row;
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
