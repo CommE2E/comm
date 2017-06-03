@@ -29,7 +29,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  logInActionType,
+  logInActionTypes,
   logInAndFetchInitialData,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -200,7 +200,7 @@ class LogInPanel extends React.PureComponent {
     Keyboard.dismiss();
     const calendarQuery = this.props.currentCalendarQuery();
     this.props.dispatchActionPromise(
-      logInActionType,
+      logInActionTypes,
       this.logInAction(calendarQuery),
       undefined,
       { calendarQuery },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
+const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
 export default connect(
   (state: AppState) => ({

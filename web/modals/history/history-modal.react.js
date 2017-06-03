@@ -22,9 +22,9 @@ import PropTypes from 'prop-types';
 import { dateFromString } from 'lib/utils/date-utils';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesActionType,
+  fetchEntriesActionTypes,
   fetchEntries,
-  fetchRevisionsForEntryActionType,
+  fetchRevisionsForEntryActionTypes,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
 import { entryKey } from 'lib/shared/entry-utils';
@@ -194,7 +194,7 @@ class HistoryModal extends React.PureComponent {
       "currentNavID should be set before history-modal opened",
     );
     this.props.dispatchActionPromise(
-      fetchEntriesActionType,
+      fetchEntriesActionTypes,
       this.props.fetchEntries({
         navID: currentNavID,
         startDate: this.props.dayString,
@@ -207,7 +207,7 @@ class HistoryModal extends React.PureComponent {
   loadEntry(entryID: string) {
     this.setState({ mode: "entry", currentEntryID: entryID });
     this.props.dispatchActionPromise(
-      fetchRevisionsForEntryActionType,
+      fetchRevisionsForEntryActionTypes,
       this.fetchRevisionsForEntryAction(entryID),
     );
   }
@@ -261,9 +261,9 @@ HistoryModal.propTypes = {
 };
 
 const dayLoadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesActionType);
+  = createLoadingStatusSelector(fetchEntriesActionTypes);
 const entryLoadingStatusSelector
-  = createLoadingStatusSelector(fetchRevisionsForEntryActionType);
+  = createLoadingStatusSelector(fetchRevisionsForEntryActionTypes);
 
 type OwnProps = { dayString: string };
 export default connect(

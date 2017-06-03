@@ -28,7 +28,7 @@ import {
   currentCalendarQuery,
 } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesActionType,
+  fetchEntriesActionTypes,
   fetchEntries,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -38,7 +38,7 @@ import {
 } from 'lib/utils/action-utils';
 import { verifyField } from 'lib/utils/verify-utils';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
-import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 
 import {
   thisURL,
@@ -145,7 +145,7 @@ class App extends React.PureComponent {
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
     this.props.dispatchActionPromise(
-      pingActionType,
+      pingActionTypes,
       this.pingAction(startingPayload),
       undefined,
       startingPayload,
@@ -230,7 +230,7 @@ class App extends React.PureComponent {
         newProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
       newProps.dispatchActionPromise(
-        fetchEntriesActionType,
+        fetchEntriesActionTypes,
         newProps.fetchEntries(newProps.currentCalendarQuery()),
       );
     }
@@ -337,7 +337,7 @@ App.propTypes = {
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesActionType);
+  = createLoadingStatusSelector(fetchEntriesActionTypes);
 
 export default connect(
   (state: AppState) => ({

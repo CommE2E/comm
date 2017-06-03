@@ -4,9 +4,9 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
+  RecoveryDispatch,
 } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
-import type { Dispatch } from 'lib/types/redux-types';
 import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
@@ -37,7 +37,7 @@ import {
   fetchNewCookieFromNativeCredentials,
   bindCookieAndUtilsIntoServerCall,
 } from 'lib/utils/action-utils';
-import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import { windowHeight } from '../dimensions';
@@ -58,7 +58,7 @@ type Props = {
   pingStartingPayload: () => PingStartingPayload,
   currentAsOf: number,
   // Redux dispatch functions
-  dispatch: Dispatch<AppState, Action>,
+  dispatch: RecoveryDispatch,
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
 };
@@ -261,7 +261,7 @@ class InnerLoggedOutModal extends React.PureComponent {
     );
     const startingPayload = props.pingStartingPayload();
     props.dispatchActionPromise(
-      pingActionType,
+      pingActionTypes,
       InnerLoggedOutModal.pingAction(
         boundPing,
         callback,

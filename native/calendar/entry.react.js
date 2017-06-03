@@ -38,9 +38,9 @@ import {
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
 import {
-  saveEntryActionType,
+  saveEntryActionTypes,
   saveEntry,
-  deleteEntryActionType,
+  deleteEntryActionTypes,
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
@@ -366,7 +366,7 @@ class Entry extends React.Component {
 
     const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
-      saveEntryActionType,
+      saveEntryActionTypes,
       this.saveAction(serverID, newText),
       undefined,
       startingPayload,
@@ -458,7 +458,7 @@ class Entry extends React.Component {
       startingPayload.newSessionID = nextSessionID;
     }
     this.props.dispatchActionPromise(
-      deleteEntryActionType,
+      deleteEntryActionTypes,
       this.deleteAction(serverID),
       undefined,
       startingPayload,
@@ -537,8 +537,8 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(saveEntryActionType);
-registerFetchKey(deleteEntryActionType);
+registerFetchKey(saveEntryActionTypes);
+registerFetchKey(deleteEntryActionTypes);
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({

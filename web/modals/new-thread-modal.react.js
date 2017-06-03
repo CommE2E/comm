@@ -19,7 +19,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  newThreadActionType,
+  newThreadActionTypes,
   newThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -377,7 +377,7 @@ class NewThreadModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      newThreadActionType,
+      newThreadActionTypes,
       this.newThreadAction(name, ourVisibilityRules),
     );
   }
@@ -423,7 +423,7 @@ NewThreadModal.propTypes = {
 }
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(newThreadActionType);
+  = createLoadingStatusSelector(newThreadActionTypes);
 
 export default connect(
   (state: AppState) => ({

@@ -14,7 +14,7 @@ import {
 import CookieManager from 'react-native-cookies';
 import URL from 'url-parse';
 
-import { logInActionType, logIn } from 'lib/actions/user-actions';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { getConfig } from 'lib/utils/config';
 
 type Credentials = {
@@ -210,7 +210,7 @@ async function resolveInvalidatedCookie(
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
     const newCookie = await dispatchRecoveryAttempt(
-      logInActionType,
+      logInActionTypes,
       logIn(
         fetchJSON,
         keychainCredentials.username,
@@ -224,7 +224,7 @@ async function resolveInvalidatedCookie(
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
     await dispatchRecoveryAttempt(
-      logInActionType,
+      logInActionTypes,
       logIn(
         fetchJSON,
         sharedWebCredentials.username,

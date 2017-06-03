@@ -25,9 +25,9 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  saveEntryActionType,
+  saveEntryActionTypes,
   saveEntry,
-  deleteEntryActionType,
+  deleteEntryActionTypes,
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
@@ -293,7 +293,7 @@ class Entry extends React.PureComponent {
 
     const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
-      saveEntryActionType,
+      saveEntryActionTypes,
       this.saveAction(serverID, newText),
       undefined,
       startingPayload,
@@ -395,7 +395,7 @@ class Entry extends React.PureComponent {
       startingPayload.newSessionID = nextSessionID;
     }
     this.props.dispatchActionPromise(
-      deleteEntryActionType,
+      deleteEntryActionTypes,
       this.deleteAction(serverID, focusOnNextEntry),
       undefined,
       startingPayload,

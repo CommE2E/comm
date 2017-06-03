@@ -40,7 +40,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
 import { sessionExpired } from 'lib/selectors/session-selectors';
 import {
-  fetchEntriesAndAppendRangeActionType,
+  fetchEntriesAndAppendRangeActionTypes,
   fetchEntriesWithRange,
 } from 'lib/actions/entry-actions';
 import {
@@ -802,7 +802,7 @@ class InnerCalendar extends React.PureComponent {
     }
     this.loadingFromScroll = true;
     this.props.dispatchActionPromise(
-      fetchEntriesAndAppendRangeActionType,
+      fetchEntriesAndAppendRangeActionTypes,
       this.props.fetchEntriesWithRange({
         navID: this.props.simpleNavID,
         startDate: dateString(start),
@@ -884,7 +884,7 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(fetchEntriesAndAppendRangeActionType);
+registerFetchKey(fetchEntriesAndAppendRangeActionTypes);
 
 const CalendarRouteName = 'Calendar';
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);

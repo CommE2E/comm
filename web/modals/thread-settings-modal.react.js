@@ -22,9 +22,9 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  deleteThreadActionType,
+  deleteThreadActionTypes,
   deleteThread,
-  changeThreadSettingsActionType,
+  changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -581,7 +581,7 @@ class ThreadSettingsModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      changeThreadSettingsActionType,
+      changeThreadSettingsActionTypes,
       this.changeThreadSettingsAction(name),
     );
   }
@@ -645,7 +645,7 @@ class ThreadSettingsModal extends React.PureComponent {
   onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
-      deleteThreadActionType,
+      deleteThreadActionTypes,
       this.deleteThreadAction(),
     );
   }
@@ -691,9 +691,9 @@ ThreadSettingsModal.propTypes = {
 }
 
 const deleteThreadLoadingStatusSelector
-  = createLoadingStatusSelector(deleteThreadActionType);
+  = createLoadingStatusSelector(deleteThreadActionTypes);
 const changeThreadSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeThreadSettingsActionType);
+  = createLoadingStatusSelector(changeThreadSettingsActionTypes);
 
 export default connect(
   (state: AppState) => ({

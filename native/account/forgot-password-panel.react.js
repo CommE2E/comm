@@ -1,6 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
+import type { Action } from '../navigation-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
@@ -19,7 +20,7 @@ import PropTypes from 'prop-types';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
-  forgotPasswordActionType,
+  forgotPasswordActionTypes,
   forgotPassword,
 } from 'lib/actions/user-actions';
 import {
@@ -123,7 +124,7 @@ class ForgotPasswordPanel extends React.PureComponent {
 
     Keyboard.dismiss();
     this.props.dispatchActionPromise(
-      forgotPasswordActionType,
+      forgotPasswordActionTypes,
       this.forgotPasswordAction(),
     );
   }
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
 });
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(forgotPasswordActionType);
+  = createLoadingStatusSelector(forgotPasswordActionTypes);
 
 export default connect(
   (state: AppState) => ({

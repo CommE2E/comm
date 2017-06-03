@@ -11,7 +11,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
-import { logOut, logOutActionType } from 'lib/actions/user-actions';
+import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -155,7 +155,7 @@ class AccountBar extends React.PureComponent {
 
   onLogOut = (event: SyntheticEvent) => {
     event.preventDefault();
-    this.props.dispatchActionPromise(logOutActionType, this.props.logOut());
+    this.props.dispatchActionPromise(logOutActionTypes, this.props.logOut());
     this.setState({ expanded: false });
   }
 

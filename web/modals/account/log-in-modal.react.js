@@ -17,7 +17,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { logInActionType, logIn } from 'lib/actions/user-actions';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
@@ -172,7 +172,7 @@ class LogInModal extends React.PureComponent {
       return;
     }
 
-    this.props.dispatchActionPromise(logInActionType, this.logInAction());
+    this.props.dispatchActionPromise(logInActionTypes, this.logInAction());
   }
 
   async logInAction() {
@@ -239,7 +239,7 @@ LogInModal.propTypes = {
   logIn: PropTypes.func.isRequired,
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionType);
+const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
 export default connect(
   (state: AppState) => ({

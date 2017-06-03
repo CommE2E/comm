@@ -19,8 +19,8 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { logOutActionType, logOut } from 'lib/actions/user-actions';
-import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
+import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -115,14 +115,14 @@ class More extends React.PureComponent {
 
   logOutButKeepNativeCredentialsWrapper = () => {
     this.props.dispatchActionPromise(
-      logOutActionType,
+      logOutActionTypes,
       this.props.logOut(),
     );
   }
 
   logOutAndDeleteNativeCredentialsWrapper = () => {
     this.props.dispatchActionPromise(
-      logOutActionType,
+      logOutActionTypes,
       this.logOutAndDeleteNativeCredentials(),
     );
   }
@@ -139,7 +139,7 @@ class More extends React.PureComponent {
   onPressPing = () => {
     const startingPayload = this.props.pingStartingPayload();
     this.props.dispatchActionPromise(
-      pingActionType,
+      pingActionTypes,
       this.pingAction(startingPayload),
       undefined,
       startingPayload,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(logOutActionType);
+registerFetchKey(logOutActionTypes);
 
 export default connect(
   (state: AppState) => ({

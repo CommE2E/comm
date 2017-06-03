@@ -18,11 +18,11 @@ import {
   currentCalendarQuery,
 } from 'lib/selectors/nav-selectors';
 import {
-  fetchEntriesActionType,
+  fetchEntriesActionTypes,
   fetchEntries,
 } from 'lib/actions/entry-actions';
 import {
-  subscribeActionType,
+  subscribeActionTypes,
   subscribe,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -107,15 +107,18 @@ class TypeaheadOptionButtons extends React.PureComponent {
     const newSubscribed = !this.props.threadInfo.subscribed;
 
     this.props.dispatchActionPromise(
-      subscribeActionType,
+      subscribeActionTypes,
       this.subscribeAction(newSubscribed),
-      { customKeyName: `${subscribeActionType}:${this.props.threadInfo.id}` },
+      {
+        customKeyName:
+          `${subscribeActionTypes.started}:${this.props.threadInfo.id}`,
+      },
     );
 
     // If we are on home and just subscribed to a thread, we need to load it
     if (this.props.home && newSubscribed) {
       this.props.dispatchActionPromise(
-        fetchEntriesActionType,
+        fetchEntriesActionTypes,
         this.props.fetchEntries({
           ...this.props.currentCalendarQuery(),
           navID: this.props.threadInfo.id,
@@ -179,8 +182,8 @@ export default connect(
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
     loadingStatus: createLoadingStatusSelector(
-      subscribeActionType,
-      `${subscribeActionType}:${ownProps.threadInfo.id}`,
+      subscribeActionTypes,
+      `${subscribeActionTypes.started}:${ownProps.threadInfo.id}`,
     )(state),
     currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,

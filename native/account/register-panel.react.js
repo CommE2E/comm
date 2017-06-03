@@ -24,7 +24,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { registerActionType, register } from 'lib/actions/user-actions';
+import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   validUsernameRegex,
@@ -260,7 +260,7 @@ class RegisterPanel extends React.PureComponent {
     } else {
       Keyboard.dismiss();
       this.props.dispatchActionPromise(
-        registerActionType,
+        registerActionTypes,
         this.registerAction(),
       );
     }
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector = createLoadingStatusSelector(registerActionType);
+const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
 export default connect(
   (state: AppState) => ({

@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 import {
-  authThreadActionType,
+  authThreadActionTypes,
   authThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -258,9 +258,9 @@ class TypeaheadThreadOption extends React.PureComponent {
     event.preventDefault();
     const id = TypeaheadThreadOption.getID(this.props);
     this.props.dispatchActionPromise(
-      authThreadActionType,
+      authThreadActionTypes,
       this.authThreadAction(),
-      { customKeyName: `${authThreadActionType}:${id}` },
+      { customKeyName: `${authThreadActionTypes.started}:${id}` },
     );
   }
 
@@ -310,8 +310,8 @@ export default connect(
       currentNavID: currentNavID(state),
       currentThreadID: state.navInfo.threadID,
       passwordEntryLoadingStatus: createLoadingStatusSelector(
-        authThreadActionType,
-        `${authThreadActionType}:${id}`,
+        authThreadActionTypes,
+        `${authThreadActionTypes.started}:${id}`,
       )(state),
       cookie: state.cookie,
     };

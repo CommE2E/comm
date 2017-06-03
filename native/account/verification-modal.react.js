@@ -36,7 +36,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  handleVerificationCodeActionType,
+  handleVerificationCodeActionTypes,
   handleVerificationCode,
 } from 'lib/actions/user-actions';
 import { verifyField } from 'lib/utils/verify-utils';
@@ -125,7 +125,7 @@ class InnerVerificationModal extends React.PureComponent {
   componentWillMount() {
     const code = this.props.navigation.state.params.verifyCode;
     this.props.dispatchActionPromise(
-      handleVerificationCodeActionType,
+      handleVerificationCodeActionTypes,
       this.handleVerificationCodeAction(code),
     );
     Keyboard.dismiss();
@@ -151,7 +151,7 @@ class InnerVerificationModal extends React.PureComponent {
         resetPasswordUsername: null,
       });
       this.props.dispatchActionPromise(
-        handleVerificationCodeActionType,
+        handleVerificationCodeActionTypes,
         this.handleVerificationCodeAction(nextCode),
       );
     }
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(handleVerificationCodeActionType);
+registerFetchKey(handleVerificationCodeActionTypes);
 
 const VerificationModalRouteName = 'VerificationModal';
 const isForegroundSelector =

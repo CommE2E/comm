@@ -17,7 +17,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  forgotPasswordActionType,
+  forgotPasswordActionTypes,
   forgotPassword,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -131,7 +131,7 @@ class ForgotPasswordModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      forgotPasswordActionType,
+      forgotPasswordActionTypes,
       this.forgotPasswordAction(),
     );
   }
@@ -173,7 +173,7 @@ ForgotPasswordModal.propTypes = {
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(forgotPasswordActionType);
+  = createLoadingStatusSelector(forgotPasswordActionTypes);
 
 export default connect(
   (state: AppState) => ({

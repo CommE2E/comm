@@ -14,7 +14,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  resetPasswordActionType,
+  resetPasswordActionTypes,
   resetPassword,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -163,7 +163,7 @@ class ResetPasswordModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      resetPasswordActionType,
+      resetPasswordActionTypes,
       this.resetPasswordAction(),
     );
   }
@@ -205,7 +205,7 @@ ResetPasswordModal.propTypes = {
 };
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(resetPasswordActionType);
+  = createLoadingStatusSelector(resetPasswordActionTypes);
 
 export default connect(
   (state: AppState) => ({

@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/selectors/thread-selectors';
 import {
-  restoreEntryActionType,
+  restoreEntryActionTypes,
   restoreEntry,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -124,9 +124,9 @@ class HistoryEntry extends React.PureComponent {
     invariant(entryID, "entryInfo.id (serverID) should be set");
     const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
-      restoreEntryActionType,
+      restoreEntryActionTypes,
       this.restoreEntryAction(),
-      { customKeyName: `${restoreEntryActionType}:${entryID}` },
+      { customKeyName: `${restoreEntryActionTypes.started}:${entryID}` },
       startingPayload,
     );
   }
@@ -170,8 +170,8 @@ export default connect(
       sessionID: currentSessionID(state),
       loggedIn: !!state.userInfo,
       restoreLoadingStatus: createLoadingStatusSelector(
-        restoreEntryActionType,
-        `${restoreEntryActionType}:${entryID}`,
+        restoreEntryActionTypes,
+        `${restoreEntryActionTypes.started}:${entryID}`,
       )(state),
       sessionStartingPayload: sessionStartingPayload(state),
       cookie: state.cookie,

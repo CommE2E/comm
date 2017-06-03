@@ -13,11 +13,11 @@ import PropTypes from 'prop-types';
 
 import { validEmailRegex } from 'lib/shared/account-regexes';
 import {
-  deleteAccountActionType,
+  deleteAccountActionTypes,
   deleteAccount,
-  changeUserSettingsActionType,
+  changeUserSettingsActionTypes,
   changeUserSettings,
-  resendVerificationEmailActionType,
+  resendVerificationEmailActionTypes,
   resendVerificationEmail,
 } from 'lib/actions/user-actions';
 import {
@@ -313,7 +313,7 @@ class UserSettingsModal extends React.PureComponent {
   onClickResendVerificationEmail = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
-      resendVerificationEmailActionType,
+      resendVerificationEmailActionTypes,
       this.resendVerificationEmailAction(),
     );
   }
@@ -358,7 +358,7 @@ class UserSettingsModal extends React.PureComponent {
     }
 
     this.props.dispatchActionPromise(
-      changeUserSettingsActionType,
+      changeUserSettingsActionTypes,
       this.changeUserSettingsAction(),
     );
   }
@@ -429,7 +429,7 @@ class UserSettingsModal extends React.PureComponent {
   onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
-      deleteAccountActionType,
+      deleteAccountActionTypes,
       this.deleteAction(),
     );
   }
@@ -478,11 +478,11 @@ UserSettingsModal.propTypes = {
 };
 
 const deleteAccountLoadingStatusSelector
-  = createLoadingStatusSelector(deleteAccountActionType);
+  = createLoadingStatusSelector(deleteAccountActionTypes);
 const changeUserSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeUserSettingsActionType);
+  = createLoadingStatusSelector(changeUserSettingsActionTypes);
 const resendVerificationEmailLoadingStatusSelector
-  = createLoadingStatusSelector(resendVerificationEmailActionType);
+  = createLoadingStatusSelector(resendVerificationEmailActionTypes);
 
 export default connect(
   (state: AppState) => ({

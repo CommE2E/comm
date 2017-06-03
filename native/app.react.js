@@ -29,7 +29,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { pingActionType, ping } from 'lib/actions/ping-actions';
+import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 
@@ -177,7 +177,7 @@ class AppWithNavigationState extends React.PureComponent {
         (this.props.cookie && this.props.cookie.startsWith("user=")))
     ) {
       this.props.dispatchActionPromise(
-        pingActionType,
+        pingActionTypes,
         this.pingAction(startingPayload),
         undefined,
         startingPayload,

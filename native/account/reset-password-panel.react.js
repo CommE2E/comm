@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
-  resetPasswordActionType,
+  resetPasswordActionTypes,
   resetPasswordAndFetchInitialData,
 } from 'lib/actions/user-actions';
 import {
@@ -188,7 +188,7 @@ class ResetPasswordPanel extends React.PureComponent {
     Keyboard.dismiss();
     const calendarQuery = this.props.currentCalendarQuery();
     this.props.dispatchActionPromise(
-      resetPasswordActionType,
+      resetPasswordActionTypes,
       this.resetPasswordAction(calendarQuery),
       undefined,
       { calendarQuery },
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
 });
 
 const loadingStatusSelector
-  = createLoadingStatusSelector(resetPasswordActionType);
+  = createLoadingStatusSelector(resetPasswordActionTypes);
 
 export default connect(
   (state: AppState) => ({
