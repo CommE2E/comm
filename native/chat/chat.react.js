@@ -1,19 +1,31 @@
 // @flow
 
+import type { AppState } from '../redux-setup';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ChatThreadItem } from '../selectors/chat-selectors';
+import { chatThreadItemPropType } from '../selectors/chat-selectors';
+
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+
+import { chatListData } from '../selectors/chat-selectors';
 
 type Props = {
+  // Redux state
+  chatListData: $ReadOnlyArray<ChatThreadItem>,
 };
 type State = {
 };
-
-class Chat extends React.PureComponent {
+class InnerChat extends React.PureComponent {
 
   props: Props;
   state: State;
-
+  static propTypes = {
+    chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
+  };
   static navigationOptions = {
     tabBarLabel: 'Chat',
     tabBarIcon: ({ tintColor }) => (
@@ -23,6 +35,7 @@ class Chat extends React.PureComponent {
       />
     ),
   };
+  flatList: ?FlatList<ChatThreadItem> = null;
 
   render() {
     return (
@@ -53,4 +66,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Chat;
+const ChatRouteName = 'Chat';
+const Chat = connect((state: AppState) => ({
+  chatListData: chatListData(state),
+}))(InnerChat);
+
+export {
+  Chat,
+  ChatRouteName,
+};

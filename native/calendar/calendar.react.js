@@ -3,7 +3,7 @@
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
-import type { CalendarItem } from '../selectors/entry-selectors';
+import type { CalendarItem } from '../selectors/calendar-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
@@ -52,7 +52,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import Entry from './entry.react';
 import { contentVerticalOffset, windowHeight } from '../dimensions';
-import { calendarListData } from '../selectors/entry-selectors';
+import { calendarListData } from '../selectors/calendar-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from './list-loading-indicator.react';

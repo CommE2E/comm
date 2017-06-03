@@ -29,7 +29,10 @@ import {
   Calendar,
   CalendarRouteName,
 } from './calendar/calendar.react';
-import Chat from './chat/chat.react';
+import {
+  Chat,
+  ChatRouteName,
+} from './chat/chat.react';
 import More from './more/more.react';
 import {
   LoggedOutModal,
@@ -52,7 +55,7 @@ export type Action = BaseAction |
 const AppNavigator = TabNavigator(
   {
     [CalendarRouteName]: { screen: Calendar },
-    Chat: { screen: Chat },
+    [ChatRouteName]: { screen: Chat },
     More: { screen: More },
   },
   {
@@ -140,7 +143,7 @@ const defaultNavigationState = {
       index: 0,
       routes: [
         { key: 'Calendar', routeName: CalendarRouteName },
-        { key: 'Chat', routeName: 'Chat' },
+        { key: 'Chat', routeName: ChatRouteName },
         { key: 'More', routeName: 'More' },
       ],
     },
