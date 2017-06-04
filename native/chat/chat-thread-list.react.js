@@ -67,6 +67,10 @@ class InnerChatThreadList extends React.PureComponent {
     return _sum(data.map(InnerChatThreadList.itemHeight));
   }
 
+  static ListHeaderComponent(props: {}) {
+    return <View style={styles.header} />;
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -75,6 +79,7 @@ class InnerChatThreadList extends React.PureComponent {
           renderItem={this.renderItem}
           keyExtractor={InnerChatThreadList.keyExtractor}
           getItemLayout={InnerChatThreadList.getItemLayout}
+          ListHeaderComponent={InnerChatThreadList.ListHeaderComponent}
           style={styles.flatList}
           ref={this.flatListRef}
         />
@@ -94,6 +99,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  header: {
+    height: 5,
   },
   flatList: {
     flex: 1,
