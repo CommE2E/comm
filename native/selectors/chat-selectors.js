@@ -3,7 +3,8 @@
 import type { BaseAppState } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { MessageStore } from 'lib/types/message-types';
+import type { MessageInfo, MessageStore } from 'lib/types/message-types';
+import { messageInfoPropType } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
 import _flow from 'lodash/fp/flow';
@@ -14,11 +15,13 @@ import PropTypes from 'prop-types';
 
 export type ChatThreadItem = {
   threadInfo: ThreadInfo,
+  mostRecentMessageInfo?: MessageInfo,
   lastUpdatedTime: number,
 };
 
 const chatThreadItemPropType = PropTypes.shape({
   threadInfo: threadInfoPropType.isRequired,
+  mostRecentMessageInfo: messageInfoPropType,
   lastUpdatedTime: PropTypes.number.isRequired,
 });
 
@@ -30,12 +33,17 @@ const chatListData = createSelector(
     messageStore: MessageStore,
   ): ChatThreadItem[] => _flow(
     _filter('authorized'),
-    _map((threadInfo: ThreadInfo) => {
-      const messageIDs = messageStore.threads[threadInfo.id].messageIDs;
-      const lastUpdatedTime = messageIDs.length === 0
-        ? threadInfo.creationTime
-        : messageStore.messages[messageIDs[0]].time;
-      return { threadInfo, lastUpdatedTime };
+    _map((threadInfo: ThreadInfo): ChatThreadItem => {
+      const thread = messageStore.threads[threadInfo.id];
+      if (!thread || thread.messageIDs.length === 0) {
+        return { threadInfo, lastUpdatedTime: threadInfo.creationTime };
+      }
+      const mostRecentMessageInfo = messageStore.messages[thread.messageIDs[0]];
+      return {
+        threadInfo,
+        mostRecentMessageInfo,
+        lastUpdatedTime: mostRecentMessageInfo.time,
+      };
     }),
     _orderBy("lastUpdatedTime")("desc"),
   )(threadInfos),
