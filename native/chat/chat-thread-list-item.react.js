@@ -3,6 +3,8 @@
 import type { ChatThreadItem } from '../selectors/chat-selectors';
 import { chatThreadItemPropType } from '../selectors/chat-selectors';
 
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
+
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import PropTypes from 'prop-types';
@@ -28,7 +30,7 @@ class ChatThreadListItem extends React.PureComponent {
       );
     }
     const username = mostRecentMessageInfo.creatorID === this.props.userID
-      ? "You: "
+      ? "you: "
       : `${mostRecentMessageInfo.creator}: `;
     return (
       <Text style={styles.lastMessage} numberOfLines={1}>
@@ -42,6 +44,7 @@ class ChatThreadListItem extends React.PureComponent {
     const colorSplotchStyle = {
       backgroundColor: `#${this.props.data.threadInfo.color}`,
     };
+    const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     return (
       <View style={styles.container}>
         <View style={styles.row}>
@@ -52,6 +55,7 @@ class ChatThreadListItem extends React.PureComponent {
         </View>
         <View style={styles.row}>
           {this.lastMessage()}
+          <Text style={styles.lastActivity}>{lastActivity}</Text>
         </View>
       </View>
     );
@@ -79,9 +83,9 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   colorSplotch: {
-    height: 25,
+    height: 20,
     justifyContent: 'flex-end',
-    width: 25,
+    width: 20,
     borderRadius: 5,
   },
   noMessages: {
@@ -97,6 +101,10 @@ const styles = StyleSheet.create({
   },
   username: {
     color: '#AAAAAA',
+  },
+  lastActivity: {
+    fontSize: 16,
+    color: '#666666',
   },
 });
 
