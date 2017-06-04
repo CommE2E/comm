@@ -194,6 +194,7 @@ HTML;
 ?>
     <script>
       var username = "<?=$username?>";
+      var viewer_id = "<?=$viewer_id?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
       var thread_infos = <?=json_encode($thread_infos, JSON_FORCE_OBJECT)?>;

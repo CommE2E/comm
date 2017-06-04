@@ -78,5 +78,6 @@ create_user_cookie($id);
 verify_email($id, $username, $email, true);
 
 async_end(array(
+  'id' => (string)$id,
   'success' => true,
 ));

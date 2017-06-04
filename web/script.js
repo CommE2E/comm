@@ -39,6 +39,7 @@ import { reducer } from './redux-setup';
 import App from './app.react';
 import history from './router-history';
 
+declare var viewer_id: string;
 declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
@@ -68,8 +69,8 @@ registerConfig({
   calendarRangeInactivityLimit: null,
 });
 
-const userInfo = email
-  ? { username, email, emailVerified: email_verified }
+const userInfo = viewer_id
+  ? { id: viewer_id, username, email, emailVerified: email_verified }
   : null;
 const entryInfos = _keyBy('id')(entry_infos);
 const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);

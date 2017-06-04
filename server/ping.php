@@ -24,6 +24,7 @@ if ($user_logged_in) {
     ));
   }
   $user_info = array(
+    'id' => (string)$viewer_id,
     'username' => $user_row['username'],
     'email' => $user_row['email'],
     'email_verified' => (bool)$user_row['email_verified'],

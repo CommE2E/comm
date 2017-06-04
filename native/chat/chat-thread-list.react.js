@@ -16,18 +16,16 @@ import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { contentVerticalOffset } from '../dimensions';
 
-type Props = {
-  // Redux state
-  chatListData: $ReadOnlyArray<ChatThreadItem>,
-};
-type State = {
-};
 class InnerChatThreadList extends React.PureComponent {
 
-  props: Props;
-  state: State;
+  props: {
+    // Redux state
+    chatListData: $ReadOnlyArray<ChatThreadItem>,
+    userID: ?string,
+  };
   static propTypes = {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
+    userID: PropTypes.string,
   };
   static navigationOptions = {
     tabBarLabel: 'Chat',
@@ -41,7 +39,7 @@ class InnerChatThreadList extends React.PureComponent {
   flatList: ?FlatList<ChatThreadItem> = null;
 
   renderItem = (row: { item: ChatThreadItem }) => {
-    return <ChatThreadListItem data={row.item} />;
+    return <ChatThreadListItem data={row.item} userID={this.props.userID} />;
   }
 
   static keyExtractor(item: ChatThreadItem) {
@@ -80,6 +78,7 @@ class InnerChatThreadList extends React.PureComponent {
           keyExtractor={InnerChatThreadList.keyExtractor}
           getItemLayout={InnerChatThreadList.getItemLayout}
           ListHeaderComponent={InnerChatThreadList.ListHeaderComponent}
+          extraData={this.props.userID}
           style={styles.flatList}
           ref={this.flatListRef}
         />
@@ -112,6 +111,7 @@ const styles = StyleSheet.create({
 
 const ChatThreadList = connect((state: AppState) => ({
   chatListData: chatListData(state),
+  userID: state.userInfo && state.userInfo.id,
 }))(InnerChatThreadList);
 
 export {

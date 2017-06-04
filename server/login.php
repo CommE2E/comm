@@ -42,6 +42,7 @@ list($message_infos, $truncation_status) =
 $return = array(
   'success' => true,
   'user_info' => array(
+    'id' => (string)$id,
     'username' => $user_row['username'],
     'email' => $user_row['email'],
     'email_verified' => (bool)$user_row['email_verified'],

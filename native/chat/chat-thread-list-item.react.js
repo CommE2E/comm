@@ -7,17 +7,15 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import PropTypes from 'prop-types';
 
-type Props = {
-  data: ChatThreadItem,
-};
-type State = {
-};
 class ChatThreadListItem extends React.PureComponent {
 
-  props: Props;
-  state: State;
+  props: {
+    data: ChatThreadItem,
+    userID: ?string,
+  };
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
+    userID: PropTypes.string,
   };
 
   lastMessage() {
@@ -28,13 +26,16 @@ class ChatThreadListItem extends React.PureComponent {
           No messages
         </Text>
       );
-    } else {
-      return (
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          {mostRecentMessageInfo.text}
-        </Text>
-      );
     }
+    const username = mostRecentMessageInfo.creatorID === this.props.userID
+      ? "You: "
+      : `${mostRecentMessageInfo.creator}: `;
+    return (
+      <Text style={styles.lastMessage} numberOfLines={1}>
+        <Text style={styles.username}>{username}</Text>
+        {mostRecentMessageInfo.text}
+      </Text>
+    );
   }
 
   render() {
@@ -93,6 +94,9 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontSize: 16,
     color: '#666666',
+  },
+  username: {
+    color: '#AAAAAA',
   },
 });
 

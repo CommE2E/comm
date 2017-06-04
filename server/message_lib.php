@@ -57,7 +57,8 @@ function get_message_infos($input, $number_per_thread) {
   $int_number_per_thread = (int)$number_per_thread;
   $query = <<<SQL
 SET @num := 0, @thread := '';
-SELECT x.id, x.thread AS threadID, u.username AS creator, x.text, x.time
+SELECT x.id, x.thread AS threadID, x.text, x.time,
+  u.username AS creator, x.user AS creatorID
 FROM (
   SELECT m.id, m.user, m.text, m.time,
     @num := if(@thread = m.thread, @num + 1, 1) AS number,
@@ -118,7 +119,8 @@ function get_messages_since($current_as_of, $max_number_per_thread) {
   $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
 
   $query = <<<SQL
-SELECT m.id, m.thread AS threadID, u.username AS creator, m.text, m.time
+SELECT m.id, m.thread AS threadID, m.text, m.time,
+  u.username AS creator, m.user AS creatorID
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
