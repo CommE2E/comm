@@ -4,8 +4,8 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
-  RecoveryDispatch,
 } from 'lib/utils/action-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
@@ -58,7 +58,7 @@ type Props = {
   pingStartingPayload: () => PingStartingPayload,
   currentAsOf: number,
   // Redux dispatch functions
-  dispatch: RecoveryDispatch,
+  dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
 };

@@ -94,7 +94,7 @@ class AppWithNavigationState extends React.PureComponent {
     pingStartingPayload: () => PingStartingPayload,
     currentAsOf: number,
     // Redux dispatch functions
-    dispatch: Dispatch<AppState, Action>,
+    dispatch: Dispatch,
     dispatchActionPayload: DispatchActionPayload,
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs

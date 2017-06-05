@@ -35,7 +35,7 @@ class ChatThreadListItem extends React.PureComponent {
     }
     const username = mostRecentMessageInfo.creatorID === this.props.userID
       ? "you: "
-      : `${mostRecentMessageInfo.creator}: `;
+      : `${mostRecentMessageInfo.creator || ""}: `;
     return (
       <Text style={styles.lastMessage} numberOfLines={1}>
         <Text style={styles.username}>{username}</Text>
