@@ -13,11 +13,14 @@ import { messageInfoPropType } from 'lib/types/message-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import _sum from 'lodash/fp/sum';
+import { InvertibleFlatList } from 'react-native-invertible-flat-list';
+
+import { messageKey } from 'lib/shared/message-utils';
 
 import { messageListData } from '../selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
+import Message from './message.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
@@ -43,7 +46,7 @@ class InnerMessageList extends React.PureComponent {
   });
 
   renderItem = (row: { item: MessageInfo }) => {
-    return <Text numberOfLines={1}>{row.item.text}</Text>;
+    return <Message messageInfo={row.item} />;
   }
 
   static getItemLayout(data: $ReadOnlyArray<MessageInfo>, index: number) {
@@ -65,7 +68,8 @@ class InnerMessageList extends React.PureComponent {
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
+        <InvertibleFlatList
+          inverted={true}
           data={this.props.messageListData}
           renderItem={this.renderItem}
           keyExtractor={messageKey}

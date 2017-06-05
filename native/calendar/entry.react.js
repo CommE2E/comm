@@ -89,7 +89,7 @@ type State = {
   text: string,
   loadingStatus: LoadingStatus,
   height: number,
-  color: string,
+  threadInfo: ThreadInfo,
 };
 class Entry extends React.Component {
   
@@ -125,11 +125,11 @@ class Entry extends React.Component {
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight + 10,
-      // On log out, it's possible for the calendar to be deauthorized before
+      // On log out, it's possible for the thread to be deauthorized before
       // the log out animation completes. To avoid having rendering issues in
-      // that case, we cache the color in state and don't reset it when the
+      // that case, we cache the threadInfo in state and don't reset it when the
       // threadInfo is undefined.
-      color: props.threadInfo.color,
+      threadInfo: props.threadInfo,
     };
   }
 
@@ -154,9 +154,9 @@ class Entry extends React.Component {
     }
     if (
       nextProps.threadInfo &&
-      nextProps.threadInfo.color !== this.state.color
+      !_isEqual(nextProps.threadInfo)(this.state.threadInfo)
     ) {
-      this.setState({ color: nextProps.threadInfo.color });
+      this.setState({ threadInfo: nextProps.threadInfo });
     }
     if (!nextProps.focused && this.props.focused) {
       if (this.textInput) {
@@ -197,7 +197,7 @@ class Entry extends React.Component {
   render() {
     const focused = Entry.isFocused(this.props);
 
-    const darkColor = colorIsDark(this.state.color);
+    const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
     if (focused) {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
@@ -228,13 +228,13 @@ class Entry extends React.Component {
               style={[styles.rightLinksText, actionLinksTextStyle]}
               numberOfLines={1}
             >
-              {this.props.threadInfo.name}
+              {this.state.threadInfo.name}
             </Text>
           </View>
         </View>
       );
     }
-    const entryStyle = { backgroundColor: `#${this.state.color}` };
+    const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
     const textStyle = {
       color: darkColor ? 'white' : 'black',
       height: this.state.height,
