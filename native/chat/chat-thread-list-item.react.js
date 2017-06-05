@@ -2,6 +2,7 @@
 
 import type { ChatThreadItem } from '../selectors/chat-selectors';
 import { chatThreadItemPropType } from '../selectors/chat-selectors';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -16,7 +17,7 @@ class ChatThreadListItem extends React.PureComponent {
   props: {
     data: ChatThreadItem,
     userID: ?string,
-    onPressItem: (threadID: string) => void,
+    onPressItem: (threadInfo: ThreadInfo) => void,
   };
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
@@ -68,7 +69,7 @@ class ChatThreadListItem extends React.PureComponent {
   }
 
   onPress = () => {
-    this.props.onPressItem(this.props.data.threadInfo.id);
+    this.props.onPressItem(this.props.data.threadInfo);
   }
 
 }

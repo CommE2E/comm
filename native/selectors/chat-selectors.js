@@ -12,6 +12,7 @@ import _filter from 'lodash/fp/filter';
 import _map from 'lodash/fp/map';
 import _orderBy from 'lodash/fp/orderBy';
 import PropTypes from 'prop-types';
+import _memoize from 'lodash/memoize';
 
 export type ChatThreadItem = {
   threadInfo: ThreadInfo,
@@ -49,7 +50,23 @@ const chatListData = createSelector(
   )(threadInfos),
 );
 
+const baseMessageListData = (threadID: string) => createSelector(
+  (state: BaseAppState) => state.messageStore,
+  (messageStore: MessageStore): MessageInfo[] => {
+    const thread = messageStore.threads[threadID];
+    if (!thread) {
+      return [];
+    }
+    return thread.messageIDs
+      .map((messageID: string) => messageStore.messages[messageID])
+      .filter(x => x);
+  },
+);
+
+const messageListData = _memoize(baseMessageListData);
+
 export {
   chatThreadItemPropType,
   chatListData,
+  messageListData,
 };

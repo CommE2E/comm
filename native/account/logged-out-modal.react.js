@@ -1,6 +1,10 @@
 // @flow
 
-import type { NavigationScreenProp } from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationRoute,
+  NavigationAction,
+} from 'react-navigation';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -49,7 +53,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
-  navigation: NavigationScreenProp<*, *>,
+  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
   // Redux state
   rehydrateConcluded: bool,
   cookie: ?string,

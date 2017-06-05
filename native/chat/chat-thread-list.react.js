@@ -4,6 +4,11 @@ import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChatThreadItem } from '../selectors/chat-selectors';
 import { chatThreadItemPropType } from '../selectors/chat-selectors';
+import type {
+  NavigationScreenProp,
+  NavigationRoute,
+  NavigationAction,
+} from 'react-navigation';
 
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
@@ -14,22 +19,26 @@ import _sum from 'lodash/fp/sum';
 
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
+import { MessageListRouteName } from './message-list.react';
 
 class InnerChatThreadList extends React.PureComponent {
 
   props: {
+    navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
     // Redux state
     chatListData: $ReadOnlyArray<ChatThreadItem>,
     userID: ?string,
   };
   static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     userID: PropTypes.string,
   };
   static navigationOptions = {
-    title: 'Chat',
+    title: 'Threads',
   };
-  flatList: ?FlatList<ChatThreadItem> = null;
 
   renderItem = (row: { item: ChatThreadItem }) => {
     return (
@@ -79,18 +88,16 @@ class InnerChatThreadList extends React.PureComponent {
           ListHeaderComponent={InnerChatThreadList.ListHeaderComponent}
           extraData={this.props.userID}
           style={styles.flatList}
-          ref={this.flatListRef}
         />
       </View>
     );
   }
 
-  flatListRef = (flatList: ?FlatList<ChatThreadItem>) => {
-    this.flatList = flatList;
-  }
-
-  onPressItem = (threadID: string) => {
-    console.log(`threadID ${threadID} pressed!`);
+  onPressItem = (threadInfo: ThreadInfo) => {
+    this.props.navigation.navigate(
+      MessageListRouteName,
+      { threadInfo },
+    );
   }
 
 }
