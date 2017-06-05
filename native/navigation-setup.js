@@ -33,6 +33,7 @@ import {
   Chat,
   ChatRouteName,
 } from './chat/chat.react';
+import { ChatThreadListRouteName } from './chat/chat-thread-list.react';
 import More from './more/more.react';
 import {
   LoggedOutModal,
@@ -143,7 +144,14 @@ const defaultNavigationState = {
       index: 0,
       routes: [
         { key: 'Calendar', routeName: CalendarRouteName },
-        { key: 'Chat', routeName: ChatRouteName },
+        {
+          key: 'Chat',
+          routeName: ChatRouteName,
+          index: 0,
+          routes: [
+            { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
+          ],
+        },
         { key: 'More', routeName: 'More' },
       ],
     },

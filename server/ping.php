@@ -49,7 +49,7 @@ $return = array(
   'truncation_status' => $truncation_status,
 );
 
-if (isset($_REQUEST['last_ping']) && $_REQUEST['last_ping']) {
+if (isset($_REQUEST['last_ping'])) {
   $return['server_time'] = $time;
 }
 

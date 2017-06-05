@@ -14,7 +14,6 @@ import _sum from 'lodash/fp/sum';
 
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
-import { contentVerticalOffset } from '../dimensions';
 
 class InnerChatThreadList extends React.PureComponent {
 
@@ -28,13 +27,7 @@ class InnerChatThreadList extends React.PureComponent {
     userID: PropTypes.string,
   };
   static navigationOptions = {
-    tabBarLabel: 'Chat',
-    tabBarIcon: ({ tintColor }) => (
-      <Icon
-        name="comments-o"
-        style={[styles.icon, { color: tintColor }]}
-      />
-    ),
+    title: 'Chat',
   };
   flatList: ?FlatList<ChatThreadItem> = null;
 
@@ -105,10 +98,10 @@ const styles = StyleSheet.create({
   flatList: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    marginTop: contentVerticalOffset,
   },
 });
 
+const ChatThreadListRouteName = 'ChatThreadList';
 const ChatThreadList = connect((state: AppState) => ({
   chatListData: chatListData(state),
   userID: state.userInfo && state.userInfo.id,
@@ -116,4 +109,5 @@ const ChatThreadList = connect((state: AppState) => ({
 
 export {
   ChatThreadList,
+  ChatThreadListRouteName,
 };
