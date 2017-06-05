@@ -9,15 +9,19 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import PropTypes from 'prop-types';
 
+import { Button } from '../shared-components';
+
 class ChatThreadListItem extends React.PureComponent {
 
   props: {
     data: ChatThreadItem,
     userID: ?string,
+    onPressItem: (threadID: string) => void,
   };
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
     userID: PropTypes.string,
+    onPressItem: PropTypes.func.isRequired,
   };
 
   lastMessage() {
@@ -46,19 +50,25 @@ class ChatThreadListItem extends React.PureComponent {
     };
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     return (
-      <View style={styles.container}>
-        <View style={styles.row}>
-          <Text style={styles.threadName} numberOfLines={1}>
-            {this.props.data.threadInfo.name}
-          </Text>
-          <View style={[styles.colorSplotch, colorSplotchStyle]} />
+      <Button onSubmit={this.onPress} underlayColor="#DDDDDDDD">
+        <View style={styles.container}>
+          <View style={styles.row}>
+            <Text style={styles.threadName} numberOfLines={1}>
+              {this.props.data.threadInfo.name}
+            </Text>
+            <View style={[styles.colorSplotch, colorSplotchStyle]} />
+          </View>
+          <View style={styles.row}>
+            {this.lastMessage()}
+            <Text style={styles.lastActivity}>{lastActivity}</Text>
+          </View>
         </View>
-        <View style={styles.row}>
-          {this.lastMessage()}
-          <Text style={styles.lastActivity}>{lastActivity}</Text>
-        </View>
-      </View>
+      </Button>
     );
+  }
+
+  onPress = () => {
+    this.props.onPressItem(this.props.data.threadInfo.id);
   }
 
 }
@@ -68,7 +78,6 @@ const styles = StyleSheet.create({
     height: 60,
     paddingLeft: 10,
     paddingTop: 5,
-    paddingBottom: 5,
     paddingRight: 10,
   },
   row: {
@@ -78,14 +87,14 @@ const styles = StyleSheet.create({
   },
   threadName: {
     paddingLeft: 10,
-    paddingBottom: 20,
     fontSize: 20,
     color: '#333333',
   },
   colorSplotch: {
-    height: 20,
+    height: 18,
+    width: 18,
+    marginTop: 2,
     justifyContent: 'flex-end',
-    width: 20,
     borderRadius: 5,
   },
   noMessages: {

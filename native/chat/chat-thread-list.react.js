@@ -32,7 +32,13 @@ class InnerChatThreadList extends React.PureComponent {
   flatList: ?FlatList<ChatThreadItem> = null;
 
   renderItem = (row: { item: ChatThreadItem }) => {
-    return <ChatThreadListItem data={row.item} userID={this.props.userID} />;
+    return (
+      <ChatThreadListItem
+        data={row.item}
+        userID={this.props.userID}
+        onPressItem={this.onPressItem}
+      />
+    );
   }
 
   static keyExtractor(item: ChatThreadItem) {
@@ -81,6 +87,10 @@ class InnerChatThreadList extends React.PureComponent {
 
   flatListRef = (flatList: ?FlatList<ChatThreadItem>) => {
     this.flatList = flatList;
+  }
+
+  onPressItem = (threadID: string) => {
+    console.log(`threadID ${threadID} pressed!`);
   }
 
 }
