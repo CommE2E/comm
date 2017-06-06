@@ -1,10 +1,10 @@
 // @flow
 
-import type { MessageInfo } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
+import type { MessageInfoWithHeight } from './message-list.react';
 
 import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 import { colorIsDark } from 'lib/selectors/thread-selectors';
 
 type Props = {
-  messageInfo: MessageInfo,
+  messageInfo: MessageInfoWithHeight,
   // Redux state
   threadInfo: ThreadInfo,
   userID: ?string,
@@ -52,6 +52,14 @@ class Message extends React.PureComponent {
       !_isEqual(nextProps.threadInfo)(this.state.threadInfo)
     ) {
       this.setState({ threadInfo: nextProps.threadInfo });
+    }
+  }
+
+  static itemHeight(messageInfo: MessageInfoWithHeight, userID: ?string) {
+    if (messageInfo.creatorID === userID) {
+      return 24 + messageInfo.textHeight;
+    } else {
+      return 24 + 25 + messageInfo.textHeight;
     }
   }
 
@@ -95,6 +103,7 @@ class Message extends React.PureComponent {
 const styles = StyleSheet.create({
   text: {
     fontSize: 18,
+    fontFamily: 'Arial',
   },
   whiteText: {
     color: 'white',
@@ -122,7 +131,7 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState, ownProps: { messageInfo: MessageInfo }) => ({
+  (state: AppState, ownProps: { messageInfo: MessageInfoWithHeight }) => ({
     threadInfo: state.threadInfos[ownProps.messageInfo.threadID],
     userID: state.userInfo && state.userInfo.id,
   }),

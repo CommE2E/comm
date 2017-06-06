@@ -143,7 +143,6 @@ class InnerCalendar extends React.PureComponent {
       />
     ),
   };
-  textHeightMeasurer: ?TextHeightMeasurer = null;
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?{ [text: string]: number } = null;
   currentState: ?string = NativeAppState.currentState;
@@ -225,58 +224,60 @@ class InnerCalendar extends React.PureComponent {
 
   componentWillReceiveProps(newProps: Props) {
     // When the listData changes we may need to recalculate some heights
-    if (newProps.listData !== this.props.listData) {
-      const newListData = newProps.listData;
-      if (!newListData) {
-        this.latestExtraData = {
-          focusedEntries: {},
-          visibleEntries: {},
-        };
-        this.setState({
-          textToMeasure: [],
-          listDataWithHeights: null,
-          readyToShowList: false,
-          extraData: this.latestExtraData,
-        });
-        this.topLoaderWaitingToLeaveView = true;
-        this.bottomLoaderWaitingToLeaveView = true;
-      } else {
-        // If we had no entries and just got some we'll scroll to today
-        const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
-          newListData,
-        );
+    if (newProps.listData === this.props.listData) {
+      return;
+    }
+    const newListData = newProps.listData;
 
-        let allTextAlreadyMeasured = false;
-        if (this.textHeights) {
-          allTextAlreadyMeasured = true;
-          for (let text of newTextToMeasure) {
-            if (this.textHeights[text] === undefined) {
-              allTextAlreadyMeasured = false;
-              break;
-            }
-          }
-        }
+    if (!newListData) {
+      this.latestExtraData = {
+        focusedEntries: {},
+        visibleEntries: {},
+      };
+      this.setState({
+        textToMeasure: [],
+        listDataWithHeights: null,
+        readyToShowList: false,
+        extraData: this.latestExtraData,
+      });
+      this.topLoaderWaitingToLeaveView = true;
+      this.bottomLoaderWaitingToLeaveView = true;
+      return;
+    }
 
-        if (allTextAlreadyMeasured) {
-          this.mergeHeightsIntoListData(newListData);
-        } else {
-          const newText =
-            _difference(newTextToMeasure)(this.state.textToMeasure);
-          if (newText.length === 0) {
-            // Since we don't have everything in textHeights, but we do have
-            // everything in textToMeasure, we can conclude that we're just
-            // waiting for the measurement to complete and then we'll be good.
-          } else {
-            // We set textHeights to null here since if a future set of text
-            // came in before we completed text measurement that was a subset
-            // of the earlier text, we would end up merging directly there, but
-            // then when the measurement for the middle text came in it would
-            // override the newer text heights.
-            this.textHeights = null;
-            this.setState({ textToMeasure: newTextToMeasure });
-          }
+    const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
+      newListData,
+    );
+
+    let allTextAlreadyMeasured = false;
+    if (this.textHeights) {
+      allTextAlreadyMeasured = true;
+      for (let text of newTextToMeasure) {
+        if (this.textHeights[text] === undefined) {
+          allTextAlreadyMeasured = false;
+          break;
         }
       }
+    }
+    if (allTextAlreadyMeasured) {
+      this.mergeHeightsIntoListData(newListData);
+      return;
+    }
+
+    const newText =
+      _difference(newTextToMeasure)(this.state.textToMeasure);
+    if (newText.length === 0) {
+      // Since we don't have everything in textHeights, but we do have
+      // everything in textToMeasure, we can conclude that we're just
+      // waiting for the measurement to complete and then we'll be good.
+    } else {
+      // We set textHeights to null here since if a future set of text
+      // came in before we completed text measurement that was a subset
+      // of the earlier text, we would end up merging directly there, but
+      // then when the measurement for the middle text came in it would
+      // override the newer text heights.
+      this.textHeights = null;
+      this.setState({ textToMeasure: newTextToMeasure });
     }
   }
 
@@ -414,13 +415,14 @@ class InnerCalendar extends React.PureComponent {
   }
 
   mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
+    const textHeights = this.textHeights;
+    invariant(textHeights, "textHeights should be set");
     const listDataWithHeights = _map((item: CalendarItem) => {
       if (item.itemType !== "entryInfo") {
         return item;
       }
       const entryInfo = item.entryInfo;
-      invariant(this.textHeights, "textHeights should be set");
-      const textHeight = this.textHeights[entryInfo.text];
+      const textHeight = textHeights[entryInfo.text];
       invariant(
         textHeight,
         `height for ${entryKey(entryInfo)} should be set`,
@@ -608,7 +610,6 @@ class InnerCalendar extends React.PureComponent {
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={styles.text}
-          ref={this.textHeightMeasurerRef}
         />
         {loadingIndicator}
         {flatList}
@@ -633,10 +634,6 @@ class InnerCalendar extends React.PureComponent {
       heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
     }
     return returnIndex;
-  }
-
-  textHeightMeasurerRef = (textHeightMeasurer: ?TextHeightMeasurer) => {
-    this.textHeightMeasurer = textHeightMeasurer;
   }
 
   flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
