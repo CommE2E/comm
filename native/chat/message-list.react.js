@@ -13,7 +13,13 @@ import { messageInfoPropType } from 'lib/types/message-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { InvertibleFlatList } from 'react-native-invertible-flat-list';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
@@ -24,6 +30,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import { messageListData } from '../selectors/chat-selectors';
 import Message from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
+import InputBar from './input-bar.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
@@ -157,6 +164,13 @@ class InnerMessageList extends React.PureComponent {
   }
 
   render() {
+    const textHeightMeasurer = (
+      <TextHeightMeasurer
+        textToMeasure={this.state.textToMeasure}
+        allHeightsMeasuredCallback={this.allHeightsMeasured}
+        style={styles.text}
+      />
+    );
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
@@ -167,7 +181,6 @@ class InnerMessageList extends React.PureComponent {
           renderItem={this.renderItem}
           keyExtractor={messageKey}
           getItemLayout={this.getItemLayout}
-          style={styles.flatList}
         />
       );
     } else {
@@ -181,15 +194,21 @@ class InnerMessageList extends React.PureComponent {
         </View>
       );
     }
+
+    const behavior = Platform.OS === "android" ? undefined : "padding";
+    const keyboardVerticalOffset = Platform.OS === "ios" ? 64 : 0;
     return (
-      <View style={styles.container}>
-        <TextHeightMeasurer
-          textToMeasure={this.state.textToMeasure}
-          allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={styles.text}
-        />
-        {flatList}
-      </View>
+      <KeyboardAvoidingView
+        behavior={behavior}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+        style={styles.container}
+      >
+        {textHeightMeasurer}
+        <View style={styles.flatListContainer}>
+          {flatList}
+        </View>
+        <InputBar />
+      </KeyboardAvoidingView>
     );
   }
 
@@ -212,7 +231,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  flatList: {
+  flatListContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -226,14 +245,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadingIndicatorContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    flex: 1,
   },
 });
-
 
 const MessageListRouteName = 'MessageList';
 const MessageList = connect(
