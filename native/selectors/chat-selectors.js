@@ -52,11 +52,13 @@ export type ChatMessageItem = {
   messageInfo: MessageInfo,
   startsConversation: bool,
   startsCluster: bool,
+  endsCluster: bool,
 };
 const chatMessageItemPropType = PropTypes.shape({
   messageInfo: messageInfoPropType.isRequired,
   startsConversation: PropTypes.bool.isRequired,
   startsCluster: PropTypes.bool.isRequired,
+  endsCluster: PropTypes.bool.isRequired,
 });
 const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
@@ -71,7 +73,8 @@ const baseMessageListData = (threadID: string) => createSelector(
       .filter(x => x);
     let chatMessageItems = [];
     let lastMessageInfo = null;
-    for (let messageInfo of messageInfos) {
+    for (let i = messageInfos.length - 1; i >= 0; i--) {
+      const messageInfo = messageInfos[i];
       let startsConversation = true;
       let startsCluster = true;
       if (
@@ -83,14 +86,21 @@ const baseMessageListData = (threadID: string) => createSelector(
           startsCluster = false;
         }
       }
+      if (startsCluster && chatMessageItems.length > 0) {
+        chatMessageItems[chatMessageItems.length - 1].endsCluster = true;
+      }
       chatMessageItems.push({
         messageInfo,
         startsConversation,
         startsCluster,
+        endsCluster: false,
       });
       lastMessageInfo = messageInfo;
     }
-    return chatMessageItems;
+    if (chatMessageItems.length > 0) {
+      chatMessageItems[chatMessageItems.length - 1].endsCluster = true;
+    }
+    return chatMessageItems.reverse();
   },
 );
 

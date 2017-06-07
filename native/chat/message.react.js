@@ -14,6 +14,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 type Props = {
   item: ChatMessageItemWithHeight,
@@ -64,16 +65,23 @@ class Message extends React.PureComponent {
   }
 
   render() {
+    let conversationHeader = null;
+    if (this.props.item.startsConversation) {
+      conversationHeader = (
+        <Text style={styles.conversationHeader}>
+          {longAbsoluteDate(this.props.item.messageInfo.time).toUpperCase()}
+        </Text>
+      );
+    }
+
     const isYou = this.props.item.messageInfo.creatorID === this.props.userID;
     let containerStyle = null,
-      messageStyle = null,
+      messageStyle = {},
       textStyle = null,
       authorName = null;
     if (isYou) {
       containerStyle = { alignSelf: 'flex-end' };
-      messageStyle = {
-        backgroundColor: `#${this.state.threadInfo.color}`,
-      };
+      messageStyle.backgroundColor = `#${this.state.threadInfo.color}`;
       const darkColor = colorIsDark(this.state.threadInfo.color);
       textStyle = darkColor ? styles.whiteText : styles.blackText;
     } else {
@@ -85,14 +93,27 @@ class Message extends React.PureComponent {
         </Text>
       );
     }
+    messageStyle.borderTopRightRadius =
+      isYou && !this.props.item.startsCluster ? 0 : 8;
+    messageStyle.borderBottomRightRadius =
+      isYou && !this.props.item.endsCluster ? 0 : 8;
+    messageStyle.borderTopLeftRadius =
+      !isYou && !this.props.item.startsCluster ? 0 : 8;
+    messageStyle.borderBottomLeftRadius =
+      !isYou && !this.props.item.endsCluster ? 0 : 8;
+    messageStyle.marginBottom = this.props.item.endsCluster ? 12 : 5;
+
     return (
-      <View style={[styles.container, containerStyle]}>
-        {authorName}
-        <View style={[styles.message, messageStyle]}>
-          <Text
-            numberOfLines={1}
-            style={[styles.text, textStyle]}
-          >{this.props.item.messageInfo.text}</Text>
+      <View>
+        {conversationHeader}
+        <View style={containerStyle}>
+          {authorName}
+          <View style={[styles.message, messageStyle]}>
+            <Text
+              numberOfLines={1}
+              style={[styles.text, textStyle]}
+            >{this.props.item.messageInfo.text}</Text>
+          </View>
         </View>
       </View>
     );
@@ -101,6 +122,12 @@ class Message extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
+  conversationHeader: {
+    color: '#777777',
+    fontSize: 14,
+    paddingBottom: 7,
+    alignSelf: 'center',
+  },
   text: {
     fontSize: 18,
     fontFamily: 'Arial',
@@ -111,15 +138,11 @@ const styles = StyleSheet.create({
   blackText: {
     color: 'black',
   },
-  container: {
-  },
   message: {
-    borderRadius: 8,
     overflow: 'hidden',
     paddingVertical: 6,
     paddingHorizontal: 12,
     backgroundColor: "#DDDDDDBB",
-    marginBottom: 12,
     marginHorizontal: 12,
   },
   authorName: {
