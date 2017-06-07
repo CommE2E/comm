@@ -45,6 +45,7 @@ type Props = {
 type State = {
   textToMeasure: string[],
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+  focusedMessageKey: ?string,
 };
 class InnerMessageList extends React.PureComponent {
 
@@ -74,6 +75,7 @@ class InnerMessageList extends React.PureComponent {
     this.state = {
       textToMeasure,
       listDataWithHeights: null,
+      focusedMessageKey: null,
     };
   }
 
@@ -91,6 +93,7 @@ class InnerMessageList extends React.PureComponent {
       this.setState({
         textToMeasure: [],
         listDataWithHeights: null,
+        focusedMessageKey: null,
       });
       return;
     }
@@ -147,7 +150,23 @@ class InnerMessageList extends React.PureComponent {
   }
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
-    return <Message item={row.item} />;
+    const focused =
+      messageKey(row.item.messageInfo) === this.state.focusedMessageKey;
+    return (
+      <Message
+        item={row.item}
+        focused={focused}
+        onFocus={this.onMessageFocus}
+      />
+    );
+  }
+
+  onMessageFocus = (messageKey: string) => {
+    if (this.state.focusedMessageKey === messageKey) {
+      this.setState({ focusedMessageKey: null });
+    } else {
+      this.setState({ focusedMessageKey: messageKey });
+    }
   }
 
   static keyExtractor(item: ChatMessageItemWithHeight) {
@@ -189,6 +208,7 @@ class InnerMessageList extends React.PureComponent {
           renderItem={this.renderItem}
           keyExtractor={InnerMessageList.keyExtractor}
           getItemLayout={this.getItemLayout}
+          extraData={this.state.focusedMessageKey}
         />
       );
     } else {

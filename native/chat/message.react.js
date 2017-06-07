@@ -7,17 +7,27 @@ import type { ChatMessageItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  LayoutAnimation,
+} from 'react-native';
 import { connect } from 'react-redux';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import Color from 'color';
 
 import { colorIsDark } from 'lib/selectors/thread-selectors';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
+import { messageKey } from 'lib/shared/message-utils';
 
 type Props = {
   item: ChatMessageItemWithHeight,
+  focused: bool,
+  onFocus: (messageKey: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
   userID: ?string,
@@ -31,6 +41,8 @@ class Message extends React.PureComponent {
   state: State;
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    focused: PropTypes.bool.isRequired,
+    onFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     userID: PropTypes.string,
   };
@@ -54,6 +66,9 @@ class Message extends React.PureComponent {
     ) {
       this.setState({ threadInfo: nextProps.threadInfo });
     }
+    if (nextProps.focused !== this.props.focused) {
+      LayoutAnimation.easeInEaseOut();
+    }
   }
 
   static itemHeight(item: ChatMessageItemWithHeight, userID: ?string) {
@@ -66,7 +81,7 @@ class Message extends React.PureComponent {
 
   render() {
     let conversationHeader = null;
-    if (this.props.item.startsConversation) {
+    if (this.props.item.startsConversation || this.props.focused) {
       conversationHeader = (
         <Text style={styles.conversationHeader}>
           {longAbsoluteDate(this.props.item.messageInfo.time).toUpperCase()}
@@ -86,6 +101,7 @@ class Message extends React.PureComponent {
       textStyle = darkColor ? styles.whiteText : styles.blackText;
     } else {
       containerStyle = { alignSelf: 'flex-start' };
+      messageStyle.backgroundColor = "#DDDDDDBB";
       textStyle = styles.blackText;
       authorName = (
         <Text style={styles.authorName}>
@@ -102,13 +118,22 @@ class Message extends React.PureComponent {
     messageStyle.borderBottomLeftRadius =
       !isYou && !this.props.item.endsCluster ? 0 : 8;
     messageStyle.marginBottom = this.props.item.endsCluster ? 12 : 5;
+    if (this.props.focused) {
+      messageStyle.backgroundColor =
+        Color(messageStyle.backgroundColor).darken(0.15).hex();
+    }
 
     return (
       <View>
         {conversationHeader}
         <View style={containerStyle}>
           {authorName}
-          <View style={[styles.message, messageStyle]}>
+          <View
+            style={[styles.message, messageStyle]}
+            onStartShouldSetResponder={this.onStartShouldSetResponder}
+            onResponderGrant={this.onResponderGrant}
+            onResponderTerminationRequest={this.onResponderTerminationRequest}
+          >
             <Text
               numberOfLines={1}
               style={[styles.text, textStyle]}
@@ -118,6 +143,14 @@ class Message extends React.PureComponent {
       </View>
     );
   }
+
+  onStartShouldSetResponder = () => true;
+
+  onResponderGrant = () => {
+    this.props.onFocus(messageKey(this.props.item.messageInfo));
+  }
+
+  onResponderTerminationRequest = () => true;
 
 }
 
@@ -142,7 +175,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: "#DDDDDDBB",
     marginHorizontal: 12,
   },
   authorName: {

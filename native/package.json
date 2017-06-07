@@ -8,6 +8,7 @@
     "devtools": "react-devtools"
   },
   "dependencies": {
+    "color": "^1.0.3",
     "invariant": "^2.2.2",
     "react": "^16.0.0-alpha.12",
     "react-native": "^0.45.0-rc.2",
