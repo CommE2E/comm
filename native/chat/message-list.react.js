@@ -150,6 +150,10 @@ class InnerMessageList extends React.PureComponent {
     return <Message item={row.item} />;
   }
 
+  static keyExtractor(item: ChatMessageItemWithHeight) {
+    return messageKey(item.messageInfo);
+  }
+
   getItemLayout = (
     data: $ReadOnlyArray<ChatMessageItemWithHeight>,
     index: number,
@@ -183,7 +187,7 @@ class InnerMessageList extends React.PureComponent {
           inverted={true}
           data={listDataWithHeights}
           renderItem={this.renderItem}
-          keyExtractor={messageKey}
+          keyExtractor={InnerMessageList.keyExtractor}
           getItemLayout={this.getItemLayout}
         />
       );

@@ -58,6 +58,7 @@ const chatMessageItemPropType = PropTypes.shape({
   startsConversation: PropTypes.bool.isRequired,
   startsCluster: PropTypes.bool.isRequired,
 });
+const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
   (messageStore: MessageStore): ChatMessageItem[] => {
@@ -65,14 +66,31 @@ const baseMessageListData = (threadID: string) => createSelector(
     if (!thread) {
       return [];
     }
-    return thread.messageIDs
+    const messageInfos = thread.messageIDs
       .map((messageID: string) => messageStore.messages[messageID])
-      .filter(x => x)
-      .map((messageInfo: MessageInfo) => ({
+      .filter(x => x);
+    let chatMessageItems = [];
+    let lastMessageInfo = null;
+    for (let messageInfo of messageInfos) {
+      let startsConversation = true;
+      let startsCluster = true;
+      if (
+        lastMessageInfo &&
+        lastMessageInfo.time + msInFiveMinutes > messageInfo.time
+      ) {
+        startsConversation = false;
+        if (lastMessageInfo.creatorID === messageInfo.creatorID) {
+          startsCluster = false;
+        }
+      }
+      chatMessageItems.push({
         messageInfo,
-        startsConversation: false,
-        startsCluster: false,
-      }));
+        startsConversation,
+        startsCluster,
+      });
+      lastMessageInfo = messageInfo;
+    }
+    return chatMessageItems;
   },
 );
 
