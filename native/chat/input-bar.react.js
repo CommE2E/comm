@@ -168,7 +168,8 @@ class InputBar extends React.PureComponent {
         time: result.time,
       };
     } catch (e) {
-      // TODO dispatch an action to remove this message from the store
+      e.localID = messageInfo.localID;
+      e.threadID = messageInfo.threadID;
       throw e;
     }
   }
