@@ -72,11 +72,17 @@ class Message extends React.PureComponent {
   }
 
   static itemHeight(item: ChatMessageItemWithHeight, userID: ?string) {
-    if (item.messageInfo.creatorID === userID) {
-      return 24 + item.textHeight;
-    } else {
-      return 24 + 25 + item.textHeight;
+    let height = 17 + item.textHeight; // for padding, margin, and text
+    if (item.messageInfo.creatorID !== userID && item.startsCluster) {
+      height += 25; // for username
     }
+    if (item.startsConversation) {
+      height += 26; // for time bar
+    }
+    if (item.endsCluster) {
+      height += 7; // extra padding at the end of a cluster
+    }
+    return height;
   }
 
   render() {
@@ -92,17 +98,19 @@ class Message extends React.PureComponent {
     const isYou = this.props.item.messageInfo.creatorID === this.props.userID;
     let containerStyle = null,
       messageStyle = {},
-      textStyle = null,
-      authorName = null;
+      textStyle = {};
     if (isYou) {
       containerStyle = { alignSelf: 'flex-end' };
       messageStyle.backgroundColor = `#${this.state.threadInfo.color}`;
       const darkColor = colorIsDark(this.state.threadInfo.color);
-      textStyle = darkColor ? styles.whiteText : styles.blackText;
+      textStyle.color = darkColor ? 'white' : 'black';
     } else {
       containerStyle = { alignSelf: 'flex-start' };
       messageStyle.backgroundColor = "#DDDDDDBB";
-      textStyle = styles.blackText;
+      textStyle.color = 'black';
+    }
+    let authorName = null;
+    if (!isYou && this.props.item.startsCluster) {
       authorName = (
         <Text style={styles.authorName}>
           {this.props.item.messageInfo.creator}
@@ -122,6 +130,7 @@ class Message extends React.PureComponent {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
+    textStyle.height = this.props.item.textHeight;
 
     return (
       <View>
@@ -160,16 +169,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingBottom: 7,
     alignSelf: 'center',
+    height: 26,
   },
   text: {
     fontSize: 18,
     fontFamily: 'Arial',
-  },
-  whiteText: {
-    color: 'white',
-  },
-  blackText: {
-    color: 'black',
   },
   message: {
     overflow: 'hidden',
@@ -182,6 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingHorizontal: 24,
     paddingVertical: 4,
+    height: 25,
   },
 });
 
