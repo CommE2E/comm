@@ -41,7 +41,7 @@ class ThreadPicker extends React.PureComponent {
     dateString: PropTypes.string.isRequired,
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    username: PropTypes.string.isRequired,
+    username: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 

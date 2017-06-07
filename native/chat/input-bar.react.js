@@ -1,5 +1,10 @@
 // @flow
 
+import type { AppState } from '../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { SendMessageResult } from 'lib/actions/message-actions';
+import type { MessageInfo } from 'lib/types/message-types';
+
 import React from 'react';
 import {
   View,
@@ -11,11 +16,30 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import invariant from 'invariant';
+
+import {
+  includeDispatchActionProps,
+  bindServerCalls,
+} from 'lib/utils/action-utils';
+import {
+  sendMessageActionTypes,
+  sendMessage,
+} from 'lib/actions/message-actions';
+import { getNewLocalID } from 'lib/utils/local-ids';
 
 type Props = {
+  threadID: string,
+  // Redux state
+  username: ?string,
+  userID: ?string,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  sendMessage: (threadID: string, text: string) => Promise<SendMessageResult>,
 };
 type State = {
-  focused: bool,
   inputText: string,
   height: number,
 };
@@ -23,9 +47,15 @@ class InputBar extends React.PureComponent {
 
   props: Props;
   state: State = {
-    focused: false,
     inputText: "",
     height: 0,
+  };
+  static propTypes = {
+    threadID: PropTypes.string.isRequired,
+    username: PropTypes.string,
+    userID: PropTypes.string,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    sendMessage: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
 
@@ -40,7 +70,7 @@ class InputBar extends React.PureComponent {
 
   render() {
     let button = null;
-    if (this.state.focused && this.state.inputText) {
+    if (this.state.inputText) {
       button = (
         <TouchableOpacity
           onPress={this.onSend}
@@ -69,8 +99,6 @@ class InputBar extends React.PureComponent {
             placeholder="Send a message..."
             placeholderTextColor="#888888"
             multiline={true}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
             onContentSizeChange={this.onContentSizeChange}
             onChange={this.onChange}
             style={[styles.textInput, textInputStyle]}
@@ -90,16 +118,6 @@ class InputBar extends React.PureComponent {
     this.setState({ inputText: text });
   }
 
-  onFocus = () => {
-    LayoutAnimation.easeInEaseOut();
-    this.setState({ focused: true });
-  }
-
-  onBlur = () => {
-    LayoutAnimation.easeInEaseOut();
-    this.setState({ focused: false });
-  }
-
   onContentSizeChange = (event) => {
     let height = event.nativeEvent.contentSize.height;
     // iOS doesn't include the margin on this callback
@@ -116,9 +134,43 @@ class InputBar extends React.PureComponent {
     }
   }
 
-
   onSend = () => {
+    const localID = `local${getNewLocalID()}`;
+    const creatorID = this.props.userID;
+    invariant(creatorID, "should be logged in to send a message");
+    const messageInfo = ({
+      localID,
+      threadID: this.props.threadID,
+      text: this.state.inputText,
+      creator: this.props.username,
+      creatorID,
+      time: Date.now(),
+    }: MessageInfo);
+    this.props.dispatchActionPromise(
+      sendMessageActionTypes,
+      this.sendMessageAction(messageInfo),
+      undefined,
+      messageInfo,
+    );
     this.setState({ inputText: "" });
+  }
+
+  async sendMessageAction(messageInfo: MessageInfo) {
+    try {
+      const result = await this.props.sendMessage(
+        messageInfo.threadID,
+        messageInfo.text,
+      );
+      return {
+        localID: messageInfo.localID,
+        serverID: result.id,
+        threadID: messageInfo.threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      // TODO dispatch an action to remove this message from the store
+      throw e;
+    }
   }
 
 }
@@ -155,7 +207,10 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  undefined,
+  (state: AppState) => ({
+    username: state.userInfo && state.userInfo.username,
+    userID: state.userInfo && state.userInfo.id,
+  }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
-  bindServerCalls({ deleteEntry }),
+  bindServerCalls({ sendMessage }),
 )(InputBar);

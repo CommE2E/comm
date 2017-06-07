@@ -39,7 +39,7 @@ $conn->query(
 async_end(array(
   'success' => true,
   'result' => array(
-    'id' => $id,
+    'id' => (string)$id,
     'time' => $time,
   ),
 ));

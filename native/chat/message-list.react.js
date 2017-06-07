@@ -195,6 +195,9 @@ class InnerMessageList extends React.PureComponent {
       );
     }
 
+    const threadID = this.props.navigation.state.params.threadInfo.id;
+    const inputBar = <InputBar threadID={threadID} />;
+
     const behavior = Platform.OS === "android" ? undefined : "padding";
     const keyboardVerticalOffset = Platform.OS === "ios" ? 64 : 0;
     return (
@@ -207,7 +210,7 @@ class InnerMessageList extends React.PureComponent {
         <View style={styles.flatListContainer}>
           {flatList}
         </View>
-        <InputBar />
+        {inputBar}
       </KeyboardAvoidingView>
     );
   }
