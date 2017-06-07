@@ -19,13 +19,11 @@ export type ChatThreadItem = {
   mostRecentMessageInfo?: MessageInfo,
   lastUpdatedTime: number,
 };
-
 const chatThreadItemPropType = PropTypes.shape({
   threadInfo: threadInfoPropType.isRequired,
   mostRecentMessageInfo: messageInfoPropType,
   lastUpdatedTime: PropTypes.number.isRequired,
 });
-
 const chatListData = createSelector(
   (state: BaseAppState) => state.threadInfos,
   (state: BaseAppState) => state.messageStore,
@@ -50,16 +48,31 @@ const chatListData = createSelector(
   )(threadInfos),
 );
 
+export type ChatMessageItem = {
+  messageInfo: MessageInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+};
+const chatMessageItemPropType = PropTypes.shape({
+  messageInfo: messageInfoPropType.isRequired,
+  startsConversation: PropTypes.bool.isRequired,
+  startsCluster: PropTypes.bool.isRequired,
+});
 const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
-  (messageStore: MessageStore): MessageInfo[] => {
+  (messageStore: MessageStore): ChatMessageItem[] => {
     const thread = messageStore.threads[threadID];
     if (!thread) {
       return [];
     }
     return thread.messageIDs
       .map((messageID: string) => messageStore.messages[messageID])
-      .filter(x => x);
+      .filter(x => x)
+      .map((messageInfo: MessageInfo) => ({
+        messageInfo,
+        startsConversation: false,
+        startsCluster: false,
+      }));
   },
 );
 
@@ -68,5 +81,6 @@ const messageListData = _memoize(baseMessageListData);
 export {
   chatThreadItemPropType,
   chatListData,
+  chatMessageItemPropType,
   messageListData,
 };

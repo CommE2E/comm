@@ -1,10 +1,10 @@
 // @flow
 
-import { messageInfoPropType } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
-import type { MessageInfoWithHeight } from './message-list.react';
+import type { ChatMessageItemWithHeight } from './message-list.react';
+import { chatMessageItemPropType } from '../selectors/chat-selectors';
 
 import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 import { colorIsDark } from 'lib/selectors/thread-selectors';
 
 type Props = {
-  messageInfo: MessageInfoWithHeight,
+  item: ChatMessageItemWithHeight,
   // Redux state
   threadInfo: ThreadInfo,
   userID: ?string,
@@ -29,7 +29,7 @@ class Message extends React.PureComponent {
   props: Props;
   state: State;
   static propTypes = {
-    messageInfo: messageInfoPropType.isRequired,
+    item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     userID: PropTypes.string,
   };
@@ -55,16 +55,16 @@ class Message extends React.PureComponent {
     }
   }
 
-  static itemHeight(messageInfo: MessageInfoWithHeight, userID: ?string) {
-    if (messageInfo.creatorID === userID) {
-      return 24 + messageInfo.textHeight;
+  static itemHeight(item: ChatMessageItemWithHeight, userID: ?string) {
+    if (item.messageInfo.creatorID === userID) {
+      return 24 + item.textHeight;
     } else {
-      return 24 + 25 + messageInfo.textHeight;
+      return 24 + 25 + item.textHeight;
     }
   }
 
   render() {
-    const isYou = this.props.messageInfo.creatorID === this.props.userID;
+    const isYou = this.props.item.messageInfo.creatorID === this.props.userID;
     let containerStyle = null,
       messageStyle = null,
       textStyle = null,
@@ -81,7 +81,7 @@ class Message extends React.PureComponent {
       textStyle = styles.blackText;
       authorName = (
         <Text style={styles.authorName}>
-          {this.props.messageInfo.creator}
+          {this.props.item.messageInfo.creator}
         </Text>
       );
     }
@@ -92,7 +92,7 @@ class Message extends React.PureComponent {
           <Text
             numberOfLines={1}
             style={[styles.text, textStyle]}
-          >{this.props.messageInfo.text}</Text>
+          >{this.props.item.messageInfo.text}</Text>
         </View>
       </View>
     );
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState, ownProps: { messageInfo: MessageInfoWithHeight }) => ({
-    threadInfo: state.threadInfos[ownProps.messageInfo.threadID],
+  (state: AppState, ownProps: { item: ChatMessageItemWithHeight }) => ({
+    threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
     userID: state.userInfo && state.userInfo.id,
   }),
 )(Message);

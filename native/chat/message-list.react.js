@@ -7,8 +7,8 @@ import type {
   NavigationAction,
 } from 'react-navigation';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { MessageInfo } from 'lib/types/message-types';
-import { messageInfoPropType } from 'lib/types/message-types';
+import type { ChatMessageItem } from '../selectors/chat-selectors';
+import { chatMessageItemPropType } from '../selectors/chat-selectors';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -34,16 +34,17 @@ import InputBar from './input-bar.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
-export type MessageInfoWithHeight = MessageInfo & { textHeight: number };
+export type ChatMessageItemWithHeight = ChatMessageItem
+  & { textHeight: number };
 type Props = {
   navigation: NavProp,
   // Redux state
-  messageListData: $ReadOnlyArray<MessageInfo>,
+  messageListData: $ReadOnlyArray<ChatMessageItem>,
   userID: ?string,
 };
 type State = {
   textToMeasure: string[],
-  listDataWithHeights: ?$ReadOnlyArray<MessageInfoWithHeight>,
+  listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 };
 class InnerMessageList extends React.PureComponent {
 
@@ -57,7 +58,7 @@ class InnerMessageList extends React.PureComponent {
         }).isRequired,
       }).isRequired,
     }).isRequired,
-    messageListData: PropTypes.arrayOf(messageInfoPropType).isRequired,
+    messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     userID: PropTypes.string,
   };
   static navigationOptions = ({ navigation }) => ({
@@ -76,8 +77,8 @@ class InnerMessageList extends React.PureComponent {
     };
   }
 
-  static textToMeasureFromListData(listData: $ReadOnlyArray<MessageInfo>) {
-    return listData.map((messageInfo: MessageInfo) => messageInfo.text);
+  static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
+    return listData.map((item: ChatMessageItem) => item.messageInfo.text);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -131,23 +132,26 @@ class InnerMessageList extends React.PureComponent {
 
   }
 
-  mergeHeightsIntoListData(listData: $ReadOnlyArray<MessageInfo>) {
+  mergeHeightsIntoListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textHeights = this.textHeights;
     invariant(textHeights, "textHeights should be set");
-    const listDataWithHeights = listData.map((item: MessageInfo) => {
-      const textHeight = textHeights[item.text];
-      invariant(textHeight, `height for ${messageKey(item)} should be set`);
+    const listDataWithHeights = listData.map((item: ChatMessageItem) => {
+      const textHeight = textHeights[item.messageInfo.text];
+      invariant(
+        textHeight,
+        `height for ${messageKey(item.messageInfo)} should be set`,
+      );
       return { ...item, textHeight };
     });
     this.setState({ listDataWithHeights });
   }
 
-  renderItem = (row: { item: MessageInfoWithHeight }) => {
-    return <Message messageInfo={row.item} />;
+  renderItem = (row: { item: ChatMessageItemWithHeight }) => {
+    return <Message item={row.item} />;
   }
 
   getItemLayout = (
-    data: $ReadOnlyArray<MessageInfoWithHeight>,
+    data: $ReadOnlyArray<ChatMessageItemWithHeight>,
     index: number,
   ) => {
     const offset = this.heightOfItems(data.filter((_, i) => i < index));
@@ -156,10 +160,10 @@ class InnerMessageList extends React.PureComponent {
     return { length, offset, index };
   }
 
-  heightOfItems(data: $ReadOnlyArray<MessageInfoWithHeight>): number {
+  heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
     return _sum(data.map(
-      (messageInfo: MessageInfoWithHeight) =>
-        Message.itemHeight(messageInfo, this.props.userID),
+      (item: ChatMessageItemWithHeight) =>
+        Message.itemHeight(item, this.props.userID),
     ));
   }
 
