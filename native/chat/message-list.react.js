@@ -9,6 +9,7 @@ import type {
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageItem } from '../selectors/chat-selectors';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -190,6 +191,11 @@ class InnerMessageList extends React.PureComponent {
     ));
   }
 
+  static ListFooterComponent(props: {}) {
+    // Actually header, it's just that our FlatList is inverted
+    return <View style={styles.header} />;
+  }
+
   render() {
     const textHeightMeasurer = (
       <TextHeightMeasurer
@@ -208,6 +214,8 @@ class InnerMessageList extends React.PureComponent {
           renderItem={this.renderItem}
           keyExtractor={InnerMessageList.keyExtractor}
           getItemLayout={this.getItemLayout}
+          onViewableItemsChanged={this.onViewableItemsChanged}
+          ListFooterComponent={InnerMessageList.ListFooterComponent}
           extraData={this.state.focusedMessageKey}
         />
       );
@@ -256,6 +264,25 @@ class InnerMessageList extends React.PureComponent {
     }
   }
 
+  onViewableItemsChanged = (info: {
+    viewableItems: ViewToken[],
+    changed: ViewToken[],
+  }) => {
+    if (!this.state.focusedMessageKey) {
+      return;
+    }
+    let focusedMessageVisible = false;
+    for (let token of info.viewableItems) {
+      if (messageKey(token.item.messageInfo) === this.state.focusedMessageKey) {
+        focusedMessageVisible = true;
+        break;
+      }
+    }
+    if (!focusedMessageVisible) {
+      this.setState({ focusedMessageKey: null });
+    }
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -277,6 +304,9 @@ const styles = StyleSheet.create({
   },
   loadingIndicatorContainer: {
     flex: 1,
+  },
+  header: {
+    height: 12,
   },
 });
 
