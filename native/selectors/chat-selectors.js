@@ -7,11 +7,12 @@ import type { MessageInfo, MessageStore } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
+import PropTypes from 'prop-types';
+import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _map from 'lodash/fp/map';
 import _orderBy from 'lodash/fp/orderBy';
-import PropTypes from 'prop-types';
 import _memoize from 'lodash/memoize';
 
 export type ChatThreadItem = {
@@ -48,18 +49,34 @@ const chatListData = createSelector(
   )(threadInfos),
 );
 
-export type ChatMessageItem = {
+type ChatMessageInfoItem = {
+  itemType: "message",
   messageInfo: MessageInfo,
   startsConversation: bool,
   startsCluster: bool,
   endsCluster: bool,
 };
-const chatMessageItemPropType = PropTypes.shape({
-  messageInfo: messageInfoPropType.isRequired,
-  startsConversation: PropTypes.bool.isRequired,
-  startsCluster: PropTypes.bool.isRequired,
-  endsCluster: PropTypes.bool.isRequired,
-});
+export type ChatMessageItem =
+  { itemType: "loader" } |
+  {
+    itemType: "message",
+    messageInfo: MessageInfo,
+    startsConversation: bool,
+    startsCluster: bool,
+    endsCluster: bool,
+  };
+const chatMessageItemPropType = PropTypes.oneOfType([
+  PropTypes.shape({
+    itemType: PropTypes.oneOf(["loader"]),
+  }),
+  PropTypes.shape({
+    itemType: PropTypes.oneOf(["message"]),
+    messageInfo: messageInfoPropType.isRequired,
+    startsConversation: PropTypes.bool.isRequired,
+    startsCluster: PropTypes.bool.isRequired,
+    endsCluster: PropTypes.bool.isRequired,
+  }),
+]);
 const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
@@ -71,7 +88,7 @@ const baseMessageListData = (threadID: string) => createSelector(
     const messageInfos = thread.messageIDs
       .map((messageID: string) => messageStore.messages[messageID])
       .filter(x => x);
-    let chatMessageItems = [];
+    const chatMessageItems = [];
     let lastMessageInfo = null;
     for (let i = messageInfos.length - 1; i >= 0; i--) {
       const messageInfo = messageInfos[i];
@@ -87,9 +104,12 @@ const baseMessageListData = (threadID: string) => createSelector(
         }
       }
       if (startsCluster && chatMessageItems.length > 0) {
-        chatMessageItems[chatMessageItems.length - 1].endsCluster = true;
+        const lastMessageItem = chatMessageItems[chatMessageItems.length - 1];
+        invariant(lastMessageItem.itemType === "message", "should be message");
+        lastMessageItem.endsCluster = true;
       }
       chatMessageItems.push({
+        itemType: "message",
         messageInfo,
         startsConversation,
         startsCluster,
@@ -98,12 +118,17 @@ const baseMessageListData = (threadID: string) => createSelector(
       lastMessageInfo = messageInfo;
     }
     if (chatMessageItems.length > 0) {
-      chatMessageItems[chatMessageItems.length - 1].endsCluster = true;
+      const lastMessageItem = chatMessageItems[chatMessageItems.length - 1];
+      invariant(lastMessageItem.itemType === "message", "should be message");
+      lastMessageItem.endsCluster = true;
     }
-    return chatMessageItems.reverse();
+    chatMessageItems.reverse();
+    if (thread.startReached) {
+      return chatMessageItems;
+    }
+    return [...chatMessageItems, ({ itemType: "loader" }: ChatMessageItem)];
   },
 );
-
 const messageListData = _memoize(baseMessageListData);
 
 export {

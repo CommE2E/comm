@@ -5,9 +5,9 @@ require_once('message_lib.php');
 
 async_start();
 
-$input = isset($_GET['input']) ? $_GET['input'] : null;
-$number_per_thread = isset($_GET['number_per_thread'])
-  ? (int)$_GET['number_per_thread']
+$input = isset($_POST['input']) ? $_POST['input'] : null;
+$number_per_thread = isset($_POST['number_per_thread'])
+  ? (int)$_POST['number_per_thread']
   : DEFAULT_NUMBER_PER_THREAD;
 
 list($message_infos, $truncation_status) =

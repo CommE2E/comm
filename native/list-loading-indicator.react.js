@@ -1,10 +1,7 @@
 // @flow
 
 import React from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 class ListLoadingIndicator extends React.PureComponent {
 

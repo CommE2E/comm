@@ -10,6 +10,9 @@ import { threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageItem } from '../selectors/chat-selectors';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { MessageInfo } from 'lib/types/message-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { PageMessagesResult } from 'lib/actions/message-actions';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -25,6 +28,7 @@ import { InvertibleFlatList } from 'react-native-invertible-flat-list';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 import _difference from 'lodash/fp/difference';
+import _find from 'lodash/fp/find';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -32,16 +36,43 @@ import { messageListData } from '../selectors/chat-selectors';
 import Message from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import InputBar from './input-bar.react';
+import ListLoadingIndicator from '../list-loading-indicator.react';
+import {
+  includeDispatchActionProps,
+  bindServerCalls,
+} from 'lib/utils/action-utils';
+import {
+  fetchMessagesActionTypes,
+  fetchMessages,
+} from 'lib/actions/message-actions';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
-export type ChatMessageItemWithHeight = ChatMessageItem
-  & { textHeight: number };
+export type ChatMessageInfoItemWithHeight = {
+  itemType: "message",
+  messageInfo: MessageInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+  endsCluster: bool,
+  textHeight: number,
+};
+type ChatMessageItemWithHeight =
+  { itemType: "loader" } |
+  ChatMessageInfoItemWithHeight;
+
 type Props = {
   navigation: NavProp,
   // Redux state
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   userID: ?string,
+  startReached: bool,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  fetchMessages: (
+    threadID: string,
+    beforeMessageID: string,
+  ) => Promise<PageMessagesResult>,
 };
 type State = {
   textToMeasure: string[],
@@ -62,11 +93,15 @@ class InnerMessageList extends React.PureComponent {
     }).isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     userID: PropTypes.string,
+    startReached: PropTypes.bool.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    fetchMessages: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
   });
   textHeights: ?{ [text: string]: number } = null;
+  loadingFromScroll = false;
 
   constructor(props: Props) {
     super(props);
@@ -81,7 +116,14 @@ class InnerMessageList extends React.PureComponent {
   }
 
   static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
-    return listData.map((item: ChatMessageItem) => item.messageInfo.text);
+    const textToMeasure = [];
+    for (let item of listData) {
+      if (item.itemType !== "message") {
+        continue;
+      }
+      textToMeasure.push(item.messageInfo.text);
+    }
+    return textToMeasure;
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -140,17 +182,23 @@ class InnerMessageList extends React.PureComponent {
     const textHeights = this.textHeights;
     invariant(textHeights, "textHeights should be set");
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
+      if (item.itemType !== "message") {
+        return item;
+      }
       const textHeight = textHeights[item.messageInfo.text];
       invariant(
         textHeight,
         `height for ${messageKey(item.messageInfo)} should be set`,
       );
-      return { ...item, textHeight };
+      return ({ ...item, textHeight }: ChatMessageInfoItemWithHeight);
     });
     this.setState({ listDataWithHeights });
   }
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
+    if (row.item.itemType === "loader") {
+      return <ListLoadingIndicator />;
+    }
     const focused =
       messageKey(row.item.messageInfo) === this.state.focusedMessageKey;
     return (
@@ -171,6 +219,9 @@ class InnerMessageList extends React.PureComponent {
   }
 
   static keyExtractor(item: ChatMessageItemWithHeight) {
+    if (item.itemType === "loader") {
+      return "loader";
+    }
     return messageKey(item.messageInfo);
   }
 
@@ -180,15 +231,19 @@ class InnerMessageList extends React.PureComponent {
   ) => {
     const offset = this.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];
-    const length = item ? Message.itemHeight(item, this.props.userID) : 0;
+    const length = item ? this.itemHeight(item) : 0;
     return { length, offset, index };
   }
 
+  itemHeight = (item: ChatMessageItemWithHeight): number => {
+    if (item.itemType === "loader") {
+      return 56;
+    }
+    return Message.itemHeight(item, this.props.userID);
+  }
+
   heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
-    return _sum(data.map(
-      (item: ChatMessageItemWithHeight) =>
-        Message.itemHeight(item, this.props.userID),
-    ));
+    return _sum(data.map(this.itemHeight));
   }
 
   static ListFooterComponent(props: {}) {
@@ -207,6 +262,11 @@ class InnerMessageList extends React.PureComponent {
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
+      // We add a small padding at the top of the list if the loading spinner
+      // isn't there
+      const footer = this.props.startReached
+        ? InnerMessageList.ListFooterComponent
+        : undefined;
       flatList = (
         <InvertibleFlatList
           inverted={true}
@@ -215,7 +275,7 @@ class InnerMessageList extends React.PureComponent {
           keyExtractor={InnerMessageList.keyExtractor}
           getItemLayout={this.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
-          ListFooterComponent={InnerMessageList.ListFooterComponent}
+          ListFooterComponent={footer}
           extraData={this.state.focusedMessageKey}
         />
       );
@@ -268,19 +328,46 @@ class InnerMessageList extends React.PureComponent {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
-    if (!this.state.focusedMessageKey) {
-      return;
-    }
-    let focusedMessageVisible = false;
-    for (let token of info.viewableItems) {
-      if (messageKey(token.item.messageInfo) === this.state.focusedMessageKey) {
-        focusedMessageVisible = true;
-        break;
+    if (this.state.focusedMessageKey) {
+      let focusedMessageVisible = false;
+      for (let token of info.viewableItems) {
+        if (messageKey(token.item.messageInfo) === this.state.focusedMessageKey) {
+          focusedMessageVisible = true;
+          break;
+        }
+      }
+      if (!focusedMessageVisible) {
+        this.setState({ focusedMessageKey: null });
       }
     }
-    if (!focusedMessageVisible) {
-      this.setState({ focusedMessageKey: null });
+
+    const loader = _find({ key: "loader" })(info.viewableItems);
+    if (!loader || this.loadingFromScroll) {
+      return;
     }
+
+    const oldestMessageServerID = this.oldestMessageServerID();
+    if (oldestMessageServerID) {
+      this.loadingFromScroll = true;
+      const threadID = this.props.navigation.state.params.threadInfo.id;
+      this.props.dispatchActionPromise(
+        fetchMessagesActionTypes,
+        this.props.fetchMessages(
+          threadID,
+          oldestMessageServerID,
+        ),
+      );
+    }
+  }
+
+  oldestMessageServerID(): ?string {
+    const data = this.props.messageListData;
+    for (let i = data.length - 1; i >= 0; i--) {
+      if (data[i].itemType === "message" && data[i].messageInfo.id) {
+        return data[i].messageInfo.id;
+      }
+    }
+    return null;
   }
 
 }
@@ -312,11 +399,17 @@ const styles = StyleSheet.create({
 
 const MessageListRouteName = 'MessageList';
 const MessageList = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => ({
-    messageListData: messageListData
-      (ownProps.navigation.state.params.threadInfo.id)(state),
-    userID: state.userInfo && state.userInfo.id,
-  }),
+  (state: AppState, ownProps: { navigation: NavProp }) => {
+    const threadID = ownProps.navigation.state.params.threadInfo.id;
+    return {
+      messageListData: messageListData(threadID)(state),
+      userID: state.userInfo && state.userInfo.id,
+      startReached: !!(state.messageStore.threads[threadID] &&
+        state.messageStore.threads[threadID].startReached),
+    };
+  },
+  includeDispatchActionProps({ dispatchActionPromise: true }),
+  bindServerCalls({ fetchMessages }),
 )(InnerMessageList);
 
 export {

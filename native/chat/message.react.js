@@ -3,7 +3,7 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
-import type { ChatMessageItemWithHeight } from './message-list.react';
+import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 
 import React from 'react';
@@ -25,7 +25,7 @@ import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { messageKey } from 'lib/shared/message-utils';
 
 type Props = {
-  item: ChatMessageItemWithHeight,
+  item: ChatMessageInfoItemWithHeight,
   focused: bool,
   onFocus: (messageKey: string) => void,
   // Redux state
@@ -71,7 +71,7 @@ class Message extends React.PureComponent {
     }
   }
 
-  static itemHeight(item: ChatMessageItemWithHeight, userID: ?string) {
+  static itemHeight(item: ChatMessageInfoItemWithHeight, userID: ?string) {
     let height = 17 + item.textHeight; // for padding, margin, and text
     if (item.messageInfo.creatorID !== userID && item.startsCluster) {
       height += 25; // for username
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState, ownProps: { item: ChatMessageItemWithHeight }) => ({
+  (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => ({
     threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
     userID: state.userInfo && state.userInfo.id,
   }),

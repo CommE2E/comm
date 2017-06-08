@@ -86,7 +86,7 @@ SQL;
   while ($row = $row_result->fetch_assoc()) {
     $row['time'] = (int)$row['time'];
     $messages[] = $row;
-    if (isset($thread_to_message_count[$row['threadID']])) {
+    if (!isset($thread_to_message_count[$row['threadID']])) {
       $thread_to_message_count[$row['threadID']] = 1;
     } else {
       $thread_to_message_count[$row['threadID']]++;
@@ -95,7 +95,7 @@ SQL;
 
   $truncation_status = array();
   foreach ($thread_to_message_count as $thread_id => $message_count) {
-    $truncation_status[$thread_id] = $message_count < $number_per_thread
+    $truncation_status[$thread_id] = $message_count < $int_number_per_thread
       ? TRUNCATION_EXHAUSTIVE
       : TRUNCATION_TRUNCATED;
   }

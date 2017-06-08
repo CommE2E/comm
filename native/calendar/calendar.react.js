@@ -55,7 +55,7 @@ import { contentVerticalOffset, windowHeight } from '../dimensions';
 import { calendarListData } from '../selectors/calendar-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
-import ListLoadingIndicator from './list-loading-indicator.react';
+import ListLoadingIndicator from '../list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
