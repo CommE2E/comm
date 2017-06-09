@@ -51,7 +51,12 @@ export type NavInfo = BaseNavInfo & {
 
 export type Action = BaseAction |
   { type: "HANDLE_URL", payload: string } |
-  { type: "NAVIGATE_TO_APP", payload: null };
+  { type: "NAVIGATE_TO_APP", payload: null } |
+  {
+    type: "Navigation/NAVIGATE",
+    routeName: "MessageList",
+    params: { threadInfo: ThreadInfo },
+  };
 
 const AppNavigator = TabNavigator(
   {

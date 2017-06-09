@@ -30,7 +30,6 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 
 import { RootNavigator } from './navigation-setup';
@@ -39,6 +38,7 @@ import {
   resolveInvalidatedCookie,
   getNativeCookie,
 } from './account/native-credentials';
+import { pingNativeStartingPayload } from './selectors/ping-selectors';
 
 // We have transform-remove-console in .babelrc, but it doesn't work (RN#10412)
 if (!__DEV__) {
@@ -219,7 +219,7 @@ const ConnectedAppWithNavigationState = connect(
     cookie: state.cookie,
     navigationState: state.navInfo.navigationState,
     loggedIn: !!state.userInfo,
-    pingStartingPayload: pingStartingPayload(state),
+    pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),
   includeDispatchActionProps({

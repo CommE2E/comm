@@ -87,6 +87,24 @@ function reducer(state: AppState, action: Action) {
   if (action.type === "HANDLE_URL" || action.type === "NAVIGATE_TO_APP") {
     return state;
   }
+  if (
+    action.type === "Navigation/NAVIGATE" &&
+    action.routeName === "MessageList"
+  ) {
+    return {
+      ...state,
+      messageStore: {
+        ...state.messageStore,
+        threads: {
+          ...state.messageStore.threads,
+          [action.params.threadInfo.id]: {
+            ...state.messageStore.threads[action.params.threadInfo.id],
+            lastNavigatedTo: Date.now(),
+          },
+        },
+      },
+    };
+  }
   return baseReducer(state, action);
 }
 

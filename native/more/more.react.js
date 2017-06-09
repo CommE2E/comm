@@ -21,13 +21,13 @@ import {
 } from 'lib/utils/action-utils';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
   getNativeSharedWebCredentials,
   deleteNativeCredentialsFor,
 } from '../account/native-credentials';
+import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 
 class More extends React.PureComponent {
 
@@ -182,7 +182,7 @@ export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
     username: state.userInfo && state.userInfo.username,
-    pingStartingPayload: pingStartingPayload(state),
+    pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),

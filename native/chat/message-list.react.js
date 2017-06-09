@@ -331,7 +331,10 @@ class InnerMessageList extends React.PureComponent {
     if (this.state.focusedMessageKey) {
       let focusedMessageVisible = false;
       for (let token of info.viewableItems) {
-        if (messageKey(token.item.messageInfo) === this.state.focusedMessageKey) {
+        if (
+          token.item.itemType === "message" &&
+          messageKey(token.item.messageInfo) === this.state.focusedMessageKey
+        ) {
           focusedMessageVisible = true;
           break;
         }

@@ -42,7 +42,6 @@ import {
   bindCookieAndUtilsIntoServerCall,
 } from 'lib/utils/action-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 
 import { windowHeight } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
@@ -50,6 +49,7 @@ import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { getNativeCookie, setNativeCookie } from './native-credentials';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -730,7 +730,7 @@ const LoggedOutModal = connect(
     cookie: state.cookie,
     loggedIn: !!state.userInfo,
     isForeground: isForegroundSelector(state),
-    pingStartingPayload: pingStartingPayload(state),
+    pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),
   includeDispatchActionProps({
