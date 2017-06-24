@@ -33,13 +33,9 @@ const calendarListData = createSelector(
     loggedIn: bool,
     daysToEntries: {[dayString: string]: EntryInfo[]},
   ) => {
-    if (!loggedIn) {
+    if (!loggedIn || daysToEntries[dateString(new Date())] === undefined) {
       return null;
     }
-    invariant(
-      daysToEntries[dateString(new Date())] !== undefined,
-      "today should have an entry in currentDaysToEntries on native",
-    );
     const items: CalendarItem[] = [{ itemType: "loader", key: "TopLoader" }];
     for (let dayString in daysToEntries) {
       items.push({ itemType: "header", dateString: dayString });
