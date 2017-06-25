@@ -188,6 +188,6 @@ export default connect(
     currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ subscribe, fetchEntries }),
 )(TypeaheadOptionButtons);

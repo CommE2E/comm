@@ -494,7 +494,7 @@ export default connect(
       resendVerificationEmailLoadingStatusSelector(state) === "loading",
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({
     deleteAccount,
     changeUserSettings,

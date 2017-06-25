@@ -295,5 +295,5 @@ export default connect(
     username: state.userInfo && state.userInfo.username,
     loggedIn: !!state.userInfo,
   }),
-  includeDispatchActionProps({ dispatchActionPayload: true }),
+  includeDispatchActionProps,
 )(Day);

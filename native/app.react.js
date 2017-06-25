@@ -222,10 +222,7 @@ const ConnectedAppWithNavigationState = connect(
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
   bindServerCalls({ ping }),
 )(AppWithNavigationState);
 

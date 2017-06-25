@@ -471,9 +471,6 @@ export default connect(
     loggedIn: !!state.userInfo,
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
   bindServerCalls({ saveEntry, deleteEntry }),
 )(Entry);

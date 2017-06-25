@@ -499,10 +499,7 @@ const VerificationModal = connect(
     cookie: state.cookie,
     isForeground: isForegroundSelector(state),
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
   bindServerCalls({ handleVerificationCode }),
 )(InnerVerificationModal);
 

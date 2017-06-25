@@ -412,6 +412,6 @@ export default connect(
     cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ register }),
 )(RegisterPanel);

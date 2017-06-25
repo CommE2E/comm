@@ -274,6 +274,6 @@ export default connect(
     entryLoadingStatus: entryLoadingStatusSelector(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ fetchEntries, fetchRevisionsForEntry }),
 )(HistoryModal);

@@ -733,10 +733,7 @@ const LoggedOutModal = connect(
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
 )(InnerLoggedOutModal);
 
 export {

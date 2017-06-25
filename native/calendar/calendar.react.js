@@ -896,7 +896,7 @@ const Calendar = connect(
     simpleNavID: simpleNavID(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ fetchEntriesWithRange }),
 )(InnerCalendar);
 

@@ -209,6 +209,6 @@ export default connect(
     currentNavID: currentNavID(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ logOut }),
 )(AccountBar);

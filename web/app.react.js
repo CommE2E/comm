@@ -354,9 +354,6 @@ export default connect(
     currentAsOf: state.messageStore.currentAsOf,
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
   bindServerCalls({ fetchEntries, ping }),
 )(App);

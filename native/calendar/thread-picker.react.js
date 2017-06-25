@@ -179,5 +179,5 @@ export default connect(
     onScreenThreadInfos: onScreenThreadInfos(state),
     username: state.userInfo && state.userInfo.username,
   }),
-  includeDispatchActionProps({ dispatchActionPayload: true }),
+  includeDispatchActionProps,
 )(ThreadPicker);

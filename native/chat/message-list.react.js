@@ -419,7 +419,7 @@ const MessageList = connect(
       cookie: state.cookie,
     };
   },
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ fetchMessages }),
 )(InnerMessageList);
 

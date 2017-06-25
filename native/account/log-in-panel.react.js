@@ -327,6 +327,6 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ logInAndFetchInitialData }),
 )(LogInPanel);

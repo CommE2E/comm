@@ -213,6 +213,6 @@ export default connect(
     userID: state.userInfo && state.userInfo.id,
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ sendMessage }),
 )(InputBar);

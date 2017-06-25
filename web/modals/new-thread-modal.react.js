@@ -430,6 +430,6 @@ export default connect(
     inputDisabled: loadingStatusSelector(state) === "loading",
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ newThread }),
 )(NewThreadModal);

@@ -548,9 +548,6 @@ export default connect(
     nextSessionID: nextSessionID(state),
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({
-    dispatchActionPayload: true,
-    dispatchActionPromise: true,
-  }),
+  includeDispatchActionProps,
   bindServerCalls({ saveEntry, deleteEntry }),
 )(Entry);

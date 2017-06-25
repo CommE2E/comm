@@ -316,6 +316,6 @@ export default connect(
       cookie: state.cookie,
     };
   },
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ authThread }),
 )(TypeaheadThreadOption);

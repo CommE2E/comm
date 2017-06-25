@@ -701,6 +701,6 @@ export default connect(
       changeThreadSettingsLoadingStatusSelector(state) === "loading",
     cookie: state.cookie,
   }),
-  includeDispatchActionProps({ dispatchActionPromise: true }),
+  includeDispatchActionProps,
   bindServerCalls({ deleteThread, changeThreadSettings }),
 )(ThreadSettingsModal);
