@@ -49,7 +49,7 @@ const chatListData = createSelector(
   )(threadInfos),
 );
 
-type ChatMessageInfoItem = {
+export type ChatMessageInfoItem = {
   itemType: "message",
   messageInfo: MessageInfo,
   startsConversation: bool,
@@ -58,19 +58,13 @@ type ChatMessageInfoItem = {
 };
 export type ChatMessageItem =
   { itemType: "loader" } |
-  {
-    itemType: "message",
-    messageInfo: MessageInfo,
-    startsConversation: bool,
-    startsCluster: bool,
-    endsCluster: bool,
-  };
+  ChatMessageInfoItem;
 const chatMessageItemPropType = PropTypes.oneOfType([
   PropTypes.shape({
-    itemType: PropTypes.oneOf(["loader"]),
+    itemType: PropTypes.oneOf(["loader"]).isRequired,
   }),
   PropTypes.shape({
-    itemType: PropTypes.oneOf(["message"]),
+    itemType: PropTypes.oneOf(["message"]).isRequired,
     messageInfo: messageInfoPropType.isRequired,
     startsConversation: PropTypes.bool.isRequired,
     startsCluster: PropTypes.bool.isRequired,

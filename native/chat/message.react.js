@@ -24,6 +24,23 @@ import { colorIsDark } from 'lib/selectors/thread-selectors';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { messageKey } from 'lib/shared/message-utils';
 
+function messageItemHeight(
+  item: ChatMessageInfoItemWithHeight,
+  userID: ?string,
+) {
+  let height = 17 + item.textHeight; // for padding, margin, and text
+  if (item.messageInfo.creatorID !== userID && item.startsCluster) {
+    height += 25; // for username
+  }
+  if (item.startsConversation) {
+    height += 26; // for time bar
+  }
+  if (item.endsCluster) {
+    height += 7; // extra padding at the end of a cluster
+  }
+  return height;
+}
+
 type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
@@ -35,7 +52,7 @@ type Props = {
 type State = {
   threadInfo: ThreadInfo,
 };
-class Message extends React.PureComponent {
+class InnerMessage extends React.PureComponent {
 
   props: Props;
   state: State;
@@ -69,20 +86,6 @@ class Message extends React.PureComponent {
     if (nextProps.focused !== this.props.focused) {
       LayoutAnimation.easeInEaseOut();
     }
-  }
-
-  static itemHeight(item: ChatMessageInfoItemWithHeight, userID: ?string) {
-    let height = 17 + item.textHeight; // for padding, margin, and text
-    if (item.messageInfo.creatorID !== userID && item.startsCluster) {
-      height += 25; // for username
-    }
-    if (item.startsConversation) {
-      height += 26; // for time bar
-    }
-    if (item.endsCluster) {
-      height += 7; // extra padding at the end of a cluster
-    }
-    return height;
   }
 
   render() {
@@ -190,9 +193,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
+const Message = connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => ({
     threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
     userID: state.userInfo && state.userInfo.id,
   }),
-)(Message);
+)(InnerMessage);
+
+export {
+  Message,
+  messageItemHeight,
+};

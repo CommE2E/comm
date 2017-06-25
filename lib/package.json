@@ -2,7 +2,7 @@
   "name": "lib",
   "version": "0.0.1",
   "devDependencies": {
-    "flow-bin": "^0.44.0"
+    "flow-bin": "^0.48.0"
   },
   "scripts": {
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
@@ -14,9 +14,9 @@
     "isomorphic-fetch": "^2.2.1",
     "jquery-param": "^0.2.0",
     "lodash": "^4.17.4",
-    "prop-types": "^15.5.8",
-    "reselect": "^3.0.0",
+    "prop-types": "^15.5.10",
+    "reselect": "^3.0.1",
     "tokenize-text": "^1.1.3",
-    "whatwg-fetch": "^2.0.2"
+    "whatwg-fetch": "^2.0.3"
   }
 }

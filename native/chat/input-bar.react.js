@@ -211,6 +211,7 @@ export default connect(
   (state: AppState) => ({
     username: state.userInfo && state.userInfo.username,
     userID: state.userInfo && state.userInfo.id,
+    cookie: state.cookie,
   }),
   includeDispatchActionProps({ dispatchActionPromise: true }),
   bindServerCalls({ sendMessage }),

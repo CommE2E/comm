@@ -126,13 +126,16 @@ const ReduxWrappedAppNavigator = connect((state: AppState) => ({
   isForeground: isForegroundSelector(state),
   atInitialRoute: state.navInfo.navigationState.routes[0].index === 0,
 }))(WrappedAppNavigator);
-ReduxWrappedAppNavigator.router = AppNavigator.router;
+const ReduxWrappedAppNavigatorWithRouter = {
+  ...ReduxWrappedAppNavigator,
+  router: AppNavigator.router,
+};
 
 const RootNavigator = StackNavigator(
   {
     [LoggedOutModalRouteName]: { screen: LoggedOutModal },
     [VerificationModalRouteName]: { screen: VerificationModal },
-    [AppRouteName]: { screen: ReduxWrappedAppNavigator },
+    [AppRouteName]: { screen: ReduxWrappedAppNavigatorWithRouter },
   },
   {
     headerMode: 'none',

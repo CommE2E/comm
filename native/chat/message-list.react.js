@@ -7,7 +7,10 @@ import type {
   NavigationAction,
 } from 'react-navigation';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { ChatMessageItem } from '../selectors/chat-selectors';
+import type {
+  ChatMessageItem,
+  ChatMessageInfoItem,
+} from '../selectors/chat-selectors';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { MessageInfo } from 'lib/types/message-types';
@@ -33,7 +36,7 @@ import _find from 'lodash/fp/find';
 import { messageKey } from 'lib/shared/message-utils';
 
 import { messageListData } from '../selectors/chat-selectors';
-import Message from './message.react';
+import { Message, messageItemHeight } from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import InputBar from './input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
@@ -185,12 +188,15 @@ class InnerMessageList extends React.PureComponent {
       if (item.itemType !== "message") {
         return item;
       }
-      const textHeight = textHeights[item.messageInfo.text];
+      const messageInfoItem: ChatMessageInfoItem = item;
+      const textHeight = textHeights[messageInfoItem.messageInfo.text];
       invariant(
         textHeight,
-        `height for ${messageKey(item.messageInfo)} should be set`,
+        `height for ${messageKey(messageInfoItem.messageInfo)} should be set`,
       );
-      return ({ ...item, textHeight }: ChatMessageInfoItemWithHeight);
+      const withHeight =
+        ({ ...messageInfoItem, textHeight }: ChatMessageInfoItemWithHeight);
+      return withHeight;
     });
     this.setState({ listDataWithHeights });
   }
@@ -199,11 +205,12 @@ class InnerMessageList extends React.PureComponent {
     if (row.item.itemType === "loader") {
       return <ListLoadingIndicator />;
     }
+    const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const focused =
-      messageKey(row.item.messageInfo) === this.state.focusedMessageKey;
+      messageKey(messageInfoItem.messageInfo) === this.state.focusedMessageKey;
     return (
       <Message
-        item={row.item}
+        item={messageInfoItem}
         focused={focused}
         onFocus={this.onMessageFocus}
       />
@@ -239,7 +246,7 @@ class InnerMessageList extends React.PureComponent {
     if (item.itemType === "loader") {
       return 56;
     }
-    return Message.itemHeight(item, this.props.userID);
+    return messageItemHeight(item, this.props.userID);
   }
 
   heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
@@ -409,6 +416,7 @@ const MessageList = connect(
       userID: state.userInfo && state.userInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
+      cookie: state.cookie,
     };
   },
   includeDispatchActionProps({ dispatchActionPromise: true }),
