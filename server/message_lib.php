@@ -99,6 +99,13 @@ SQL;
       ? TRUNCATION_EXHAUSTIVE
       : TRUNCATION_TRUNCATED;
   }
+  if (is_array($input)) {
+    foreach ($input as $thread => $cursor) {
+      if (!isset($truncation_status[$thread])) {
+        $truncation_status[$thread] = TRUNCATION_EXHAUSTIVE;
+      }
+    }
+  }
 
   return array($messages, $truncation_status);
 }
