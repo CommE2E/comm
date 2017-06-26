@@ -11,17 +11,16 @@ import { View, StyleSheet, Text } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { Button } from '../shared-components';
+import MessagePreview from './message-preview.react';
 
 class ChatThreadListItem extends React.PureComponent {
 
   props: {
     data: ChatThreadItem,
-    userID: ?string,
     onPressItem: (threadInfo: ThreadInfo) => void,
   };
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
-    userID: PropTypes.string,
     onPressItem: PropTypes.func.isRequired,
   };
 
@@ -34,15 +33,7 @@ class ChatThreadListItem extends React.PureComponent {
         </Text>
       );
     }
-    const username = mostRecentMessageInfo.creatorID === this.props.userID
-      ? "you: "
-      : `${mostRecentMessageInfo.creator || ""}: `;
-    return (
-      <Text style={styles.lastMessage} numberOfLines={1}>
-        <Text style={styles.username}>{username}</Text>
-        {mostRecentMessageInfo.text}
-      </Text>
-    );
+    return <MessagePreview messageInfo={mostRecentMessageInfo} />;
   }
 
   render() {
@@ -103,14 +94,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 16,
     color: '#666666',
-  },
-  lastMessage: {
-    paddingLeft: 10,
-    fontSize: 16,
-    color: '#666666',
-  },
-  username: {
-    color: '#AAAAAA',
   },
   lastActivity: {
     fontSize: 16,

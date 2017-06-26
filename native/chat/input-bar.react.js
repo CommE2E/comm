@@ -3,7 +3,7 @@
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SendMessageResult } from 'lib/actions/message-actions';
-import type { MessageInfo } from 'lib/types/message-types';
+import type { TextMessageInfo } from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -28,6 +28,7 @@ import {
   sendMessage,
 } from 'lib/actions/message-actions';
 import { getNewLocalID } from 'lib/utils/local-ids';
+import { messageType } from 'lib/types/message-types';
 
 type Props = {
   threadID: string,
@@ -139,13 +140,14 @@ class InputBar extends React.PureComponent {
     const creatorID = this.props.userID;
     invariant(creatorID, "should be logged in to send a message");
     const messageInfo = ({
+      type: messageType.TEXT,
       localID,
       threadID: this.props.threadID,
       text: this.state.inputText,
       creator: this.props.username,
       creatorID,
       time: Date.now(),
-    }: MessageInfo);
+    }: TextMessageInfo);
     this.props.dispatchActionPromise(
       sendMessageActionTypes,
       this.sendMessageAction(messageInfo),
@@ -155,7 +157,7 @@ class InputBar extends React.PureComponent {
     this.setState({ inputText: "" });
   }
 
-  async sendMessageAction(messageInfo: MessageInfo) {
+  async sendMessageAction(messageInfo: TextMessageInfo) {
     try {
       const result = await this.props.sendMessage(
         messageInfo.threadID,

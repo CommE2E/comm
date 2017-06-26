@@ -23,6 +23,7 @@ import Color from 'color';
 import { colorIsDark } from 'lib/selectors/thread-selectors';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { messageKey } from 'lib/shared/message-utils';
+import { messageType } from 'lib/types/message-types';
 
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -135,6 +136,14 @@ class InnerMessage extends React.PureComponent {
     }
     textStyle.height = this.props.item.textHeight;
 
+    let text;
+    if (this.props.item.messageInfo.type === messageType.TEXT) {
+      text = this.props.item.messageInfo.text;
+    } else {
+      // TODO actually handle all cases
+      text = "Test";
+    }
+
     return (
       <View>
         {conversationHeader}
@@ -149,7 +158,7 @@ class InnerMessage extends React.PureComponent {
             <Text
               numberOfLines={1}
               style={[styles.text, textStyle]}
-            >{this.props.item.messageInfo.text}</Text>
+            >{text}</Text>
           </View>
         </View>
       </View>

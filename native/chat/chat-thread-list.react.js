@@ -44,11 +44,7 @@ class InnerChatThreadList extends React.PureComponent {
 
   renderItem = (row: { item: ChatThreadItem }) => {
     return (
-      <ChatThreadListItem
-        data={row.item}
-        userID={this.props.userID}
-        onPressItem={this.onPressItem}
-      />
+      <ChatThreadListItem data={row.item} onPressItem={this.onPressItem} />
     );
   }
 
@@ -80,6 +76,8 @@ class InnerChatThreadList extends React.PureComponent {
   }
 
   render() {
+    // this.props.userID is in extraData since it's used by MessagePreview
+    // within ChatThreadListItem
     return (
       <View style={styles.container}>
         <FlatList

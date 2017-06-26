@@ -7,6 +7,11 @@ require_once('thread_lib.php');
 // keep value in sync with numberPerThread in message_reducer.js
 define("DEFAULT_NUMBER_PER_THREAD", 20);
 
+// Messages aren't just messages, but any updates to a thread
+define("MESSAGE_TYPE_TEXT", 0);
+define("MESSAGE_TYPE_CREATE_THREAD", 1);
+define("MESSAGE_TYPE_ADD_USERS", 2);
+
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
 // (via get_messages_since) we leave it as TRUNCATION_UNCHANGED, unless there
@@ -57,10 +62,10 @@ function get_message_infos($input, $number_per_thread) {
   $int_number_per_thread = (int)$number_per_thread;
   $query = <<<SQL
 SET @num := 0, @thread := '';
-SELECT x.id, x.thread AS threadID, x.text, x.time,
+SELECT x.id, x.thread AS threadID, x.content, x.time, x.type,
   u.username AS creator, x.user AS creatorID
 FROM (
-  SELECT m.id, m.user, m.text, m.time,
+  SELECT m.id, m.user, m.content, m.time, m.type,
     @num := if(@thread = m.thread, @num + 1, 1) AS number,
     @thread := m.thread AS thread
   FROM messages m
@@ -84,8 +89,7 @@ SQL;
   $messages = array();
   $thread_to_message_count = array();
   while ($row = $row_result->fetch_assoc()) {
-    $row['time'] = (int)$row['time'];
-    $messages[] = $row;
+    $messages[] = message_from_row($row);
     if (!isset($thread_to_message_count[$row['threadID']])) {
       $thread_to_message_count[$row['threadID']] = 1;
     } else {
@@ -126,7 +130,7 @@ function get_messages_since($current_as_of, $max_number_per_thread) {
   $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
 
   $query = <<<SQL
-SELECT m.id, m.thread AS threadID, m.text, m.time,
+SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
@@ -153,12 +157,30 @@ SQL;
       $num_for_thread++;
     }
     if ($num_for_thread <= $max_number_per_thread) {
-      $row['time'] = (int)$row['time'];
-      $messages[] = $row;
+      $messages[] = message_from_row($row);
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
     }
   }
 
   return array($messages, $truncation_status);
+}
+
+function message_from_row($row) {
+  $type = (int)$row['type'];
+  $message = array(
+    'id' => $row['id'],
+    'threadID' => $row['threadID'],
+    'time' => (int)$row['time'],
+    'type' => $type,
+    'creator' => $row['creator'],
+    'creatorID' => $row['creatorID'],
+  );
+  if ($type === MESSAGE_TYPE_TEXT) {
+    $message['text'] = $row['content'];
+  } else if ($type === MESSAGE_TYPE_CREATE_THREAD) {
+  } else if ($type === MESSAGE_TYPE_ADD_USERS) {
+    $message['addedUserIDs'] = explode(',', $row['content']);
+  }
+  return $message;
 }

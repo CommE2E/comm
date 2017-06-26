@@ -42,6 +42,7 @@ import {
   fetchMessagesActionTypes,
   fetchMessages,
 } from 'lib/actions/message-actions';
+import { messageType } from 'lib/types/message-types';
 
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
@@ -126,7 +127,12 @@ class InnerMessageList extends React.PureComponent {
       if (item.itemType !== "message") {
         continue;
       }
-      textToMeasure.push(item.messageInfo.text);
+      const messageInfo = item.messageInfo;
+      if (messageInfo.type !== messageType.TEXT) {
+        // TODO actually measure textHeight
+        continue;
+      }
+      textToMeasure.push(messageInfo.text);
     }
     return textToMeasure;
   }
@@ -191,6 +197,13 @@ class InnerMessageList extends React.PureComponent {
         return item;
       }
       const messageInfoItem: ChatMessageInfoItem = item;
+      if (messageInfoItem.messageInfo.type !== messageType.TEXT) {
+        // TODO actually measure textHeight
+        return ({
+          ...messageInfoItem,
+          textHeight: 0,
+        }: ChatMessageInfoItemWithHeight);
+      }
       const textHeight = textHeights[messageInfoItem.messageInfo.text];
       invariant(
         textHeight,

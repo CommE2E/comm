@@ -70,6 +70,13 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
   );
 }
 
+$conn->query("INSERT INTO ids(table_name) VALUES('messages')");
+$message_id = $conn->insert_id;
+$conn->query(
+  "INSERT INTO messages(id, thread, user, type, time) ".
+    "VALUES ($message_id, $id, $creator, 1, $time)"
+);
+
 $conn->query(
   "INSERT INTO roles(thread, user, creation_time, last_view, role, ".
     "subscribed) ".
