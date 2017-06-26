@@ -20,6 +20,7 @@ import _sum from 'lodash/fp/sum';
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
+import AddThreadButton from './add-thread-button.react';
 
 class InnerChatThreadList extends React.PureComponent {
 
@@ -38,6 +39,7 @@ class InnerChatThreadList extends React.PureComponent {
   };
   static navigationOptions = {
     title: 'Threads',
+    headerRight: <AddThreadButton />,
   };
 
   renderItem = (row: { item: ChatThreadItem }) => {

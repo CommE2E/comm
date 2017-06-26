@@ -34,12 +34,6 @@ import _difference from 'lodash/fp/difference';
 import _find from 'lodash/fp/find';
 
 import { messageKey } from 'lib/shared/message-utils';
-
-import { messageListData } from '../selectors/chat-selectors';
-import { Message, messageItemHeight } from './message.react';
-import TextHeightMeasurer from '../text-height-measurer.react';
-import InputBar from './input-bar.react';
-import ListLoadingIndicator from '../list-loading-indicator.react';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -48,6 +42,13 @@ import {
   fetchMessagesActionTypes,
   fetchMessages,
 } from 'lib/actions/message-actions';
+
+import { messageListData } from '../selectors/chat-selectors';
+import { Message, messageItemHeight } from './message.react';
+import TextHeightMeasurer from '../text-height-measurer.react';
+import InputBar from './input-bar.react';
+import ListLoadingIndicator from '../list-loading-indicator.react';
+import AddThreadButton from './add-thread-button.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
@@ -102,6 +103,7 @@ class InnerMessageList extends React.PureComponent {
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
+    headerRight: <AddThreadButton />,
   });
   textHeights: ?{ [text: string]: number } = null;
   loadingFromScroll = false;
