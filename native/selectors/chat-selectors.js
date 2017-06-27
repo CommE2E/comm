@@ -3,7 +3,12 @@
 import type { BaseAppState } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { MessageInfo, MessageStore } from 'lib/types/message-types';
+import type {
+  MessageInfo,
+  MessageStore,
+  RawMessageInfo,
+  TextMessageInfo,
+} from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
@@ -14,6 +19,52 @@ import _filter from 'lodash/fp/filter';
 import _map from 'lodash/fp/map';
 import _orderBy from 'lodash/fp/orderBy';
 import _memoize from 'lodash/memoize';
+
+import { messageType } from 'lib/types/message-types';
+
+function createMessageInfo(
+  rawMessageInfo: RawMessageInfo,
+  viewerID: ?string,
+): MessageInfo {
+  // TODO actually set creator string correctly
+  if (rawMessageInfo.type === messageType.TEXT) {
+    const messageInfo: TextMessageInfo = {
+      type: messageType.TEXT,
+      threadID: rawMessageInfo.threadID,
+      creator: rawMessageInfo.creatorID,
+      isViewer: rawMessageInfo.creatorID === viewerID,
+      time: rawMessageInfo.time,
+      text: rawMessageInfo.text,
+    };
+    if (rawMessageInfo.id) {
+      messageInfo.id = rawMessageInfo.id;
+    }
+    if (rawMessageInfo.localID) {
+      messageInfo.localID = rawMessageInfo.localID;
+    }
+    return messageInfo;
+  } else if (rawMessageInfo.type === messageType.CREATE_THREAD) {
+    return {
+      type: messageType.CREATE_THREAD,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: "",
+      isViewer: rawMessageInfo.creatorID === viewerID,
+      time: rawMessageInfo.time,
+    };
+  } else if (rawMessageInfo.type === messageType.ADD_USER) {
+    return {
+      type: messageType.ADD_USER,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: rawMessageInfo.creatorID,
+      isViewer: rawMessageInfo.creatorID === viewerID,
+      time: rawMessageInfo.time,
+      addedUsernames: rawMessageInfo.addedUserIDs,
+    };
+  }
+  invariant(false, `${rawMessageInfo.type} is not a messageType!`);
+}
 
 export type ChatThreadItem = {
   threadInfo: ThreadInfo,
@@ -28,9 +79,11 @@ const chatThreadItemPropType = PropTypes.shape({
 const chatListData = createSelector(
   (state: BaseAppState) => state.threadInfos,
   (state: BaseAppState) => state.messageStore,
+  (state: BaseAppState) => state.userInfo && state.userInfo.id,
   (
     threadInfos: {[id: string]: ThreadInfo},
     messageStore: MessageStore,
+    viewerID: ?string,
   ): ChatThreadItem[] => _flow(
     _filter('authorized'),
     _map((threadInfo: ThreadInfo): ChatThreadItem => {
@@ -38,7 +91,12 @@ const chatListData = createSelector(
       if (!thread || thread.messageIDs.length === 0) {
         return { threadInfo, lastUpdatedTime: threadInfo.creationTime };
       }
-      const mostRecentMessageInfo = messageStore.messages[thread.messageIDs[0]];
+      const mostRecentRawMessageInfo =
+        messageStore.messages[thread.messageIDs[0]];
+      const mostRecentMessageInfo = createMessageInfo(
+        mostRecentRawMessageInfo,
+        viewerID,
+      );
       return {
         threadInfo,
         mostRecentMessageInfo,
@@ -74,26 +132,27 @@ const chatMessageItemPropType = PropTypes.oneOfType([
 const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
-  (messageStore: MessageStore): ChatMessageItem[] => {
+  (state: BaseAppState) => state.userInfo && state.userInfo.id,
+  (messageStore: MessageStore, viewerID: ?string): ChatMessageItem[] => {
     const thread = messageStore.threads[threadID];
     if (!thread) {
       return [];
     }
-    const messageInfos = thread.messageIDs
+    const rawMessageInfos = thread.messageIDs
       .map((messageID: string) => messageStore.messages[messageID])
       .filter(x => x);
     const chatMessageItems = [];
     let lastMessageInfo = null;
-    for (let i = messageInfos.length - 1; i >= 0; i--) {
-      const messageInfo = messageInfos[i];
+    for (let i = rawMessageInfos.length - 1; i >= 0; i--) {
+      const rawMessageInfo = rawMessageInfos[i];
       let startsConversation = true;
       let startsCluster = true;
       if (
         lastMessageInfo &&
-        lastMessageInfo.time + msInFiveMinutes > messageInfo.time
+        lastMessageInfo.time + msInFiveMinutes > rawMessageInfo.time
       ) {
         startsConversation = false;
-        if (lastMessageInfo.creatorID === messageInfo.creatorID) {
+        if (lastMessageInfo.creatorID === rawMessageInfo.creatorID) {
           startsCluster = false;
         }
       }
@@ -102,6 +161,7 @@ const baseMessageListData = (threadID: string) => createSelector(
         invariant(lastMessageItem.itemType === "message", "should be message");
         lastMessageItem.endsCluster = true;
       }
+      const messageInfo = createMessageInfo(rawMessageInfo, viewerID);
       chatMessageItems.push({
         itemType: "message",
         messageInfo,

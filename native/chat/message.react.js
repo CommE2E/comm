@@ -99,11 +99,11 @@ class InnerMessage extends React.PureComponent {
       );
     }
 
-    const isYou = this.props.item.messageInfo.creatorID === this.props.userID;
+    const isViewer = this.props.item.messageInfo.isViewer;
     let containerStyle = null,
       messageStyle = {},
       textStyle = {};
-    if (isYou) {
+    if (isViewer) {
       containerStyle = { alignSelf: 'flex-end' };
       messageStyle.backgroundColor = `#${this.state.threadInfo.color}`;
       const darkColor = colorIsDark(this.state.threadInfo.color);
@@ -114,7 +114,7 @@ class InnerMessage extends React.PureComponent {
       textStyle.color = 'black';
     }
     let authorName = null;
-    if (!isYou && this.props.item.startsCluster) {
+    if (!isViewer && this.props.item.startsCluster) {
       authorName = (
         <Text style={styles.authorName}>
           {this.props.item.messageInfo.creator}
@@ -122,13 +122,13 @@ class InnerMessage extends React.PureComponent {
       );
     }
     messageStyle.borderTopRightRadius =
-      isYou && !this.props.item.startsCluster ? 0 : 8;
+      isViewer && !this.props.item.startsCluster ? 0 : 8;
     messageStyle.borderBottomRightRadius =
-      isYou && !this.props.item.endsCluster ? 0 : 8;
+      isViewer && !this.props.item.endsCluster ? 0 : 8;
     messageStyle.borderTopLeftRadius =
-      !isYou && !this.props.item.startsCluster ? 0 : 8;
+      !isViewer && !this.props.item.startsCluster ? 0 : 8;
     messageStyle.borderBottomLeftRadius =
-      !isYou && !this.props.item.endsCluster ? 0 : 8;
+      !isViewer && !this.props.item.endsCluster ? 0 : 8;
     messageStyle.marginBottom = this.props.item.endsCluster ? 12 : 5;
     if (this.props.focused) {
       messageStyle.backgroundColor =

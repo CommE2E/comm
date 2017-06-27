@@ -3,7 +3,7 @@
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SendMessageResult } from 'lib/actions/message-actions';
-import type { TextMessageInfo } from 'lib/types/message-types';
+import type { RawTextMessageInfo } from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -144,10 +144,9 @@ class InputBar extends React.PureComponent {
       localID,
       threadID: this.props.threadID,
       text: this.state.inputText,
-      creator: this.props.username,
       creatorID,
       time: Date.now(),
-    }: TextMessageInfo);
+    }: RawTextMessageInfo);
     this.props.dispatchActionPromise(
       sendMessageActionTypes,
       this.sendMessageAction(messageInfo),
@@ -157,7 +156,7 @@ class InputBar extends React.PureComponent {
     this.setState({ inputText: "" });
   }
 
-  async sendMessageAction(messageInfo: TextMessageInfo) {
+  async sendMessageAction(messageInfo: RawTextMessageInfo) {
     try {
       const result = await this.props.sendMessage(
         messageInfo.threadID,
