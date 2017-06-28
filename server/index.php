@@ -210,7 +210,7 @@ HTML;
       var current_as_of = <?=$current_as_of?>;
       var message_infos = <?=json_encode($message_infos)?>;
       var truncation_status = <?=json_encode($truncation_status)?>;
-      var users = <?=json_decode($users)?>;
+      var user_infos = <?=json_decode($users, JSON_FORCE_OBJECT)?>;
     </script>
   </head>
   <body>

@@ -47,7 +47,7 @@ $return = array(
   'thread_infos' => get_thread_infos(),
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
-  'users' => $users,
+  'users' => array_values($users),
 );
 
 if (isset($_REQUEST['last_ping'])) {

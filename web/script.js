@@ -11,6 +11,7 @@ import type {
   MessageTruncationStatus,
 } from 'lib/types/message-types';
 import type { AppState, Action } from './redux-setup';
+import type { UserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -55,6 +56,7 @@ declare var thread_id: ?string;
 declare var current_as_of: number;
 declare var message_infos: RawMessageInfo[];
 declare var truncation_status: {[threadID: string]: MessageTruncationStatus};
+declare var user_infos: {[id: string]: UserInfo};
 
 registerConfig({
   // We can use paths local to the <base href> on web
@@ -101,6 +103,7 @@ const store: Store<AppState, Action> = createStore(
     daysToEntries,
     lastUserInteraction: { calendar: Date.now(), sessionReset: Date.now() },
     threadInfos: thread_infos,
+    userInfos: user_infos,
     messageStore,
     loadingStatuses: {},
     cookie: undefined,

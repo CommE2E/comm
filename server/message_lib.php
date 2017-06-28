@@ -198,8 +198,6 @@ function message_from_row($row) {
   return $message;
 }
 
-// $users it takes is keyed on user ID
-// $all_users it returns is a flat array
 function get_all_users($messages, $users) {
   $all_added_user_ids = array();
   foreach ($messages as $message) {
@@ -225,5 +223,5 @@ SQL;
       'username' => $row['username'],
     );
   }
-  return array_values($users);
+  return $users;
 }

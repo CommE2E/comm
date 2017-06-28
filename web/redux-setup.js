@@ -5,7 +5,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
 import type { MessageStore } from 'lib/types/message-types';
 
@@ -36,6 +36,7 @@ export type AppState = {|
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
+  userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
@@ -56,6 +57,7 @@ export function reducer(state: AppState, action: Action) {
       daysToEntries: state.daysToEntries,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
       messageStore: state.messageStore,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,

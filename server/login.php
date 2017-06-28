@@ -50,7 +50,7 @@ $return = array(
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
   'server_time' => $current_as_of,
-  'users' => $users,
+  'users' => array_values($users),
 );
 
 if (!empty($_POST['inner_entry_query'])) {

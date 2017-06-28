@@ -3,7 +3,7 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { NavInfo, Action } from './navigation-setup';
 
@@ -34,6 +34,7 @@ export type AppState = {|
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
+  userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
@@ -48,6 +49,7 @@ const defaultState = ({
   daysToEntries: {},
   lastUserInteraction: { calendar: 0, sessionReset: Date.now() },
   threadInfos: {},
+  userInfos: {},
   messageStore: {
     messages: {},
     threads: {},
@@ -84,6 +86,7 @@ function reducer(state: AppState, action: Action) {
       daysToEntries: state.daysToEntries,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
       messageStore: state.messageStore,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
@@ -99,6 +102,7 @@ function reducer(state: AppState, action: Action) {
       daysToEntries: state.daysToEntries,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
       messageStore: state.messageStore,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
@@ -120,6 +124,7 @@ function reducer(state: AppState, action: Action) {
       daysToEntries: state.daysToEntries,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
       messageStore: {
         messages: state.messageStore.messages,
         threads: {
