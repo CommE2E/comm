@@ -28,7 +28,7 @@ import {
 
 export type AppState = {|
   navInfo: NavInfo,
-  userInfo: ?CurrentUserInfo,
+  currentUserInfo: ?CurrentUserInfo,
   sessionID: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
@@ -42,7 +42,7 @@ export type AppState = {|
 
 const defaultState = ({
   navInfo: defaultNavInfo,
-  userInfo: null,
+  currentUserInfo: null,
   sessionID: newSessionID(),
   entryInfos: {},
   daysToEntries: {},
@@ -78,7 +78,7 @@ function reducer(state: AppState, action: Action) {
   if (navInfo && navInfo !== state.navInfo) {
     state = {
       navInfo,
-      userInfo: state.userInfo,
+      currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
       entryInfos: state.entryInfos,
       daysToEntries: state.daysToEntries,
@@ -93,7 +93,7 @@ function reducer(state: AppState, action: Action) {
   if (action.type === REHYDRATE) {
     state = {
       navInfo: state.navInfo,
-      userInfo: state.userInfo,
+      currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
       entryInfos: state.entryInfos,
       daysToEntries: state.daysToEntries,
@@ -114,7 +114,7 @@ function reducer(state: AppState, action: Action) {
   ) {
     return {
       navInfo: state.navInfo,
-      userInfo: state.userInfo,
+      currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
       entryInfos: state.entryInfos,
       daysToEntries: state.daysToEntries,

@@ -204,8 +204,8 @@ AccountBar.propTypes = {
 
 export default connect(
   (state: AppState) => ({
-    loggedIn: !!state.userInfo,
-    username: state.userInfo && state.userInfo.username,
+    loggedIn: !!state.currentUserInfo,
+    username: state.currentUserInfo && state.currentUserInfo.username,
     currentNavID: currentNavID(state),
     cookie: state.cookie,
   }),

@@ -69,7 +69,7 @@ registerConfig({
   calendarRangeInactivityLimit: null,
 });
 
-const userInfo = viewer_id
+const currentUserInfo = viewer_id
   ? { id: viewer_id, username, email, emailVerified: email_verified }
   : null;
 const entryInfos = _keyBy('id')(entry_infos);
@@ -93,7 +93,7 @@ const store: Store<AppState, Action> = createStore(
       threadID: thread_id,
       verify: verify_code,
     },
-    userInfo,
+    currentUserInfo,
     sessionID: newSessionID(),
     verifyField: verify_field ? assertVerifyField(verify_field) : verify_field,
     resetPasswordUsername: reset_password_username,

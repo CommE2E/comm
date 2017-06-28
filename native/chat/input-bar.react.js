@@ -210,8 +210,8 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => ({
-    username: state.userInfo && state.userInfo.username,
-    userID: state.userInfo && state.userInfo.id,
+    username: state.currentUserInfo && state.currentUserInfo.username,
+    userID: state.currentUserInfo && state.currentUserInfo.id,
     cookie: state.cookie,
   }),
   includeDispatchActionProps,

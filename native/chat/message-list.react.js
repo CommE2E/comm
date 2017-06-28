@@ -428,7 +428,7 @@ const MessageList = connect(
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     return {
       messageListData: messageListData(threadID)(state),
-      userID: state.userInfo && state.userInfo.id,
+      userID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
       cookie: state.cookie,

@@ -218,7 +218,7 @@ const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     cookie: state.cookie,
     navigationState: state.navInfo.navigationState,
-    loggedIn: !!state.userInfo,
+    loggedIn: !!state.currentUserInfo,
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),

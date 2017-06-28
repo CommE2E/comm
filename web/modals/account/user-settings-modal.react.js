@@ -486,9 +486,9 @@ const resendVerificationEmailLoadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    username: state.userInfo && state.userInfo.username,
-    email: state.userInfo && state.userInfo.email,
-    emailVerified: state.userInfo && state.userInfo.emailVerified,
+    username: state.currentUserInfo && state.currentUserInfo.username,
+    email: state.currentUserInfo && state.currentUserInfo.email,
+    emailVerified: state.currentUserInfo && state.currentUserInfo.emailVerified,
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",

@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
 const Message = connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => ({
     threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
-    userID: state.userInfo && state.userInfo.id,
+    userID: state.currentUserInfo && state.currentUserInfo.id,
   }),
 )(InnerMessage);
 

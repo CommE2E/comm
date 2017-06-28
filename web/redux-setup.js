@@ -28,7 +28,7 @@ export const navInfoPropType = PropTypes.shape({
 
 export type AppState = {|
   navInfo: NavInfo,
-  userInfo: ?CurrentUserInfo,
+  currentUserInfo: ?CurrentUserInfo,
   sessionID: string,
   verifyField: ?VerifyField,
   resetPasswordUsername: string,
@@ -48,7 +48,7 @@ export function reducer(state: AppState, action: Action) {
   if (action.type === "REFLECT_ROUTE_CHANGE") {
     return {
       navInfo: action.payload,
-      userInfo: state.userInfo,
+      currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
       verifyField: state.verifyField,
       resetPasswordUsername: state.resetPasswordUsername,

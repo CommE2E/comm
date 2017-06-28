@@ -79,7 +79,7 @@ const chatThreadItemPropType = PropTypes.shape({
 const chatListData = createSelector(
   (state: BaseAppState) => state.threadInfos,
   (state: BaseAppState) => state.messageStore,
-  (state: BaseAppState) => state.userInfo && state.userInfo.id,
+  (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
   (
     threadInfos: {[id: string]: ThreadInfo},
     messageStore: MessageStore,
@@ -132,7 +132,7 @@ const chatMessageItemPropType = PropTypes.oneOfType([
 const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
-  (state: BaseAppState) => state.userInfo && state.userInfo.id,
+  (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
   (messageStore: MessageStore, viewerID: ?string): ChatMessageItem[] => {
     const thread = messageStore.threads[threadID];
     if (!thread) {

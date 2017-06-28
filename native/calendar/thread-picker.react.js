@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
 export default connect(
   (state: AppState) => ({
     onScreenThreadInfos: onScreenThreadInfos(state),
-    username: state.userInfo && state.userInfo.username,
+    username: state.currentUserInfo && state.currentUserInfo.username,
   }),
   includeDispatchActionProps,
 )(ThreadPicker);

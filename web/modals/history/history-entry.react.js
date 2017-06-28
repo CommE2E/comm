@@ -168,7 +168,7 @@ export default connect(
     return {
       threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
       sessionID: currentSessionID(state),
-      loggedIn: !!state.userInfo,
+      loggedIn: !!state.currentUserInfo,
       restoreLoadingStatus: createLoadingStatusSelector(
         restoreEntryActionTypes,
         `${restoreEntryActionTypes.started}:${entryID}`,

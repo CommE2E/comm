@@ -292,8 +292,8 @@ Day.propTypes = {
 export default connect(
   (state: AppState) => ({
     onScreenThreadInfos: onScreenThreadInfos(state),
-    username: state.userInfo && state.userInfo.username,
-    loggedIn: !!state.userInfo,
+    username: state.currentUserInfo && state.currentUserInfo.username,
+    loggedIn: !!state.currentUserInfo,
   }),
   includeDispatchActionProps,
 )(Day);

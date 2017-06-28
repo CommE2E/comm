@@ -97,5 +97,5 @@ TypeaheadActionOption.propTypes = {
 
 export default connect((state: AppState) => ({
   monthURL: monthURL(state),
-  loggedIn: !!state.userInfo,
+  loggedIn: !!state.currentUserInfo,
 }))(TypeaheadActionOption);
