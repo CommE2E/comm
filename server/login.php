@@ -36,7 +36,7 @@ $id = intval($user_row['id']);
 create_user_cookie($id);
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status) =
+list($message_infos, $truncation_status, $users) =
   get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
 
 $return = array(
@@ -50,6 +50,7 @@ $return = array(
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
   'server_time' => $current_as_of,
+  'users' => $users,
 );
 
 if (!empty($_POST['inner_entry_query'])) {

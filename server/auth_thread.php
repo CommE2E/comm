@@ -54,7 +54,7 @@ $conn->query(
     "role = GREATEST(VALUES(role), role)"
 );
 
-list($message_infos, $truncation_status) =
+list($message_infos, $truncation_status, $users) =
   get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
 
 $thread_infos = get_thread_infos("c.id = $thread");
@@ -63,4 +63,5 @@ async_end(array(
   'thread_info' => $thread_infos[$thread],
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status[$thread],
+  'users' => $users,
 ));

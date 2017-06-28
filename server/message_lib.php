@@ -87,8 +87,13 @@ SQL;
   $row_result = $conn->store_result();
 
   $messages = array();
+  $users = array();
   $thread_to_message_count = array();
   while ($row = $row_result->fetch_assoc()) {
+    $users[$row['creatorID']] = array(
+      'id' => $row['creatorID'],
+      'username' => $row['creator'],
+    );
     $messages[] = message_from_row($row);
     if (!isset($thread_to_message_count[$row['threadID']])) {
       $thread_to_message_count[$row['threadID']] = 1;
@@ -111,7 +116,9 @@ SQL;
     }
   }
 
-  return array($messages, $truncation_status);
+  $all_users = get_all_users($messages, $users);
+
+  return array($messages, $truncation_status, $all_users);
 }
 
 // In contrast with the above function, which is used at the start of a session,
@@ -146,6 +153,7 @@ SQL;
   $current_thread = null;
   $num_for_thread = 0;
   $messages = array();
+  $users = array();
   $truncation_status = array();
   while ($row = $result->fetch_assoc()) {
     $thread = $row["threadID"];
@@ -157,13 +165,19 @@ SQL;
       $num_for_thread++;
     }
     if ($num_for_thread <= $max_number_per_thread) {
+      $users[$row['creatorID']] = array(
+        'id' => $row['creatorID'],
+        'username' => $row['creator'],
+      );
       $messages[] = message_from_row($row);
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
     }
   }
 
-  return array($messages, $truncation_status);
+  $all_users = get_all_users($messages, $users);
+
+  return array($messages, $truncation_status, $all_users);
 }
 
 function message_from_row($row) {
@@ -173,7 +187,6 @@ function message_from_row($row) {
     'threadID' => $row['threadID'],
     'time' => (int)$row['time'],
     'type' => $type,
-    'creator' => $row['creator'],
     'creatorID' => $row['creatorID'],
   );
   if ($type === MESSAGE_TYPE_TEXT) {
@@ -183,4 +196,34 @@ function message_from_row($row) {
     $message['addedUserIDs'] = explode(',', $row['content']);
   }
   return $message;
+}
+
+// $users it takes is keyed on user ID
+// $all_users it returns is a flat array
+function get_all_users($messages, $users) {
+  $all_added_user_ids = array();
+  foreach ($messages as $message) {
+    if ($message['type'] !== MESSAGE_TYPE_ADD_USERS) {
+      continue;
+    }
+    foreach ($message['addedUserIDs'] as $user_id) {
+      if (!isset($users[$user_id])) {
+        $all_added_user_ids[] = $user_id;
+      }
+    }
+  }
+
+  $where_in = implode(',', $all_added_user_ids);
+  $query = <<<SQL
+SELECT id, username FROM users WHERE id IN ({$where_in})
+SQL;
+  $result = $conn->query($query);
+
+  while ($row = $result->fetch_assoc()) {
+    $users[$row['id']] = array(
+      'id' => $row['id'],
+      'username' => $row['username'],
+    );
+  }
+  return array_values($users);
 }

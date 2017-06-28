@@ -34,10 +34,10 @@ if ($user_logged_in) {
 $time = round(microtime(true) * 1000); // in milliseconds
 if (isset($_REQUEST['last_ping']) && $_REQUEST['last_ping']) {
   $last_ping = (int)$_REQUEST['last_ping'];
-  list($message_infos, $truncation_status) =
+  list($message_infos, $truncation_status, $users) =
     get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD);
 } else {
-  list($message_infos, $truncation_status) =
+  list($message_infos, $truncation_status, $users) =
     get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
 }
 
@@ -47,6 +47,7 @@ $return = array(
   'thread_infos' => get_thread_infos(),
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
+  'users' => $users,
 );
 
 if (isset($_REQUEST['last_ping'])) {

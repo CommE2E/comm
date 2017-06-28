@@ -167,7 +167,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status) =
+list($message_infos, $truncation_status, $users) =
   get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
 
 $fonts_css_url = DEV
@@ -210,6 +210,7 @@ HTML;
       var current_as_of = <?=$current_as_of?>;
       var message_infos = <?=json_encode($message_infos)?>;
       var truncation_status = <?=json_encode($truncation_status)?>;
+      var users = <?=json_decode($users)?>;
     </script>
   </head>
   <body>
