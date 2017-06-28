@@ -45,18 +45,19 @@ import {
 } from './account/verification-modal.react';
 import { createIsForegroundSelector } from './selectors/nav-selectors';
 
-export type NavInfo = BaseNavInfo & {
+type InexactNavInfo = BaseNavInfo & {
   navigationState: NavigationState,
 };
+export type NavInfo = $Exact<InexactNavInfo>;
 
 export type Action = BaseAction |
-  { type: "HANDLE_URL", payload: string } |
-  { type: "NAVIGATE_TO_APP", payload: null } |
-  {
+  {| type: "HANDLE_URL", payload: string |} |
+  {| type: "NAVIGATE_TO_APP", payload: null |} |
+  {|
     type: "Navigation/NAVIGATE",
     routeName: "MessageList",
     params: { threadInfo: ThreadInfo },
-  };
+  |};
 
 const AppNavigator = TabNavigator(
   {
@@ -69,11 +70,11 @@ const AppNavigator = TabNavigator(
     initialRouteName: CalendarRouteName,
   },
 );
-type WrappedAppNavigatorProps = {
+type WrappedAppNavigatorProps = {|
   navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
   isForeground: bool,
   atInitialRoute: bool,
-};
+|};
 class WrappedAppNavigator extends React.PureComponent {
 
   props: WrappedAppNavigatorProps;
@@ -315,11 +316,11 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
   };
 }
 
-type SetCookiePayload = {
+type SetCookiePayload = {|
   cookie: ?string,
   threadInfos?: {[id: string]: ThreadInfo},
   cookieInvalidated?: bool,
-};
+|};
 function logOutIfCookieInvalidated(
   state: NavInfo,
   payload: SetCookiePayload,

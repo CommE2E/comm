@@ -589,8 +589,16 @@ class ThreadSettingsModal extends React.PureComponent {
   async changeThreadSettingsAction(name: string) {
     try {
       const newThreadInfo: ThreadInfo = {
-        ...this.state.threadInfo,
+        id: this.state.threadInfo.id,
         name,
+        description: this.state.threadInfo.description,
+        authorized: this.state.threadInfo.authorized,
+        subscribed: this.state.threadInfo.subscribed,
+        canChangeSettings: this.state.threadInfo.canChangeSettings,
+        visibilityRules: this.state.threadInfo.visibilityRules,
+        color: this.state.threadInfo.color,
+        editRules: this.state.threadInfo.editRules,
+        creationTime: this.state.threadInfo.creationTime,
       };
       const response = await this.props.changeThreadSettings(
         this.state.accountPassword,

@@ -3,7 +3,7 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { NavInfo, Action } from './navigation-setup';
 
@@ -26,9 +26,9 @@ import {
   reduceNavInfo,
 } from './navigation-setup';
 
-export type AppState = {
+export type AppState = {|
   navInfo: NavInfo,
-  userInfo: ?UserInfo,
+  userInfo: ?CurrentUserInfo,
   sessionID: string,
   entryInfos: {[id: string]: EntryInfo},
   daysToEntries: {[day: string]: string[]},
@@ -38,7 +38,7 @@ export type AppState = {
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   rehydrateConcluded: bool,
-};
+|};
 
 const defaultState = ({
   navInfo: defaultNavInfo,
@@ -76,11 +76,32 @@ const blacklist = __DEV__
 function reducer(state: AppState, action: Action) {
   const navInfo = reduceNavInfo(state && state.navInfo, action);
   if (navInfo && navInfo !== state.navInfo) {
-    state = { ...state, navInfo };
+    state = {
+      navInfo,
+      userInfo: state.userInfo,
+      sessionID: state.sessionID,
+      entryInfos: state.entryInfos,
+      daysToEntries: state.daysToEntries,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      messageStore: state.messageStore,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      rehydrateConcluded: state.rehydrateConcluded,
+    };
   }
   if (action.type === REHYDRATE) {
     state = {
-      ...state,
+      navInfo: state.navInfo,
+      userInfo: state.userInfo,
+      sessionID: state.sessionID,
+      entryInfos: state.entryInfos,
+      daysToEntries: state.daysToEntries,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      messageStore: state.messageStore,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
       rehydrateConcluded: true,
     };
   }
@@ -92,9 +113,15 @@ function reducer(state: AppState, action: Action) {
     action.routeName === "MessageList"
   ) {
     return {
-      ...state,
+      navInfo: state.navInfo,
+      userInfo: state.userInfo,
+      sessionID: state.sessionID,
+      entryInfos: state.entryInfos,
+      daysToEntries: state.daysToEntries,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
       messageStore: {
-        ...state.messageStore,
+        messages: state.messageStore.messages,
         threads: {
           ...state.messageStore.threads,
           [action.params.threadInfo.id]: {
@@ -102,7 +129,11 @@ function reducer(state: AppState, action: Action) {
             lastNavigatedTo: Date.now(),
           },
         },
+        currentAsOf: state.messageStore.currentAsOf,
       },
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      rehydrateConcluded: state.rehydrateConcluded,
     };
   }
   return baseReducer(state, action);

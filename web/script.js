@@ -7,7 +7,7 @@ import type { Store } from 'redux';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type {
-  MessageInfo,
+  RawMessageInfo,
   MessageTruncationStatus,
 } from 'lib/types/message-types';
 import type { AppState, Action } from './redux-setup';
@@ -53,7 +53,7 @@ declare var reset_password_username: string;
 declare var home: bool;
 declare var thread_id: ?string;
 declare var current_as_of: number;
-declare var message_infos: MessageInfo[];
+declare var message_infos: RawMessageInfo[];
 declare var truncation_status: {[threadID: string]: MessageTruncationStatus};
 
 registerConfig({

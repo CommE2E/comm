@@ -5,7 +5,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/utils/verify-utils';
 import type { MessageStore } from 'lib/types/message-types';
 
@@ -13,9 +13,10 @@ import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
 
-export type NavInfo = BaseNavInfo & {
+export type NavInfo = {|
+  ...$Exact<BaseNavInfo>,
   verify: ?string,
-};
+|};
 
 export const navInfoPropType = PropTypes.shape({
   startDate: PropTypes.string.isRequired,
@@ -25,9 +26,9 @@ export const navInfoPropType = PropTypes.shape({
   verify: PropTypes.string,
 });
 
-export type AppState = {
+export type AppState = {|
   navInfo: NavInfo,
-  userInfo: ?UserInfo,
+  userInfo: ?CurrentUserInfo,
   sessionID: string,
   verifyField: ?VerifyField,
   resetPasswordUsername: string,
@@ -38,16 +39,26 @@ export type AppState = {
   messageStore: MessageStore,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
-};
+|};
 
 export type Action = BaseAction |
-  { type: "REFLECT_ROUTE_CHANGE", payload: NavInfo };
+  {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |};
 
 export function reducer(state: AppState, action: Action) {
   if (action.type === "REFLECT_ROUTE_CHANGE") {
     return {
-      ...state,
       navInfo: action.payload,
+      userInfo: state.userInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryInfos: state.entryInfos,
+      daysToEntries: state.daysToEntries,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      messageStore: state.messageStore,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
     };
   }
   return baseReducer(state, action);
