@@ -43,11 +43,11 @@ if (isset($_REQUEST['last_ping']) && $_REQUEST['last_ping']) {
 
 $return = array(
   'success' => true,
-  'user_info' => $user_info,
+  'current_user_info' => $user_info,
   'thread_infos' => get_thread_infos(),
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
-  'users' => array_values($users),
+  'user_infos' => array_values($users),
 );
 
 if (isset($_REQUEST['last_ping'])) {

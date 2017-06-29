@@ -63,5 +63,5 @@ async_end(array(
   'thread_info' => $thread_infos[$thread],
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status[$thread],
-  'users' => array_values($users),
+  'user_infos' => array_values($users),
 ));

@@ -41,7 +41,7 @@ list($message_infos, $truncation_status, $users) =
 
 $return = array(
   'success' => true,
-  'user_info' => array(
+  'current_user_info' => array(
     'id' => (string)$id,
     'username' => $user_row['username'],
     'email' => $user_row['email'],
@@ -50,7 +50,7 @@ $return = array(
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
   'server_time' => $current_as_of,
-  'users' => array_values($users),
+  'user_infos' => array_values($users),
 );
 
 if (!empty($_POST['inner_entry_query'])) {

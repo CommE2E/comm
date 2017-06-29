@@ -17,5 +17,5 @@ async_end(array(
   'success' => true,
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
-  'users' => array_values($users),
+  'user_infos' => array_values($users),
 ));

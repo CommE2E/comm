@@ -229,7 +229,7 @@ class LogInPanel extends React.PureComponent {
       );
       this.props.setActiveAlert(false);
       await setNativeCredentials({
-        username: result.userInfo.username,
+        username: result.currentUserInfo.username,
         password: this.state.passwordInputText,
       });
       return result;
