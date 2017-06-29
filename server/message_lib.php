@@ -199,6 +199,8 @@ function message_from_row($row) {
 }
 
 function get_all_users($messages, $users) {
+  global $conn;
+
   $all_added_user_ids = array();
   foreach ($messages as $message) {
     if ($message['type'] !== MESSAGE_TYPE_ADD_USERS) {
@@ -209,6 +211,9 @@ function get_all_users($messages, $users) {
         $all_added_user_ids[] = $user_id;
       }
     }
+  }
+  if (!$all_added_user_ids) {
+    return $users;
   }
 
   $where_in = implode(',', $all_added_user_ids);
