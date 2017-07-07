@@ -101,7 +101,6 @@ class InputBar extends React.PureComponent {
             placeholderTextColor="#888888"
             multiline={true}
             onContentSizeChange={this.onContentSizeChange}
-            onChange={this.onChange}
             style={[styles.textInput, textInputStyle]}
             ref={this.textInputRef}
           />

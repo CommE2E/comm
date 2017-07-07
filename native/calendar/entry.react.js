@@ -251,7 +251,6 @@ class Entry extends React.Component {
           onBlur={this.onBlur}
           onFocus={this.onFocus}
           onContentSizeChange={this.onContentSizeChange}
-          onChange={this.onChange}
           autoFocus={focused}
           ref={this.textInputRef}
         />
