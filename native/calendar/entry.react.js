@@ -327,16 +327,6 @@ class Entry extends React.Component {
     this.guardedSetState({ height });
   }
 
-  // On Android, onContentSizeChange only gets called once when the TextInput is
-  // first rendered. Which is like, what? Anyways, instead you're supposed to
-  // use onChange.
-  onChange = (event) => {
-    if (Platform.OS !== "android" || !Entry.isFocused(this.props)) {
-      return;
-    }
-    this.guardedSetState({ height: event.nativeEvent.contentSize.height });
-  }
-
   onChangeText = (newText: string) => {
     this.guardedSetState({ text: newText });
   }

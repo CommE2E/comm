@@ -126,15 +126,6 @@ class InputBar extends React.PureComponent {
     this.setState({ height });
   }
 
-  // On Android, onContentSizeChange only gets called once when the TextInput is
-  // first rendered. Which is like, what? Anyways, instead you're supposed to
-  // use onChange.
-  onChange = (event) => {
-    if (Platform.OS === "android") {
-      this.setState({ height: event.nativeEvent.contentSize.height });
-    }
-  }
-
   onSend = () => {
     const localID = `local${getNewLocalID()}`;
     const creatorID = this.props.userID;
