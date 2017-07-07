@@ -45,10 +45,10 @@ import {
 } from './account/verification-modal.react';
 import { createIsForegroundSelector } from './selectors/nav-selectors';
 
-type InexactNavInfo = BaseNavInfo & {
+export type NavInfo = {|
+  ...$Exact<BaseNavInfo>,
   navigationState: NavigationState,
-};
-export type NavInfo = $Exact<InexactNavInfo>;
+|};
 
 export type Action = BaseAction |
   {| type: "HANDLE_URL", payload: string |} |
@@ -127,7 +127,7 @@ const ReduxWrappedAppNavigator = connect((state: AppState) => ({
   isForeground: isForegroundSelector(state),
   atInitialRoute: state.navInfo.navigationState.routes[0].index === 0,
 }))(WrappedAppNavigator);
-ReduxWrappedAppNavigator.router = AppNavigator.router;
+(ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
 
 const RootNavigator = StackNavigator(
   {
@@ -180,12 +180,21 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     state.navigationState,
   )
   if (navigationState && navigationState !== state.navigationState) {
-    return { ...state, navigationState };
+    return {
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
+      navigationState,
+    };
   }
   // Deep linking
   if (action.type === "HANDLE_URL") {
     return {
-      ...state,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
       navigationState: handleURL(state.navigationState, action.payload),
     };
   } else if (
@@ -194,7 +203,10 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
       action.type === "NAVIGATE_TO_APP"
   ) {
     return {
-      ...state,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
       navigationState: removeModals(state.navigationState),
     };
   } else if (
@@ -206,7 +218,10 @@ function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
     return logOutIfCookieInvalidated(state, action.payload);
   } else if (action.type === "PING_SUCCESS") {
     return {
-      ...state,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
       navigationState: removeModalsIfPingIndicatesLoggedIn(
         state.navigationState,
         action.payload,
@@ -294,10 +309,19 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
   const currentModalIndex =
     _findIndex(['routeName', LoggedOutModalRouteName])(navigationState.routes);
   if (currentModalIndex >= 0 && navigationState.index >= currentModalIndex) {
-    return { ...defaultNavInfo, navigationState };
+    return {
+      startDate: defaultNavInfo.startDate,
+      endDate: defaultNavInfo.endDate,
+      home: defaultNavInfo.home,
+      threadID: defaultNavInfo.threadID,
+      navigationState,
+    };
   } else if (currentModalIndex >= 0) {
     return {
-      ...defaultNavInfo,
+      startDate: defaultNavInfo.startDate,
+      endDate: defaultNavInfo.endDate,
+      home: defaultNavInfo.home,
+      threadID: defaultNavInfo.threadID,
       navigationState: {
         ...navigationState,
         index: currentModalIndex,
@@ -305,7 +329,10 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
     };
   }
   return {
-    ...defaultNavInfo,
+    startDate: defaultNavInfo.startDate,
+    endDate: defaultNavInfo.endDate,
+    home: defaultNavInfo.home,
+    threadID: defaultNavInfo.threadID,
     navigationState: {
       index: navigationState.routes.length,
       routes: [
