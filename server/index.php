@@ -5,6 +5,7 @@ require_once('auth.php');
 require_once('verify_lib.php');
 require_once('thread_lib.php');
 require_once('message_lib.php');
+require_once('entry_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -96,21 +97,8 @@ if ($verify_code) {
   }
 }
 
-$viewer_id = get_viewer_id();
-if ($thread !== null) {
-  $time = round(microtime(true) * 1000); // in milliseconds
-  $conn->query(
-    "INSERT INTO roles(thread, user, ".
-      "creation_time, last_view, role, subscribed) ".
-      "VALUES ($thread, $viewer_id, $time, $time, ".
-      ROLE_VIEWED.", 0) ON DUPLICATE KEY UPDATE ".
-      "creation_time = LEAST(VALUES(creation_time), creation_time), ".
-      "last_view = GREATEST(VALUES(last_view), last_view), ".
-      "role = GREATEST(VALUES(role), role)"
-  );
-}
-
 // Get the username
+$viewer_id = get_viewer_id();
 $username = null;
 $email = null;
 $email_verified = null;
@@ -125,50 +113,26 @@ if (user_logged_in()) {
 }
 
 // Fetch the actual text for each day
-$entries = array();
-if ($home) {
-  $result = $conn->query(
-    "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.thread, e.deleted, u.username AS creator FROM entries e ".
-      "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = $viewer_id ".
-      "LEFT JOIN users u ON u.id = e.creator ".
-      "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-      "r.subscribed = 1 AND e.deleted = 0 ORDER BY d.date, e.creation_time"
-  );
-} else {
-  $result = $conn->query(
-    "SELECT e.id AS entry_id, DAY(d.date) AS day, e.text, e.creation_time, ".
-      "d.thread, e.deleted, u.username AS creator FROM entries e ".
-      "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN users u ON u.id = e.creator ".
-      "WHERE MONTH(d.date) = $month AND YEAR(d.date) = $year AND ".
-      "d.thread = $thread AND e.deleted = 0 ORDER BY d.date, e.creation_time"
-  );
+$month_fragment = $month < 10 ? "0{$month}" : (string)$month;
+$start_date = "{$year}-{$month_fragment}-01";
+$start_date_time = strtotime($start_date);
+$end_date = date('Y-m-t', $start_date_time);
+$entry_result = get_entry_infos(array(
+  'start_date' => $start_date,
+  'end_date' => $end_date,
+  'nav' => $home ? "home" : (string)$thread,
+));
+if (!$entry_result) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
 }
-while ($row = $result->fetch_assoc()) {
-  $entry_thread = intval($row['thread']);
-  if (!$thread_infos[$entry_thread]['authorized']) {
-    continue;
-  }
-  $day = intval($row['day']);
-  $entry = intval($row['entry_id']);
-  $entries[$entry] = array(
-    "id" => (string)$entry,
-    "threadID" => (string)$entry_thread,
-    "text" => $row['text'],
-    "year" => $year,
-    "month" => $month,
-    "day" => $day,
-    "creationTime" => intval($row['creation_time']),
-    "deleted" => (bool)$row['deleted'],
-    "creator" => $row['creator'] ?: null,
-  );
-}
+list($entries, $entry_users) = $entry_result;
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status, $users) =
+list($message_infos, $truncation_status, $message_users) =
   get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
+
+$users = array_merge($message_users, $entry_users);
 
 $fonts_css_url = DEV
   ? "fonts/local-fonts.css"
@@ -210,7 +174,7 @@ HTML;
       var current_as_of = <?=$current_as_of?>;
       var message_infos = <?=json_encode($message_infos)?>;
       var truncation_status = <?=json_encode($truncation_status)?>;
-      var user_infos = <?=json_decode($users, JSON_FORCE_OBJECT)?>;
+      var user_infos = <?=json_encode($users, JSON_FORCE_OBJECT)?>;
     </script>
   </head>
   <body>

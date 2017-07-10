@@ -5,15 +5,16 @@ require_once('entry_lib.php');
 
 async_start();
 
-$entries = get_entry_infos($_POST);
-
-if ($entries === null) {
+$entry_result = get_entry_infos($_POST);
+if ($entry_result === null) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
 }
 
+list($entries, $users) = $entry_result;
 async_end(array(
   'success' => true,
-  'result' => $entries,
+  'entry_infos' => $entries,
+  'user_infos' => array_values($users),
 ));

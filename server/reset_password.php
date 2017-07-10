@@ -69,14 +69,17 @@ $return = array(
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
   'server_time' => $current_as_of,
-  'user_infos' => array_values($users),
 );
 
 if (!empty($_POST['inner_entry_query'])) {
-  $entries = get_entry_infos($_POST['inner_entry_query']);
-  if ($entries !== null) {
-    $return['entries'] = $entries;
+  $entry_result = get_entry_infos($_POST['inner_entry_query']);
+  if ($entry_result !== null) {
+    list($entries, $entry_users) = $entry_result;
+    $return['entry_infos'] = $entries;
+    $users = array_merge($users, $entry_users);
   }
 }
+
+$return['user_infos'] = array_values($users);
 
 async_end($return);
