@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { RawEntryInfo } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -30,7 +30,7 @@ export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
   sessionID: string,
-  entryInfos: {[id: string]: EntryInfo},
+  entryInfos: {[id: string]: RawEntryInfo},
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},

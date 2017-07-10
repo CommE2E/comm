@@ -1,7 +1,8 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { RawEntryInfo } from 'lib/types/entry-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import { createSelector } from 'reselect';
 import _mapValues from 'lodash/fp/mapValues';
@@ -9,15 +10,24 @@ import _flow from 'lodash/fp/flow';
 import _map from 'lodash/fp/map';
 import _compact from 'lodash/fp/compact';
 
+import { createEntryInfo } from 'lib/selectors/thread-selectors';
+
 const allDaysToEntries = createSelector(
   (state: AppState) => state.entryInfos,
   (state: AppState) => state.daysToEntries,
+  (state: AppState) => state.userInfos,
+  (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
   (
-    entryInfos: {[id: string]: EntryInfo},
+    entryInfos: {[id: string]: RawEntryInfo},
     daysToEntries: {[day: string]: string[]},
+    userInfos: {[id: string]: UserInfo},
+    viewerID: ?string,
   ) => _mapValues((entryIDs: string[]) =>
     _flow(
-      _map((entryID: string) => entryInfos[entryID]),
+      _map(
+        (entryID: string) =>
+          createEntryInfo(entryInfos[entryID], viewerID, userInfos),
+      ),
       _compact,
     )(entryIDs),
   )(daysToEntries),

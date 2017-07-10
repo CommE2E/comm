@@ -5,7 +5,7 @@ import 'isomorphic-fetch';
 
 import type { Store } from 'redux';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { RawEntryInfo } from 'lib/types/entry-types';
 import type {
   RawMessageInfo,
   MessageTruncationStatus,
@@ -45,7 +45,7 @@ declare var username: string;
 declare var email: string;
 declare var email_verified: bool;
 declare var thread_infos: {[id: string]: ThreadInfo};
-declare var entry_infos: EntryInfo[];
+declare var entry_infos: RawEntryInfo[];
 declare var month: number;
 declare var year: number;
 declare var verify_code: ?string;

@@ -2,7 +2,7 @@
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { RawEntryInfo } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
@@ -32,7 +32,7 @@ export type AppState = {|
   sessionID: string,
   verifyField: ?VerifyField,
   resetPasswordUsername: string,
-  entryInfos: {[id: string]: EntryInfo},
+  entryInfos: {[id: string]: RawEntryInfo},
   daysToEntries: {[day: string]: string[]},
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},

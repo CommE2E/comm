@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
+import invariant from 'invariant';
 
 import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -33,7 +34,7 @@ class ThreadPicker extends React.PureComponent {
     close: () => void,
     // Redux state
     onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-    username: ?string,
+    userID: string,
     // Redux dispatch functions
     dispatchActionPayload: (actionType: string, payload: *) => void,
   };
@@ -41,7 +42,7 @@ class ThreadPicker extends React.PureComponent {
     dateString: PropTypes.string.isRequired,
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    username: PropTypes.string,
+    userID: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -107,7 +108,7 @@ class ThreadPicker extends React.PureComponent {
     this.props.close();
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
-      createLocalEntry(threadID, this.props.dateString, this.props.username),
+      createLocalEntry(threadID, this.props.dateString, this.props.userID),
     );
   }
 
@@ -175,9 +176,13 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState) => ({
-    onScreenThreadInfos: onScreenThreadInfos(state),
-    username: state.currentUserInfo && state.currentUserInfo.username,
-  }),
+  (state: AppState) => {
+    const userID = state.currentUserInfo && state.currentUserInfo.id;
+    invariant(userID, "should be logged in to use ThreadPicker");
+    return {
+      onScreenThreadInfos: onScreenThreadInfos(state),
+      userID,
+    };
+  },
   includeDispatchActionProps,
 )(ThreadPicker);

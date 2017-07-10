@@ -40,7 +40,7 @@ type Props = {
   startingTabIndex: number,
   // Redux state
   onScreenThreadInfos: ThreadInfo[],
-  username: ?string,
+  userID: string,
   loggedIn: bool,
   // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
@@ -248,7 +248,7 @@ class Day extends React.PureComponent {
       createLocalEntry(
         threadID,
         this.props.dayString,
-        this.props.username,
+        this.props.userID,
       ),
     );
   }
@@ -284,16 +284,20 @@ Day.propTypes = {
   clearModal: PropTypes.func.isRequired,
   startingTabIndex: PropTypes.number.isRequired,
   onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-  username: PropTypes.string,
+  userID: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
 };
 
 export default connect(
-  (state: AppState) => ({
-    onScreenThreadInfos: onScreenThreadInfos(state),
-    username: state.currentUserInfo && state.currentUserInfo.username,
-    loggedIn: !!state.currentUserInfo,
-  }),
+  (state: AppState) => {
+    const userID = state.currentUserInfo && state.currentUserInfo.id;
+    invariant(userID, "should be logged in to use ThreadPicker");
+    return {
+      onScreenThreadInfos: onScreenThreadInfos(state),
+      userID,
+      loggedIn: !!state.currentUserInfo,
+    };
+  },
   includeDispatchActionProps,
 )(Day);
