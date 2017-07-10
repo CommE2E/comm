@@ -1,5 +1,5 @@
-// flow-typed signature: 599948fccaf9881f9a36213f63311213
-// flow-typed version: 50ddf2f004/jest_v20.x.x/flow_>=v0.33.x
+// flow-typed signature: a0369c11661f437ec4ccdd805579ddcf
+// flow-typed version: c4b9fea7c9/jest_v20.x.x/flow_>=v0.33.x
 
 type JestMockFn = {
   (...args: Array<any>): any,
@@ -248,9 +248,9 @@ type JestExpectType = {
    */
   toHaveProperty(propPath: string, value?: any): void,
   /**
-   * Use .toMatch to check that a string matches a regular expression.
+   * Use .toMatch to check that a string matches a regular expression or string.
    */
-  toMatch(regexp: RegExp): void,
+  toMatch(regexpOrString: RegExp | string): void,
   /**
    * Use .toMatchObject to check that a javascript object matches a subset of the properties of an object.
    */
@@ -419,8 +419,25 @@ declare function beforeEach(fn: Function): void;
 declare function afterAll(fn: Function): void;
 /** Runs this function before any tests have started inside this context */
 declare function beforeAll(fn: Function): void;
+
 /** A context for grouping tests together */
-declare function describe(name: string, fn: Function): void;
+declare var describe: {
+  /**
+   * Creates a block that groups together several related tests in one "test suite"
+   */
+  (name: string, fn: Function): void,
+
+  /**
+   * Only run this describe block
+   */
+  only(name: string, fn: Function): void,
+
+  /**
+   * Skip running this describe block
+   */
+  skip(name: string, fn: Function): void,
+};
+
 
 /** An individual test unit */
 declare var it: {

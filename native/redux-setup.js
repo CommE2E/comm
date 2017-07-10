@@ -13,7 +13,7 @@ import { REHYDRATE } from 'redux-persist/constants';
 import thunk from 'redux-thunk';
 import { AsyncStorage } from 'react-native';
 import { createStore, applyMiddleware } from 'redux';
-import { composeWithDevTools } from 'remote-redux-devtools';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { autoRehydrate, persistStore } from 'redux-persist';
 import PropTypes from 'prop-types';
 
