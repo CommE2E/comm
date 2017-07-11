@@ -101,6 +101,7 @@ type State = {
   readyToShowList: bool,
   pickerOpenForDateString: ?string,
   extraData: ExtraData,
+  scrollToOffsetAfterSuppressingKeyboardDismissal: ?number,
 };
 class InnerCalendar extends React.PureComponent {
 
@@ -158,6 +159,7 @@ class InnerCalendar extends React.PureComponent {
   // once the keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyFocused: ?string = null;
   keyboardShowListener: ?Object;
+  keyboardDismissListener: ?Object;
   keyboardShownHeight: ?number = null;
   // We wait until the loaders leave view before letting them be triggered again
   topLoaderWaitingToLeaveView = true;
@@ -178,6 +180,7 @@ class InnerCalendar extends React.PureComponent {
       readyToShowList: false,
       pickerOpenForDateString: null,
       extraData: this.latestExtraData,
+      scrollToOffsetAfterSuppressingKeyboardDismissal: null,
     };
   }
 
@@ -198,6 +201,10 @@ class InnerCalendar extends React.PureComponent {
       this.keyboardShowListener = Keyboard.addListener(
         Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
         this.keyboardShow,
+      );
+      this.keyboardDismissListener = Keyboard.addListener(
+        Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+        this.keyboardDismiss,
       );
     }
   }
@@ -282,22 +289,28 @@ class InnerCalendar extends React.PureComponent {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (
-      nextProps.tabActive &&
-      !this.props.tabActive &&
-      !this.keyboardShowListener
-    ) {
-      this.keyboardShowListener = Keyboard.addListener(
-        Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-        this.keyboardShow,
-      );
-    } else if (
-      !nextProps.tabActive &&
-      this.props.tabActive &&
-      this.keyboardShowListener
-    ) {
-      this.keyboardShowListener.remove();
-      this.keyboardShowListener = null;
+    if (nextProps.tabActive && !this.props.tabActive) {
+      if (!this.keyboardShowListener) {
+        this.keyboardShowListener = Keyboard.addListener(
+          Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+          this.keyboardShow,
+        );
+      }
+      if (!this.keyboardDismissListener) {
+        this.keyboardDismissListener = Keyboard.addListener(
+          Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+          this.keyboardDismiss,
+        );
+      }
+    } else if (!nextProps.tabActive && this.props.tabActive) {
+      if (this.keyboardShowListener) {
+        this.keyboardShowListener.remove();
+        this.keyboardShowListener = null;
+      }
+      if (this.keyboardDismissListener) {
+        this.keyboardDismissListener.remove();
+        this.keyboardDismissListener = null;
+      }
     }
 
     // If the sessionID gets reset and the user isn't looking we scroll to today
@@ -333,6 +346,29 @@ class InnerCalendar extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    // On Android, if the keyboardDismissMode is set to "on-drag", our attempt
+    // to scroll the FlatList to avoid the keyboard when the keyboard is being
+    // shown can cause the keyboard to immediately get dismissed. To avoid this,
+    // we make sure to temporarily set the keyboardDismissMode to "none" when
+    // doing this scroll. Only after that do we execute the scroll, and we make
+    // sure to reset keyboardDismissMode 0.5s after the scroll starts.
+    const newOffset =
+      this.state.scrollToOffsetAfterSuppressingKeyboardDismissal;
+    const oldOffset = prevState.scrollToOffsetAfterSuppressingKeyboardDismissal;
+    if (
+      (newOffset !== undefined && newOffset !== null) &&
+      (oldOffset === undefined || oldOffset === null)
+    ) {
+      invariant(this.flatList, "flatList should be set");
+      this.flatList.scrollToOffset({ offset: newOffset, animated: true });
+      setTimeout(
+        () => this.setState({
+          scrollToOffsetAfterSuppressingKeyboardDismissal: null,
+        }),
+        500,
+      );
+    }
+
     const lastLDWH = prevState.listDataWithHeights;
     const newLDWH = this.state.listDataWithHeights;
     if (!lastLDWH || !newLDWH) {
@@ -563,6 +599,12 @@ class InnerCalendar extends React.PureComponent {
       const flatListStyle = { opacity: this.state.readyToShowList ? 1 : 0 };
       const initialScrollIndex =
         InnerCalendar.initialScrollIndex(listDataWithHeights);
+      const pendingScrollOffset =
+        this.state.scrollToOffsetAfterSuppressingKeyboardDismissal;
+      const keyboardDismissMode =
+        pendingScrollOffset !== null && pendingScrollOffset !== undefined
+          ? "none"
+          : "on-drag";
       flatList = (
         <FlatList
           data={listDataWithHeights}
@@ -573,7 +615,7 @@ class InnerCalendar extends React.PureComponent {
           onScroll={this.onScroll}
           initialScrollIndex={initialScrollIndex}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode={keyboardDismissMode}
           onMomentumScrollEnd={this.onMomentumScrollEnd}
           onScrollEndDrag={this.onScrollEndDrag}
           extraData={this.state.extraData}
@@ -696,6 +738,10 @@ class InnerCalendar extends React.PureComponent {
     }
   }
 
+  keyboardDismiss = (event: KeyboardEvent) => {
+    this.keyboardShownHeight = null;
+  }
+
   scrollToKey(lastEntryKeyFocused: string, keyboardHeight: number) {
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
@@ -721,11 +767,18 @@ class InnerCalendar extends React.PureComponent {
     ) {
       return;
     }
+    const offset = itemStart - (visibleHeight - itemHeight) / 2;
+    if (Platform.OS === "android") {
+      // On Android, we need to wait for the keyboardDismissMode to be updated
+      // before executing this scroll. See the comment in componentDidUpdate for
+      // more details
+      this.setState({
+        scrollToOffsetAfterSuppressingKeyboardDismissal: offset,
+      });
+      return;
+    }
     invariant(this.flatList, "flatList should be set");
-    this.flatList.scrollToOffset({
-      offset: itemStart - (visibleHeight - itemHeight) / 2,
-      animated: true,
-    });
+    this.flatList.scrollToOffset({ offset, animated: true });
   }
 
   allHeightsMeasured = (

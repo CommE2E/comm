@@ -314,6 +314,7 @@ class Entry extends React.Component {
     } else if (this.props.entryInfo.text !== this.state.text) {
       this.save(this.props.entryInfo.id, this.state.text);
     }
+    this.props.onFocus(entryKey(this.props.entryInfo), false);
   }
 
   onContentSizeChange = (event) => {
