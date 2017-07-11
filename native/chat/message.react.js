@@ -155,10 +155,7 @@ class InnerMessage extends React.PureComponent {
             onResponderGrant={this.onResponderGrant}
             onResponderTerminationRequest={this.onResponderTerminationRequest}
           >
-            <Text
-              numberOfLines={1}
-              style={[styles.text, textStyle]}
-            >{text}</Text>
+            <Text style={[styles.text, textStyle]}>{text}</Text>
           </View>
         </View>
       </View>

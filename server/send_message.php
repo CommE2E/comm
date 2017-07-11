@@ -31,10 +31,11 @@ $time = round(microtime(true) * 1000); // in milliseconds
 
 $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $id = $conn->insert_id;
-$conn->query(
-  "INSERT INTO messages(id, thread, user, type, text, time) ".
-    "VALUES ($id, $thread, $viewer_id, 0, '$text', $time)"
-);
+$insert_query = <<<SQL
+INSERT INTO messages(id, thread, user, type, content, time)
+VALUES ({$id}, {$thread}, {$viewer_id}, 0, '{$text}', {$time})
+SQL;
+$conn->query($insert_query);
 
 async_end(array(
   'success' => true,
