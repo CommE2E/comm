@@ -27,7 +27,8 @@ export type CalendarItem =
   };
 
 const calendarListData = createSelector(
-  (state: BaseAppState) => !!state.currentUserInfo,
+  (state: BaseAppState) => !!(state.currentUserInfo &&
+    !state.currentUserInfo.anonymous && true),
   currentDaysToEntries,
   (
     loggedIn: bool,

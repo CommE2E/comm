@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { LoggedInUserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -36,7 +36,7 @@ type Props = {
     username: string,
     email: string,
     password: string,
-  ) => Promise<CurrentUserInfo>,
+  ) => Promise<LoggedInUserInfo>,
 };
 type State = {
   username: string,

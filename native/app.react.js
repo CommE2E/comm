@@ -85,7 +85,6 @@ class AppWithNavigationState extends React.PureComponent {
     // Redux state
     cookie: ?string,
     navigationState: NavigationState,
-    loggedIn: bool,
     pingStartingPayload: () => PingStartingPayload,
     currentAsOf: number,
     // Redux dispatch functions
@@ -99,7 +98,6 @@ class AppWithNavigationState extends React.PureComponent {
   static propTypes = {
     cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,
-    loggedIn: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
     currentAsOf: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
@@ -168,7 +166,7 @@ class AppWithNavigationState extends React.PureComponent {
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
     if (
-      (this.props.loggedIn ||
+      (startingPayload.loggedIn ||
         (this.props.cookie && this.props.cookie.startsWith("user=")))
     ) {
       this.props.dispatchActionPromise(
@@ -213,7 +211,6 @@ const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     cookie: state.cookie,
     navigationState: state.navInfo.navigationState,
-    loggedIn: !!state.currentUserInfo,
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
   }),

@@ -468,7 +468,8 @@ export default connect(
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),
     sessionStartingPayload: sessionStartingPayload(state),
-    loggedIn: !!state.currentUserInfo,
+    loggedIn: !!(state.currentUserInfo &&
+      !state.currentUserInfo.anonymous && true),
     cookie: state.cookie,
   }),
   includeDispatchActionProps,

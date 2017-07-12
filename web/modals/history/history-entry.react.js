@@ -7,6 +7,7 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -168,7 +169,8 @@ export default connect(
     return {
       threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
       sessionID: currentSessionID(state),
-      loggedIn: !!state.currentUserInfo,
+      loggedIn: !!(state.currentUserInfo &&
+        !state.currentUserInfo.anonymous && true),
       restoreLoadingStatus: createLoadingStatusSelector(
         restoreEntryActionTypes,
         `${restoreEntryActionTypes.started}:${entryID}`,

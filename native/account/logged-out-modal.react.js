@@ -728,7 +728,8 @@ const LoggedOutModal = connect(
   (state: AppState) => ({
     rehydrateConcluded: state.rehydrateConcluded,
     cookie: state.cookie,
-    loggedIn: !!state.currentUserInfo,
+    loggedIn: !!(state.currentUserInfo &&
+      !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.messageStore.currentAsOf,
