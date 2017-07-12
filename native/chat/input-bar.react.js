@@ -34,7 +34,7 @@ type Props = {
   threadID: string,
   // Redux state
   username: ?string,
-  userID: ?string,
+  viewerID: ?string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -54,7 +54,7 @@ class InputBar extends React.PureComponent {
   static propTypes = {
     threadID: PropTypes.string.isRequired,
     username: PropTypes.string,
-    userID: PropTypes.string,
+    viewerID: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
   };
@@ -127,8 +127,8 @@ class InputBar extends React.PureComponent {
 
   onSend = () => {
     const localID = `local${getNewLocalID()}`;
-    const creatorID = this.props.userID;
-    invariant(creatorID, "should be logged in to send a message");
+    const creatorID = this.props.viewerID;
+    invariant(creatorID, "should have viewer ID in order to send a message");
     const messageInfo = ({
       type: messageType.TEXT,
       localID,
@@ -202,7 +202,7 @@ export default connect(
   (state: AppState) => ({
     username: state.currentUserInfo && !state.currentUserInfo.anonymous &&
       state.currentUserInfo.username,
-    userID: state.currentUserInfo && state.currentUserInfo.id,
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
     cookie: state.cookie,
   }),
   includeDispatchActionProps,

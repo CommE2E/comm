@@ -34,7 +34,7 @@ class ThreadPicker extends React.PureComponent {
     close: () => void,
     // Redux state
     onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-    userID: string,
+    viewerID: string,
     // Redux dispatch functions
     dispatchActionPayload: (actionType: string, payload: *) => void,
   };
@@ -42,7 +42,7 @@ class ThreadPicker extends React.PureComponent {
     dateString: PropTypes.string.isRequired,
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    userID: PropTypes.string.isRequired,
+    viewerID: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -108,7 +108,7 @@ class ThreadPicker extends React.PureComponent {
     this.props.close();
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
-      createLocalEntry(threadID, this.props.dateString, this.props.userID),
+      createLocalEntry(threadID, this.props.dateString, this.props.viewerID),
     );
   }
 
@@ -177,11 +177,11 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => {
-    const userID = state.currentUserInfo && state.currentUserInfo.id;
-    invariant(userID, "should be logged in to use ThreadPicker");
+    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
+    invariant(viewerID, "should have viewer ID in to use ThreadPicker");
     return {
       onScreenThreadInfos: onScreenThreadInfos(state),
-      userID,
+      viewerID,
     };
   },
   includeDispatchActionProps,

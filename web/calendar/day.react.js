@@ -40,7 +40,7 @@ type Props = {
   startingTabIndex: number,
   // Redux state
   onScreenThreadInfos: ThreadInfo[],
-  userID: ?string,
+  viewerID: ?string,
   loggedIn: bool,
   // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
@@ -243,14 +243,14 @@ class Day extends React.PureComponent {
       );
       return;
     }
-    const userID = this.props.userID;
-    invariant(userID, "should be logged in to create thread");
+    const viewerID = this.props.viewerID;
+    invariant(viewerID, "should have viewerID in order to create thread");
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
       createLocalEntry(
         threadID,
         this.props.dayString,
-        userID,
+        viewerID,
       ),
     );
   }
@@ -286,7 +286,7 @@ Day.propTypes = {
   clearModal: PropTypes.func.isRequired,
   startingTabIndex: PropTypes.number.isRequired,
   onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-  userID: PropTypes.string,
+  viewerID: PropTypes.string,
   loggedIn: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
 };
@@ -294,7 +294,7 @@ Day.propTypes = {
 export default connect(
   (state: AppState) => ({
     onScreenThreadInfos: onScreenThreadInfos(state),
-    userID: state.currentUserInfo && state.currentUserInfo.id,
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
   }),

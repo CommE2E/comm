@@ -69,7 +69,7 @@ type Props = {
   navigation: NavProp,
   // Redux state
   messageListData: $ReadOnlyArray<ChatMessageItem>,
-  userID: ?string,
+  viewerID: ?string,
   startReached: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -97,7 +97,7 @@ class InnerMessageList extends React.PureComponent {
       }).isRequired,
     }).isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    userID: PropTypes.string,
+    viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessages: PropTypes.func.isRequired,
@@ -261,7 +261,7 @@ class InnerMessageList extends React.PureComponent {
     if (item.itemType === "loader") {
       return 56;
     }
-    return messageItemHeight(item, this.props.userID);
+    return messageItemHeight(item, this.props.viewerID);
   }
 
   heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
@@ -428,7 +428,7 @@ const MessageList = connect(
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     return {
       messageListData: messageListData(threadID)(state),
-      userID: state.currentUserInfo && state.currentUserInfo.id,
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
       cookie: state.cookie,

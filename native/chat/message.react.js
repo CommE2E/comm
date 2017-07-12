@@ -27,10 +27,10 @@ import { messageType } from 'lib/types/message-types';
 
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
-  userID: ?string,
+  viewerID: ?string,
 ) {
   let height = 17 + item.textHeight; // for padding, margin, and text
-  if (item.messageInfo.creatorID !== userID && item.startsCluster) {
+  if (item.messageInfo.creatorID !== viewerID && item.startsCluster) {
     height += 25; // for username
   }
   if (item.startsConversation) {
@@ -48,7 +48,6 @@ type Props = {
   onFocus: (messageKey: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  userID: ?string,
 };
 type State = {
   threadInfo: ThreadInfo,
@@ -62,7 +61,6 @@ class InnerMessage extends React.PureComponent {
     focused: PropTypes.bool.isRequired,
     onFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    userID: PropTypes.string,
   };
 
   constructor(props: Props) {
@@ -202,7 +200,6 @@ const styles = StyleSheet.create({
 const Message = connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => ({
     threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
-    userID: state.currentUserInfo && state.currentUserInfo.id,
   }),
 )(InnerMessage);
 

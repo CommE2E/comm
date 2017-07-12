@@ -28,14 +28,14 @@ class InnerChatThreadList extends React.PureComponent {
     navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
     // Redux state
     chatListData: $ReadOnlyArray<ChatThreadItem>,
-    userID: ?string,
+    viewerID: ?string,
   };
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
-    userID: PropTypes.string,
+    viewerID: PropTypes.string,
   };
   static navigationOptions = {
     title: 'Threads',
@@ -76,7 +76,7 @@ class InnerChatThreadList extends React.PureComponent {
   }
 
   render() {
-    // this.props.userID is in extraData since it's used by MessagePreview
+    // this.props.viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
     return (
       <View style={styles.container}>
@@ -86,7 +86,7 @@ class InnerChatThreadList extends React.PureComponent {
           keyExtractor={InnerChatThreadList.keyExtractor}
           getItemLayout={InnerChatThreadList.getItemLayout}
           ListHeaderComponent={InnerChatThreadList.ListHeaderComponent}
-          extraData={this.props.userID}
+          extraData={this.props.viewerID}
           style={styles.flatList}
         />
       </View>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
 const ChatThreadListRouteName = 'ChatThreadList';
 const ChatThreadList = connect((state: AppState) => ({
   chatListData: chatListData(state),
-  userID: state.currentUserInfo && state.currentUserInfo.id,
+  viewerID: state.currentUserInfo && state.currentUserInfo.id,
 }))(InnerChatThreadList);
 
 export {
