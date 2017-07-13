@@ -13,7 +13,10 @@ import type {
 } from '../selectors/chat-selectors';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
-import type { MessageInfo } from 'lib/types/message-types';
+import type {
+  TextMessageInfo,
+  RobotextMessageInfo,
+} from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { PageMessagesResult } from 'lib/actions/message-actions';
 import type { TextToMeasure } from '../text-height-measurer.react';
@@ -35,7 +38,7 @@ import _differenceWith from 'lodash/fp/differenceWith';
 import _find from 'lodash/fp/find';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { messageKey, robotextForMessageInfo } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -55,16 +58,24 @@ import AddThreadButton from './add-thread-button.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 
-export type ChatMessageInfoItemWithHeight = {
+export type ChatMessageInfoItemWithHeight = {|
   itemType: "message",
-  messageInfo: MessageInfo,
+  messageInfo: RobotextMessageInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+  endsCluster: bool,
+  robotext: string,
+  textHeight: number,
+|} | {|
+  itemType: "message",
+  messageInfo: TextMessageInfo,
   startsConversation: bool,
   startsCluster: bool,
   endsCluster: bool,
   textHeight: number,
-};
+|};
 type ChatMessageItemWithHeight =
-  { itemType: "loader" } |
+  {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
 
 type Props = {
@@ -136,12 +147,17 @@ class InnerMessageList extends React.PureComponent {
           text: messageInfo.text,
           style: styles.text,
         });
-      } else {
-        const robotext = robotextForMessageInfo(messageInfo);
-        const text = robotext[0] + " " + robotext[1];
+      } else if (
+        item.messageInfo.type === messageType.CREATE_THREAD ||
+          item.messageInfo.type === messageType.ADD_USER
+      ) {
+        invariant(
+          item.robotext && typeof item.robotext === "string",
+          "Flow can't handle our fancy types :(",
+        );
         textToMeasure.push({
           id: messageKey(messageInfo),
-          text: text,
+          text: item.robotext,
           style: styles.robotext,
         });
       }
@@ -208,23 +224,40 @@ class InnerMessageList extends React.PureComponent {
       if (item.itemType !== "message") {
         return item;
       }
-      const messageInfoItem: ChatMessageInfoItem = item;
-      if (messageInfoItem.messageInfo.type !== messageType.TEXT) {
-        // TODO actually measure textHeight
-        return ({
-          ...messageInfoItem,
-          textHeight: 0,
-        }: ChatMessageInfoItemWithHeight);
-      }
-      const textHeight =
-        textHeights.get(messageKey(messageInfoItem.messageInfo));
+      const textHeight = textHeights.get(messageKey(item.messageInfo));
       invariant(
         textHeight,
-        `height for ${messageKey(messageInfoItem.messageInfo)} should be set`,
+        `height for ${messageKey(item.messageInfo)} should be set`,
       );
-      const withHeight =
-        ({ ...messageInfoItem, textHeight }: ChatMessageInfoItemWithHeight);
-      return withHeight;
+      if (item.messageInfo.type === messageType.TEXT) {
+        return {
+          itemType: "message",
+          messageInfo: item.messageInfo,
+          startsConversation: item.startsConversation,
+          startsCluster: item.startsCluster,
+          endsCluster: item.endsCluster,
+          textHeight,
+        };
+      } else if (
+        item.messageInfo.type === messageType.CREATE_THREAD ||
+          item.messageInfo.type === messageType.ADD_USER
+      ) {
+        invariant(
+          typeof item.robotext === "string",
+          "Flow can't handle our fancy types :(",
+        );
+        return {
+          itemType: "message",
+          messageInfo: item.messageInfo,
+          startsConversation: item.startsConversation,
+          startsCluster: item.startsCluster,
+          endsCluster: item.endsCluster,
+          robotext: item.robotext,
+          textHeight,
+        };
+      } else {
+        invariant(false, `${item.messageInfo.type} is not a messageType!`);
+      }
     });
     this.setState({ listDataWithHeights });
   }

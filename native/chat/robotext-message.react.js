@@ -14,7 +14,7 @@ import {
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { messageKey, robotextForMessageInfo } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
 
 function robotextMessageItemHeight(
@@ -54,14 +54,18 @@ class RobotextMessage extends React.PureComponent {
   }
 
   render() {
-    const robotext = robotextForMessageInfo(this.props.item.messageInfo);
+    const item = this.props.item;
+    invariant(
+      item.robotext && typeof item.robotext === "string",
+      "Flow can't handle our fancy types :(",
+    );
     return (
       <View
         onStartShouldSetResponder={this.onStartShouldSetResponder}
         onResponderGrant={this.onResponderGrant}
         onResponderTerminationRequest={this.onResponderTerminationRequest}
       >
-        <Text style={styles.robotext}>{robotext[0] + " " + robotext[1]}</Text>
+        <Text style={styles.robotext}>{item.robotext}</Text>
       </View>
     );
   }

@@ -8,6 +8,7 @@ import type {
   MessageStore,
   RawMessageInfo,
   TextMessageInfo,
+  RobotextMessageInfo,
 } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
@@ -22,6 +23,7 @@ import _orderBy from 'lodash/fp/orderBy';
 import _memoize from 'lodash/memoize';
 
 import { messageType } from 'lib/types/message-types';
+import { robotextForMessageInfo } from 'lib/shared/message-utils';
 
 function createMessageInfo(
   rawMessageInfo: RawMessageInfo,
@@ -120,15 +122,22 @@ const chatListData = createSelector(
   )(threadInfos),
 );
 
-export type ChatMessageInfoItem = {
+export type ChatMessageInfoItem = {|
   itemType: "message",
-  messageInfo: MessageInfo,
+  messageInfo: RobotextMessageInfo,
   startsConversation: bool,
   startsCluster: bool,
   endsCluster: bool,
-};
+  robotext: string,
+|} | {|
+  itemType: "message",
+  messageInfo: TextMessageInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+  endsCluster: bool,
+|};
 export type ChatMessageItem =
-  { itemType: "loader" } |
+  {| itemType: "loader" |} |
   ChatMessageInfoItem;
 const chatMessageItemPropType = PropTypes.oneOfType([
   PropTypes.shape({
@@ -140,6 +149,7 @@ const chatMessageItemPropType = PropTypes.oneOfType([
     startsConversation: PropTypes.bool.isRequired,
     startsCluster: PropTypes.bool.isRequired,
     endsCluster: PropTypes.bool.isRequired,
+    robotext: PropTypes.string,
   }),
 ]);
 const msInFiveMinutes = 5 * 60 * 1000;
@@ -188,13 +198,30 @@ const baseMessageListData = (threadID: string) => createSelector(
         viewerID,
         userInfos,
       );
-      chatMessageItems.push({
-        itemType: "message",
-        messageInfo,
-        startsConversation,
-        startsCluster,
-        endsCluster: false,
-      });
+      if (messageInfo.type === messageType.TEXT) {
+        chatMessageItems.push({
+          itemType: "message",
+          messageInfo,
+          startsConversation,
+          startsCluster,
+          endsCluster: false,
+        });
+      } else if (
+        messageInfo.type === messageType.CREATE_THREAD ||
+          messageInfo.type === messageType.ADD_USER
+      ) {
+        const robotextParts = robotextForMessageInfo(messageInfo);
+        chatMessageItems.push({
+          itemType: "message",
+          messageInfo,
+          startsConversation,
+          startsCluster,
+          endsCluster: false,
+          robotext: `${robotextParts[0]} ${robotextParts[1]}`,
+        });
+      } else {
+        invariant(false, `${messageInfo.type} is not a messageType!`);
+      }
       lastMessageInfo = messageInfo;
     }
     if (chatMessageItems.length > 0) {
