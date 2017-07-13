@@ -6,6 +6,7 @@ import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { LogOutResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import { View, StyleSheet, Text, Button, Alert, Platform } from 'react-native';
@@ -40,7 +41,7 @@ class More extends React.PureComponent {
     // Redux dispatch functions
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs
-    logOut: () => Promise<ThreadInfo[]>,
+    logOut: () => Promise<LogOutResult>,
     ping:
       (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
   };

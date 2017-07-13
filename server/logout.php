@@ -21,7 +21,12 @@ if (isset($_COOKIE['user'])) {
 
 delete_cookie('user');
 init_anonymous_cookie();
+$new_viewer_id = get_viewer_id();
 
 async_end(array(
   'success' => true,
+  'current_user_info' => array(
+    'id' => (string)$new_viewer_id,
+    'anonymous' => true,
+  ),
 ));

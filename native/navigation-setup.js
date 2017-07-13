@@ -12,6 +12,7 @@ import type {
 } from 'react-navigation';
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
+import type { SetCookiePayload } from 'lib/utils/action-utils';
 
 import { TabNavigator, StackNavigator } from 'react-navigation';
 import invariant from 'invariant';
@@ -343,11 +344,6 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
   };
 }
 
-type SetCookiePayload = {|
-  cookie: ?string,
-  threadInfos?: {[id: string]: ThreadInfo},
-  cookieInvalidated?: bool,
-|};
 function logOutIfCookieInvalidated(
   state: NavInfo,
   payload: SetCookiePayload,

@@ -4,6 +4,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
+import type { LogOutResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -71,7 +72,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteAccount: (password: string) => Promise<ThreadInfo[]>,
+  deleteAccount: (password: string) => Promise<LogOutResult>,
   changeUserSettings: (
     currentPassword: string,
     newEmail: string,

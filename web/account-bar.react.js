@@ -3,6 +3,7 @@
 import type { AppState } from './redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { LogOutResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -35,7 +36,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: () => Promise<ThreadInfo[]>,
+  logOut: () => Promise<LogOutResult>,
 };
 type State = {
   expanded: bool,

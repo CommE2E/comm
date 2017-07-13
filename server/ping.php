@@ -12,7 +12,6 @@ async_start();
 $viewer_id = get_viewer_id();
 $user_logged_in = user_logged_in();
 
-$user_info = null;
 if ($user_logged_in) {
   $result = $conn->query(
     "SELECT username, email, email_verified FROM users WHERE id = $viewer_id"
@@ -28,6 +27,11 @@ if ($user_logged_in) {
     'username' => $user_row['username'],
     'email' => $user_row['email'],
     'email_verified' => (bool)$user_row['email_verified'],
+  );
+} else {
+  $user_info = array(
+    'id' => (string)$viewer_id,
+    'anonymous' => true,
   );
 }
 
