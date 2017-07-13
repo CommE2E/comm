@@ -170,7 +170,11 @@ const baseMessageListData = (threadID: string) => createSelector(
         lastMessageInfo.time + msInFiveMinutes > rawMessageInfo.time
       ) {
         startsConversation = false;
-        if (lastMessageInfo.creatorID === rawMessageInfo.creatorID) {
+        if (
+          lastMessageInfo.type === messageType.TEXT &&
+          rawMessageInfo.type === messageType.TEXT &&
+          lastMessageInfo.creatorID === rawMessageInfo.creatorID
+        ) {
           startsCluster = false;
         }
       }

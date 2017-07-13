@@ -35,7 +35,7 @@ import _differenceWith from 'lodash/fp/differenceWith';
 import _find from 'lodash/fp/find';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey, robotextForMessageInfo } from 'lib/shared/message-utils';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -130,14 +130,21 @@ class InnerMessageList extends React.PureComponent {
         continue;
       }
       const messageInfo = item.messageInfo;
-      if (messageInfo.type !== messageType.TEXT) {
-        // TODO actually measure textHeight
-        continue;
+      if (messageInfo.type === messageType.TEXT) {
+        textToMeasure.push({
+          id: messageKey(messageInfo),
+          text: messageInfo.text,
+          style: styles.text,
+        });
+      } else {
+        const robotext = robotextForMessageInfo(messageInfo);
+        const text = robotext[0] + " " + robotext[1];
+        textToMeasure.push({
+          id: messageKey(messageInfo),
+          text: text,
+          style: styles.robotext,
+        });
       }
-      textToMeasure.push({
-        id: messageKey(messageInfo),
-        text: messageInfo.text,
-      });
     }
     return textToMeasure;
   }
@@ -284,7 +291,6 @@ class InnerMessageList extends React.PureComponent {
       <TextHeightMeasurer
         textToMeasure={this.state.textToMeasure}
         allHeightsMeasuredCallback={this.allHeightsMeasured}
-        style={styles.text}
       />
     );
     const listDataWithHeights = this.state.listDataWithHeights;
@@ -415,6 +421,12 @@ const styles = StyleSheet.create({
     left: 24,
     right: 24,
     fontSize: 18,
+    fontFamily: 'Arial',
+  },
+  robotext: {
+    left: 24,
+    right: 24,
+    fontSize: 15,
     fontFamily: 'Arial',
   },
   loadingIndicator: {

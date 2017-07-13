@@ -11,33 +11,34 @@ import {
   Text,
   StyleSheet,
   View,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { connect } from 'react-redux';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import Color from 'color';
 
-import { colorIsDark } from 'lib/selectors/thread-selectors';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
-import { messageKey } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
+
+import { TextMessage, textMessageItemHeight } from './text-message.react';
+import {
+  RobotextMessage,
+  robotextMessageItemHeight,
+} from './robotext-message.react';
 
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
-  let height = 17 + item.textHeight; // for padding, margin, and text
-  if (item.messageInfo.creatorID !== viewerID && item.startsCluster) {
-    height += 25; // for username
+  let height = 0;
+  if (item.messageInfo.type === messageType.TEXT) {
+    height += textMessageItemHeight(item, viewerID);
+  } else {
+    height += robotextMessageItemHeight(item, viewerID);
   }
   if (item.startsConversation) {
     height += 26; // for time bar
-  }
-  if (item.endsCluster) {
-    height += 7; // extra padding at the end of a cluster
   }
   return height;
 }
@@ -82,91 +83,49 @@ class InnerMessage extends React.PureComponent {
     ) {
       this.setState({ threadInfo: nextProps.threadInfo });
     }
-    if (nextProps.focused !== this.props.focused) {
+    if (
+      (nextProps.focused || nextProps.item.startsConversation) !==
+        (this.props.focused || this.props.item.startsConversation)
+    ) {
       LayoutAnimation.easeInEaseOut();
     }
   }
 
   render() {
     let conversationHeader = null;
-    if (this.props.item.startsConversation || this.props.focused) {
+    if (this.props.focused || this.props.item.startsConversation) {
       conversationHeader = (
         <Text style={styles.conversationHeader}>
           {longAbsoluteDate(this.props.item.messageInfo.time).toUpperCase()}
         </Text>
       );
     }
-
-    const isViewer = this.props.item.messageInfo.isViewer;
-    let containerStyle = null,
-      messageStyle = {},
-      textStyle = {};
-    if (isViewer) {
-      containerStyle = { alignSelf: 'flex-end' };
-      messageStyle.backgroundColor = `#${this.state.threadInfo.color}`;
-      const darkColor = colorIsDark(this.state.threadInfo.color);
-      textStyle.color = darkColor ? 'white' : 'black';
+    let message;
+    if (this.props.item.messageInfo.type === messageType.TEXT) {
+      message = (
+        <TextMessage
+          item={this.props.item}
+          focused={this.props.focused}
+          onFocus={this.props.onFocus}
+          threadInfo={this.props.threadInfo}
+        />
+      );
     } else {
-      containerStyle = { alignSelf: 'flex-start' };
-      messageStyle.backgroundColor = "#DDDDDDBB";
-      textStyle.color = 'black';
-    }
-    let authorName = null;
-    if (!isViewer && this.props.item.startsCluster) {
-      authorName = (
-        <Text style={styles.authorName}>
-          {this.props.item.messageInfo.creator}
-        </Text>
+      message = (
+        <RobotextMessage
+          item={this.props.item}
+          onFocus={this.props.onFocus}
+          threadInfo={this.props.threadInfo}
+        />
       );
     }
-    messageStyle.borderTopRightRadius =
-      isViewer && !this.props.item.startsCluster ? 0 : 8;
-    messageStyle.borderBottomRightRadius =
-      isViewer && !this.props.item.endsCluster ? 0 : 8;
-    messageStyle.borderTopLeftRadius =
-      !isViewer && !this.props.item.startsCluster ? 0 : 8;
-    messageStyle.borderBottomLeftRadius =
-      !isViewer && !this.props.item.endsCluster ? 0 : 8;
-    messageStyle.marginBottom = this.props.item.endsCluster ? 12 : 5;
-    if (this.props.focused) {
-      messageStyle.backgroundColor =
-        Color(messageStyle.backgroundColor).darken(0.15).hex();
-    }
-    textStyle.height = this.props.item.textHeight;
-
-    let text;
-    if (this.props.item.messageInfo.type === messageType.TEXT) {
-      text = this.props.item.messageInfo.text;
-    } else {
-      // TODO actually handle all cases
-      text = "Test";
-    }
-
     return (
       <View>
         {conversationHeader}
-        <View style={containerStyle}>
-          {authorName}
-          <View
-            style={[styles.message, messageStyle]}
-            onStartShouldSetResponder={this.onStartShouldSetResponder}
-            onResponderGrant={this.onResponderGrant}
-            onResponderTerminationRequest={this.onResponderTerminationRequest}
-          >
-            <Text style={[styles.text, textStyle]}>{text}</Text>
-          </View>
-        </View>
+        {message}
       </View>
     );
   }
-
-  onStartShouldSetResponder = () => true;
-
-  onResponderGrant = () => {
-    this.props.onFocus(messageKey(this.props.item.messageInfo));
-  }
-
-  onResponderTerminationRequest = () => true;
 
 }
 
@@ -177,23 +136,6 @@ const styles = StyleSheet.create({
     paddingBottom: 7,
     alignSelf: 'center',
     height: 26,
-  },
-  text: {
-    fontSize: 18,
-    fontFamily: 'Arial',
-  },
-  message: {
-    overflow: 'hidden',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginHorizontal: 12,
-  },
-  authorName: {
-    color: '#777777',
-    fontSize: 14,
-    paddingHorizontal: 24,
-    paddingVertical: 4,
-    height: 25,
   },
 });
 
