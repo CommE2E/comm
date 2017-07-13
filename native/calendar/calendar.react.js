@@ -9,6 +9,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type { KeyboardEvent } from '../keyboard';
+import type { TextToMeasure } from '../text-height-measurer.react';
 
 import React from 'react';
 import {
@@ -96,7 +97,7 @@ type ExtraData = {
   visibleEntries: {[key: string]: bool},
 };
 type State = {
-  textToMeasure: string[],
+  textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
   pickerOpenForDateString: ?string,
@@ -145,7 +146,7 @@ class InnerCalendar extends React.PureComponent {
     ),
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
-  textHeights: ?{ [text: string]: number } = null;
+  textHeights: ?Map<string, number> = null;
   currentState: ?string = NativeAppState.currentState;
   loadingFromScroll = false;
   currentScrollPosition: ?number = null;
@@ -190,7 +191,10 @@ class InnerCalendar extends React.PureComponent {
       if (item.itemType !== "entryInfo") {
         continue;
       }
-      textToMeasure.push(item.entryInfo.text);
+      textToMeasure.push({
+        id: entryKey(item.entryInfo),
+        text: item.entryInfo.text,
+      });
     }
     return textToMeasure;
   }
@@ -259,8 +263,8 @@ class InnerCalendar extends React.PureComponent {
     let allTextAlreadyMeasured = false;
     if (this.textHeights) {
       allTextAlreadyMeasured = true;
-      for (let text of newTextToMeasure) {
-        if (this.textHeights[text] === undefined) {
+      for (let textToMeasure of newTextToMeasure) {
+        if (!this.textHeights.has(textToMeasure.id)) {
           allTextAlreadyMeasured = false;
           break;
         }
@@ -458,7 +462,7 @@ class InnerCalendar extends React.PureComponent {
         return item;
       }
       const entryInfo = item.entryInfo;
-      const textHeight = textHeights[entryInfo.text];
+      const textHeight = textHeights.get(entryKey(entryInfo));
       invariant(
         textHeight,
         `height for ${entryKey(entryInfo)} should be set`,
@@ -782,8 +786,8 @@ class InnerCalendar extends React.PureComponent {
   }
 
   allHeightsMeasured = (
-    textToMeasure: string[],
-    newTextHeights: { [text: string]: number },
+    textToMeasure: TextToMeasure[],
+    newTextHeights: Map<string, number>,
   ) => {
     if (textToMeasure !== this.state.textToMeasure) {
       return;

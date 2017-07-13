@@ -16,6 +16,7 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { MessageInfo } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { PageMessagesResult } from 'lib/actions/message-actions';
+import type { TextToMeasure } from '../text-height-measurer.react';
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -30,8 +31,9 @@ import {
 import { InvertibleFlatList } from 'react-native-invertible-flat-list';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
-import _difference from 'lodash/fp/difference';
+import _differenceWith from 'lodash/fp/differenceWith';
 import _find from 'lodash/fp/find';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { messageKey } from 'lib/shared/message-utils';
 import {
@@ -80,7 +82,7 @@ type Props = {
   ) => Promise<PageMessagesResult>,
 };
 type State = {
-  textToMeasure: string[],
+  textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
   focusedMessageKey: ?string,
 };
@@ -106,7 +108,7 @@ class InnerMessageList extends React.PureComponent {
     title: navigation.state.params.threadInfo.name,
     headerRight: <AddThreadButton />,
   });
-  textHeights: ?{ [text: string]: number } = null;
+  textHeights: ?Map<string, number> = null;
   loadingFromScroll = false;
 
   constructor(props: Props) {
@@ -132,7 +134,10 @@ class InnerMessageList extends React.PureComponent {
         // TODO actually measure textHeight
         continue;
       }
-      textToMeasure.push(messageInfo.text);
+      textToMeasure.push({
+        id: messageKey(messageInfo),
+        text: messageInfo.text,
+      });
     }
     return textToMeasure;
   }
@@ -159,8 +164,8 @@ class InnerMessageList extends React.PureComponent {
     let allTextAlreadyMeasured = false;
     if (this.textHeights) {
       allTextAlreadyMeasured = true;
-      for (let text of newTextToMeasure) {
-        if (this.textHeights[text] === undefined) {
+      for (let textToMeasure of newTextToMeasure) {
+        if (!this.textHeights.has(textToMeasure.id)) {
           allTextAlreadyMeasured = false;
           break;
         }
@@ -172,7 +177,7 @@ class InnerMessageList extends React.PureComponent {
     }
 
     const newText =
-      _difference(newTextToMeasure)(this.state.textToMeasure);
+      _differenceWith(_isEqual)(newTextToMeasure)(this.state.textToMeasure);
     if (newText.length === 0) {
       // Since we don't have everything in textHeights, but we do have
       // everything in textToMeasure, we can conclude that we're just
@@ -204,7 +209,8 @@ class InnerMessageList extends React.PureComponent {
           textHeight: 0,
         }: ChatMessageInfoItemWithHeight);
       }
-      const textHeight = textHeights[messageInfoItem.messageInfo.text];
+      const textHeight =
+        textHeights.get(messageKey(messageInfoItem.messageInfo));
       invariant(
         textHeight,
         `height for ${messageKey(messageInfoItem.messageInfo)} should be set`,
@@ -334,8 +340,8 @@ class InnerMessageList extends React.PureComponent {
   }
 
   allHeightsMeasured = (
-    textToMeasure: string[],
-    newTextHeights: { [text: string]: number },
+    textToMeasure: TextToMeasure[],
+    newTextHeights: Map<string, number>,
   ) => {
     if (textToMeasure !== this.state.textToMeasure) {
       return;
