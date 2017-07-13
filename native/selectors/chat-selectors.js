@@ -55,6 +55,14 @@ function createMessageInfo(
       time: rawMessageInfo.time,
     };
   } else if (rawMessageInfo.type === messageType.ADD_USER) {
+    const addedUsernames = [];
+    for (let userID of rawMessageInfo.addedUserIDs) {
+      if (userID === viewerID) {
+        addedUsernames.unshift("you");
+      } else {
+        addedUsernames.push(userInfos[userID].username);
+      }
+    }
     return {
       type: messageType.ADD_USER,
       id: rawMessageInfo.id,
@@ -62,7 +70,7 @@ function createMessageInfo(
       creator: creatorInfo.username,
       isViewer: rawMessageInfo.creatorID === viewerID,
       time: rawMessageInfo.time,
-      addedUsernames: rawMessageInfo.addedUserIDs,
+      addedUsernames,
     };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);

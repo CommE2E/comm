@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text } from 'react-native';
 
 import { messageType } from 'lib/types/message-types';
+import { robotextForMessageInfo } from 'lib/shared/message-utils';
 
 class MessagePreview extends React.PureComponent {
 
@@ -31,10 +32,12 @@ class MessagePreview extends React.PureComponent {
         </Text>
       );
     } else {
-      // TODO actually handle all cases
+      const [actor, robotext] = robotextForMessageInfo(messageInfo);
       return (
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          Test
+        <Text style={[styles.lastMessage, styles.robotext]} numberOfLines={1}>
+          {actor}
+          {" "}
+          {robotext}
         </Text>
       );
     }
@@ -49,6 +52,9 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   username: {
+    color: '#AAAAAA',
+  },
+  robotext: {
     color: '#AAAAAA',
   },
 });
