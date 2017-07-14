@@ -1,17 +1,26 @@
 // @flow
 
+import type { NavigationParams } from 'react-navigation';
+
 import React from 'react';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
+import { AddThreadRouteName } from './add-thread.react';
+
 class AddThreadButton extends React.PureComponent {
 
   props: {
     parentThreadID?: string,
+    navigate: (
+      routeName: string,
+      params?: NavigationParams,
+    ) => boolean,
   };
   static propTypes = {
     parentThreadID: PropTypes.string,
+    navigate: PropTypes.func.isRequired,
   };
 
   render() {
@@ -46,6 +55,10 @@ class AddThreadButton extends React.PureComponent {
   }
 
   onPress = () => {
+    this.props.navigate(
+      AddThreadRouteName,
+      { parentThreadID: this.props.parentThreadID },
+    );
   }
 
 }

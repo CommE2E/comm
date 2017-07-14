@@ -105,9 +105,10 @@ class InnerMessageList extends React.PureComponent {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
-          threadInfo: threadInfoPropType,
+          threadInfo: threadInfoPropType.isRequired,
         }).isRequired,
       }).isRequired,
+      navigate: PropTypes.func.isRequired,
     }).isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     viewerID: PropTypes.string,
@@ -120,6 +121,7 @@ class InnerMessageList extends React.PureComponent {
     headerRight: (
       <AddThreadButton
         parentThreadID={navigation.state.params.threadInfo.id}
+        navigate={navigation.navigate}
       />
     ),
   });

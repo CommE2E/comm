@@ -10,10 +10,12 @@ import {
   ChatThreadListRouteName,
 } from './chat-thread-list.react';
 import { MessageList, MessageListRouteName } from './message-list.react';
+import { AddThread, AddThreadRouteName } from './add-thread.react';
 
 const Chat = StackNavigator({
   [ChatThreadListRouteName]: { screen: ChatThreadList },
   [MessageListRouteName]: { screen: MessageList },
+  [AddThreadRouteName]: { screen: AddThread },
 });
 Chat.navigationOptions = {
   tabBarLabel: 'Chat',

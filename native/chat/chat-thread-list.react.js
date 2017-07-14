@@ -37,10 +37,10 @@ class InnerChatThreadList extends React.PureComponent {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
   };
-  static navigationOptions = {
+  static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
-    headerRight: <AddThreadButton />,
-  };
+    headerRight: <AddThreadButton navigate={navigation.navigate} />,
+  });
 
   renderItem = (row: { item: ChatThreadItem }) => {
     return (
