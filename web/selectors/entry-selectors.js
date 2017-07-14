@@ -13,8 +13,8 @@ import _compact from 'lodash/fp/compact';
 import { createEntryInfo } from 'lib/selectors/thread-selectors';
 
 const allDaysToEntries = createSelector(
-  (state: AppState) => state.entryInfos,
-  (state: AppState) => state.daysToEntries,
+  (state: AppState) => state.entryStore.entryInfos,
+  (state: AppState) => state.entryStore.daysToEntries,
   (state: AppState) => state.userInfos,
   (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
   (

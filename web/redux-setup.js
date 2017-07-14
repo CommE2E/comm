@@ -2,7 +2,7 @@
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { RawEntryInfo } from 'lib/types/entry-types';
+import type { EntryStore } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
@@ -32,8 +32,7 @@ export type AppState = {|
   sessionID: string,
   verifyField: ?VerifyField,
   resetPasswordUsername: string,
-  entryInfos: {[id: string]: RawEntryInfo},
-  daysToEntries: {[day: string]: string[]},
+  entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
   userInfos: {[id: string]: UserInfo},
@@ -53,8 +52,7 @@ export function reducer(state: AppState, action: Action) {
       sessionID: state.sessionID,
       verifyField: state.verifyField,
       resetPasswordUsername: state.resetPasswordUsername,
-      entryInfos: state.entryInfos,
-      daysToEntries: state.daysToEntries,
+      entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
       userInfos: state.userInfos,

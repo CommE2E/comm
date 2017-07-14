@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { RawEntryInfo } from 'lib/types/entry-types';
+import type { EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -30,8 +30,7 @@ export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
   sessionID: string,
-  entryInfos: {[id: string]: RawEntryInfo},
-  daysToEntries: {[day: string]: string[]},
+  entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
   threadInfos: {[id: string]: ThreadInfo},
   userInfos: {[id: string]: UserInfo},
@@ -45,9 +44,12 @@ const defaultState = ({
   navInfo: defaultNavInfo,
   currentUserInfo: null,
   sessionID: newSessionID(),
-  entryInfos: {},
-  daysToEntries: {},
-  lastUserInteraction: { calendar: 0, sessionReset: Date.now() },
+  entryStore: {
+    entryInfos: {},
+    daysToEntries: {},
+    lastUserInteractionCalendar: 0,
+  },
+  lastUserInteraction: { sessionReset: Date.now() },
   threadInfos: {},
   userInfos: {},
   messageStore: {
@@ -82,8 +84,7 @@ function reducer(state: AppState, action: Action) {
       navInfo,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
-      entryInfos: state.entryInfos,
-      daysToEntries: state.daysToEntries,
+      entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
       userInfos: state.userInfos,
@@ -98,8 +99,7 @@ function reducer(state: AppState, action: Action) {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
-      entryInfos: state.entryInfos,
-      daysToEntries: state.daysToEntries,
+      entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
       userInfos: state.userInfos,
@@ -120,8 +120,7 @@ function reducer(state: AppState, action: Action) {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
-      entryInfos: state.entryInfos,
-      daysToEntries: state.daysToEntries,
+      entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
       threadInfos: state.threadInfos,
       userInfos: state.userInfos,
