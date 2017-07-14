@@ -732,7 +732,7 @@ const LoggedOutModal = connect(
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
     pingStartingPayload: pingNativeStartingPayload(state),
-    currentAsOf: state.messageStore.currentAsOf,
+    currentAsOf: state.currentAsOf,
   }),
   includeDispatchActionProps,
 )(InnerLoggedOutModal);

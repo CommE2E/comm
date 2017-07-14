@@ -350,7 +350,7 @@ export default connect(
     month: monthAssertingSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
     pingStartingPayload: pingStartingPayload(state),
-    currentAsOf: state.messageStore.currentAsOf,
+    currentAsOf: state.currentAsOf,
     cookie: state.cookie,
   }),
   includeDispatchActionProps,

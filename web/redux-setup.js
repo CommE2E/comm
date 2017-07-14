@@ -37,6 +37,7 @@ export type AppState = {|
   threadInfos: {[id: string]: ThreadInfo},
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
+  currentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
 |};
@@ -57,6 +58,7 @@ export function reducer(state: AppState, action: Action) {
       threadInfos: state.threadInfos,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
+      currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
     };

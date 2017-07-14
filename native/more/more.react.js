@@ -185,7 +185,7 @@ export default connect(
     username: state.currentUserInfo && !state.currentUserInfo.anonymous &&
       state.currentUserInfo.username,
     pingStartingPayload: pingNativeStartingPayload(state),
-    currentAsOf: state.messageStore.currentAsOf,
+    currentAsOf: state.currentAsOf,
   }),
   includeDispatchActionProps,
   bindServerCalls({ logOut, ping }),

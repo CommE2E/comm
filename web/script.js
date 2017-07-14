@@ -82,7 +82,6 @@ const messageStore = freshMessageStore(
   message_infos,
   truncation_status,
   thread_infos,
-  current_as_of,
 );
 
 const store: Store<AppState, Action> = createStore(
@@ -108,6 +107,7 @@ const store: Store<AppState, Action> = createStore(
     threadInfos: thread_infos,
     userInfos: user_infos,
     messageStore,
+    currentAsOf: current_as_of,
     loadingStatuses: {},
     cookie: undefined,
   }: AppState),
