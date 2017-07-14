@@ -3,8 +3,16 @@
 import React from 'react';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
 
 class AddThreadButton extends React.PureComponent {
+
+  props: {
+    parentThreadID?: string,
+  };
+  static propTypes = {
+    parentThreadID: PropTypes.string,
+  };
 
   render() {
     let icon;

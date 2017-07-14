@@ -117,7 +117,11 @@ class InnerMessageList extends React.PureComponent {
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
-    headerRight: <AddThreadButton />,
+    headerRight: (
+      <AddThreadButton
+        parentThreadID={navigation.state.params.threadInfo.id}
+      />
+    ),
   });
   textHeights: ?Map<string, number> = null;
   loadingFromScroll = false;
