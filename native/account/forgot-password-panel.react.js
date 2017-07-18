@@ -81,7 +81,7 @@ class ForgotPasswordPanel extends React.PureComponent {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
-            returnKeyType='go'
+            returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
             editable={this.props.loadingStatus !== "loading"}
