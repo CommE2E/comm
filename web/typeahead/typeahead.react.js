@@ -18,8 +18,12 @@ import _omit from 'lodash/fp/omit';
 import _sampleSize from 'lodash/fp/sampleSize';
 import { connect } from 'react-redux';
 
-import { SearchIndex, searchIndex } from 'lib/selectors/search-index';
-import { currentNavID, subscriptionExists } from 'lib/selectors/nav-selectors';
+import SearchIndex from 'lib/shared/search-index';
+import {
+  currentNavID,
+  subscriptionExists,
+  threadSearchIndex,
+} from 'lib/selectors/nav-selectors';
 import { typeaheadSortedThreadInfos } from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 
@@ -37,7 +41,7 @@ type Props = {
   currentlyHome: bool,
   currentThreadID: ?string,
   subscriptionExists: bool,
-  searchIndex: SearchIndex,
+  threadSearchIndex: SearchIndex,
   sortedThreadInfos: {[id: string]: ThreadInfo[]},
   setModal: (modal: React.Element<any>) => void,
   clearModal: () => void,
@@ -565,7 +569,8 @@ class Typeahead extends React.PureComponent {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
       typeaheadValue: target.value,
-      searchResults: this.props.searchIndex.getSearchResults(target.value),
+      searchResults:
+        this.props.threadSearchIndex.getSearchResults(target.value),
       searchActive: target.value.trim() !== "",
     });
   }
@@ -611,7 +616,7 @@ Typeahead.propTypes = {
   currentlyHome: PropTypes.bool.isRequired,
   currentThreadID: PropTypes.string,
   subscriptionExists: PropTypes.bool.isRequired,
-  searchIndex: PropTypes.instanceOf(SearchIndex),
+  threadSearchIndex: PropTypes.instanceOf(SearchIndex),
   sortedThreadInfos: PropTypes.objectOf(
     PropTypes.arrayOf(threadInfoPropType),
   ).isRequired,
@@ -626,6 +631,6 @@ export default connect((state: AppState) => ({
   currentlyHome: state.navInfo.home,
   currentThreadID: state.navInfo.threadID,
   subscriptionExists: subscriptionExists(state),
-  searchIndex: searchIndex(state),
+  threadSearchIndex: threadSearchIndex(state),
   sortedThreadInfos: typeaheadSortedThreadInfos(state),
 }))(Typeahead);
