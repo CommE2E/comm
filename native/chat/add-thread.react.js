@@ -29,7 +29,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
-const segmentedPrivacyOptions = ['Open', 'Closed'];
+const segmentedPrivacyOptions = ['Public', 'Secret'];
 type TagData = string | {[key: string]: string};
 
 class InnerAddThread extends React.PureComponent {
@@ -66,18 +66,31 @@ class InnerAddThread extends React.PureComponent {
   nameInput: ?TextInput;
 
   render() {
-    let parentThreadName;
+    let visibility;
     if (this.props.threadInfo) {
-      parentThreadName = (
-        <Text
-          style={styles.parentThreadName}
-          numberOfLines={1}
-        >
-          <Text style={styles.parentThreadNameRobotext}>
-            {"within "}
-          </Text>
-          {this.props.threadInfo.name}
-        </Text>
+      visibility = (
+        <View style={styles.row}>
+          <Text style={styles.label}>Visibility</Text>
+          <View style={styles.input}>
+            <SegmentedControlTab
+              values={segmentedPrivacyOptions}
+              selectedIndex={this.state.selectedPrivacyIndex}
+              onTabPress={this.handleIndexChange}
+              tabStyle={styles.segmentedTabStyle}
+              activeTabStyle={styles.segmentedActiveTabStyle}
+              tabTextStyle={styles.segmentedTextStyle}
+            />
+            <Text
+              style={styles.parentThreadName}
+              numberOfLines={1}
+            >
+              <Text style={styles.parentThreadNameRobotext}>
+                {"within "}
+              </Text>
+              {this.props.threadInfo.name}
+            </Text>
+          </View>
+        </View>
       );
     }
     return (
@@ -101,20 +114,7 @@ class InnerAddThread extends React.PureComponent {
             />
           </View>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Privacy</Text>
-          <View style={styles.input}>
-            <SegmentedControlTab
-              values={segmentedPrivacyOptions}
-              selectedIndex={this.state.selectedPrivacyIndex}
-              onTabPress={this.handleIndexChange}
-              tabStyle={styles.segmentedTabStyle}
-              activeTabStyle={styles.segmentedActiveTabStyle}
-              tabTextStyle={styles.segmentedTextStyle}
-            />
-            {parentThreadName}
-          </View>
-        </View>
+        {visibility}
         <View style={styles.row}>
           <Text style={styles.tagInputLabel}>People</Text>
           <View style={styles.input}>
