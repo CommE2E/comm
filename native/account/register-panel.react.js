@@ -31,7 +31,7 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 
-import { TextInput } from '../modal-components.react';
+import { TextInput } from './modal-components.react';
 import {
   PanelButton,
   PanelOnePasswordButton,

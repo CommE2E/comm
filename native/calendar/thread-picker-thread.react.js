@@ -7,7 +7,7 @@ import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { Button } from '../shared-components';
+import Button from '../components/button.react';
 
 class ThreadPickerThread extends React.PureComponent {
 

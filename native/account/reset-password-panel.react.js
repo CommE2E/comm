@@ -32,7 +32,7 @@ import {
 } from 'lib/utils/action-utils';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
-import { TextInput } from '../modal-components.react';
+import { TextInput } from './modal-components.react';
 import {
   PanelButton,
   PanelOnePasswordButton,

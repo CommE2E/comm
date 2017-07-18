@@ -1,4 +1,4 @@
-// flow-typed signature: 819686dddf56f7a8225c60d2e3cf3ba3
+// flow-typed signature: e76fef30f78154f4e743ea30eebe1e76
 // flow-typed version: <<STUB>>/lib_vfile:../lib/flow_v0.47.0
 
 /**
@@ -98,6 +98,10 @@ declare module 'lib/reducers/cookie-reducer' {
   declare module.exports: any;
 }
 
+declare module 'lib/reducers/current-as-of-reducer' {
+  declare module.exports: any;
+}
+
 declare module 'lib/reducers/entry-reducer' {
   declare module.exports: any;
 }
@@ -142,15 +146,15 @@ declare module 'lib/selectors/ping-selectors' {
   declare module.exports: any;
 }
 
-declare module 'lib/selectors/search-index' {
-  declare module.exports: any;
-}
-
 declare module 'lib/selectors/session-selectors' {
   declare module.exports: any;
 }
 
 declare module 'lib/selectors/thread-selectors' {
+  declare module.exports: any;
+}
+
+declare module 'lib/selectors/user-selectors' {
   declare module.exports: any;
 }
 
@@ -163,6 +167,10 @@ declare module 'lib/shared/entry-utils' {
 }
 
 declare module 'lib/shared/message-utils' {
+  declare module.exports: any;
+}
+
+declare module 'lib/shared/search-index' {
   declare module.exports: any;
 }
 
@@ -300,6 +308,9 @@ declare module 'lib/flow-typed/npm/whatwg-fetch_vx.x.x.js' {
 declare module 'lib/reducers/cookie-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/cookie-reducer'>;
 }
+declare module 'lib/reducers/current-as-of-reducer.js' {
+  declare module.exports: $Exports<'lib/reducers/current-as-of-reducer'>;
+}
 declare module 'lib/reducers/entry-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/entry-reducer'>;
 }
@@ -333,14 +344,14 @@ declare module 'lib/selectors/nav-selectors.js' {
 declare module 'lib/selectors/ping-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/ping-selectors'>;
 }
-declare module 'lib/selectors/search-index.js' {
-  declare module.exports: $Exports<'lib/selectors/search-index'>;
-}
 declare module 'lib/selectors/session-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/session-selectors'>;
 }
 declare module 'lib/selectors/thread-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/thread-selectors'>;
+}
+declare module 'lib/selectors/user-selectors.js' {
+  declare module.exports: $Exports<'lib/selectors/user-selectors'>;
 }
 declare module 'lib/shared/account-regexes.js' {
   declare module.exports: $Exports<'lib/shared/account-regexes'>;
@@ -350,6 +361,9 @@ declare module 'lib/shared/entry-utils.js' {
 }
 declare module 'lib/shared/message-utils.js' {
   declare module.exports: $Exports<'lib/shared/message-utils'>;
+}
+declare module 'lib/shared/search-index.js' {
+  declare module.exports: $Exports<'lib/shared/search-index'>;
 }
 declare module 'lib/shared/typeahead-text.js' {
   declare module.exports: $Exports<'lib/shared/typeahead-text'>;

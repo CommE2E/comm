@@ -35,7 +35,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
-import { TextInput } from '../modal-components.react';
+import { TextInput } from './modal-components.react';
 import {
   PanelButton,
   PanelOnePasswordButton,

@@ -14,7 +14,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { connect } from 'react-redux';
-import TagInput from 'react-native-tag-input';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import invariant from 'invariant';
 
@@ -27,6 +26,8 @@ import {
   newThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+
+import TagInput from '../components/tag-input.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];

@@ -10,7 +10,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { Button } from '../shared-components';
+import Button from '../components/button.react';
 import MessagePreview from './message-preview.react';
 
 class ChatThreadListItem extends React.PureComponent {

@@ -9,7 +9,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
-import { Button } from '../shared-components';
+import Button from '../components/button.react';
 
 class SectionFooter extends React.PureComponent {
 
