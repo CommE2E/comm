@@ -28,6 +28,10 @@ const tagDataPropType = PropTypes.oneOfType([
 ]);
 
 type Props = {
+  // The text currently being displayed as the user types
+  text: string,
+  // Callback to update the text being displayed
+  setText: (text: string) => void,
   // A handler to be called when array of tags change
   onChange: (items: $ReadOnlyArray<TagData>) => void,
   // An array of tags
@@ -55,7 +59,6 @@ type Props = {
 };
 
 type State = {
-  text: string,
   inputWidth: ?number,
   lines: number,
 };
@@ -81,7 +84,6 @@ class TagInput extends React.PureComponent {
   };
   props: Props;
   state: State = {
-    text: '',
     inputWidth: null,
     lines: 1,
   };
@@ -106,38 +108,40 @@ class TagInput extends React.PureComponent {
   }
 
   onChangeText = (text: string) => {
-    this.setState({ text: text });
+    this.props.setText(text);
     const lastTyped = text.charAt(text.length - 1);
 
     const parseWhen = this.props.separators || DEFAULT_SEPARATORS;
 
     if (parseWhen.indexOf(lastTyped) > -1) {
-      this.parseTags();
+      this.parseTags(text);
     }
   }
 
   onBlur = (event: { nativeEvent: { text: string } }) => {
-    this.setState({ text: event.nativeEvent.text });
+    const text = event.nativeEvent.text;
+    this.props.setText(text);
     if (this.props.parseOnBlur) {
-      this.parseTags();
+      this.parseTags(text);
     }
   }
 
-  parseTags = () => {
-    const { text } = this.state;
+  parseTags = (text: ?string) => {
+    text = text ? text : this.props.text;
+
     const { value } = this.props;
 
     const regex = this.props.regex || DEFAULT_TAG_REGEX;
     const results = text.match(regex);
 
     if (results && results.length > 0) {
-      this.setState({ text: '' });
+      this.props.setText('');
       this.props.onChange([...new Set([...value, ...results])]);
     }
   }
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
-    if (this.state.text !== '' || event.nativeEvent.key !== 'Backspace') {
+    if (this.props.text !== '' || event.nativeEvent.key !== 'Backspace') {
       return;
     }
     const tags = [...this.props.value];
@@ -172,7 +176,7 @@ class TagInput extends React.PureComponent {
   }
 
   render() {
-    const { text, inputWidth, lines } = this.state;
+    const { inputWidth, lines } = this.state;
     const { inputColor } = this.props;
 
     const defaultInputProps = {
@@ -232,7 +236,7 @@ class TagInput extends React.PureComponent {
                   ref={this.tagInputRef}
                   blurOnSubmit={false}
                   onKeyPress={this.onKeyPress}
-                  value={text}
+                  value={this.props.text}
                   style={[styles.textInput, {
                     width: width,
                     color: inputColor,
@@ -289,20 +293,21 @@ class TagInput extends React.PureComponent {
 
 }
 
+type TagProps = {
+  index: number,
+  tag: TagData,
+  isLastTag: bool,
+  onLayoutLastTag: (endPosOfTag: number) => void,
+  removeIndex: (index: number) => void,
+  labelKey?: string,
+  tagColor: string,
+  tagTextColor: string,
+  tagContainerStyle?: StyleObj,
+  tagTextStyle?: StyleObj,
+};
 class Tag extends React.PureComponent {
 
-  props: {
-    index: number,
-    tag: TagData,
-    isLastTag: bool,
-    onLayoutLastTag: (endPosOfTag: number) => void,
-    removeIndex: (index: number) => void,
-    labelKey?: string,
-    tagColor: string,
-    tagTextColor: string,
-    tagContainerStyle?: StyleObj,
-    tagTextStyle?: StyleObj,
-  };
+  props: TagProps;
   static propTypes = {
     index: PropTypes.number.isRequired,
     tag: tagDataPropType.isRequired,
@@ -315,16 +320,24 @@ class Tag extends React.PureComponent {
     tagContainerStyle: ViewPropTypes.style,
     tagTextStyle: Text.propTypes.style,
   };
+  curPos: ?number = null;
+
+  componentWillReceiveProps(nextProps: TagProps) {
+    if (
+      !this.props.isLastTag &&
+      nextProps.isLastTag &&
+      this.curPos !== null &&
+      this.curPos !== undefined
+    ) {
+      this.props.onLayoutLastTag(this.curPos);
+    }
+  }
 
   render() {
-    let onLayout = undefined;
-    if (this.props.isLastTag) {
-      onLayout = this.onLayoutLastTag;
-    }
     return (
       <TouchableOpacity
         onPress={this.onPress}
-        onLayout={onLayout}
+        onLayout={this.onLayoutLastTag}
         style={[
           styles.tag,
           { backgroundColor: this.props.tagColor },
@@ -351,7 +364,10 @@ class Tag extends React.PureComponent {
     event: { nativeEvent: { layout: { x: number, width: number } } },
   ) => {
     const layout = event.nativeEvent.layout;
-    this.props.onLayoutLastTag(layout.width + layout.x);
+    this.curPos = layout.width + layout.x;
+    if (this.props.isLastTag) {
+      this.props.onLayoutLastTag(this.curPos);
+    }
   }
 
   getLabelValue = () => {

@@ -43,10 +43,12 @@ class InnerAddThread extends React.PureComponent {
   };
   state: {
     nameInputText: string,
+    usernameInputText: string,
     usernameInputArray: $ReadOnlyArray<string>,
     selectedPrivacyIndex: number,
   } = {
     nameInputText: "",
+    usernameInputText: "",
     usernameInputArray: [],
     selectedPrivacyIndex: 0,
   };
@@ -122,6 +124,8 @@ class InnerAddThread extends React.PureComponent {
             <TagInput
               onChange={this.onChangeTagInput}
               value={this.state.usernameInputArray}
+              text={this.state.usernameInputText}
+              setText={this.setUsernameInputText}
             />
           </View>
         </View>
@@ -148,6 +152,10 @@ class InnerAddThread extends React.PureComponent {
 
   handleIndexChange = (index: number) => {
     this.setState({ selectedPrivacyIndex: index });
+  }
+
+  setUsernameInputText = (text: string) => {
+    this.setState({ usernameInputText: text });
   }
 
 }
