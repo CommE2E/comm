@@ -36,10 +36,6 @@ type Props = {
   onChange: (items: $ReadOnlyArray<TagData>) => void,
   // An array of tags
   value: $ReadOnlyArray<TagData>,
-  // An array os characters to use as tag separators
-  separators?: $ReadOnlyArray<string>,
-  // A RegExp to test tags after enter, space, or a comma is pressed
-  regex?: RegExp,
   // Background color of tags
   tagColor: string,
   // Text color of tags
@@ -57,22 +53,15 @@ type Props = {
   // maximum number of lines of this component
   numberOfLines: number,
 };
-
 type State = {
   inputWidth: ?number,
   lines: number,
 };
-
-const DEFAULT_SEPARATORS = [',', ' ', ';', '\n'];
-const DEFAULT_TAG_REGEX = /(.+)/gi;
-
 class TagInput extends React.PureComponent {
 
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     value: PropTypes.arrayOf(tagDataPropType).isRequired,
-    separators: PropTypes.arrayOf(PropTypes.string),
-    regex: PropTypes.object,
     tagColor: PropTypes.string,
     tagTextColor: PropTypes.string,
     tagContainerStyle: ViewPropTypes.style,
@@ -109,35 +98,10 @@ class TagInput extends React.PureComponent {
 
   onChangeText = (text: string) => {
     this.props.setText(text);
-    const lastTyped = text.charAt(text.length - 1);
-
-    const parseWhen = this.props.separators || DEFAULT_SEPARATORS;
-
-    if (parseWhen.indexOf(lastTyped) > -1) {
-      this.parseTags(text);
-    }
   }
 
   onBlur = (event: { nativeEvent: { text: string } }) => {
-    const text = event.nativeEvent.text;
-    this.props.setText(text);
-    if (this.props.parseOnBlur) {
-      this.parseTags(text);
-    }
-  }
-
-  parseTags = (text: ?string) => {
-    text = text ? text : this.props.text;
-
-    const { value } = this.props;
-
-    const regex = this.props.regex || DEFAULT_TAG_REGEX;
-    const results = text.match(regex);
-
-    if (results && results.length > 0) {
-      this.props.setText('');
-      this.props.onChange([...new Set([...value, ...results])]);
-    }
+    this.props.setText(event.nativeEvent.text);
   }
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
@@ -243,7 +207,6 @@ class TagInput extends React.PureComponent {
                   }]}
                   onBlur={this.onBlur}
                   onChangeText={this.onChangeText}
-                  onSubmitEditing={this.parseTags}
                   {...inputProps}
                 />
               </View>
@@ -422,5 +385,3 @@ const styles = StyleSheet.create({
 });
 
 export default TagInput;
-
-export { DEFAULT_SEPARATORS, DEFAULT_TAG_REGEX }
