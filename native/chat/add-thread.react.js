@@ -9,6 +9,8 @@ import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
+import { userInfoPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -26,6 +28,8 @@ import {
   newThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { otherUserInfos, userSearchIndex } from 'lib/selectors/user-selectors';
+import SearchIndex from 'lib/shared/search-index';
 
 import TagInput from '../components/tag-input.react';
 
@@ -40,6 +44,8 @@ class InnerAddThread extends React.PureComponent {
     // Redux state
     loadingStatus: LoadingStatus,
     threadInfo: ?ThreadInfo,
+    otherUserInfos: {[id: string]: UserInfo},
+    userSearchIndex: SearchIndex,
   };
   state: {
     nameInputText: string,
@@ -62,6 +68,8 @@ class InnerAddThread extends React.PureComponent {
     }).isRequired,
     loadingStatus: PropTypes.string.isRequired,
     threadInfo: threadInfoPropType,
+    otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
+    userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   };
   static navigationOptions = {
     title: 'New thread',
@@ -228,6 +236,8 @@ const AddThread = connect(
       loadingStatus: loadingStatusSelector(state),
       threadInfo,
       cookie: state.cookie,
+      otherUserInfos: otherUserInfos(state),
+      userSearchIndex: userSearchIndex(state),
     };
   },
   includeDispatchActionProps,

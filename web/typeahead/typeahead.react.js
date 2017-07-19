@@ -616,7 +616,7 @@ Typeahead.propTypes = {
   currentlyHome: PropTypes.bool.isRequired,
   currentThreadID: PropTypes.string,
   subscriptionExists: PropTypes.bool.isRequired,
-  threadSearchIndex: PropTypes.instanceOf(SearchIndex),
+  threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   sortedThreadInfos: PropTypes.objectOf(
     PropTypes.arrayOf(threadInfoPropType),
   ).isRequired,
