@@ -11,6 +11,9 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import { userInfoPropType } from 'lib/types/user-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { VisibilityRules } from 'lib/types/thread-types';
+import type { SearchUsersResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -27,6 +30,10 @@ import {
   newThreadActionTypes,
   newThread,
 } from 'lib/actions/thread-actions';
+import {
+  searchUsersActionTypes,
+  searchUsers,
+} from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUserInfos, userSearchIndex } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
@@ -45,6 +52,17 @@ type Props = {
   threadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  newThread: (
+    name: string,
+    description: string,
+    ourVisibilityRules: VisibilityRules,
+    password: string,
+    color: string,
+  ) => Promise<ThreadInfo>,
+  searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 class InnerAddThread extends React.PureComponent {
 
@@ -68,6 +86,9 @@ class InnerAddThread extends React.PureComponent {
     threadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    newThread: PropTypes.func.isRequired,
+    searchUsers: PropTypes.func.isRequired,
   };
   static navigationOptions = {
     title: 'New thread',
@@ -114,6 +135,10 @@ class InnerAddThread extends React.PureComponent {
       userSearchResults,
       selectedPrivacyIndex: 0,
     };
+  }
+
+  componentDidMount() {
+    this.searchUsers("");
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -234,7 +259,15 @@ class InnerAddThread extends React.PureComponent {
       this.props.userSearchIndex,
       this.state.usernameInputArray,
     );
+    this.searchUsers(text);
     this.setState({ usernameInputText: text, userSearchResults });
+  }
+
+  searchUsers(usernamePrefix: string) {
+    this.props.dispatchActionPromise(
+      searchUsersActionTypes,
+      this.props.searchUsers(usernamePrefix),
+    );
   }
 
   onUserSelect = (userID: string) => {
@@ -328,13 +361,13 @@ const AddThread = connect(
     return {
       loadingStatus: loadingStatusSelector(state),
       threadInfo,
-      cookie: state.cookie,
       otherUserInfos: otherUserInfos(state),
       userSearchIndex: userSearchIndex(state),
+      cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ newThread }),
+  bindServerCalls({ newThread, searchUsers }),
 )(InnerAddThread);
 
 export {

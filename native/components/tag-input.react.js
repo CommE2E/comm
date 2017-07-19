@@ -16,6 +16,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   ViewPropTypes,
+  Platform,
 } from 'react-native';
 import invariant from 'invariant';
 
@@ -101,6 +102,7 @@ class TagInput extends React.PureComponent {
   }
 
   onBlur = (event: { nativeEvent: { text: string } }) => {
+    invariant(Platform.OS === "ios", "only iOS gets text on TextInput.onBlur");
     this.props.setText(event.nativeEvent.text);
   }
 
@@ -205,7 +207,7 @@ class TagInput extends React.PureComponent {
                     width: width,
                     color: inputColor,
                   }]}
-                  onBlur={this.onBlur}
+                  onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
                   onChangeText={this.onChangeText}
                   {...inputProps}
                 />
