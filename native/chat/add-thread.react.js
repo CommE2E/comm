@@ -32,6 +32,7 @@ import { otherUserInfos, userSearchIndex } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 
 import TagInput from '../components/tag-input.react';
+import UserList from '../components/user-list.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];
@@ -77,16 +78,22 @@ class InnerAddThread extends React.PureComponent {
     text: string,
     userInfos: {[id: string]: UserInfo},
     searchIndex: SearchIndex,
+    usernameInputArray: $ReadOnlyArray<string>,
   ) {
     const results = [];
+    const appendUserInfo = (userInfo: UserInfo) => {
+      if (!usernameInputArray.includes(userInfo.username)) {
+        results.push(userInfo);
+      }
+    };
     if (text === "") {
       for (let id in userInfos) {
-        results.push(userInfos[id]);
+        appendUserInfo(userInfos[id]);
       }
     } else {
       const ids = searchIndex.getSearchResults(text);
       for (let id of ids) {
-        results.push(userInfos[id]);
+        appendUserInfo(userInfos[id]);
       }
     }
     return results;
@@ -98,6 +105,7 @@ class InnerAddThread extends React.PureComponent {
       "",
       props.otherUserInfos,
       props.userSearchIndex,
+      [],
     );
     this.state = {
       nameInputText: "",
@@ -117,6 +125,7 @@ class InnerAddThread extends React.PureComponent {
         this.state.usernameInputText,
         nextProps.otherUserInfos,
         nextProps.userSearchIndex,
+        this.state.usernameInputArray,
       );
       this.setState({ userSearchResults });
     }
@@ -183,6 +192,10 @@ class InnerAddThread extends React.PureComponent {
             />
           </View>
         </View>
+        <UserList
+          userInfos={this.state.userSearchResults}
+          onSelect={this.onUserSelect}
+        />
       </View>
     );
   }
@@ -201,7 +214,13 @@ class InnerAddThread extends React.PureComponent {
       invariant(typeof tagData === "string", "AddThread uses string TagData");
       stringArray.push(tagData);
     }
-    this.setState({ usernameInputArray: stringArray });
+    const userSearchResults = InnerAddThread.getUserSearchResults(
+      this.state.usernameInputText,
+      this.props.otherUserInfos,
+      this.props.userSearchIndex,
+      stringArray,
+    );
+    this.setState({ usernameInputArray: stringArray, userSearchResults });
   }
 
   handleIndexChange = (index: number) => {
@@ -213,8 +232,31 @@ class InnerAddThread extends React.PureComponent {
       text,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
+      this.state.usernameInputArray,
     );
     this.setState({ usernameInputText: text, userSearchResults });
+  }
+
+  onUserSelect = (userID: string) => {
+    const username = this.props.otherUserInfos[userID].username;
+    if (this.state.usernameInputArray.includes(username)) {
+      return;
+    }
+    const usernameInputArray = [
+      ...this.state.usernameInputArray,
+      this.props.otherUserInfos[userID].username,
+    ];
+    const userSearchResults = InnerAddThread.getUserSearchResults(
+      "",
+      this.props.otherUserInfos,
+      this.props.userSearchIndex,
+      usernameInputArray,
+    );
+    this.setState({
+      usernameInputArray,
+      usernameInputText: "",
+      userSearchResults,
+    });
   }
 
 }
@@ -230,20 +272,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    flex: 3,
+    flex: 1,
     paddingRight: 12,
   },
   label: {
     paddingTop: 2,
     paddingLeft: 12,
     fontSize: 20,
-    flex: 1,
+    width: 100,
   },
   tagInputLabel: {
     paddingTop: 2,
     paddingLeft: 12,
     fontSize: 20,
-    flex: 1,
+    width: 100,
   },
   textInput: {
     fontSize: 18,
