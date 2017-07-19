@@ -37,26 +37,23 @@ type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];
 type TagData = string | {[key: string]: string};
 
+type Props = {
+  navigation: NavProp,
+  // Redux state
+  loadingStatus: LoadingStatus,
+  threadInfo: ?ThreadInfo,
+  otherUserInfos: {[id: string]: UserInfo},
+  userSearchIndex: SearchIndex,
+};
 class InnerAddThread extends React.PureComponent {
 
-  props: {
-    navigation: NavProp,
-    // Redux state
-    loadingStatus: LoadingStatus,
-    threadInfo: ?ThreadInfo,
-    otherUserInfos: {[id: string]: UserInfo},
-    userSearchIndex: SearchIndex,
-  };
+  props: Props;
   state: {
     nameInputText: string,
     usernameInputText: string,
     usernameInputArray: $ReadOnlyArray<string>,
+    userSearchResults: $ReadOnlyArray<UserInfo>,
     selectedPrivacyIndex: number,
-  } = {
-    nameInputText: "",
-    usernameInputText: "",
-    usernameInputArray: [],
-    selectedPrivacyIndex: 0,
   };
   static propTypes = {
     navigation: PropTypes.shape({
@@ -75,6 +72,55 @@ class InnerAddThread extends React.PureComponent {
     title: 'New thread',
   };
   nameInput: ?TextInput;
+
+  static getUserSearchResults(
+    text: string,
+    userInfos: {[id: string]: UserInfo},
+    searchIndex: SearchIndex,
+  ) {
+    const results = [];
+    if (text === "") {
+      for (let id in userInfos) {
+        results.push(userInfos[id]);
+      }
+    } else {
+      const ids = searchIndex.getSearchResults(text);
+      for (let id of ids) {
+        results.push(userInfos[id]);
+      }
+    }
+    return results;
+  }
+
+  constructor(props: Props) {
+    super(props);
+    const userSearchResults = InnerAddThread.getUserSearchResults(
+      "",
+      props.otherUserInfos,
+      props.userSearchIndex,
+    );
+    this.state = {
+      nameInputText: "",
+      usernameInputText: "",
+      usernameInputArray: [],
+      userSearchResults,
+      selectedPrivacyIndex: 0,
+    };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (
+      this.props.otherUserInfos !== nextProps.otherUserInfos ||
+      this.props.userSearchIndex !== nextProps.userSearchIndex
+    ) {
+      const userSearchResults = InnerAddThread.getUserSearchResults(
+        this.state.usernameInputText,
+        nextProps.otherUserInfos,
+        nextProps.userSearchIndex,
+      );
+      this.setState({ userSearchResults });
+    }
+  }
 
   render() {
     let visibility;
@@ -163,7 +209,12 @@ class InnerAddThread extends React.PureComponent {
   }
 
   setUsernameInputText = (text: string) => {
-    this.setState({ usernameInputText: text });
+    const userSearchResults = InnerAddThread.getUserSearchResults(
+      text,
+      this.props.otherUserInfos,
+      this.props.userSearchIndex,
+    );
+    this.setState({ usernameInputText: text, userSearchResults });
   }
 
 }
