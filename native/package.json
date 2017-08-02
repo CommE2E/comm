@@ -8,6 +8,7 @@
     "devtools": "react-devtools"
   },
   "dependencies": {
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "color": "^1.0.3",
     "invariant": "^2.2.2",
     "lib": "file:../lib",

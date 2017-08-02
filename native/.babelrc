@@ -1,5 +1,6 @@
 {
   presets: ['react-native'],
+  plugins: ['transform-remove-strict-mode'],
   env: {
     production: {
       plugins: ['transform-remove-console'],
