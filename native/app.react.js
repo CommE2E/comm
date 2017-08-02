@@ -71,6 +71,7 @@ registerConfig({
     }
     return null;
   },
+  setCookieOnRequest: true,
   calendarRangeInactivityLimit: sessionInactivityLimit,
 });
 
