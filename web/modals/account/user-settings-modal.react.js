@@ -487,12 +487,15 @@ const resendVerificationEmailLoadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous &&
-      state.currentUserInfo.username,
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous &&
-      state.currentUserInfo.email,
-    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous &&
-      state.currentUserInfo.emailVerified,
+    username: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.username
+      : undefined,
+    email: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.email
+      : undefined,
+    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.emailVerified
+      : undefined,
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",

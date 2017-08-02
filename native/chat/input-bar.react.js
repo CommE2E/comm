@@ -200,8 +200,9 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous &&
-      state.currentUserInfo.username,
+    username: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.username
+      : undefined,
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     cookie: state.cookie,
   }),

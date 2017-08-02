@@ -182,8 +182,9 @@ registerFetchKey(logOutActionTypes);
 export default connect(
   (state: AppState) => ({
     cookie: state.cookie,
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous &&
-      state.currentUserInfo.username,
+    username: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.username
+      : undefined,
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.currentAsOf,
   }),
