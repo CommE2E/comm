@@ -30,8 +30,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
 } from 'react-native';
-import { InvertibleFlatList } from 'react-native-invertible-flat-list';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 import _differenceWith from 'lodash/fp/differenceWith';
@@ -341,7 +341,7 @@ class InnerMessageList extends React.PureComponent {
         ? InnerMessageList.ListFooterComponent
         : undefined;
       flatList = (
-        <InvertibleFlatList
+        <FlatList
           inverted={true}
           data={listDataWithHeights}
           renderItem={this.renderItem}
