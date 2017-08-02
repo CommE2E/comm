@@ -12,7 +12,7 @@
     "invariant": "^2.2.2",
     "lib": "file:../lib",
     "react": "^16.0.0-alpha.12",
-    "react-native": "^0.47.0",
+    "react-native": "^0.47.1",
     "react-native-cookies": "^3.1.0",
     "react-native-keychain": "^1.2.0",
     "react-native-onepassword": "^1.0.4",
