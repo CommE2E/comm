@@ -62,11 +62,8 @@ function cookie_has_changed() {
 }
 
 function get_input_user_cookie() {
-  if (isset($_COOKIE['user'])) {
-    return $_COOKIE['user'];
-  }
   if (!isset($_POST['cookie'])) {
-    return null;
+    return isset($_COOKIE['user']) ? $_COOKIE['user'] : null;
   }
   $matches = array();
   $num_matches = preg_match("/user=(.+)/", $_POST['cookie'], $matches);
@@ -77,11 +74,8 @@ function get_input_user_cookie() {
 }
 
 function get_input_anonymous_cookie() {
-  if (isset($_COOKIE['anonymous'])) {
-    return $_COOKIE['anonymous'];
-  }
   if (!isset($_POST['cookie'])) {
-    return null;
+    return isset($_COOKIE['cookie']) ? $_COOKIE['cookie'] : null;
   }
   $matches = array();
   $num_matches = preg_match("/anonymous=(.+)/", $_POST['cookie'], $matches);
