@@ -73,6 +73,7 @@ class InnerAddThread extends React.PureComponent {
     usernameInputArray: $ReadOnlyArray<string>,
     userSearchResults: $ReadOnlyArray<UserInfo>,
     selectedPrivacyIndex: number,
+    tagInputHeight: number,
   };
   static propTypes = {
     navigation: PropTypes.shape({
@@ -134,6 +135,7 @@ class InnerAddThread extends React.PureComponent {
       usernameInputArray: [],
       userSearchResults,
       selectedPrivacyIndex: 0,
+      tagInputHeight: 36,
     };
   }
 
@@ -206,7 +208,7 @@ class InnerAddThread extends React.PureComponent {
           </View>
         </View>
         {visibility}
-        <View style={styles.row}>
+        <View style={[styles.row, { height: this.state.tagInputHeight }]}>
           <Text style={styles.tagInputLabel}>People</Text>
           <View style={styles.input}>
             <TagInput
@@ -214,6 +216,7 @@ class InnerAddThread extends React.PureComponent {
               value={this.state.usernameInputArray}
               text={this.state.usernameInputText}
               setText={this.setUsernameInputText}
+              onHeightChange={this.onTagInputHeightChange}
             />
           </View>
         </View>
@@ -290,6 +293,10 @@ class InnerAddThread extends React.PureComponent {
       usernameInputText: "",
       userSearchResults,
     });
+  }
+
+  onTagInputHeightChange = (height: number) => {
+    this.setState({ tagInputHeight: height });
   }
 
 }

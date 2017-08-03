@@ -21,6 +21,14 @@ import {
 import invariant from 'invariant';
 
 const windowWidth = Dimensions.get('window').width;
+const defaultInputProps = {
+  autoCapitalize: 'none',
+  autoCorrect: false,
+  placeholder: 'username',
+  returnKeyType: 'done',
+  keyboardType: 'default',
+  underlineColorAndroid: 'rgba(0,0,0,0)',
+};
 
 type TagData = string | {[key: string]: string};
 const tagDataPropType = PropTypes.oneOfType([
@@ -51,12 +59,14 @@ type Props = {
   inputProps?: $PropertyType<Text, 'props'>,
   // path of the label in tags objects
   labelKey?: string,
-  // maximum number of lines of this component
-  numberOfLines: number,
+  // maximum height of this component
+  maxHeight: number,
+  // callback that gets triggered when the component height changes
+  onHeightChange: ?(height: number) => void,
 };
 type State = {
-  inputWidth: ?number,
-  lines: number,
+  inputWidth: number,
+  wrapperHeight: number,
 };
 class TagInput extends React.PureComponent {
 
@@ -70,14 +80,16 @@ class TagInput extends React.PureComponent {
     inputColor: PropTypes.string,
     inputProps: PropTypes.object,
     labelKey: PropTypes.string,
-    numberOfLines: PropTypes.number,
+    maxHeight: PropTypes.number,
+    onHeightChange: PropTypes.func,
   };
   props: Props;
   state: State = {
-    inputWidth: null,
-    lines: 1,
+    inputWidth: 90,
+    wrapperHeight: 36,
   };
   wrapperWidth = windowWidth;
+  spaceLeft = 0;
   // scroll to bottom
   contentHeight = 0;
   scrollViewHeight = 0;
@@ -89,12 +101,49 @@ class TagInput extends React.PureComponent {
     tagColor: '#dddddd',
     tagTextColor: '#777777',
     inputColor: '#777777',
-    numberOfLines: 2,
+    maxHeight: 75,
   };
+
+  static inputWidth(text: string, spaceLeft: number, wrapperWidth: number) {
+    if (text === "") {
+      return 90;
+    } else if (spaceLeft >= 100) {
+      return spaceLeft - 10;
+    } else {
+      return wrapperWidth;
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const inputWidth = TagInput.inputWidth(
+      nextProps.text,
+      this.spaceLeft,
+      this.wrapperWidth,
+    );
+    if (inputWidth !== this.state.inputWidth) {
+      this.setState({ inputWidth });
+    }
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (
+      this.props.onHeightChange &&
+      nextState.wrapperHeight !== this.state.wrapperHeight
+    ) {
+      this.props.onHeightChange(nextState.wrapperHeight);
+    }
+  }
 
   measureWrapper = (event: { nativeEvent: { layout: { width: number } } }) => {
     this.wrapperWidth = event.nativeEvent.layout.width;
-    this.setState({ inputWidth: this.wrapperWidth });
+    const inputWidth = TagInput.inputWidth(
+      this.props.text,
+      this.spaceLeft,
+      this.wrapperWidth,
+    );
+    if (inputWidth !== this.state.inputWidth) {
+      this.setState({ inputWidth });
+    }
   }
 
   onChangeText = (text: string) => {
@@ -142,23 +191,9 @@ class TagInput extends React.PureComponent {
   }
 
   render() {
-    const { inputWidth, lines } = this.state;
-    const { inputColor } = this.props;
-
-    const defaultInputProps = {
-      autoCapitalize: 'none',
-      autoCorrect: false,
-      placeholder: 'username',
-      returnKeyType: 'done',
-      keyboardType: 'default',
-      underlineColorAndroid: 'rgba(0,0,0,0)',
-    }
-
     const inputProps = { ...defaultInputProps, ...this.props.inputProps };
 
-    const wrapperHeight = (lines - 1) * 40 + 36;
-
-    const width = inputWidth ? inputWidth : 400;
+    const inputWidth = this.state.inputWidth;
 
     const tags = this.props.value.map((tag, index) => (
       <Tag
@@ -183,7 +218,7 @@ class TagInput extends React.PureComponent {
         onLayout={this.measureWrapper}
       >
         <View
-          style={[styles.wrapper, { height: wrapperHeight }]}
+          style={[styles.wrapper, { height: this.state.wrapperHeight }]}
         >
           <ScrollView
             ref={this.scrollViewRef}
@@ -196,17 +231,17 @@ class TagInput extends React.PureComponent {
               {tags}
               <View style={[
                 styles.textInputContainer,
-                { width: this.state.inputWidth },
+                { width: inputWidth },
               ]}>
                 <TextInput
                   ref={this.tagInputRef}
                   blurOnSubmit={false}
                   onKeyPress={this.onKeyPress}
                   value={this.props.text}
-                  style={[styles.textInput, {
-                    width: width,
-                    color: inputColor,
-                  }]}
+                  style={[
+                    styles.textInput,
+                    { width: inputWidth, color: this.props.inputColor },
+                  ]}
                   onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
                   onChangeText={this.onChangeText}
                   {...inputProps}
@@ -228,6 +263,20 @@ class TagInput extends React.PureComponent {
   }
 
   onScrollViewContentSizeChange = (w: number, h: number) => {
+    if (this.contentHeight === h) {
+      return;
+    }
+    const nextWrapperHeight = h > this.props.maxHeight
+      ? this.props.maxHeight
+      : h;
+    if (nextWrapperHeight !== this.state.wrapperHeight) {
+      this.setState(
+        { wrapperHeight: nextWrapperHeight },
+        this.contentHeight < h ? this.scrollToBottom : undefined,
+      );
+    } else if (this.contentHeight < h) {
+      this.scrollToBottom();
+    }
     this.contentHeight = h;
   }
 
@@ -239,19 +288,13 @@ class TagInput extends React.PureComponent {
 
   onLayoutLastTag = (endPosOfTag: number) => {
     const margin = 3;
-    const spaceLeft = this.wrapperWidth - endPosOfTag - margin - 10;
-
-    const inputWidth = (spaceLeft < 100) ? this.wrapperWidth : spaceLeft - 10;
-
-    if (spaceLeft < 100) {
-      if (this.state.lines < this.props.numberOfLines) {
-        const lines = this.state.lines + 1;
-
-        this.setState({ inputWidth, lines });
-      } else {
-        this.setState({ inputWidth }, this.scrollToBottom);
-      }
-    } else {
+    this.spaceLeft = this.wrapperWidth - endPosOfTag - margin - 10;
+    const inputWidth = TagInput.inputWidth(
+      this.props.text,
+      this.spaceLeft,
+      this.wrapperWidth,
+    );
+    if (inputWidth !== this.state.inputWidth) {
       this.setState({ inputWidth });
     }
   }
