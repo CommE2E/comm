@@ -115,6 +115,7 @@ class InnerLoggedOutModal extends React.PureComponent {
   keyboardShowListener: ?Object;
   keyboardHideListener: ?Object;
 
+  mounted = false;
   nextMode: LoggedOutMode = "loading";
   activeAlert = false;
   activeKeyboard = false;
@@ -140,13 +141,20 @@ class InnerLoggedOutModal extends React.PureComponent {
     } catch (e) {
       onePasswordSupported = false;
     }
-    this.setState({ onePasswordSupported });
+    if (this.mounted) {
+      this.setState({ onePasswordSupported });
+    }
   }
 
   componentDidMount() {
     if (this.props.isForeground) {
       this.onForeground();
     }
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   componentWillReceiveProps(nextProps: Props) {
