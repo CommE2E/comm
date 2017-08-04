@@ -11,6 +11,7 @@ import {
   TouchableNativeFeedback,
   TouchableHighlight,
   ViewPropTypes,
+  TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -22,6 +23,7 @@ class Button extends React.PureComponent {
     style?: StyleObj,
     underlayColor?: string,
     children?: React.Element<any>,
+    defaultFormat: "highlight" | "opacity",
   };
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -29,6 +31,13 @@ class Button extends React.PureComponent {
     style: ViewPropTypes.style,
     underlayColor: PropTypes.string,
     children: PropTypes.object,
+    defaultFormat: PropTypes.oneOf([
+      "highlight",
+      "opacity",
+    ]),
+  };
+  static defaultProps = {
+    defaultFormat: "highlight",
   };
 
   render() {
@@ -37,13 +46,17 @@ class Button extends React.PureComponent {
         <TouchableNativeFeedback
           onPress={this.props.onSubmit}
           disabled={!!this.props.disabled}
+          background={TouchableNativeFeedback.Ripple(
+            'rgba(0, 0, 0, .32)',
+            true,
+          )}
         >
           <View style={this.props.style}>
             {this.props.children}
           </View>
         </TouchableNativeFeedback>
       );
-    } else {
+    } else if (this.props.defaultFormat === "highlight") {
       const underlayColor = this.props.underlayColor
         ? this.props.underlayColor
         : "#CCCCCCDD";
@@ -56,6 +69,16 @@ class Button extends React.PureComponent {
         >
           {this.props.children}
         </TouchableHighlight>
+      );
+    } else {
+      return (
+        <TouchableOpacity
+          onPress={this.props.onSubmit}
+          style={this.props.style}
+          disabled={!!this.props.disabled}
+        >
+          {this.props.children}
+        </TouchableOpacity>
       );
     }
   }

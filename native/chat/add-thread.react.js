@@ -40,6 +40,7 @@ import SearchIndex from 'lib/shared/search-index';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
+import CreateThreadButton from './create-thread-button.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];
@@ -82,6 +83,7 @@ class InnerAddThread extends React.PureComponent {
           parentThreadID: PropTypes.string,
         }).isRequired,
       }).isRequired,
+      setParams: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: PropTypes.string.isRequired,
     threadInfo: threadInfoPropType,
@@ -91,9 +93,14 @@ class InnerAddThread extends React.PureComponent {
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
+  static navigationOptions = ({ navigation }) => ({
     title: 'New thread',
-  };
+    headerRight: (
+      <CreateThreadButton
+        onPress={() => navigation.state.params.onPressCreateThread()}
+      />
+    ),
+  });
   nameInput: ?TextInput;
 
   static getUserSearchResults(
@@ -141,6 +148,9 @@ class InnerAddThread extends React.PureComponent {
 
   componentDidMount() {
     this.searchUsers("");
+    this.props.navigation.setParams({
+      onPressCreateThread: this.onPressCreateThread,
+    });
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -297,6 +307,10 @@ class InnerAddThread extends React.PureComponent {
 
   onTagInputHeightChange = (height: number) => {
     this.setState({ tagInputHeight: height });
+  }
+
+  onPressCreateThread = () => {
+    console.log('onPressCreateThread');
   }
 
 }

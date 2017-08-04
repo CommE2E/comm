@@ -3,11 +3,12 @@
 import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
 import { AddThreadRouteName } from './add-thread.react';
+import Button from '../components/button.react';
 
 class AddThreadButton extends React.PureComponent {
 
@@ -31,7 +32,7 @@ class AddThreadButton extends React.PureComponent {
           name="ios-add"
           size={36}
           style={styles.addButton}
-          color="#0077CC"
+          color="#036AFF"
         />
       );
     } else {
@@ -45,12 +46,9 @@ class AddThreadButton extends React.PureComponent {
       );
     }
     return (
-      <TouchableOpacity
-        onPress={this.onPress}
-        activeOpacity={0.4}
-      >
+      <Button onSubmit={this.onPress} defaultFormat="opacity">
         {icon}
-      </TouchableOpacity>
+      </Button>
     );
   }
 
