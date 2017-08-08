@@ -13,7 +13,7 @@ if (!isset($_POST['thread']) || !isset($_POST['subscribe'])) {
   ));
 }
 $thread = (int)$_POST['thread'];
-$subscribe = $_POST['subscribe'] ? 1 : 0;
+$new_subscribed = !!$_POST['subscribe'];
 
 $can_see = viewer_can_see_thread($thread);
 if ($can_see === null) {
@@ -31,7 +31,8 @@ $viewer_id = get_viewer_id();
 create_user_roles(array(array(
   "user" => $viewer_id,
   "thread" => $thread,
-  "role" => ROLE_SUCCESSFUL_AUTH,
+  "role" => $new_subscribed ? ROLE_SUCCESSFUL_AUTH : ROLE_VIEWED,
+  "subscribed" => $new_subscribed,
 )));
 
 async_end(array(
