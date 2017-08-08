@@ -95,3 +95,70 @@ SQL;
     ? (int)$row['concrete_ancestor_thread_id']
     : $parent_thread_id;
 }
+
+// roles is an array of arrays of:
+// - user: required int
+// - thread: required int
+// - role: required int
+// - creation_time: optional int
+// - last_view: optional int
+// - subscribed: optional bool
+function create_user_roles($role_rows) {
+  global $conn;
+
+  if (!$role_rows) {
+    return;
+  }
+
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $values_sql_strings = array();
+  foreach ($role_rows as $role_row) {
+    $creation_time = isset($role_row['creation_time'])
+      ? $role_row['creation_time']
+      : $time;
+    $last_view = isset($role_row['last_view'])
+      ? $role_row['last_view']
+      : $time;
+    $subscribed = isset($role_row['subscribed'])
+      ? $role_row['subscribed']
+      : $role_row['role'] >= ROLE_SUCCESSFUL_AUTH;
+    $values_sql_strings[] = "(" . implode(",", array(
+      $role_row['user'],
+      $role_row['thread'],
+      $role_row['role'],
+      $creation_time,
+      $last_view,
+      $subscribed ? 1 : 0,
+    )) . ")";
+  }
+
+  $values_sql_string = implode(", ", $values_sql_strings);
+  $query = <<<SQL
+INSERT INTO roles (user, thread, role, creation_time, last_view, subscribed)
+VALUES {$values_sql_string}
+ON DUPLICATE KEY UPDATE
+  creation_time = LEAST(VALUES(creation_time), creation_time),
+  last_view = GREATEST(VALUES(last_view), last_view),
+  role = GREATEST(VALUES(role), role),
+  subscribed = GREATEST(VALUES(subscribed), subscribed)
+SQL;
+  $conn->query($query);
+}
+
+// roles is an array of { user, thread }
+function delete_user_roles($role_rows) {
+  global $conn;
+
+  if (!$role_rows) {
+    return;
+  }
+
+  $where_sql_strings = array();
+  foreach ($role_rows as $role_row) {
+    $where_sql_strings[] =
+      "(user = {$role_row['user']} AND thread = {$role_row['thread']})";
+  }
+
+  $where_sql_string = implode(" OR ", $where_sql_strings);
+  $conn->query("DELETE FROM roles WHERE {$where_sql_string}");
+}

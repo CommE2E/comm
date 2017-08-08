@@ -214,31 +214,20 @@ function create_user_cookie($user_id) {
     "SELECT thread, creation_time, last_view, role, subscribed FROM roles ".
       "WHERE user = $anonymous_cookie_id"
   );
-  $new_rows = array();
+  $role_rows = array();
   while ($row = $result->fetch_assoc()) {
-    $new_rows[] = "(".implode(", ", array(
-      $row['thread'],
-      $user_id,
-      $row['creation_time'],
-      $row['last_view'],
-      $row['role'],
-      $row['subscribed']
-    )).")";
+    $role_rows[] = array(
+      "user" => $user_id,
+      "thread" => (int)$row['thread'],
+      "role" => (int)$row['role'],
+      "creation_time" => (int)$row['creation_time'],
+      "last_view" => (int)$row['last_view'],
+      "subscribed" => !!$row['subscribed'],
+    );
   }
-  if ($new_rows) {
-    $conn->query(
-      "INSERT INTO roles(thread, user, ".
-        "creation_time, last_view, role, subscribed) ".
-        "VALUES ".implode(', ', $new_rows)." ".
-        "ON DUPLICATE KEY UPDATE ".
-        "creation_time = LEAST(VALUES(creation_time), creation_time), ".
-        "last_view = GREATEST(VALUES(last_view), last_view), ".
-        "role = GREATEST(VALUES(role), role), ".
-        "subscribed = GREATEST(VALUES(subscribed), subscribed)"
-    );
-    $conn->query(
-      "DELETE FROM roles WHERE user = $anonymous_cookie_id"
-    );
+  if ($role_rows) {
+    create_user_roles($role_rows);
+    $conn->query("DELETE FROM roles WHERE user = $anonymous_cookie_id");
   }
   $conn->query(
     "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".

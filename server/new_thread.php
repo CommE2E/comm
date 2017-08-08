@@ -111,11 +111,14 @@ $conn->query(
     "VALUES ($message_id, $id, $creator, 1, $time)"
 );
 
-$conn->query(
-  "INSERT INTO roles(thread, user, creation_time, last_view, role, ".
-    "subscribed) ".
-    "VALUES ($id, $creator, $time, $time, ".ROLE_CREATOR.", 1)"
-);
+create_user_roles(array(array(
+  "user" => $creator,
+  "thread" => $id,
+  "role" => ROLE_CREATOR,
+  "creation_time" => $time,
+  "last_view" => $time,
+  "subscribed" => true,
+)));
 
 async_end(array(
   'success' => true,

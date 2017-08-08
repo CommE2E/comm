@@ -3,6 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
+require_once('thread_lib.php');
 
 async_start();
 
@@ -27,16 +28,11 @@ if (!$can_see) {
 }
 
 $viewer_id = get_viewer_id();
-$time = round(microtime(true) * 1000); // in milliseconds
-$conn->query(
-  "INSERT INTO roles(thread, user, ".
-    "creation_time, last_view, role, subscribed) ".
-    "VALUES ($thread, $viewer_id, $time, $time, ".
-    ROLE_VIEWED.", $subscribe) ON DUPLICATE KEY UPDATE ".
-    "creation_time = LEAST(VALUES(creation_time), creation_time), ".
-    "last_view = GREATEST(VALUES(last_view), last_view), ".
-    "role = GREATEST(VALUES(role), role), subscribed = VALUES(subscribed)"
-);
+create_user_roles(array(array(
+  "user" => $viewer_id,
+  "thread" => $thread,
+  "role" => ROLE_SUCCESSFUL_AUTH,
+)));
 
 async_end(array(
   'success' => true,
