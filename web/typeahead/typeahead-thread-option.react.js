@@ -16,8 +16,8 @@ import PropTypes from 'prop-types';
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 import {
-  authThreadActionTypes,
-  authThread,
+  joinThreadActionTypes,
+  joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -50,7 +50,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  authThread: (
+  joinThread: (
     threadID: string,
     threadPassword: string,
   ) => Promise<ThreadInfo>;
@@ -258,16 +258,16 @@ class TypeaheadThreadOption extends React.PureComponent {
     event.preventDefault();
     const id = TypeaheadThreadOption.getID(this.props);
     this.props.dispatchActionPromise(
-      authThreadActionTypes,
-      this.authThreadAction(),
-      { customKeyName: `${authThreadActionTypes.started}:${id}` },
+      joinThreadActionTypes,
+      this.joinThreadAction(),
+      { customKeyName: `${joinThreadActionTypes.started}:${id}` },
     );
   }
 
-  async authThreadAction() {
+  async joinThreadAction() {
     const id = TypeaheadThreadOption.getID(this.props);
     try {
-      const response = await this.props.authThread(
+      const response = await this.props.joinThread(
         id,
         this.state.passwordEntryValue,
       );
@@ -298,7 +298,7 @@ TypeaheadThreadOption.propTypes = {
   currentThreadID: PropTypes.string,
   passwordEntryLoadingStatus: PropTypes.string.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  authThread: PropTypes.func.isRequired,
+  joinThread: PropTypes.func.isRequired,
 };
 
 type OwnProps = { threadInfo?: ThreadInfo, secretThreadID?: string };
@@ -310,12 +310,12 @@ export default connect(
       currentNavID: currentNavID(state),
       currentThreadID: state.navInfo.threadID,
       passwordEntryLoadingStatus: createLoadingStatusSelector(
-        authThreadActionTypes,
-        `${authThreadActionTypes.started}:${id}`,
+        joinThreadActionTypes,
+        `${joinThreadActionTypes.started}:${id}`,
       )(state),
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ authThread }),
+  bindServerCalls({ joinThread }),
 )(TypeaheadThreadOption);
