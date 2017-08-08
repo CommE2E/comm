@@ -42,6 +42,7 @@ function get_message_infos($input, $number_per_thread) {
   $viewer_id = get_viewer_id();
   $visibility_closed = VISIBILITY_CLOSED;
   $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
 
   if (is_array($input)) {
     $conditions = array();
@@ -56,7 +57,7 @@ function get_message_infos($input, $number_per_thread) {
     }
     $additional_condition = "(".implode(" OR ", $conditions).")";
   } else {
-    $additional_condition = "r.subscribed = 1";
+    $additional_condition = "tr.subscribed = 1";
   }
 
   $int_number_per_thread = (int)$number_per_thread;
@@ -70,10 +71,19 @@ FROM (
     @thread := m.thread AS thread
   FROM messages m
   LEFT JOIN threads t ON t.id = m.thread
-  LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
-  WHERE (t.visibility_rules < {$visibility_closed} OR
-    (r.thread IS NOT NULL AND r.role >= {$role_successful_auth})) AND
-    {$additional_condition}
+  LEFT JOIN roles tr ON tr.thread = m.thread AND tr.user = {$viewer_id}
+  LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+  LEFT JOIN roles ar
+    ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+  WHERE (
+      t.visibility_rules < {$visibility_closed} OR
+      t.visibility_rules = {$visibility_nested_open} OR
+      (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
+    ) AND (
+      t.visibility_rules != {$visibility_nested_open} OR
+      a.visibility_rules < {$visibility_closed} OR
+      (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
+    ) AND {$additional_condition}
   ORDER BY m.thread, m.time DESC
 ) x
 LEFT JOIN users u ON u.id = x.user
@@ -134,6 +144,7 @@ function get_messages_since($current_as_of, $max_number_per_thread) {
 
   $viewer_id = get_viewer_id();
   $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
 
   $query = <<<SQL
@@ -141,11 +152,20 @@ SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
-LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
+LEFT JOIN roles tr ON tr.thread = m.thread AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
-WHERE (t.visibility_rules < {$visibility_closed} OR
-  (r.thread IS NOT NULL AND r.role >= {$role_successful_auth})) AND
-  m.time > {$current_as_of}
+WHERE (
+    t.visibility_rules < {$visibility_closed} OR
+    t.visibility_rules = {$visibility_nested_open} OR
+    (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
+  ) AND (
+    t.visibility_rules != {$visibility_nested_open} OR
+    a.visibility_rules < {$visibility_closed} OR
+    (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
+  ) AND m.time > {$current_as_of}
 ORDER BY m.thread, m.time DESC
 SQL;
   $result = $conn->query($query);

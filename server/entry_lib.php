@@ -38,10 +38,11 @@ function get_entry_infos($input) {
     $thread = intval($input['nav']);
   }
 
-  $additional_condition = $home ? "r.subscribed = 1" : "d.thread = $thread";
+  $additional_condition = $home ? "tr.subscribed = 1" : "d.thread = $thread";
   $deleted_condition = $include_deleted ? "" : "AND e.deleted = 0 ";
   $viewer_id = get_viewer_id();
   $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
   $select_query = <<<SQL
 SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
@@ -50,12 +51,21 @@ SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
-LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id}
+LEFT JOIN roles tr ON tr.thread = d.thread AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
 LEFT JOIN users u ON u.id = e.creator
-WHERE d.date BETWEEN '{$start_date}' AND '{$end_date}' AND
-  (t.visibility_rules < {$visibility_closed} OR
-    (r.thread IS NOT NULL AND r.role >= {$role_successful_auth})) AND
-  {$additional_condition} {$deleted_condition}
+WHERE (
+    t.visibility_rules < {$visibility_closed} OR
+    t.visibility_rules = {$visibility_nested_open} OR
+    (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
+  ) AND (
+    t.visibility_rules != {$visibility_nested_open} OR
+    a.visibility_rules < {$visibility_closed} OR
+    (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
+  ) AND d.date BETWEEN '{$start_date}' AND '{$end_date}'
+  AND {$additional_condition} {$deleted_condition}
 ORDER BY e.creation_time DESC
 SQL;
   $result = $conn->query($select_query);
