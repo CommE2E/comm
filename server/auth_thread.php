@@ -57,7 +57,7 @@ $conn->query(
 list($message_infos, $truncation_status, $users) =
   get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
 
-$thread_infos = get_thread_infos("c.id = $thread");
+$thread_infos = get_thread_infos("t.id = $thread");
 async_end(array(
   'success' => true,
   'thread_info' => $thread_infos[$thread],

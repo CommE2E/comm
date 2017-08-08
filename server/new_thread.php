@@ -31,9 +31,9 @@ if (!user_logged_in()) {
   ));
 }
 
-$visibility_rules = intval($_POST['visibility_rules']);
+$vis_rules = intval($_POST['visibility_rules']);
 $password = null;
-if ($visibility_rules >= VISIBILITY_CLOSED) {
+if ($vis_rules === VISIBILITY_CLOSED || $vis_rules === VISIBILITY_SECRET) {
   if (!isset($_POST['password'])) {
     async_end(array(
       'error' => 'invalid_parameters',
@@ -42,33 +42,67 @@ if ($visibility_rules >= VISIBILITY_CLOSED) {
   $password = $_POST['password'];
 }
 
+$parent_thread_id = null;
+if (isset($_POST['parent_thread_id'])) {
+  if ($vis_rules <= VISIBILITY_SECRET) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
+  $parent_thread_id = intval($_POST['parent_thread_id']);
+  if (!viewer_can_edit_thread($parent_thread_id)) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
+}
+
+$concrete_ancestor_thread_id = null;
+if ($vis_rules === VISIBILITY_NESTED_OPEN) {
+  if ($parent_thread_id === null) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
+  $concrete_ancestor_thread_id =
+    fetch_concrete_ancestor_thread_id($parent_thread_id);
+  if ($concrete_ancestor_thread_id === null) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
+}
+
 $name = $conn->real_escape_string($_POST['name']);
 $description = $conn->real_escape_string($_POST['description']);
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('threads')");
 $id = $conn->insert_id;
 $creator = get_viewer_id();
-$edit_rules = $visibility_rules >= VISIBILITY_CLOSED
+$edit_rules = $vis_rules >= VISIBILITY_CLOSED
   ? EDIT_LOGGED_IN
   : EDIT_ANYBODY;
-if ($visibility_rules >= VISIBILITY_CLOSED) {
-  $hash = password_hash($password, PASSWORD_BCRYPT);
-  $conn->query(
-    "INSERT INTO threads".
-      "(id, name, description, visibility_rules, hash, edit_rules, ".
-      "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', $visibility_rules, '$hash', ".
-      "$edit_rules, $creator, $time, '$color')"
-  );
-} else {
-  $conn->query(
-    "INSERT INTO threads".
-      "(id, name, description, visibility_rules, hash, edit_rules, ".
-      "creator, creation_time, color) ".
-      "VALUES ($id, '$name', '$description', $visibility_rules, NULL, ".
-      "$edit_rules, $creator, $time, '$color')"
-  );
-}
+$hash_sql_string =
+  ($vis_rules === VISIBILITY_CLOSED || $vis_rules === VISIBILITY_SECRET)
+  ? ("'" . password_hash($password, PASSWORD_BCRYPT) . "'")
+  : "NULL";
+$parent_thread_id_sql_string = $parent_thread_id
+  ? $parent_thread_id
+  : "NULL";
+$concrete_ancestor_thread_id_sql_string = $concrete_ancestor_thread_id
+  ? $concrete_ancestor_thread_id
+  : "NULL";
+
+$thread_insert_sql = <<<SQL
+INSERT INTO threads
+  (id, name, description, visibility_rules, hash, edit_rules, creator,
+  creation_time, color, parent_thread_id, concrete_ancestor_thread_id)
+VALUES
+  ($id, '$name', '$description', $vis_rules, $hash_sql_string, $edit_rules,
+  $creator, $time, '$color', $parent_thread_id_sql_string,
+  $concrete_ancestor_thread_id_sql_string)
+SQL;
+$conn->query($thread_insert_sql);
 
 $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $message_id = $conn->insert_id;

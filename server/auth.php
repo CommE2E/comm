@@ -344,13 +344,29 @@ function viewer_can_see_thread($thread) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $result = $conn->query(
-    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth FROM threads t ".
-      "LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id} ".
-      "WHERE t.id = $thread"
-  );
+  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $query = <<<SQL
+SELECT (
+  (
+    t.visibility_rules >= {$visibility_closed} AND
+    t.visibility_rules != {$visibility_nested_open} AND
+    (tr.thread IS NULL OR tr.role < {$role_successful_auth})
+  ) OR (
+    t.visibility_rules = {$visibility_nested_open} AND
+    a.visibility_rules >= {$visibility_closed} AND
+    (ar.thread IS NULL OR ar.role < {$role_successful_auth})
+  )
+) AS requires_auth
+FROM threads t
+LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+WHERE t.id = {$thread}
+SQL;
+  $result = $conn->query($query);
   $thread_row = $result->fetch_assoc();
   if (!$thread_row) {
     return null;
@@ -363,14 +379,30 @@ function viewer_can_see_day($day) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $result = $conn->query(
-    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth FROM days d ".
-      "LEFT JOIN threads t ON t.id = d.thread ".
-      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
-      "WHERE d.id = $day"
-  );
+  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $query = <<<SQL
+SELECT (
+  (
+    t.visibility_rules >= {$visibility_closed} AND
+    t.visibility_rules != {$visibility_nested_open} AND
+    (tr.thread IS NULL OR tr.role < {$role_successful_auth})
+  ) OR (
+    t.visibility_rules = {$visibility_nested_open} AND
+    a.visibility_rules >= {$visibility_closed} AND
+    (ar.thread IS NULL OR ar.role < {$role_successful_auth})
+  )
+) AS requires_auth
+FROM days d
+LEFT JOIN threads t ON t.id = d.thread
+LEFT JOIN roles tr ON tr.thread = d.thread AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+WHERE d.id = {$day}
+SQL;
+  $result = $conn->query($query);
   $day_row = $result->fetch_assoc();
   if (!$day_row) {
     return null;
@@ -383,15 +415,31 @@ function viewer_can_see_entry($entry) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $result = $conn->query(
-    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth FROM entries e ".
-      "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN threads t ON t.id = d.thread ".
-      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
-      "WHERE e.id = $entry"
-  );
+  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $query = <<<SQL
+SELECT (
+  (
+    t.visibility_rules >= {$visibility_closed} AND
+    t.visibility_rules != {$visibility_nested_open} AND
+    (tr.thread IS NULL OR tr.role < {$role_successful_auth})
+  ) OR (
+    t.visibility_rules = {$visibility_nested_open} AND
+    a.visibility_rules >= {$visibility_closed} AND
+    (ar.thread IS NULL OR ar.role < {$role_successful_auth})
+  )
+) AS requires_auth
+FROM entries e
+LEFT JOIN days d ON d.id = e.day
+LEFT JOIN threads t ON t.id = d.thread
+LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+WHERE e.id = {$entry}
+SQL;
+  $result = $conn->query($query);
   $entry_row = $result->fetch_assoc();
   if (!$entry_row) {
     return null;
@@ -419,13 +467,29 @@ function viewer_can_edit_thread($thread) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $result = $conn->query(
-    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth, t.edit_rules FROM threads t ".
-      "LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id} ".
-      "WHERE t.id = $thread"
-  );
+  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $query = <<<SQL
+SELECT t.edit_rules, (
+  (
+    t.visibility_rules >= {$visibility_closed} AND
+    t.visibility_rules != {$visibility_nested_open} AND
+    (tr.thread IS NULL OR tr.role < {$role_successful_auth})
+  ) OR (
+    t.visibility_rules = {$visibility_nested_open} AND
+    a.visibility_rules >= {$visibility_closed} AND
+    (ar.thread IS NULL OR ar.role < {$role_successful_auth})
+  )
+) AS requires_auth
+FROM threads t
+LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+WHERE t.id = {$thread}
+SQL;
+  $result = $conn->query($query);
   return edit_rules_helper($result->fetch_assoc());
 }
 
@@ -437,14 +501,30 @@ function viewer_can_edit_entry($entry) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $result = $conn->query(
-    "SELECT t.visibility_rules >= ".VISIBILITY_CLOSED." AND ".
-      "(r.thread IS NULL OR r.role < ".ROLE_SUCCESSFUL_AUTH.") ".
-      "AS requires_auth, t.edit_rules FROM entries e ".
-      "LEFT JOIN days d ON d.id = e.day ".
-      "LEFT JOIN threads t ON t.id = d.thread ".
-      "LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id} ".
-      "WHERE e.id = $entry"
-  );
+  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
+  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $query = <<<SQL
+SELECT t.edit_rules, (
+  (
+    t.visibility_rules >= {$visibility_closed} AND
+    t.visibility_rules != {$visibility_nested_open} AND
+    (tr.thread IS NULL OR tr.role < {$role_successful_auth})
+  ) OR (
+    t.visibility_rules = {$visibility_nested_open} AND
+    a.visibility_rules >= {$visibility_closed} AND
+    (ar.thread IS NULL OR ar.role < {$role_successful_auth})
+  )
+) AS requires_auth
+FROM entries e
+LEFT JOIN days d ON d.id = e.day
+LEFT JOIN threads t ON t.id = d.thread
+LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
+LEFT JOIN roles ar
+  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+WHERE e.id = {$entry}
+SQL;
+  $result = $conn->query($query);
   return edit_rules_helper($result->fetch_assoc());
 }
