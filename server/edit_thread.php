@@ -112,7 +112,7 @@ WHERE r.thread = {$thread} AND r.user = {$user} AND r.role >= {$role_creator}
 SQL;
 $result = $conn->query($query);
 $row = $result->fetch_assoc();
-if (!$row) {
+if (!$row || $row['visibility_rules'] === null) {
   async_end(array(
     'error' => 'internal_error',
   ));

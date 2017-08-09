@@ -100,6 +100,7 @@ SQL;
       "user" => $viewer_id,
       "thread" => $current_thread_id,
       "role" => ROLE_SUCCESSFUL_AUTH,
+      "subscribed" => false,
     );
     $message_cursors_to_query[$current_thread_id] = false;
     $current_thread_id = (int)$ancestor_row['parent_thread_id'];

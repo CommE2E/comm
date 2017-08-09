@@ -21,16 +21,20 @@ $user = get_viewer_id();
 $thread = (int)$_POST['thread'];
 $password = $_POST['password'];
 
-$result = $conn->query(
-  "SELECT hash ".
-    "FROM roles r LEFT JOIN users u ON u.id = r.user ".
-    "WHERE r.thread = $thread AND r.user = $user ".
-    "AND r.role >= ".ROLE_CREATOR
-);
+$role_creator = ROLE_CREATOR;
+$query = <<<SQL
+SELECT u.hash
+FROM roles r
+LEFT JOIN users u ON u.id = r.user
+WHERE r.thread = {$thread}
+  AND r.user = {$user}
+  AND r.role >= {$role_creator}
+SQL;
+$result = $conn->query($query);
 $row = $result->fetch_assoc();
 if (!$row) {
   async_end(array(
-    'error' => 'internal_error',
+    'error' => 'invalid_parameters',
   ));
 }
 if (!password_verify($password, $row['hash'])) {
