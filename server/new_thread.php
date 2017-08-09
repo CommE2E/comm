@@ -4,6 +4,7 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
+require_once('user_lib.php');
 
 async_start();
 
@@ -111,14 +112,28 @@ $conn->query(
     "VALUES ($message_id, $id, $creator, 1, $time)"
 );
 
-create_user_roles(array(array(
+$roles_to_save = array(array(
   "user" => $creator,
   "thread" => $id,
   "role" => ROLE_CREATOR,
   "creation_time" => $time,
   "last_view" => $time,
   "subscribed" => true,
-)));
+));
+$initial_member_ids = isset($_POST['initial_member_ids'])
+  ? verify_user_ids($_POST['initial_member_ids'])
+  : array();
+foreach ($initial_member_ids as $initial_member_id) {
+  $roles_to_save[] = array(
+    "user" => $initial_member_id,
+    "thread" => $id,
+    "role" => ROLE_SUCCESSFUL_AUTH,
+    "creation_time" => $time,
+    "last_view" => $time,
+    "subscribed" => true,
+  );
+}
+create_user_roles($roles_to_save);
 
 async_end(array(
   'success' => true,

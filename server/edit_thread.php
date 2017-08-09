@@ -4,6 +4,7 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
+require_once('user_lib.php');
 
 async_start();
 
@@ -92,7 +93,11 @@ if (isset($_POST['visibility_rules'])) {
   $changed_sql_fields['visibility_rules'] = $vis_rules;
 }
 
-if (!$changed_sql_fields) {
+$add_member_ids = isset($_POST['add_member_ids'])
+  ? verify_user_ids($_POST['add_member_ids'])
+  : array();
+
+if (!$changed_sql_fields && !$add_member_ids) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
@@ -192,12 +197,14 @@ if (
     $concrete_ancestor_thread_id;
 }
 
-$sql_set_strings = array();
-foreach ($changed_sql_fields as $field_name => $field_sql_string) {
-  $sql_set_strings[] = "{$field_name} = {$field_sql_string}";
+if ($changed_sql_fields) {
+  $sql_set_strings = array();
+  foreach ($changed_sql_fields as $field_name => $field_sql_string) {
+    $sql_set_strings[] = "{$field_name} = {$field_sql_string}";
+  }
+  $sql_set_string = implode(", ", $sql_set_strings);
+  $conn->query("UPDATE threads SET {$sql_set_string} WHERE id = {$thread}");
 }
-$sql_set_string = implode(", ", $sql_set_strings);
-$conn->query("UPDATE threads SET {$sql_set_string} WHERE id = {$thread}");
 
 // If we're switching from NESTED_OPEN to THREAD_SECRET, all of our NESTED_OPEN
 // descendants need to be updated to have us as their concrete ancestor thread
@@ -250,6 +257,16 @@ WHERE concrete_ancestor_thread_id = {$thread}
 SQL;
   $conn->query($update_query);
 }
+
+$roles_to_save = array();
+foreach ($add_member_ids as $add_member_id) {
+  $roles_to_save[] = array(
+    "user" => $add_member_id,
+    "thread" => $thread,
+    "role" => ROLE_SUCCESSFUL_AUTH,
+  );
+}
+create_user_roles($roles_to_save);
 
 async_end(array(
   'success' => true,

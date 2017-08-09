@@ -167,8 +167,7 @@ function verify_thread_id($thread) {
   global $conn;
 
   $thread = (int)$thread;
-  $thread_id_check_result =
-    $conn->query("SELECT id FROM threads WHERE id = {$thread}");
-  $thread_id_check_row = $thread_id_check_result->fetch_assoc();
-  return !!$thread_id_check_row;
+  $result = $conn->query("SELECT id FROM threads WHERE id = {$thread}");
+  $row = $result->fetch_assoc();
+  return !!$row;
 }
