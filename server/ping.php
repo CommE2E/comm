@@ -35,6 +35,15 @@ if ($user_logged_in) {
   );
 }
 
+if (
+  !empty($_POST['inner_entry_query']) &&
+  !verify_entry_info_query($_POST['inner_entry_query'])
+) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
 $time = round(microtime(true) * 1000); // in milliseconds
 if (isset($_REQUEST['last_ping']) && $_REQUEST['last_ping']) {
   $last_ping = (int)$_REQUEST['last_ping'];

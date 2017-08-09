@@ -5,6 +5,12 @@ require_once('entry_lib.php');
 
 async_start();
 
+if (!verify_entry_info_query($_POST)) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
 $entry_result = get_entry_infos($_POST);
 if ($entry_result === null) {
   async_end(array(

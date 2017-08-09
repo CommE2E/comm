@@ -22,6 +22,15 @@ if (trim($password) === '') {
   ));
 }
 
+if (
+  !empty($_POST['inner_entry_query']) &&
+  !verify_entry_info_query($_POST['inner_entry_query'])
+) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
 $code = $_POST['code'];
 $verification_result = verify_code($code);
 if (!$verification_result) {

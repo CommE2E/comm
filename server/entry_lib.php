@@ -4,6 +4,26 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 
+// Doesn't verify $input['nav'] is actually a thread, if not "home"
+// Use verify_entry_info_query
+function raw_verify_entry_info_query($input) {
+  // Be careful with the regex below; bad validation could lead to SQL injection
+  return
+    is_array($input) &&
+    isset($input['start_date']) &&
+    isset($input['end_date']) &&
+    preg_match("/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/", $input['start_date']) &&
+    preg_match("/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/", $input['end_date']) &&
+    isset($input['nav']);
+}
+
+function verify_entry_info_query($input) {
+  return raw_verify_entry_info_query($input) && (
+    $input['nav'] === "home" ||
+    verify_thread_id($input['nav'])
+  );
+}
+
 // $input should be an array that contains:
 // - start_date key with date formatted like 2017-04-20
 // - end_date key with same date format
@@ -13,15 +33,7 @@ require_once('thread_lib.php');
 function get_entry_infos($input) {
   global $conn;
 
-  // Be careful with the regex below; bad validation could lead to SQL injection
-  if (
-    !is_array($input) ||
-    !isset($input['start_date']) ||
-    !isset($input['end_date']) ||
-    !preg_match("/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/", $input['start_date']) ||
-    !preg_match("/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/", $input['end_date']) ||
-    !isset($input['nav'])
-  ) {
+  if (!raw_verify_entry_info_query($input)) {
     return null;
   }
 

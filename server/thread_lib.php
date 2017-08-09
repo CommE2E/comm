@@ -162,3 +162,13 @@ function delete_user_roles($role_rows) {
   $where_sql_string = implode(" OR ", $where_sql_strings);
   $conn->query("DELETE FROM roles WHERE {$where_sql_string}");
 }
+
+function verify_thread_id($thread) {
+  global $conn;
+
+  $thread = (int)$thread;
+  $thread_id_check_result =
+    $conn->query("SELECT id FROM threads WHERE id = {$thread}");
+  $thread_id_check_row = $thread_id_check_result->fetch_assoc();
+  return !!$thread_id_check_row;
+}

@@ -16,6 +16,15 @@ if (!isset($_POST['username']) || !isset($_POST['password'])) {
 $username = $conn->real_escape_string($_POST['username']);
 $password = $_POST['password'];
 
+if (
+  !empty($_POST['inner_entry_query']) &&
+  !verify_entry_info_query($_POST['inner_entry_query'])
+) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
 $result = $conn->query(
   "SELECT id, hash, username, email, email_verified ".
     "FROM users WHERE username = '$username' OR email = '$username'"

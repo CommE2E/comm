@@ -40,13 +40,9 @@ if (!$home_rewrite_matched && $thread_rewrite_matched) {
 }
 
 $thread_infos = get_thread_infos();
-if (!$home && !isset($thread_infos[$thread])) {
-  $result = $conn->query("SELECT id FROM threads WHERE id = $thread");
-  $thread_id_check_row = $result->fetch_assoc();
-  if (!$thread_id_check_row) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    exit;
-  }
+if (!$home && !isset($thread_infos[$thread]) && !verify_thread_id($thread)) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
 }
 
 $month_beginning_timestamp = date_create("$month/1/$year");
