@@ -39,7 +39,7 @@ if (!$home_rewrite_matched && $thread_rewrite_matched) {
   $thread = null;
 }
 
-$thread_infos = get_thread_infos();
+list($thread_infos, $thread_users) = get_thread_infos();
 if (!$home && !isset($thread_infos[$thread]) && !verify_thread_id($thread)) {
   header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
   exit;
@@ -128,7 +128,12 @@ $current_as_of = round(microtime(true) * 1000); // in milliseconds
 list($message_infos, $truncation_status, $message_users) =
   get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
 
-$users = array_merge($message_users, $entry_users);
+
+$users = array_merge(
+  $message_users,
+  $entry_users,
+  $thread_users,
+);
 
 $fonts_css_url = DEV
   ? "fonts/local-fonts.css"

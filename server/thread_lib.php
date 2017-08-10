@@ -45,12 +45,14 @@ SQL;
   $result = $conn->query($query);
 
   $thread_infos = array();
+  $thread_ids = array();
   while ($row = $result->fetch_assoc()) {
     $vis_rules = (int)$row['visibility_rules'];
     $authorized = !$row['requires_auth'];
     if (!$authorized && $vis_rules >= VISIBILITY_SECRET) {
       continue;
     }
+    $thread_ids[] = $row['id'];
     $subscribed_authorized = $authorized && $row['subscribed'];
     $thread_infos[$row['id']] = array(
       'id' => $row['id'],
@@ -64,9 +66,31 @@ SQL;
       'color' => $row['color'],
       'editRules' => (int)$row['edit_rules'],
       'creationTime' => (int)$row['creation_time'],
+      'memberIDs' => array(),
     );
   }
-  return $thread_infos;
+
+  $thread_id_sql_string = implode(",", $thread_ids);
+  $user_query = <<<SQL
+SELECT r.thread, r.user, u.username
+FROM roles r
+LEFT JOIN users u ON r.user = u.id
+WHERE r.thread IN ({$thread_id_sql_string})
+SQL;
+  $user_result = $conn->query($user_query);
+
+  $users = array();
+  while ($row = $result->fetch_assoc()) {
+    $thread_id = $row['thread'];
+    $user_id = $row['user'];
+    $thread_infos[$thread_id]['memberIDs'][] = $user_id;
+    $users[$user_id] = array(
+      'id' => $user_id,
+      'username' => $row['username'],
+    );
+  }
+
+  return array($thread_infos, $users);
 }
 
 function fetch_concrete_ancestor_thread_id($parent_thread_id) {

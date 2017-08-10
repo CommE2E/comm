@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 require_once('message_lib.php');
+require_once('user_lib.php');
 
 async_start();
 
@@ -115,13 +116,20 @@ SQL;
 
 create_user_roles($roles_to_save);
 
-list($message_infos, $truncation_status, $users) =
+list($message_infos, $truncation_status, $message_users) =
   get_message_infos($message_cursors_to_query, DEFAULT_NUMBER_PER_THREAD);
+
+list($thread_infos, $thread_users) = get_thread_infos();
+
+$user_infos = combine_keyed_user_info_arrays(
+  $message_users,
+  $thread_users,
+);
 
 async_end(array(
   'success' => true,
-  'thread_infos' => get_thread_infos(),
+  'thread_infos' => $thread_infos,
   'message_infos' => $message_infos,
   'truncation_status' => $truncation_status,
-  'user_infos' => array_values($users),
+  'user_infos' => $user_infos,
 ));

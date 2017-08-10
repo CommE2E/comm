@@ -19,3 +19,7 @@ function verify_user_ids($user_ids) {
   }
   return $verified_user_ids;
 }
+
+function combine_keyed_user_info_arrays(...$user_info_arrays) {
+  return array_values(array_merge(...$user_info_arrays));
+}

@@ -64,7 +64,10 @@ SQL;
 
 delete_user_roles($roles_to_delete);
 
+list($thread_infos, $thread_users) = get_thread_infos();
+
 async_end(array(
   'success' => true,
-  'thread_infos' => get_thread_infos(),
+  'thread_infos' => $thread_infos,
+  'user_infos' => array_values($thread_users),
 ));

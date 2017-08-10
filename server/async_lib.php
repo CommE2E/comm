@@ -33,8 +33,10 @@ function async_end($payload) {
   // If there's been a cookie invalidation, tell the user about it
   if (cookie_has_changed()) {
     $cookie_invalidated = cookie_invalidated();
+    list($thread_infos, $users) = get_thread_infos();
     $payload['cookie_change'] = array(
-      'thread_infos' => get_thread_infos(),
+      'thread_infos' => $thread_infos,
+      'user_infos' => array_values($users),
       'cookie_invalidated' => $cookie_invalidated,
     );
     $viewer_info = get_viewer_info();

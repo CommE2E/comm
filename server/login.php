@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('entry_lib.php');
 require_once('message_lib.php');
+require_once('user_lib.php');
 
 async_start();
 
@@ -45,7 +46,7 @@ $id = intval($user_row['id']);
 create_user_cookie($id);
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status, $users) =
+list($message_infos, $truncation_status, $message_users) =
   get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
 
 $return = array(
@@ -61,15 +62,18 @@ $return = array(
   'server_time' => $current_as_of,
 );
 
+$entry_users = array();
 if (!empty($_POST['inner_entry_query'])) {
   $entry_result = get_entry_infos($_POST['inner_entry_query']);
   if ($entry_result !== null) {
     list($entries, $entry_users) = $entry_result;
     $return['entry_infos'] = $entries;
-    $users = array_merge($users, $entry_users);
   }
 }
 
-$return['user_infos'] = array_values($users);
+$return['user_infos'] = combine_keyed_user_info_arrays(
+  $message_users,
+  $entry_users,
+);
 
 async_end($return);
