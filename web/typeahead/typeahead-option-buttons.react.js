@@ -65,7 +65,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
   state: State;
 
   render() {
-    if (!this.props.threadInfo.authorized) {
+    if (!this.props.threadInfo.viewerIsMember) {
       return (
         <ul className={css['thread-nav-option-buttons']}>
           <li>Closed</li>

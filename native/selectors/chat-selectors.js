@@ -99,7 +99,7 @@ const chatListData = createSelector(
     viewerID: ?string,
     userInfos: {[id: string]: UserInfo},
   ): ChatThreadItem[] => _flow(
-    _filter('authorized'),
+    _filter('viewerIsMember'),
     _map((threadInfo: ThreadInfo): ChatThreadItem => {
       const thread = messageStore.threads[threadInfo.id];
       if (!thread || thread.messageIDs.length === 0) {

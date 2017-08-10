@@ -62,7 +62,7 @@ if ($home) {
   }
 } else {
   $null_state = !isset($thread_infos[$thread])
-    || !$thread_infos[$thread]['authorized'];
+    || !$thread_infos[$thread]['viewerIsMember'];
 }
 
 $verify_rewrite_matched = preg_match(
