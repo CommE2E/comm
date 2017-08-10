@@ -599,6 +599,8 @@ class ThreadSettingsModal extends React.PureComponent {
         color: this.state.threadInfo.color,
         editRules: this.state.threadInfo.editRules,
         creationTime: this.state.threadInfo.creationTime,
+        parentThreadID: this.state.threadInfo.parentThreadID,
+        memberIDs: this.state.threadInfo.memberIDs,
       };
       const response = await this.props.changeThreadSettings(
         this.state.accountPassword,

@@ -32,10 +32,12 @@ type Props = {
   onClose: () => void,
   // Redux state
   inputDisabled: bool,
+  viewerID: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (
+    viewerID: string,
     name: string,
     description: string,
     ourVisibilityRules: VisibilityRules,
@@ -385,6 +387,7 @@ class NewThreadModal extends React.PureComponent {
   async newThreadAction(name: string, ourVisibilityRules: VisibilityRules) {
     try {
       const response = await this.props.newThread(
+        this.props.viewerID,
         name,
         this.state.description,
         ourVisibilityRules,
@@ -418,6 +421,7 @@ class NewThreadModal extends React.PureComponent {
 NewThreadModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
+  viewerID: PropTypes.string.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   newThread: PropTypes.func.isRequired,
 }
@@ -426,10 +430,15 @@ const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 
 export default connect(
-  (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === "loading",
-    cookie: state.cookie,
-  }),
+  (state: AppState) => {
+    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
+    invariant(viewerID, "must be logged in to create new thread");
+    return {
+      inputDisabled: loadingStatusSelector(state) === "loading",
+      viewerID,
+      cookie: state.cookie,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ newThread }),
 )(NewThreadModal);

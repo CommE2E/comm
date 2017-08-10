@@ -53,10 +53,12 @@ type Props = {
   threadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
+  viewerID: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (
+    viewerID: string,
     name: string,
     description: string,
     ourVisibilityRules: VisibilityRules,
@@ -89,6 +91,7 @@ class InnerAddThread extends React.PureComponent {
     threadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    viewerID: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -379,11 +382,14 @@ const AddThread = connect(
       threadInfo = state.threadInfos[threadID];
       invariant(threadInfo, "parent thread should exist");
     }
+    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
+    invariant(viewerID, "must be logged in to create new thread");
     return {
       loadingStatus: loadingStatusSelector(state),
       threadInfo,
       otherUserInfos: otherUserInfos(state),
       userSearchIndex: userSearchIndex(state),
+      viewerID,
       cookie: state.cookie,
     };
   },
