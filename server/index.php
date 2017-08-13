@@ -132,8 +132,13 @@ list($message_infos, $truncation_status, $message_users) =
 $users = array_merge(
   $message_users,
   $entry_users,
-  $thread_users,
+  $thread_users
 );
+
+if (!$thread_infos) {
+  // Casting empty array to object guarantees JSON encoding as {} rather than []
+  $thread_infos = (object)$thread_infos;
+}
 
 $fonts_css_url = DEV
   ? "fonts/local-fonts.css"
@@ -162,7 +167,7 @@ HTML;
       var viewer_id = "<?=$viewer_id?>";
       var email = "<?=$email?>";
       var email_verified = <?=($email_verified ? "true" : "false")?>;
-      var thread_infos = <?=json_encode($thread_infos, JSON_FORCE_OBJECT)?>;
+      var thread_infos = <?=json_encode($thread_infos)?>;
       var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;
       var year = <?=$year?>;

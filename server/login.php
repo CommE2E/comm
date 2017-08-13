@@ -73,7 +73,7 @@ if (!empty($_POST['inner_entry_query'])) {
 
 $return['user_infos'] = combine_keyed_user_info_arrays(
   $message_users,
-  $entry_users,
+  $entry_users
 );
 
 async_end($return);

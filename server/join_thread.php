@@ -107,7 +107,7 @@ list($thread_infos, $thread_users) = get_thread_infos();
 
 $user_infos = combine_keyed_user_info_arrays(
   $message_users,
-  $thread_users,
+  $thread_users
 );
 
 async_end(array(
