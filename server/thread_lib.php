@@ -48,17 +48,18 @@ SQL;
   $thread_ids = array();
   while ($row = $result->fetch_assoc()) {
     $vis_rules = (int)$row['visibility_rules'];
-    $viewer_is_member = !$row['requires_auth'];
-    if (!$viewer_is_member && $vis_rules >= VISIBILITY_SECRET) {
+    $authorized = !$row['requires_auth'];
+    if (!$authorized && $vis_rules >= VISIBILITY_SECRET) {
       continue;
     }
     $thread_ids[] = $row['id'];
-    $subscribed_authorized = $viewer_is_member && $row['subscribed'];
+    $subscribed_authorized = $authorized && $row['subscribed'];
     $thread_infos[$row['id']] = array(
       'id' => $row['id'],
       'name' => $row['name'],
       'description' => $row['description'],
-      'viewerIsMember' => $viewer_is_member,
+      'authorized' => $authorized,
+      'viewerIsMember' => (int)$row['role'] >= ROLE_SUCCESSFUL_AUTH,
       'subscribed' => $subscribed_authorized,
       'parentThreadID' => $row['parent_thread_id'],
       'canChangeSettings' => (int)$row['role'] >= ROLE_CREATOR,

@@ -592,6 +592,7 @@ class ThreadSettingsModal extends React.PureComponent {
         id: this.state.threadInfo.id,
         name,
         description: this.state.threadInfo.description,
+        authorized: this.state.threadInfo.authorized,
         viewerIsMember: this.state.threadInfo.viewerIsMember,
         subscribed: this.state.threadInfo.subscribed,
         canChangeSettings: this.state.threadInfo.canChangeSettings,

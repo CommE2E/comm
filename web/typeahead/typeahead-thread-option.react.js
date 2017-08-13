@@ -217,7 +217,7 @@ class TypeaheadThreadOption extends React.PureComponent {
 
   onClick = (event: SyntheticEvent) => {
     const id = TypeaheadThreadOption.getID(this.props);
-    if (this.props.threadInfo && this.props.threadInfo.viewerIsMember) {
+    if (this.props.threadInfo && this.props.threadInfo.authorized) {
       history.push(`/thread/${id}/${this.props.monthURL}`);
       this.props.onTransition();
     } else {
