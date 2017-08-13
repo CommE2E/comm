@@ -75,7 +75,7 @@ function get_input_user_cookie() {
 
 function get_input_anonymous_cookie() {
   if (!isset($_POST['cookie'])) {
-    return isset($_COOKIE['cookie']) ? $_COOKIE['cookie'] : null;
+    return isset($_COOKIE['anonymous']) ? $_COOKIE['anonymous'] : null;
   }
   $matches = array();
   $num_matches = preg_match("/anonymous=(.+)/", $_POST['cookie'], $matches);

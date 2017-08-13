@@ -6,6 +6,7 @@ require_once('verify_lib.php');
 require_once('thread_lib.php');
 require_once('message_lib.php');
 require_once('entry_lib.php');
+require_once('user_lib.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -93,20 +94,12 @@ if ($verify_code) {
   }
 }
 
-// Get the username
-$viewer_id = get_viewer_id();
-$username = null;
-$email = null;
-$email_verified = null;
-if (user_logged_in()) {
-  $result = $conn->query(
-    "SELECT username, email, email_verified FROM users WHERE id = $viewer_id"
-  );
-  $user_row = $result->fetch_assoc();
-  $username = $user_row['username'];
-  $email = $user_row['email'];
-  $email_verified = $user_row['email_verified'];
+$user_info = get_user_info();
+if ($user_info === null) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
 }
+$username = isset($user_info['username']) ? $user_info['username'] : null;
 
 // Fetch the actual text for each day
 $month_fragment = $month < 10 ? "0{$month}" : (string)$month;
@@ -163,10 +156,7 @@ HTML;
 }
 ?>
     <script>
-      var username = "<?=$username?>";
-      var viewer_id = "<?=$viewer_id?>";
-      var email = "<?=$email?>";
-      var email_verified = <?=($email_verified ? "true" : "false")?>;
+      var current_user_info = <?=json_encode($user_info, JSON_FORCE_OBJECT)?>;
       var thread_infos = <?=json_encode($thread_infos)?>;
       var entry_infos = <?=json_encode($entries)?>;
       var month = <?=$month?>;

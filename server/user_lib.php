@@ -23,3 +23,32 @@ function verify_user_ids($user_ids) {
 function combine_keyed_user_info_arrays(...$user_info_arrays) {
   return array_values(array_merge(...$user_info_arrays));
 }
+
+function get_user_info() {
+  global $conn;
+
+  $viewer_id = get_viewer_id();
+  $user_logged_in = user_logged_in();
+
+  if (!$user_logged_in) {
+    return array(
+      'id' => (string)$viewer_id,
+      'anonymous' => true,
+    );
+  }
+
+  $query = <<<SQL
+SELECT username, email, email_verified FROM users WHERE id = {$viewer_id}
+SQL;
+  $result = $conn->query($query);
+  $user_row = $result->fetch_assoc();
+  if (!$user_row) {
+    return null;
+  }
+  return array(
+    'id' => (string)$viewer_id,
+    'username' => $user_row['username'],
+    'email' => $user_row['email'],
+    'email_verified' => (bool)$user_row['email_verified'],
+  );
+}

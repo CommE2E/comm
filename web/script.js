@@ -11,7 +11,7 @@ import type {
   MessageTruncationStatus,
 } from 'lib/types/message-types';
 import type { AppState, Action } from './redux-setup';
-import type { UserInfo } from 'lib/types/user-types';
+import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -40,10 +40,7 @@ import { reducer } from './redux-setup';
 import App from './app.react';
 import history from './router-history';
 
-declare var viewer_id: string;
-declare var username: string;
-declare var email: string;
-declare var email_verified: bool;
+declare var current_user_info: CurrentUserInfo;
 declare var thread_infos: {[id: string]: ThreadInfo};
 declare var entry_infos: RawEntryInfo[];
 declare var month: number;
@@ -72,9 +69,6 @@ registerConfig({
   calendarRangeInactivityLimit: null,
 });
 
-const currentUserInfo = viewer_id
-  ? { id: viewer_id, username, email, emailVerified: email_verified }
-  : null;
 const entryInfos = _keyBy('id')(entry_infos);
 const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
 const startDate = startDateForYearAndMonth(year, month);
@@ -95,7 +89,7 @@ const store: Store<AppState, Action> = createStore(
       threadID: thread_id,
       verify: verify_code,
     },
-    currentUserInfo,
+    currentUserInfo: current_user_info,
     sessionID: newSessionID(),
     verifyField: verify_field ? assertVerifyField(verify_field) : verify_field,
     resetPasswordUsername: reset_password_username,

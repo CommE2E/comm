@@ -10,30 +10,11 @@ require_once('user_lib.php');
 
 async_start();
 
-$viewer_id = get_viewer_id();
-$user_logged_in = user_logged_in();
-
-if ($user_logged_in) {
-  $result = $conn->query(
-    "SELECT username, email, email_verified FROM users WHERE id = $viewer_id"
-  );
-  $user_row = $result->fetch_assoc();
-  if (!$user_row) {
-    async_end(array(
-      'error' => 'unknown_error',
-    ));
-  }
-  $user_info = array(
-    'id' => (string)$viewer_id,
-    'username' => $user_row['username'],
-    'email' => $user_row['email'],
-    'email_verified' => (bool)$user_row['email_verified'],
-  );
-} else {
-  $user_info = array(
-    'id' => (string)$viewer_id,
-    'anonymous' => true,
-  );
+$user_info = get_user_info();
+if ($user_info === null) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
 }
 
 if (
