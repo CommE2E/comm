@@ -28,12 +28,22 @@ if (!$can_see) {
 }
 
 $viewer_id = get_viewer_id();
-create_user_roles(array(array(
+$roles = array(array(
   "user" => $viewer_id,
   "thread" => $thread,
   "role" => $new_subscribed ? ROLE_SUCCESSFUL_AUTH : ROLE_VIEWED,
   "subscribed" => $new_subscribed,
-)));
+));
+if ($new_subscribed) {
+  $extra_roles = get_extra_roles_for_joined_thread_id($thread);
+  if ($extra_roles === null) {
+    async_end(array(
+      'error' => 'unknown_error',
+    ));
+  }
+  $roles = array_merge($roles, $extra_roles);
+}
+create_user_roles($roles);
 
 async_end(array(
   'success' => true,

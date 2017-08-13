@@ -195,3 +195,49 @@ function verify_thread_id($thread) {
   $row = $result->fetch_assoc();
   return !!$row;
 }
+
+function get_extra_roles_for_joined_thread_id($thread_id) {
+  global $conn;
+
+  $thread_query = <<<SQL
+SELECT visibility_rules, parent_thread_id FROM threads WHERE id={$thread_id}
+SQL;
+  $thread_result = $conn->query($thread_query);
+  $thread_row = $thread_result->fetch_assoc();
+  if (!$thread_row) {
+    return null;
+  }
+
+  $vis_rules = (int)$thread_row['visibility_rules'];
+  if ($vis_rules !== VISIBILITY_NESTED_OPEN) {
+    return array();
+  }
+
+  $roles = array();
+  $viewer_id = get_viewer_id();
+  $current_thread_id = (int)$thread_row['parent_thread_id'];
+  while (true) {
+    $ancestor_query = <<<SQL
+SELECT t.parent_thread_id, t.visibility_rules, r.role
+FROM threads t
+LEFT JOIN roles p ON p.thread = t.id AND p.user = {$viewer_id}
+WHERE t.id = {$current_thread_id}
+SQL;
+    $ancestor_result = $conn->query($ancestor_query);
+    $ancestor_row = $ancestor_result->fetch_assoc();
+    if (
+      (int)$ancestor_row['visibility_rules'] !== VISIBILITY_NESTED_OPEN ||
+      (int)$ancestor_row['role'] >= ROLE_SUCCESSFUL_AUTH
+    ) {
+      break;
+    }
+    $roles[] = array(
+      "user" => $viewer_id,
+      "thread" => $current_thread_id,
+      "role" => ROLE_SUCCESSFUL_AUTH,
+      "subscribed" => false,
+    );
+    $current_thread_id = (int)$ancestor_row['parent_thread_id'];
+  }
+  return $roles;
+}

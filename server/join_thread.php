@@ -17,7 +17,7 @@ if (!isset($_POST['thread'])) {
 $thread = intval($_POST['thread']);
 
 $thread_query = <<<SQL
-SELECT visibility_rules, hash, parent_thread_id FROM threads WHERE id={$thread}
+SELECT visibility_rules, hash FROM threads WHERE id={$thread}
 SQL;
 $thread_result = $conn->query($thread_query);
 $thread_row = $thread_result->fetch_assoc();
@@ -29,7 +29,6 @@ if (!$thread_row) {
 
 $viewer_id = get_viewer_id();
 $vis_rules = (int)$thread_row['visibility_rules'];
-$parent_thread_id = (int)$thread_row['parent_thread_id'];
 
 $roles_to_save = array();
 $message_cursors_to_query = array();
@@ -81,30 +80,15 @@ if ($vis_rules === VISIBILITY_OPEN) {
     "role" => ROLE_SUCCESSFUL_AUTH,
   );
   $message_cursors_to_query[$thread] = false;
-  $current_thread_id = $parent_thread_id;
-  while (true) {
-    $ancestor_query = <<<SQL
-SELECT t.parent_thread_id, t.visibility_rules, r.role
-FROM threads t
-LEFT JOIN roles p ON p.thread = t.id AND p.user = {$viewer_id}
-WHERE t.id = {$current_thread_id}
-SQL;
-    $ancestor_result = $conn->query($ancestor_query);
-    $ancestor_row = $ancestor_result->fetch_assoc();
-    if (
-      (int)$ancestor_row['visibility_rules'] !== VISIBILITY_NESTED_OPEN ||
-      (int)$ancestor_row['role'] >= ROLE_SUCCESSFUL_AUTH
-    ) {
-      break;
-    }
-    $roles_to_save[] = array(
-      "user" => $viewer_id,
-      "thread" => $current_thread_id,
-      "role" => ROLE_SUCCESSFUL_AUTH,
-      "subscribed" => false,
-    );
-    $message_cursors_to_query[$current_thread_id] = false;
-    $current_thread_id = (int)$ancestor_row['parent_thread_id'];
+  $extra_roles = get_extra_roles_for_joined_thread_id($thread);
+  if ($extra_roles === null) {
+    async_end(array(
+      'error' => 'unknown_error',
+    ));
+  }
+  foreach ($extra_roles as $extra_role) {
+    $roles_to_save[] = $extra_role;
+    $message_cursors_to_query[$extra_role['thread']] = false;
   }
 } else if ($vis_rules === VISIBILITY_THREAD_SECRET) {
   // There's no way to add yourself to a secret thread; you need to be added by
