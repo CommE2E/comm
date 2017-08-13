@@ -3,8 +3,13 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { AppState, NavInfo } from '../redux-setup';
+import { navInfoPropType } from '../redux-setup';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import type { JoinThreadResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import classNames from 'classnames';
@@ -47,13 +52,15 @@ type Props = {
   currentNavID: ?string,
   currentThreadID: ?string,
   passwordEntryLoadingStatus: LoadingStatus,
+  navInfo: NavInfo,
   // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   joinThread: (
     threadID: string,
     threadPassword: string,
-  ) => Promise<ThreadInfo>;
+  ) => Promise<JoinThreadResult>;
 };
 type State = {
   passwordEntryValue: string,
@@ -271,6 +278,13 @@ class TypeaheadThreadOption extends React.PureComponent {
         id,
         this.state.passwordEntryValue,
       );
+      this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", {
+        startDate: this.props.navInfo.startDate,
+        endDate: this.props.navInfo.endDate,
+        home: false,
+        threadID: response.threadID,
+        verify: this.props.navInfo.verify,
+      });
       this.props.unfreezeTypeahead(id);
       this.props.onTransition();
       return response;
@@ -297,6 +311,8 @@ TypeaheadThreadOption.propTypes = {
   currentNavID: PropTypes.string,
   currentThreadID: PropTypes.string,
   passwordEntryLoadingStatus: PropTypes.string.isRequired,
+  navInfo: navInfoPropType.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   joinThread: PropTypes.func.isRequired,
 };
@@ -313,6 +329,7 @@ export default connect(
         joinThreadActionTypes,
         `${joinThreadActionTypes.started}:${id}`,
       )(state),
+      navInfo: state.navInfo,
       cookie: state.cookie,
     };
   },

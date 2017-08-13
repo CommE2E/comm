@@ -5,8 +5,12 @@ import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { AppState, NavInfo } from '../redux-setup';
+import { navInfoPropType } from '../redux-setup';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import React from 'react';
@@ -33,7 +37,9 @@ type Props = {
   // Redux state
   inputDisabled: bool,
   viewerID: string,
+  navInfo: NavInfo,
   // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (
@@ -394,6 +400,13 @@ class NewThreadModal extends React.PureComponent {
         this.state.threadPassword,
         this.state.color,
       );
+      this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", {
+        startDate: this.props.navInfo.startDate,
+        endDate: this.props.navInfo.endDate,
+        home: false,
+        threadID: response.id,
+        verify: this.props.navInfo.verify,
+      });
       this.props.onClose();
       return response;
     } catch (e) {
@@ -422,6 +435,8 @@ NewThreadModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
   viewerID: PropTypes.string.isRequired,
+  navInfo: navInfoPropType.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   newThread: PropTypes.func.isRequired,
 }
@@ -436,6 +451,7 @@ export default connect(
     return {
       inputDisabled: loadingStatusSelector(state) === "loading",
       viewerID,
+      navInfo: state.navInfo,
       cookie: state.cookie,
     };
   },
