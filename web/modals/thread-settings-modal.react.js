@@ -75,8 +75,8 @@ type Props = {
     (threadID: string, currentAccountPassword: string) => Promise<Object>,
   changeThreadSettings: (
     currentAccountPassword: string,
-    newThreadPassword: string,
     newThreadInfo: ThreadInfo,
+    newThreadPassword: ?string,
   ) => Promise<Object>,
 };
 type State = {
@@ -603,10 +603,13 @@ class ThreadSettingsModal extends React.PureComponent {
         parentThreadID: this.state.threadInfo.parentThreadID,
         memberIDs: this.state.threadInfo.memberIDs,
       };
+      const newThreadPassword = this.state.newThreadPassword.trim() !== ''
+        ? this.state.newThreadPassword
+        : null;
       const response = await this.props.changeThreadSettings(
         this.state.accountPassword,
-        this.state.newThreadPassword,
         newThreadInfo,
+        newThreadPassword,
       );
       this.props.onClose();
       return response;
@@ -637,11 +640,11 @@ class ThreadSettingsModal extends React.PureComponent {
               color: this.props.threadInfo.color,
               editRules: this.props.threadInfo.editRules,
             },
-            newThreadPassword: { $set: "" },
-            confirmThreadPassword: { $set: "" },
-            accountPassword: { $set: "" },
-            errorMessage: { $set: "unknown error" },
-            currentTabType: { $set: "general" },
+            newThreadPassword: "",
+            confirmThreadPassword: "",
+            accountPassword: "",
+            errorMessage: "unknown error",
+            currentTabType: "general",
           }),
           () => {
             invariant(this.nameInput, "nameInput ref unset");
