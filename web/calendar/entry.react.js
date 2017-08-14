@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   includeDispatchActionProps,
   bindServerCalls,

@@ -15,7 +15,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   restoreEntryActionTypes,
   restoreEntry,

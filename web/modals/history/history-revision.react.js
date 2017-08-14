@@ -15,7 +15,7 @@ import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 
 import css from '../../style.css';
 

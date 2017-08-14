@@ -17,7 +17,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
 
-import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
 

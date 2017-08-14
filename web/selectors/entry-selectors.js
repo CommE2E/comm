@@ -10,7 +10,7 @@ import _flow from 'lodash/fp/flow';
 import _map from 'lodash/fp/map';
 import _compact from 'lodash/fp/compact';
 
-import { createEntryInfo } from 'lib/selectors/thread-selectors';
+import { createEntryInfo } from 'lib/shared/entry-utils';
 
 const allDaysToEntries = createSelector(
   (state: AppState) => state.entryStore.entryInfos,

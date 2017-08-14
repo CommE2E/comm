@@ -31,7 +31,7 @@ import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { colorIsDark } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   currentSessionID,
   nextSessionID,
