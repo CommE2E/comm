@@ -11,7 +11,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { NewThreadResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -36,20 +36,18 @@ type Props = {
   onClose: () => void,
   // Redux state
   inputDisabled: bool,
-  viewerID: string,
   navInfo: NavInfo,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (
-    viewerID: string,
     name: string,
     description: string,
     ourVisibilityRules: VisibilityRules,
     password: string,
     color: string,
-  ) => Promise<ThreadInfo>,
+  ) => Promise<NewThreadResult>,
 };
 type State = {
   name: string,
@@ -393,7 +391,6 @@ class NewThreadModal extends React.PureComponent {
   async newThreadAction(name: string, ourVisibilityRules: VisibilityRules) {
     try {
       const response = await this.props.newThread(
-        this.props.viewerID,
         name,
         this.state.description,
         ourVisibilityRules,
@@ -404,7 +401,7 @@ class NewThreadModal extends React.PureComponent {
         startDate: this.props.navInfo.startDate,
         endDate: this.props.navInfo.endDate,
         home: false,
-        threadID: response.id,
+        threadID: response.newThreadInfo.id,
         verify: this.props.navInfo.verify,
       });
       this.props.onClose();
@@ -434,7 +431,6 @@ class NewThreadModal extends React.PureComponent {
 NewThreadModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
-  viewerID: PropTypes.string.isRequired,
   navInfo: navInfoPropType.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -445,16 +441,11 @@ const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 
 export default connect(
-  (state: AppState) => {
-    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
-    invariant(viewerID, "must be logged in to create new thread");
-    return {
-      inputDisabled: loadingStatusSelector(state) === "loading",
-      viewerID,
-      navInfo: state.navInfo,
-      cookie: state.cookie,
-    };
-  },
+  (state: AppState) => ({
+    inputDisabled: loadingStatusSelector(state) === "loading",
+    navInfo: state.navInfo,
+    cookie: state.cookie,
+  }),
   includeDispatchActionProps,
   bindServerCalls({ newThread }),
 )(NewThreadModal);

@@ -13,6 +13,7 @@ import type { UserInfo } from 'lib/types/user-types';
 import { userInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
+import type { NewThreadResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -52,18 +53,16 @@ type Props = {
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
-  viewerID: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newChatThread: (
-    viewerID: string,
     name: string,
     ourVisibilityRules: VisibilityRules,
     color: string,
     userIDs: string[],
     parentThreadID: ?string,
-  ) => Promise<ThreadInfo>,
+  ) => Promise<NewThreadResult>,
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 class InnerAddThread extends React.PureComponent {
@@ -91,7 +90,6 @@ class InnerAddThread extends React.PureComponent {
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    viewerID: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -353,7 +351,6 @@ class InnerAddThread extends React.PureComponent {
     const color = generateRandomColor();
     try {
       const response = await this.props.newChatThread(
-        this.props.viewerID,
         name,
         this.state.selectedPrivacyIndex === 0
           ? visibilityRules.CHAT_NESTED_OPEN
@@ -461,14 +458,11 @@ const AddThread = connect(
       parentThreadInfo = state.threadInfos[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
-    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
-    invariant(viewerID, "must be logged in to create new thread");
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
       otherUserInfos: otherUserInfos(state),
       userSearchIndex: userSearchIndex(state),
-      viewerID,
       cookie: state.cookie,
     };
   },

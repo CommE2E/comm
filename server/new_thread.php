@@ -135,8 +135,34 @@ foreach ($initial_member_ids as $initial_member_id) {
 }
 create_user_roles($roles_to_save);
 
+$member_ids = array_merge(
+  array((string)$creator),
+  array_map('strval', $initial_member_ids)
+);
 async_end(array(
   'success' => true,
-  'new_thread_id' => $id,
-  'creation_time' => $time,
+  'new_thread_info' => array(
+    'id' => (string)$id,
+    'name' => $name,
+    'description' => $description,
+    'authorized' => true,
+    'viewerIsMember' => true,
+    'subscribed' => true,
+    'canChangeSettings' => true,
+    'visibilityRules' => $vis_rules,
+    'color' => $color,
+    'editRules' => $edit_rules,
+    'creationTime' => $time,
+    'parentThreadID' => $parent_thread_id !== null
+      ? (string)$parent_thread_id
+      : null,
+    'memberIDs' => $member_ids,
+  ),
+  'creation_message_info' => array(
+    'type' => 1,
+    'id' => (string)$message_id,
+    'threadID' => (string)$id,
+    'creatorID' => (string)$creator,
+    'time' => $time,
+  ),
 ));
