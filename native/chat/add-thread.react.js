@@ -7,17 +7,16 @@ import type {
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import type { ThreadInfo, VisibilityRules } from 'lib/types/thread-types';
+import { threadInfoPropType, visibilityRules } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import { userInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { VisibilityRules } from 'lib/types/thread-types';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import invariant from 'invariant';
@@ -28,7 +27,7 @@ import {
 } from 'lib/utils/action-utils';
 import {
   newThreadActionTypes,
-  newThread,
+  newChatThread,
 } from 'lib/actions/thread-actions';
 import {
   searchUsersActionTypes,
@@ -37,6 +36,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUserInfos, userSearchIndex } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
+import { generateRandomColor } from 'lib/shared/thread-utils';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
@@ -44,26 +44,25 @@ import CreateThreadButton from './create-thread-button.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];
-type TagData = string | {[key: string]: string};
 
 type Props = {
   navigation: NavProp,
   // Redux state
   loadingStatus: LoadingStatus,
-  threadInfo: ?ThreadInfo,
+  parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
   viewerID: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  newThread: (
+  newChatThread: (
     viewerID: string,
     name: string,
-    description: string,
     ourVisibilityRules: VisibilityRules,
-    password: string,
     color: string,
+    userIDs: string[],
+    parentThreadID: ?string,
   ) => Promise<ThreadInfo>,
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
@@ -73,7 +72,7 @@ class InnerAddThread extends React.PureComponent {
   state: {
     nameInputText: string,
     usernameInputText: string,
-    usernameInputArray: $ReadOnlyArray<string>,
+    userInfoInputArray: $ReadOnlyArray<UserInfo>,
     userSearchResults: $ReadOnlyArray<UserInfo>,
     selectedPrivacyIndex: number,
     tagInputHeight: number,
@@ -86,14 +85,15 @@ class InnerAddThread extends React.PureComponent {
         }).isRequired,
       }).isRequired,
       setParams: PropTypes.func.isRequired,
+      goBack: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: PropTypes.string.isRequired,
-    threadInfo: threadInfoPropType,
+    parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     viewerID: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    newThread: PropTypes.func.isRequired,
+    newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
@@ -110,11 +110,15 @@ class InnerAddThread extends React.PureComponent {
     text: string,
     userInfos: {[id: string]: UserInfo},
     searchIndex: SearchIndex,
-    usernameInputArray: $ReadOnlyArray<string>,
+    userInfoInputArray: $ReadOnlyArray<UserInfo>,
   ) {
     const results = [];
     const appendUserInfo = (userInfo: UserInfo) => {
-      if (!usernameInputArray.includes(userInfo.username)) {
+      const alreadyExists = InnerAddThread.inputArrayContainsUserID(
+        userInfoInputArray,
+        userInfo.id,
+      );
+      if (!alreadyExists) {
         results.push(userInfo);
       }
     };
@@ -131,6 +135,18 @@ class InnerAddThread extends React.PureComponent {
     return results;
   }
 
+  static inputArrayContainsUserID(
+    userInfoInputArray: $ReadOnlyArray<UserInfo>,
+    userID: string,
+  ) {
+    for (let existingUserInfo of userInfoInputArray) {
+      if (userID === existingUserInfo.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   constructor(props: Props) {
     super(props);
     const userSearchResults = InnerAddThread.getUserSearchResults(
@@ -142,9 +158,9 @@ class InnerAddThread extends React.PureComponent {
     this.state = {
       nameInputText: "",
       usernameInputText: "",
-      usernameInputArray: [],
+      userInfoInputArray: [],
       userSearchResults,
-      selectedPrivacyIndex: 0,
+      selectedPrivacyIndex: props.parentThreadInfo ? 0 : 1,
       tagInputHeight: 36,
     };
   }
@@ -165,7 +181,7 @@ class InnerAddThread extends React.PureComponent {
         this.state.usernameInputText,
         nextProps.otherUserInfos,
         nextProps.userSearchIndex,
-        this.state.usernameInputArray,
+        this.state.userInfoInputArray,
       );
       this.setState({ userSearchResults });
     }
@@ -173,7 +189,7 @@ class InnerAddThread extends React.PureComponent {
 
   render() {
     let visibility;
-    if (this.props.threadInfo) {
+    if (this.props.parentThreadInfo) {
       visibility = (
         <View style={styles.row}>
           <Text style={styles.label}>Visibility</Text>
@@ -193,7 +209,7 @@ class InnerAddThread extends React.PureComponent {
               <Text style={styles.parentThreadNameRobotext}>
                 {"within "}
               </Text>
-              {this.props.threadInfo.name}
+              {this.props.parentThreadInfo.name}
             </Text>
           </View>
         </View>
@@ -226,10 +242,11 @@ class InnerAddThread extends React.PureComponent {
           <View style={styles.input}>
             <TagInput
               onChange={this.onChangeTagInput}
-              value={this.state.usernameInputArray}
+              value={this.state.userInfoInputArray}
               text={this.state.usernameInputText}
               setText={this.setUsernameInputText}
               onHeightChange={this.onTagInputHeightChange}
+              labelExtractor={this.tagDataLabelExtractor}
             />
           </View>
         </View>
@@ -249,20 +266,17 @@ class InnerAddThread extends React.PureComponent {
     this.setState({ nameInputText: text });
   }
 
-  onChangeTagInput = (usernameInputArray: $ReadOnlyArray<TagData>) => {
-    const stringArray: string[] = [];
-    for (const tagData of usernameInputArray) {
-      invariant(typeof tagData === "string", "AddThread uses string TagData");
-      stringArray.push(tagData);
-    }
+  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<UserInfo>) => {
     const userSearchResults = InnerAddThread.getUserSearchResults(
       this.state.usernameInputText,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      stringArray,
+      userInfoInputArray,
     );
-    this.setState({ usernameInputArray: stringArray, userSearchResults });
+    this.setState({ userInfoInputArray, userSearchResults });
   }
+
+  tagDataLabelExtractor = (userInfo: UserInfo) => userInfo.username;
 
   handleIndexChange = (index: number) => {
     this.setState({ selectedPrivacyIndex: index });
@@ -273,7 +287,7 @@ class InnerAddThread extends React.PureComponent {
       text,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      this.state.usernameInputArray,
+      this.state.userInfoInputArray,
     );
     this.searchUsers(text);
     this.setState({ usernameInputText: text, userSearchResults });
@@ -287,22 +301,25 @@ class InnerAddThread extends React.PureComponent {
   }
 
   onUserSelect = (userID: string) => {
-    const username = this.props.otherUserInfos[userID].username;
-    if (this.state.usernameInputArray.includes(username)) {
+    const alreadyExists = InnerAddThread.inputArrayContainsUserID(
+      this.state.userInfoInputArray,
+      userID,
+    );
+    if (alreadyExists) {
       return;
     }
-    const usernameInputArray = [
-      ...this.state.usernameInputArray,
-      this.props.otherUserInfos[userID].username,
+    const userInfoInputArray = [
+      ...this.state.userInfoInputArray,
+      this.props.otherUserInfos[userID],
     ];
     const userSearchResults = InnerAddThread.getUserSearchResults(
       "",
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      usernameInputArray,
+      userInfoInputArray,
     );
     this.setState({
-      usernameInputArray,
+      userInfoInputArray,
       usernameInputText: "",
       userSearchResults,
     });
@@ -313,7 +330,69 @@ class InnerAddThread extends React.PureComponent {
   }
 
   onPressCreateThread = () => {
-    console.log('onPressCreateThread');
+    const name = this.state.nameInputText.trim();
+    if (name === '') {
+      Alert.alert(
+        "Empty thread name",
+        "You must specify a thread name!",
+        [
+          { text: 'OK', onPress: this.onErrorAcknowledged },
+        ],
+        { cancelable: false },
+      );
+      return;
+    }
+
+    this.props.dispatchActionPromise(
+      newThreadActionTypes,
+      this.newChatThreadAction(name),
+    );
+  }
+
+  async newChatThreadAction(name: string) {
+    const color = generateRandomColor();
+    try {
+      const response = await this.props.newChatThread(
+        this.props.viewerID,
+        name,
+        this.state.selectedPrivacyIndex === 0
+          ? visibilityRules.CHAT_NESTED_OPEN
+          : visibilityRules.CHAT_SECRET,
+        color,
+        this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
+        this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
+      );
+      this.props.navigation.goBack();
+      return response;
+    } catch (e) {
+      Alert.alert(
+        "Unknown error",
+        "Uhh... try again?",
+        [
+          { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+      throw e;
+    }
+  }
+
+  onErrorAcknowledged = () => {
+    invariant(this.nameInput, "nameInput should be set");
+    this.nameInput.focus();
+  }
+
+  onUnknownErrorAlertAcknowledged = () => {
+    this.setState(
+      {
+        nameInputText: "",
+        usernameInputText: "",
+        userSearchResults: [],
+        selectedPrivacyIndex: 0,
+        tagInputHeight: 36,
+      },
+      this.onErrorAcknowledged,
+    );
   }
 
 }
@@ -376,17 +455,17 @@ const loadingStatusSelector
 
 const AddThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
-    let threadInfo = null;
-    const threadID = ownProps.navigation.state.params.parentThreadID;
-    if (threadID) {
-      threadInfo = state.threadInfos[threadID];
-      invariant(threadInfo, "parent thread should exist");
+    let parentThreadInfo = null;
+    const parentThreadID = ownProps.navigation.state.params.parentThreadID;
+    if (parentThreadID) {
+      parentThreadInfo = state.threadInfos[parentThreadID];
+      invariant(parentThreadInfo, "parent thread should exist");
     }
     const viewerID = state.currentUserInfo && state.currentUserInfo.id;
     invariant(viewerID, "must be logged in to create new thread");
     return {
       loadingStatus: loadingStatusSelector(state),
-      threadInfo,
+      parentThreadInfo,
       otherUserInfos: otherUserInfos(state),
       userSearchIndex: userSearchIndex(state),
       viewerID,
@@ -394,7 +473,7 @@ const AddThread = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ newThread, searchUsers }),
+  bindServerCalls({ newChatThread, searchUsers }),
 )(InnerAddThread);
 
 export {
