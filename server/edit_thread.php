@@ -266,6 +266,15 @@ foreach ($add_member_ids as $add_member_id) {
     "role" => ROLE_SUCCESSFUL_AUTH,
   );
 }
+if ($add_member_ids && $next_vis_rules === VISIBILITY_NESTED_OPEN) {
+  $roles_to_save = array_merge(
+    $roles_to_save,
+    get_extra_roles_for_parent_of_joined_thread_id(
+      $next_parent_thread_id,
+      $add_member_ids
+    )
+  );
+}
 create_user_roles($roles_to_save);
 
 async_end(array(

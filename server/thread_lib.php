@@ -198,7 +198,8 @@ function verify_thread_id($thread) {
   return !!$row;
 }
 
-function get_extra_roles_for_joined_thread_id($thread_id) {
+// $users not sanitized!
+function get_extra_roles_for_joined_thread_id($thread_id, $users) {
   global $conn;
 
   $thread_query = <<<SQL
@@ -215,30 +216,60 @@ SQL;
     return array();
   }
 
+  return get_extra_roles_for_parent_of_joined_thread_id(
+    (int)$thread_row['parent_thread_id'],
+    $users
+  );
+}
+
+// $users not sanitized!
+function get_extra_roles_for_parent_of_joined_thread_id($parent_thread_id, $users) {
+  global $conn;
+
   $roles = array();
-  $viewer_id = get_viewer_id();
-  $current_thread_id = (int)$thread_row['parent_thread_id'];
-  while (true) {
+  $users_still_tracing = $users;
+  $current_thread_id = $parent_thread_id;
+  while ($users_still_tracing) {
+    $user_still_tracing_sql_string = implode(",", $users_still_tracing);
+    $roles_query = <<<SQL
+SELECT role, user
+FROM roles
+WHERE user IN ({$user_still_tracing_sql_string}) AND
+  thread = {$current_thread_id}
+SQL;
+    $roles_result = $conn->query($roles_query);
+
+    $users_no_longer_tracing = array();
+    while ($roles_row = $roles_result->fetch_assoc()) {
+      $user_id = (int)$roles_row['user'];
+      if ((int)$roles_row['role'] >= ROLE_SUCCESSFUL_AUTH) {
+        $users_no_longer_tracing[$user_id] = $user_id;
+      }
+    }
+    $new_users_still_tracing = array();
+    foreach ($users_still_tracing as $user_id) {
+      if (!isset($users_no_longer_tracing[$user_id])) {
+        $roles[] = array(
+          "user" => $user_id,
+          "thread" => $current_thread_id,
+          "role" => ROLE_SUCCESSFUL_AUTH,
+          "subscribed" => false,
+        );
+        $new_users_still_tracing[] = $user_id;
+      }
+    }
+    $users_still_tracing = $new_users_still_tracing;
+
     $ancestor_query = <<<SQL
-SELECT t.parent_thread_id, t.visibility_rules, r.role
-FROM threads t
-LEFT JOIN roles p ON p.thread = t.id AND p.user = {$viewer_id}
-WHERE t.id = {$current_thread_id}
+SELECT parent_thread_id, visibility_rules
+FROM threads
+WHERE id = {$current_thread_id}
 SQL;
     $ancestor_result = $conn->query($ancestor_query);
     $ancestor_row = $ancestor_result->fetch_assoc();
-    if (
-      (int)$ancestor_row['visibility_rules'] !== VISIBILITY_NESTED_OPEN ||
-      (int)$ancestor_row['role'] >= ROLE_SUCCESSFUL_AUTH
-    ) {
+    if ((int)$ancestor_row['visibility_rules'] !== VISIBILITY_NESTED_OPEN) {
       break;
     }
-    $roles[] = array(
-      "user" => $viewer_id,
-      "thread" => $current_thread_id,
-      "role" => ROLE_SUCCESSFUL_AUTH,
-      "subscribed" => false,
-    );
     $current_thread_id = (int)$ancestor_row['parent_thread_id'];
   }
   return $roles;

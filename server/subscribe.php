@@ -35,7 +35,10 @@ $roles = array(array(
   "subscribed" => $new_subscribed,
 ));
 if ($new_subscribed) {
-  $extra_roles = get_extra_roles_for_joined_thread_id($thread);
+  $extra_roles = get_extra_roles_for_joined_thread_id(
+    $thread,
+    array($viewer_id)
+  );
   if ($extra_roles === null) {
     async_end(array(
       'error' => 'unknown_error',

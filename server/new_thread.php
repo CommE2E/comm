@@ -133,6 +133,15 @@ foreach ($initial_member_ids as $initial_member_id) {
     "subscribed" => true,
   );
 }
+if ($initial_member_ids && $vis_rules === VISIBILITY_NESTED_OPEN) {
+  $roles_to_save = array_merge(
+    $roles_to_save,
+    get_extra_roles_for_parent_of_joined_thread_id(
+      $parent_thread_id,
+      $initial_member_ids
+    )
+  );
+}
 create_user_roles($roles_to_save);
 
 $member_ids = array_merge(

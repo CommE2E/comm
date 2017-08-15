@@ -80,7 +80,10 @@ if ($vis_rules === VISIBILITY_OPEN) {
     "role" => ROLE_SUCCESSFUL_AUTH,
   );
   $message_cursors_to_query[$thread] = false;
-  $extra_roles = get_extra_roles_for_joined_thread_id($thread);
+  $extra_roles = get_extra_roles_for_joined_thread_id(
+    $thread,
+    array($viewer_id)
+  );
   if ($extra_roles === null) {
     async_end(array(
       'error' => 'unknown_error',
