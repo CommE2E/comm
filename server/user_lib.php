@@ -2,17 +2,18 @@
 
 require_once('auth.php');
 
-// $user_ids is a string of implode'd user IDs
+// $user_ids is an array of user IDs as strings
 // returns an array of validated user IDs
 function verify_user_ids($user_ids) {
   global $conn;
 
-  // Be careful with the regex below; bad validation could lead to SQL injection
-  if (!preg_match('/^(([0-9]+,)*([0-9]+))?$/', $user_ids)) {
-    return array();
-  }
+  $int_user_ids = array_map('intval', $user_ids);
+  $user_ids_string = implode(",", $int_user_ids);
 
-  $result = $conn->query("SELECT id FROM users WHERE id IN ({$user_ids})");
+  $query = <<<SQL
+SELECT id FROM users WHERE id IN ({$user_ids_string})
+SQL;
+  $result = $conn->query($query);
   $verified_user_ids = array();
   while ($row = $result->fetch_assoc()) {
     $verified_user_ids[] = (int)$row['id'];
