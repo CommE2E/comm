@@ -185,6 +185,10 @@ SQL;
       $num_for_thread++;
     }
     if ($num_for_thread <= $max_number_per_thread) {
+      if ((int)$row['type'] === 1) {
+        // If a CREATE_THREAD message is here, then we have all messages
+        $truncation_status[$thread] = TRUNCATION_EXHAUSTIVE;
+      }
       $users[$row['creatorID']] = array(
         'id' => $row['creatorID'],
         'username' => $row['creator'],
