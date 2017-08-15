@@ -42,6 +42,7 @@ import { generateRandomColor } from 'lib/shared/thread-utils';
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import CreateThreadButton from './create-thread-button.react';
+import { MessageListRouteName } from './message-list.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
 const segmentedPrivacyOptions = ['Public', 'Secret'];
@@ -53,6 +54,7 @@ type Props = {
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
+  secondChatRouteKey: ?string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -85,11 +87,13 @@ class InnerAddThread extends React.PureComponent {
       }).isRequired,
       setParams: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
+      navigate: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: PropTypes.string.isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    secondChatRouteKey: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -102,6 +106,7 @@ class InnerAddThread extends React.PureComponent {
       />
     ),
   });
+  mounted = false;
   nameInput: ?TextInput;
 
   static getUserSearchResults(
@@ -164,13 +169,21 @@ class InnerAddThread extends React.PureComponent {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.searchUsers("");
     this.props.navigation.setParams({
       onPressCreateThread: this.onPressCreateThread,
     });
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   componentWillReceiveProps(nextProps: Props) {
+    if (!this.mounted) {
+      return;
+    }
     if (
       this.props.otherUserInfos !== nextProps.otherUserInfos ||
       this.props.userSearchIndex !== nextProps.userSearchIndex
@@ -359,7 +372,13 @@ class InnerAddThread extends React.PureComponent {
         this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
         this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
-      this.props.navigation.goBack();
+      const secondChatRouteKey = this.props.secondChatRouteKey;
+      invariant(secondChatRouteKey, "should be set");
+      this.props.navigation.goBack(secondChatRouteKey);
+      this.props.navigation.navigate(
+        MessageListRouteName,
+        { threadInfo: response.newThreadInfo },
+      );
       return response;
     } catch (e) {
       Alert.alert(
@@ -458,11 +477,14 @@ const AddThread = connect(
       parentThreadInfo = state.threadInfos[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
+    const secondChatRoute =
+      state.navInfo.navigationState.routes[0].routes[1].routes[1];
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
       otherUserInfos: otherUserInfos(state),
       userSearchIndex: userSearchIndex(state),
+      secondChatRouteKey: secondChatRoute && secondChatRoute.key,
       cookie: state.cookie,
     };
   },

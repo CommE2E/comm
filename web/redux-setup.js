@@ -62,6 +62,28 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
     };
+  } else if (action.type === "NEW_THREAD_SUCCESS") {
+    return {
+      navInfo: {
+        startDate: state.navInfo.startDate,
+        endDate: state.navInfo.endDate,
+        home: false,
+        threadID: action.payload.newThreadInfo.id,
+        verify: state.navInfo.verify,
+      },
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+    };
   }
   return baseReducer(state, action);
 }
