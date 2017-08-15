@@ -76,18 +76,19 @@ SQL;
 SELECT r.thread, r.user, u.username
 FROM roles r
 LEFT JOIN users u ON r.user = u.id
-WHERE r.thread IN ({$thread_id_sql_string})
+WHERE r.thread IN ({$thread_id_sql_string}) AND u.username IS NOT NULL
 SQL;
   $user_result = $conn->query($user_query);
 
   $users = array();
-  while ($row = $result->fetch_assoc()) {
+  while ($row = $user_result->fetch_assoc()) {
     $thread_id = $row['thread'];
     $user_id = $row['user'];
+    $username = $row['username'];
     $thread_infos[$thread_id]['memberIDs'][] = $user_id;
     $users[$user_id] = array(
       'id' => $user_id,
-      'username' => $row['username'],
+      'username' => $username,
     );
   }
 
