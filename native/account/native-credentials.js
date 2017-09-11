@@ -234,23 +234,18 @@ async function resolveInvalidatedCookie(
   }
 }
 
-function getNativeCookie() {
-  return new Promise((resolve, reject) => {
-    CookieManager.get(getConfig().urlPrefix, (err, res) => {
-      if (err) {
-        reject(new Error(err));
-      } else if (res.user) {
-        resolve(`user=${decodeURIComponent(res.user)}`);
-      } else if (res.anonymous) {
-        resolve(`anonymous=${decodeURIComponent(res.anonymous)}`);
-      } else {
-        resolve(null);
-      }
-    });
-  });
+async function getNativeCookie() {
+  const res = await CookieManager.get(getConfig().urlPrefix);
+  if (res.user) {
+    return `user=${decodeURIComponent(res.user)}`;
+  } else if (res.anonymous) {
+    return `anonymous=${decodeURIComponent(res.anonymous)}`;
+  } else {
+    return null;
+  }
 }
 
-function setNativeCookie(cookie: string) {
+async function setNativeCookie(cookie: string) {
   const maxAge = 2592000; // 30 days, in seconds
   const date = new Date();
   date.setDate(date.getDate() + 30);
@@ -263,16 +258,18 @@ function setNativeCookie(cookie: string) {
   const constructedCookieHeader =
     `${encodedCookie}; domain=${parsedURL.host}; path=${parsedURL.pathname}; ` +
     `expires=${date.toUTCString()}; Max-Age=${maxAge}; ${secure}httponly`;
-  const cookieInput = Platform.OS === "ios"
-    ? { 'Set-Cookie': constructedCookieHeader }
-    : constructedCookieHeader;
-  return new Promise((resolve, reject) => {
-    CookieManager.setFromResponse(
+  if (Platform.OS === "ios") {
+    await CookieManager.setFromResponse(
       getConfig().urlPrefix,
-      cookieInput,
-      alwaysNull => resolve(),
+      { 'Set-Cookie': constructedCookieHeader },
+      () => {},
     );
-  });
+  } else {
+    await CookieManager.setFromResponse(
+      getConfig().urlPrefix,
+      constructedCookieHeader,
+    );
+  }
 }
 
 export {
