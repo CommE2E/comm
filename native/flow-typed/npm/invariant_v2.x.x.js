@@ -1,5 +1,5 @@
-// flow-typed signature: ff4b66f26bb16b809e4f03558817d388
-// flow-typed version: 40dabcce78/invariant_v2.x.x/flow_>=v0.40.x
+// flow-typed signature: 41a21b97ad4a7c01c4caf3a8b9382354
+// flow-typed version: b43dff3e0e/invariant_v2.x.x/flow_>=v0.33.x
 
 declare module invariant {
   declare var exports: (condition: boolean, message: string) => void;
