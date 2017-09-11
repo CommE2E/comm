@@ -34,10 +34,7 @@ import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 
 import { RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
-import {
-  resolveInvalidatedCookie,
-  getNativeCookie,
-} from './account/native-credentials';
+import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
 
 let urlPrefix;

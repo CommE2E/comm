@@ -11,7 +11,6 @@ import {
   setSharedWebCredentials,
   resetInternetCredentials,
 } from 'react-native-keychain';
-import CookieManager from 'react-native-cookies';
 import URL from 'url-parse';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
@@ -234,50 +233,10 @@ async function resolveInvalidatedCookie(
   }
 }
 
-async function getNativeCookie() {
-  const res = await CookieManager.get(getConfig().urlPrefix);
-  if (res.user) {
-    return `user=${decodeURIComponent(res.user)}`;
-  } else if (res.anonymous) {
-    return `anonymous=${decodeURIComponent(res.anonymous)}`;
-  } else {
-    return null;
-  }
-}
-
-async function setNativeCookie(cookie: string) {
-  const maxAge = 2592000; // 30 days, in seconds
-  const date = new Date();
-  date.setDate(date.getDate() + 30);
-  const parsedURL = new URL(getConfig().urlPrefix);
-  const secure = parsedURL.protocol.toLowerCase() === "https:"
-    ? "secure; "
-    : "";
-  const cookieParts = cookie.split("=");
-  const encodedCookie = `${cookieParts[0]}=${encodeURIComponent(cookieParts[1])}`;
-  const constructedCookieHeader =
-    `${encodedCookie}; domain=${parsedURL.host}; path=${parsedURL.pathname}; ` +
-    `expires=${date.toUTCString()}; Max-Age=${maxAge}; ${secure}httponly`;
-  if (Platform.OS === "ios") {
-    await CookieManager.setFromResponse(
-      getConfig().urlPrefix,
-      { 'Set-Cookie': constructedCookieHeader },
-      () => {},
-    );
-  } else {
-    await CookieManager.setFromResponse(
-      getConfig().urlPrefix,
-      constructedCookieHeader,
-    );
-  }
-}
-
 export {
   fetchNativeCredentials,
   getNativeSharedWebCredentials,
   setNativeCredentials,
   deleteNativeCredentialsFor,
   resolveInvalidatedCookie,
-  getNativeCookie,
-  setNativeCookie,
 };

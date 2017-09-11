@@ -47,7 +47,6 @@ import { windowHeight } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import { getNativeCookie, setNativeCookie } from './native-credentials';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 
@@ -195,18 +194,7 @@ class InnerLoggedOutModal extends React.PureComponent {
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
   async onInitialAppLoad(nextProps: Props) {
-    // First, let's make sure that the native cookie and Redux are in sync
     let cookie = nextProps.cookie;
-    if (cookie) {
-      await setNativeCookie(cookie);
-    } else {
-      const nativeCookie = await getNativeCookie();
-      if (nativeCookie) {
-        cookie = nativeCookie;
-        nextProps.dispatchActionPayload("SET_COOKIE", { cookie });
-      }
-    }
-
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.setState({ mode: "prompt" });
