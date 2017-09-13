@@ -219,7 +219,7 @@ class TagInput<TagData> extends React.PureComponent<
     return (
       <TouchableWithoutFeedback
         onPress={this.focus}
-        style={[styles.container]}
+        style={styles.container}
         onLayout={this.measureWrapper}
       >
         <View

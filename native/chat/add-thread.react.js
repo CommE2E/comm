@@ -35,7 +35,10 @@ import {
   searchUsers,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { otherUserInfos, userSearchIndex } from 'lib/selectors/user-selectors';
+import {
+  userInfoSelectorForOtherMembersOfThread,
+  userSearchIndexForOtherMembersOfThread,
+} from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 
@@ -482,8 +485,10 @@ const AddThread = connect(
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
-      otherUserInfos: otherUserInfos(state),
-      userSearchIndex: userSearchIndex(state),
+      otherUserInfos:
+        userInfoSelectorForOtherMembersOfThread(parentThreadID)(state),
+      userSearchIndex:
+        userSearchIndexForOtherMembersOfThread(parentThreadID)(state),
       secondChatRouteKey: secondChatRoute && secondChatRoute.key,
       cookie: state.cookie,
     };
