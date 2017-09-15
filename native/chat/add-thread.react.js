@@ -41,10 +41,11 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
+import ColorPicker from '../components/color-picker.react';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
-import CreateThreadButton from './create-thread-button.react';
+import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
@@ -70,17 +71,20 @@ type Props = {
   ) => Promise<NewThreadResult>,
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
+type State = {
+  nameInputText: string,
+  usernameInputText: string,
+  userInfoInputArray: $ReadOnlyArray<UserInfo>,
+  userSearchResults: $ReadOnlyArray<UserInfo>,
+  selectedPrivacyIndex: number,
+  tagInputHeight: number,
+  showColorPicker: bool,
+  color: string,
+};
 class InnerAddThread extends React.PureComponent {
 
   props: Props;
-  state: {
-    nameInputText: string,
-    usernameInputText: string,
-    userInfoInputArray: $ReadOnlyArray<UserInfo>,
-    userSearchResults: $ReadOnlyArray<UserInfo>,
-    selectedPrivacyIndex: number,
-    tagInputHeight: number,
-  };
+  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -103,11 +107,14 @@ class InnerAddThread extends React.PureComponent {
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'New thread',
-    headerRight: (
-      <CreateThreadButton
-        onPress={() => navigation.state.params.onPressCreateThread()}
-      />
-    ),
+    headerRight: navigation.state.params.showColorPicker
+      ? null
+      : (
+          <LinkButton
+            text="Create"
+            onPress={() => navigation.state.params.onPressCreateThread()}
+          />
+        ),
   });
   mounted = false;
   nameInput: ?TextInput;
@@ -168,6 +175,10 @@ class InnerAddThread extends React.PureComponent {
       userSearchResults,
       selectedPrivacyIndex: props.parentThreadInfo ? 0 : 1,
       tagInputHeight: 36,
+      showColorPicker: false,
+      color: props.parentThreadInfo
+        ? props.parentThreadInfo.color
+        : generateRandomColor(),
     };
   }
 
@@ -201,6 +212,14 @@ class InnerAddThread extends React.PureComponent {
     }
   }
 
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (this.state.showColorPicker !== nextState.showColorPicker) {
+      nextProps.navigation.setParams({
+        showColorPicker: nextState.showColorPicker,
+      });
+    }
+  }
+
   render() {
     let visibility;
     if (this.props.parentThreadInfo) {
@@ -229,6 +248,23 @@ class InnerAddThread extends React.PureComponent {
         </View>
       );
     }
+    let colorPicker = null;
+    if (this.state.showColorPicker) {
+      colorPicker = (
+        <View style={styles.colorPickerOverlay}>
+          <View style={styles.colorPickerContainer}>
+            <ColorPicker
+              defaultColor={this.state.color}
+              onColorSelected={color => alert(`Color selected: ${color}`)}
+              style={styles.colorPicker}
+            />
+          </View>
+        </View>
+      );
+    }
+    const colorSplotchStyle = {
+      backgroundColor: `#${this.state.color}`,
+    };
     return (
       <View style={styles.container}>
         <View style={styles.row}>
@@ -251,6 +287,17 @@ class InnerAddThread extends React.PureComponent {
           </View>
         </View>
         {visibility}
+        <View style={styles.row}>
+          <Text style={styles.label}>Color</Text>
+          <View style={[styles.input, styles.inlineInput]}>
+            <View style={[styles.colorSplotch, colorSplotchStyle]} />
+            <LinkButton
+              text="Change"
+              onPress={this.onPressChangeColor}
+              style={styles.changeColorButton}
+            />
+          </View>
+        </View>
         <View style={[styles.row, { height: this.state.tagInputHeight }]}>
           <Text style={styles.tagInputLabel}>People</Text>
           <View style={styles.input}>
@@ -268,6 +315,7 @@ class InnerAddThread extends React.PureComponent {
           userInfos={this.state.userSearchResults}
           onSelect={this.onUserSelect}
         />
+        {colorPicker}
       </View>
     );
   }
@@ -343,6 +391,10 @@ class InnerAddThread extends React.PureComponent {
     this.setState({ tagInputHeight: height });
   }
 
+  onPressChangeColor = () => {
+    this.setState({ showColorPicker: true });
+  }
+
   onPressCreateThread = () => {
     const name = this.state.nameInputText.trim();
     if (name === '') {
@@ -364,14 +416,13 @@ class InnerAddThread extends React.PureComponent {
   }
 
   async newChatThreadAction(name: string) {
-    const color = generateRandomColor();
     try {
       const response = await this.props.newChatThread(
         name,
         this.state.selectedPrivacyIndex === 0
           ? visibilityRules.CHAT_NESTED_OPEN
           : visibilityRules.CHAT_SECRET,
-        color,
+        this.state.color,
         this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
         this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
@@ -430,6 +481,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 12,
   },
+  inlineInput: {
+    flexDirection: 'row',
+  },
   label: {
     paddingTop: 2,
     paddingLeft: 12,
@@ -464,6 +518,41 @@ const styles = StyleSheet.create({
   },
   segmentedTextStyle: {
     color: '#777',
+  },
+  colorPickerOverlay: {
+    backgroundColor: '#CCCCCCAA',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  colorPickerContainer: {
+    flex: 1,
+    backgroundColor: '#EEEEEE',
+    margin: 20,
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 15,
+    marginBottom: 180,
+    borderRadius: 5,
+  },
+  colorPicker: {
+    top: 10,
+    bottom: 10,
+    left: 10,
+    right: 10,
+    position: 'absolute',
+  },
+  colorSplotch: {
+    height: 25,
+    width: 25,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#777777',
+  },
+  changeColorButton: {
+    paddingTop: 2,
   },
 });
 
