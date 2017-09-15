@@ -21,23 +21,35 @@ class Button extends React.PureComponent {
     onSubmit: () => void,
     disabled?: bool,
     style?: StyleObj,
+    // style and topStyle just get merged in most cases. The separation only
+    // matters in the case of iOS and defaultFormat = "highlight", where the
+    // topStyle is necessary for layout, and the bottom style is necessary for
+    // colors etc.
+    topStyle?: StyleObj,
     underlayColor?: string,
     children?: React.Element<any>,
     defaultFormat: "highlight" | "opacity",
+    androidBorderlessRipple: bool,
+    iosActiveOpacity: number,
   };
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     style: ViewPropTypes.style,
+    topStyle: ViewPropTypes.style,
     underlayColor: PropTypes.string,
     children: PropTypes.object,
     defaultFormat: PropTypes.oneOf([
       "highlight",
       "opacity",
     ]),
+    androidBorderlessRipple: PropTypes.bool,
+    iosActiveOpacity: PropTypes.number,
   };
   static defaultProps = {
     defaultFormat: "highlight",
+    androidBorderlessRipple: true,
+    iosActiveOpacity: 0.85,
   };
 
   render() {
@@ -48,10 +60,10 @@ class Button extends React.PureComponent {
           disabled={!!this.props.disabled}
           background={TouchableNativeFeedback.Ripple(
             'rgba(0, 0, 0, .32)',
-            true,
+            this.props.androidBorderlessRipple,
           )}
         >
-          <View style={this.props.style}>
+          <View style={[this.props.topStyle, this.props.style]}>
             {this.props.children}
           </View>
         </TouchableNativeFeedback>
@@ -60,21 +72,26 @@ class Button extends React.PureComponent {
       const underlayColor = this.props.underlayColor
         ? this.props.underlayColor
         : "#CCCCCCDD";
+      const child = this.props.children ? this.props.children : <View />;
       return (
         <TouchableHighlight
           onPress={this.props.onSubmit}
-          style={this.props.style}
+          style={this.props.topStyle}
           underlayColor={underlayColor}
+          activeOpacity={this.props.iosActiveOpacity}
           disabled={!!this.props.disabled}
         >
-          {this.props.children}
+          <View style={this.props.style}>
+            {this.props.children}
+          </View>
         </TouchableHighlight>
       );
     } else {
       return (
         <TouchableOpacity
           onPress={this.props.onSubmit}
-          style={this.props.style}
+          style={[this.props.topStyle, this.props.style]}
+          activeOpacity={this.props.iosActiveOpacity}
           disabled={!!this.props.disabled}
         >
           {this.props.children}

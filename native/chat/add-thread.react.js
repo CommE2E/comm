@@ -17,10 +17,19 @@ import type { NewThreadResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  TouchableWithoutFeedback,
+  TouchableHighlight,
+} from 'react-native';
 import { connect } from 'react-redux';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import invariant from 'invariant';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
   includeDispatchActionProps,
@@ -251,13 +260,31 @@ class InnerAddThread extends React.PureComponent {
     let colorPicker = null;
     if (this.state.showColorPicker) {
       colorPicker = (
-        <View style={styles.colorPickerOverlay}>
+        <View style={[
+          styles.colorPickerOverlay,
+          styles.colorPickerOverlayBackground,
+        ]}>
+          <TouchableWithoutFeedback onPress={this.closeColorPicker}>
+            <View style={styles.colorPickerOverlay} />
+          </TouchableWithoutFeedback>
           <View style={styles.colorPickerContainer}>
             <ColorPicker
               defaultColor={this.state.color}
-              onColorSelected={color => alert(`Color selected: ${color}`)}
+              onColorSelected={this.onColorSelected}
               style={styles.colorPicker}
             />
+            <TouchableHighlight
+              onPress={this.closeColorPicker}
+              style={styles.closeButton}
+              underlayColor="#CCCCCCDD"
+            >
+              <Icon
+                name="close"
+                size={16}
+                color="#AAAAAA"
+                style={styles.closeButtonIcon}
+              />
+            </TouchableHighlight>
           </View>
         </View>
       );
@@ -395,6 +422,17 @@ class InnerAddThread extends React.PureComponent {
     this.setState({ showColorPicker: true });
   }
 
+  onColorSelected = (color: string) => {
+    this.setState({
+      showColorPicker: false,
+      color: color.substr(1),
+    });
+  }
+
+  closeColorPicker = () => {
+    this.setState({ showColorPicker: false });
+  }
+
   onPressCreateThread = () => {
     const name = this.state.nameInputText.trim();
     if (name === '') {
@@ -519,8 +557,10 @@ const styles = StyleSheet.create({
   segmentedTextStyle: {
     color: '#777',
   },
-  colorPickerOverlay: {
+  colorPickerOverlayBackground: {
     backgroundColor: '#CCCCCCAA',
+  },
+  colorPickerOverlay: {
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -533,8 +573,8 @@ const styles = StyleSheet.create({
     margin: 20,
     marginLeft: 15,
     marginRight: 15,
-    marginTop: 15,
-    marginBottom: 180,
+    marginTop: 100,
+    marginBottom: 65,
     borderRadius: 5,
   },
   colorPicker: {
@@ -553,6 +593,18 @@ const styles = StyleSheet.create({
   },
   changeColorButton: {
     paddingTop: 2,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 18,
+    height: 18,
+    borderRadius: 3,
+  },
+  closeButtonIcon: {
+    position: 'absolute',
+    left: 3,
   },
 });
 

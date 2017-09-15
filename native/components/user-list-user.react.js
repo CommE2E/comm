@@ -25,7 +25,7 @@ class UserListUser extends React.PureComponent {
 
   render() {
     return (
-      <Button onSubmit={this.onSelect}>
+      <Button onSubmit={this.onSelect} androidBorderlessRipple={false}>
         <Text style={styles.text}>{this.props.userInfo.username}</Text>
       </Button>
     );

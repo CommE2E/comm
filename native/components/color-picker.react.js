@@ -3,11 +3,13 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type {
+  NativeMethodsMixinType,
+} from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  TouchableOpacity,
   View,
   Image,
   StyleSheet,
@@ -15,9 +17,14 @@ import {
   I18nManager,
   PanResponder,
   ViewPropTypes,
+  Text,
+  Platform,
+  Keyboard,
 } from 'react-native';
 import tinycolor from 'tinycolor2';
 import invariant from 'invariant';
+
+import Button from './button.react';
 
 type PanEvent = {
   nativeEvent: {
@@ -34,6 +41,7 @@ type Props = {
   onColorSelected?: (color: string) => void,
   onOldColorSelected?: (color: string) => void,
   style?: StyleObj,
+  buttonText: string,
 };
 type State = {
   color: HSVColor,
@@ -57,14 +65,17 @@ class ColorPicker extends React.PureComponent {
     onColorSelected: PropTypes.func,
     onOldColorSelected: PropTypes.func,
     style: ViewPropTypes.style,
+    buttonText: PropTypes.string,
+  };
+  static defaultProps = {
+    buttonText: "Select",
   };
   props: Props;
   state: State;
   _layout = { width: 0, height: 0 };
   _pageX = 0;
   _pageY = 0;
-  // $FlowFixMe React Native types View as a string? #15955
-  _pickerContainer: ?View = null;
+  _pickerContainer: ?NativeMethodsMixinType = null;
   _pickerResponder: ?PanResponder = null;
   _changingHColor = false;
 
@@ -82,6 +93,7 @@ class ColorPicker extends React.PureComponent {
   }
 
   componentWillMount() {
+    Keyboard.dismiss();
     const handleColorChange = ({ x, y }: { x: number, y: number }) => {
       if (this._changingHColor) {
         this._handleHColorChange({ x, y });
@@ -153,8 +165,8 @@ class ColorPicker extends React.PureComponent {
   }}}) => {
     this._layout = l.nativeEvent.layout;
     const { width, height } = this._layout;
-    const pickerSize = Math.min(width, height);
-    if (this.state.pickerSize !== pickerSize) {
+    const pickerSize = Math.round(Math.min(width, height));
+    if (Math.abs(this.state.pickerSize - pickerSize) >= 3) {
       this.setState({ pickerSize });
     }
 
@@ -299,7 +311,9 @@ class ColorPicker extends React.PureComponent {
     const { pickerSize } = this.state;
     const { oldColor, style } = this.props;
     const color = this._getColor();
-    const selectedColor = tinycolor(color).toHexString();
+    const tc = tinycolor(color);
+    const selectedColor: string = tc.toHexString();
+    const isDark: bool = tc.isDark();
 
     let picker = null;
     if (pickerSize) {
@@ -354,10 +368,15 @@ class ColorPicker extends React.PureComponent {
     let oldColorButton = null;
     if (oldColor) {
       oldColorButton = (
-        <TouchableOpacity
-          style={[styles.colorPreview, { backgroundColor: oldColor }]}
-          onPress={this._onOldColorSelected}
-          activeOpacity={0.7}
+        <Button
+          topStyle={styles.colorPreview}
+          style={[
+            styles.buttonContents,
+            { backgroundColor: oldColor },
+          ]}
+          onSubmit={this._onOldColorSelected}
+          androidBorderlessRipple={false}
+          iosActiveOpacity={0.6}
         />
       );
     }
@@ -365,6 +384,12 @@ class ColorPicker extends React.PureComponent {
       height: this.state.pickerSize
         ? this.state.pickerSize * 0.1 // responsive height
         : 20,
+    };
+    const buttonContentsStyle = {
+      backgroundColor: selectedColor,
+    };
+    const buttonTextStyle = {
+      color: isDark ? 'white' : 'black',
     };
     return (
       <View style={style}>
@@ -375,20 +400,27 @@ class ColorPicker extends React.PureComponent {
         >
           {picker}
         </View>
-        <View style={[styles.colorPreviews, colorPreviewsStyle]}>
-          {oldColorButton}
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
-            onPress={this._onColorSelected}
-            activeOpacity={0.7}
-          />
+        <View>
+          <View style={[styles.colorPreviews, colorPreviewsStyle]}>
+            {oldColorButton}
+            <Button
+              style={[styles.buttonContents, buttonContentsStyle]}
+              topStyle={styles.colorPreview}
+              onSubmit={this._onColorSelected}
+              androidBorderlessRipple={false}
+              iosActiveOpacity={0.6}
+            >
+              <Text style={[styles.buttonText, buttonTextStyle]}>
+                {this.props.buttonText}
+              </Text>
+            </Button>
+          </View>
         </View>
       </View>
     )
   }
 
-  // $FlowFixMe React Native types View as a string? #15955
-  pickerContainerRef = (pickerContainer: ?View) => {
+  pickerContainerRef = (pickerContainer: ?NativeMethodsMixinType) => {
     this._pickerContainer = pickerContainer;
   }
 
@@ -511,9 +543,6 @@ const makeComputedStyles = ({
       borderBottomWidth: triangleHeight,
       borderBottomColor: indicatorColor,
     },
-    colorPreviews: {
-      height: pickerSize * 0.1, // responsive height
-    },
   };
 }
 
@@ -585,6 +614,16 @@ const styles = StyleSheet.create({
   },
   colorPreview: {
     flex: 1,
+  },
+  buttonContents: {
+    flex: 1,
+    borderRadius: 3,
+    padding: Platform.select({ ios: 3, default: 0 }),
+  },
+  buttonText: {
+    flex: 1,
+    fontSize: 20,
+    textAlign: 'center',
   },
 });
 
