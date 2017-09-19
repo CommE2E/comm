@@ -128,6 +128,13 @@ class TagInput<TagData> extends React.PureComponent<
     if (inputWidth !== this.state.inputWidth) {
       this.setState({ inputWidth });
     }
+    const wrapperHeight = Math.min(
+      nextProps.maxHeight,
+      this.contentHeight,
+    );
+    if (wrapperHeight !== this.state.wrapperHeight) {
+      this.setState({ wrapperHeight });
+    }
   }
 
   componentWillUpdate(nextProps: Props<TagData>, nextState: State) {
@@ -271,9 +278,7 @@ class TagInput<TagData> extends React.PureComponent<
     if (this.contentHeight === h) {
       return;
     }
-    const nextWrapperHeight = h > this.props.maxHeight
-      ? this.props.maxHeight
-      : h;
+    const nextWrapperHeight = Math.min(this.props.maxHeight, h);
     if (nextWrapperHeight !== this.state.wrapperHeight) {
       this.setState(
         { wrapperHeight: nextWrapperHeight },
