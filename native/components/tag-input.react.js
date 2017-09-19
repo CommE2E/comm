@@ -229,9 +229,7 @@ class TagInput<TagData> extends React.PureComponent<
         style={styles.container}
         onLayout={this.measureWrapper}
       >
-        <View
-          style={[styles.wrapper, { height: this.state.wrapperHeight }]}
-        >
+        <View style={[styles.wrapper, { height: this.state.wrapperHeight }]}>
           <ScrollView
             ref={this.scrollViewRef}
             style={styles.tagInputContainerScroll}

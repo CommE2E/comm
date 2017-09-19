@@ -166,7 +166,10 @@ class ColorPicker extends React.PureComponent {
     this._layout = l.nativeEvent.layout;
     const { width, height } = this._layout;
     const pickerSize = Math.round(Math.min(width, height));
-    if (Math.abs(this.state.pickerSize - pickerSize) >= 3) {
+    if (
+      !this.state.pickerSize ||
+      Math.abs(this.state.pickerSize - pickerSize) >= 3
+    ) {
       this.setState({ pickerSize });
     }
 
