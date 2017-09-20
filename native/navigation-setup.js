@@ -127,7 +127,9 @@ const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ReduxWrappedAppNavigator = connect((state: AppState) => {
   const appNavState = state.navInfo.navigationState.routes[0];
   invariant(
-    appNavState.index && typeof appNavState.index === "number",
+    appNavState.index !== undefined &&
+      appNavState.index !== null &&
+      typeof appNavState.index === "number",
     "appNavState should have member index that is a number",
   );
   return {

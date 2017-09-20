@@ -28,7 +28,8 @@ const createActiveTabSelector = (routeName: string) => createSelector(
     invariant(
       innerState.routes &&
         Array.isArray(innerState.routes) &&
-        innerState.index &&
+        innerState.index !== undefined &&
+        innerState.index !== null &&
         typeof innerState.index === "number" &&
         innerState.routes[innerState.index] &&
         innerState.routes[innerState.index].routeName &&
@@ -51,7 +52,8 @@ const activeThreadSelector = createSelector(
     invariant(
       innerState.routes &&
         Array.isArray(innerState.routes) &&
-        innerState.index &&
+        innerState.index !== undefined &&
+        innerState.index !== null &&
         typeof innerState.index === "number" &&
         innerState.routes[innerState.index] &&
         innerState.routes[innerState.index].routeName &&
@@ -67,7 +69,8 @@ const activeThreadSelector = createSelector(
     invariant(
       innerInnerState.routes &&
         Array.isArray(innerInnerState.routes) &&
-        innerInnerState.index &&
+        innerInnerState.index !== undefined &&
+        innerInnerState.index !== null &&
         typeof innerInnerState.index === "number" &&
         innerInnerState.routes[innerInnerState.index] &&
         innerInnerState.routes[innerInnerState.index].routeName &&
