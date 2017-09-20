@@ -29,6 +29,7 @@ function createMessageInfo(
   rawMessageInfo: RawMessageInfo,
   viewerID: ?string,
   userInfos: {[id: string]: UserInfo},
+  threadInfos: {[id: string]: ThreadInfo},
 ): MessageInfo {
   const creatorInfo = userInfos[rawMessageInfo.creatorID];
   if (rawMessageInfo.type === messageType.TEXT) {
@@ -48,6 +49,8 @@ function createMessageInfo(
     }
     return messageInfo;
   } else if (rawMessageInfo.type === messageType.CREATE_THREAD) {
+    const initialParentThreadID =
+      rawMessageInfo.initialThreadState.parentThreadID;
     return {
       type: messageType.CREATE_THREAD,
       id: rawMessageInfo.id,
@@ -55,6 +58,15 @@ function createMessageInfo(
       creator: creatorInfo.username,
       isViewer: rawMessageInfo.creatorID === viewerID,
       time: rawMessageInfo.time,
+      initialThreadState: {
+        name: rawMessageInfo.initialThreadState.name,
+        parentThreadInfo: initialParentThreadID
+          ? threadInfos[initialParentThreadID]
+          : null,
+        visibilityRules: rawMessageInfo.initialThreadState.visibilityRules,
+        color: rawMessageInfo.initialThreadState.color,
+        memberIDs: rawMessageInfo.initialThreadState.memberIDs,
+      },
     };
   } else if (rawMessageInfo.type === messageType.ADD_USER) {
     const addedUsernames = [];
@@ -111,6 +123,7 @@ const chatListData = createSelector(
         mostRecentRawMessageInfo,
         viewerID,
         userInfos,
+        threadInfos,
       );
       return {
         threadInfo,
@@ -157,10 +170,12 @@ const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
   (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
   (state: BaseAppState) => state.userInfos,
+  (state: BaseAppState) => state.threadInfos,
   (
     messageStore: MessageStore,
     viewerID: ?string,
     userInfos: {[id: string]: UserInfo},
+    threadInfos: {[id: string]: ThreadInfo},
   ): ChatMessageItem[] => {
     const thread = messageStore.threads[threadID];
     if (!thread) {
@@ -197,6 +212,7 @@ const baseMessageListData = (threadID: string) => createSelector(
         rawMessageInfo,
         viewerID,
         userInfos,
+        threadInfos,
       );
       if (messageInfo.type === messageType.TEXT) {
         chatMessageItems.push({

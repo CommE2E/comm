@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 require_once('user_lib.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -105,12 +106,26 @@ VALUES
 SQL;
 $conn->query($thread_insert_sql);
 
+$initial_member_ids = isset($_POST['initial_member_ids'])
+  ? verify_user_ids($_POST['initial_member_ids'])
+  : array();
+
 $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $message_id = $conn->insert_id;
-$conn->query(
-  "INSERT INTO messages(id, thread, user, type, time) ".
-    "VALUES ($message_id, $id, $creator, 1, $time)"
-);
+$message_type_create_thread = MESSAGE_TYPE_CREATE_THREAD;
+$payload = json_encode(array(
+  "name" => $name,
+  "parentThreadID" => $parent_thread_id ? (string)$parent_thread_id : null,
+  "visibilityRules" => $vis_rules,
+  "color" => $color,
+  "memberIDs" => array_map("strval", $initial_member_ids),
+));
+$message_insert_query = <<<SQL
+INSERT INTO messages(id, thread, user, type, content, time)
+VALUES ({$message_id}, {$id}, {$creator},
+  {$message_type_create_thread}, '{$payload}', {$time})
+SQL;
+$conn->query($message_insert_query);
 
 $roles_to_save = array(array(
   "user" => $creator,
@@ -120,9 +135,6 @@ $roles_to_save = array(array(
   "last_view" => $time,
   "subscribed" => true,
 ));
-$initial_member_ids = isset($_POST['initial_member_ids'])
-  ? verify_user_ids($_POST['initial_member_ids'])
-  : array();
 foreach ($initial_member_ids as $initial_member_id) {
   $roles_to_save[] = array(
     "user" => $initial_member_id,

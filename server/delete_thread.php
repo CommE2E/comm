@@ -44,7 +44,7 @@ if (!password_verify($password, $row['hash'])) {
 }
 
 $conn->query(
-  "DELETE t, ic, d, id, e, ie, re, ir, ro FROM threads t ".
+  "DELETE t, ic, d, id, e, ie, re, ir, ro, m FROM threads t ".
     "LEFT JOIN ids ic ON ic.id = t.id ".
     "LEFT JOIN days d ON d.thread = t.id ".
     "LEFT JOIN ids id ON id.id = d.id ".
@@ -53,6 +53,7 @@ $conn->query(
     "LEFT JOIN revisions re ON re.entry = e.id ".
     "LEFT JOIN ids ir ON ir.id = re.id ".
     "LEFT JOIN roles ro ON ro.thread = t.id ".
+    "LEFT JOIN messages m ON m.thread = t.id ".
     "WHERE t.id = $thread"
 );
 

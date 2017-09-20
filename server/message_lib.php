@@ -216,8 +216,9 @@ function message_from_row($row) {
   if ($type === MESSAGE_TYPE_TEXT) {
     $message['text'] = $row['content'];
   } else if ($type === MESSAGE_TYPE_CREATE_THREAD) {
+    $message['initialThreadState'] = json_decode($row['content']);
   } else if ($type === MESSAGE_TYPE_ADD_USERS) {
-    $message['addedUserIDs'] = explode(',', $row['content']);
+    $message['addedUserIDs'] = json_decode($row['content']);
   }
   return $message;
 }

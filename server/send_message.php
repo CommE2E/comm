@@ -3,6 +3,7 @@
 require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -31,9 +32,11 @@ $time = round(microtime(true) * 1000); // in milliseconds
 
 $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $id = $conn->insert_id;
+$message_type_text = MESSAGE_TYPE_TEXT;
 $insert_query = <<<SQL
 INSERT INTO messages(id, thread, user, type, content, time)
-VALUES ({$id}, {$thread}, {$viewer_id}, 0, '{$text}', {$time})
+VALUES ({$id}, {$thread}, {$viewer_id},
+  {$message_type_text}, '{$text}', {$time})
 SQL;
 $conn->query($insert_query);
 
