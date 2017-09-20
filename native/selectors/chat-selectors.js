@@ -65,7 +65,11 @@ function createMessageInfo(
           : null,
         visibilityRules: rawMessageInfo.initialThreadState.visibilityRules,
         color: rawMessageInfo.initialThreadState.color,
-        memberIDs: rawMessageInfo.initialThreadState.memberIDs,
+        otherMemberUsernames: rawMessageInfo.initialThreadState.memberIDs
+          .filter(
+            (userID: string) => userID !== rawMessageInfo.creatorID
+              && !!userInfos[userID],
+          ).map((userID: string) => userInfos[userID].username),
       },
     };
   } else if (rawMessageInfo.type === messageType.ADD_USER) {

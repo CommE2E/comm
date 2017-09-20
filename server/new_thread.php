@@ -113,17 +113,18 @@ $initial_member_ids = isset($_POST['initial_member_ids'])
 $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $message_id = $conn->insert_id;
 $message_type_create_thread = MESSAGE_TYPE_CREATE_THREAD;
-$payload = json_encode(array(
+$payload = array(
   "name" => $name,
   "parentThreadID" => $parent_thread_id ? (string)$parent_thread_id : null,
   "visibilityRules" => $vis_rules,
   "color" => $color,
   "memberIDs" => array_map("strval", $initial_member_ids),
-));
+);
+$encoded_payload = json_encode($payload);
 $message_insert_query = <<<SQL
 INSERT INTO messages(id, thread, user, type, content, time)
 VALUES ({$message_id}, {$id}, {$creator},
-  {$message_type_create_thread}, '{$payload}', {$time})
+  {$message_type_create_thread}, '{$encoded_payload}', {$time})
 SQL;
 $conn->query($message_insert_query);
 
@@ -185,5 +186,6 @@ async_end(array(
     'threadID' => (string)$id,
     'creatorID' => (string)$creator,
     'time' => $time,
+    'initialThreadState' => $payload,
   ),
 ));
