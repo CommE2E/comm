@@ -15,8 +15,6 @@
 .*/Libraries/react-native/React.js
 .*/Libraries/react-native/ReactNative.js
 
-.*/node_modules/react-navigation/.*
-
 [include]
 ../lib
 
