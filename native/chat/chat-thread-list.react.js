@@ -8,7 +8,7 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
   NavigationAction,
-} from 'react-navigation';
+} from 'react-navigation/src/TypeDefinition';
 
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';

@@ -1,6 +1,9 @@
 // @flow
 
-import type { NavigationState } from 'react-navigation';
+import type {
+  NavigationState,
+  NavigationAction,
+} from 'react-navigation/src/TypeDefinition';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
@@ -69,6 +72,8 @@ registerConfig({
 // app is active and the user is logged in.
 const pingFrequency = 3 * 1000;
 
+type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
+
 class AppWithNavigationState extends React.PureComponent {
 
   props: {
@@ -78,7 +83,7 @@ class AppWithNavigationState extends React.PureComponent {
     pingStartingPayload: () => PingStartingPayload,
     currentAsOf: number,
     // Redux dispatch functions
-    dispatch: Dispatch,
+    dispatch: NativeDispatch,
     dispatchActionPayload: DispatchActionPayload,
     dispatchActionPromise: DispatchActionPromise,
     // async functions that hit server APIs

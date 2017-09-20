@@ -6,10 +6,9 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationScreenProp,
-  NavigationRoute,
   NavigationAction,
   NavigationRouter,
-} from 'react-navigation';
+} from 'react-navigation/src/TypeDefinition';
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
@@ -52,6 +51,7 @@ export type NavInfo = {|
 |};
 
 export type Action = BaseAction |
+  NavigationAction |
   {| type: "HANDLE_URL", payload: string |} |
   {| type: "NAVIGATE_TO_APP", payload: null |} |
   {|
@@ -72,7 +72,7 @@ const AppNavigator = TabNavigator(
   },
 );
 type WrappedAppNavigatorProps = {|
-  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
+  navigation: NavigationScreenProp<*, NavigationAction>,
   isForeground: bool,
   atInitialRoute: bool,
 |};
@@ -124,10 +124,17 @@ class WrappedAppNavigator extends React.PureComponent {
 }
 const AppRouteName = 'App';
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
-const ReduxWrappedAppNavigator = connect((state: AppState) => ({
-  isForeground: isForegroundSelector(state),
-  atInitialRoute: state.navInfo.navigationState.routes[0].index === 0,
-}))(WrappedAppNavigator);
+const ReduxWrappedAppNavigator = connect((state: AppState) => {
+  const appNavState = state.navInfo.navigationState.routes[0];
+  invariant(
+    appNavState.index && typeof appNavState.index === "number",
+    "appNavState should have member index that is a number",
+  );
+  return {
+    atInitialRoute: appNavState.index === 0,
+    isForeground: isForegroundSelector(state),
+  };
+})(WrappedAppNavigator);
 (ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
 
 const RootNavigator = StackNavigator(

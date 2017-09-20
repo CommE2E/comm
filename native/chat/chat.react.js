@@ -12,20 +12,24 @@ import {
 import { MessageList, MessageListRouteName } from './message-list.react';
 import { AddThread, AddThreadRouteName } from './add-thread.react';
 
-const Chat = StackNavigator({
-  [ChatThreadListRouteName]: { screen: ChatThreadList },
-  [MessageListRouteName]: { screen: MessageList },
-  [AddThreadRouteName]: { screen: AddThread },
-});
-Chat.navigationOptions = {
-  tabBarLabel: 'Chat',
-  tabBarIcon: ({ tintColor }) => (
-    <Icon
-      name="comments-o"
-      style={[styles.icon, { color: tintColor }]}
-    />
-  ),
-};
+const Chat = StackNavigator(
+  {
+    [ChatThreadListRouteName]: { screen: ChatThreadList },
+    [MessageListRouteName]: { screen: MessageList },
+    [AddThreadRouteName]: { screen: AddThread },
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Chat',
+      tabBarIcon: ({ tintColor }) => (
+        <Icon
+          name="comments-o"
+          style={[styles.icon, { color: tintColor }]}
+        />
+      ),
+    },
+  },
+);
 
 const styles = StyleSheet.create({
   icon: {

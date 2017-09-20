@@ -4,7 +4,7 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
   NavigationAction,
-} from 'react-navigation';
+} from 'react-navigation/src/TypeDefinition';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ThreadInfo, VisibilityRules } from 'lib/types/thread-types';
@@ -57,7 +57,8 @@ import UserList from '../components/user-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 
-type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
+type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
+  & { state: { params: { parentThreadID: ?string } } };
 const segmentedPrivacyOptions = ['Public', 'Secret'];
 
 type Props = {
@@ -621,8 +622,16 @@ const AddThread = connect(
       parentThreadInfo = state.threadInfos[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
-    const secondChatRoute =
-      state.navInfo.navigationState.routes[0].routes[1].routes[1];
+    const appNavState = state.navInfo.navigationState.routes[0];
+    invariant(
+      appNavState.routes &&
+        Array.isArray(appNavState.routes) &&
+        appNavState.routes[1] &&
+        appNavState.routes[1].routes &&
+        Array.isArray(appNavState.routes[1].routes),
+      "there's no way in Flow to type the exact shape of our navigationState",
+    );
+    const secondChatRoute = appNavState.routes[1].routes[1];
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
@@ -630,7 +639,9 @@ const AddThread = connect(
         userInfoSelectorForOtherMembersOfThread(parentThreadID)(state),
       userSearchIndex:
         userSearchIndexForOtherMembersOfThread(parentThreadID)(state),
-      secondChatRouteKey: secondChatRoute && secondChatRoute.key,
+      secondChatRouteKey: secondChatRoute && secondChatRoute.key
+        ? secondChatRoute.key
+        : null,
       cookie: state.cookie,
     };
   },

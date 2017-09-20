@@ -1,6 +1,9 @@
 // @flow
 
-import type { NavigationScreenProp } from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation/src/TypeDefinition';
 import type { AppState } from '../redux-setup';
 import type { HandleVerificationCodeResult } from 'lib/actions/user-actions';
 import type {
@@ -48,11 +51,9 @@ import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
 type VerificationModalMode = "simple-text" | "reset-password";
-type VerificationModalNavProps = {
-  verifyCode: string,
-};
 type Props = {
-  navigation: NavigationScreenProp<VerificationModalNavProps, *>,
+  navigation: NavigationScreenProp<NavigationLeafRoute, *>
+    & { state: { params: { verifyCode: string } } },
   // Redux state
   isForeground: bool,
   // Redux dispatch functions

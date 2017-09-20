@@ -5,7 +5,8 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
   NavigationAction,
-} from 'react-navigation';
+} from 'react-navigation/src/TypeDefinition';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type {
   ChatMessageItem,
@@ -56,7 +57,8 @@ import InputBar from './input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import AddThreadButton from './add-thread-button.react';
 
-type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>;
+type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
+  & { state: { params: { threadInfo: ThreadInfo } } };
 
 export type ChatMessageInfoItemWithHeight = {|
   itemType: "message",

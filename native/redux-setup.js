@@ -112,13 +112,30 @@ function reducer(state: AppState, action: Action) {
       rehydrateConcluded: true,
     };
   }
-  if (action.type === "HANDLE_URL" || action.type === "NAVIGATE_TO_APP") {
+  // These action type are handled by reduceNavInfo above
+  if (
+    action.type === "HANDLE_URL" ||
+      action.type === "NAVIGATE_TO_APP" ||
+      action.type === "Navigation/INIT" ||
+      action.type === "Navigation/NAVIGATE" ||
+      action.type === "Navigation/BACK" ||
+      action.type === "Navigation/SET_PARAMS" ||
+      action.type === "Navigation/RESET"
+  ) {
     return state;
   }
   if (
     action.type === "Navigation/NAVIGATE" &&
     action.routeName === "MessageList"
   ) {
+    invariant(
+      action.params &&
+        action.params.threadInfo &&
+        typeof action.params.threadInfo === "object" &&
+        action.params.threadInfo.id &&
+        typeof action.params.threadInfo.id === "string",
+      "there's no way in react-navigation/Flow to type this",
+    );
     return {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
