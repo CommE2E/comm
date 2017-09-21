@@ -241,10 +241,13 @@ function get_all_users($messages, $users) {
 
   $all_added_user_ids = array();
   foreach ($messages as $message) {
-    if ($message['type'] !== MESSAGE_TYPE_ADD_USERS) {
-      continue;
+    $new_users = array();
+    if ($message['type'] === MESSAGE_TYPE_ADD_USERS) {
+      $new_users = $message['addedUserIDs'];
+    } else if ($message['type'] === MESSAGE_TYPE_CREATE_THREAD) {
+      $new_users = $message['initialThreadState']['memberIDs'];
     }
-    foreach ($message['addedUserIDs'] as $user_id) {
+    foreach ($new_users as $user_id) {
       if (!isset($users[$user_id])) {
         $all_added_user_ids[] = $user_id;
       }
