@@ -105,7 +105,10 @@ SQL;
       'id' => $row['creatorID'],
       'username' => $row['creator'],
     );
-    $messages[] = message_from_row($row);
+    $message = message_from_row($row);
+    if ($message) {
+      $messages[] = $message;
+    }
     if (!isset($thread_to_message_count[$row['threadID']])) {
       $thread_to_message_count[$row['threadID']] = 1;
     } else {
@@ -194,7 +197,10 @@ SQL;
         'id' => $row['creatorID'],
         'username' => $row['creator'],
       );
-      $messages[] = message_from_row($row);
+      $message = message_from_row($row);
+      if ($message) {
+        $messages[] = $message;
+      }
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
     }
@@ -221,7 +227,11 @@ function message_from_row($row) {
   } else if ($type === MESSAGE_TYPE_ADD_USERS) {
     $message['addedUserIDs'] = json_decode($row['content']);
   } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
-    $message['childThreadID'] = $row['content'];
+    $child_thread_id = $row['content'];
+    if (!viewer_can_see_thread($child_thread_id)) {
+      return null;
+    }
+    $message['childThreadID'] = $child_thread_id;
   }
   return $message;
 }
