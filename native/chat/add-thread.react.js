@@ -25,6 +25,8 @@ import {
   Alert,
   TouchableWithoutFeedback,
   TouchableHighlight,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { connect } from 'react-redux';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -293,8 +295,8 @@ class InnerAddThread extends React.PureComponent {
     const colorSplotchStyle = {
       backgroundColor: `#${this.state.color}`,
     };
-    return (
-      <View style={styles.container}>
+    const content = (
+      <View style={styles.content}>
         <View style={styles.row}>
           <Text style={styles.label}>Name</Text>
           <View style={styles.input}>
@@ -346,6 +348,17 @@ class InnerAddThread extends React.PureComponent {
         {colorPicker}
       </View>
     );
+    if (Platform.OS === "ios") {
+      return (
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior="padding"
+          keyboardVerticalOffset={65}
+        >{content}</KeyboardAvoidingView>
+      );
+    } else {
+      return <View style={styles.container}>{content}</View>;
+    }
   }
 
   nameInputRef = (nameInput: ?TextInput) => {
@@ -511,6 +524,9 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
   },
   row: {
     flexDirection: 'row',
