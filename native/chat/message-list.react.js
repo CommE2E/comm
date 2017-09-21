@@ -155,10 +155,7 @@ class InnerMessageList extends React.PureComponent {
           text: messageInfo.text,
           style: styles.text,
         });
-      } else if (
-        item.messageInfo.type === messageType.CREATE_THREAD ||
-          item.messageInfo.type === messageType.ADD_USER
-      ) {
+      } else {
         invariant(
           item.robotext && typeof item.robotext === "string",
           "Flow can't handle our fancy types :(",
@@ -246,10 +243,7 @@ class InnerMessageList extends React.PureComponent {
           endsCluster: item.endsCluster,
           textHeight,
         };
-      } else if (
-        item.messageInfo.type === messageType.CREATE_THREAD ||
-          item.messageInfo.type === messageType.ADD_USER
-      ) {
+      } else {
         invariant(
           typeof item.robotext === "string",
           "Flow can't handle our fancy types :(",
@@ -263,8 +257,6 @@ class InnerMessageList extends React.PureComponent {
           robotext: item.robotext,
           textHeight,
         };
-      } else {
-        invariant(false, `${item.messageInfo.type} is not a messageType!`);
       }
     });
     this.setState({ listDataWithHeights });

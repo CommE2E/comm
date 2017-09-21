@@ -11,6 +11,7 @@ define("DEFAULT_NUMBER_PER_THREAD", 20);
 define("MESSAGE_TYPE_TEXT", 0);
 define("MESSAGE_TYPE_CREATE_THREAD", 1);
 define("MESSAGE_TYPE_ADD_USERS", 2);
+define("MESSAGE_TYPE_CREATE_SUB_THREAD", 3);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
@@ -219,6 +220,8 @@ function message_from_row($row) {
     $message['initialThreadState'] = json_decode($row['content']);
   } else if ($type === MESSAGE_TYPE_ADD_USERS) {
     $message['addedUserIDs'] = json_decode($row['content']);
+  } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
+    $message['childThreadID'] = $row['content'];
   }
   return $message;
 }

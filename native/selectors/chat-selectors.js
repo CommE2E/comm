@@ -90,6 +90,16 @@ function createMessageInfo(
       time: rawMessageInfo.time,
       addedUsernames,
     };
+  } else if (rawMessageInfo.type === messageType.CREATE_SUB_THREAD) {
+    return {
+      type: messageType.CREATE_SUB_THREAD,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: creatorInfo.username,
+      isViewer: rawMessageInfo.creatorID === viewerID,
+      time: rawMessageInfo.time,
+      childThreadInfo: threadInfos[rawMessageInfo.childThreadID],
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
@@ -226,10 +236,7 @@ const baseMessageListData = (threadID: string) => createSelector(
           startsCluster,
           endsCluster: false,
         });
-      } else if (
-        messageInfo.type === messageType.CREATE_THREAD ||
-          messageInfo.type === messageType.ADD_USER
-      ) {
+      } else {
         const robotextParts = robotextForMessageInfo(messageInfo);
         chatMessageItems.push({
           itemType: "message",
@@ -239,8 +246,6 @@ const baseMessageListData = (threadID: string) => createSelector(
           endsCluster: false,
           robotext: `${robotextParts[0]} ${robotextParts[1]}`,
         });
-      } else {
-        invariant(false, `${messageInfo.type} is not a messageType!`);
       }
       lastMessageInfo = messageInfo;
     }

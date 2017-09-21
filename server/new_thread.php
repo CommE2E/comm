@@ -128,6 +128,35 @@ VALUES ({$message_id}, {$id}, {$creator},
 SQL;
 $conn->query($message_insert_query);
 
+$creation_message_infos = array(array(
+  'type' => MESSAGE_TYPE_CREATE_THREAD,
+  'id' => (string)$message_id,
+  'threadID' => (string)$id,
+  'creatorID' => (string)$creator,
+  'time' => $time,
+  'initialThreadState' => $payload,
+));
+
+if ($parent_thread_id) {
+  $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
+  $parent_message_id = $conn->insert_id;
+  $message_type_create_sub_thread = MESSAGE_TYPE_CREATE_THREAD;
+  $parent_message_insert_query = <<<SQL
+INSERT INTO messages(id, thread, user, type, content, time)
+VALUES ({$parent_message_id}, {$parent_thread_id}, {$creator},
+  {$message_type_create_sub_thread}, '{$id}', {$time})
+SQL;
+  $conn->query($parent_message_insert_query);
+  $creation_message_infos[] = array(
+    'type' => MESSAGE_TYPE_CREATE_SUB_THREAD,
+    'id' => (string)$parent_message_id,
+    'threadID' => (string)$parent_thread_id,
+    'creatorID' => (string)$creator,
+    'time' => $time,
+    'childThreadID' => (string)$id,
+  );
+}
+
 $roles_to_save = array(array(
   "user" => $creator,
   "thread" => $id,
@@ -180,12 +209,5 @@ async_end(array(
       : null,
     'memberIDs' => $member_ids,
   ),
-  'creation_message_info' => array(
-    'type' => 1,
-    'id' => (string)$message_id,
-    'threadID' => (string)$id,
-    'creatorID' => (string)$creator,
-    'time' => $time,
-    'initialThreadState' => $payload,
-  ),
+  'creation_message_infos' => $creation_message_infos,
 ));
