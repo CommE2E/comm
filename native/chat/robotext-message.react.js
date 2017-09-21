@@ -4,6 +4,8 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import type { Dispatch } from 'lib/types/redux-types';
+import type { AppState } from '../redux-setup';
 
 import React from 'react';
 import {
@@ -13,9 +15,13 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
+
+import { MessageListRouteName } from './message-list.react';
 
 function robotextMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -54,20 +60,49 @@ class RobotextMessage extends React.PureComponent {
   }
 
   render() {
-    const item = this.props.item;
-    invariant(
-      item.robotext && typeof item.robotext === "string",
-      "Flow can't handle our fancy types :(",
-    );
     return (
       <View
         onStartShouldSetResponder={this.onStartShouldSetResponder}
         onResponderGrant={this.onResponderGrant}
         onResponderTerminationRequest={this.onResponderTerminationRequest}
       >
-        <Text style={styles.robotext}>{item.robotext}</Text>
+        {this.linkedRobotext()}
       </View>
     );
+  }
+
+  linkedRobotext() {
+    const item = this.props.item;
+    invariant(
+      item.robotext && typeof item.robotext === "string",
+      "Flow can't handle our fancy types :(",
+    );
+    const robotext = item.robotext;
+    const splitRobotext = robotext.split(/(<[^<>\|]+\|[^<>\|]+>)/g);
+    const textParts = [];
+    for (let splitPart of splitRobotext) {
+      if (splitPart === "") {
+        continue;
+      }
+      if (splitPart.charAt(0) !== "<") {
+        textParts.push(decodeURI(splitPart));
+        continue;
+      }
+
+      const entityParts = splitPart.match(/<([^<>\|]+)\|([^<>\|]+)>/);
+      invariant(entityParts && entityParts[1], "malformed robotext");
+      const rawText = decodeURI(entityParts[1]);
+      const entityType = entityParts[2].charAt(0);
+      const id = entityParts[2].substr(1);
+
+      if (entityType === "t") {
+        textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
+        continue;
+      }
+
+      textParts.push(rawText);
+    }
+    return <Text style={styles.robotext}>{textParts}</Text>;
   }
 
   onStartShouldSetResponder = () => true;
@@ -80,6 +115,42 @@ class RobotextMessage extends React.PureComponent {
 
 }
 
+class InnerThreadEntity extends React.PureComponent {
+
+  props: {
+    id: string,
+    name: string,
+    // Redux state
+    threadInfo: ThreadInfo,
+    // Redux dispatch functions
+    dispatch: Dispatch,
+  };
+
+  render() {
+    return (
+      <Text style={styles.link} onPress={this.onPressThread}>
+        {this.props.name}
+      </Text>
+    );
+  }
+
+  onPressThread = (a, b, c) => {
+    const id = this.props.id;
+    this.props.dispatch({
+      type: "Navigation/NAVIGATE",
+      routeName: MessageListRouteName,
+      params: { threadInfo: this.props.threadInfo },
+    });
+  }
+
+}
+const ThreadEntity = connect(
+  (state: AppState, ownProps: { id: string }) => ({
+    threadInfo: state.threadInfos[ownProps.id],
+  }),
+  includeDispatchActionProps,
+)(InnerThreadEntity);
+
 const styles = StyleSheet.create({
   robotext: {
     textAlign: 'center',
@@ -89,6 +160,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     fontSize: 15,
     fontFamily: 'Arial',
+  },
+  link: {
+    color: '#3333FF',
   },
 });
 

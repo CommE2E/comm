@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import Color from 'color';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey, stringForUser } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
 
 function textMessageItemHeight(
@@ -26,7 +26,7 @@ function textMessageItemHeight(
   viewerID: ?string,
 ) {
   let height = 17 + item.textHeight; // for padding, margin, and text
-  if (item.messageInfo.creatorID !== viewerID && item.startsCluster) {
+  if (!item.messageInfo.creator.isViewer && item.startsCluster) {
     height += 25; // for username
   }
   if (item.endsCluster) {
@@ -67,7 +67,7 @@ class TextMessage extends React.PureComponent {
   }
 
   render() {
-    const isViewer = this.props.item.messageInfo.isViewer;
+    const isViewer = this.props.item.messageInfo.creator.isViewer;
     let containerStyle = null,
       messageStyle = {},
       textStyle = {};
@@ -85,7 +85,7 @@ class TextMessage extends React.PureComponent {
     if (!isViewer && this.props.item.startsCluster) {
       authorName = (
         <Text style={styles.authorName}>
-          {this.props.item.messageInfo.creator}
+          {stringForUser(this.props.item.messageInfo.creator)}
         </Text>
       );
     }

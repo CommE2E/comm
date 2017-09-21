@@ -3,6 +3,7 @@
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -36,7 +37,7 @@ class ThreadPicker extends React.PureComponent {
     onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
     viewerID: string,
     // Redux dispatch functions
-    dispatchActionPayload: (actionType: string, payload: *) => void,
+    dispatchActionPayload: DispatchActionPayload,
   };
   static propTypes = {
     dateString: PropTypes.string.isRequired,

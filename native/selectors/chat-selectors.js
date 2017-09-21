@@ -11,7 +11,7 @@ import type {
   RobotextMessageInfo,
 } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { UserInfo, RelativeUserInfo } from 'lib/types/user-types';
 
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
@@ -25,6 +25,33 @@ import _memoize from 'lodash/memoize';
 import { messageType } from 'lib/types/message-types';
 import { robotextForMessageInfo } from 'lib/shared/message-utils';
 
+function userIDsToRelativeUserInfos(
+  userIDs: string[],
+  viewerID: ?string,
+  userInfos: {[id: string]: UserInfo},
+): RelativeUserInfo[] {
+  const relativeUserInfos = [];
+  for (let userID of userIDs) {
+    if (!userInfos[userID]) {
+      continue;
+    }
+    if (userID === viewerID) {
+      relativeUserInfos.unshift({
+        id: userID,
+        username: userInfos[userID].username,
+        isViewer: true,
+      });
+    } else {
+      relativeUserInfos.push({
+        id: userID,
+        username: userInfos[userID].username,
+        isViewer: false,
+      });
+    }
+  }
+  return relativeUserInfos;
+}
+
 function createMessageInfo(
   rawMessageInfo: RawMessageInfo,
   viewerID: ?string,
@@ -36,8 +63,11 @@ function createMessageInfo(
     const messageInfo: TextMessageInfo = {
       type: messageType.TEXT,
       threadID: rawMessageInfo.threadID,
-      creator: creatorInfo.username,
-      isViewer: rawMessageInfo.creatorID === viewerID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
       time: rawMessageInfo.time,
       text: rawMessageInfo.text,
     };
@@ -55,8 +85,11 @@ function createMessageInfo(
       type: messageType.CREATE_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
-      creator: creatorInfo.username,
-      isViewer: rawMessageInfo.creatorID === viewerID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
       time: rawMessageInfo.time,
       initialThreadState: {
         name: rawMessageInfo.initialThreadState.name,
@@ -65,38 +98,43 @@ function createMessageInfo(
           : null,
         visibilityRules: rawMessageInfo.initialThreadState.visibilityRules,
         color: rawMessageInfo.initialThreadState.color,
-        otherMemberUsernames: rawMessageInfo.initialThreadState.memberIDs
-          .filter(
-            (userID: string) => userID !== rawMessageInfo.creatorID
-              && !!userInfos[userID],
-          ).map((userID: string) => userInfos[userID].username),
+        otherMembers: userIDsToRelativeUserInfos(
+          rawMessageInfo.initialThreadState.memberIDs.filter(
+            (userID: string) => userID !== rawMessageInfo.creatorID,
+          ),
+          viewerID,
+          userInfos,
+        ),
       },
     };
   } else if (rawMessageInfo.type === messageType.ADD_USER) {
-    const addedUsernames = [];
-    for (let userID of rawMessageInfo.addedUserIDs) {
-      if (userID === viewerID) {
-        addedUsernames.unshift("you");
-      } else {
-        addedUsernames.push(userInfos[userID].username);
-      }
-    }
+    const addedMembers = userIDsToRelativeUserInfos(
+      rawMessageInfo.addedUserIDs,
+      viewerID,
+      userInfos,
+    );
     return {
       type: messageType.ADD_USER,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
-      creator: creatorInfo.username,
-      isViewer: rawMessageInfo.creatorID === viewerID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
       time: rawMessageInfo.time,
-      addedUsernames,
+      addedMembers,
     };
   } else if (rawMessageInfo.type === messageType.CREATE_SUB_THREAD) {
     return {
       type: messageType.CREATE_SUB_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
-      creator: creatorInfo.username,
-      isViewer: rawMessageInfo.creatorID === viewerID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
       time: rawMessageInfo.time,
       childThreadInfo: threadInfos[rawMessageInfo.childThreadID],
     };
@@ -237,14 +275,14 @@ const baseMessageListData = (threadID: string) => createSelector(
           endsCluster: false,
         });
       } else {
-        const robotextParts = robotextForMessageInfo(messageInfo);
+        const robotext = robotextForMessageInfo(messageInfo);
         chatMessageItems.push({
           itemType: "message",
           messageInfo,
           startsConversation,
           startsCluster,
           endsCluster: false,
-          robotext: `${robotextParts[0]} ${robotextParts[1]}`,
+          robotext,
         });
       }
       lastMessageInfo = messageInfo;

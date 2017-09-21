@@ -8,7 +8,10 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text } from 'react-native';
 
 import { messageType } from 'lib/types/message-types';
-import { robotextForMessageInfo } from 'lib/shared/message-utils';
+import {
+  robotextForMessageInfo,
+  robotextToRawString,
+} from 'lib/shared/message-utils';
 
 class MessagePreview extends React.PureComponent {
 
@@ -21,9 +24,9 @@ class MessagePreview extends React.PureComponent {
 
   render() {
     const messageInfo: MessageInfo = this.props.messageInfo;
-    const username = messageInfo.isViewer
+    const username = messageInfo.creator.isViewer
       ? "you: "
-      : `${messageInfo.creator || ""}: `;
+      : `${messageInfo.creator.username || ""}: `;
     if (messageInfo.type === messageType.TEXT) {
       return (
         <Text style={styles.lastMessage} numberOfLines={1}>
@@ -32,11 +35,9 @@ class MessagePreview extends React.PureComponent {
         </Text>
       );
     } else {
-      const [actor, robotext] = robotextForMessageInfo(messageInfo);
+      const robotext = robotextToRawString(robotextForMessageInfo(messageInfo));
       return (
         <Text style={[styles.lastMessage, styles.robotext]} numberOfLines={1}>
-          {actor}
-          {" "}
           {robotext}
         </Text>
       );

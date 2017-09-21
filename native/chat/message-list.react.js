@@ -39,7 +39,7 @@ import _differenceWith from 'lodash/fp/differenceWith';
 import _find from 'lodash/fp/find';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
 import {
   includeDispatchActionProps,
   bindServerCalls,
@@ -60,7 +60,7 @@ import AddThreadButton from './add-thread-button.react';
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
 
-export type ChatMessageInfoItemWithHeight = {|
+export type RobotextChatMessageInfoItemWithHeight = {|
   itemType: "message",
   messageInfo: RobotextMessageInfo,
   startsConversation: bool,
@@ -68,14 +68,17 @@ export type ChatMessageInfoItemWithHeight = {|
   endsCluster: bool,
   robotext: string,
   textHeight: number,
-|} | {|
-  itemType: "message",
-  messageInfo: TextMessageInfo,
-  startsConversation: bool,
-  startsCluster: bool,
-  endsCluster: bool,
-  textHeight: number,
 |};
+
+export type ChatMessageInfoItemWithHeight =
+  RobotextChatMessageInfoItemWithHeight | {|
+    itemType: "message",
+    messageInfo: TextMessageInfo,
+    startsConversation: bool,
+    startsCluster: bool,
+    endsCluster: bool,
+    textHeight: number,
+  |};
 type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
@@ -162,7 +165,7 @@ class InnerMessageList extends React.PureComponent {
         );
         textToMeasure.push({
           id: messageKey(messageInfo),
-          text: item.robotext,
+          text: robotextToRawString(item.robotext),
           style: styles.robotext,
         });
       }
