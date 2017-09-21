@@ -47,6 +47,7 @@ class MessagePreview extends React.PureComponent {
 
 const styles = StyleSheet.create({
   lastMessage: {
+    flex: 1,
     paddingLeft: 10,
     fontSize: 16,
     color: '#666666',

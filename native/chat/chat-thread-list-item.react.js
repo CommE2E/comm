@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   threadName: {
+    flex: 1,
     paddingLeft: 10,
     fontSize: 20,
     color: '#333333',
@@ -88,8 +89,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
     justifyContent: 'flex-end',
     borderRadius: 5,
+    marginLeft: 10,
   },
   noMessages: {
+    flex: 1,
     paddingLeft: 10,
     fontStyle: 'italic',
     fontSize: 16,
@@ -98,6 +101,7 @@ const styles = StyleSheet.create({
   lastActivity: {
     fontSize: 16,
     color: '#666666',
+    marginLeft: 10,
   },
 });
 
