@@ -75,7 +75,8 @@ if ($vis_rules === VISIBILITY_NESTED_OPEN) {
   }
 }
 
-$name = $conn->real_escape_string($_POST['name']);
+$raw_name = $_POST['name'];
+$name = $conn->real_escape_string($raw_name);
 $description = $conn->real_escape_string($_POST['description']);
 $time = round(microtime(true) * 1000); // in milliseconds
 $conn->query("INSERT INTO ids(table_name) VALUES('threads')");
@@ -114,13 +115,13 @@ $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
 $message_id = $conn->insert_id;
 $message_type_create_thread = MESSAGE_TYPE_CREATE_THREAD;
 $payload = array(
-  "name" => $name,
+  "name" => $raw_name,
   "parentThreadID" => $parent_thread_id ? (string)$parent_thread_id : null,
   "visibilityRules" => $vis_rules,
   "color" => $color,
   "memberIDs" => array_map("strval", $initial_member_ids),
 );
-$encoded_payload = json_encode($payload);
+$encoded_payload = $conn->real_escape_string(json_encode($payload));
 $message_insert_query = <<<SQL
 INSERT INTO messages(id, thread, user, type, content, time)
 VALUES ({$message_id}, {$id}, {$creator},
@@ -194,7 +195,7 @@ async_end(array(
   'success' => true,
   'new_thread_info' => array(
     'id' => (string)$id,
-    'name' => $name,
+    'name' => $raw_name,
     'description' => $description,
     'authorized' => true,
     'viewerIsMember' => true,
