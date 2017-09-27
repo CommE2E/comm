@@ -377,8 +377,8 @@ class ColorPicker extends React.PureComponent {
             styles.buttonContents,
             { backgroundColor: oldColor },
           ]}
-          onSubmit={this._onOldColorSelected}
-          androidBorderlessRipple={false}
+          onPress={this._onOldColorSelected}
+          iosFormat="highlight"
           iosActiveOpacity={0.6}
         />
       );
@@ -409,8 +409,8 @@ class ColorPicker extends React.PureComponent {
             <Button
               style={[styles.buttonContents, buttonContentsStyle]}
               topStyle={styles.colorPreview}
-              onSubmit={this._onColorSelected}
-              androidBorderlessRipple={false}
+              onPress={this._onColorSelected}
+              iosFormat="highlight"
               iosActiveOpacity={0.6}
             >
               <Text style={[styles.buttonText, buttonTextStyle]}>

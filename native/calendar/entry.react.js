@@ -207,8 +207,11 @@ class Entry extends React.Component {
         <View style={styles.actionLinks}>
           <View style={styles.leftLinks}>
             <Button
-              onSubmit={this.onPressDelete}
-              underlayColor={actionLinksUnderlayColor}
+              onPress={this.onPressDelete}
+              androidBorderlessRipple={true}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={actionLinksUnderlayColor}
+              iosActiveOpacity={0.85}
               style={styles.deleteButton}
             >
               <View style={styles.deleteButtonContents}>

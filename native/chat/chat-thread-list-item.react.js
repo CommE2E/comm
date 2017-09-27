@@ -42,7 +42,13 @@ class ChatThreadListItem extends React.PureComponent {
     };
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     return (
-      <Button onSubmit={this.onPress} underlayColor="#DDDDDDDD">
+      <Button
+        onPress={this.onPress}
+        androidBorderlessRipple={true}
+        iosFormat="highlight"
+        iosHighlightUnderlayColor="#DDDDDDDD"
+        iosActiveOpacity={0.85}
+      >
         <View style={styles.container}>
           <View style={styles.row}>
             <Text style={styles.threadName} numberOfLines={1}>

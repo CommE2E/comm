@@ -25,7 +25,13 @@ class SectionFooter extends React.PureComponent {
   render() {
     return (
       <View style={styles.sectionFooter}>
-        <Button onSubmit={this.onSubmit} style={styles.addButton}>
+        <Button
+          onPress={this.onSubmit}
+          androidBorderlessRipple={true}
+          iosFormat="highlight"
+          iosActiveOpacity={0.85}
+          style={styles.addButton}
+        >
           <View style={styles.addButtonContents}>
             <Icon name="plus" style={styles.addIcon} />
             <Text style={styles.actionLinksText}>Add</Text>

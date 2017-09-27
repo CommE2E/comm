@@ -46,7 +46,11 @@ class AddThreadButton extends React.PureComponent {
       );
     }
     return (
-      <Button onSubmit={this.onPress} defaultFormat="opacity">
+      <Button
+        onPress={this.onPress}
+        androidBorderlessRipple={true}
+        iosActiveOpacity={0.85}
+      >
         {icon}
       </Button>
     );

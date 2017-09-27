@@ -26,9 +26,10 @@ class LinkButton extends React.PureComponent {
   render() {
     return (
       <Button
-        onSubmit={this.props.onPress}
+        onPress={this.props.onPress}
+        androidBorderlessRipple={true}
+        iosActiveOpacity={0.85}
         style={this.props.style}
-        defaultFormat="opacity"
       >
         <Text style={styles.text}>{this.props.text}</Text>
       </Button>

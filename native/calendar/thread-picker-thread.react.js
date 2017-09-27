@@ -29,7 +29,12 @@ class ThreadPickerThread extends React.PureComponent {
       backgroundColor: `#${this.props.threadInfo.color}`,
     };
     return (
-      <Button onSubmit={this.onPress}>
+      <Button
+        onPress={this.onPress}
+        androidBorderlessRipple={true}
+        iosFormat="highlight"
+        iosActiveOpacity={0.85}
+      >
         <View style={styles.container}>
           <View style={[styles.colorSplotch, colorSplotchStyle]} />
           <Text style={styles.text}>{this.props.threadInfo.name}</Text>
