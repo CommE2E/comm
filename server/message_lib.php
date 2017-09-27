@@ -223,9 +223,9 @@ function message_from_row($row) {
   if ($type === MESSAGE_TYPE_TEXT) {
     $message['text'] = $row['content'];
   } else if ($type === MESSAGE_TYPE_CREATE_THREAD) {
-    $message['initialThreadState'] = json_decode($row['content']);
+    $message['initialThreadState'] = json_decode($row['content'], true);
   } else if ($type === MESSAGE_TYPE_ADD_USERS) {
-    $message['addedUserIDs'] = json_decode($row['content']);
+    $message['addedUserIDs'] = json_decode($row['content'], true);
   } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
     $child_thread_id = $row['content'];
     if (!viewer_can_see_thread($child_thread_id)) {
