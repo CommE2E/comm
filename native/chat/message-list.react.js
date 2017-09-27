@@ -155,6 +155,7 @@ class InnerMessageList extends React.PureComponent {
         ref={messageListHeaderRef}
       />
     ),
+    headerBackTitle: "Back",
   });
   textHeights: ?Map<string, number> = null;
   loadingFromScroll = false;

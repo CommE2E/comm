@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import HeaderTitle from 'react-navigation/src/views/Header/HeaderTitle';
 
 import Button from '../components/button.react';
+import { ThreadSettingsRouteName } from './thread-settings.react';
 
 class MessageListHeaderTitle extends React.PureComponent {
 
@@ -84,7 +85,10 @@ class MessageListHeaderTitle extends React.PureComponent {
   }
 
   onPress = () => {
-    console.log('test');
+    this.props.navigate(
+      ThreadSettingsRouteName,
+      { threadInfo: this.props.threadInfo },
+    );
   }
 
 }

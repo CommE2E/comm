@@ -11,12 +11,17 @@ import {
 } from './chat-thread-list.react';
 import { MessageList, MessageListRouteName } from './message-list.react';
 import { AddThread, AddThreadRouteName } from './add-thread.react';
+import {
+  ThreadSettings,
+  ThreadSettingsRouteName,
+} from './thread-settings.react';
 
 const Chat = StackNavigator(
   {
     [ChatThreadListRouteName]: { screen: ChatThreadList },
     [MessageListRouteName]: { screen: MessageList },
     [AddThreadRouteName]: { screen: AddThread },
+    [ThreadSettingsRouteName]: { screen: ThreadSettings },
   },
   {
     navigationOptions: {
