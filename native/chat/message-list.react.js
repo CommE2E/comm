@@ -56,6 +56,8 @@ import TextHeightMeasurer from '../text-height-measurer.react';
 import InputBar from './input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import AddThreadButton from './add-thread-button.react';
+import MessageListHeaderTitle from './message-list-header-title.react';
+import MessageListHeader from './message-list-header.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -82,6 +84,16 @@ export type ChatMessageInfoItemWithHeight =
 type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
+
+let messageListHeader = null;
+function messageListHeaderRef(header: ?MessageListHeader) {
+  messageListHeader = header;
+};
+function onTitleWidthChange(key: string, width: number) {
+  if (messageListHeader) {
+    messageListHeader.setTitleWidth(key, width);
+  }
+}
 
 type Props = {
   navigation: NavProp,
@@ -122,11 +134,25 @@ class InnerMessageList extends React.PureComponent {
     fetchMessages: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
-    title: navigation.state.params.threadInfo.name,
+    headerTitle: (
+      <MessageListHeaderTitle
+        threadInfo={navigation.state.params.threadInfo}
+        navigate={navigation.navigate}
+        sceneKey={navigation.state.key}
+        onWidthChange={onTitleWidthChange}
+      />
+    ),
     headerRight: (
       <AddThreadButton
         parentThreadID={navigation.state.params.threadInfo.id}
         navigate={navigation.navigate}
+      />
+    ),
+    header: (props: *) => (
+      <MessageListHeader
+        {...props}
+        routeKey={navigation.state.key}
+        ref={messageListHeaderRef}
       />
     ),
   });

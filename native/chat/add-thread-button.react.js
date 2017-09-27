@@ -46,11 +46,7 @@ class AddThreadButton extends React.PureComponent {
       );
     }
     return (
-      <Button
-        onPress={this.onPress}
-        androidBorderlessRipple={true}
-        iosActiveOpacity={0.85}
-      >
+      <Button onPress={this.onPress} androidBorderlessRipple={true}>
         {icon}
       </Button>
     );
@@ -67,7 +63,7 @@ class AddThreadButton extends React.PureComponent {
 
 const styles = StyleSheet.create({
   addButton: {
-    paddingRight: 10,
+    paddingHorizontal: 10,
   },
 });
 
