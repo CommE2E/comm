@@ -14,7 +14,7 @@ import { AddThread, AddThreadRouteName } from './add-thread.react';
 import {
   ThreadSettings,
   ThreadSettingsRouteName,
-} from './thread-settings.react';
+} from './settings/thread-settings.react';
 
 const Chat = StackNavigator(
   {

@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import HeaderTitle from 'react-navigation/src/views/Header/HeaderTitle';
 
 import Button from '../components/button.react';
-import { ThreadSettingsRouteName } from './thread-settings.react';
+import { ThreadSettingsRouteName } from './settings/thread-settings.react';
 
 class MessageListHeaderTitle extends React.PureComponent {
 
