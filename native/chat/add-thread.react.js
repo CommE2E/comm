@@ -53,6 +53,7 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import ColorPicker from '../components/color-picker.react';
+import ColorSplotch from '../components/color-splotch.react';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
@@ -292,9 +293,6 @@ class InnerAddThread extends React.PureComponent {
         </View>
       );
     }
-    const colorSplotchStyle = {
-      backgroundColor: `#${this.state.color}`,
-    };
     const content = (
       <View style={styles.content}>
         <View style={styles.row}>
@@ -320,7 +318,7 @@ class InnerAddThread extends React.PureComponent {
         <View style={styles.row}>
           <Text style={styles.label}>Color</Text>
           <View style={[styles.input, styles.inlineInput]}>
-            <View style={[styles.colorSplotch, colorSplotchStyle]} />
+            <ColorSplotch color={this.state.color} />
             <LinkButton
               text="Change"
               onPress={this.onPressChangeColor}
@@ -600,13 +598,6 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
     position: 'absolute',
-  },
-  colorSplotch: {
-    height: 25,
-    width: 25,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#777777',
   },
   changeColorButton: {
     paddingTop: 2,
