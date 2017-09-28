@@ -4,20 +4,17 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 type Props = {|
-  type: "full" | "outline",
+  type: "full" | "outline" | "unpadded",
   title: string,
   children?: React.Element<*>,
 |};
 function ThreadSettingsCategory(props: Props) {
-  const contentStyle = props.type === "full"
-    ? styles.fullContent
-    : styles.outlineContent;
   return (
     <View style={styles.category}>
       <Text style={styles.title}>
         {props.title.toUpperCase()}
       </Text>
-      <View style={contentStyle}>
+      <View style={styles[props.type]}>
         {props.children}
       </View>
     </View>
@@ -26,7 +23,7 @@ function ThreadSettingsCategory(props: Props) {
 
 const styles = StyleSheet.create({
   category: {
-    marginVertical: 12,
+    marginVertical: 16,
   },
   title: {
     paddingLeft: 24,
@@ -35,7 +32,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#888888",
   },
-  fullContent: {
+  full: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: "#CCCCCC",
@@ -43,7 +40,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: "white",
   },
-  outlineContent: {
+  unpadded: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#CCCCCC",
+    backgroundColor: "white",
+  },
+  outline: {
   },
 });
 

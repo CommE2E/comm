@@ -11,7 +11,7 @@ import type {
   RobotextMessageInfo,
 } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
-import type { UserInfo, RelativeUserInfo } from 'lib/types/user-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
@@ -24,33 +24,7 @@ import _memoize from 'lodash/memoize';
 
 import { messageType } from 'lib/types/message-types';
 import { robotextForMessageInfo } from 'lib/shared/message-utils';
-
-function userIDsToRelativeUserInfos(
-  userIDs: string[],
-  viewerID: ?string,
-  userInfos: {[id: string]: UserInfo},
-): RelativeUserInfo[] {
-  const relativeUserInfos = [];
-  for (let userID of userIDs) {
-    if (!userInfos[userID]) {
-      continue;
-    }
-    if (userID === viewerID) {
-      relativeUserInfos.unshift({
-        id: userID,
-        username: userInfos[userID].username,
-        isViewer: true,
-      });
-    } else {
-      relativeUserInfos.push({
-        id: userID,
-        username: userInfos[userID].username,
-        isViewer: false,
-      });
-    }
-  }
-  return relativeUserInfos;
-}
+import { userIDsToRelativeUserInfos } from 'lib/selectors/user-selectors';
 
 function createMessageInfo(
   rawMessageInfo: RawMessageInfo,
