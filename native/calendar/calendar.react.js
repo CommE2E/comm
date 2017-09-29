@@ -76,6 +76,20 @@ type CalendarItemWithHeight =
     itemType: "footer",
     dateString: string,
   };
+type ExtraData = {
+  focusedEntries: {[key: string]: bool},
+  visibleEntries: {[key: string]: bool},
+};
+
+// This is v sad :(
+// Overall, I have to say, this component is probably filled with more sadness
+// than any other component in this project. This owes mostly to its complex
+// infinite-scrolling behavior.
+// But not this particular piece of sadness, actually. We have to cache the
+// current InnerCalendar ref here so we can access it from the statically
+// defined navigationOptions.tabBarOnPress below.
+const currentCalendarRef: ?InnerCalendar = null;
+
 type Props = {
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
@@ -91,10 +105,6 @@ type Props = {
   fetchEntriesWithRange: (
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
-};
-type ExtraData = {
-  focusedEntries: {[key: string]: bool},
-  visibleEntries: {[key: string]: bool},
 };
 type State = {
   textToMeasure: TextToMeasure[],
@@ -144,6 +154,16 @@ class InnerCalendar extends React.PureComponent {
         style={[styles.icon, { color: tintColor }]}
       />
     ),
+    tabBarOnPress: (
+      scene: { index: number, focused: bool },
+      jumpToIndex: (index: number) => void,
+    ) => {
+      if (scene.focused) {
+        currentCalendarRef.scrollToToday();
+      } else {
+        jumpToIndex(scene.index);
+      }
+    },
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?Map<string, number> = null;
@@ -183,6 +203,7 @@ class InnerCalendar extends React.PureComponent {
       extraData: this.latestExtraData,
       scrollToOffsetAfterSuppressingKeyboardDismissal: null,
     };
+    currentCalendarRef = this;
   }
 
   static textToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
