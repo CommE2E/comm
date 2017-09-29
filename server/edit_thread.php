@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 require_once('user_lib.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -22,12 +23,15 @@ if (!isset($_POST['thread'])) {
 $user = get_viewer_id();
 $thread = (int)$_POST['thread'];
 
+$changed_fields = array();
 $changed_sql_fields = array();
 if (isset($_POST['name'])) {
+  $changed_fields['name'] = $_POST['name'];
   $changed_sql_fields['name'] =
     "'" . $conn->real_escape_string($_POST['name']) . "'";
 }
 if (isset($_POST['description'])) {
+  $changed_fields['description'] = $_POST['description'];
   $changed_sql_fields['description'] =
     "'" . $conn->real_escape_string($_POST['description']) . "'";
 }
@@ -38,9 +42,13 @@ if (isset($_POST['color'])) {
       'error' => 'invalid_parameters',
     ));
   }
+  $changed_fields['color'] = $color;
   $changed_sql_fields['color'] = "'" . $color . "'";
 }
 if (isset($_POST['edit_rules'])) {
+  // We don't update $changed_fields here because we haven't figured out how we
+  // want roles to work with the app yet, and there's no exposed way to change
+  // the edit rules from the app yet.
   $changed_sql_fields['edit_rules'] = (int)$_POST['edit_rules'];
 }
 
@@ -52,12 +60,19 @@ if (isset($_POST['new_password'])) {
       'error' => 'empty_password',
     ));
   }
+  // We don't update $changed_fields here because we don't have
+  // password-protected threads in the app yet, and I'm probably gonna remove
+  // that feature from the website altogether.
   $changed_sql_fields['hash'] =
     "'" . password_hash($new_password, PASSWORD_BCRYPT) . "'";
 }
 
 $parent_thread_id = null;
 if (isset($_POST['parent_thread_id'])) {
+  // We haven't really figured out how to handle this sort of thing well yet
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
   $parent_thread_id = (int)$_POST['parent_thread_id'];
   if (!viewer_can_edit_thread($parent_thread_id)) {
     async_end(array(
@@ -90,6 +105,7 @@ if (isset($_POST['visibility_rules'])) {
     $changed_sql_fields['hash'] = "NULL";
   }
   $changed_sql_fields['visibility_rules'] = $vis_rules;
+  $changed_fields['visibility_rules'] = $vis_rules;
 }
 
 $add_member_ids = isset($_POST['add_member_ids'])
@@ -216,6 +232,34 @@ if ($changed_sql_fields) {
   $conn->query("UPDATE threads SET {$sql_set_string} WHERE id = {$thread}");
 }
 
+$time = round(microtime(true) * 1000); // in milliseconds
+$message_infos = array();
+foreach ($changed_fields as $field_name => $new_value) {
+  $message_infos[] = array(
+    'type' => MESSAGE_TYPE_CHANGE_SETTINGS,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)$user,
+    'time' => $time,
+    'field' => $field_name,
+    'value' => $new_value,
+  );
+}
+if ($add_member_ids) {
+  $message_infos[] = array(
+    'type' => MESSAGE_TYPE_ADD_USERS,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)$user,
+    'time' => $time,
+    'addedUserIDs' => array_map("strval", $add_member_ids),
+  );
+}
+$new_message_infos = create_message_infos($message_infos);
+if ($new_message_infos === null) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
+}
+
 // If we're switching from NESTED_OPEN to THREAD_SECRET, all of our NESTED_OPEN
 // descendants need to be updated to have us as their concrete ancestor thread
 if (
@@ -289,4 +333,5 @@ create_user_roles($roles_to_save);
 
 async_end(array(
   'success' => true,
+  'new_message_infos' => $new_message_infos,
 ));
