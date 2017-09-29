@@ -88,7 +88,7 @@ type ExtraData = {
 // But not this particular piece of sadness, actually. We have to cache the
 // current InnerCalendar ref here so we can access it from the statically
 // defined navigationOptions.tabBarOnPress below.
-const currentCalendarRef: ?InnerCalendar = null;
+let currentCalendarRef: ?InnerCalendar = null;
 
 type Props = {
   // Redux state
@@ -158,7 +158,7 @@ class InnerCalendar extends React.PureComponent {
       scene: { index: number, focused: bool },
       jumpToIndex: (index: number) => void,
     ) => {
-      if (scene.focused) {
+      if (scene.focused && currentCalendarRef) {
         currentCalendarRef.scrollToToday();
       } else {
         jumpToIndex(scene.index);
