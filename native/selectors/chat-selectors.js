@@ -112,6 +112,20 @@ function createMessageInfo(
       time: rawMessageInfo.time,
       childThreadInfo: threadInfos[rawMessageInfo.childThreadID],
     };
+  } else if (rawMessageInfo.type === messageType.CHANGE_SETTINGS) {
+    return {
+      type: messageType.CHANGE_SETTINGS,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
+      time: rawMessageInfo.time,
+      field: rawMessageInfo.field,
+      value: rawMessageInfo.value,
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
