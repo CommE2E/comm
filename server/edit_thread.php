@@ -14,14 +14,13 @@ if (!user_logged_in()) {
   ));
 }
 
-if (!isset($_POST['thread']) || !isset($_POST['personal_password'])) {
+if (!isset($_POST['thread'])) {
   async_end(array(
     'error' => 'invalid_parameters',
   ));
 }
 $user = get_viewer_id();
 $thread = (int)$_POST['thread'];
-$personal_password = $_POST['personal_password'];
 
 $changed_sql_fields = array();
 if (isset($_POST['name'])) {
@@ -122,7 +121,18 @@ if (!$row || $row['visibility_rules'] === null) {
     'error' => 'internal_error',
   ));
 }
-if (!password_verify($personal_password, $row['hash'])) {
+if (
+  (
+    isset($changed_sql_fields['edit_rules']) ||
+    isset($changed_sql_fields['hash']) ||
+    isset($changed_sql_fields['parent_thread_id']) ||
+    isset($changed_sql_fields['visibility_rules'])
+  ) &&
+  (
+    !isset($_POST['personal_password']) ||
+    !password_verify($_POST['personal_password'], $row['hash'])
+  )
+) {
   async_end(array(
     'error' => 'invalid_credentials',
   ));
