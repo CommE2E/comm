@@ -129,7 +129,7 @@ VALUES ({$message_id}, {$id}, {$creator},
 SQL;
 $conn->query($message_insert_query);
 
-$creation_message_infos = array(array(
+$new_message_infos = array(array(
   'type' => MESSAGE_TYPE_CREATE_THREAD,
   'id' => (string)$message_id,
   'threadID' => (string)$id,
@@ -148,7 +148,7 @@ VALUES ({$parent_message_id}, {$parent_thread_id}, {$creator},
   {$message_type_create_sub_thread}, '{$id}', {$time})
 SQL;
   $conn->query($parent_message_insert_query);
-  $creation_message_infos[] = array(
+  $new_message_infos[] = array(
     'type' => MESSAGE_TYPE_CREATE_SUB_THREAD,
     'id' => (string)$parent_message_id,
     'threadID' => (string)$parent_thread_id,
@@ -210,5 +210,5 @@ async_end(array(
       : null,
     'memberIDs' => $member_ids,
   ),
-  'creation_message_infos' => $creation_message_infos,
+  'new_message_infos' => $new_message_infos,
 ));
