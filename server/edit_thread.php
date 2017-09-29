@@ -22,6 +22,11 @@ if (!isset($_POST['thread'])) {
 }
 $user = get_viewer_id();
 $thread = (int)$_POST['thread'];
+if (!viewer_can_edit_thread($thread)) {
+  async_end(array(
+    'error' => 'invalid_credentials',
+  ));
+}
 
 $changed_fields = array();
 $changed_sql_fields = array();
@@ -122,19 +127,34 @@ if (!$changed_sql_fields && !$add_member_ids) {
 // - get hash for viewer password check (users table)
 // - figures out if the thread requires auth (threads table)
 // - makes sure that viewer has the necessary permissions (roles table)
-$role_creator = ROLE_CREATOR;
 $query = <<<SQL
-SELECT t.visibility_rules, u.hash, t.parent_thread_id
-FROM roles r
-LEFT JOIN users u ON u.id = r.user
-LEFT JOIN threads t ON t.id = r.thread
-WHERE r.thread = {$thread} AND r.user = {$user} AND r.role >= {$role_creator}
+SELECT t.visibility_rules, u.hash, t.parent_thread_id, r.role
+FROM users u
+LEFT JOIN threads t ON t.id = {$thread}
+LEFT JOIN roles r ON r.user = u.id AND t.id
+WHERE u.id = {$user}
 SQL;
 $result = $conn->query($query);
 $row = $result->fetch_assoc();
 if (!$row || $row['visibility_rules'] === null) {
   async_end(array(
     'error' => 'internal_error',
+  ));
+}
+if (
+  (
+    isset($changed_sql_fields['name']) ||
+    isset($changed_sql_fields['description']) ||
+    isset($changed_sql_fields['color']) ||
+    isset($changed_sql_fields['edit_rules']) ||
+    isset($changed_sql_fields['hash']) ||
+    isset($changed_sql_fields['parent_thread_id']) ||
+    isset($changed_sql_fields['visibility_rules'])
+  ) &&
+  (int)$row['role'] < ROLE_CREATOR
+) {
+  async_end(array(
+    'error' => 'invalid_credentials',
   ));
 }
 if (
