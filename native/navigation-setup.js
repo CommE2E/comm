@@ -157,7 +157,7 @@ const defaultNavigationState = {
     {
       key: 'App',
       routeName: AppRouteName,
-      index: 0,
+      index: 1,
       routes: [
         { key: 'Calendar', routeName: CalendarRouteName },
         {
