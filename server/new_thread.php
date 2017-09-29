@@ -111,51 +111,33 @@ $initial_member_ids = isset($_POST['initial_member_ids'])
   ? verify_user_ids($_POST['initial_member_ids'])
   : array();
 
-$conn->query("INSERT INTO ids(table_name) VALUES('messages')");
-$message_id = $conn->insert_id;
-$message_type_create_thread = MESSAGE_TYPE_CREATE_THREAD;
-$payload = array(
-  "name" => $raw_name,
-  "parentThreadID" => $parent_thread_id ? (string)$parent_thread_id : null,
-  "visibilityRules" => $vis_rules,
-  "color" => $color,
-  "memberIDs" => array_map("strval", $initial_member_ids),
-);
-$encoded_payload = $conn->real_escape_string(json_encode($payload));
-$message_insert_query = <<<SQL
-INSERT INTO messages(id, thread, user, type, content, time)
-VALUES ({$message_id}, {$id}, {$creator},
-  {$message_type_create_thread}, '{$encoded_payload}', {$time})
-SQL;
-$conn->query($message_insert_query);
-
-$new_message_infos = array(array(
+$message_infos = array(array(
   'type' => MESSAGE_TYPE_CREATE_THREAD,
-  'id' => (string)$message_id,
   'threadID' => (string)$id,
   'creatorID' => (string)$creator,
   'time' => $time,
-  'initialThreadState' => $payload,
+  'initialThreadState' => array(
+    'name' => $raw_name,
+    'parentThreadID' => $parent_thread_id ? (string)$parent_thread_id : null,
+    'visibilityRules' => $vis_rules,
+    'color' => $color,
+    'memberIDs' => array_map("strval", $initial_member_ids),
+  ),
 ));
-
 if ($parent_thread_id) {
-  $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
-  $parent_message_id = $conn->insert_id;
-  $message_type_create_sub_thread = MESSAGE_TYPE_CREATE_THREAD;
-  $parent_message_insert_query = <<<SQL
-INSERT INTO messages(id, thread, user, type, content, time)
-VALUES ({$parent_message_id}, {$parent_thread_id}, {$creator},
-  {$message_type_create_sub_thread}, '{$id}', {$time})
-SQL;
-  $conn->query($parent_message_insert_query);
-  $new_message_infos[] = array(
+  $message_infos[] = array(
     'type' => MESSAGE_TYPE_CREATE_SUB_THREAD,
-    'id' => (string)$parent_message_id,
     'threadID' => (string)$parent_thread_id,
     'creatorID' => (string)$creator,
     'time' => $time,
     'childThreadID' => (string)$id,
   );
+}
+$new_message_infos = create_message_infos($message_infos);
+if ($new_message_infos === null) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
 }
 
 $roles_to_save = array(array(

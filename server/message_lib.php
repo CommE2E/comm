@@ -271,3 +271,56 @@ SQL;
   }
   return $users;
 }
+
+// returns message infos with IDs on success, and null on failure
+// only fails if passed a message type it doesn't recognize
+function create_message_infos($new_message_infos) {
+  global $conn;
+
+  if (!$new_message_infos) {
+    return array();
+  }
+
+  $content_by_index = array();
+  foreach ($new_message_infos as $index => $new_message_info) {
+    if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
+      $content_by_index[$index] = $conn->real_escape_string(
+        json_encode($new_message_info['initialThreadState'])
+      );
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_SUB_THREAD) {
+      $content_by_index[$index] = $new_message_info['childThreadID'];
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_TEXT) {
+      $content_by_index[$index] = $conn->real_escape_string(
+        $new_message_info['text']
+      );
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_ADD_USERS) {
+      $content_by_index[$index] = $conn->real_escape_string(
+        json_encode($new_message_info['addedUserIDs'])
+      );
+    } else {
+      return null;
+    }
+  }
+
+  $values = array();
+  $return = array();
+  foreach ($new_message_infos as $index => $new_message_info) {
+    $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
+    $new_message_info['id'] = (string)$conn->insert_id;
+    $values[] = <<<SQL
+({$new_message_info['id']}, {$new_message_info['threadID']},
+  {$new_message_info['creatorID']}, {$new_message_info['type']},
+  '{$content_by_index[$index]}', {$new_message_info['time']})
+SQL;
+    $return[$index] = $new_message_info;
+  }
+
+  $all_values = implode(", ", $values);
+  $message_insert_query = <<<SQL
+INSERT INTO messages(id, thread, user, type, content, time)
+VALUES {$all_values}
+SQL;
+  $conn->query($message_insert_query);
+
+  return $return;
+}

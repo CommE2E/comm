@@ -13,7 +13,6 @@ if (!isset($_POST['thread']) || !isset($_POST['text'])) {
   ));
 }
 $thread = (int)$_POST['thread'];
-$text = $conn->real_escape_string($_POST['text']);
 
 $can_edit = viewer_can_edit_thread($thread);
 if ($can_edit === null) {
@@ -27,23 +26,21 @@ if (!$can_edit) {
   ));
 }
 
-$viewer_id = get_viewer_id();
-$time = round(microtime(true) * 1000); // in milliseconds
-
-$conn->query("INSERT INTO ids(table_name) VALUES('messages')");
-$id = $conn->insert_id;
-$message_type_text = MESSAGE_TYPE_TEXT;
-$insert_query = <<<SQL
-INSERT INTO messages(id, thread, user, type, content, time)
-VALUES ({$id}, {$thread}, {$viewer_id},
-  {$message_type_text}, '{$text}', {$time})
-SQL;
-$conn->query($insert_query);
+$message_info = array(
+  'type' => MESSAGE_TYPE_TEXT,
+  'threadID' => (string)$thread,
+  'creatorID' => (string)get_viewer_id(),
+  'time' => round(microtime(true) * 1000), // in milliseconds
+  'text' => $_POST['text'],
+);
+$new_message_infos = create_message_infos(array($message_info));
+if ($new_message_infos === null) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
+}
 
 async_end(array(
   'success' => true,
-  'result' => array(
-    'id' => (string)$id,
-    'time' => $time,
-  ),
+  'new_message_infos' => $new_message_infos,
 ));
