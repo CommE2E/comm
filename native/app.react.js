@@ -22,6 +22,8 @@ import {
   UIManager,
   AppState as NativeAppState,
   Linking,
+  View,
+  StyleSheet,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
@@ -39,6 +41,7 @@ import { RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
+import ConnectedStatusBar from './connected-status-bar.react';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -197,10 +200,21 @@ class AppWithNavigationState extends React.PureComponent {
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
     });
-    return <RootNavigator navigation={navigation} />;
+    return (
+      <View style={styles.app}>
+        <RootNavigator navigation={navigation} />
+        <ConnectedStatusBar />
+      </View>
+    );
   }
 
 }
+
+const styles = StyleSheet.create({
+  app: {
+    flex: 1,
+  },
+});
 
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
