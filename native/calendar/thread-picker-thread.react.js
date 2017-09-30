@@ -29,7 +29,6 @@ class ThreadPickerThread extends React.PureComponent {
     return (
       <Button
         onPress={this.onPress}
-        androidBorderlessRipple={true}
         iosFormat="highlight"
         iosActiveOpacity={0.85}
       >

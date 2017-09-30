@@ -50,6 +50,7 @@ import {
 } from 'lib/utils/action-utils';
 import { simpleNavID } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import Modal from 'react-native-modal';
 
 import Entry from './entry.react';
 import { contentVerticalOffset, windowHeight } from '../dimensions';
@@ -661,15 +662,6 @@ class InnerCalendar extends React.PureComponent {
         </View>
       );
     }
-    let picker = null;
-    if (this.state.pickerOpenForDateString) {
-      picker = (
-        <ThreadPicker
-          dateString={this.state.pickerOpenForDateString}
-          close={this.closePicker}
-        />
-      );
-    }
     return (
       <View style={styles.container}>
         <ConnectedStatusBar />
@@ -680,7 +672,16 @@ class InnerCalendar extends React.PureComponent {
         />
         {loadingIndicator}
         {flatList}
-        {picker}
+        <Modal
+          isVisible={!!this.state.pickerOpenForDateString}
+          onBackButtonPress={this.closePicker}
+          onBackdropPress={this.closePicker}
+        >
+          <ThreadPicker
+            dateString={this.state.pickerOpenForDateString}
+            close={this.closePicker}
+          />
+        </Modal>
       </View>
     );
   }

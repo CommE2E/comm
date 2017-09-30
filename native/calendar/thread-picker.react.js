@@ -11,7 +11,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableWithoutFeedback,
   FlatList,
   TouchableHighlight,
 } from 'react-native';
@@ -31,7 +30,7 @@ import ThreadPickerThread from './thread-picker-thread.react';
 class ThreadPicker extends React.PureComponent {
 
   props: {
-    dateString: string,
+    dateString: ?string,
     close: () => void,
     // Redux state
     onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
@@ -40,7 +39,7 @@ class ThreadPicker extends React.PureComponent {
     dispatchActionPayload: DispatchActionPayload,
   };
   static propTypes = {
-    dateString: PropTypes.string.isRequired,
+    dateString: PropTypes.string,
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     viewerID: PropTypes.string.isRequired,
@@ -49,37 +48,32 @@ class ThreadPicker extends React.PureComponent {
 
   render() {
     return (
-      <View style={styles.background}>
-        <TouchableWithoutFeedback onPress={this.props.close}>
-          <View style={styles.container} />
-        </TouchableWithoutFeedback>
-        <View style={styles.picker}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>
-              Pick a thread
-            </Text>
-            <TouchableHighlight
-              onPress={this.props.close}
-              style={styles.closeButton}
-              underlayColor="#CCCCCCDD"
-            >
-              <Icon
-                name="close"
-                size={16}
-                color="#AAAAAA"
-                style={styles.closeButtonIcon}
-              />
-            </TouchableHighlight>
-          </View>
-          <FlatList
-            data={this.props.onScreenThreadInfos}
-            renderItem={this.renderItem}
-            keyExtractor={ThreadPicker.keyExtractor}
-            getItemLayout={ThreadPicker.getItemLayout}
-            ItemSeparatorComponent={ThreadPicker.itemSeperator}
-            style={styles.contents}
-          />
+      <View style={styles.picker}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>
+            Pick a thread
+          </Text>
+          <TouchableHighlight
+            onPress={this.props.close}
+            style={styles.closeButton}
+            underlayColor="#CCCCCCDD"
+          >
+            <Icon
+              name="close"
+              size={16}
+              color="#AAAAAA"
+              style={styles.closeButtonIcon}
+            />
+          </TouchableHighlight>
         </View>
+        <FlatList
+          data={this.props.onScreenThreadInfos}
+          renderItem={this.renderItem}
+          keyExtractor={ThreadPicker.keyExtractor}
+          getItemLayout={ThreadPicker.getItemLayout}
+          ItemSeparatorComponent={ThreadPicker.itemSeperator}
+          style={styles.contents}
+        />
       </View>
     );
   }
@@ -107,30 +101,17 @@ class ThreadPicker extends React.PureComponent {
 
   threadPicked = (threadID: string) => {
     this.props.close();
+    const dateString = this.props.dateString;
+    invariant(dateString, "should be set");
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
-      createLocalEntry(threadID, this.props.dateString, this.props.viewerID),
+      createLocalEntry(threadID, dateString, this.props.viewerID),
     );
   }
 
 }
 
 const styles = StyleSheet.create({
-  background: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#CCCCCCAA',
-  },
-  container: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
   picker: {
     flex: 1,
     marginLeft: 15,
