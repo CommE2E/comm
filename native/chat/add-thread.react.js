@@ -52,9 +52,10 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
+import { getUserSearchResults } from 'lib/shared/search-utils';
+
 import ColorPicker from '../components/color-picker.react';
 import ColorSplotch from '../components/color-splotch.react';
-
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import LinkButton from '../components/link-button.react';
@@ -132,50 +133,9 @@ class InnerAddThread extends React.PureComponent {
   mounted = false;
   nameInput: ?TextInput;
 
-  static getUserSearchResults(
-    text: string,
-    userInfos: {[id: string]: UserInfo},
-    searchIndex: SearchIndex,
-    userInfoInputArray: $ReadOnlyArray<UserInfo>,
-  ) {
-    const results = [];
-    const appendUserInfo = (userInfo: UserInfo) => {
-      const alreadyExists = InnerAddThread.inputArrayContainsUserID(
-        userInfoInputArray,
-        userInfo.id,
-      );
-      if (!alreadyExists) {
-        results.push(userInfo);
-      }
-    };
-    if (text === "") {
-      for (let id in userInfos) {
-        appendUserInfo(userInfos[id]);
-      }
-    } else {
-      const ids = searchIndex.getSearchResults(text);
-      for (let id of ids) {
-        appendUserInfo(userInfos[id]);
-      }
-    }
-    return results;
-  }
-
-  static inputArrayContainsUserID(
-    userInfoInputArray: $ReadOnlyArray<UserInfo>,
-    userID: string,
-  ) {
-    for (let existingUserInfo of userInfoInputArray) {
-      if (userID === existingUserInfo.id) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   constructor(props: Props) {
     super(props);
-    const userSearchResults = InnerAddThread.getUserSearchResults(
+    const userSearchResults = getUserSearchResults(
       "",
       props.otherUserInfos,
       props.userSearchIndex,
@@ -215,11 +175,11 @@ class InnerAddThread extends React.PureComponent {
       this.props.otherUserInfos !== nextProps.otherUserInfos ||
       this.props.userSearchIndex !== nextProps.userSearchIndex
     ) {
-      const userSearchResults = InnerAddThread.getUserSearchResults(
+      const userSearchResults = getUserSearchResults(
         this.state.usernameInputText,
         nextProps.otherUserInfos,
         nextProps.userSearchIndex,
-        this.state.userInfoInputArray,
+        this.state.userInfoInputArray.map(userInfo => userInfo.id),
       );
       this.setState({ userSearchResults });
     }
@@ -368,11 +328,11 @@ class InnerAddThread extends React.PureComponent {
   }
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<UserInfo>) => {
-    const userSearchResults = InnerAddThread.getUserSearchResults(
+    const userSearchResults = getUserSearchResults(
       this.state.usernameInputText,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      userInfoInputArray,
+      userInfoInputArray.map(userInfo => userInfo.id),
     );
     this.setState({ userInfoInputArray, userSearchResults });
   }
@@ -384,11 +344,11 @@ class InnerAddThread extends React.PureComponent {
   }
 
   setUsernameInputText = (text: string) => {
-    const userSearchResults = InnerAddThread.getUserSearchResults(
+    const userSearchResults = getUserSearchResults(
       text,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      this.state.userInfoInputArray,
+      this.state.userInfoInputArray.map(userInfo => userInfo.id),
     );
     this.searchUsers(text);
     this.setState({ usernameInputText: text, userSearchResults });
@@ -402,22 +362,20 @@ class InnerAddThread extends React.PureComponent {
   }
 
   onUserSelect = (userID: string) => {
-    const alreadyExists = InnerAddThread.inputArrayContainsUserID(
-      this.state.userInfoInputArray,
-      userID,
-    );
-    if (alreadyExists) {
-      return;
+    for (let existingUserInfo of this.state.userInfoInputArray) {
+      if (userID === existingUserInfo.id) {
+        return;
+      }
     }
     const userInfoInputArray = [
       ...this.state.userInfoInputArray,
       this.props.otherUserInfos[userID],
     ];
-    const userSearchResults = InnerAddThread.getUserSearchResults(
+    const userSearchResults = getUserSearchResults(
       "",
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      userInfoInputArray,
+      userInfoInputArray.map(userInfo => userInfo.id),
     );
     this.setState({
       userInfoInputArray,
