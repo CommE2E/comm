@@ -351,7 +351,7 @@ if ($add_member_ids && $next_vis_rules === VISIBILITY_NESTED_OPEN) {
 }
 create_user_roles($roles_to_save);
 
-$thread_infos = get_thread_infos("t.id = {$thread}");
+list($thread_infos, $thread_users) = get_thread_infos("t.id = {$thread}");
 
 async_end(array(
   'success' => true,
