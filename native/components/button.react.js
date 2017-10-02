@@ -39,7 +39,7 @@ class Button extends React.PureComponent {
     disabled: PropTypes.bool,
     style: ViewPropTypes.style,
     topStyle: ViewPropTypes.style,
-    children: PropTypes.object,
+    children: PropTypes.node,
     androidBorderlessRipple: PropTypes.bool,
     iosFormat: PropTypes.oneOf([
       "highlight",

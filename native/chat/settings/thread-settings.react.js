@@ -15,6 +15,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Modal from 'react-native-modal';
 
 import { visibilityRules } from 'lib/types/thread-types';
 import {
@@ -30,23 +31,27 @@ import {
   ThreadSettingsUser,
   ThreadSettingsAddUser,
 } from './thread-settings-members.react';
+import AddUsersModal from './add-users-modal.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
 
-type Props = {
+type Props = {|
   navigation: NavProp,
   // Redux state
   threadInfo: ThreadInfo,
   parentThreadInfo: ?ThreadInfo,
   threadMembers: RelativeUserInfo[],
-};
-type State = {
-};
+|};
+type State = {|
+  showAddUsersModal: bool,
+|};
 class InnerThreadSettings extends React.PureComponent {
 
   props: Props;
-  state: State;
+  state: State = {
+    showAddUsersModal: false,
+  };
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -115,49 +120,61 @@ class InnerThreadSettings extends React.PureComponent {
       );
     }).filter(x => x);
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <ThreadSettingsCategory type="full" title="Basics">
-          <View style={styles.row}>
-            <Text style={styles.label}>Name</Text>
-            <Text style={[styles.currentValue, styles.currentValueText]}>
-              {this.props.threadInfo.name}
-            </Text>
-            <EditSettingButton
-              onPress={this.onPressEditName}
-              canChangeSettings={this.props.threadInfo.canChangeSettings}
-            />
-          </View>
-          <View style={styles.colorRow}>
-            <Text style={[styles.label, styles.colorLine]}>Color</Text>
-            <View style={styles.currentValue}>
-              <ColorSplotch color={this.props.threadInfo.color} />
+      <View>
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <ThreadSettingsCategory type="full" title="Basics">
+            <View style={styles.row}>
+              <Text style={styles.label}>Name</Text>
+              <Text style={[styles.currentValue, styles.currentValueText]}>
+                {this.props.threadInfo.name}
+              </Text>
+              <EditSettingButton
+                onPress={this.onPressEditName}
+                canChangeSettings={this.props.threadInfo.canChangeSettings}
+              />
             </View>
-            <EditSettingButton
-              onPress={this.onPressEditColor}
-              canChangeSettings={this.props.threadInfo.canChangeSettings}
-              style={styles.colorLine}
-            />
-          </View>
-        </ThreadSettingsCategory>
-        <ThreadSettingsCategory type="full" title="Privacy">
-          <View style={styles.noPaddingRow}>
-            <Text style={[styles.label, styles.padding]}>Parent</Text>
-            {parent}
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Visibility</Text>
-            <Text style={[styles.currentValue, styles.currentValueText]}>
-              {visibility}
-            </Text>
-          </View>
-        </ThreadSettingsCategory>
-        <ThreadSettingsCategory type="unpadded" title="Members">
-          <View style={styles.members}>
-            <ThreadSettingsAddUser onPress={this.onPressAddUser} />
-            {members}
-          </View>
-        </ThreadSettingsCategory>
-      </ScrollView>
+            <View style={styles.colorRow}>
+              <Text style={[styles.label, styles.colorLine]}>Color</Text>
+              <View style={styles.currentValue}>
+                <ColorSplotch color={this.props.threadInfo.color} />
+              </View>
+              <EditSettingButton
+                onPress={this.onPressEditColor}
+                canChangeSettings={this.props.threadInfo.canChangeSettings}
+                style={styles.colorLine}
+              />
+            </View>
+          </ThreadSettingsCategory>
+          <ThreadSettingsCategory type="full" title="Privacy">
+            <View style={styles.noPaddingRow}>
+              <Text style={[styles.label, styles.padding]}>Parent</Text>
+              {parent}
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Visibility</Text>
+              <Text style={[styles.currentValue, styles.currentValueText]}>
+                {visibility}
+              </Text>
+            </View>
+          </ThreadSettingsCategory>
+          <ThreadSettingsCategory type="unpadded" title="Members">
+            <View style={styles.members}>
+              <ThreadSettingsAddUser onPress={this.onPressAddUser} />
+              {members}
+            </View>
+          </ThreadSettingsCategory>
+        </ScrollView>
+        <Modal
+          isVisible={this.state.showAddUsersModal}
+          onBackButtonPress={this.closeAddUsersModal}
+          onBackdropPress={this.closeAddUsersModal}
+        >
+          <AddUsersModal
+            threadInfo={this.props.threadInfo}
+            close={this.closeAddUsersModal}
+          />
+        </Modal>
+      </View>
     );
   }
 
@@ -175,6 +192,11 @@ class InnerThreadSettings extends React.PureComponent {
   }
 
   onPressAddUser = () => {
+    this.setState({ showAddUsersModal: true });
+  }
+
+  closeAddUsersModal = () => {
+    this.setState({ showAddUsersModal: false });
   }
 
 }
