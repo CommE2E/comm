@@ -33,7 +33,9 @@ const defaultProps = {
   tagColor: '#dddddd',
   tagTextColor: '#777777',
   inputColor: '#777777',
+  minHeight: 27,
   maxHeight: 75,
+  defaultInputWidth: 90,
 };
 
 const tagDataPropType = PropTypes.oneOfType([
@@ -63,10 +65,16 @@ type Props<TagData> = {
   inputProps?: $PropertyType<Text, 'props'>,
   // path of the label in tags objects
   labelExtractor?: (tagData: TagData) => string,
+  // minimum height of this component
+  minHeight: number,
   // maximum height of this component
   maxHeight: number,
   // callback that gets triggered when the component height changes
-  onHeightChange: ?(height: number) => void,
+  onHeightChange?: (height: number) => void,
+  // inputWidth if text === "". we want this number explicitly because if we're
+  // forced to measure the component, there can be a short jump between the old
+  // value and the new value, which looks sketchy.
+  defaultInputWidth: number,
 };
 type State = {
   inputWidth: number,
@@ -90,14 +98,13 @@ class TagInput<TagData> extends React.PureComponent<
     inputColor: PropTypes.string,
     inputProps: PropTypes.object,
     labelExtractor: PropTypes.func,
+    minHeight: PropTypes.number,
     maxHeight: PropTypes.number,
     onHeightChange: PropTypes.func,
+    defaultInputWidth: PropTypes.number,
   };
   props: Props<TagData>;
-  state: State = {
-    inputWidth: 90,
-    wrapperHeight: 36,
-  };
+  state: State;
   wrapperWidth = windowWidth;
   spaceLeft = 0;
   // scroll to bottom
@@ -109,9 +116,14 @@ class TagInput<TagData> extends React.PureComponent<
 
   static defaultProps = defaultProps;
 
-  static inputWidth(text: string, spaceLeft: number, wrapperWidth: number) {
+  static inputWidth(
+    text: string,
+    spaceLeft: number,
+    wrapperWidth: number,
+    defaultInputWidth: number,
+  ) {
     if (text === "") {
-      return 90;
+      return defaultInputWidth;
     } else if (spaceLeft >= 100) {
       return spaceLeft - 10;
     } else {
@@ -119,18 +131,30 @@ class TagInput<TagData> extends React.PureComponent<
     }
   }
 
+  constructor(props: Props<TagData>) {
+    super(props);
+    this.state = {
+      inputWidth: props.defaultInputWidth,
+      wrapperHeight: 36,
+    };
+  }
+
   componentWillReceiveProps(nextProps: Props<TagData>) {
     const inputWidth = TagInput.inputWidth(
       nextProps.text,
       this.spaceLeft,
       this.wrapperWidth,
+      nextProps.defaultInputWidth,
     );
     if (inputWidth !== this.state.inputWidth) {
       this.setState({ inputWidth });
     }
-    const wrapperHeight = Math.min(
-      nextProps.maxHeight,
-      this.contentHeight,
+    const wrapperHeight = Math.max(
+      Math.min(
+        nextProps.maxHeight,
+        this.contentHeight,
+      ),
+      nextProps.minHeight,
     );
     if (wrapperHeight !== this.state.wrapperHeight) {
       this.setState({ wrapperHeight });
@@ -152,6 +176,7 @@ class TagInput<TagData> extends React.PureComponent<
       this.props.text,
       this.spaceLeft,
       this.wrapperWidth,
+      this.props.defaultInputWidth,
     );
     if (inputWidth !== this.state.inputWidth) {
       this.setState({ inputWidth });
@@ -276,7 +301,10 @@ class TagInput<TagData> extends React.PureComponent<
     if (this.contentHeight === h) {
       return;
     }
-    const nextWrapperHeight = Math.min(this.props.maxHeight, h);
+    const nextWrapperHeight = Math.max(
+      Math.min(this.props.maxHeight, h),
+      this.props.minHeight,
+    );
     if (nextWrapperHeight !== this.state.wrapperHeight) {
       this.setState(
         { wrapperHeight: nextWrapperHeight },
@@ -301,6 +329,7 @@ class TagInput<TagData> extends React.PureComponent<
       this.props.text,
       this.spaceLeft,
       this.wrapperWidth,
+      this.props.defaultInputWidth,
     );
     if (inputWidth !== this.state.inputWidth) {
       this.setState({ inputWidth });
