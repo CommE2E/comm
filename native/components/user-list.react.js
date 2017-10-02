@@ -5,10 +5,7 @@ import { userInfoPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FlatList,
-  StyleSheet,
-} from 'react-native';
+import { FlatList } from 'react-native';
 
 import UserListUser from './user-list-user.react';
 
@@ -31,7 +28,6 @@ class UserList extends React.PureComponent {
         keyExtractor={UserList.keyExtractor}
         getItemLayout={UserList.getItemLayout}
         keyboardShouldPersistTaps="handled"
-        style={styles.flatList}
       />
     );
   }
@@ -54,12 +50,5 @@ class UserList extends React.PureComponent {
   }
 
 }
-
-const styles = StyleSheet.create({
-  flatList: {
-    marginLeft: 88,
-    marginRight: 12,
-  },
-});
 
 export default UserList;

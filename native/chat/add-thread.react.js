@@ -7,6 +7,7 @@ import type {
 } from 'react-navigation/src/TypeDefinition';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { ThreadInfo, VisibilityRules } from 'lib/types/thread-types';
 import { threadInfoPropType, visibilityRules } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
@@ -53,6 +54,7 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import ColorPicker from '../components/color-picker.react';
 import ColorSplotch from '../components/color-splotch.react';
@@ -110,7 +112,7 @@ class InnerAddThread extends React.PureComponent {
       goBack: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
     }).isRequired,
-    loadingStatus: PropTypes.string.isRequired,
+    loadingStatus: loadingStatusPropType.isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -299,10 +301,12 @@ class InnerAddThread extends React.PureComponent {
             />
           </View>
         </View>
-        <UserList
-          userInfos={this.state.userSearchResults}
-          onSelect={this.onUserSelect}
-        />
+        <View style={styles.userList}>
+          <UserList
+            userInfos={this.state.userSearchResults}
+            onSelect={this.onUserSelect}
+          />
+        </View>
         {colorPicker}
       </View>
     );
@@ -572,12 +576,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 3,
   },
+  userList: {
+    marginLeft: 88,
+    marginRight: 12,
+  },
 });
 
 const AddThreadRouteName = 'AddThread';
 
 const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
+registerFetchKey(searchUsersActionTypes);
 
 const AddThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
