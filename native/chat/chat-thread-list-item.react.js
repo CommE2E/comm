@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
 import MessagePreview from './message-preview.react';
+import ColorSplotch from '../components/color-splotch.react';
 
 class ChatThreadListItem extends React.PureComponent {
 
@@ -37,9 +38,6 @@ class ChatThreadListItem extends React.PureComponent {
   }
 
   render() {
-    const colorSplotchStyle = {
-      backgroundColor: `#${this.props.data.threadInfo.color}`,
-    };
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     return (
       <Button
@@ -54,7 +52,12 @@ class ChatThreadListItem extends React.PureComponent {
             <Text style={styles.threadName} numberOfLines={1}>
               {this.props.data.threadInfo.name}
             </Text>
-            <View style={[styles.colorSplotch, colorSplotchStyle]} />
+            <View style={styles.colorSplotch}>
+              <ColorSplotch
+                color={this.props.data.threadInfo.color}
+                size="small"
+              />
+            </View>
           </View>
           <View style={styles.row}>
             {this.lastMessage()}
@@ -90,11 +93,7 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   colorSplotch: {
-    height: 18,
-    width: 18,
     marginTop: 2,
-    justifyContent: 'flex-end',
-    borderRadius: 5,
     marginLeft: 10,
   },
   noMessages: {

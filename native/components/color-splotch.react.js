@@ -5,23 +5,30 @@ import { View, StyleSheet } from 'react-native';
 
 type Props = {
   color: string,
+  size?: "large" | "small",
 };
 function ColorSplotch(props: Props) {
-  const style = {
-    backgroundColor: `#${props.color}`,
-  };
-  return (
-    <View style={[styles.colorSplotch, style]} />
-  );
+  const style = [
+    styles.splotch,
+    props.size === "small"
+      ? styles.small
+      : styles.large,
+    { backgroundColor: `#${props.color}` },
+  ];
+  return <View style={style} />;
 }
 
 const styles = StyleSheet.create({
-  colorSplotch: {
+  splotch: {
+    borderRadius: 5,
+  },
+  small: {
+    height: 18,
+    width: 18,
+  },
+  large: {
     height: 25,
     width: 25,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#777777',
   },
 });
 
