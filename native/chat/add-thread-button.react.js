@@ -17,7 +17,7 @@ class AddThreadButton extends React.PureComponent {
     navigate: (
       routeName: string,
       params?: NavigationParams,
-    ) => boolean,
+    ) => bool,
   };
   static propTypes = {
     parentThreadID: PropTypes.string,

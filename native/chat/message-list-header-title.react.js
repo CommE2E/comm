@@ -20,7 +20,7 @@ class MessageListHeaderTitle extends React.PureComponent {
     navigate: (
       routeName: string,
       params?: NavigationParams,
-    ) => boolean,
+    ) => bool,
     sceneKey: string,
     onWidthChange: (key: string, width: number) => void,
   };

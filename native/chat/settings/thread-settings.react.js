@@ -21,6 +21,7 @@ import { visibilityRules } from 'lib/types/thread-types';
 import {
   relativeUserInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors';
+import { childThreadInfos } from 'lib/selectors/thread-selectors';
 
 import ThreadSettingsCategory from './thread-settings-category.react';
 import ColorSplotch from '../../components/color-splotch.react';
@@ -30,6 +31,8 @@ import { MessageListRouteName } from '../message-list.react';
 import ThreadSettingsUser from './thread-settings-user.react';
 import ThreadSettingsAddListItem from './thread-settings-add-list-item.react';
 import AddUsersModal from './add-users-modal.react';
+import ThreadSettingsChildThread from './thread-settings-child-thread.react';
+import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
@@ -41,6 +44,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   parentThreadInfo: ?ThreadInfo,
   threadMembers: RelativeUserInfo[],
+  childThreadInfos: ?ThreadInfo[],
 |};
 type State = {|
   showAddUsersModal: bool,
@@ -65,6 +69,7 @@ class InnerThreadSettings extends React.PureComponent {
     threadInfo: threadInfoPropType.isRequired,
     parentThreadInfo: threadInfoPropType,
     threadMembers: PropTypes.arrayOf(relativeUserInfoPropType).isRequired,
+    childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
@@ -88,7 +93,10 @@ class InnerThreadSettings extends React.PureComponent {
           onPress={this.onPressParentThread}
           style={[styles.currentValue, styles.padding]}
         >
-          <Text style={[styles.currentValueText, styles.parentThreadLink]}>
+          <Text
+            style={[styles.currentValueText, styles.parentThreadLink]}
+            numberOfLines={1}
+          >
             {this.props.parentThreadInfo.name}
           </Text>
         </Button>
@@ -111,7 +119,7 @@ class InnerThreadSettings extends React.PureComponent {
       visRules === visibilityRules.CHAT_NESTED_OPEN
         ? "Public"
         : "Secret";
-    const members = this.props.threadMembers.map((userInfo) => {
+    const members = this.props.threadMembers.map(userInfo => {
       if (!userInfo.username) {
         return null;
       }
@@ -121,7 +129,7 @@ class InnerThreadSettings extends React.PureComponent {
         isViewer: userInfo.isViewer,
       };
       return (
-        <View style={styles.userRow} key={userInfo.id}>
+        <View style={styles.itemRow} key={userInfo.id}>
           <ThreadSettingsUser
             userInfo={userInfoWithUsername}
             threadInfo={this.props.threadInfo}
@@ -129,6 +137,19 @@ class InnerThreadSettings extends React.PureComponent {
         </View>
       );
     }).filter(x => x);
+    let childThreads = null;
+    if (this.props.childThreadInfos) {
+      childThreads = this.props.childThreadInfos.map(threadInfo => {
+        return (
+          <View style={styles.itemRow} key={threadInfo.id}>
+            <ThreadSettingsChildThread
+              threadInfo={threadInfo}
+              navigate={this.props.navigation.navigate}
+            />
+          </View>
+        );
+      });
+    }
     return (
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -165,6 +186,15 @@ class InnerThreadSettings extends React.PureComponent {
               <Text style={[styles.currentValue, styles.currentValueText]}>
                 {visibility}
               </Text>
+            </View>
+          </ThreadSettingsCategory>
+          <ThreadSettingsCategory type="unpadded" title="Child threads">
+            <View style={styles.itemList}>
+              <ThreadSettingsAddListItem
+                onPress={this.onPressAddChildThread}
+                text="Add child thread"
+              />
+              {childThreads}
             </View>
           </ThreadSettingsCategory>
           <ThreadSettingsCategory type="unpadded" title="Members">
@@ -208,6 +238,13 @@ class InnerThreadSettings extends React.PureComponent {
     this.setState({ showAddUsersModal: true });
   }
 
+  onPressAddChildThread = () => {
+    this.props.navigation.navigate(
+      AddThreadRouteName,
+      { parentThreadID: this.props.threadInfo.id },
+    );
+  }
+
   closeAddUsersModal = () => {
     this.setState({ showAddUsersModal: false });
   }
@@ -246,10 +283,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingLeft: 4,
   },
-  userRow: {
+  itemRow: {
     flex: 1,
     flexDirection: 'row',
-    paddingHorizontal: 12,
     marginHorizontal: 12,
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
@@ -282,6 +318,7 @@ const ThreadSettings = connect(
         : null,
       threadMembers:
         relativeUserInfoSelectorForMembersOfThread(threadInfo.id)(state),
+      childThreadInfos: childThreadInfos(state)[threadInfo.id],
     };
   },
 )(InnerThreadSettings);

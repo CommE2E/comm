@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     paddingVertical: 8,
-    justifyContent: 'center',
+    paddingHorizontal: 12,
   },
   username: {
     flex: 1,
