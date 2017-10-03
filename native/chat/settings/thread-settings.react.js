@@ -30,6 +30,7 @@ import { MessageListRouteName } from '../message-list.react';
 import ThreadSettingsUser from './thread-settings-user.react';
 import ThreadSettingsAddListItem from './thread-settings-add-list-item.react';
 import AddUsersModal from './add-users-modal.react';
+import { registerChatScreen } from '../chat-screen-registry';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -53,6 +54,7 @@ class InnerThreadSettings extends React.PureComponent {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           threadInfo: threadInfoPropType.isRequired,
         }).isRequired,
@@ -67,6 +69,16 @@ class InnerThreadSettings extends React.PureComponent {
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
   });
+
+  componentDidMount() {
+    registerChatScreen(this.props.navigation.state.key, this);
+  }
+
+  componentWillUnmount() {
+    registerChatScreen(this.props.navigation.state.key, null);
+  }
+
+  canReset = () => false;
 
   render() {
     let parent;

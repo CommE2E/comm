@@ -21,6 +21,7 @@ import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
 import AddThreadButton from './add-thread-button.react';
+import { registerChatScreen } from './chat-screen-registry';
 
 class InnerChatThreadList extends React.PureComponent {
 
@@ -32,6 +33,9 @@ class InnerChatThreadList extends React.PureComponent {
   };
   static propTypes = {
     navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
+      }).isRequired,
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
@@ -41,6 +45,16 @@ class InnerChatThreadList extends React.PureComponent {
     title: 'Threads',
     headerRight: <AddThreadButton navigate={navigation.navigate} />,
   });
+
+  componentDidMount() {
+    registerChatScreen(this.props.navigation.state.key, this);
+  }
+
+  componentWillUnmount() {
+    registerChatScreen(this.props.navigation.state.key, null);
+  }
+
+  canReset = () => false;
 
   renderItem = (row: { item: ChatThreadItem }) => {
     return (

@@ -58,6 +58,7 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 import AddThreadButton from './add-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageListHeader from './message-list-header.react';
+import { registerChatScreen } from './chat-screen-registry';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -121,6 +122,7 @@ class InnerMessageList extends React.PureComponent {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           threadInfo: threadInfoPropType.isRequired,
         }).isRequired,
@@ -171,6 +173,16 @@ class InnerMessageList extends React.PureComponent {
       focusedMessageKey: null,
     };
   }
+
+  componentDidMount() {
+    registerChatScreen(this.props.navigation.state.key, this);
+  }
+
+  componentWillUnmount() {
+    registerChatScreen(this.props.navigation.state.key, null);
+  }
+
+  canReset = () => true;
 
   static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];

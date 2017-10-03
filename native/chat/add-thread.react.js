@@ -62,6 +62,7 @@ import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
+import { registerChatScreen } from './chat-screen-registry';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { parentThreadID: ?string } } };
@@ -104,6 +105,7 @@ class InnerAddThread extends React.PureComponent {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           parentThreadID: PropTypes.string,
         }).isRequired,
@@ -159,6 +161,7 @@ class InnerAddThread extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
+    registerChatScreen(this.props.navigation.state.key, this);
     this.searchUsers("");
     this.props.navigation.setParams({
       onPressCreateThread: this.onPressCreateThread,
@@ -167,7 +170,10 @@ class InnerAddThread extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
+    registerChatScreen(this.props.navigation.state.key, null);
   }
+
+  canReset = () => false;
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.mounted) {
