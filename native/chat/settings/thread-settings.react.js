@@ -29,11 +29,13 @@ import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../message-list.react';
 import ThreadSettingsUser from './thread-settings-user.react';
-import ThreadSettingsAddListItem from './thread-settings-add-list-item.react';
+import ThreadSettingsListAction from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
+
+const itemPageLength = 5;
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -48,12 +50,16 @@ type Props = {|
 |};
 type State = {|
   showAddUsersModal: bool,
+  showMaxMembers: number,
+  showMaxChildThreads: number,
 |};
 class InnerThreadSettings extends React.PureComponent {
 
   props: Props;
   state: State = {
     showAddUsersModal: false,
+    showMaxMembers: itemPageLength,
+    showMaxChildThreads: itemPageLength,
   };
   static propTypes = {
     navigation: PropTypes.shape({
@@ -119,7 +125,28 @@ class InnerThreadSettings extends React.PureComponent {
       visRules === visibilityRules.CHAT_NESTED_OPEN
         ? "Public"
         : "Secret";
-    const members = this.props.threadMembers.map(userInfo => {
+
+    let threadMembers;
+    let seeMoreMembers = null;
+    if (this.props.threadMembers.length > this.state.showMaxMembers) {
+      threadMembers =
+        this.props.threadMembers.slice(0, this.state.showMaxMembers);
+      seeMoreMembers = (
+        <View style={styles.seeMoreRow} key="seeMore">
+          <ThreadSettingsListAction
+            onPress={this.onPressSeeMoreMembers}
+            text="See more..."
+            iconName="ios-more"
+            iconColor="#036AFF"
+            iconSize={36}
+            iconStyle={styles.seeMoreIcon}
+          />
+        </View>
+      );
+    } else {
+      threadMembers = this.props.threadMembers;
+    }
+    const members = threadMembers.map(userInfo => {
       if (!userInfo.username) {
         return null;
       }
@@ -137,9 +164,34 @@ class InnerThreadSettings extends React.PureComponent {
         </View>
       );
     }).filter(x => x);
+    if (seeMoreMembers) {
+      members.push(seeMoreMembers);
+    }
+
     let childThreads = null;
     if (this.props.childThreadInfos) {
-      childThreads = this.props.childThreadInfos.map(threadInfo => {
+      let childThreadInfos;
+      let seeMoreChildThreads = null;
+      if (this.props.childThreadInfos.length > this.state.showMaxChildThreads) {
+        childThreadInfos =
+          this.props.childThreadInfos.slice(0, this.state.showMaxChildThreads);
+        seeMoreChildThreads = (
+          <View style={styles.seeMoreRow} key="seeMore">
+            <ThreadSettingsListAction
+              onPress={this.onPressSeeMoreChildThreads}
+              text="See more..."
+              iconName="ios-more"
+              iconColor="#036AFF"
+              iconSize={32}
+              iconStyle={styles.seeMoreIcon}
+              key="seeMore"
+            />
+          </View>
+        );
+      } else {
+        childThreadInfos = this.props.childThreadInfos;
+      }
+      childThreads = childThreadInfos.map(threadInfo => {
         return (
           <View style={styles.itemRow} key={threadInfo.id}>
             <ThreadSettingsChildThread
@@ -149,7 +201,11 @@ class InnerThreadSettings extends React.PureComponent {
           </View>
         );
       });
+      if (seeMoreChildThreads) {
+        childThreads.push(seeMoreChildThreads);
+      }
     }
+
     return (
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -190,19 +246,29 @@ class InnerThreadSettings extends React.PureComponent {
           </ThreadSettingsCategory>
           <ThreadSettingsCategory type="unpadded" title="Child threads">
             <View style={styles.itemList}>
-              <ThreadSettingsAddListItem
-                onPress={this.onPressAddChildThread}
-                text="Add child thread"
-              />
+              <View style={styles.addItemRow}>
+                <ThreadSettingsListAction
+                  onPress={this.onPressAddChildThread}
+                  text="Add child thread"
+                  iconName="md-add"
+                  iconColor="#009900"
+                  iconSize={20}
+                />
+              </View>
               {childThreads}
             </View>
           </ThreadSettingsCategory>
           <ThreadSettingsCategory type="unpadded" title="Members">
             <View style={styles.itemList}>
-              <ThreadSettingsAddListItem
-                onPress={this.onPressAddUser}
-                text="Add users"
-              />
+              <View style={styles.addItemRow}>
+                <ThreadSettingsListAction
+                  onPress={this.onPressAddUser}
+                  text="Add users"
+                  iconName="md-add"
+                  iconColor="#009900"
+                  iconSize={20}
+                />
+              </View>
               {members}
             </View>
           </ThreadSettingsCategory>
@@ -249,6 +315,18 @@ class InnerThreadSettings extends React.PureComponent {
     this.setState({ showAddUsersModal: false });
   }
 
+  onPressSeeMoreMembers = () => {
+    this.setState(prevState => ({
+      showMaxMembers: prevState.showMaxMembers + itemPageLength,
+    }));
+  }
+
+  onPressSeeMoreChildThreads = () => {
+    this.setState(prevState => ({
+      showMaxChildThreads: prevState.showMaxChildThreads + itemPageLength,
+    }));
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -290,6 +368,16 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
   },
+  seeMoreRow: {
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
+    marginHorizontal: 12,
+    paddingTop: 2,
+  },
+  addItemRow: {
+    marginHorizontal: 12,
+    marginTop: 4,
+  },
   currentValueText: {
     fontSize: 16,
     color: "#333333",
@@ -302,6 +390,11 @@ const styles = StyleSheet.create({
   },
   itemList: {
     paddingBottom: 4,
+  },
+  seeMoreIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 15,
   },
 });
 

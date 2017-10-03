@@ -1,5 +1,8 @@
-
 // @flow
+
+import type {
+  StyleObj,
+} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
@@ -7,21 +10,24 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import Button from '../../components/button.react';
 
-type ThreadSettingsAddListItemProps = {
+type Props = {
   onPress: () => void,
   text: string,
+  iconName: string,
+  iconColor: string,
+  iconSize: number,
+  iconStyle?: StyleObj,
 };
-function ThreadSettingsAddListItem(props: ThreadSettingsAddListItemProps) {
+function ThreadSettingsListAction(props: Props) {
   return (
-    <Button
-      onPress={props.onPress}
-    >
+    <Button onPress={props.onPress}>
       <View style={styles.container}>
         <Text style={styles.text}>{props.text}</Text>
         <Icon
-          name={"md-add"}
-          size={20}
-          color="#009900"
+          name={props.iconName}
+          size={props.iconSize}
+          color={props.iconColor}
+          style={[styles.icon, props.iconStyle]}
         />
       </View>
     </Button>
@@ -32,9 +38,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     justifyContent: 'center',
   },
   text: {
@@ -43,6 +48,9 @@ const styles = StyleSheet.create({
     color: "#036AFF",
     fontStyle: 'italic',
   },
+  icon: {
+    lineHeight: 20,
+  },
 });
 
-export default ThreadSettingsAddListItem;
+export default ThreadSettingsListAction;
