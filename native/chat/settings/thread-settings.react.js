@@ -27,10 +27,8 @@ import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../message-list.react';
-import {
-  ThreadSettingsUser,
-  ThreadSettingsAddUser,
-} from './thread-settings-members.react';
+import ThreadSettingsUser from './thread-settings-user.react';
+import ThreadSettingsAddListItem from './thread-settings-add-list-item.react';
 import AddUsersModal from './add-users-modal.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
@@ -158,8 +156,11 @@ class InnerThreadSettings extends React.PureComponent {
             </View>
           </ThreadSettingsCategory>
           <ThreadSettingsCategory type="unpadded" title="Members">
-            <View style={styles.members}>
-              <ThreadSettingsAddUser onPress={this.onPressAddUser} />
+            <View style={styles.itemList}>
+              <ThreadSettingsAddListItem
+                onPress={this.onPressAddUser}
+                text="Add users"
+              />
               {members}
             </View>
           </ThreadSettingsCategory>
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
   parentThreadLink: {
     color: "#036AFF",
   },
-  members: {
+  itemList: {
     paddingBottom: 4,
   },
 });
