@@ -16,7 +16,7 @@
     "react-native": "^0.48.3",
     "react-native-keychain": "^1.2.1",
     "react-native-modal": "^4.0.0",
-    "react-native-onepassword": "^1.0.4",
+    "react-native-onepassword": "git+https://github.com/ashoat/react-native-onepassword.git",
     "react-native-segmented-control-tab": "git+https://github.com/ashoat/react-native-segmented-control-tab.git",
     "react-native-vector-icons": "^4.3.0",
     "react-navigation": "git+https://git@github.com/react-community/react-navigation.git",
