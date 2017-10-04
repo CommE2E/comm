@@ -102,6 +102,7 @@ const store: Store<AppState, Action> = createStore(
     threadInfos: thread_infos,
     userInfos: user_infos,
     messageStore,
+    drafts: {},
     currentAsOf: current_as_of,
     loadingStatuses: {},
     cookie: undefined,
