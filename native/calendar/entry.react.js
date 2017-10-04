@@ -484,10 +484,10 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     paddingTop: 5,
-    paddingBottom: 5,
+    paddingBottom: 4,
     paddingLeft: 10,
     paddingRight: 10,
-    margin: 0,
+    marginBottom: 1,
     color: '#333333',
     fontFamily: 'Arial',
   },
