@@ -1,7 +1,10 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import type { SendMessageResult } from 'lib/actions/message-actions';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
 
@@ -30,31 +33,36 @@ import {
 import { getNewLocalID } from 'lib/utils/local-ids';
 import { messageType } from 'lib/types/message-types';
 
+const draftKeyFromThreadID =
+  (threadID: string) => `${threadID}/message_composer`;
+
 type Props = {
   threadID: string,
   // Redux state
   username: ?string,
   viewerID: ?string,
+  draft: string,
   // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendMessage: (threadID: string, text: string) => Promise<SendMessageResult>,
 };
 type State = {
-  inputText: string,
   height: number,
 };
 class InputBar extends React.PureComponent {
 
   props: Props;
   state: State = {
-    inputText: "",
     height: 0,
   };
   static propTypes = {
     threadID: PropTypes.string.isRequired,
     username: PropTypes.string,
     viewerID: PropTypes.string,
+    draft: PropTypes.string.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
   };
@@ -62,8 +70,8 @@ class InputBar extends React.PureComponent {
 
   componentWillUpdate(nextProps: Props, nextState: State) {
     if (
-      this.state.inputText === "" && nextState.inputText !== "" ||
-      this.state.inputText !== "" && nextState.inputText === ""
+      this.props.draft === "" && nextProps.draft !== "" ||
+      this.props.draft !== "" && nextProps.draft === ""
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -71,7 +79,7 @@ class InputBar extends React.PureComponent {
 
   render() {
     let button = null;
-    if (this.state.inputText) {
+    if (this.props.draft) {
       button = (
         <TouchableOpacity
           onPress={this.onSend}
@@ -94,8 +102,8 @@ class InputBar extends React.PureComponent {
       <View style={styles.container}>
         <View style={styles.textInputContainer}>
           <TextInput
-            value={this.state.inputText}
-            onChangeText={this.onChangeText}
+            value={this.props.draft}
+            onChangeText={this.updateText}
             underlineColorAndroid="transparent"
             placeholder="Send a message..."
             placeholderTextColor="#888888"
@@ -114,8 +122,11 @@ class InputBar extends React.PureComponent {
     this.textInput = textInput;
   }
 
-  onChangeText = (text: string) => {
-    this.setState({ inputText: text });
+  updateText = (text: string) => {
+    this.props.dispatchActionPayload(
+      "SAVE_DRAFT",
+      { key: draftKeyFromThreadID(this.props.threadID), draft: text },
+    );
   }
 
   onContentSizeChange = (event) => {
@@ -133,7 +144,7 @@ class InputBar extends React.PureComponent {
       type: messageType.TEXT,
       localID,
       threadID: this.props.threadID,
-      text: this.state.inputText,
+      text: this.props.draft,
       creatorID,
       time: Date.now(),
     }: RawTextMessageInfo);
@@ -143,7 +154,7 @@ class InputBar extends React.PureComponent {
       undefined,
       messageInfo,
     );
-    this.setState({ inputText: "" });
+    this.updateText("");
   }
 
   async sendMessageAction(messageInfo: RawTextMessageInfo) {
@@ -199,13 +210,17 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    cookie: state.cookie,
-  }),
+  (state: AppState, ownProps: { threadID: string }) => {
+    const draft = state.drafts[draftKeyFromThreadID(ownProps.threadID)];
+    return {
+      username: state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.username
+        : undefined,
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
+      draft: draft ? draft : "",
+      cookie: state.cookie,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ sendMessage }),
 )(InputBar);
