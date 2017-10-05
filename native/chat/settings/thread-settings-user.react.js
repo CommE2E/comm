@@ -15,20 +15,27 @@ type Props = {|
     isViewer: bool,
   |},
   threadInfo: ThreadInfo,
+  canEdit: bool,
 |};
 function ThreadSettingsUser(props: Props) {
   const canChange = !props.userInfo.isViewer &&
     props.threadInfo.canChangeSettings;
-  return (
-    <View style={styles.container}>
-      <Text style={styles.username} numberOfLines={1}>
-        {props.userInfo.username}
-      </Text>
+  let editButton = null;
+  if (props.canEdit) {
+    editButton = (
       <EditSettingButton
         onPress={() => {}}
         canChangeSettings={canChange}
         style={styles.editSettingsIcon}
       />
+    );
+  }
+  return (
+    <View style={styles.container}>
+      <Text style={styles.username} numberOfLines={1}>
+        {props.userInfo.username}
+      </Text>
+      {editButton}
     </View>
   );
 }
