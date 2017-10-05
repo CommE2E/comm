@@ -22,13 +22,12 @@ function SaveSettingButton(props: Props) {
 
 const styles = StyleSheet.create({
   editIcon: {
-    paddingLeft: 10,
-    paddingTop: 6,
-    textAlign: 'right',
-    lineHeight: 16,
+    position: 'absolute',
+    right: 0,
+    top: -3,
   },
   container: {
-    height: 16,
+    width: 26,
   },
 });
 

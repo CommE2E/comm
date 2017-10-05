@@ -86,6 +86,7 @@ type State = {|
   showMaxMembers: number,
   showMaxChildThreads: number,
   nameEditValue: ?string,
+  nameTextHeight: ?number,
   currentlyEditingColor: bool,
 |};
 class InnerThreadSettings extends React.PureComponent {
@@ -96,6 +97,7 @@ class InnerThreadSettings extends React.PureComponent {
     showMaxMembers: itemPageLength,
     showMaxChildThreads: itemPageLength,
     nameEditValue: null,
+    nameTextHeight: null,
     currentlyEditingColor: false,
   };
   static propTypes = {
@@ -150,6 +152,16 @@ class InnerThreadSettings extends React.PureComponent {
       this.props.loadingStatus !== "loading";
   }
 
+  onLayoutNameText = (event: { nativeEvent: { layout: { height: number }}}) => {
+    this.setState({ nameTextHeight: event.nativeEvent.layout.height });
+  }
+
+  onNameTextInputContentSizeChange = (
+    event: { nativeEvent: { contentSize: { height: number } } },
+  ) => {
+    this.setState({ nameTextHeight: event.nativeEvent.contentSize.height });
+  }
+
   render() {
     const canDoAnything = this.props.loadingStatus !== "loading";
     const canStartEditing = this.canReset();
@@ -162,7 +174,11 @@ class InnerThreadSettings extends React.PureComponent {
       this.state.nameEditValue === undefined
     ) {
       name = [
-        <Text style={[styles.currentValue, styles.currentValueText]} key="text">
+        <Text
+          style={[styles.currentValue, styles.currentValueText]}
+          onLayout={this.onLayoutNameText}
+          key="text"
+        >
           {this.props.threadInfo.name}
         </Text>,
         <EditSettingButton
@@ -183,9 +199,16 @@ class InnerThreadSettings extends React.PureComponent {
       } else {
         button = <ActivityIndicator size="small" key="activityIndicator" />;
       }
+      const textInputStyle = {};
+      if (
+        this.state.nameTextHeight !== undefined &&
+        this.state.nameTextHeight !== null
+      ) {
+        textInputStyle.height = this.state.nameTextHeight;
+      }
       name = [
         <TextInput
-          style={[styles.currentValue, styles.currentValueText]}
+          style={[styles.currentValue, styles.currentValueText, textInputStyle]}
           underlineColorAndroid="transparent"
           value={this.state.nameEditValue}
           onChangeText={this.onChangeNameText}
@@ -194,6 +217,7 @@ class InnerThreadSettings extends React.PureComponent {
           selectTextOnFocus={true}
           onBlur={this.submitNameEdit}
           editable={canDoAnything}
+          onContentSizeChange={this.onNameTextInputContentSizeChange}
           ref={this.nameTextInputRef}
           key="textInput"
         />,
@@ -529,7 +553,6 @@ const styles = StyleSheet.create({
   },
   currentValue: {
     flex: 1,
-    flexDirection: 'row',
     paddingLeft: 4,
   },
   itemRow: {
@@ -550,7 +573,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   currentValueText: {
-    paddingTop: 0,
+    paddingRight: 0,
+    paddingVertical: 0,
+    margin: 0,
     fontSize: 16,
     color: "#333333",
     fontFamily: 'Arial',
