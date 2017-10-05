@@ -102,6 +102,7 @@ type Props = {
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   viewerID: ?string,
   startReached: bool,
+  threadInfo: ThreadInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -128,10 +129,12 @@ class InnerMessageList extends React.PureComponent {
         }).isRequired,
       }).isRequired,
       navigate: PropTypes.func.isRequired,
+      setParams: PropTypes.func.isRequired,
     }).isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessages: PropTypes.func.isRequired,
   };
@@ -213,6 +216,15 @@ class InnerMessageList extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    if (
+      !_isEqual(nextProps.threadInfo)
+        (this.props.navigation.state.params.threadInfo)
+    ) {
+      this.props.navigation.setParams({
+        threadInfo: nextProps.threadInfo,
+      });
+    }
+
     if (nextProps.listData === this.props.messageListData) {
       return;
     }
@@ -400,7 +412,7 @@ class InnerMessageList extends React.PureComponent {
       );
     }
 
-    const threadID = this.props.navigation.state.params.threadInfo.id;
+    const threadID = this.props.threadInfo.id;
     const inputBar = <InputBar threadID={threadID} />;
 
     const behavior = Platform.OS === "android" ? undefined : "padding";
@@ -461,7 +473,7 @@ class InnerMessageList extends React.PureComponent {
     const oldestMessageServerID = this.oldestMessageServerID();
     if (oldestMessageServerID) {
       this.loadingFromScroll = true;
-      const threadID = this.props.navigation.state.params.threadInfo.id;
+      const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
         fetchMessagesActionTypes,
         this.props.fetchMessages(
@@ -524,6 +536,7 @@ const MessageList = connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
+      threadInfo: state.threadInfos[threadID],
       cookie: state.cookie,
     };
   },
