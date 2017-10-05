@@ -42,6 +42,7 @@ type Props = {
   onOldColorSelected?: (color: string) => void,
   style?: StyleObj,
   buttonText: string,
+  oldButtonText: string,
 };
 type State = {
   color: HSVColor,
@@ -66,9 +67,11 @@ class ColorPicker extends React.PureComponent {
     onOldColorSelected: PropTypes.func,
     style: ViewPropTypes.style,
     buttonText: PropTypes.string,
+    oldButtonText: PropTypes.string,
   };
   static defaultProps = {
     buttonText: "Select",
+    oldButtonText: "Reset",
   };
   props: Props;
   state: State;
@@ -312,7 +315,7 @@ class ColorPicker extends React.PureComponent {
 
   render() {
     const { pickerSize } = this.state;
-    const { oldColor, style } = this.props;
+    const { style } = this.props;
     const color = this._getColor();
     const tc = tinycolor(color);
     const selectedColor: string = tc.toHexString();
@@ -330,7 +333,7 @@ class ColorPicker extends React.PureComponent {
         selectedColor,
         selectedColorHsv: color,
         indicatorColor,
-        oldColor,
+        oldColor: this.props.oldColor,
         angle,
         isRTL: I18nManager.isRTL,
       });
@@ -369,18 +372,26 @@ class ColorPicker extends React.PureComponent {
     }
 
     let oldColorButton = null;
-    if (oldColor) {
+    if (this.props.oldColor) {
+      const oldTinyColor = tinycolor(this.props.oldColor);
+      const oldButtonTextStyle = {
+        color: oldTinyColor.isDark() ? 'white' : 'black',
+      };
       oldColorButton = (
         <Button
           topStyle={styles.colorPreview}
           style={[
             styles.buttonContents,
-            { backgroundColor: oldColor },
+            { backgroundColor: oldTinyColor.toHexString() },
           ]}
           onPress={this._onOldColorSelected}
           iosFormat="highlight"
           iosActiveOpacity={0.6}
-        />
+        >
+          <Text style={[styles.buttonText, oldButtonTextStyle]}>
+            {this.props.oldButtonText}
+          </Text>
+        </Button>
       );
     }
     const colorPreviewsStyle = {
@@ -617,6 +628,7 @@ const styles = StyleSheet.create({
   },
   colorPreview: {
     flex: 1,
+    marginHorizontal: 5,
   },
   buttonContents: {
     flex: 1,

@@ -441,6 +441,7 @@ class InnerThreadSettings extends React.PureComponent {
           isVisible={this.state.showEditColorModal}
           closeModal={this.closeColorPicker}
           color={this.state.colorEditValue}
+          oldColor={this.props.threadInfo.color}
           onColorSelected={this.onColorSelected}
         />
       </View>

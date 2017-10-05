@@ -227,6 +227,9 @@ class InnerAddThread extends React.PureComponent {
         </View>
       );
     }
+    const oldColor = this.props.parentThreadInfo
+      ? this.props.parentThreadInfo.color
+      : null;
     const content = (
       <View style={styles.content}>
         <View style={styles.row}>
@@ -283,6 +286,7 @@ class InnerAddThread extends React.PureComponent {
           isVisible={this.state.showColorPicker}
           closeModal={this.closeColorPicker}
           color={this.state.color}
+          oldColor={oldColor}
           onColorSelected={this.onColorSelected}
         />
       </View>

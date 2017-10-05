@@ -14,12 +14,14 @@ class ColorPickerModal extends React.PureComponent {
     isVisible: bool,
     closeModal: () => void,
     color: string,
+    oldColor?: string,
     onColorSelected: (color: string) => void,
   |};
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
     color: PropTypes.string.isRequired,
+    oldColor: PropTypes.string,
     onColorSelected: PropTypes.func.isRequired,
   };
 
@@ -33,6 +35,7 @@ class ColorPickerModal extends React.PureComponent {
         <View style={styles.colorPickerContainer}>
           <ColorPicker
             defaultColor={this.props.color}
+            oldColor={this.props.oldColor}
             onColorSelected={this.props.onColorSelected}
             style={styles.colorPicker}
           />
