@@ -25,14 +25,12 @@ import {
   TextInput,
   Alert,
   TouchableWithoutFeedback,
-  TouchableHighlight,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { connect } from 'react-redux';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import invariant from 'invariant';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
   includeDispatchActionProps,
@@ -56,13 +54,13 @@ import { generateRandomColor } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
-import ColorPicker from '../components/color-picker.react';
 import ColorSplotch from '../components/color-splotch.react';
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
+import ColorPickerModal from './color-picker-modal.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { parentThreadID: ?string } } };
@@ -229,38 +227,6 @@ class InnerAddThread extends React.PureComponent {
         </View>
       );
     }
-    let colorPicker = null;
-    if (this.state.showColorPicker) {
-      colorPicker = (
-        <View style={[
-          styles.colorPickerOverlay,
-          styles.colorPickerOverlayBackground,
-        ]}>
-          <TouchableWithoutFeedback onPress={this.closeColorPicker}>
-            <View style={styles.colorPickerOverlay} />
-          </TouchableWithoutFeedback>
-          <View style={styles.colorPickerContainer}>
-            <ColorPicker
-              defaultColor={this.state.color}
-              onColorSelected={this.onColorSelected}
-              style={styles.colorPicker}
-            />
-            <TouchableHighlight
-              onPress={this.closeColorPicker}
-              style={styles.closeButton}
-              underlayColor="#CCCCCCDD"
-            >
-              <Icon
-                name="close"
-                size={16}
-                color="#AAAAAA"
-                style={styles.closeButtonIcon}
-              />
-            </TouchableHighlight>
-          </View>
-        </View>
-      );
-    }
     const content = (
       <View style={styles.content}>
         <View style={styles.row}>
@@ -313,7 +279,12 @@ class InnerAddThread extends React.PureComponent {
             onSelect={this.onUserSelect}
           />
         </View>
-        {colorPicker}
+        <ColorPickerModal
+          isVisible={this.state.showColorPicker}
+          closeModal={this.closeColorPicker}
+          color={this.state.color}
+          onColorSelected={this.onColorSelected}
+        />
       </View>
     );
     if (Platform.OS === "ios") {
@@ -539,26 +510,6 @@ const styles = StyleSheet.create({
   },
   segmentedTextStyle: {
     color: '#777',
-  },
-  colorPickerOverlayBackground: {
-    backgroundColor: '#CCCCCCAA',
-  },
-  colorPickerOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  colorPickerContainer: {
-    flex: 1,
-    backgroundColor: '#EEEEEE',
-    margin: 20,
-    marginLeft: 15,
-    marginRight: 15,
-    marginTop: 100,
-    marginBottom: 65,
-    borderRadius: 5,
   },
   colorPicker: {
     top: 10,

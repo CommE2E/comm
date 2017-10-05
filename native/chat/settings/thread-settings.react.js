@@ -58,6 +58,7 @@ import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 import SaveSettingButton from './save-setting-button.react';
+import ColorPickerModal from '../color-picker-modal.react';
 
 const itemPageLength = 5;
 
@@ -71,7 +72,8 @@ type Props = {|
   parentThreadInfo: ?ThreadInfo,
   threadMembers: RelativeUserInfo[],
   childThreadInfos: ?ThreadInfo[],
-  loadingStatus: LoadingStatus,
+  nameEditLoadingStatus: LoadingStatus,
+  colorEditLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -87,19 +89,13 @@ type State = {|
   showMaxChildThreads: number,
   nameEditValue: ?string,
   nameTextHeight: ?number,
-  currentlyEditingColor: bool,
+  showEditColorModal: bool,
+  colorEditValue: string,
 |};
 class InnerThreadSettings extends React.PureComponent {
 
   props: Props;
-  state: State = {
-    showAddUsersModal: false,
-    showMaxMembers: itemPageLength,
-    showMaxChildThreads: itemPageLength,
-    nameEditValue: null,
-    nameTextHeight: null,
-    currentlyEditingColor: false,
-  };
+  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -116,7 +112,8 @@ class InnerThreadSettings extends React.PureComponent {
     parentThreadInfo: threadInfoPropType,
     threadMembers: PropTypes.arrayOf(relativeUserInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
-    loadingStatus: loadingStatusPropType.isRequired,
+    nameEditLoadingStatus: loadingStatusPropType.isRequired,
+    colorEditLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeSingleThreadSetting: PropTypes.func.isRequired,
   };
@@ -124,6 +121,19 @@ class InnerThreadSettings extends React.PureComponent {
     title: navigation.state.params.threadInfo.name,
   });
   nameTextInput: ?TextInput;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showAddUsersModal: false,
+      showMaxMembers: itemPageLength,
+      showMaxChildThreads: itemPageLength,
+      nameEditValue: null,
+      nameTextHeight: null,
+      showEditColorModal: false,
+      colorEditValue: props.threadInfo.color,
+    };
+  }
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
@@ -142,14 +152,21 @@ class InnerThreadSettings extends React.PureComponent {
         threadInfo: nextProps.threadInfo,
       });
     }
+    if (
+      nextProps.threadInfo.color !== this.props.threadInfo.color &&
+      this.state.colorEditValue === this.props.threadInfo.color
+    ) {
+      this.setState({ colorEditValue: nextProps.threadInfo.color });
+    }
   }
 
   canReset = () => {
     return !this.state.showAddUsersModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
-      !this.state.currentlyEditingColor &&
-      this.props.loadingStatus !== "loading";
+      !this.state.showEditColorModal &&
+      this.props.nameEditLoadingStatus !== "loading" &&
+      this.props.colorEditLoadingStatus !== "loading";
   }
 
   onLayoutNameText = (event: { nativeEvent: { layout: { height: number }}}) => {
@@ -163,7 +180,6 @@ class InnerThreadSettings extends React.PureComponent {
   }
 
   render() {
-    const canDoAnything = this.props.loadingStatus !== "loading";
     const canStartEditing = this.canReset();
     const canChangeSettings = this.props.threadInfo.canChangeSettings
       && canStartEditing;
@@ -189,7 +205,7 @@ class InnerThreadSettings extends React.PureComponent {
       ];
     } else {
       let button;
-      if (canDoAnything) {
+      if (this.props.nameEditLoadingStatus !== "loading") {
         button = (
           <SaveSettingButton
             onPress={this.submitNameEdit}
@@ -216,13 +232,26 @@ class InnerThreadSettings extends React.PureComponent {
           autoFocus={true}
           selectTextOnFocus={true}
           onBlur={this.submitNameEdit}
-          editable={canDoAnything}
+          editable={this.props.nameEditLoadingStatus !== "loading"}
           onContentSizeChange={this.onNameTextInputContentSizeChange}
           ref={this.nameTextInputRef}
           key="textInput"
         />,
         button,
       ];
+    }
+
+    let colorButton;
+    if (this.props.colorEditLoadingStatus !== "loading") {
+      colorButton = (
+        <EditSettingButton
+          onPress={this.onPressEditColor}
+          canChangeSettings={canChangeSettings}
+          style={styles.colorLine}
+        />
+      );
+    } else {
+      colorButton = <ActivityIndicator size="small" key="activityIndicator" />;
     }
 
     let parent;
@@ -354,11 +383,7 @@ class InnerThreadSettings extends React.PureComponent {
               <View style={styles.currentValue}>
                 <ColorSplotch color={this.props.threadInfo.color} />
               </View>
-              <EditSettingButton
-                onPress={this.onPressEditColor}
-                canChangeSettings={canChangeSettings}
-                style={styles.colorLine}
-              />
+              {colorButton}
             </View>
           </ThreadSettingsCategory>
           <ThreadSettingsCategory type="full" title="Privacy">
@@ -412,6 +437,12 @@ class InnerThreadSettings extends React.PureComponent {
             close={this.closeAddUsersModal}
           />
         </Modal>
+        <ColorPickerModal
+          isVisible={this.state.showEditColorModal}
+          closeModal={this.closeColorPicker}
+          color={this.state.colorEditValue}
+          onColorSelected={this.onColorSelected}
+        />
       </View>
     );
   }
@@ -422,10 +453,6 @@ class InnerThreadSettings extends React.PureComponent {
 
   onPressEditName = () => {
     this.setState({ nameEditValue: this.props.threadInfo.name });
-  }
-
-  onPressEditColor = () => {
-    this.setState({ currentlyEditingColor: true });
   }
 
   onChangeNameText = (text: string) => {
@@ -458,6 +485,7 @@ class InnerThreadSettings extends React.PureComponent {
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       this.editName(name),
+      { customKeyName: `${changeThreadSettingsActionTypes.started}:name` },
     );
   }
 
@@ -481,6 +509,58 @@ class InnerThreadSettings extends React.PureComponent {
       );
       throw e;
     }
+  }
+
+  onNameErrorAcknowledged = () => {
+    this.setState(
+      { nameEditValue: this.props.threadInfo.name },
+      () => {
+        invariant(this.nameTextInput, "nameTextInput should be set");
+        this.nameTextInput.focus();
+      },
+    );
+  }
+
+  onPressEditColor = () => {
+    this.setState({ showEditColorModal: true });
+  }
+
+  closeColorPicker = () => {
+    this.setState({ showEditColorModal: false });
+  }
+
+  onColorSelected = (color: string) => {
+    const colorEditValue = color.substr(1);
+    this.setState({ showEditColorModal: false, colorEditValue });
+    this.props.dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      this.editColor(colorEditValue),
+      { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
+    );
+  }
+
+  async editColor(newColor: string) {
+    try {
+      return await this.props.changeSingleThreadSetting(
+        this.props.threadInfo.id,
+        "color",
+        newColor,
+      );
+    } catch (e) {
+      Alert.alert(
+        "Unknown error",
+        "Uhh... try again?",
+        [
+          { text: 'OK', onPress: this.onColorErrorAcknowledged },
+        ],
+        { cancelable: false },
+      );
+      throw e;
+    }
+  }
+
+  onColorErrorAcknowledged = () => {
+    this.setState({ colorEditValue: this.props.threadInfo.color });
   }
 
   onPressParentThread = () => {
@@ -515,11 +595,6 @@ class InnerThreadSettings extends React.PureComponent {
     this.setState(prevState => ({
       showMaxChildThreads: prevState.showMaxChildThreads + itemPageLength,
     }));
-  }
-
-  onNameErrorAcknowledged = () => {
-    invariant(this.nameTextInput, "nameTextInput should be set");
-    this.nameTextInput.focus();
   }
 
 }
@@ -596,9 +671,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(changeThreadSettingsActionTypes);
-
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
@@ -613,7 +685,14 @@ const ThreadSettings = connect(
       threadMembers:
         relativeUserInfoSelectorForMembersOfThread(threadInfo.id)(state),
       childThreadInfos: childThreadInfos(state)[threadInfo.id],
-      loadingStatus: loadingStatusSelector(state),
+      nameEditLoadingStatus: createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:name`,
+      )(state),
+      colorEditLoadingStatus: createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:color`,
+      )(state),
       cookie: state.cookie,
     };
   },
