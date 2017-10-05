@@ -98,6 +98,9 @@ class RobotextMessage extends React.PureComponent {
       if (entityType === "t") {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
         continue;
+      } else if (entityType === "c") {
+        textParts.push(<ColorEntity key={id} color={rawText} />);
+        continue;
       }
 
       textParts.push(rawText);
@@ -150,6 +153,11 @@ const ThreadEntity = connect(
   }),
   includeDispatchActionProps,
 )(InnerThreadEntity);
+
+function ColorEntity(props: {| color: string |}) {
+  const colorStyle = { color: props.color };
+  return <Text style={colorStyle}>{props.color}</Text>;
+}
 
 const styles = StyleSheet.create({
   robotext: {
