@@ -415,7 +415,11 @@ class InnerThreadSettings extends React.PureComponent {
       "should be set",
     );
     const name = this.state.nameEditValue.trim();
-    if (name === '') {
+
+    if (name === this.props.threadInfo.name) {
+      this.setState({ nameEditValue: null });
+      return;
+    } else if (name === '') {
       Alert.alert(
         "Empty thread name",
         "You must specify a thread name!",
