@@ -36,7 +36,7 @@ type HSVColor = {| h: number, s: number, v: number |};
 type Props = {
   color?: string | HSVColor,
   defaultColor?: string,
-  oldColor?: string,
+  oldColor?: ?string,
   onColorChange?: (color: HSVColor) => void,
   onColorSelected?: (color: string) => void,
   onOldColorSelected?: (color: string) => void,

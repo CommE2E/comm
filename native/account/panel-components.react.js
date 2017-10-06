@@ -1,18 +1,16 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
 import {
-  Platform,
   View,
   ActivityIndicator,
-  TouchableNativeFeedback,
   Text,
-  TouchableHighlight,
   StyleSheet,
   TouchableWithoutFeedback,
   Image,
@@ -20,6 +18,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
+
+import Button from '../components/button.react';
 
 class PanelButton extends React.PureComponent {
 
@@ -30,7 +30,7 @@ class PanelButton extends React.PureComponent {
   };
   static propTypes = {
     text: PropTypes.string.isRequired,
-    loadingStatus: PropTypes.string.isRequired,
+    loadingStatus: loadingStatusPropType.isRequired,
     onSubmit: PropTypes.func.isRequired,
   };
 
@@ -49,33 +49,20 @@ class PanelButton extends React.PureComponent {
         </View>
       );
     }
-    if (Platform.OS === "android") {
-      return (
-        <TouchableNativeFeedback
-          onPress={this.props.onSubmit}
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={[styles.submitContentContainer, styles.submitButton]}>
-            <Text style={styles.submitContentText}>{this.props.text}</Text>
-            {buttonIcon}
-          </View>
-        </TouchableNativeFeedback>
-      );
-    } else {
-      return (
-        <TouchableHighlight
-          onPress={this.props.onSubmit}
-          style={styles.submitButton}
-          underlayColor="#A0A0A0DD"
-          disabled={this.props.loadingStatus === "loading"}
-        >
-          <View style={styles.submitContentContainer}>
-            <Text style={styles.submitContentText}>{this.props.text}</Text>
-            {buttonIcon}
-          </View>
-        </TouchableHighlight>
-      );
-    }
+    return (
+      <Button
+        onPress={this.props.onSubmit}
+        disabled={this.props.loadingStatus === "loading"}
+        topStyle={styles.submitButton}
+        style={styles.submitContentContainer}
+        iosFormat="highlight"
+        iosActiveOpacity={0.85}
+        iosHighlightUnderlayColor="#A0A0A0DD"
+      >
+        <Text style={styles.submitContentText}>{this.props.text}</Text>
+        {buttonIcon}
+      </Button>
+    );
   }
 
 }

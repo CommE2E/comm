@@ -14,7 +14,7 @@ class ColorPickerModal extends React.PureComponent {
     isVisible: bool,
     closeModal: () => void,
     color: string,
-    oldColor?: string,
+    oldColor?: ?string,
     onColorSelected: (color: string) => void,
   |};
   static propTypes = {
