@@ -61,6 +61,7 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ColorPickerModal from './color-picker-modal.react';
+import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { parentThreadID: ?string } } };
@@ -73,7 +74,7 @@ type Props = {
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
-  secondChatRouteKey: ?string,
+  secondChatSubrouteKey: ?string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -116,7 +117,7 @@ class InnerAddThread extends React.PureComponent {
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    secondChatRouteKey: PropTypes.string,
+    secondChatSubrouteKey: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -419,9 +420,9 @@ class InnerAddThread extends React.PureComponent {
         this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
         this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
-      const secondChatRouteKey = this.props.secondChatRouteKey;
-      invariant(secondChatRouteKey, "should be set");
-      this.props.navigation.goBack(secondChatRouteKey);
+      const secondChatSubrouteKey = this.props.secondChatSubrouteKey;
+      invariant(secondChatSubrouteKey, "should be set");
+      this.props.navigation.goBack(secondChatSubrouteKey);
       this.props.navigation.navigate(
         MessageListRouteName,
         { threadInfo: response.newThreadInfo },
@@ -557,16 +558,10 @@ const AddThread = connect(
       parentThreadInfo = state.threadInfos[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
-    const appNavState = state.navInfo.navigationState.routes[0];
-    invariant(
-      appNavState.routes &&
-        Array.isArray(appNavState.routes) &&
-        appNavState.routes[1] &&
-        appNavState.routes[1].routes &&
-        Array.isArray(appNavState.routes[1].routes),
-      "there's no way in Flow to type the exact shape of our navigationState",
-    );
-    const secondChatRoute = appNavState.routes[1].routes[1];
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const secondChatSubroute = chatRoute.routes[1];
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
@@ -574,8 +569,8 @@ const AddThread = connect(
         userInfoSelectorForOtherMembersOfThread(parentThreadID)(state),
       userSearchIndex:
         userSearchIndexForOtherMembersOfThread(parentThreadID)(state),
-      secondChatRouteKey: secondChatRoute && secondChatRoute.key
-        ? secondChatRoute.key
+      secondChatSubrouteKey: secondChatSubroute && secondChatSubroute.key
+        ? secondChatSubroute.key
         : null,
       cookie: state.cookie,
     };
