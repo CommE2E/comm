@@ -110,10 +110,8 @@ const styles = StyleSheet.create({
   submitContentContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingLeft: 18,
-    paddingTop: 6,
-    paddingRight: 18,
-    paddingBottom: 6,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
   },
   submitContentText: {
     fontSize: 18,

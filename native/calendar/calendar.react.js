@@ -10,6 +10,11 @@ import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type { KeyboardEvent } from '../keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
+import type {
+  NavigationScreenProp,
+  NavigationRoute,
+  NavigationAction,
+} from 'react-navigation/src/TypeDefinition';
 
 import React from 'react';
 import {
@@ -91,6 +96,7 @@ type ExtraData = {
 let currentCalendarRef: ?InnerCalendar = null;
 
 type Props = {
+  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
@@ -119,6 +125,9 @@ class InnerCalendar extends React.PureComponent {
   props: Props;
   state: State;
   static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
     listData: PropTypes.arrayOf(PropTypes.oneOfType([
       PropTypes.shape({
         itemType: PropTypes.oneOf(["loader"]),
@@ -539,6 +548,7 @@ class InnerCalendar extends React.PureComponent {
           focused={!!this.state.extraData.focusedEntries[key]}
           visible={!!this.state.extraData.visibleEntries[key]}
           onFocus={this.onEntryFocus}
+          navigate={this.props.navigation.navigate}
         />
       );
     } else if (item.itemType === "footer") {

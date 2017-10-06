@@ -119,6 +119,7 @@ class InnerThreadSettings extends React.PureComponent {
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.name,
+    headerBackTitle: "Back",
   });
   nameTextInput: ?TextInput;
 

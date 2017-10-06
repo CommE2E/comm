@@ -11,6 +11,10 @@ import type {
 } from 'lib/utils/action-utils';
 import type { SaveResult } from 'lib/actions/entry-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type {
+  NavigationParams,
+  NavigationAction,
+} from 'react-navigation/src/TypeDefinition';
 
 import React from 'react';
 import {
@@ -22,6 +26,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   LayoutAnimation,
+  Keyboard,
 } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -30,6 +35,7 @@ import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { NavigationActions } from 'react-navigation';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
@@ -53,17 +59,26 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import Button from '../components/button.react';
+import { ChatRouteName } from '../chat/chat.react';
+import { MessageListRouteName } from '../chat/message-list.react';
+import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
   visible: bool,
   focused: bool,
   onFocus: (entryKey: string, focused: bool) => void,
+  navigate: (
+    routeName: string,
+    params?: NavigationParams,
+    action?: NavigationAction,
+  ) => bool,
   // Redux state
   threadInfo: ThreadInfo,
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
   nextSessionID: () => ?string,
+  currentChatThreadID: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -100,10 +115,12 @@ class Entry extends React.Component {
     visible: PropTypes.bool.isRequired,
     focused: PropTypes.bool.isRequired,
     onFocus: PropTypes.func.isRequired,
+    navigate: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
+    currentChatThreadID: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     saveEntry: PropTypes.func.isRequired,
@@ -208,11 +225,10 @@ class Entry extends React.Component {
           <View style={styles.leftLinks}>
             <Button
               onPress={this.onPressDelete}
-              androidBorderlessRipple={true}
               iosFormat="highlight"
               iosHighlightUnderlayColor={actionLinksUnderlayColor}
               iosActiveOpacity={0.85}
-              style={styles.deleteButton}
+              style={styles.button}
             >
               <View style={styles.deleteButtonContents}>
                 <Icon
@@ -227,12 +243,20 @@ class Entry extends React.Component {
             </Button>
           </View>
           <View style={styles.rightLinks}>
-            <Text
-              style={[styles.rightLinksText, actionLinksTextStyle]}
-              numberOfLines={1}
+            <Button
+              onPress={this.onPressThreadName}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={actionLinksUnderlayColor}
+              iosActiveOpacity={0.85}
+              style={styles.button}
             >
-              {this.state.threadInfo.name}
-            </Text>
+              <Text
+                style={[styles.rightLinksText, actionLinksTextStyle]}
+                numberOfLines={1}
+              >
+                {this.state.threadInfo.name}
+              </Text>
+            </Button>
           </View>
         </View>
       );
@@ -470,6 +494,24 @@ class Entry extends React.Component {
     }
   }
 
+  onPressThreadName = () => {
+    Keyboard.dismiss();
+    if (this.props.currentChatThreadID === this.props.threadInfo.id) {
+      this.props.navigate(ChatRouteName);
+      return;
+    }
+    this.props.navigate(
+      ChatRouteName,
+      {},
+      NavigationActions.navigate({
+        routeName: MessageListRouteName,
+        params: {
+          threadInfo: this.props.threadInfo,
+        },
+      })
+    );
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -497,12 +539,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: -5,
   },
-  deleteButton: {
-    paddingLeft: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingRight: 10,
-  },
   deleteButtonContents: {
     flex: 1,
     flexDirection: 'row',
@@ -523,10 +559,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   rightLinksText: {
-    paddingTop: 5,
-    paddingRight: 10,
     fontWeight: 'bold',
     fontSize: 12,
+  },
+  button: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
 });
 
@@ -534,13 +572,32 @@ registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
-    threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
-    sessionStartingPayload: sessionStartingPayload(state),
-    sessionID: currentSessionID(state),
-    nextSessionID: nextSessionID(state),
-    cookie: state.cookie,
-  }),
+  (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => {
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const currentChatSubroute = chatRoute.routes[chatRoute.index];
+    let currentChatThreadID = null;
+    if (currentChatSubroute.routeName === MessageListRouteName) {
+      invariant(
+        currentChatSubroute.params &&
+          currentChatSubroute.params.threadInfo &&
+          typeof currentChatSubroute.params.threadInfo === "object" &&
+          currentChatSubroute.params.threadInfo.id &&
+          typeof currentChatSubroute.params.threadInfo.id === "string",
+        "all MessageList routes should have a threadInfo param",
+      );
+      currentChatThreadID = currentChatSubroute.params.threadInfo.id;
+    }
+    return {
+      threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
+      sessionStartingPayload: sessionStartingPayload(state),
+      sessionID: currentSessionID(state),
+      nextSessionID: nextSessionID(state),
+      currentChatThreadID,
+      cookie: state.cookie,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ saveEntry, deleteEntry }),
 )(Entry);
