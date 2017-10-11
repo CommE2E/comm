@@ -6,6 +6,7 @@ require_once('auth.php');
 require_once('thread_lib.php');
 require_once('user_lib.php');
 require_once('message_lib.php');
+require_once('permissions.php');
 
 async_start();
 

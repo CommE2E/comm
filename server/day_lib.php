@@ -1,7 +1,7 @@
 <?php
 
 require_once('config.php');
-require_once('auth.php');
+require_once('permissions.php');
 
 // null if invalid parameters
 // false if invalid credentials
