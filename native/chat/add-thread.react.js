@@ -63,6 +63,10 @@ import { registerChatScreen } from './chat-screen-registry';
 import ColorPickerModal from './color-picker-modal.react';
 import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
+const tagInputProps = {
+  placeholder: "username",
+};
+
 type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
   & { state: { params: { parentThreadID: ?string } } };
 const segmentedPrivacyOptions = ['Public', 'Secret'];
@@ -268,12 +272,13 @@ class InnerAddThread extends React.PureComponent {
           <Text style={styles.tagInputLabel}>People</Text>
           <View style={styles.input}>
             <TagInput
-              onChange={this.onChangeTagInput}
               value={this.state.userInfoInputArray}
+              onChange={this.onChangeTagInput}
               text={this.state.usernameInputText}
-              setText={this.setUsernameInputText}
+              onChangeText={this.setUsernameInputText}
               onHeightChange={this.onTagInputHeightChange}
               labelExtractor={this.tagDataLabelExtractor}
+              inputProps={tagInputProps}
             />
           </View>
         </View>

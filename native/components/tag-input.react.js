@@ -21,89 +21,105 @@ import {
 import invariant from 'invariant';
 
 const windowWidth = Dimensions.get('window').width;
-const defaultInputProps = {
-  autoCapitalize: 'none',
-  autoCorrect: false,
-  placeholder: 'username',
-  returnKeyType: 'done',
-  keyboardType: 'default',
-  underlineColorAndroid: 'rgba(0,0,0,0)',
-};
-const defaultProps = {
-  tagColor: '#dddddd',
-  tagTextColor: '#777777',
-  inputColor: '#777777',
-  minHeight: 27,
-  maxHeight: 75,
-  defaultInputWidth: 90,
-};
 
-const tagDataPropType = PropTypes.oneOfType([
-  PropTypes.string,
-  PropTypes.object,
-]);
-type Props<TagData> = {
-  // The text currently being displayed as the user types
+type RequiredProps<T> = {
+  /**
+   * An array of tags, which can be any type, as long as labelExtractor below
+   * can extract a string from it.
+   */
+  value: $ReadOnlyArray<T>,
+  /**
+   * A handler to be called when array of tags change.
+   */
+  onChange: (items: $ReadOnlyArray<T>) => void,
+  /**
+   * Function to extract string value for label from item
+   */
+  labelExtractor: (tagData: T) => string,
+  /**
+   * The text currently being displayed in the TextInput following the list of
+   * tags.
+   */
   text: string,
-  // Callback to update the text being displayed
-  setText: (text: string) => void,
-  // A handler to be called when array of tags change
-  onChange: (items: $ReadOnlyArray<TagData>) => void,
-  // An array of tags
-  value: $ReadOnlyArray<TagData>,
-  // Background color of tags
+  /**
+   * This callback gets called when the user in the TextInput. The caller should
+   * update the text prop when this is called if they want to access input.
+   */
+  onChangeText: (text: string) => void,
+};
+type OptionalProps = {
+  /**
+   * Background color of tags
+   */
   tagColor: string,
-  // Text color of tags
+  /**
+   * Text color of tags
+   */
   tagTextColor: string,
-  // Styling override for container surrounding tag text
+  /**
+   * Styling override for container surrounding tag text
+   */
   tagContainerStyle?: StyleObj,
-  // Styling overrride for tag's text component
+  /**
+   * Styling override for tag's text component
+   */
   tagTextStyle?: StyleObj,
-  // Color of text input
+  /**
+   * Color of text input
+   */
   inputColor: string,
-  // TextInput props Text.propTypes
-  inputProps?: $PropertyType<Text, 'props'>,
-  // path of the label in tags objects
-  labelExtractor?: (tagData: TagData) => string,
-  // minimum height of this component
+  /**
+   * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
+   */
+  inputProps?: $PropertyType<TextInput, 'props'>,
+  /**
+   * Min height of the tag input on screen
+   */
   minHeight: number,
-  // maximum height of this component
+  /**
+   * Max height of the tag input on screen (will scroll if max height reached)
+   */
   maxHeight: number,
-  // callback that gets triggered when the component height changes
+  /**
+   * Callback that gets passed the new component height when it changes
+   */
   onHeightChange?: (height: number) => void,
-  // inputWidth if text === "". we want this number explicitly because if we're
-  // forced to measure the component, there can be a short jump between the old
-  // value and the new value, which looks sketchy.
+  /**
+   * inputWidth if text === "". we want this number explicitly because if we're
+   * forced to measure the component, there can be a short jump between the old
+   * value and the new value, which looks sketchy.
+   */
   defaultInputWidth: number,
 };
+type Props<T> = RequiredProps<T> & OptionalProps;
 type State = {
   inputWidth: number,
   wrapperHeight: number,
 };
-class TagInput<TagData> extends React.PureComponent<
-  typeof defaultProps,
-  Props<TagData>,
+class TagInput<T> extends React.PureComponent<
+  OptionalProps,
+  Props<T>,
   State,
 > {
 
   static propTypes = {
-    text: PropTypes.string.isRequired,
-    setText: PropTypes.func.isRequired,
+    value: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
-    value: PropTypes.arrayOf(tagDataPropType).isRequired,
+    labelExtractor: PropTypes.func.isRequired,
+    text: PropTypes.string.isRequired,
+    onChangeText: PropTypes.func.isRequired,
     tagColor: PropTypes.string,
     tagTextColor: PropTypes.string,
     tagContainerStyle: ViewPropTypes.style,
     tagTextStyle: Text.propTypes.style,
     inputColor: PropTypes.string,
-    inputProps: PropTypes.object,
-    labelExtractor: PropTypes.func,
+    inputProps: PropTypes.shape(TextInput.propTypes),
     minHeight: PropTypes.number,
     maxHeight: PropTypes.number,
     onHeightChange: PropTypes.func,
     defaultInputWidth: PropTypes.number,
   };
-  props: Props<TagData>;
+  props: Props<T>;
   state: State;
   wrapperWidth = windowWidth;
   spaceLeft = 0;
@@ -114,7 +130,14 @@ class TagInput<TagData> extends React.PureComponent<
   tagInput: ?TextInput = null;
   scrollView: ?ScrollView = null;
 
-  static defaultProps = defaultProps;
+  static defaultProps = {
+    tagColor: '#dddddd',
+    tagTextColor: '#777777',
+    inputColor: '#777777',
+    minHeight: 27,
+    maxHeight: 75,
+    defaultInputWidth: 90,
+  };
 
   static inputWidth(
     text: string,
@@ -131,7 +154,7 @@ class TagInput<TagData> extends React.PureComponent<
     }
   }
 
-  constructor(props: Props<TagData>) {
+  constructor(props: Props<T>) {
     super(props);
     this.state = {
       inputWidth: props.defaultInputWidth,
@@ -139,7 +162,7 @@ class TagInput<TagData> extends React.PureComponent<
     };
   }
 
-  componentWillReceiveProps(nextProps: Props<TagData>) {
+  componentWillReceiveProps(nextProps: Props<T>) {
     const inputWidth = TagInput.inputWidth(
       nextProps.text,
       this.spaceLeft,
@@ -161,7 +184,7 @@ class TagInput<TagData> extends React.PureComponent<
     }
   }
 
-  componentWillUpdate(nextProps: Props<TagData>, nextState: State) {
+  componentWillUpdate(nextProps: Props<T>, nextState: State) {
     if (
       this.props.onHeightChange &&
       nextState.wrapperHeight !== this.state.wrapperHeight
@@ -183,13 +206,9 @@ class TagInput<TagData> extends React.PureComponent<
     }
   }
 
-  onChangeText = (text: string) => {
-    this.props.setText(text);
-  }
-
   onBlur = (event: { nativeEvent: { text: string } }) => {
     invariant(Platform.OS === "ios", "only iOS gets text on TextInput.onBlur");
-    this.props.setText(event.nativeEvent.text);
+    this.props.onChangeText(event.nativeEvent.text);
   }
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
@@ -203,9 +222,8 @@ class TagInput<TagData> extends React.PureComponent<
   }
 
   focus = () => {
-    if (this.tagInput) {
-      this.tagInput.focus();
-    }
+    invariant(this.tagInput, "should be set");
+    this.tagInput.focus();
   }
 
   removeIndex = (index: number) => {
@@ -228,18 +246,13 @@ class TagInput<TagData> extends React.PureComponent<
   }
 
   render() {
-    const inputProps = { ...defaultInputProps, ...this.props.inputProps };
-
-    const inputWidth = this.state.inputWidth;
-
     const tags = this.props.value.map((tag, index) => (
       <Tag
         index={index}
-        tag={tag}
+        label={this.props.labelExtractor(tag)}
         isLastTag={this.props.value.length === index + 1}
         onLayoutLastTag={this.onLayoutLastTag}
         removeIndex={this.removeIndex}
-        labelExtractor={this.props.labelExtractor}
         tagColor={this.props.tagColor}
         tagTextColor={this.props.tagTextColor}
         tagContainerStyle={this.props.tagContainerStyle}
@@ -266,20 +279,26 @@ class TagInput<TagData> extends React.PureComponent<
               {tags}
               <View style={[
                 styles.textInputContainer,
-                { width: inputWidth },
+                { width: this.state.inputWidth },
               ]}>
                 <TextInput
                   ref={this.tagInputRef}
                   blurOnSubmit={false}
                   onKeyPress={this.onKeyPress}
                   value={this.props.text}
-                  style={[
-                    styles.textInput,
-                    { width: inputWidth, color: this.props.inputColor },
-                  ]}
+                  style={[styles.textInput, {
+                    width: this.state.inputWidth,
+                    color: this.props.inputColor,
+                  }]}
                   onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
-                  onChangeText={this.onChangeText}
-                  {...inputProps}
+                  onChangeText={this.props.onChangeText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholder="Start typing"
+                  returnKeyType="done"
+                  keyboardType="default"
+                  underlineColorAndroid="rgba(0,0,0,0)"
+                  {...this.props.inputProps}
                 />
               </View>
             </View>
@@ -338,28 +357,26 @@ class TagInput<TagData> extends React.PureComponent<
 
 }
 
-type TagProps<TagData> = {
+type TagProps = {
   index: number,
-  tag: TagData,
+  label: string,
   isLastTag: bool,
   onLayoutLastTag: (endPosOfTag: number) => void,
   removeIndex: (index: number) => void,
-  labelExtractor?: (tagData: TagData) => string,
   tagColor: string,
   tagTextColor: string,
   tagContainerStyle?: StyleObj,
   tagTextStyle?: StyleObj,
 };
-class Tag<TagData> extends React.PureComponent<void, TagProps<TagData>, void> {
+class Tag extends React.PureComponent<void, TagProps, void> {
 
-  props: TagProps<TagData>;
+  props: TagProps;
   static propTypes = {
     index: PropTypes.number.isRequired,
-    tag: tagDataPropType.isRequired,
+    label: PropTypes.string.isRequired,
     isLastTag: PropTypes.bool.isRequired,
     onLayoutLastTag: PropTypes.func.isRequired,
     removeIndex: PropTypes.func.isRequired,
-    labelExtractor: PropTypes.func,
     tagColor: PropTypes.string.isRequired,
     tagTextColor: PropTypes.string.isRequired,
     tagContainerStyle: ViewPropTypes.style,
@@ -367,7 +384,7 @@ class Tag<TagData> extends React.PureComponent<void, TagProps<TagData>, void> {
   };
   curPos: ?number = null;
 
-  componentWillReceiveProps(nextProps: TagProps<TagData>) {
+  componentWillReceiveProps(nextProps: TagProps) {
     if (
       !this.props.isLastTag &&
       nextProps.isLastTag &&
@@ -394,7 +411,7 @@ class Tag<TagData> extends React.PureComponent<void, TagProps<TagData>, void> {
           { color: this.props.tagTextColor },
           this.props.tagTextStyle,
         ]}>
-          {this.getLabelValue()}
+          {this.props.label}
           &nbsp;&times;
         </Text>
       </TouchableOpacity>
@@ -413,13 +430,6 @@ class Tag<TagData> extends React.PureComponent<void, TagProps<TagData>, void> {
     if (this.props.isLastTag) {
       this.props.onLayoutLastTag(this.curPos);
     }
-  }
-
-  getLabelValue = () => {
-    const { tag, labelExtractor } = this.props;
-    return labelExtractor && typeof tag !== "string"
-      ? labelExtractor(tag)
-      : tag;
   }
 
 }

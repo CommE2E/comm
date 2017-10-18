@@ -204,10 +204,10 @@ class AddUsersModal extends React.PureComponent {
     const content = (
       <View style={styles.modal}>
         <TagInput
-          onChange={this.onChangeTagInput}
           value={this.state.userInfoInputArray}
+          onChange={this.onChangeTagInput}
           text={this.state.usernameInputText}
-          setText={this.setUsernameInputText}
+          onChangeText={this.setUsernameInputText}
           labelExtractor={this.tagDataLabelExtractor}
           defaultInputWidth={160}
           maxHeight={36}
