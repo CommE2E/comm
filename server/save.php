@@ -45,19 +45,13 @@ if ($entry_id === -1) {
   $day_id = intval($entry_row['day']);
   // For the case of an existing entry, the privacy check to make sure that the
   // user is allowed to edit this thread (and entry) happens here
-  $can_edit = viewer_can_edit_entry($entry_id);
-  if (!$can_edit) {
-    $day_id = $can_edit;
+  if (!check_thread_permission_for_entry($entry_id, PERMISSION_EDIT_ENTRIES)) {
+    $day_id = false;
   }
-}
-if ($day_id === null) {
-  async_end(array(
-    'error' => 'invalid_parameters',
-  ));
 }
 if (!$day_id) {
   async_end(array(
-    'error' => 'invalid_credentials',
+    'error' => 'invalid_parameters',
   ));
 }
 

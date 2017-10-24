@@ -23,11 +23,6 @@ if (!isset($_POST['thread'])) {
 }
 $user = get_viewer_id();
 $thread = (int)$_POST['thread'];
-if (!viewer_can_edit_thread($thread)) {
-  async_end(array(
-    'error' => 'invalid_credentials',
-  ));
-}
 
 $changed_fields = array();
 $changed_sql_fields = array();
@@ -75,12 +70,10 @@ if (isset($_POST['new_password'])) {
 
 $parent_thread_id = null;
 if (isset($_POST['parent_thread_id'])) {
-  // We haven't really figured out how to handle this sort of thing well yet
-  async_end(array(
-    'error' => 'invalid_parameters',
-  ));
   $parent_thread_id = (int)$_POST['parent_thread_id'];
-  if (!viewer_can_edit_thread($parent_thread_id)) {
+  if (
+    !check_thread_permission($parent_thread_id, PERMISSION_CREATE_SUBTHREADS)
+  ) {
     async_end(array(
       'error' => 'invalid_parameters',
     ));
@@ -98,9 +91,6 @@ if (isset($_POST['visibility_rules'])) {
       ));
     }
     $changed_sql_fields['parent_thread_id'] = "NULL";
-  }
-  if ($vis_rules !== VISIBILITY_NESTED_OPEN) {
-    $changed_sql_fields['concrete_ancestor_thread_id'] = "NULL";
   }
   if ($vis_rules !== VISIBILITY_CLOSED && $vis_rules !== VISIBILITY_SECRET) {
     if ($new_password !== null) {
@@ -124,12 +114,11 @@ if (!$changed_sql_fields && !$add_member_ids) {
   ));
 }
 
-// Many unrelated purposes for this query:
+// Two unrelated purposes for this query:
 // - get hash for viewer password check (users table)
 // - figures out if the thread requires auth (threads table)
-// - makes sure that viewer has the necessary permissions (roles table)
 $query = <<<SQL
-SELECT t.visibility_rules, u.hash, t.parent_thread_id, r.role
+SELECT t.visibility_rules, u.hash, t.parent_thread_id
 FROM users u
 LEFT JOIN threads t ON t.id = {$thread}
 LEFT JOIN roles r ON r.user = u.id AND t.id
@@ -142,17 +131,13 @@ if (!$row || $row['visibility_rules'] === null) {
     'error' => 'internal_error',
   ));
 }
+$permission_info = fetch_thread_permission_info($thread);
 if (
   (
     isset($changed_sql_fields['name']) ||
     isset($changed_sql_fields['description']) ||
-    isset($changed_sql_fields['color']) ||
-    isset($changed_sql_fields['edit_rules']) ||
-    isset($changed_sql_fields['hash']) ||
-    isset($changed_sql_fields['parent_thread_id']) ||
-    isset($changed_sql_fields['visibility_rules'])
-  ) &&
-  (int)$row['role'] < ROLE_CREATOR
+    isset($changed_sql_fields['color'])
+  ) && !permission_helper($permission_info, PERMISSION_EDIT_THREAD)
 ) {
   async_end(array(
     'error' => 'invalid_credentials',
@@ -160,15 +145,25 @@ if (
 }
 if (
   (
-    isset($changed_sql_fields['edit_rules']) ||
-    isset($changed_sql_fields['hash']) ||
     isset($changed_sql_fields['parent_thread_id']) ||
-    isset($changed_sql_fields['visibility_rules'])
-  ) &&
-  (
-    !isset($_POST['personal_password']) ||
-    !password_verify($_POST['personal_password'], $row['hash'])
+    isset($changed_sql_fields['visibility_rules']) ||
+    isset($changed_sql_fields['edit_rules']) ||
+    isset($changed_sql_fields['hash'])
+  ) && (
+    !permission_helper($permission_info, PERMISSION_EDIT_PERMISSIONS) ||
+    (
+      !isset($_POST['personal_password']) ||
+      !password_verify($_POST['personal_password'], $row['hash'])
+    )
   )
+) {
+  async_end(array(
+    'error' => 'invalid_credentials',
+  ));
+}
+if (
+  $add_member_ids &&
+  !permission_helper($permission_info, PERMISSION_ADD_MEMBERS)
 ) {
   async_end(array(
     'error' => 'invalid_credentials',
@@ -227,23 +222,6 @@ if (
   ));
 }
 
-$concrete_ancestor_thread_id = null;
-if (
-  $next_vis_rules === VISIBILITY_NESTED_OPEN &&
-  ($old_vis_rules !== VISIBILITY_NESTED_OPEN ||
-    $parent_thread_id !== null)
-) {
-  $concrete_ancestor_thread_id =
-    fetch_concrete_ancestor_thread_id($next_parent_thread_id);
-  if ($concrete_ancestor_thread_id === null) {
-    async_end(array(
-      'error' => 'invalid_parameters',
-    ));
-  }
-  $changed_sql_fields['concrete_ancestor_thread_id'] =
-    $concrete_ancestor_thread_id;
-}
-
 if ($changed_sql_fields) {
   $sql_set_strings = array();
   foreach ($changed_sql_fields as $field_name => $field_sql_string) {
@@ -281,76 +259,31 @@ if ($new_message_infos === null) {
   ));
 }
 
-// If we're switching from NESTED_OPEN to THREAD_SECRET, all of our NESTED_OPEN
-// descendants need to be updated to have us as their concrete ancestor thread
+$to_save = array();
+$to_delete = array();
 if (
-  $vis_rules === VISIBILITY_THREAD_SECRET &&
-  $old_vis_rules === VISIBILITY_NESTED_OPEN
+  $next_vis_rules !== $old_vis_rules ||
+  $next_parent_thread_id !== $old_parent_thread_id
 ) {
-  $all_nested_open_descendants = array();
-  $current_layer = array($thread);
-  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
-  while ($current_layer) {
-    $layer_sql_string = implode(", ", $current_layer);
-    $descendants_query = <<<SQL
-SELECT id
-FROM threads
-WHERE parent_thread_id IN ({$layer_sql_string}) AND
-  visibility_rules = {$visibility_nested_open}
-SQL;
-    $descendants_result = $conn->query($descendants_query);
-    $current_layer = array();
-    while ($descendants_row = $descendants_result->fetch_assoc()) {
-      $descendant_id = (int)$descendants_row['id'];
-      $current_layer[] = $descendant_id;
-      $all_nested_open_descendants[] = $descendant_id;
-    }
+  $recalculate_results = recalculate_all_permissions($thread, $next_vis_rules);
+  $to_save = array_merge($to_save, $recalculate_results['to_save']);
+  $to_delete = array_merge($to_delete, $recalculate_results['to_delete']);
+}
+if ($add_member_ids) {
+  $roletype_results = change_roletype($thread, $add_member_ids, null);
+  if (!$roletype_results) {
+    async_end(array(
+      'error' => 'unknown_error',
+    ));
   }
-  if ($all_nested_open_descendants) {
-    $descendants_sql_string = implode(", ", $all_nested_open_descendants);
-    $update_query = <<<SQL
-UPDATE threads
-SET concrete_ancestor_thread_id = {$thread}
-WHERE id IN ({$descendants_sql_string})
-SQL;
-    $conn->query($update_query);
+  foreach ($roletype_results['to_save'] as $row_to_save) {
+    $row_to_save['subscribed'] = true;
+    $to_save[] = $row_to_save;
   }
+  $to_delete = array_merge($to_delete, $roletype_results['to_delete']);
 }
-
-// If we're switching from THREAD_SECRET to NESTED_OPEN, all descendants who
-// have us as their concrete ancestor should switch to whatever is our parent's
-// concrete ancestor
-if (
-  $vis_rules === VISIBILITY_NESTED_OPEN &&
-  $old_vis_rules === VISIBILITY_THREAD_SECRET
-) {
-  // $concrete_ancestor_thread_id should be non-null
-  $update_query = <<<SQL
-UPDATE threads
-SET concrete_ancestor_thread_id = {$concrete_ancestor_thread_id}
-WHERE concrete_ancestor_thread_id = {$thread}
-SQL;
-  $conn->query($update_query);
-}
-
-$roles_to_save = array();
-foreach ($add_member_ids as $add_member_id) {
-  $roles_to_save[] = array(
-    "user" => $add_member_id,
-    "thread" => $thread,
-    "role" => ROLE_SUCCESSFUL_AUTH,
-  );
-}
-if ($add_member_ids && $next_vis_rules === VISIBILITY_NESTED_OPEN) {
-  $roles_to_save = array_merge(
-    $roles_to_save,
-    get_extra_roles_for_parent_of_joined_thread_id(
-      $next_parent_thread_id,
-      $add_member_ids
-    )
-  );
-}
-create_user_roles($roles_to_save);
+save_user_roles($to_save);
+delete_user_roles($to_delete);
 
 list($thread_infos, $thread_users) = get_thread_infos("t.id = {$thread}");
 

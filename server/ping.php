@@ -28,8 +28,8 @@ if (
 
 $time = round(microtime(true) * 1000); // in milliseconds
 $message_users = array();
-if (isset($_REQUEST['last_ping']) && $_REQUEST['last_ping']) {
-  $last_ping = (int)$_REQUEST['last_ping'];
+if (isset($_POST['last_ping']) && $_POST['last_ping']) {
+  $last_ping = (int)$_POST['last_ping'];
   list($message_infos, $truncation_status, $message_users) =
     get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD);
 } else {
@@ -47,7 +47,7 @@ $return = array(
   'truncation_status' => $truncation_status,
 );
 
-if (isset($_REQUEST['last_ping'])) {
+if (isset($_POST['last_ping'])) {
   $return['server_time'] = $time;
 }
 

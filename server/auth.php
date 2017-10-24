@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('thread_lib.php');
+require_once('permissions.php');
 
 define("ROLE_VIEWED", 0);
 define("ROLE_SUCCESSFUL_AUTH", 5);
@@ -207,32 +208,20 @@ function create_user_cookie($user_id) {
     return;
   }
 
-  // Now we will move the anonymous cookie's memberships to the logged in user
-  // MySQL can't handle constraint violations on UPDATE, so need to pull all the
-  // membership rows to PHP, delete them, and then recreate them :(
-  $result = $conn->query(
-    "SELECT thread, creation_time, last_view, role, subscribed FROM roles ".
-      "WHERE user = $anonymous_cookie_id"
-  );
-  $role_rows = array();
-  while ($row = $result->fetch_assoc()) {
-    $role_rows[] = array(
-      "user" => $user_id,
-      "thread" => (int)$row['thread'],
-      "role" => (int)$row['role'],
-      "creation_time" => (int)$row['creation_time'],
-      "last_view" => (int)$row['last_view'],
-      "subscribed" => !!$row['subscribed'],
-    );
-  }
-  if ($role_rows) {
-    create_user_roles($role_rows);
-    $conn->query("DELETE FROM roles WHERE user = $anonymous_cookie_id");
-  }
-  $conn->query(
-    "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
-      "WHERE c.id = $anonymous_cookie_id"
-  );
+  delete_cookie_from_server($anonymous_cookie_id);
+}
+
+function delete_cookie_from_server($cookie_id) {
+  global $conn;
+
+  $query = <<<SQL
+DELETE c, i, r
+FROM cookies c
+LEFT JOIN ids i ON i.id = c.id
+LEFT JOIN roles r ON r.user = c.id
+WHERE c.id = {$cookie_id}
+SQL;
+  $conn->query($query);
 }
 
 // Returns array(int: cookie_id, string: cookie_hash)
@@ -278,11 +267,7 @@ function get_anonymous_cookie($initial_run) {
   // Is the cookie expired?
   $time = round(microtime(true) * 1000); // in milliseconds
   if ($cookie_row['last_update'] + $cookie_lifetime * 1000 < $time) {
-    $conn->query(
-      "DELETE c, i FROM cookies c LEFT JOIN ids i ON i.id = c.id ".
-        "WHERE c.id = $cookie_id"
-    );
-    $conn->query("DELETE FROM roles WHERE user = $cookie_id");
+    delete_cookie_from_server($cookie_id);
     if ($initial_run) {
       $inbound_cookie_invalidated = true;
     }

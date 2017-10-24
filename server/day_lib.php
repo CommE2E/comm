@@ -3,8 +3,6 @@
 require_once('config.php');
 require_once('permissions.php');
 
-// null if invalid parameters
-// false if invalid credentials
 function get_editable_day_id($thread, $day, $month, $year) {
   global $conn;
 
@@ -13,10 +11,8 @@ function get_editable_day_id($thread, $day, $month, $year) {
     return null;
   }
 
-  $can_see = viewer_can_edit_thread($thread);
-  if (!$can_see) {
-    // can be null or false, see comment above
-    return $can_see;
+  if (!check_thread_permission($thread, PERMISSION_EDIT_ENTRIES)) {
+    return null;
   }
 
   $result = $conn->query(

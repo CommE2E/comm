@@ -33,16 +33,18 @@ if (!password_verify($password, $user_row['hash'])) {
   ));
 }
 
-$conn->query(
-  "DELETE u, iu, v, iv, c, ic, r FROM users u ".
-    "LEFT JOIN ids iu ON iu.id = u.id ".
-    "LEFT JOIN verifications v ON v.user = u.id ".
-    "LEFT JOIN ids iv ON iv.id = v.id ".
-    "LEFT JOIN cookies c ON c.user = u.id ".
-    "LEFT JOIN ids ic ON ic.id = c.id ".
-    "LEFT JOIN roles r ON r.user = u.id ".
-    "WHERE u.id = $user"
-);
+$query = <<<SQL
+DELETE u, iu, v, iv, c, ic, r
+FROM users u
+LEFT JOIN ids iu ON iu.id = u.id
+LEFT JOIN verifications v ON v.user = u.id
+LEFT JOIN ids iv ON iv.id = v.id
+LEFT JOIN cookies c ON c.user = u.id
+LEFT JOIN ids ic ON ic.id = c.id
+LEFT JOIN roles r ON r.user = u.id
+WHERE u.id = {$user}
+SQL;
+$conn->query($query);
 
 // TODO figure out what to do with threads this account admins
 

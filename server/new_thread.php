@@ -43,6 +43,12 @@ if ($vis_rules === VISIBILITY_CLOSED || $vis_rules === VISIBILITY_SECRET) {
     ));
   }
   $password = $_POST['password'];
+} else if ($vis_rules === VISIBILITY_NESTED_OPEN) {
+  if (!isset($_POST['parent_thread_id'])) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
 }
 
 $parent_thread_id = null;
@@ -53,35 +59,23 @@ if (isset($_POST['parent_thread_id'])) {
     ));
   }
   $parent_thread_id = intval($_POST['parent_thread_id']);
-  if (!viewer_can_edit_thread($parent_thread_id)) {
+  if (
+    !check_thread_permission($parent_thread_id, PERMISSION_CREATE_SUBTHREADS)
+  ) {
     async_end(array(
       'error' => 'invalid_parameters',
     ));
   }
 }
 
-$concrete_ancestor_thread_id = null;
-if ($vis_rules === VISIBILITY_NESTED_OPEN) {
-  if ($parent_thread_id === null) {
-    async_end(array(
-      'error' => 'invalid_parameters',
-    ));
-  }
-  $concrete_ancestor_thread_id =
-    fetch_concrete_ancestor_thread_id($parent_thread_id);
-  if ($concrete_ancestor_thread_id === null) {
-    async_end(array(
-      'error' => 'invalid_parameters',
-    ));
-  }
-}
+$conn->query("INSERT INTO ids(table_name) VALUES('threads')");
+$id = $conn->insert_id;
+$roletypes = create_initial_roletypes_for_new_thread($id);
 
 $raw_name = $_POST['name'];
 $name = $conn->real_escape_string($raw_name);
 $description = $conn->real_escape_string($_POST['description']);
 $time = round(microtime(true) * 1000); // in milliseconds
-$conn->query("INSERT INTO ids(table_name) VALUES('threads')");
-$id = $conn->insert_id;
 $creator = get_viewer_id();
 $edit_rules = $vis_rules >= VISIBILITY_CLOSED
   ? EDIT_LOGGED_IN
@@ -93,18 +87,15 @@ $hash_sql_string =
 $parent_thread_id_sql_string = $parent_thread_id
   ? $parent_thread_id
   : "NULL";
-$concrete_ancestor_thread_id_sql_string = $concrete_ancestor_thread_id
-  ? $concrete_ancestor_thread_id
-  : "NULL";
 
+$default_roletype = $roletypes['member_roletype_id'];
 $thread_insert_sql = <<<SQL
 INSERT INTO threads
   (id, name, description, visibility_rules, hash, edit_rules, creator,
-  creation_time, color, parent_thread_id, concrete_ancestor_thread_id)
+  creation_time, color, parent_thread_id, default_roletype)
 VALUES
   ($id, '$name', '$description', $vis_rules, $hash_sql_string, $edit_rules,
-  $creator, $time, '$color', $parent_thread_id_sql_string,
-  $concrete_ancestor_thread_id_sql_string)
+  $creator, $time, '$color', $parent_thread_id_sql_string, {$default_roletype})
 SQL;
 $conn->query($thread_insert_sql);
 
@@ -141,34 +132,35 @@ if ($new_message_infos === null) {
   ));
 }
 
-$roles_to_save = array(array(
-  "user" => $creator,
-  "thread" => $id,
-  "role" => ROLE_CREATOR,
-  "creation_time" => $time,
-  "last_view" => $time,
-  "subscribed" => true,
-));
-foreach ($initial_member_ids as $initial_member_id) {
-  $roles_to_save[] = array(
-    "user" => $initial_member_id,
-    "thread" => $id,
-    "role" => ROLE_SUCCESSFUL_AUTH,
-    "creation_time" => $time,
-    "last_view" => $time,
-    "subscribed" => true,
-  );
+$creator_results = change_roletype(
+  $id,
+  array($creator),
+  $roletypes['creator_roletype_id']
+);
+if (!$creator_results) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
 }
-if ($initial_member_ids && $vis_rules === VISIBILITY_NESTED_OPEN) {
-  $roles_to_save = array_merge(
-    $roles_to_save,
-    get_extra_roles_for_parent_of_joined_thread_id(
-      $parent_thread_id,
-      $initial_member_ids
-    )
-  );
+$to_save = $creator_results['to_save'];
+$to_delete = $creator_results['to_delete'];
+if ($initial_member_ids) {
+  $initial_member_results = change_roletype($id, $initial_member_ids, null);
+  if (!$initial_member_results) {
+    async_end(array(
+      'error' => 'unknown_error',
+    ));
+  }
+  $to_save = array_merge($to_save, $initial_member_results['to_save']);
+  $to_delete = array_merge($to_delete, $initial_member_results['to_delete']);
 }
-create_user_roles($roles_to_save);
+$to_save_with_subscribed = array();
+foreach ($to_save as $row_to_save) {
+  $row_to_save['subscribed'] = true;
+  $to_save_with_subscribed[] = $row_to_save;
+}
+save_user_roles($to_save_with_subscribed);
+delete_user_roles($to_delete);
 
 $member_ids = array_merge(
   array((string)$creator),

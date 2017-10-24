@@ -11,14 +11,7 @@ if (!isset($_POST['id'])) {
   ));
 }
 $id = intval($_POST['id']);
-
-$can_see = viewer_can_see_entry($id);
-if ($can_see === null) {
-  async_end(array(
-    'error' => 'invalid_parameters',
-  ));
-}
-if (!$can_see) {
+if (!check_thread_permission_for_entry($id, PERMISSION_VISIBLE)) {
   async_end(array(
     'error' => 'invalid_credentials',
   ));

@@ -14,16 +14,9 @@ if (!isset($_POST['thread']) || !isset($_POST['text'])) {
   ));
 }
 $thread = (int)$_POST['thread'];
-
-$can_edit = viewer_can_edit_thread($thread);
-if ($can_edit === null) {
+if (!check_thread_permission($thread, PERMISSION_VOICED)) {
   async_end(array(
     'error' => 'invalid_parameters',
-  ));
-}
-if (!$can_edit) {
-  async_end(array(
-    'error' => 'invalid_credentials',
   ));
 }
 

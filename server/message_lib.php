@@ -39,13 +39,9 @@ define("TRUNCATION_EXHAUSTIVE", "exhaustive");
 // - An array of MessageInfos
 // - An array that points from threadID to truncation status (see definition of
 //   TRUNCATION_ constants)
+// - An array of user IDs pointing to UserInfo objects for all referenced users
 function get_message_infos($input, $number_per_thread) {
   global $conn;
-
-  $viewer_id = get_viewer_id();
-  $visibility_closed = VISIBILITY_CLOSED;
-  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
-  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
 
   if (is_array($input)) {
     $conditions = array();
@@ -60,9 +56,12 @@ function get_message_infos($input, $number_per_thread) {
     }
     $additional_condition = "(".implode(" OR ", $conditions).")";
   } else {
-    $additional_condition = "tr.subscribed = 1";
+    $additional_condition = "r.subscribed = 1";
   }
 
+  $viewer_id = get_viewer_id();
+  $visibility_open = VISIBILITY_OPEN;
+  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $int_number_per_thread = (int)$number_per_thread;
   $query = <<<SQL
 SET @num := 0, @thread := '';
@@ -74,19 +73,9 @@ FROM (
     @thread := m.thread AS thread
   FROM messages m
   LEFT JOIN threads t ON t.id = m.thread
-  LEFT JOIN roles tr ON tr.thread = m.thread AND tr.user = {$viewer_id}
-  LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
-  LEFT JOIN roles ar
-    ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
-  WHERE (
-      t.visibility_rules < {$visibility_closed} OR
-      t.visibility_rules = {$visibility_nested_open} OR
-      (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
-    ) AND (
-      t.visibility_rules != {$visibility_nested_open} OR
-      a.visibility_rules < {$visibility_closed} OR
-      (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
-    ) AND {$additional_condition}
+  LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
+  WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+    AND {$additional_condition}
   ORDER BY m.thread, m.time DESC
 ) x
 LEFT JOIN users u ON u.id = x.user
@@ -145,33 +134,22 @@ SQL;
 // - An array of MessageInfos
 // - An array that points from threadID to truncation status (see definition of
 //   TRUNCATION_ constants)
+// - An array of user IDs pointing to UserInfo objects for all referenced users
 function get_messages_since($current_as_of, $max_number_per_thread) {
   global $conn;
 
   $viewer_id = get_viewer_id();
-  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
-  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
-
   $query = <<<SQL
 SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
-LEFT JOIN roles tr ON tr.thread = m.thread AND tr.user = {$viewer_id}
-LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
-LEFT JOIN roles ar
-  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
-WHERE (
-    t.visibility_rules < {$visibility_closed} OR
-    t.visibility_rules = {$visibility_nested_open} OR
-    (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
-  ) AND (
-    t.visibility_rules != {$visibility_nested_open} OR
-    a.visibility_rules < {$visibility_closed} OR
-    (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
-  ) AND m.time > {$current_as_of}
+WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+  AND m.time > {$current_as_of}
 ORDER BY m.thread, m.time DESC
 SQL;
   $result = $conn->query($query);
@@ -230,7 +208,7 @@ function message_from_row($row) {
     $message['addedUserIDs'] = json_decode($row['content'], true);
   } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
     $child_thread_id = $row['content'];
-    if (!viewer_can_see_thread($child_thread_id)) {
+    if (!check_thread_permission((int)$child_thread_id, PERMISSION_KNOW_OF)) {
       return null;
     }
     $message['childThreadID'] = $child_thread_id;

@@ -20,15 +20,9 @@ $id = intval($_POST['id']);
 $timestamp = intval($_POST['timestamp']);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
-$can_see = viewer_can_edit_entry($id);
-if ($can_see === null) {
+if (!check_thread_permission_for_entry($id, PERMISSION_EDIT_ENTRIES)) {
   async_end(array(
     'error' => 'invalid_parameters',
-  ));
-}
-if (!$can_see) {
-  async_end(array(
-    'error' => 'invalid_credentials',
   ));
 }
 

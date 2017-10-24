@@ -39,8 +39,11 @@ function get_entry_infos($input) {
 
   $start_date = $input['start_date'];
   $end_date = $input['end_date'];
+
   $include_deleted =
     !empty($input['include_deleted']) && $input['include_deleted'];
+  $deleted_condition = $include_deleted ? "" : "AND e.deleted = 0 ";
+
   $home = null;
   $thread = null;
   if ($input['nav'] === "home") {
@@ -49,13 +52,11 @@ function get_entry_infos($input) {
     $home = false;
     $thread = intval($input['nav']);
   }
+  $additional_condition = $home ? "r.subscribed = 1" : "d.thread = $thread";
 
-  $additional_condition = $home ? "tr.subscribed = 1" : "d.thread = $thread";
-  $deleted_condition = $include_deleted ? "" : "AND e.deleted = 0 ";
   $viewer_id = get_viewer_id();
-  $visibility_closed = VISIBILITY_CLOSED;
+  $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
-  $role_successful_auth = ROLE_SUCCESSFUL_AUTH;
   $select_query = <<<SQL
 SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
   e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
@@ -63,32 +64,14 @@ SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
-LEFT JOIN roles tr ON tr.thread = d.thread AND tr.user = {$viewer_id}
-LEFT JOIN threads a ON a.id = t.concrete_ancestor_thread_id
-LEFT JOIN roles ar
-  ON ar.thread = t.concrete_ancestor_thread_id AND ar.user = {$viewer_id}
+LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id}
 LEFT JOIN users u ON u.id = e.creator
-WHERE (
-    t.visibility_rules < {$visibility_closed} OR
-    t.visibility_rules = {$visibility_nested_open} OR
-    (tr.thread IS NOT NULL AND tr.role >= {$role_successful_auth})
-  ) AND (
-    t.visibility_rules != {$visibility_nested_open} OR
-    a.visibility_rules < {$visibility_closed} OR
-    (ar.thread IS NOT NULL AND ar.role >= {$role_successful_auth})
-  ) AND d.date BETWEEN '{$start_date}' AND '{$end_date}'
+WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+  AND d.date BETWEEN '{$start_date}' AND '{$end_date}'
   AND {$additional_condition} {$deleted_condition}
 ORDER BY e.creation_time DESC
 SQL;
   $result = $conn->query($select_query);
-
-  if ($thread !== null) {
-    create_user_roles(array(array(
-      "user" => $viewer_id,
-      "thread" => $thread,
-      "role" => ROLE_VIEWED,
-    )));
-  }
 
   $entries = array();
   $users = array();
