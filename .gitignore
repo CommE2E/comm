@@ -1,7 +1,6 @@
 .DS_Store
 server/config.php
 server/.htaccess
-server/scripts
 server/fonts
 lib/node_modules
 web/node_modules/*
