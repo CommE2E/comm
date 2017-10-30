@@ -183,7 +183,7 @@ const defaultNavInfo: NavInfo = {
   navigationState: defaultNavigationState,
 };
 
-function reduceNavInfo(state: NavInfo, action: Action): NavInfo {
+function reduceNavInfo(state: NavInfo, action: *): NavInfo {
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
     action,

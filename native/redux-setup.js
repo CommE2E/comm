@@ -80,7 +80,7 @@ const blacklist = __DEV__
       'navInfo',
     ];
 
-function reducer(state: AppState, action: Action) {
+function reducer(state: AppState, action: *) {
   const navInfo = reduceNavInfo(state && state.navInfo, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = {
