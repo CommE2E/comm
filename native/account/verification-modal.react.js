@@ -52,7 +52,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 
 type VerificationModalMode = "simple-text" | "reset-password";
 type Props = {
-  navigation: NavigationScreenProp<NavigationLeafRoute, *>
+  navigation: NavigationScreenProp<NavigationLeafRoute>
     & { state: { params: { verifyCode: string } } },
   // Redux state
   isForeground: bool,
@@ -72,9 +72,8 @@ type State = {
   resetPasswordPanelOpacityValue: Animated.Value,
   onePasswordSupported: bool,
 };
-class InnerVerificationModal extends React.PureComponent {
+class InnerVerificationModal extends React.PureComponent<Props, State> {
 
-  props: Props;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -89,7 +88,7 @@ class InnerVerificationModal extends React.PureComponent {
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
   };
-  state: State = {
+  state = {
     mode: "simple-text",
     paddingTop: new Animated.Value(
       InnerVerificationModal.currentPaddingTop("simple-text", 0),

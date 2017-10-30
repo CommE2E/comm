@@ -39,27 +39,31 @@ import {
   Panel,
 } from './panel-components.react';
 
-class ResetPasswordPanel extends React.PureComponent {
+type Props = {
+  verifyCode: string,
+  username: string,
+  onePasswordSupported: bool,
+  onSuccess: () => void,
+  setActiveAlert: (activeAlert: bool) => void,
+  opacityValue: Animated.Value,
+  // Redux state
+  loadingStatus: LoadingStatus,
+  currentCalendarQuery: () => CalendarQuery,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  resetPasswordAndFetchInitialData: (
+    code: string,
+    password: string,
+    calendarQuery: CalendarQuery,
+  ) => Promise<LogInResult>,
+};
+type State = {
+  passwordInputText: string,
+  confirmPasswordInputText: string,
+};
+class ResetPasswordPanel extends React.PureComponent<Props, State> {
 
-  props: {
-    verifyCode: string,
-    username: string,
-    onePasswordSupported: bool,
-    onSuccess: () => void,
-    setActiveAlert: (activeAlert: bool) => void,
-    opacityValue: Animated.Value,
-    // Redux state
-    loadingStatus: LoadingStatus,
-    currentCalendarQuery: () => CalendarQuery,
-    // Redux dispatch functions
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    resetPasswordAndFetchInitialData: (
-      code: string,
-      password: string,
-      calendarQuery: CalendarQuery,
-    ) => Promise<LogInResult>,
-  };
   static propTypes = {
     verifyCode: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
@@ -72,10 +76,7 @@ class ResetPasswordPanel extends React.PureComponent {
     dispatchActionPromise: PropTypes.func.isRequired,
     resetPasswordAndFetchInitialData: PropTypes.func.isRequired,
   };
-  state: {
-    passwordInputText: string,
-    confirmPasswordInputText: string,
-  } = {
+  state = {
     passwordInputText: "",
     confirmPasswordInputText: "",
   };

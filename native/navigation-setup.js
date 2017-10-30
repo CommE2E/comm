@@ -72,13 +72,13 @@ const AppNavigator = TabNavigator(
   },
 );
 type WrappedAppNavigatorProps = {|
-  navigation: NavigationScreenProp<*, NavigationAction>,
+  navigation: NavigationScreenProp<*>,
   isForeground: bool,
   atInitialRoute: bool,
 |};
-class WrappedAppNavigator extends React.PureComponent {
+class WrappedAppNavigator
+  extends React.PureComponent<WrappedAppNavigatorProps> {
 
-  props: WrappedAppNavigatorProps;
   static propTypes = {
     navigation: PropTypes.shape({
       goBack: PropTypes.func.isRequired,

@@ -10,9 +10,8 @@ import PropTypes from 'prop-types';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-class ConnectedStatusBar extends React.PureComponent {
+class ConnectedStatusBar extends React.PureComponent<*> {
 
-  props: Object;
   static propTypes = {
     globalLoadingStatus: PropTypes.string.isRequired,
   };

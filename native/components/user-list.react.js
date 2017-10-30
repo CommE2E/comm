@@ -9,12 +9,12 @@ import { FlatList } from 'react-native';
 
 import UserListUser from './user-list-user.react';
 
-class UserList extends React.PureComponent {
+type Props = {
+  userInfos: $ReadOnlyArray<UserInfo>,
+  onSelect: (userID: string) => void,
+};
+class UserList extends React.PureComponent<Props> {
 
-  props: {
-    userInfos: $ReadOnlyArray<UserInfo>,
-    onSelect: (userID: string) => void,
-  };
   static propTypes = {
     userInfos: PropTypes.arrayOf(userInfoPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
@@ -45,7 +45,7 @@ class UserList extends React.PureComponent {
     );
   }
 
-  static getItemLayout(data: $ReadOnlyArray<UserInfo>, index: number) {
+  static getItemLayout(data: ?$ReadOnlyArray<UserInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 

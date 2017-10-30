@@ -2,7 +2,7 @@
 
 import type {
   NavigationState,
-  NavigationAction,
+  PossiblyDeprecatedNavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
@@ -75,24 +75,25 @@ registerConfig({
 // app is active and the user is logged in.
 const pingFrequency = 3 * 1000;
 
-type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
+type NativeDispatch = Dispatch
+  & ((action: PossiblyDeprecatedNavigationAction) => boolean);
 
-class AppWithNavigationState extends React.PureComponent {
+type Props = {
+  // Redux state
+  cookie: ?string,
+  navigationState: NavigationState,
+  pingStartingPayload: () => PingStartingPayload,
+  currentAsOf: number,
+  // Redux dispatch functions
+  dispatch: NativeDispatch,
+  dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  ping:
+    (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
+};
+class AppWithNavigationState extends React.PureComponent<Props> {
 
-  props: {
-    // Redux state
-    cookie: ?string,
-    navigationState: NavigationState,
-    pingStartingPayload: () => PingStartingPayload,
-    currentAsOf: number,
-    // Redux dispatch functions
-    dispatch: NativeDispatch,
-    dispatchActionPayload: DispatchActionPayload,
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    ping:
-      (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
-  };
   static propTypes = {
     cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,

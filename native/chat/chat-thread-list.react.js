@@ -7,7 +7,6 @@ import { chatThreadItemPropType } from '../selectors/chat-selectors';
 import type {
   NavigationScreenProp,
   NavigationRoute,
-  NavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 
 import React from 'react';
@@ -23,14 +22,14 @@ import { MessageListRouteName } from './message-list.react';
 import AddThreadButton from './add-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 
-class InnerChatThreadList extends React.PureComponent {
+type Props = {
+  navigation: NavigationScreenProp<NavigationRoute>,
+  // Redux state
+  chatListData: $ReadOnlyArray<ChatThreadItem>,
+  viewerID: ?string,
+};
+class InnerChatThreadList extends React.PureComponent<Props> {
 
-  props: {
-    navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
-    // Redux state
-    chatListData: $ReadOnlyArray<ChatThreadItem>,
-    viewerID: ?string,
-  };
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -67,9 +66,12 @@ class InnerChatThreadList extends React.PureComponent {
   }
 
   static getItemLayout(
-    data: $ReadOnlyArray<ChatThreadItem>,
+    data: ?$ReadOnlyArray<ChatThreadItem>,
     index: number,
   ) {
+    if (!data) {
+      return { length: 0, offset: 0, index };
+    }
     const offset =
       InnerChatThreadList.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];

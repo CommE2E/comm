@@ -4,7 +4,7 @@ import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -22,7 +22,7 @@ import invariant from 'invariant';
 
 const windowWidth = Dimensions.get('window').width;
 
-type RequiredProps<T> = {
+type Props<T> = {
   /**
    * An array of tags, which can be any type, as long as labelExtractor below
    * can extract a string from it.
@@ -46,8 +46,6 @@ type RequiredProps<T> = {
    * update the text prop when this is called if they want to access input.
    */
   onChangeText: (text: string) => void,
-};
-type OptionalProps = {
   /**
    * Background color of tags
    */
@@ -91,16 +89,11 @@ type OptionalProps = {
    */
   defaultInputWidth: number,
 };
-type Props<T> = RequiredProps<T> & OptionalProps;
 type State = {
   inputWidth: number,
   wrapperHeight: number,
 };
-class TagInput<T> extends React.PureComponent<
-  OptionalProps,
-  Props<T>,
-  State,
-> {
+class TagInput<T> extends React.PureComponent<Props<T>, State> {
 
   static propTypes = {
     value: PropTypes.array.isRequired,
@@ -113,22 +106,21 @@ class TagInput<T> extends React.PureComponent<
     tagContainerStyle: ViewPropTypes.style,
     tagTextStyle: Text.propTypes.style,
     inputColor: PropTypes.string,
+    // $FlowFixMe(>=0.49.0): https://github.com/facebook/react-native/pull/16437
     inputProps: PropTypes.shape(TextInput.propTypes),
     minHeight: PropTypes.number,
     maxHeight: PropTypes.number,
     onHeightChange: PropTypes.func,
     defaultInputWidth: PropTypes.number,
   };
-  props: Props<T>;
-  state: State;
   wrapperWidth = windowWidth;
   spaceLeft = 0;
   // scroll to bottom
   contentHeight = 0;
   scrollViewHeight = 0;
   // refs
-  tagInput: ?TextInput = null;
-  scrollView: ?ScrollView = null;
+  tagInput: ?React.ElementRef<typeof TextInput> = null;
+  scrollView: ?React.ElementRef<typeof ScrollView> = null;
 
   static defaultProps = {
     tagColor: '#dddddd',
@@ -308,11 +300,11 @@ class TagInput<T> extends React.PureComponent<
     )
   }
 
-  tagInputRef = (tagInput: TextInput) => {
+  tagInputRef = (tagInput: ?React.ElementRef<typeof TextInput>) => {
     this.tagInput = tagInput;
   }
 
-  scrollViewRef = (scrollView: ScrollView) => {
+  scrollViewRef = (scrollView: ?React.ElementRef<typeof ScrollView>) => {
     this.scrollView = scrollView;
   }
 
@@ -368,9 +360,8 @@ type TagProps = {
   tagContainerStyle?: StyleObj,
   tagTextStyle?: StyleObj,
 };
-class Tag extends React.PureComponent<void, TagProps, void> {
+class Tag extends React.PureComponent<TagProps> {
 
-  props: TagProps;
   static propTypes = {
     index: PropTypes.number.isRequired,
     label: PropTypes.string.isRequired,

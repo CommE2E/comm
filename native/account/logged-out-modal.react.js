@@ -75,10 +75,9 @@ type State = {
   onePasswordSupported: bool,
 };
 
-class InnerLoggedOutModal extends React.PureComponent {
+class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State = {
+  state = {
     mode: "loading",
     panelPaddingTop: new Animated.Value(
       InnerLoggedOutModal.calculatePanelPaddingTop("prompt", 0),

@@ -51,10 +51,9 @@ type Props = {
 type State = {
   height: number,
 };
-class InputBar extends React.PureComponent {
+class InputBar extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State = {
+  state = {
     height: 0,
   };
   static propTypes = {

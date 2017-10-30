@@ -106,10 +106,8 @@ type State = {
   height: number,
   threadInfo: ThreadInfo,
 };
-class Entry extends React.Component {
+class Entry extends React.Component<Props, State> {
   
-  props: Props;
-  state: State;
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
     visible: PropTypes.bool.isRequired,

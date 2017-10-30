@@ -8,15 +8,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import ColorPicker from '../components/color-picker.react';
 
-class ColorPickerModal extends React.PureComponent {
+type Props = {|
+  isVisible: bool,
+  closeModal: () => void,
+  color: string,
+  oldColor?: ?string,
+  onColorSelected: (color: string) => void,
+|};
+class ColorPickerModal extends React.PureComponent<Props> {
 
-  props: {|
-    isVisible: bool,
-    closeModal: () => void,
-    color: string,
-    oldColor?: ?string,
-    onColorSelected: (color: string) => void,
-  |};
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,

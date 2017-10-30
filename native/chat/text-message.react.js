@@ -41,9 +41,8 @@ type Props = {
   onFocus: (messageKey: string) => void,
   threadInfo: ThreadInfo,
 };
-class TextMessage extends React.PureComponent {
+class TextMessage extends React.PureComponent<Props> {
 
-  props: Props;
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,

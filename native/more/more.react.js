@@ -30,22 +30,20 @@ import {
 } from '../account/native-credentials';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 
-class More extends React.PureComponent {
-
-  props: {
-    navigation: NavigationScreenProp<*, *>,
-    // Redux state
-    username: ?string,
-    pingStartingPayload: () => PingStartingPayload,
-    currentAsOf: number,
-    // Redux dispatch functions
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    logOut: () => Promise<LogOutResult>,
-    ping:
-      (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
-  };
-  state: {};
+type Props = {
+  navigation: NavigationScreenProp<*, *>,
+  // Redux state
+  username: ?string,
+  pingStartingPayload: () => PingStartingPayload,
+  currentAsOf: number,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  logOut: () => Promise<LogOutResult>,
+  ping:
+    (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
+};
+class More extends React.PureComponent<Props> {
 
   static propTypes = {
     navigation: PropTypes.shape({

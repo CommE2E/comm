@@ -35,9 +35,8 @@ type Props = {
   onFocus: (messageKey: string) => void,
   threadInfo: ThreadInfo,
 };
-class RobotextMessage extends React.PureComponent {
+class RobotextMessage extends React.PureComponent<Props> {
 
-  props: Props;
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     onFocus: PropTypes.func.isRequired,
@@ -118,16 +117,15 @@ class RobotextMessage extends React.PureComponent {
 
 }
 
-class InnerThreadEntity extends React.PureComponent {
-
-  props: {
-    id: string,
-    name: string,
-    // Redux state
-    threadInfo: ThreadInfo,
-    // Redux dispatch functions
-    dispatch: Dispatch,
-  };
+type InnerThreadEntityProps = {
+  id: string,
+  name: string,
+  // Redux state
+  threadInfo: ThreadInfo,
+  // Redux dispatch functions
+  dispatch: Dispatch,
+};
+class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 
   render() {
     return (

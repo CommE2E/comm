@@ -3,7 +3,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
-class ListLoadingIndicator extends React.PureComponent {
+class ListLoadingIndicator extends React.PureComponent<{||}> {
 
   render() {
     return (

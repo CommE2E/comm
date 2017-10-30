@@ -13,11 +13,11 @@ import {
   robotextToRawString,
 } from 'lib/shared/message-utils';
 
-class MessagePreview extends React.PureComponent {
+type Props = {
+  messageInfo: MessageInfo,
+};
+class MessagePreview extends React.PureComponent<Props> {
 
-  props: {
-    messageInfo: MessageInfo,
-  };
   static propTypes = {
     messageInfo: messageInfoPropType.isRequired,
   };

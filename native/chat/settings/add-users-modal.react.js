@@ -76,10 +76,8 @@ type State = {|
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<UserInfo>,
 |};
-class AddUsersModal extends React.PureComponent {
+class AddUsersModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     close: PropTypes.func.isRequired,

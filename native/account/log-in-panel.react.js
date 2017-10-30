@@ -46,25 +46,29 @@ import {
   setNativeCredentials,
 } from './native-credentials';
 
-class LogInPanel extends React.PureComponent {
+type Props = {
+  setActiveAlert: (activeAlert: bool) => void,
+  opacityValue: Animated.Value,
+  onePasswordSupported: bool,
+  innerRef: (logInPanel: LogInPanel) => void,
+  // Redux state
+  loadingStatus: LoadingStatus,
+  currentCalendarQuery: () => CalendarQuery,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  logInAndFetchInitialData: (
+    username: string,
+    password: string,
+    calendarQuery: CalendarQuery,
+  ) => Promise<LogInResult>,
+};
+type State = {
+  usernameOrEmailInputText: string,
+  passwordInputText: string,
+};
+class LogInPanel extends React.PureComponent<Props, State> {
 
-  props: {
-    setActiveAlert: (activeAlert: bool) => void,
-    opacityValue: Animated.Value,
-    onePasswordSupported: bool,
-    innerRef: (logInPanel: LogInPanel) => void,
-    // Redux state
-    loadingStatus: LoadingStatus,
-    currentCalendarQuery: () => CalendarQuery,
-    // Redux dispatch functions
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    logInAndFetchInitialData: (
-      username: string,
-      password: string,
-      calendarQuery: CalendarQuery,
-    ) => Promise<LogInResult>,
-  };
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -75,10 +79,7 @@ class LogInPanel extends React.PureComponent {
     dispatchActionPromise: PropTypes.func.isRequired,
     logInAndFetchInitialData: PropTypes.func.isRequired,
   };
-  state: {
-    usernameOrEmailInputText: string,
-    passwordInputText: string,
-  } = {
+  state = {
     usernameOrEmailInputText: "",
     passwordInputText: "",
   };

@@ -22,25 +22,26 @@ import ForgotPasswordPanel from './forgot-password-panel.react';
 
 type LogInMode = "log-in" | "forgot-password" | "forgot-password-success";
 
-class LogInPanelContainer extends React.PureComponent {
+type Props = {
+  onePasswordSupported: bool,
+  setActiveAlert: (activeAlert: bool) => void,
+  opacityValue: Animated.Value,
+  forgotPasswordLinkOpacity: Animated.Value,
+};
+type State = {
+  panelTransition: Animated.Value,
+  logInMode: LogInMode,
+  nextLogInMode: LogInMode,
+};
+class LogInPanelContainer extends React.PureComponent<Props, State> {
 
-  props: {
-    onePasswordSupported: bool,
-    setActiveAlert: (activeAlert: bool) => void,
-    opacityValue: Animated.Value,
-    forgotPasswordLinkOpacity: Animated.Value,
-  };
   static propTypes = {
     onePasswordSupported: PropTypes.bool.isRequired,
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     forgotPasswordLinkOpacity: PropTypes.object.isRequired,
   };
-  state: {
-    panelTransition: Animated.Value,
-    logInMode: LogInMode,
-    nextLogInMode: LogInMode,
-  } = {
+  state = {
     panelTransition: new Animated.Value(0),
     logInMode: "log-in",
     nextLogInMode: "log-in",
@@ -161,7 +162,7 @@ class LogInPanelContainer extends React.PureComponent {
       ),
     ];
 
-    let listenerID = -1;
+    let listenerID = "";
     const listener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 1) {
         this.setState({ logInMode: this.state.nextLogInMode });
@@ -205,7 +206,7 @@ class LogInPanelContainer extends React.PureComponent {
       ),
     ];
 
-    let listenerID = -1;
+    let listenerID = "";
     const listener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
         this.setState({ logInMode: this.state.nextLogInMode });
@@ -227,7 +228,7 @@ class LogInPanelContainer extends React.PureComponent {
 
     const duration = 350;
 
-    let listenerID = -1;
+    let listenerID = "";
     const listener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 2) {
         this.setState({ logInMode: this.state.nextLogInMode });

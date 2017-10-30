@@ -27,17 +27,17 @@ import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import ThreadPickerThread from './thread-picker-thread.react';
 
-class ThreadPicker extends React.PureComponent {
+type Props = {
+  dateString: ?string,
+  close: () => void,
+  // Redux state
+  onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
+  viewerID: string,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
+};
+class ThreadPicker extends React.PureComponent<Props> {
 
-  props: {
-    dateString: ?string,
-    close: () => void,
-    // Redux state
-    onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-    viewerID: string,
-    // Redux dispatch functions
-    dispatchActionPayload: DispatchActionPayload,
-  };
   static propTypes = {
     dateString: PropTypes.string,
     close: PropTypes.func.isRequired,
@@ -91,7 +91,7 @@ class ThreadPicker extends React.PureComponent {
     );
   }
 
-  static getItemLayout(data: $ReadOnlyArray<ThreadInfo>, index: number) {
+  static getItemLayout(data: ?$ReadOnlyArray<ThreadInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 

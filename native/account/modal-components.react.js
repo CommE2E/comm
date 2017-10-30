@@ -9,9 +9,8 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-class TextInput extends React.PureComponent {
+class TextInput extends React.PureComponent<*> {
   
-  props: Object;
   innerTextInput: ?BaseTextInput;
 
   render() {

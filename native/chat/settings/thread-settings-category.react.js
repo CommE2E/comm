@@ -1,12 +1,12 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 type Props = {|
   type: "full" | "outline" | "unpadded",
   title: string,
-  children?: React.Element<*>,
+  children?: React.Node,
 |};
 function ThreadSettingsCategory(props: Props) {
   return (

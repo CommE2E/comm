@@ -3,7 +3,6 @@
 import type {
   NavigationScreenProp,
   NavigationRoute,
-  NavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
@@ -62,7 +61,7 @@ import ColorPickerModal from '../color-picker-modal.react';
 
 const itemPageLength = 5;
 
-type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
+type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
 
 type Props = {|
@@ -92,10 +91,8 @@ type State = {|
   showEditColorModal: bool,
   colorEditValue: string,
 |};
-class InnerThreadSettings extends React.PureComponent {
+class InnerThreadSettings extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({

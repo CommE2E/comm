@@ -39,23 +39,29 @@ import {
 } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
 
-class RegisterPanel extends React.PureComponent {
+type Props = {
+  setActiveAlert: (activeAlert: bool) => void,
+  opacityValue: Animated.Value,
+  onePasswordSupported: bool,
+  // Redux state
+  loadingStatus: LoadingStatus,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<LoggedInUserInfo>,
+};
+type State = {
+  usernameInputText: string,
+  emailInputText: string,
+  passwordInputText: string,
+  confirmPasswordInputText: string,
+};
+class RegisterPanel extends React.PureComponent<Props, State> {
 
-  props: {
-    setActiveAlert: (activeAlert: bool) => void,
-    opacityValue: Animated.Value,
-    onePasswordSupported: bool,
-    // Redux state
-    loadingStatus: LoadingStatus,
-    // Redux dispatch functions
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    register: (
-      username: string,
-      email: string,
-      password: string,
-    ) => Promise<LoggedInUserInfo>,
-  };
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -64,12 +70,7 @@ class RegisterPanel extends React.PureComponent {
     dispatchActionPromise: PropTypes.func.isRequired,
     register: PropTypes.func.isRequired,
   };
-  state: {
-    usernameInputText: string,
-    emailInputText: string,
-    passwordInputText: string,
-    confirmPasswordInputText: string,
-  } = {
+  state = {
     usernameInputText: "",
     emailInputText: "",
     passwordInputText: "",

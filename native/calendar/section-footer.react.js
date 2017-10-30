@@ -11,12 +11,12 @@ import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
 
-class SectionFooter extends React.PureComponent {
+type Props = {
+  dateString: string,
+  onAdd: (dateString: string) => void,
+};
+class SectionFooter extends React.PureComponent<Props> {
 
-  props: {
-    dateString: string,
-    onAdd: (dateString: string) => void,
-  };
   static propTypes = {
     dateString: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,

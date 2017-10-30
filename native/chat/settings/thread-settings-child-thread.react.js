@@ -17,9 +17,7 @@ type Props = {|
     params?: NavigationParams,
   ) => bool,
 |};
-class ThreadSettingsChildThread extends React.PureComponent {
-
-  props: Props;
+class ThreadSettingsChildThread extends React.PureComponent<Props> {
 
   render() {
     return (

@@ -3,7 +3,6 @@
 import type {
   NavigationScreenProp,
   NavigationRoute,
-  NavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -67,7 +66,7 @@ const tagInputProps = {
   placeholder: "username",
 };
 
-type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
+type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { parentThreadID: ?string } } };
 const segmentedPrivacyOptions = ['Public', 'Secret'];
 
@@ -101,10 +100,8 @@ type State = {
   showColorPicker: bool,
   color: string,
 };
-class InnerAddThread extends React.PureComponent {
+class InnerAddThread extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({

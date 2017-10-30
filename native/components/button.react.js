@@ -4,7 +4,7 @@ import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Platform,
   View,
@@ -17,23 +17,23 @@ import PropTypes from 'prop-types';
 
 const ANDROID_VERSION_LOLLIPOP = 21;
 
-class Button extends React.PureComponent {
+type Props = {
+  onPress: () => void,
+  disabled?: bool,
+  style?: StyleObj,
+  // style and topStyle just get merged in most cases. The separation only
+  // matters in the case of iOS and iosFormat = "highlight", where the
+  // topStyle is necessary for layout, and the bottom style is necessary for
+  // colors etc.
+  topStyle?: StyleObj,
+  children?: React.Node,
+  androidBorderlessRipple: bool,
+  iosFormat: "highlight" | "opacity",
+  iosHighlightUnderlayColor: string,
+  iosActiveOpacity: number,
+};
+class Button extends React.PureComponent<Props> {
 
-  props: {
-    onPress: () => void,
-    disabled?: bool,
-    style?: StyleObj,
-    // style and topStyle just get merged in most cases. The separation only
-    // matters in the case of iOS and iosFormat = "highlight", where the
-    // topStyle is necessary for layout, and the bottom style is necessary for
-    // colors etc.
-    topStyle?: StyleObj,
-    children?: React.Element<any>,
-    androidBorderlessRipple: bool,
-    iosFormat: "highlight" | "opacity",
-    iosHighlightUnderlayColor: string,
-    iosActiveOpacity: number,
-  };
   static propTypes = {
     onPress: PropTypes.func.isRequired,
     disabled: PropTypes.bool,

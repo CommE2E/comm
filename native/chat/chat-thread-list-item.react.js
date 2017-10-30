@@ -14,12 +14,12 @@ import Button from '../components/button.react';
 import MessagePreview from './message-preview.react';
 import ColorSplotch from '../components/color-splotch.react';
 
-class ChatThreadListItem extends React.PureComponent {
+type Props = {
+  data: ChatThreadItem,
+  onPressItem: (threadInfo: ThreadInfo) => void,
+};
+class ChatThreadListItem extends React.PureComponent<Props> {
 
-  props: {
-    data: ChatThreadItem,
-    onPressItem: (threadInfo: ThreadInfo) => void,
-  };
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
     onPressItem: PropTypes.func.isRequired,

@@ -12,12 +12,12 @@ import {
 
 import Button from './button.react';
 
-class UserListUser extends React.PureComponent {
+type Props = {
+  userInfo: UserInfo,
+  onSelect: (userID: string) => void,
+};
+class UserListUser extends React.PureComponent<Props> {
 
-  props: {
-    userInfo: UserInfo,
-    onSelect: (userID: string) => void,
-  };
   static propTypes = {
     userInfo: userInfoPropType.isRequired,
     onSelect: PropTypes.func.isRequired,

@@ -10,12 +10,11 @@ import Header from 'react-navigation/src/views/Header/Header';
 
 // The whole reason for overriding header is because when we override
 // headerTitle, we end up having to implement headerTruncatedBackTitle ourselves
-class MessageListHeader extends React.PureComponent {
+type Props = HeaderProps & { routeKey: string };
+type State = { titleWidths: {[key: string]: number} };
+class MessageListHeader extends React.PureComponent<Props, State> {
 
-  props: HeaderProps & { routeKey: string };
-  state: {
-    titleWidths: {[key: string]: number},
-  } = {
+  state = {
     titleWidths: {},
   };
 

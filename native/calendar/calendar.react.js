@@ -13,7 +13,6 @@ import type { TextToMeasure } from '../text-height-measurer.react';
 import type {
   NavigationScreenProp,
   NavigationRoute,
-  NavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 
 import React from 'react';
@@ -96,7 +95,7 @@ type ExtraData = {
 let currentCalendarRef: ?InnerCalendar = null;
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
+  navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
@@ -120,10 +119,8 @@ type State = {
   extraData: ExtraData,
   scrollToOffsetAfterSuppressingKeyboardDismissal: ?number,
 };
-class InnerCalendar extends React.PureComponent {
+class InnerCalendar extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -600,9 +597,12 @@ class InnerCalendar extends React.PureComponent {
   }
 
   static getItemLayout(
-    data: $ReadOnlyArray<CalendarItemWithHeight>,
+    data: ?$ReadOnlyArray<CalendarItemWithHeight>,
     index: number,
   ) {
+    if (!data) {
+      return { length: 0, offset: 0, index };
+    }
     const offset =
       InnerCalendar.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];

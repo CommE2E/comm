@@ -6,7 +6,7 @@ import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   ActivityIndicator,
@@ -21,13 +21,13 @@ import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
 
-class PanelButton extends React.PureComponent {
+type ButtonProps = {
+  text: string,
+  loadingStatus: LoadingStatus,
+  onSubmit: () => void,
+};
+class PanelButton extends React.PureComponent<ButtonProps> {
 
-  props: {
-    text: string,
-    loadingStatus: LoadingStatus,
-    onSubmit: () => void,
-  };
   static propTypes = {
     text: PropTypes.string.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -80,7 +80,7 @@ function PanelOnePasswordButton(props: { onPress: () => Promise<void> }) {
 
 type PanelProps = {
   opacityValue: Animated.Value,
-  children?: React.Element<any>,
+  children: React.Node,
   style?: StyleObj,
 };
 function Panel(props: PanelProps) {

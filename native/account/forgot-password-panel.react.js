@@ -39,19 +39,22 @@ import {
   Panel,
 } from './panel-components.react';
 
-class ForgotPasswordPanel extends React.PureComponent {
+type Props = {
+  setActiveAlert: (activeAlert: bool) => void,
+  opacityValue: Animated.Value,
+  onSuccess: () => void,
+  // Redux state
+  loadingStatus: LoadingStatus,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  forgotPassword: (usernameOrEmail: string) => Promise<void>,
+};
+type State = {
+  usernameOrEmailInputText: string,
+};
+class ForgotPasswordPanel extends React.PureComponent<Props, State> {
 
-  props: {
-    setActiveAlert: (activeAlert: bool) => void,
-    opacityValue: Animated.Value,
-    onSuccess: () => void,
-    // Redux state
-    loadingStatus: LoadingStatus,
-    // Redux dispatch functions
-    dispatchActionPromise: DispatchActionPromise,
-    // async functions that hit server APIs
-    forgotPassword: (usernameOrEmail: string) => Promise<void>,
-  };
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -60,9 +63,7 @@ class ForgotPasswordPanel extends React.PureComponent {
     dispatchActionPromise: PropTypes.func.isRequired,
     forgotPassword: PropTypes.func.isRequired,
   };
-  state: {
-    usernameOrEmailInputText: string,
-  } = {
+  state = {
     usernameOrEmailInputText: "",
   };
   usernameOrEmailInput: ?TextInput;

@@ -10,13 +10,13 @@ import PropTypes from 'prop-types';
 
 import Button from './button.react';
 
-class LinkButton extends React.PureComponent {
+type Props = {
+  text: string,
+  onPress: () => void,
+  style?: StyleObj,
+};
+class LinkButton extends React.PureComponent<Props> {
 
-  props: {
-    text: string,
-    onPress: () => void,
-    style?: StyleObj,
-  };
   static propTypes = {
     text: PropTypes.string.isRequired,
     onPress: PropTypes.func.isRequired,

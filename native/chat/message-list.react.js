@@ -4,7 +4,6 @@ import type { AppState } from '../redux-setup';
 import type {
   NavigationScreenProp,
   NavigationRoute,
-  NavigationAction,
 } from 'react-navigation/src/TypeDefinition';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
@@ -60,7 +59,7 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
 
-type NavProp = NavigationScreenProp<NavigationRoute, NavigationAction>
+type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
 
 export type RobotextChatMessageInfoItemWithHeight = {|
@@ -116,10 +115,8 @@ type State = {
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
   focusedMessageKey: ?string,
 };
-class InnerMessageList extends React.PureComponent {
+class InnerMessageList extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -348,9 +345,12 @@ class InnerMessageList extends React.PureComponent {
   }
 
   getItemLayout = (
-    data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+    data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
     index: number,
   ) => {
+    if (!data) {
+      return { length: 0, offset: 0, index };
+    }
     const offset = this.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];
     const length = item ? this.itemHeight(item) : 0;

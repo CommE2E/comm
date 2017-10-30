@@ -30,10 +30,9 @@ type Props = {
 type State = {
   currentlyMeasuring: ?Set<TextToMeasure>,
 };
-class TextHeightMeasurer extends React.PureComponent {
+class TextHeightMeasurer extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State = {
+  state = {
     currentlyMeasuring: null,
   };
   static propTypes = {

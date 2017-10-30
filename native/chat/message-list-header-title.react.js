@@ -13,17 +13,17 @@ import HeaderTitle from 'react-navigation/src/views/Header/HeaderTitle';
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from './settings/thread-settings.react';
 
-class MessageListHeaderTitle extends React.PureComponent {
+type Props = {
+  threadInfo: ThreadInfo,
+  navigate: (
+    routeName: string,
+    params?: NavigationParams,
+  ) => bool,
+  sceneKey: string,
+  onWidthChange: (key: string, width: number) => void,
+};
+class MessageListHeaderTitle extends React.PureComponent<Props> {
 
-  props: {
-    threadInfo: ThreadInfo,
-    navigate: (
-      routeName: string,
-      params?: NavigationParams,
-    ) => bool,
-    sceneKey: string,
-    onWidthChange: (key: string, width: number) => void,
-  };
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,

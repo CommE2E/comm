@@ -7,7 +7,7 @@ import type {
   NativeMethodsMixinType,
 } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -49,7 +49,7 @@ type State = {
   pickerSize: ?number,
 };
 
-class ColorPicker extends React.PureComponent {
+class ColorPicker extends React.PureComponent<Props, State> {
 
   static propTypes = {
     color: PropTypes.oneOfType([
@@ -73,12 +73,10 @@ class ColorPicker extends React.PureComponent {
     buttonText: "Select",
     oldButtonText: "Reset",
   };
-  props: Props;
-  state: State;
   _layout = { width: 0, height: 0 };
   _pageX = 0;
   _pageY = 0;
-  _pickerContainer: ?NativeMethodsMixinType = null;
+  _pickerContainer: ?React.ElementRef<typeof View & typeof NativeMethodsMixinType> = null;
   _pickerResponder: ?PanResponder = null;
   _changingHColor = false;
 
@@ -434,7 +432,9 @@ class ColorPicker extends React.PureComponent {
     )
   }
 
-  pickerContainerRef = (pickerContainer: ?NativeMethodsMixinType) => {
+  pickerContainerRef = (
+    pickerContainer: ?React.ElementRef<typeof View & typeof NativeMethodsMixinType>,
+  ) => {
     this._pickerContainer = pickerContainer;
   }
 

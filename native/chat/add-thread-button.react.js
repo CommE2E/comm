@@ -10,15 +10,15 @@ import PropTypes from 'prop-types';
 import { AddThreadRouteName } from './add-thread.react';
 import Button from '../components/button.react';
 
-class AddThreadButton extends React.PureComponent {
+type Props = {
+  parentThreadID?: string,
+  navigate: (
+    routeName: string,
+    params?: NavigationParams,
+  ) => bool,
+};
+class AddThreadButton extends React.PureComponent<Props> {
 
-  props: {
-    parentThreadID?: string,
-    navigate: (
-      routeName: string,
-      params?: NavigationParams,
-    ) => bool,
-  };
   static propTypes = {
     parentThreadID: PropTypes.string,
     navigate: PropTypes.func.isRequired,

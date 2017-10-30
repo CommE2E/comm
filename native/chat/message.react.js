@@ -53,10 +53,8 @@ type Props = {
 type State = {
   threadInfo: ThreadInfo,
 };
-class InnerMessage extends React.PureComponent {
+class InnerMessage extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,

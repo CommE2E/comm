@@ -10,12 +10,12 @@ import PropTypes from 'prop-types';
 import Button from '../components/button.react';
 import ColorSplotch from '../components/color-splotch.react';
 
-class ThreadPickerThread extends React.PureComponent {
+type Props = {
+  threadInfo: ThreadInfo,
+  threadPicked: (threadID: string) => void,
+};
+class ThreadPickerThread extends React.PureComponent<Props> {
 
-  props: {
-    threadInfo: ThreadInfo,
-    threadPicked: (threadID: string) => void,
-  };
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     threadPicked: PropTypes.func.isRequired,
