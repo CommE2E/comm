@@ -76,7 +76,8 @@ class ColorPicker extends React.PureComponent<Props, State> {
   _layout = { width: 0, height: 0 };
   _pageX = 0;
   _pageY = 0;
-  _pickerContainer: ?React.ElementRef<typeof View & typeof NativeMethodsMixinType> = null;
+  _pickerContainer: ?(React.ElementRef<typeof View> & NativeMethodsMixinType)
+    = null;
   _pickerResponder: ?PanResponder = null;
   _changingHColor = false;
 
@@ -432,9 +433,8 @@ class ColorPicker extends React.PureComponent<Props, State> {
     )
   }
 
-  pickerContainerRef = (
-    pickerContainer: ?React.ElementRef<typeof View & typeof NativeMethodsMixinType>,
-  ) => {
+  pickerContainerRef = (pickerContainer: any) => {
+    // TODO fix pickerContainer type, should be better in RN 0.50
     this._pickerContainer = pickerContainer;
   }
 
