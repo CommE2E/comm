@@ -4,6 +4,8 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 
+// Keep in sync with lib/types/thread-types.js
+
 // If the user can see the thread name, description, and color
 define("PERMISSION_KNOW_OF", "know_of");
 // If the user can see messages, entries, and the thread info
@@ -45,24 +47,23 @@ SQL;
   return (int)$row['roletype'] !== 0;
 }
 
-function permission_lookup($permissions_string, $permission) {
-  if (!$permissions_string) {
-    return false;
-  }
-  $blob = json_decode($permissions_string, true);
-  if (gettype($blob) !== "array" || !isset($blob[$permission])) {
+function permission_lookup($blob, $permission) {
+  if (!$blob || !isset($blob[$permission])) {
     return false;
   }
   return (bool)$blob[$permission]['value'];
 }
 
-// $row should include permissions, visibility_rules, and edit_rules
-function permission_helper($row, $permission) {
-  if (!$row) {
+// $info should include:
+// - permissions: ?array
+// - visibility_rules: int
+// - edit_rules: int
+function permission_helper($info, $permission) {
+  if (!$info) {
     return null;
   }
 
-  $vis_rules = (int)$row['visibility_rules'];
+  $vis_rules = $info['visibility_rules'];
   if (
     ($permission === PERMISSION_KNOW_OF && $vis_rules === VISIBILITY_OPEN) ||
     ($permission === PERMISSION_KNOW_OF && $vis_rules === VISIBILITY_CLOSED) ||
@@ -86,25 +87,39 @@ function permission_helper($row, $permission) {
     // that passes a visibility check to edit the calendar entries of a thread,
     // regardless of membership in that thread. Depending on edit_rules, the
     // ability may be restricted to only logged in users.
-    $lookup = permission_lookup($row['permissions'], $permission);
+    $lookup = permission_lookup($info['permissions'], $permission);
     if ($lookup) {
       return true;
     }
-    $can_view = permission_helper($row, PERMISSION_VISIBLE);
+    $can_view = permission_helper($info, PERMISSION_VISIBLE);
     if (!$can_view) {
       return false;
     }
-    $edit_rules = (int)$row['edit_rules'];
-    if ($edit_rules === EDIT_LOGGED_IN) {
+    if ($info['edit_rules'] === EDIT_LOGGED_IN) {
       return user_logged_in();
     }
     return true;
   }
 
-  return permission_lookup($row['permissions'], $permission);
+  return permission_lookup($info['permissions'], $permission);
 }
 
-// can be null if no permissions
+function get_info_from_permissions_row($row) {
+  $blob = null;
+  if ($row['permissions']) {
+    $decoded = json_decode($row['permissions'], true);
+    if (gettype($decoded) === "array") {
+      $blob = $decoded;
+    }
+  }
+  return array(
+    "permissions" => $blob,
+    "visibility_rules" => (int)$row['visibility_rules'],
+    "edit_rules" => (int)$row['edit_rules'],
+  );
+}
+
+// null if thread does not exist
 function fetch_thread_permission_info($thread) {
   global $conn;
 
@@ -116,13 +131,15 @@ LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
 WHERE t.id = {$thread}
 SQL;
   $result = $conn->query($query);
-  return $result->fetch_assoc();
+  $row = $result->fetch_assoc();
+  if (!$row) {
+    return null;
+  }
+  return get_info_from_permissions_row($row);
 }
 
 // null if thread does not exist
 function check_thread_permission($thread, $permission) {
-  global $conn;
-
   $info = fetch_thread_permission_info($thread);
   return permission_helper($info, $permission);
 }
@@ -142,7 +159,11 @@ WHERE e.id = {$entry}
 SQL;
   $result = $conn->query($query);
   $row = $result->fetch_assoc();
-  return permission_helper($row, $permission);
+  if (!$row || $row['visibility_rules'] === null) {
+    return null;
+  }
+  $info = get_info_from_permissions_row($row);
+  return permission_helper($info, $permission);
 }
 
 // $roletype_permissions: ?array<permission: int, value: bool>

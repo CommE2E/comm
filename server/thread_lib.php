@@ -34,11 +34,12 @@ SQL;
   $thread_infos = array();
   $thread_ids = array();
   while ($row = $result->fetch_assoc()) {
-    if (!permission_helper($row, PERMISSION_KNOW_OF)) {
+    $permission_info = get_info_from_permissions_row($row);
+    if (!permission_helper($permission_info, PERMISSION_KNOW_OF)) {
       continue;
     }
     $thread_ids[] = $row['id'];
-    $authorized = permission_helper($row, PERMISSION_VISIBLE);
+    $authorized = permission_helper($permission_info, PERMISSION_VISIBLE);
     $subscribed_authorized = $authorized && $row['subscribed'];
     $thread_infos[$row['id']] = array(
       'id' => $row['id'],
@@ -47,12 +48,13 @@ SQL;
       'authorized' => $authorized,
       'viewerIsMember' => (int)$row['roletype'] !== 0,
       'subscribed' => $subscribed_authorized,
-      'parentThreadID' => $row['parent_thread_id'],
-      'canChangeSettings' => permission_helper($row, PERMISSION_EDIT_THREAD),
+      'canChangeSettings' =>
+        permission_helper($permission_info, PERMISSION_EDIT_THREAD),
       'visibilityRules' => (int)$row['visibility_rules'],
       'color' => $row['color'],
       'editRules' => (int)$row['edit_rules'],
       'creationTime' => (int)$row['creation_time'],
+      'parentThreadID' => $row['parent_thread_id'],
       'memberIDs' => array(),
     );
   }
