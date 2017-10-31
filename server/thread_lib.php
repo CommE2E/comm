@@ -35,6 +35,7 @@ SQL;
   $thread_ids = array();
   while ($row = $result->fetch_assoc()) {
     $permission_info = get_info_from_permissions_row($row);
+    $all_permissions = get_all_thread_permissions($permission_info);
     if (!permission_helper($permission_info, PERMISSION_KNOW_OF)) {
       continue;
     }
@@ -45,17 +46,17 @@ SQL;
       'id' => $row['id'],
       'name' => $row['name'],
       'description' => $row['description'],
-      'authorized' => $authorized,
-      'viewerIsMember' => (int)$row['roletype'] !== 0,
-      'subscribed' => $subscribed_authorized,
-      'canChangeSettings' =>
-        permission_helper($permission_info, PERMISSION_EDIT_THREAD),
       'visibilityRules' => (int)$row['visibility_rules'],
       'color' => $row['color'],
       'editRules' => (int)$row['edit_rules'],
       'creationTime' => (int)$row['creation_time'],
       'parentThreadID' => $row['parent_thread_id'],
       'memberIDs' => array(),
+      'currentUserRole' => array(
+        'isMember' => (int)$row['roletype'] !== 0,
+        'subscribed' => $subscribed_authorized,
+        'permissions' => $all_permissions,
+      ),
     );
   }
 

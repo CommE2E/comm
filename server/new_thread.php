@@ -172,10 +172,6 @@ async_end(array(
     'id' => (string)$id,
     'name' => $raw_name,
     'description' => $description,
-    'authorized' => true,
-    'viewerIsMember' => true,
-    'subscribed' => true,
-    'canChangeSettings' => true,
     'visibilityRules' => $vis_rules,
     'color' => $color,
     'editRules' => $edit_rules,
@@ -184,6 +180,11 @@ async_end(array(
       ? (string)$parent_thread_id
       : null,
     'memberIDs' => $member_ids,
+    'currentUserRole' => array(
+      'isMember' => true,
+      'subscribed' => true,
+      'permissions' => array_fill_keys($all_thread_permissions, true),
+    ),
   ),
   'new_message_infos' => $new_message_infos,
 ));

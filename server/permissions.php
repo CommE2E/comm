@@ -27,6 +27,19 @@ define("PERMISSION_EDIT_PERMISSIONS", "edit_permissions");
 // If the user can add new members to this thread
 define("PERMISSION_ADD_MEMBERS", "add_members");
 
+$all_thread_permissions = array(
+  PERMISSION_KNOW_OF,
+  PERMISSION_VISIBLE,
+  PERMISSION_VOICED,
+  PERMISSION_EDIT_ENTRIES,
+  PERMISSION_EDIT_THREAD,
+  PERMISSION_DELETE_THREAD,
+  PERMISSION_CREATE_SUBTHREADS,
+  PERMISSION_JOIN_THREAD,
+  PERMISSION_EDIT_PERMISSIONS,
+  PERMISSION_ADD_MEMBERS,
+);
+
 define("PERMISSION_PREFIX_DESCENDANT", "descendant_");
 define("PERMISSION_PREFIX_CHILD", "child_");
 define("PERMISSION_PREFIX_OPEN", "open_");
@@ -142,6 +155,16 @@ SQL;
 function check_thread_permission($thread, $permission) {
   $info = fetch_thread_permission_info($thread);
   return permission_helper($info, $permission);
+}
+
+function get_all_thread_permissions($info) {
+  global $all_thread_permissions;
+
+  $return = array();
+  foreach ($all_thread_permissions as $permission) {
+    $return[$permission] = permission_helper($info, $permission);
+  }
+  return $return;
 }
 
 // null if entry does not exist

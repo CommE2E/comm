@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, NavInfo } from '../redux-setup';
 import { navInfoPropType } from '../redux-setup';
@@ -224,13 +224,16 @@ class TypeaheadThreadOption extends React.PureComponent {
 
   onClick = (event: SyntheticEvent) => {
     const id = TypeaheadThreadOption.getID(this.props);
-    if (this.props.threadInfo && this.props.threadInfo.authorized) {
-      history.push(`/thread/${id}/${this.props.monthURL}`);
-      this.props.onTransition();
-    } else {
-      this.props.freezeTypeahead(id);
-      this.setState({ passwordEntryOpen: true });
+    if (this.props.threadInfo) {
+      const permissions = this.props.threadInfo.currentUserRole.permissions;
+      if (permissions[threadPermissions.VISIBLE]) {
+        history.push(`/thread/${id}/${this.props.monthURL}`);
+        this.props.onTransition();
+        return;
+      }
     }
+    this.props.freezeTypeahead(id);
+    this.setState({ passwordEntryOpen: true });
   }
 
   onPasswordEntryChange = (event: SyntheticEvent) => {

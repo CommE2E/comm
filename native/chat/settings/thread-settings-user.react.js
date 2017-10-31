@@ -1,6 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
@@ -18,8 +19,9 @@ type Props = {|
   canEdit: bool,
 |};
 function ThreadSettingsUser(props: Props) {
-  const canChange = !props.userInfo.isViewer &&
-    props.threadInfo.canChangeSettings;
+  const permissions = props.threadInfo.currentUserRole.permissions;
+  const canChangeSettings = permissions[threadPermissions.EDIT_THREAD];
+  const canChange = !props.userInfo.isViewer && canChangeSettings;
   let editButton = null;
   if (props.canEdit) {
     editButton = (

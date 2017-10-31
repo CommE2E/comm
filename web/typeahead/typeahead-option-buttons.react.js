@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
@@ -65,7 +65,8 @@ class TypeaheadOptionButtons extends React.PureComponent {
   state: State;
 
   render() {
-    if (!this.props.threadInfo.authorized) {
+    const permissions = this.props.threadInfo.currentUserRole.permissions;
+    if (!permissions[threadPermissions.VISIBLE]) {
       return (
         <ul className={css['thread-nav-option-buttons']}>
           <li>Closed</li>
@@ -73,7 +74,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
       );
     }
     let editButton = null;
-    if (this.props.threadInfo.canChangeSettings && this.props.currentNavID) {
+    if (permissions[threadPermissions.EDIT_THREAD] && this.props.currentNavID) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit}>
@@ -82,6 +83,9 @@ class TypeaheadOptionButtons extends React.PureComponent {
         </li>
       );
     }
+    const subcribeButtonText = this.props.threadInfo.currentUserRole.subscribed
+      ? 'Unsubscribe'
+      : 'Subscribe';
     return (
       <ul className={css['thread-nav-option-buttons']}>
         {editButton}
@@ -91,7 +95,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
             className={css['thread-nav-option-buttons-loading']}
           />
           <a href='#' onClick={this.onSubscribe}>
-            {this.props.threadInfo.subscribed ? 'Unsubscribe' : 'Subscribe'}
+            {subcribeButtonText}
           </a>
         </li>
       </ul>
@@ -104,7 +108,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     if (this.props.loadingStatus === "loading") {
       return;
     }
-    const newSubscribed = !this.props.threadInfo.subscribed;
+    const newSubscribed = !this.props.threadInfo.currentUserRole.subscribed;
 
     this.props.dispatchActionPromise(
       subscribeActionTypes,

@@ -5,7 +5,7 @@ import type {
   NavigationRoute,
 } from 'react-navigation/src/TypeDefinition';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { RelativeUserInfo } from 'lib/types/user-types';
 import { relativeUserInfoPropType } from 'lib/types/user-types';
@@ -179,7 +179,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   render() {
     const canStartEditing = this.canReset();
-    const canChangeSettings = this.props.threadInfo.canChangeSettings
+    const permissions = this.props.threadInfo.currentUserRole.permissions;
+    const canChangeSettings = permissions[threadPermissions.EDIT_THREAD]
       && canStartEditing;
 
     let name;
