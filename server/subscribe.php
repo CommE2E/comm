@@ -13,7 +13,7 @@ if (!isset($_POST['thread']) || !isset($_POST['subscribe'])) {
   ));
 }
 $thread = (int)$_POST['thread'];
-$new_subscribed = !!$_POST['subscribe'];
+$new_subscribed = $_POST['subscribe'] ? 1 : 0;
 
 if (!viewer_is_member($thread)) {
   async_end(array(
