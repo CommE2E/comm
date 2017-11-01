@@ -25,10 +25,12 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { visibilityRules } from 'lib/types/thread-types';
 import {
@@ -73,6 +75,7 @@ type Props = {|
   childThreadInfos: ?ThreadInfo[],
   nameEditLoadingStatus: LoadingStatus,
   colorEditLoadingStatus: LoadingStatus,
+  descriptionEditLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -87,7 +90,9 @@ type State = {|
   showMaxMembers: number,
   showMaxChildThreads: number,
   nameEditValue: ?string,
+  descriptionEditValue: ?string,
   nameTextHeight: ?number,
+  descriptionTextHeight: ?number,
   showEditColorModal: bool,
   colorEditValue: string,
 |};
@@ -111,6 +116,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     nameEditLoadingStatus: loadingStatusPropType.isRequired,
     colorEditLoadingStatus: loadingStatusPropType.isRequired,
+    descriptionEditLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeSingleThreadSetting: PropTypes.func.isRequired,
   };
@@ -119,6 +125,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     headerBackTitle: "Back",
   });
   nameTextInput: ?TextInput;
+  descriptionTextInput: ?TextInput;
 
   constructor(props: Props) {
     super(props);
@@ -127,7 +134,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       showMaxMembers: itemPageLength,
       showMaxChildThreads: itemPageLength,
       nameEditValue: null,
+      descriptionEditValue: null,
       nameTextHeight: null,
+      descriptionTextHeight: null,
       showEditColorModal: false,
       colorEditValue: props.threadInfo.color,
     };
@@ -164,24 +173,15 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         this.state.nameEditValue === undefined) &&
       !this.state.showEditColorModal &&
       this.props.nameEditLoadingStatus !== "loading" &&
-      this.props.colorEditLoadingStatus !== "loading";
-  }
-
-  onLayoutNameText = (event: { nativeEvent: { layout: { height: number }}}) => {
-    this.setState({ nameTextHeight: event.nativeEvent.layout.height });
-  }
-
-  onNameTextInputContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number } } },
-  ) => {
-    this.setState({ nameTextHeight: event.nativeEvent.contentSize.height });
+      this.props.colorEditLoadingStatus !== "loading" &&
+      this.props.descriptionEditLoadingStatus !== "loading";
   }
 
   render() {
     const canStartEditing = this.canReset();
     const permissions = this.props.threadInfo.currentUserRole.permissions;
-    const canChangeSettings = permissions[threadPermissions.EDIT_THREAD]
-      && canStartEditing;
+    const canEditThread = permissions[threadPermissions.EDIT_THREAD];
+    const canChangeSettings = canEditThread && canStartEditing;
 
     let name;
     if (
@@ -251,6 +251,86 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       );
     } else {
       colorButton = <ActivityIndicator size="small" key="activityIndicator" />;
+    }
+
+    let descriptionPanel = null;
+    if (
+      this.state.descriptionEditValue !== null &&
+      this.state.descriptionEditValue !== undefined
+    ) {
+      const button = this.props.descriptionEditLoadingStatus !== "loading"
+        ? <SaveSettingButton onPress={this.submitDescriptionEdit} />
+        : <ActivityIndicator size="small" />;
+      const textInputStyle = {};
+      if (
+        this.state.descriptionTextHeight !== undefined &&
+        this.state.descriptionTextHeight !== null
+      ) {
+        textInputStyle.height = this.state.descriptionTextHeight;
+      }
+      descriptionPanel = (
+        <ThreadSettingsCategory type="full" title="Description">
+          <View style={[styles.noPaddingRow, styles.padding]}>
+            <TextInput
+              style={[
+                styles.descriptionText,
+                styles.currentValueText,
+                textInputStyle,
+              ]}
+              underlineColorAndroid="transparent"
+              value={this.state.descriptionEditValue}
+              onChangeText={this.onChangeDescriptionText}
+              multiline={true}
+              autoFocus={true}
+              selectTextOnFocus={true}
+              onBlur={this.submitDescriptionEdit}
+              editable={this.props.descriptionEditLoadingStatus !== "loading"}
+              onContentSizeChange={this.onDescriptionTextInputContentSizeChange}
+              ref={this.descriptionTextInputRef}
+            />
+            {button}
+          </View>
+        </ThreadSettingsCategory>
+      );
+    } else if (this.props.threadInfo.description) {
+      descriptionPanel = (
+        <ThreadSettingsCategory type="full" title="Description">
+          <View style={[styles.noPaddingRow, styles.padding]}>
+            <Text
+              style={[styles.descriptionText, styles.currentValueText]}
+              onLayout={this.onLayoutDescriptionText}
+            >
+              {this.props.threadInfo.description}
+            </Text>
+            <EditSettingButton
+              onPress={this.onPressEditDescription}
+              canChangeSettings={canChangeSettings}
+              key="editButton"
+            />
+          </View>
+        </ThreadSettingsCategory>
+      );
+    } else if (canEditThread) {
+      descriptionPanel = (
+        <ThreadSettingsCategory type="outline" title="Description">
+          <Button
+            onPress={this.onPressEditDescription}
+            style={styles.addDescriptionButton}
+            iosFormat="highlight"
+            iosHighlightUnderlayColor="#EEEEEEDD"
+          >
+            <Text style={styles.addDescriptionText}>
+              Add a description...
+            </Text>
+            <Icon
+              name="pencil"
+              size={16}
+              style={styles.editIcon}
+              color="#888888"
+            />
+          </Button>
+        </ThreadSettingsCategory>
+      );
     }
 
     let parent;
@@ -331,6 +411,33 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       members.push(seeMoreMembers);
     }
 
+    let addMembers = null;
+    if (permissions[threadPermissions.ADD_MEMBERS]) {
+      addMembers = (
+        <View style={styles.addItemRow}>
+          <ThreadSettingsListAction
+            onPress={this.onPressAddUser}
+            text="Add users"
+            iconName="md-add"
+            iconColor="#009900"
+            iconSize={20}
+          />
+        </View>
+      );
+    }
+
+    let membersPanel = null;
+    if (addMembers || members) {
+      membersPanel = (
+        <ThreadSettingsCategory type="unpadded" title="Members">
+          <View style={styles.itemList}>
+            {addMembers}
+            {members}
+          </View>
+        </ThreadSettingsCategory>
+      );
+    }
+
     let childThreads = null;
     if (this.props.childThreadInfos) {
       let childThreadInfos;
@@ -369,6 +476,33 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       }
     }
 
+    let addChildThread = null;
+    if (permissions[threadPermissions.CREATE_SUBTHREADS]) {
+      addChildThread = (
+        <View style={styles.addItemRow}>
+          <ThreadSettingsListAction
+            onPress={this.onPressAddChildThread}
+            text="Add child thread"
+            iconName="md-add"
+            iconColor="#009900"
+            iconSize={20}
+          />
+        </View>
+      );
+    }
+
+    let childThreadPanel = null;
+    if (addChildThread || childThreads) {
+      childThreadPanel = (
+        <ThreadSettingsCategory type="unpadded" title="Child threads">
+          <View style={styles.itemList}>
+            {addChildThread}
+            {childThreads}
+          </View>
+        </ThreadSettingsCategory>
+      );
+    }
+
     return (
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -385,6 +519,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
               {colorButton}
             </View>
           </ThreadSettingsCategory>
+          {descriptionPanel}
           <ThreadSettingsCategory type="full" title="Privacy">
             <View style={styles.noPaddingRow}>
               <Text style={[styles.label, styles.padding]}>Parent</Text>
@@ -397,34 +532,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
               </Text>
             </View>
           </ThreadSettingsCategory>
-          <ThreadSettingsCategory type="unpadded" title="Child threads">
-            <View style={styles.itemList}>
-              <View style={styles.addItemRow}>
-                <ThreadSettingsListAction
-                  onPress={this.onPressAddChildThread}
-                  text="Add child thread"
-                  iconName="md-add"
-                  iconColor="#009900"
-                  iconSize={20}
-                />
-              </View>
-              {childThreads}
-            </View>
-          </ThreadSettingsCategory>
-          <ThreadSettingsCategory type="unpadded" title="Members">
-            <View style={styles.itemList}>
-              <View style={styles.addItemRow}>
-                <ThreadSettingsListAction
-                  onPress={this.onPressAddUser}
-                  text="Add users"
-                  iconName="md-add"
-                  iconColor="#009900"
-                  iconSize={20}
-                />
-              </View>
-              {members}
-            </View>
-          </ThreadSettingsCategory>
+          {childThreadPanel}
+          {membersPanel}
         </ScrollView>
         <Modal
           isVisible={this.state.showAddUsersModal}
@@ -449,6 +558,18 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   nameTextInputRef = (nameTextInput: ?TextInput) => {
     this.nameTextInput = nameTextInput;
+  }
+
+  onLayoutNameText = (
+    event: { nativeEvent: { layout: { height: number } } },
+  ) => {
+    this.setState({ nameTextHeight: event.nativeEvent.layout.height });
+  }
+
+  onNameTextInputContentSizeChange = (
+    event: { nativeEvent: { contentSize: { height: number } } },
+  ) => {
+    this.setState({ nameTextHeight: event.nativeEvent.contentSize.height });
   }
 
   onPressEditName = () => {
@@ -563,6 +684,89 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ colorEditValue: this.props.threadInfo.color });
   }
 
+  descriptionTextInputRef = (descriptionTextInput: ?TextInput) => {
+    this.descriptionTextInput = descriptionTextInput;
+  }
+
+  onLayoutDescriptionText = (
+    event: { nativeEvent: { layout: { height: number } } },
+  ) => {
+    this.setState({ descriptionTextHeight: event.nativeEvent.layout.height });
+  }
+
+  onDescriptionTextInputContentSizeChange = (
+    event: { nativeEvent: { contentSize: { height: number } } },
+  ) => {
+    this.setState({
+      descriptionTextHeight: event.nativeEvent.contentSize.height,
+    });
+  }
+
+  onPressEditDescription = () => {
+    this.setState({ descriptionEditValue: this.props.threadInfo.description });
+  }
+
+  onChangeDescriptionText = (text: string) => {
+    this.setState({ descriptionEditValue: text });
+  }
+
+  submitDescriptionEdit = () => {
+    invariant(
+      this.state.descriptionEditValue !== null &&
+        this.state.descriptionEditValue !== undefined,
+      "should be set",
+    );
+    const description = this.state.descriptionEditValue.trim();
+
+    if (description === this.props.threadInfo.description) {
+      this.setState({ descriptionEditValue: null });
+      return;
+    }
+
+    this.props.dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      this.editDescription(description),
+      {
+        customKeyName: `${changeThreadSettingsActionTypes.started}:description`,
+      },
+    );
+  }
+
+  async editDescription(newDescription: string) {
+    try {
+      const result = await this.props.changeSingleThreadSetting(
+        this.props.threadInfo.id,
+        "description",
+        newDescription,
+      );
+      this.setState({ descriptionEditValue: null });
+      return result;
+    } catch (e) {
+      Alert.alert(
+        "Unknown error",
+        "Uhh... try again?",
+        [
+          { text: 'OK', onPress: this.onDescriptionErrorAcknowledged },
+        ],
+        { cancelable: false },
+      );
+      throw e;
+    }
+  }
+
+  onDescriptionErrorAcknowledged = () => {
+    this.setState(
+      { descriptionEditValue: this.props.threadInfo.description },
+      () => {
+        invariant(
+          this.descriptionTextInput,
+          "descriptionTextInput should be set",
+        );
+        this.descriptionTextInput.focus();
+      },
+    );
+  }
+
   onPressParentThread = () => {
     this.props.navigation.navigate(
       MessageListRouteName,
@@ -624,7 +828,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   colorLine: {
-    lineHeight: 25,
+    lineHeight: Platform.select({ android: 22, default: 25 }),
   },
   currentValue: {
     flex: 1,
@@ -669,6 +873,24 @@ const styles = StyleSheet.create({
     right: 10,
     top: 15,
   },
+  addDescriptionText: {
+    fontSize: 16,
+    color: "#888888",
+    flex: 1,
+  },
+  addDescriptionButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  editIcon: {
+    textAlign: 'right',
+    paddingLeft: 10,
+  },
+  descriptionText: {
+    flex: 1,
+    paddingLeft: 0,
+  },
 });
 
 const ThreadSettingsRouteName = 'ThreadSettings';
@@ -692,6 +914,10 @@ const ThreadSettings = connect(
       colorEditLoadingStatus: createLoadingStatusSelector(
         changeThreadSettingsActionTypes,
         `${changeThreadSettingsActionTypes.started}:color`,
+      )(state),
+      descriptionEditLoadingStatus: createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:description`,
       )(state),
       cookie: state.cookie,
     };

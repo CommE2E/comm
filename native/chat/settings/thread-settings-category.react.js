@@ -47,6 +47,13 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   outline: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: "#CCCCCC",
+    backgroundColor: "#F5F5F5FF",
+    marginLeft: -1,
+    marginRight: -1,
+    borderRadius: 1,
   },
 });
 

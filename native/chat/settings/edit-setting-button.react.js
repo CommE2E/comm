@@ -5,7 +5,7 @@ import type {
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Props = {|
@@ -36,6 +36,7 @@ function EditSettingButton(props: Props) {
 const styles = StyleSheet.create({
   editIcon: {
     paddingLeft: 10,
+    paddingTop: Platform.select({ android: 1, default: 0 }),
     textAlign: 'right',
   },
 });
