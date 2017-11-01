@@ -277,7 +277,9 @@ if ($add_member_ids) {
     ));
   }
   foreach ($roletype_results['to_save'] as $row_to_save) {
-    $row_to_save['subscribed'] = true;
+    if ($row_to_save['thread_id'] === $thread) {
+      $row_to_save['subscribed'] = true;
+    }
     $to_save[] = $row_to_save;
   }
   $to_delete = array_merge($to_delete, $roletype_results['to_delete']);

@@ -7,6 +7,7 @@ require_once('thread_lib.php');
 require_once('message_lib.php');
 require_once('entry_lib.php');
 require_once('user_lib.php');
+require_once('permissions.php');
 
 if ($https && !isset($_SERVER['HTTPS'])) {
   // We're using mod_rewrite .htaccess for HTTPS redirect; this shouldn't happen
@@ -56,14 +57,16 @@ $null_state = null;
 if ($home) {
   $null_state = true;
   foreach ($thread_infos as $thread_info) {
-    if ($thread_info['subscribed']) {
+    if ($thread_info['currentUserRole']['subscribed']) {
       $null_state = false;
       break;
     }
   }
+} else if (!isset($thread_infos[$thread])) {
+  $null_state = true;
 } else {
-  $null_state = !isset($thread_infos[$thread])
-    || !$thread_infos[$thread]['authorized'];
+  $permissions = $thread_infos[$thread]['currentUserRole']['permissions'];
+  $null_state = !$permissions[PERMISSION_VISIBLE];
 }
 
 $verify_rewrite_matched = preg_match(
