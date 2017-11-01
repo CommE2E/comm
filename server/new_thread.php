@@ -156,7 +156,9 @@ if ($initial_member_ids) {
 }
 $to_save_with_subscribed = array();
 foreach ($to_save as $row_to_save) {
-  $row_to_save['subscribed'] = true;
+  if ($row_to_save['thread_id'] === $id) {
+    $row_to_save['subscribed'] = true;
+  }
   $to_save_with_subscribed[] = $row_to_save;
 }
 save_user_roles($to_save_with_subscribed);
