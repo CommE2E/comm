@@ -138,9 +138,9 @@ function fetch_thread_permission_info($thread) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT tr.permissions, t.visibility_rules, t.edit_rules
+SELECT t.visibility_rules, t.edit_rules, r.permissions, r.roletype
 FROM threads t
-LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}
 WHERE t.id = {$thread}
 SQL;
   $result = $conn->query($query);
@@ -185,11 +185,11 @@ function check_thread_permission_for_entry($entry, $permission) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT tr.permissions, t.visibility_rules, t.edit_rules
+SELECT r.permissions, t.visibility_rules, t.edit_rules
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
-LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}
 WHERE e.id = {$entry}
 SQL;
   $result = $conn->query($query);

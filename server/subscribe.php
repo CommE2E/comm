@@ -46,6 +46,16 @@ SQL;
   delete_user_roles($to_delete);
 }
 
+$permission_info = fetch_thread_permission_info($thread);
+$all_permissions = get_all_thread_permissions($permission_info, $thread);
+
 async_end(array(
   'success' => true,
+  'currentUserRole' => array(
+    'permissions' => $all_permissions,
+    'roletype' => $permission_info['roletype']
+      ? (string)$permission_info['roletype']
+      : null,
+    'subscribed' => !!$new_subscribed,
+  ),
 ));

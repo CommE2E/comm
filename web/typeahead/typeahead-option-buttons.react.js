@@ -140,7 +140,10 @@ class TypeaheadOptionButtons extends React.PureComponent {
   }
 
   async subscribeAction(newSubscribed: bool) {
-    await this.props.subscribe(this.props.threadInfo.id, newSubscribed);
+    const result = await this.props.subscribe(
+      this.props.threadInfo.id,
+      newSubscribed,
+    );
     // If this subscription action causes us to leave the null home state, then
     // we need to make sure that the typeahead is active iff it's focused. The
     // default resolution in Typeahead would be to close the typeahead, but it's
@@ -149,10 +152,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     if (!this.props.currentNavID && this.props.home && newSubscribed) {
       this.props.focusTypeahead();
     }
-    return {
-      threadID: this.props.threadInfo.id,
-      newSubscribed,
-    };
+    return result;
   }
 
   edit = (event: SyntheticEvent) => {
