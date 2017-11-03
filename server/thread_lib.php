@@ -82,7 +82,7 @@ SQL;
       if ((int)$user_id === $viewer_id) {
         $thread_infos[$thread_id]['currentUser'] = array(
           "permissions" => $member['permissions'],
-          "role" => $member['roletype'],
+          "role" => $member['role'],
           "subscribed" => !!$row['subscribed'],
         );
       }
