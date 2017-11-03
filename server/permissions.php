@@ -761,7 +761,7 @@ function create_initial_roletypes_for_new_thread($thread_id) {
   $conn->query("INSERT INTO ids(table_name) VALUES('roletypes')");
   $member_roletype_id = $conn->insert_id;
   $conn->query("INSERT INTO ids(table_name) VALUES('roletypes')");
-  $creator_roletype_id = $conn->insert_id;
+  $admin_roletype_id = $conn->insert_id;
 
   $member_permissions = array(
     PERMISSION_KNOW_OF => true,
@@ -776,7 +776,7 @@ function create_initial_roletypes_for_new_thread($thread_id) {
     PERMISSION_CREATE_SUBTHREADS => true,
     PERMISSION_ADD_MEMBERS => true,
   );
-  $creator_permissions = array(
+  $admin_permissions = array(
     PERMISSION_KNOW_OF => true,
     PERMISSION_VISIBLE => true,
     PERMISSION_JOIN_THREAD => true,
@@ -802,8 +802,8 @@ function create_initial_roletypes_for_new_thread($thread_id) {
   $encoded_member_permissions = $conn->real_escape_string(json_encode(
     $member_permissions
   ));
-  $encoded_creator_permissions = $conn->real_escape_string(json_encode(
-    $creator_permissions
+  $encoded_admin_permissions = $conn->real_escape_string(json_encode(
+    $admin_permissions
   ));
   $time = round(microtime(true) * 1000); // in milliseconds
 
@@ -812,12 +812,20 @@ INSERT INTO roletypes (id, thread, name, permissions, creation_time)
 VALUES
   ({$member_roletype_id}, {$thread_id}, 'Members',
     '{$encoded_member_permissions}', {$time}),
-  ({$creator_roletype_id}, {$thread_id}, 'Creator',
-    '{$encoded_creator_permissions}', {$time})
+  ({$admin_roletype_id}, {$thread_id}, 'Admins',
+    '{$encoded_admin_permissions}', {$time})
 SQL;
   $conn->query($query);
   return array(
-    "member_roletype_id" => $member_roletype_id,
-    "creator_roletype_id" => $creator_roletype_id,
+    "members" => array(
+      "id" => (string)$member_roletype_id,
+      "name" => "Members",
+      "permissions" => $member_permissions,
+    ),
+    "admins" => array(
+      "id" => (string)$admin_roletype_id,
+      "name" => "Admins",
+      "permissions" => $admin_permissions,
+    ),
   );
 }

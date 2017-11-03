@@ -89,7 +89,7 @@ $parent_thread_id_sql_string = $parent_thread_id
   ? $parent_thread_id
   : "NULL";
 
-$default_roletype = $roletypes['member_roletype_id'];
+$default_roletype = $roletypes['members']['id'];
 $thread_insert_sql = <<<SQL
 INSERT INTO threads
   (id, name, description, visibility_rules, hash, edit_rules, creator,
@@ -136,7 +136,7 @@ if ($new_message_infos === null) {
 $creator_results = change_roletype(
   $id,
   array($creator),
-  $roletypes['creator_roletype_id']
+  (int)$roletypes['admins']['id'],
 );
 if (!$creator_results) {
   async_end(array(
@@ -158,7 +158,7 @@ if ($initial_member_ids) {
 
 $processed_to_save = array();
 $members = array();
-$current_user_role = null;
+$current_user_info = null;
 foreach ($to_save as $row_to_save) {
   if ($row_to_save['thread_id'] === $id && $row_to_save['roletype'] !== 0) {
     $row_to_save['subscribed'] = true;
@@ -172,13 +172,13 @@ foreach ($to_save as $row_to_save) {
         ),
         $id
       ),
-      "roletype" => (string)$row_to_save['roletype'],
+      "role" => (string)$row_to_save['roletype'],
     );
     $members[] = $member;
     if ($row_to_save['user_id'] === $creator) {
-      $current_user_role = array(
+      $current_user_info = array(
         "permissions" => $member['permissions'],
-        "roletype" => $member['roletype'],
+        "role" => $member['roletype'],
         "subscribed" => true,
       );
     }
@@ -202,7 +202,8 @@ async_end(array(
       ? (string)$parent_thread_id
       : null,
     'members' => $members,
-    'currentUserRole' => $current_user_role,
+    'roles' => array_values($roletypes),
+    'currentUser' => $current_user_info,
   ),
   'new_message_infos' => $new_message_infos,
 ));

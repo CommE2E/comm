@@ -20,7 +20,7 @@ while ($row = $thread_results->fetch_assoc()) {
   echo "Setting default roletype for {$thread_id}...\n";
   $query = <<<SQL
 UPDATE threads
-SET default_roletype = {$roletypes['member_roletype_id']}
+SET default_roletype = {$roletypes['members']['id']}
 WHERE id = {$thread_id}
 SQL;
   $conn->query($query);
@@ -29,7 +29,7 @@ SQL;
   $creator = (int)$row['creator'];
   $query = <<<SQL
 UPDATE roles
-SET roletype = {$roletypes['creator_roletype_id']}
+SET roletype = {$roletypes['admins']['id']}
 WHERE thread = {$thread_id} AND user = {$creator}
 SQL;
   $conn->query($query);
@@ -37,7 +37,7 @@ SQL;
   echo "Updating all other roles for {$thread_id}...\n";
   $query = <<<SQL
 UPDATE roles
-SET roletype = {$roletypes['member_roletype_id']}
+SET roletype = {$roletypes['members']['id']}
 WHERE thread = {$thread_id} AND role = 5
 SQL;
   $conn->query($query);

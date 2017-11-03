@@ -91,7 +91,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
         </li>
       );
     }
-    const subcribeButtonText = this.props.threadInfo.currentUserRole.subscribed
+    const subcribeButtonText = this.props.threadInfo.currentUser.subscribed
       ? 'Unsubscribe'
       : 'Subscribe';
     return (
@@ -116,7 +116,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     if (this.props.loadingStatus === "loading") {
       return;
     }
-    const newSubscribed = !this.props.threadInfo.currentUserRole.subscribed;
+    const newSubscribed = !this.props.threadInfo.currentUser.subscribed;
 
     this.props.dispatchActionPromise(
       subscribeActionTypes,

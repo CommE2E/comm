@@ -51,9 +51,9 @@ $all_permissions = get_all_thread_permissions($permission_info, $thread);
 
 async_end(array(
   'success' => true,
-  'currentUserRole' => array(
+  'currentUser' => array(
     'permissions' => $all_permissions,
-    'roletype' => $permission_info['roletype']
+    'role' => $permission_info['roletype']
       ? (string)$permission_info['roletype']
       : null,
     'subscribed' => !!$new_subscribed,

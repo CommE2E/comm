@@ -57,7 +57,7 @@ $null_state = null;
 if ($home) {
   $null_state = true;
   foreach ($thread_infos as $thread_info) {
-    if ($thread_info['currentUserRole']['subscribed']) {
+    if ($thread_info['currentUser']['subscribed']) {
       $null_state = false;
       break;
     }
@@ -65,8 +65,8 @@ if ($home) {
 } else if (!isset($thread_infos[$thread])) {
   $null_state = true;
 } else {
-  $permissions = $thread_infos[$thread]['currentUserRole']['permissions'];
-  $null_state = !$permissions[PERMISSION_VISIBLE];
+  $permissions = $thread_infos[$thread]['currentUser']['permissions'];
+  $null_state = !$permissions[PERMISSION_VISIBLE]['value'];
 }
 
 $verify_rewrite_matched = preg_match(
