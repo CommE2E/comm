@@ -25,6 +25,7 @@ import _memoize from 'lodash/memoize';
 import { messageType } from 'lib/types/message-types';
 import { robotextForMessageInfo } from 'lib/shared/message-utils';
 import { userIDsToRelativeUserInfos } from 'lib/selectors/user-selectors';
+import { viewerIsMember } from 'lib/shared/thread-utils';
 
 function createMessageInfo(
   rawMessageInfo: RawMessageInfo,
@@ -151,7 +152,7 @@ const chatListData = createSelector(
     viewerID: ?string,
     userInfos: {[id: string]: UserInfo},
   ): ChatThreadItem[] => _flow(
-    _filter('currentUserRole.isMember'),
+    _filter(viewerIsMember),
     _map((threadInfo: ThreadInfo): ChatThreadItem => {
       const thread = messageStore.threads[threadInfo.id];
       if (!thread || thread.messageIDs.length === 0) {

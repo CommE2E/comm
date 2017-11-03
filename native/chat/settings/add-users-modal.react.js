@@ -116,7 +116,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   ) {
     const excludeUserIDs = userInfoInputArray
       .map(userInfo => userInfo.id)
-      .concat(threadInfo.memberIDs);
+      .concat(threadInfo.members.map(memberInfo => memberInfo.id));
     return getUserSearchResults(
       text,
       userInfos,

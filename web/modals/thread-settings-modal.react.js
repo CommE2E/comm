@@ -597,7 +597,7 @@ class ThreadSettingsModal extends React.PureComponent {
         editRules: this.state.threadInfo.editRules,
         creationTime: this.state.threadInfo.creationTime,
         parentThreadID: this.state.threadInfo.parentThreadID,
-        memberIDs: this.state.threadInfo.memberIDs,
+        members: this.state.threadInfo.members,
         currentUserRole: this.state.threadInfo.currentUserRole,
       };
       const newThreadPassword = this.state.newThreadPassword.trim() !== ''

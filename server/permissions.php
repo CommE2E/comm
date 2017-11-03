@@ -157,12 +157,24 @@ function check_thread_permission($thread, $permission) {
   return permission_helper($info, $permission);
 }
 
-function get_all_thread_permissions($info) {
+function get_all_thread_permissions($info, $thread_id) {
   global $all_thread_permissions;
 
   $return = array();
   foreach ($all_thread_permissions as $permission) {
-    $return[$permission] = permission_helper($info, $permission);
+    $result = permission_helper($info, $permission);
+    $source = null;
+    if ($result) {
+      if ($info && $info['permissions'] && $info['permissions'][$permission]) {
+        $source = $info['permissions'][$permission]['source'];
+      } else {
+        $source = (string)$thread_id;
+      }
+    }
+    $return[$permission] = array(
+      'value' => $result,
+      'source' => $source,
+    );
   }
   return $return;
 }
@@ -230,7 +242,7 @@ function make_permissions_blob(
       $current_pair = isset($permissions[$permission])
         ? $permissions[$permission]
         : null;
-      if ($value || (!$value && (!$current_pair || !$current_pair[1]))) {
+      if ($value || (!$value && (!$current_pair || !$current_pair['value']))) {
         $permissions[$permission] = array(
           'value' => $value,
           'source' => $thread_id,

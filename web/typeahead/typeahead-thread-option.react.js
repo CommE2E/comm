@@ -29,6 +29,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import css from '../style.css';
 import TypeaheadOptionButtons from './typeahead-option-buttons.react';
@@ -225,8 +226,11 @@ class TypeaheadThreadOption extends React.PureComponent {
   onClick = (event: SyntheticEvent) => {
     const id = TypeaheadThreadOption.getID(this.props);
     if (this.props.threadInfo) {
-      const permissions = this.props.threadInfo.currentUserRole.permissions;
-      if (permissions[threadPermissions.VISIBLE]) {
+      const threadIsVisible = threadHasPermission(
+        this.props.threadInfo,
+        threadPermissions.VISIBLE,
+      );
+      if (threadIsVisible) {
         history.push(`/thread/${id}/${this.props.monthURL}`);
         this.props.onTransition();
         return;

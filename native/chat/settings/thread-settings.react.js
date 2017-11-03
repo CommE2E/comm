@@ -46,6 +46,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import ThreadSettingsCategory from './thread-settings-category.react';
 import ColorSplotch from '../../components/color-splotch.react';
@@ -179,8 +180,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   render() {
     const canStartEditing = this.canReset();
-    const permissions = this.props.threadInfo.currentUserRole.permissions;
-    const canEditThread = permissions[threadPermissions.EDIT_THREAD];
+    const canEditThread = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.EDIT_THREAD,
+    );
     const canChangeSettings = canEditThread && canStartEditing;
 
     let name;
@@ -412,7 +415,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
 
     let addMembers = null;
-    if (permissions[threadPermissions.ADD_MEMBERS]) {
+    const canAddMembers = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.ADD_MEMBERS,
+    );
+    if (canAddMembers) {
       addMembers = (
         <View style={styles.addItemRow}>
           <ThreadSettingsListAction
@@ -477,7 +484,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
 
     let addChildThread = null;
-    if (permissions[threadPermissions.CREATE_SUBTHREADS]) {
+    const canCreateSubthreads = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.CREATE_SUBTHREADS,
+    );
+    if (canCreateSubthreads) {
       addChildThread = (
         <View style={styles.addItemRow}>
           <ThreadSettingsListAction

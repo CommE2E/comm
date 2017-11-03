@@ -30,6 +30,7 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -65,16 +66,23 @@ class TypeaheadOptionButtons extends React.PureComponent {
   state: State;
 
   render() {
-    const permissions = this.props.threadInfo.currentUserRole.permissions;
-    if (!permissions[threadPermissions.VISIBLE]) {
+    const threadIsVisible = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.VISIBLE,
+    );
+    if (!threadIsVisible) {
       return (
         <ul className={css['thread-nav-option-buttons']}>
           <li>Closed</li>
         </ul>
       );
     }
+    const canEditThread = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.EDIT_THREAD,
+    );
     let editButton = null;
-    if (permissions[threadPermissions.EDIT_THREAD] && this.props.currentNavID) {
+    if (canEditThread && this.props.currentNavID) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit}>

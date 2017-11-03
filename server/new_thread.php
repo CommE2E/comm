@@ -73,8 +73,9 @@ $id = $conn->insert_id;
 $roletypes = create_initial_roletypes_for_new_thread($id);
 
 $raw_name = $_POST['name'];
+$raw_description = $_POST['description'];
 $name = $conn->real_escape_string($raw_name);
-$description = $conn->real_escape_string($_POST['description']);
+$description = $conn->real_escape_string($raw_description);
 $time = round(microtime(true) * 1000); // in milliseconds
 $creator = get_viewer_id();
 $edit_rules = $vis_rules >= VISIBILITY_CLOSED
@@ -154,26 +155,45 @@ if ($initial_member_ids) {
   $to_save = array_merge($to_save, $initial_member_results['to_save']);
   $to_delete = array_merge($to_delete, $initial_member_results['to_delete']);
 }
-$to_save_with_subscribed = array();
+
+$processed_to_save = array();
+$members = array();
+$current_user_role = null;
 foreach ($to_save as $row_to_save) {
-  if ($row_to_save['thread_id'] === $id) {
+  if ($row_to_save['thread_id'] === $id && $row_to_save['roletype'] !== 0) {
     $row_to_save['subscribed'] = true;
+    $member = array(
+      "id" => (string)$row_to_save['user_id'],
+      "permissions" => get_all_thread_permissions(
+        array(
+          "permissions" => $row_to_save['permissions'],
+          "visibility_rules" => $vis_rules,
+          "edit_rules" => $edit_rules,
+        ),
+        $id
+      ),
+      "roletype" => (string)$row_to_save['roletype'],
+    );
+    $members[] = $member;
+    if ($row_to_save['user_id'] === $creator) {
+      $current_user_role = array(
+        "permissions" => $member['permissions'],
+        "roletype" => $member['roletype'],
+        "subscribed" => true,
+      );
+    }
   }
-  $to_save_with_subscribed[] = $row_to_save;
+  $processed_to_save[] = $row_to_save;
 }
-save_user_roles($to_save_with_subscribed);
+save_user_roles($processed_to_save);
 delete_user_roles($to_delete);
 
-$member_ids = array_merge(
-  array((string)$creator),
-  array_map('strval', $initial_member_ids)
-);
 async_end(array(
   'success' => true,
   'new_thread_info' => array(
     'id' => (string)$id,
     'name' => $raw_name,
-    'description' => $description,
+    'description' => $raw_description,
     'visibilityRules' => $vis_rules,
     'color' => $color,
     'editRules' => $edit_rules,
@@ -181,12 +201,8 @@ async_end(array(
     'parentThreadID' => $parent_thread_id !== null
       ? (string)$parent_thread_id
       : null,
-    'memberIDs' => $member_ids,
-    'currentUserRole' => array(
-      'isMember' => true,
-      'subscribed' => true,
-      'permissions' => array_fill_keys($all_thread_permissions, true),
-    ),
+    'members' => $members,
+    'currentUserRole' => $current_user_role,
   ),
   'new_message_infos' => $new_message_infos,
 ));

@@ -23,65 +23,84 @@ function get_thread_infos($specific_condition="") {
   $where_clause = $specific_condition ? "WHERE $specific_condition" : "";
 
   $query = <<<SQL
-SELECT t.id, t.name, t.parent_thread_id, tr.subscribed, t.color, t.description,
-  tr.permissions, t.edit_rules, t.visibility_rules, t.creation_time, tr.roletype
+SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
+  t.visibility_rules, t.creation_time, r.user, r.permissions, r.subscribed,
+  r.roletype, u.username
 FROM threads t
-LEFT JOIN roles tr ON tr.thread = t.id AND tr.user = {$viewer_id}
+LEFT JOIN roles r ON r.thread = t.id
+LEFT JOIN users u ON r.user = u.id
 {$where_clause}
 SQL;
   $result = $conn->query($query);
 
   $thread_infos = array();
-  $thread_ids = array();
+  $user_infos = array();
   while ($row = $result->fetch_assoc()) {
-    $permission_info = get_info_from_permissions_row($row);
-    $all_permissions = get_all_thread_permissions($permission_info);
-    if (!permission_helper($permission_info, PERMISSION_KNOW_OF)) {
-      continue;
+    $thread_id = $row['id'];
+    if (!$thread_infos[$thread_id]) {
+      $thread_infos[$thread_id] = array(
+        "id" => $thread_id,
+        "name" => $row['name'],
+        "description" => $row['description'],
+        "visibilityRules" => (int)$row['visibility_rules'],
+        "color" => $row['color'],
+        "editRules" => (int)$row['edit_rules'],
+        "creationTime" => (int)$row['creation_time'],
+        "parentThreadID" => $row['parent_thread_id'],
+        "members" => array(),
+        "currentUserRole" => null,
+      );
     }
-    $thread_ids[] = $row['id'];
-    $authorized = permission_helper($permission_info, PERMISSION_VISIBLE);
-    $subscribed_authorized = $authorized && $row['subscribed'];
-    $thread_infos[$row['id']] = array(
-      'id' => $row['id'],
-      'name' => $row['name'],
-      'description' => $row['description'],
-      'visibilityRules' => (int)$row['visibility_rules'],
-      'color' => $row['color'],
-      'editRules' => (int)$row['edit_rules'],
-      'creationTime' => (int)$row['creation_time'],
-      'parentThreadID' => $row['parent_thread_id'],
-      'memberIDs' => array(),
-      'currentUserRole' => array(
-        'isMember' => (int)$row['roletype'] !== 0,
-        'subscribed' => $subscribed_authorized,
-        'permissions' => $all_permissions,
-      ),
-    );
+    if ($row['user'] !== null && $row['username'] !== null) {
+      $user_id = $row['user'];
+      $permission_info = get_info_from_permissions_row($row);
+      $all_permissions =
+        get_all_thread_permissions($permission_info, $thread_id);
+      $member = array(
+        "id" => $user_id,
+        "permissions" => $all_permissions,
+        "roletype" => (int)$row['roletype'] === 0 ? null : $row['roletype'],
+      );
+      $thread_infos[$thread_id]['members'][] = $member;
+      if ((int)$user_id === $viewer_id) {
+        $thread_infos[$thread_id]['currentUserRole'] = array(
+          "permissions" => $member['permissions'],
+          "roletype" => $member['roletype'],
+          "subscribed" => !!$row['subscribed'],
+        );
+      }
+      $user_infos[$user_id] = array(
+        "id" => $user_id,
+        "username" => $row['username'],
+      );
+    }
   }
 
-  $thread_id_sql_string = implode(",", $thread_ids);
-  $user_query = <<<SQL
-SELECT r.thread, r.user, u.username
-FROM roles r
-LEFT JOIN users u ON r.user = u.id
-WHERE r.thread IN ({$thread_id_sql_string}) AND u.username IS NOT NULL
-SQL;
-  $user_result = $conn->query($user_query);
-
-  $users = array();
-  while ($row = $user_result->fetch_assoc()) {
-    $thread_id = $row['thread'];
-    $user_id = $row['user'];
-    $username = $row['username'];
-    $thread_infos[$thread_id]['memberIDs'][] = $user_id;
-    $users[$user_id] = array(
-      'id' => $user_id,
-      'username' => $username,
-    );
+  $final_thread_infos = array();
+  foreach ($thread_infos as $thread_id => $thread_info) {
+    if ($thread_info['currentUserRole'] === null) {
+      $all_permissions = get_all_thread_permissions(
+        array(
+          "permissions" => null,
+          "visibility_rules" => $thread_info['visibilityRules'],
+          "edit_rules" => $thread_info['editRules'],
+        ),
+        $thread_id
+      );
+      $thread_info['currentUserRole'] = array(
+        "permissions" => $all_permissions,
+        "roletype" => null,
+        "subscribed" => false,
+      );
+    } else {
+      $all_permissions = $thread_info['currentUserRole']['permissions'];
+    }
+    if (permission_lookup($all_permissions, PERMISSION_KNOW_OF)) {
+      $final_thread_infos[$thread_id] = $thread_info;
+    }
   }
 
-  return array($thread_infos, $users);
+  return array($final_thread_infos, $user_infos);
 }
 
 function verify_thread_id($thread) {
