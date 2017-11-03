@@ -166,7 +166,7 @@ function get_all_thread_permissions($info, $thread_id) {
     $source = null;
     if ($result) {
       if ($info && $info['permissions'] && $info['permissions'][$permission]) {
-        $source = $info['permissions'][$permission]['source'];
+        $source = (string)$info['permissions'][$permission]['source'];
       } else {
         $source = (string)$thread_id;
       }
