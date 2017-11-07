@@ -4,11 +4,13 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
 } from 'react-navigation/src/TypeDefinition';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+import {
+  threadInfoPropType,
+  threadPermissions,
+  relativeMemberInfoPropType,
+} from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
-import type { RelativeUserInfo } from 'lib/types/user-types';
-import { relativeUserInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -34,7 +36,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { visibilityRules } from 'lib/types/thread-types';
 import {
-  relativeUserInfoSelectorForMembersOfThread,
+  relativeMemberInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -72,7 +74,7 @@ type Props = {|
   // Redux state
   threadInfo: ThreadInfo,
   parentThreadInfo: ?ThreadInfo,
-  threadMembers: RelativeUserInfo[],
+  threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?ThreadInfo[],
   nameEditLoadingStatus: LoadingStatus,
   colorEditLoadingStatus: LoadingStatus,
@@ -113,7 +115,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }).isRequired,
     threadInfo: threadInfoPropType.isRequired,
     parentThreadInfo: threadInfoPropType,
-    threadMembers: PropTypes.arrayOf(relativeUserInfoPropType).isRequired,
+    threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     nameEditLoadingStatus: loadingStatusPropType.isRequired,
     colorEditLoadingStatus: loadingStatusPropType.isRequired,
@@ -391,25 +393,15 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     } else {
       threadMembers = this.props.threadMembers;
     }
-    const members = threadMembers.map(userInfo => {
-      if (!userInfo.username) {
-        return null;
-      }
-      const userInfoWithUsername = {
-        id: userInfo.id,
-        username: userInfo.username,
-        isViewer: userInfo.isViewer,
-      };
-      return (
-        <View style={styles.itemRow} key={userInfo.id}>
-          <ThreadSettingsUser
-            userInfo={userInfoWithUsername}
-            threadInfo={this.props.threadInfo}
-            canEdit={canStartEditing}
-          />
-        </View>
-      );
-    }).filter(x => x);
+    const members = threadMembers.map(memberInfo => (
+      <View style={styles.itemRow} key={memberInfo.id}>
+        <ThreadSettingsUser
+          memberInfo={memberInfo}
+          threadInfo={this.props.threadInfo}
+          canEdit={canStartEditing}
+        />
+      </View>
+    ));
     if (seeMoreMembers) {
       members.push(seeMoreMembers);
     }
@@ -916,7 +908,7 @@ const ThreadSettings = connect(
         ? state.threadInfos[threadInfo.parentThreadID]
         : null,
       threadMembers:
-        relativeUserInfoSelectorForMembersOfThread(threadInfo.id)(state),
+        relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state),
       childThreadInfos: childThreadInfos(state)[threadInfo.id],
       nameEditLoadingStatus: createLoadingStatusSelector(
         changeThreadSettingsActionTypes,

@@ -1,11 +1,16 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+import {
+  threadInfoPropType,
+  threadPermissions,
+  relativeMemberInfoPropType,
+} from 'lib/types/thread-types';
 
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import PropTypes from 'prop-types';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 
@@ -14,16 +19,17 @@ import Button from '../../components/button.react';
 import PopoverTooltip from '../../components/popover-tooltip.react';
 
 type Props = {|
-  userInfo: {|
-    id: string,
-    username: string,
-    isViewer: bool,
-  |},
+  memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
 |};
 class ThreadSettingsUser extends React.PureComponent<Props> {
 
+  static propTypes = {
+    memberInfo: relativeMemberInfoPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
+    canEdit: PropTypes.bool.isRequired,
+  };
   popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>;
 
   constructor(props: Props) {
@@ -39,7 +45,7 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
       this.props.threadInfo,
       threadPermissions.EDIT_THREAD,
     );
-    const canChange = !this.props.userInfo.isViewer && canEditThread;
+    const canChange = !this.props.memberInfo.isViewer && canEditThread;
     let editButton = null;
     if (canChange && this.props.canEdit) {
       editButton = (
@@ -53,7 +59,7 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
     return (
       <View style={styles.container}>
         <Text style={styles.username} numberOfLines={1}>
-          {this.props.userInfo.username}
+          {this.props.memberInfo.username}
         </Text>
         {editButton}
       </View>
