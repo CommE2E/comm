@@ -18,7 +18,8 @@ import PropTypes from 'prop-types';
 import Color from 'color';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { messageKey, stringForUser } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
+import { stringForUser } from 'lib/shared/user-utils';
 import { messageType } from 'lib/types/message-types';
 
 function textMessageItemHeight(

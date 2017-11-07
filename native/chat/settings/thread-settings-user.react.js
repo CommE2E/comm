@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
+import { stringForUser } from 'lib/shared/user-utils';
 
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
@@ -41,6 +42,20 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
   }
 
   render() {
+    const userText = stringForUser(this.props.memberInfo);
+    let userInfo = null;
+    if (this.props.memberInfo.username) {
+      userInfo = (
+        <Text style={styles.username} numberOfLines={1}>{userText}</Text>
+      );
+    } else {
+      userInfo = (
+        <Text style={[styles.username, styles.anonymous]} numberOfLines={1}>
+          {userText}
+        </Text>
+      );
+    }
+
     const canEditThread = threadHasPermission(
       this.props.threadInfo,
       threadPermissions.EDIT_THREAD,
@@ -56,11 +71,10 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
         />
       );
     }
+
     return (
       <View style={styles.container}>
-        <Text style={styles.username} numberOfLines={1}>
-          {this.props.memberInfo.username}
-        </Text>
+        {userInfo}
         {editButton}
       </View>
     );
@@ -85,6 +99,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333333",
+  },
+  anonymous: {
+    fontStyle: 'italic',
+    color: "#888888",
   },
   editIcon: {
     lineHeight: 20,
