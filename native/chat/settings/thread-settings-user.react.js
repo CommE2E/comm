@@ -39,7 +39,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   static memberIsAdmin(props: Props) {
     const role = props.memberInfo.role &&
       props.threadInfo.roles[props.memberInfo.role];
-    return role && role.name === "Admins";
+    return role && !role.isDefault && role.name === "Admins";
   }
 
   generatePopoverConfig(props: Props) {

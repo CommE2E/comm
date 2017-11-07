@@ -24,7 +24,7 @@ function get_thread_infos($specific_condition="") {
 
   $query = <<<SQL
 SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
-  t.visibility_rules, t.creation_time, rt.id AS roletype,
+  t.visibility_rules, t.creation_time, t.default_roletype, rt.id AS roletype,
   rt.name AS roletype_name, rt.permissions AS roletype_permissions, r.user,
   r.permissions, r.subscribed, u.username
 FROM threads t
@@ -66,6 +66,7 @@ SQL;
         "id" => $row['roletype'],
         "name" => $row['roletype_name'],
         "permissions" => $roletype_permissions,
+        "isDefault" => $row['roletype'] === $row['default_roletype'],
       );
     }
     if ($row['user'] !== null) {

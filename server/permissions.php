@@ -824,11 +824,13 @@ SQL;
       "id" => (string)$member_roletype_id,
       "name" => "Members",
       "permissions" => $member_permissions,
+      "isDefault" => true,
     ),
     "admins" => array(
       "id" => (string)$admin_roletype_id,
       "name" => "Admins",
       "permissions" => $admin_permissions,
+      "isDefault" => false,
     ),
   );
 }
