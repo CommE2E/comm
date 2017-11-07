@@ -72,10 +72,24 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
       );
     }
 
+    let roleInfo = null;
+    const role = this.props.memberInfo.role &&
+      this.props.threadInfo.roles[this.props.memberInfo.role];
+    if (role && role.name === "Admins") {
+      roleInfo = (
+        <View style={styles.row}>
+          <Text style={styles.role}>admin</Text>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
-        {userInfo}
-        {editButton}
+        <View style={styles.row}>
+          {userInfo}
+          {editButton}
+        </View>
+        {roleInfo}
       </View>
     );
   }
@@ -91,9 +105,12 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
     paddingVertical: 8,
     paddingHorizontal: 12,
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
   },
   username: {
     flex: 1,
@@ -113,6 +130,12 @@ const styles = StyleSheet.create({
   popoverLabelStyle: {
     textAlign: 'center',
     color: '#444',
+  },
+  role: {
+    flex: 1,
+    fontSize: 14,
+    color: "#888888",
+    paddingTop: 4,
   },
 });
 
