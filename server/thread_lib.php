@@ -97,7 +97,6 @@ SQL;
 
   $final_thread_infos = array();
   foreach ($thread_infos as $thread_id => $thread_info) {
-    $thread_info['roles'] = array_values($thread_info['roles']);
     if ($thread_info['currentUser'] === null) {
       $all_permissions = get_all_thread_permissions(
         array(

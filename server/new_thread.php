@@ -202,7 +202,10 @@ async_end(array(
       ? (string)$parent_thread_id
       : null,
     'members' => $members,
-    'roles' => array_values($roletypes),
+    'roles' => array(
+      $roletypes['members']['id'] => $roletypes['members'],
+      $roletypes['admins']['id'] => $roletypes['admins'],
+    ),
     'currentUser' => $current_user_info,
   ),
   'new_message_infos' => $new_message_infos,
