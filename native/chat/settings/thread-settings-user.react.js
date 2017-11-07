@@ -11,6 +11,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -24,21 +25,55 @@ type Props = {|
   threadInfo: ThreadInfo,
   canEdit: bool,
 |};
-class ThreadSettingsUser extends React.PureComponent<Props> {
+type State = {|
+  popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>,
+|};
+class ThreadSettingsUser extends React.PureComponent<Props, State> {
 
   static propTypes = {
     memberInfo: relativeMemberInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     canEdit: PropTypes.bool.isRequired,
   };
-  popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>;
+
+  static memberIsAdmin(props: Props) {
+    const role = props.memberInfo.role &&
+      props.threadInfo.roles[props.memberInfo.role];
+    return role && role.name === "Admins";
+  }
+
+  generatePopoverConfig(props: Props) {
+    // TODO check correct permissions
+    const canEditThread = threadHasPermission(
+      props.threadInfo,
+      threadPermissions.EDIT_THREAD,
+    );
+    if (!canEditThread || !props.canEdit) {
+      return [];
+    }
+    const result = [];
+    if (!props.memberInfo.isViewer) {
+      result.push({ label: "Remove user", onPress: this.onPressRemoveUser });
+    }
+    const adminText = ThreadSettingsUser.memberIsAdmin(props)
+      ? "Remove admin"
+      : "Make admin";
+    result.push({ label: adminText, onPress: this.onPressMakeAdmin });
+    return result;
+  }
 
   constructor(props: Props) {
     super(props);
-    this.popoverConfig = [
-      { label: "Remove user", onPress: this.onPressRemoveUser },
-      { label: "Make admin", onPress: this.onPressMakeAdmin },
-    ];
+    this.state = {
+      popoverConfig: this.generatePopoverConfig(props),
+    };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const nextPopoverConfig = this.generatePopoverConfig(nextProps);
+    if (!_isEqual(this.state.popoverConfig)(nextPopoverConfig)) {
+      this.setState({ popoverConfig: nextPopoverConfig });
+    }
   }
 
   render() {
@@ -56,26 +91,19 @@ class ThreadSettingsUser extends React.PureComponent<Props> {
       );
     }
 
-    const canEditThread = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.EDIT_THREAD,
-    );
-    const canChange = !this.props.memberInfo.isViewer && canEditThread;
     let editButton = null;
-    if (canChange && this.props.canEdit) {
+    if (this.state.popoverConfig.length !== 0) {
       editButton = (
         <PopoverTooltip
           buttonComponent={icon}
-          items={this.popoverConfig}
+          items={this.state.popoverConfig}
           labelStyle={styles.popoverLabelStyle}
         />
       );
     }
 
     let roleInfo = null;
-    const role = this.props.memberInfo.role &&
-      this.props.threadInfo.roles[this.props.memberInfo.role];
-    if (role && role.name === "Admins") {
+    if (ThreadSettingsUser.memberIsAdmin(this.props)) {
       roleInfo = (
         <View style={styles.row}>
           <Text style={styles.role}>admin</Text>
