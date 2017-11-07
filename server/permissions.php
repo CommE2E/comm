@@ -129,6 +129,9 @@ function get_info_from_permissions_row($row) {
     "permissions" => $blob,
     "visibility_rules" => (int)$row['visibility_rules'],
     "edit_rules" => (int)$row['edit_rules'],
+    "roletype" => $row['roletype'] !== null
+      ? (int)$row['roletype']
+      : null,
   );
 }
 

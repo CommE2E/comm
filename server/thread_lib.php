@@ -42,7 +42,7 @@ SQL;
   $user_infos = array();
   while ($row = $result->fetch_assoc()) {
     $thread_id = $row['id'];
-    if (!$thread_infos[$thread_id]) {
+    if (!isset($thread_infos[$thread_id])) {
       $thread_infos[$thread_id] = array(
         "id" => $thread_id,
         "name" => $row['name'],
@@ -68,7 +68,7 @@ SQL;
         "permissions" => $roletype_permissions,
       );
     }
-    if ($row['user'] !== null && $row['username'] !== null) {
+    if ($row['user'] !== null) {
       $user_id = $row['user'];
       $permission_info = get_info_from_permissions_row($row);
       $all_permissions =
@@ -86,10 +86,12 @@ SQL;
           "subscribed" => !!$row['subscribed'],
         );
       }
-      $user_infos[$user_id] = array(
-        "id" => $user_id,
-        "username" => $row['username'],
-      );
+      if ($row['username']) {
+        $user_infos[$user_id] = array(
+          "id" => $user_id,
+          "username" => $row['username'],
+        );
+      }
     }
   }
 
