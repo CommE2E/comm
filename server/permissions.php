@@ -26,6 +26,12 @@ define("PERMISSION_JOIN_THREAD", "join_thread");
 define("PERMISSION_EDIT_PERMISSIONS", "edit_permissions");
 // If the user can add new members to this thread
 define("PERMISSION_ADD_MEMBERS", "add_members");
+// If the user can remove members from this thread. If the members in question
+// have a non-default roletype, PERMISSION_CHANGE_ROLE is also needed.
+define("PERMISSION_REMOVE_MEMBERS", "remove_members");
+// If the user can change the role of any other member in the thread. This is
+// probably the most powerful permission.
+define("PERMISSION_CHANGE_ROLE", "change_role");
 
 $all_thread_permissions = array(
   PERMISSION_KNOW_OF,
@@ -38,6 +44,8 @@ $all_thread_permissions = array(
   PERMISSION_JOIN_THREAD,
   PERMISSION_EDIT_PERMISSIONS,
   PERMISSION_ADD_MEMBERS,
+  PERMISSION_REMOVE_MEMBERS,
+  PERMISSION_CHANGE_ROLE,
 );
 
 define("PERMISSION_PREFIX_DESCENDANT", "descendant_");
@@ -790,6 +798,8 @@ function create_initial_roletypes_for_new_thread($thread_id) {
     PERMISSION_ADD_MEMBERS => true,
     PERMISSION_DELETE_THREAD => true,
     PERMISSION_EDIT_PERMISSIONS => true,
+    PERMISSION_REMOVE_MEMBERS => true,
+    PERMISSION_CHANGE_ROLE => true,
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_KNOW_OF => true,
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_VISIBLE => true,
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_JOIN_THREAD => true,
@@ -800,6 +810,8 @@ function create_initial_roletypes_for_new_thread($thread_id) {
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_ADD_MEMBERS => true,
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_DELETE_THREAD => true,
     PERMISSION_PREFIX_DESCENDANT . PERMISSION_EDIT_PERMISSIONS => true,
+    PERMISSION_PREFIX_DESCENDANT . PERMISSION_REMOVE_MEMBERS => true,
+    PERMISSION_PREFIX_DESCENDANT . PERMISSION_CHANGE_ROLE => true,
   );
 
   $encoded_member_permissions = $conn->real_escape_string(json_encode(

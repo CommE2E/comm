@@ -43,22 +43,42 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   }
 
   generatePopoverConfig(props: Props) {
-    // TODO check correct permissions
-    const canEditThread = threadHasPermission(
-      props.threadInfo,
-      threadPermissions.EDIT_THREAD,
-    );
-    if (!canEditThread || !props.canEdit) {
+    const role = props.memberInfo.role;
+    if (!props.canEdit || !role) {
       return [];
     }
+
+    const canRemoveMembers = threadHasPermission(
+      props.threadInfo,
+      threadPermissions.REMOVE_MEMBERS,
+    );
+    const canChangeRoles = threadHasPermission(
+      props.threadInfo,
+      threadPermissions.CHANGE_ROLE,
+    );
+
     const result = [];
-    if (!props.memberInfo.isViewer) {
+    if (
+      canRemoveMembers &&
+      !props.memberInfo.isViewer &&
+      (
+        canChangeRoles ||
+        (
+          props.threadInfo.roles[role] &&
+          props.threadInfo.roles[role].isDefault
+        )
+      )
+    ) {
       result.push({ label: "Remove user", onPress: this.onPressRemoveUser });
     }
-    const adminText = ThreadSettingsUser.memberIsAdmin(props)
-      ? "Remove admin"
-      : "Make admin";
-    result.push({ label: adminText, onPress: this.onPressMakeAdmin });
+
+    if (canChangeRoles) {
+      const adminText = ThreadSettingsUser.memberIsAdmin(props)
+        ? "Remove admin"
+        : "Make admin";
+      result.push({ label: adminText, onPress: this.onPressMakeAdmin });
+    }
+
     return result;
   }
 
