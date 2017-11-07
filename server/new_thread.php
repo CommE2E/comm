@@ -136,7 +136,7 @@ if ($new_message_infos === null) {
 $creator_results = change_roletype(
   $id,
   array($creator),
-  (int)$roletypes['admins']['id'],
+  (int)$roletypes['admins']['id']
 );
 if (!$creator_results) {
   async_end(array(
@@ -174,11 +174,11 @@ foreach ($to_save as $row_to_save) {
       ),
       "role" => (string)$row_to_save['roletype'],
     );
-    $members[] = $member;
+    array_unshift($members, $member);
     if ($row_to_save['user_id'] === $creator) {
       $current_user_info = array(
         "permissions" => $member['permissions'],
-        "role" => $member['roletype'],
+        "role" => $member['role'],
         "subscribed" => true,
       );
     }
