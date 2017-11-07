@@ -129,6 +129,22 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
           <Text style={styles.role}>admin</Text>
         </View>
       );
+    } else {
+      // In the future, when we might have more than two roles per threads, we
+      // will need something more sophisticated here. For now, if the user isn't
+      // an admin and yet has the CHANGE_ROLE permissions, we know that they are
+      // an admin of an ancestor of this thread.
+      const canChangeRoles = threadHasPermission(
+        this.props.threadInfo,
+        threadPermissions.CHANGE_ROLE,
+      );
+      if (canChangeRoles) {
+        roleInfo = (
+          <View style={styles.row}>
+            <Text style={styles.role}>parent admin</Text>
+          </View>
+        );
+      }
     }
 
     return (
