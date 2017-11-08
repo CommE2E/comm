@@ -72,7 +72,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
       result.push({ label: "Remove user", onPress: this.onPressRemoveUser });
     }
 
-    if (canChangeRoles) {
+    if (canChangeRoles && this.props.memberInfo.username) {
       const adminText = ThreadSettingsUser.memberIsAdmin(props)
         ? "Remove admin"
         : "Make admin";
@@ -134,10 +134,9 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
       // will need something more sophisticated here. For now, if the user isn't
       // an admin and yet has the CHANGE_ROLE permissions, we know that they are
       // an admin of an ancestor of this thread.
-      const canChangeRoles = threadHasPermission(
-        this.props.threadInfo,
-        threadPermissions.CHANGE_ROLE,
-      );
+      const canChangeRoles =
+        this.props.memberInfo.permissions[threadPermissions.CHANGE_ROLE] &&
+        this.props.memberInfo.permissions[threadPermissions.CHANGE_ROLE].value;
       if (canChangeRoles) {
         roleInfo = (
           <View style={styles.row}>
