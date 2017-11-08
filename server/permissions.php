@@ -525,7 +525,10 @@ SQL;
 //     to_save => array<array(
 //       user_id: int,
 //       thread_id: int,
-//       permissions: array<permission: string, array(value => bool, source => int)>
+//       permissions: array<
+//         permission: string,
+//         array(value => bool, source => int),
+//       >,
 //       permissions_for_children:
 //         ?array<permission: string, array(value => bool, source => int)>
 //       roletype: int,
@@ -666,6 +669,126 @@ SQL;
     $to_delete = array_merge($to_delete, $descendant_results['to_delete']);
   }
   
+  return array("to_save" => $to_save, "to_delete" => $to_delete);
+}
+
+// $roletype: int
+//   cannot be zero or null!
+// $changed_roletype_permissions:
+//   array<permission: string, bool>
+// returns: (null if failed)
+//   ?array(
+//     to_save => array<array(
+//       user_id: int,
+//       thread_id: int,
+//       permissions: array<
+//         permission: string,
+//         array(value => bool, source => int),
+//       >,
+//       permissions_for_children:
+//         ?array<permission: string, array(value => bool, source => int)>
+//       roletype: int,
+//     )>,
+//     to_delete: array<array(user_id: int, thread_id: int)>,
+//   )
+function edit_roletype_permissions($roletype, $changed_roletype_permissions) {
+  global $conn;
+
+  $roletype = (int)$roletype;
+  if ($roletype === 0) {
+    return null;
+  }
+
+  $query = <<<SQL
+SELECT rt.thread, rt.permissions, t.visibility_rules
+FROM roletypes rt
+LEFT JOIN threads t ON t.id = rt.thread
+WHERE rt.id = {$roletype}
+SQL;
+  $result = $conn->query($query);
+  $row = $result->fetch_assoc();
+  if (!$row) {
+    return null;
+  }
+  $thread_id = (int)$row['thread'];
+  $vis_rules = (int)$row['visibility_rules'];
+  $new_roletype_permissions = array_filter(array_merge(
+    json_decode($row['permissions'], true),
+    $changed_roletype_permissions
+  ));
+
+  $encoded_roletype_permissions =
+    $conn->real_escape_string(json_encode($new_roletype_permissions));
+  $query = <<<SQL
+UPDATE roletypes
+SET permissions = '{$encoded_roletype_permissions}'
+WHERE id = {$roletype}
+SQL;
+  $conn->query($query);
+
+  $query = <<<SQL
+SELECT r.user, r.permissions, r.permissions_for_children,
+  pr.permissions_for_children AS permissions_from_parent
+FROM roles r
+LEFT JOIN threads t ON t.id = r.thread
+LEFT JOIN roles pr ON pr.thread = t.parent_thread_id AND pr.user = r.user
+WHERE r.roletype = {$roletype}
+SQL;
+  $result = $conn->query($query);
+
+  $to_save = array();
+  $to_delete = array();
+  $to_update_descendants = array();
+  while ($row = $result->fetch_assoc()) {
+    $user_id = (int)$row['user'];
+    $permissions_from_parent = $row['permissions_from_parent']
+      ? json_decode($row['permissions_from_parent'], true)
+      : null;
+    $old_permissions = json_decode($row['permissions'], true);
+    $old_permissions_for_children = $row['permissions_for_children']
+      ? json_decode($row['permissions_for_children'], true)
+      : null;
+
+    $permissions = make_permissions_blob(
+      $new_roletype_permissions,
+      $permissions_from_parent,
+      $thread_id,
+      $vis_rules
+    );
+    if ($permissions == $old_permissions) {
+      // This thread and all of its children need no updates, since its
+      // permissions are unchanged by this operation
+      continue;
+    }
+
+    $permissions_for_children = permissions_for_children($permissions);
+    if ($permissions !== null) {
+      $to_save[] = array(
+        "user_id" => $user_id,
+        "thread_id" => $thread_id,
+        "permissions" => $permissions,
+        "permissions_for_children" => $permissions_for_children,
+        "roletype" => $roletype,
+      );
+    } else {
+      $to_delete[] = array(
+        "user_id" => $user_id,
+        "thread_id" => $thread_id,
+      );
+    }
+
+    if ($permissions_for_children != $old_permissions_for_children) {
+      $to_update_descendants[$user_id] = $permissions_for_children;
+    }
+  }
+
+  if ($to_update_descendants) {
+    $descendant_results =
+      update_descendant_permissions($thread_id, $to_update_descendants);
+    $to_save = array_merge($to_save, $descendant_results['to_save']);
+    $to_delete = array_merge($to_delete, $descendant_results['to_delete']);
+  }
+
   return array("to_save" => $to_save, "to_delete" => $to_delete);
 }
 
