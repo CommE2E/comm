@@ -3,7 +3,7 @@
 require_once('auth.php');
 
 // $user_ids is an array of user IDs as strings
-// returns an array of validated user IDs
+// returns an array of validated user IDs as ints
 function verify_user_ids($user_ids) {
   global $conn;
 

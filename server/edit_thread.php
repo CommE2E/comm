@@ -287,7 +287,7 @@ if ($add_member_ids) {
 save_user_roles($to_save);
 delete_user_roles($to_delete);
 
-list($thread_infos, $thread_users) = get_thread_infos("t.id = {$thread}");
+list($thread_infos) = get_thread_infos("t.id = {$thread}");
 
 async_end(array(
   'success' => true,
