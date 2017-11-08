@@ -245,7 +245,7 @@ foreach ($changed_fields as $field_name => $new_value) {
 }
 if ($add_member_ids) {
   $message_infos[] = array(
-    'type' => MESSAGE_TYPE_ADD_USERS,
+    'type' => MESSAGE_TYPE_ADD_MEMBERS,
     'threadID' => (string)$thread,
     'creatorID' => (string)$user,
     'time' => $time,

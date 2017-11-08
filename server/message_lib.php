@@ -11,7 +11,7 @@ define("DEFAULT_NUMBER_PER_THREAD", 20);
 // Messages aren't just messages, but any updates to a thread
 define("MESSAGE_TYPE_TEXT", 0);
 define("MESSAGE_TYPE_CREATE_THREAD", 1);
-define("MESSAGE_TYPE_ADD_USERS", 2);
+define("MESSAGE_TYPE_ADD_MEMBERS", 2);
 define("MESSAGE_TYPE_CREATE_SUB_THREAD", 3);
 define("MESSAGE_TYPE_CHANGE_SETTINGS", 4);
 
@@ -204,7 +204,7 @@ function message_from_row($row) {
     $message['text'] = $row['content'];
   } else if ($type === MESSAGE_TYPE_CREATE_THREAD) {
     $message['initialThreadState'] = json_decode($row['content'], true);
-  } else if ($type === MESSAGE_TYPE_ADD_USERS) {
+  } else if ($type === MESSAGE_TYPE_ADD_MEMBERS) {
     $message['addedUserIDs'] = json_decode($row['content'], true);
   } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
     $child_thread_id = $row['content'];
@@ -226,7 +226,7 @@ function get_all_users($messages, $users) {
   $all_added_user_ids = array();
   foreach ($messages as $message) {
     $new_users = array();
-    if ($message['type'] === MESSAGE_TYPE_ADD_USERS) {
+    if ($message['type'] === MESSAGE_TYPE_ADD_MEMBERS) {
       $new_users = $message['addedUserIDs'];
     } else if ($message['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $new_users = $message['initialThreadState']['memberIDs'];
@@ -277,7 +277,7 @@ function create_message_infos($new_message_infos) {
       $content_by_index[$index] = $conn->real_escape_string(
         $new_message_info['text']
       );
-    } else if ($new_message_info['type'] === MESSAGE_TYPE_ADD_USERS) {
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_ADD_MEMBERS) {
       $content_by_index[$index] = $conn->real_escape_string(
         json_encode($new_message_info['addedUserIDs'])
       );

@@ -82,14 +82,14 @@ function createMessageInfo(
         ),
       },
     };
-  } else if (rawMessageInfo.type === messageType.ADD_USER) {
+  } else if (rawMessageInfo.type === messageType.ADD_MEMBERS) {
     const addedMembers = userIDsToRelativeUserInfos(
       rawMessageInfo.addedUserIDs,
       viewerID,
       userInfos,
     );
     return {
-      type: messageType.ADD_USER,
+      type: messageType.ADD_MEMBERS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
