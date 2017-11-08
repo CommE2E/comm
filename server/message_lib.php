@@ -14,6 +14,7 @@ define("MESSAGE_TYPE_CREATE_THREAD", 1);
 define("MESSAGE_TYPE_ADD_MEMBERS", 2);
 define("MESSAGE_TYPE_CREATE_SUB_THREAD", 3);
 define("MESSAGE_TYPE_CHANGE_SETTINGS", 4);
+define("MESSAGE_TYPE_REMOVE_MEMBERS", 5);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
@@ -216,6 +217,8 @@ function message_from_row($row) {
     $change = json_decode($row['content'], true);
     $message['field'] = array_keys($change)[0];
     $message['value'] = $change[$message['field']];
+  } else if ($type === MESSAGE_TYPE_REMOVE_MEMBERS) {
+    $message['removedUserIDs'] = json_decode($row['content'], true);
   }
   return $message;
 }
@@ -285,6 +288,10 @@ function create_message_infos($new_message_infos) {
       $content_by_index[$index] = $conn->real_escape_string(json_encode(array(
         $new_message_info['field'] => $new_message_info['value'],
       )));
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_REMOVE_MEMBERS) {
+      $content_by_index[$index] = $conn->real_escape_string(
+        json_encode($new_message_info['removedUserIDs'])
+      );
     } else {
       return null;
     }

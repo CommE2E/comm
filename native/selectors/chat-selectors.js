@@ -127,6 +127,24 @@ function createMessageInfo(
       field: rawMessageInfo.field,
       value: rawMessageInfo.value,
     };
+  } else if (rawMessageInfo.type === messageType.REMOVE_MEMBERS) {
+    const removedMembers = userIDsToRelativeUserInfos(
+      rawMessageInfo.removedUserIDs,
+      viewerID,
+      userInfos,
+    );
+    return {
+      type: messageType.REMOVE_MEMBERS,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
+      time: rawMessageInfo.time,
+      removedMembers,
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
