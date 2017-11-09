@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { connect } from 'react-redux';
+import invariant from 'invariant';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -28,6 +29,8 @@ import {
 import {
   removeUsersFromThreadActionTypes,
   removeUsersFromThread,
+  changeThreadMemberRolesActionTypes,
+  changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -41,12 +44,18 @@ type Props = {|
   canEdit: bool,
   // Redux state
   removeUsersLoadingStatus: LoadingStatus,
+  changeRolesLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   removeUsersFromThread: (
     threadID: string,
     userIDs: string[],
+  ) => Promise<ChangeThreadSettingsResult>,
+  changeThreadMemberRoles: (
+    threadID: string,
+    userIDs: string[],
+    newRole: string,
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 type State = {|
@@ -217,6 +226,55 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   }
 
   onPressMakeAdmin = () => {
+    if (Platform.OS === "ios") {
+      // https://github.com/facebook/react-native/issues/10471
+      setTimeout(this.showMakeAdminConfirmation, 300);
+    } else {
+      this.showMakeAdminConfirmation();
+    }
+  }
+
+  showMakeAdminConfirmation = () => {
+    const userText = stringForUser(this.props.memberInfo);
+    const actionClause = ThreadSettingsUser.memberIsAdmin(this.props)
+      ? `remove ${userText} as an admin`
+      : `make ${userText} an admin`;
+    Alert.alert(
+      "Confirm action",
+      `Are you sure you want to ${actionClause} of this thread?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: this.onConfirmMakeAdmin },
+      ],
+    );
+  }
+
+  onConfirmMakeAdmin = () => {
+    const isCurrentlyAdmin = ThreadSettingsUser.memberIsAdmin(this.props);
+    let newRole = null;
+    for (let roleID in this.props.threadInfo.roles) {
+      const role = this.props.threadInfo.roles[roleID];
+      if (isCurrentlyAdmin && role.isDefault) {
+        newRole = role.id;
+        break;
+      } else if (!isCurrentlyAdmin && role.name === "Admins") {
+        newRole = role.id;
+        break;
+      }
+    }
+    invariant(newRole !== null, "Could not find new role");
+    this.props.dispatchActionPromise(
+      changeThreadMemberRolesActionTypes,
+      this.makeAdmin(newRole),
+    );
+  }
+
+  async makeAdmin(newRole: string) {
+    return await this.props.changeThreadMemberRoles(
+      this.props.threadInfo.id,
+      [ this.props.memberInfo.id ],
+      newRole,
+    );
   }
 
 }
@@ -269,12 +327,15 @@ const icon = (
 
 const removeUsersLoadingStatusSelector
   = createLoadingStatusSelector(removeUsersFromThreadActionTypes);
+const changeRolesLoadingStatusSelector
+  = createLoadingStatusSelector(changeThreadMemberRolesActionTypes);
 
 export default connect(
   (state: AppState) => ({
     removeUsersLoadingStatus: removeUsersLoadingStatusSelector(state),
+    changeRolesLoadingStatus: changeRolesLoadingStatusSelector(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
-  bindServerCalls({ removeUsersFromThread }),
+  bindServerCalls({ removeUsersFromThread, changeThreadMemberRoles }),
 )(ThreadSettingsUser);
