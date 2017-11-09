@@ -13,7 +13,14 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
-import { View, Text, StyleSheet, Platform, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
@@ -145,7 +152,12 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
     }
 
     let editButton = null;
-    if (this.state.popoverConfig.length !== 0) {
+    if (
+      this.props.removeUsersLoadingStatus === "loading" ||
+      this.props.changeRolesLoadingStatus === "loading"
+    ) {
+      editButton = <ActivityIndicator size="small" />;
+    } else if (this.state.popoverConfig.length !== 0) {
       editButton = (
         <PopoverTooltip
           buttonComponent={icon}
@@ -193,7 +205,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   onPressRemoveUser = () => {
     if (Platform.OS === "ios") {
       // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showRemoveUserConfirmation, 300);
+      setTimeout(this.showRemoveUserConfirmation, 400);
     } else {
       this.showRemoveUserConfirmation();
     }
@@ -212,9 +224,12 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   }
 
   onConfirmRemoveUser = () => {
+    const customKeyName = removeUsersFromThreadActionTypes.started +
+      `:${this.props.memberInfo.id}`;
     this.props.dispatchActionPromise(
       removeUsersFromThreadActionTypes,
       this.removeUser(),
+      { customKeyName },
     );
   }
 
@@ -228,7 +243,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   onPressMakeAdmin = () => {
     if (Platform.OS === "ios") {
       // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showMakeAdminConfirmation, 300);
+      setTimeout(this.showMakeAdminConfirmation, 400);
     } else {
       this.showMakeAdminConfirmation();
     }
@@ -263,9 +278,12 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
       }
     }
     invariant(newRole !== null, "Could not find new role");
+    const customKeyName = changeThreadMemberRolesActionTypes.started +
+      `:${this.props.memberInfo.id}`;
     this.props.dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
       this.makeAdmin(newRole),
+      { customKeyName },
     );
   }
 
@@ -325,15 +343,16 @@ const icon = (
   />
 );
 
-const removeUsersLoadingStatusSelector
-  = createLoadingStatusSelector(removeUsersFromThreadActionTypes);
-const changeRolesLoadingStatusSelector
-  = createLoadingStatusSelector(changeThreadMemberRolesActionTypes);
-
 export default connect(
-  (state: AppState) => ({
-    removeUsersLoadingStatus: removeUsersLoadingStatusSelector(state),
-    changeRolesLoadingStatus: changeRolesLoadingStatusSelector(state),
+  (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
+    removeUsersLoadingStatus: createLoadingStatusSelector(
+      removeUsersFromThreadActionTypes,
+      `${removeUsersFromThreadActionTypes.started}:${ownProps.memberInfo.id}`,
+    )(state),
+    changeRolesLoadingStatus: createLoadingStatusSelector(
+      changeThreadMemberRolesActionTypes,
+      `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
+    )(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
