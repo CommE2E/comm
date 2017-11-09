@@ -34,7 +34,12 @@ class ChatThreadListItem extends React.PureComponent<Props> {
         </Text>
       );
     }
-    return <MessagePreview messageInfo={mostRecentMessageInfo} />;
+    return (
+      <MessagePreview
+        messageInfo={mostRecentMessageInfo}
+        threadInfo={this.props.data.threadInfo}
+      />
+    );
   }
 
   render() {

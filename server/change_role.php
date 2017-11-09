@@ -2,9 +2,11 @@
 
 require_once('async_lib.php');
 require_once('config.php');
+require_once('auth.php');
 require_once('user_lib.php');
 require_once('permissions.php');
 require_once('thread_lib.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -60,8 +62,24 @@ $results = change_roletype($thread, $member_ids, $role);
 save_user_roles($results['to_save']);
 delete_user_roles($results['to_delete']);
 
+$message_info = array(
+  'type' => MESSAGE_TYPE_CHANGE_ROLE,
+  'threadID' => (string)$thread,
+  'creatorID' => (string)get_viewer_id(),
+  'time' => round(microtime(true) * 1000), // in milliseconds
+  'userIDs' => array_map("strval", $member_ids),
+  'newRole' => (string)$role,
+);
+$new_message_infos = create_message_infos(array($message_info));
+if ($new_message_infos === null) {
+  async_end(array(
+    'error' => 'unknown_error',
+  ));
+}
+
 list($thread_infos) = get_thread_infos("t.id = {$thread}");
 async_end(array(
   'success' => true,
   'thread_info' => $thread_infos[$thread],
+  'new_message_infos' => $new_message_infos,
 ));

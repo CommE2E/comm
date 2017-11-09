@@ -145,6 +145,25 @@ function createMessageInfo(
       time: rawMessageInfo.time,
       removedMembers,
     };
+  } else if (rawMessageInfo.type === messageType.CHANGE_ROLE) {
+    const members = userIDsToRelativeUserInfos(
+      rawMessageInfo.userIDs,
+      viewerID,
+      userInfos,
+    );
+    return {
+      type: messageType.CHANGE_ROLE,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
+      time: rawMessageInfo.time,
+      members,
+      newRole: rawMessageInfo.newRole,
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
@@ -282,7 +301,10 @@ const baseMessageListData = (threadID: string) => createSelector(
           endsCluster: false,
         });
       } else {
-        const robotext = robotextForMessageInfo(messageInfo);
+        const robotext = robotextForMessageInfo(
+          messageInfo,
+          threadInfos[threadID],
+        );
         chatMessageItems.push({
           itemType: "message",
           messageInfo,

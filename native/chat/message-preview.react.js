@@ -2,9 +2,10 @@
 
 import type { MessageInfo } from 'lib/types/message-types';
 import { messageInfoPropType } from 'lib/types/message-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import { StyleSheet, Text } from 'react-native';
 
 import { messageType } from 'lib/types/message-types';
@@ -15,11 +16,13 @@ import {
 
 type Props = {
   messageInfo: MessageInfo,
+  threadInfo: ThreadInfo,
 };
 class MessagePreview extends React.PureComponent<Props> {
 
   static propTypes = {
     messageInfo: messageInfoPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
   };
 
   render() {
@@ -35,7 +38,10 @@ class MessagePreview extends React.PureComponent<Props> {
         </Text>
       );
     } else {
-      const robotext = robotextToRawString(robotextForMessageInfo(messageInfo));
+      const robotext = robotextToRawString(robotextForMessageInfo(
+        messageInfo,
+        this.props.threadInfo,
+      ));
       return (
         <Text style={[styles.lastMessage, styles.robotext]} numberOfLines={1}>
           {robotext}
