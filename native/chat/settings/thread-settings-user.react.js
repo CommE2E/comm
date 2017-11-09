@@ -6,15 +6,30 @@ import {
   threadPermissions,
   relativeMemberInfoPropType,
 } from 'lib/types/thread-types';
+import type { AppState } from '../../redux-setup';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
+import { connect } from 'react-redux';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
+import {
+  includeDispatchActionProps,
+  bindServerCalls,
+} from 'lib/utils/action-utils';
+import {
+  removeUsersFromThreadActionTypes,
+  removeUsersFromThread,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
@@ -24,6 +39,15 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
+  // Redux state
+  removeUsersLoadingStatus: LoadingStatus,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  removeUsersFromThread: (
+    threadID: string,
+    userIDs: string[],
+  ) => Promise<ChangeThreadSettingsResult>,
 |};
 type State = {|
   popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>,
@@ -72,7 +96,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
       result.push({ label: "Remove user", onPress: this.onPressRemoveUser });
     }
 
-    if (canChangeRoles && this.props.memberInfo.username) {
+    if (canChangeRoles && props.memberInfo.username) {
       const adminText = ThreadSettingsUser.memberIsAdmin(props)
         ? "Remove admin"
         : "Make admin";
@@ -158,6 +182,38 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   }
 
   onPressRemoveUser = () => {
+    if (Platform.OS === "ios") {
+      // https://github.com/facebook/react-native/issues/10471
+      setTimeout(this.showRemoveUserConfirmation, 300);
+    } else {
+      this.showRemoveUserConfirmation();
+    }
+  }
+
+  showRemoveUserConfirmation = () => {
+    const userText = stringForUser(this.props.memberInfo);
+    Alert.alert(
+      "Confirm removal",
+      `Are you sure you want to remove ${userText} from this thread?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: this.onConfirmRemoveUser },
+      ],
+    );
+  }
+
+  onConfirmRemoveUser = () => {
+    this.props.dispatchActionPromise(
+      removeUsersFromThreadActionTypes,
+      this.removeUser(),
+    );
+  }
+
+  async removeUser() {
+    return await this.props.removeUsersFromThread(
+      this.props.threadInfo.id,
+      [ this.props.memberInfo.id ],
+    );
   }
 
   onPressMakeAdmin = () => {
@@ -211,4 +267,14 @@ const icon = (
   />
 );
 
-export default ThreadSettingsUser;
+const removeUsersLoadingStatusSelector
+  = createLoadingStatusSelector(removeUsersFromThreadActionTypes);
+
+export default connect(
+  (state: AppState) => ({
+    removeUsersLoadingStatus: removeUsersLoadingStatusSelector(state),
+    cookie: state.cookie,
+  }),
+  includeDispatchActionProps,
+  bindServerCalls({ removeUsersFromThread }),
+)(ThreadSettingsUser);

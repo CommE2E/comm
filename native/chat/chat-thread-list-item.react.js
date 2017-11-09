@@ -42,7 +42,6 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     return (
       <Button
         onPress={this.onPress}
-        androidBorderlessRipple={true}
         iosFormat="highlight"
         iosHighlightUnderlayColor="#DDDDDDDD"
         iosActiveOpacity={0.85}
