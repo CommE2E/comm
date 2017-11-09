@@ -18,7 +18,10 @@ if (!isset($_POST['thread']) || !isset($_POST['member_ids'])) {
 $thread = (int)$_POST['thread'];
 $member_ids = verify_user_ids($_POST['member_ids']);
 
-if (!check_thread_permission($thread, PERMISSION_REMOVE_MEMBERS)) {
+if (
+  !$member_ids ||
+  !check_thread_permission($thread, PERMISSION_REMOVE_MEMBERS)
+) {
   async_end(array(
     'error' => 'invalid_credentials',
   ));
