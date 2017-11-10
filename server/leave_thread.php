@@ -41,11 +41,10 @@ $message_info = array(
   'creatorID' => (string)get_viewer_id(),
   'time' => round(microtime(true) * 1000), // in milliseconds
 );
-$new_message_infos = create_message_infos(array($message_info));
+create_message_infos(array($message_info));
 
 list($thread_infos) = get_thread_infos();
 async_end(array(
   'success' => true,
   'thread_infos' => $thread_infos,
-  'new_message_infos' => $new_message_infos,
 ));

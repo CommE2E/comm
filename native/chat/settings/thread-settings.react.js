@@ -12,7 +12,10 @@ import {
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
+import type {
+  ChangeThreadSettingsResult,
+  LeaveThreadResult,
+} from 'lib/actions/thread-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 
@@ -43,12 +46,14 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   changeThreadSettingsActionTypes,
   changeSingleThreadSetting,
+  leaveThreadActionTypes,
+  leaveThread,
 } from 'lib/actions/thread-actions';
 import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 
 import ThreadSettingsCategory from './thread-settings-category.react';
 import ColorSplotch from '../../components/color-splotch.react';
@@ -67,7 +72,7 @@ import ColorPickerModal from '../color-picker-modal.react';
 const itemPageLength = 5;
 
 type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { threadInfo: ThreadInfo } } };
+  & { state: { params: { threadInfo: ThreadInfo, messageListKey: string } } };
 
 type Props = {|
   navigation: NavProp,
@@ -79,6 +84,7 @@ type Props = {|
   nameEditLoadingStatus: LoadingStatus,
   colorEditLoadingStatus: LoadingStatus,
   descriptionEditLoadingStatus: LoadingStatus,
+  leaveThreadLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -87,6 +93,7 @@ type Props = {|
     field: "name" | "description" | "color",
     value: string,
   ) => Promise<ChangeThreadSettingsResult>,
+  leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
 |};
 type State = {|
   showAddUsersModal: bool,
@@ -107,6 +114,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           threadInfo: threadInfoPropType.isRequired,
+          messageListKey: PropTypes.string.isRequired,
         }).isRequired,
       }).isRequired,
       navigate: PropTypes.func.isRequired,
@@ -120,6 +128,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     nameEditLoadingStatus: loadingStatusPropType.isRequired,
     colorEditLoadingStatus: loadingStatusPropType.isRequired,
     descriptionEditLoadingStatus: loadingStatusPropType.isRequired,
+    leaveThreadLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeSingleThreadSetting: PropTypes.func.isRequired,
   };
@@ -177,7 +186,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       !this.state.showEditColorModal &&
       this.props.nameEditLoadingStatus !== "loading" &&
       this.props.colorEditLoadingStatus !== "loading" &&
-      this.props.descriptionEditLoadingStatus !== "loading";
+      this.props.descriptionEditLoadingStatus !== "loading" &&
+      this.props.leaveThreadLoadingStatus !== "loading";
   }
 
   render() {
@@ -506,6 +516,28 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       );
     }
 
+    let leaveThreadButton = null;
+    if (viewerIsMember(this.props.threadInfo)) {
+      const loadingIndicator = this.props.leaveThreadLoadingStatus === "loading"
+        ? <ActivityIndicator size="small" />
+        : null;
+      leaveThreadButton = (
+        <View style={styles.leaveThread}>
+          <Button
+            onPress={this.onPressLeaveThread}
+            style={styles.leaveThreadButton}
+            iosFormat="highlight"
+            iosHighlightUnderlayColor="#EEEEEEDD"
+          >
+            <Text style={styles.leaveThreadText}>
+              Leave thread...
+            </Text>
+            {loadingIndicator}
+          </Button>
+        </View>
+      );
+    }
+
     return (
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -537,6 +569,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           </ThreadSettingsCategory>
           {childThreadPanel}
           {membersPanel}
+          {leaveThreadButton}
         </ScrollView>
         <Modal
           isVisible={this.state.showAddUsersModal}
@@ -804,6 +837,58 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }));
   }
 
+  onPressLeaveThread = () => {
+    let otherUsersExist = false;
+    let otherAdminsExist = false;
+    for (let member of this.props.threadMembers) {
+      const role = member.role;
+      if (role === undefined || role === null || member.isViewer) {
+        continue;
+      }
+      otherUsersExist = true;
+      if (this.props.threadInfo.roles[role].name === "Admins") {
+        otherAdminsExist = true;
+        break;
+      }
+    }
+    if (otherUsersExist && !otherAdminsExist) {
+      Alert.alert(
+        "Need another admin",
+        "Make somebody else an admin before you leave!",
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Confirm action",
+      "Are you sure you want to leave this thread?",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: this.onConfirmLeaveThread },
+      ],
+    );
+  }
+
+  onConfirmLeaveThread = () => {
+    this.props.dispatchActionPromise(
+      leaveThreadActionTypes,
+      this.leaveThread(),
+    );
+  }
+
+  async leaveThread() {
+    try {
+      const result = await this.props.leaveThread(this.props.threadInfo.id);
+      this.props.navigation.goBack(
+        this.props.navigation.state.params.messageListKey,
+      );
+      return result;
+    } catch (e) {
+      Alert.alert("Unknown error", "Uhh... try again?");
+      throw e;
+    }
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -894,7 +979,27 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 0,
   },
+  leaveThread: {
+    marginVertical: 16,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#CCCCCC",
+    backgroundColor: "white",
+  },
+  leaveThreadButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  leaveThreadText: {
+    fontSize: 16,
+    color: "#AA0000",
+    flex: 1,
+  },
 });
+
+const leaveThreadLoadingStatusSelector
+  = createLoadingStatusSelector(leaveThreadActionTypes);
 
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
@@ -922,11 +1027,12 @@ const ThreadSettings = connect(
         changeThreadSettingsActionTypes,
         `${changeThreadSettingsActionTypes.started}:description`,
       )(state),
+      leaveThreadLoadingStatus: leaveThreadLoadingStatusSelector(state),
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ changeSingleThreadSetting }),
+  bindServerCalls({ changeSingleThreadSetting, leaveThread }),
 )(InnerThreadSettings);
 
 export {

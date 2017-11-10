@@ -87,7 +87,10 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
   onPress = () => {
     this.props.navigate(
       ThreadSettingsRouteName,
-      { threadInfo: this.props.threadInfo },
+      {
+        threadInfo: this.props.threadInfo,
+        messageListKey: this.props.sceneKey,
+      },
     );
   }
 
