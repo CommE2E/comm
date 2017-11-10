@@ -5,6 +5,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('day_lib.php');
 require_once('permissions.php');
+require_once('message_lib.php');
 
 async_start();
 
@@ -23,14 +24,19 @@ if ($entry_id === -1) {
   $day = intval($_POST['day']);
   $month = intval($_POST['month']);
   $year = intval($_POST['year']);
+  $date_string = get_date_string($day, $month, $year);
   $thread = intval($_POST['thread']);
   // For the case of a new entry, the privacy check to make sure that the user
   // is allowed to edit this thread happens here
-  $day_id = get_editable_day_id($thread, $day, $month, $year);
+  $day_id = get_editable_day_id($thread, $date_string);
 } else {
-  $result = $conn->query(
-    "SELECT day, deleted FROM entries WHERE id = $entry_id"
-  );
+  $query = <<<SQL
+SELECT e.day, e.deleted, d.thread, d.date
+FROM entries e
+LEFT JOIN days d ON d.id = e.day
+WHERE e.id = {$entry_id}
+SQL;
+  $result = $conn->query($query);
   $entry_row = $result->fetch_assoc();
   if (!$entry_row) {
     async_end(array(
@@ -43,6 +49,8 @@ if ($entry_id === -1) {
     ));
   }
   $day_id = intval($entry_row['day']);
+  $thread = intval($entry_row['thread']);
+  $date_string = $entry_row['date'];
   // For the case of an existing entry, the privacy check to make sure that the
   // user is allowed to edit this thread (and entry) happens here
   if (!check_thread_permission_for_entry($entry_id, PERMISSION_EDIT_ENTRIES)) {
@@ -65,7 +73,8 @@ if (
   ));
 }
 $timestamp = intval($_POST['timestamp']);
-$text = $conn->real_escape_string($_POST['text']);
+$raw_text = $_POST['text'];
+$text = $conn->real_escape_string($raw_text);
 $session_id = $conn->real_escape_string($_POST['session_id']);
 
 $viewer_id = get_viewer_id();
@@ -77,6 +86,7 @@ if ($entry_id === -1) {
       "deleted) VALUES ($entry_id, $day_id, '$text', $viewer_id, $timestamp, ".
       "$timestamp, 0)"
   );
+
   $conn->query("INSERT INTO ids(table_name) VALUES('revisions')");
   $revision_id = $conn->insert_id;
   $conn->query(
@@ -84,11 +94,22 @@ if ($entry_id === -1) {
       "session_id, last_update, deleted) VALUES ($revision_id, $entry_id, ".
       "$viewer_id, '$text', $timestamp, '$session_id', $timestamp, 0)"
   );
+
+  $message_info = array(
+    'type' => MESSAGE_TYPE_CREATE_ENTRY,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)$viewer_id,
+    'time' => $timestamp,
+    'entryID' => (string)$entry_id,
+    'date' => $date_string,
+    'text' => $raw_text,
+  );
+  $new_message_infos = create_message_infos(array($message_info));
+
   async_end(array(
     'success' => true,
-    'day_id' => $day_id,
-    'entry_id' => $entry_id,
-    'new_time' => $timestamp,
+    'entry_id' => (string)$entry_id,
+    'new_message_infos' => $new_message_infos,
   ));
 }
 
@@ -150,7 +171,6 @@ $conn->multi_query($multi_query);
 
 async_end(array(
   'success' => true,
-  'day_id' => $day_id,
-  'entry_id' => $entry_id,
-  'new_time' => $timestamp,
+  'entry_id' => (string)$entry_id,
+  'new_message_infos' => array(),
 ));

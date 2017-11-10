@@ -18,6 +18,7 @@ define("MESSAGE_TYPE_REMOVE_MEMBERS", 5);
 define("MESSAGE_TYPE_CHANGE_ROLE", 6);
 define("MESSAGE_TYPE_LEAVE_THREAD", 7);
 define("MESSAGE_TYPE_JOIN_THREAD", 8);
+define("MESSAGE_TYPE_CREATE_ENTRY", 9);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
@@ -226,6 +227,11 @@ function message_from_row($row) {
     $content = json_decode($row['content'], true);
     $message['userIDs'] = $content['userIDs'];
     $message['newRole'] = $content['newRole'];
+  } else if ($type === MESSAGE_TYPE_CREATE_ENTRY) {
+    $content = json_decode($row['content'], true);
+    $message['entryID'] = $content['entryID'];
+    $message['date'] = $content['date'];
+    $message['text'] = $content['text'];
   }
   return $message;
 }
@@ -302,6 +308,15 @@ function create_message_infos($new_message_infos) {
       $content = array(
         "userIDs" => $new_message_info['userIDs'],
         "newRole" => $new_message_info['newRole'],
+      );
+      $content_by_index[$index] = $conn->real_escape_string(
+        json_encode($content)
+      );
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_ENTRY) {
+      $content = array(
+        "entryID" => $new_message_info['entryID'],
+        "date" => $new_message_info['date'],
+        "text" => $new_message_info['text'],
       );
       $content_by_index[$index] = $conn->real_escape_string(
         json_encode($content)

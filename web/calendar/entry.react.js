@@ -324,9 +324,11 @@ class Entry extends React.PureComponent {
         localID: (null: ?string),
         serverID: serverID,
         text: newText,
-      }
-      if (!serverID && response.entry_id) {
-        const newServerID = response.entry_id.toString();
+        newMessageInfos: response.newMessageInfos,
+        threadID: this.props.threadInfo.id,
+      };
+      if (!serverID && response.entryID) {
+        const newServerID = response.entryID;
         payload.serverID = newServerID;
         const localID = this.props.entryInfo.localID;
         invariant(localID, "if there's no serverID, there should be a localID");
