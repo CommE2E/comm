@@ -4,6 +4,9 @@ require_once('async_lib.php');
 require_once('config.php');
 require_once('auth.php');
 require_once('permissions.php');
+require_once('message_lib.php');
+require_once('user_lib.php');
+require_once('thread_lib.php');
 
 async_start();
 
@@ -16,6 +19,9 @@ $thread = (int)$_POST['thread'];
 $new_subscribed = $_POST['subscribe'] ? 1 : 0;
 $viewer_id = get_viewer_id();
 
+$message_infos = array();
+$truncation_status = array();
+$message_users = array();
 if (viewer_is_member($thread)) {
   $query = <<<SQL
 UPDATE roles
@@ -44,18 +50,30 @@ SQL;
 
   save_user_roles($to_save_with_subscribed);
   delete_user_roles($to_delete);
+
+  $message_info = array(
+    'type' => MESSAGE_TYPE_JOIN_THREAD,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)get_viewer_id(),
+    'time' => round(microtime(true) * 1000), // in milliseconds
+  );
+  create_message_infos(array($message_info));
+
+  list($message_infos, $truncation_status, $message_users) =
+    get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
 }
 
-$permission_info = fetch_thread_permission_info($thread);
-$all_permissions = get_all_thread_permissions($permission_info, $thread);
+list($thread_infos, $thread_users) = get_thread_infos();
+
+$user_infos = combine_keyed_user_info_arrays(
+  $message_users,
+  $thread_users
+);
 
 async_end(array(
   'success' => true,
-  'currentUser' => array(
-    'permissions' => $all_permissions,
-    'role' => $permission_info['roletype']
-      ? (string)$permission_info['roletype']
-      : null,
-    'subscribed' => !!$new_subscribed,
-  ),
+  'thread_infos' => $thread_infos,
+  'message_infos' => $message_infos,
+  'truncation_status' => $truncation_status,
+  'user_infos' => $user_infos,
 ));

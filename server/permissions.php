@@ -137,9 +137,6 @@ function get_info_from_permissions_row($row) {
     "permissions" => $blob,
     "visibility_rules" => (int)$row['visibility_rules'],
     "edit_rules" => (int)$row['edit_rules'],
-    "roletype" => $row['roletype'] !== null
-      ? (int)$row['roletype']
-      : null,
   );
 }
 
@@ -149,7 +146,7 @@ function fetch_thread_permission_info($thread) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT t.visibility_rules, t.edit_rules, r.permissions, r.roletype
+SELECT t.visibility_rules, t.edit_rules, r.permissions
 FROM threads t
 LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}
 WHERE t.id = {$thread}
