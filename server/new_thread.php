@@ -127,11 +127,6 @@ if ($parent_thread_id) {
   );
 }
 $new_message_infos = create_message_infos($message_infos);
-if ($new_message_infos === null) {
-  async_end(array(
-    'error' => 'unknown_error',
-  ));
-}
 
 $creator_results = change_roletype(
   $id,

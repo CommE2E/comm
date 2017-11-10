@@ -71,11 +71,6 @@ $message_info = array(
   'newRole' => (string)$role,
 );
 $new_message_infos = create_message_infos(array($message_info));
-if ($new_message_infos === null) {
-  async_end(array(
-    'error' => 'unknown_error',
-  ));
-}
 
 list($thread_infos) = get_thread_infos("t.id = {$thread}");
 async_end(array(

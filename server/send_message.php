@@ -28,11 +28,6 @@ $message_info = array(
   'text' => $_POST['text'],
 );
 $new_message_infos = create_message_infos(array($message_info));
-if ($new_message_infos === null) {
-  async_end(array(
-    'error' => 'unknown_error',
-  ));
-}
 
 async_end(array(
   'success' => true,

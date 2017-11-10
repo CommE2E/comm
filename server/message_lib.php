@@ -264,8 +264,7 @@ SQL;
   return $users;
 }
 
-// returns message infos with IDs on success, and null on failure
-// only fails if passed a message type it doesn't recognize
+// returns message infos with IDs
 function create_message_infos($new_message_infos) {
   global $conn;
 
@@ -305,8 +304,6 @@ function create_message_infos($new_message_infos) {
       $content_by_index[$index] = $conn->real_escape_string(
         json_encode($content)
       );
-    } else {
-      return null;
     }
   }
 
@@ -315,10 +312,13 @@ function create_message_infos($new_message_infos) {
   foreach ($new_message_infos as $index => $new_message_info) {
     $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
     $new_message_info['id'] = (string)$conn->insert_id;
+    $content = isset($content_by_index[$index])
+      ? "'{$content_by_index[$index]}'"
+      : "NULL";
     $values[] = <<<SQL
 ({$new_message_info['id']}, {$new_message_info['threadID']},
   {$new_message_info['creatorID']}, {$new_message_info['type']},
-  '{$content_by_index[$index]}', {$new_message_info['time']})
+  {$content}, {$new_message_info['time']})
 SQL;
     $return[$index] = $new_message_info;
   }

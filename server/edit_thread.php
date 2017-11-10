@@ -253,11 +253,6 @@ if ($add_member_ids) {
   );
 }
 $new_message_infos = create_message_infos($message_infos);
-if ($new_message_infos === null) {
-  async_end(array(
-    'error' => 'unknown_error',
-  ));
-}
 
 $to_save = array();
 $to_delete = array();
