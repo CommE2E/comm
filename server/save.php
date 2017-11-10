@@ -169,8 +169,19 @@ if (
 }
 $conn->multi_query($multi_query);
 
+$message_info = array(
+  'type' => MESSAGE_TYPE_EDIT_ENTRY,
+  'threadID' => (string)$thread,
+  'creatorID' => (string)$viewer_id,
+  'time' => $timestamp,
+  'entryID' => (string)$entry_id,
+  'date' => $date_string,
+  'text' => $raw_text,
+);
+$new_message_infos = create_message_infos(array($message_info));
+
 async_end(array(
   'success' => true,
   'entry_id' => (string)$entry_id,
-  'new_message_infos' => array(),
+  'new_message_infos' => $new_message_infos,
 ));

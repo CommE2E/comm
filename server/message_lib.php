@@ -19,6 +19,7 @@ define("MESSAGE_TYPE_CHANGE_ROLE", 6);
 define("MESSAGE_TYPE_LEAVE_THREAD", 7);
 define("MESSAGE_TYPE_JOIN_THREAD", 8);
 define("MESSAGE_TYPE_CREATE_ENTRY", 9);
+define("MESSAGE_TYPE_EDIT_ENTRY", 10);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
@@ -232,6 +233,11 @@ function message_from_row($row) {
     $message['entryID'] = $content['entryID'];
     $message['date'] = $content['date'];
     $message['text'] = $content['text'];
+  } else if ($type === MESSAGE_TYPE_EDIT_ENTRY) {
+    $content = json_decode($row['content'], true);
+    $message['entryID'] = $content['entryID'];
+    $message['date'] = $content['date'];
+    $message['text'] = $content['text'];
   }
   return $message;
 }
@@ -313,6 +319,15 @@ function create_message_infos($new_message_infos) {
         json_encode($content)
       );
     } else if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_ENTRY) {
+      $content = array(
+        "entryID" => $new_message_info['entryID'],
+        "date" => $new_message_info['date'],
+        "text" => $new_message_info['text'],
+      );
+      $content_by_index[$index] = $conn->real_escape_string(
+        json_encode($content)
+      );
+    } else if ($new_message_info['type'] === MESSAGE_TYPE_EDIT_ENTRY) {
       $content = array(
         "entryID" => $new_message_info['entryID'],
         "date" => $new_message_info['date'],

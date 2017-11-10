@@ -203,6 +203,21 @@ function createMessageInfo(
       date: rawMessageInfo.date,
       text: rawMessageInfo.text,
     };
+  } else if (rawMessageInfo.type === messageType.EDIT_ENTRY) {
+    return {
+      type: messageType.EDIT_ENTRY,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
+      time: rawMessageInfo.time,
+      entryID: rawMessageInfo.entryID,
+      date: rawMessageInfo.date,
+      text: rawMessageInfo.text,
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
