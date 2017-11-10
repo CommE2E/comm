@@ -35,6 +35,7 @@ LEFT JOIN (
 LEFT JOIN roles r ON r.roletype = rt.id AND r.thread = t.id
 LEFT JOIN users u ON u.id = r.user
 {$where_clause}
+ORDER BY r.user ASC
 SQL;
   $result = $conn->query($query);
 
@@ -74,24 +75,33 @@ SQL;
       $permission_info = get_info_from_permissions_row($row);
       $all_permissions =
         get_all_thread_permissions($permission_info, $thread_id);
-      $member = array(
-        "id" => $user_id,
-        "permissions" => $all_permissions,
-        "role" => (int)$row['roletype'] === 0 ? null : $row['roletype'],
-      );
-      $thread_infos[$thread_id]['members'][] = $member;
-      if ((int)$user_id === $viewer_id) {
-        $thread_infos[$thread_id]['currentUser'] = array(
-          "permissions" => $member['permissions'],
-          "role" => $member['role'],
-          "subscribed" => !!$row['subscribed'],
-        );
-      }
-      if ($row['username']) {
-        $user_infos[$user_id] = array(
+      // This is a hack, similar to what we have in ThreadSettingsUser.
+      // Basically we only want to return users that are either a member of this
+      // thread, or are a "parent admin". We approximate "parent admin" by
+      // looking for the PERMISSION_CHANGE_ROLE permission.
+      if (
+        (int)$row['roletype'] !== 0 ||
+        $all_permissions[PERMISSION_CHANGE_ROLE]['value']
+      ) {
+        $member = array(
           "id" => $user_id,
-          "username" => $row['username'],
+          "permissions" => $all_permissions,
+          "role" => (int)$row['roletype'] === 0 ? null : $row['roletype'],
         );
+        $thread_infos[$thread_id]['members'][] = $member;
+        if ((int)$user_id === $viewer_id) {
+          $thread_infos[$thread_id]['currentUser'] = array(
+            "permissions" => $member['permissions'],
+            "role" => $member['role'],
+            "subscribed" => !!$row['subscribed'],
+          );
+        }
+        if ($row['username']) {
+          $user_infos[$user_id] = array(
+            "id" => $user_id,
+            "username" => $row['username'],
+          );
+        }
       }
     }
   }

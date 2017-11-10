@@ -205,7 +205,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   onPressRemoveUser = () => {
     if (Platform.OS === "ios") {
       // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showRemoveUserConfirmation, 400);
+      setTimeout(this.showRemoveUserConfirmation, 500);
     } else {
       this.showRemoveUserConfirmation();
     }
@@ -243,7 +243,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   onPressMakeAdmin = () => {
     if (Platform.OS === "ios") {
       // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showMakeAdminConfirmation, 400);
+      setTimeout(this.showMakeAdminConfirmation, 500);
     } else {
       this.showMakeAdminConfirmation();
     }
