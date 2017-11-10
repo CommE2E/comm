@@ -70,6 +70,14 @@ foreach ($join_results['to_save'] as $row_to_save) {
 save_user_roles($to_save);
 delete_user_roles($join_results['to_delete']);
 
+$message_info = array(
+  'type' => MESSAGE_TYPE_JOIN_THREAD,
+  'threadID' => (string)$thread,
+  'creatorID' => (string)get_viewer_id(),
+  'time' => round(microtime(true) * 1000), // in milliseconds
+);
+create_message_infos(array($message_info));
+
 list($message_infos, $truncation_status, $message_users) =
   get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
 

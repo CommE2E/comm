@@ -17,6 +17,7 @@ define("MESSAGE_TYPE_CHANGE_SETTINGS", 4);
 define("MESSAGE_TYPE_REMOVE_MEMBERS", 5);
 define("MESSAGE_TYPE_CHANGE_ROLE", 6);
 define("MESSAGE_TYPE_LEAVE_THREAD", 7);
+define("MESSAGE_TYPE_JOIN_THREAD", 8);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
