@@ -164,6 +164,18 @@ function createMessageInfo(
       members,
       newRole: rawMessageInfo.newRole,
     };
+  } else if (rawMessageInfo.type === messageType.LEAVE_THREAD) {
+    return {
+      type: messageType.LEAVE_THREAD,
+      id: rawMessageInfo.id,
+      threadID: rawMessageInfo.threadID,
+      creator: {
+        id: rawMessageInfo.creatorID,
+        username: creatorInfo.username,
+        isViewer: rawMessageInfo.creatorID === viewerID,
+      },
+      time: rawMessageInfo.time,
+    };
   }
   invariant(false, `${rawMessageInfo.type} is not a messageType!`);
 }
