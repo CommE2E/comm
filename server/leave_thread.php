@@ -21,7 +21,27 @@ if (!viewer_is_member($thread)) {
   ));
 }
 
-$leave_results = change_roletype($thread, array(get_viewer_id()), 0);
+$viewer_id = get_viewer_id();
+$other_users_exist = false;
+$other_admins_exist = false;
+list($thread_infos) = get_thread_infos("t.id = {$thread}");
+foreach ($thread_infos[$thread]['members'] as $member) {
+  if ($member['role'] === null || (int)$member['id'] === $viewer_id) {
+    continue;
+  }
+  $other_users_exist = true;
+  if ($thread_infos[$thread]['roles'][$member['role']]['name'] === "Admins") {
+    $other_admins_exist = true;
+    break;
+  }
+}
+if ($other_users_exist && !$other_admins_exist) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
+$leave_results = change_roletype($thread, array($viewer_id), 0);
 if (!$leave_results) {
   async_end(array(
     'error' => 'unknown_error',
@@ -38,7 +58,7 @@ delete_user_roles($leave_results['to_delete']);
 $message_info = array(
   'type' => MESSAGE_TYPE_LEAVE_THREAD,
   'threadID' => (string)$thread,
-  'creatorID' => (string)get_viewer_id(),
+  'creatorID' => (string)$viewer_id,
   'time' => round(microtime(true) * 1000), // in milliseconds
 );
 create_message_infos(array($message_info));

@@ -29,8 +29,10 @@ SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
   r.permissions, r.subscribed, u.username
 FROM threads t
 LEFT JOIN (
-    SELECT thread, id, name, permissions FROM roletypes
-    UNION SELECT id AS thread, 0 AS id, NULL AS name, NULL AS permissions FROM threads
+    SELECT thread, id, name, permissions
+      FROM roletypes
+    UNION SELECT id AS thread, 0 AS id, NULL AS name, NULL AS permissions
+      FROM threads
   ) rt ON rt.thread = t.id
 LEFT JOIN roles r ON r.roletype = rt.id AND r.thread = t.id
 LEFT JOIN users u ON u.id = r.user

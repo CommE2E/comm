@@ -27,6 +27,13 @@ if (
   ));
 }
 
+$viewer_id = get_viewer_id();
+if (in_array($viewer_id, $member_ids)) {
+  async_end(array(
+    'error' => 'invalid_parameters',
+  ));
+}
+
 $member_sql_string = implode(", ", $member_ids);
 $query = <<<SQL
 SELECT r.user, r.roletype, t.default_roletype
@@ -64,7 +71,7 @@ delete_user_roles($results['to_delete']);
 $message_info = array(
   'type' => MESSAGE_TYPE_REMOVE_MEMBERS,
   'threadID' => (string)$thread,
-  'creatorID' => (string)get_viewer_id(),
+  'creatorID' => (string)$viewer_id,
   'time' => round(microtime(true) * 1000), // in milliseconds
   'removedUserIDs' => array_map("strval", $actual_member_ids),
 );
