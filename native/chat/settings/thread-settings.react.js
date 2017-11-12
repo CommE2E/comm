@@ -36,6 +36,9 @@ import Modal from 'react-native-modal';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import _every from 'lodash/fp/every';
+import _omit from 'lodash/fp/omit';
+import shallowequal from 'shallowequal';
 
 import { visibilityRules } from 'lib/types/thread-types';
 import {
@@ -48,6 +51,8 @@ import {
   changeSingleThreadSetting,
   leaveThreadActionTypes,
   leaveThread,
+  removeUsersFromThreadActionTypes,
+  changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
 import {
   includeDispatchActionProps,
@@ -74,9 +79,7 @@ const itemPageLength = 5;
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo, messageListKey: string } } };
 
-type Props = {|
-  navigation: NavProp,
-  // Redux state
+type StateProps = {|
   threadInfo: ThreadInfo,
   parentThreadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
@@ -85,6 +88,13 @@ type Props = {|
   colorEditLoadingStatus: LoadingStatus,
   descriptionEditLoadingStatus: LoadingStatus,
   leaveThreadLoadingStatus: LoadingStatus,
+  removeUsersLoadingStatuses: {[id: string]: LoadingStatus},
+  changeRolesLoadingStatuses: {[id: string]: LoadingStatus},
+|};
+type Props = {|
+  navigation: NavProp,
+  // Redux state
+  ...StateProps,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -179,6 +189,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
+  static notLoading =
+    (loadingStatus: LoadingStatus) => loadingStatus !== "loading";
+
   canReset = () => {
     return !this.state.showAddUsersModal &&
       (this.state.nameEditValue === null ||
@@ -187,7 +200,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       this.props.nameEditLoadingStatus !== "loading" &&
       this.props.colorEditLoadingStatus !== "loading" &&
       this.props.descriptionEditLoadingStatus !== "loading" &&
-      this.props.leaveThreadLoadingStatus !== "loading";
+      this.props.leaveThreadLoadingStatus !== "loading" &&
+      _every(InnerThreadSettings.notLoading)
+        (this.props.removeUsersLoadingStatuses) &&
+      _every(InnerThreadSettings.notLoading)
+        (this.props.changeRolesLoadingStatuses);
   }
 
   render() {
@@ -403,15 +420,23 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     } else {
       threadMembers = this.props.threadMembers;
     }
-    const members = threadMembers.map(memberInfo => (
-      <View style={styles.itemRow} key={memberInfo.id}>
-        <ThreadSettingsUser
-          memberInfo={memberInfo}
-          threadInfo={this.props.threadInfo}
-          canEdit={canStartEditing}
-        />
-      </View>
-    ));
+    const members = threadMembers.map(memberInfo => {
+      const removeUsersLoadingStatus =
+        this.props.removeUsersLoadingStatuses[memberInfo.id];
+      const changeRolesLoadingStatus =
+        this.props.changeRolesLoadingStatuses[memberInfo.id];
+      return (
+        <View style={styles.itemRow} key={memberInfo.id}>
+          <ThreadSettingsUser
+            memberInfo={memberInfo}
+            threadInfo={this.props.threadInfo}
+            canEdit={canStartEditing}
+            removeUsersLoadingStatus={removeUsersLoadingStatus}
+            changeRolesLoadingStatus={changeRolesLoadingStatus}
+          />
+        </View>
+      );
+    });
     if (seeMoreMembers) {
       members.push(seeMoreMembers);
     }
@@ -1007,13 +1032,27 @@ const ThreadSettings = connect(
     const passedThreadInfo = ownProps.navigation.state.params.threadInfo;
     // We pull the version from Redux so we get updates once they go through
     const threadInfo = state.threadInfos[passedThreadInfo.id];
+    // We need two LoadingStatuses for each member
+    const threadMembers =
+      relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state);
+    const removeUsersLoadingStatuses = {};
+    const changeRolesLoadingStatuses = {};
+    for (let threadMember of threadMembers) {
+      removeUsersLoadingStatuses[threadMember.id] = createLoadingStatusSelector(
+        removeUsersFromThreadActionTypes,
+        `${removeUsersFromThreadActionTypes.started}:${threadMember.id}`,
+      )(state);
+      changeRolesLoadingStatuses[threadMember.id] = createLoadingStatusSelector(
+        changeThreadMemberRolesActionTypes,
+        `${changeThreadMemberRolesActionTypes.started}:${threadMember.id}`,
+      )(state);
+    }
     return {
       threadInfo,
       parentThreadInfo: threadInfo.parentThreadID
         ? state.threadInfos[threadInfo.parentThreadID]
         : null,
-      threadMembers:
-        relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state),
+      threadMembers,
       childThreadInfos: childThreadInfos(state)[threadInfo.id],
       nameEditLoadingStatus: createLoadingStatusSelector(
         changeThreadSettingsActionTypes,
@@ -1028,11 +1067,28 @@ const ThreadSettings = connect(
         `${changeThreadSettingsActionTypes.started}:description`,
       )(state),
       leaveThreadLoadingStatus: leaveThreadLoadingStatusSelector(state),
+      removeUsersLoadingStatuses,
+      changeRolesLoadingStatuses,
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
   bindServerCalls({ changeSingleThreadSetting, leaveThread }),
+  {
+    areStatePropsEqual: (oldProps: StateProps, nextProps: StateProps) => {
+      const omitObjects =
+        _omit(["removeUsersLoadingStatuses", "changeRolesLoadingStatuses"]);
+      return shallowequal(omitObjects(oldProps), omitObjects(nextProps)) &&
+        shallowequal(
+          oldProps.removeUsersLoadingStatuses,
+          nextProps.removeUsersLoadingStatuses,
+        ) &&
+        shallowequal(
+          oldProps.changeRolesLoadingStatuses,
+          nextProps.changeRolesLoadingStatuses,
+        );
+    },
+  },
 )(InnerThreadSettings);
 
 export {

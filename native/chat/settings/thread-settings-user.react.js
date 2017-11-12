@@ -39,7 +39,6 @@ import {
   changeThreadMemberRolesActionTypes,
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
@@ -49,7 +48,6 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
-  // Redux state
   removeUsersLoadingStatus: LoadingStatus,
   changeRolesLoadingStatus: LoadingStatus,
   // Redux dispatch functions
@@ -344,17 +342,7 @@ const icon = (
 );
 
 export default connect(
-  (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
-    removeUsersLoadingStatus: createLoadingStatusSelector(
-      removeUsersFromThreadActionTypes,
-      `${removeUsersFromThreadActionTypes.started}:${ownProps.memberInfo.id}`,
-    )(state),
-    changeRolesLoadingStatus: createLoadingStatusSelector(
-      changeThreadMemberRolesActionTypes,
-      `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
-    )(state),
-    cookie: state.cookie,
-  }),
+  (state: AppState) => ({ cookie: state.cookie }),
   includeDispatchActionProps,
   bindServerCalls({ removeUsersFromThread, changeThreadMemberRoles }),
 )(ThreadSettingsUser);
