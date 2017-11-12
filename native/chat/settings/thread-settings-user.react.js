@@ -26,6 +26,7 @@ import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
+import PopoverTooltip from 'react-native-popover-tooltip';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -42,7 +43,6 @@ import {
 
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
-import PopoverTooltip from '../../components/popover-tooltip.react';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,

@@ -39,6 +39,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import _every from 'lodash/fp/every';
 import _omit from 'lodash/fp/omit';
 import shallowequal from 'shallowequal';
+import 'react-native-popover-tooltip';
 
 import { visibilityRules } from 'lib/types/thread-types';
 import {
