@@ -12,6 +12,7 @@ import type { MessageStore } from 'lib/types/message-types';
 import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
+import { newThreadActionTypes } from 'lib/actions/thread-actions';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -64,7 +65,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
     };
-  } else if (action.type === "NEW_THREAD_SUCCESS") {
+  } else if (action.type === newThreadActionTypes.success) {
     return {
       navInfo: {
         startDate: state.navInfo.startDate,

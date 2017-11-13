@@ -32,6 +32,7 @@ import {
 } from 'lib/actions/message-actions';
 import { getNewLocalID } from 'lib/utils/local-ids';
 import { messageType } from 'lib/types/message-types';
+import { saveDraftActionType } from 'lib/reducers/draft-reducer';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -123,7 +124,7 @@ class InputBar extends React.PureComponent<Props, State> {
 
   updateText = (text: string) => {
     this.props.dispatchActionPayload(
-      "SAVE_DRAFT",
+      saveDraftActionType,
       { key: draftKeyFromThreadID(this.props.threadID), draft: text },
     );
   }

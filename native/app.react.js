@@ -36,6 +36,7 @@ import {
 } from 'lib/utils/action-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
+import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 
 import { RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
@@ -179,7 +180,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       // user hasn't interacted in a bit. Since we don't run pings when logged
       // out, we use another action for it.
       this.props.dispatchActionPayload(
-        "NEW_SESSION_ID",
+        newSessionIDActionType,
         startingPayload.newSessionID,
       );
     }

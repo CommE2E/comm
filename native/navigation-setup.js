@@ -24,6 +24,14 @@ import { connect } from 'react-redux';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
+import { setCookieActionType } from 'lib/utils/action-utils';
+import {
+  logOutActionTypes,
+  deleteAccountActionTypes,
+  logInActionTypes,
+  registerActionTypes,
+} from 'lib/actions/user-actions';
+import { pingActionTypes } from 'lib/actions/ping-actions';
 
 import {
   Calendar,
@@ -208,8 +216,8 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       navigationState: handleURL(state.navigationState, action.payload),
     };
   } else if (
-    action.type === "LOG_IN_SUCCESS" ||
-      action.type === "REGISTER_SUCCESS" ||
+    action.type === logInActionTypes.success ||
+      action.type === registerActionTypes.success ||
       action.type === "NAVIGATE_TO_APP"
   ) {
     return {
@@ -220,13 +228,13 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       navigationState: removeModals(state.navigationState),
     };
   } else if (
-    action.type === "LOG_OUT_STARTED" ||
-      action.type === "DELETE_ACCOUNT_SUCCESS"
+    action.type === logOutActionTypes.started ||
+      action.type === deleteAccountActionTypes.success
   ) {
     return resetNavInfoAndEnsureLoggedOutModalPresence(state);
-  } else if (action.type === "SET_COOKIE") {
+  } else if (action.type === setCookieActionType) {
     return logOutIfCookieInvalidated(state, action.payload);
-  } else if (action.type === "PING_SUCCESS") {
+  } else if (action.type === pingActionTypes.success) {
     return {
       startDate: state.startDate,
       endDate: state.endDate,
