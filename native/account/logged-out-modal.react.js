@@ -42,6 +42,10 @@ import {
   bindCookieAndUtilsIntoServerCall,
 } from 'lib/utils/action-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
+import {
+  appStartNativeCredentialsAutoLogIn,
+  appStartReduxLoggedInButInvalidCookie,
+} from 'lib/actions/user-actions';
 
 import { windowHeight } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
@@ -214,7 +218,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       const newCookie = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
-        "APP_START_NATIVE_CREDENTIALS_AUTO_LOG_IN",
+        appStartNativeCredentialsAutoLogIn,
       );
       if (!newCookie || !newCookie.startsWith("user=")) {
         showPrompt();
@@ -234,7 +238,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       const newCookie = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
-        "APP_START_REDUX_LOGGED_IN_BUT_INVALID_COOKIE",
+        appStartReduxLoggedInButInvalidCookie,
       );
       if (newCookie && newCookie.startsWith("user=")) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
