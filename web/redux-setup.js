@@ -44,11 +44,13 @@ export type AppState = {|
   cookie: ?string,
 |};
 
+export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
+
 export type Action = BaseAction |
-  {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |};
+  {| type: typeof reflectRouteChangeActionType, payload: NavInfo |};
 
 export function reducer(state: AppState, action: Action) {
-  if (action.type === "REFLECT_ROUTE_CHANGE") {
+  if (action.type === reflectRouteChangeActionType) {
     return {
       navInfo: action.payload,
       currentUserInfo: state.currentUserInfo,

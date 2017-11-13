@@ -13,7 +13,11 @@ import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
 
-import { TabNavigator, StackNavigator } from 'react-navigation';
+import {
+  TabNavigator,
+  StackNavigator,
+  NavigationActions,
+} from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _includes from 'lodash/fp/includes';
@@ -52,19 +56,23 @@ import {
   VerificationModalRouteName,
 } from './account/verification-modal.react';
 import { createIsForegroundSelector } from './selectors/nav-selectors';
+import { MessageListRouteName } from './chat/message-list.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
   navigationState: NavigationState,
 |};
 
+const handleURLActionType = "HANDLE_URL";
+const navigateToAppActionType = "NAVIGATE_TO_APP";
+
 export type Action = BaseAction |
   NavigationAction |
-  {| type: "HANDLE_URL", payload: string |} |
-  {| type: "NAVIGATE_TO_APP", payload: null |} |
+  {| type: typeof handleURLActionType, payload: string |} |
+  {| type: typeof navigateToAppActionType, payload: null |} |
   {|
-    type: "Navigation/NAVIGATE",
-    routeName: "MessageList",
+    type: typeof NavigationActions.NAVIGATE,
+    routeName: typeof MessageListRouteName,
     params: { threadInfo: ThreadInfo },
   |};
 
@@ -207,7 +215,7 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
     };
   }
   // Deep linking
-  if (action.type === "HANDLE_URL") {
+  if (action.type === handleURLActionType) {
     return {
       startDate: state.startDate,
       endDate: state.endDate,
@@ -218,7 +226,7 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
   } else if (
     action.type === logInActionTypes.success ||
       action.type === registerActionTypes.success ||
-      action.type === "NAVIGATE_TO_APP"
+      action.type === navigateToAppActionType
   ) {
     return {
       startDate: state.startDate,
@@ -394,6 +402,8 @@ function removeModalsIfPingIndicatesLoggedIn(
 }
 
 export {
+  handleURLActionType,
+  navigateToAppActionType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,

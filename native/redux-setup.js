@@ -16,11 +16,15 @@ import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { autoRehydrate, persistStore } from 'redux-persist';
 import PropTypes from 'prop-types';
+import { NavigationActions } from 'react-navigation';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
+import { MessageListRouteName } from './chat/message-list.react';
 
 import {
+  handleURLActionType,
+  navigateToAppActionType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
@@ -118,19 +122,19 @@ function reducer(state: AppState, action: *) {
   }
   // These action type are handled by reduceNavInfo above
   if (
-    action.type === "HANDLE_URL" ||
-      action.type === "NAVIGATE_TO_APP" ||
-      action.type === "Navigation/INIT" ||
-      action.type === "Navigation/NAVIGATE" ||
-      action.type === "Navigation/BACK" ||
-      action.type === "Navigation/SET_PARAMS" ||
-      action.type === "Navigation/RESET"
+    action.type === handleURLActionType ||
+      action.type === navigateToAppActionType ||
+      action.type === NavigationActions.INIT ||
+      action.type === NavigationActions.NAVIGATE ||
+      action.type === NavigationActions.BACK ||
+      action.type === NavigationActions.SET_PARAMS ||
+      action.type === NavigationActions.RESET
   ) {
     return state;
   }
   if (
-    action.type === "Navigation/NAVIGATE" &&
-    action.routeName === "MessageList"
+    action.type === NavigationActions.NAVIGATE &&
+    action.routeName === MessageListRouteName
   ) {
     invariant(
       action.params &&

@@ -60,6 +60,7 @@ import {
   yearAssertingSelector,
   monthAssertingSelector,
 } from './selectors/nav-selectors';
+import { reflectRouteChangeActionType } from './redux-setup';
 
 type Props = {
   location: {
@@ -190,7 +191,10 @@ class App extends React.PureComponent {
         newNavInfo.threadID = newProps.navInfo.threadID;
       }
       if (!_isEqual(newNavInfo)(newProps.navInfo)) {
-        this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", newNavInfo);
+        this.props.dispatchActionPayload(
+          reflectRouteChangeActionType,
+          newNavInfo,
+        );
       }
     } else if (!_isEqual(newProps.navInfo)(this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(

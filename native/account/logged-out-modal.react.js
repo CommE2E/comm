@@ -49,6 +49,7 @@ import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
+import { navigateToAppActionType } from '../navigation-setup';
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -224,7 +225,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     // Are we possibly already logged in?
     if (nextProps.loggedIn) {
       if (cookie && cookie.startsWith("user=")) {
-        nextProps.dispatchActionPayload("NAVIGATE_TO_APP", null);
+        nextProps.dispatchActionPayload(navigateToAppActionType, null);
         // Send out a ping to check if our cookie is invalidated
         InnerLoggedOutModal.dispatchPing(nextProps, cookie, () => {});
         return;

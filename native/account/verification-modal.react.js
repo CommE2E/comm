@@ -49,6 +49,7 @@ import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import { navigateToAppActionType } from '../navigation-setup';
 
 type VerificationModalMode = "simple-text" | "reset-password";
 type Props = {
@@ -228,7 +229,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
 
   async inCoupleSecondsNavigateToApp() {
     await sleep(1750);
-    this.props.dispatchActionPayload("NAVIGATE_TO_APP", null);
+    this.props.dispatchActionPayload(navigateToAppActionType, null);
   }
 
   async handleVerificationCodeAction(code: string) {

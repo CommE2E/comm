@@ -36,6 +36,7 @@ import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import { monthURL } from '../url-utils';
 import history from '../router-history';
 import LoadingIndicator from '../loading-indicator.react';
+import { reflectRouteChangeActionType } from '../redux-setup';
 
 type Props = {
   threadInfo?: ThreadInfo,
@@ -285,7 +286,7 @@ class TypeaheadThreadOption extends React.PureComponent {
         id,
         this.state.passwordEntryValue,
       );
-      this.props.dispatchActionPayload("REFLECT_ROUTE_CHANGE", {
+      this.props.dispatchActionPayload(reflectRouteChangeActionType, {
         startDate: this.props.navInfo.startDate,
         endDate: this.props.navInfo.endDate,
         home: false,

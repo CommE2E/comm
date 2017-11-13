@@ -38,7 +38,7 @@ import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 
-import { RootNavigator } from './navigation-setup';
+import { handleURLActionType, RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
@@ -130,7 +130,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (!url.startsWith("http")) {
       return;
     }
-    this.props.dispatchActionPayload("HANDLE_URL", url);
+    this.props.dispatchActionPayload(handleURLActionType, url);
   }
 
   componentWillUnmount() {
