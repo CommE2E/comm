@@ -59,6 +59,7 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import threadWatcher from 'lib/shared/thread-watcher';
 
 import ThreadSettingsCategory from './thread-settings-category.react';
 import ColorSplotch from '../../components/color-splotch.react';
@@ -166,13 +167,31 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
+    if (!viewerIsMember(this.props.threadInfo)) {
+      threadWatcher.watchID(this.props.threadInfo.id);
+    }
   }
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
+    if (!viewerIsMember(this.props.threadInfo)) {
+      threadWatcher.removeID(this.props.threadInfo.id);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    if (
+      viewerIsMember(this.props.threadInfo) &&
+      !viewerIsMember(nextProps.threadInfo)
+    ) {
+      threadWatcher.watchID(nextProps.threadInfo.id);
+    } else if (
+      !viewerIsMember(this.props.threadInfo) &&
+      viewerIsMember(nextProps.threadInfo)
+    ) {
+      threadWatcher.removeID(nextProps.threadInfo.id);
+    }
+
     if (
       !_isEqual(nextProps.threadInfo)
         (this.props.navigation.state.params.threadInfo)

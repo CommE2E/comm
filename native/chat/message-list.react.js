@@ -48,6 +48,8 @@ import {
   fetchMessages,
 } from 'lib/actions/message-actions';
 import { messageType } from 'lib/types/message-types';
+import threadWatcher from 'lib/shared/thread-watcher';
+import { viewerIsMember } from 'lib/shared/thread-utils';
 
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
@@ -176,10 +178,16 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
+    if (!viewerIsMember(this.props.threadInfo)) {
+      threadWatcher.watchID(this.props.threadInfo.id);
+    }
   }
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
+    if (!viewerIsMember(this.props.threadInfo)) {
+      threadWatcher.removeID(this.props.threadInfo.id);
+    }
   }
 
   canReset = () => true;
@@ -220,6 +228,18 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       this.props.navigation.setParams({
         threadInfo: nextProps.threadInfo,
       });
+    }
+
+    if (
+      viewerIsMember(this.props.threadInfo) &&
+      !viewerIsMember(nextProps.threadInfo)
+    ) {
+      threadWatcher.watchID(nextProps.threadInfo.id);
+    } else if (
+      !viewerIsMember(this.props.threadInfo) &&
+      viewerIsMember(nextProps.threadInfo)
+    ) {
+      threadWatcher.removeID(nextProps.threadInfo.id);
     }
 
     if (nextProps.listData === this.props.messageListData) {

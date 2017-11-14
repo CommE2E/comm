@@ -69,12 +69,7 @@ const navigateToAppActionType = "NAVIGATE_TO_APP";
 export type Action = BaseAction |
   NavigationAction |
   {| type: typeof handleURLActionType, payload: string |} |
-  {| type: typeof navigateToAppActionType, payload: null |} |
-  {|
-    type: typeof NavigationActions.NAVIGATE,
-    routeName: typeof MessageListRouteName,
-    params: { threadInfo: ThreadInfo },
-  |};
+  {| type: typeof navigateToAppActionType, payload: null |};
 
 const AppNavigator = TabNavigator(
   {
