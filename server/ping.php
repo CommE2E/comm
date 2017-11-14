@@ -27,18 +27,18 @@ if (
 }
 
 list($thread_infos, $thread_users) = get_thread_infos();
-$watch_ids = isset($_POST['watch_ids']) ? $_POST['watch_ids'] : null;
+$watched_ids = isset($_POST['watched_ids']) ? $_POST['watched_ids'] : null;
 
 $time = round(microtime(true) * 1000); // in milliseconds
 $message_users = array();
 if (isset($_POST['last_ping']) && $_POST['last_ping']) {
   $last_ping = (int)$_POST['last_ping'];
   list($message_infos, $truncation_status, $message_users) =
-    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD, $watch_ids);
+    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD, $watched_ids);
 } else {
   $input = null;
-  if (is_array($watch_ids) && $watch_ids) {
-    $input = array_fill_keys($watch_ids, false);
+  if (is_array($watched_ids) && $watched_ids) {
+    $input = array_fill_keys($watched_ids, false);
     foreach ($thread_infos as $thread_info) {
       if ($thread_info['currentUser']['role'] !== null) {
         $input[$thread_info['id']] = false;

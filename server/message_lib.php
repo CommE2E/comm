@@ -137,10 +137,10 @@ SQL;
 // this one is used to keep a session updated. You give it a timestamp, and it
 // fetches all of the messages with a newer timestamp. If for a given thread
 // more than $max_number_per_thread messages have been sent since $current_as_of
-// then the most recent $current_as_of will be returned. If $watch_ids is falsey
-// we'll only return messages from the threads the viewer is a member of. If
-// specified, we'll also return messages from the specified threads. Note that
-// this behavior is additive, whereas get_message_infos will only return
+// then the most recent $current_as_of will be returned. If $watched_ids is
+// falsey we'll only return messages from the threads the viewer is a member of.
+// If specified, we'll also return messages from the specified threads. Note
+// that this behavior is additive, whereas get_message_infos will only return
 // messages from the thread IDs that key $input if it is specified. This
 // function returns:
 // - An array of MessageInfos
@@ -150,14 +150,14 @@ SQL;
 function get_messages_since(
   $current_as_of,
   $max_number_per_thread,
-  $watch_ids
+  $watched_ids
 ) {
   global $conn;
 
-  if (is_array($watch_ids) && $watch_ids) {
+  if (is_array($watched_ids) && $watched_ids) {
     $conditions = array("r.roletype != 0");
-    foreach ($watch_ids as $watch_id) {
-      $thread_id = (int)$watch_id;
+    foreach ($watched_ids as $watched_id) {
+      $thread_id = (int)$watched_id;
       $conditions[] = "m.thread = $thread_id";
     }
     $additional_condition = "(".implode(" OR ", $conditions).")";
@@ -214,9 +214,9 @@ SQL;
     }
   }
 
-  if (is_array($watch_ids) && $watch_ids) {
-    foreach ($watch_ids as $watch_id) {
-      $thread_id = (int)$watch_id;
+  if (is_array($watched_ids) && $watched_ids) {
+    foreach ($watched_ids as $watched_id) {
+      $thread_id = (int)$watched_id;
       if (!isset($truncation_status[(string)$thread_id])) {
         $truncation_status[(string)$thread_id] = TRUNCATION_UNCHANGED;
       }
