@@ -137,13 +137,33 @@ SQL;
 // this one is used to keep a session updated. You give it a timestamp, and it
 // fetches all of the messages with a newer timestamp. If for a given thread
 // more than $max_number_per_thread messages have been sent since $current_as_of
-// then the most recent $current_as_of will be returned. This function returns:
+// then the most recent $current_as_of will be returned. If $watch_ids is falsey
+// we'll only return messages from the threads the viewer is a member of. If
+// specified, we'll also return messages from the specified threads. Note that
+// this behavior is additive, whereas get_message_infos will only return
+// messages from the thread IDs that key $input if it is specified. This
+// function returns:
 // - An array of MessageInfos
 // - An array that points from threadID to truncation status (see definition of
 //   TRUNCATION_ constants)
 // - An array of user IDs pointing to UserInfo objects for all referenced users
-function get_messages_since($current_as_of, $max_number_per_thread) {
+function get_messages_since(
+  $current_as_of,
+  $max_number_per_thread,
+  $watch_ids
+) {
   global $conn;
+
+  if (is_array($watch_ids) && $watch_ids) {
+    $conditions = array("r.roletype != 0");
+    foreach ($watch_ids as $watch_id) {
+      $thread_id = (int)$watch_id;
+      $conditions[] = "m.thread = $thread_id";
+    }
+    $additional_condition = "(".implode(" OR ", $conditions).")";
+  } else {
+    $additional_condition = "r.roletype != 0";
+  }
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
@@ -157,6 +177,7 @@ LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
 WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
   AND m.time > {$current_as_of}
+  AND {$additional_condition}
 ORDER BY m.thread, m.time DESC
 SQL;
   $result = $conn->query($query);
@@ -190,6 +211,15 @@ SQL;
       }
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
+    }
+  }
+
+  if (is_array($watch_ids) && $watch_ids) {
+    foreach ($watch_ids as $watch_id) {
+      $thread_id = (int)$watch_id;
+      if (!isset($truncation_status[(string)$thread_id])) {
+        $truncation_status[(string)$thread_id] = TRUNCATION_UNCHANGED;
+      }
     }
   }
 

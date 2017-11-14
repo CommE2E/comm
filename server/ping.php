@@ -31,7 +31,7 @@ $message_users = array();
 if (isset($_POST['last_ping']) && $_POST['last_ping']) {
   $last_ping = (int)$_POST['last_ping'];
   list($message_infos, $truncation_status, $message_users) =
-    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD);
+    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD, null);
 } else {
   list($message_infos, $truncation_status, $message_users) =
     get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
