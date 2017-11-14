@@ -40,7 +40,7 @@ define("TRUNCATION_EXHAUSTIVE", "exhaustive");
 // should be newer than the specified message. in other words, we use the
 // message ID as the "cursor" for paging. if the value is falsey, we will simply
 // fetch the very newest $number_per_thread from that thread. if $input itself
-// is null, we will fetch from every thread that the user is subscribed to. This
+// is null, we will fetch from every thread that the user is a member of. This
 // function returns:
 // - An array of MessageInfos
 // - An array that points from threadID to truncation status (see definition of
@@ -49,7 +49,7 @@ define("TRUNCATION_EXHAUSTIVE", "exhaustive");
 function get_message_infos($input, $number_per_thread) {
   global $conn;
 
-  if (is_array($input)) {
+  if (is_array($input) && $input) {
     $conditions = array();
     foreach ($input as $thread => $cursor) {
       $int_thread = (int)$thread;
@@ -62,7 +62,7 @@ function get_message_infos($input, $number_per_thread) {
     }
     $additional_condition = "(".implode(" OR ", $conditions).")";
   } else {
-    $additional_condition = "r.subscribed = 1";
+    $additional_condition = "r.roletype != 0";
   }
 
   $viewer_id = get_viewer_id();
@@ -119,10 +119,11 @@ SQL;
       ? TRUNCATION_EXHAUSTIVE
       : TRUNCATION_TRUNCATED;
   }
-  if (is_array($input)) {
+  if (is_array($input) && $input) {
     foreach ($input as $thread => $cursor) {
-      if (!isset($truncation_status[$thread])) {
-        $truncation_status[$thread] = TRUNCATION_EXHAUSTIVE;
+      $int_thread = (int)$thread;
+      if (!isset($truncation_status[(string)$int_thread])) {
+        $truncation_status[(string)$int_thread] = TRUNCATION_EXHAUSTIVE;
       }
     }
   }
