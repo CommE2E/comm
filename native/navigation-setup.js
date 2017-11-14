@@ -290,7 +290,7 @@ function handleURL(
       ...state.routes,
       {
         key: 'VerificationModal',
-        routeName: 'VerificationModal',
+        routeName: VerificationModalRouteName,
         params: {
           verifyCode: urlInfo.verify,
         },
