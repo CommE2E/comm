@@ -26,18 +26,28 @@ if (
   ));
 }
 
+list($thread_infos, $thread_users) = get_thread_infos();
+$watch_ids = isset($_POST['watch_ids']) ? $_POST['watch_ids'] : null;
+
 $time = round(microtime(true) * 1000); // in milliseconds
 $message_users = array();
 if (isset($_POST['last_ping']) && $_POST['last_ping']) {
   $last_ping = (int)$_POST['last_ping'];
   list($message_infos, $truncation_status, $message_users) =
-    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD, null);
+    get_messages_since($last_ping, DEFAULT_NUMBER_PER_THREAD, $watch_ids);
 } else {
+  $input = null;
+  if (is_array($watch_ids) && $watch_ids) {
+    $input = array_fill_keys($watch_ids, false);
+    foreach ($thread_infos as $thread_info) {
+      if ($thread_info['currentUser']['role'] !== null) {
+        $input[$thread_info['id']] = false;
+      }
+    }
+  }
   list($message_infos, $truncation_status, $message_users) =
-    get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
+    get_message_infos($input, DEFAULT_NUMBER_PER_THREAD);
 }
-
-list($thread_infos, $thread_users) = get_thread_infos();
 
 $return = array(
   'success' => true,
