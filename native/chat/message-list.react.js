@@ -46,10 +46,13 @@ import {
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
+  fetchMostRecentMessagesActionTypes,
+  fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { messageType } from 'lib/types/message-types';
 import threadWatcher from 'lib/shared/thread-watcher';
 import { viewerIsMember } from 'lib/shared/thread-utils';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
@@ -111,6 +114,9 @@ type Props = {
     threadID: string,
     beforeMessageID: string,
   ) => Promise<PageMessagesResult>,
+  fetchMostRecentMessages: (
+    threadID: string,
+  ) => Promise<PageMessagesResult>,
 };
 type State = {
   textToMeasure: TextToMeasure[],
@@ -136,6 +142,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
+    fetchMostRecentMessages: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -180,6 +187,10 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     registerChatScreen(this.props.navigation.state.key, this);
     if (!viewerIsMember(this.props.threadInfo)) {
       threadWatcher.watchID(this.props.threadInfo.id);
+      this.props.dispatchActionPromise(
+        fetchMostRecentMessagesActionTypes,
+        this.props.fetchMostRecentMessages(this.props.threadInfo.id),
+      );
     }
   }
 
@@ -547,6 +558,9 @@ const styles = StyleSheet.create({
   },
 });
 
+registerFetchKey(fetchMessagesBeforeCursorActionTypes);
+registerFetchKey(fetchMostRecentMessagesActionTypes);
+
 const MessageListRouteName = 'MessageList';
 const MessageList = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
@@ -561,7 +575,7 @@ const MessageList = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ fetchMessagesBeforeCursor }),
+  bindServerCalls({ fetchMessagesBeforeCursor, fetchMostRecentMessages }),
 )(InnerMessageList);
 
 export {
