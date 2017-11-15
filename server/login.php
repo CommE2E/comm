@@ -46,7 +46,12 @@ $id = intval($user_row['id']);
 create_user_cookie($id);
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-$thread_selection_criteria = array("joined_threads" => true);
+$watched_ids = isset($_POST['watched_ids']) ? $_POST['watched_ids'] : null;
+$thread_selection_criteria = array(
+  "joined_threads" => true,
+  "thread_ids" => array_fill_keys($watched_ids, false),
+);
+
 $message_result = get_message_infos(
   $thread_selection_criteria,
   DEFAULT_NUMBER_PER_THREAD
