@@ -44,8 +44,8 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  fetchMessagesActionTypes,
-  fetchMessages,
+  fetchMessagesBeforeCursorActionTypes,
+  fetchMessagesBeforeCursor,
 } from 'lib/actions/message-actions';
 import { messageType } from 'lib/types/message-types';
 import threadWatcher from 'lib/shared/thread-watcher';
@@ -107,7 +107,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchMessages: (
+  fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
   ) => Promise<PageMessagesResult>,
@@ -135,7 +135,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     startReached: PropTypes.bool.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    fetchMessages: PropTypes.func.isRequired,
+    fetchMessagesBeforeCursor: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -495,8 +495,8 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       this.loadingFromScroll = true;
       const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
-        fetchMessagesActionTypes,
-        this.props.fetchMessages(
+        fetchMessagesBeforeCursorActionTypes,
+        this.props.fetchMessagesBeforeCursor(
           threadID,
           oldestMessageServerID,
         ),
@@ -561,7 +561,7 @@ const MessageList = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ fetchMessages }),
+  bindServerCalls({ fetchMessagesBeforeCursor }),
 )(InnerMessageList);
 
 export {
