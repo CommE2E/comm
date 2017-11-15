@@ -8,6 +8,7 @@ import type {
   NavigationScreenProp,
   NavigationAction,
   NavigationRouter,
+  NavigationRoute,
 } from 'react-navigation/src/TypeDefinition';
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
@@ -194,6 +195,7 @@ const defaultNavInfo: NavInfo = {
   navigationState: defaultNavigationState,
 };
 
+const accountModals = [ LoggedOutModalRouteName, VerificationModalRouteName ];
 function reduceNavInfo(state: NavInfo, action: *): NavInfo {
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
@@ -228,7 +230,7 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       endDate: state.endDate,
       home: state.home,
       threadID: state.threadID,
-      navigationState: removeModals(state.navigationState),
+      navigationState: removeModals(state.navigationState, accountModals),
     };
   } else if (
     action.type === logOutActionTypes.started ||
@@ -294,29 +296,60 @@ function handleURL(
   };
 }
 
-function removeModals(
-  state: NavigationState,
-  modalRouteNames: string[]
-    = [LoggedOutModalRouteName, VerificationModalRouteName],
-): NavigationState {
+// This function walks from the back of the stack and calls filterFunc on each
+// screen until the stack is exhausted or filterFunc returns "break". A screen
+// will be removed if and only if filterFunc returns "remove" (not "break").
+function removeScreensFromStack<S: NavigationState>(
+  state: S,
+  filterFunc: (route: NavigationRoute) => "keep" | "remove" | "break",
+): S {
   const newRoutes = [];
-  let index = state.index;
-  for (let i = 0; i < state.routes.length; i++) {
+  let newIndex = state.index;
+  let screenRemoved = false;
+  let breakActivated = false;
+  for (let i = state.routes.length - 1; i >= 0; i--) {
     const route = state.routes[i];
-    if (_includes(route.routeName)(modalRouteNames)) {
-      if (i <= state.index) {
-        invariant(index !== 0, 'Attempting to remove only route');
-        index--;
-      }
-    } else {
-      newRoutes.push(route);
+    if (breakActivated) {
+      newRoutes.unshift(route);
+      continue;
+    }
+    const result = filterFunc(route);
+    if (result === "break") {
+      breakActivated = true;
+    }
+    if (breakActivated || result === "keep") {
+      newRoutes.unshift(route);
+      continue;
+    }
+    screenRemoved = true;
+    if (newIndex >= i) {
+      invariant(
+        newIndex !== 0,
+        'Attempting to remove current route and all before it',
+      );
+      newIndex--;
     }
   }
-  if (newRoutes.length === state.routes.length) {
+  if (!screenRemoved) {
     return state;
-  } else {
-    return { index, routes: newRoutes };
   }
+  return {
+    ...state,
+    index: newIndex,
+    routes: newRoutes,
+  };
+}
+
+function removeModals(
+  state: NavigationState,
+  modalRouteNames: string[],
+): NavigationState {
+  return removeScreensFromStack(
+    state,
+    (route: NavigationRoute) => _includes(route.routeName)(modalRouteNames)
+      ? "remove"
+      : "keep",
+  );
 }
 
 function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
@@ -383,6 +416,7 @@ function logOutIfCookieInvalidated(
   return state;
 }
 
+const justLoggedOutModal = [ LoggedOutModalRouteName ];
 function removeModalsIfPingIndicatesLoggedIn(
   state: NavigationState,
   payload: PingSuccessPayload,
@@ -393,7 +427,7 @@ function removeModalsIfPingIndicatesLoggedIn(
     // handling specific log ins that occur from LoggedOutModal.
     return state;
   }
-  return removeModals(state, [LoggedOutModalRouteName]);
+  return removeModals(state, justLoggedOutModal);
 }
 
 export {
