@@ -34,24 +34,31 @@ define("TRUNCATION_TRUNCATED", "truncated");
 define("TRUNCATION_UNCHANGED", "unchanged");
 define("TRUNCATION_EXHAUSTIVE", "exhaustive");
 
-// This function will fetch the newest $number_per_thread messages from each
-// thread ID included as a KEY in the $input array. the values are the IDs of
-// the newest message NOT to fetch from each thread, ie. every result message
-// should be newer than the specified message. in other words, we use the
-// message ID as the "cursor" for paging. if the value is falsey, we will simply
-// fetch the very newest $number_per_thread from that thread. if $input itself
-// is null, we will fetch from every thread that the user is a member of. This
-// function returns:
-// - An array of MessageInfos
-// - An array that points from threadID to truncation status (see definition of
-//   TRUNCATION_ constants)
-// - An array of user IDs pointing to UserInfo objects for all referenced users
-function get_message_infos($input, $number_per_thread) {
-  global $conn;
-
-  if (is_array($input) && $input) {
-    $conditions = array();
-    foreach ($input as $thread => $cursor) {
+// WARNING: input not sanitized!
+// Parses raw input from the client specifying which threads we want messages
+// from, and returns a SQL clause for querying on those threads.
+// Two keys:
+//  - joined_threads: bool
+//    whether to include all the threads that the viewer is a member of
+//  - thread_ids: array<string, false | string>
+//    the keys of this array are thread IDs. the values are the IDs of the
+//    newest message NOT to fetch from each thread, ie. every result message
+//    should be newer than the specified message. in other words, we use the
+//    message ID as the "cursor" for paging. if the value is falsey, we will
+//    simply fetch the very newest $number_per_thread from that thread.
+function thread_selection_criteria_to_sql_clause($thread_selection_criteria) {
+  if (!is_array($thread_selection_criteria) || !$thread_selection_criteria) {
+    return null;
+  }
+  $conditions = array();
+  if (!empty($thread_selection_criteria['joined_threads'])) {
+    $conditions[] = "r.roletype != 0";
+  }
+  if (
+    !empty($thread_selection_criteria['thread_ids']) &&
+    is_array($thread_selection_criteria['thread_ids'])
+  ) {
+    foreach ($thread_selection_criteria['thread_ids'] as $thread => $cursor) {
       $int_thread = (int)$thread;
       if ($cursor) {
         $int_cursor = (int)$cursor;
@@ -60,10 +67,52 @@ function get_message_infos($input, $number_per_thread) {
         $conditions[] = "m.thread = $int_thread";
       }
     }
-    $additional_condition = "(".implode(" OR ", $conditions).")";
-  } else {
-    $additional_condition = "r.roletype != 0";
   }
+  if (!$conditions) {
+    return null;
+  }
+  return "(".implode(" OR ", $conditions).")";
+}
+
+// Same input as above. Returns initial truncation status
+function thread_selection_criteria_to_initial_truncation_status(
+  $thread_selection_criteria,
+  $default_truncation_status
+) {
+  $truncation_status = array();
+  if (
+    !empty($thread_selection_criteria['thread_ids']) &&
+    is_array($thread_selection_criteria['thread_ids'])
+  ) {
+    $thread_ids = array_keys($thread_selection_criteria['thread_ids']);
+    foreach ($thread_ids as $thread_id) {
+      $cast_thread_id = strval((int)$thread_id);
+      $truncation_status[$cast_thread_id] = $default_truncation_status;
+    }
+  }
+  return $truncation_status;
+}
+
+// This function will fetch the newest $number_per_thread messages from each of
+// the threads specified by $thread_selection_criteria.
+// This function returns:
+// - An array of MessageInfos
+// - An array that points from threadID to truncation status (see definition of
+//   TRUNCATION_ constants)
+// - An array of user IDs pointing to UserInfo objects for all referenced users
+function get_message_infos($thread_selection_criteria, $number_per_thread) {
+  global $conn;
+
+  $thread_selection = thread_selection_criteria_to_sql_clause(
+    $thread_selection_criteria
+  );
+  if (!$thread_selection) {
+    return null;
+  }
+  $truncation_status = thread_selection_criteria_to_initial_truncation_status(
+    $thread_selection_criteria,
+    TRUNCATION_EXHAUSTIVE
+  );
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
@@ -81,7 +130,7 @@ FROM (
   LEFT JOIN threads t ON t.id = m.thread
   LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
   WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
-    AND {$additional_condition}
+    AND {$thread_selection}
   ORDER BY m.thread, m.time DESC
 ) x
 LEFT JOIN users u ON u.id = x.user
@@ -113,19 +162,10 @@ SQL;
     }
   }
 
-  $truncation_status = array();
   foreach ($thread_to_message_count as $thread_id => $message_count) {
     $truncation_status[$thread_id] = $message_count < $int_number_per_thread
       ? TRUNCATION_EXHAUSTIVE
       : TRUNCATION_TRUNCATED;
-  }
-  if (is_array($input) && $input) {
-    foreach ($input as $thread => $cursor) {
-      $int_thread = (int)$thread;
-      if (!isset($truncation_status[(string)$int_thread])) {
-        $truncation_status[(string)$int_thread] = TRUNCATION_EXHAUSTIVE;
-      }
-    }
   }
 
   $all_users = get_all_users($messages, $users);
@@ -137,33 +177,29 @@ SQL;
 // this one is used to keep a session updated. You give it a timestamp, and it
 // fetches all of the messages with a newer timestamp. If for a given thread
 // more than $max_number_per_thread messages have been sent since $current_as_of
-// then the most recent $current_as_of will be returned. If $watched_ids is
-// falsey we'll only return messages from the threads the viewer is a member of.
-// If specified, we'll also return messages from the specified threads. Note
-// that this behavior is additive, whereas get_message_infos will only return
-// messages from the thread IDs that key $input if it is specified. This
-// function returns:
+// then the most recent $current_as_of will be returned.
+// This function returns:
 // - An array of MessageInfos
 // - An array that points from threadID to truncation status (see definition of
 //   TRUNCATION_ constants)
 // - An array of user IDs pointing to UserInfo objects for all referenced users
 function get_messages_since(
+  $thread_selection_criteria,
   $current_as_of,
-  $max_number_per_thread,
-  $watched_ids
+  $max_number_per_thread
 ) {
   global $conn;
 
-  if (is_array($watched_ids) && $watched_ids) {
-    $conditions = array("r.roletype != 0");
-    foreach ($watched_ids as $watched_id) {
-      $thread_id = (int)$watched_id;
-      $conditions[] = "m.thread = $thread_id";
-    }
-    $additional_condition = "(".implode(" OR ", $conditions).")";
-  } else {
-    $additional_condition = "r.roletype != 0";
+  $thread_selection = thread_selection_criteria_to_sql_clause(
+    $thread_selection_criteria
+  );
+  if (!$thread_selection) {
+    return null;
   }
+  $truncation_status = thread_selection_criteria_to_initial_truncation_status(
+    $thread_selection_criteria,
+    TRUNCATION_UNCHANGED
+  );
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
@@ -177,7 +213,7 @@ LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
 WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
   AND m.time > {$current_as_of}
-  AND {$additional_condition}
+  AND {$thread_selection}
 ORDER BY m.thread, m.time DESC
 SQL;
   $result = $conn->query($query);
@@ -186,7 +222,6 @@ SQL;
   $num_for_thread = 0;
   $messages = array();
   $users = array();
-  $truncation_status = array();
   while ($row = $result->fetch_assoc()) {
     $thread = $row["threadID"];
     if ($thread !== $current_thread) {
@@ -211,15 +246,6 @@ SQL;
       }
     } else if ($num_for_thread === $max_number_per_thread + 1) {
       $truncation_status[$thread] = TRUNCATION_TRUNCATED;
-    }
-  }
-
-  if (is_array($watched_ids) && $watched_ids) {
-    foreach ($watched_ids as $watched_id) {
-      $thread_id = (int)$watched_id;
-      if (!isset($truncation_status[(string)$thread_id])) {
-        $truncation_status[(string)$thread_id] = TRUNCATION_UNCHANGED;
-      }
     }
   }
 

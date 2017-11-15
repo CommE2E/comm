@@ -59,8 +59,17 @@ SQL;
   );
   create_message_infos(array($message_info));
 
-  list($message_infos, $truncation_status, $message_users) =
-    get_message_infos(array($thread => false), DEFAULT_NUMBER_PER_THREAD);
+  $thread_selection_criteria = array("thread_ids" => array($thread => false));
+  $message_result = get_message_infos(
+    $thread_selection_criteria,
+    DEFAULT_NUMBER_PER_THREAD
+  );
+  if (!$message_result) {
+    async_end(array(
+      'error' => 'internal_error',
+    ));
+  }
+  list($message_infos, $truncation_status, $message_users) = $message_result;
 }
 
 list($thread_infos, $thread_users) = get_thread_infos();

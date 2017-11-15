@@ -10,8 +10,17 @@ $number_per_thread = isset($_POST['number_per_thread'])
   ? (int)$_POST['number_per_thread']
   : DEFAULT_NUMBER_PER_THREAD;
 
-list($message_infos, $truncation_status, $users) =
-  get_message_infos($input, $number_per_thread);
+$thread_selection_criteria = array("thread_ids" => $input);
+$message_result = get_message_infos(
+  $thread_selection_criteria,
+  $number_per_thread
+);
+if (!$message_result) {
+  async_end(array(
+    'error' => 'internal_error',
+  ));
+}
+list($message_infos, $truncation_status, $users) = $message_result;
 
 async_end(array(
   'success' => true,

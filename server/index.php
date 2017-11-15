@@ -121,9 +121,16 @@ if (!$entry_result) {
 list($entries, $entry_users) = $entry_result;
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status, $message_users) =
-  get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
-
+$thread_selection_criteria = array("joined_threads" => true);
+$message_result = get_message_infos(
+  $thread_selection_criteria,
+  DEFAULT_NUMBER_PER_THREAD
+);
+if (!$message_result) {
+  header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+  exit;
+}
+list($message_infos, $truncation_status, $message_users) = $message_result;
 
 $users = array_merge(
   $message_users,

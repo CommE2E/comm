@@ -65,8 +65,17 @@ create_user_cookie($user);
 clear_verify_codes($user, VERIFY_FIELD_RESET_PASSWORD);
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-list($message_infos, $truncation_status, $message_users) =
-  get_message_infos(null, DEFAULT_NUMBER_PER_THREAD);
+$thread_selection_criteria = array("joined_threads" => true);
+$message_result = get_message_infos(
+  $thread_selection_criteria,
+  DEFAULT_NUMBER_PER_THREAD
+);
+if (!$message_result) {
+  async_end(array(
+    'error' => 'internal_error',
+  ));
+}
+list($message_infos, $truncation_status, $message_users) = $message_result;
 
 $return = array(
   'success' => true,
