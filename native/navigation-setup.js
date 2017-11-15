@@ -37,6 +37,7 @@ import {
   registerActionTypes,
 } from 'lib/actions/user-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
+import { leaveThreadActionTypes } from 'lib/actions/thread-actions';
 
 import {
   Calendar,
@@ -58,6 +59,8 @@ import {
 } from './account/verification-modal.react';
 import { createIsForegroundSelector } from './selectors/nav-selectors';
 import { MessageListRouteName } from './chat/message-list.react';
+import { ThreadSettingsRouteName } from './chat/settings/thread-settings.react';
+import { assertNavigationRouteNotLeafNode } from './utils/navigation-utils';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -250,6 +253,20 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
         action.payload,
       ),
     };
+  } else if (action.type === leaveThreadActionTypes.success) {
+    return {
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
+      navigationState: popChatScreensForThreadID(
+        filterChatScreensForThreadInfos(
+          state.navigationState,
+          action.payload.threadInfos,
+        ),
+        action.payload.threadID,
+      ),
+    };
   }
   return state;
 }
@@ -428,6 +445,82 @@ function removeModalsIfPingIndicatesLoggedIn(
     return state;
   }
   return removeModals(state, justLoggedOutModal);
+}
+
+function popChatScreensForThreadID(
+  state: NavigationState,
+  threadID: string,
+): NavigationState {
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+
+  const newChatRoute = removeScreensFromStack(
+    chatRoute,
+    (route: NavigationRoute) => {
+      if (
+        route.routeName !== MessageListRouteName &&
+        route.routeName !== ThreadSettingsRouteName
+      ) {
+        return "break";
+      }
+      const params = route.params;
+      invariant(
+        params && params.threadInfo && typeof params.threadInfo.id === "string",
+        "params should have ThreadInfo",
+      );
+      if (params.threadInfo.id !== threadID) {
+        return "break";
+      }
+      return "remove";
+    },
+  );
+  if (newChatRoute === chatRoute) {
+    return state;
+  }
+
+  const newAppSubRoutes = [ ...appRoute.routes ];
+  newAppSubRoutes[1] = newChatRoute;
+  const newRootSubRoutes = [ ...state.routes ];
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  return { ...state, routes: newRootSubRoutes };
+}
+
+function filterChatScreensForThreadInfos(
+  state: NavigationState,
+  threadInfos: {[id: string]: ThreadInfo},
+): NavigationState {
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+
+  const newChatRoute = removeScreensFromStack(
+    chatRoute,
+    (route: NavigationRoute) => {
+      if (
+        route.routeName !== MessageListRouteName &&
+        route.routeName !== ThreadSettingsRouteName
+      ) {
+        return "keep";
+      }
+      const params = route.params;
+      invariant(
+        params && params.threadInfo && typeof params.threadInfo.id === "string",
+        "params should have ThreadInfo",
+      );
+      if (params.threadInfo.id in threadInfos) {
+        return "keep";
+      }
+      return "remove";
+    },
+  );
+  if (newChatRoute === chatRoute) {
+    return state;
+  }
+
+  const newAppSubRoutes = [ ...appRoute.routes ];
+  newAppSubRoutes[1] = newChatRoute;
+  const newRootSubRoutes = [ ...state.routes ];
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  return { ...state, routes: newRootSubRoutes };
 }
 
 export {

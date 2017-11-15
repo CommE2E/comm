@@ -78,7 +78,7 @@ import ColorPickerModal from '../color-picker-modal.react';
 const itemPageLength = 5;
 
 type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { threadInfo: ThreadInfo, messageListKey: string } } };
+  & { state: { params: { threadInfo: ThreadInfo } } };
 
 type StateProps = {|
   threadInfo: ThreadInfo,
@@ -125,11 +125,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           threadInfo: threadInfoPropType.isRequired,
-          messageListKey: PropTypes.string.isRequired,
         }).isRequired,
       }).isRequired,
       navigate: PropTypes.func.isRequired,
-      goBack: PropTypes.func.isRequired,
       setParams: PropTypes.func.isRequired,
     }).isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -922,11 +920,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   async leaveThread() {
     try {
-      const result = await this.props.leaveThread(this.props.threadInfo.id);
-      this.props.navigation.goBack(
-        this.props.navigation.state.params.messageListKey,
-      );
-      return result;
+      return await this.props.leaveThread(this.props.threadInfo.id);
     } catch (e) {
       Alert.alert("Unknown error", "Uhh... try again?");
       throw e;
