@@ -37,10 +37,7 @@ while ($row = $results->fetch_assoc()) {
 echo "Total thread count: " . count($parents_to_children) . "\n";
 
 $new_permissions = array(
-  PERMISSION_REMOVE_MEMBERS => true,
-  PERMISSION_CHANGE_ROLE => true,
-  PERMISSION_PREFIX_DESCENDANT . PERMISSION_REMOVE_MEMBERS => true,
-  PERMISSION_PREFIX_DESCENDANT . PERMISSION_CHANGE_ROLE => true,
+  PERMISSION_PREFIX_DESCENDANT . PERMISSION_VOICED => false,
 );
 
 while ($parents_to_children) {
