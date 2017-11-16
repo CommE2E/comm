@@ -368,6 +368,19 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     }
   }
 
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (!this.state.listDataWithHeights) {
+      return;
+    }
+    if (
+      !prevState.listDataWithHeights ||
+      this.state.listDataWithHeights.length >
+        prevState.listDataWithHeights.length
+    ) {
+      this.loadingFromScroll = false;
+    }
+  }
+
   static keyExtractor(item: ChatMessageItemWithHeight) {
     if (item.itemType === "loader") {
       return "loader";
