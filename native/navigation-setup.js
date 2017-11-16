@@ -13,6 +13,7 @@ import type {
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
+import type { LeaveThreadResult } from 'lib/actions/thread-actions';
 
 import {
   TabNavigator,
@@ -292,7 +293,7 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       threadID: state.threadID,
       navigationState: popChatScreensForThreadID(
         state.navigationState,
-        action.payload.threadID,
+        action.payload,
       ),
     };
   }
@@ -477,7 +478,7 @@ function removeModalsIfPingIndicatesLoggedIn(
 
 function popChatScreensForThreadID(
   state: NavigationState,
-  threadID: string,
+  actionPayload: LeaveThreadResult,
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
@@ -486,8 +487,10 @@ function popChatScreensForThreadID(
     chatRoute,
     (route: NavigationRoute) => {
       if (
-        route.routeName !== MessageListRouteName &&
-        route.routeName !== ThreadSettingsRouteName
+        (route.routeName !== MessageListRouteName &&
+          route.routeName !== ThreadSettingsRouteName) ||
+        (route.routeName === MessageListRouteName &&
+          !!actionPayload.threadInfos[actionPayload.threadID])
       ) {
         return "break";
       }
@@ -496,7 +499,7 @@ function popChatScreensForThreadID(
         params && params.threadInfo && typeof params.threadInfo.id === "string",
         "params should have ThreadInfo",
       );
-      if (params.threadInfo.id !== threadID) {
+      if (params.threadInfo.id !== actionPayload.threadID) {
         return "break";
       }
       return "remove";
