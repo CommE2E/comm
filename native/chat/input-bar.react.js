@@ -7,6 +7,11 @@ import type {
 } from 'lib/utils/action-utils';
 import type { SendMessageResult } from 'lib/actions/message-actions';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import type { JoinThreadResult } from 'lib/actions/thread-actions';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
 
 import React from 'react';
 import {
@@ -16,6 +21,8 @@ import {
   TouchableOpacity,
   LayoutAnimation,
   Platform,
+  Text,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -33,6 +40,14 @@ import {
 import { getNewLocalID } from 'lib/utils/local-ids';
 import { messageType } from 'lib/types/message-types';
 import { saveDraftActionType } from 'lib/reducers/draft-reducer';
+import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import {
+  joinThreadActionTypes,
+  joinThread,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+
+import Button from '../components/button.react';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -43,11 +58,17 @@ type Props = {
   username: ?string,
   viewerID: ?string,
   draft: string,
+  threadInfo: ThreadInfo,
+  joinThreadLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendMessage: (threadID: string, text: string) => Promise<SendMessageResult>,
+  joinThread: (
+    threadID: string,
+    threadPassword?: string,
+  ) => Promise<JoinThreadResult>,
 };
 type State = {
   height: number,
@@ -62,9 +83,12 @@ class InputBar extends React.PureComponent<Props, State> {
     username: PropTypes.string,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
+    joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
+    joinThread: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
 
@@ -78,42 +102,117 @@ class InputBar extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let button = null;
-    if (this.props.draft) {
-      button = (
-        <TouchableOpacity
-          onPress={this.onSend}
-          activeOpacity={0.4}
-          style={styles.sendButton}
-        >
-          <Icon
-            name="chevron-right"
-            size={25}
-            style={styles.sendIcon}
-            color="#88BB88"
+    const isMember = viewerIsMember(this.props.threadInfo);
+    let joinButton = null;
+    if (
+      !isMember &&
+      threadHasPermission(this.props.threadInfo, threadPermissions.JOIN_THREAD)
+    ) {
+      let buttonContent;
+      if (this.props.joinThreadLoadingStatus === "loading") {
+        buttonContent = (
+          <ActivityIndicator
+            size="small"
+            color="white"
+            style={styles.joinThreadLoadingIndicator}
           />
-        </TouchableOpacity>
+        );
+      } else {
+        buttonContent = (
+          <Text style={styles.joinButtonText}>Join Thread</Text>
+        );
+      }
+      joinButton = (
+        <View style={styles.joinButtonContainer}>
+          <Button
+            onPress={this.onPressJoin}
+            iosActiveOpacity={0.5}
+            style={styles.joinButton}
+          >
+            {buttonContent}
+          </Button>
+        </View>
       );
     }
-    const textInputStyle = {
-      height: Math.max(this.state.height, 30),
-    };
+
+    let content;
+    if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
+      const textInputStyle = {
+        height: Math.max(this.state.height, 30),
+      };
+      const textInput = (
+        <TextInput
+          value={this.props.draft}
+          onChangeText={this.updateText}
+          underlineColorAndroid="transparent"
+          placeholder="Send a message..."
+          placeholderTextColor="#888888"
+          multiline={true}
+          onContentSizeChange={this.onContentSizeChange}
+          style={[styles.textInput, textInputStyle]}
+          ref={this.textInputRef}
+        />
+      );
+      let button = null;
+      if (this.props.draft) {
+        button = (
+          <TouchableOpacity
+            onPress={this.onSend}
+            activeOpacity={0.4}
+            style={styles.sendButton}
+          >
+            <Icon
+              name="chevron-right"
+              size={25}
+              style={styles.sendIcon}
+              color="#88BB88"
+            />
+          </TouchableOpacity>
+        );
+      }
+      content = (
+        <View style={styles.inputContainer}>
+          <View style={styles.textInputContainer}>
+            {textInput}
+          </View>
+          {button}
+        </View>
+      );
+    } else if (isMember) {
+      content = (
+        <Text style={styles.explanation}>
+          You don't have permission to send messages.
+        </Text>
+      );
+    } else {
+      const defaultRoleID = Object.keys(this.props.threadInfo.roles)
+        .find(roleID => this.props.threadInfo.roles[roleID].isDefault);
+      invariant(
+        defaultRoleID !== undefined,
+        "all threads should have a default role",
+      );
+      const defaultRole = this.props.threadInfo.roles[defaultRoleID];
+      const membersAreVoiced =
+        !!defaultRole.permissions[threadPermissions.VOICED];
+      if (membersAreVoiced) {
+        content = (
+          <Text style={styles.explanation}>
+            Join this thread to send messages.
+          </Text>
+        );
+      } else {
+        content = (
+          <Text style={styles.explanation}>
+            You don't have permission to send messages.
+          </Text>
+        );
+      }
+    }
+
     return (
       <View style={styles.container}>
-        <View style={styles.textInputContainer}>
-          <TextInput
-            value={this.props.draft}
-            onChangeText={this.updateText}
-            underlineColorAndroid="transparent"
-            placeholder="Send a message..."
-            placeholderTextColor="#888888"
-            multiline={true}
-            onContentSizeChange={this.onContentSizeChange}
-            style={[styles.textInput, textInputStyle]}
-            ref={this.textInputRef}
-          />
-        </View>
-        {button}
+        {joinButton}
+        {content}
       </View>
     );
   }
@@ -176,10 +275,20 @@ class InputBar extends React.PureComponent<Props, State> {
     }
   }
 
+  onPressJoin = () => {
+    this.props.dispatchActionPromise(
+      joinThreadActionTypes,
+      this.props.joinThread(this.props.threadInfo.id),
+    );
+  }
+
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: 'white',
+  },
+  inputContainer: {
     flexDirection: 'row',
     backgroundColor: '#EEEEEEEE',
     borderTopWidth: 1,
@@ -207,7 +316,36 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
     paddingRight: 8,
   },
+  explanation: {
+    color: '#777777',
+    textAlign: 'center',
+    paddingTop: 1,
+    paddingBottom: 4,
+  },
+  joinButtonContainer: {
+    flexDirection: 'row',
+    height: 36,
+  },
+  joinButton: {
+    marginHorizontal: 12,
+    marginVertical: 3,
+    paddingVertical: 3,
+    flex: 1,
+    backgroundColor: '#44CC99FF',
+    borderRadius: 5,
+  },
+  joinButtonText: {
+    fontSize: 20,
+    color: 'white',
+    textAlign: 'center',
+  },
+  joinThreadLoadingIndicator: {
+    paddingVertical: 2,
+  },
 });
+
+const joinThreadLoadingStatusSelector
+  = createLoadingStatusSelector(joinThreadActionTypes);
 
 export default connect(
   (state: AppState, ownProps: { threadID: string }) => {
@@ -218,9 +356,11 @@ export default connect(
         : undefined,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
+      threadInfo: state.threadInfos[ownProps.threadID],
+      joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ sendMessage }),
+  bindServerCalls({ sendMessage, joinThread }),
 )(InputBar);

@@ -61,7 +61,7 @@ type Props = {
   // async functions that hit server APIs
   joinThread: (
     threadID: string,
-    threadPassword: string,
+    threadPassword?: string,
   ) => Promise<JoinThreadResult>;
 };
 type State = {
