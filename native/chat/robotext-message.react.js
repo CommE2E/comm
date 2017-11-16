@@ -27,7 +27,7 @@ function robotextMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
-  let height = 17 + item.textHeight; // for padding, margin, and text
+  return 17 + item.textHeight; // for padding, margin, and text
 }
 
 type Props = {

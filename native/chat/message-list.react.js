@@ -414,8 +414,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
-      // We add a small padding at the top of the list if the loading spinner
-      // isn't there
       const footer = this.props.startReached
         ? InnerMessageList.ListFooterComponent
         : undefined;
