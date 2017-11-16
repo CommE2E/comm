@@ -35,9 +35,14 @@ import {
   deleteAccountActionTypes,
   logInActionTypes,
   registerActionTypes,
+  resetPasswordActionTypes,
 } from 'lib/actions/user-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
-import { leaveThreadActionTypes } from 'lib/actions/thread-actions';
+import {
+  leaveThreadActionTypes,
+  joinThreadActionTypes,
+  subscribeActionTypes,
+} from 'lib/actions/thread-actions';
 
 import {
   Calendar,
@@ -214,6 +219,32 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       navigationState,
     };
   }
+  // Filtering out screens corresponding to deauthorized threads
+  if (
+    action.type === logOutActionTypes.success ||
+      action.type === deleteAccountActionTypes.success ||
+      action.type === logInActionTypes.success ||
+      action.type === resetPasswordActionTypes.success ||
+      action.type === pingActionTypes.success ||
+      action.type === joinThreadActionTypes.success ||
+      action.type === leaveThreadActionTypes.success ||
+      action.type === subscribeActionTypes.success ||
+      action.type === setCookieActionType
+  ) {
+    const filteredNavigationState = filterChatScreensForThreadInfos(
+      state.navigationState,
+      action.payload.threadInfos,
+    );
+    if (state.navigationState !== filteredNavigationState) {
+      state = {
+        startDate: state.startDate,
+        endDate: state.endDate,
+        home: state.home,
+        threadID: state.threadID,
+        navigationState: filteredNavigationState,
+      };
+    }
+  }
   // Deep linking
   if (action.type === handleURLActionType) {
     return {
@@ -260,10 +291,7 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       home: state.home,
       threadID: state.threadID,
       navigationState: popChatScreensForThreadID(
-        filterChatScreensForThreadInfos(
-          state.navigationState,
-          action.payload.threadInfos,
-        ),
+        state.navigationState,
         action.payload.threadID,
       ),
     };
