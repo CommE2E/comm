@@ -369,13 +369,14 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (!this.state.listDataWithHeights) {
+    if (!this.loadingFromScroll || !this.state.listDataWithHeights) {
       return;
     }
     if (
       !prevState.listDataWithHeights ||
       this.state.listDataWithHeights.length >
-        prevState.listDataWithHeights.length
+        prevState.listDataWithHeights.length ||
+      this.props.startReached
     ) {
       this.loadingFromScroll = false;
     }
