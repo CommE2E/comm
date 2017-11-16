@@ -276,7 +276,6 @@ class Entry extends React.Component<Props, State> {
           onBlur={this.onBlur}
           onFocus={this.onFocus}
           onContentSizeChange={this.onContentSizeChange}
-          autoFocus={focused}
           ref={this.textInputRef}
         />
       );
@@ -320,6 +319,9 @@ class Entry extends React.Component<Props, State> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
+    if (textInput && Entry.isFocused(this.props)) {
+      setTimeout(textInput.focus, 400);
+    }
   }
 
   onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
