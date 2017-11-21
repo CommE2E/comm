@@ -27,7 +27,9 @@ if (
 }
 
 $current_as_of = round(microtime(true) * 1000); // in milliseconds
-$watched_ids = isset($_POST['watched_ids']) ? $_POST['watched_ids'] : null;
+$watched_ids = !empty($_POST['watched_ids']) && is_array($_POST['watched_ids'])
+  ? $_POST['watched_ids']
+  : array();
 $thread_selection_criteria = array(
   "joined_threads" => true,
   "thread_ids" => array_fill_keys($watched_ids, false),
