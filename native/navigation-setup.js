@@ -145,7 +145,7 @@ class WrappedAppNavigator
 }
 const AppRouteName = 'App';
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
-const ReduxWrappedAppNavigator = connect((state: AppState) => {
+const ReduxWrappedAppNavigator = connect((state: AppState): * => {
   const appNavState = state.navInfo.navigationState.routes[0];
   invariant(
     appNavState.index !== undefined &&

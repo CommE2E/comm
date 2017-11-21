@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
 });
 
 const ChatThreadListRouteName = 'ChatThreadList';
-const ChatThreadList = connect((state: AppState) => ({
+const ChatThreadList = connect((state: AppState): * => ({
   chatListData: chatListData(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
 }))(InnerChatThreadList);

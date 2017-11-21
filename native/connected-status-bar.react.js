@@ -28,6 +28,6 @@ class ConnectedStatusBar extends React.PureComponent<*> {
 
 }
 
-export default connect((state: AppState) => ({
+export default connect((state: AppState): * => ({
   globalLoadingStatus: globalLoadingStatusSelector(state),
 }))(ConnectedStatusBar);
