@@ -3,6 +3,7 @@
 import type {
   NavigationState,
   PossiblyDeprecatedNavigationAction,
+  NavigationScreenProp,
 } from 'react-navigation/src/TypeDefinition';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
@@ -198,7 +199,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   render() {
-    const navigation = addNavigationHelpers({
+    const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
     });
