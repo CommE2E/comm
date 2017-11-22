@@ -25,7 +25,6 @@ import { MessageListRouteName } from './chat/message-list.react';
 import {
   handleURLActionType,
   navigateToAppActionType,
-  RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
 } from './navigation-setup';
