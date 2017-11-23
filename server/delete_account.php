@@ -34,14 +34,14 @@ if (!password_verify($password, $user_row['hash'])) {
 }
 
 $query = <<<SQL
-DELETE u, iu, v, iv, c, ic, r
+DELETE u, iu, v, iv, c, ic, m
 FROM users u
 LEFT JOIN ids iu ON iu.id = u.id
 LEFT JOIN verifications v ON v.user = u.id
 LEFT JOIN ids iv ON iv.id = v.id
 LEFT JOIN cookies c ON c.user = u.id
 LEFT JOIN ids ic ON ic.id = c.id
-LEFT JOIN roles r ON r.user = u.id
+LEFT JOIN memberships m ON m.user = u.id
 WHERE u.id = {$user}
 SQL;
 $conn->query($query);

@@ -44,20 +44,22 @@ if (!password_verify($password, $row['hash'])) {
   ));
 }
 
-$conn->query(
-  "DELETE t, ic, d, id, e, ie, re, ir, ro, rt, m FROM threads t ".
-    "LEFT JOIN ids ic ON ic.id = t.id ".
-    "LEFT JOIN days d ON d.thread = t.id ".
-    "LEFT JOIN ids id ON id.id = d.id ".
-    "LEFT JOIN entries e ON e.day = d.id ".
-    "LEFT JOIN ids ie ON ie.id = e.id ".
-    "LEFT JOIN revisions re ON re.entry = e.id ".
-    "LEFT JOIN ids ir ON ir.id = re.id ".
-    "LEFT JOIN roles ro ON ro.thread = t.id ".
-    "LEFT JOIN roletypes rt ON rt.thread = t.id ".
-    "LEFT JOIN messages m ON m.thread = t.id ".
-    "WHERE t.id = $thread"
-);
+$query = <<<SQL
+DELETE t, ic, d, id, e, ie, re, ir, mm, r, ms
+FROM threads t
+LEFT JOIN ids ic ON ic.id = t.id
+LEFT JOIN days d ON d.thread = t.id
+LEFT JOIN ids id ON id.id = d.id
+LEFT JOIN entries e ON e.day = d.id
+LEFT JOIN ids ie ON ie.id = e.id
+LEFT JOIN revisions re ON re.entry = e.id
+LEFT JOIN ids ir ON ir.id = re.id
+LEFT JOIN memberships mm ON mm.thread = t.id
+LEFT JOIN roles r ON r.thread = t.id
+LEFT JOIN messages ms ON ms.thread = t.id
+WHERE t.id = {$thread}
+SQL;
+$conn->query($query);
 
 async_end(array(
   'success' => true,

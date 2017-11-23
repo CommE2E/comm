@@ -24,7 +24,7 @@ $truncation_status = array();
 $message_users = array();
 if (viewer_is_member($thread)) {
   $query = <<<SQL
-UPDATE roles
+UPDATE memberships
 SET subscribed = {$new_subscribed}
 WHERE thread = {$thread} AND user = {$viewer_id}
 SQL;
@@ -36,9 +36,9 @@ SQL;
     ));
   }
 
-  $roletype_results = change_roletype($thread, array($viewer_id), null);
-  $to_save = $roletype_results['to_save'];
-  $to_delete = $roletype_results['to_delete'];
+  $role_results = change_role($thread, array($viewer_id), null);
+  $to_save = $role_results['to_save'];
+  $to_delete = $role_results['to_delete'];
 
   $to_save_with_subscribed = array();
   foreach ($to_save as $row_to_save) {
@@ -48,8 +48,8 @@ SQL;
     $to_save_with_subscribed[] = $row_to_save;
   }
 
-  save_user_roles($to_save_with_subscribed);
-  delete_user_roles($to_delete);
+  save_memberships($to_save_with_subscribed);
+  delete_memberships($to_delete);
 
   $message_info = array(
     'type' => MESSAGE_TYPE_JOIN_THREAD,

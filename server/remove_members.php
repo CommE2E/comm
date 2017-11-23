@@ -36,27 +36,27 @@ if (in_array($viewer_id, $member_ids)) {
 
 $member_sql_string = implode(", ", $member_ids);
 $query = <<<SQL
-SELECT r.user, r.roletype, t.default_roletype
-FROM roles r
-LEFT JOIN threads t ON t.id = r.thread
-WHERE r.user IN ({$member_sql_string}) AND r.thread = {$thread}
+SELECT m.user, m.role, t.default_role
+FROM memberships m
+LEFT JOIN threads t ON t.id = m.thread
+WHERE m.user IN ({$member_sql_string}) AND m.thread = {$thread}
 SQL;
 $result = $conn->query($query);
 
-$non_default_roletype_user = false;
+$non_default_role_user = false;
 $actual_member_ids = array();
 while ($row = $result->fetch_assoc()) {
-  if (!$row['roletype']) {
+  if (!$row['role']) {
     continue;
   }
   $actual_member_ids[] = (int)$row['user'];
-  if ($row['roletype'] !== $row['default_roletype']) {
-    $non_default_roletype_user = true;
+  if ($row['role'] !== $row['default_role']) {
+    $non_default_role_user = true;
   }
 }
 
 if (
-  $non_default_roletype_user &&
+  $non_default_role_user &&
   !check_thread_permission($thread, PERMISSION_CHANGE_ROLE)
 ) {
   async_end(array(
@@ -64,9 +64,9 @@ if (
   ));
 }
 
-$results = change_roletype($thread, $actual_member_ids, 0);
-save_user_roles($results['to_save']);
-delete_user_roles($results['to_delete']);
+$results = change_role($thread, $actual_member_ids, 0);
+save_memberships($results['to_save']);
+delete_memberships($results['to_delete']);
 
 $message_info = array(
   'type' => MESSAGE_TYPE_REMOVE_MEMBERS,

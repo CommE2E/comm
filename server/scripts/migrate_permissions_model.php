@@ -14,31 +14,31 @@ $root_threads = array();
 while ($row = $thread_results->fetch_assoc()) {
   $thread_id = (int)$row['id'];
 
-  echo "Creating roletypes for {$thread_id}...\n";
-  $roletypes = create_initial_roletypes_for_new_thread($thread_id);
+  echo "Creating roles for {$thread_id}...\n";
+  $roles = create_initial_roles_for_new_thread($thread_id);
 
-  echo "Setting default roletype for {$thread_id}...\n";
+  echo "Setting default role for {$thread_id}...\n";
   $query = <<<SQL
 UPDATE threads
-SET default_roletype = {$roletypes['members']['id']}
+SET default_role = {$roles['members']['id']}
 WHERE id = {$thread_id}
 SQL;
   $conn->query($query);
 
-  echo "Updating creator roletype for {$thread_id}...\n";
+  echo "Updating creator role for {$thread_id}...\n";
   $creator = (int)$row['creator'];
   $query = <<<SQL
-UPDATE roles
-SET roletype = {$roletypes['admins']['id']}
+UPDATE memberships
+SET role = {$roles['admins']['id']}
 WHERE thread = {$thread_id} AND user = {$creator}
 SQL;
   $conn->query($query);
 
   echo "Updating all other roles for {$thread_id}...\n";
   $query = <<<SQL
-UPDATE roles
-SET roletype = {$roletypes['members']['id']}
-WHERE thread = {$thread_id} AND role = 5
+UPDATE memberships
+SET role = {$roles['members']['id']}
+WHERE thread = {$thread_id} AND user != {$creator}
 SQL;
   $conn->query($query);
 
@@ -58,16 +58,16 @@ foreach ($root_threads as $thread_id => $vis_rules) {
   $to_delete = array_merge($to_delete, $recalculate_results['to_delete']);
   $total = count($to_save) + count($to_delete);
   if ($total >= $batch_size) {
-    echo "Saving batch of {$total} roles...\n";
-    save_user_roles($to_save);
-    delete_user_roles($to_delete);
+    echo "Saving batch of {$total} memberships...\n";
+    save_memberships($to_save);
+    delete_memberships($to_delete);
     $to_save = array();
     $to_delete = array();
   }
 }
 $total = count($to_save) + count($to_delete);
 if ($total) {
-  echo "Saving batch of {$total} roles...\n";
-  save_user_roles($to_save);
-  delete_user_roles($to_delete);
+  echo "Saving batch of {$total} memberships...\n";
+  save_memberships($to_save);
+  delete_memberships($to_delete);
 }

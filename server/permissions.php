@@ -27,7 +27,7 @@ define("PERMISSION_EDIT_PERMISSIONS", "edit_permissions");
 // If the user can add new members to this thread
 define("PERMISSION_ADD_MEMBERS", "add_members");
 // If the user can remove members from this thread. If the members in question
-// have a non-default roletype, PERMISSION_CHANGE_ROLE is also needed.
+// have a non-default role, PERMISSION_CHANGE_ROLE is also needed.
 define("PERMISSION_REMOVE_MEMBERS", "remove_members");
 // If the user can change the role of any other member in the thread. This is
 // probably the most powerful permission.
@@ -58,14 +58,14 @@ function viewer_is_member($thread) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT roletype FROM roles WHERE user = {$viewer_id} AND thread = {$thread}
+SELECT role FROM memberships WHERE user = {$viewer_id} AND thread = {$thread}
 SQL;
   $result = $conn->query($query);
   $row = $result->fetch_assoc();
   if (!$row) {
     return false;
   }
-  return (int)$row['roletype'] !== 0;
+  return (int)$row['role'] !== 0;
 }
 
 function permission_lookup($blob, $permission) {
@@ -146,9 +146,9 @@ function fetch_thread_permission_info($thread) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT t.visibility_rules, t.edit_rules, r.permissions
+SELECT t.visibility_rules, t.edit_rules, m.permissions
 FROM threads t
-LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}
+LEFT JOIN memberships m ON m.thread = t.id AND m.user = {$viewer_id}
 WHERE t.id = {$thread}
 SQL;
   $result = $conn->query($query);
@@ -193,11 +193,11 @@ function check_thread_permission_for_entry($entry, $permission) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT r.permissions, t.visibility_rules, t.edit_rules
+SELECT m.permissions, t.visibility_rules, t.edit_rules
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
-LEFT JOIN roles r ON r.thread = t.id AND r.user = {$viewer_id}
+LEFT JOIN memberships m ON m.thread = t.id AND m.user = {$viewer_id}
 WHERE e.id = {$entry}
 SQL;
   $result = $conn->query($query);
@@ -209,8 +209,8 @@ SQL;
   return permission_helper($info, $permission);
 }
 
-// $roletype_permissions: ?array<permission: int, value: bool>
-//   can be null if roletype = 0
+// $role_permissions: ?array<permission: int, value: bool>
+//   can be null if role = 0
 // $permissions_from_parent:
 //   ?array<permission: string, array(value => bool, source => int)>
 //   can be null if no permissions from parent (should never be empty array)
@@ -219,7 +219,7 @@ SQL;
 // return: ?array<permission: string, array(value => bool, source => int)>
 //   can be null if no permissions exist
 function make_permissions_blob(
-  $roletype_permissions,
+  $role_permissions,
   $permissions_from_parent,
   $thread_id,
   $vis_rules
@@ -245,8 +245,8 @@ function make_permissions_blob(
     }
   }
 
-  if ($roletype_permissions) {
-    foreach ($roletype_permissions as $permission => $value) {
+  if ($role_permissions) {
+    foreach ($role_permissions as $permission => $value) {
       $current_pair = isset($permissions[$permission])
         ? $permissions[$permission]
         : null;
@@ -295,10 +295,10 @@ function permissions_for_children($permissions) {
 //   permissions: array<permission: string, array(value => bool, source => int)>
 //   permissions_for_children:
 //     ?array<permission: string, array(value => bool, source => int)>
-//   roletype: int,
+//   role: int,
 //   subscribed?: bool,
 // )>
-function save_user_roles($to_save) {
+function save_memberships($to_save) {
   global $conn;
 
   if (!$to_save) {
@@ -329,7 +329,7 @@ function save_user_roles($to_save) {
     $new_row_sql_strings[] = "(" . implode(", ", array(
       $role_info['user_id'],
       $role_info['thread_id'],
-      $role_info['roletype'],
+      $role_info['role'],
       $time,
       $subscribed,
       $permissions,
@@ -339,21 +339,21 @@ function save_user_roles($to_save) {
   }
   $new_rows_sql_string = implode(", ", $new_row_sql_strings);
 
-  // Logic below will only update an existing role row's `subscribed` column if
-  // the user is either leaving or joining the thread. Generally, joining means
-  // you subscribe and leaving means you unsubscribe.
+  // Logic below will only update an existing membership row's `subscribed`
+  // column if the user is either leaving or joining the thread. Generally,
+  // joining means you subscribe and leaving means you unsubscribe.
   $query = <<<SQL
-INSERT INTO roles (user, thread, roletype, creation_time, subscribed,
+INSERT INTO memberships (user, thread, role, creation_time, subscribed,
   permissions, permissions_for_children, visible)
 VALUES {$new_rows_sql_string}
 ON DUPLICATE KEY UPDATE
   subscribed = IF(
-    (roletype = 0 AND VALUES(roletype) != 0)
-      OR (roletype != 0 AND VALUES(roletype) = 0),
+    (role = 0 AND VALUES(role) != 0)
+      OR (role != 0 AND VALUES(role) = 0),
     VALUES(subscribed),
     subscribed
   ),
-  roletype = VALUES(roletype),
+  role = VALUES(role),
   permissions = VALUES(permissions),
   permissions_for_children = VALUES(permissions_for_children),
   visible = VALUES(visible)
@@ -362,7 +362,7 @@ SQL;
 }
 
 // $to_delete: array<array(user_id: int, thread_id: int)>
-function delete_user_roles($to_delete) {
+function delete_memberships($to_delete) {
   global $conn;
 
   if (!$to_delete) {
@@ -377,7 +377,7 @@ function delete_user_roles($to_delete) {
   }
   $delete_rows_sql_string = implode(" OR ", $delete_row_sql_strings);
   $query = <<<SQL
-DELETE FROM roles WHERE {$delete_rows_sql_string}
+DELETE FROM memberships WHERE {$delete_rows_sql_string}
 SQL;
   $conn->query($query);
 }
@@ -396,7 +396,7 @@ SQL;
 //       permissions: array<permission: string, array(value => bool, source => int)>
 //       permissions_for_children:
 //         ?array<permission: string, array(value => bool, source => int)>
-//       roletype: int,
+//       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
 //   )
@@ -419,11 +419,11 @@ function update_descendant_permissions(
     $user_ids = array_keys($users_to_permissions_from_parent);
     $user_id_sql_string = implode(", ", $user_ids);
     $query = <<<SQL
-SELECT t.id, r.user, t.visibility_rules, rt.permissions AS roletype_permissions,
-  r.permissions, r.permissions_for_children, r.roletype
+SELECT t.id, m.user, t.visibility_rules, r.permissions AS role_permissions,
+  m.permissions, m.permissions_for_children, m.role
 FROM threads t 
-LEFT JOIN roles r ON r.thread = t.id AND r.user IN ({$user_id_sql_string})
-LEFT JOIN roletypes rt ON rt.id = r.roletype
+LEFT JOIN memberships m ON m.thread = t.id AND m.user IN ({$user_id_sql_string})
+LEFT JOIN roles r ON r.id = m.role
 WHERE t.parent_thread_id = {$parent_thread_id}
 SQL;
     $result = $conn->query($query);
@@ -442,9 +442,9 @@ SQL;
       }
       $user_id = (int)$row['user'];
       $child_thread_infos[$thread_id]["user_infos"][$user_id] = array(
-        "roletype" => (int)$row['roletype'],
-        "roletype_permissions" =>
-          json_decode($row['roletype_permissions'], true),
+        "role" => (int)$row['role'],
+        "role_permissions" =>
+          json_decode($row['role_permissions'], true),
         "permissions" =>
           json_decode($row['permissions'], true),
         "permissions_for_children" =>
@@ -459,19 +459,19 @@ SQL;
         $users_to_permissions_from_parent as
         $user_id => $permissions_from_parent
       ) {
-        $roletype = 0;
-        $roletype_permissions = null;
+        $role = 0;
+        $role_permissions = null;
         $old_permissions = null;
         $old_permissions_for_children = null;
         if (isset($user_infos[$user_id])) {
-          $roletype = $user_infos[$user_id]['roletype'];
-          $roletype_permissions = $user_infos[$user_id]['roletype_permissions'];
+          $role = $user_infos[$user_id]['role'];
+          $role_permissions = $user_infos[$user_id]['role_permissions'];
           $old_permissions = $user_infos[$user_id]['permissions'];
           $old_permissions_for_children =
             $user_infos[$user_id]['permissions_for_children'];
         }
         $permissions = make_permissions_blob(
-          $roletype_permissions,
+          $role_permissions,
           $permissions_from_parent,
           $thread_id,
           $child_thread_info['visibility_rules']
@@ -488,7 +488,7 @@ SQL;
             "thread_id" => $thread_id,
             "permissions" => $permissions,
             "permissions_for_children" => $permissions_for_children,
-            "roletype" => $roletype,
+            "role" => $role,
           );
         } else {
           $to_delete[] = array(
@@ -511,12 +511,12 @@ SQL;
 
 // $thread_id: int
 // $user_ids: array<int>
-// $roletype: ?int
-//   if nonzero integer, the ID of the corresponding roletype row
+// $role: ?int
+//   if nonzero integer, the ID of the corresponding role row
 //   if zero, indicates that $user_id is not a member of $thread_id
-//   if null, $user_id's roletype will be set to $thread_id's default_roletype,
-//     but only if they don't already have a nonzero roletype. this is useful
-//     for adding people to threads
+//   if null, $user_id's role will be set to $thread_id's default_role, but only
+//     if they don't already have a nonzero role. this is useful for adding
+//     people to threads
 // returns: (null if failed)
 //   ?array(
 //     to_save => array<array(
@@ -528,20 +528,20 @@ SQL;
 //       >,
 //       permissions_for_children:
 //         ?array<permission: string, array(value => bool, source => int)>
-//       roletype: int,
+//       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
 //   )
-function change_roletype($thread_id, $user_ids, $roletype) {
+function change_role($thread_id, $user_ids, $role) {
   global $conn;
 
   // The code in the blocks below needs to determine three variables:
-  // - $new_roletype, the actual $roletype value we're saving
-  // - $roletype_permissions, the permissions column of the $new_roletype
+  // - $new_role, the actual $role value we're saving
+  // - $role_permissions, the permissions column of the $new_role
   // - $vis_rules, the visibility rules of $thread_id
-  if ($roletype === 0) {
-    $new_roletype = 0;
-    $roletype_permissions = null;
+  if ($role === 0) {
+    $new_role = 0;
+    $role_permissions = null;
     $query = <<<SQL
 SELECT visibility_rules FROM threads WHERE id = {$thread_id}
 SQL;
@@ -551,12 +551,12 @@ SQL;
       return null;
     }
     $vis_rules = (int)$row['visibility_rules'];
-  } else if ($roletype !== null) {
-    $new_roletype = (int)$roletype;
+  } else if ($role !== null) {
+    $new_role = (int)$role;
     $query = <<<SQL
-SELECT t.visibility_rules, rt.permissions
+SELECT t.visibility_rules, r.permissions
 FROM threads t
-LEFT JOIN roletypes rt ON rt.id = {$new_roletype}
+LEFT JOIN roles r ON r.id = {$new_role}
 WHERE t.id = {$thread_id}
 SQL;
     $result = $conn->query($query);
@@ -564,13 +564,13 @@ SQL;
     if (!$row) {
       return null;
     }
-    $roletype_permissions = json_decode($row['permissions'], true);
+    $role_permissions = json_decode($row['permissions'], true);
     $vis_rules = (int)$row['visibility_rules'];
   } else {
     $query = <<<SQL
-SELECT t.visibility_rules, t.default_roletype, rt.permissions
+SELECT t.visibility_rules, t.default_role, r.permissions
 FROM threads t
-LEFT JOIN roletypes rt ON rt.id = t.default_roletype
+LEFT JOIN roles r ON r.id = t.default_role
 WHERE t.id = {$thread_id}
 SQL;
     $result = $conn->query($query);
@@ -578,19 +578,19 @@ SQL;
     if (!$row) {
       return null;
     }
-    $new_roletype = (int)$row['default_roletype'];
-    $roletype_permissions = json_decode($row['permissions'], true);
+    $new_role = (int)$row['default_role'];
+    $role_permissions = json_decode($row['permissions'], true);
     $vis_rules = (int)$row['visibility_rules'];
   }
 
   $user_id_sql_string = implode(", ", $user_ids);
   $query = <<<SQL
-SELECT r.user, r.roletype, r.permissions_for_children,
-  pr.permissions_for_children AS permissions_from_parent
-FROM roles r
-LEFT JOIN threads t ON t.id = r.thread
-LEFT JOIN roles pr ON pr.thread = t.parent_thread_id AND pr.user = r.user
-WHERE r.thread = {$thread_id} AND r.user IN ({$user_id_sql_string})
+SELECT m.user, m.role, m.permissions_for_children,
+  pm.permissions_for_children AS permissions_from_parent
+FROM memberships m
+LEFT JOIN threads t ON t.id = m.thread
+LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
+WHERE m.thread = {$thread_id} AND m.user IN ({$user_id_sql_string})
 SQL;
   $result = $conn->query($query);
 
@@ -604,7 +604,7 @@ SQL;
       ? json_decode($row['permissions_from_parent'], true)
       : null;
     $role_info[$user_id] = array(
-      "old_roletype" => (int)$row['roletype'],
+      "old_role" => (int)$row['role'],
       "old_permissions_for_children" => $old_permissions_for_children,
       "permissions_from_parent" => $permissions_from_parent,
     );
@@ -617,15 +617,14 @@ SQL;
     $old_permissions_for_children = null;
     $permissions_from_parent = null;
     if (isset($role_info[$user_id])) {
-      $old_roletype = $role_info[$user_id]['old_roletype'];
-      if ($old_roletype === $new_roletype) {
-        // If the old roletype is the same as the new one, we have nothing to
-        // update
+      $old_role = $role_info[$user_id]['old_role'];
+      if ($old_role === $new_role) {
+        // If the old role is the same as the new one, we have nothing to update
         continue;
-      } else if ($old_roletype !== 0 && $roletype === null) {
+      } else if ($old_role !== 0 && $role === null) {
         // In the case where we're just trying to add somebody to a thread, if
-        // they already have a role with a nonzero roletype then we don't need
-        // to do anything
+        // they already have a role with a nonzero role then we don't need to do
+        // anything
         continue;
       }
       $old_permissions_for_children =
@@ -635,7 +634,7 @@ SQL;
     }
 
     $permissions = make_permissions_blob(
-      $roletype_permissions,
+      $role_permissions,
       $permissions_from_parent,
       $thread_id,
       $vis_rules
@@ -650,7 +649,7 @@ SQL;
         "thread_id" => $thread_id,
         "permissions" => $permissions,
         "permissions_for_children" => $permissions_for_children,
-        "roletype" => $new_roletype,
+        "role" => $new_role,
       );
     }
 
@@ -669,9 +668,9 @@ SQL;
   return array("to_save" => $to_save, "to_delete" => $to_delete);
 }
 
-// $roletype: int
+// $role: int
 //   cannot be zero or null!
-// $changed_roletype_permissions:
+// $changed_role_permissions:
 //   array<permission: string, bool>
 // returns: (null if failed)
 //   ?array(
@@ -684,23 +683,23 @@ SQL;
 //       >,
 //       permissions_for_children:
 //         ?array<permission: string, array(value => bool, source => int)>
-//       roletype: int,
+//       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
 //   )
-function edit_roletype_permissions($roletype, $changed_roletype_permissions) {
+function edit_role_permissions($role, $changed_role_permissions) {
   global $conn;
 
-  $roletype = (int)$roletype;
-  if ($roletype === 0) {
+  $role = (int)$role;
+  if ($role === 0) {
     return null;
   }
 
   $query = <<<SQL
-SELECT rt.thread, rt.permissions, t.visibility_rules
-FROM roletypes rt
-LEFT JOIN threads t ON t.id = rt.thread
-WHERE rt.id = {$roletype}
+SELECT r.thread, r.permissions, t.visibility_rules
+FROM roles r
+LEFT JOIN threads t ON t.id = r.thread
+WHERE r.id = {$role}
 SQL;
   $result = $conn->query($query);
   $row = $result->fetch_assoc();
@@ -709,27 +708,27 @@ SQL;
   }
   $thread_id = (int)$row['thread'];
   $vis_rules = (int)$row['visibility_rules'];
-  $new_roletype_permissions = array_filter(array_merge(
+  $new_role_permissions = array_filter(array_merge(
     json_decode($row['permissions'], true),
-    $changed_roletype_permissions
+    $changed_role_permissions
   ));
 
-  $encoded_roletype_permissions =
-    $conn->real_escape_string(json_encode($new_roletype_permissions));
+  $encoded_role_permissions =
+    $conn->real_escape_string(json_encode($new_role_permissions));
   $query = <<<SQL
-UPDATE roletypes
-SET permissions = '{$encoded_roletype_permissions}'
-WHERE id = {$roletype}
+UPDATE roles
+SET permissions = '{$encoded_role_permissions}'
+WHERE id = {$role}
 SQL;
   $conn->query($query);
 
   $query = <<<SQL
-SELECT r.user, r.permissions, r.permissions_for_children,
-  pr.permissions_for_children AS permissions_from_parent
-FROM roles r
-LEFT JOIN threads t ON t.id = r.thread
-LEFT JOIN roles pr ON pr.thread = t.parent_thread_id AND pr.user = r.user
-WHERE r.roletype = {$roletype}
+SELECT m.user, m.permissions, m.permissions_for_children,
+  pm.permissions_for_children AS permissions_from_parent
+FROM memberships m
+LEFT JOIN threads t ON t.id = m.thread
+LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
+WHERE m.role = {$role}
 SQL;
   $result = $conn->query($query);
 
@@ -747,7 +746,7 @@ SQL;
       : null;
 
     $permissions = make_permissions_blob(
-      $new_roletype_permissions,
+      $new_role_permissions,
       $permissions_from_parent,
       $thread_id,
       $vis_rules
@@ -765,7 +764,7 @@ SQL;
         "thread_id" => $thread_id,
         "permissions" => $permissions,
         "permissions_for_children" => $permissions_for_children,
-        "roletype" => $roletype,
+        "role" => $role,
       );
     } else {
       $to_delete[] = array(
@@ -800,7 +799,7 @@ SQL;
 //       permissions: array<permission: string, array(value => bool, source => int)>
 //       permissions_for_children:
 //         ?array<permission: string, array(value => bool, source => int)>
-//       roletype: int,
+//       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
 //   )
@@ -815,14 +814,14 @@ SQL;
   $conn->query($query);
 
   $query = <<<SQL
-SELECT r.user, r.roletype, r.permissions, r.permissions_for_children,
-  pr.permissions_for_children AS permissions_from_parent,
-  rt.permissions AS roletype_permissions
-FROM roles r
-LEFT JOIN threads t ON t.id = r.thread
-LEFT JOIN roletypes rt ON rt.id = r.roletype
-LEFT JOIN roles pr ON pr.thread = t.parent_thread_id AND pr.user = r.user
-WHERE r.thread = {$thread_id}
+SELECT m.user, m.role, m.permissions, m.permissions_for_children,
+  pm.permissions_for_children AS permissions_from_parent,
+  r.permissions AS role_permissions
+FROM memberships m
+LEFT JOIN threads t ON t.id = m.thread
+LEFT JOIN roles r ON r.id = m.role
+LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
+WHERE m.thread = {$thread_id}
 SQL;
   $result = $conn->query($query);
 
@@ -831,7 +830,7 @@ SQL;
   $to_update_descendants = array();
   while ($row = $result->fetch_assoc()) {
     $user_id = (int)$row['user'];
-    $roletype = (int)$row['roletype'];
+    $role = (int)$row['role'];
     $old_permissions = json_decode($row['permissions'], true);
     $old_permissions_for_children = $row['permissions_for_children']
       ? json_decode($row['permissions_for_children'], true)
@@ -839,12 +838,12 @@ SQL;
     $permissions_from_parent = $row['permissions_from_parent']
       ? json_decode($row['permissions_from_parent'], true)
       : null;
-    $roletype_permissions = $row['roletype_permissions']
-      ? json_decode($row['roletype_permissions'], true)
+    $role_permissions = $row['role_permissions']
+      ? json_decode($row['role_permissions'], true)
       : null;
 
     $permissions = make_permissions_blob(
-      $roletype_permissions,
+      $role_permissions,
       $permissions_from_parent,
       $thread_id,
       $new_vis_rules
@@ -862,7 +861,7 @@ SQL;
         "thread_id" => $thread_id,
         "permissions" => $permissions,
         "permissions_for_children" => $permissions_for_children,
-        "roletype" => $roletype,
+        "role" => $role,
       );
     } else {
       $to_delete[] = array(
@@ -886,13 +885,13 @@ SQL;
   return array("to_save" => $to_save, "to_delete" => $to_delete);
 }
 
-function create_initial_roletypes_for_new_thread($thread_id) {
+function create_initial_roles_for_new_thread($thread_id) {
   global $conn;
 
-  $conn->query("INSERT INTO ids(table_name) VALUES('roletypes')");
-  $member_roletype_id = $conn->insert_id;
-  $conn->query("INSERT INTO ids(table_name) VALUES('roletypes')");
-  $admin_roletype_id = $conn->insert_id;
+  $conn->query("INSERT INTO ids(table_name) VALUES('roles')");
+  $member_role_id = $conn->insert_id;
+  $conn->query("INSERT INTO ids(table_name) VALUES('roles')");
+  $admin_role_id = $conn->insert_id;
 
   $member_permissions = array(
     PERMISSION_KNOW_OF => true,
@@ -943,23 +942,23 @@ function create_initial_roletypes_for_new_thread($thread_id) {
   $time = round(microtime(true) * 1000); // in milliseconds
 
   $query = <<<SQL
-INSERT INTO roletypes (id, thread, name, permissions, creation_time)
+INSERT INTO roles (id, thread, name, permissions, creation_time)
 VALUES
-  ({$member_roletype_id}, {$thread_id}, 'Members',
+  ({$member_role_id}, {$thread_id}, 'Members',
     '{$encoded_member_permissions}', {$time}),
-  ({$admin_roletype_id}, {$thread_id}, 'Admins',
+  ({$admin_role_id}, {$thread_id}, 'Admins',
     '{$encoded_admin_permissions}', {$time})
 SQL;
   $conn->query($query);
   return array(
     "members" => array(
-      "id" => (string)$member_roletype_id,
+      "id" => (string)$member_role_id,
       "name" => "Members",
       "permissions" => $member_permissions,
       "isDefault" => true,
     ),
     "admins" => array(
-      "id" => (string)$admin_roletype_id,
+      "id" => (string)$admin_role_id,
       "name" => "Admins",
       "permissions" => $admin_permissions,
       "isDefault" => false,

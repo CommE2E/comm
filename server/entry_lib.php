@@ -52,7 +52,7 @@ function get_entry_infos($input) {
     $home = false;
     $thread = intval($input['nav']);
   }
-  $additional_condition = $home ? "r.subscribed = 1" : "d.thread = $thread";
+  $additional_condition = $home ? "m.subscribed = 1" : "d.thread = $thread";
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
@@ -64,9 +64,9 @@ SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
-LEFT JOIN roles r ON r.thread = d.thread AND r.user = {$viewer_id}
+LEFT JOIN memberships m ON m.thread = d.thread AND m.user = {$viewer_id}
 LEFT JOIN users u ON u.id = e.creator
-WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+WHERE (m.visible = 1 OR t.visibility_rules = {$visibility_open})
   AND d.date BETWEEN '{$start_date}' AND '{$end_date}'
   AND {$additional_condition} {$deleted_condition}
 ORDER BY e.creation_time DESC

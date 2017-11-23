@@ -41,7 +41,7 @@ if ($other_users_exist && !$other_admins_exist) {
   ));
 }
 
-$leave_results = change_roletype($thread, array($viewer_id), 0);
+$leave_results = change_role($thread, array($viewer_id), 0);
 if (!$leave_results) {
   async_end(array(
     'error' => 'unknown_error',
@@ -52,8 +52,8 @@ foreach ($leave_results['to_save'] as $row_to_save) {
   $row_to_save['subscribed'] = false;
   $to_save[] = $row_to_save;
 }
-save_user_roles($to_save);
-delete_user_roles($leave_results['to_delete']);
+save_memberships($to_save);
+delete_memberships($leave_results['to_delete']);
 
 $message_info = array(
   'type' => MESSAGE_TYPE_LEAVE_THREAD,

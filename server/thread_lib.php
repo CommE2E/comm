@@ -24,17 +24,17 @@ function get_thread_infos($specific_condition="") {
 
   $query = <<<SQL
 SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
-  t.visibility_rules, t.creation_time, t.default_roletype, rt.id AS roletype,
-  rt.name AS roletype_name, rt.permissions AS roletype_permissions, r.user,
-  r.permissions, r.subscribed, u.username
+  t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
+  r.name AS role_name, r.permissions AS role_permissions, m.user,
+  m.permissions, m.subscribed, u.username
 FROM threads t
 LEFT JOIN (
     SELECT thread, id, name, permissions
-      FROM roletypes
+      FROM roles
     UNION SELECT id AS thread, 0 AS id, NULL AS name, NULL AS permissions
       FROM threads
-  ) rt ON rt.thread = t.id
-LEFT JOIN roles r ON r.roletype = rt.id AND r.thread = t.id
+  ) r ON r.thread = t.id
+LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
 LEFT JOIN users u ON u.id = r.user
 {$where_clause}
 ORDER BY r.user ASC
@@ -61,15 +61,15 @@ SQL;
       );
     }
     if (
-      $row['roletype'] &&
-      !isset($thread_infos[$thread_id]['roles'][$row['roletype']])
+      $row['role'] &&
+      !isset($thread_infos[$thread_id]['roles'][$row['role']])
     ) {
-      $roletype_permissions = json_decode($row['roletype_permissions'], true);
-      $thread_infos[$thread_id]['roles'][$row['roletype']] = array(
-        "id" => $row['roletype'],
-        "name" => $row['roletype_name'],
-        "permissions" => $roletype_permissions,
-        "isDefault" => $row['roletype'] === $row['default_roletype'],
+      $role_permissions = json_decode($row['role_permissions'], true);
+      $thread_infos[$thread_id]['roles'][$row['role']] = array(
+        "id" => $row['role'],
+        "name" => $row['role_name'],
+        "permissions" => $role_permissions,
+        "isDefault" => $row['role'] === $row['default_role'],
       );
     }
     if ($row['user'] !== null) {
@@ -82,13 +82,13 @@ SQL;
       // thread, or are a "parent admin". We approximate "parent admin" by
       // looking for the PERMISSION_CHANGE_ROLE permission.
       if (
-        (int)$row['roletype'] !== 0 ||
+        (int)$row['role'] !== 0 ||
         $all_permissions[PERMISSION_CHANGE_ROLE]['value']
       ) {
         $member = array(
           "id" => $user_id,
           "permissions" => $all_permissions,
-          "role" => (int)$row['roletype'] === 0 ? null : $row['roletype'],
+          "role" => (int)$row['role'] === 0 ? null : $row['role'],
         );
         $thread_infos[$thread_id]['members'][] = $member;
         if ((int)$user_id === $viewer_id) {

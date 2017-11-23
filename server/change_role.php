@@ -36,8 +36,8 @@ if (
 
 $member_sql_string = implode(", ", $member_ids);
 $query = <<<SQL
-SELECT user, roletype
-FROM roles
+SELECT user, role
+FROM memberships
 WHERE user IN ({$member_sql_string}) AND thread = {$thread}
 SQL;
 $result = $conn->query($query);
@@ -45,7 +45,7 @@ $result = $conn->query($query);
 $non_member_user = false;
 $num_results = 0;
 while ($row = $result->fetch_assoc()) {
-  if (!$row['roletype']) {
+  if (!$row['role']) {
     $non_member_user = true;
     break;
   }
@@ -58,9 +58,9 @@ if ($non_member_user || $num_results < count($member_ids)) {
   ));
 }
 
-$results = change_roletype($thread, $member_ids, $role);
-save_user_roles($results['to_save']);
-delete_user_roles($results['to_delete']);
+$results = change_role($thread, $member_ids, $role);
+save_memberships($results['to_save']);
+delete_memberships($results['to_delete']);
 
 $message_info = array(
   'type' => MESSAGE_TYPE_CHANGE_ROLE,

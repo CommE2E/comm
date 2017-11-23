@@ -118,10 +118,9 @@ if (!$changed_sql_fields && !$add_member_ids) {
 // - get hash for viewer password check (users table)
 // - figures out if the thread requires auth (threads table)
 $query = <<<SQL
-SELECT t.visibility_rules, u.hash, t.parent_thread_id
+SELECT u.hash, t.visibility_rules, t.parent_thread_id
 FROM users u
 LEFT JOIN threads t ON t.id = {$thread}
-LEFT JOIN roles r ON r.user = u.id AND t.id
 WHERE u.id = {$user}
 SQL;
 $result = $conn->query($query);
@@ -265,22 +264,22 @@ if (
   $to_delete = array_merge($to_delete, $recalculate_results['to_delete']);
 }
 if ($add_member_ids) {
-  $roletype_results = change_roletype($thread, $add_member_ids, null);
-  if (!$roletype_results) {
+  $role_results = change_role($thread, $add_member_ids, null);
+  if (!$role_results) {
     async_end(array(
       'error' => 'unknown_error',
     ));
   }
-  foreach ($roletype_results['to_save'] as $row_to_save) {
+  foreach ($role_results['to_save'] as $row_to_save) {
     if ($row_to_save['thread_id'] === $thread) {
       $row_to_save['subscribed'] = true;
     }
     $to_save[] = $row_to_save;
   }
-  $to_delete = array_merge($to_delete, $roletype_results['to_delete']);
+  $to_delete = array_merge($to_delete, $role_results['to_delete']);
 }
-save_user_roles($to_save);
-delete_user_roles($to_delete);
+save_memberships($to_save);
+delete_memberships($to_delete);
 
 list($thread_infos) = get_thread_infos("t.id = {$thread}");
 

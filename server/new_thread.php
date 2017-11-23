@@ -70,7 +70,7 @@ if (isset($_POST['parent_thread_id'])) {
 
 $conn->query("INSERT INTO ids(table_name) VALUES('threads')");
 $id = $conn->insert_id;
-$roletypes = create_initial_roletypes_for_new_thread($id);
+$roles = create_initial_roles_for_new_thread($id);
 
 $raw_name = $_POST['name'];
 $raw_description = $_POST['description'];
@@ -89,14 +89,14 @@ $parent_thread_id_sql_string = $parent_thread_id
   ? $parent_thread_id
   : "NULL";
 
-$default_roletype = $roletypes['members']['id'];
+$default_role = $roles['members']['id'];
 $thread_insert_sql = <<<SQL
 INSERT INTO threads
   (id, name, description, visibility_rules, hash, edit_rules, creator,
-  creation_time, color, parent_thread_id, default_roletype)
+  creation_time, color, parent_thread_id, default_role)
 VALUES
   ($id, '$name', '$description', $vis_rules, $hash_sql_string, $edit_rules,
-  $creator, $time, '$color', $parent_thread_id_sql_string, {$default_roletype})
+  $creator, $time, '$color', $parent_thread_id_sql_string, {$default_role})
 SQL;
 $conn->query($thread_insert_sql);
 
@@ -128,10 +128,10 @@ if ($parent_thread_id) {
 }
 $new_message_infos = create_message_infos($message_infos);
 
-$creator_results = change_roletype(
+$creator_results = change_role(
   $id,
   array($creator),
-  (int)$roletypes['admins']['id']
+  (int)$roles['admins']['id']
 );
 if (!$creator_results) {
   async_end(array(
@@ -141,7 +141,7 @@ if (!$creator_results) {
 $to_save = $creator_results['to_save'];
 $to_delete = $creator_results['to_delete'];
 if ($initial_member_ids) {
-  $initial_member_results = change_roletype($id, $initial_member_ids, null);
+  $initial_member_results = change_role($id, $initial_member_ids, null);
   if (!$initial_member_results) {
     async_end(array(
       'error' => 'unknown_error',
@@ -155,7 +155,7 @@ $processed_to_save = array();
 $members = array();
 $current_user_info = null;
 foreach ($to_save as $row_to_save) {
-  if ($row_to_save['thread_id'] === $id && $row_to_save['roletype'] !== 0) {
+  if ($row_to_save['thread_id'] === $id && $row_to_save['role'] !== 0) {
     $row_to_save['subscribed'] = true;
     $member = array(
       "id" => (string)$row_to_save['user_id'],
@@ -167,7 +167,7 @@ foreach ($to_save as $row_to_save) {
         ),
         $id
       ),
-      "role" => (string)$row_to_save['roletype'],
+      "role" => (string)$row_to_save['role'],
     );
     array_unshift($members, $member);
     if ($row_to_save['user_id'] === $creator) {
@@ -180,8 +180,8 @@ foreach ($to_save as $row_to_save) {
   }
   $processed_to_save[] = $row_to_save;
 }
-save_user_roles($processed_to_save);
-delete_user_roles($to_delete);
+save_memberships($processed_to_save);
+delete_memberships($to_delete);
 
 async_end(array(
   'success' => true,
@@ -198,8 +198,8 @@ async_end(array(
       : null,
     'members' => $members,
     'roles' => array(
-      $roletypes['members']['id'] => $roletypes['members'],
-      $roletypes['admins']['id'] => $roletypes['admins'],
+      $roles['members']['id'] => $roles['members'],
+      $roles['admins']['id'] => $roles['admins'],
     ),
     'currentUser' => $current_user_info,
   ),

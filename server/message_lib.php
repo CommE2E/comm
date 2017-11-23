@@ -52,7 +52,7 @@ function thread_selection_criteria_to_sql_clause($thread_selection_criteria) {
   }
   $conditions = array();
   if (!empty($thread_selection_criteria['joined_threads'])) {
-    $conditions[] = "r.roletype != 0";
+    $conditions[] = "mm.role != 0";
   }
   if (
     !empty($thread_selection_criteria['thread_ids']) &&
@@ -128,8 +128,8 @@ FROM (
     @thread := m.thread AS thread
   FROM messages m
   LEFT JOIN threads t ON t.id = m.thread
-  LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
-  WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+  LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
+  WHERE (mm.visible = 1 OR t.visibility_rules = {$visibility_open})
     AND {$thread_selection}
   ORDER BY m.thread, m.time DESC
 ) x
@@ -209,9 +209,9 @@ SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
-LEFT JOIN roles r ON r.thread = m.thread AND r.user = {$viewer_id}
+LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
-WHERE (r.visible = 1 OR t.visibility_rules = {$visibility_open})
+WHERE (mm.visible = 1 OR t.visibility_rules = {$visibility_open})
   AND m.time > {$current_as_of}
   AND {$thread_selection}
 ORDER BY m.thread, m.time DESC

@@ -215,10 +215,10 @@ function delete_cookie_from_server($cookie_id) {
   global $conn;
 
   $query = <<<SQL
-DELETE c, i, r
+DELETE c, i, m
 FROM cookies c
 LEFT JOIN ids i ON i.id = c.id
-LEFT JOIN roles r ON r.user = c.id
+LEFT JOIN memberships m ON m.user = c.id
 WHERE c.id = {$cookie_id}
 SQL;
   $conn->query($query);

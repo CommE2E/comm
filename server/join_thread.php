@@ -56,7 +56,7 @@ if ($vis_rules === VISIBILITY_CLOSED || $vis_rules === VISIBILITY_SECRET) {
   }
 }
 
-$join_results = change_roletype($thread, array(get_viewer_id()), null);
+$join_results = change_role($thread, array(get_viewer_id()), null);
 if (!$join_results) {
   async_end(array(
     'error' => 'unknown_error',
@@ -67,8 +67,8 @@ foreach ($join_results['to_save'] as $row_to_save) {
   $row_to_save['subscribed'] = true;
   $to_save[] = $row_to_save;
 }
-save_user_roles($to_save);
-delete_user_roles($join_results['to_delete']);
+save_memberships($to_save);
+delete_memberships($join_results['to_delete']);
 
 $message_info = array(
   'type' => MESSAGE_TYPE_JOIN_THREAD,

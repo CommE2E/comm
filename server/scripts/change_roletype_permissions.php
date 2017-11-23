@@ -6,20 +6,20 @@ require_once('../permissions.php');
 echo "Querying for thread family tree...\n";
 
 $query = <<<SQL
-SELECT rt.id, rt.thread, t.parent_thread_id
-FROM roletypes rt
-LEFT JOIN threads t ON t.id = rt.thread
-WHERE rt.name = 'Admins'
+SELECT r.id, r.thread, t.parent_thread_id
+FROM roles r
+LEFT JOIN threads t ON t.id = r.thread
+WHERE r.name = 'Admins'
 SQL;
 $results = $conn->query($query);
 
 $parents_to_children = array();
 $children_to_parents = array();
-$threads_to_admin_roletype = array();
+$threads_to_admin_role = array();
 while ($row = $results->fetch_assoc()) {
-  $roletype = (int)$row['id'];
+  $role = (int)$row['id'];
   $thread_id = (int)$row['thread'];
-  $threads_to_admin_roletype[$thread_id] = $roletype;
+  $threads_to_admin_role[$thread_id] = $role;
 
   if ($row['parent_thread_id']) {
     $parent_thread_id = (int)$row['parent_thread_id'];
@@ -51,13 +51,13 @@ while ($parents_to_children) {
   $to_save = array();
   $to_delete = array();
   foreach ($current_threads as $thread_id) {
-    $admin_roletype = $threads_to_admin_roletype[$thread_id];
-    $results = edit_roletype_permissions($admin_roletype, $new_permissions);
+    $admin_role = $threads_to_admin_role[$thread_id];
+    $results = edit_role_permissions($admin_role, $new_permissions);
     $to_save = array_merge($to_save, $results['to_save']);
     $to_delete = array_merge($to_delete, $results['to_delete']);
   }
-  save_user_roles($to_save);
-  delete_user_roles($to_delete);
+  save_memberships($to_save);
+  delete_memberships($to_delete);
 
   $parents_to_children = array_filter($parents_to_children);
   foreach ($current_threads as $thread_id) {
