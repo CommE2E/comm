@@ -35,9 +35,9 @@ LEFT JOIN (
       FROM threads
   ) r ON r.thread = t.id
 LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
-LEFT JOIN users u ON u.id = r.user
+LEFT JOIN users u ON u.id = m.user
 {$where_clause}
-ORDER BY r.user ASC
+ORDER BY m.user ASC
 SQL;
   $result = $conn->query($query);
 
