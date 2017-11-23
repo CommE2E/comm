@@ -52,7 +52,7 @@ function get_entry_infos($input) {
     $home = false;
     $thread = intval($input['nav']);
   }
-  $additional_condition = $home ? "m.subscribed = 1" : "d.thread = $thread";
+  $additional_condition = $home ? "m.role != 0" : "d.thread = $thread";
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
