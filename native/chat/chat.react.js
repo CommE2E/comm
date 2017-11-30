@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavigationStateRoute } from 'react-navigation/src/TypeDefinition';
+import type { NavigationStateRoute } from 'react-navigation';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';

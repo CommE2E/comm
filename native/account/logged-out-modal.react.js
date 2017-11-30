@@ -4,7 +4,7 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
   NavigationAction,
-} from 'react-navigation/src/TypeDefinition';
+} from 'react-navigation';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,

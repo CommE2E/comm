@@ -4,7 +4,7 @@ import type {
   NavigationState,
   PossiblyDeprecatedNavigationAction,
   NavigationScreenProp,
-} from 'react-navigation/src/TypeDefinition';
+} from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';

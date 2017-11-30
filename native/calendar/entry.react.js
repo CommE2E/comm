@@ -11,10 +11,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { SaveResult } from 'lib/actions/entry-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type {
-  NavigationParams,
-  NavigationAction,
-} from 'react-navigation/src/TypeDefinition';
+import type { NavigationParams, NavigationAction } from 'react-navigation';
 
 import React from 'react';
 import {

@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavigationParams } from 'react-navigation/src/TypeDefinition';
+import type { NavigationParams } from 'react-navigation';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 

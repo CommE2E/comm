@@ -3,7 +3,7 @@
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,
-} from 'react-navigation/src/TypeDefinition';
+} from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { HandleVerificationCodeResult } from 'lib/actions/user-actions';
 import type {

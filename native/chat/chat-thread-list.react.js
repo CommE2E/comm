@@ -4,10 +4,7 @@ import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChatThreadItem } from '../selectors/chat-selectors';
 import { chatThreadItemPropType } from '../selectors/chat-selectors';
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-} from 'react-navigation/src/TypeDefinition';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';

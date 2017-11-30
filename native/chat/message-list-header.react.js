@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  HeaderProps,
-  NavigationScene,
-} from 'react-navigation/src/TypeDefinition';
+import type { HeaderProps, NavigationScene } from 'react-navigation';
 
 import React from 'react';
 import Header from 'react-navigation/src/views/Header/Header';

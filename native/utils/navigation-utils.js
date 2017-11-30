@@ -5,7 +5,7 @@ import type {
   NavigationStateRoute,
   NavigationRoute,
   NavigationParams,
-} from 'react-navigation/src/TypeDefinition';
+} from 'react-navigation';
 
 import invariant from 'invariant';
 

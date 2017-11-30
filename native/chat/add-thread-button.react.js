@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavigationParams } from 'react-navigation/src/TypeDefinition';
+import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';

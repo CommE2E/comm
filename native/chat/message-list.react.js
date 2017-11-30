@@ -1,10 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-} from 'react-navigation/src/TypeDefinition';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type {

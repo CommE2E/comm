@@ -9,7 +9,7 @@ import type {
   NavigationAction,
   NavigationRouter,
   NavigationRoute,
-} from 'react-navigation/src/TypeDefinition';
+} from 'react-navigation';
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';

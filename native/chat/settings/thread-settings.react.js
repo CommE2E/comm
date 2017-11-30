@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-} from 'react-navigation/src/TypeDefinition';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import {
   threadInfoPropType,

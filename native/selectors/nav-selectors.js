@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { NavigationState } from 'react-navigation/src/TypeDefinition';
+import type { NavigationState } from 'react-navigation';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';

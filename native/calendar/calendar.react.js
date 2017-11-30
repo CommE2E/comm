@@ -10,10 +10,7 @@ import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type { KeyboardEvent } from '../keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-} from 'react-navigation/src/TypeDefinition';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 
 import React from 'react';
 import {
