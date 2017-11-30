@@ -61,7 +61,10 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Button from '../components/button.react';
 import { ChatRouteName } from '../chat/chat.react';
 import { MessageListRouteName } from '../chat/message-list.react';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
+import {
+  assertNavigationRouteNotLeafNode,
+  getThreadIDFromParams,
+} from '../utils/navigation-utils';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
@@ -579,18 +582,10 @@ export default connect(
       assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
     const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
     const currentChatSubroute = chatRoute.routes[chatRoute.index];
-    let currentChatThreadID = null;
-    if (currentChatSubroute.routeName === MessageListRouteName) {
-      invariant(
-        currentChatSubroute.params &&
-          currentChatSubroute.params.threadInfo &&
-          typeof currentChatSubroute.params.threadInfo === "object" &&
-          currentChatSubroute.params.threadInfo.id &&
-          typeof currentChatSubroute.params.threadInfo.id === "string",
-        "all MessageList routes should have a threadInfo param",
-      );
-      currentChatThreadID = currentChatSubroute.params.threadInfo.id;
-    }
+    const currentChatThreadID =
+      currentChatSubroute.routeName === MessageListRouteName
+        ? getThreadIDFromParams(currentChatSubroute)
+        : null;
     return {
       threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
       sessionStartingPayload: sessionStartingPayload(state),

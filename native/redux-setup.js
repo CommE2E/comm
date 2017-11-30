@@ -21,6 +21,7 @@ import { NavigationActions } from 'react-navigation';
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
 import { MessageListRouteName } from './chat/message-list.react';
+import { getThreadIDFromParams } from './utils/navigation-utils';
 
 import {
   handleURLActionType,
@@ -135,14 +136,7 @@ function reducer(state: AppState, action: *) {
     action.type === NavigationActions.NAVIGATE &&
     action.routeName === MessageListRouteName
   ) {
-    invariant(
-      action.params &&
-        action.params.threadInfo &&
-        typeof action.params.threadInfo === "object" &&
-        action.params.threadInfo.id &&
-        typeof action.params.threadInfo.id === "string",
-      "there's no way in react-navigation/Flow to type this",
-    );
+    const threadID = getThreadIDFromParams(action);
     return {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
@@ -155,8 +149,8 @@ function reducer(state: AppState, action: *) {
         messages: state.messageStore.messages,
         threads: {
           ...state.messageStore.threads,
-          [action.params.threadInfo.id]: {
-            ...state.messageStore.threads[action.params.threadInfo.id],
+          [threadID]: {
+            ...state.messageStore.threads[threadID],
             lastNavigatedTo: Date.now(),
           },
         },

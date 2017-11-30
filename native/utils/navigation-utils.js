@@ -4,6 +4,7 @@ import type {
   NavigationLeafRoute,
   NavigationStateRoute,
   NavigationRoute,
+  NavigationParams,
 } from 'react-navigation/src/TypeDefinition';
 
 import invariant from 'invariant';
@@ -65,6 +66,19 @@ function assertNavigationRouteNotLeafNode(
   };
 }
 
+function getThreadIDFromParams(object: { params?: NavigationParams }): string {
+  invariant(
+    object.params &&
+      object.params.threadInfo &&
+      typeof object.params.threadInfo === "object" &&
+      object.params.threadInfo.id &&
+      typeof object.params.threadInfo.id === "string",
+    "there's no way in react-navigation/Flow to type this",
+  );
+  return object.params.threadInfo.id;
+}
+
 export {
   assertNavigationRouteNotLeafNode,
+  getThreadIDFromParams,
 };

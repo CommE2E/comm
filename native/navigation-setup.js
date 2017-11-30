@@ -66,7 +66,10 @@ import {
 import { createIsForegroundSelector } from './selectors/nav-selectors';
 import { MessageListRouteName } from './chat/message-list.react';
 import { ThreadSettingsRouteName } from './chat/settings/thread-settings.react';
-import { assertNavigationRouteNotLeafNode } from './utils/navigation-utils';
+import {
+  assertNavigationRouteNotLeafNode,
+  getThreadIDFromParams,
+} from './utils/navigation-utils';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -494,12 +497,8 @@ function popChatScreensForThreadID(
       ) {
         return "break";
       }
-      const params = route.params;
-      invariant(
-        params && params.threadInfo && typeof params.threadInfo.id === "string",
-        "params should have ThreadInfo",
-      );
-      if (params.threadInfo.id !== actionPayload.threadID) {
+      const threadID = getThreadIDFromParams(route);
+      if (threadID !== actionPayload.threadID) {
         return "break";
       }
       return "remove";
@@ -532,12 +531,8 @@ function filterChatScreensForThreadInfos(
       ) {
         return "keep";
       }
-      const params = route.params;
-      invariant(
-        params && params.threadInfo && typeof params.threadInfo.id === "string",
-        "params should have ThreadInfo",
-      );
-      if (params.threadInfo.id in threadInfos) {
+      const threadID = getThreadIDFromParams(route);
+      if (threadID in threadInfos) {
         return "keep";
       }
       return "remove";
