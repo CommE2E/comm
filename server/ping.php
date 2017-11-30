@@ -54,7 +54,9 @@ if (!$result) {
     'error' => 'internal_error',
   ));
 }
-list($message_infos, $truncation_status, $message_users) = $result;
+$message_infos = $result['message_infos'];
+$truncation_statuses = $result['truncation_statuses'];
+$message_users = $result['user_infos'];
 
 list($thread_infos, $thread_users) = get_thread_infos();
 
@@ -63,7 +65,7 @@ $return = array(
   'current_user_info' => $user_info,
   'thread_infos' => $thread_infos,
   'message_infos' => $message_infos,
-  'truncation_status' => $truncation_status,
+  'truncation_status' => $truncation_statuses,
 );
 
 if (isset($_POST['last_ping'])) {

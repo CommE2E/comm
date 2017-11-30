@@ -63,7 +63,9 @@ if (!$message_result) {
     'error' => 'internal_error',
   ));
 }
-list($message_infos, $truncation_status, $message_users) = $message_result;
+$message_infos = $message_result['message_infos'];
+$truncation_statuses = $message_result['truncation_statuses'];
+$message_users = $message_result['user_infos'];
 
 $return = array(
   'success' => true,
@@ -74,7 +76,7 @@ $return = array(
     'email_verified' => (bool)$user_row['email_verified'],
   ),
   'message_infos' => $message_infos,
-  'truncation_status' => $truncation_status,
+  'truncation_status' => $truncation_statuses,
   'server_time' => $current_as_of,
 );
 

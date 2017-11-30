@@ -20,11 +20,13 @@ if (!$message_result) {
     'error' => 'internal_error',
   ));
 }
-list($message_infos, $truncation_status, $users) = $message_result;
+$message_infos = $message_result['message_infos'];
+$truncation_statuses = $message_result['truncation_statuses'];
+$users = $message_result['user_infos'];
 
 async_end(array(
   'success' => true,
   'message_infos' => $message_infos,
-  'truncation_status' => $truncation_status,
+  'truncation_status' => $truncation_statuses,
   'user_infos' => array_values($users),
 ));

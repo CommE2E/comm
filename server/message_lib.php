@@ -170,7 +170,11 @@ SQL;
 
   $all_users = get_all_users($messages, $users);
 
-  return array($messages, $truncation_status, $all_users);
+  return array(
+    "message_infos" => $messages,
+    "truncation_statuses" => $truncation_status,
+    "user_infos" => $all_users,
+  );
 }
 
 // In contrast with the above function, which is used at the start of a session,
@@ -251,7 +255,11 @@ SQL;
 
   $all_users = get_all_users($messages, $users);
 
-  return array($messages, $truncation_status, $all_users);
+  return array(
+    "message_infos" => $messages,
+    "truncation_statuses" => $truncation_status,
+    "user_infos" => $all_users,
+  );
 }
 
 function message_from_row($row) {

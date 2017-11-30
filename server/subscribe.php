@@ -20,7 +20,7 @@ $new_subscribed = $_POST['subscribe'] ? 1 : 0;
 $viewer_id = get_viewer_id();
 
 $message_infos = array();
-$truncation_status = array();
+$truncation_statuses = array();
 $message_users = array();
 if (viewer_is_member($thread)) {
   $query = <<<SQL
@@ -69,7 +69,9 @@ SQL;
       'error' => 'internal_error',
     ));
   }
-  list($message_infos, $truncation_status, $message_users) = $message_result;
+  $message_infos = $message_result['message_infos'];
+  $truncation_statuses = $message_result['truncation_statuses'];
+  $message_users = $message_result['user_infos'];
 }
 
 list($thread_infos, $thread_users) = get_thread_infos();
@@ -83,6 +85,6 @@ async_end(array(
   'success' => true,
   'thread_infos' => $thread_infos,
   'message_infos' => $message_infos,
-  'truncation_status' => $truncation_status,
+  'truncation_status' => $truncation_statuses,
   'user_infos' => $user_infos,
 ));
