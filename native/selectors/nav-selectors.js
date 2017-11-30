@@ -10,6 +10,9 @@ import { AppRouteName } from '../navigation-setup';
 import { ChatRouteName } from '../chat/chat.react';
 import { MessageListRouteName } from '../chat/message-list.react';
 import {
+  ThreadSettingsRouteName,
+} from '../chat/settings/thread-settings.react';
+import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
@@ -46,7 +49,10 @@ const activeThreadSelector = createSelector(
     }
     const chatRoute = assertNavigationRouteNotLeafNode(innerInnerState);
     const innerInnerInnerState = chatRoute.routes[chatRoute.index];
-    if (innerInnerInnerState.routeName !== MessageListRouteName) {
+    if (
+      innerInnerInnerState.routeName !== MessageListRouteName &&
+      innerInnerInnerState.routeName !== ThreadSettingsRouteName
+    ) {
       return null;
     }
     return getThreadIDFromParams(innerInnerInnerState);

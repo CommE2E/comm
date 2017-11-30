@@ -38,12 +38,17 @@ import {
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
+import {
+  updateFocusedThreadsActionTypes,
+  updateFocusedThreads,
+} from 'lib/actions/thread-actions';
 
 import { handleURLActionType, RootNavigator } from './navigation-setup';
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
 import ConnectedStatusBar from './connected-status-bar.react';
+import { activeThreadSelector } from './selectors/nav-selectors';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -86,6 +91,7 @@ type Props = {
   navigationState: NavigationState,
   pingStartingPayload: () => PingStartingPayload,
   currentAsOf: number,
+  activeThread: ?string,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -93,6 +99,8 @@ type Props = {
   // async functions that hit server APIs
   ping:
     (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
+  updateFocusedThreads:
+    (focusedThreads: $ReadOnlyArray<string>) => Promise<void>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 
@@ -101,10 +109,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     navigationState: PropTypes.object.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
     currentAsOf: PropTypes.number.isRequired,
+    activeThread: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
+    updateFocusedThreads: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
   activePingSubscription: ?number = null;
@@ -114,12 +124,29 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.handleInitialURL().then();
     Linking.addEventListener('url', this.handleURLChange);
     this.activePingSubscription = setInterval(this.ping, pingFrequency);
+    this.updateFocusedThreads(this.props.activeThread);
   }
 
   async handleInitialURL() {
     const url = await Linking.getInitialURL();
     if (url) {
       this.dispatchActionForURL(url);
+    }
+  }
+
+  componentWillUnmount() {
+    NativeAppState.removeEventListener('change', this.handleAppStateChange);
+    Linking.removeEventListener('url', this.handleURLChange);
+    if (this.activePingSubscription) {
+      clearInterval(this.activePingSubscription);
+      this.activePingSubscription = null;
+    }
+    this.updateFocusedThreads(null);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.activeThread !== this.props.activeThread) {
+      this.updateFocusedThreads(nextProps.activeThread);
     }
   }
 
@@ -132,15 +159,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return;
     }
     this.props.dispatchActionPayload(handleURLActionType, url);
-  }
-
-  componentWillUnmount() {
-    NativeAppState.removeEventListener('change', this.handleAppStateChange);
-    Linking.removeEventListener('url', this.handleURLChange);
-    if (this.activePingSubscription) {
-      clearInterval(this.activePingSubscription);
-      this.activePingSubscription = null;
-    }
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
@@ -198,6 +216,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     };
   }
 
+  updateFocusedThreads(activeThread: ?string) {
+    const focusedThreads = activeThread ? [ activeThread ] : [];
+    this.props.dispatchActionPromise(
+      updateFocusedThreadsActionTypes,
+      this.props.updateFocusedThreads(focusedThreads),
+    );
+  }
+
   render() {
     const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
@@ -225,9 +251,10 @@ const ConnectedAppWithNavigationState = connect(
     navigationState: state.navInfo.navigationState,
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.currentAsOf,
+    activeThread: activeThreadSelector(state),
   }),
   includeDispatchActionProps,
-  bindServerCalls({ ping }),
+  bindServerCalls({ ping, updateFocusedThreads }),
 )(AppWithNavigationState);
 
 const App = (props: {}) =>
