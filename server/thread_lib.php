@@ -135,11 +135,54 @@ SQL;
   return array($final_thread_infos, $user_infos);
 }
 
-function verify_thread_id($thread) {
+function verify_thread_ids($thread_ids) {
   global $conn;
 
-  $thread = (int)$thread;
-  $result = $conn->query("SELECT id FROM threads WHERE id = {$thread}");
-  $row = $result->fetch_assoc();
-  return !!$row;
+  $int_thread_ids = array_map('intval', $thread_ids);
+  $thread_ids_string = implode(", ", $int_thread_ids);
+
+  $query = <<<SQL
+SELECT id FROM threads WHERE id IN ({$thread_ids_string})
+SQL;
+  $result = $conn->query($query);
+  $verified_thread_ids = array();
+  while ($row = $result->fetch_assoc()) {
+    $verified_thread_ids[] = (int)$row['id'];
+  }
+  return $verified_thread_ids;
+}
+
+function verify_thread_id($thread_id) {
+  return !!verify_thread_ids(array($thread_id));
+}
+
+function update_focused_threads($thread_ids) {
+  global $conn;
+
+  list($viewer_id, $is_user, $cookie_id) = get_viewer_info();
+  if (!$is_user) {
+    return false;
+  }
+
+  $query = <<<SQL
+DELETE FROM focused WHERE user = {$viewer_id} AND cookie = {$cookie_id}
+SQL;
+  $conn->query($query);
+
+  $time = round(microtime(true) * 1000); // in milliseconds
+  $values_sql_strings = array();
+  foreach ($thread_ids as $thread_id) {
+    $values_sql_strings[] = "(" . implode(
+      ", ",
+      array($viewer_id, $cookie_id, $thread_id, $time)
+    ) . ")";
+  }
+  $values_sql_string = implode(", ", $values_sql_strings);
+
+  $query = <<<SQL
+INSERT INTO focused (user, cookie, thread, time) VALUES {$values_sql_string}
+SQL;
+  $conn->query($query);
+
+  return true;
 }
