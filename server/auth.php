@@ -10,7 +10,7 @@ define("ROLE_CREATOR", 50);
 
 // Returns either a user ID or a cookie ID (for anonymous)
 function get_viewer_id() {
-  list($id, $is_user) = get_viewer_info();
+  list($id) = get_viewer_info();
   return $id;
 }
 
@@ -59,7 +59,7 @@ function cookie_has_changed() {
   if ($original_viewer_info === null && $current_viewer_info === null) {
     return false;
   }
-  return $original_viewer_info[2] !== $current_viewer_info[2];
+  return $original_viewer_info[3] !== $current_viewer_info[3];
 }
 
 function get_input_user_cookie() {
@@ -136,6 +136,7 @@ function init_cookie() {
   $current_viewer_info = array(
     (int)$cookie_row['user'],
     true,
+    $cookie_id,
     "user=$cookie_id:$cookie_password",
   );
 }
@@ -167,6 +168,7 @@ function init_anonymous_cookie($initial_run = false) {
   $current_viewer_info = array(
     (int)$cookie_id,
     false,
+    $cookie_id,
     "anonymous=$cookie_id:$cookie_password",
   );
   if (!$initial_run) {
@@ -193,6 +195,7 @@ function create_user_cookie($user_id) {
   $current_viewer_info = array(
     $user_id,
     true,
+    $cookie_id,
     "user=$cookie_id:$cookie_password",
   );
 

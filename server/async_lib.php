@@ -42,7 +42,7 @@ function async_end($payload) {
     $viewer_info = get_viewer_info();
     // Only include in the raw response since on web we want it to be httponly
     if (isset($_POST['cookie'])) {
-      $payload['cookie_change']['cookie'] = $viewer_info[2];
+      $payload['cookie_change']['cookie'] = $viewer_info[3];
     }
     if ($cookie_invalidated) {
       $payload['cookie_change']['current_user_info'] = array(
