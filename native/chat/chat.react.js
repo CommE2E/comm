@@ -35,10 +35,10 @@ const Chat = StackNavigator(
           style={[styles.icon, { color: tintColor }]}
         />
       ),
-      tabBarOnPress: (
+      tabBarOnPress: ({ scene, jumpToIndex}: {
         scene: { index: number, focused: bool, route: NavigationStateRoute },
         jumpToIndex: (index: number) => void,
-      ) => {
+      }) => {
         if (!scene.focused) {
           jumpToIndex(scene.index);
           return;

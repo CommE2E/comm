@@ -157,10 +157,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         style={[styles.icon, { color: tintColor }]}
       />
     ),
-    tabBarOnPress: (
+    tabBarOnPress: ({ scene, jumpToIndex}: {
       scene: { index: number, focused: bool },
       jumpToIndex: (index: number) => void,
-    ) => {
+    }) => {
       if (scene.focused && currentCalendarRef) {
         currentCalendarRef.scrollToToday();
       } else {
