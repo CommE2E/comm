@@ -43,12 +43,19 @@ import {
   updateFocusedThreads,
 } from 'lib/actions/thread-actions';
 
-import { handleURLActionType, RootNavigator } from './navigation-setup';
+import {
+  handleURLActionType,
+  RootNavigator,
+  AppRouteName,
+} from './navigation-setup';
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
 import ConnectedStatusBar from './connected-status-bar.react';
-import { activeThreadSelector } from './selectors/nav-selectors';
+import {
+  activeThreadSelector,
+  createIsForegroundSelector,
+} from './selectors/nav-selectors';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -92,6 +99,7 @@ type Props = {
   pingStartingPayload: () => PingStartingPayload,
   currentAsOf: number,
   activeThread: ?string,
+  appLoggedIn: bool,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -110,6 +118,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     pingStartingPayload: PropTypes.func.isRequired,
     currentAsOf: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
+    appLoggedIn: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -124,7 +133,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.handleInitialURL().then();
     Linking.addEventListener('url', this.handleURLChange);
     this.activePingSubscription = setInterval(this.ping, pingFrequency);
-    this.updateFocusedThreads(this.props.activeThread);
+    if (this.props.appLoggedIn) {
+      this.updateFocusedThreads(this.props.activeThread);
+    }
   }
 
   async handleInitialURL() {
@@ -141,12 +152,23 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
     }
-    this.updateFocusedThreads(null);
+    if (this.props.appLoggedIn) {
+      this.updateFocusedThreads(null);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.activeThread !== this.props.activeThread) {
+    if (
+      nextProps.appLoggedIn &&
+      nextProps.activeThread !== this.props.activeThread
+    ) {
       this.updateFocusedThreads(nextProps.activeThread);
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.appLoggedIn && !prevProps.appLoggedIn) {
+      this.updateFocusedThreads(this.props.activeThread);
     }
   }
 
@@ -185,8 +207,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
     if (
-      (startingPayload.loggedIn ||
-        (this.props.cookie && this.props.cookie.startsWith("user=")))
+      startingPayload.loggedIn ||
+      (this.props.cookie && this.props.cookie.startsWith("user="))
     ) {
       this.props.dispatchActionPromise(
         pingActionTypes,
@@ -245,6 +267,7 @@ const styles = StyleSheet.create({
   },
 });
 
+const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     cookie: state.cookie,
@@ -252,6 +275,7 @@ const ConnectedAppWithNavigationState = connect(
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.currentAsOf,
     activeThread: activeThreadSelector(state),
+    appLoggedIn: isForegroundSelector(state),
   }),
   includeDispatchActionProps,
   bindServerCalls({ ping, updateFocusedThreads }),
