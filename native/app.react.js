@@ -133,9 +133,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.handleInitialURL().then();
     Linking.addEventListener('url', this.handleURLChange);
     this.activePingSubscription = setInterval(this.ping, pingFrequency);
-    if (this.props.appLoggedIn) {
-      this.updateFocusedThreads(this.props.activeThread);
-    }
+    AppWithNavigationState.updateFocusedThreads(
+      this.props,
+      this.props.activeThread,
+    );
   }
 
   async handleInitialURL() {
@@ -152,23 +153,18 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
     }
-    if (this.props.appLoggedIn) {
-      this.updateFocusedThreads(null);
-    }
+    AppWithNavigationState.updateFocusedThreads(this.props, null);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (
-      nextProps.appLoggedIn &&
+      !this.props.appLoggedIn ||
       nextProps.activeThread !== this.props.activeThread
     ) {
-      this.updateFocusedThreads(nextProps.activeThread);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.appLoggedIn && !prevProps.appLoggedIn) {
-      this.updateFocusedThreads(this.props.activeThread);
+      AppWithNavigationState.updateFocusedThreads(
+        nextProps,
+        nextProps.activeThread,
+      );
     }
   }
 
@@ -238,11 +234,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     };
   }
 
-  updateFocusedThreads(activeThread: ?string) {
+  static updateFocusedThreads(props: Props, activeThread: ?string) {
+    if (!props.appLoggedIn) {
+      return;
+    }
     const focusedThreads = activeThread ? [ activeThread ] : [];
-    this.props.dispatchActionPromise(
+    props.dispatchActionPromise(
       updateFocusedThreadsActionTypes,
-      this.props.updateFocusedThreads(focusedThreads),
+      props.updateFocusedThreads(focusedThreads),
     );
   }
 
