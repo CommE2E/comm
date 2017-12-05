@@ -5,6 +5,7 @@ import type { NavigationState } from 'react-navigation';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
+import _memoize from 'lodash/memoize';
 
 import { AppRouteName } from '../navigation-setup';
 import { ChatRouteName } from '../chat/chat.react';
@@ -17,13 +18,14 @@ import {
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
 
-const createIsForegroundSelector = (routeName: string) => createSelector(
+const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) =>
     navigationState.routes[navigationState.index].routeName === routeName,
 );
+const createIsForegroundSelector = _memoize(baseCreateIsForegroundSelector);
 
-const createActiveTabSelector = (routeName: string) => createSelector(
+const baseCreateActiveTabSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const innerState = navigationState.routes[navigationState.index];
@@ -34,6 +36,7 @@ const createActiveTabSelector = (routeName: string) => createSelector(
     return appRoute.routes[appRoute.index].routeName === routeName;
   },
 );
+const createActiveTabSelector = _memoize(baseCreateActiveTabSelector);
 
 const activeThreadSelector = createSelector(
   (state: AppState) => state.navInfo.navigationState,
