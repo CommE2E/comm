@@ -186,3 +186,19 @@ SQL;
 
   return true;
 }
+
+function update_focused_thread_time($time) {
+  global $conn;
+
+  list($viewer_id, $is_user, $cookie_id) = get_viewer_info();
+  if (!$is_user) {
+    return;
+  }
+
+  $query = <<<SQL
+UPDATE focused
+SET time = {$time}
+WHERE user = {$viewer_id} AND cookie = {$cookie_id}
+SQL;
+  $conn->query($query);
+}

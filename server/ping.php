@@ -60,6 +60,8 @@ $message_users = $result['user_infos'];
 
 list($thread_infos, $thread_users) = get_thread_infos();
 
+update_focused_thread_time($current_as_of);
+
 $return = array(
   'success' => true,
   'current_user_info' => $user_info,
