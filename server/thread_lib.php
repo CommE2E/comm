@@ -12,6 +12,8 @@ define("VISIBILITY_THREAD_SECRET", 4);
 define("EDIT_ANYBODY", 0);
 define("EDIT_LOGGED_IN", 1);
 
+define("PING_INTERVAL", 3000); // in milliseconds
+
 function vis_rules_are_open($vis_rules) {
   return $vis_rules === VISIBILITY_OPEN || $vis_rules === VISIBILITY_NESTED_OPEN;
 }
@@ -170,33 +172,111 @@ SQL;
   $conn->query($query);
 
   $unverified_thread_ids = array();
+  $focus_commands_by_thread_id = array();
   foreach ($focus_commands as $focus_command) {
-    if ($focus_command['focus'] !== "true") {
-      continue;
-    }
     $thread_id = (int)$focus_command['threadID'];
     $unverified_thread_ids[$thread_id] = $thread_id;
+    $focus_commands_by_thread_id[$thread_id] = $focus_command;
   }
-  $thread_ids = verify_thread_ids($unverified_thread_ids);
+  $verified_thread_ids = verify_thread_ids($unverified_thread_ids);
 
-  $time = round(microtime(true) * 1000); // in milliseconds
-  $values_sql_strings = array();
-  foreach ($thread_ids as $thread_id) {
-    $values_sql_strings[] = "(" . implode(
-      ", ",
-      array($viewer_id, $cookie_id, $thread_id, $time)
-    ) . ")";
+  $focused_thread_ids = array();
+  $unfocused_thread_ids = array();
+  $unfocused_thread_latest_messages = array();
+  foreach ($verified_thread_ids as $verified_thread_id) {
+    $focus_command = $focus_commands_by_thread_id[$verified_thread_id];
+    if ($focus_command['focus'] === "true") {
+      $focused_thread_ids[] = $verified_thread_id;
+    } else if ($focus_command['focus'] === "false") {
+      $unfocused_thread_ids[] = $verified_thread_id;
+      $unfocused_thread_latest_messages[$verified_thread_id] =
+        (int)$focus_command['latestMessage'];
+    }
   }
 
-  if ($values_sql_strings) {
+  if ($focused_thread_ids) {
+    $time = round(microtime(true) * 1000); // in milliseconds
+    $values_sql_strings = array();
+    foreach ($focused_thread_ids as $thread_id) {
+      $values_sql_strings[] = "(" . implode(
+        ", ",
+        array($viewer_id, $cookie_id, $thread_id, $time)
+      ) . ")";
+    }
+
     $values_sql_string = implode(", ", $values_sql_strings);
     $query = <<<SQL
 INSERT INTO focused (user, cookie, thread, time) VALUES {$values_sql_string}
 SQL;
     $conn->query($query);
+
+    $thread_ids_sql_string = implode(", ", $focused_thread_ids);
+    $query = <<<SQL
+UPDATE memberships
+SET unread = 0
+WHERE thread IN ({$thread_ids_sql_string}) AND user = {$viewer_id}
+SQL;
+    $conn->query($query);
   }
 
+  // To protect against a possible race condition, we reset the thread to unread
+  // if the latest message ID on the client at the time that focus was dropped
+  // is no longer the latest message ID
+  possibly_reset_thread_to_unread(
+    $unfocused_thread_ids,
+    $unfocused_thread_latest_messages
+  );
+
   return true;
+}
+
+function possibly_reset_thread_to_unread(
+  $unfocused_thread_ids,
+  $unfocused_thread_latest_messages
+) {
+  global $conn;
+
+  if (!$unfocused_thread_ids) {
+    return;
+  }
+
+  $focused_elsewhere = check_threads_focused($unfocused_thread_ids);
+  $unread_candidates =
+    array_values(array_diff($unfocused_thread_ids, $focused_elsewhere));
+  if (!$unread_candidates) {
+    return;
+  }
+
+  $thread_ids_sql_string = implode(", ", $unread_candidates);
+  $query = <<<SQL
+SELECT thread, MAX(id) AS latest_message
+FROM messages
+WHERE thread IN ({$thread_ids_sql_string})
+GROUP BY thread
+SQL;
+  $result = $conn->query($query);
+
+  $to_reset = array();
+  while ($row = $result->fetch_assoc()) {
+    $thread_id = (int)$row['thread'];
+    $server_latest_message = (int)$row['latest_message'];
+    $client_latest_message = $unfocused_thread_latest_messages[$thread_id];
+    if ($client_latest_message !== $server_latest_message) {
+      $to_reset[] = $thread_id;
+    }
+  }
+  if (!$to_reset) {
+    return;
+  }
+
+  $thread_ids_sql_string = implode(", ", $to_reset);
+  $viewer_id = get_viewer_id();
+  $query = <<<SQL
+UPDATE memberships
+SET unread = 1
+WHERE thread IN ({$thread_ids_sql_string}) AND user = {$viewer_id}
+SQL;
+  $conn->query($query);
 }
 
 function update_focused_thread_time($time) {
@@ -213,4 +293,32 @@ SET time = {$time}
 WHERE user = {$viewer_id} AND cookie = {$cookie_id}
 SQL;
   $conn->query($query);
+}
+
+// does not verify $thread_ids!
+function check_threads_focused($thread_ids) {
+  global $conn;
+
+  list($viewer_id, $is_user) = get_viewer_info();
+  if (!$is_user) {
+    return array();
+  }
+
+  $thread_ids_sql_string = implode(", ", $thread_ids);
+  $time = round(microtime(true) * 1000) - PING_INTERVAL; // in milliseconds
+  $query = <<<SQL
+SELECT thread
+FROM focused
+WHERE user = {$viewer_id}
+  AND thread IN ({$thread_ids_sql_string})
+  AND time > {$time}
+SQL;
+  $result = $conn->query($query);
+
+  $focused_thread_ids = array();
+  while ($row = $result->fetch_assoc()) {
+    $thread_id = (int)$row['thread'];
+    $focused_thread_ids[$thread_id] = $thread_id;
+  }
+  return array_values($focused_thread_ids);
 }
