@@ -155,6 +155,13 @@ $processed_to_save = array();
 $members = array();
 $current_user_info = null;
 foreach ($to_save as $row_to_save) {
+  if (
+    $row_to_save['role'] !== 0 &&
+    ($row_to_save['user_id'] !== $creator ||
+      $row_to_save['thread_id'] !== $id)
+  ) {
+    $row_to_save['unread'] = true;
+  }
   if ($row_to_save['thread_id'] === $id && $row_to_save['role'] !== 0) {
     $row_to_save['subscribed'] = true;
     $member = array(

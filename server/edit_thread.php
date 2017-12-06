@@ -271,6 +271,9 @@ if ($add_member_ids) {
     ));
   }
   foreach ($role_results['to_save'] as $row_to_save) {
+    if ($row_to_save['role'] !== 0) {
+      $row_to_save['unread'] = true;
+    }
     if ($row_to_save['thread_id'] === $thread) {
       $row_to_save['subscribed'] = true;
     }

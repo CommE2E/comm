@@ -297,6 +297,7 @@ function permissions_for_children($permissions) {
 //     ?array<permission: string, array(value => bool, source => int)>
 //   role: int,
 //   subscribed?: bool,
+//   unread?: bool,
 // )>
 function save_memberships($to_save) {
   global $conn;
@@ -325,6 +326,9 @@ function save_memberships($to_save) {
     $subscribed = isset($role_info['subscribed'])
       ? ($role_info['subscribed'] ? "1" : "0")
       : "0";
+    $unread = isset($role_info['unread'])
+      ? ($role_info['unread'] ? "1" : "0")
+      : "0";
 
     $new_row_sql_strings[] = "(" . implode(", ", array(
       $role_info['user_id'],
@@ -335,6 +339,7 @@ function save_memberships($to_save) {
       $permissions,
       $permissions_for_children,
       $visible,
+      $unread,
     )) . ")";
   }
   $new_rows_sql_string = implode(", ", $new_row_sql_strings);
@@ -344,7 +349,7 @@ function save_memberships($to_save) {
   // joining means you subscribe and leaving means you unsubscribe.
   $query = <<<SQL
 INSERT INTO memberships (user, thread, role, creation_time, subscribed,
-  permissions, permissions_for_children, visible)
+  permissions, permissions_for_children, visible, unread)
 VALUES {$new_rows_sql_string}
 ON DUPLICATE KEY UPDATE
   subscribed = IF(
