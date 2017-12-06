@@ -5,11 +5,10 @@ require_once('thread_lib.php');
 
 async_start();
 
-$thread_ids = isset($_POST['focused_threads'])
-  ? verify_thread_ids($_POST['focused_threads'])
+$focus_commands = isset($_POST['focus_commands'])
+  ? $_POST['focus_commands']
   : array();
-
-$result = update_focused_threads($thread_ids);
+$result = update_focused_threads($focus_commands);
 if (!$result) {
   async_end(array(
     'error' => 'invalid_credentials',

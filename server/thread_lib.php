@@ -156,7 +156,7 @@ function verify_thread_id($thread_id) {
   return !!verify_thread_ids(array($thread_id));
 }
 
-function update_focused_threads($thread_ids) {
+function update_focused_threads($focus_commands) {
   global $conn;
 
   list($viewer_id, $is_user, $cookie_id) = get_viewer_info();
@@ -169,6 +169,16 @@ DELETE FROM focused WHERE user = {$viewer_id} AND cookie = {$cookie_id}
 SQL;
   $conn->query($query);
 
+  $unverified_thread_ids = array();
+  foreach ($focus_commands as $focus_command) {
+    if ($focus_command['focus'] !== "true") {
+      continue;
+    }
+    $thread_id = (int)$focus_command['threadID'];
+    $unverified_thread_ids[$thread_id] = $thread_id;
+  }
+  $thread_ids = verify_thread_ids($unverified_thread_ids);
+
   $time = round(microtime(true) * 1000); // in milliseconds
   $values_sql_strings = array();
   foreach ($thread_ids as $thread_id) {
@@ -177,12 +187,14 @@ SQL;
       array($viewer_id, $cookie_id, $thread_id, $time)
     ) . ")";
   }
-  $values_sql_string = implode(", ", $values_sql_strings);
 
-  $query = <<<SQL
+  if ($values_sql_strings) {
+    $values_sql_string = implode(", ", $values_sql_strings);
+    $query = <<<SQL
 INSERT INTO focused (user, cookie, thread, time) VALUES {$values_sql_string}
 SQL;
-  $conn->query($query);
+    $conn->query($query);
+  }
 
   return true;
 }

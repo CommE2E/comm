@@ -14,6 +14,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { FocusCommand } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -100,6 +101,7 @@ type Props = {
   currentAsOf: number,
   activeThread: ?string,
   appLoggedIn: bool,
+  activeThreadLatestMessage: ?string,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -108,7 +110,7 @@ type Props = {
   ping:
     (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
   updateFocusedThreads:
-    (focusedThreads: $ReadOnlyArray<string>) => Promise<void>,
+    (focusCommands: $ReadOnlyArray<FocusCommand>) => Promise<void>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 
@@ -119,6 +121,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     currentAsOf: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
+    activeThreadLatestMessage: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -136,6 +139,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     AppWithNavigationState.updateFocusedThreads(
       this.props,
       this.props.activeThread,
+      null,
+      null,
     );
   }
 
@@ -153,7 +158,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
     }
-    AppWithNavigationState.updateFocusedThreads(this.props, null);
+    AppWithNavigationState.updateFocusedThreads(
+      this.props,
+      null,
+      this.props.activeThread,
+      this.props.activeThreadLatestMessage,
+    );
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -164,6 +174,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       AppWithNavigationState.updateFocusedThreads(
         nextProps,
         nextProps.activeThread,
+        this.props.activeThread,
+        this.props.activeThreadLatestMessage,
       );
     }
   }
@@ -234,14 +246,32 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     };
   }
 
-  static updateFocusedThreads(props: Props, activeThread: ?string) {
+  static updateFocusedThreads(
+    props: Props,
+    activeThread: ?string,
+    oldActiveThread: ?string,
+    oldActiveThreadLatestMessage: ?string,
+  ) {
     if (!props.appLoggedIn) {
       return;
     }
-    const focusedThreads = activeThread ? [ activeThread ] : [];
+    const commands = [];
+    if (activeThread) {
+      commands.push({
+        focus: true,
+        threadID: activeThread,
+      });
+    }
+    if (oldActiveThread && oldActiveThread !== activeThread) {
+      commands.push({
+        focus: false,
+        threadID: oldActiveThread,
+        latestMessage: oldActiveThreadLatestMessage,
+      });
+    }
     props.dispatchActionPromise(
       updateFocusedThreadsActionTypes,
-      props.updateFocusedThreads(focusedThreads),
+      props.updateFocusedThreads(commands),
     );
   }
 
@@ -268,14 +298,20 @@ const styles = StyleSheet.create({
 
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ConnectedAppWithNavigationState = connect(
-  (state: AppState) => ({
-    cookie: state.cookie,
-    navigationState: state.navInfo.navigationState,
-    pingStartingPayload: pingNativeStartingPayload(state),
-    currentAsOf: state.currentAsOf,
-    activeThread: activeThreadSelector(state),
-    appLoggedIn: isForegroundSelector(state),
-  }),
+  (state: AppState) => {
+    const activeThread = activeThreadSelector(state);
+    return {
+      cookie: state.cookie,
+      navigationState: state.navInfo.navigationState,
+      pingStartingPayload: pingNativeStartingPayload(state),
+      currentAsOf: state.currentAsOf,
+      activeThread,
+      appLoggedIn: isForegroundSelector(state),
+      activeThreadLatestMessage: activeThread
+        ? state.messageStore.threads[activeThread].messageIDs[0]
+        : null,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ ping, updateFocusedThreads }),
 )(AppWithNavigationState);
