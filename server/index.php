@@ -35,7 +35,7 @@ $thread_rewrite_matched = preg_match(
 $home_rewrite_matched = preg_match('#/home(/|$)#i', $_SERVER['REQUEST_URI']);
 if (!$home_rewrite_matched && $thread_rewrite_matched) {
   $home = false;
-  $thread = (int)$thread_matches[1];;
+  $thread = (int)$thread_matches[1];
 } else {
   $home = true;
   $thread = null;

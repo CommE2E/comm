@@ -140,6 +140,10 @@ SQL;
 function verify_thread_ids($thread_ids) {
   global $conn;
 
+  if (!$thread_ids) {
+    return array();
+  }
+
   $int_thread_ids = array_map('intval', $thread_ids);
   $thread_ids_string = implode(", ", $int_thread_ids);
 
