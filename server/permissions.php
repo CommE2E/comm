@@ -320,9 +320,6 @@ function save_memberships($to_save) {
           $role_info['permissions_for_children']
         )) . "'";
     }
-    $visible = isset($role_info['permissions'][PERMISSION_VISIBLE]['value'])
-      ? ($role_info['permissions'][PERMISSION_VISIBLE]['value'] ? "1" : "0")
-      : "0";
     $subscribed = isset($role_info['subscribed'])
       ? ($role_info['subscribed'] ? "1" : "0")
       : "0";
@@ -338,7 +335,6 @@ function save_memberships($to_save) {
       $subscribed,
       $permissions,
       $permissions_for_children,
-      $visible,
       $unread,
     )) . ")";
   }
@@ -349,7 +345,7 @@ function save_memberships($to_save) {
   // joining means you subscribe and leaving means you unsubscribe.
   $query = <<<SQL
 INSERT INTO memberships (user, thread, role, creation_time, subscribed,
-  permissions, permissions_for_children, visible, unread)
+  permissions, permissions_for_children, unread)
 VALUES {$new_rows_sql_string}
 ON DUPLICATE KEY UPDATE
   subscribed = IF(
@@ -360,8 +356,7 @@ ON DUPLICATE KEY UPDATE
   ),
   role = VALUES(role),
   permissions = VALUES(permissions),
-  permissions_for_children = VALUES(permissions_for_children),
-  visible = VALUES(visible)
+  permissions_for_children = VALUES(permissions_for_children)
 SQL;
   $conn->query($query);
 }

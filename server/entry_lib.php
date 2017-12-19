@@ -3,6 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
+require_once('permissions.php');
 
 // Doesn't verify $input['nav'] is actually a thread, if not "home"
 // Use verify_entry_info_query
@@ -57,6 +58,7 @@ function get_entry_infos($input) {
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $select_query = <<<SQL
 SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
   e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
@@ -66,7 +68,11 @@ LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread
 LEFT JOIN memberships m ON m.thread = d.thread AND m.user = {$viewer_id}
 LEFT JOIN users u ON u.id = e.creator
-WHERE (m.visible = 1 OR t.visibility_rules = {$visibility_open})
+WHERE
+  (
+    JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
+    OR t.visibility_rules = {$visibility_open}
+  )
   AND d.date BETWEEN '{$start_date}' AND '{$end_date}'
   AND {$additional_condition} {$deleted_condition}
 ORDER BY e.creation_time DESC

@@ -117,6 +117,7 @@ function get_message_infos($thread_selection_criteria, $number_per_thread) {
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $int_number_per_thread = (int)$number_per_thread;
   $query = <<<SQL
 SET @num := 0, @thread := '';
@@ -129,7 +130,11 @@ FROM (
   FROM messages m
   LEFT JOIN threads t ON t.id = m.thread
   LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
-  WHERE (mm.visible = 1 OR t.visibility_rules = {$visibility_open})
+  WHERE
+    (
+      JSON_EXTRACT(mm.permissions, '{$vis_permission_extract_string}') IS TRUE
+      OR t.visibility_rules = {$visibility_open}
+    )
     AND {$thread_selection}
   ORDER BY m.thread, m.time DESC
 ) x
@@ -208,6 +213,7 @@ function get_messages_since(
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
+  $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $query = <<<SQL
 SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID
@@ -215,7 +221,11 @@ FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
-WHERE (mm.visible = 1 OR t.visibility_rules = {$visibility_open})
+WHERE
+  (
+    JSON_EXTRACT(mm.permissions, '{$vis_permission_extract_string}') IS TRUE
+    OR t.visibility_rules = {$visibility_open}
+  )
   AND m.time > {$current_as_of}
   AND {$thread_selection}
 ORDER BY m.thread, m.time DESC
