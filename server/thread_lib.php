@@ -249,7 +249,6 @@ function possibly_reset_thread_to_unread(
     return array();
   }
 
-  $unfocused_thread_ids = array_map(
   $unfocused_pairs = array();
   foreach ($unfocused_thread_ids as $unfocused_thread_id) {
     $unfocused_pairs[] = array($viewer_id, $unfocused_thread_id);
