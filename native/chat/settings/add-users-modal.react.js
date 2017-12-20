@@ -45,6 +45,7 @@ import {
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { threadActualMembers } from 'lib/shared/thread-utils';
 
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
@@ -116,7 +117,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   ) {
     const excludeUserIDs = userInfoInputArray
       .map(userInfo => userInfo.id)
-      .concat(threadInfo.members.map(memberInfo => memberInfo.id));
+      .concat(threadActualMembers(threadInfo.members));
     return getUserSearchResults(
       text,
       userInfos,

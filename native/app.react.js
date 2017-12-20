@@ -307,9 +307,10 @@ const ConnectedAppWithNavigationState = connect(
       currentAsOf: state.currentAsOf,
       activeThread,
       appLoggedIn: isForegroundSelector(state),
-      activeThreadLatestMessage: activeThread
-        ? state.messageStore.threads[activeThread].messageIDs[0]
-        : null,
+      activeThreadLatestMessage:
+        activeThread && state.messageStore.threads[activeThread]
+          ? state.messageStore.threads[activeThread].messageIDs[0]
+          : null,
     };
   },
   includeDispatchActionProps,
