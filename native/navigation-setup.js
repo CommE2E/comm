@@ -13,7 +13,10 @@ import type {
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
-import type { LeaveThreadResult } from 'lib/actions/thread-actions';
+import type {
+  LeaveThreadResult,
+  NewThreadResult,
+} from 'lib/actions/thread-actions';
 
 import {
   TabNavigator,
@@ -43,6 +46,7 @@ import {
   leaveThreadActionTypes,
   joinThreadActionTypes,
   subscribeActionTypes,
+  newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 
 import {
@@ -299,6 +303,17 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
         action.payload,
       ),
     };
+  } else if (action.type === newThreadActionTypes.success) {
+    return {
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
+      navigationState: replaceChatStackWithNewThread(
+        state.navigationState,
+        action.payload,
+      ),
+    };
   }
   return state;
 }
@@ -541,6 +556,33 @@ function filterChatScreensForThreadInfos(
   if (newChatRoute === chatRoute) {
     return state;
   }
+
+  const newAppSubRoutes = [ ...appRoute.routes ];
+  newAppSubRoutes[1] = newChatRoute;
+  const newRootSubRoutes = [ ...state.routes ];
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  return { ...state, routes: newRootSubRoutes };
+}
+
+function replaceChatStackWithNewThread(
+  state: NavigationState,
+  payload: NewThreadResult,
+): NavigationState {
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+
+  const newChatRoute = removeScreensFromStack(
+    chatRoute,
+    (route: NavigationRoute) => route.routeName === ChatThreadListRouteName
+      ? "break"
+      : "remove",
+  );
+  newChatRoute.routes.push({
+    key: 'NewThreadMessageList',
+    routeName: MessageListRouteName,
+    params: { threadInfo: payload.newThreadInfo },
+  });
+  newChatRoute.index = 1;
 
   const newAppSubRoutes = [ ...appRoute.routes ];
   newAppSubRoutes[1] = newChatRoute;

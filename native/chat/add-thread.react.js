@@ -57,7 +57,6 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ColorPickerModal from './color-picker-modal.react';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 const tagInputProps = {
   placeholder: "username",
@@ -74,7 +73,6 @@ type Props = {
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: UserInfo},
   userSearchIndex: SearchIndex,
-  secondChatSubrouteKey: ?string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -115,7 +113,6 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    secondChatSubrouteKey: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -410,7 +407,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
 
   async newChatThreadAction(name: string) {
     try {
-      const response = await this.props.newChatThread(
+      return await this.props.newChatThread(
         name,
         this.state.selectedPrivacyIndex === 0
           ? visibilityRules.CHAT_NESTED_OPEN
@@ -419,14 +416,6 @@ class InnerAddThread extends React.PureComponent<Props, State> {
         this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
         this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
-      const secondChatSubrouteKey = this.props.secondChatSubrouteKey;
-      invariant(secondChatSubrouteKey, "should be set");
-      this.props.navigation.goBack(secondChatSubrouteKey);
-      this.props.navigation.navigate(
-        MessageListRouteName,
-        { threadInfo: response.newThreadInfo },
-      );
-      return response;
     } catch (e) {
       Alert.alert(
         "Unknown error",
@@ -557,10 +546,6 @@ const AddThread = connect(
       parentThreadInfo = state.threadInfos[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const secondChatSubroute = chatRoute.routes[1];
     return {
       loadingStatus: loadingStatusSelector(state),
       parentThreadInfo,
@@ -568,9 +553,6 @@ const AddThread = connect(
         userInfoSelectorForOtherMembersOfThread(parentThreadID)(state),
       userSearchIndex:
         userSearchIndexForOtherMembersOfThread(parentThreadID)(state),
-      secondChatSubrouteKey: secondChatSubroute && secondChatSubroute.key
-        ? secondChatSubroute.key
-        : null,
       cookie: state.cookie,
     };
   },
