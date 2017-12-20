@@ -362,6 +362,7 @@ function create_message_infos($new_message_infos) {
   }
 
   $content_by_index = array();
+  $thread_creator_pairs = array();
   foreach ($new_message_infos as $index => $new_message_info) {
     if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $content_by_index[$index] = $conn->real_escape_string(
@@ -412,13 +413,26 @@ function create_message_infos($new_message_infos) {
         json_encode($content)
       );
     }
+    $thread_id = $new_message_info['threadID'];
+    $creator_id = $new_message_info['creatorID'];
+    $thread_creator_pairs[] =
+      "(m.thread = {$thread_id} AND m.user != {$creator_id})";
   }
+  $thread_creator_fragment = "(" . implode(" OR ", $thread_creator_pairs) . ")";
+
+  $num_new_messages = count($new_message_infos);
+  $id_inserts = array_fill(0, $num_new_messages, "('messages')");
+  $id_insert_clause = implode(", ", $id_inserts);
+  $id_insert_query = <<<SQL
+INSERT INTO ids(table_name) VALUES {$id_insert_clause}
+SQL;
+  $conn->query($id_insert_query);
+  $id = $conn->insert_id - $num_new_messages + 1;
 
   $values = array();
   $return = array();
   foreach ($new_message_infos as $index => $new_message_info) {
-    $conn->query("INSERT INTO ids(table_name) VALUES('messages')");
-    $new_message_info['id'] = (string)$conn->insert_id;
+    $new_message_info['id'] = (string)($id++);
     $content = isset($content_by_index[$index])
       ? "'{$content_by_index[$index]}'"
       : "NULL";
@@ -436,6 +450,16 @@ INSERT INTO messages(id, thread, user, type, content, time)
 VALUES {$all_values}
 SQL;
   $conn->query($message_insert_query);
+
+  $time = earliest_time_considered_current();
+  $unread_query = <<<SQL
+UPDATE memberships m
+LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
+  AND f.time > {$time}
+SET m.unread = 1
+WHERE f.user IS NULL AND {$thread_creator_fragment}
+SQL;
+  $conn->query($unread_query);
 
   return $return;
 }

@@ -244,7 +244,24 @@ function possibly_reset_thread_to_unread(
     return;
   }
 
-  $focused_elsewhere = check_threads_focused($unfocused_thread_ids);
+  list($viewer_id, $is_user) = get_viewer_info();
+  if (!$is_user) {
+    return array();
+  }
+
+  $unfocused_thread_ids = array_map(
+  $unfocused_pairs = array();
+  foreach ($unfocused_thread_ids as $unfocused_thread_id) {
+    $unfocused_pairs[] = array($viewer_id, $unfocused_thread_id);
+  }
+  $focused_elsewhere_pairs = check_threads_focused($unfocused_pairs);
+
+  $focused_elsewhere = array();
+  foreach ($focused_elsewhere_pairs as $focused_elsewhere_pair) {
+    list($viewer_id, $focused_elsewhere_id) = $focused_elsewhere_pair;
+    $focused_elsewhere[] = $focused_elsewhere_id;
+  }
+
   $unread_candidates =
     array_values(array_diff($unfocused_thread_ids, $focused_elsewhere));
   if (!$unread_candidates) {
@@ -274,7 +291,6 @@ SQL;
   }
 
   $thread_ids_sql_string = implode(", ", $to_reset);
-  $viewer_id = get_viewer_id();
   $query = <<<SQL
 UPDATE memberships
 SET unread = 1
@@ -299,30 +315,38 @@ SQL;
   $conn->query($query);
 }
 
-// does not verify $thread_ids!
-function check_threads_focused($thread_ids) {
+// $thread_user_pairs is an array of thread, user pairs
+function check_threads_focused($thread_user_pairs) {
   global $conn;
 
-  list($viewer_id, $is_user) = get_viewer_info();
-  if (!$is_user) {
-    return array();
+  $sql_fragments = array();
+  foreach ($thread_user_pairs as $thread_user_pair) {
+    list($user_id, $thread_id) = $thread_user_pair;
+    $user_id = (int)$user_id;
+    $thread_id = (int)$thread_id;
+    $sql_fragments[] = "(user = {$user_id} AND thread = {$thread_id})";
   }
+  $user_thread_clause = "(" . implode(" OR ", $sql_fragments) . ")";
 
-  $thread_ids_sql_string = implode(", ", $thread_ids);
-  $time = round(microtime(true) * 1000) - PING_INTERVAL; // in milliseconds
+  $time = earliest_time_considered_current();
   $query = <<<SQL
-SELECT thread
+SELECT user, thread
 FROM focused
-WHERE user = {$viewer_id}
-  AND thread IN ({$thread_ids_sql_string})
-  AND time > {$time}
+WHERE {$user_thread_clause} AND time > {$time}
+GROUP BY user, thread
 SQL;
   $result = $conn->query($query);
 
   $focused_thread_ids = array();
   while ($row = $result->fetch_assoc()) {
+    $user_id = (int)$row['user'];
     $thread_id = (int)$row['thread'];
-    $focused_thread_ids[$thread_id] = $thread_id;
+    $focused_thread_ids[] = array($user_id, $thread_id);
   }
-  return array_values($focused_thread_ids);
+  return $focused_thread_ids;
+}
+
+function earliest_time_considered_current() {
+  // in milliseconds
+  return round(microtime(true) * 1000) - PING_INTERVAL - 1500;
 }
