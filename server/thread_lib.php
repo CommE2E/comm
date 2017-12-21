@@ -220,7 +220,7 @@ SQL;
     $query = <<<SQL
 UPDATE memberships
 SET unread = 0
-WHERE m.role IS NOT NULL
+WHERE role IS NOT NULL
   AND thread IN ({$thread_ids_sql_string})
   AND user = {$viewer_id}
 SQL;
@@ -306,7 +306,7 @@ SQL;
   $query = <<<SQL
 UPDATE memberships
 SET unread = 1
-WHERE m.role IS NOT NULL
+WHERE role IS NOT NULL
   AND thread IN ({$thread_ids_sql_string})
   AND user = {$viewer_id}
 SQL;
