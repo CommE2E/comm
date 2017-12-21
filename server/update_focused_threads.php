@@ -9,7 +9,7 @@ $focus_commands = isset($_POST['focus_commands'])
   ? $_POST['focus_commands']
   : array();
 $result = update_focused_threads($focus_commands);
-if (!$result) {
+if ($result === null) {
   async_end(array(
     'error' => 'invalid_credentials',
   ));
@@ -17,4 +17,5 @@ if (!$result) {
 
 async_end(array(
   'success' => true,
+  'set_unfocused_to_unread' => $result,
 ));

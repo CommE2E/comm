@@ -14,7 +14,10 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
-import type { FocusCommand } from 'lib/actions/thread-actions';
+import type {
+  FocusCommand,
+  UpdateFocusedThreadsResult,
+} from 'lib/actions/thread-actions';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -107,10 +110,13 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  ping:
-    (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
-  updateFocusedThreads:
-    (focusCommands: $ReadOnlyArray<FocusCommand>) => Promise<void>,
+  ping: (
+    calendarQuery: CalendarQuery,
+    lastPing: number,
+  ) => Promise<PingResult>,
+  updateFocusedThreads: (
+    focusCommands: $ReadOnlyArray<FocusCommand>,
+  ) => Promise<UpdateFocusedThreadsResult>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 

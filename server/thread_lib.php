@@ -164,12 +164,14 @@ function verify_thread_id($thread_id) {
   return !!verify_thread_ids(array($thread_id));
 }
 
+// Returns the set of unfocused threads that should be set to unread on
+// the client because a new message arrived since they were unfocused
 function update_focused_threads($focus_commands) {
   global $conn;
 
   list($viewer_id, $is_user, $cookie_id) = get_viewer_info();
   if (!$is_user) {
-    return false;
+    return null;
   }
 
   $query = <<<SQL
@@ -230,14 +232,14 @@ SQL;
   // To protect against a possible race condition, we reset the thread to unread
   // if the latest message ID on the client at the time that focus was dropped
   // is no longer the latest message ID
-  possibly_reset_thread_to_unread(
+  return possibly_reset_thread_to_unread(
     $unfocused_thread_ids,
     $unfocused_thread_latest_messages
   );
-
-  return true;
 }
 
+// Returns the set of unfocused threads that should be set to unread on
+// the client because a new message arrived since they were unfocused
 function possibly_reset_thread_to_unread(
   $unfocused_thread_ids,
   $unfocused_thread_latest_messages
@@ -245,7 +247,7 @@ function possibly_reset_thread_to_unread(
   global $conn;
 
   if (!$unfocused_thread_ids) {
-    return;
+    return array();
   }
 
   list($viewer_id, $is_user) = get_viewer_info();
@@ -268,7 +270,7 @@ function possibly_reset_thread_to_unread(
   $unread_candidates =
     array_values(array_diff($unfocused_thread_ids, $focused_elsewhere));
   if (!$unread_candidates) {
-    return;
+    return array();
   }
 
   $thread_ids_sql_string = implode(", ", $unread_candidates);
@@ -299,7 +301,7 @@ SQL;
     }
   }
   if (!$to_reset) {
-    return;
+    return $to_reset;
   }
 
   $thread_ids_sql_string = implode(", ", $to_reset);
@@ -311,6 +313,8 @@ WHERE role IS NOT NULL
   AND user = {$viewer_id}
 SQL;
   $conn->query($query);
+
+  return $to_reset;
 }
 
 function update_focused_thread_time($time) {
