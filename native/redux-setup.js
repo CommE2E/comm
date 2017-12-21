@@ -20,9 +20,10 @@ import { NavigationActions } from 'react-navigation';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
+
 import { MessageListRouteName } from './chat/message-list.react';
 import { getThreadIDFromParams } from './utils/navigation-utils';
-
+import { activeThreadSelector } from './selectors/nav-selectors';
 import {
   handleURLActionType,
   navigateToAppActionType,
@@ -130,14 +131,14 @@ function reducer(state: AppState, action: *) {
       action.type === NavigationActions.SET_PARAMS ||
       action.type === NavigationActions.RESET
   ) {
-    return state;
+    return validateUnreadStatus(state);
   }
   if (
     action.type === NavigationActions.NAVIGATE &&
     action.routeName === MessageListRouteName
   ) {
     const threadID = getThreadIDFromParams(action);
-    return {
+    return validateUnreadStatus({
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
@@ -160,9 +161,41 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       rehydrateConcluded: state.rehydrateConcluded,
+    });
+  }
+  return validateUnreadStatus(baseReducer(state, action));
+}
+
+// Makes sure a currently focused thread is never unread
+function validateUnreadStatus(state: AppState): AppState {
+  const activeThread = activeThreadSelector(state);
+  if (activeThread && state.threadInfos[activeThread].currentUser.unread) {
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: {
+        ...state.threadInfos,
+        [activeThread]: {
+          ...state.threadInfos[activeThread],
+          currentUser: {
+            ...state.threadInfos[activeThread].currentUser,
+            unread: false,
+          },
+        },
+      },
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      rehydrateConcluded: state.rehydrateConcluded,
     };
   }
-  return baseReducer(state, action);
+  return state;
 }
 
 const store = createStore(
