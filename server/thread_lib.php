@@ -3,6 +3,7 @@
 require_once('config.php');
 require_once('auth.php');
 require_once('permissions.php');
+require_once('message_lib.php');
 
 define("VISIBILITY_OPEN", 0);
 define("VISIBILITY_CLOSED", 1);
@@ -257,7 +258,7 @@ function possibly_reset_thread_to_unread(
 
   $focused_elsewhere = array();
   foreach ($focused_elsewhere_pairs as $focused_elsewhere_pair) {
-    list($viewer_id, $focused_elsewhere_id) = $focused_elsewhere_pair;
+    list($_, $focused_elsewhere_id) = $focused_elsewhere_pair;
     $focused_elsewhere[] = $focused_elsewhere_id;
   }
 
@@ -268,11 +269,20 @@ function possibly_reset_thread_to_unread(
   }
 
   $thread_ids_sql_string = implode(", ", $unread_candidates);
+  $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
+  $permission_extract_string = "$." . PERMISSION_KNOW_OF . ".value";
   $query = <<<SQL
-SELECT thread, MAX(id) AS latest_message
-FROM messages
-WHERE thread IN ({$thread_ids_sql_string})
-GROUP BY thread
+SELECT m.thread, MAX(m.id) AS latest_message
+FROM messages m
+LEFT JOIN threads st ON m.type = {$create_sub_thread} AND st.id = m.content
+LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
+  AND stm.thread = m.content AND stm.user = {$viewer_id}
+WHERE m.thread IN ({$thread_ids_sql_string}) AND
+  (
+    m.type != {$create_sub_thread} OR
+    JSON_EXTRACT(stm.permissions, '{$permission_extract_string}') IS TRUE
+  )
+GROUP BY m.thread
 SQL;
   $result = $conn->query($query);
 
