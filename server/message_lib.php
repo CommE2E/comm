@@ -119,17 +119,24 @@ function get_message_infos($thread_selection_criteria, $number_per_thread) {
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $int_number_per_thread = (int)$number_per_thread;
+  $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
   $query = <<<SQL
 SET @num := 0, @thread := '';
 SELECT x.id, x.thread AS threadID, x.content, x.time, x.type,
-  u.username AS creator, x.user AS creatorID
+  u.username AS creator, x.user AS creatorID, x.subthread_permissions,
+  x.subthread_visibility_rules, x.subthread_edit_rules
 FROM (
   SELECT m.id, m.user, m.content, m.time, m.type,
     @num := if(@thread = m.thread, @num + 1, 1) AS number,
-    @thread := m.thread AS thread
+    @thread := m.thread AS thread, stm.permissions AS subthread_permissions,
+    st.visibility_rules AS subthread_visibility_rules,
+    st.edit_rules AS subthread_edit_rules
   FROM messages m
   LEFT JOIN threads t ON t.id = m.thread
   LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
+  LEFT JOIN threads st ON m.type = {$create_sub_thread} AND st.id = m.content
+  LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
+    AND stm.thread = m.content AND stm.user = {$viewer_id}
   WHERE
     (
       JSON_EXTRACT(mm.permissions, '{$vis_permission_extract_string}') IS TRUE
@@ -214,12 +221,19 @@ function get_messages_since(
   $visibility_open = VISIBILITY_OPEN;
   $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
+  $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
   $query = <<<SQL
 SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-  u.username AS creator, m.user AS creatorID
+  u.username AS creator, m.user AS creatorID,
+  stm.permissions AS subthread_permissions,
+  st.visibility_rules AS subthread_visibility_rules,
+  st.edit_rules AS subthread_edit_rules
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
+LEFT JOIN threads st ON m.type = {$create_sub_thread} AND st.id = m.content
+LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
+  AND stm.thread = m.content AND stm.user = {$viewer_id}
 LEFT JOIN users u ON u.id = m.user
 WHERE
   (
@@ -289,7 +303,12 @@ function message_from_row($row) {
     $message['addedUserIDs'] = json_decode($row['content'], true);
   } else if ($type === MESSAGE_TYPE_CREATE_SUB_THREAD) {
     $child_thread_id = $row['content'];
-    if (!check_thread_permission((int)$child_thread_id, PERMISSION_KNOW_OF)) {
+    $subthread_permission_info = get_info_from_permissions_row(array(
+      "permissions" => $row['subthread_permissions'],
+      "visibility_rules" => $row['subthread_visibility_rules'],
+      "edit_rules" => $row['subthread_edit_rules'],
+    ));
+    if (!permission_helper($subthread_permission_info, PERMISSION_KNOW_OF)) {
       return null;
     }
     $message['childThreadID'] = $child_thread_id;
