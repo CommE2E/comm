@@ -207,6 +207,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       !this.activePingSubscription
     ) {
       this.activePingSubscription = setInterval(this.ping, pingFrequency);
+      AppWithNavigationState.updateFocusedThreads(
+        this.props,
+        this.props.activeThread,
+        null,
+        null,
+      );
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -215,6 +221,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     ) {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
+      AppWithNavigationState.updateFocusedThreads(
+        this.props,
+        null,
+        this.props.activeThread,
+        this.props.activeThreadLatestMessage,
+      );
     }
   }
 
@@ -274,6 +286,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         threadID: oldActiveThread,
         latestMessage: oldActiveThreadLatestMessage,
       });
+    }
+    if (commands.length === 0) {
+      return;
     }
     props.dispatchActionPromise(
       updateFocusedThreadsActionTypes,
