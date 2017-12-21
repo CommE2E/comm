@@ -44,6 +44,9 @@ class ChatThreadListItem extends React.PureComponent<Props> {
 
   render() {
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
+    const unreadStyle = this.props.data.threadInfo.currentUser.unread
+      ? styles.unread
+      : null;
     return (
       <Button
         onPress={this.onPress}
@@ -53,7 +56,7 @@ class ChatThreadListItem extends React.PureComponent<Props> {
       >
         <View style={styles.container}>
           <View style={styles.row}>
-            <Text style={styles.threadName} numberOfLines={1}>
+            <Text style={[styles.threadName, unreadStyle]} numberOfLines={1}>
               {this.props.data.threadInfo.name}
             </Text>
             <View style={styles.colorSplotch}>
@@ -65,7 +68,9 @@ class ChatThreadListItem extends React.PureComponent<Props> {
           </View>
           <View style={styles.row}>
             {this.lastMessage()}
-            <Text style={styles.lastActivity}>{lastActivity}</Text>
+            <Text style={[styles.lastActivity, unreadStyle]}>
+              {lastActivity}
+            </Text>
           </View>
         </View>
       </Button>
@@ -111,6 +116,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666666',
     marginLeft: 10,
+  },
+  unread: {
+    color: 'black',
+    fontWeight: 'bold',
   },
 });
 

@@ -30,10 +30,13 @@ class MessagePreview extends React.PureComponent<Props> {
     const username = messageInfo.creator.isViewer
       ? "you: "
       : `${messageInfo.creator.username || ""}: `;
+    const unreadStyle = this.props.threadInfo.currentUser.unread
+      ? styles.unread
+      : null;
     if (messageInfo.type === messageType.TEXT) {
       return (
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          <Text style={styles.username}>{username}</Text>
+        <Text style={[styles.lastMessage, unreadStyle]} numberOfLines={1}>
+          <Text style={[styles.username, unreadStyle]}>{username}</Text>
           {messageInfo.text}
         </Text>
       );
@@ -43,7 +46,10 @@ class MessagePreview extends React.PureComponent<Props> {
         this.props.threadInfo,
       ));
       return (
-        <Text style={[styles.lastMessage, styles.robotext]} numberOfLines={1}>
+        <Text
+          style={[styles.lastMessage, styles.robotext, unreadStyle]}
+          numberOfLines={1}
+        >
           {robotext}
         </Text>
       );
@@ -64,6 +70,9 @@ const styles = StyleSheet.create({
   },
   robotext: {
     color: '#AAAAAA',
+  },
+  unread: {
+    color: 'black',
   },
 });
 
