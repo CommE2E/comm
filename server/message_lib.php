@@ -476,7 +476,7 @@ UPDATE memberships m
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
 SET m.unread = 1
-WHERE f.user IS NULL AND {$thread_creator_fragment}
+WHERE m.role IS NOT NULL AND f.user IS NULL AND {$thread_creator_fragment}
 SQL;
   $conn->query($unread_query);
 

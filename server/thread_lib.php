@@ -219,7 +219,9 @@ SQL;
     $query = <<<SQL
 UPDATE memberships
 SET unread = 0
-WHERE thread IN ({$thread_ids_sql_string}) AND user = {$viewer_id}
+WHERE m.role IS NOT NULL
+  AND thread IN ({$thread_ids_sql_string})
+  AND user = {$viewer_id}
 SQL;
     $conn->query($query);
   }
@@ -303,7 +305,9 @@ SQL;
   $query = <<<SQL
 UPDATE memberships
 SET unread = 1
-WHERE thread IN ({$thread_ids_sql_string}) AND user = {$viewer_id}
+WHERE m.role IS NOT NULL
+  AND thread IN ({$thread_ids_sql_string})
+  AND user = {$viewer_id}
 SQL;
   $conn->query($query);
 }
