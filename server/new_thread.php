@@ -182,6 +182,7 @@ foreach ($to_save as $row_to_save) {
         "permissions" => $member['permissions'],
         "role" => $member['role'],
         "subscribed" => true,
+        "unread" => false,
       );
     }
   }

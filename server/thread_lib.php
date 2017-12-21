@@ -29,7 +29,7 @@ function get_thread_infos($specific_condition="") {
 SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
   t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
   r.name AS role_name, r.permissions AS role_permissions, m.user,
-  m.permissions, m.subscribed, u.username
+  m.permissions, m.subscribed, m.unread, u.username
 FROM threads t
 LEFT JOIN (
     SELECT thread, id, name, permissions
@@ -99,6 +99,7 @@ SQL;
             "permissions" => $member['permissions'],
             "role" => $member['role'],
             "subscribed" => !!$row['subscribed'],
+            "unread" => $member['role'] !== null ? (bool)$row['unread'] : null,
           );
         }
         if ($row['username']) {
