@@ -121,44 +121,42 @@ function get_message_infos($thread_selection_criteria, $number_per_thread) {
   $int_number_per_thread = (int)$number_per_thread;
   $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
   $query = <<<SQL
-SET @num := 0, @thread := '';
-SELECT x.id, x.thread AS threadID, x.content, x.time, x.type,
-  u.username AS creator, x.user AS creatorID, x.subthread_permissions,
-  x.subthread_visibility_rules, x.subthread_edit_rules
-FROM (
-  SELECT m.id, m.user, m.content, m.time, m.type,
-    @num := if(@thread = m.thread, @num + 1, 1) AS number,
-    @thread := m.thread AS thread, stm.permissions AS subthread_permissions,
-    st.visibility_rules AS subthread_visibility_rules,
-    st.edit_rules AS subthread_edit_rules
-  FROM messages m
-  LEFT JOIN threads t ON t.id = m.thread
-  LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
-  LEFT JOIN threads st ON m.type = {$create_sub_thread} AND st.id = m.content
-  LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
-    AND stm.thread = m.content AND stm.user = {$viewer_id}
-  WHERE
-    (
-      JSON_EXTRACT(mm.permissions, '{$vis_permission_extract_string}') IS TRUE
-      OR t.visibility_rules = {$visibility_open}
-    )
-    AND {$thread_selection}
-  ORDER BY m.thread, m.time DESC
-) x
-LEFT JOIN users u ON u.id = x.user
-WHERE x.number <= {$int_number_per_thread};
+SELECT * FROM (
+  SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
+    u.username AS creator, x.subthread_permissions,
+    x.subthread_visibility_rules, x.subthread_edit_rules,
+    @num := if(@thread = x.thread, @num + 1, 1) AS number,
+    @thread := x.thread AS threadID
+  FROM (SELECT @num := 0, @thread := '') init
+  JOIN (
+    SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
+      stm.permissions AS subthread_permissions,
+      st.visibility_rules AS subthread_visibility_rules,
+      st.edit_rules AS subthread_edit_rules
+    FROM messages m
+    LEFT JOIN threads t ON t.id = m.thread
+    LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
+    LEFT JOIN threads st ON m.type = {$create_sub_thread} AND st.id = m.content
+    LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
+      AND stm.thread = m.content AND stm.user = {$viewer_id}
+    WHERE
+      (
+        JSON_EXTRACT(mm.permissions, '{$vis_permission_extract_string}') IS TRUE
+        OR t.visibility_rules = {$visibility_open}
+      )
+      AND {$thread_selection}
+    ORDER BY m.thread, m.time DESC
+  ) x
+  LEFT JOIN users u ON u.id = x.user
+) y
+WHERE y.number <= {$int_number_per_thread}
 SQL;
-  $query_result = $conn->multi_query($query);
-  if (!$query_result) {
-    return null;
-  }
-  $conn->next_result();
-  $row_result = $conn->store_result();
+  $result = $conn->query($query);
 
   $messages = array();
   $users = array();
   $thread_to_message_count = array();
-  while ($row = $row_result->fetch_assoc()) {
+  while ($row = $result->fetch_assoc()) {
     $users[$row['creatorID']] = array(
       'id' => $row['creatorID'],
       'username' => $row['creator'],
