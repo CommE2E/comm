@@ -1,6 +1,6 @@
 // @flow
 
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions, Platform, DeviceInfo } from 'react-native';
 
 let { height, width } = Dimensions.get('window');
 if (Platform.OS === "android") {
@@ -10,7 +10,10 @@ if (Platform.OS === "android") {
 const windowHeight = height;
 const windowWidth = width;
 
-const contentVerticalOffset = Platform.OS === "ios" ? 20 : 0;
+let contentVerticalOffset = 0;
+if (Platform.OS === "ios") {
+  contentVerticalOffset = DeviceInfo.isIPhoneX_deprecated ? 44 : 20;
+}
 
 export {
   windowHeight,

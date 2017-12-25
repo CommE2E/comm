@@ -28,6 +28,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
+  DeviceInfo,
 } from 'react-native';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
@@ -455,8 +456,12 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const threadID = this.props.threadInfo.id;
     const inputBar = <InputBar threadID={threadID} />;
 
-    const behavior = Platform.OS === "android" ? undefined : "padding";
-    const keyboardVerticalOffset = Platform.OS === "ios" ? 64 : 0;
+    let behavior;
+    let keyboardVerticalOffset = 0;
+    if (Platform.OS === "ios") {
+      behavior = "padding";
+      keyboardVerticalOffset = DeviceInfo.isIPhoneX_deprecated ? 88 : 64;
+    }
     return (
       <KeyboardAvoidingView
         behavior={behavior}

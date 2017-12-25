@@ -23,6 +23,7 @@ import {
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
+  SafeAreaView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
@@ -669,7 +670,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
@@ -687,7 +688,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
             close={this.closePicker}
           />
         </Modal>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -934,7 +935,6 @@ const styles = StyleSheet.create({
   flatList: {
     flex: 1,
     backgroundColor: '#EEEEEE',
-    marginTop: contentVerticalOffset,
   },
   sectionHeader: {
     height: 31,
