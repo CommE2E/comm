@@ -614,7 +614,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     } else if (item.itemType === "header") {
       return 31;
     } else if (item.itemType === "entryInfo") {
-      return 20 + item.entryInfo.textHeight;
+      const verticalPadding = Platform.OS === "ios" ? 21 : 20;
+      return verticalPadding + item.entryInfo.textHeight;
     } else if (item.itemType === "footer") {
       return 40;
     }
