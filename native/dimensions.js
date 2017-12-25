@@ -7,6 +7,9 @@ if (Platform.OS === "android") {
   // Android's Dimensions.get doesn't include the status bar
   height -= 24;
 }
+if (Platform.OS === "ios" && DeviceInfo.isIPhoneX_deprecated) {
+  height -= 34;
+}
 const windowHeight = height;
 const windowWidth = width;
 

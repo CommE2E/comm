@@ -23,8 +23,8 @@ import {
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -670,7 +670,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        forceInset={{ top: 'always', bottom: 'never' }}
+        style={styles.container}
+      >
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
