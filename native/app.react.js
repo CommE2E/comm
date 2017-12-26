@@ -15,9 +15,9 @@ import type {
 } from 'lib/utils/action-utils';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type {
-  FocusCommand,
-  UpdateFocusedThreadsResult,
-} from 'lib/actions/thread-actions';
+  ActivityUpdate,
+  UpdateActivityResult,
+} from 'lib/actions/ping-actions';
 import type { PushPermissions } from './push';
 
 import React from 'react';
@@ -45,9 +45,9 @@ import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 import {
-  updateFocusedThreadsActionTypes,
-  updateFocusedThreads,
-} from 'lib/actions/thread-actions';
+  updateActivityActionTypes,
+  updateActivity,
+} from 'lib/actions/ping-actions';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
@@ -122,9 +122,9 @@ type Props = {
     calendarQuery: CalendarQuery,
     lastPing: number,
   ) => Promise<PingResult>,
-  updateFocusedThreads: (
-    focusCommands: $ReadOnlyArray<FocusCommand>,
-  ) => Promise<UpdateFocusedThreadsResult>,
+  updateActivity: (
+    activityUpdates: $ReadOnlyArray<ActivityUpdate>,
+  ) => Promise<UpdateActivityResult>,
   setDeviceToken: (deviceToken: string) => Promise<string>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
@@ -142,7 +142,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
-    updateFocusedThreads: PropTypes.func.isRequired,
+    updateActivity: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
@@ -179,12 +179,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
     }
-    AppWithNavigationState.updateFocusedThreads(
-      this.props,
-      null,
-      this.props.activeThread,
-      this.props.activeThreadLatestMessage,
-    );
+    this.closingApp();
     PushNotificationIOS.removeEventListener(
       "register",
       this.registerPushPermissions,
@@ -227,12 +222,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     ) {
       clearInterval(this.activePingSubscription);
       this.activePingSubscription = null;
-      AppWithNavigationState.updateFocusedThreads(
-        this.props,
-        null,
-        this.props.activeThread,
-        this.props.activeThreadLatestMessage,
-      );
+      this.closingApp();
     }
   }
 
@@ -328,26 +318,47 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (!props.appLoggedIn) {
       return;
     }
-    const commands = [];
+    const updates = [];
     if (activeThread) {
-      commands.push({
+      updates.push({
         focus: true,
         threadID: activeThread,
       });
     }
     if (oldActiveThread && oldActiveThread !== activeThread) {
-      commands.push({
+      updates.push({
         focus: false,
         threadID: oldActiveThread,
         latestMessage: oldActiveThreadLatestMessage,
       });
     }
-    if (commands.length === 0) {
+    if (updates.length === 0) {
       return;
     }
     props.dispatchActionPromise(
-      updateFocusedThreadsActionTypes,
-      props.updateFocusedThreads(commands),
+      updateActivityActionTypes,
+      props.updateActivity(updates),
+    );
+  }
+
+  closingApp() {
+    if (!this.props.appLoggedIn) {
+      return;
+    }
+    const updates = [];
+    updates.push({
+      closing: true,
+    });
+    if (this.props.activeThread) {
+      updates.push({
+        focus: false,
+        threadID: this.props.activeThread,
+        latestMessage: this.props.activeThreadLatestMessage,
+      });
+    }
+    this.props.dispatchActionPromise(
+      updateActivityActionTypes,
+      this.props.updateActivity(updates),
     );
   }
 
@@ -391,7 +402,7 @@ const ConnectedAppWithNavigationState = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ ping, updateFocusedThreads, setDeviceToken }),
+  bindServerCalls({ ping, updateActivity, setDeviceToken }),
 )(AppWithNavigationState);
 
 const App = (props: {}) =>
