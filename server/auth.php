@@ -157,10 +157,11 @@ function init_anonymous_cookie($initial_run = false) {
     $cookie_hash = password_hash($cookie_password, PASSWORD_BCRYPT);
     $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
     $cookie_id = $conn->insert_id;
-    $conn->query(
-      "INSERT INTO cookies(id, hash, user, creation_time, last_update) ".
-        "VALUES ($cookie_id, '$cookie_hash', NULL, $time, $time)"
-    );
+    $query = <<<SQL
+INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+VALUES ($cookie_id, '$cookie_hash', NULL, $time, $time, 0)
+SQL;
+    $conn->query($query);
   }
 
   add_cookie('anonymous', "$cookie_id:$cookie_password", $time);
@@ -186,10 +187,11 @@ function create_user_cookie($user_id) {
   $conn->query("INSERT INTO ids(table_name) VALUES('cookies')");
   $cookie_id = $conn->insert_id;
   $time = round(microtime(true) * 1000); // in milliseconds
-  $conn->query(
-    "INSERT INTO cookies(id, hash, user, creation_time, last_update) ".
-      "VALUES ($cookie_id, '$cookie_hash', $user_id, $time, $time)"
-  );
+  $query = <<<SQL
+INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+VALUES ($cookie_id, '$cookie_hash', $user_id, $time, $time, 0)
+SQL;
+  $conn->query($query);
   add_cookie('user', "$cookie_id:$cookie_password", $time);
 
   $current_viewer_info = array(

@@ -1,14 +1,14 @@
 <?php
 
 require_once('async_lib.php');
-require_once('thread_lib.php');
+require_once('activity_lib.php');
 
 async_start();
 
-$focus_commands = isset($_POST['focus_commands'])
-  ? $_POST['focus_commands']
+$activity_updates = isset($_POST['activity_updates'])
+  ? $_POST['activity_updates']
   : array();
-$result = update_focused_threads($focus_commands);
+$result = update_activity($activity_updates);
 if ($result === null) {
   async_end(array(
     'error' => 'invalid_credentials',

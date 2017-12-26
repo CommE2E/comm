@@ -93,6 +93,7 @@ registerConfig({
   },
   setCookieOnRequest: true,
   calendarRangeInactivityLimit: sessionInactivityLimit,
+  clientSupportsMessages: true,
 });
 
 // We can't push yet, so we rely on pings to keep Redux state updated with the

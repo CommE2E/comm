@@ -4,6 +4,7 @@ require_once('config.php');
 require_once('auth.php');
 require_once('thread_lib.php');
 require_once('permissions.php');
+require_once('activity_lib.php');
 
 // keep value in sync with numberPerThread in message_reducer.js
 define("DEFAULT_NUMBER_PER_THREAD", 20);

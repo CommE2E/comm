@@ -7,6 +7,7 @@ require_once('thread_lib.php');
 require_once('entry_lib.php');
 require_once('message_lib.php');
 require_once('user_lib.php');
+require_once('activity_lib.php');
 
 async_start();
 
@@ -60,7 +61,8 @@ $message_users = $result['user_infos'];
 
 list($thread_infos, $thread_users) = get_thread_infos();
 
-update_focused_thread_time($current_as_of);
+$client_supports_messages = !empty($_POST['client_supports_messages']);
+update_activity_time($current_as_of, $client_supports_messages);
 
 $return = array(
   'success' => true,
