@@ -49,8 +49,8 @@ import {
   updateActivity,
 } from 'lib/actions/ping-actions';
 import {
-  setDeviceTokenActionTypes,
-  setDeviceToken,
+  setIOSDeviceTokenActionTypes,
+  setIOSDeviceToken,
 } from 'lib/actions/device-actions';
 
 import {
@@ -66,7 +66,7 @@ import {
   activeThreadSelector,
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
-import { requestPushPermissions } from './push';
+import { requestIOSPushPermissions } from './push';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -126,7 +126,7 @@ type Props = {
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,
   ) => Promise<UpdateActivityResult>,
-  setDeviceToken: (deviceToken: string) => Promise<string>,
+  setIOSDeviceToken: (deviceToken: string) => Promise<string>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 
@@ -144,7 +144,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
     updateActivity: PropTypes.func.isRequired,
-    setDeviceToken: PropTypes.func.isRequired,
+    setIOSDeviceToken: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
   activePingSubscription: ?number = null;
@@ -162,7 +162,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     );
     PushNotificationIOS.addEventListener(
       "register",
-      this.registerPushPermissions,
+      this.registerIOSPushPermissions,
     );
   }
 
@@ -183,7 +183,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.closingApp();
     PushNotificationIOS.removeEventListener(
       "register",
-      this.registerPushPermissions,
+      this.registerIOSPushPermissions,
     );
   }
 
@@ -248,12 +248,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   ensurePushNotifsEnabled = () => {
     if (Platform.OS === "ios") {
       PushNotificationIOS.checkPermissions(
-        this.checkPushPermissionsAndRequestIfMissing,
+        this.checkIOSPushPermissionsAndRequestIfMissing,
       );
     }
   }
 
-  checkPushPermissionsAndRequestIfMissing = (permissions: PushPermissions) => {
+  checkIOSPushPermissionsAndRequestIfMissing = (
+    permissions: PushPermissions,
+  ) => {
     let permissionNeeded = this.props.deviceToken === null
       || this.props.deviceToken === undefined;
     if (!permissionNeeded) {
@@ -265,14 +267,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       }
     }
     if (permissionNeeded) {
-      requestPushPermissions().then();
+      requestIOSPushPermissions().then();
     }
   }
 
-  registerPushPermissions = (deviceToken: string) => {
+  registerIOSPushPermissions = (deviceToken: string) => {
     this.props.dispatchActionPromise(
-      setDeviceTokenActionTypes,
-      this.props.setDeviceToken(deviceToken),
+      setIOSDeviceTokenActionTypes,
+      this.props.setIOSDeviceToken(deviceToken),
     );
   }
 
@@ -403,7 +405,7 @@ const ConnectedAppWithNavigationState = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ ping, updateActivity, setDeviceToken }),
+  bindServerCalls({ ping, updateActivity, setIOSDeviceToken }),
 )(AppWithNavigationState);
 
 const App = (props: {}) =>

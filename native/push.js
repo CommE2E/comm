@@ -12,7 +12,7 @@ export type PushPermissions = { alert?: bool, badge?: bool, sound?: bool };
 
 let currentlyActive = false;
 
-async function requestPushPermissions() {
+async function requestIOSPushPermissions() {
   if (currentlyActive) {
     return;
   }
@@ -45,5 +45,5 @@ async function requestPushPermissions() {
 }
 
 export {
-  requestPushPermissions,
+  requestIOSPushPermissions,
 };
