@@ -18,6 +18,7 @@ import type {
   FocusCommand,
   UpdateFocusedThreadsResult,
 } from 'lib/actions/thread-actions';
+import type { PushPermissions } from './push';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -29,6 +30,7 @@ import {
   Linking,
   View,
   StyleSheet,
+  PushNotificationIOS,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
@@ -46,6 +48,10 @@ import {
   updateFocusedThreadsActionTypes,
   updateFocusedThreads,
 } from 'lib/actions/thread-actions';
+import {
+  setDeviceTokenActionTypes,
+  setDeviceToken,
+} from 'lib/actions/device-actions';
 
 import {
   handleURLActionType,
@@ -60,6 +66,7 @@ import {
   activeThreadSelector,
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
+import { requestPushPermissions } from './push';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -105,6 +112,7 @@ type Props = {
   activeThread: ?string,
   appLoggedIn: bool,
   activeThreadLatestMessage: ?string,
+  deviceToken: ?string,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -117,6 +125,7 @@ type Props = {
   updateFocusedThreads: (
     focusCommands: $ReadOnlyArray<FocusCommand>,
   ) => Promise<UpdateFocusedThreadsResult>,
+  setDeviceToken: (deviceToken: string) => Promise<string>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 
@@ -128,11 +137,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
     activeThreadLatestMessage: PropTypes.string,
+    deviceToken: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
     updateFocusedThreads: PropTypes.func.isRequired,
+    setDeviceToken: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
   activePingSubscription: ?number = null;
@@ -147,6 +158,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.props.activeThread,
       null,
       null,
+    );
+    PushNotificationIOS.addEventListener(
+      "register",
+      this.registerPushPermissions,
     );
   }
 
@@ -170,20 +185,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.props.activeThread,
       this.props.activeThreadLatestMessage,
     );
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (
-      !this.props.appLoggedIn ||
-      nextProps.activeThread !== this.props.activeThread
-    ) {
-      AppWithNavigationState.updateFocusedThreads(
-        nextProps,
-        nextProps.activeThread,
-        this.props.activeThread,
-        this.props.activeThreadLatestMessage,
-      );
-    }
+    PushNotificationIOS.removeEventListener(
+      "register",
+      this.registerPushPermissions,
+    );
   }
 
   handleURLChange = (event: { url: string }) => {
@@ -213,6 +218,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
         null,
       );
+      this.ensurePushNotifsEnabled();
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -228,6 +234,55 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.props.activeThreadLatestMessage,
       );
     }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const justLoggedIn = nextProps.appLoggedIn && !this.props.appLoggedIn;
+    if (
+      justLoggedIn ||
+      nextProps.activeThread !== this.props.activeThread
+    ) {
+      AppWithNavigationState.updateFocusedThreads(
+        nextProps,
+        nextProps.activeThread,
+        this.props.activeThread,
+        this.props.activeThreadLatestMessage,
+      );
+    }
+    if (justLoggedIn) {
+      this.ensurePushNotifsEnabled();
+    }
+  }
+
+  ensurePushNotifsEnabled = () => {
+    if (Platform.OS === "ios") {
+      PushNotificationIOS.checkPermissions(
+        this.checkPushPermissionsAndRequestIfMissing,
+      );
+    }
+  }
+
+  checkPushPermissionsAndRequestIfMissing = (permissions: PushPermissions) => {
+    let permissionNeeded = this.props.deviceToken === null
+      || this.props.deviceToken === undefined;
+    if (!permissionNeeded) {
+      for (let permission in permissions) {
+        if (!permissions[permission]) {
+          permissionNeeded = true;
+          break;
+        }
+      }
+    }
+    if (permissionNeeded) {
+      requestPushPermissions().then();
+    }
+  }
+
+  registerPushPermissions = (deviceToken: string) => {
+    this.props.dispatchActionPromise(
+      setDeviceTokenActionTypes,
+      this.props.setDeviceToken(deviceToken),
+    );
   }
 
   ping = () => {
@@ -332,10 +387,11 @@ const ConnectedAppWithNavigationState = connect(
         activeThread && state.messageStore.threads[activeThread]
           ? state.messageStore.threads[activeThread].messageIDs[0]
           : null,
+      deviceToken: state.deviceToken,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ ping, updateFocusedThreads }),
+  bindServerCalls({ ping, updateFocusedThreads, setDeviceToken }),
 )(AppWithNavigationState);
 
 const App = (props: {}) =>

@@ -5,7 +5,7 @@ import type { EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { NavInfo, Action } from './navigation-setup';
+import type { NavInfo } from './navigation-setup';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -22,7 +22,6 @@ import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
 
 import { MessageListRouteName } from './chat/message-list.react';
-import { getThreadIDFromParams } from './utils/navigation-utils';
 import { activeThreadSelector } from './selectors/nav-selectors';
 import {
   handleURLActionType,
@@ -44,6 +43,7 @@ export type AppState = {|
   currentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
+  deviceToken: ?string,
   rehydrateConcluded: bool,
 |};
 
@@ -67,6 +67,7 @@ const defaultState = ({
   currentAsOf: 0,
   loadingStatuses: {},
   cookie: null,
+  deviceToken: null,
   rehydrateConcluded: false,
 }: AppState);
 
@@ -86,6 +87,7 @@ const blacklist = __DEV__
     ];
 
 function reducer(state: AppState, action: *) {
+  const oldState = state;
   const navInfo = reduceNavInfo(state && state.navInfo, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = {
@@ -101,6 +103,7 @@ function reducer(state: AppState, action: *) {
       currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
+      deviceToken: state.deviceToken,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
@@ -118,6 +121,7 @@ function reducer(state: AppState, action: *) {
       currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
+      deviceToken: state.deviceToken,
       rehydrateConcluded: true,
     };
   }
@@ -131,45 +135,16 @@ function reducer(state: AppState, action: *) {
       action.type === NavigationActions.SET_PARAMS ||
       action.type === NavigationActions.RESET
   ) {
-    return validateUnreadStatus(state);
+    return validateState(oldState, state);
   }
-  if (
-    action.type === NavigationActions.NAVIGATE &&
-    action.routeName === MessageListRouteName
-  ) {
-    const threadID = getThreadIDFromParams(action);
-    return validateUnreadStatus({
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
-      userInfos: state.userInfos,
-      messageStore: {
-        messages: state.messageStore.messages,
-        threads: {
-          ...state.messageStore.threads,
-          [threadID]: {
-            ...state.messageStore.threads[threadID],
-            lastNavigatedTo: Date.now(),
-          },
-        },
-      },
-      drafts: state.drafts,
-      currentAsOf: state.currentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      cookie: state.cookie,
-      rehydrateConcluded: state.rehydrateConcluded,
-    });
-  }
-  return validateUnreadStatus(baseReducer(state, action));
+  return validateState(oldState, baseReducer(state, action));
 }
 
-// Makes sure a currently focused thread is never unread
-function validateUnreadStatus(state: AppState): AppState {
+function validateState(oldState: AppState, state: AppState): AppState {
+  const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
   if (activeThread && state.threadInfos[activeThread].currentUser.unread) {
+    // Makes sure a currently focused thread is never unread
     state = {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
@@ -192,6 +167,35 @@ function validateUnreadStatus(state: AppState): AppState {
       currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      rehydrateConcluded: state.rehydrateConcluded,
+    };
+  }
+  if (activeThread && oldActiveThread !== activeThread) {
+    // Update messageStore.threads.[activeThread].lastNavigatedTo
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: {
+        messages: state.messageStore.messages,
+        threads: {
+          ...state.messageStore.threads,
+          [activeThread]: {
+            ...state.messageStore.threads[activeThread],
+            lastNavigatedTo: Date.now(),
+          },
+        },
+      },
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }

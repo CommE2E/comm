@@ -106,6 +106,7 @@ const store: Store<AppState, Action> = createStore(
     currentAsOf: current_as_of,
     loadingStatuses: {},
     cookie: undefined,
+    deviceToken: null,
   }: AppState),
   composeWithDevTools({})(applyMiddleware(thunk)),
 );

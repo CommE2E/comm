@@ -42,6 +42,7 @@ export type AppState = {|
   currentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
+  deviceToken: ?string,
 |};
 
 export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
@@ -66,6 +67,7 @@ export function reducer(state: AppState, action: Action) {
       currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
+      deviceToken: state.deviceToken,
     };
   } else if (action.type === newThreadActionTypes.success) {
     return {
@@ -89,6 +91,7 @@ export function reducer(state: AppState, action: Action) {
       currentAsOf: state.currentAsOf,
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
+      deviceToken: state.deviceToken,
     };
   }
   return baseReducer(state, action);
