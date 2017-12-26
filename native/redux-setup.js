@@ -172,7 +172,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     };
   }
   if (activeThread && oldActiveThread !== activeThread) {
-    // Update messageStore.threads.[activeThread].lastNavigatedTo
+    // Update messageStore.threads[activeThread].lastNavigatedTo
     state = {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,

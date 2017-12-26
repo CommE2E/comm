@@ -378,9 +378,13 @@ function create_message_infos($new_message_infos) {
     return array();
   }
 
-  $content_by_index = array();
   $thread_creator_pairs = array();
+  $content_by_index = array();
   foreach ($new_message_infos as $index => $new_message_info) {
+    $thread_id = $new_message_info['threadID'];
+    $creator_id = $new_message_info['creatorID'];
+    $thread_creator_pairs[] =
+      "(m.thread = {$thread_id} AND m.user != {$creator_id})";
     if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $content_by_index[$index] = $conn->real_escape_string(
         json_encode($new_message_info['initialThreadState'])
@@ -430,10 +434,6 @@ function create_message_infos($new_message_infos) {
         json_encode($content)
       );
     }
-    $thread_id = $new_message_info['threadID'];
-    $creator_id = $new_message_info['creatorID'];
-    $thread_creator_pairs[] =
-      "(m.thread = {$thread_id} AND m.user != {$creator_id})";
   }
   $thread_creator_fragment = "(" . implode(" OR ", $thread_creator_pairs) . ")";
 
@@ -474,7 +474,7 @@ UPDATE memberships m
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
 SET m.unread = 1
-WHERE m.role IS NOT NULL AND f.user IS NULL AND {$thread_creator_fragment}
+WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment}
 SQL;
   $conn->query($unread_query);
 
