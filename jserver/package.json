@@ -25,6 +25,8 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "lib": "file:../lib",
-    "promise": "^8.0.1"
+    "mysql2": "^1.5.1",
+    "promise": "^8.0.1",
+    "sql-template-strings": "^2.2.2"
   }
 }
