@@ -1,7 +1,11 @@
 import url from 'url';
 import Module from 'module';
+import fs from 'fs';
+import Promise from 'promise';
 
 const builtins = Module.builtinModules;
+const extensions = { js: 'esm', json: "json" };
+const access = Promise.denodeify(fs.access);
 
 export async function resolve(specifier, parentModuleURL, defaultResolve) {
   if (builtins.includes(specifier)) {
@@ -23,9 +27,20 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
   ) {
     return defaultResolve(specifier, parentModuleURL);
   }
-  const resolved = new url.URL(specifier + ".js", parentModuleURL);
-  return {
-    url: resolved.href,
-    format: 'esm',
-  };
+  let error;
+  for (let extension in extensions) {
+    const candidate = `${specifier}.${extension}`;
+    try {
+      const candidateURL = new url.URL(candidate, parentModuleURL);
+      await access(candidateURL.pathname);
+      return {
+        url: candidateURL.href,
+        format: extensions[extension],
+      };
+    } catch (err) {
+      error = err;
+    }
+  }
+  throw error;
+
 }

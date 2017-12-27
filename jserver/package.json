@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/app",
   "scripts": {
-    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules'",
+    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','lib/package-lock.json' --copy-files",
     "prod": "node --experimental-modules --loader ./loader.mjs dist/app",
-    "dev": "concurrently \"npm run babel -- --watch\" \"nodemon -e js --watch dist --experimental-modules --loader ./loader.mjs dist/app\""
+    "dev": "concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/app\""
   },
   "author": "",
   "license": "ISC",
@@ -21,8 +21,10 @@
     "nodemon": "^1.14.3"
   },
   "dependencies": {
+    "apn": "^2.2.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "lib": "file:../lib"
+    "lib": "file:../lib",
+    "promise": "^8.0.1"
   }
 }
