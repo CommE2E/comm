@@ -21,7 +21,8 @@
     "nodemon": "^1.14.3"
   },
   "dependencies": {
-    "lib": "file:../lib",
-    "express": "^4.16.2"
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "lib": "file:../lib"
   }
 }

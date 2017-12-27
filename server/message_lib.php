@@ -5,6 +5,7 @@ require_once('auth.php');
 require_once('thread_lib.php');
 require_once('permissions.php');
 require_once('activity_lib.php');
+require_once('call_node.php');
 
 // keep value in sync with numberPerThread in message_reducer.js
 define("DEFAULT_NUMBER_PER_THREAD", 20);
@@ -380,12 +381,19 @@ function create_message_infos($new_message_infos) {
   }
 
   $thread_creator_pairs = array();
+  $threads_to_message_indices = array();
   $content_by_index = array();
   foreach ($new_message_infos as $index => $new_message_info) {
     $thread_id = $new_message_info['threadID'];
     $creator_id = $new_message_info['creatorID'];
-    $thread_creator_pairs[] =
+    $thread_creator_pairs[$thread_id . $creator_id] =
       "(m.thread = {$thread_id} AND m.user != {$creator_id})";
+
+    if (!isset($threads_to_message_indices[$thread_id])) {
+      $threads_to_message_indices[$thread_id] = array();
+    }
+    $threads_to_message_indices[$thread_id][] = $index;
+
     if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $content_by_index[$index] = $conn->real_escape_string(
         json_encode($new_message_info['initialThreadState'])
@@ -478,6 +486,45 @@ SET m.unread = 1
 WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment}
 SQL;
   $conn->query($unread_query);
+
+  $notif_query = <<<SQL
+SELECT m.user, m.thread, c2.ios_device_token
+FROM memberships m
+LEFT JOIN cookies c1 ON c1.user = m.user AND c1.last_ping > {$time}
+LEFT JOIN cookies c2 ON c2.user = m.user AND c2.ios_device_token IS NOT NULL
+WHERE c1.user IS NULL AND c2.user IS NOT NULL AND {$thread_creator_fragment}
+SQL;
+  $notif_query_result = $conn->query($notif_query);
+
+  $ios_pre_push_info = array();
+  while ($row = $notif_query_result->fetch_assoc()) {
+    $user_id = (int)$row['user'];
+    $thread_id = (int)$row['thread'];
+    $ios_device_token = $row['ios_device_token'];
+    if (!isset($ios_pre_push_info[$user_id])) {
+      $ios_pre_push_info[$user_id] = array(
+        "device_tokens" => array(),
+        "thread_ids" => array(),
+      );
+    }
+    $ios_pre_push_info[$user_id]["device_tokens"][$ios_device_token] =
+      $ios_device_token;
+    $ios_pre_push_info[$user_id]["thread_ids"][$thread_id] = $thread_id;
+  }
+
+  $ios_push_info = array();
+  foreach ($ios_pre_push_info as $user_id => $user_push_info) {
+    $ios_push_info[$user_id] = array(
+      "deviceTokens" => array_values($user_push_info["device_tokens"]),
+      "messageInfos" => array(),
+    );
+    foreach ($user_push_info["thread_ids"] as $thread_id) {
+      foreach ($threads_to_message_indices[$thread_id] as $message_index) {
+        $ios_push_info[$user_id]["messageInfos"][] = $return[$message_index];
+      }
+    }
+  }
+  call_node('ios_push_notifs', $ios_push_info);
 
   return $return;
 }

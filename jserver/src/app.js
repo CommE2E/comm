@@ -1,15 +1,12 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
-
 import express from 'express';
+import bodyParser from 'body-parser';
 
-import { pluralize } from 'lib/utils/text-utils';
+import errorHandler from './error_handler';
+import { sendIOSPushNotifs } from './push/ios_notifs';
 
 const app = express();
-
-app.get('/', function(req: $Request, res: $Response) {
-  res.send(pluralize(['one', 'two', 'three']));
-});
-
-app.listen(process.env.PORT || 3000);
+app.use(bodyParser.json());
+app.post('/ios_push_notifs', errorHandler(sendIOSPushNotifs));
+app.listen(parseInt(process.env.PORT) || 3000, 'localhost');
