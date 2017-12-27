@@ -1,0 +1,10 @@
+[ignore]
+dist
+
+[include]
+../lib
+
+[libs]
+
+[options]
+module.name_mapper='^lib/(.*)$' -> '<PROJECT_ROOT>/../lib/\1'

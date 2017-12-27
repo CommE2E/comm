@@ -3,6 +3,8 @@ server/config.php
 server/.htaccess
 server/fonts
 lib/node_modules
-web/node_modules/*
+web/node_modules
 !web/node_modules/lib
 web/dist/dev.build.js
+jserver/dist
+jserver/node_modules
