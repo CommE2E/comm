@@ -8,4 +8,5 @@ web/node_modules
 web/dist/dev.build.js
 jserver/dist
 jserver/node_modules
+!jserver/node_modules/lib
 jserver/secrets
