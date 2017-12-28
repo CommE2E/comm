@@ -17,6 +17,8 @@ type IOSPushInfo = { [userID: string]: IOSPushUserInfo };
 const apnProvider = new apn.Provider(apnConfig);
 
 async function sendIOSPushNotifs(req: $Request, res: $Response) {
+  res.json({ success: true });
+
   const pushInfo: IOSPushInfo = req.body;
   const unreadCounts = await getUnreadCounts(Object.keys(pushInfo));
 

@@ -8,10 +8,13 @@ export default function errorHandler(handler: OurHandler) {
   return async (req: $Request, res: $Response) => {
     try {
       const result = await handler(req, res);
-      const stringResult = typeof result === "object"
-        ? JSON.stringify(result)
-        : result;
-      res.send(stringResult);
+      if (res.headersSent) {
+        return;
+      } else if (typeof result === "object") {
+        res.json(result);
+      } else {
+        res.send(result);
+      }
     } catch (error) {
       res.status(500).send(error.message);
     }
