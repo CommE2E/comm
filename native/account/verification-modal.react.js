@@ -110,7 +110,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.determineOnePasswordSupport().then();
+    this.determineOnePasswordSupport();
   }
 
   async determineOnePasswordSupport() {
@@ -224,7 +224,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       this.animateKeyboardDownOrBackToSimpleText(null);
     }
 
-    this.inCoupleSecondsNavigateToApp().then();
+    this.inCoupleSecondsNavigateToApp();
   }
 
   async inCoupleSecondsNavigateToApp() {

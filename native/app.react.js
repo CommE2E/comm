@@ -151,7 +151,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
-    this.handleInitialURL().then();
+    this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
     this.activePingSubscription = setInterval(this.ping, pingFrequency);
     AppWithNavigationState.updateFocusedThreads(
@@ -267,7 +267,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       }
     }
     if (permissionNeeded) {
-      requestIOSPushPermissions().then();
+      requestIOSPushPermissions();
     }
   }
 

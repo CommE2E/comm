@@ -246,7 +246,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
       },
     ).start();
 
-    this.inCoupleSecondsNavigateToLogIn().then();
+    this.inCoupleSecondsNavigateToLogIn();
   }
 
   async inCoupleSecondsNavigateToLogIn() {

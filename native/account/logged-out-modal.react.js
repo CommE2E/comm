@@ -134,7 +134,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       this.state.buttonOpacity = new Animated.Value(1);
       this.nextMode = "prompt";
     }
-    this.determineOnePasswordSupport().then();
+    this.determineOnePasswordSupport();
   }
 
   async determineOnePasswordSupport() {
@@ -162,7 +162,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.rehydrateConcluded && nextProps.rehydrateConcluded) {
-      this.onInitialAppLoad(nextProps).then();
+      this.onInitialAppLoad(nextProps);
     }
     if (!this.props.isForeground && nextProps.isForeground) {
       this.onForeground();

@@ -88,7 +88,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.props.innerRef(this);
-    this.attemptToFetchCredentials().then();
+    this.attemptToFetchCredentials();
   }
 
   async attemptToFetchCredentials() {
