@@ -71,13 +71,11 @@ type Props = {
   ) => Promise<JoinThreadResult>,
 };
 type State = {
+  text: string,
   height: number,
 };
 class InputBar extends React.PureComponent<Props, State> {
 
-  state = {
-    height: 0,
-  };
   static propTypes = {
     threadID: PropTypes.string.isRequired,
     username: PropTypes.string,
@@ -92,10 +90,18 @@ class InputBar extends React.PureComponent<Props, State> {
   };
   textInput: ?TextInput;
 
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      text: props.draft,
+      height: 0,
+    };
+  }
+
   componentWillUpdate(nextProps: Props, nextState: State) {
     if (
-      this.props.draft === "" && nextProps.draft !== "" ||
-      this.props.draft !== "" && nextProps.draft === ""
+      this.state.text === "" && nextState.text !== "" ||
+      this.state.text !== "" && nextState.text === ""
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -142,7 +148,7 @@ class InputBar extends React.PureComponent<Props, State> {
       };
       const textInput = (
         <TextInput
-          value={this.props.draft}
+          value={this.state.text}
           onChangeText={this.updateText}
           underlineColorAndroid="transparent"
           placeholder="Send a message..."
@@ -154,7 +160,7 @@ class InputBar extends React.PureComponent<Props, State> {
         />
       );
       let button = null;
-      if (this.props.draft) {
+      if (this.state.text) {
         button = (
           <TouchableOpacity
             onPress={this.onSend}
@@ -222,6 +228,7 @@ class InputBar extends React.PureComponent<Props, State> {
   }
 
   updateText = (text: string) => {
+    this.setState({ text });
     this.props.dispatchActionPayload(
       saveDraftActionType,
       { key: draftKeyFromThreadID(this.props.threadID), draft: text },
@@ -236,6 +243,7 @@ class InputBar extends React.PureComponent<Props, State> {
   }
 
   onSend = () => {
+    this.updateText("");
     const localID = `local${getNewLocalID()}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
@@ -243,7 +251,7 @@ class InputBar extends React.PureComponent<Props, State> {
       type: messageType.TEXT,
       localID,
       threadID: this.props.threadID,
-      text: this.props.draft,
+      text: this.state.text,
       creatorID,
       time: Date.now(),
     }: RawTextMessageInfo);
@@ -253,7 +261,6 @@ class InputBar extends React.PureComponent<Props, State> {
       undefined,
       messageInfo,
     );
-    this.updateText("");
   }
 
   async sendMessageAction(messageInfo: RawTextMessageInfo) {
