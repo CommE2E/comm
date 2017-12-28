@@ -104,7 +104,7 @@ type Props = {
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   viewerID: ?string,
   startReached: bool,
-  threadInfo: ThreadInfo,
+  threadInfo: ?ThreadInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -137,7 +137,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
+    threadInfo: threadInfoPropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -181,21 +181,27 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     };
   }
 
+  static getThreadInfo(props: Props): ThreadInfo {
+    return props.navigation.state.params.threadInfo;
+  }
+
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
-    if (!viewerIsMember(this.props.threadInfo)) {
-      threadWatcher.watchID(this.props.threadInfo.id);
+    if (!viewerIsMember(InnerMessageList.getThreadInfo(this.props))) {
+      threadWatcher.watchID(InnerMessageList.getThreadInfo(this.props).id);
       this.props.dispatchActionPromise(
         fetchMostRecentMessagesActionTypes,
-        this.props.fetchMostRecentMessages(this.props.threadInfo.id),
+        this.props.fetchMostRecentMessages(
+          InnerMessageList.getThreadInfo(this.props).id,
+        ),
       );
     }
   }
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
-    if (!viewerIsMember(this.props.threadInfo)) {
-      threadWatcher.removeID(this.props.threadInfo.id);
+    if (!viewerIsMember(InnerMessageList.getThreadInfo(this.props))) {
+      threadWatcher.removeID(InnerMessageList.getThreadInfo(this.props).id);
     }
   }
 
@@ -231,6 +237,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     if (
+      nextProps.threadInfo &&
       !_isEqual(nextProps.threadInfo)
         (this.props.navigation.state.params.threadInfo)
     ) {
@@ -240,15 +247,15 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     }
 
     if (
-      viewerIsMember(this.props.threadInfo) &&
-      !viewerIsMember(nextProps.threadInfo)
+      viewerIsMember(InnerMessageList.getThreadInfo(this.props)) &&
+      !viewerIsMember(InnerMessageList.getThreadInfo(nextProps))
     ) {
-      threadWatcher.watchID(nextProps.threadInfo.id);
+      threadWatcher.watchID(InnerMessageList.getThreadInfo(nextProps).id);
     } else if (
-      !viewerIsMember(this.props.threadInfo) &&
-      viewerIsMember(nextProps.threadInfo)
+      !viewerIsMember(InnerMessageList.getThreadInfo(this.props)) &&
+      viewerIsMember(InnerMessageList.getThreadInfo(nextProps))
     ) {
-      threadWatcher.removeID(nextProps.threadInfo.id);
+      threadWatcher.removeID(InnerMessageList.getThreadInfo(nextProps).id);
     }
 
     if (nextProps.listData === this.props.messageListData) {
@@ -453,7 +460,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       );
     }
 
-    const threadID = this.props.threadInfo.id;
+    const threadID = InnerMessageList.getThreadInfo(this.props).id;
     const inputBar = <InputBar threadID={threadID} />;
 
     let behavior;
@@ -518,7 +525,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const oldestMessageServerID = this.oldestMessageServerID();
     if (oldestMessageServerID) {
       this.loadingFromScroll = true;
-      const threadID = this.props.threadInfo.id;
+      const threadID = InnerMessageList.getThreadInfo(this.props).id;
       this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
         this.props.fetchMessagesBeforeCursor(
