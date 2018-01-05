@@ -13,6 +13,11 @@ import {
   robotextForMessageInfo,
   robotextToRawString,
 } from 'lib/shared/message-utils';
+import {
+  threadIsPersonalChat,
+  threadIsTwoPersonChat,
+} from 'lib/shared/thread-utils';
+import { stringForUser } from 'lib/shared/user-utils';
 
 type Props = {
   messageInfo: MessageInfo,
@@ -27,16 +32,24 @@ class MessagePreview extends React.PureComponent<Props> {
 
   render() {
     const messageInfo: MessageInfo = this.props.messageInfo;
-    const username = messageInfo.creator.isViewer
-      ? "you: "
-      : `${messageInfo.creator.username || ""}: `;
     const unreadStyle = this.props.threadInfo.currentUser.unread
       ? styles.unread
       : null;
     if (messageInfo.type === messageType.TEXT) {
+      let usernameText = null;
+      if (
+        !threadIsPersonalChat(this.props.threadInfo) &&
+        !threadIsTwoPersonChat(this.props.threadInfo)
+      ) {
+        const userString = stringForUser(messageInfo.creator);
+        const username = `${userString}: `;
+        usernameText = (
+          <Text style={[styles.username, unreadStyle]}>{username}</Text>
+        );
+      }
       return (
         <Text style={[styles.lastMessage, unreadStyle]} numberOfLines={1}>
-          <Text style={[styles.username, unreadStyle]}>{username}</Text>
+          {usernameText}
           {messageInfo.text}
         </Text>
       );

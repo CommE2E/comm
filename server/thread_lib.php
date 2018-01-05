@@ -102,12 +102,12 @@ SQL;
             "unread" => $member['role'] !== null ? (bool)$row['unread'] : null,
           );
         }
-        if ($row['username']) {
-          $user_infos[$user_id] = array(
-            "id" => $user_id,
-            "username" => $row['username'],
-          );
-        }
+      }
+      if ($row['username']) {
+        $user_infos[$user_id] = array(
+          "id" => $user_id,
+          "username" => $row['username'],
+        );
       }
     }
   }

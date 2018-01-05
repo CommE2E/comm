@@ -173,7 +173,7 @@ function get_all_thread_permissions($info, $thread_id) {
     $result = permission_helper($info, $permission);
     $source = null;
     if ($result) {
-      if ($info && $info['permissions'] && $info['permissions'][$permission]) {
+      if ($info['permissions'] && $info['permissions'][$permission]) {
         $source = (string)$info['permissions'][$permission]['source'];
       } else {
         $source = (string)$thread_id;

@@ -24,6 +24,7 @@
     "apn": "^2.2.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "invariant": "^2.2.2",
     "lib": "file:../lib",
     "mysql2": "^1.5.1",
     "promise": "^8.0.1",

@@ -6,6 +6,7 @@ import Promise from 'promise';
 const builtins = Module.builtinModules;
 const extensions = { js: 'esm', json: "json" };
 const access = Promise.denodeify(fs.access);
+const readFile = Promise.denodeify(fs.readFile);
 
 export async function resolve(specifier, parentModuleURL, defaultResolve) {
   if (builtins.includes(specifier)) {
@@ -25,7 +26,20 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     /^\.{0,2}[/]/.test(specifier) !== true &&
     !specifier.startsWith('file:')
   ) {
-    return defaultResolve(specifier, parentModuleURL);
+    if (!parentModuleURL.includes("squadcal/jserver/dist/lib")) {
+      return await lookForJsNextMain(
+        specifier,
+        defaultResolve(specifier, parentModuleURL),
+      );
+    }
+    const replacedModuleURL = parentModuleURL.replace(
+      "squadcal/jserver/dist/lib",
+      "squadcal/lib",
+    );
+    return await lookForJsNextMain(
+      specifier,
+      defaultResolve(specifier, replacedModuleURL),
+    );
   }
   let error;
   for (let extension in extensions) {
@@ -42,5 +56,21 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     }
   }
   throw error;
+}
 
+async function lookForJsNextMain(module, result) {
+  if (result.format !== "cjs" || module.includes('/')) {
+    return result;
+  }
+  const moduleFolder =
+    result.url.match(new RegExp(`file://(.*node_modules\/${module})`))[1];
+  const packageConfig = await readFile(`${moduleFolder}/package.json`);
+  const packageJSON = JSON.parse(packageConfig);
+  if (packageJSON["jsnext:main"]) {
+    return {
+      url: `file://${moduleFolder}/${packageJSON["jsnext:main"]}`,
+      format: "esm",
+    };
+  }
+  return result;
 }

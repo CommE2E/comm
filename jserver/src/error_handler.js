@@ -16,7 +16,10 @@ export default function errorHandler(handler: OurHandler) {
         res.send(result);
       }
     } catch (error) {
-      res.status(500).send(error.message);
+      console.warn(error);
+      if (!res.headersSent) {
+        res.status(500).send(error.message);
+      }
     }
   };
 }
