@@ -28,7 +28,7 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
   res.json({ success: true });
   const pushInfo: IOSPushInfo = req.body;
 
-  if (Object.keys(push).length === 0) {
+  if (Object.keys(pushInfo).length === 0) {
     return [];
   }
 

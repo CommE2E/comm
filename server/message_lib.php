@@ -479,12 +479,19 @@ SQL;
   $conn->next_result();
 
   $time = earliest_time_considered_current();
+  $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
+  $visibility_open = VISIBILITY_OPEN;
   $unread_query = <<<SQL
 UPDATE memberships m
+LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
 SET m.unread = 1
-WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment}
+WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment} AND
+  (
+    JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
+    OR t.visibility_rules = {$visibility_open}
+  )
 SQL;
   $conn->query($unread_query);
   $conn->next_result();
@@ -492,9 +499,14 @@ SQL;
   $notif_query = <<<SQL
 SELECT m.user, m.thread, c2.ios_device_token
 FROM memberships m
+LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN cookies c1 ON c1.user = m.user AND c1.last_ping > {$time}
 LEFT JOIN cookies c2 ON c2.user = m.user AND c2.ios_device_token IS NOT NULL
-WHERE c1.user IS NULL AND c2.user IS NOT NULL AND {$thread_creator_fragment}
+WHERE c1.user IS NULL AND c2.user IS NOT NULL AND {$thread_creator_fragment} AND
+  (
+    JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
+    OR t.visibility_rules = {$visibility_open}
+  )
 SQL;
   $notif_query_result = $conn->query($notif_query);
 
