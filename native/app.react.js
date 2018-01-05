@@ -52,6 +52,7 @@ import {
   setIOSDeviceTokenActionTypes,
   setIOSDeviceToken,
 } from 'lib/actions/device-actions';
+import { unreadCount } from 'lib/selectors/thread-selectors';
 
 import {
   handleURLActionType,
@@ -114,6 +115,7 @@ type Props = {
   appLoggedIn: bool,
   activeThreadLatestMessage: ?string,
   deviceToken: ?string,
+  unreadCount: number,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -139,6 +141,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     appLoggedIn: PropTypes.bool.isRequired,
     activeThreadLatestMessage: PropTypes.string,
     deviceToken: PropTypes.string,
+    unreadCount: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -164,6 +167,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       "register",
       this.registerIOSPushPermissions,
     );
+    PushNotificationIOS.setApplicationIconBadgeNumber(this.props.unreadCount);
   }
 
   async handleInitialURL() {
@@ -215,6 +219,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
       );
       this.ensurePushNotifsEnabled();
+      PushNotificationIOS.setApplicationIconBadgeNumber(this.props.unreadCount);
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -242,6 +247,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
+    }
+    if (nextProps.unreadCount !== this.props.unreadCount) {
+      PushNotificationIOS.setApplicationIconBadgeNumber(nextProps.unreadCount);
     }
   }
 
@@ -402,6 +410,7 @@ const ConnectedAppWithNavigationState = connect(
           ? state.messageStore.threads[activeThread].messageIDs[0]
           : null,
       deviceToken: state.deviceToken,
+      unreadCount: unreadCount(state),
     };
   },
   includeDispatchActionProps,

@@ -59,6 +59,7 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
       );
       notification.topic = "org.squadcal.app";
       notification.badge = unreadCounts[userID];
+      notification.threadId = messageInfo.threadID;
       promises.push(apnProvider.send(
         notification,
         pushInfo[userID].deviceTokens,
