@@ -1,7 +1,7 @@
 // @flow
 
-import type { UserInfo } from 'lib/types/user-types';
-import { userInfoPropType } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
+import { accountUserInfoPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -13,13 +13,13 @@ import {
 import Button from './button.react';
 
 type Props = {
-  userInfo: UserInfo,
+  userInfo: AccountUserInfo,
   onSelect: (userID: string) => void,
 };
 class UserListUser extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfo: userInfoPropType.isRequired,
+    userInfo: accountUserInfoPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
   };
 

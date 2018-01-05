@@ -1,7 +1,7 @@
 // @flow
 
-import type { UserInfo } from 'lib/types/user-types';
-import { userInfoPropType } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
+import { accountUserInfoPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -10,13 +10,13 @@ import { FlatList } from 'react-native';
 import UserListUser from './user-list-user.react';
 
 type Props = {
-  userInfos: $ReadOnlyArray<UserInfo>,
+  userInfos: $ReadOnlyArray<AccountUserInfo>,
   onSelect: (userID: string) => void,
 };
 class UserList extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfos: PropTypes.arrayOf(userInfoPropType).isRequired,
+    userInfos: PropTypes.arrayOf(accountUserInfoPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
   };
 
@@ -32,11 +32,11 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static keyExtractor(threadInfo: UserInfo) {
+  static keyExtractor(threadInfo: AccountUserInfo) {
     return threadInfo.id;
   }
 
-  renderItem = (row: { item: UserInfo }) => {
+  renderItem = (row: { item: AccountUserInfo }) => {
     return (
       <UserListUser
         userInfo={row.item}
@@ -45,7 +45,7 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static getItemLayout(data: ?$ReadOnlyArray<UserInfo>, index: number) {
+  static getItemLayout(data: ?$ReadOnlyArray<AccountUserInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 

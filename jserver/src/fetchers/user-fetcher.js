@@ -24,6 +24,14 @@ async function fetchUserInfos(
       username: row.username,
     };
   }
+  for (let userID of userIDs) {
+    if (!userInfos[userID]) {
+      userInfos[userID] = {
+        id: userID,
+        username: null,
+      };
+    }
+  }
 
   return userInfos;
 }

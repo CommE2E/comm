@@ -167,7 +167,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       "register",
       this.registerIOSPushPermissions,
     );
-    PushNotificationIOS.setApplicationIconBadgeNumber(this.props.unreadCount);
+    AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+  }
+
+  static updateBadgeCount(unreadCount: number) {
+    if (Platform.OS === "ios") {
+      PushNotificationIOS.setApplicationIconBadgeNumber(unreadCount);
+    }
   }
 
   async handleInitialURL() {
@@ -219,7 +225,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
       );
       this.ensurePushNotifsEnabled();
-      PushNotificationIOS.setApplicationIconBadgeNumber(this.props.unreadCount);
+      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -249,7 +255,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.ensurePushNotifsEnabled();
     }
     if (nextProps.unreadCount !== this.props.unreadCount) {
-      PushNotificationIOS.setApplicationIconBadgeNumber(nextProps.unreadCount);
+      AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
     }
   }
 

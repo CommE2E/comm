@@ -3,8 +3,8 @@
 import type { AppState } from '../../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
-import { userInfoPropType } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
+import { accountUserInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
@@ -60,7 +60,7 @@ type Props = {
   threadInfo: ThreadInfo,
   close: () => void,
   // Redux state
-  otherUserInfos: {[id: string]: UserInfo},
+  otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   addUsersLoadingStatus: LoadingStatus,
   // Redux dispatch functions
@@ -73,16 +73,16 @@ type Props = {
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 type State = {|
-  userSearchResults: $ReadOnlyArray<UserInfo>,
+  userSearchResults: $ReadOnlyArray<AccountUserInfo>,
   usernameInputText: string,
-  userInfoInputArray: $ReadOnlyArray<UserInfo>,
+  userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 |};
 class AddUsersModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     close: PropTypes.func.isRequired,
-    otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
+    otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     addUsersLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -90,7 +90,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     searchUsers: PropTypes.func.isRequired,
   };
   mounted = false;
-  tagInput: ?TagInput<UserInfo> = null;
+  tagInput: ?TagInput<AccountUserInfo> = null;
 
   constructor(props: Props) {
     super(props);
@@ -110,9 +110,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 
   static getSearchResults(
     text: string,
-    userInfos: {[id: string]: UserInfo},
+    userInfos: {[id: string]: AccountUserInfo},
     searchIndex: SearchIndex,
-    userInfoInputArray: $ReadOnlyArray<UserInfo>,
+    userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     threadInfo: ThreadInfo,
   ) {
     const excludeUserIDs = userInfoInputArray
@@ -236,11 +236,11 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     }
   }
 
-  tagInputRef = (tagInput: ?TagInput<UserInfo>) => {
+  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
   }
 
-  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<UserInfo>) => {
+  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
     if (this.props.addUsersLoadingStatus === "loading") {
       return;
     }
@@ -254,7 +254,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     this.setState({ userInfoInputArray, userSearchResults });
   }
 
-  tagDataLabelExtractor = (userInfo: UserInfo) => userInfo.username;
+  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
     if (this.props.addUsersLoadingStatus === "loading") {

@@ -6,8 +6,8 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { ThreadInfo, VisibilityRules } from 'lib/types/thread-types';
 import { threadInfoPropType, visibilityRules } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
-import { userInfoPropType } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
+import { accountUserInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
 import type { NewThreadResult } from 'lib/actions/thread-actions';
@@ -71,7 +71,7 @@ type Props = {
   // Redux state
   loadingStatus: LoadingStatus,
   parentThreadInfo: ?ThreadInfo,
-  otherUserInfos: {[id: string]: UserInfo},
+  otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -88,8 +88,8 @@ type Props = {
 type State = {
   nameInputText: string,
   usernameInputText: string,
-  userInfoInputArray: $ReadOnlyArray<UserInfo>,
-  userSearchResults: $ReadOnlyArray<UserInfo>,
+  userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  userSearchResults: $ReadOnlyArray<AccountUserInfo>,
   selectedPrivacyIndex: number,
   tagInputHeight: number,
   showColorPicker: bool,
@@ -111,7 +111,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     parentThreadInfo: threadInfoPropType,
-    otherUserInfos: PropTypes.objectOf(userInfoPropType).isRequired,
+    otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
@@ -309,7 +309,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     this.setState({ nameInputText: text });
   }
 
-  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<UserInfo>) => {
+  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
     const userSearchResults = getUserSearchResults(
       this.state.usernameInputText,
       this.props.otherUserInfos,
@@ -319,7 +319,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     this.setState({ userInfoInputArray, userSearchResults });
   }
 
-  tagDataLabelExtractor = (userInfo: UserInfo) => userInfo.username;
+  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   handleIndexChange = (index: number) => {
     this.setState({ selectedPrivacyIndex: index });
@@ -413,7 +413,9 @@ class InnerAddThread extends React.PureComponent<Props, State> {
           ? visibilityRules.CHAT_NESTED_OPEN
           : visibilityRules.CHAT_SECRET,
         this.state.color,
-        this.state.userInfoInputArray.map((userInfo: UserInfo) => userInfo.id),
+        this.state.userInfoInputArray.map(
+          (userInfo: AccountUserInfo) => userInfo.id,
+        ),
         this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
     } catch (e) {
