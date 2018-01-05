@@ -476,6 +476,7 @@ INSERT INTO messages(id, thread, user, type, content, time)
 VALUES {$all_values}
 SQL;
   $conn->query($message_insert_query);
+  $conn->next_result();
 
   $time = earliest_time_considered_current();
   $unread_query = <<<SQL
@@ -486,6 +487,7 @@ SET m.unread = 1
 WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment}
 SQL;
   $conn->query($unread_query);
+  $conn->next_result();
 
   $notif_query = <<<SQL
 SELECT m.user, m.thread, c2.ios_device_token
@@ -524,7 +526,9 @@ SQL;
       }
     }
   }
-  call_node('ios_push_notifs', $ios_push_info);
+  if ($ios_push_info) {
+    call_node('ios_push_notifs', $ios_push_info);
+  }
 
   return $return;
 }

@@ -28,6 +28,10 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
   res.json({ success: true });
   const pushInfo: IOSPushInfo = req.body;
 
+  if (Object.keys(push).length === 0) {
+    return [];
+  }
+
   const conn = await connect();
   const [ unreadCounts, { threadInfos, userInfos } ] = await Promise.all([
     getUnreadCounts(conn, Object.keys(pushInfo)),
