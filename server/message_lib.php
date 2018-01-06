@@ -372,6 +372,10 @@ SQL;
   return $users;
 }
 
+function message_type_gets_notif($message_type) {
+  return $message_type !== MESSAGE_TYPE_CREATE_SUB_THREAD;
+}
+
 // returns message infos with IDs
 function create_message_infos($new_message_infos) {
   global $conn;
@@ -381,6 +385,7 @@ function create_message_infos($new_message_infos) {
   }
 
   $thread_creator_pairs = array();
+  $notif_thread_creator_pairs = array();
   $threads_to_message_indices = array();
   $content_by_index = array();
   foreach ($new_message_infos as $index => $new_message_info) {
@@ -388,11 +393,14 @@ function create_message_infos($new_message_infos) {
     $creator_id = $new_message_info['creatorID'];
     $thread_creator_pairs[$thread_id . $creator_id] =
       "(m.thread = {$thread_id} AND m.user != {$creator_id})";
-
-    if (!isset($threads_to_message_indices[$thread_id])) {
-      $threads_to_message_indices[$thread_id] = array();
+    if (message_type_gets_notif($new_message_info['type'])) {
+      $notif_thread_creator_pairs[$thread_id . $creator_id] =
+        "(m.thread = {$thread_id} AND m.user != {$creator_id})";
+      if (!isset($threads_to_message_indices[$thread_id])) {
+        $threads_to_message_indices[$thread_id] = array();
+      }
+      $threads_to_message_indices[$thread_id][] = $index;
     }
-    $threads_to_message_indices[$thread_id][] = $index;
 
     if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $content_by_index[$index] = $conn->real_escape_string(
@@ -445,6 +453,8 @@ function create_message_infos($new_message_infos) {
     }
   }
   $thread_creator_fragment = "(" . implode(" OR ", $thread_creator_pairs) . ")";
+  $notif_thread_creator_fragment =
+    "(" . implode(" OR ", $notif_thread_creator_pairs) . ")";
 
   $num_new_messages = count($new_message_infos);
   $id_inserts = array_fill(0, $num_new_messages, "('messages')");
@@ -503,8 +513,9 @@ LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN cookies c ON c.user = m.user AND c.ios_device_token IS NOT NULL
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
-WHERE c.user IS NOT NULL AND f.user IS NULL AND {$thread_creator_fragment} AND
-  (
+WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND m.subscribed = 1
+  AND {$notif_thread_creator_fragment}
+  AND (
     JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
     OR t.visibility_rules = {$visibility_open}
   )
