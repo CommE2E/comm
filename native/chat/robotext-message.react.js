@@ -94,7 +94,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       const entityType = entityParts[2].charAt(0);
       const id = entityParts[2].substr(1);
 
-      if (entityType === "t") {
+      if (entityType === "t" && id !== this.props.item.messageInfo.threadID) {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
         continue;
       } else if (entityType === "c") {
