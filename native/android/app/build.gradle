@@ -133,6 +133,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-notifications')
     compile project(':react-native-vector-icons')
     compile project(':react-native-keychain')
     compile fileTree(dir: "libs", include: ["*.jar"])

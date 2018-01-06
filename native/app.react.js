@@ -30,11 +30,12 @@ import {
   Linking,
   View,
   StyleSheet,
-  PushNotificationIOS,
+  Alert,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import NotificationsIOS from 'react-native-notifications';
 
 import { registerConfig } from 'lib/utils/config';
 import {
@@ -163,16 +164,24 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       null,
       null,
     );
-    PushNotificationIOS.addEventListener(
-      "register",
+    NotificationsIOS.addEventListener(
+      "remoteNotificationsRegistered",
       this.registerIOSPushPermissions,
+    );
+    NotificationsIOS.addEventListener(
+      "remoteNotificationsRegistrationFailed",
+      this.failedToRegisterIOSPushPermissions,
+    );
+    NotificationsIOS.addEventListener(
+      "notificationReceivedForeground",
+      this.iosForegroundNotificationReceived,
     );
     AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
   }
 
   static updateBadgeCount(unreadCount: number) {
     if (Platform.OS === "ios") {
-      PushNotificationIOS.setApplicationIconBadgeNumber(unreadCount);
+      NotificationsIOS.setBadgesCount(unreadCount);
     }
   }
 
@@ -191,9 +200,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.activePingSubscription = null;
     }
     this.closingApp();
-    PushNotificationIOS.removeEventListener(
-      "register",
+    NotificationsIOS.removeEventListener(
+      "remoteNotificationsRegistered",
       this.registerIOSPushPermissions,
+    );
+    NotificationsIOS.remoteEventListener(
+      "remoteNotificationsRegistrationFailed",
+      this.failedToRegisterIOSPushPermissions,
+    );
+    NotificationsIOS.remoteEventListener(
+      "notificationReceivedForeground",
+      this.iosForegroundNotificationReceived,
     );
   }
 
@@ -259,30 +276,26 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
-  ensurePushNotifsEnabled = () => {
+  async ensurePushNotifsEnabled() {
+    const missingDeviceToken = this.props.deviceToken === null
+      || this.props.deviceToken === undefined;
     if (Platform.OS === "ios") {
-      PushNotificationIOS.checkPermissions(
-        this.checkIOSPushPermissionsAndRequestIfMissing,
-      );
+      let permissionNeeded = missingDeviceToken;
+      if (!permissionNeeded) {
+        const permissions: PushPermissions =
+          await NotificationsIOS.checkPermissions();
+        permissionNeeded =
+          AppWithNavigationState.permissionMissing(permissions);
+      }
+      if (permissionNeeded) {
+        await requestIOSPushPermissions();
+      }
+      NotificationsIOS.consumeBackgroundQueue();
     }
   }
 
-  checkIOSPushPermissionsAndRequestIfMissing = (
-    permissions: PushPermissions,
-  ) => {
-    let permissionNeeded = this.props.deviceToken === null
-      || this.props.deviceToken === undefined;
-    if (!permissionNeeded) {
-      for (let permission in permissions) {
-        if (!permissions[permission]) {
-          permissionNeeded = true;
-          break;
-        }
-      }
-    }
-    if (permissionNeeded) {
-      requestIOSPushPermissions();
-    }
+  static permissionMissing(permissions: PushPermissions) {
+    return !permissions.alert || !permissions.badge || !permissions.sound;
   }
 
   registerIOSPushPermissions = (deviceToken: string) => {
@@ -290,6 +303,19 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       setIOSDeviceTokenActionTypes,
       this.props.setIOSDeviceToken(deviceToken),
     );
+  }
+
+  failedToRegisterIOSPushPermissions = (error) => {
+    Alert.alert(
+      "Need notif permissions",
+      "SquadCal needs notification permissions to keep you in the loop! " +
+        "Please enable in Settings App -> Notifications -> SquadCal.",
+      [ { text: 'OK' } ],
+    );
+  }
+
+  iosForegroundNotificationReceived = (notification) => {
+    const threadID = notification.getThread();
   }
 
   ping = () => {
