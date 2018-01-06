@@ -497,12 +497,13 @@ SQL;
   $conn->next_result();
 
   $notif_query = <<<SQL
-SELECT m.user, m.thread, c2.ios_device_token
+SELECT m.user, m.thread, c.ios_device_token
 FROM memberships m
 LEFT JOIN threads t ON t.id = m.thread
-LEFT JOIN cookies c1 ON c1.user = m.user AND c1.last_ping > {$time}
-LEFT JOIN cookies c2 ON c2.user = m.user AND c2.ios_device_token IS NOT NULL
-WHERE c1.user IS NULL AND c2.user IS NOT NULL AND {$thread_creator_fragment} AND
+LEFT JOIN cookies c ON c.user = m.user AND c.ios_device_token IS NOT NULL
+LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
+  AND f.time > {$time}
+WHERE c.user IS NOT NULL AND f.user IS NULL AND {$thread_creator_fragment} AND
   (
     JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
     OR t.visibility_rules = {$visibility_open}
