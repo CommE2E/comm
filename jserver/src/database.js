@@ -6,7 +6,7 @@ import SQL from 'sql-template-strings';
 import dbConfig from '../secrets/db_config';
 
 export type QueryResult = [
-  any[],
+  any[] & { insertId?: number },
   any[],
 ];
 

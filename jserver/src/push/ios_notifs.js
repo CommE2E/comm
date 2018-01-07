@@ -1,11 +1,13 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { RawMessageInfo } from 'lib/types/message-types';
+import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { Connection } from '../database';
 
 import apn from 'apn';
+import invariant from 'invariant';
 
 import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
@@ -33,13 +35,18 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
   }
 
   const conn = await connect();
-  const [ unreadCounts, { threadInfos, userInfos } ] = await Promise.all([
+  const [
+    unreadCounts,
+    { threadInfos, userInfos },
+    uniqueIDs,
+  ] = await Promise.all([
     getUnreadCounts(conn, Object.keys(pushInfo)),
     fetchInfos(conn, pushInfo),
+    createUniqueIDs(conn, pushInfo),
   ]);
-  conn.end();
 
   const promises = [];
+  const notifications = [];
   for (let userID in pushInfo) {
     for (let rawMessageInfo of pushInfo[userID].messageInfos) {
       const messageInfo = createMessageInfo(
@@ -52,22 +59,42 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
         continue;
       }
       const threadInfo = threadInfos[messageInfo.threadID];
-      const notification = new apn.Notification();
-      notification.alert = notifTextForMessageInfo(
+      const uniqueID = uniqueIDs.shift();
+      invariant(uniqueID, "should have sufficient unique IDs");
+      const notification = prepareNotification(
         messageInfo,
         threadInfo,
+        unreadCounts[userID],
+        uniqueID,
       );
-      notification.topic = "org.squadcal.app";
-      notification.badge = unreadCounts[userID];
-      notification.threadId = messageInfo.threadID;
       promises.push(apnProvider.send(
         notification,
         pushInfo[userID].deviceTokens,
       ));
+      notifications.push([
+        uniqueID,
+        userID,
+        messageInfo.threadID,
+        messageInfo.id,
+        JSON.stringify({ iosDeviceTokens: pushInfo[userID].deviceTokens }),
+      ]);
     }
   }
+  if (notifications.length > 0) {
+    const query = SQL`
+      INSERT INTO notifications (id, user, thread, message, delivery)
+      VALUES ${notifications}
+    `;
+    promises.push(conn.query(query));
+  }
+  if (uniqueIDs.length > 0) {
+    const query = SQL`DELETE FROM ids WHERE id IN (${uniqueIDs})`;
+    promises.push(conn.query(query));
+  }
 
-  return await Promise.all(promises);
+  const result = await Promise.all(promises);
+  conn.end();
+  return result;
 }
 
 async function getUnreadCounts(
@@ -156,6 +183,44 @@ async function fetchMissingUserInfos(
     finalUserInfos = { ...userInfos, ...newUserInfos };
   }
   return finalUserInfos;
+}
+
+async function createUniqueIDs(
+  conn: Connection,
+  pushInfo: IOSPushInfo,
+): Promise<string[]> {
+  let numIDsNeeded = 0;
+  for (let userID in pushInfo) {
+    numIDsNeeded += pushInfo[userID].messageInfos.length;
+  }
+  if (!numIDsNeeded) {
+    return [];
+  }
+  const tableNames = Array(numIDsNeeded).fill(["notifications"]);
+  const query = SQL`INSERT INTO ids (table_name) VALUES ${tableNames}`;
+  const [ result ] = await conn.query(query);
+  const lastNewID = result.insertId;
+  invariant(lastNewID !== null && lastNewID !== undefined, "should be set");
+  const firstNewID = lastNewID - numIDsNeeded + 1;
+  return Array.from(
+    new Array(numIDsNeeded),
+    (val, index) => (index + firstNewID).toString(),
+  );
+}
+
+function prepareNotification(
+  messageInfo: MessageInfo,
+  threadInfo: ThreadInfo,
+  unreadCount: number,
+  uniqueID: string,
+): apn.Notification {
+  const notifText = notifTextForMessageInfo(messageInfo, threadInfo);
+  const notification = new apn.Notification();
+  notification.alert = notifText;
+  notification.topic = "org.squadcal.app";
+  notification.badge = unreadCount;
+  notification.threadId = messageInfo.threadID;
+  return notification;
 }
 
 export {
