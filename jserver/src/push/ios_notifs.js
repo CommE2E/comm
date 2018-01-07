@@ -216,10 +216,19 @@ function prepareNotification(
 ): apn.Notification {
   const notifText = notifTextForMessageInfo(messageInfo, threadInfo);
   const notification = new apn.Notification();
-  notification.alert = notifText;
-  notification.topic = "org.squadcal.app";
+  notification.contentAvailable = true;
   notification.badge = unreadCount;
+  notification.topic = "org.squadcal.app";
   notification.threadId = messageInfo.threadID;
+  notification.payload = {
+    managedAps: {
+      action: "CREATE",
+      notificationId: uniqueID,
+      alert: {
+        body: notifText,
+      }
+    },
+  };
   return notification;
 }
 

@@ -790,6 +790,9 @@
 						DevelopmentTeam = 6BF4H9TU5U;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
 							com.apple.GameCenter = {
 								enabled = 0;
 							};

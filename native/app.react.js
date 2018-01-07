@@ -367,7 +367,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const threadID = notification.getThread();
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
-      message: notification.getMessage(),
+      message: notification.getMessage().body,
       onPress: () => {
         this.props.dispatchActionPayload(
           notificationPressActionType,
