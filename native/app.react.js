@@ -257,6 +257,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         "notificationOpened",
         this.iosNotificationOpened,
       );
+    }
   }
 
   handleURLChange = (event: { url: string }) => {
