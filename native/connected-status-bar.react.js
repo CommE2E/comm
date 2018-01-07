@@ -10,7 +10,14 @@ import PropTypes from 'prop-types';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-class ConnectedStatusBar extends React.PureComponent<*> {
+type InjectedProps = {
+  globalLoadingStatus: LoadingStatus,
+};
+type OwnProps = {
+  barStyle?: "light-content" | "dark-content",
+  animated?: bool,
+};
+class ConnectedStatusBar extends React.PureComponent<InjectedProps & OwnProps> {
 
   static propTypes = {
     globalLoadingStatus: PropTypes.string.isRequired,
@@ -28,6 +35,6 @@ class ConnectedStatusBar extends React.PureComponent<*> {
 
 }
 
-export default connect((state: AppState): * => ({
+export default connect((state: AppState): InjectedProps => ({
   globalLoadingStatus: globalLoadingStatusSelector(state),
 }))(ConnectedStatusBar);

@@ -13,10 +13,8 @@ import type {
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
-import type {
-  LeaveThreadResult,
-  NewThreadResult,
-} from 'lib/actions/thread-actions';
+import type { LeaveThreadResult } from 'lib/actions/thread-actions';
+import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 
 import {
   TabNavigator,
@@ -48,6 +46,7 @@ import {
   subscribeActionTypes,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
+import { notificationPressActionType } from 'lib/shared/notif-utils';
 
 import {
   Calendar,
@@ -82,6 +81,12 @@ export type NavInfo = {|
 
 const handleURLActionType = "HANDLE_URL";
 const navigateToAppActionType = "NAVIGATE_TO_APP";
+
+const uniqueBaseId = `id-${Date.now()}`;
+let uuidCount = 0;
+function _getUuid() {
+  return `${uniqueBaseId}-${uuidCount++}`;
+}
 
 export type Action = BaseAction |
   NavigationAction |
@@ -309,7 +314,18 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       endDate: state.endDate,
       home: state.home,
       threadID: state.threadID,
-      navigationState: replaceChatStackWithNewThread(
+      navigationState: replaceChatStackWithThread(
+        state.navigationState,
+        action.payload.newThreadInfo,
+      ),
+    };
+  } else if (action.type === notificationPressActionType) {
+    return {
+      startDate: state.startDate,
+      endDate: state.endDate,
+      home: state.home,
+      threadID: state.threadID,
+      navigationState: handleNotificationPress(
         state.navigationState,
         action.payload,
       ),
@@ -564,9 +580,9 @@ function filterChatScreensForThreadInfos(
   return { ...state, routes: newRootSubRoutes };
 }
 
-function replaceChatStackWithNewThread(
+function replaceChatStackWithThread(
   state: NavigationState,
-  payload: NewThreadResult,
+  threadInfo: ThreadInfo,
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
@@ -580,7 +596,7 @@ function replaceChatStackWithNewThread(
   newChatRoute.routes.push({
     key: 'NewThreadMessageList',
     routeName: MessageListRouteName,
-    params: { threadInfo: payload.newThreadInfo },
+    params: { threadInfo },
   });
   newChatRoute.index = 1;
 
@@ -589,6 +605,38 @@ function replaceChatStackWithNewThread(
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
   return { ...state, routes: newRootSubRoutes };
+}
+
+function handleNotificationPress(
+  state: NavigationState,
+  payload: NotificationPressPayload,
+): NavigationState {
+  if (payload.clearChatRoutes) {
+    return replaceChatStackWithThread(
+      state,
+      payload.threadInfo,
+    );
+  } else {
+    const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const newChatRoute = {
+      ...chatRoute,
+      routes: [
+        ...chatRoute.routes,
+        {
+          key: `Notif-${_getUuid()}`,
+          routeName: MessageListRouteName,
+          params: { threadInfo: payload.threadInfo },
+        }
+      ],
+      index: chatRoute.routes.length,
+    };
+    const newAppSubRoutes = [ ...appRoute.routes ];
+    newAppSubRoutes[1] = newChatRoute;
+    const newRootSubRoutes = [ ...state.routes ];
+    newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+    return { ...state, routes: newRootSubRoutes };
+  }
 }
 
 export {

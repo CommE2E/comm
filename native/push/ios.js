@@ -11,7 +11,7 @@ async function requestIOSPushPermissions() {
     return;
   }
   currentlyActive = true;
-  await NotificationsIOS.requestPermissions();
+  await NotificationsIOS.requestPermissions([]);
   currentlyActive = false;
 }
 

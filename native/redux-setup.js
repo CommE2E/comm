@@ -20,6 +20,7 @@ import { NavigationActions } from 'react-navigation';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
+import { notificationPressActionType } from 'lib/shared/notif-utils';
 
 import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
@@ -129,6 +130,7 @@ function reducer(state: AppState, action: *) {
   if (
     action.type === handleURLActionType ||
       action.type === navigateToAppActionType ||
+      action.type === notificationPressActionType ||
       action.type === NavigationActions.INIT ||
       action.type === NavigationActions.NAVIGATE ||
       action.type === NavigationActions.BACK ||

@@ -18,7 +18,9 @@ import type {
   ActivityUpdate,
   UpdateActivityResult,
 } from 'lib/actions/ping-actions';
-import type { PushPermissions } from './push';
+import type { PushPermissions } from './push/ios';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -31,11 +33,13 @@ import {
   View,
   StyleSheet,
   Alert,
+  DeviceInfo,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
+import InAppNotification from 'react-native-in-app-notification';
 
 import { registerConfig } from 'lib/utils/config';
 import {
@@ -54,6 +58,7 @@ import {
   setIOSDeviceToken,
 } from 'lib/actions/device-actions';
 import { unreadCount } from 'lib/selectors/thread-selectors';
+import { notificationPressActionType } from 'lib/shared/notif-utils';
 
 import {
   handleURLActionType,
@@ -68,7 +73,8 @@ import {
   activeThreadSelector,
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
-import { requestIOSPushPermissions } from './push';
+import { requestIOSPushPermissions } from './push/ios';
+import NotificationBody from './push/notification-body.react';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -117,6 +123,7 @@ type Props = {
   activeThreadLatestMessage: ?string,
   deviceToken: ?string,
   unreadCount: number,
+  threadInfos: {[id: string]: ThreadInfo},
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -143,6 +150,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     activeThreadLatestMessage: PropTypes.string,
     deviceToken: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
+    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -152,6 +160,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   };
   currentState: ?string = NativeAppState.currentState;
   activePingSubscription: ?number = null;
+  inAppNotification: ?InAppNotification = null;
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
@@ -175,6 +184,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     NotificationsIOS.addEventListener(
       "notificationReceivedForeground",
       this.iosForegroundNotificationReceived,
+    );
+    NotificationsIOS.addEventListener(
+      "notificationOpened",
+      this.iosNotificationOpened,
     );
     AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
   }
@@ -204,13 +217,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       "remoteNotificationsRegistered",
       this.registerIOSPushPermissions,
     );
-    NotificationsIOS.remoteEventListener(
+    NotificationsIOS.removeEventListener(
       "remoteNotificationsRegistrationFailed",
       this.failedToRegisterIOSPushPermissions,
     );
-    NotificationsIOS.remoteEventListener(
+    NotificationsIOS.removeEventListener(
       "notificationReceivedForeground",
       this.iosForegroundNotificationReceived,
+    );
+    NotificationsIOS.removeEventListener(
+      "notificationOpened",
+      this.iosNotificationOpened,
     );
   }
 
@@ -316,6 +333,30 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   iosForegroundNotificationReceived = (notification) => {
     const threadID = notification.getThread();
+    invariant(this.inAppNotification, "should be set");
+    this.inAppNotification.show({
+      message: notification.getMessage(),
+      onPress: () => {
+        this.props.dispatchActionPayload(
+          notificationPressActionType,
+          {
+            threadInfo: this.props.threadInfos[threadID],
+            clearChatRoutes: false,
+          },
+        );
+      },
+    });
+  }
+
+  iosNotificationOpened = (notification) => {
+    const threadID = notification.getThread();
+    this.props.dispatchActionPayload(
+      notificationPressActionType,
+      {
+        threadInfo: this.props.threadInfos[threadID],
+        clearChatRoutes: true,
+      },
+    );
   }
 
   ping = () => {
@@ -410,12 +451,22 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
     });
+    const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>
         <RootNavigator navigation={navigation} />
         <ConnectedStatusBar />
+        <InAppNotification
+          height={inAppNotificationHeight}
+          notificationBodyComponent={NotificationBody}
+          ref={this.inAppNotificationRef}
+        />
       </View>
     );
+  }
+
+  inAppNotificationRef = (inAppNotification: InAppNotification) => {
+    this.inAppNotification = inAppNotification;
   }
 
 }
@@ -443,6 +494,7 @@ const ConnectedAppWithNavigationState = connect(
           : null,
       deviceToken: state.deviceToken,
       unreadCount: unreadCount(state),
+      threadInfos: state.threadInfos,
     };
   },
   includeDispatchActionProps,

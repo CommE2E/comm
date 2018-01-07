@@ -23,7 +23,6 @@ import {
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 
-import ConnectedStatusBar from '../connected-status-bar.react';
 import {
   getNativeSharedWebCredentials,
   deleteNativeCredentialsFor,
@@ -82,7 +81,6 @@ class More extends React.PureComponent<Props> {
           onPress={this.onPressPing}
           title="Ping"
         />
-        <ConnectedStatusBar />
       </View>
     );
   }
