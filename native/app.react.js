@@ -198,6 +198,31 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
+  static clearIOSNotifsOfThread(threadID: string) {
+    NotificationsIOS.getDeliveredNotifications(
+      (notifications) =>
+        AppWithNavigationState.clearDeliveredIOSNotificationsForThread(
+          threadID,
+          notifications,
+        ),
+    );
+  }
+
+  static clearDeliveredIOSNotificationsForThread(
+    threadID: string,
+    notifications: Object[],
+  ) {
+    const identifiersToClear = [];
+    for (let notification of notifications) {
+      if (notification["thread-id"] === threadID) {
+        identifiersToClear.push(notification.identifier);
+      }
+    }
+    if (identifiersToClear) {
+      NotificationsIOS.removeDeliveredNotifications(identifiersToClear);
+    }
+  }
+
   async handleInitialURL() {
     const url = await Linking.getInitialURL();
     if (url) {
@@ -260,6 +285,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       );
       this.ensurePushNotifsEnabled();
       AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+      if (this.props.activeThread) {
+        AppWithNavigationState.clearIOSNotifsOfThread(this.props.activeThread);
+      }
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -284,6 +312,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.props.activeThread,
         this.props.activeThreadLatestMessage,
       );
+    }
+    const nextActiveThread = nextProps.activeThread;
+    if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
+      AppWithNavigationState.clearIOSNotifsOfThread(nextActiveThread);
     }
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
