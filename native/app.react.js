@@ -173,23 +173,25 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       null,
       null,
     );
-    NotificationsIOS.addEventListener(
-      "remoteNotificationsRegistered",
-      this.registerIOSPushPermissions,
-    );
-    NotificationsIOS.addEventListener(
-      "remoteNotificationsRegistrationFailed",
-      this.failedToRegisterIOSPushPermissions,
-    );
-    NotificationsIOS.addEventListener(
-      "notificationReceivedForeground",
-      this.iosForegroundNotificationReceived,
-    );
-    NotificationsIOS.addEventListener(
-      "notificationOpened",
-      this.iosNotificationOpened,
-    );
-    AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+    if (Platform.OS === "ios") {
+      NotificationsIOS.addEventListener(
+        "remoteNotificationsRegistered",
+        this.registerIOSPushPermissions,
+      );
+      NotificationsIOS.addEventListener(
+        "remoteNotificationsRegistrationFailed",
+        this.failedToRegisterIOSPushPermissions,
+      );
+      NotificationsIOS.addEventListener(
+        "notificationReceivedForeground",
+        this.iosForegroundNotificationReceived,
+      );
+      NotificationsIOS.addEventListener(
+        "notificationOpened",
+        this.iosNotificationOpened,
+      );
+      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+    }
   }
 
   static updateBadgeCount(unreadCount: number) {
@@ -238,22 +240,23 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.activePingSubscription = null;
     }
     this.closingApp();
-    NotificationsIOS.removeEventListener(
-      "remoteNotificationsRegistered",
-      this.registerIOSPushPermissions,
-    );
-    NotificationsIOS.removeEventListener(
-      "remoteNotificationsRegistrationFailed",
-      this.failedToRegisterIOSPushPermissions,
-    );
-    NotificationsIOS.removeEventListener(
-      "notificationReceivedForeground",
-      this.iosForegroundNotificationReceived,
-    );
-    NotificationsIOS.removeEventListener(
-      "notificationOpened",
-      this.iosNotificationOpened,
-    );
+    if (Platform.OS === "ios") {
+      NotificationsIOS.removeEventListener(
+        "remoteNotificationsRegistered",
+        this.registerIOSPushPermissions,
+      );
+      NotificationsIOS.removeEventListener(
+        "remoteNotificationsRegistrationFailed",
+        this.failedToRegisterIOSPushPermissions,
+      );
+      NotificationsIOS.removeEventListener(
+        "notificationReceivedForeground",
+        this.iosForegroundNotificationReceived,
+      );
+      NotificationsIOS.removeEventListener(
+        "notificationOpened",
+        this.iosNotificationOpened,
+      );
   }
 
   handleURLChange = (event: { url: string }) => {
@@ -284,9 +287,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
       );
       this.ensurePushNotifsEnabled();
-      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
-      if (this.props.activeThread) {
-        AppWithNavigationState.clearIOSNotifsOfThread(this.props.activeThread);
+      if (Platform.OS === "ios") {
+        AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+        if (this.props.activeThread) {
+          AppWithNavigationState.clearIOSNotifsOfThread(
+            this.props.activeThread,
+          );
+        }
       }
     } else if (
       lastState === "active" &&
@@ -313,15 +320,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.props.activeThreadLatestMessage,
       );
     }
-    const nextActiveThread = nextProps.activeThread;
-    if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
-      AppWithNavigationState.clearIOSNotifsOfThread(nextActiveThread);
-    }
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
     }
-    if (nextProps.unreadCount !== this.props.unreadCount) {
-      AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
+    if (Platform.OS === "ios") {
+      const nextActiveThread = nextProps.activeThread;
+      if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
+        AppWithNavigationState.clearIOSNotifsOfThread(nextActiveThread);
+      }
+      if (nextProps.unreadCount !== this.props.unreadCount) {
+        AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
+      }
     }
   }
 
