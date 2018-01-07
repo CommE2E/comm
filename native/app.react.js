@@ -86,7 +86,7 @@ if (!__DEV__) {
   // Since iOS is simulated and not emulated, we can use localhost
   urlPrefix = "http://localhost/~ashoat/squadcal/";
   // Uncomment below and update IP address if testing on physical device
-  //urlPrefix = "http://192.168.1.3/~ashoat/squadcal/";
+  //urlPrefix = "http://192.168.1.7/~ashoat/squadcal/";
 } else {
   invariant(false, "unsupported platform");
 }

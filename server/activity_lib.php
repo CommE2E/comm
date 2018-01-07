@@ -5,6 +5,7 @@ require_once('auth.php');
 require_once('permissions.php');
 require_once('message_lib.php');
 require_once('thread_lib.php');
+require_once('call_node.php');
 
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused
@@ -81,6 +82,12 @@ WHERE role != 0
   AND user = {$viewer_id}
 SQL;
     $conn->query($query);
+
+    $push_rescind_info = array(
+      "userID" => (string)$viewer_id,
+      "threadIDs" => array_map('strval', $focused_thread_ids),
+    );
+    call_node('rescind_push_notifs', $push_rescind_info);
   }
 
   // To protect against a possible race condition, we reset the thread to unread
