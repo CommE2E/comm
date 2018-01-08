@@ -230,29 +230,6 @@ if ($changed_sql_fields) {
   $conn->query("UPDATE threads SET {$sql_set_string} WHERE id = {$thread}");
 }
 
-$time = round(microtime(true) * 1000); // in milliseconds
-$message_infos = array();
-foreach ($changed_fields as $field_name => $new_value) {
-  $message_infos[] = array(
-    'type' => MESSAGE_TYPE_CHANGE_SETTINGS,
-    'threadID' => (string)$thread,
-    'creatorID' => (string)$user,
-    'time' => $time,
-    'field' => $field_name,
-    'value' => $new_value,
-  );
-}
-if ($add_member_ids) {
-  $message_infos[] = array(
-    'type' => MESSAGE_TYPE_ADD_MEMBERS,
-    'threadID' => (string)$thread,
-    'creatorID' => (string)$user,
-    'time' => $time,
-    'addedUserIDs' => array_map("strval", $add_member_ids),
-  );
-}
-$new_message_infos = create_message_infos($message_infos);
-
 $to_save = array();
 $to_delete = array();
 if (
@@ -283,6 +260,29 @@ if ($add_member_ids) {
 }
 save_memberships($to_save);
 delete_memberships($to_delete);
+
+$time = round(microtime(true) * 1000); // in milliseconds
+$message_infos = array();
+foreach ($changed_fields as $field_name => $new_value) {
+  $message_infos[] = array(
+    'type' => MESSAGE_TYPE_CHANGE_SETTINGS,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)$user,
+    'time' => $time,
+    'field' => $field_name,
+    'value' => $new_value,
+  );
+}
+if ($add_member_ids) {
+  $message_infos[] = array(
+    'type' => MESSAGE_TYPE_ADD_MEMBERS,
+    'threadID' => (string)$thread,
+    'creatorID' => (string)$user,
+    'time' => $time,
+    'addedUserIDs' => array_map("strval", $add_member_ids),
+  );
+}
+$new_message_infos = create_message_infos($message_infos);
 
 list($thread_infos) = get_thread_infos("t.id = {$thread}");
 

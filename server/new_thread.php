@@ -104,30 +104,6 @@ $initial_member_ids = isset($_POST['initial_member_ids'])
   ? verify_user_ids($_POST['initial_member_ids'])
   : array();
 
-$message_infos = array(array(
-  'type' => MESSAGE_TYPE_CREATE_THREAD,
-  'threadID' => (string)$id,
-  'creatorID' => (string)$creator,
-  'time' => $time,
-  'initialThreadState' => array(
-    'name' => $raw_name,
-    'parentThreadID' => $parent_thread_id ? (string)$parent_thread_id : null,
-    'visibilityRules' => $vis_rules,
-    'color' => $color,
-    'memberIDs' => array_map("strval", $initial_member_ids),
-  ),
-));
-if ($parent_thread_id) {
-  $message_infos[] = array(
-    'type' => MESSAGE_TYPE_CREATE_SUB_THREAD,
-    'threadID' => (string)$parent_thread_id,
-    'creatorID' => (string)$creator,
-    'time' => $time,
-    'childThreadID' => (string)$id,
-  );
-}
-$new_message_infos = create_message_infos($message_infos);
-
 $creator_results = change_role(
   $id,
   array($creator),
@@ -190,6 +166,30 @@ foreach ($to_save as $row_to_save) {
 }
 save_memberships($processed_to_save);
 delete_memberships($to_delete);
+
+$message_infos = array(array(
+  'type' => MESSAGE_TYPE_CREATE_THREAD,
+  'threadID' => (string)$id,
+  'creatorID' => (string)$creator,
+  'time' => $time,
+  'initialThreadState' => array(
+    'name' => $raw_name,
+    'parentThreadID' => $parent_thread_id ? (string)$parent_thread_id : null,
+    'visibilityRules' => $vis_rules,
+    'color' => $color,
+    'memberIDs' => array_map("strval", $initial_member_ids),
+  ),
+));
+if ($parent_thread_id) {
+  $message_infos[] = array(
+    'type' => MESSAGE_TYPE_CREATE_SUB_THREAD,
+    'threadID' => (string)$parent_thread_id,
+    'creatorID' => (string)$creator,
+    'time' => $time,
+    'childThreadID' => (string)$id,
+  );
+}
+$new_message_infos = create_message_infos($message_infos);
 
 async_end(array(
   'success' => true,
