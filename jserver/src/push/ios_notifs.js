@@ -111,6 +111,8 @@ async function fetchInfos(
         rawMessageInfo.initialThreadState.parentThreadID
       ) {
         threadIDs.add(rawMessageInfo.initialThreadState.parentThreadID);
+      } else if (rawMessageInfo.type === messageType.CREATE_SUB_THREAD) {
+        threadIDs.add(rawMessageInfo.childThreadID);
       }
     }
   }
