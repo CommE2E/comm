@@ -103,10 +103,15 @@ $conn->query($thread_insert_sql);
 $initial_member_ids = isset($_POST['initial_member_ids'])
   ? verify_user_ids($_POST['initial_member_ids'])
   : array();
+$creator_member_ids = array($creator);
+$initial_member_and_creator_ids = array_merge(
+  $initial_member_ids,
+  $creator_member_ids
+);
 
 $creator_results = change_role(
   $id,
-  array($creator),
+  $creator_member_ids,
   (int)$roles['admins']['id']
 );
 if (!$creator_results) {
@@ -125,6 +130,28 @@ if ($initial_member_ids) {
   }
   $to_save = array_merge($to_save, $initial_member_results['to_save']);
   $to_delete = array_merge($to_delete, $initial_member_results['to_delete']);
+}
+
+$recalc_results = recalculate_all_permissions($id, $vis_rules);
+$recalc_to_save = $recalc_results['to_save'];
+$recalc_to_delete = $recalc_results['to_delete'];
+foreach ($recalc_to_save as $recalc_row_to_save) {
+  $user_id = $recalc_row_to_save['user_id'];
+  foreach ($initial_member_and_creator_ids as $member_id) {
+    if ($user_id === $member_id) {
+      continue 2;
+    }
+  }
+  $to_save[] = $recalc_row_to_save;
+}
+foreach ($recalc_to_delete as $recalc_row_to_delete) {
+  $user_id = $recalc_row_to_delete['user_id'];
+  foreach ($initial_member_and_creator_ids as $member_id) {
+    if ($user_id === $member_id) {
+      continue 2;
+    }
+  }
+  $to_delete[] = $recalc_row_to_delete;
 }
 
 $processed_to_save = array();
@@ -177,7 +204,7 @@ $message_infos = array(array(
     'parentThreadID' => $parent_thread_id ? (string)$parent_thread_id : null,
     'visibilityRules' => $vis_rules,
     'color' => $color,
-    'memberIDs' => array_map("strval", $initial_member_ids),
+    'memberIDs' => array_map("strval", $initial_member_and_creator_ids),
   ),
 ));
 if ($parent_thread_id) {

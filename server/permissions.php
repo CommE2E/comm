@@ -400,6 +400,9 @@ SQL;
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
 //   )
+// When a user's permissions for a given thread are modified, this function gets
+// called to make sure the permissions of all of its child threads are updated as
+// well.
 function update_descendant_permissions(
   $initial_parent_thread_id,
   $initial_users_to_permissions_from_parent
@@ -822,6 +825,14 @@ LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN roles r ON r.id = m.role
 LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
 WHERE m.thread = {$thread_id}
+UNION SELECT pm.user, 0 AS role, NULL AS permissions,
+  NULL AS permissions_for_children,
+  pm.permissions_for_children AS permissions_from_parent,
+  NULL AS role_permissions
+FROM threads t
+LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
+LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
+WHERE t.id = {$thread_id} AND m.thread IS NULL
 SQL;
   $result = $conn->query($query);
 
@@ -831,7 +842,9 @@ SQL;
   while ($row = $result->fetch_assoc()) {
     $user_id = (int)$row['user'];
     $role = (int)$row['role'];
-    $old_permissions = json_decode($row['permissions'], true);
+    $old_permissions = $row['permissions']
+      ? json_decode($row['permissions'], true)
+      : null;
     $old_permissions_for_children = $row['permissions_for_children']
       ? json_decode($row['permissions_for_children'], true)
       : null;
