@@ -372,10 +372,6 @@ SQL;
   return $users;
 }
 
-function message_type_gets_notif($message_type) {
-  return $message_type !== MESSAGE_TYPE_CREATE_SUB_THREAD;
-}
-
 // returns message infos with IDs
 function create_message_infos($new_message_infos) {
   global $conn;
@@ -384,23 +380,53 @@ function create_message_infos($new_message_infos) {
     return array();
   }
 
-  $thread_creator_pairs = array();
-  $notif_thread_creator_pairs = array();
+  // $thread_restrictions contains the conditions that must be met for a
+  // membership row to be set to unread or the corresponding user notified for a
+  // given thread
+  $thread_restrictions = array();
+  $subthread_permissions_to_check = array();
   $threads_to_message_indices = array();
   $content_by_index = array();
   foreach ($new_message_infos as $index => $new_message_info) {
     $thread_id = $new_message_info['threadID'];
     $creator_id = $new_message_info['creatorID'];
-    $thread_creator_pairs[$thread_id . $creator_id] =
-      "(m.thread = {$thread_id} AND m.user != {$creator_id})";
-    if (message_type_gets_notif($new_message_info['type'])) {
-      $notif_thread_creator_pairs[$thread_id . $creator_id] =
-        "(m.thread = {$thread_id} AND m.user != {$creator_id})";
-      if (!isset($threads_to_message_indices[$thread_id])) {
-        $threads_to_message_indices[$thread_id] = array();
-      }
-      $threads_to_message_indices[$thread_id][] = $index;
+
+    $is_create_sub_thread =
+      $new_message_info['type'] === MESSAGE_TYPE_CREATE_SUB_THREAD;
+    if ($is_create_sub_thread) {
+      $subthread = $new_message_info['childThreadID'];
+      $subthread_permissions_to_check[$subthread] = $subthread;
     }
+
+    if (!isset($thread_restrictions[$thread_id])) {
+      $thread_restrictions[$thread_id] = array(
+        "creatorID" => $creator_id,
+      );
+      if ($is_create_sub_thread) {
+        $thread_restrictions[$thread_id]['subthread'] =
+          $new_message_info['childThreadID'];
+      }
+    } else {
+      if (
+        isset($thread_restrictions[$thread_id]['creatorID']) &&
+        $thread_restrictions[$thread_id]['creatorID'] !== $creator_id
+      ) {
+        unset($thread_restrictions[$thread_id]['creatorID']);
+      }
+      if (
+        isset($thread_restrictions[$thread_id]['subthread']) &&
+        (!$is_create_sub_thread ||
+          $thread_restrictions[$thread_id]['subthread'] !==
+            $new_message_info['childThreadID'])
+      ) {
+        unset($thread_restrictions[$thread_id]['subthread']);
+      }
+    }
+
+    if (!isset($threads_to_message_indices[$thread_id])) {
+      $threads_to_message_indices[$thread_id] = array();
+    }
+    $threads_to_message_indices[$thread_id][] = $index;
 
     if ($new_message_info['type'] === MESSAGE_TYPE_CREATE_THREAD) {
       $content_by_index[$index] = $conn->real_escape_string(
@@ -452,9 +478,6 @@ function create_message_infos($new_message_infos) {
       );
     }
   }
-  $thread_creator_fragment = "(" . implode(" OR ", $thread_creator_pairs) . ")";
-  $notif_thread_creator_fragment =
-    "(" . implode(" OR ", $notif_thread_creator_pairs) . ")";
 
   $num_new_messages = count($new_message_infos);
   $id_inserts = array_fill(0, $num_new_messages, "('messages')");
@@ -488,35 +511,98 @@ SQL;
   $conn->query($message_insert_query);
   $conn->next_result();
 
-  $time = earliest_time_considered_current();
-  $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
+  $unread_conditions = array();
+  $notif_conditions = array();
+  $join_subthreads = array();
+  $join_index = 0;
   $visibility_open = VISIBILITY_OPEN;
+  $know_of_extract_string = "$." . PERMISSION_KNOW_OF . ".value";
+  foreach ($thread_restrictions as $thread_id => $restrictions) {
+    $conditions = array("m.thread = {$thread_id}");
+    if (isset($restrictions['creatorID'])) {
+      $creator_id = $restrictions['creatorID'];
+      $conditions[] = "m.user != {$creator_id}";
+    }
+    $notif_conditions[] = "(" . implode(" AND ", $conditions) . ")";
+    if (isset($restrictions['subthread'])) {
+      $subthread = $restrictions['subthread'];
+      if (isset($join_subthreads[$subthread])) {
+        $index = $join_subthreads[$subthread];
+      } else {
+        $index = $join_index++;
+        $join_subthreads[$subthread] = $index;
+      }
+      $conditions[] = <<<SQL
+(JSON_EXTRACT(stm{$index}.permissions, '{$know_of_extract_string}') IS TRUE OR
+  st{$index}.visibility_rules = {$visibility_open})
+SQL;
+    }
+    $unread_conditions[] = "(" . implode(" AND ", $conditions) . ")";
+  }
+  $unread_fragment = "(" . implode(" OR ", $unread_conditions) . ")";
+  $notif_fragment = "(" . implode(" OR ", $notif_conditions) . ")";
+
+  $unread_query_additional_joins = array();
+  foreach ($join_subthreads as $subthread => $index) {
+    $unread_query_additional_joins[] = <<<SQL
+LEFT JOIN threads st{$index} ON st{$index}.id = {$subthread}
+LEFT JOIN memberships stm{$index} ON stm{$index}.thread = {$subthread}
+  AND stm{$index}.user = m.user
+SQL;
+  }
+  $unread_joins = implode("\n", $unread_query_additional_joins);
+
+  $time = earliest_time_considered_current();
+  $visible_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $unread_query = <<<SQL
 UPDATE memberships m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
+{$unread_joins}
 SET m.unread = 1
-WHERE m.role != 0 AND f.user IS NULL AND {$thread_creator_fragment} AND
+WHERE m.role != 0 AND f.user IS NULL AND {$unread_fragment} AND
   (
-    JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
+    JSON_EXTRACT(m.permissions, '{$visible_extract_string}') IS TRUE
     OR t.visibility_rules = {$visibility_open}
   )
 SQL;
   $conn->query($unread_query);
   $conn->next_result();
 
+  $notif_query_additional_joins = array();
+  $notif_selects = "";
+  $join_index = 0;
+  foreach ($subthread_permissions_to_check as $subthread) {
+    $index = $join_index++;
+    $notif_query_additional_joins[] = <<<SQL
+LEFT JOIN threads st{$index} ON st{$index}.id = {$subthread}
+LEFT JOIN memberships stm{$index} ON stm{$index}.thread = {$subthread}
+  AND stm{$index}.user = m.user
+SQL;
+    $notif_selects .= <<<SQL
+,
+  stm{$index}.permissions AS subthread{$subthread}_permissions,
+  st{$index}.visibility_rules AS subthread{$subthread}_visibility_rules,
+  st{$index}.edit_rules AS subthread{$subthread}_edit_rules,
+  stm{$index}.role AS subthread{$subthread}_role
+SQL;
+  }
+  $notif_joins = implode("\n", $notif_query_additional_joins);
+
   $notif_query = <<<SQL
 SELECT m.user, m.thread, c.ios_device_token
+{$notif_selects}
 FROM memberships m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN cookies c ON c.user = m.user AND c.ios_device_token IS NOT NULL
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
+{$notif_joins}
 WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND m.subscribed = 1
-  AND {$notif_thread_creator_fragment}
+  AND {$notif_fragment}
   AND (
-    JSON_EXTRACT(m.permissions, '{$vis_permission_extract_string}') IS TRUE
+    JSON_EXTRACT(m.permissions, '{$visible_extract_string}') IS TRUE
     OR t.visibility_rules = {$visibility_open}
   )
 SQL;
@@ -531,7 +617,25 @@ SQL;
       $ios_pre_push_info[$user_id] = array(
         "device_tokens" => array(),
         "thread_ids" => array(),
+        "subthreads" => array(),
       );
+      foreach ($subthread_permissions_to_check as $subthread) {
+        $subthread_permission_info = get_info_from_permissions_row(array(
+          "permissions" => $row["subthread{$subthread}_permissions"],
+          "visibility_rules" => $row["subthread{$subthread}_visibility_rules"],
+          "edit_rules" => $row["subthread{$subthread}_edit_rules"],
+        ));
+        $is_subthread_member = !!$row["subthread{$subthread}_role"];
+        if (
+          permission_helper($subthread_permission_info, PERMISSION_KNOW_OF) &&
+          (!$is_subthread_member ||
+            !permission_helper($subthread_permission_info, PERMISSION_VISIBLE))
+        ) {
+          // Only include the notification from the superthread if there is no
+          // notification from the subthread
+          $ios_pre_push_info[$user_id]['subthreads'][$subthread] = $subthread;
+        }
+      }
     }
     $ios_pre_push_info[$user_id]["device_tokens"][$ios_device_token] =
       $ios_device_token;
@@ -540,14 +644,23 @@ SQL;
 
   $ios_push_info = array();
   foreach ($ios_pre_push_info as $user_id => $user_push_info) {
-    $ios_push_info[$user_id] = array(
+    $user_info = array(
       "deviceTokens" => array_values($user_push_info["device_tokens"]),
       "messageInfos" => array(),
     );
     foreach ($user_push_info["thread_ids"] as $thread_id) {
       foreach ($threads_to_message_indices[$thread_id] as $message_index) {
-        $ios_push_info[$user_id]["messageInfos"][] = $return[$message_index];
+        $message_info = $return[$message_index];
+        if (
+          $message_info['type'] !== MESSAGE_TYPE_CREATE_SUB_THREAD ||
+          isset($user_push_info['subthreads'][$message_info['childThreadID']])
+        ) {
+          $user_info["messageInfos"][] = $message_info;
+        }
       }
+    }
+    if ($user_info["messageInfos"]) {
+      $ios_push_info[$user_id] = $user_info;
     }
   }
   if ($ios_push_info) {

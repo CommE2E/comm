@@ -137,6 +137,7 @@ function possibly_reset_thread_to_unread(
   $thread_ids_sql_string = implode(", ", $unread_candidates);
   $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
   $permission_extract_string = "$." . PERMISSION_KNOW_OF . ".value";
+  $visibility_open = VISIBILITY_OPEN;
   $query = <<<SQL
 SELECT m.thread, MAX(m.id) AS latest_message
 FROM messages m
@@ -146,6 +147,7 @@ LEFT JOIN memberships stm ON m.type = {$create_sub_thread}
 WHERE m.thread IN ({$thread_ids_sql_string}) AND
   (
     m.type != {$create_sub_thread} OR
+    st.visibility_rules = {$visibility_open} OR
     JSON_EXTRACT(stm.permissions, '{$permission_extract_string}') IS TRUE
   )
 GROUP BY m.thread
