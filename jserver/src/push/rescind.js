@@ -21,19 +21,20 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
   const userID = pushRescindInfo.userID;
 
   const conn = await connect();
-  const query = SQL`
+  const fetchQuery = SQL`
     SELECT id, delivery
     FROM notifications
     WHERE user = ${userID} AND thread IN (${pushRescindInfo.threadIDs})
+      AND rescinded = 0
   `;
-  const [ [ result ], unreadCounts ] = await Promise.all([
-    conn.query(query),
+  const [ [ fetchResult ], unreadCounts ] = await Promise.all([
+    conn.query(fetchQuery),
     getUnreadCounts(conn, [ userID ]),
   ]);
-  conn.end();
 
   const promises = [];
-  for (let row of result) {
+  const rescindedIDs = [];
+  for (let row of fetchResult) {
     const notification = new apn.Notification();
     notification.contentAvailable = true;
     notification.badge = unreadCounts[userID];
@@ -48,8 +49,18 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
       notification,
       row.delivery.iosDeviceTokens,
     ));
+    rescindedIDs.push(row.id);
   }
-  return await Promise.all(promises);
+  if (rescindedIDs.length > 0) {
+    const rescindQuery = SQL`
+      UPDATE notifications SET rescinded = 1 WHERE id IN (${rescindedIDs})
+    `;
+    promises.push(conn.query(rescindQuery));
+  }
+
+  const result = await Promise.all(promises);
+  conn.end();
+  return result;
 }
 
 export {

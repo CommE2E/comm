@@ -81,12 +81,13 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
           iosDeviceTokens: pushInfo[userID].deviceTokens,
           iosIdentifier: notification.id,
         }),
+        0,
       ]);
     }
   }
   if (notifications.length > 0) {
     const query = SQL`
-      INSERT INTO notifications (id, user, thread, message, delivery)
+      INSERT INTO notifications (id, user, thread, message, delivery, rescinded)
       VALUES ${notifications}
     `;
     promises.push(conn.query(query));
