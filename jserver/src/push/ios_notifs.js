@@ -40,15 +40,15 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
   const [
     unreadCounts,
     { threadInfos, userInfos },
-    uniqueIDs,
+    dbIDs,
   ] = await Promise.all([
     getUnreadCounts(conn, Object.keys(pushInfo)),
     fetchInfos(conn, pushInfo),
-    createUniqueIDs(conn, pushInfo),
+    createDBIDs(conn, pushInfo),
   ]);
 
-  const promises = [];
-  const notifications = [];
+  const apnPromises = [];
+  const notifications = {};
   for (let userID in pushInfo) {
     for (let rawMessageInfo of pushInfo[userID].messageInfos) {
       const messageInfo = createMessageInfo(
@@ -61,45 +61,76 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
         continue;
       }
       const threadInfo = threadInfos[messageInfo.threadID];
-      const uniqueID = uniqueIDs.shift();
-      invariant(uniqueID, "should have sufficient unique IDs");
+      const dbID = dbIDs.shift();
+      invariant(dbID, "should have sufficient DB IDs");
       const notification = prepareNotification(
         messageInfo,
         threadInfo,
         unreadCounts[userID],
       );
-      promises.push(apnProvider.send(
+      apnPromises.push(apnPush(
+        apnProvider,
         notification,
         pushInfo[userID].deviceTokens,
+        dbID,
       ));
-      notifications.push([
-        uniqueID,
+      notifications[dbID] = [
+        dbID,
         userID,
         messageInfo.threadID,
         messageInfo.id,
-        JSON.stringify({
+        {
           iosDeviceTokens: pushInfo[userID].deviceTokens,
           iosIdentifier: notification.id,
-        }),
+        },
         0,
-      ]);
+      ];
     }
+  }
+  const dbPromises = [];
+  if (dbIDs.length > 0) {
+    const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
+    dbPromises.push(conn.query(query));
+  }
+
+  const [ apnResults ] = await Promise.all([
+    Promise.all(apnPromises),
+    Promise.all(dbPromises),
+  ]);
+  for (let apnResult of apnResults) {
+    if (apnResult.error) {
+      notifications[apnResult.dbID][4].error = apnResult.error;
+    }
+  }
+
+  const flattenedNotifications = [];
+  for (let dbID in notifications) {
+    const notification = notifications[dbID];
+    const jsonConverted = [...notification];
+    jsonConverted[4] = JSON.stringify(jsonConverted[4]);
+    flattenedNotifications.push(jsonConverted);
   }
   if (notifications.length > 0) {
     const query = SQL`
       INSERT INTO notifications (id, user, thread, message, delivery, rescinded)
-      VALUES ${notifications}
+      VALUES ${flattenedNotifications}
     `;
-    promises.push(conn.query(query));
+    await conn.query(query);
   }
-  if (uniqueIDs.length > 0) {
-    const query = SQL`DELETE FROM ids WHERE id IN (${uniqueIDs})`;
-    promises.push(conn.query(query));
-  }
-
-  const result = await Promise.all(promises);
   conn.end();
-  return result;
+}
+
+async function apnPush(
+  apnProvider: apn.Provider,
+  notification: apn.Notification,
+  deviceTokens: string[],
+  dbID: string,
+) {
+  const result = await apnProvider.send(notification, deviceTokens);
+  for (let failure of result.failed) {
+    return { error: failure, dbID };
+  }
+  return { success: true, dbID };
 }
 
 async function fetchInfos(
@@ -169,7 +200,7 @@ async function fetchMissingUserInfos(
   return finalUserInfos;
 }
 
-async function createUniqueIDs(
+async function createDBIDs(
   conn: Connection,
   pushInfo: IOSPushInfo,
 ): Promise<string[]> {
@@ -212,5 +243,5 @@ function prepareNotification(
 
 export {
   sendIOSPushNotifs,
-  getUnreadCounts,
+  apnPush,
 };

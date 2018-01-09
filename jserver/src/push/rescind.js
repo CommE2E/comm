@@ -7,6 +7,7 @@ import apn from 'apn';
 import apnConfig from '../../secrets/apn_config';
 import { connect, SQL } from '../database';
 import { getUnreadCounts } from './utils';
+import { apnPush } from './ios_notifs';
 
 type PushRescindInfo = {
   userID: string,
@@ -45,9 +46,11 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
         notificationId: row.delivery.iosIdentifier,
       },
     };
-    promises.push(apnProvider.send(
+    promises.push(apnPush(
+      apnProvider,
       notification,
       row.delivery.iosDeviceTokens,
+      row.id,
     ));
     rescindedIDs.push(row.id);
   }
@@ -60,7 +63,6 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
 
   const result = await Promise.all(promises);
   conn.end();
-  return result;
 }
 
 export {
