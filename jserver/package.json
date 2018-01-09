@@ -28,6 +28,7 @@
     "lib": "file:../lib",
     "mysql2": "^1.5.1",
     "promise": "^8.0.1",
-    "sql-template-strings": "^2.2.2"
+    "sql-template-strings": "^2.2.2",
+    "uuid": "^3.1.0"
   }
 }

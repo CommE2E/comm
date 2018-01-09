@@ -41,7 +41,7 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
     notification.payload = {
       managedAps: {
         action: "CLEAR",
-        notificationId: row.id,
+        notificationId: row.delivery.iosIdentifier,
       },
     };
     promises.push(apnProvider.send(

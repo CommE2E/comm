@@ -374,10 +374,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   iosForegroundNotificationReceived = (notification) => {
+    if (
+      notification.getData() &&
+      notification.getData().managedAps &&
+      notification.getData().managedAps.action === "CLEAR"
+    ) {
+      return;
+    }
     const threadID = notification.getThread();
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
-      message: notification.getMessage().body,
+      message: notification.getMessage(),
       onPress: () => {
         this.props.dispatchActionPayload(
           notificationPressActionType,

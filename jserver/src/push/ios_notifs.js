@@ -8,6 +8,7 @@ import type { Connection } from '../database';
 
 import apn from 'apn';
 import invariant from 'invariant';
+import uuidv4 from 'uuid/v4';
 
 import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
@@ -66,7 +67,6 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
         messageInfo,
         threadInfo,
         unreadCounts[userID],
-        uniqueID,
       );
       promises.push(apnProvider.send(
         notification,
@@ -77,7 +77,10 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
         userID,
         messageInfo.threadID,
         messageInfo.id,
-        JSON.stringify({ iosDeviceTokens: pushInfo[userID].deviceTokens }),
+        JSON.stringify({
+          iosDeviceTokens: pushInfo[userID].deviceTokens,
+          iosIdentifier: notification.id,
+        }),
       ]);
     }
   }
@@ -192,23 +195,17 @@ function prepareNotification(
   messageInfo: MessageInfo,
   threadInfo: ThreadInfo,
   unreadCount: number,
-  uniqueID: string,
 ): apn.Notification {
   const notifText = notifTextForMessageInfo(messageInfo, threadInfo);
+  const uniqueID = uuidv4();
   const notification = new apn.Notification();
-  notification.contentAvailable = true;
-  notification.badge = unreadCount;
+  notification.body = notifText;
   notification.topic = "org.squadcal.app";
+  notification.sound = "default";
+  notification.badge = unreadCount;
   notification.threadId = messageInfo.threadID;
-  notification.payload = {
-    managedAps: {
-      action: "CREATE",
-      notificationId: uniqueID,
-      alert: {
-        body: notifText,
-      }
-    },
-  };
+  notification.id = uniqueID;
+  notification.collapseId = uniqueID;
   return notification;
 }
 
