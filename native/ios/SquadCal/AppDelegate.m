@@ -44,12 +44,6 @@
                      restorationHandler:restorationHandler];
 }
 
-// Required to register for notifications
-- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
-{
-  [RNNotifications didRegisterUserNotificationSettings:notificationSettings];
-}
-
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
   [RNNotifications didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
