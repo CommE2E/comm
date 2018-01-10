@@ -379,6 +379,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.getData().managedAps &&
       notification.getData().managedAps.action === "CLEAR"
     ) {
+      notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
     const threadID = notification.getThread();
@@ -395,10 +396,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         );
       },
     });
+    notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
   iosNotificationOpened = (notification) => {
     const threadID = notification.getThread();
+    if (!threadID) {
+      console.log("Notification with missing threadID received!");
+      notification.finish(NotificationsIOS.FetchResult.NoData);
+      return;
+    }
+    notification.finish();
     this.props.dispatchActionPayload(
       notificationPressActionType,
       {
@@ -406,6 +414,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         clearChatRoutes: true,
       },
     );
+    notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
   ping = () => {

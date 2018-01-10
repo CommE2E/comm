@@ -59,9 +59,11 @@
   [RNNotifications didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
-// Required for the notification event.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification {
-  [RNNotifications didReceiveRemoteNotification:notification];
+// Required for the notification event. You must call the completion handler after handling the remote notification.
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification
+                                                       fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+  [RNNotifications didReceiveRemoteNotification:notification fetchCompletionHandler:completionHandler];
 }
 
 // Required for the localNotification event.

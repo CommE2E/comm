@@ -110,7 +110,7 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
     jsonConverted[4] = JSON.stringify(jsonConverted[4]);
     flattenedNotifications.push(jsonConverted);
   }
-  if (notifications.length > 0) {
+  if (flattenedNotifications.length > 0) {
     const query = SQL`
       INSERT INTO notifications (id, user, thread, message, delivery, rescinded)
       VALUES ${flattenedNotifications}
@@ -238,6 +238,7 @@ function prepareNotification(
   notification.threadId = messageInfo.threadID;
   notification.id = uniqueID;
   notification.collapseId = uniqueID;
+  notification.payload.id = uniqueID;
   return notification;
 }
 
