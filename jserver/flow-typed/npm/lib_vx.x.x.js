@@ -1,4 +1,4 @@
-// flow-typed signature: 561f6419d483fd3f3b889f36cf38d99b
+// flow-typed signature: 96665fd76a0dc6a0367f226111013d3a
 // flow-typed version: <<STUB>>/lib_vfile:../lib/flow_v0.61.0
 
 /**
@@ -179,6 +179,10 @@ declare module 'lib/shared/entry-utils' {
 }
 
 declare module 'lib/shared/message-utils' {
+  declare module.exports: any;
+}
+
+declare module 'lib/shared/notif-utils' {
   declare module.exports: any;
 }
 
@@ -402,6 +406,9 @@ declare module 'lib/shared/entry-utils.js' {
 }
 declare module 'lib/shared/message-utils.js' {
   declare module.exports: $Exports<'lib/shared/message-utils'>;
+}
+declare module 'lib/shared/notif-utils.js' {
+  declare module.exports: $Exports<'lib/shared/notif-utils'>;
 }
 declare module 'lib/shared/search-index.js' {
   declare module.exports: $Exports<'lib/shared/search-index'>;

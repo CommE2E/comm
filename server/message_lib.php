@@ -591,11 +591,12 @@ SQL;
   $notif_joins = implode("\n", $notif_query_additional_joins);
 
   $notif_query = <<<SQL
-SELECT m.user, m.thread, c.ios_device_token
+SELECT m.user, m.thread, c.ios_device_token, c.android_device_token
 {$notif_selects}
 FROM memberships m
 LEFT JOIN threads t ON t.id = m.thread
-LEFT JOIN cookies c ON c.user = m.user AND c.ios_device_token IS NOT NULL
+LEFT JOIN cookies c ON c.user = m.user
+  AND (c.ios_device_token IS NOT NULL OR c.android_device_token IS NOT NULL)
 LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
   AND f.time > {$time}
 {$notif_joins}
@@ -608,14 +609,15 @@ WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND m.subscribed = 1
 SQL;
   $notif_query_result = $conn->query($notif_query);
 
-  $ios_pre_push_info = array();
+  $pre_push_info = array();
   while ($row = $notif_query_result->fetch_assoc()) {
     $user_id = (int)$row['user'];
     $thread_id = (int)$row['thread'];
     $ios_device_token = $row['ios_device_token'];
-    if (!isset($ios_pre_push_info[$user_id])) {
-      $ios_pre_push_info[$user_id] = array(
-        "device_tokens" => array(),
+    $android_device_token = $row['android_device_token'];
+    if (!isset($pre_push_info[$user_id])) {
+      $pre_push_info[$user_id] = array(
+        "devices" => array(),
         "thread_ids" => array(),
         "subthreads" => array(),
       );
@@ -633,19 +635,25 @@ SQL;
         ) {
           // Only include the notification from the superthread if there is no
           // notification from the subthread
-          $ios_pre_push_info[$user_id]['subthreads'][$subthread] = $subthread;
+          $pre_push_info[$user_id]['subthreads'][$subthread] = $subthread;
         }
       }
     }
-    $ios_pre_push_info[$user_id]["device_tokens"][$ios_device_token] =
-      $ios_device_token;
-    $ios_pre_push_info[$user_id]["thread_ids"][$thread_id] = $thread_id;
+    if ($ios_device_token) {
+      $device_key = $ios_device_token;
+      $device = array("deviceType" => "ios", "deviceToken" => $ios_device_token);
+    } else if ($android_device_token) {
+      $device_key = $android_device_token;
+      $device = array("deviceType" => "android", "deviceToken" => $android_device_token);
+    }
+    $pre_push_info[$user_id]["devices"][$device_key] = $device;
+    $pre_push_info[$user_id]["thread_ids"][$thread_id] = $thread_id;
   }
 
-  $ios_push_info = array();
-  foreach ($ios_pre_push_info as $user_id => $user_push_info) {
+  $push_info = array();
+  foreach ($pre_push_info as $user_id => $user_push_info) {
     $user_info = array(
-      "deviceTokens" => array_values($user_push_info["device_tokens"]),
+      "devices" => array_values($user_push_info["devices"]),
       "messageInfos" => array(),
     );
     foreach ($user_push_info["thread_ids"] as $thread_id) {
@@ -660,11 +668,11 @@ SQL;
       }
     }
     if ($user_info["messageInfos"]) {
-      $ios_push_info[$user_id] = $user_info;
+      $push_info[$user_id] = $user_info;
     }
   }
-  if ($ios_push_info) {
-    call_node('ios_push_notifs', $ios_push_info);
+  if ($push_info) {
+    call_node('send_push_notifs', $push_info);
   }
 
   return $return;

@@ -1,4 +1,4 @@
-// flow-typed signature: dad8c24e807db51c29c601bfcccaf653
+// flow-typed signature: bb660af83737a994ce4f9b2195cda678
 // flow-typed version: <<STUB>>/nodemon_v^1.14.3/flow_v0.61.0
 
 /**
@@ -27,10 +27,6 @@ declare module 'nodemon/bin/nodemon' {
 }
 
 declare module 'nodemon/commitlint.config' {
-  declare module.exports: any;
-}
-
-declare module 'nodemon/docs/index' {
   declare module.exports: any;
 }
 
@@ -144,9 +140,6 @@ declare module 'nodemon/bin/nodemon.js' {
 }
 declare module 'nodemon/commitlint.config.js' {
   declare module.exports: $Exports<'nodemon/commitlint.config'>;
-}
-declare module 'nodemon/docs/index.js' {
-  declare module.exports: $Exports<'nodemon/docs/index'>;
 }
 declare module 'nodemon/lib/cli/index.js' {
   declare module.exports: $Exports<'nodemon/lib/cli/index'>;

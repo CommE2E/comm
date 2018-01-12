@@ -3,7 +3,7 @@
 import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
 import React from 'react';
-import { View, StyleSheet, DeviceInfo } from 'react-native';
+import { View, StyleSheet, DeviceInfo, Platform } from 'react-native';
 import DefaultNotificationBody
   from 'react-native-in-app-notification/DefaultNotificationBody';
 
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   notificationBodyContainer: {
     flex: 1,
     paddingTop: DeviceInfo.isIPhoneX_deprecated ? 24 : 0,
-    backgroundColor: '#050505',
+    backgroundColor: Platform.OS === "ios" ? "#050505" : "#FFFFFF",
   },
 });
 

@@ -1,7 +1,48 @@
 // @flow
 
 import type { Connection } from '../database';
+
+import apn from 'apn';
+import fcmAdmin from 'firebase-admin';
+
 import { SQL } from '../database';
+import apnConfig from '../../secrets/apn_config';
+import fcmConfig from '../../secrets/fcm_config';
+
+const apnProvider = new apn.Provider(apnConfig);
+fcmAdmin.initializeApp({
+  credential: fcmAdmin.credential.cert(fcmConfig),
+});
+
+async function apnPush(
+  notification: apn.Notification,
+  deviceTokens: string[],
+  dbID: string,
+) {
+  const result = await apnProvider.send(notification, deviceTokens);
+  for (let failure of result.failed) {
+    return { error: failure, dbID };
+  }
+  return { success: true, dbID };
+}
+
+async function fcmPush(
+  notification: Object,
+  deviceTokens: string[],
+  dbID: string,
+) {
+  try {
+    const result = await fcmAdmin.messaging().sendToDevice(
+      deviceTokens,
+      notification,
+    );
+    console.log(result);
+    return { success: true, dbID, result };
+  } catch (e) {
+    console.log(e);
+    return { error: e, dbID };
+  }
+}
 
 async function getUnreadCounts(
   conn: Connection,
@@ -27,5 +68,7 @@ async function getUnreadCounts(
 }
 
 export {
+  apnPush,
+  fcmPush,
   getUnreadCounts,
 }

@@ -5,6 +5,7 @@ import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { Connection } from '../database';
+import type { DeviceType } from 'lib/actions/device-actions';
 
 import apn from 'apn';
 import invariant from 'invariant';
@@ -14,23 +15,21 @@ import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
 import { createMessageInfo } from 'lib/shared/message-utils';
 
-import apnConfig from '../../secrets/apn_config';
 import { connect, SQL } from '../database';
-import { getUnreadCounts } from './utils';
+import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchThreadInfos } from '../fetchers/thread-fetcher';
 import { fetchUserInfos } from '../fetchers/user-fetcher';
 
-type IOSPushUserInfo = {
-  deviceTokens: string[],
+type Device = { deviceType: DeviceType, deviceToken: string };
+type PushUserInfo = {
+  devices: Device[],
   messageInfos: RawMessageInfo[],
 };
-type IOSPushInfo = { [userID: string]: IOSPushUserInfo };
+type PushInfo = { [userID: string]: PushUserInfo };
 
-const apnProvider = new apn.Provider(apnConfig);
-
-async function sendIOSPushNotifs(req: $Request, res: $Response) {
+async function sendPushNotifs(req: $Request, res: $Response) {
   res.json({ success: true });
-  const pushInfo: IOSPushInfo = req.body;
+  const pushInfo: PushInfo = req.body;
 
   if (Object.keys(pushInfo).length === 0) {
     return [];
@@ -47,7 +46,7 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
     createDBIDs(conn, pushInfo),
   ]);
 
-  const apnPromises = [];
+  const deliveryPromises = [];
   const notifications = {};
   for (let userID in pushInfo) {
     for (let rawMessageInfo of pushInfo[userID].messageInfos) {
@@ -63,30 +62,42 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
       const threadInfo = threadInfos[messageInfo.threadID];
       const dbID = dbIDs.shift();
       invariant(dbID, "should have sufficient DB IDs");
-      const notification = prepareNotification(
-        messageInfo,
-        threadInfo,
-        unreadCounts[userID],
-      );
-      apnPromises.push(apnPush(
-        apnProvider,
-        notification,
-        pushInfo[userID].deviceTokens,
-        dbID,
-      ));
+      const byDeviceType = getDevicesByDeviceType(pushInfo[userID].devices);
+      const delivery = {};
+      if (byDeviceType.ios) {
+        const notification = prepareIOSNotification(
+          messageInfo,
+          threadInfo,
+          unreadCounts[userID],
+        );
+        deliveryPromises.push(apnPush(notification, byDeviceType.ios, dbID));
+        delivery.iosDeviceTokens = byDeviceType.ios;
+        delivery.iosIdentifier = notification.id;
+      }
+      if (byDeviceType.android) {
+        const notification = prepareAndroidNotification(
+          messageInfo,
+          threadInfo,
+          unreadCounts[userID],
+        );
+        deliveryPromises.push(fcmPush(
+          notification,
+          byDeviceType.android,
+          dbID,
+        ));
+        delivery.androidDeviceTokens = byDeviceType.android;
+      }
       notifications[dbID] = [
         dbID,
         userID,
         messageInfo.threadID,
         messageInfo.id,
-        {
-          iosDeviceTokens: pushInfo[userID].deviceTokens,
-          iosIdentifier: notification.id,
-        },
+        delivery,
         0,
       ];
     }
   }
+
   const dbPromises = [];
   if (dbIDs.length > 0) {
     const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
@@ -94,7 +105,7 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
   }
 
   const [ apnResults ] = await Promise.all([
-    Promise.all(apnPromises),
+    Promise.all(deliveryPromises),
     Promise.all(dbPromises),
   ]);
   for (let apnResult of apnResults) {
@@ -117,25 +128,13 @@ async function sendIOSPushNotifs(req: $Request, res: $Response) {
     `;
     await conn.query(query);
   }
-  conn.end();
-}
 
-async function apnPush(
-  apnProvider: apn.Provider,
-  notification: apn.Notification,
-  deviceTokens: string[],
-  dbID: string,
-) {
-  const result = await apnProvider.send(notification, deviceTokens);
-  for (let failure of result.failed) {
-    return { error: failure, dbID };
-  }
-  return { success: true, dbID };
+  conn.end();
 }
 
 async function fetchInfos(
   conn: Connection,
-  pushInfo: IOSPushInfo,
+  pushInfo: PushInfo,
 ) {
   const threadIDs = new Set();
   for (let userID in pushInfo) {
@@ -168,7 +167,7 @@ async function fetchInfos(
 async function fetchMissingUserInfos(
   conn: Connection,
   userInfos: { [id: string]: UserInfo },
-  pushInfo: IOSPushInfo,
+  pushInfo: PushInfo,
 ) {
   const missingUserIDs = new Set();
   const addIfMissing = (userID: string) => {
@@ -202,7 +201,7 @@ async function fetchMissingUserInfos(
 
 async function createDBIDs(
   conn: Connection,
-  pushInfo: IOSPushInfo,
+  pushInfo: PushInfo,
 ): Promise<string[]> {
   let numIDsNeeded = 0;
   for (let userID in pushInfo) {
@@ -223,7 +222,20 @@ async function createDBIDs(
   );
 }
 
-function prepareNotification(
+function getDevicesByDeviceType(
+  devices: Device[],
+): { [deviceType: DeviceType]: string[] } {
+  const byDeviceType = {};
+  for (let device of devices) {
+    if (!byDeviceType[device.deviceType]) {
+      byDeviceType[device.deviceType] = [];
+    }
+    byDeviceType[device.deviceType].push(device.deviceToken);
+  }
+  return byDeviceType;
+}
+
+function prepareIOSNotification(
   messageInfo: MessageInfo,
   threadInfo: ThreadInfo,
   unreadCount: number,
@@ -242,7 +254,24 @@ function prepareNotification(
   return notification;
 }
 
+function prepareAndroidNotification(
+  messageInfo: MessageInfo,
+  threadInfo: ThreadInfo,
+  unreadCount: number,
+): Object {
+  const notifText = notifTextForMessageInfo(messageInfo, threadInfo);
+  return {
+    notification: {
+      body: notifText,
+    },
+    data: {
+      badgeCount: unreadCount.toString(),
+      threadID: messageInfo.threadID,
+    },
+  };
+}
+
 export {
-  sendIOSPushNotifs,
+  sendPushNotifs,
   apnPush,
 };

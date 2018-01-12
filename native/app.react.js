@@ -18,9 +18,9 @@ import type {
   ActivityUpdate,
   UpdateActivityResult,
 } from 'lib/actions/ping-actions';
-import type { PushPermissions } from './push/ios';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
+import type { DeviceType } from 'lib/actions/device-actions';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -40,6 +40,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
+import FCM, { FCMEvent } from 'react-native-fcm';
 
 import { registerConfig } from 'lib/utils/config';
 import {
@@ -54,8 +55,8 @@ import {
   updateActivity,
 } from 'lib/actions/ping-actions';
 import {
-  setIOSDeviceTokenActionTypes,
-  setIOSDeviceToken,
+  setDeviceTokenActionTypes,
+  setDeviceToken,
 } from 'lib/actions/device-actions';
 import { unreadCount } from 'lib/selectors/thread-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
@@ -74,6 +75,7 @@ import {
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
 import { requestIOSPushPermissions } from './push/ios';
+import { requestAndroidPushPermissions } from './push/android';
 import NotificationBody from './push/notification-body.react';
 
 let urlPrefix;
@@ -82,6 +84,8 @@ if (!__DEV__) {
 } else if (Platform.OS === "android") {
   // This is a magic IP address that forwards to the emulator's host
   urlPrefix = "http://10.0.2.2/~ashoat/squadcal/";
+  // Uncomment below and update IP address if testing on physical device
+  //urlPrefix = "http://192.168.1.7/~ashoat/squadcal/";
 } else if (Platform.OS === "ios") {
   // Since iOS is simulated and not emulated, we can use localhost
   urlPrefix = "http://localhost/~ashoat/squadcal/";
@@ -136,7 +140,10 @@ type Props = {
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,
   ) => Promise<UpdateActivityResult>,
-  setIOSDeviceToken: (deviceToken: string) => Promise<string>,
+  setDeviceToken: (
+    deviceToken: string,
+    deviceType: DeviceType,
+  ) => Promise<string>,
 };
 class AppWithNavigationState extends React.PureComponent<Props> {
 
@@ -156,11 +163,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
     updateActivity: PropTypes.func.isRequired,
-    setIOSDeviceToken: PropTypes.func.isRequired,
+    setDeviceToken: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
   activePingSubscription: ?number = null;
   inAppNotification: ?InAppNotification = null;
+  androidNotifListener: ?Object = null;
+  androidRefreshTokenListener: ?Object = null;
+  initialAndroidNotifHandled = false;
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
@@ -176,11 +186,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (Platform.OS === "ios") {
       NotificationsIOS.addEventListener(
         "remoteNotificationsRegistered",
-        this.registerIOSPushPermissions,
+        this.registerPushPermissions,
       );
       NotificationsIOS.addEventListener(
         "remoteNotificationsRegistrationFailed",
-        this.failedToRegisterIOSPushPermissions,
+        this.failedToRegisterPushPermissions,
       );
       NotificationsIOS.addEventListener(
         "notificationReceivedForeground",
@@ -191,6 +201,16 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.iosNotificationOpened,
       );
       AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+    } else if (Platform.OS === "android") {
+      this.androidNotifListener = FCM.on(
+        FCMEvent.Notification,
+        this.androidNotificationReceived,
+      );
+      this.androidRefreshTokenListener = FCM.on(
+        FCMEvent.RefreshToken,
+        this.registerPushPermissionsAndHandleInitialNotif,
+      );
+      FCM.setBadgeNumber(this.props.unreadCount);
     }
   }
 
@@ -243,11 +263,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (Platform.OS === "ios") {
       NotificationsIOS.removeEventListener(
         "remoteNotificationsRegistered",
-        this.registerIOSPushPermissions,
+        this.registerPushPermissions,
       );
       NotificationsIOS.removeEventListener(
         "remoteNotificationsRegistrationFailed",
-        this.failedToRegisterIOSPushPermissions,
+        this.failedToRegisterPushPermissions,
       );
       NotificationsIOS.removeEventListener(
         "notificationReceivedForeground",
@@ -257,6 +277,15 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         "notificationOpened",
         this.iosNotificationOpened,
       );
+    } else if (Platform.OS === "android") {
+      if (this.androidNotifListener) {
+        this.androidNotifListener.remove();
+        this.androidNotifListener = null;
+      }
+      if (this.androidRefreshTokenListener) {
+        this.androidRefreshTokenListener.remove();
+        this.androidRefreshTokenListener = null;
+      }
     }
   }
 
@@ -336,40 +365,86 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   async ensurePushNotifsEnabled() {
-    const missingDeviceToken = this.props.deviceToken === null
-      || this.props.deviceToken === undefined;
     if (Platform.OS === "ios") {
-      let permissionNeeded = missingDeviceToken;
-      if (!permissionNeeded) {
-        const permissions: PushPermissions =
-          await NotificationsIOS.checkPermissions();
-        permissionNeeded =
-          AppWithNavigationState.permissionMissing(permissions);
-      }
-      if (permissionNeeded) {
-        await requestIOSPushPermissions();
-      }
-      NotificationsIOS.consumeBackgroundQueue();
+      const missingDeviceToken = this.props.deviceToken === null
+        || this.props.deviceToken === undefined;
+      await requestIOSPushPermissions(missingDeviceToken);
+    } else if (Platform.OS === "android") {
+      await this.getAndroidFCMToken();
     }
   }
 
-  static permissionMissing(permissions: PushPermissions) {
-    return !permissions.alert || !permissions.badge || !permissions.sound;
+  async getAndroidFCMToken() {
+    const missingDeviceToken = this.props.deviceToken === null
+      || this.props.deviceToken === undefined;
+    let token = null;
+    try {
+      token = await requestAndroidPushPermissions(missingDeviceToken);
+    } catch (e) {
+      this.failedToRegisterPushPermissions(e);
+      return;
+    }
+    if (token) {
+      await this.registerPushPermissionsAndHandleInitialNotif(token);
+    } else {
+      this.failedToRegisterPushPermissions();
+    }
   }
 
-  registerIOSPushPermissions = (deviceToken: string) => {
+  registerPushPermissionsAndHandleInitialNotif = async (
+    deviceToken: string,
+  ) => {
+    this.registerPushPermissions(deviceToken);
+    await this.handleInitialAndroidNotification();
+  }
+
+  async handleInitialAndroidNotification() {
+    if (this.initialAndroidNotifHandled) {
+      return;
+    }
+    this.initialAndroidNotifHandled = true;
+    const initialNotif = await FCM.getInitialNotification();
+    if (initialNotif) {
+      await this.androidNotificationReceived(initialNotif);
+    }
+  }
+
+  registerPushPermissions = (deviceToken: string) => {
+    const deviceType = Platform.OS;
+    if (deviceType !== "android" && deviceType !== "ios") {
+      return;
+    }
     this.props.dispatchActionPromise(
-      setIOSDeviceTokenActionTypes,
-      this.props.setIOSDeviceToken(deviceToken),
+      setDeviceTokenActionTypes,
+      this.props.setDeviceToken(deviceToken, deviceType),
     );
   }
 
-  failedToRegisterIOSPushPermissions = (error) => {
-    Alert.alert(
-      "Need notif permissions",
-      "SquadCal needs notification permissions to keep you in the loop! " +
-        "Please enable in Settings App -> Notifications -> SquadCal.",
-      [ { text: 'OK' } ],
+  failedToRegisterPushPermissions = (error) => {
+    if (Platform.OS === "ios") {
+      Alert.alert(
+        "Need notif permissions",
+        "SquadCal needs notification permissions to keep you in the loop! " +
+          "Please enable in Settings App -> Notifications -> SquadCal.",
+        [ { text: 'OK' } ],
+      );
+    } else if (Platform.OS === "android") {
+      Alert.alert(
+        "Unable to initialize notifs!",
+        "Please check your network connection, make sure Google Play " +
+          "services are installed and enabled, and confirm that your Google " +
+          "Play credentials are valid in the Google Play Store.",
+      );
+    }
+  }
+
+  onPressNotificationForThread(threadID: string, clearChatRoutes: bool) {
+    this.props.dispatchActionPayload(
+      notificationPressActionType,
+      {
+        threadInfo: this.props.threadInfos[threadID],
+        clearChatRoutes,
+      },
     );
   }
 
@@ -386,15 +461,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
       message: notification.getMessage(),
-      onPress: () => {
-        this.props.dispatchActionPayload(
-          notificationPressActionType,
-          {
-            threadInfo: this.props.threadInfos[threadID],
-            clearChatRoutes: false,
-          },
-        );
-      },
+      onPress: () => this.onPressNotificationForThread(threadID, false),
     });
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
@@ -407,14 +474,30 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return;
     }
     notification.finish();
-    this.props.dispatchActionPayload(
-      notificationPressActionType,
-      {
-        threadInfo: this.props.threadInfos[threadID],
-        clearChatRoutes: true,
-      },
-    );
+    this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
+  }
+
+  androidNotificationReceived = async (notification) => {
+    if (notification.badgeCount) {
+      FCM.setBadgeNumber(parseInt(notification.badgeCount));
+    }
+    if (
+      notification.fcm &&
+      notification.fcm.body &&
+      this.currentState === "active"
+    ) {
+      const threadID = notification.threadID;
+      if (!threadID) {
+        console.log("Notification with missing threadID received!");
+        return;
+      }
+      invariant(this.inAppNotification, "should be set");
+      this.inAppNotification.show({
+        message: notification.fcm.body,
+        onPress: () => this.onPressNotificationForThread(threadID, false),
+      });
+    }
   }
 
   ping = () => {
@@ -556,7 +639,7 @@ const ConnectedAppWithNavigationState = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ ping, updateActivity, setIOSDeviceToken }),
+  bindServerCalls({ ping, updateActivity, setDeviceToken }),
 )(AppWithNavigationState);
 
 const App = (props: {}) =>

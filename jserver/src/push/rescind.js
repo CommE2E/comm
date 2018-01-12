@@ -4,17 +4,13 @@ import type { $Response, $Request } from 'express';
 
 import apn from 'apn';
 
-import apnConfig from '../../secrets/apn_config';
 import { connect, SQL } from '../database';
-import { getUnreadCounts } from './utils';
-import { apnPush } from './ios_notifs';
+import { apnPush, getUnreadCounts } from './utils';
 
 type PushRescindInfo = {
   userID: string,
   threadIDs: string[],
 };
-
-const apnProvider = new apn.Provider(apnConfig);
 
 async function rescindPushNotifs(req: $Request, res: $Response) {
   res.json({ success: true });
@@ -36,22 +32,23 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
   const promises = [];
   const rescindedIDs = [];
   for (let row of fetchResult) {
-    const notification = new apn.Notification();
-    notification.contentAvailable = true;
-    notification.badge = unreadCounts[userID];
-    notification.topic = "org.squadcal.app";
-    notification.payload = {
-      managedAps: {
-        action: "CLEAR",
-        notificationId: row.delivery.iosIdentifier,
-      },
-    };
-    promises.push(apnPush(
-      apnProvider,
-      notification,
-      row.delivery.iosDeviceTokens,
-      row.id,
-    ));
+    if (row.delivery.iosIdentifier) {
+      const notification = new apn.Notification();
+      notification.contentAvailable = true;
+      notification.badge = unreadCounts[userID];
+      notification.topic = "org.squadcal.app";
+      notification.payload = {
+        managedAps: {
+          action: "CLEAR",
+          notificationId: row.delivery.iosIdentifier,
+        },
+      };
+      promises.push(apnPush(
+        notification,
+        row.delivery.iosDeviceTokens,
+        row.id,
+      ));
+    }
     rescindedIDs.push(row.id);
   }
   if (rescindedIDs.length > 0) {
