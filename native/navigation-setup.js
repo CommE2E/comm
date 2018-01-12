@@ -15,6 +15,7 @@ import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
 import type { LeaveThreadResult } from 'lib/actions/thread-actions';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
+import type { AndroidNotificationActions } from './push/android';
 
 import {
   TabNavigator,
@@ -88,10 +89,15 @@ function _getUuid() {
   return `${uniqueBaseId}-${uuidCount++}`;
 }
 
-export type Action = BaseAction |
-  NavigationAction |
-  {| type: typeof handleURLActionType, payload: string |} |
-  {| type: typeof navigateToAppActionType, payload: null |};
+export type Action =
+  | BaseAction
+  | NavigationAction
+  | {| type: typeof handleURLActionType, payload: string |}
+  | {| type: typeof navigateToAppActionType, payload: null |}
+  | {|
+    type: typeof notificationPressActionType,
+    payload: NotificationPressPayload,
+  |} | AndroidNotificationActions;
 
 const AppNavigator = TabNavigator(
   {

@@ -5,7 +5,7 @@ import type { $Response, $Request } from 'express';
 import apn from 'apn';
 
 import { connect, SQL } from '../database';
-import { apnPush, getUnreadCounts } from './utils';
+import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 type PushRescindInfo = {
   userID: string,
@@ -32,7 +32,7 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
   const promises = [];
   const rescindedIDs = [];
   for (let row of fetchResult) {
-    if (row.delivery.iosIdentifier) {
+    if (row.delivery.iosID) {
       const notification = new apn.Notification();
       notification.contentAvailable = true;
       notification.badge = unreadCounts[userID];
@@ -40,12 +40,25 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
       notification.payload = {
         managedAps: {
           action: "CLEAR",
-          notificationId: row.delivery.iosIdentifier,
+          notificationId: row.delivery.iosID,
         },
       };
       promises.push(apnPush(
         notification,
         row.delivery.iosDeviceTokens,
+        row.id,
+      ));
+    }
+    if (row.delivery.androidID) {
+      const notification = {
+        data: {
+          rescind: "true",
+          dbID: row.id.toString(),
+        },
+      };
+      promises.push(fcmPush(
+        notification,
+        row.delivery.androidDeviceTokens,
         row.id,
       ));
     }

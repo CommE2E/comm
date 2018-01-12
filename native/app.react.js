@@ -75,7 +75,11 @@ import {
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
 import { requestIOSPushPermissions } from './push/ios';
-import { requestAndroidPushPermissions } from './push/android';
+import {
+  requestAndroidPushPermissions,
+  recordAndroidNotificationActionType,
+  clearAndroidNotificationActionType,
+} from './push/android';
 import NotificationBody from './push/notification-body.react';
 
 let urlPrefix;
@@ -200,7 +204,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         "notificationOpened",
         this.iosNotificationOpened,
       );
-      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
     } else if (Platform.OS === "android") {
       this.androidNotifListener = FCM.on(
         FCMEvent.Notification,
@@ -210,24 +213,35 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         FCMEvent.RefreshToken,
         this.registerPushPermissionsAndHandleInitialNotif,
       );
-      FCM.setBadgeNumber(this.props.unreadCount);
     }
+    AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
   }
 
   static updateBadgeCount(unreadCount: number) {
     if (Platform.OS === "ios") {
       NotificationsIOS.setBadgesCount(unreadCount);
+    } else if (Platform.OS === "android") {
+      FCM.setBadgeNumber(unreadCount);
     }
   }
 
-  static clearIOSNotifsOfThread(threadID: string) {
-    NotificationsIOS.getDeliveredNotifications(
-      (notifications) =>
-        AppWithNavigationState.clearDeliveredIOSNotificationsForThread(
-          threadID,
-          notifications,
-        ),
-    );
+  static clearNotifsOfThread(props: Props) {
+    const activeThread = props.activeThread;
+    invariant(activeThread, "activeThread should be set");
+    if (Platform.OS === "ios") {
+      NotificationsIOS.getDeliveredNotifications(
+        (notifications) =>
+          AppWithNavigationState.clearDeliveredIOSNotificationsForThread(
+            activeThread,
+            notifications,
+          ),
+      );
+    } else if (Platform.OS === "android") {
+      props.dispatchActionPayload(
+        clearAndroidNotificationActionType,
+        { threadID: activeThread },
+      );
+    }
   }
 
   static clearDeliveredIOSNotificationsForThread(
@@ -317,14 +331,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
       );
       this.ensurePushNotifsEnabled();
-      if (Platform.OS === "ios") {
-        AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
-        if (this.props.activeThread) {
-          AppWithNavigationState.clearIOSNotifsOfThread(
-            this.props.activeThread,
-          );
-        }
+      if (this.props.activeThread) {
+        AppWithNavigationState.clearNotifsOfThread(this.props);
       }
+      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -353,14 +363,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
     }
-    if (Platform.OS === "ios") {
-      const nextActiveThread = nextProps.activeThread;
-      if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
-        AppWithNavigationState.clearIOSNotifsOfThread(nextActiveThread);
-      }
-      if (nextProps.unreadCount !== this.props.unreadCount) {
-        AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
-      }
+    const nextActiveThread = nextProps.activeThread;
+    if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
+      AppWithNavigationState.clearNotifsOfThread(nextProps);
+    }
+    if (nextProps.unreadCount !== this.props.unreadCount) {
+      AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
     }
   }
 
@@ -386,7 +394,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     if (token) {
       await this.registerPushPermissionsAndHandleInitialNotif(token);
-    } else {
+    } else if (missingDeviceToken) {
       this.failedToRegisterPushPermissions();
     }
   }
@@ -480,11 +488,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   androidNotificationReceived = async (notification) => {
     if (notification.badgeCount) {
-      FCM.setBadgeNumber(parseInt(notification.badgeCount));
+      AppWithNavigationState.updateBadgeCount(
+        parseInt(notification.badgeCount),
+      );
     }
     if (
-      notification.fcm &&
-      notification.fcm.body &&
+      notification.notifBody &&
       this.currentState === "active"
     ) {
       const threadID = notification.threadID;
@@ -494,9 +503,26 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       }
       invariant(this.inAppNotification, "should be set");
       this.inAppNotification.show({
-        message: notification.fcm.body,
+        message: notification.notifBody,
         onPress: () => this.onPressNotificationForThread(threadID, false),
       });
+    } else if (notification.notifBody) {
+      FCM.presentLocalNotification({
+        id: notification.dbID,
+        body: notification.notifBody,
+        priority: "high",
+        sound: "default",
+      });
+      this.props.dispatchActionPayload(
+        recordAndroidNotificationActionType,
+        {
+          threadID: notification.threadID,
+          notifDBID: notification.dbID,
+        },
+      );
+    }
+    if (notification.rescind) {
+      FCM.removeDeliveredNotification(notification.dbID);
     }
   }
 

@@ -20,8 +20,12 @@ async function apnPush(
   dbID: string,
 ) {
   const result = await apnProvider.send(notification, deviceTokens);
+  const errors = [];
   for (let failure of result.failed) {
-    return { error: failure, dbID };
+    errors.push(failure);
+  }
+  if (errors.length > 0) {
+    return { errors, dbID };
   }
   return { success: true, dbID };
 }
@@ -32,15 +36,31 @@ async function fcmPush(
   dbID: string,
 ) {
   try {
-    const result = await fcmAdmin.messaging().sendToDevice(
+    const deliveryResult = await fcmAdmin.messaging().sendToDevice(
       deviceTokens,
       notification,
     );
-    console.log(result);
-    return { success: true, dbID, result };
+    const errors = [];
+    const ids = [];
+    for (let fcmResult of deliveryResult.results) {
+      if (fcmResult.error) {
+        errors.push(fcmResult.error);
+      } else if (fcmResult.messageId) {
+        ids.push(fcmResult.messageId);
+      }
+    }
+    const result: Object = { dbID };
+    if (ids.length > 0) {
+      result.fcmIDs = ids;
+    }
+    if (errors.length > 0) {
+      result.errors = errors;
+    } else {
+      result.success = true;
+    }
+    return result;
   } catch (e) {
-    console.log(e);
-    return { error: e, dbID };
+    return { errors: [ e ], dbID };
   }
 }
 

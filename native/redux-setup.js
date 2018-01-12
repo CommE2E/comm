@@ -30,6 +30,11 @@ import {
   defaultNavInfo,
   reduceNavInfo,
 } from './navigation-setup';
+import {
+  recordAndroidNotificationActionType,
+  clearAndroidNotificationActionType,
+  reduceThreadIDsToNotifDBIDs,
+} from './push/android';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -45,6 +50,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
+  threadIDsToNotifDBIDs: {[threadID: string]: string[]},
   rehydrateConcluded: bool,
 |};
 
@@ -69,6 +75,7 @@ const defaultState = ({
   loadingStatuses: {},
   cookie: null,
   deviceToken: null,
+  threadIDsToNotifDBIDs: {},
   rehydrateConcluded: false,
 }: AppState);
 
@@ -105,6 +112,7 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
@@ -123,7 +131,33 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
       rehydrateConcluded: true,
+    };
+  }
+  if (
+    action.type === recordAndroidNotificationActionType ||
+    action.type === clearAndroidNotificationActionType
+  ) {
+    return {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      threadIDsToNotifDBIDs: reduceThreadIDsToNotifDBIDs(
+        state.threadIDsToNotifDBIDs,
+        action.payload,
+      ),
+      rehydrateConcluded: state.rehydrateConcluded,
     };
   }
   // These action type are handled by reduceNavInfo above
@@ -170,6 +204,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
@@ -198,6 +233,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }

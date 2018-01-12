@@ -72,13 +72,14 @@ async function sendPushNotifs(req: $Request, res: $Response) {
         );
         deliveryPromises.push(apnPush(notification, byDeviceType.ios, dbID));
         delivery.iosDeviceTokens = byDeviceType.ios;
-        delivery.iosIdentifier = notification.id;
+        delivery.iosID = notification.id;
       }
       if (byDeviceType.android) {
         const notification = prepareAndroidNotification(
           messageInfo,
           threadInfo,
           unreadCounts[userID],
+          dbID,
         );
         deliveryPromises.push(fcmPush(
           notification,
@@ -104,13 +105,17 @@ async function sendPushNotifs(req: $Request, res: $Response) {
     dbPromises.push(conn.query(query));
   }
 
-  const [ apnResults ] = await Promise.all([
+  const [ deliveryResults ] = await Promise.all([
     Promise.all(deliveryPromises),
     Promise.all(dbPromises),
   ]);
-  for (let apnResult of apnResults) {
-    if (apnResult.error) {
-      notifications[apnResult.dbID][4].error = apnResult.error;
+  for (let deliveryResult of deliveryResults) {
+    if (deliveryResult.errors) {
+      notifications[deliveryResult.dbID][4].errors = deliveryResult.errors;
+    }
+    if (deliveryResult.fcmIDs) {
+      notifications[deliveryResult.dbID][4].androidID =
+        deliveryResult.fcmIDs[0];
     }
   }
 
@@ -258,15 +263,15 @@ function prepareAndroidNotification(
   messageInfo: MessageInfo,
   threadInfo: ThreadInfo,
   unreadCount: number,
+  dbID: string,
 ): Object {
   const notifText = notifTextForMessageInfo(messageInfo, threadInfo);
   return {
-    notification: {
-      body: notifText,
-    },
     data: {
+      notifBody: notifText,
       badgeCount: unreadCount.toString(),
       threadID: messageInfo.threadID,
+      dbID,
     },
   };
 }
