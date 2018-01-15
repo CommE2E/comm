@@ -617,32 +617,41 @@ function handleNotificationPress(
   state: NavigationState,
   payload: NotificationPressPayload,
 ): NavigationState {
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+
+  const currentChatRoute = chatRoute.routes[chatRoute.index];
+  if (
+    currentChatRoute.routeName === MessageListRouteName &&
+    getThreadIDFromParams(currentChatRoute) === payload.threadInfo.id
+  ) {
+    return state;
+  }
+
   if (payload.clearChatRoutes) {
     return replaceChatStackWithThread(
       state,
       payload.threadInfo,
     );
-  } else {
-    const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const newChatRoute = {
-      ...chatRoute,
-      routes: [
-        ...chatRoute.routes,
-        {
-          key: `Notif-${_getUuid()}`,
-          routeName: MessageListRouteName,
-          params: { threadInfo: payload.threadInfo },
-        }
-      ],
-      index: chatRoute.routes.length,
-    };
-    const newAppSubRoutes = [ ...appRoute.routes ];
-    newAppSubRoutes[1] = newChatRoute;
-    const newRootSubRoutes = [ ...state.routes ];
-    newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-    return { ...state, routes: newRootSubRoutes };
   }
+
+  const newChatRoute = {
+    ...chatRoute,
+    routes: [
+      ...chatRoute.routes,
+      {
+        key: `Notif-${_getUuid()}`,
+        routeName: MessageListRouteName,
+        params: { threadInfo: payload.threadInfo },
+      }
+    ],
+    index: chatRoute.routes.length,
+  };
+  const newAppSubRoutes = [ ...appRoute.routes ];
+  newAppSubRoutes[1] = newChatRoute;
+  const newRootSubRoutes = [ ...state.routes ];
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  return { ...state, routes: newRootSubRoutes };
 }
 
 export {

@@ -378,24 +378,38 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         || this.props.deviceToken === undefined;
       await requestIOSPushPermissions(missingDeviceToken);
     } else if (Platform.OS === "android") {
-      await this.getAndroidFCMToken();
+      await this.ensureAndroidPushNotifsEnabled();
     }
   }
 
-  async getAndroidFCMToken() {
+  async ensureAndroidPushNotifsEnabled() {
     const missingDeviceToken = this.props.deviceToken === null
       || this.props.deviceToken === undefined;
-    let token = null;
-    try {
-      token = await requestAndroidPushPermissions(missingDeviceToken);
-    } catch (e) {
-      this.failedToRegisterPushPermissions(e);
+    let token = await this.getAndroidFCMToken();
+    if (token) {
+      await this.registerPushPermissionsAndHandleInitialNotif(token);
       return;
     }
+    try {
+      await FCM.deleteInstanceId();
+    } catch (e) {
+      this.failedToRegisterPushPermissions(e);
+      return null;
+    }
+    token = await this.getAndroidFCMToken();
     if (token) {
       await this.registerPushPermissionsAndHandleInitialNotif(token);
     } else if (missingDeviceToken) {
       this.failedToRegisterPushPermissions();
+    }
+  }
+
+  async getAndroidFCMToken() {
+    try {
+      return await requestAndroidPushPermissions();
+    } catch (e) {
+      this.failedToRegisterPushPermissions(e);
+      return null;
     }
   }
 
@@ -512,6 +526,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         body: notification.notifBody,
         priority: "high",
         sound: "default",
+        threadID: notification.threadID,
       });
       this.props.dispatchActionPayload(
         recordAndroidNotificationActionType,
@@ -520,6 +535,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           notifDBID: notification.dbID,
         },
       );
+    }
+    if (notification.body) {
+      this.onPressNotificationForThread(notification.threadID, true);
     }
     if (notification.rescind) {
       FCM.removeDeliveredNotification(notification.dbID);

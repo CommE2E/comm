@@ -2,17 +2,12 @@
 
 import FCM from 'react-native-fcm';
 
-async function requestAndroidPushPermissions(
-  missingDeviceToken: bool,
-): Promise<?string> {
-  if (!missingDeviceToken) {
+async function requestAndroidPushPermissions(): Promise<?string> {
+  const requestResult = await FCM.requestPermissions();
+  if (!requestResult) {
     return null;
   }
-  const requestResult = await FCM.requestPermissions();
-  console.log(`Result from FCM.requestPermissions(): ${JSON.stringify(requestResult)}`);
-  const token = await FCM.getFCMToken();
-  console.log(`Token from FCM.getFCMToken(): ${JSON.stringify(token)}`);
-  return token;
+  return await FCM.getFCMToken();
 }
 
 const recordAndroidNotificationActionType = "RECORD_ANDROID_NOTIFICATION";
