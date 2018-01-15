@@ -26,10 +26,12 @@ if (
   ));
 }
 
-$result = $conn->query(
-  "SELECT id, hash, username, email, email_verified ".
-    "FROM users WHERE username = '$username' OR email = '$username'"
-);
+$query = <<<SQL
+SELECT id, hash, username, email, email_verified
+FROM users
+WHERE LCASE(username) = LCASE('$username') OR LCASE(email) = LCASE('$username')
+SQL;
+$result = $conn->query($query);
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
   async_end(array(

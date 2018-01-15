@@ -12,12 +12,14 @@ if (!isset($_POST['username'])) {
     'error' => 'invalid_parameters',
   ));
 }
-$username = $_POST['username'];
+$username = $conn->real_escape_string($_POST['username']);
 
-$result = $conn->query(
-  "SELECT id, username, email ".
-    "FROM users WHERE username = '$username' OR email = '$username'"
-);
+$query = <<<SQL
+SELECT id, username, email
+FROM users
+WHERE LCASE(username) = LCASE('$username') OR LCASE(email) = LCASE('$username')
+SQL;
+$result = $conn->query($query);
 $user_row = $result->fetch_assoc();
 if (!$user_row) {
   async_end(array(
