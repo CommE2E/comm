@@ -51,9 +51,9 @@ const styles = StyleSheet.create({
   sectionFooter: {
     backgroundColor: 'white',
     height: 40,
+    alignItems: 'flex-start',
   },
   addButton: {
-    position: 'absolute',
     backgroundColor: '#EEEEEE',
     paddingLeft: 10,
     paddingRight: 10,
