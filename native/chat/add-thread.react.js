@@ -240,7 +240,6 @@ class InnerAddThread extends React.PureComponent<Props, State> {
               autoFocus={true}
               autoCorrect={false}
               autoCapitalize="none"
-              keyboardType="ascii-capable"
               returnKeyType="next"
               editable={this.props.loadingStatus !== "loading"}
               underlineColorAndroid="transparent"
