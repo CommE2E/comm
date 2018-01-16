@@ -51,6 +51,7 @@ import { messageType } from 'lib/types/message-types';
 import threadWatcher from 'lib/shared/thread-watcher';
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
@@ -591,7 +592,7 @@ const MessageList = connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      threadInfo: state.threadInfos[threadID],
+      threadInfo: threadInfoSelector(state)[threadID],
       cookie: state.cookie,
     };
   },

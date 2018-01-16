@@ -11,7 +11,6 @@ require_once('permissions.php');
 async_start();
 
 if (
-  !isset($_POST['name']) ||
   !isset($_POST['description']) ||
   !isset($_POST['visibility_rules']) ||
   !isset($_POST['color'])
@@ -72,9 +71,11 @@ $conn->query("INSERT INTO ids(table_name) VALUES('threads')");
 $id = $conn->insert_id;
 $roles = create_initial_roles_for_new_thread($id);
 
-$raw_name = $_POST['name'];
+$name = !empty($_POST['name']) ? $_POST['name'] : null;
 $raw_description = $_POST['description'];
-$name = $conn->real_escape_string($raw_name);
+$sql_name = $name
+  ?  ("'" . $conn->real_escape_string($name) . "'")
+  : "NULL";
 $description = $conn->real_escape_string($raw_description);
 $time = round(microtime(true) * 1000); // in milliseconds
 $creator = get_viewer_id();
@@ -95,7 +96,7 @@ INSERT INTO threads
   (id, name, description, visibility_rules, hash, edit_rules, creator,
   creation_time, color, parent_thread_id, default_role)
 VALUES
-  ($id, '$name', '$description', $vis_rules, $hash_sql_string, $edit_rules,
+  ($id, $sql_name, '$description', $vis_rules, $hash_sql_string, $edit_rules,
   $creator, $time, '$color', $parent_thread_id_sql_string, {$default_role})
 SQL;
 $conn->query($thread_insert_sql);
@@ -200,7 +201,7 @@ $message_infos = array(array(
   'creatorID' => (string)$creator,
   'time' => $time,
   'initialThreadState' => array(
-    'name' => $raw_name,
+    'name' => $name,
     'parentThreadID' => $parent_thread_id ? (string)$parent_thread_id : null,
     'visibilityRules' => $vis_rules,
     'color' => $color,
@@ -222,7 +223,7 @@ async_end(array(
   'success' => true,
   'new_thread_info' => array(
     'id' => (string)$id,
-    'name' => $raw_name,
+    'name' => $name,
     'description' => $raw_description,
     'visibilityRules' => $vis_rules,
     'color' => $color,

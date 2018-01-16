@@ -24,7 +24,10 @@ import {
   subscriptionExists,
   threadSearchIndex,
 } from 'lib/selectors/nav-selectors';
-import { typeaheadSortedThreadInfos } from 'lib/selectors/thread-selectors';
+import {
+  threadInfoSelector,
+  typeaheadSortedThreadInfos,
+} from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 
 import css from '../style.css';
@@ -93,7 +96,7 @@ class Typeahead extends React.PureComponent {
     if (props.currentlyHome) {
       return TypeaheadText.homeText;
     } else if (props.currentNavID) {
-      return props.threadInfos[props.currentNavID].name;
+      return props.threadInfos[props.currentNavID].uiName;
     } else {
       return "";
     }
@@ -627,7 +630,7 @@ Typeahead.propTypes = {
 
 export default connect((state: AppState) => ({
   currentNavID: currentNavID(state),
-  threadInfos: state.threadInfos,
+  threadInfos: threadInfoSelector(state),
   currentlyHome: state.navInfo.home,
   currentThreadID: state.navInfo.threadID,
   subscriptionExists: subscriptionExists(state),

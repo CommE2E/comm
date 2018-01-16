@@ -57,7 +57,7 @@ class ChatThreadListItem extends React.PureComponent<Props> {
         <View style={styles.container}>
           <View style={styles.row}>
             <Text style={[styles.threadName, unreadStyle]} numberOfLines={1}>
-              {this.props.data.threadInfo.name}
+              {this.props.data.threadInfo.uiName}
             </Text>
             <View style={styles.colorSplotch}>
               <ColorSplotch

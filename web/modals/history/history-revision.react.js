@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import css from '../../style.css';
 
@@ -105,5 +106,5 @@ HistoryRevision.propTypes = {
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
 export default connect((state: AppState, ownProps: OwnProps) => ({
-  threadInfo: state.threadInfos[ownProps.revisionInfo.threadID],
+  threadInfo: threadInfoSelector(state)[ownProps.revisionInfo.threadID],
 }))(HistoryRevision);

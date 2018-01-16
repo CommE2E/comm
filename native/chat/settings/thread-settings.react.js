@@ -41,7 +41,10 @@ import { visibilityRules } from 'lib/types/thread-types';
 import {
   relativeMemberInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors';
-import { childThreadInfos } from 'lib/selectors/thread-selectors';
+import {
+  threadInfoSelector,
+  childThreadInfos,
+} from 'lib/selectors/thread-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   changeThreadSettingsActionTypes,
@@ -139,7 +142,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     changeSingleThreadSetting: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
-    title: navigation.state.params.threadInfo.name,
+    title: navigation.state.params.threadInfo.uiName,
     headerBackTitle: "Back",
   });
   nameTextInput: ?TextInput;
@@ -240,7 +243,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           onLayout={this.onLayoutNameText}
           key="text"
         >
-          {this.props.threadInfo.name}
+          {this.props.threadInfo.uiName}
         </Text>,
         <EditSettingButton
           onPress={this.onPressEditName}
@@ -390,7 +393,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             style={[styles.currentValueText, styles.parentThreadLink]}
             numberOfLines={1}
           >
-            {this.props.parentThreadInfo.name}
+            {this.props.parentThreadInfo.uiName}
           </Text>
         </Button>
       );
@@ -647,8 +650,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ nameTextHeight: event.nativeEvent.contentSize.height });
   }
 
+  threadEditName() {
+    return this.props.threadInfo.name ? this.props.threadInfo.name : "";
+  }
+
   onPressEditName = () => {
-    this.setState({ nameEditValue: this.props.threadInfo.name });
+    this.setState({ nameEditValue: this.threadEditName() });
   }
 
   onChangeNameText = (text: string) => {
@@ -663,7 +670,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     );
     const name = this.state.nameEditValue.trim();
 
-    if (name === this.props.threadInfo.name) {
+    if (name === this.threadEditName()) {
       this.setState({ nameEditValue: null });
       return;
     } else if (name === '') {
@@ -709,7 +716,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   onNameErrorAcknowledged = () => {
     this.setState(
-      { nameEditValue: this.props.threadInfo.name },
+      { nameEditValue: this.threadEditName() },
       () => {
         invariant(this.nameTextInput, "nameTextInput should be set");
         this.nameTextInput.focus();
@@ -1039,9 +1046,10 @@ const leaveThreadLoadingStatusSelector
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
+    const parsedThreadInfos = threadInfoSelector(state);
     const passedThreadInfo = ownProps.navigation.state.params.threadInfo;
     // We pull the version from Redux so we get updates once they go through
-    const threadInfo = state.threadInfos[passedThreadInfo.id];
+    const threadInfo = parsedThreadInfos[passedThreadInfo.id];
     // We need two LoadingStatuses for each member
     const threadMembers =
       relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state);
@@ -1060,7 +1068,7 @@ const ThreadSettings = connect(
     return {
       threadInfo,
       parentThreadInfo: threadInfo.parentThreadID
-        ? state.threadInfos[threadInfo.parentThreadID]
+        ? parsedThreadInfos[threadInfo.parentThreadID]
         : null,
       threadMembers,
       childThreadInfos: childThreadInfos(state)[threadInfo.id],

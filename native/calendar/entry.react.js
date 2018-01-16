@@ -54,6 +54,7 @@ import {
 import { ServerError } from 'lib/utils/fetch-utils';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import Button from '../components/button.react';
 import { ChatRouteName } from '../chat/chat.react';
@@ -252,7 +253,7 @@ class Entry extends React.Component<Props, State> {
                 style={[styles.rightLinksText, actionLinksTextStyle]}
                 numberOfLines={1}
               >
-                {this.state.threadInfo.name}
+                {this.state.threadInfo.uiName}
               </Text>
             </Button>
           </View>
@@ -584,7 +585,7 @@ export default connect(
         ? getThreadIDFromParams(currentChatSubroute)
         : null;
     return {
-      threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
+      threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
       sessionStartingPayload: sessionStartingPayload(state),
       sessionID: currentSessionID(state),
       nextSessionID: nextSessionID(state),

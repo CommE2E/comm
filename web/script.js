@@ -4,7 +4,7 @@ import 'babel-polyfill';
 import 'isomorphic-fetch';
 
 import type { Store } from 'redux';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { RawEntryInfo } from 'lib/types/entry-types';
 import type {
   RawMessageInfo,
@@ -41,7 +41,7 @@ import App from './app.react';
 import history from './router-history';
 
 declare var current_user_info: CurrentUserInfo;
-declare var thread_infos: {[id: string]: ThreadInfo};
+declare var thread_infos: {[id: string]: RawThreadInfo};
 declare var entry_infos: RawEntryInfo[];
 declare var month: number;
 declare var year: number;

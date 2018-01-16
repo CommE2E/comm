@@ -26,7 +26,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
         style={styles.container}
       >
         <Text style={styles.text} numberOfLines={1}>
-          {this.props.threadInfo.name}
+          {this.props.threadInfo.uiName}
         </Text>
         <ColorSplotch color={this.props.threadInfo.color} />
       </Button>

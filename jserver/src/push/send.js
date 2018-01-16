@@ -3,7 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { Connection } from '../database';
 import type { DeviceType } from 'lib/actions/device-actions';
 
@@ -14,6 +14,7 @@ import uuidv4 from 'uuid/v4';
 import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
 import { createMessageInfo } from 'lib/shared/message-utils';
+import { rawThreadInfosToThreadInfos } from 'lib/selectors/thread-selectors';
 
 import { connect, SQL } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
@@ -38,7 +39,7 @@ async function sendPushNotifs(req: $Request, res: $Response) {
   const conn = await connect();
   const [
     unreadCounts,
-    { threadInfos, userInfos },
+    { rawThreadInfos, userInfos },
     dbIDs,
   ] = await Promise.all([
     getUnreadCounts(conn, Object.keys(pushInfo)),
@@ -49,6 +50,11 @@ async function sendPushNotifs(req: $Request, res: $Response) {
   const deliveryPromises = [];
   const notifications = {};
   for (let userID in pushInfo) {
+    const threadInfos = rawThreadInfosToThreadInfos(
+      rawThreadInfos,
+      userID,
+      userInfos,
+    );
     for (let rawMessageInfo of pushInfo[userID].messageInfos) {
       const messageInfo = createMessageInfo(
         rawMessageInfo,
@@ -157,7 +163,7 @@ async function fetchInfos(
   }
 
   // These threadInfos won't have currentUser set
-  const { threadInfos, userInfos: threadUserInfos } =
+  const { threadInfos: rawThreadInfos, userInfos: threadUserInfos } =
     await fetchThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`, true);
 
   const userInfos = await fetchMissingUserInfos(
@@ -166,7 +172,7 @@ async function fetchInfos(
     pushInfo,
   );
 
-  return { threadInfos, userInfos };
+  return { rawThreadInfos, userInfos };
 }
 
 async function fetchMissingUserInfos(

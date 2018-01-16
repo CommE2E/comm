@@ -39,7 +39,7 @@ class ThreadPickerOption extends React.PureComponent {
         <span className={css['select-thread']}>
           <div className={css['color-preview']} style={this.style} />
           <span className={css['select-thread-name']}>
-            {this.props.threadInfo.name}
+            {this.props.threadInfo.uiName}
           </span>
         </span>
       </div>

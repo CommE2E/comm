@@ -46,6 +46,7 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import Button from '../components/button.react';
 
@@ -363,7 +364,7 @@ export default connect(
         : undefined,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
-      threadInfo: state.threadInfos[ownProps.threadID],
+      threadInfo: threadInfoSelector(state)[ownProps.threadID],
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       cookie: state.cookie,
     };

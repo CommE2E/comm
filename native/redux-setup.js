@@ -1,6 +1,6 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
@@ -42,7 +42,7 @@ export type AppState = {|
   sessionID: string,
   entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
-  threadInfos: {[id: string]: ThreadInfo},
+  threadInfos: {[id: string]: RawThreadInfo},
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   drafts: {[key: string]: string},
@@ -96,7 +96,7 @@ const blacklist = __DEV__
 
 function reducer(state: AppState, action: *) {
   const oldState = state;
-  const navInfo = reduceNavInfo(state && state.navInfo, action);
+  const navInfo = reduceNavInfo(state, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = {
       navInfo,

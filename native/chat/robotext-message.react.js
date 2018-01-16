@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
 import { messageType } from 'lib/types/message-types';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import { MessageListRouteName } from './message-list.react';
 
@@ -147,7 +148,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 }
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
-    threadInfo: state.threadInfos[ownProps.id],
+    threadInfo: threadInfoSelector(state)[ownProps.id],
   }),
   includeDispatchActionProps,
 )(InnerThreadEntity);

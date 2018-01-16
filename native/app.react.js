@@ -18,8 +18,8 @@ import type {
   ActivityUpdate,
   UpdateActivityResult,
 } from 'lib/actions/ping-actions';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
+import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/actions/device-actions';
 
 import React from 'react';
@@ -131,7 +131,7 @@ type Props = {
   activeThreadLatestMessage: ?string,
   deviceToken: ?string,
   unreadCount: number,
-  threadInfos: {[id: string]: ThreadInfo},
+  rawThreadInfos: {[id: string]: RawThreadInfo},
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -161,7 +161,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     activeThreadLatestMessage: PropTypes.string,
     deviceToken: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
-    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
+    rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -464,7 +464,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.props.dispatchActionPayload(
       notificationPressActionType,
       {
-        threadInfo: this.props.threadInfos[threadID],
+        rawThreadInfo: this.props.rawThreadInfos[threadID],
         clearChatRoutes,
       },
     );
@@ -679,7 +679,7 @@ const ConnectedAppWithNavigationState = connect(
           : null,
       deviceToken: state.deviceToken,
       unreadCount: unreadCount(state),
-      threadInfos: state.threadInfos,
+      rawThreadInfos: state.threadInfos,
     };
   },
   includeDispatchActionProps,

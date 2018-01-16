@@ -1,7 +1,8 @@
 // @flow
 
 import type { Connection } from '../database';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import {
   assertVisibilityRules,
@@ -18,11 +19,16 @@ import {
 
 const SQLStatement = SQL.SQLStatement;
 
+type FetchThreadInfosResult = {|
+  threadInfos: {[id: string]: RawThreadInfo},
+  userInfos: {[id: string]: UserInfo},
+|};
+
 async function fetchThreadInfos(
   conn: Connection,
   condition?: SQLStatement,
   skipVisibilityChecks: bool,
-) {
+): Promise<FetchThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
 
   const query = SQL`

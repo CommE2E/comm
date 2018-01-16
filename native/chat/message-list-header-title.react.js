@@ -69,7 +69,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         <View style={styles.container}>
           {fakeIcon}
           <HeaderTitle onLayout={this.onLayout}>
-            {this.props.threadInfo.name}
+            {this.props.threadInfo.uiName}
           </HeaderTitle>
           {icon}
         </View>

@@ -1,7 +1,7 @@
 // @flow
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -35,7 +35,7 @@ export type AppState = {|
   resetPasswordUsername: string,
   entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
-  threadInfos: {[id: string]: ThreadInfo},
+  threadInfos: {[id: string]: RawThreadInfo},
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   drafts: {[key: string]: string},

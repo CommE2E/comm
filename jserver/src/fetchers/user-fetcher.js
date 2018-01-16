@@ -1,13 +1,14 @@
 // @flow
 
 import type { Connection } from '../database';
+import type { UserInfo } from 'lib/types/user-types';
 
 import { SQL } from '../database';
 
 async function fetchUserInfos(
   conn: Connection,
   userIDs: string[],
-) {
+): Promise<{[id: string]: UserInfo}> {
   if (userIDs.length <= 0) {
     return {};
   }

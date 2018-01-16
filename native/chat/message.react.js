@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { messageType } from 'lib/types/message-types';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
 import {
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
 
 const Message = connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }): * => ({
-    threadInfo: state.threadInfos[ownProps.item.messageInfo.threadID],
+    threadInfo: threadInfoSelector(state)[ownProps.item.messageInfo.threadID],
   }),
 )(InnerMessage);
 

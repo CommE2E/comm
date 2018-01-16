@@ -38,6 +38,7 @@ import {
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
 import { dateString } from 'lib/utils/date-utils';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -185,7 +186,7 @@ class Entry extends React.PureComponent {
           <span className={
             `${css['right-action-links']} ${css['action-links-text']}`
           }>
-            {this.props.threadInfo.name}
+            {this.props.threadInfo.uiName}
           </span>
           <div className={css['clear']}></div>
         </div>
@@ -466,7 +467,7 @@ type OwnProps = {
 };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
+    threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),
     sessionStartingPayload: sessionStartingPayload(state),

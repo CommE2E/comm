@@ -185,7 +185,7 @@ class TypeaheadThreadOption extends React.PureComponent {
           focusTypeahead={this.props.focusTypeahead}
         />
       );
-      name = this.props.threadInfo.name;
+      name = this.props.threadInfo.uiName;
     } else {
       name = TypeaheadText.secretText;
     }

@@ -27,6 +27,7 @@ import {
   createMessageInfo,
 } from 'lib/shared/message-utils';
 import { viewerIsMember } from 'lib/shared/thread-utils';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 export type ChatThreadItem = {
   threadInfo: ThreadInfo,
@@ -39,7 +40,7 @@ const chatThreadItemPropType = PropTypes.shape({
   lastUpdatedTime: PropTypes.number.isRequired,
 });
 const chatListData = createSelector(
-  (state: BaseAppState) => state.threadInfos,
+  threadInfoSelector,
   (state: BaseAppState) => state.messageStore,
   (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
   (state: BaseAppState) => state.userInfos,
@@ -116,7 +117,7 @@ const baseMessageListData = (threadID: string) => createSelector(
   (state: BaseAppState) => state.messageStore,
   (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
   (state: BaseAppState) => state.userInfos,
-  (state: BaseAppState) => state.threadInfos,
+  threadInfoSelector,
   (
     messageStore: MessageStore,
     viewerID: ?string,
@@ -129,7 +130,7 @@ const baseMessageListData = (threadID: string) => createSelector(
     }
     const rawMessageInfos = thread.messageIDs
       .map((messageID: string) => messageStore.messages[messageID])
-      .filter(x => x);
+      .filter(Boolean);
     const chatMessageItems = [];
     let lastMessageInfo = null;
     for (let i = rawMessageInfos.length - 1; i >= 0; i--) {

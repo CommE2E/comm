@@ -2,7 +2,7 @@
 
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationScreenProp,
@@ -16,6 +16,7 @@ import type { SetCookiePayload } from 'lib/utils/action-utils';
 import type { LeaveThreadResult } from 'lib/actions/thread-actions';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from './push/android';
+import type { UserInfo } from 'lib/types/user-types';
 
 import {
   TabNavigator,
@@ -48,6 +49,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
+import { createThreadInfo } from 'lib/shared/thread-utils';
 
 import {
   Calendar,
@@ -223,18 +225,19 @@ const defaultNavInfo: NavInfo = {
 };
 
 const accountModals = [ LoggedOutModalRouteName, VerificationModalRouteName ];
-function reduceNavInfo(state: NavInfo, action: *): NavInfo {
+function reduceNavInfo(state: AppState, action: *): NavInfo {
+  let navInfoState = state.navInfo;
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
     action,
-    state.navigationState,
+    navInfoState.navigationState,
   )
-  if (navigationState && navigationState !== state.navigationState) {
+  if (navigationState && navigationState !== navInfoState.navigationState) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
       navigationState,
     };
   }
@@ -251,15 +254,15 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       action.type === setCookieActionType
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
-      state.navigationState,
+      navInfoState.navigationState,
       action.payload.threadInfos,
     );
-    if (state.navigationState !== filteredNavigationState) {
-      state = {
-        startDate: state.startDate,
-        endDate: state.endDate,
-        home: state.home,
-        threadID: state.threadID,
+    if (navInfoState.navigationState !== filteredNavigationState) {
+      navInfoState = {
+        startDate: navInfoState.startDate,
+        endDate: navInfoState.endDate,
+        home: navInfoState.home,
+        threadID: navInfoState.threadID,
         navigationState: filteredNavigationState,
       };
     }
@@ -267,11 +270,11 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
   // Deep linking
   if (action.type === handleURLActionType) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
-      navigationState: handleURL(state.navigationState, action.payload),
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
+      navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
   } else if (
     action.type === logInActionTypes.success ||
@@ -279,65 +282,72 @@ function reduceNavInfo(state: NavInfo, action: *): NavInfo {
       action.type === navigateToAppActionType
   ) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
-      navigationState: removeModals(state.navigationState, accountModals),
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
+      navigationState: removeModals(
+        navInfoState.navigationState,
+        accountModals,
+      ),
     };
   } else if (
     action.type === logOutActionTypes.started ||
       action.type === deleteAccountActionTypes.success
   ) {
-    return resetNavInfoAndEnsureLoggedOutModalPresence(state);
+    return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setCookieActionType) {
-    return logOutIfCookieInvalidated(state, action.payload);
+    return logOutIfCookieInvalidated(navInfoState, action.payload);
   } else if (action.type === pingActionTypes.success) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
       navigationState: removeModalsIfPingIndicatesLoggedIn(
-        state.navigationState,
+        navInfoState.navigationState,
         action.payload,
       ),
     };
   } else if (action.type === leaveThreadActionTypes.success) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
       navigationState: popChatScreensForThreadID(
-        state.navigationState,
+        navInfoState.navigationState,
         action.payload,
       ),
     };
   } else if (action.type === newThreadActionTypes.success) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
       navigationState: replaceChatStackWithThread(
-        state.navigationState,
+        navInfoState.navigationState,
         action.payload.newThreadInfo,
+        state.currentUserInfo && state.currentUserInfo.id,
+        state.userInfos,
       ),
     };
   } else if (action.type === notificationPressActionType) {
     return {
-      startDate: state.startDate,
-      endDate: state.endDate,
-      home: state.home,
-      threadID: state.threadID,
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      home: navInfoState.home,
+      threadID: navInfoState.threadID,
       navigationState: handleNotificationPress(
-        state.navigationState,
+        navInfoState.navigationState,
         action.payload,
+        state.currentUserInfo && state.currentUserInfo.id,
+        state.userInfos,
       ),
     };
   }
-  return state;
+  return navInfoState;
 }
 
 function handleURL(
@@ -554,7 +564,7 @@ function popChatScreensForThreadID(
 
 function filterChatScreensForThreadInfos(
   state: NavigationState,
-  threadInfos: {[id: string]: ThreadInfo},
+  threadInfos: {[id: string]: RawThreadInfo},
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
@@ -588,8 +598,11 @@ function filterChatScreensForThreadInfos(
 
 function replaceChatStackWithThread(
   state: NavigationState,
-  threadInfo: ThreadInfo,
+  rawThreadInfo: RawThreadInfo,
+  viewerID: ?string,
+  userInfos: {[id: string]: UserInfo},
 ): NavigationState {
+  const threadInfo = createThreadInfo(rawThreadInfo, viewerID, userInfos);
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
 
@@ -616,6 +629,8 @@ function replaceChatStackWithThread(
 function handleNotificationPress(
   state: NavigationState,
   payload: NotificationPressPayload,
+  viewerID: ?string,
+  userInfos: {[id: string]: UserInfo},
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
@@ -623,7 +638,7 @@ function handleNotificationPress(
   const currentChatRoute = chatRoute.routes[chatRoute.index];
   if (
     currentChatRoute.routeName === MessageListRouteName &&
-    getThreadIDFromParams(currentChatRoute) === payload.threadInfo.id
+    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id
   ) {
     return state;
   }
@@ -631,10 +646,17 @@ function handleNotificationPress(
   if (payload.clearChatRoutes) {
     return replaceChatStackWithThread(
       state,
-      payload.threadInfo,
+      payload.rawThreadInfo,
+      viewerID,
+      userInfos,
     );
   }
 
+  const threadInfo = createThreadInfo(
+    payload.rawThreadInfo,
+    viewerID,
+    userInfos,
+  );
   const newChatRoute = {
     ...chatRoute,
     routes: [
@@ -642,7 +664,7 @@ function handleNotificationPress(
       {
         key: `Notif-${_getUuid()}`,
         routeName: MessageListRouteName,
-        params: { threadInfo: payload.threadInfo },
+        params: { threadInfo },
       }
     ],
     index: chatRoute.routes.length,

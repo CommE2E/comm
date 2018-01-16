@@ -113,6 +113,12 @@ class ThreadSettingsModal extends React.PureComponent {
     this.nameInput.focus();
   }
 
+  threadName() {
+    return this.state.threadInfo.name
+      ? this.state.threadInfo.name
+      : "";
+  }
+
   render() {
     let mainContent = null;
     if (this.state.currentTabType === "general") {
@@ -123,7 +129,7 @@ class ThreadSettingsModal extends React.PureComponent {
             <div className={css['form-content']}>
               <input
                 type="text"
-                value={this.state.threadInfo.name}
+                value={this.threadName()}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
                 ref={this.nameInputRef}
@@ -443,6 +449,7 @@ class ThreadSettingsModal extends React.PureComponent {
       threadInfo: {
         ...prevState.threadInfo,
         name: target.value,
+        uiName: target.value,
       },
     }));
   }
@@ -514,7 +521,7 @@ class ThreadSettingsModal extends React.PureComponent {
   onSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
 
-    const name = this.state.threadInfo.name.trim();
+    const name = this.threadName().trim();
     if (name === '') {
       this.setState(
         (prevState, props) => ({
@@ -522,6 +529,7 @@ class ThreadSettingsModal extends React.PureComponent {
           threadInfo: {
             ...prevState.threadInfo,
             name: this.props.threadInfo.name,
+            uiName: this.props.threadInfo.uiName,
           },
           errorMessage: "empty thread name",
           currentTabType: "general",
@@ -591,6 +599,7 @@ class ThreadSettingsModal extends React.PureComponent {
       const newThreadInfo: ThreadInfo = {
         id: this.state.threadInfo.id,
         name,
+        uiName: name,
         description: this.state.threadInfo.description,
         visibilityRules: this.state.threadInfo.visibilityRules,
         color: this.state.threadInfo.color,
@@ -633,6 +642,7 @@ class ThreadSettingsModal extends React.PureComponent {
             threadInfo: {
               ...prevState.threadInfo,
               name: this.props.threadInfo.name,
+              uiName: this.props.threadInfo.uiName,
               description: this.props.threadInfo.description,
               visibilityRules: this.props.threadInfo.visibilityRules,
               color: this.props.threadInfo.color,

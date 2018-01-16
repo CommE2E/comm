@@ -29,6 +29,7 @@ import {
   currentSessionID,
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
@@ -105,7 +106,7 @@ class HistoryEntry extends React.PureComponent {
           {creator}
         </span>
         <span className={css['entry-thread']}>
-          {this.props.threadInfo.name}
+          {this.props.threadInfo.uiName}
         </span>
         <div className={css['clear']} />
         {deleted}
@@ -167,7 +168,7 @@ export default connect(
     const entryID = ownProps.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
     return {
-      threadInfo: state.threadInfos[ownProps.entryInfo.threadID],
+      threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
       sessionID: currentSessionID(state),
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),

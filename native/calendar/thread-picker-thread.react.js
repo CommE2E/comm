@@ -34,7 +34,7 @@ class ThreadPickerThread extends React.PureComponent<Props> {
       >
         <View style={styles.container}>
           <ColorSplotch color={this.props.threadInfo.color} />
-          <Text style={styles.text}>{this.props.threadInfo.name}</Text>
+          <Text style={styles.text}>{this.props.threadInfo.uiName}</Text>
         </View>
       </Button>
     );

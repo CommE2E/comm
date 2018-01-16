@@ -49,6 +49,7 @@ import SearchIndex from 'lib/shared/search-index';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import ColorSplotch from '../components/color-splotch.react';
 import TagInput from '../components/tag-input.react';
@@ -217,7 +218,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
               <Text style={styles.parentThreadNameRobotext}>
                 {"within "}
               </Text>
-              {this.props.parentThreadInfo.name}
+              {this.props.parentThreadInfo.uiName}
             </Text>
           </View>
         </View>
@@ -386,26 +387,14 @@ class InnerAddThread extends React.PureComponent<Props, State> {
   }
 
   onPressCreateThread = () => {
-    const name = this.state.nameInputText.trim();
-    if (name === '') {
-      Alert.alert(
-        "Empty thread name",
-        "You must specify a thread name!",
-        [
-          { text: 'OK', onPress: this.onErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      return;
-    }
-
     this.props.dispatchActionPromise(
       newThreadActionTypes,
-      this.newChatThreadAction(name),
+      this.newChatThreadAction(),
     );
   }
 
-  async newChatThreadAction(name: string) {
+  async newChatThreadAction() {
+    const name = this.state.nameInputText.trim();
     try {
       return await this.props.newChatThread(
         name,
@@ -545,7 +534,7 @@ const AddThread = connect(
     let parentThreadInfo = null;
     const parentThreadID = ownProps.navigation.state.params.parentThreadID;
     if (parentThreadID) {
-      parentThreadInfo = state.threadInfos[parentThreadID];
+      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
     return {
