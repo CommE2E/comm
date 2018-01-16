@@ -234,12 +234,11 @@ class Entry extends React.PureComponent {
   }
 
   onBlur = (event: SyntheticEvent) => {
-    this.setState({
-      focused: false,
-      text: this.props.entryInfo.text,
-    });
+    this.setState({ focused: false });
     if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id, false);
+    } else if (this.props.entryInfo.text !== this.state.text) {
+      this.save(this.props.entryInfo.id, this.state.text);
     }
   }
 
@@ -260,7 +259,6 @@ class Entry extends React.PureComponent {
       { text: target.value },
       this.updateHeight.bind(this),
     );
-    this.save(this.props.entryInfo.id, target.value);
   }
 
   // Throw away typechecking here because SyntheticEvent isn't typed
