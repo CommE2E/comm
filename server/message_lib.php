@@ -485,6 +485,7 @@ function create_message_infos($new_message_infos) {
   $id_insert_query = <<<SQL
 INSERT INTO ids(table_name) VALUES {$id_insert_clause}
 SQL;
+  $conn->next_result();
   $conn->query($id_insert_query);
   $id = $conn->insert_id - $num_new_messages + 1;
 

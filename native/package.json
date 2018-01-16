@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "devtools": "react-devtools"
+    "devtools": "react-devtools",
+    "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "dependencies": {
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
