@@ -479,7 +479,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
-    const threadID = notification.getThread();
+    const threadID = notification.getData().threadID;
+    if (!threadID) {
+      console.log("Notification with missing threadID received!");
+      notification.finish(NotificationsIOS.FetchResult.NoData);
+      return;
+    }
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
       message: notification.getMessage(),
@@ -489,13 +494,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   iosNotificationOpened = (notification) => {
-    const threadID = notification.getThread();
+    const threadID = notification.getData().threadID;
     if (!threadID) {
       console.log("Notification with missing threadID received!");
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
-    notification.finish();
     this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
