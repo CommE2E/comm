@@ -23,7 +23,7 @@ import {
 } from 'lib/shared/message-utils';
 import { rawThreadInfosToThreadInfos } from 'lib/selectors/thread-selectors';
 
-import { connect, SQL } from '../database';
+import { connect, SQL, appendSQLArray } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchThreadInfos } from '../fetchers/thread-fetcher';
 import { fetchUserInfos } from '../fetchers/user-fetcher';
@@ -144,16 +144,17 @@ async function sendPushNotifs(req: $Request, res: $Response) {
     }
   }
 
-  const dbPromises = [];
+  const cleanUpPromises = [];
   if (dbIDs.length > 0) {
     const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
-    dbPromises.push(conn.query(query));
+    cleanUpPromises.push(conn.query(query));
   }
-
   const [ deliveryResults ] = await Promise.all([
     Promise.all(deliveryPromises),
-    Promise.all(dbPromises),
+    Promise.all(cleanUpPromises),
   ]);
+
+  const invalidTokens = [];
   for (let deliveryResult of deliveryResults) {
     if (deliveryResult.errors) {
       notifications[deliveryResult.dbID][5].errors = deliveryResult.errors;
@@ -162,6 +163,20 @@ async function sendPushNotifs(req: $Request, res: $Response) {
       notifications[deliveryResult.dbID][5].androidID =
         deliveryResult.fcmIDs[0];
     }
+    if (deliveryResult.invalidFCMTokens) {
+      invalidTokens.push({
+        userID: notifications[deliveryResult.dbID][1],
+        fcmTokens: deliveryResult.invalidFCMTokens,
+      });
+    }
+  }
+
+  const dbPromises = [];
+  if (invalidTokens.length > 0) {
+    dbPromises.push(removeInvalidFCMTokens(
+      conn,
+      invalidTokens,
+    ));
   }
 
   const flattenedNotifications = [];
@@ -177,7 +192,10 @@ async function sendPushNotifs(req: $Request, res: $Response) {
         (id, user, thread, message, collapse_key, delivery, rescinded)
       VALUES ${flattenedNotifications}
     `;
-    await conn.query(query);
+    dbPromises.push(conn.query(query));
+  }
+  if (dbPromises.length > 0) {
+    await Promise.all(dbPromises);
   }
 
   conn.end();
@@ -345,14 +363,38 @@ function prepareAndroidNotification(
   dbID: string,
 ): Object {
   const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
-  return {
-    data: {
-      notifBody: notifText,
-      badgeCount: unreadCount.toString(),
-      threadID: threadInfo.id,
-      dbID,
-    },
-  };
+  const data = {};
+  data.notifBody = notifText;
+  data.badgeCount = unreadCount.toString();
+  data.threadID = threadInfo.id.toString();
+  data.dbID = dbID;
+  if (collapseKey) {
+    data.tag = collapseKey;
+  }
+  return { data };
+}
+
+async function removeInvalidFCMTokens(
+  conn: Connection,
+  invalidTokens: Array<{ userID: string, fcmTokens: string[] }>,
+) {
+  const query = SQL`
+    UPDATE cookies
+    SET android_device_token = NULL
+    WHERE (
+  `;
+
+  const sqlTuples = [];
+  for (let invalidTokenUser of invalidTokens) {
+    sqlTuples.push(SQL`(
+      user = ${invalidTokenUser.userID} AND
+      android_device_token IN (${invalidTokenUser.fcmTokens})
+    )`);
+  }
+  appendSQLArray(query, sqlTuples, " OR ");
+  query.append(SQL`)`);
+
+  await conn.query(query);
 }
 
 export {

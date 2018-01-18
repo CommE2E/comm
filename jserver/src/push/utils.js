@@ -14,6 +14,11 @@ fcmAdmin.initializeApp({
   credential: fcmAdmin.credential.cert(fcmConfig),
 });
 
+const fcmTokenInvalidationErrors = new Set([
+  "messaging/registration-token-not-registered",
+  "messaging/invalid-registration-token",
+]);
+
 async function apnPush(
   notification: apn.Notification,
   deviceTokens: string[],
@@ -35,9 +40,58 @@ async function fcmPush(
   deviceTokens: string[],
   dbID: string,
 ) {
+  // firebase-admin is extremely barebones and has a lot of missing or poorly
+  // thought-out functionality. One of the issues is that if you send a
+  // multicast messages and one of the device tokens is invalid, the resultant
+  // won't explain which of the device tokens is invalid. So we're forced to
+  // avoid the multicast functionality and call it once per deviceToken.
+  const promises = [];
+  for (let deviceToken of deviceTokens) {
+    promises.push(fcmSinglePush(
+      notification,
+      deviceToken,
+    ));
+  }
+  const pushResults = await Promise.all(promises);
+
+  const errors = [];
+  const ids = [];
+  const invalidTokens = [];
+  for (let i = 0; i < pushResults.length; i++) {
+    const pushResult = pushResults[i];
+    for (let error of pushResult.errors) {
+      errors.push(error);
+      if (fcmTokenInvalidationErrors.has(error.errorInfo.code)) {
+        invalidTokens.push(deviceTokens[i]);
+      }
+    }
+    for (let id of pushResult.fcmIDs) {
+      ids.push(id);
+    }
+  }
+
+  const result: Object = { dbID };
+  if (ids.length > 0) {
+    result.fcmIDs = ids;
+  }
+  if (errors.length > 0) {
+    result.errors = errors;
+  } else {
+    result.success = true;
+  }
+  if (invalidTokens.length > 0) {
+    result.invalidFCMTokens = invalidTokens;
+  }
+  return result;
+}
+
+async function fcmSinglePush(
+  notification: Object,
+  deviceToken: string,
+) {
   try {
     const deliveryResult = await fcmAdmin.messaging().sendToDevice(
-      deviceTokens,
+      deviceToken,
       notification,
     );
     const errors = [];
@@ -49,18 +103,9 @@ async function fcmPush(
         ids.push(fcmResult.messageId);
       }
     }
-    const result: Object = { dbID };
-    if (ids.length > 0) {
-      result.fcmIDs = ids;
-    }
-    if (errors.length > 0) {
-      result.errors = errors;
-    } else {
-      result.success = true;
-    }
-    return result;
+    return { fcmIDs: ids, errors };
   } catch (e) {
-    return { errors: [ e ], dbID };
+    return { fcmIDs: [], errors: [ e ] };
   }
 }
 

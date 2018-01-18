@@ -7,7 +7,7 @@ require_once('auth.php');
 async_start();
 
 if (
-  !isset($_POST['device_token']) ||
+  empty($_POST['device_token']) ||
   !isset($_POST['device_type']) ||
   ($_POST['device_type'] !== "ios" && $_POST['device_type'] !== "android")
 ) {
