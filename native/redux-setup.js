@@ -33,7 +33,7 @@ import {
 import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
-  reduceThreadIDsToNotifDBIDs,
+  reduceThreadIDsToNotifIDs,
 } from './push/android';
 
 export type AppState = {|
@@ -50,7 +50,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
-  threadIDsToNotifDBIDs: {[threadID: string]: string[]},
+  threadIDsToNotifIDs: {[threadID: string]: string[]},
   rehydrateConcluded: bool,
 |};
 
@@ -75,7 +75,7 @@ const defaultState = ({
   loadingStatuses: {},
   cookie: null,
   deviceToken: null,
-  threadIDsToNotifDBIDs: {},
+  threadIDsToNotifIDs: {},
   rehydrateConcluded: false,
 }: AppState);
 
@@ -112,7 +112,7 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
-      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
@@ -131,7 +131,7 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
-      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       rehydrateConcluded: true,
     };
   }
@@ -153,8 +153,8 @@ function reducer(state: AppState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
-      threadIDsToNotifDBIDs: reduceThreadIDsToNotifDBIDs(
-        state.threadIDsToNotifDBIDs,
+      threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
+        state.threadIDsToNotifIDs,
         action.payload,
       ),
       rehydrateConcluded: state.rehydrateConcluded,
@@ -204,7 +204,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
-      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
@@ -233,7 +233,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
-      threadIDsToNotifDBIDs: state.threadIDsToNotifDBIDs,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }

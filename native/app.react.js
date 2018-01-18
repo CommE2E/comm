@@ -526,7 +526,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       });
     } else if (notification.notifBody) {
       FCM.presentLocalNotification({
-        id: notification.dbID,
+        id: notification.notifID,
         body: notification.notifBody,
         priority: "high",
         sound: "default",
@@ -536,7 +536,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         recordAndroidNotificationActionType,
         {
           threadID: notification.threadID,
-          notifDBID: notification.dbID,
+          notifID: notification.notifID,
         },
       );
     }
@@ -544,7 +544,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.onPressNotificationForThread(notification.threadID, true);
     }
     if (notification.rescind) {
-      FCM.removeDeliveredNotification(notification.dbID);
+      FCM.removeDeliveredNotification(notification.notifID);
     }
   }
 

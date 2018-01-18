@@ -38,8 +38,15 @@ async function apnPush(
 async function fcmPush(
   notification: Object,
   deviceTokens: string[],
+  collapseKey: ?string,
   dbID: string,
 ) {
+  const options: Object = {
+    priority: 'high',
+  };
+  if (collapseKey) {
+    options.collapseKey = collapseKey;
+  }
   // firebase-admin is extremely barebones and has a lot of missing or poorly
   // thought-out functionality. One of the issues is that if you send a
   // multicast messages and one of the device tokens is invalid, the resultant
@@ -50,6 +57,7 @@ async function fcmPush(
     promises.push(fcmSinglePush(
       notification,
       deviceToken,
+      options,
     ));
   }
   const pushResults = await Promise.all(promises);
@@ -88,11 +96,13 @@ async function fcmPush(
 async function fcmSinglePush(
   notification: Object,
   deviceToken: string,
+  options: Object,
 ) {
   try {
     const deliveryResult = await fcmAdmin.messaging().sendToDevice(
       deviceToken,
       notification,
+      options,
     );
     const errors = [];
     const ids = [];

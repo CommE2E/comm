@@ -13,7 +13,7 @@ async function requestAndroidPushPermissions(): Promise<?string> {
 const recordAndroidNotificationActionType = "RECORD_ANDROID_NOTIFICATION";
 type RecordAndroidNotificationPayload = {|
   threadID: string,
-  notifDBID: string,
+  notifID: string,
 |};
 
 const clearAndroidNotificationActionType = "CLEAR_ANDROID_NOTIFICATION";
@@ -30,7 +30,7 @@ export type AndroidNotificationActions =
     payload: ClearAndroidNotificationPayload,
   |};
 
-function reduceThreadIDsToNotifDBIDs(
+function reduceThreadIDsToNotifIDs(
   state: {[threadID: string]: string[]},
   action: AndroidNotificationActions,
 ): {[threadID: string]: string[]} {
@@ -39,7 +39,7 @@ function reduceThreadIDsToNotifDBIDs(
       ...state,
       [action.payload.threadID]: [
         ...state[action.payload.threadID],
-        action.payload.notifDBID,
+        action.payload.notifID,
       ],
     };
   } else if (action.type === clearAndroidNotificationActionType) {
@@ -56,5 +56,5 @@ export {
   requestAndroidPushPermissions,
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
-  reduceThreadIDsToNotifDBIDs,
+  reduceThreadIDsToNotifIDs,
 };

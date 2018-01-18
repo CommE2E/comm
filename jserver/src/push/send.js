@@ -114,6 +114,7 @@ async function sendPushNotifs(req: $Request, res: $Response) {
         deliveryPromises.push(fcmPush(
           notification,
           byDeviceType.android,
+          notifInfo.collapseKey,
           dbID,
         ));
         delivery.androidDeviceTokens = byDeviceType.android;
@@ -367,10 +368,7 @@ function prepareAndroidNotification(
   data.notifBody = notifText;
   data.badgeCount = unreadCount.toString();
   data.threadID = threadInfo.id.toString();
-  data.dbID = dbID;
-  if (collapseKey) {
-    data.tag = collapseKey;
-  }
+  data.notifID = collapseKey ? collapseKey : dbID;
   return { data };
 }
 

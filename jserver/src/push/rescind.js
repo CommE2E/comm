@@ -19,7 +19,7 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
 
   const conn = await connect();
   const fetchQuery = SQL`
-    SELECT id, delivery
+    SELECT id, delivery, collapse_key
     FROM notifications
     WHERE user = ${userID} AND thread IN (${pushRescindInfo.threadIDs})
       AND rescinded = 0
@@ -53,12 +53,13 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
       const notification = {
         data: {
           rescind: "true",
-          dbID: row.id.toString(),
+          notifID: row.collapse_key ? row.collapse_key : row.id.toString(),
         },
       };
       promises.push(fcmPush(
         notification,
         row.delivery.androidDeviceTokens,
+        null,
         row.id,
       ));
     }
