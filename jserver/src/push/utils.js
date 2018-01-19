@@ -18,6 +18,7 @@ const fcmTokenInvalidationErrors = new Set([
   "messaging/registration-token-not-registered",
   "messaging/invalid-registration-token",
 ]);
+const apnTokenInvalidationErrorCode = 410;
 
 async function apnPush(
   notification: apn.Notification,
@@ -26,13 +27,20 @@ async function apnPush(
 ) {
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
-  for (let failure of result.failed) {
-    errors.push(failure);
+  const invalidTokens = [];
+  for (let error of result.failed) {
+    errors.push(error);
+    if (error.status === apnTokenInvalidationErrorCode) {
+      invalidTokens.push(error.device);
+    }
   }
-  if (errors.length > 0) {
+  if (invalidTokens.length > 0) {
+    return { errors, invalidAPNTokens: invalidTokens, dbID };
+  } else if (errors.length > 0) {
     return { errors, dbID };
+  } else {
+    return { success: true, dbID };
   }
-  return { success: true, dbID };
 }
 
 async function fcmPush(

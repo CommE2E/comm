@@ -170,11 +170,17 @@ async function sendPushNotifs(req: $Request, res: $Response) {
         fcmTokens: deliveryResult.invalidFCMTokens,
       });
     }
+    if (deliveryResult.invalidAPNTokens) {
+      invalidTokens.push({
+        userID: notifications[deliveryResult.dbID][1],
+        apnTokens: deliveryResult.invalidAPNTokens,
+      });
+    }
   }
 
   const dbPromises = [];
   if (invalidTokens.length > 0) {
-    dbPromises.push(removeInvalidFCMTokens(
+    dbPromises.push(removeInvalidTokens(
       conn,
       invalidTokens,
     ));
@@ -372,24 +378,40 @@ function prepareAndroidNotification(
   return { data };
 }
 
-async function removeInvalidFCMTokens(
+type InvalidToken = {
+  userID: string,
+  fcmTokens?: string[],
+  apnTokens?: string[],
+};
+async function removeInvalidTokens(
   conn: Connection,
-  invalidTokens: Array<{ userID: string, fcmTokens: string[] }>,
+  invalidTokens: InvalidToken[],
 ) {
   const query = SQL`
     UPDATE cookies
-    SET android_device_token = NULL
+    SET android_device_token = NULL, ios_device_token = NULL
     WHERE (
   `;
 
   const sqlTuples = [];
   for (let invalidTokenUser of invalidTokens) {
-    sqlTuples.push(SQL`(
-      user = ${invalidTokenUser.userID} AND
-      android_device_token IN (${invalidTokenUser.fcmTokens})
-    )`);
+    const deviceConditions = [];
+    if (invalidTokenUser.fcmTokens && invalidTokenUser.fcmTokens.length > 0) {
+      deviceConditions.push(
+        SQL`android_device_token IN (${invalidTokenUser.fcmTokens})`,
+      );
+    }
+    if (invalidTokenUser.apnTokens && invalidTokenUser.apnTokens.length > 0) {
+      deviceConditions.push(
+        SQL`ios_device_token IN (${invalidTokenUser.apnTokens})`,
+      );
+    }
+    const statement = SQL`(user = ${invalidTokenUser.userID} AND (`;
+    appendSQLArray(statement, deviceConditions, SQL` OR `);
+    statement.append(SQL`))`);
+    sqlTuples.push(statement);
   }
-  appendSQLArray(query, sqlTuples, " OR ");
+  appendSQLArray(query, sqlTuples, SQL` OR `);
   query.append(SQL`)`);
 
   await conn.query(query);
