@@ -9,12 +9,11 @@ import type { NavInfo } from './navigation-setup';
 
 import React from 'react';
 import invariant from 'invariant';
-import { REHYDRATE } from 'redux-persist/constants';
 import thunk from 'redux-thunk';
-import { AsyncStorage } from 'react-native';
+import storage from 'redux-persist/lib/storage';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { autoRehydrate, persistStore } from 'redux-persist';
+import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions } from 'react-navigation';
 
@@ -240,15 +239,23 @@ function validateState(oldState: AppState, state: AppState): AppState {
   return state;
 }
 
+const persistConfig = {
+  key: 'root',
+  storage,
+  blacklist,
+  debug: __DEV__,
+};
 const store = createStore(
-  reducer,
+  persistReducer(
+    persistConfig,
+    reducer,
+  ),
   defaultState,
   composeWithDevTools(
     applyMiddleware(thunk),
-    autoRehydrate(),
   ),
 );
-const persistor = persistStore(store, { storage: AsyncStorage, blacklist });
+const persistor = persistStore(store);
 
 export {
   store,

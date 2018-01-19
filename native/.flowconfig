@@ -17,6 +17,8 @@
 ; Ignore polyfills
 .*/Libraries/polyfills/.*
 
+.*/node_modules/redux-persist/lib/index.js
+
 [include]
 ../lib
 

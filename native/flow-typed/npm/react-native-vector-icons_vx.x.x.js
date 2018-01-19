@@ -1,4 +1,4 @@
-// flow-typed signature: 1da06b21e58e5f16309c428c60ecc779
+// flow-typed signature: 033aa6fbe80b7ba41dca7a45d04b3540
 // flow-typed version: <<STUB>>/react-native-vector-icons_v^4.3.0/flow_v0.57.3
 
 /**
@@ -30,18 +30,6 @@ declare module 'react-native-vector-icons/bin/generate-material-icons' {
   declare module.exports: any;
 }
 
-declare module 'react-native-vector-icons/dist/create-icon-set-from-fontello' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/create-icon-set-from-icomoon' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/create-icon-set' {
-  declare module.exports: any;
-}
-
 declare module 'react-native-vector-icons/dist/Entypo' {
   declare module.exports: any;
 }
@@ -50,19 +38,15 @@ declare module 'react-native-vector-icons/dist/EvilIcons' {
   declare module.exports: any;
 }
 
+declare module 'react-native-vector-icons/dist/Feather' {
+  declare module.exports: any;
+}
+
 declare module 'react-native-vector-icons/dist/FontAwesome' {
   declare module.exports: any;
 }
 
 declare module 'react-native-vector-icons/dist/Foundation' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/generate-icon-set-from-css' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/icon-button' {
   declare module.exports: any;
 }
 
@@ -122,27 +106,11 @@ declare module 'react-native-vector-icons/dist/Octicons' {
   declare module.exports: any;
 }
 
-declare module 'react-native-vector-icons/dist/react-native' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/react-native.osx' {
-  declare module.exports: any;
-}
-
 declare module 'react-native-vector-icons/dist/RNIMigration' {
   declare module.exports: any;
 }
 
 declare module 'react-native-vector-icons/dist/SimpleLineIcons' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/tab-bar-item-ios' {
-  declare module.exports: any;
-}
-
-declare module 'react-native-vector-icons/dist/toolbar-android' {
   declare module.exports: any;
 }
 
@@ -155,6 +123,10 @@ declare module 'react-native-vector-icons/Entypo' {
 }
 
 declare module 'react-native-vector-icons/EvilIcons' {
+  declare module.exports: any;
+}
+
+declare module 'react-native-vector-icons/Feather' {
   declare module.exports: any;
 }
 
@@ -237,32 +209,20 @@ declare module 'react-native-vector-icons/bin/generate-icon.js' {
 declare module 'react-native-vector-icons/bin/generate-material-icons.js' {
   declare module.exports: $Exports<'react-native-vector-icons/bin/generate-material-icons'>;
 }
-declare module 'react-native-vector-icons/dist/create-icon-set-from-fontello.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/create-icon-set-from-fontello'>;
-}
-declare module 'react-native-vector-icons/dist/create-icon-set-from-icomoon.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/create-icon-set-from-icomoon'>;
-}
-declare module 'react-native-vector-icons/dist/create-icon-set.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/create-icon-set'>;
-}
 declare module 'react-native-vector-icons/dist/Entypo.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/Entypo'>;
 }
 declare module 'react-native-vector-icons/dist/EvilIcons.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/EvilIcons'>;
 }
+declare module 'react-native-vector-icons/dist/Feather.js' {
+  declare module.exports: $Exports<'react-native-vector-icons/dist/Feather'>;
+}
 declare module 'react-native-vector-icons/dist/FontAwesome.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/FontAwesome'>;
 }
 declare module 'react-native-vector-icons/dist/Foundation.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/Foundation'>;
-}
-declare module 'react-native-vector-icons/dist/generate-icon-set-from-css.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/generate-icon-set-from-css'>;
-}
-declare module 'react-native-vector-icons/dist/icon-button.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/icon-button'>;
 }
 declare module 'react-native-vector-icons/dist/index.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/index'>;
@@ -306,23 +266,11 @@ declare module 'react-native-vector-icons/dist/MaterialIcons.js' {
 declare module 'react-native-vector-icons/dist/Octicons.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/Octicons'>;
 }
-declare module 'react-native-vector-icons/dist/react-native.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/react-native'>;
-}
-declare module 'react-native-vector-icons/dist/react-native.osx.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/react-native.osx'>;
-}
 declare module 'react-native-vector-icons/dist/RNIMigration.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/RNIMigration'>;
 }
 declare module 'react-native-vector-icons/dist/SimpleLineIcons.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/SimpleLineIcons'>;
-}
-declare module 'react-native-vector-icons/dist/tab-bar-item-ios.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/tab-bar-item-ios'>;
-}
-declare module 'react-native-vector-icons/dist/toolbar-android.js' {
-  declare module.exports: $Exports<'react-native-vector-icons/dist/toolbar-android'>;
 }
 declare module 'react-native-vector-icons/dist/Zocial.js' {
   declare module.exports: $Exports<'react-native-vector-icons/dist/Zocial'>;
@@ -332,6 +280,9 @@ declare module 'react-native-vector-icons/Entypo.js' {
 }
 declare module 'react-native-vector-icons/EvilIcons.js' {
   declare module.exports: $Exports<'react-native-vector-icons/EvilIcons'>;
+}
+declare module 'react-native-vector-icons/Feather.js' {
+  declare module.exports: $Exports<'react-native-vector-icons/Feather'>;
 }
 declare module 'react-native-vector-icons/FontAwesome.js' {
   declare module.exports: $Exports<'react-native-vector-icons/FontAwesome'>;
