@@ -61,7 +61,10 @@ import {
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 
-import ThreadSettingsCategory from './thread-settings-category.react';
+import {
+  ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryFooter,
+} from './thread-settings-category.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
@@ -318,8 +321,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         textInputStyle.height = this.state.descriptionTextHeight;
       }
       descriptionPanel = (
-        <ThreadSettingsCategory type="full" title="Description">
-          <View style={[styles.noPaddingRow, styles.padding]}>
+        <View>
+          <ThreadSettingsCategoryHeader type="full" title="Description" />
+          <View style={[styles.row, styles.rowVerticalHalfPadding]}>
             <TextInput
               style={[
                 styles.descriptionText,
@@ -334,17 +338,21 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
               selectTextOnFocus={true}
               onBlur={this.submitDescriptionEdit}
               editable={this.props.descriptionEditLoadingStatus !== "loading"}
-              onContentSizeChange={this.onDescriptionTextInputContentSizeChange}
+              onContentSizeChange={
+                this.onDescriptionTextInputContentSizeChange
+              }
               ref={this.descriptionTextInputRef}
             />
             {button}
           </View>
-        </ThreadSettingsCategory>
+          <ThreadSettingsCategoryFooter type="full" />
+        </View>
       );
     } else if (this.props.threadInfo.description) {
       descriptionPanel = (
-        <ThreadSettingsCategory type="full" title="Description">
-          <View style={[styles.noPaddingRow, styles.padding]}>
+        <View>
+          <ThreadSettingsCategoryHeader type="full" title="Description" />
+          <View style={[styles.row, styles.rowVerticalHalfPadding]}>
             <Text
               style={[styles.descriptionText, styles.currentValueText]}
               onLayout={this.onLayoutDescriptionText}
@@ -357,28 +365,33 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
               key="editButton"
             />
           </View>
-        </ThreadSettingsCategory>
+          <ThreadSettingsCategoryFooter type="full" />
+        </View>
       );
     } else if (canEditThread) {
       descriptionPanel = (
-        <ThreadSettingsCategory type="outline" title="Description">
-          <Button
-            onPress={this.onPressEditDescription}
-            style={styles.addDescriptionButton}
-            iosFormat="highlight"
-            iosHighlightUnderlayColor="#EEEEEEDD"
-          >
-            <Text style={styles.addDescriptionText}>
-              Add a description...
-            </Text>
-            <Icon
-              name="pencil"
-              size={16}
-              style={styles.editIcon}
-              color="#888888"
-            />
-          </Button>
-        </ThreadSettingsCategory>
+        <View>
+          <ThreadSettingsCategoryHeader type="outline" title="Description" />
+          <View style={styles.outlineCategory}>
+            <Button
+              onPress={this.onPressEditDescription}
+              style={styles.addDescriptionButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor="#EEEEEEDD"
+            >
+              <Text style={styles.addDescriptionText}>
+                Add a description...
+              </Text>
+              <Icon
+                name="pencil"
+                size={16}
+                style={styles.editIcon}
+                color="#888888"
+              />
+            </Button>
+          </View>
+          <ThreadSettingsCategoryFooter type="outline" />
+        </View>
       );
     }
 
@@ -387,7 +400,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       parent = (
         <Button
           onPress={this.onPressParentThread}
-          style={[styles.currentValue, styles.padding]}
+          style={[styles.currentValue, styles.rowVerticalHalfPadding]}
         >
           <Text
             style={[styles.currentValueText, styles.parentThreadLink]}
@@ -402,7 +415,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         <Text style={[
           styles.currentValue,
           styles.currentValueText,
-          styles.padding,
+          styles.rowVerticalHalfPadding,
           styles.noParent,
         ]}>
           No parent
@@ -480,12 +493,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     let membersPanel = null;
     if (addMembers || members) {
       membersPanel = (
-        <ThreadSettingsCategory type="unpadded" title="Members">
-          <View style={styles.itemList}>
-            {addMembers}
-            {members}
-          </View>
-        </ThreadSettingsCategory>
+        <View>
+          <ThreadSettingsCategoryHeader type="unpadded" title="Members" />
+          {addMembers}
+          {members}
+          <ThreadSettingsCategoryFooter type="unpadded" />
+        </View>
       );
     }
 
@@ -549,12 +562,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     let childThreadPanel = null;
     if (addChildThread || childThreads) {
       childThreadPanel = (
-        <ThreadSettingsCategory type="unpadded" title="Child threads">
-          <View style={styles.itemList}>
-            {addChildThread}
-            {childThreads}
-          </View>
-        </ThreadSettingsCategory>
+        <View>
+          <ThreadSettingsCategoryHeader type="unpadded" title="Child threads" />
+          {addChildThread}
+          {childThreads}
+          <ThreadSettingsCategoryFooter type="unpadded" />
+        </View>
       );
     }
 
@@ -583,32 +596,34 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     return (
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <ThreadSettingsCategory type="full" title="Basics">
-            <View style={styles.row}>
-              <Text style={styles.label}>Name</Text>
-              {name}
+          <ThreadSettingsCategoryHeader type="full" title="Basics" />
+          <View style={[styles.row, styles.rowVerticalPadding]}>
+            <Text style={styles.label}>Name</Text>
+            {name}
+          </View>
+          <View style={styles.colorRow}>
+            <Text style={[styles.label, styles.colorLine]}>Color</Text>
+            <View style={styles.currentValue}>
+              <ColorSplotch color={this.props.threadInfo.color} />
             </View>
-            <View style={styles.colorRow}>
-              <Text style={[styles.label, styles.colorLine]}>Color</Text>
-              <View style={styles.currentValue}>
-                <ColorSplotch color={this.props.threadInfo.color} />
-              </View>
-              {colorButton}
-            </View>
-          </ThreadSettingsCategory>
+            {colorButton}
+          </View>
+          <ThreadSettingsCategoryFooter type="full" />
           {descriptionPanel}
-          <ThreadSettingsCategory type="full" title="Privacy">
-            <View style={styles.noPaddingRow}>
-              <Text style={[styles.label, styles.padding]}>Parent</Text>
-              {parent}
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Visibility</Text>
-              <Text style={[styles.currentValue, styles.currentValueText]}>
-                {visibility}
-              </Text>
-            </View>
-          </ThreadSettingsCategory>
+          <ThreadSettingsCategoryHeader type="full" title="Privacy" />
+          <View style={styles.row}>
+            <Text style={[styles.label, styles.rowVerticalHalfPadding]}>
+              Parent
+            </Text>
+            {parent}
+          </View>
+          <View style={[styles.row, styles.rowVerticalPadding]}>
+            <Text style={styles.label}>Visibility</Text>
+            <Text style={[styles.currentValue, styles.currentValueText]}>
+              {visibility}
+            </Text>
+          </View>
+          <ThreadSettingsCategoryFooter type="full" />
           {childThreadPanel}
           {membersPanel}
           {leaveThreadButton}
@@ -937,14 +952,24 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingVertical: 16,
   },
+  outlineCategory: {
+    backgroundColor: "#F5F5F5FF",
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: "#CCCCCC",
+    marginLeft: -1,
+    marginRight: -1,
+    borderRadius: 1,
+  },
   row: {
     flexDirection: 'row',
+    paddingHorizontal: 24,
+    backgroundColor: "white",
+  },
+  rowVerticalPadding: {
     paddingVertical: 8,
   },
-  noPaddingRow: {
-    flexDirection: 'row',
-  },
-  padding: {
+  rowVerticalHalfPadding: {
     paddingVertical: 4,
   },
   label: {
@@ -956,6 +981,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 4,
     paddingBottom: 8,
+    paddingHorizontal: 24,
+    backgroundColor: "white",
   },
   colorLine: {
     lineHeight: Platform.select({ android: 22, default: 25 }),
@@ -967,19 +994,22 @@ const styles = StyleSheet.create({
   itemRow: {
     flex: 1,
     flexDirection: 'row',
-    marginHorizontal: 12,
+    paddingHorizontal: 12,
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
+    backgroundColor: "white",
   },
   seeMoreRow: {
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
-    marginHorizontal: 12,
+    paddingHorizontal: 12,
     paddingTop: 2,
+    backgroundColor: "white",
   },
   addItemRow: {
-    marginHorizontal: 12,
-    marginTop: 4,
+    paddingHorizontal: 12,
+    paddingTop: 4,
+    backgroundColor: "white",
   },
   currentValueText: {
     paddingRight: 0,
@@ -994,9 +1024,6 @@ const styles = StyleSheet.create({
   },
   parentThreadLink: {
     color: "#036AFF",
-  },
-  itemList: {
-    paddingBottom: 4,
   },
   seeMoreIcon: {
     position: 'absolute',

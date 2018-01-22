@@ -2,28 +2,64 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import invariant from 'invariant';
 
-type Props = {|
+type HeaderProps = {|
   type: "full" | "outline" | "unpadded",
   title: string,
-  children?: React.Node,
 |};
-function ThreadSettingsCategory(props: Props) {
+function ThreadSettingsCategoryHeader(props: HeaderProps) {
+  let contentStyle, paddingStyle;
+  if (props.type === "full") {
+    contentStyle = styles.fullHeader;
+    paddingStyle = styles.fullHeaderPadding;
+  } else if (props.type === "outline") {
+  } else if (props.type === "unpadded") {
+    contentStyle = styles.fullHeader;
+  } else {
+    invariant(false, "invalid ThreadSettingsCategory type");
+  }
   return (
-    <View style={styles.category}>
-      <Text style={styles.title}>
-        {props.title.toUpperCase()}
-      </Text>
-      <View style={styles[props.type]}>
-        {props.children}
+    <View>
+      <View style={[ styles.header, contentStyle ]}>
+        <Text style={styles.title}>
+          {props.title.toUpperCase()}
+        </Text>
       </View>
+      <View style={paddingStyle} />
+    </View>
+  );
+}
+
+type FooterProps = {|
+  type: "full" | "outline" | "unpadded",
+|};
+function ThreadSettingsCategoryFooter(props: FooterProps) {
+  let contentStyle, paddingStyle;
+  if (props.type === "full") {
+    contentStyle = styles.fullFooter;
+    paddingStyle = styles.fullFooterPadding;
+  } else if (props.type === "outline") {
+  } else if (props.type === "unpadded") {
+    contentStyle = styles.fullFooter;
+    paddingStyle = styles.unpaddedFooterPadding;
+  } else {
+    invariant(false, "invalid ThreadSettingsCategory type");
+  }
+  return (
+    <View>
+      <View style={paddingStyle} />
+      <View style={[ styles.footer, contentStyle ]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  category: {
-    marginVertical: 16,
+  header: {
+    marginTop: 16,
+  },
+  footer: {
+    marginBottom: 16,
   },
   title: {
     paddingLeft: 24,
@@ -32,29 +68,29 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#888888",
   },
-  full: {
-    borderTopWidth: 1,
+  fullHeader: {
     borderBottomWidth: 1,
     borderColor: "#CCCCCC",
-    paddingHorizontal: 24,
-    paddingVertical: 6,
-    backgroundColor: "white",
   },
-  unpadded: {
+  fullHeaderPadding: {
+    backgroundColor: "white",
+    height: 6,
+  },
+  fullFooter: {
     borderTopWidth: 1,
-    borderBottomWidth: 1,
     borderColor: "#CCCCCC",
-    backgroundColor: "white",
   },
-  outline: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: "#CCCCCC",
-    backgroundColor: "#F5F5F5FF",
-    marginLeft: -1,
-    marginRight: -1,
-    borderRadius: 1,
+  fullFooterPadding: {
+    backgroundColor: "white",
+    height: 6,
+  },
+  unpaddedFooterPadding: {
+    backgroundColor: "white",
+    height: 4,
   },
 });
 
-export default ThreadSettingsCategory;
+export {
+  ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryFooter,
+};
