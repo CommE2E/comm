@@ -78,6 +78,7 @@ import { registerChatScreen } from '../chat-screen-registry';
 import SaveSettingButton from './save-setting-button.react';
 import ColorPickerModal from '../color-picker-modal.react';
 import ThreadSettingsName from './thread-settings-name.react';
+import ThreadSettingsDescription from './thread-settings-description.react';
 
 const itemPageLength = 5;
 
@@ -149,7 +150,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     title: navigation.state.params.threadInfo.uiName,
     headerBackTitle: "Back",
   });
-  descriptionTextInput: ?TextInput;
 
   constructor(props: Props) {
     super(props);
@@ -246,96 +246,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       );
     } else {
       colorButton = <ActivityIndicator size="small" key="activityIndicator" />;
-    }
-
-    let descriptionPanel = null;
-    if (
-      this.state.descriptionEditValue !== null &&
-      this.state.descriptionEditValue !== undefined
-    ) {
-      const button = this.props.descriptionEditLoadingStatus !== "loading"
-        ? <SaveSettingButton onPress={this.submitDescriptionEdit} />
-        : <ActivityIndicator size="small" />;
-      const textInputStyle = {};
-      if (
-        this.state.descriptionTextHeight !== undefined &&
-        this.state.descriptionTextHeight !== null
-      ) {
-        textInputStyle.height = this.state.descriptionTextHeight;
-      }
-      descriptionPanel = (
-        <View>
-          <ThreadSettingsCategoryHeader type="full" title="Description" />
-          <View style={[styles.row, styles.rowVerticalHalfPadding]}>
-            <TextInput
-              style={[
-                styles.descriptionText,
-                styles.currentValueText,
-                textInputStyle,
-              ]}
-              underlineColorAndroid="transparent"
-              value={this.state.descriptionEditValue}
-              onChangeText={this.onChangeDescriptionText}
-              multiline={true}
-              autoFocus={true}
-              selectTextOnFocus={true}
-              onBlur={this.submitDescriptionEdit}
-              editable={this.props.descriptionEditLoadingStatus !== "loading"}
-              onContentSizeChange={
-                this.onDescriptionTextInputContentSizeChange
-              }
-              ref={this.descriptionTextInputRef}
-            />
-            {button}
-          </View>
-          <ThreadSettingsCategoryFooter type="full" />
-        </View>
-      );
-    } else if (this.props.threadInfo.description) {
-      descriptionPanel = (
-        <View>
-          <ThreadSettingsCategoryHeader type="full" title="Description" />
-          <View style={[styles.row, styles.rowVerticalHalfPadding]}>
-            <Text
-              style={[styles.descriptionText, styles.currentValueText]}
-              onLayout={this.onLayoutDescriptionText}
-            >
-              {this.props.threadInfo.description}
-            </Text>
-            <EditSettingButton
-              onPress={this.onPressEditDescription}
-              canChangeSettings={canChangeSettings}
-              key="editButton"
-            />
-          </View>
-          <ThreadSettingsCategoryFooter type="full" />
-        </View>
-      );
-    } else if (canEditThread) {
-      descriptionPanel = (
-        <View>
-          <ThreadSettingsCategoryHeader type="outline" title="Description" />
-          <View style={styles.outlineCategory}>
-            <Button
-              onPress={this.onPressEditDescription}
-              style={styles.addDescriptionButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
-            >
-              <Text style={styles.addDescriptionText}>
-                Add a description...
-              </Text>
-              <Icon
-                name="pencil"
-                size={16}
-                style={styles.editIcon}
-                color="#888888"
-              />
-            </Button>
-          </View>
-          <ThreadSettingsCategoryFooter type="outline" />
-        </View>
-      );
     }
 
     let parent;
@@ -556,7 +466,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             {colorButton}
           </View>
           <ThreadSettingsCategoryFooter type="full" />
-          {descriptionPanel}
+          <ThreadSettingsDescription
+            threadInfo={this.props.threadInfo}
+            descriptionEditValue={this.state.descriptionEditValue}
+            setDescriptionEditValue={this.setDescriptionEditValue}
+            descriptionTextHeight={this.state.descriptionTextHeight}
+            setDescriptionTextHeight={this.setDescriptionTextHeight}
+            canChangeSettings={canChangeSettings}
+          />
           <ThreadSettingsCategoryHeader type="full" title="Privacy" />
           <View style={styles.row}>
             <Text style={[styles.label, styles.rowVerticalHalfPadding]}>
@@ -646,87 +563,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ colorEditValue: this.props.threadInfo.color });
   }
 
-  descriptionTextInputRef = (descriptionTextInput: ?TextInput) => {
-    this.descriptionTextInput = descriptionTextInput;
+  setDescriptionEditValue = (value: ?string, callback?: () => void) => {
+    this.setState({ descriptionEditValue: value }, callback);
   }
 
-  onLayoutDescriptionText = (
-    event: { nativeEvent: { layout: { height: number } } },
-  ) => {
-    this.setState({ descriptionTextHeight: event.nativeEvent.layout.height });
-  }
-
-  onDescriptionTextInputContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number } } },
-  ) => {
-    this.setState({
-      descriptionTextHeight: event.nativeEvent.contentSize.height,
-    });
-  }
-
-  onPressEditDescription = () => {
-    this.setState({ descriptionEditValue: this.props.threadInfo.description });
-  }
-
-  onChangeDescriptionText = (text: string) => {
-    this.setState({ descriptionEditValue: text });
-  }
-
-  submitDescriptionEdit = () => {
-    invariant(
-      this.state.descriptionEditValue !== null &&
-        this.state.descriptionEditValue !== undefined,
-      "should be set",
-    );
-    const description = this.state.descriptionEditValue.trim();
-
-    if (description === this.props.threadInfo.description) {
-      this.setState({ descriptionEditValue: null });
-      return;
-    }
-
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.editDescription(description),
-      {
-        customKeyName: `${changeThreadSettingsActionTypes.started}:description`,
-      },
-    );
-  }
-
-  async editDescription(newDescription: string) {
-    try {
-      const result = await this.props.changeSingleThreadSetting(
-        this.props.threadInfo.id,
-        "description",
-        newDescription,
-      );
-      this.setState({ descriptionEditValue: null });
-      return result;
-    } catch (e) {
-      Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onDescriptionErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onDescriptionErrorAcknowledged = () => {
-    this.setState(
-      { descriptionEditValue: this.props.threadInfo.description },
-      () => {
-        invariant(
-          this.descriptionTextInput,
-          "descriptionTextInput should be set",
-        );
-        this.descriptionTextInput.focus();
-      },
-    );
+  setDescriptionTextHeight = (height: number) => {
+    this.setState({ descriptionTextHeight: height });
   }
 
   onPressParentThread = () => {
@@ -817,15 +659,6 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingVertical: 16,
   },
-  outlineCategory: {
-    backgroundColor: "#F5F5F5FF",
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: "#CCCCCC",
-    marginLeft: -1,
-    marginRight: -1,
-    borderRadius: 1,
-  },
   row: {
     flexDirection: 'row',
     paddingHorizontal: 24,
@@ -894,24 +727,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 15,
-  },
-  addDescriptionText: {
-    fontSize: 16,
-    color: "#888888",
-    flex: 1,
-  },
-  addDescriptionButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  editIcon: {
-    textAlign: 'right',
-    paddingLeft: 10,
-  },
-  descriptionText: {
-    flex: 1,
-    paddingLeft: 0,
   },
   leaveThread: {
     marginVertical: 16,
