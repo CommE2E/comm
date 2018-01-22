@@ -77,6 +77,7 @@ import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 import SaveSettingButton from './save-setting-button.react';
 import ColorPickerModal from '../color-picker-modal.react';
+import ThreadSettingsName from './thread-settings-name.react';
 
 const itemPageLength = 5;
 
@@ -148,7 +149,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     title: navigation.state.params.threadInfo.uiName,
     headerBackTitle: "Back",
   });
-  nameTextInput: ?TextInput;
   descriptionTextInput: ?TextInput;
 
   constructor(props: Props) {
@@ -234,63 +234,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.EDIT_THREAD,
     );
     const canChangeSettings = canEditThread && canStartEditing;
-
-    let name;
-    if (
-      this.state.nameEditValue === null ||
-      this.state.nameEditValue === undefined
-    ) {
-      name = [
-        <Text
-          style={[styles.currentValue, styles.currentValueText]}
-          onLayout={this.onLayoutNameText}
-          key="text"
-        >
-          {this.props.threadInfo.uiName}
-        </Text>,
-        <EditSettingButton
-          onPress={this.onPressEditName}
-          canChangeSettings={canChangeSettings}
-          key="editButton"
-        />,
-      ];
-    } else {
-      let button;
-      if (this.props.nameEditLoadingStatus !== "loading") {
-        button = (
-          <SaveSettingButton
-            onPress={this.submitNameEdit}
-            key="saveButton"
-          />
-        );
-      } else {
-        button = <ActivityIndicator size="small" key="activityIndicator" />;
-      }
-      const textInputStyle = {};
-      if (
-        this.state.nameTextHeight !== undefined &&
-        this.state.nameTextHeight !== null
-      ) {
-        textInputStyle.height = this.state.nameTextHeight;
-      }
-      name = [
-        <TextInput
-          style={[styles.currentValue, styles.currentValueText, textInputStyle]}
-          underlineColorAndroid="transparent"
-          value={this.state.nameEditValue}
-          onChangeText={this.onChangeNameText}
-          multiline={true}
-          autoFocus={true}
-          selectTextOnFocus={true}
-          onBlur={this.submitNameEdit}
-          editable={this.props.nameEditLoadingStatus !== "loading"}
-          onContentSizeChange={this.onNameTextInputContentSizeChange}
-          ref={this.nameTextInputRef}
-          key="textInput"
-        />,
-        button,
-      ];
-    }
 
     let colorButton;
     if (this.props.colorEditLoadingStatus !== "loading") {
@@ -597,10 +540,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       <View>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <ThreadSettingsCategoryHeader type="full" title="Basics" />
-          <View style={[styles.row, styles.rowVerticalPadding]}>
-            <Text style={styles.label}>Name</Text>
-            {name}
-          </View>
+          <ThreadSettingsName
+            threadInfo={this.props.threadInfo}
+            nameEditValue={this.state.nameEditValue}
+            setNameEditValue={this.setNameEditValue}
+            nameTextHeight={this.state.nameTextHeight}
+            setNameTextHeight={this.setNameTextHeight}
+            canChangeSettings={canChangeSettings}
+          />
           <View style={styles.colorRow}>
             <Text style={[styles.label, styles.colorLine]}>Color</Text>
             <View style={styles.currentValue}>
@@ -649,94 +596,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     );
   }
 
-  nameTextInputRef = (nameTextInput: ?TextInput) => {
-    this.nameTextInput = nameTextInput;
+  setNameEditValue = (value: ?string, callback?: () => void) => {
+    this.setState({ nameEditValue: value }, callback);
   }
 
-  onLayoutNameText = (
-    event: { nativeEvent: { layout: { height: number } } },
-  ) => {
-    this.setState({ nameTextHeight: event.nativeEvent.layout.height });
-  }
-
-  onNameTextInputContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number } } },
-  ) => {
-    this.setState({ nameTextHeight: event.nativeEvent.contentSize.height });
-  }
-
-  threadEditName() {
-    return this.props.threadInfo.name ? this.props.threadInfo.name : "";
-  }
-
-  onPressEditName = () => {
-    this.setState({ nameEditValue: this.threadEditName() });
-  }
-
-  onChangeNameText = (text: string) => {
-    this.setState({ nameEditValue: text });
-  }
-
-  submitNameEdit = () => {
-    invariant(
-      this.state.nameEditValue !== null &&
-        this.state.nameEditValue !== undefined,
-      "should be set",
-    );
-    const name = this.state.nameEditValue.trim();
-
-    if (name === this.threadEditName()) {
-      this.setState({ nameEditValue: null });
-      return;
-    } else if (name === '') {
-      Alert.alert(
-        "Empty thread name",
-        "You must specify a thread name!",
-        [
-          { text: 'OK', onPress: this.onNameErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      return;
-    }
-
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.editName(name),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:name` },
-    );
-  }
-
-  async editName(newName: string) {
-    try {
-      const result = await this.props.changeSingleThreadSetting(
-        this.props.threadInfo.id,
-        "name",
-        newName,
-      );
-      this.setState({ nameEditValue: null });
-      return result;
-    } catch (e) {
-      Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onNameErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onNameErrorAcknowledged = () => {
-    this.setState(
-      { nameEditValue: this.threadEditName() },
-      () => {
-        invariant(this.nameTextInput, "nameTextInput should be set");
-        this.nameTextInput.focus();
-      },
-    );
+  setNameTextHeight = (height: number) => {
+    this.setState({ nameTextHeight: height });
   }
 
   onPressEditColor = () => {
