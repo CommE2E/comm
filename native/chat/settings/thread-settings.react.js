@@ -27,7 +27,6 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import invariant from 'invariant';
@@ -65,7 +64,6 @@ import {
   ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
-import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../message-list.react';
@@ -76,8 +74,8 @@ import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 import SaveSettingButton from './save-setting-button.react';
-import ColorPickerModal from '../color-picker-modal.react';
 import ThreadSettingsName from './thread-settings-name.react';
+import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
 
 const itemPageLength = 5;
@@ -234,19 +232,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.EDIT_THREAD,
     );
     const canChangeSettings = canEditThread && canStartEditing;
-
-    let colorButton;
-    if (this.props.colorEditLoadingStatus !== "loading") {
-      colorButton = (
-        <EditSettingButton
-          onPress={this.onPressEditColor}
-          canChangeSettings={canChangeSettings}
-          style={styles.colorLine}
-        />
-      );
-    } else {
-      colorButton = <ActivityIndicator size="small" key="activityIndicator" />;
-    }
 
     let parent;
     if (this.props.parentThreadInfo) {
@@ -458,13 +443,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             setNameTextHeight={this.setNameTextHeight}
             canChangeSettings={canChangeSettings}
           />
-          <View style={styles.colorRow}>
-            <Text style={[styles.label, styles.colorLine]}>Color</Text>
-            <View style={styles.currentValue}>
-              <ColorSplotch color={this.props.threadInfo.color} />
-            </View>
-            {colorButton}
-          </View>
+          <ThreadSettingsColor
+            threadInfo={this.props.threadInfo}
+            colorEditValue={this.state.colorEditValue}
+            setColorEditValue={this.setColorEditValue}
+            showEditColorModal={this.state.showEditColorModal}
+            setEditColorModalVisibility={this.setEditColorModalVisibility}
+            canChangeSettings={canChangeSettings}
+          />
           <ThreadSettingsCategoryFooter type="full" />
           <ThreadSettingsDescription
             threadInfo={this.props.threadInfo}
@@ -502,13 +488,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             close={this.closeAddUsersModal}
           />
         </Modal>
-        <ColorPickerModal
-          isVisible={this.state.showEditColorModal}
-          closeModal={this.closeColorPicker}
-          color={this.state.colorEditValue}
-          oldColor={this.props.threadInfo.color}
-          onColorSelected={this.onColorSelected}
-        />
       </View>
     );
   }
@@ -521,46 +500,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ nameTextHeight: height });
   }
 
-  onPressEditColor = () => {
-    this.setState({ showEditColorModal: true });
+  setEditColorModalVisibility = (visible: bool) => {
+    this.setState({ showEditColorModal: visible });
   }
 
-  closeColorPicker = () => {
-    this.setState({ showEditColorModal: false });
-  }
-
-  onColorSelected = (color: string) => {
-    const colorEditValue = color.substr(1);
-    this.setState({ showEditColorModal: false, colorEditValue });
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.editColor(colorEditValue),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
-    );
-  }
-
-  async editColor(newColor: string) {
-    try {
-      return await this.props.changeSingleThreadSetting(
-        this.props.threadInfo.id,
-        "color",
-        newColor,
-      );
-    } catch (e) {
-      Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onColorErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onColorErrorAcknowledged = () => {
-    this.setState({ colorEditValue: this.props.threadInfo.color });
+  setColorEditValue = (color: string) => {
+    this.setState({ showEditColorModal: false, colorEditValue: color });
   }
 
   setDescriptionEditValue = (value: ?string, callback?: () => void) => {
@@ -674,16 +619,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: 96,
     color: "#888888",
-  },
-  colorRow: {
-    flexDirection: 'row',
-    paddingTop: 4,
-    paddingBottom: 8,
-    paddingHorizontal: 24,
-    backgroundColor: "white",
-  },
-  colorLine: {
-    lineHeight: Platform.select({ android: 22, default: 25 }),
   },
   currentValue: {
     flex: 1,
