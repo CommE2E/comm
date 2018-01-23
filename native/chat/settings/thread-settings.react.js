@@ -66,7 +66,6 @@ import {
 } from './thread-settings-category.react';
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
-import { MessageListRouteName } from '../message-list.react';
 import ThreadSettingsUser from './thread-settings-user.react';
 import ThreadSettingsListAction from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
@@ -77,6 +76,7 @@ import SaveSettingButton from './save-setting-button.react';
 import ThreadSettingsName from './thread-settings-name.react';
 import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
+import ThreadSettingsParent from './thread-settings-parent.react';
 
 const itemPageLength = 5;
 
@@ -85,7 +85,6 @@ type NavProp = NavigationScreenProp<NavigationRoute>
 
 type StateProps = {|
   threadInfo: ThreadInfo,
-  parentThreadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?ThreadInfo[],
   nameEditLoadingStatus: LoadingStatus,
@@ -134,7 +133,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       setParams: PropTypes.func.isRequired,
     }).isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    parentThreadInfo: threadInfoPropType,
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     nameEditLoadingStatus: loadingStatusPropType.isRequired,
@@ -232,34 +230,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.EDIT_THREAD,
     );
     const canChangeSettings = canEditThread && canStartEditing;
-
-    let parent;
-    if (this.props.parentThreadInfo) {
-      parent = (
-        <Button
-          onPress={this.onPressParentThread}
-          style={[styles.currentValue, styles.rowVerticalHalfPadding]}
-        >
-          <Text
-            style={[styles.currentValueText, styles.parentThreadLink]}
-            numberOfLines={1}
-          >
-            {this.props.parentThreadInfo.uiName}
-          </Text>
-        </Button>
-      );
-    } else {
-      parent = (
-        <Text style={[
-          styles.currentValue,
-          styles.currentValueText,
-          styles.rowVerticalHalfPadding,
-          styles.noParent,
-        ]}>
-          No parent
-        </Text>
-      );
-    }
 
     const visRules = this.props.threadInfo.visibilityRules;
     const visibility =
@@ -461,12 +431,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             canChangeSettings={canChangeSettings}
           />
           <ThreadSettingsCategoryHeader type="full" title="Privacy" />
-          <View style={styles.row}>
-            <Text style={[styles.label, styles.rowVerticalHalfPadding]}>
-              Parent
-            </Text>
-            {parent}
-          </View>
+          <ThreadSettingsParent
+            threadInfo={this.props.threadInfo}
+            navigate={this.props.navigation.navigate}
+          />
           <View style={[styles.row, styles.rowVerticalPadding]}>
             <Text style={styles.label}>Visibility</Text>
             <Text style={[styles.currentValue, styles.currentValueText]}>
@@ -514,13 +482,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   setDescriptionTextHeight = (height: number) => {
     this.setState({ descriptionTextHeight: height });
-  }
-
-  onPressParentThread = () => {
-    this.props.navigation.navigate(
-      MessageListRouteName,
-      { threadInfo: this.props.parentThreadInfo },
-    );
   }
 
   onPressAddUser = () => {
@@ -612,9 +573,6 @@ const styles = StyleSheet.create({
   rowVerticalPadding: {
     paddingVertical: 8,
   },
-  rowVerticalHalfPadding: {
-    paddingVertical: 4,
-  },
   label: {
     fontSize: 16,
     width: 96,
@@ -651,12 +609,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333333",
     fontFamily: 'Arial',
-  },
-  noParent: {
-    fontStyle: 'italic',
-  },
-  parentThreadLink: {
-    color: "#036AFF",
   },
   seeMoreIcon: {
     position: 'absolute',
@@ -709,9 +661,6 @@ const ThreadSettings = connect(
     }
     return {
       threadInfo,
-      parentThreadInfo: threadInfo.parentThreadID
-        ? parsedThreadInfos[threadInfo.parentThreadID]
-        : null,
       threadMembers,
       childThreadInfos: childThreadInfos(state)[threadInfo.id],
       nameEditLoadingStatus: createLoadingStatusSelector(
