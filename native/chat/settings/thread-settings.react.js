@@ -36,7 +36,6 @@ import _every from 'lodash/fp/every';
 import _omit from 'lodash/fp/omit';
 import shallowequal from 'shallowequal';
 
-import { visibilityRules } from 'lib/types/thread-types';
 import {
   relativeMemberInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors';
@@ -77,6 +76,7 @@ import ThreadSettingsName from './thread-settings-name.react';
 import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
 import ThreadSettingsParent from './thread-settings-parent.react';
+import ThreadSettingsVisibility from './thread-settings-visibility.react';
 
 const itemPageLength = 5;
 
@@ -230,13 +230,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.EDIT_THREAD,
     );
     const canChangeSettings = canEditThread && canStartEditing;
-
-    const visRules = this.props.threadInfo.visibilityRules;
-    const visibility =
-      visRules === visibilityRules.OPEN ||
-      visRules === visibilityRules.CHAT_NESTED_OPEN
-        ? "Public"
-        : "Secret";
 
     let threadMembers;
     let seeMoreMembers = null;
@@ -435,12 +428,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             threadInfo={this.props.threadInfo}
             navigate={this.props.navigation.navigate}
           />
-          <View style={[styles.row, styles.rowVerticalPadding]}>
-            <Text style={styles.label}>Visibility</Text>
-            <Text style={[styles.currentValue, styles.currentValueText]}>
-              {visibility}
-            </Text>
-          </View>
+          <ThreadSettingsVisibility threadInfo={this.props.threadInfo} />
           <ThreadSettingsCategoryFooter type="full" />
           {childThreadPanel}
           {membersPanel}
@@ -565,23 +553,6 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingVertical: 16,
   },
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    backgroundColor: "white",
-  },
-  rowVerticalPadding: {
-    paddingVertical: 8,
-  },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: "#888888",
-  },
-  currentValue: {
-    flex: 1,
-    paddingLeft: 4,
-  },
   itemRow: {
     flex: 1,
     flexDirection: 'row',
@@ -601,14 +572,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 4,
     backgroundColor: "white",
-  },
-  currentValueText: {
-    paddingRight: 0,
-    paddingVertical: 0,
-    margin: 0,
-    fontSize: 16,
-    color: "#333333",
-    fontFamily: 'Arial',
   },
   seeMoreIcon: {
     position: 'absolute',
