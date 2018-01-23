@@ -66,7 +66,11 @@ import {
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
 import ThreadSettingsUser from './thread-settings-user.react';
-import ThreadSettingsListAction from './thread-settings-list-action.react';
+import {
+  ThreadSettingsSeeMore,
+  ThreadSettingsAddUser,
+  ThreadSettingsAddChildThread,
+} from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { AddThreadRouteName } from '../add-thread.react';
@@ -231,22 +235,35 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     );
     const canChangeSettings = canEditThread && canStartEditing;
 
+    let description = null;
+    if (
+      (this.state.descriptionEditValue !== null &&
+        this.state.descriptionEditValue !== undefined) ||
+      this.props.threadInfo.description ||
+      canEditThread
+    ) {
+      description = (
+        <ThreadSettingsDescription
+          threadInfo={this.props.threadInfo}
+          descriptionEditValue={this.state.descriptionEditValue}
+          setDescriptionEditValue={this.setDescriptionEditValue}
+          descriptionTextHeight={this.state.descriptionTextHeight}
+          setDescriptionTextHeight={this.setDescriptionTextHeight}
+          canChangeSettings={canChangeSettings}
+        />
+      );
+    }
+
     let threadMembers;
     let seeMoreMembers = null;
     if (this.props.threadMembers.length > this.state.showMaxMembers) {
       threadMembers =
         this.props.threadMembers.slice(0, this.state.showMaxMembers);
       seeMoreMembers = (
-        <View style={styles.seeMoreRow} key="seeMore">
-          <ThreadSettingsListAction
-            onPress={this.onPressSeeMoreMembers}
-            text="See more..."
-            iconName="ios-more"
-            iconColor="#036AFF"
-            iconSize={36}
-            iconStyle={styles.seeMoreIcon}
-          />
-        </View>
+        <ThreadSettingsSeeMore
+          onPress={this.onPressSeeMoreMembers}
+          key="seeMore"
+        />
       );
     } else {
       threadMembers = this.props.threadMembers;
@@ -257,15 +274,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       const changeRolesLoadingStatus =
         this.props.changeRolesLoadingStatuses[memberInfo.id];
       return (
-        <View style={styles.itemRow} key={memberInfo.id}>
-          <ThreadSettingsUser
-            memberInfo={memberInfo}
-            threadInfo={this.props.threadInfo}
-            canEdit={canStartEditing}
-            removeUsersLoadingStatus={removeUsersLoadingStatus}
-            changeRolesLoadingStatus={changeRolesLoadingStatus}
-          />
-        </View>
+        <ThreadSettingsUser
+          memberInfo={memberInfo}
+          threadInfo={this.props.threadInfo}
+          canEdit={canStartEditing}
+          removeUsersLoadingStatus={removeUsersLoadingStatus}
+          changeRolesLoadingStatus={changeRolesLoadingStatus}
+          key={memberInfo.id}
+        />
       );
     });
     if (seeMoreMembers) {
@@ -278,17 +294,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.ADD_MEMBERS,
     );
     if (canAddMembers) {
-      addMembers = (
-        <View style={styles.addItemRow}>
-          <ThreadSettingsListAction
-            onPress={this.onPressAddUser}
-            text="Add users"
-            iconName="md-add"
-            iconColor="#009900"
-            iconSize={20}
-          />
-        </View>
-      );
+      addMembers = <ThreadSettingsAddUser onPress={this.onPressAddUser} />;
     }
 
     let membersPanel = null;
@@ -311,29 +317,21 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         childThreadInfos =
           this.props.childThreadInfos.slice(0, this.state.showMaxChildThreads);
         seeMoreChildThreads = (
-          <View style={styles.seeMoreRow} key="seeMore">
-            <ThreadSettingsListAction
-              onPress={this.onPressSeeMoreChildThreads}
-              text="See more..."
-              iconName="ios-more"
-              iconColor="#036AFF"
-              iconSize={32}
-              iconStyle={styles.seeMoreIcon}
-              key="seeMore"
-            />
-          </View>
+          <ThreadSettingsSeeMore
+            onPress={this.onPressSeeMoreChildThreads}
+            key="seeMore"
+          />
         );
       } else {
         childThreadInfos = this.props.childThreadInfos;
       }
       childThreads = childThreadInfos.map(threadInfo => {
         return (
-          <View style={styles.itemRow} key={threadInfo.id}>
-            <ThreadSettingsChildThread
-              threadInfo={threadInfo}
-              navigate={this.props.navigation.navigate}
-            />
-          </View>
+          <ThreadSettingsChildThread
+            threadInfo={threadInfo}
+            navigate={this.props.navigation.navigate}
+            key={threadInfo.id}
+          />
         );
       });
       if (seeMoreChildThreads) {
@@ -348,15 +346,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     );
     if (canCreateSubthreads) {
       addChildThread = (
-        <View style={styles.addItemRow}>
-          <ThreadSettingsListAction
-            onPress={this.onPressAddChildThread}
-            text="Add child thread"
-            iconName="md-add"
-            iconColor="#009900"
-            iconSize={20}
-          />
-        </View>
+        <ThreadSettingsAddChildThread
+          threadInfo={this.props.threadInfo}
+          navigate={this.props.navigation.navigate}
+        />
       );
     }
 
@@ -415,14 +408,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             canChangeSettings={canChangeSettings}
           />
           <ThreadSettingsCategoryFooter type="full" />
-          <ThreadSettingsDescription
-            threadInfo={this.props.threadInfo}
-            descriptionEditValue={this.state.descriptionEditValue}
-            setDescriptionEditValue={this.setDescriptionEditValue}
-            descriptionTextHeight={this.state.descriptionTextHeight}
-            setDescriptionTextHeight={this.setDescriptionTextHeight}
-            canChangeSettings={canChangeSettings}
-          />
+          {description}
           <ThreadSettingsCategoryHeader type="full" title="Privacy" />
           <ThreadSettingsParent
             threadInfo={this.props.threadInfo}
@@ -474,13 +460,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   onPressAddUser = () => {
     this.setState({ showAddUsersModal: true });
-  }
-
-  onPressAddChildThread = () => {
-    this.props.navigation.navigate(
-      AddThreadRouteName,
-      { parentThreadID: this.props.threadInfo.id },
-    );
   }
 
   closeAddUsersModal = () => {
@@ -552,31 +531,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   scrollView: {
     paddingVertical: 16,
-  },
-  itemRow: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderColor: "#CCCCCC",
-    backgroundColor: "white",
-  },
-  seeMoreRow: {
-    borderTopWidth: 1,
-    borderColor: "#CCCCCC",
-    paddingHorizontal: 12,
-    paddingTop: 2,
-    backgroundColor: "white",
-  },
-  addItemRow: {
-    paddingHorizontal: 12,
-    paddingTop: 4,
-    backgroundColor: "white",
-  },
-  seeMoreIcon: {
-    position: 'absolute',
-    right: 10,
-    top: 15,
   },
   leaveThread: {
     marginVertical: 16,

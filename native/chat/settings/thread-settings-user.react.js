@@ -298,8 +298,11 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 24,
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
+    backgroundColor: "white",
   },
   row: {
     flex: 1,

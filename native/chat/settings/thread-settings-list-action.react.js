@@ -3,22 +3,25 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Button from '../../components/button.react';
+import { AddThreadRouteName } from '../add-thread.react';
 
-type Props = {
+type ListActionProps = {|
   onPress: () => void,
   text: string,
   iconName: string,
   iconColor: string,
   iconSize: number,
   iconStyle?: StyleObj,
-};
-function ThreadSettingsListAction(props: Props) {
+|};
+function ThreadSettingsListAction(props: ListActionProps) {
   return (
     <Button onPress={props.onPress}>
       <View style={styles.container}>
@@ -33,6 +36,75 @@ function ThreadSettingsListAction(props: Props) {
     </Button>
   );
 }
+
+type SeeMoreProps = {|
+  onPress: () => void,
+|};
+function ThreadSettingsSeeMore(props: SeeMoreProps) {
+  return (
+    <View style={styles.seeMoreRow}>
+      <ThreadSettingsListAction
+        onPress={props.onPress}
+        text="See more..."
+        iconName="ios-more"
+        iconColor="#036AFF"
+        iconSize={36}
+        iconStyle={styles.seeMoreIcon}
+      />
+    </View>
+  );
+}
+
+type AddUserProps = {|
+  onPress: () => void,
+|};
+function ThreadSettingsAddUser(props: AddUserProps) {
+  return (
+    <View style={styles.addItemRow}>
+      <ThreadSettingsListAction
+        onPress={props.onPress}
+        text="Add users"
+        iconName="md-add"
+        iconColor="#009900"
+        iconSize={20}
+      />
+    </View>
+  );
+}
+
+type AddChildThreadProps = {|
+  threadInfo: ThreadInfo,
+  navigate: (
+    routeName: string,
+    params?: NavigationParams,
+  ) => bool,
+|};
+class ThreadSettingsAddChildThread
+  extends React.PureComponent<AddChildThreadProps> {
+
+  render() {
+    return (
+      <View style={styles.addItemRow}>
+        <ThreadSettingsListAction
+          onPress={this.onPressAddChildThread}
+          text="Add child thread"
+          iconName="md-add"
+          iconColor="#009900"
+          iconSize={20}
+        />
+      </View>
+    );
+  }
+
+  onPressAddChildThread = () => {
+    this.props.navigate(
+      AddThreadRouteName,
+      { parentThreadID: this.props.threadInfo.id },
+    );
+  }
+
+}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -51,6 +123,27 @@ const styles = StyleSheet.create({
   icon: {
     lineHeight: 20,
   },
+  seeMoreRow: {
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
+    paddingHorizontal: 12,
+    paddingTop: 2,
+    backgroundColor: "white",
+  },
+  seeMoreIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 15,
+  },
+  addItemRow: {
+    paddingHorizontal: 12,
+    paddingTop: 4,
+    backgroundColor: "white",
+  },
 });
 
-export default ThreadSettingsListAction;
+export {
+  ThreadSettingsSeeMore,
+  ThreadSettingsAddUser,
+  ThreadSettingsAddChildThread,
+};

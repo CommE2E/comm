@@ -4,7 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 
 import { MessageListRouteName } from '../message-list.react';
 import Button from '../../components/button.react';
@@ -21,15 +21,14 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
 
   render() {
     return (
-      <Button
-        onPress={this.onPress}
-        style={styles.container}
-      >
-        <Text style={styles.text} numberOfLines={1}>
-          {this.props.threadInfo.uiName}
-        </Text>
-        <ColorSplotch color={this.props.threadInfo.color} />
-      </Button>
+      <View style={styles.container}>
+        <Button onPress={this.onPress} style={styles.button}>
+          <Text style={styles.text} numberOfLines={1}>
+            {this.props.threadInfo.uiName}
+          </Text>
+          <ColorSplotch color={this.props.threadInfo.color} />
+        </Button>
+      </View>
     );
   }
 
@@ -44,6 +43,14 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
+    backgroundColor: "white",
+  },
+  button: {
     flex: 1,
     flexDirection: 'row',
     paddingVertical: 8,
