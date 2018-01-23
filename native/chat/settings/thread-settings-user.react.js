@@ -40,6 +40,7 @@ import {
   changeThreadMemberRolesActionTypes,
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from './edit-setting-button.react';
 import Button from '../../components/button.react';
@@ -48,8 +49,9 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
-  removeUsersLoadingStatus: LoadingStatus,
-  changeRolesLoadingStatus: LoadingStatus,
+  // Redux state
+  removeUserLoadingStatus: LoadingStatus,
+  changeRoleLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -72,6 +74,11 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
     memberInfo: relativeMemberInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     canEdit: PropTypes.bool.isRequired,
+    removeUserLoadingStatus: loadingStatusPropType.isRequired,
+    changeRoleLoadingStatus: loadingStatusPropType.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    removeUsersFromThread: PropTypes.func.isRequired,
+    changeThreadMemberRoles: PropTypes.func.isRequired,
   };
 
   static memberIsAdmin(props: Props) {
@@ -151,8 +158,8 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
 
     let editButton = null;
     if (
-      this.props.removeUsersLoadingStatus === "loading" ||
-      this.props.changeRolesLoadingStatus === "loading"
+      this.props.removeUserLoadingStatus === "loading" ||
+      this.props.changeRoleLoadingStatus === "loading"
     ) {
       editButton = <ActivityIndicator size="small" />;
     } else if (this.state.popoverConfig.length !== 0) {
@@ -345,7 +352,17 @@ const icon = (
 );
 
 export default connect(
-  (state: AppState) => ({ cookie: state.cookie }),
+  (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
+    removeUserLoadingStatus: createLoadingStatusSelector(
+      removeUsersFromThreadActionTypes,
+      `${removeUsersFromThreadActionTypes.started}:${ownProps.memberInfo.id}`,
+    )(state),
+    changeRoleLoadingStatus: createLoadingStatusSelector(
+      changeThreadMemberRolesActionTypes,
+      `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
+    )(state),
+    cookie: state.cookie,
+  }),
   includeDispatchActionProps,
   bindServerCalls({ removeUsersFromThread, changeThreadMemberRoles }),
 )(ThreadSettingsUser);

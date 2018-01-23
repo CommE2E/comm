@@ -8,33 +8,13 @@ import {
   relativeMemberInfoPropType,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type {
-  ChangeThreadSettingsResult,
-  LeaveThreadResult,
-} from 'lib/actions/thread-actions';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
-import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import _every from 'lodash/fp/every';
-import _omit from 'lodash/fp/omit';
-import shallowequal from 'shallowequal';
 
 import {
   relativeMemberInfoSelectorForMembersOfThread,
@@ -46,16 +26,10 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   changeThreadSettingsActionTypes,
-  changeSingleThreadSetting,
   leaveThreadActionTypes,
-  leaveThread,
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 
@@ -63,8 +37,6 @@ import {
   ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
-import EditSettingButton from './edit-setting-button.react';
-import Button from '../../components/button.react';
 import ThreadSettingsUser from './thread-settings-user.react';
 import {
   ThreadSettingsSeeMore,
@@ -73,14 +45,13 @@ import {
 } from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
-import { AddThreadRouteName } from '../add-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
-import SaveSettingButton from './save-setting-button.react';
 import ThreadSettingsName from './thread-settings-name.react';
 import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
 import ThreadSettingsParent from './thread-settings-parent.react';
 import ThreadSettingsVisibility from './thread-settings-visibility.react';
+import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 
 const itemPageLength = 5;
 
@@ -91,26 +62,12 @@ type StateProps = {|
   threadInfo: ThreadInfo,
   threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?ThreadInfo[],
-  nameEditLoadingStatus: LoadingStatus,
-  colorEditLoadingStatus: LoadingStatus,
-  descriptionEditLoadingStatus: LoadingStatus,
-  leaveThreadLoadingStatus: LoadingStatus,
-  removeUsersLoadingStatuses: {[id: string]: LoadingStatus},
-  changeRolesLoadingStatuses: {[id: string]: LoadingStatus},
+  somethingIsSaving: bool,
 |};
 type Props = {|
   navigation: NavProp,
   // Redux state
   ...StateProps,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  changeSingleThreadSetting: (
-    threadID: string,
-    field: "name" | "description" | "color",
-    value: string,
-  ) => Promise<ChangeThreadSettingsResult>,
-  leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
 |};
 type State = {|
   showAddUsersModal: bool,
@@ -139,12 +96,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
-    nameEditLoadingStatus: loadingStatusPropType.isRequired,
-    colorEditLoadingStatus: loadingStatusPropType.isRequired,
-    descriptionEditLoadingStatus: loadingStatusPropType.isRequired,
-    leaveThreadLoadingStatus: loadingStatusPropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeSingleThreadSetting: PropTypes.func.isRequired,
+    somethingIsSaving: PropTypes.bool.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
@@ -209,22 +161,12 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  static notLoading =
-    (loadingStatus: LoadingStatus) => loadingStatus !== "loading";
-
   canReset = () => {
     return !this.state.showAddUsersModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
       !this.state.showEditColorModal &&
-      this.props.nameEditLoadingStatus !== "loading" &&
-      this.props.colorEditLoadingStatus !== "loading" &&
-      this.props.descriptionEditLoadingStatus !== "loading" &&
-      this.props.leaveThreadLoadingStatus !== "loading" &&
-      _every(InnerThreadSettings.notLoading)
-        (this.props.removeUsersLoadingStatuses) &&
-      _every(InnerThreadSettings.notLoading)
-        (this.props.changeRolesLoadingStatuses);
+      !this.props.somethingIsSaving;
   }
 
   render() {
@@ -269,17 +211,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadMembers = this.props.threadMembers;
     }
     const members = threadMembers.map(memberInfo => {
-      const removeUsersLoadingStatus =
-        this.props.removeUsersLoadingStatuses[memberInfo.id];
-      const changeRolesLoadingStatus =
-        this.props.changeRolesLoadingStatuses[memberInfo.id];
       return (
         <ThreadSettingsUser
           memberInfo={memberInfo}
           threadInfo={this.props.threadInfo}
           canEdit={canStartEditing}
-          removeUsersLoadingStatus={removeUsersLoadingStatus}
-          changeRolesLoadingStatus={changeRolesLoadingStatus}
           key={memberInfo.id}
         />
       );
@@ -367,23 +303,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
     let leaveThreadButton = null;
     if (viewerIsMember(this.props.threadInfo)) {
-      const loadingIndicator = this.props.leaveThreadLoadingStatus === "loading"
-        ? <ActivityIndicator size="small" />
-        : null;
       leaveThreadButton = (
-        <View style={styles.leaveThread}>
-          <Button
-            onPress={this.onPressLeaveThread}
-            style={styles.leaveThreadButton}
-            iosFormat="highlight"
-            iosHighlightUnderlayColor="#EEEEEEDD"
-          >
-            <Text style={styles.leaveThreadText}>
-              Leave thread...
-            </Text>
-            {loadingIndicator}
-          </Button>
-        </View>
+        <ThreadSettingsLeaveThread
+          threadInfo={this.props.threadInfo}
+          threadMembers={this.props.threadMembers}
+        />
       );
     }
 
@@ -478,142 +402,75 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }));
   }
 
-  onPressLeaveThread = () => {
-    let otherUsersExist = false;
-    let otherAdminsExist = false;
-    for (let member of this.props.threadMembers) {
-      const role = member.role;
-      if (role === undefined || role === null || member.isViewer) {
-        continue;
-      }
-      otherUsersExist = true;
-      if (this.props.threadInfo.roles[role].name === "Admins") {
-        otherAdminsExist = true;
-        break;
-      }
-    }
-    if (otherUsersExist && !otherAdminsExist) {
-      Alert.alert(
-        "Need another admin",
-        "Make somebody else an admin before you leave!",
-      );
-      return;
-    }
-
-    Alert.alert(
-      "Confirm action",
-      "Are you sure you want to leave this thread?",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: this.onConfirmLeaveThread },
-      ],
-    );
-  }
-
-  onConfirmLeaveThread = () => {
-    this.props.dispatchActionPromise(
-      leaveThreadActionTypes,
-      this.leaveThread(),
-    );
-  }
-
-  async leaveThread() {
-    try {
-      return await this.props.leaveThread(this.props.threadInfo.id);
-    } catch (e) {
-      Alert.alert("Unknown error", "Uhh... try again?");
-      throw e;
-    }
-  }
-
 }
 
 const styles = StyleSheet.create({
   scrollView: {
     paddingVertical: 16,
   },
-  leaveThread: {
-    marginVertical: 16,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
-    backgroundColor: "white",
-  },
-  leaveThreadButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  leaveThreadText: {
-    fontSize: 16,
-    color: "#AA0000",
-    flex: 1,
-  },
 });
 
+const editNameLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+  `${changeThreadSettingsActionTypes.started}:name`,
+);
+const editColorLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+  `${changeThreadSettingsActionTypes.started}:color`,
+);
+const editDescriptionLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+  `${changeThreadSettingsActionTypes.started}:color`,
+);
 const leaveThreadLoadingStatusSelector
   = createLoadingStatusSelector(leaveThreadActionTypes);
 
+const somethingIsSaving = (
+  state: AppState,
+  threadMembers: RelativeMemberInfo[],
+) => {
+  if (
+    editNameLoadingStatusSelector(state) === "loading" ||
+    editColorLoadingStatusSelector(state) === "loading" ||
+    editDescriptionLoadingStatusSelector(state) === "loading" ||
+    leaveThreadLoadingStatusSelector(state) === "loading"
+  ) {
+    return true;
+  }
+  for (let threadMember of threadMembers) {
+    const removeUserLoadingStatus = createLoadingStatusSelector(
+      removeUsersFromThreadActionTypes,
+      `${removeUsersFromThreadActionTypes.started}:${threadMember.id}`,
+    )(state);
+    if (removeUserLoadingStatus === "loading") {
+      return true;
+    }
+    const changeRoleLoadingStatus = createLoadingStatusSelector(
+      changeThreadMemberRolesActionTypes,
+      `${changeThreadMemberRolesActionTypes.started}:${threadMember.id}`,
+    )(state);
+    if (changeRoleLoadingStatus === "loading") {
+      return true;
+    }
+  }
+  return false;
+};
+
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
+  (state: AppState, ownProps: { navigation: NavProp }): * => {
     const parsedThreadInfos = threadInfoSelector(state);
     const passedThreadInfo = ownProps.navigation.state.params.threadInfo;
     // We pull the version from Redux so we get updates once they go through
     const threadInfo = parsedThreadInfos[passedThreadInfo.id];
-    // We need two LoadingStatuses for each member
     const threadMembers =
       relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state);
-    const removeUsersLoadingStatuses = {};
-    const changeRolesLoadingStatuses = {};
-    for (let threadMember of threadMembers) {
-      removeUsersLoadingStatuses[threadMember.id] = createLoadingStatusSelector(
-        removeUsersFromThreadActionTypes,
-        `${removeUsersFromThreadActionTypes.started}:${threadMember.id}`,
-      )(state);
-      changeRolesLoadingStatuses[threadMember.id] = createLoadingStatusSelector(
-        changeThreadMemberRolesActionTypes,
-        `${changeThreadMemberRolesActionTypes.started}:${threadMember.id}`,
-      )(state);
-    }
     return {
       threadInfo,
       threadMembers,
       childThreadInfos: childThreadInfos(state)[threadInfo.id],
-      nameEditLoadingStatus: createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:name`,
-      )(state),
-      colorEditLoadingStatus: createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:color`,
-      )(state),
-      descriptionEditLoadingStatus: createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:description`,
-      )(state),
-      leaveThreadLoadingStatus: leaveThreadLoadingStatusSelector(state),
-      removeUsersLoadingStatuses,
-      changeRolesLoadingStatuses,
-      cookie: state.cookie,
+      somethingIsSaving: somethingIsSaving(state, threadMembers),
     };
-  },
-  includeDispatchActionProps,
-  bindServerCalls({ changeSingleThreadSetting, leaveThread }),
-  {
-    areStatePropsEqual: (oldProps: StateProps, nextProps: StateProps) => {
-      const omitObjects =
-        _omit(["removeUsersLoadingStatuses", "changeRolesLoadingStatuses"]);
-      return shallowequal(omitObjects(oldProps), omitObjects(nextProps)) &&
-        shallowequal(
-          oldProps.removeUsersLoadingStatuses,
-          nextProps.removeUsersLoadingStatuses,
-        ) &&
-        shallowequal(
-          oldProps.changeRolesLoadingStatuses,
-          nextProps.changeRolesLoadingStatuses,
-        );
-    },
   },
 )(InnerThreadSettings);
 
