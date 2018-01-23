@@ -86,30 +86,30 @@ async function fetchThreadInfos(
         },
         threadID,
       );
+      const member = {
+        id: userID,
+        permissions: allPermissions,
+        role: row.role ? row.role : null,
+      };
       // This is a hack, similar to what we have in ThreadSettingsUser.
       // Basically we only want to return users that are either a member of this
       // thread, or are a "parent admin". We approximate "parent admin" by
       // looking for the PERMISSION_CHANGE_ROLE permission.
       if (row.role || allPermissions[threadPermissions.CHANGE_ROLE].value) {
-        const member = {
-          id: userID,
-          permissions: allPermissions,
-          role: row.role ? row.role : null,
-        };
         threadInfos[threadID].members.push(member);
-        if (userID === viewerID) {
-          threadInfos[threadID].currentUser = {
-            permissions: member.permissions,
-            role: member.role,
-            subscribed: !!row.subscribed,
-            unread: member.role ? row.unread : null,
+        if (row.username) {
+          userInfos[userID] = {
+            id: userID,
+            username: row.username,
           };
         }
       }
-      if (row.username) {
-        userInfos[userID] = {
-          id: userID,
-          username: row.username,
+      if (userID === viewerID) {
+        threadInfos[threadID].currentUser = {
+          permissions: member.permissions,
+          role: member.role,
+          subscribed: !!row.subscribed,
+          unread: member.role ? row.unread : null,
         };
       }
     }

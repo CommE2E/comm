@@ -80,6 +80,11 @@ SQL;
       $permission_info = get_info_from_permissions_row($row);
       $all_permissions =
         get_all_thread_permissions($permission_info, $thread_id);
+      $member = array(
+        "id" => $user_id,
+        "permissions" => $all_permissions,
+        "role" => (int)$row['role'] === 0 ? null : $row['role'],
+      );
       // This is a hack, similar to what we have in ThreadSettingsUser.
       // Basically we only want to return users that are either a member of this
       // thread, or are a "parent admin". We approximate "parent admin" by
@@ -88,25 +93,20 @@ SQL;
         (int)$row['role'] !== 0 ||
         $all_permissions[PERMISSION_CHANGE_ROLE]['value']
       ) {
-        $member = array(
-          "id" => $user_id,
-          "permissions" => $all_permissions,
-          "role" => (int)$row['role'] === 0 ? null : $row['role'],
-        );
         $thread_infos[$thread_id]['members'][] = $member;
-        if ((int)$user_id === $viewer_id) {
-          $thread_infos[$thread_id]['currentUser'] = array(
-            "permissions" => $member['permissions'],
-            "role" => $member['role'],
-            "subscribed" => !!$row['subscribed'],
-            "unread" => $member['role'] !== null ? (bool)$row['unread'] : null,
+        if ($row['username']) {
+          $user_infos[$user_id] = array(
+            "id" => $user_id,
+            "username" => $row['username'],
           );
         }
       }
-      if ($row['username']) {
-        $user_infos[$user_id] = array(
-          "id" => $user_id,
-          "username" => $row['username'],
+      if ((int)$user_id === $viewer_id) {
+        $thread_infos[$thread_id]['currentUser'] = array(
+          "permissions" => $member['permissions'],
+          "role" => $member['role'],
+          "subscribed" => !!$row['subscribed'],
+          "unread" => $member['role'] !== null ? (bool)$row['unread'] : null,
         );
       }
     }

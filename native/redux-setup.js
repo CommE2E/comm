@@ -207,7 +207,11 @@ function validateState(oldState: AppState, state: AppState): AppState {
       rehydrateConcluded: state.rehydrateConcluded,
     };
   }
-  if (activeThread && oldActiveThread !== activeThread) {
+  if (
+    activeThread &&
+    oldActiveThread !== activeThread &&
+    state.messageStore.threads[activeThread]
+  ) {
     // Update messageStore.threads[activeThread].lastNavigatedTo
     state = {
       navInfo: state.navInfo,
