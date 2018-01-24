@@ -4,8 +4,9 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
+export type CategoryType = "full" | "outline" | "unpadded";
 type HeaderProps = {|
-  type: "full" | "outline" | "unpadded",
+  type: CategoryType,
   title: string,
 |};
 function ThreadSettingsCategoryHeader(props: HeaderProps) {
@@ -32,7 +33,7 @@ function ThreadSettingsCategoryHeader(props: HeaderProps) {
 }
 
 type FooterProps = {|
-  type: "full" | "outline" | "unpadded",
+  type: CategoryType,
 |};
 function ThreadSettingsCategoryFooter(props: FooterProps) {
   let contentStyle, paddingStyle;

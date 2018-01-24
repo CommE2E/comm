@@ -1,6 +1,6 @@
 // @flow
 
-import type { BaseAppState } from 'lib/types/redux-types';
+import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type {
@@ -41,9 +41,9 @@ const chatThreadItemPropType = PropTypes.shape({
 });
 const chatListData = createSelector(
   threadInfoSelector,
-  (state: BaseAppState) => state.messageStore,
-  (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
-  (state: BaseAppState) => state.userInfos,
+  (state: AppState) => state.messageStore,
+  (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
+  (state: AppState) => state.userInfos,
   (
     threadInfos: {[id: string]: ThreadInfo},
     messageStore: MessageStore,
@@ -114,9 +114,9 @@ const chatMessageItemPropType = PropTypes.oneOfType([
 ]);
 const msInFiveMinutes = 5 * 60 * 1000;
 const baseMessageListData = (threadID: string) => createSelector(
-  (state: BaseAppState) => state.messageStore,
-  (state: BaseAppState) => state.currentUserInfo && state.currentUserInfo.id,
-  (state: BaseAppState) => state.userInfos,
+  (state: AppState) => state.messageStore,
+  (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
+  (state: AppState) => state.userInfos,
   threadInfoSelector,
   (
     messageStore: MessageStore,

@@ -1,6 +1,10 @@
 // @flow
 
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationRoute,
+  NavigationParams,
+} from 'react-navigation';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import {
   threadInfoPropType,
@@ -8,11 +12,12 @@ import {
   relativeMemberInfoPropType,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
+import type { CategoryType } from './thread-settings-category.react';
 
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
 import _isEqual from 'lodash/fp/isEqual';
 
@@ -37,10 +42,10 @@ import {
   ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
-import ThreadSettingsUser from './thread-settings-user.react';
+import ThreadSettingsMember from './thread-settings-member.react';
 import {
   ThreadSettingsSeeMore,
-  ThreadSettingsAddUser,
+  ThreadSettingsAddMember,
   ThreadSettingsAddChildThread,
 } from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
@@ -57,6 +62,87 @@ const itemPageLength = 5;
 
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
+type ChatSettingsItem =
+  | {|
+      itemType: "header",
+      key: string,
+      title: string,
+      categoryType: CategoryType,
+    |}
+  | {|
+      itemType: "footer",
+      key: string,
+      categoryType: CategoryType,
+    |}
+  | {|
+      itemType: "name",
+      key: string,
+      threadInfo: ThreadInfo,
+      nameEditValue: ?string,
+      nameTextHeight: ?number,
+      canChangeSettings: bool,
+    |}
+  | {|
+      itemType: "color",
+      key: string,
+      threadInfo: ThreadInfo,
+      colorEditValue: string,
+      showEditColorModal: bool,
+      canChangeSettings: bool,
+    |}
+  | {|
+      itemType: "description",
+      key: string,
+      threadInfo: ThreadInfo,
+      descriptionEditValue: ?string,
+      descriptionTextHeight: ?number,
+      canChangeSettings: bool,
+    |}
+  | {|
+      itemType: "parent",
+      key: string,
+      threadInfo: ThreadInfo,
+      navigate: (routeName: string, params?: NavigationParams) => bool,
+    |}
+  | {|
+      itemType: "visibility",
+      key: string,
+      threadInfo: ThreadInfo,
+    |}
+  | {|
+      itemType: "seeMore",
+      key: string,
+      onPress: () => void,
+    |}
+  | {|
+      itemType: "childThread",
+      key: string,
+      threadInfo: ThreadInfo,
+      navigate: (routeName: string, params?: NavigationParams) => bool,
+    |}
+  | {|
+      itemType: "addChildThread",
+      key: string,
+      threadInfo: ThreadInfo,
+      navigate: (routeName: string, params?: NavigationParams) => bool,
+    |}
+  | {|
+      itemType: "member",
+      key: string,
+      memberInfo: RelativeMemberInfo,
+      threadInfo: ThreadInfo,
+      canEdit: bool,
+    |}
+  | {|
+      itemType: "addMember",
+      key: string,
+    |}
+  | {|
+      itemType: "leaveThread",
+      key: string,
+      threadInfo: ThreadInfo,
+      threadMembers: RelativeMemberInfo[],
+    |};
 
 type StateProps = {|
   threadInfo: ThreadInfo,
@@ -177,73 +263,73 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     );
     const canChangeSettings = canEditThread && canStartEditing;
 
-    let description = null;
+    let listData: ChatSettingsItem[] = [];
+    listData.push({
+      itemType: "header",
+      key: "basicsHeader",
+      title: "Basics",
+      categoryType: "full",
+    });
+    listData.push({
+      itemType: "name",
+      key: "name",
+      threadInfo: this.props.threadInfo,
+      nameEditValue: this.state.nameEditValue,
+      nameTextHeight: this.state.nameTextHeight,
+      canChangeSettings,
+    });
+    listData.push({
+      itemType: "color",
+      key: "color",
+      threadInfo: this.props.threadInfo,
+      colorEditValue: this.state.colorEditValue,
+      showEditColorModal: this.state.showEditColorModal,
+      canChangeSettings,
+    });
+    listData.push({
+      itemType: "footer",
+      key: "basicsFooter",
+      categoryType: "full",
+    });
+
     if (
       (this.state.descriptionEditValue !== null &&
         this.state.descriptionEditValue !== undefined) ||
       this.props.threadInfo.description ||
       canEditThread
     ) {
-      description = (
-        <ThreadSettingsDescription
-          threadInfo={this.props.threadInfo}
-          descriptionEditValue={this.state.descriptionEditValue}
-          setDescriptionEditValue={this.setDescriptionEditValue}
-          descriptionTextHeight={this.state.descriptionTextHeight}
-          setDescriptionTextHeight={this.setDescriptionTextHeight}
-          canChangeSettings={canChangeSettings}
-        />
-      );
+      listData.push({
+        itemType: "description",
+        key: "description",
+        threadInfo: this.props.threadInfo,
+        descriptionEditValue: this.state.descriptionEditValue,
+        descriptionTextHeight: this.state.descriptionTextHeight,
+        canChangeSettings,
+      });
     }
 
-    let threadMembers;
-    let seeMoreMembers = null;
-    if (this.props.threadMembers.length > this.state.showMaxMembers) {
-      threadMembers =
-        this.props.threadMembers.slice(0, this.state.showMaxMembers);
-      seeMoreMembers = (
-        <ThreadSettingsSeeMore
-          onPress={this.onPressSeeMoreMembers}
-          key="seeMore"
-        />
-      );
-    } else {
-      threadMembers = this.props.threadMembers;
-    }
-    const members = threadMembers.map(memberInfo => {
-      return (
-        <ThreadSettingsUser
-          memberInfo={memberInfo}
-          threadInfo={this.props.threadInfo}
-          canEdit={canStartEditing}
-          key={memberInfo.id}
-        />
-      );
+    listData.push({
+      itemType: "header",
+      key: "privacyHeader",
+      title: "Privacy",
+      categoryType: "full",
     });
-    if (seeMoreMembers) {
-      members.push(seeMoreMembers);
-    }
-
-    let addMembers = null;
-    const canAddMembers = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.ADD_MEMBERS,
-    );
-    if (canAddMembers) {
-      addMembers = <ThreadSettingsAddUser onPress={this.onPressAddUser} />;
-    }
-
-    let membersPanel = null;
-    if (addMembers || members) {
-      membersPanel = (
-        <View>
-          <ThreadSettingsCategoryHeader type="unpadded" title="Members" />
-          {addMembers}
-          {members}
-          <ThreadSettingsCategoryFooter type="unpadded" />
-        </View>
-      );
-    }
+    listData.push({
+      itemType: "parent",
+      key: "parent",
+      threadInfo: this.props.threadInfo,
+      navigate: this.props.navigation.navigate,
+    });
+    listData.push({
+      itemType: "visibility",
+      key: "visibility",
+      threadInfo: this.props.threadInfo,
+    });
+    listData.push({
+      itemType: "footer",
+      key: "privacyFooter",
+      categoryType: "full",
+    });
 
     let childThreads = null;
     if (this.props.childThreadInfos) {
@@ -252,24 +338,20 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       if (this.props.childThreadInfos.length > this.state.showMaxChildThreads) {
         childThreadInfos =
           this.props.childThreadInfos.slice(0, this.state.showMaxChildThreads);
-        seeMoreChildThreads = (
-          <ThreadSettingsSeeMore
-            onPress={this.onPressSeeMoreChildThreads}
-            key="seeMore"
-          />
-        );
+        seeMoreChildThreads = {
+          itemType: "seeMore",
+          key: "seeMoreChildThreads",
+          onPress: this.onPressSeeMoreChildThreads,
+        };
       } else {
         childThreadInfos = this.props.childThreadInfos;
       }
-      childThreads = childThreadInfos.map(threadInfo => {
-        return (
-          <ThreadSettingsChildThread
-            threadInfo={threadInfo}
-            navigate={this.props.navigation.navigate}
-            key={threadInfo.id}
-          />
-        );
-      });
+      childThreads = childThreadInfos.map(threadInfo => ({
+        itemType: "childThread",
+        key: `childThread${threadInfo.id}`,
+        threadInfo,
+        navigate: this.props.navigation.navigate,
+      }));
       if (seeMoreChildThreads) {
         childThreads.push(seeMoreChildThreads);
       }
@@ -281,69 +363,110 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadPermissions.CREATE_SUBTHREADS,
     );
     if (canCreateSubthreads) {
-      addChildThread = (
-        <ThreadSettingsAddChildThread
-          threadInfo={this.props.threadInfo}
-          navigate={this.props.navigation.navigate}
-        />
-      );
+      addChildThread = {
+        itemType: "addChildThread",
+        key: "addChildThread",
+        threadInfo: this.props.threadInfo,
+        navigate: this.props.navigation.navigate,
+      };
     }
 
-    let childThreadPanel = null;
     if (addChildThread || childThreads) {
-      childThreadPanel = (
-        <View>
-          <ThreadSettingsCategoryHeader type="unpadded" title="Child threads" />
-          {addChildThread}
-          {childThreads}
-          <ThreadSettingsCategoryFooter type="unpadded" />
-        </View>
-      );
+      listData.push({
+        itemType: "header",
+        key: "childThreadHeader",
+        title: "Child threads",
+        categoryType: "unpadded",
+      });
+    }
+    if (addChildThread) {
+      listData.push(addChildThread);
+    }
+    if (childThreads) {
+      listData = [...listData, ...childThreads];
+    }
+    if (addChildThread || childThreads) {
+      listData.push({
+        itemType: "footer",
+        key: "childThreadFooter",
+        categoryType: "unpadded",
+      });
     }
 
-    let leaveThreadButton = null;
+    let threadMembers;
+    let seeMoreMembers = null;
+    if (this.props.threadMembers.length > this.state.showMaxMembers) {
+      threadMembers =
+        this.props.threadMembers.slice(0, this.state.showMaxMembers);
+      seeMoreMembers = {
+        itemType: "seeMore",
+        key: "seeMoreMembers",
+        onPress: this.onPressSeeMoreMembers,
+      };
+    } else {
+      threadMembers = this.props.threadMembers;
+    }
+    const members = threadMembers.map(memberInfo => ({
+      itemType: "member",
+      key: `member${memberInfo.id}`,
+      memberInfo,
+      threadInfo: this.props.threadInfo,
+      canEdit: canStartEditing,
+    }));
+    if (seeMoreMembers) {
+      members.push(seeMoreMembers);
+    }
+
+    let addMembers = null;
+    const canAddMembers = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.ADD_MEMBERS,
+    );
+    if (canAddMembers) {
+      addMembers = {
+        itemType: "addMember",
+        key: "addMember",
+      };
+    }
+
+    if (addMembers || members) {
+      listData.push({
+        itemType: "header",
+        key: "memberHeader",
+        title: "Members",
+        categoryType: "unpadded",
+      });
+    }
+    if (addMembers) {
+      listData.push(addMembers);
+    }
+    if (members) {
+      listData = [...listData, ...members];
+    }
+    if (addMembers || members) {
+      listData.push({
+        itemType: "footer",
+        key: "memberFooter",
+        categoryType: "unpadded",
+      });
+    }
+
     if (viewerIsMember(this.props.threadInfo)) {
-      leaveThreadButton = (
-        <ThreadSettingsLeaveThread
-          threadInfo={this.props.threadInfo}
-          threadMembers={this.props.threadMembers}
-        />
-      );
+      listData.push({
+        itemType: "leaveThread",
+        key: "leaveThread",
+        threadInfo: this.props.threadInfo,
+        threadMembers: this.props.threadMembers,
+      });
     }
 
     return (
       <View>
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <ThreadSettingsCategoryHeader type="full" title="Basics" />
-          <ThreadSettingsName
-            threadInfo={this.props.threadInfo}
-            nameEditValue={this.state.nameEditValue}
-            setNameEditValue={this.setNameEditValue}
-            nameTextHeight={this.state.nameTextHeight}
-            setNameTextHeight={this.setNameTextHeight}
-            canChangeSettings={canChangeSettings}
-          />
-          <ThreadSettingsColor
-            threadInfo={this.props.threadInfo}
-            colorEditValue={this.state.colorEditValue}
-            setColorEditValue={this.setColorEditValue}
-            showEditColorModal={this.state.showEditColorModal}
-            setEditColorModalVisibility={this.setEditColorModalVisibility}
-            canChangeSettings={canChangeSettings}
-          />
-          <ThreadSettingsCategoryFooter type="full" />
-          {description}
-          <ThreadSettingsCategoryHeader type="full" title="Privacy" />
-          <ThreadSettingsParent
-            threadInfo={this.props.threadInfo}
-            navigate={this.props.navigation.navigate}
-          />
-          <ThreadSettingsVisibility threadInfo={this.props.threadInfo} />
-          <ThreadSettingsCategoryFooter type="full" />
-          {childThreadPanel}
-          {membersPanel}
-          {leaveThreadButton}
-        </ScrollView>
+        <FlatList
+          data={listData}
+          contentContainerStyle={styles.flatList}
+          renderItem={this.renderItem}
+        />
         <Modal
           isVisible={this.state.showAddUsersModal}
           onBackButtonPress={this.closeAddUsersModal}
@@ -356,6 +479,95 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         </Modal>
       </View>
     );
+  }
+
+  renderItem = (row: { item: ChatSettingsItem }) => {
+    const item = row.item;
+    if (item.itemType === "header") {
+      return (
+        <ThreadSettingsCategoryHeader
+          type={item.categoryType}
+          title={item.title}
+        />
+      );
+    } else if (item.itemType === "footer") {
+      return <ThreadSettingsCategoryFooter type={item.categoryType} />;
+    } else if (item.itemType === "name") {
+      return (
+        <ThreadSettingsName
+          threadInfo={item.threadInfo}
+          nameEditValue={item.nameEditValue}
+          setNameEditValue={this.setNameEditValue}
+          nameTextHeight={item.nameTextHeight}
+          setNameTextHeight={this.setNameTextHeight}
+          canChangeSettings={item.canChangeSettings}
+        />
+      );
+    } else if (item.itemType === "color") {
+      return (
+        <ThreadSettingsColor
+          threadInfo={item.threadInfo}
+          colorEditValue={item.colorEditValue}
+          setColorEditValue={this.setColorEditValue}
+          showEditColorModal={item.showEditColorModal}
+          setEditColorModalVisibility={this.setEditColorModalVisibility}
+          canChangeSettings={item.canChangeSettings}
+        />
+      );
+    } else if (item.itemType === "description") {
+      return (
+        <ThreadSettingsDescription
+          threadInfo={item.threadInfo}
+          descriptionEditValue={item.descriptionEditValue}
+          setDescriptionEditValue={this.setDescriptionEditValue}
+          descriptionTextHeight={item.descriptionTextHeight}
+          setDescriptionTextHeight={this.setDescriptionTextHeight}
+          canChangeSettings={item.canChangeSettings}
+        />
+      );
+    } else if (item.itemType === "parent") {
+      return (
+        <ThreadSettingsParent
+          threadInfo={item.threadInfo}
+          navigate={item.navigate}
+        />
+      );
+    } else if (item.itemType === "visibility") {
+      return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
+    } else if (item.itemType === "seeMore") {
+      return <ThreadSettingsSeeMore onPress={item.onPress} />;
+    } else if (item.itemType === "childThread") {
+      return (
+        <ThreadSettingsChildThread
+          threadInfo={item.threadInfo}
+          navigate={item.navigate}
+        />
+      );
+    } else if (item.itemType === "addChildThread") {
+      return (
+        <ThreadSettingsAddChildThread
+          threadInfo={item.threadInfo}
+          navigate={item.navigate}
+        />
+      );
+    } else if (item.itemType === "member") {
+      return (
+        <ThreadSettingsMember
+          memberInfo={item.memberInfo}
+          threadInfo={item.threadInfo}
+          canEdit={item.canEdit}
+        />
+      );
+    } else if (item.itemType === "addMember") {
+      return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
+    } else if (item.itemType === "leaveThread") {
+      return (
+        <ThreadSettingsLeaveThread
+          threadInfo={item.threadInfo}
+          threadMembers={item.threadMembers}
+        />
+      );
+    }
   }
 
   setNameEditValue = (value: ?string, callback?: () => void) => {
@@ -382,7 +594,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ descriptionTextHeight: height });
   }
 
-  onPressAddUser = () => {
+  onPressAddMember = () => {
     this.setState({ showAddUsersModal: true });
   }
 
@@ -405,7 +617,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
+  flatList: {
     paddingVertical: 16,
   },
 });

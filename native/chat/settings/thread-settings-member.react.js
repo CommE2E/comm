@@ -68,7 +68,7 @@ type Props = {|
 type State = {|
   popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>,
 |};
-class ThreadSettingsUser extends React.PureComponent<Props, State> {
+class ThreadSettingsMember extends React.PureComponent<Props, State> {
 
   static propTypes = {
     memberInfo: relativeMemberInfoPropType.isRequired,
@@ -118,7 +118,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
     }
 
     if (canChangeRoles && props.memberInfo.username) {
-      const adminText = ThreadSettingsUser.memberIsAdmin(props)
+      const adminText = ThreadSettingsMember.memberIsAdmin(props)
         ? "Remove admin"
         : "Make admin";
       result.push({ label: adminText, onPress: this.onPressMakeAdmin });
@@ -173,7 +173,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
     }
 
     let roleInfo = null;
-    if (ThreadSettingsUser.memberIsAdmin(this.props)) {
+    if (ThreadSettingsMember.memberIsAdmin(this.props)) {
       roleInfo = (
         <View style={styles.row}>
           <Text style={styles.role}>admin</Text>
@@ -256,7 +256,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
 
   showMakeAdminConfirmation = () => {
     const userText = stringForUser(this.props.memberInfo);
-    const actionClause = ThreadSettingsUser.memberIsAdmin(this.props)
+    const actionClause = ThreadSettingsMember.memberIsAdmin(this.props)
       ? `remove ${userText} as an admin`
       : `make ${userText} an admin`;
     Alert.alert(
@@ -270,7 +270,7 @@ class ThreadSettingsUser extends React.PureComponent<Props, State> {
   }
 
   onConfirmMakeAdmin = () => {
-    const isCurrentlyAdmin = ThreadSettingsUser.memberIsAdmin(this.props);
+    const isCurrentlyAdmin = ThreadSettingsMember.memberIsAdmin(this.props);
     let newRole = null;
     for (let roleID in this.props.threadInfo.roles) {
       const role = this.props.threadInfo.roles[roleID];
@@ -365,4 +365,4 @@ export default connect(
   }),
   includeDispatchActionProps,
   bindServerCalls({ removeUsersFromThread, changeThreadMemberRoles }),
-)(ThreadSettingsUser);
+)(ThreadSettingsMember);

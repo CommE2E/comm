@@ -55,10 +55,10 @@ function ThreadSettingsSeeMore(props: SeeMoreProps) {
   );
 }
 
-type AddUserProps = {|
+type AddMemberProps = {|
   onPress: () => void,
 |};
-function ThreadSettingsAddUser(props: AddUserProps) {
+function ThreadSettingsAddMember(props: AddMemberProps) {
   return (
     <View style={styles.addItemRow}>
       <ThreadSettingsListAction
@@ -144,6 +144,6 @@ const styles = StyleSheet.create({
 
 export {
   ThreadSettingsSeeMore,
-  ThreadSettingsAddUser,
+  ThreadSettingsAddMember,
   ThreadSettingsAddChildThread,
 };
