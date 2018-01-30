@@ -3,7 +3,7 @@
 import type { HeaderProps, NavigationScene } from 'react-navigation';
 
 import React from 'react';
-import Header from 'react-navigation/src/views/Header/Header';
+import { Header } from 'react-navigation';
 
 // The whole reason for overriding header is because when we override
 // headerTitle, we end up having to implement headerTruncatedBackTitle ourselves

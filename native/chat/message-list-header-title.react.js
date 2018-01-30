@@ -8,7 +8,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
-import HeaderTitle from 'react-navigation/src/views/Header/HeaderTitle';
+import { HeaderTitle } from 'react-navigation';
 
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from './settings/thread-settings.react';
