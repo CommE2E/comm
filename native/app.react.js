@@ -643,6 +643,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
+      addListener: (eventName: string, handler: Function) => {
+        return { remove: () => {} };
+      },
     });
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
