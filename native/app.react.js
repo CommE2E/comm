@@ -36,6 +36,7 @@ import {
   DeviceInfo,
 } from 'react-native';
 import { addNavigationHelpers } from 'react-navigation';
+import { createReduxBoundAddListener } from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
@@ -117,6 +118,8 @@ registerConfig({
 // server. As a result, we do them fairly frequently (once every 3s) while the
 // app is active and the user is logged in.
 const pingFrequency = 3 * 1000;
+
+const reactNavigationAddListener = createReduxBoundAddListener("root");
 
 type NativeDispatch = Dispatch
   & ((action: PossiblyDeprecatedNavigationAction) => boolean);
@@ -643,9 +646,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
-      addListener: (eventName: string, handler: Function) => {
-        return { remove: () => {} };
-      },
+      addListener: reactNavigationAddListener,
     });
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (

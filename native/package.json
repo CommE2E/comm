@@ -25,6 +25,7 @@
     "react-native-segmented-control-tab": "^3.2.1",
     "react-native-vector-icons": "^4.5.0",
     "react-navigation": "git://github.com/react-navigation/react-navigation.git",
+    "react-navigation-redux-helpers": "^1.0.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-devtools-extension": "^2.13.2",

@@ -16,6 +16,9 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions } from 'react-navigation';
+import {
+  createReactNavigationReduxMiddleware,
+} from 'react-navigation-redux-helpers';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
@@ -249,6 +252,10 @@ const persistConfig = {
   blacklist,
   debug: __DEV__,
 };
+const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
+  "root",
+  (state: AppState) => state.navInfo.navigationState,
+);
 const store = createStore(
   persistReducer(
     persistConfig,
@@ -256,7 +263,7 @@ const store = createStore(
   ),
   defaultState,
   composeWithDevTools(
-    applyMiddleware(thunk),
+    applyMiddleware(thunk, reactNavigationMiddleware),
   ),
 );
 const persistor = persistStore(store);
