@@ -9,7 +9,6 @@
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "dependencies": {
-    "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "color": "^2.0.0",
     "invariant": "^2.2.2",
     "lib": "file:../lib",
@@ -39,6 +38,7 @@
   "devDependencies": {
     "babel-jest": "^20.0.3",
     "babel-plugin-transform-remove-console": "^6.8.5",
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "babel-preset-react-native": "3.0.2",
     "flow-bin": "^0.61.0",
     "jest": "^20.0.4",

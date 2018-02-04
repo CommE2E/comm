@@ -17,7 +17,7 @@ import {
 } from 'lib/types/thread-types';
 import { sortMessageInfoList } from 'lib/shared/message-utils';
 
-import { SQL, appendSQLArray, rawSQL } from '../database';
+import { SQL, mergeOrConditions } from '../database';
 import { permissionHelper } from '../permissions/permissions';
 
 export type CollapsableNotifInfo = {|
@@ -101,10 +101,10 @@ async function fetchCollapsableNotifs(
         OR t.visibility_rules = ${visibilityRules.OPEN}
       )
       AND n.rescinded = 0
-      AND (
+      AND
   `;
-  appendSQLArray(collapseQuery, sqlTuples, " OR ");
-  collapseQuery.append(SQL`) ORDER BY m.time DESC`);
+  collapseQuery.append(mergeOrConditions(sqlTuples));
+  collapseQuery.append(SQL`ORDER BY m.time DESC`);
   const [ collapseResult ] = await conn.query(collapseQuery);
 
   const userInfos = {};

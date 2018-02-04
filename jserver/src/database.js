@@ -43,6 +43,21 @@ function appendSQLArray(
   );
 }
 
+function mergeConditions(conditions: SQLStatement[], delimiter: SQLStatement) {
+  const sql = SQL` (`;
+  appendSQLArray(sql, conditions, delimiter);
+  sql.append(SQL`) `);
+  return sql;
+}
+
+function mergeAndConditions(andConditions: SQLStatement[]) {
+  return mergeConditions(andConditions, SQL` AND `);
+}
+
+function mergeOrConditions(andConditions: SQLStatement[]) {
+  return mergeConditions(andConditions, SQL` OR `);
+}
+
 function rawSQL(statement: SQLStatement) {
   return mysql.format(statement.sql, ...statement.values);
 }
@@ -50,6 +65,9 @@ function rawSQL(statement: SQLStatement) {
 export {
   connect,
   SQL,
+  SQLStatement,
   appendSQLArray,
+  mergeAndConditions,
+  mergeOrConditions,
   rawSQL,
 };

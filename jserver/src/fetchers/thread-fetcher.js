@@ -10,14 +10,12 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 
-import { SQL } from '../database';
+import { SQL, SQLStatement } from '../database';
 import { getViewerID } from '../session';
 import {
   permissionLookup,
   getAllThreadPermissions,
 } from '../permissions/permissions';
-
-const SQLStatement = SQL.SQLStatement;
 
 type FetchThreadInfosResult = {|
   threadInfos: {[id: string]: RawThreadInfo},

@@ -62,6 +62,7 @@ import {
 } from 'lib/actions/device-actions';
 import { unreadCount } from 'lib/selectors/thread-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
+import { pingFrequency } from 'lib/shared/ping-utils';
 
 import {
   handleURLActionType,
@@ -113,11 +114,6 @@ registerConfig({
   calendarRangeInactivityLimit: sessionInactivityLimit,
   clientSupportsMessages: true,
 });
-
-// We can't push yet, so we rely on pings to keep Redux state updated with the
-// server. As a result, we do them fairly frequently (once every 3s) while the
-// app is active and the user is logged in.
-const pingFrequency = 3 * 1000;
 
 const reactNavigationAddListener = createReduxBoundAddListener("root");
 

@@ -38,6 +38,7 @@ import {
 import { verifyField } from 'lib/utils/verify-utils';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
+import { pingFrequency } from 'lib/shared/ping-utils';
 
 import {
   thisURL,
@@ -94,11 +95,6 @@ type State = {
   modalExists: bool,
   currentModal: ?React.Element<any>,
 };
-
-// We can't push yet, so we rely on pings to keep Redux state updated with the
-// server. As a result, we do them fairly frequently (once every 3s) while the
-// tab has focus.
-const pingFrequency = 3 * 1000;
 
 class App extends React.PureComponent {
 

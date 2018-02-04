@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types';
@@ -23,11 +22,12 @@ import {
 } from 'lib/shared/message-utils';
 import { rawThreadInfosToThreadInfos } from 'lib/selectors/thread-selectors';
 
-import { connect, SQL, appendSQLArray } from '../database';
+import { SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchThreadInfos } from '../fetchers/thread-fetcher';
 import { fetchUserInfos } from '../fetchers/user-fetcher';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetcher';
+import createIDs from '../creators/id-creator';
 
 type Device = { deviceType: DeviceType, deviceToken: string };
 type PushUserInfo = {
@@ -36,15 +36,14 @@ type PushUserInfo = {
 };
 export type PushInfo = { [userID: string]: PushUserInfo };
 
-async function sendPushNotifs(req: $Request, res: $Response) {
-  res.json({ success: true });
-  const pushInfo: PushInfo = req.body;
-
+async function sendPushNotifs(
+  conn: Connection,
+  pushInfo: PushInfo,
+) {
   if (Object.keys(pushInfo).length === 0) {
     return [];
   }
 
-  const conn = await connect();
   const [
     unreadCounts,
     { usersToCollapsableNotifInfo, rawThreadInfos, userInfos },
@@ -204,8 +203,6 @@ async function sendPushNotifs(req: $Request, res: $Response) {
   if (dbPromises.length > 0) {
     await Promise.all(dbPromises);
   }
-
-  conn.end();
 }
 
 async function fetchInfos(
@@ -311,19 +308,7 @@ async function createDBIDs(
   for (let userID in pushInfo) {
     numIDsNeeded += pushInfo[userID].messageInfos.length;
   }
-  if (!numIDsNeeded) {
-    return [];
-  }
-  const tableNames = Array(numIDsNeeded).fill(["notifications"]);
-  const query = SQL`INSERT INTO ids (table_name) VALUES ${tableNames}`;
-  const [ result ] = await conn.query(query);
-  const lastNewID = result.insertId;
-  invariant(lastNewID !== null && lastNewID !== undefined, "should be set");
-  const firstNewID = lastNewID - numIDsNeeded + 1;
-  return Array.from(
-    new Array(numIDsNeeded),
-    (val, index) => (index + firstNewID).toString(),
-  );
+  return await createIDs(conn, "notifications", numIDsNeeded);
 }
 
 function getDevicesByDeviceType(
@@ -390,7 +375,7 @@ async function removeInvalidTokens(
   const query = SQL`
     UPDATE cookies
     SET android_device_token = NULL, ios_device_token = NULL
-    WHERE (
+    WHERE
   `;
 
   const sqlTuples = [];
@@ -406,18 +391,15 @@ async function removeInvalidTokens(
         SQL`ios_device_token IN (${invalidTokenUser.apnTokens})`,
       );
     }
-    const statement = SQL`(user = ${invalidTokenUser.userID} AND (`;
-    appendSQLArray(statement, deviceConditions, SQL` OR `);
-    statement.append(SQL`))`);
+    const statement = SQL`(user = ${invalidTokenUser.userID} AND `;
+    statement.append(mergeOrConditions(deviceConditions)).append(SQL`)`);
     sqlTuples.push(statement);
   }
-  appendSQLArray(query, sqlTuples, SQL` OR `);
-  query.append(SQL`)`);
+  query.append(mergeOrConditions(sqlTuples));
 
   await conn.query(query);
 }
 
 export {
   sendPushNotifs,
-  apnPush,
 };
