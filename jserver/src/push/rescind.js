@@ -1,27 +1,21 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
+import type { Connection } from '../database';
 
 import apn from 'apn';
 
-import { connect, SQL } from '../database';
+import { SQL } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
-type PushRescindInfo = {
+async function rescindPushNotifs(
+  conn: Connection,
   userID: string,
-  threadIDs: string[],
-};
-
-async function rescindPushNotifs(req: $Request, res: $Response) {
-  res.json({ success: true });
-  const pushRescindInfo: PushRescindInfo = req.body;
-  const userID = pushRescindInfo.userID;
-
-  const conn = await connect();
+  threadIDs: $ReadOnlyArray<string>,
+) {
   const fetchQuery = SQL`
     SELECT id, delivery, collapse_key
     FROM notifications
-    WHERE user = ${userID} AND thread IN (${pushRescindInfo.threadIDs})
+    WHERE user = ${userID} AND thread IN (${threadIDs})
       AND rescinded = 0
   `;
   const [ [ fetchResult ], unreadCounts ] = await Promise.all([
@@ -72,8 +66,7 @@ async function rescindPushNotifs(req: $Request, res: $Response) {
     promises.push(conn.query(rescindQuery));
   }
 
-  const result = await Promise.all(promises);
-  conn.end();
+  await Promise.all(promises);
 }
 
 export {

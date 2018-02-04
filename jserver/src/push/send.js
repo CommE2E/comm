@@ -238,7 +238,7 @@ async function fetchInfos(
 
   // These threadInfos won't have currentUser set
   const { threadInfos: rawThreadInfos, userInfos: threadUserInfos } =
-    await fetchThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`, true);
+    await fetchThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`, null);
   const mergedUserInfos = {
     ...collapsableNotifsResult.userInfos,
     ...threadUserInfos,

@@ -16,20 +16,23 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-flow": "^6.23.0",
     "concurrently": "^3.5.1",
-    "flow-bin": "^0.61.0",
+    "flow-bin": "^0.64.0",
     "flow-typed": "^2.2.3",
     "nodemon": "^1.14.3"
   },
   "dependencies": {
     "apn": "^2.2.0",
     "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
     "firebase-admin": "^5.7.0",
     "invariant": "^2.2.2",
     "lib": "file:../lib",
+    "lodash": "^4.17.5",
     "mysql2": "^1.5.1",
     "promise": "^8.0.1",
     "sql-template-strings": "^2.2.2",
+    "twin-bcrypt": "^2.1.1",
     "uuid": "^3.1.0"
   }
 }

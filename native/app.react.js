@@ -17,7 +17,7 @@ import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
-} from 'lib/actions/ping-actions';
+} from 'lib/types/activity-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/actions/device-actions';

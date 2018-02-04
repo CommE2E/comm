@@ -3,6 +3,7 @@
 import type { Connection } from '../database';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
+import type { Viewer } from '../session/viewer';
 
 import {
   assertVisibilityRules,
@@ -11,7 +12,6 @@ import {
 } from 'lib/types/thread-types';
 
 import { SQL, SQLStatement } from '../database';
-import { getViewerID } from '../session';
 import {
   permissionLookup,
   getAllThreadPermissions,
@@ -25,7 +25,7 @@ type FetchThreadInfosResult = {|
 async function fetchThreadInfos(
   conn: Connection,
   condition?: SQLStatement,
-  skipVisibilityChecks: bool,
+  viewer: ?Viewer,
 ): Promise<FetchThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
 
@@ -46,7 +46,7 @@ async function fetchThreadInfos(
   `.append(whereClause).append(SQL`ORDER BY m.user ASC`);
   const [ result ] = await conn.query(query);
 
-  const viewerID = getViewerID();
+  const viewerID = viewer && viewer.id;
   const threadInfos = {};
   const userInfos = {};
   for (let row of result) {
@@ -138,7 +138,7 @@ async function fetchThreadInfos(
       allPermissions = threadInfo.currentUser.permissions;
     }
     if (
-      skipVisibilityChecks ||
+      !viewer ||
       permissionLookup(allPermissions, threadPermissions.KNOW_OF)
     ) {
       finalThreadInfos[threadID] = threadInfo;
@@ -151,6 +151,25 @@ async function fetchThreadInfos(
   };
 }
 
+async function verifyThreadIDs(
+  conn: Connection,
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<$ReadOnlyArray<string>> {
+  if (threadIDs.length === 0) {
+    return [];
+  }
+
+  const query = SQL`SELECT id FROM threads WHERE id IN (${threadIDs})`;
+  const [ result ] = await conn.query(query);
+
+  const verified = [];
+  for (let row of result) {
+    verified.push(row.id.toString());
+  }
+  return verified;
+}
+
 export {
   fetchThreadInfos,
+  verifyThreadIDs,
 };

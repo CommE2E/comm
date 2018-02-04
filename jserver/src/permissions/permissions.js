@@ -13,7 +13,7 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 
-import { userLoggedIn } from '../session';
+import { currentViewer } from '../session/viewer';
 
 type PermissionsInfo = {
   permissions: ?ThreadPermissionsBlob,
@@ -80,7 +80,7 @@ function permissionHelper(
       return false;
     }
     if (permissionsInfo.editRules === editRules.LOGGED_IN) {
-      return userLoggedIn();
+      return currentViewer().loggedIn;
     }
     return true;
   }
