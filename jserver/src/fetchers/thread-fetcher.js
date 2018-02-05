@@ -7,7 +7,6 @@ import type { Viewer } from '../session/viewer';
 
 import {
   assertVisibilityRules,
-  assertEditRules,
   threadPermissions,
 } from 'lib/types/thread-types';
 
@@ -31,9 +30,9 @@ async function fetchThreadInfos(
 
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
-      t.edit_rules, t.visibility_rules, t.creation_time, t.default_role,
-      r.id AS role, r.name AS role_name, r.permissions AS role_permissions,
-      m.user, m.permissions, m.subscribed, m.unread, u.username
+      t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
+      r.name AS role_name, r.permissions AS role_permissions, m.user,
+      m.permissions, m.subscribed, m.unread, u.username
     FROM threads t
     LEFT JOIN (
         SELECT thread, id, name, permissions
@@ -58,7 +57,6 @@ async function fetchThreadInfos(
         description: row.description,
         visibilityRules: row.visibility_rules,
         color: row.color,
-        editRules: row.edit_rules,
         creationTime: row.creation_time,
         parentThreadID: row.parent_thread_id,
         members: [],
@@ -80,7 +78,6 @@ async function fetchThreadInfos(
         {
           permissions: row.permissions,
           visibilityRules: assertVisibilityRules(row.visibility_rules),
-          editRules: assertEditRules(row.edit_rules),
         },
         threadID,
       );
@@ -122,7 +119,6 @@ async function fetchThreadInfos(
         {
           permissions: null,
           visibilityRules: threadInfo.visibilityRules,
-          editRules: threadInfo.editRules,
         },
         threadID,
       );

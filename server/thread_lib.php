@@ -10,8 +10,6 @@ define("VISIBILITY_CLOSED", 1);
 define("VISIBILITY_SECRET", 2);
 define("VISIBILITY_NESTED_OPEN", 3);
 define("VISIBILITY_THREAD_SECRET", 4);
-define("EDIT_ANYBODY", 0);
-define("EDIT_LOGGED_IN", 1);
 
 define("PING_INTERVAL", 3000); // in milliseconds
 
@@ -26,7 +24,7 @@ function get_thread_infos($specific_condition="") {
   $where_clause = $specific_condition ? "WHERE $specific_condition" : "";
 
   $query = <<<SQL
-SELECT t.id, t.name, t.parent_thread_id, t.color, t.description, t.edit_rules,
+SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
   t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
   r.name AS role_name, r.permissions AS role_permissions, m.user,
   m.permissions, m.subscribed, m.unread, u.username
@@ -55,7 +53,6 @@ SQL;
         "description" => $row['description'],
         "visibilityRules" => (int)$row['visibility_rules'],
         "color" => $row['color'],
-        "editRules" => (int)$row['edit_rules'],
         "creationTime" => (int)$row['creation_time'],
         "parentThreadID" => $row['parent_thread_id'],
         "members" => array(),
@@ -119,7 +116,6 @@ SQL;
         array(
           "permissions" => null,
           "visibility_rules" => $thread_info['visibilityRules'],
-          "edit_rules" => $thread_info['editRules'],
         ),
         $thread_id
       );

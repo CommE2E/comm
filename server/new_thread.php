@@ -79,9 +79,6 @@ $sql_name = $name
 $description = $conn->real_escape_string($raw_description);
 $time = round(microtime(true) * 1000); // in milliseconds
 $creator = get_viewer_id();
-$edit_rules = $vis_rules >= VISIBILITY_CLOSED
-  ? EDIT_LOGGED_IN
-  : EDIT_ANYBODY;
 $hash_sql_string =
   ($vis_rules === VISIBILITY_CLOSED || $vis_rules === VISIBILITY_SECRET)
   ? ("'" . password_hash($password, PASSWORD_BCRYPT) . "'")
@@ -93,10 +90,10 @@ $parent_thread_id_sql_string = $parent_thread_id
 $default_role = $roles['members']['id'];
 $thread_insert_sql = <<<SQL
 INSERT INTO threads
-  (id, name, description, visibility_rules, hash, edit_rules, creator,
+  (id, name, description, visibility_rules, hash, creator,
   creation_time, color, parent_thread_id, default_role)
 VALUES
-  ($id, $sql_name, '$description', $vis_rules, $hash_sql_string, $edit_rules,
+  ($id, $sql_name, '$description', $vis_rules, $hash_sql_string,
   $creator, $time, '$color', $parent_thread_id_sql_string, {$default_role})
 SQL;
 $conn->query($thread_insert_sql);
@@ -174,7 +171,6 @@ foreach ($to_save as $row_to_save) {
         array(
           "permissions" => $row_to_save['permissions'],
           "visibility_rules" => $vis_rules,
-          "edit_rules" => $edit_rules,
         ),
         $id
       ),
@@ -227,7 +223,6 @@ async_end(array(
     'description' => $raw_description,
     'visibilityRules' => $vis_rules,
     'color' => $color,
-    'editRules' => $edit_rules,
     'creationTime' => $time,
     'parentThreadID' => $parent_thread_id !== null
       ? (string)$parent_thread_id

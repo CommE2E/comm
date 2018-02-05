@@ -60,7 +60,7 @@ class HistoryEntry extends React.PureComponent {
     let deleted = null;
     if (this.props.entryInfo.deleted) {
       let restore = null;
-      if (this.props.threadInfo.editRules < 1 || this.props.loggedIn) {
+      if (this.props.loggedIn) {
         restore = (
           <span>
             <span className={css['restore-entry-label']}>

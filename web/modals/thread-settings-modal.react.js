@@ -4,9 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import {
   threadInfoPropType,
   visibilityRules,
-  editRules,
   assertVisibilityRules,
-  assertEditRules,
 } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -284,51 +282,6 @@ class ThreadSettingsModal extends React.PureComponent {
               </div>
             </div>
           </div>
-          <div className={css['modal-radio-selector']}>
-            <div className={css['form-title']}>Who can edit?</div>
-            <div className={css['form-enum-selector']}>
-              <div className={css['form-enum-container']}>
-                <input
-                  type="radio"
-                  name="edit-thread-edit-rules"
-                  id="edit-thread-edit-rules-anybody"
-                  value={0}
-                  checked={this.state.threadInfo.editRules === 0}
-                  onChange={this.onChangeEditRules}
-                  disabled={this.props.inputDisabled}
-                />
-                <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-thread-edit-rules-anybody">
-                    Anybody
-                    <span className={css['form-enum-description']}>
-                      Anybody who can view the contents of the thread can also
-                      edit them.
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div className={css['form-enum-container']}>
-                <input
-                  type="radio"
-                  name="edit-thread-edit-rules"
-                  id="edit-thread-edit-rules-logged-in"
-                  value={1}
-                  checked={this.state.threadInfo.editRules === 1}
-                  onChange={this.onChangeEditRules}
-                  disabled={this.props.inputDisabled}
-                />
-                <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-thread-edit-rules-logged-in">
-                    Logged In
-                    <span className={css['form-enum-description']}>
-                      Only users who are logged in can edit the contents of the
-                      thread.
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       );
     } else if (this.state.currentTabType === "delete") {
@@ -488,18 +441,6 @@ class ThreadSettingsModal extends React.PureComponent {
     }));
   }
 
-  onChangeEditRules = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
-    this.setState((prevState, props) => ({
-      ...prevState,
-      threadInfo: {
-        ...prevState.threadInfo,
-        editRules: assertEditRules(parseInt(target.value)),
-      },
-    }));
-  }
-
   onChangeNewThreadPassword = (event: SyntheticEvent) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
@@ -603,7 +544,6 @@ class ThreadSettingsModal extends React.PureComponent {
         description: this.state.threadInfo.description,
         visibilityRules: this.state.threadInfo.visibilityRules,
         color: this.state.threadInfo.color,
-        editRules: this.state.threadInfo.editRules,
         creationTime: this.state.threadInfo.creationTime,
         parentThreadID: this.state.threadInfo.parentThreadID,
         members: this.state.threadInfo.members,
@@ -646,7 +586,6 @@ class ThreadSettingsModal extends React.PureComponent {
               description: this.props.threadInfo.description,
               visibilityRules: this.props.threadInfo.visibilityRules,
               color: this.props.threadInfo.color,
-              editRules: this.props.threadInfo.editRules,
             },
             newThreadPassword: "",
             confirmThreadPassword: "",

@@ -229,11 +229,7 @@ class Day extends React.PureComponent {
   }
 
   createNewEntry = (threadID: string) => {
-    const threadInfo = this.props.onScreenThreadInfos.find(
-      (onScreenThreadInfo) => onScreenThreadInfo.id === threadID,
-    );
-    invariant(threadInfo, "matching ThreadInfo not found");
-    if (threadInfo.editRules >= 1 && !this.props.loggedIn) {
+    if (!this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"

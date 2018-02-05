@@ -46,12 +46,6 @@ if (isset($_POST['color'])) {
   $changed_fields['color'] = $color;
   $changed_sql_fields['color'] = "'" . $color . "'";
 }
-if (isset($_POST['edit_rules'])) {
-  // We don't update $changed_fields here because we haven't figured out how we
-  // want roles to work with the app yet, and there's no exposed way to change
-  // the edit rules from the app yet.
-  $changed_sql_fields['edit_rules'] = (int)$_POST['edit_rules'];
-}
 
 $new_password = null;
 if (isset($_POST['new_password'])) {
@@ -146,7 +140,6 @@ if (
   (
     isset($changed_sql_fields['parent_thread_id']) ||
     isset($changed_sql_fields['visibility_rules']) ||
-    isset($changed_sql_fields['edit_rules']) ||
     isset($changed_sql_fields['hash'])
   ) && (
     !permission_helper($permission_info, PERMISSION_EDIT_PERMISSIONS) ||

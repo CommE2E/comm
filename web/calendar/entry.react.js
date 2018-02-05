@@ -243,7 +243,7 @@ class Entry extends React.PureComponent {
   }
 
   onChange = (event: SyntheticEvent) => {
-    if (this.props.threadInfo.editRules >= 1 && !this.props.loggedIn) {
+    if (!this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
@@ -373,7 +373,7 @@ class Entry extends React.PureComponent {
 
   onDelete = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (this.props.threadInfo.editRules >= 1 && !this.props.loggedIn) {
+    if (!this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
@@ -405,8 +405,8 @@ class Entry extends React.PureComponent {
 
   async deleteAction(serverID: ?string, focusOnNextEntry: bool) {
     invariant(
-      this.props.threadInfo.editRules < 1 || this.props.loggedIn,
-      "calendar should be editable if delete triggered",
+      this.props.loggedIn,
+      "user should be logged in if delete triggered",
     );
     if (focusOnNextEntry) {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);

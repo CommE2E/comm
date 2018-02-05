@@ -10,7 +10,6 @@ import {
   visibilityRules,
   threadPermissions,
   assertVisibilityRules,
-  assertEditRules,
 } from 'lib/types/thread-types';
 import { rawMessageInfoFromMessageData } from 'lib/shared/message-utils';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
@@ -253,7 +252,6 @@ async function sendPushNotifsForNewMessages(
       ,
       stm${index}.permissions AS subthread${subthread}_permissions,
       st${index}.visibility_rules AS subthread${subthread}_visibility_rules,
-      st${index}.edit_rules AS subthread${subthread}_edit_rules,
       stm${index}.role AS subthread${subthread}_role
     `;
     subthreadJoins.push(subthreadJoin(index, subthread));
@@ -302,9 +300,6 @@ async function sendPushNotifsForNewMessages(
           permissions: row[`subthread${subthread}_permissions`],
           visibilityRules: assertVisibilityRules(
             row[`subthread${subthread}_visibility_rules`],
-          ),
-          editRules: assertEditRules(
-            row[`subthread${subthread}_edit_rules`],
           ),
         };
         const isSubthreadMember = !!row[`subthread${subthread}_role`];

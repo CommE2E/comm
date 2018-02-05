@@ -78,7 +78,6 @@ function permission_lookup($blob, $permission) {
 // $info should include:
 // - permissions: ?array
 // - visibility_rules: int
-// - edit_rules: int
 function permission_helper($info, $permission) {
   if (!$info) {
     return null;
@@ -96,30 +95,6 @@ function permission_helper($info, $permission) {
     ))
   ) {
     return true;
-  } else if (
-    $permission === PERMISSION_EDIT_ENTRIES && (
-      $vis_rules === VISIBILITY_OPEN ||
-      $vis_rules === VISIBILITY_CLOSED ||
-      $vis_rules === VISIBILITY_SECRET
-    )
-  ) {
-    // The legacy visibility classes have functionality where you can play
-    // around with them on web without being logged in. This allows anybody
-    // that passes a visibility check to edit the calendar entries of a thread,
-    // regardless of membership in that thread. Depending on edit_rules, the
-    // ability may be restricted to only logged in users.
-    $lookup = permission_lookup($info['permissions'], $permission);
-    if ($lookup) {
-      return true;
-    }
-    $can_view = permission_helper($info, PERMISSION_VISIBLE);
-    if (!$can_view) {
-      return false;
-    }
-    if ($info['edit_rules'] === EDIT_LOGGED_IN) {
-      return user_logged_in();
-    }
-    return true;
   }
 
   return permission_lookup($info['permissions'], $permission);
@@ -136,7 +111,6 @@ function get_info_from_permissions_row($row) {
   return array(
     "permissions" => $blob,
     "visibility_rules" => (int)$row['visibility_rules'],
-    "edit_rules" => (int)$row['edit_rules'],
   );
 }
 
@@ -146,7 +120,7 @@ function fetch_thread_permission_info($thread) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT t.visibility_rules, t.edit_rules, m.permissions
+SELECT t.visibility_rules, m.permissions
 FROM threads t
 LEFT JOIN memberships m ON m.thread = t.id AND m.user = {$viewer_id}
 WHERE t.id = {$thread}
@@ -193,7 +167,7 @@ function check_thread_permission_for_entry($entry, $permission) {
 
   $viewer_id = get_viewer_id();
   $query = <<<SQL
-SELECT m.permissions, t.visibility_rules, t.edit_rules
+SELECT m.permissions, t.visibility_rules
 FROM entries e
 LEFT JOIN days d ON d.id = e.day
 LEFT JOIN threads t ON t.id = d.thread

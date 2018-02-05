@@ -11,7 +11,6 @@ import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
 import {
   assertVisibilityRules,
-  assertEditRules,
   threadPermissions,
   visibilityRules,
 } from 'lib/types/thread-types';
@@ -84,7 +83,7 @@ async function fetchCollapsableNotifs(
       u.username AS creator, m.user AS creatorID,
       stm.permissions AS subthread_permissions,
       st.visibility_rules AS subthread_visibility_rules,
-      st.edit_rules AS subthread_edit_rules, n.user, n.collapse_key
+      n.user, n.collapse_key
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN threads t ON t.id = m.thread
@@ -165,7 +164,6 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
     const subthreadPermissionInfo = {
       permissions: row.subthread_permissions,
       visibilityRules: assertVisibilityRules(row.subthread_visibility_rules),
-      editRules: assertEditRules(row.subthread_edit_rules),
     };
     if (!permissionHelper(subthreadPermissionInfo, threadPermissions.KNOW_OF)) {
       return null;

@@ -126,15 +126,14 @@ function get_message_infos($thread_selection_criteria, $number_per_thread) {
 SELECT * FROM (
   SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
     u.username AS creator, x.subthread_permissions,
-    x.subthread_visibility_rules, x.subthread_edit_rules,
+    x.subthread_visibility_rules,
     @num := if(@thread = x.thread, @num + 1, 1) AS number,
     @thread := x.thread AS threadID
   FROM (SELECT @num := 0, @thread := '') init
   JOIN (
     SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
       stm.permissions AS subthread_permissions,
-      st.visibility_rules AS subthread_visibility_rules,
-      st.edit_rules AS subthread_edit_rules
+      st.visibility_rules AS subthread_visibility_rules
     FROM messages m
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
@@ -226,8 +225,7 @@ function get_messages_since(
 SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
   u.username AS creator, m.user AS creatorID,
   stm.permissions AS subthread_permissions,
-  st.visibility_rules AS subthread_visibility_rules,
-  st.edit_rules AS subthread_edit_rules
+  st.visibility_rules AS subthread_visibility_rules
 FROM messages m
 LEFT JOIN threads t ON t.id = m.thread
 LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = {$viewer_id}
@@ -306,7 +304,6 @@ function message_from_row($row) {
     $subthread_permission_info = get_info_from_permissions_row(array(
       "permissions" => $row['subthread_permissions'],
       "visibility_rules" => $row['subthread_visibility_rules'],
-      "edit_rules" => $row['subthread_edit_rules'],
     ));
     if (!permission_helper($subthread_permission_info, PERMISSION_KNOW_OF)) {
       return null;

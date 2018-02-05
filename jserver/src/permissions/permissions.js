@@ -3,13 +3,11 @@
 import type {
   ThreadPermissionsBlob,
   VisibilityRules,
-  EditRules,
   ThreadPermission,
 } from 'lib/types/thread-types';
 
 import {
   visibilityRules,
-  editRules,
   threadPermissions,
 } from 'lib/types/thread-types';
 
@@ -18,7 +16,6 @@ import { currentViewer } from '../session/viewer';
 type PermissionsInfo = {
   permissions: ?ThreadPermissionsBlob,
   visibilityRules: VisibilityRules,
-  editRules: EditRules,
 };
 
 function permissionLookup(
@@ -55,33 +52,6 @@ function permissionHelper(
       )
     )
   ) {
-    return true;
-  } else if (
-    permission === threadPermissions.EDIT_ENTRIES && (
-      visRules === visibilityRules.OPEN ||
-      visRules === visibilityRules.CLOSED ||
-      visRules === visibilityRules.SECRET
-    )
-  ) {
-    // The legacy visibility classes have functionality where you can play
-    // around with them on web without being logged in. This allows anybody
-    // that passes a visibility check to edit the calendar entries of a thread,
-    // regardless of membership in that thread. Depending on edit_rules, the
-    // ability may be restricted to only logged in users.
-    const lookup = permissionLookup(permissionsInfo.permissions, permission);
-    if (lookup) {
-      return true;
-    }
-    const canView = permissionHelper(
-      permissionsInfo,
-      threadPermissions.VISIBLE,
-    );
-    if (!canView) {
-      return false;
-    }
-    if (permissionsInfo.editRules === editRules.LOGGED_IN) {
-      return currentViewer().loggedIn;
-    }
     return true;
   }
   return permissionLookup(permissionsInfo.permissions, permission);
