@@ -16,7 +16,7 @@ if (!isset($_POST['thread']) || !isset($_POST['member_ids'])) {
   ));
 }
 $thread = (int)$_POST['thread'];
-$member_ids = verify_user_ids($_POST['member_ids']);
+$member_ids = verify_user_or_cookie_ids($_POST['member_ids']);
 
 if (
   !$member_ids ||

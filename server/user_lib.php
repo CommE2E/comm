@@ -21,6 +21,26 @@ SQL;
   return $verified_user_ids;
 }
 
+// $ids is an array of user or cookie IDs as strings
+// returns an array of validated user or cookie IDs as ints
+function verify_user_or_cookie_ids($ids) {
+  global $conn;
+
+  $int_ids = array_map('intval', $ids);
+  $ids_string = implode(",", $int_ids);
+
+  $query = <<<SQL
+SELECT id FROM users WHERE id IN ({$ids_string})
+UNION SELECT id FROM cookies WHERE id IN ({$ids_string})
+SQL;
+  $result = $conn->query($query);
+  $verified_ids = array();
+  while ($row = $result->fetch_assoc()) {
+    $verified_ids[] = (int)$row['id'];
+  }
+  return $verified_ids;
+}
+
 function combine_keyed_user_info_arrays(...$user_info_arrays) {
   return array_values(array_merge(...$user_info_arrays));
 }
