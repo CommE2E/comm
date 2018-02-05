@@ -7,6 +7,10 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type {
+  JoinThreadResult,
+  LeaveThreadResult,
+} from 'lib/actions/thread-actions';
 
 import PropTypes from 'prop-types';
 
@@ -22,15 +26,22 @@ import {
   fetchEntries,
 } from 'lib/actions/entry-actions';
 import {
-  subscribeActionTypes,
-  subscribe,
+  joinThreadActionTypes,
+  joinThread,
+  leaveThreadActionTypes,
+  leaveThread,
 } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors';
 import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
+import { visibilityRules } from 'lib/types/thread-types';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -47,14 +58,16 @@ type Props = {
   home: bool,
   currentNavID: ?string,
   loadingStatus: LoadingStatus,
+  otherUsersButNoOtherAdmins: bool,
   currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  subscribe: (
+  joinThread: (
     threadID: string,
-    newSubscribed: bool,
-  ) => Promise<void>,
+    threadPassword?: string,
+  ) => Promise<JoinThreadResult>,
+  leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
 type State = {
@@ -66,11 +79,19 @@ class TypeaheadOptionButtons extends React.PureComponent {
   state: State;
 
   render() {
-    const threadIsVisible = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.VISIBLE,
-    );
-    if (!threadIsVisible) {
+    // We show "Closed" if the viewer is not a member, and either they don't
+    // have permission to join the thread, or they are password-protected
+    // visibilityRules.CLOSED threads.
+    const isMember = viewerIsMember(this.props.threadInfo);
+    const showClosed =
+      !isMember && (
+        this.props.threadInfo.visibilityRules === visibilityRules.CLOSED ||
+        !threadHasPermission(
+          this.props.threadInfo,
+          threadPermissions.JOIN_THREAD,
+        )
+      );
+    if (showClosed) {
       return (
         <ul className={css['thread-nav-option-buttons']}>
           <li>Closed</li>
@@ -91,9 +112,8 @@ class TypeaheadOptionButtons extends React.PureComponent {
         </li>
       );
     }
-    const subcribeButtonText = this.props.threadInfo.currentUser.subscribed
-      ? 'Unsubscribe'
-      : 'Subscribe';
+    const buttonText = isMember ? 'Leave' : 'Join';
+    const buttonAction = isMember ? this.onLeave : this.onJoin;
     return (
       <ul className={css['thread-nav-option-buttons']}>
         {editButton}
@@ -102,33 +122,30 @@ class TypeaheadOptionButtons extends React.PureComponent {
             status={this.props.loadingStatus}
             className={css['thread-nav-option-buttons-loading']}
           />
-          <a href='#' onClick={this.onSubscribe}>
-            {subcribeButtonText}
-          </a>
+          <a href='#' onClick={buttonAction}>{buttonText}</a>
         </li>
       </ul>
     );
   }
 
-  onSubscribe = (event: SyntheticEvent) => {
+  onJoin = (event: SyntheticEvent) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.loadingStatus === "loading") {
       return;
     }
-    const newSubscribed = !this.props.threadInfo.currentUser.subscribed;
 
     this.props.dispatchActionPromise(
-      subscribeActionTypes,
-      this.subscribeAction(newSubscribed),
+      joinThreadActionTypes,
+      this.joinAction(),
       {
         customKeyName:
-          `${subscribeActionTypes.started}:${this.props.threadInfo.id}`,
+          `${joinThreadActionTypes.started}:${this.props.threadInfo.id}`,
       },
     );
 
-    // If we are on home and just subscribed to a thread, we need to load it
-    if (this.props.home && newSubscribed) {
+    // If we are at home we need to load the new thread
+    if (this.props.home) {
       this.props.dispatchActionPromise(
         fetchEntriesActionTypes,
         this.props.fetchEntries({
@@ -139,20 +156,41 @@ class TypeaheadOptionButtons extends React.PureComponent {
     }
   }
 
-  async subscribeAction(newSubscribed: bool) {
-    const result = await this.props.subscribe(
-      this.props.threadInfo.id,
-      newSubscribed,
-    );
+  async joinAction() {
+    const result = await this.props.joinThread(this.props.threadInfo.id);
     // If this subscription action causes us to leave the null home state, then
     // we need to make sure that the typeahead is active iff it's focused. The
     // default resolution in Typeahead would be to close the typeahead, but it's
     // more natural to leave the typeahead open in this situation, so we choose
     // to focus the typeahead input field instead.
-    if (!this.props.currentNavID && this.props.home && newSubscribed) {
+    if (!this.props.currentNavID && this.props.home) {
       this.props.focusTypeahead();
     }
     return result;
+  }
+
+  onLeave = (event: SyntheticEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.props.loadingStatus === "loading") {
+      return;
+    }
+
+    if (this.props.otherUsersButNoOtherAdmins) {
+      // TODO Display a modal saying you can't leave
+      return;
+    } else {
+      // TODO Display a modal confirming your desire to leave
+    }
+
+    this.props.dispatchActionPromise(
+      leaveThreadActionTypes,
+      this.props.leaveThread(this.props.threadInfo.id),
+      {
+        customKeyName:
+          `${leaveThreadActionTypes.started}:${this.props.threadInfo.id}`,
+      },
+    );
   }
 
   edit = (event: SyntheticEvent) => {
@@ -183,9 +221,11 @@ TypeaheadOptionButtons.propTypes = {
   home: PropTypes.bool.isRequired,
   currentNavID: PropTypes.string,
   loadingStatus: PropTypes.string.isRequired,
+  otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
-  subscribe: PropTypes.func.isRequired,
+  joinThread: PropTypes.func.isRequired,
+  leaveThread: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
 };
 
@@ -193,13 +233,21 @@ export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
     home: state.navInfo.home,
     currentNavID: currentNavID(state),
-    loadingStatus: createLoadingStatusSelector(
-      subscribeActionTypes,
-      `${subscribeActionTypes.started}:${ownProps.threadInfo.id}`,
-    )(state),
+    loadingStatus: combineLoadingStatuses(
+      createLoadingStatusSelector(
+        joinThreadActionTypes,
+        `${joinThreadActionTypes.started}:${ownProps.threadInfo.id}`,
+      )(state),
+      createLoadingStatusSelector(
+        leaveThreadActionTypes,
+        `${leaveThreadActionTypes.started}:${ownProps.threadInfo.id}`,
+      )(state),
+    ),
+    otherUsersButNoOtherAdmins:
+      otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
     currentCalendarQuery: currentCalendarQuery(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
-  bindServerCalls({ subscribe, fetchEntries }),
+  bindServerCalls({ joinThread, leaveThread, fetchEntries }),
 )(TypeaheadOptionButtons);

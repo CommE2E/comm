@@ -31,14 +31,15 @@ import {
   leaveThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 
 import Button from '../../components/button.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  threadMembers: RelativeMemberInfo[],
   // Redux state
   loadingStatus: LoadingStatus,
+  otherUsersButNoOtherAdmins: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -48,8 +49,8 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
-    threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     leaveThread: PropTypes.func.isRequired,
   };
@@ -74,20 +75,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    let otherUsersExist = false;
-    let otherAdminsExist = false;
-    for (let member of this.props.threadMembers) {
-      const role = member.role;
-      if (role === undefined || role === null || member.isViewer) {
-        continue;
-      }
-      otherUsersExist = true;
-      if (this.props.threadInfo.roles[role].name === "Admins") {
-        otherAdminsExist = true;
-        break;
-      }
-    }
-    if (otherUsersExist && !otherAdminsExist) {
+    if (this.props.otherUsersButNoOtherAdmins) {
       Alert.alert(
         "Need another admin",
         "Make somebody else an admin before you leave!",
@@ -147,8 +135,10 @@ const loadingStatusSelector
   = createLoadingStatusSelector(leaveThreadActionTypes);
 
 export default connect(
-  (state: AppState) => ({
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
     loadingStatus: loadingStatusSelector(state),
+    otherUsersButNoOtherAdmins:
+      otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
     cookie: state.cookie,
   }),
   includeDispatchActionProps,

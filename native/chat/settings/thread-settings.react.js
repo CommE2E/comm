@@ -141,7 +141,6 @@ type ChatSettingsItem =
       itemType: "leaveThread",
       key: string,
       threadInfo: ThreadInfo,
-      threadMembers: RelativeMemberInfo[],
     |};
 
 type StateProps = {|
@@ -456,7 +455,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         itemType: "leaveThread",
         key: "leaveThread",
         threadInfo: this.props.threadInfo,
-        threadMembers: this.props.threadMembers,
       });
     }
 
@@ -561,12 +559,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     } else if (item.itemType === "addMember") {
       return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
     } else if (item.itemType === "leaveThread") {
-      return (
-        <ThreadSettingsLeaveThread
-          threadInfo={item.threadInfo}
-          threadMembers={item.threadMembers}
-        />
-      );
+      return <ThreadSettingsLeaveThread threadInfo={item.threadInfo} />;
     }
   }
 
