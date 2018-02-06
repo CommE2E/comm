@@ -8,7 +8,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../../redux-setup';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
@@ -64,11 +64,9 @@ type State = {
   revisions: HistoryRevisionInfo[],
 };
 
-class HistoryModal extends React.PureComponent {
+class HistoryModal extends React.PureComponent<Props, State> {
 
   static defaultProps = { currentEntryID: null };
-  props: Props;
-  state: State;
 
   constructor(props: Props) {
     super(props);
@@ -117,21 +115,27 @@ class HistoryModal extends React.PureComponent {
       ? this.props.dayLoadingStatus
       : this.props.entryLoadingStatus;
 
-    const entries = _flow(
-      _filter((entryInfo: EntryInfo) => entryInfo.id),
-      _map((entryInfo: EntryInfo) => {
-        const serverID = entryInfo.id;
-        invariant(serverID, "serverID should be set");
-        return (
-          <HistoryEntry
-            entryInfo={entryInfo}
-            onClick={this.onClickEntry}
-            animateAndLoadEntry={this.animateAndLoadEntry}
-            key={serverID}
-          />
-        );
-      }),
-    )(this.props.entryInfos);
+    let entries;
+    const entryInfos = this.props.entryInfos;
+    if (entryInfos) {
+      entries = _flow(
+        _filter((entryInfo: EntryInfo) => entryInfo.id),
+        _map((entryInfo: EntryInfo) => {
+          const serverID = entryInfo.id;
+          invariant(serverID, "serverID should be set");
+          return (
+            <HistoryEntry
+              entryInfo={entryInfo}
+              onClick={this.onClickEntry}
+              animateAndLoadEntry={this.animateAndLoadEntry}
+              key={serverID}
+            />
+          );
+        }),
+      )(entryInfos);
+    } else {
+      entries = [];
+    }
 
     const revisionInfos = this.state.revisions.filter(
       (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
@@ -231,7 +235,7 @@ class HistoryModal extends React.PureComponent {
     this.loadEntry(entryID);
   }
 
-  onClickAllEntries = (event: SyntheticEvent) => {
+  onClickAllEntries = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({
       mode: "day",

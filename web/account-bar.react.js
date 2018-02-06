@@ -5,7 +5,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { LogOutResult } from 'lib/actions/user-actions';
 
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import invariant from 'invariant';
@@ -26,7 +26,7 @@ import { UpCaret, DownCaret } from './vectors.react';
 import { htmlTargetFromEvent } from './vector-utils';
 
 type Props = {
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   modalExists: bool,
   // Redux state
@@ -42,10 +42,8 @@ type State = {
   expanded: bool,
 }
 
-class AccountBar extends React.PureComponent {
+class AccountBar extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   menu: ?HTMLDivElement;
 
   constructor(props: Props) {
@@ -137,7 +135,7 @@ class AccountBar extends React.PureComponent {
     }
   }
 
-  onMouseDown = (event: SyntheticEvent) => {
+  onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
     if (!this.state.expanded) {
       // This prevents onBlur from firing on div.account-menu
       event.preventDefault();
@@ -154,13 +152,13 @@ class AccountBar extends React.PureComponent {
     }
   }
 
-  onLogOut = (event: SyntheticEvent) => {
+  onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(logOutActionTypes, this.props.logOut());
     this.setState({ expanded: false });
   }
 
-  onEditAccount = (event: SyntheticEvent) => {
+  onEditAccount = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     // This will blur the focus off the menu which will set expanded to false
     this.props.setModal(
@@ -171,7 +169,7 @@ class AccountBar extends React.PureComponent {
     );
   }
 
-  onLogIn = (event: SyntheticEvent) => {
+  onLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <LogInModal
@@ -181,7 +179,7 @@ class AccountBar extends React.PureComponent {
     );
   }
 
-  onRegister = (event: SyntheticEvent) => {
+  onRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <RegisterModal

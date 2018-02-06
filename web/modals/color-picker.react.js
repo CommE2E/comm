@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { ChromePicker } from 'react-color';
 import PropTypes from 'prop-types';
 
@@ -19,7 +19,7 @@ type Color = {
   hex: string,
 }
 
-class ColorPicker extends React.PureComponent {
+class ColorPicker extends React.PureComponent<Props, State> {
 
   props: Props;
   state: State;
@@ -62,8 +62,7 @@ class ColorPicker extends React.PureComponent {
     );
   }
 
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onPickerKeyDown = (event: any) => {
+  onPickerKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
     if (event.keyCode === 27) { // Esc
       this.setState({ pickerOpen: false });
     }

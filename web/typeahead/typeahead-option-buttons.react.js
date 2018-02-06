@@ -14,7 +14,7 @@ import type {
 
 import PropTypes from 'prop-types';
 
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -49,7 +49,7 @@ import ThreadSettingsModal from '../modals/thread-settings-modal.react';
 
 type Props = {
   threadInfo: ThreadInfo,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
@@ -70,13 +70,8 @@ type Props = {
   leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
-type State = {
-};
 
-class TypeaheadOptionButtons extends React.PureComponent {
-
-  props: Props;
-  state: State;
+class TypeaheadOptionButtons extends React.PureComponent<Props> {
 
   render() {
     // We show "Closed" if the viewer is not a member, and either they don't
@@ -128,7 +123,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     );
   }
 
-  onJoin = (event: SyntheticEvent) => {
+  onJoin = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.loadingStatus === "loading") {
@@ -169,7 +164,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     return result;
   }
 
-  onLeave = (event: SyntheticEvent) => {
+  onLeave = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.loadingStatus === "loading") {
@@ -193,7 +188,7 @@ class TypeaheadOptionButtons extends React.PureComponent {
     );
   }
 
-  edit = (event: SyntheticEvent) => {
+  edit = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.freezeTypeahead(this.props.threadInfo.id);

@@ -24,6 +24,7 @@ import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
 import _keyBy from 'lodash/fp/keyBy';
+import invariant from 'invariant';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { registerConfig } from 'lib/utils/config';
@@ -112,6 +113,9 @@ const store: Store<AppState, Action> = createStore(
   composeWithDevTools({})(applyMiddleware(thunk)),
 );
 
+const root = document.getElementById('react-root');
+invariant(root, "cannot find id='react-root' element!");
+
 const render = (Component) => ReactDOM.render(
   <AppContainer>
     <Provider store={store}>
@@ -120,7 +124,7 @@ const render = (Component) => ReactDOM.render(
       </Router>
     </Provider>
   </AppContainer>,
-  document.getElementById('react-root'),
+  root,
 );
 render(App);
 

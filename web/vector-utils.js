@@ -6,7 +6,7 @@ declare class SVGElement {
   parentNode: Element;
 }
 
-function htmlTargetFromEvent(event: SyntheticEvent): HTMLElement {
+function htmlTargetFromEvent(event: SyntheticEvent<*>): HTMLElement {
   let target = event.target;
   while (!(target instanceof HTMLElement)) {
     invariant(

@@ -4,7 +4,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import _filter from 'lodash/fp/filter';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -23,13 +23,11 @@ type Props = {
   year: number,
   month: number, // 1-indexed
   daysToEntries: {[dayString: string]: EntryInfo[]},
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
 };
 
-class Calendar extends React.PureComponent {
-
-  props: Props;
+class Calendar extends React.PureComponent<Props> {
 
   getDate(
     dayOfMonth: number,
@@ -117,7 +115,7 @@ Calendar.propTypes = {
   clearModal: PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
+export default connect((state: AppState): * => ({
   year: yearAssertingSelector(state),
   month: monthAssertingSelector(state),
   daysToEntries: currentDaysToEntries(state),

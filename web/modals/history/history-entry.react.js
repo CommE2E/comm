@@ -9,7 +9,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CurrentUserInfo } from 'lib/types/user-types';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
@@ -52,9 +52,7 @@ type Props = {
 type State = {
 }
 
-class HistoryEntry extends React.PureComponent {
-
-  props: Props;
+class HistoryEntry extends React.PureComponent<Props> {
 
   render() {
     let deleted = null;
@@ -120,7 +118,7 @@ class HistoryEntry extends React.PureComponent {
     );
   }
 
-  onRestore = (event: SyntheticEvent) => {
+  onRestore = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
@@ -133,7 +131,7 @@ class HistoryEntry extends React.PureComponent {
     );
   }
 
-  onClick = (event: SyntheticEvent) => {
+  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");

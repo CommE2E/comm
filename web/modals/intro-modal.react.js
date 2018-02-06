@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 
 import css from '../style.css';
 
@@ -11,11 +11,9 @@ type State = {
   screenHeight: number,
 };
 
-class IntroModal extends React.PureComponent {
+class IntroModal extends React.PureComponent<Props, State> {
 
   static maxDistanceFromTypeahead = 30;
-  props: Props;
-  state: State;
 
   constructor(props: Props) {
     super(props);

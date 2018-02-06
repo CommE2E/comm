@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import css from '../../style.css';
@@ -13,12 +13,10 @@ import RegisterModal from './register-modal.react';
 type Props = {
   inOrderTo: string,
   onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
 };
 
-class LogInFirstModal extends React.PureComponent {
-
-  props: Props;
+class LogInFirstModal extends React.PureComponent<Props> {
 
   render() {
     return (
@@ -44,7 +42,7 @@ class LogInFirstModal extends React.PureComponent {
     );
   }
 
-  onClickLogIn = (event: SyntheticEvent) => {
+  onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <LogInModal
@@ -54,7 +52,7 @@ class LogInFirstModal extends React.PureComponent {
     );
   }
 
-  onClickRegister = (event: SyntheticEvent) => {
+  onClickRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <RegisterModal

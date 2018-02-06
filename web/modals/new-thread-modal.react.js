@@ -9,7 +9,7 @@ import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { NewThreadResult } from 'lib/actions/thread-actions';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -53,10 +53,8 @@ type State = {
   errorMessage: string,
 };
 
-class NewThreadModal extends React.PureComponent {
+class NewThreadModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   nameInput: ?HTMLInputElement;
   openPrivacyInput: ?HTMLInputElement;
   threadPasswordInput: ?HTMLInputElement;
@@ -267,13 +265,13 @@ class NewThreadModal extends React.PureComponent {
     this.threadPasswordInput = threadPasswordInput;
   }
 
-  onChangeName = (event: SyntheticEvent) => {
+  onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ name: target.value });
   }
 
-  onChangeDescription = (event: SyntheticEvent) => {
+  onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, "target not textarea");
     this.setState({ description: target.value });
@@ -283,7 +281,7 @@ class NewThreadModal extends React.PureComponent {
     this.setState({ color: color });
   }
 
-  onChangeClosed = (event: SyntheticEvent) => {
+  onChangeClosed = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
@@ -291,19 +289,19 @@ class NewThreadModal extends React.PureComponent {
     });
   }
 
-  onChangeThreadPassword = (event: SyntheticEvent) => {
+  onChangeThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ threadPassword: target.value });
   }
 
-  onChangeConfirmThreadPassword = (event: SyntheticEvent) => {
+  onChangeConfirmThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmThreadPassword: target.value });
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     const name = this.state.name.trim();

@@ -3,7 +3,7 @@
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -28,7 +28,7 @@ import PasswordResetEmailModal from './password-reset-email-modal.react';
 
 type Props = {
   onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -41,7 +41,7 @@ type State = {
   errorMessage: string,
 };
 
-class ForgotPasswordModal extends React.PureComponent {
+class ForgotPasswordModal extends React.PureComponent<Props, State> {
 
   props: Props;
   state: State;
@@ -101,13 +101,13 @@ class ForgotPasswordModal extends React.PureComponent {
     this.usernameOrEmailInput = usernameOrEmailInput;
   }
 
-  onChangeUsernameOrEmail = (event: SyntheticEvent) => {
+  onChangeUsernameOrEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ usernameOrEmail: target.value });
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (

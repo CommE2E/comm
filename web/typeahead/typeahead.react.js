@@ -7,7 +7,7 @@ import type { AppState } from '../redux-setup';
 
 import PropTypes from 'prop-types';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
@@ -46,7 +46,7 @@ type Props = {
   subscriptionExists: bool,
   threadSearchIndex: SearchIndex,
   sortedThreadInfos: {[id: string]: ThreadInfo[]},
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   modalExists: bool,
 };
@@ -67,13 +67,10 @@ const noResults = [(
 )];
 const noResultsFunc = () => noResults;
 
-class Typeahead extends React.PureComponent {
+class Typeahead extends React.PureComponent<Props, State> {
 
   static recommendationSize = 3;
   static homeNullStateRecommendationSize = 6;
-
-  props: Props;
-  state: State;
 
   input: ?HTMLInputElement;
   dropdown: ?HTMLElement;
@@ -506,7 +503,7 @@ class Typeahead extends React.PureComponent {
 
   // This method makes sure that this.state.typeaheadFocused iff typeahead input
   // field is focused
-  onMouseDown = (event: SyntheticEvent) => {
+  onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
     if (!Typeahead.isActive(this.props, this.state)) {
       this.setState({ typeaheadFocused: true });
       // This prevents a possible focus event on input.typeahead from overriding
@@ -560,14 +557,14 @@ class Typeahead extends React.PureComponent {
     );
   }
 
-  onKeyDown = (event: SyntheticEvent) => {
+  onKeyDown = (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode == 27 /* esc key */ && this.state.typeaheadFocused) {
       invariant(this.input, "ref should be set");
       this.input.blur();
     }
   }
 
-  onChange = (event: SyntheticEvent) => {
+  onChange = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
@@ -628,7 +625,7 @@ Typeahead.propTypes = {
   modalExists: PropTypes.bool.isRequired,
 };
 
-export default connect((state: AppState) => ({
+export default connect((state: AppState): * => ({
   currentNavID: currentNavID(state),
   threadInfos: threadInfoSelector(state),
   currentlyHome: state.navInfo.home,

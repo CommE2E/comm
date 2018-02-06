@@ -2,7 +2,7 @@
 
 import type { AppState, NavInfo } from '../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -19,7 +19,7 @@ type Props = {
   name: string,
   monthURL: string,
   loggedIn: bool,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
@@ -27,10 +27,9 @@ type Props = {
   frozen?: bool,
 };
 
-class TypeaheadActionOption extends React.PureComponent {
+class TypeaheadActionOption extends React.PureComponent<Props> {
 
   static defaultProps = { frozen: false };
-  props: Props;
 
   render() {
     return (
@@ -51,7 +50,7 @@ class TypeaheadActionOption extends React.PureComponent {
     );
   }
 
-  onClick = (event: SyntheticEvent) => {
+  onClick = (event: SyntheticEvent<HTMLDivElement>) => {
     if (this.props.navID === 'new') {
       this.props.freezeTypeahead(this.props.navID);
       const onClose = () => {
@@ -95,7 +94,7 @@ TypeaheadActionOption.propTypes = {
   frozen: PropTypes.bool,
 };
 
-export default connect((state: AppState) => ({
+export default connect((state: AppState): * => ({
   monthURL: monthURL(state),
   loggedIn: !!(state.currentUserInfo &&
     !state.currentUserInfo.anonymous && true),

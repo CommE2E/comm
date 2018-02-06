@@ -4,7 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
@@ -19,9 +19,8 @@ type OptionProps = {
   threadInfo: ThreadInfo,
   createNewEntry: (threadID: string) => void,
 };
-class ThreadPickerOption extends React.PureComponent {
+class ThreadPickerOption extends React.PureComponent<OptionProps> {
 
-  props: OptionProps;
   style: { backgroundColor: string };
 
   constructor(props: OptionProps) {
@@ -61,12 +60,10 @@ type State = {
   currentPage: number,
 };
 
-class ThreadPicker extends React.PureComponent {
+class ThreadPicker extends React.PureComponent<Props, State> {
 
   static pageSize = 5;
 
-  props: Props;
-  state: State;
   pickerDiv: ?HTMLDivElement;
 
   constructor(props: Props) {
@@ -165,14 +162,13 @@ class ThreadPicker extends React.PureComponent {
     this.pickerDiv = pickerDiv;
   }
 
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onPickerKeyDown = (event: any) => {
+  onPickerKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
     if (event.keyCode === 27) { // Esc
       this.props.closePicker();
     }
   }
 
-  onMouseDown = (event: SyntheticEvent) => {
+  onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
     const target = htmlTargetFromEvent(event);
     invariant(this.pickerDiv, "pickerDiv ref not set");
     if (this.pickerDiv.contains(target)) {
@@ -181,7 +177,7 @@ class ThreadPicker extends React.PureComponent {
     }
   }
 
-  onBackPagerClick = (event: SyntheticEvent) => {
+  onBackPagerClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(
@@ -192,7 +188,7 @@ class ThreadPicker extends React.PureComponent {
     });
   }
 
-  onNextPagerClick = (event: SyntheticEvent) => {
+  onNextPagerClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState((prevState, props) => {
       invariant(
@@ -213,6 +209,6 @@ ThreadPicker.propTypes = {
   closePicker: PropTypes.func.isRequired,
 };
 
-export default connect((state: AppState) => ({
+export default connect((state: AppState): * => ({
   onScreenThreadInfos: onScreenThreadInfos(state),
 }))(ThreadPicker);

@@ -12,7 +12,7 @@ import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
@@ -93,13 +93,10 @@ type State = {
   // will be false. This is because we need to know if a modal is overlaid over
   // the null state
   modalExists: bool,
-  currentModal: ?React.Element<any>,
+  currentModal: ?React.Node,
 };
 
-class App extends React.PureComponent {
-
-  props: Props;
-  state: State;
+class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
@@ -292,7 +289,7 @@ class App extends React.PureComponent {
     );
   }
 
-  setModal = (modal: React.Element<any>) => {
+  setModal = (modal: React.Node) => {
     this.setState({
       currentModal: modal,
       modalExists: true,

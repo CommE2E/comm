@@ -9,7 +9,7 @@ import {
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
@@ -38,9 +38,7 @@ type TabProps = {
   selected: bool,
   onClick: (tabType: TabType) => void,
 };
-class Tab extends React.PureComponent {
-
-  props: TabProps;
+class Tab extends React.PureComponent<TabProps> {
 
   render() {
     const classNamesForTab = classNames({
@@ -86,10 +84,8 @@ type State = {
   currentTabType: TabType,
 };
 
-class ThreadSettingsModal extends React.PureComponent {
+class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   nameInput: ?HTMLInputElement;
   newThreadPasswordInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
@@ -394,26 +390,41 @@ class ThreadSettingsModal extends React.PureComponent {
     this.accountPasswordInput = accountPasswordInput;
   }
 
-  onChangeName = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState((prevState: State, props) => ({
       ...prevState,
       threadInfo: {
-        ...prevState.threadInfo,
+        id: prevState.threadInfo.id,
+        description: prevState.threadInfo.description,
+        visibilityRules: prevState.threadInfo.visibilityRules,
+        color: prevState.threadInfo.color,
+        creationTime: prevState.threadInfo.creationTime,
+        parentThreadID: prevState.threadInfo.parentThreadID,
+        members: prevState.threadInfo.members,
+        roles: prevState.threadInfo.roles,
+        currentUser: prevState.threadInfo.currentUser,
         name: target.value,
         uiName: target.value,
       },
     }));
   }
 
-  onChangeDescription = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLTextAreaElement, "target not textarea");
+  onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+    const target = event.currentTarget;
     this.setState((prevState, props) => ({
       ...prevState,
       threadInfo: {
-        ...prevState.threadInfo,
+        id: prevState.threadInfo.id,
+        name: prevState.threadInfo.name,
+        uiName: prevState.threadInfo.uiName,
+        visibilityRules: prevState.threadInfo.visibilityRules,
+        color: prevState.threadInfo.color,
+        creationTime: prevState.threadInfo.creationTime,
+        parentThreadID: prevState.threadInfo.parentThreadID,
+        members: prevState.threadInfo.members,
+        roles: prevState.threadInfo.roles,
+        currentUser: prevState.threadInfo.currentUser,
         description: target.value,
       },
     }));
@@ -423,43 +434,57 @@ class ThreadSettingsModal extends React.PureComponent {
     this.setState((prevState, props) => ({
       ...prevState,
       threadInfo: {
-        ...prevState.threadInfo,
+        id: prevState.threadInfo.id,
+        name: prevState.threadInfo.name,
+        uiName: prevState.threadInfo.uiName,
+        description: prevState.threadInfo.description,
+        visibilityRules: prevState.threadInfo.visibilityRules,
+        creationTime: prevState.threadInfo.creationTime,
+        parentThreadID: prevState.threadInfo.parentThreadID,
+        members: prevState.threadInfo.members,
+        roles: prevState.threadInfo.roles,
+        currentUser: prevState.threadInfo.currentUser,
         color,
       },
     }));
   }
 
-  onChangeClosed = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onChangeClosed = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState((prevState, props) => ({
       ...prevState,
       threadInfo: {
-        ...prevState.threadInfo,
+        id: prevState.threadInfo.id,
+        name: prevState.threadInfo.name,
+        uiName: prevState.threadInfo.uiName,
+        description: prevState.threadInfo.description,
+        color: prevState.threadInfo.color,
+        creationTime: prevState.threadInfo.creationTime,
+        parentThreadID: prevState.threadInfo.parentThreadID,
+        members: prevState.threadInfo.members,
+        roles: prevState.threadInfo.roles,
+        currentUser: prevState.threadInfo.currentUser,
         visibilityRules: assertVisibilityRules(parseInt(target.value)),
       },
     }));
   }
 
-  onChangeNewThreadPassword = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onChangeNewThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState({ newThreadPassword: target.value });
   }
 
-  onChangeConfirmThreadPassword = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onChangeConfirmThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState({ confirmThreadPassword: target.value });
   }
 
-  onChangeAccountPassword = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState({ accountPassword: target.value });
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     const name = this.threadName().trim();
@@ -468,7 +493,15 @@ class ThreadSettingsModal extends React.PureComponent {
         (prevState, props) => ({
           ...prevState,
           threadInfo: {
-            ...prevState.threadInfo,
+            id: prevState.threadInfo.id,
+            description: prevState.threadInfo.description,
+            visibilityRules: prevState.threadInfo.visibilityRules,
+            color: prevState.threadInfo.color,
+            creationTime: prevState.threadInfo.creationTime,
+            parentThreadID: prevState.threadInfo.parentThreadID,
+            members: prevState.threadInfo.members,
+            roles: prevState.threadInfo.roles,
+            currentUser: prevState.threadInfo.currentUser,
             name: this.props.threadInfo.name,
             uiName: this.props.threadInfo.uiName,
           },
@@ -580,7 +613,12 @@ class ThreadSettingsModal extends React.PureComponent {
           (prevState, props) => ({
             ...prevState,
             threadInfo: {
-              ...prevState.threadInfo,
+              id: prevState.threadInfo.id,
+              creationTime: prevState.threadInfo.creationTime,
+              parentThreadID: prevState.threadInfo.parentThreadID,
+              members: prevState.threadInfo.members,
+              roles: prevState.threadInfo.roles,
+              currentUser: prevState.threadInfo.currentUser,
               name: this.props.threadInfo.name,
               uiName: this.props.threadInfo.uiName,
               description: this.props.threadInfo.description,
@@ -603,7 +641,7 @@ class ThreadSettingsModal extends React.PureComponent {
     }
   }
 
-  onDelete = (event: SyntheticEvent) => {
+  onDelete = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,

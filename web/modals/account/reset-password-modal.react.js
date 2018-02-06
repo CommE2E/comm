@@ -4,7 +4,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LogInResult } from 'lib/actions/user-actions';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -40,10 +40,8 @@ type State = {
   errorMessage: string,
 };
 
-class ResetPasswordModal extends React.PureComponent {
+class ResetPasswordModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   passwordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
@@ -118,19 +116,19 @@ class ResetPasswordModal extends React.PureComponent {
     this.passwordInput = passwordInput;
   }
 
-  onChangePassword = (event: SyntheticEvent) => {
+  onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onChangeConfirmPassword = (event: SyntheticEvent) => {
+  onChangeConfirmPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmPassword: target.value });
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (this.state.password === '') {

@@ -6,7 +6,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 import type { LogOutResult } from 'lib/actions/user-actions';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -38,9 +38,7 @@ type TabProps = {
   selected: bool,
   onClick: (tabType: TabType) => void,
 };
-class Tab extends React.PureComponent {
-
-  props: TabProps;
+class Tab extends React.PureComponent<TabProps> {
 
   render() {
     const classNamesForTab = classNames({
@@ -63,7 +61,7 @@ class Tab extends React.PureComponent {
 
 type Props = {
   onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   // Redux state
   username: string,
   email: string,
@@ -90,10 +88,8 @@ type State = {
   currentTabType: TabType,
 };
 
-class UserSettingsModal extends React.PureComponent {
+class UserSettingsModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   emailInput: ?HTMLInputElement;
   newPasswordInput: ?HTMLInputElement;
   currentPasswordInput: ?HTMLInputElement;
@@ -282,7 +278,7 @@ class UserSettingsModal extends React.PureComponent {
     this.setState({ currentTabType: tabType });
   };
 
-  onChangeEmail = (event: SyntheticEvent) => {
+  onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
@@ -293,25 +289,27 @@ class UserSettingsModal extends React.PureComponent {
     });
   }
 
-  onChangeNewPassword = (event: SyntheticEvent) => {
+  onChangeNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ newPassword: target.value });
   }
 
-  onChangeConfirmNewPassword = (event: SyntheticEvent) => {
+  onChangeConfirmNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmNewPassword: target.value });
   }
 
-  onChangeCurrentPassword = (event: SyntheticEvent) => {
+  onChangeCurrentPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ currentPassword: target.value });
   }
 
-  onClickResendVerificationEmail = (event: SyntheticEvent) => {
+  onClickResendVerificationEmail = (
+    event: SyntheticEvent<HTMLAnchorElement>,
+  ) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       resendVerificationEmailActionTypes,
@@ -324,7 +322,7 @@ class UserSettingsModal extends React.PureComponent {
     this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (this.state.newPassword !== this.state.confirmNewPassword) {
@@ -427,7 +425,7 @@ class UserSettingsModal extends React.PureComponent {
     }
   }
 
-  onDelete = (event: SyntheticEvent) => {
+  onDelete = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteAccountActionTypes,

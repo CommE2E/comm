@@ -6,7 +6,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import $ from 'jquery';
 import 'timeago'; // side effect: $.timeago
@@ -26,13 +26,14 @@ type Props = {
   isDeletionOrRestoration: bool,
 }
 
-class HistoryRevision extends React.PureComponent {
+class HistoryRevision extends React.PureComponent<Props> {
 
   time: ?HTMLElement;
 
   componentDidMount() {
     // TODO investigate React replacement for jQuery timeago plugin
     invariant(this.time instanceof HTMLElement, "time ref should be set");
+    // $FlowFixMe
     $(this.time).timeago();
   }
 
@@ -41,6 +42,7 @@ class HistoryRevision extends React.PureComponent {
       this.props.revisionInfo.lastUpdate !== prevProps.revisionInfo.lastUpdate
     ) {
       invariant(this.time instanceof HTMLElement, "time ref should be set");
+      // $FlowFixMe
       $(this.time).timeago();
     }
   }
@@ -105,6 +107,6 @@ HistoryRevision.propTypes = {
 };
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
-export default connect((state: AppState, ownProps: OwnProps) => ({
+export default connect((state: AppState, ownProps: OwnProps): * => ({
   threadInfo: threadInfoSelector(state)[ownProps.revisionInfo.threadID],
 }))(HistoryRevision);

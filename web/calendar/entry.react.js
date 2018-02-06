@@ -12,7 +12,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { SaveResult } from 'lib/actions/entry-actions';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
@@ -52,7 +52,7 @@ type Props = {
   innerRef: (key: string, me: Entry) => void,
   entryInfo: EntryInfo,
   focusOnFirstEntryNewerThan: (time: number) => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   tabIndex: number,
   // Redux state
@@ -88,10 +88,8 @@ type State = {
   text: string,
 };
 
-class Entry extends React.PureComponent {
+class Entry extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   textarea: ?HTMLTextAreaElement;
   creating: bool;
   needsUpdateAfterCreation: bool;
@@ -136,7 +134,7 @@ class Entry extends React.PureComponent {
     this.textarea.focus();
   }
 
-  onMouseDown = (event: SyntheticEvent) => {
+  onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
     if (this.state.focused) {
       // Don't lose focus when some non-textarea part is clicked
       event.preventDefault();
@@ -233,7 +231,7 @@ class Entry extends React.PureComponent {
     this.setState({ focused: true });
   }
 
-  onBlur = (event: SyntheticEvent) => {
+  onBlur = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     this.setState({ focused: false });
     if (this.state.text.trim() === "") {
       this.delete(this.props.entryInfo.id, false);
@@ -242,7 +240,7 @@ class Entry extends React.PureComponent {
     }
   }
 
-  onChange = (event: SyntheticEvent) => {
+  onChange = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     if (!this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
@@ -261,8 +259,7 @@ class Entry extends React.PureComponent {
     );
   }
 
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onKeyDown = (event: any) => {
+  onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
     if (event.keyCode === 27) {
       invariant(
         this.textarea instanceof HTMLTextAreaElement,
@@ -371,7 +368,7 @@ class Entry extends React.PureComponent {
     }
   }
 
-  onDelete = (event: SyntheticEvent) => {
+  onDelete = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (!this.props.loggedIn) {
       this.props.setModal(
@@ -422,7 +419,7 @@ class Entry extends React.PureComponent {
     }
   }
 
-  onHistory = (event: SyntheticEvent) => {
+  onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <HistoryModal

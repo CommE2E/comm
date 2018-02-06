@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -11,14 +11,13 @@ export type ModalSize = "small" | "large";
 type Props = {
   name: string,
   onClose: () => void,
-  children?: React.Element<any>,
+  children?: React.Node,
   size?: ModalSize,
 };
 
-class Modal extends React.PureComponent {
+class Modal extends React.PureComponent<Props> {
 
   static defaultProps = { size: "small" };
-  props: Props;
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
@@ -62,14 +61,13 @@ class Modal extends React.PureComponent {
     this.overlay = overlay;
   }
 
-  onBackgroundClick = (event: SyntheticEvent) => {
+  onBackgroundClick = (event: SyntheticEvent<HTMLDivElement>) => {
     if (event.target === this.overlay) {
       this.props.onClose();
     }
   }
 
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onKeyDown = (event: any) => {
+  onKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
     if (event.keyCode === 27) {
       this.props.onClose();
     }

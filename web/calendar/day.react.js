@@ -7,7 +7,7 @@ import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup'
 import type { InnerEntry } from './entry.react';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import _some from 'lodash/fp/some';
 import invariant from 'invariant';
@@ -35,7 +35,7 @@ import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 type Props = {
   dayString: string,
   entryInfos: EntryInfo[],
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   startingTabIndex: number,
   // Redux state
@@ -50,10 +50,8 @@ type State = {
   hovered: bool,
 };
 
-class Day extends React.PureComponent {
+class Day extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
@@ -196,7 +194,7 @@ class Day extends React.PureComponent {
     this.setState({ hovered: false });
   }
 
-  onClick = (event: SyntheticEvent) => {
+  onClick = (event: SyntheticEvent<HTMLTableCellElement>) => {
     const target = htmlTargetFromEvent(event);
     invariant(
       this.entryContainer instanceof HTMLDivElement,
@@ -215,7 +213,7 @@ class Day extends React.PureComponent {
     }
   }
 
-  onAddEntry = (event: SyntheticEvent) => {
+  onAddEntry = (event: SyntheticEvent<*>) => {
     event.preventDefault();
     invariant(
       this.props.onScreenThreadInfos.length > 0,
@@ -251,7 +249,7 @@ class Day extends React.PureComponent {
     );
   }
 
-  onHistory = (event: SyntheticEvent) => {
+  onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <HistoryModal

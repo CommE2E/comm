@@ -4,7 +4,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoggedInUserInfo } from 'lib/types/user-types';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -26,7 +26,7 @@ import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
   onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -46,10 +46,8 @@ type State = {
   errorMessage: string,
 };
 
-class RegisterModal extends React.PureComponent {
+class RegisterModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   usernameInput: ?HTMLInputElement;
   emailInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;
@@ -156,31 +154,31 @@ class RegisterModal extends React.PureComponent {
     this.passwordInput = passwordInput;
   }
 
-  onChangeUsername = (event: SyntheticEvent) => {
+  onChangeUsername = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ username: target.value });
   }
 
-  onChangeEmail = (event: SyntheticEvent) => {
+  onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ email: target.value });
   }
 
-  onChangePassword = (event: SyntheticEvent) => {
+  onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onChangeConfirmPassword = (event: SyntheticEvent) => {
+  onChangeConfirmPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ confirmPassword: target.value });
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (this.state.password === '') {

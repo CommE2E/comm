@@ -11,7 +11,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { JoinThreadResult } from 'lib/actions/thread-actions';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
 import { connect } from 'react-redux';
@@ -46,7 +46,7 @@ type Props = {
   focusTypeahead: () => void,
   onTransition: () => void,
   frozen?: bool,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   clearModal: () => void,
   typeaheadFocused: bool,
   // Redux state
@@ -69,11 +69,9 @@ type State = {
   passwordEntryOpen: bool,
 };
 
-class TypeaheadThreadOption extends React.PureComponent {
+class TypeaheadThreadOption extends React.PureComponent<Props, State> {
 
   static defaultProps = { frozen: false };
-  props: Props;
-  state: State;
 
   passwordEntryInput: ?HTMLInputElement;
 
@@ -224,7 +222,7 @@ class TypeaheadThreadOption extends React.PureComponent {
     return id;
   }
 
-  onClick = (event: SyntheticEvent) => {
+  onClick = (event: SyntheticEvent<HTMLDivElement>) => {
     const id = TypeaheadThreadOption.getID(this.props);
     if (this.props.threadInfo) {
       const threadIsVisible = threadHasPermission(
@@ -241,19 +239,19 @@ class TypeaheadThreadOption extends React.PureComponent {
     this.setState({ passwordEntryOpen: true });
   }
 
-  onPasswordEntryChange = (event: SyntheticEvent) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+  onPasswordEntryChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
     this.setState({ passwordEntryValue: target.value });
   }
 
-  onPasswordEntryBlur = (event: SyntheticEvent) => {
+  onPasswordEntryBlur = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ passwordEntryOpen: false });
     this.props.unfreezeTypeahead(TypeaheadThreadOption.getID(this.props));
   }
 
-  // Throw away typechecking here because SyntheticEvent isn't typed
-  onPasswordEntryKeyDown = (event: any) => {
+  onPasswordEntryKeyDown = (
+    event: SyntheticKeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.keyCode === 27) {
       invariant(
         this.passwordEntryInput instanceof HTMLInputElement,
@@ -265,11 +263,14 @@ class TypeaheadThreadOption extends React.PureComponent {
     }
   }
 
-  onPasswordEntryMouseDown = (event: SyntheticEvent) => {
+  onPasswordEntryMouseDown = (event: SyntheticEvent<HTMLInputElement>) => {
     event.stopPropagation();
   }
 
-  onSubmitPassword = (event: SyntheticEvent) => {
+  onSubmitPassword = (
+    event: SyntheticEvent<HTMLInputElement>
+      | SyntheticKeyboardEvent<HTMLInputElement>,
+  ) => {
     event.preventDefault();
     const id = TypeaheadThreadOption.getID(this.props);
     this.props.dispatchActionPromise(

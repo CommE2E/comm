@@ -4,7 +4,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LogInResult } from 'lib/actions/user-actions';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -26,7 +26,7 @@ import ForgotPasswordModal from './forgot-password-modal.react';
 
 type Props = {
   onClose: () => void,
-  setModal: (modal: React.Element<any>) => void,
+  setModal: (modal: React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -43,10 +43,8 @@ type State = {
   errorMessage: string,
 };
 
-class LogInModal extends React.PureComponent {
+class LogInModal extends React.PureComponent<Props, State> {
 
-  props: Props;
-  state: State;
   usernameOrEmailInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;
 
@@ -127,19 +125,19 @@ class LogInModal extends React.PureComponent {
     this.passwordInput = passwordInput;
   }
 
-  onChangeUsernameOrEmail = (event: SyntheticEvent) => {
+  onChangeUsernameOrEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ usernameOrEmail: target.value });
   }
 
-  onChangePassword = (event: SyntheticEvent) => {
+  onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({ password: target.value });
   }
 
-  onClickForgotPassword = (event: SyntheticEvent) => {
+  onClickForgotPassword = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
       <ForgotPasswordModal
@@ -149,7 +147,7 @@ class LogInModal extends React.PureComponent {
     );
   }
 
-  onSubmit = (event: SyntheticEvent) => {
+  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (
