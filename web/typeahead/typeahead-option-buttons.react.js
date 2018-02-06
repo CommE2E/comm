@@ -45,7 +45,7 @@ import { visibilityRules } from 'lib/types/thread-types';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
-import ThreadSettingsModal from '../modals/thread-settings-modal.react';
+import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 
 type Props = {
   threadInfo: ThreadInfo,

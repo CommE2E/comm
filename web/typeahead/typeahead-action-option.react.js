@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import css from '../style.css';
-import NewThreadModal from '../modals/new-thread-modal.react';
+import NewThreadModal from '../modals/threads/new-thread-modal.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import { monthURL } from '../url-utils';
 import history from '../router-history';

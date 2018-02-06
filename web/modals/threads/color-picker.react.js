@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ChromePicker } from 'react-color';
 import PropTypes from 'prop-types';
 
-import css from '../style.css';
+import css from '../../style.css';
 
 type Props = {
   id: string,

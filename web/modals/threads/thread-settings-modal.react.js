@@ -6,7 +6,7 @@ import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';
@@ -27,8 +27,8 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import css from '../style.css';
-import Modal from './modal.react';
+import css from '../../style.css';
+import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 
 type TabType = "general" | "privacy" | "delete";

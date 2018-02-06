@@ -1,7 +1,5 @@
 // @flow
 
-import type { AppState } from '../../redux-setup';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
