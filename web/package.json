@@ -15,9 +15,11 @@
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0"
+    "webpack-dev-server": "^2.5.0",
+    "linklocal": "^2.8.1"
   },
   "scripts": {
+    "install": "linklocal",
     "dev": "webpack --env dev --progress && webpack-dev-server",
     "prod": "webpack --env prod --progress",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
