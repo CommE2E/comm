@@ -38,6 +38,12 @@ import TypeaheadPane from './typeahead-pane.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
 
+export type TypeaheadOptionInfo =
+  | {| type: "thread", threadInfo: ThreadInfo, frozen: bool |}
+  | {| type: "action", navID: NavID, name: string, frozen: bool |}
+  | {| type: "secret", threadID: string, frozen: bool |}
+  | {| type: "noResults" |};
+
 type Props = {
   currentNavID: ?string,
   threadInfos: {[id: string]: ThreadInfo},
@@ -60,12 +66,6 @@ type State = {
 };
 
 const emptyArray = [];
-const noResults = [(
-  <div className={css['thread-nav-no-results']} key="none">
-    No results
-  </div>
-)];
-const noResultsFunc = () => noResults;
 
 class Typeahead extends React.PureComponent<Props, State> {
 
@@ -205,55 +205,38 @@ class Typeahead extends React.PureComponent<Props, State> {
     const active = Typeahead.isActive(this.props, this.state);
     let dropdown = null;
     if (this.state.searchActive) {
-      let resultsPane;
-      if (this.state.searchResults.length !== 0) {
-        resultsPane = (
+      dropdown = (
+        <div className={css['thread-nav-dropdown']} ref={this.dropdownRef}>
           <TypeaheadPane
             paneTitle="Results"
             pageSize={10}
-            totalResults={this.state.searchResults.length}
-            resultsBetween={this.searchResultOptionsForPage}
+            optionInfos={this.optionInfosForSearchResults()}
+            renderOption={this.renderOption}
             key="results"
           />
-        );
-      } else {
-        resultsPane = (
-          <TypeaheadPane
-            paneTitle="Results"
-            pageSize={1}
-            totalResults={1}
-            resultsBetween={noResultsFunc}
-            key="results"
-          />
-        );
-      }
-      dropdown = (
-        <div className={css['thread-nav-dropdown']} ref={this.dropdownRef}>
-          {resultsPane}
         </div>
       );
     } else if (active) {
       const panes = [];
-      const haveCurrentPane =
-        this.props.sortedThreadInfos.current.length > 0 ||
-        (this.props.currentThreadID &&
-          !this.props.threadInfos[this.props.currentThreadID]);
-      panes.push(
-        <TypeaheadPane
-          paneTitle="Current"
-          pageSize={1}
-          totalResults={haveCurrentPane ? 1 : 0}
-          resultsBetween={this.resultsBetweenForCurrentPane}
-          key="current"
-        />
-      );
+      const currentOptionInfo = this.optionInfosForCurrentPane();
+      if (currentOptionInfo.length > 0) {
+        panes.push(
+          <TypeaheadPane
+            paneTitle="Current"
+            pageSize={1}
+            optionInfos={currentOptionInfo}
+            renderOption={this.renderOption}
+            key="current"
+          />
+        );
+      }
       if (!this.props.currentlyHome) {
         panes.push(
           <TypeaheadPane
             paneTitle="Home"
             pageSize={1}
-            totalResults={1}
-            resultsBetween={this.resultsBetweenForHomePane}
+            optionInfos={this.optionInfosForHomePane()}
+            renderOption={this.renderOption}
             key="home"
           />
         );
@@ -262,8 +245,8 @@ class Typeahead extends React.PureComponent<Props, State> {
         <TypeaheadPane
           paneTitle="Subscribed"
           pageSize={5}
-          totalResults={this.props.sortedThreadInfos.subscribed.length}
-          resultsBetween={this.resultsBetweenForSubscribedPane}
+          optionInfos={this.optionInfosForSubscribedPane()}
+          renderOption={this.renderOption}
           key="subscribed"
         />
       );
@@ -271,8 +254,8 @@ class Typeahead extends React.PureComponent<Props, State> {
         <TypeaheadPane
           paneTitle="Recommended"
           pageSize={this.state.recommendedThreads.length}
-          totalResults={this.state.recommendedThreads.length}
-          resultsBetween={this.resultsBetweenForRecommendedPane}
+          optionInfos={this.optionInfosForRecommendedPane()}
+          renderOption={this.renderOption}
           key="recommended"
         />
       );
@@ -280,8 +263,8 @@ class Typeahead extends React.PureComponent<Props, State> {
         <TypeaheadPane
           paneTitle="Actions"
           pageSize={1}
-          totalResults={1}
-          resultsBetween={this.resultsBetweenForActionsPane}
+          optionInfos={this.optionInfosForActionsPane()}
+          renderOption={this.renderOption}
           key="actions"
         />
       );
@@ -389,54 +372,56 @@ class Typeahead extends React.PureComponent<Props, State> {
     this.setState({ typeaheadFocused: true });
   }
 
-  buildOption(navID: string) {
-    const threadInfo = this.props.threadInfos[navID];
-    if (threadInfo !== undefined) {
-      return this.buildThreadOption(threadInfo);
-    } else if (navID === "home") {
-      return this.buildActionOption("home", TypeaheadText.homeText);
-    } else if (navID === "new") {
-      return this.buildActionOption("new", TypeaheadText.newText);
-    } else if (navID === this.props.currentThreadID) {
-      return this.buildSecretOption(navID);
-    } else {
-      invariant(false, "invalid navID passed to buildOption");
+  renderOption = (optionInfo: TypeaheadOptionInfo) => {
+    if (optionInfo.type === "thread") {
+      return this.renderThreadOption(optionInfo.threadInfo, optionInfo.frozen);
+    } else if (optionInfo.type === "action") {
+      return this.renderActionOption(
+        optionInfo.navID,
+        optionInfo.name,
+        optionInfo.frozen,
+      );
+    } else if (optionInfo.type === "secret") {
+      return this.renderSecretOption(optionInfo.threadID, optionInfo.frozen);
+    } else if (optionInfo.type === "noResults") {
+      return (
+        <div className={css['thread-nav-no-results']} key="none">
+          No results
+        </div>
+      );
     }
   }
 
-  buildActionOption(navID: NavID, name: string) {
-    const onTransition = () => {
-      invariant(this.input, "ref should be set");
-      this.input.blur();
-    }
+  blur = () => {
+    invariant(this.input, "ref should be set");
+    this.input.blur();
+  }
+
+  renderActionOption(navID: NavID, name: string, frozen: bool) {
     return (
       <TypeaheadActionOption
         navID={navID}
         name={name}
         freezeTypeahead={this.freeze}
         unfreezeTypeahead={this.unfreeze}
-        onTransition={onTransition}
+        onTransition={this.blur}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
-        frozen={!!this.state.frozenNavIDs[navID]}
+        frozen={frozen}
         key={navID}
       />
     );
   }
 
-  buildThreadOption(threadInfo: ThreadInfo) {
-    const onTransition = () => {
-      invariant(this.input, "ref should be set");
-      this.input.blur();
-    }
+  renderThreadOption(threadInfo: ThreadInfo, frozen: bool) {
     return (
       <TypeaheadThreadOption
         threadInfo={threadInfo}
         freezeTypeahead={this.freeze}
         unfreezeTypeahead={this.unfreeze}
         focusTypeahead={this.focusIfNotFocused}
-        onTransition={onTransition}
-        frozen={!!this.state.frozenNavIDs[threadInfo.id]}
+        onTransition={this.blur}
+        frozen={frozen}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         typeaheadFocused={this.state.typeaheadFocused}
@@ -445,19 +430,15 @@ class Typeahead extends React.PureComponent<Props, State> {
     );
   }
 
-  buildSecretOption(secretThreadID: string) {
-    const onTransition = () => {
-      invariant(this.input, "ref should be set");
-      this.input.blur();
-    }
+  renderSecretOption(secretThreadID: string, frozen: bool) {
     return (
       <TypeaheadThreadOption
         secretThreadID={secretThreadID}
         freezeTypeahead={this.freeze}
         unfreezeTypeahead={this.unfreeze}
         focusTypeahead={this.focusIfNotFocused}
-        onTransition={onTransition}
-        frozen={!!this.state.frozenNavIDs[secretThreadID]}
+        onTransition={this.blur}
+        frozen={frozen}
         setModal={this.props.setModal}
         clearModal={this.props.clearModal}
         typeaheadFocused={this.state.typeaheadFocused}
@@ -472,33 +453,83 @@ class Typeahead extends React.PureComponent<Props, State> {
       !_isEmpty(state.frozenNavIDs);
   }
 
-  resultsBetweenForCurrentPane = () => {
+  threadOptionInfo = (threadInfo: ThreadInfo) => {
+    return {
+      type: "thread",
+      threadInfo,
+      frozen: !!this.state.frozenNavIDs[threadInfo.id],
+    };
+  }
+
+  actionOptionInfo = (navID: NavID, name: string) => {
+    return {
+      type: "action",
+      navID,
+      name,
+      frozen: !!this.state.frozenNavIDs[navID],
+    };
+  }
+
+  secretOptionInfo = (threadID: string) => {
+    return {
+      type: "secret",
+      threadID,
+      frozen: !!this.state.frozenNavIDs[threadID],
+    };
+  }
+
+  optionInfosForCurrentPane = () => {
     if (this.props.sortedThreadInfos.current.length > 0) {
-      return this.props.sortedThreadInfos.current.map(
-        (threadInfo) => this.buildThreadOption(threadInfo),
-      );
+      return this.props.sortedThreadInfos.current.map(this.threadOptionInfo);
     } else if (
       this.props.currentThreadID &&
       !this.props.threadInfos[this.props.currentThreadID]
     ) {
-      return [
-        this.buildSecretOption(this.props.currentThreadID)
-      ];
+      return [ this.secretOptionInfo(this.props.currentThreadID) ];
     }
     return emptyArray;
   }
 
-  resultsBetweenForHomePane = () => {
-    return [ this.buildActionOption("home", TypeaheadText.homeText) ];
+  optionInfosForHomePane = () => {
+    return [ this.actionOptionInfo("home", TypeaheadText.homeText) ];
   }
 
-  resultsBetweenForRecommendedPane = () => {
-    return this.state.recommendedThreads
-      .map((threadInfo) => this.buildThreadOption(threadInfo));
+  optionInfosForSubscribedPane = () => {
+    return this.props.sortedThreadInfos.subscribed.map(
+      threadInfo => ({
+        type: "thread",
+        threadInfo,
+        frozen: !!this.state.frozenNavIDs[threadInfo.id],
+      }),
+    );
   }
 
-  resultsBetweenForActionsPane = () => {
-    return [ this.buildActionOption("new", TypeaheadText.newText) ];
+  optionInfosForRecommendedPane = () => {
+    return this.state.recommendedThreads.map(this.threadOptionInfo);
+  }
+
+  optionInfosForActionsPane = () => {
+    return [ this.actionOptionInfo("new", TypeaheadText.newText) ];
+  }
+
+  optionInfosForSearchResults = () => {
+    if (this.state.searchResults.length !== 0) {
+      return [{ type: "noResults" }];
+    }
+    return this.state.searchResults.map((navID) => {
+      const threadInfo = this.props.threadInfos[navID];
+      if (threadInfo !== undefined) {
+        return this.threadOptionInfo(threadInfo);
+      } else if (navID === "home") {
+        return this.actionOptionInfo("home", TypeaheadText.homeText);
+      } else if (navID === "new") {
+        return this.actionOptionInfo("new", TypeaheadText.newText);
+      } else if (navID === this.props.currentThreadID) {
+        return this.secretOptionInfo(navID);
+      } else {
+        invariant(false, "invalid navID returned as a search result");
+      }
+    });
   }
 
   // This method makes sure that this.state.typeaheadFocused iff typeahead input
@@ -583,16 +614,6 @@ class Typeahead extends React.PureComponent<Props, State> {
     invariant(input, "ref should be set");
     input.focus();
     input.select();
-  }
-
-  searchResultOptionsForPage = (start: number, end: number) => {
-    return this.state.searchResults.slice(start, end)
-      .map((navID) => this.buildOption(navID));
-  }
-
-  resultsBetweenForSubscribedPane = (start: number, end: number) => {
-    return this.props.sortedThreadInfos.subscribed.slice(start, end)
-      .map((threadInfo) => this.buildThreadOption(threadInfo));
   }
 
   static getRecommendationSize(props: Props) {
