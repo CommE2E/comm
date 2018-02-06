@@ -56,9 +56,9 @@ class IntroModal extends React.PureComponent<Props, State> {
       <div className={css['modal-overlay']}>
         <div className={css['intro-modal']} style={{ left: modalLeft }}>
           <p>
-            You're home, but you're not subscribed to any threads, so there's
-            nothing to show. You can browse and subscribe to some threads
-            using the dialog at right.
+            You're home, but you haven't joined any threads yet, so there's
+            nothing to show. You can browse and join some threads using the
+            dialog at right.
           </p>
         </div>
       </div>

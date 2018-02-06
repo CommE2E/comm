@@ -21,7 +21,6 @@ import { connect } from 'react-redux';
 import SearchIndex from 'lib/shared/search-index';
 import {
   currentNavID,
-  subscriptionExists,
   threadSearchIndex,
 } from 'lib/selectors/nav-selectors';
 import {
@@ -49,7 +48,6 @@ type Props = {
   threadInfos: {[id: string]: ThreadInfo},
   currentlyHome: bool,
   currentThreadID: ?string,
-  subscriptionExists: bool,
   threadSearchIndex: SearchIndex,
   sortedThreadInfos: {[id: string]: ThreadInfo[]},
   setModal: (modal: React.Node) => void,
@@ -243,11 +241,11 @@ class Typeahead extends React.PureComponent<Props, State> {
       }
       panes.push(
         <TypeaheadPane
-          paneTitle="Subscribed"
+          paneTitle="Member"
           pageSize={5}
-          optionInfos={this.optionInfosForSubscribedPane()}
+          optionInfos={this.optionInfosForMemberPane()}
           renderOption={this.renderOption}
-          key="subscribed"
+          key="member"
         />
       );
       panes.push(
@@ -494,8 +492,8 @@ class Typeahead extends React.PureComponent<Props, State> {
     return [ this.actionOptionInfo("home", TypeaheadText.homeText) ];
   }
 
-  optionInfosForSubscribedPane = () => {
-    return this.props.sortedThreadInfos.subscribed.map(
+  optionInfosForMemberPane = () => {
+    return this.props.sortedThreadInfos.member.map(
       threadInfo => ({
         type: "thread",
         threadInfo,
@@ -636,7 +634,6 @@ Typeahead.propTypes = {
   threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
   currentlyHome: PropTypes.bool.isRequired,
   currentThreadID: PropTypes.string,
-  subscriptionExists: PropTypes.bool.isRequired,
   threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   sortedThreadInfos: PropTypes.objectOf(
     PropTypes.arrayOf(threadInfoPropType),
@@ -651,7 +648,6 @@ export default connect((state: AppState): * => ({
   threadInfos: threadInfoSelector(state),
   currentlyHome: state.navInfo.home,
   currentThreadID: state.navInfo.threadID,
-  subscriptionExists: subscriptionExists(state),
   threadSearchIndex: threadSearchIndex(state),
   sortedThreadInfos: typeaheadSortedThreadInfos(state),
 }))(Typeahead);

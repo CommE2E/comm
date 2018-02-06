@@ -45,7 +45,6 @@ import { pingActionTypes } from 'lib/actions/ping-actions';
 import {
   leaveThreadActionTypes,
   joinThreadActionTypes,
-  subscribeActionTypes,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
@@ -249,7 +248,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === pingActionTypes.success ||
       action.type === joinThreadActionTypes.success ||
       action.type === leaveThreadActionTypes.success ||
-      action.type === subscribeActionTypes.success ||
       action.type === setCookieActionType
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
