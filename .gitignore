@@ -6,6 +6,7 @@ lib/node_modules
 web/node_modules/*
 !web/node_modules/lib
 web/dist/dev.build.js
+web/dist/hot
 jserver/dist
 jserver/node_modules/*
 !jserver/node_modules/lib
