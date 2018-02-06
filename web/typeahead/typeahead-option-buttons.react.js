@@ -46,6 +46,10 @@ import { visibilityRules } from 'lib/types/thread-types';
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
+import ConfirmLeaveThreadModal
+  from '../modals/threads/confirm-leave-thread-modal.react';
+import CantLeaveThreadModal
+  from '../modals/threads/cant-leave-thread-modal.react';
 
 type Props = {
   threadInfo: ThreadInfo,
@@ -171,13 +175,30 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
       return;
     }
 
+    this.props.freezeTypeahead(this.props.threadInfo.id);
+
     if (this.props.otherUsersButNoOtherAdmins) {
-      // TODO Display a modal saying you can't leave
+      this.props.setModal(<CantLeaveThreadModal onClose={this.onClose} />);
       return;
-    } else {
-      // TODO Display a modal confirming your desire to leave
     }
 
+    this.props.setModal(
+      <ConfirmLeaveThreadModal
+        threadInfo={this.props.threadInfo}
+        onClose={this.onClose}
+        onConfirm={this.onConfirmLeave}
+      />
+    );
+  }
+
+  onClose = () => {
+    this.props.unfreezeTypeahead(this.props.threadInfo.id);
+    this.props.focusTypeahead();
+    this.props.clearModal();
+  }
+
+  onConfirmLeave = () => {
+    this.onClose();
     this.props.dispatchActionPromise(
       leaveThreadActionTypes,
       this.props.leaveThread(this.props.threadInfo.id),
@@ -192,14 +213,10 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
     this.props.freezeTypeahead(this.props.threadInfo.id);
-    const onClose = () => {
-      this.props.unfreezeTypeahead(this.props.threadInfo.id);
-      this.props.clearModal();
-    }
     this.props.setModal(
       <ThreadSettingsModal
         threadInfo={this.props.threadInfo}
-        onClose={onClose}
+        onClose={this.onClose}
       />
     );
   }
