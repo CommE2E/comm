@@ -49,7 +49,10 @@ if (!$leave_results) {
 }
 $to_save = array();
 foreach ($leave_results['to_save'] as $row_to_save) {
-  $row_to_save['subscribed'] = false;
+  $row_to_save['subscription'] = array(
+    "home" => false,
+    "pushNotifs" => false,
+  );
   $to_save[] = $row_to_save;
 }
 save_memberships($to_save);

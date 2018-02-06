@@ -32,7 +32,7 @@ async function fetchThreadInfos(
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
       t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscribed, m.unread, u.username
+      m.permissions, m.subscription, m.unread, u.username
     FROM threads t
     LEFT JOIN (
         SELECT thread, id, name, permissions
@@ -101,9 +101,9 @@ async function fetchThreadInfos(
       }
       if (userID === viewerID) {
         threadInfos[threadID].currentUser = {
-          permissions: member.permissions,
           role: member.role,
-          subscribed: !!row.subscribed,
+          permissions: member.permissions,
+          subscription: member.subscription,
           unread: member.role ? row.unread : null,
         };
       }
@@ -125,9 +125,13 @@ async function fetchThreadInfos(
       threadInfo = {
         ...threadInfo,
         currentUser: {
-          permissions: allPermissions,
           role: null,
-          subscribed: false,
+          permissions: allPermissions,
+          subscription: {
+            home: false,
+            pushNotifs: false,
+          },
+          unread: null,
         },
       };
     } else {

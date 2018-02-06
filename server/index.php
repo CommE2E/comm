@@ -57,7 +57,7 @@ $null_state = null;
 if ($home) {
   $null_state = true;
   foreach ($thread_infos as $thread_info) {
-    if ($thread_info['currentUser']['subscribed']) {
+    if ($thread_info['currentUser']['role'] !== null) {
       $null_state = false;
       break;
     }

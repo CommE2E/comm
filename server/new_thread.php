@@ -164,7 +164,10 @@ foreach ($to_save as $row_to_save) {
     $row_to_save['unread'] = true;
   }
   if ($row_to_save['thread_id'] === $id && $row_to_save['role'] !== 0) {
-    $row_to_save['subscribed'] = true;
+    $row_to_save['subscription'] = array(
+      "home" => true,
+      "pushNotifs" => true,
+    );
     $member = array(
       "id" => (string)$row_to_save['user_id'],
       "permissions" => get_all_thread_permissions(
@@ -179,9 +182,12 @@ foreach ($to_save as $row_to_save) {
     array_unshift($members, $member);
     if ($row_to_save['user_id'] === $creator) {
       $current_user_info = array(
-        "permissions" => $member['permissions'],
         "role" => $member['role'],
-        "subscribed" => true,
+        "permissions" => $member['permissions'],
+        "subscription" => array(
+          "home" => true,
+          "pushNotifs" => true,
+        ),
         "unread" => false,
       );
     }

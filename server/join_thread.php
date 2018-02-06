@@ -64,7 +64,10 @@ if (!$join_results) {
 }
 $to_save = array();
 foreach ($join_results['to_save'] as $row_to_save) {
-  $row_to_save['subscribed'] = true;
+  $row_to_save['subscription'] = array(
+    "home" => true,
+    "pushNotifs" => true,
+  );
   $to_save[] = $row_to_save;
 }
 save_memberships($to_save);

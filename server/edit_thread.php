@@ -245,7 +245,10 @@ if ($add_member_ids) {
       $row_to_save['unread'] = true;
     }
     if ($row_to_save['thread_id'] === $thread) {
-      $row_to_save['subscribed'] = true;
+      $row_to_save['subscription'] = array(
+        "home" => true,
+        "pushNotifs" => true,
+      );
     }
     $to_save[] = $row_to_save;
   }

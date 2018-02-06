@@ -270,7 +270,7 @@ function permissions_for_children($permissions) {
 //   permissions_for_children:
 //     ?array<permission: string, array(value => bool, source => int)>
 //   role: int,
-//   subscribed?: bool,
+//   subscription?: array(home => bool, pushNotifs => bool),
 //   unread?: bool,
 // )>
 function save_memberships($to_save) {
@@ -294,9 +294,9 @@ function save_memberships($to_save) {
           $role_info['permissions_for_children']
         )) . "'";
     }
-    $subscribed = isset($role_info['subscribed'])
-      ? ($role_info['subscribed'] ? "1" : "0")
-      : "0";
+    $subscription = isset($role_info['subscription'])
+      ? ("'" . json_encode($role_info['subscription']) . "'")
+      : ("'" . '{"home":false,"pushNotifs":false}' . "'");
     $unread = isset($role_info['unread'])
       ? ($role_info['unread'] ? "1" : "0")
       : "0";
@@ -306,7 +306,7 @@ function save_memberships($to_save) {
       $role_info['thread_id'],
       $role_info['role'],
       $time,
-      $subscribed,
+      $subscription,
       $permissions,
       $permissions_for_children,
       $unread,
@@ -314,19 +314,24 @@ function save_memberships($to_save) {
   }
   $new_rows_sql_string = implode(", ", $new_row_sql_strings);
 
-  // Logic below will only update an existing membership row's `subscribed`
-  // column if the user is either leaving or joining the thread. Generally,
-  // joining means you subscribe and leaving means you unsubscribe.
+  // Logic below will only update an existing membership row's `subscription`
+  // column if the user is either joining or leaving the thread. That means
+  // there's no way to use this function to update a user's subscription without
+  // also making them join or leave the thread. The reason we do this is because
+  // we need to specify a value for `subscription` here, as it's a non-null
+  // column and this is an INSERT, but we don't want to require people to have
+  // to know the current `subscription` when they're just using this function to
+  // update the permissions of an existing membership row.
   $query = <<<SQL
-INSERT INTO memberships (user, thread, role, creation_time, subscribed,
+INSERT INTO memberships (user, thread, role, creation_time, subscription,
   permissions, permissions_for_children, unread)
 VALUES {$new_rows_sql_string}
 ON DUPLICATE KEY UPDATE
-  subscribed = IF(
+  subscription = IF(
     (role = 0 AND VALUES(role) != 0)
       OR (role != 0 AND VALUES(role) = 0),
-    VALUES(subscribed),
-    subscribed
+    VALUES(subscription),
+    subscription
   ),
   role = VALUES(role),
   permissions = VALUES(permissions),
