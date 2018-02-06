@@ -1,7 +1,7 @@
 [ignore]
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/node_modules/google-gax/node_modules/grpc/node_modules/protobufjs/src/bower.json
-<PROJECT_ROOT>/node_modules/protobufjs/src/bower.json
+.*/node_modules/protobufjs/src/bower.json
 
 [include]
 ../lib

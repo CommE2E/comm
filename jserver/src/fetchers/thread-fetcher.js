@@ -103,7 +103,7 @@ async function fetchThreadInfos(
         threadInfos[threadID].currentUser = {
           role: member.role,
           permissions: member.permissions,
-          subscription: member.subscription,
+          subscription: row.subscription,
           unread: member.role ? row.unread : null,
         };
       }
