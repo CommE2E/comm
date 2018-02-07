@@ -7,10 +7,21 @@ import cookieParser from 'cookie-parser';
 import errorHandler from './error_handler';
 import { messageCreationResponder } from './responders/message-responders';
 import { updateActivityResponder } from './responders/activity-responders';
+import { userSubscriptionUpdateResponder } from './responders/user-responders';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.post('/create_messages', errorHandler(messageCreationResponder));
-app.post('/update_activity', errorHandler(updateActivityResponder));
+app.post(
+  '/create_messages',
+  errorHandler(messageCreationResponder),
+);
+app.post(
+  '/update_activity',
+  errorHandler(updateActivityResponder),
+);
+app.post(
+  '/update_user_subscription',
+  errorHandler(userSubscriptionUpdateResponder),
+);
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

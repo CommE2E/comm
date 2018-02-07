@@ -1,6 +1,7 @@
 <?php
 
 require_once('auth.php');
+require_once('async_lib.php');
 
 function call_node($path, $blob) {
   $url = "http://localhost:3000/" . $path;
@@ -24,4 +25,34 @@ function call_node($path, $blob) {
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $body = substr($result, $header_size);
   return json_decode($body, true);
+}
+
+function proxy_to_node($path) {
+  async_start();
+
+  if (!isset($_POST['input'])) {
+    async_end(array(
+      'error' => 'invalid_parameters',
+    ));
+  }
+
+  $fixed_bools = fix_bools($_POST['input']);
+
+  async_end(call_node($path, $fixed_bools));
+}
+
+function fix_bools($input) {
+  $result = array();
+  foreach ($input as $key => $value) {
+    if (is_array($value)) {
+      $result[$key] = fix_bools($value);
+    } else if ($value === "true") {
+      $result[$key] = true;
+    } else if ($value === "false") {
+      $result[$key] = false;
+    } else {
+      $result[$key] = $value;
+    }
+  }
+  return $result;
 }
