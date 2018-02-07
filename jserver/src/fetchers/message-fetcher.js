@@ -135,28 +135,28 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   const type = parseInt(row.type);
   if (type === messageType.TEXT) {
     return {
+      type: messageType.TEXT,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       text: row.content,
     };
   } else if (type === messageType.CREATE_THREAD) {
     return {
+      type: messageType.CREATE_THREAD,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       initialThreadState: row.content,
     };
   } else if (type === messageType.ADD_MEMBERS) {
     return {
+      type: messageType.ADD_MEMBERS,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       addedUserIDs: row.content,
     };
@@ -169,65 +169,65 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       return null;
     }
     return {
+      type: messageType.CREATE_SUB_THREAD,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       childThreadID: row.content,
     };
   } else if (type === messageType.CHANGE_SETTINGS) {
     const field = Object.keys(row.content)[0];
     return {
+      type: messageType.CHANGE_SETTINGS,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       field,
       value: row.content[field],
     };
   } else if (type === messageType.REMOVE_MEMBERS) {
     return {
+      type: messageType.REMOVE_MEMBERS,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       removedUserIDs: row.content,
     };
   } else if (type === messageType.CHANGE_ROLE) {
     return {
+      type: messageType.CHANGE_ROLE,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type,
       creatorID: row.creatorID,
       userIDs: row.content.userIDs,
       newRole: row.content.newRole,
     };
   } else if (type === messageType.LEAVE_THREAD) {
     return {
+      type: messageType.LEAVE_THREAD,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type: messageType.LEAVE_THREAD,
       creatorID: row.creatorID,
     };
   } else if (type === messageType.JOIN_THREAD) {
     return {
+      type: messageType.JOIN_THREAD,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type: messageType.JOIN_THREAD,
       creatorID: row.creatorID,
     };
   } else if (type === messageType.CREATE_ENTRY) {
     return {
+      type: messageType.CREATE_ENTRY,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type: messageType.CREATE_ENTRY,
       creatorID: row.creatorID,
       entryID: row.content.entryID,
       date: row.content.date,
@@ -235,10 +235,10 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
     };
   } else if (type === messageType.EDIT_ENTRY) {
     return {
+      type: messageType.EDIT_ENTRY,
       id: row.id,
       threadID: row.threadID,
       time: parseInt(row.time),
-      type: messageType.EDIT_ENTRY,
       creatorID: row.creatorID,
       entryID: row.content.entryID,
       date: row.content.date,

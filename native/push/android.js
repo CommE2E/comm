@@ -23,10 +23,10 @@ type ClearAndroidNotificationPayload = {|
 
 export type AndroidNotificationActions =
   | {|
-    type: typeof recordAndroidNotificationActionType,
+    type: "RECORD_ANDROID_NOTIFICATION",
     payload: RecordAndroidNotificationPayload,
   |} | {|
-    type: typeof clearAndroidNotificationActionType,
+    type: "CLEAR_ANDROID_NOTIFICATION",
     payload: ClearAndroidNotificationPayload,
   |};
 

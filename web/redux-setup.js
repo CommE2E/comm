@@ -47,8 +47,9 @@ export type AppState = {|
 
 export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
 
-export type Action = BaseAction |
-  {| type: typeof reflectRouteChangeActionType, payload: NavInfo |};
+export type Action =
+  | BaseAction
+  | {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |};
 
 export function reducer(state: AppState, action: Action) {
   if (action.type === reflectRouteChangeActionType) {

@@ -93,10 +93,10 @@ function _getUuid() {
 export type Action =
   | BaseAction
   | NavigationAction
-  | {| type: typeof handleURLActionType, payload: string |}
-  | {| type: typeof navigateToAppActionType, payload: null |}
+  | {| type: "HANDLE_URL", payload: string |}
+  | {| type: "NAVIGATE_TO_APP", payload: null |}
   | {|
-    type: typeof notificationPressActionType,
+    type: "NOTIFICATION_PRESS",
     payload: NotificationPressPayload,
   |} | AndroidNotificationActions;
 
