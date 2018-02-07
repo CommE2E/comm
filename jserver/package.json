@@ -19,8 +19,8 @@
     "concurrently": "^3.5.1",
     "flow-bin": "^0.64.0",
     "flow-typed": "^2.2.3",
-    "nodemon": "^1.14.3",
-    "linklocal": "^2.8.1"
+    "linklocal": "^2.8.1",
+    "nodemon": "^1.14.3"
   },
   "dependencies": {
     "apn": "^2.2.0",
@@ -34,6 +34,7 @@
     "mysql2": "^1.5.1",
     "promise": "^8.0.1",
     "sql-template-strings": "^2.2.2",
+    "tcomb": "^3.2.24",
     "twin-bcrypt": "^2.1.1",
     "uuid": "^3.1.0"
   }
