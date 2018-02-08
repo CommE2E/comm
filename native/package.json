@@ -1,9 +1,8 @@
 {
-  "name": "SquadCal",
+  "name": "native",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "install": "linklocal",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
     "devtools": "react-devtools",
@@ -12,7 +11,7 @@
   "dependencies": {
     "color": "^2.0.0",
     "invariant": "^2.2.2",
-    "lib": "file:../lib",
+    "lib": "0.0.1",
     "react": "^16.2.0",
     "react-native": "^0.52.0",
     "react-native-fcm": "^11.2.0",
@@ -45,8 +44,7 @@
     "flow-bin": "^0.61.0",
     "jest": "^20.0.4",
     "react-devtools": "^3.0.0",
-    "react-test-renderer": "^15.6.1",
-    "linklocal": "^2.8.1"
+    "react-test-renderer": "^15.6.1"
   },
   "jest": {
     "preset": "react-native"

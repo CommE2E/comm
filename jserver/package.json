@@ -4,7 +4,6 @@
   "description": "",
   "main": "dist/app",
   "scripts": {
-    "install": "linklocal",
     "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','lib/package-lock.json' --copy-files",
     "prod": "node --experimental-modules --loader ./loader.mjs dist/app",
     "dev": "concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/app\""
@@ -19,7 +18,6 @@
     "concurrently": "^3.5.1",
     "flow-bin": "^0.64.0",
     "flow-typed": "^2.2.3",
-    "linklocal": "^2.8.1",
     "nodemon": "^1.14.3"
   },
   "dependencies": {
@@ -29,7 +27,7 @@
     "express": "^4.16.2",
     "firebase-admin": "^5.7.0",
     "invariant": "^2.2.2",
-    "lib": "file:../lib",
+    "lib": "0.0.1",
     "lodash": "^4.17.5",
     "mysql2": "^1.5.1",
     "promise": "^8.0.1",
