@@ -274,7 +274,7 @@ async function sendPushNotifsForNewMessages(
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
     WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND
-      JSON_EXTRACT(m.subscription, '$.pushNotifs') IS TRUE AND (
+      (
         JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
         OR t.visibility_rules = ${visibilityRules.OPEN}
       ) AND

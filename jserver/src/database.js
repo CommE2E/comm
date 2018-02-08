@@ -58,10 +58,6 @@ function mergeOrConditions(andConditions: SQLStatement[]) {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
-function rawSQL(statement: SQLStatement) {
-  return mysql.format(statement.sql, ...statement.values);
-}
-
 export {
   connect,
   SQL,
@@ -69,5 +65,4 @@ export {
   appendSQLArray,
   mergeAndConditions,
   mergeOrConditions,
-  rawSQL,
 };

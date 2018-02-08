@@ -45,7 +45,7 @@ async function fetchServerThreadInfos(
   const threadInfos = {};
   const userInfos = {};
   for (let row of result) {
-    const threadID = row.id;
+    const threadID = row.id.toString();
     if (!threadInfos[threadID]) {
       threadInfos[threadID] = {
         id: threadID,
@@ -54,21 +54,24 @@ async function fetchServerThreadInfos(
         visibilityRules: row.visibility_rules,
         color: row.color,
         creationTime: row.creation_time,
-        parentThreadID: row.parent_thread_id,
+        parentThreadID: row.parent_thread_id
+          ? row.parent_thread_id.toString()
+          : null,
         members: [],
         roles: {},
       };
     }
-    if (row.role && !threadInfos[threadID].roles[row.role]) {
-      threadInfos[threadID].roles[row.role] = {
-        id: row.role,
+    const role = row.role.toString();
+    if (role && !threadInfos[threadID].roles[role]) {
+      threadInfos[threadID].roles[role] = {
+        id: role,
         name: row.role_name,
         permissions: row.role_permissions,
-        isDefault: row.role === row.default_role,
+        isDefault: role === row.default_role.toString(),
       };
     }
     if (row.user) {
-      const userID = row.user;
+      const userID = row.user.toString();
       const allPermissions = getAllThreadPermissions(
         {
           permissions: row.permissions,
@@ -79,7 +82,7 @@ async function fetchServerThreadInfos(
       const member = {
         id: userID,
         permissions: allPermissions,
-        role: row.role ? row.role : null,
+        role: row.role ? role : null,
         subscription: row.subscription,
         unread: row.role ? row.unread : null,
       };

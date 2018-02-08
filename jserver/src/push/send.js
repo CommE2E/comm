@@ -107,6 +107,11 @@ async function sendPushNotifs(
       const threadID = firstNewMessageInfo.threadID;
 
       const threadInfo = threadInfos[threadID];
+      const badgeOnly = !threadInfo.currentUser.subscription.pushNotifs;
+      if (badgeOnly && !threadInfo.currentUser.subscription.home) {
+        continue;
+      }
+
       const dbID = dbIDs.shift();
       invariant(dbID, "should have sufficient DB IDs");
       const byDeviceType = getDevicesByDeviceType(pushInfo[userID].devices);
@@ -116,6 +121,7 @@ async function sendPushNotifs(
           allMessageInfos,
           threadInfo,
           notifInfo.collapseKey,
+          badgeOnly,
           unreadCounts[userID],
         );
         deliveryPromises.push(apnPush(notification, byDeviceType.ios, dbID));
@@ -127,6 +133,7 @@ async function sendPushNotifs(
           allMessageInfos,
           threadInfo,
           notifInfo.collapseKey,
+          badgeOnly,
           unreadCounts[userID],
           dbID,
         );
@@ -348,14 +355,17 @@ function prepareIOSNotification(
   messageInfos: MessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
+  badgeOnly: bool,
   unreadCount: number,
 ): apn.Notification {
   const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
-  notification.body = notifText;
   notification.topic = "org.squadcal.app";
-  notification.sound = "default";
+  if (!badgeOnly) {
+    notification.body = notifText;
+    notification.sound = "default";
+  }
   notification.badge = unreadCount;
   notification.threadId = threadInfo.id;
   notification.id = uniqueID;
@@ -371,12 +381,15 @@ function prepareAndroidNotification(
   messageInfos: MessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
+  badgeOnly: bool,
   unreadCount: number,
   dbID: string,
 ): Object {
   const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
   const data = {};
-  data.notifBody = notifText;
+  if (!badgeOnly) {
+    data.notifBody = notifText;
+  }
   data.badgeCount = unreadCount.toString();
   data.threadID = threadInfo.id.toString();
   data.notifID = collapseKey ? collapseKey : dbID;
