@@ -1,12 +1,10 @@
 // @flow
 
-import type { Connection } from '../database';
 import type { UserInfo } from 'lib/types/user-types';
 
-import { SQL } from '../database';
+import { pool, SQL } from '../database';
 
 async function fetchUserInfos(
-  conn: Connection,
   userIDs: string[],
 ): Promise<{[id: string]: UserInfo}> {
   if (userIDs.length <= 0) {
@@ -16,7 +14,7 @@ async function fetchUserInfos(
   const query = SQL`
     SELECT id, username FROM users WHERE id IN (${userIDs})
   `;
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
 
   const userInfos = {};
   for (let row of result) {

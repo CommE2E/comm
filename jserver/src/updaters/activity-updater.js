@@ -1,6 +1,5 @@
 // @flow
 
-import type { Connection } from '../database';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -14,12 +13,11 @@ import { messageType } from 'lib/types/message-types';
 import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
 
 import { currentViewer } from '../session/viewer';
-import { SQL, mergeOrConditions } from '../database';
+import { pool, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetcher';
 import { rescindPushNotifs } from '../push/rescind';
 
 async function activityUpdater(
-  conn: Connection,
   updates: $ReadOnlyArray<ActivityUpdate>,
 ): Promise<?UpdateActivityResult> {
   const viewer = currentViewer();
@@ -41,17 +39,17 @@ async function activityUpdater(
   }
 
   const dbPromises = [];
-  dbPromises.push(conn.query(SQL`
+  dbPromises.push(pool.query(SQL`
     DELETE FROM focused
     WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
   `));
   if (closing) {
-    dbPromises.push(conn.query(SQL`
+    dbPromises.push(pool.query(SQL`
       UPDATE cookies SET last_ping = 0 WHERE id = ${viewer.cookieID}
     `));
   }
   const [ verifiedThreadIDs ] = await Promise.all([
-    verifyThreadIDs(conn, [...unverifiedThreadIDs]),
+    verifyThreadIDs([...unverifiedThreadIDs]),
     Promise.all(dbPromises),
   ]);
 
@@ -81,11 +79,11 @@ async function activityUpdater(
       threadID,
       time,
     ]);
-    promises.push(conn.query(SQL`
+    promises.push(pool.query(SQL`
       INSERT INTO focused (user, cookie, thread, time)
       VALUES ${focusedInsertRows}
     `));
-    promises.push(conn.query(SQL`
+    promises.push(pool.query(SQL`
       UPDATE memberships
       SET unread = 0
       WHERE role != 0
@@ -93,7 +91,6 @@ async function activityUpdater(
         AND user = ${viewer.userID}
     `));
     promises.push(rescindPushNotifs(
-      conn,
       viewer.userID,
       focusedThreadIDs,
     ));
@@ -101,7 +98,6 @@ async function activityUpdater(
 
   const [ resetToUnread ] = await Promise.all([
     possiblyResetThreadsToUnread(
-      conn,
       unfocusedThreadIDs,
       unfocusedThreadLatestMessages,
     ),
@@ -117,7 +113,6 @@ async function activityUpdater(
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
 async function possiblyResetThreadsToUnread(
-  conn: Connection,
   unfocusedThreadIDs: $ReadOnlyArray<string>,
   unfocusedThreadLatestMessages: Map<string, string>,
 ): Promise<string[]> {
@@ -129,10 +124,7 @@ async function possiblyResetThreadsToUnread(
   const threadUserPairs = unfocusedThreadIDs.map(
     threadID => [viewer.userID, threadID],
   );
-  const focusedElsewherePairs = await checkThreadsFocused(
-    conn,
-    threadUserPairs,
-  );
+  const focusedElsewherePairs = await checkThreadsFocused(threadUserPairs);
   const focusedElsewhereThreadIDs = focusedElsewherePairs.map(pair => pair[1]);
   const unreadCandidates =
     _difference(unfocusedThreadIDs)(focusedElsewhereThreadIDs);
@@ -156,7 +148,7 @@ async function possiblyResetThreadsToUnread(
       )
     GROUP BY m.thread
   `;
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
 
   const resetToUnread = [];
   for (let row of result) {
@@ -178,13 +170,12 @@ async function possiblyResetThreadsToUnread(
       AND thread IN (${resetToUnread})
       AND user = ${viewer.userID}
   `;
-  await conn.query(unreadQuery);
+  await pool.query(unreadQuery);
 
   return resetToUnread;
 }
 
 async function checkThreadsFocused(
-  conn: Connection,
   threadUserPairs: $ReadOnlyArray<[string, string]>,
 ): Promise<$ReadOnlyArray<[string, string]>> {
   const conditions = threadUserPairs.map(
@@ -199,7 +190,7 @@ async function checkThreadsFocused(
   `;
   query.append(mergeOrConditions(conditions));
   query.append(SQL`GROUP BY user, thread`);
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
 
   const focusedThreadUserPairs = [];
   for (let row of result) {

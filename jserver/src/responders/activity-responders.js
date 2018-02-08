@@ -6,7 +6,6 @@ import type { ActivityUpdate } from 'lib/types/activity-types';
 import t from 'tcomb';
 
 import { activityUpdater } from '../updaters/activity-updater';
-import { connect } from '../database';
 import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tBool } from '../utils/tcomb-utils';
 
@@ -34,10 +33,8 @@ async function updateActivityResponder(req: $Request, res: $Response) {
     return { error: 'invalid_parameters' };
   }
 
-  const conn = await connect();
-  await setCurrentViewerFromCookie(conn, req.cookies);
-  const result = await activityUpdater(conn, updates);
-  conn.end();
+  await setCurrentViewerFromCookie(req.cookies);
+  const result = await activityUpdater(updates);
 
   if (result) {
     return { success: true, unfocusedToUnread: result.unfocusedToUnread };

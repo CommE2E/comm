@@ -1,6 +1,5 @@
 // @flow
 
-import type { Connection } from '../database';
 import type { RawThreadInfo, ServerThreadInfo  } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 
@@ -11,7 +10,7 @@ import {
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
-import { SQL, SQLStatement } from '../database';
+import { pool, SQL, SQLStatement } from '../database';
 import { currentViewer } from '../session/viewer';
 
 type FetchServerThreadInfosResult = {|
@@ -20,7 +19,6 @@ type FetchServerThreadInfosResult = {|
 |};
 
 async function fetchServerThreadInfos(
-  conn: Connection,
   condition?: SQLStatement,
 ): Promise<FetchServerThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
@@ -40,7 +38,7 @@ async function fetchServerThreadInfos(
     LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
     LEFT JOIN users u ON u.id = m.user
   `.append(whereClause).append(SQL`ORDER BY m.user ASC`);
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
 
   const threadInfos = {};
   const userInfos = {};
@@ -110,10 +108,9 @@ type FetchThreadInfosResult = {|
 |};
 
 async function fetchThreadInfos(
-  conn: Connection,
   condition?: SQLStatement,
 ): Promise<FetchThreadInfosResult> {
-  const serverResult = await fetchServerThreadInfos(conn, condition);
+  const serverResult = await fetchServerThreadInfos(condition);
   const viewerID = currentViewer().id;
   const threadInfos = {};
   const userInfos = {};
@@ -134,7 +131,6 @@ async function fetchThreadInfos(
 }
 
 async function verifyThreadIDs(
-  conn: Connection,
   threadIDs: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<string>> {
   if (threadIDs.length === 0) {
@@ -142,7 +138,7 @@ async function verifyThreadIDs(
   }
 
   const query = SQL`SELECT id FROM threads WHERE id IN (${threadIDs})`;
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
 
   const verified = [];
   for (let row of result) {

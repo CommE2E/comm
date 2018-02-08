@@ -1,6 +1,5 @@
 // @flow
 
-import type { Connection } from '../database';
 import type { PushInfo } from '../push/send';
 import type { UserInfo } from 'lib/types/user-types';
 import type { RawMessageInfo } from 'lib/types/message-types';
@@ -17,7 +16,7 @@ import {
 import { sortMessageInfoList } from 'lib/shared/message-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
-import { SQL, mergeOrConditions } from '../database';
+import { pool, SQL, mergeOrConditions } from '../database';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -30,7 +29,6 @@ export type FetchCollapsableNotifsResult = {|
 |};
 
 async function fetchCollapsableNotifs(
-  conn: Connection,
   pushInfo: PushInfo,
 ): Promise<FetchCollapsableNotifsResult> {
   // First, we need to fetch any notifications that should be collapsed
@@ -104,7 +102,7 @@ async function fetchCollapsableNotifs(
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
-  const [ collapseResult ] = await conn.query(collapseQuery);
+  const [ collapseResult ] = await pool.query(collapseQuery);
 
   const userInfos = {};
   for (let row of collapseResult) {

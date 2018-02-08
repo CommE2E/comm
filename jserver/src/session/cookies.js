@@ -1,12 +1,10 @@
 // @flow
 
-import type { Connection } from '../database';
-
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
 import { setCurrentViewer } from './viewer';
-import { SQL } from '../database';
+import { pool, SQL } from '../database';
 
 const cookieLifetime = 30*24*60*60*1000; // in milliseconds
 
@@ -14,7 +12,6 @@ const cookieLifetime = 30*24*60*60*1000; // in milliseconds
 // That means it doesn't have any logic to handle an invalid cookie, and it
 // doesn't the cookie's last_update timestamp.
 async function setCurrentViewerFromCookie(
-  conn: Connection,
   cookieData: {[cookieName: string]: string},
 ) {
   if (cookieData.user) {
@@ -24,7 +21,7 @@ async function setCurrentViewerFromCookie(
       SELECT hash, user, last_update FROM cookies
       WHERE id = ${cookieID} AND user IS NOT NULL
     `;
-    const [ result ] = await conn.query(query);
+    const [ result ] = await pool.query(query);
     const cookieRow = result[0];
     invariant(cookieRow, `invalid user cookie ID ${cookieID}`);
     invariant(
@@ -48,7 +45,7 @@ async function setCurrentViewerFromCookie(
       SELECT last_update, hash FROM cookies
       WHERE id = ${cookieID} AND user IS NULL
     `;
-    const [ result ] = await conn.query(query);
+    const [ result ] = await pool.query(query);
     const cookieRow = result[0];
     invariant(cookieRow, `invalid anonymous cookie ID ${cookieID}`);
     invariant(

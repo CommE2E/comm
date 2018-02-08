@@ -1,16 +1,14 @@
 // @flow
 
-import type { Connection } from '../database';
 import type {
   ThreadSubscription,
   SubscriptionUpdate,
 } from 'lib/types/subscription-types';
 
 import { currentViewer } from '../session/viewer';
-import { SQL } from '../database';
+import { pool, SQL } from '../database';
 
 async function userSubscriptionUpdater(
-  conn: Connection,
   update: SubscriptionUpdate,
 ): Promise<?ThreadSubscription> {
   const viewer = currentViewer();
@@ -19,7 +17,7 @@ async function userSubscriptionUpdater(
     FROM memberships
     WHERE user = ${viewer.id} AND thread = ${update.threadID} AND role != 0
   `;
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
   if (result.length === 0) {
     return null;
   }
@@ -34,7 +32,7 @@ async function userSubscriptionUpdater(
     SET subscription = ${JSON.stringify(newSubscription)}
     WHERE user = ${viewer.id} AND thread = ${update.threadID}
   `;
-  await conn.query(saveQuery);
+  await pool.query(saveQuery);
 
   return newSubscription;
 }

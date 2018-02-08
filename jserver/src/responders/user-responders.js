@@ -6,7 +6,6 @@ import type { SubscriptionUpdate } from 'lib/types/subscription-types';
 import t from 'tcomb';
 
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
-import { connect } from '../database';
 import { setCurrentViewerFromCookie } from '../session/cookies';
 
 async function userSubscriptionUpdateResponder(req: $Request, res: $Response) {
@@ -25,13 +24,8 @@ async function userSubscriptionUpdateResponder(req: $Request, res: $Response) {
     return { error: 'invalid_parameters' };
   }
 
-  const conn = await connect();
-  await setCurrentViewerFromCookie(conn, req.cookies);
-  const threadSubscription = await userSubscriptionUpdater(
-    conn,
-    subscriptionUpdate,
-  );
-  conn.end();
+  await setCurrentViewerFromCookie(req.cookies);
+  const threadSubscription = await userSubscriptionUpdater(subscriptionUpdate);
 
   if (!threadSubscription) {
     return { error: 'not_member' };

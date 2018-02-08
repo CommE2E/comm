@@ -13,14 +13,10 @@ export type QueryResult = [
   any[],
 ];
 
-export type Connection = {
-  query(query: string): Promise<QueryResult>;
-  end(): Promise<void>;
-};
-
-async function connect(): Promise<Connection> {
-  return await mysqlPromise.createConnection(dbConfig);
-}
+const pool = mysqlPromise.createPool({
+  ...dbConfig,
+  connectionLimit: 10,
+});
 
 type SQLOrString = SQLStatement | string;
 function appendSQLArray(
@@ -59,7 +55,7 @@ function mergeOrConditions(andConditions: SQLStatement[]) {
 }
 
 export {
-  connect,
+  pool,
   SQL,
   SQLStatement,
   appendSQLArray,

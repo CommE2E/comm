@@ -3,7 +3,6 @@
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
-import type { Connection } from '../database';
 import type { DeviceType } from 'lib/actions/device-actions';
 import type {
   CollapsableNotifInfo,
@@ -28,7 +27,7 @@ import {
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
 
-import { SQL, mergeOrConditions } from '../database';
+import { pool, SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetcher';
 import { fetchUserInfos } from '../fetchers/user-fetcher';
@@ -42,10 +41,7 @@ type PushUserInfo = {
 };
 export type PushInfo = { [userID: string]: PushUserInfo };
 
-async function sendPushNotifs(
-  conn: Connection,
-  pushInfo: PushInfo,
-) {
+async function sendPushNotifs(pushInfo: PushInfo) {
   if (Object.keys(pushInfo).length === 0) {
     return [];
   }
@@ -55,9 +51,9 @@ async function sendPushNotifs(
     { usersToCollapsableNotifInfo, serverThreadInfos, userInfos },
     dbIDs,
   ] = await Promise.all([
-    getUnreadCounts(conn, Object.keys(pushInfo)),
-    fetchInfos(conn, pushInfo),
-    createDBIDs(conn, pushInfo),
+    getUnreadCounts(Object.keys(pushInfo)),
+    fetchInfos(pushInfo),
+    createDBIDs(pushInfo),
   ]);
 
   const deliveryPromises = [];
@@ -174,7 +170,7 @@ async function sendPushNotifs(
   const cleanUpPromises = [];
   if (dbIDs.length > 0) {
     const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
-    cleanUpPromises.push(conn.query(query));
+    cleanUpPromises.push(pool.query(query));
   }
   const [ deliveryResults ] = await Promise.all([
     Promise.all(deliveryPromises),
@@ -206,10 +202,7 @@ async function sendPushNotifs(
 
   const dbPromises = [];
   if (invalidTokens.length > 0) {
-    dbPromises.push(removeInvalidTokens(
-      conn,
-      invalidTokens,
-    ));
+    dbPromises.push(removeInvalidTokens(invalidTokens));
   }
 
   const flattenedNotifications = [];
@@ -225,18 +218,15 @@ async function sendPushNotifs(
         (id, user, thread, message, collapse_key, delivery, rescinded)
       VALUES ${flattenedNotifications}
     `;
-    dbPromises.push(conn.query(query));
+    dbPromises.push(pool.query(query));
   }
   if (dbPromises.length > 0) {
     await Promise.all(dbPromises);
   }
 }
 
-async function fetchInfos(
-  conn: Connection,
-  pushInfo: PushInfo,
-) {
-  const collapsableNotifsResult = await fetchCollapsableNotifs(conn, pushInfo);
+async function fetchInfos(pushInfo: PushInfo) {
+  const collapsableNotifsResult = await fetchCollapsableNotifs(pushInfo);
 
   const threadIDs = new Set();
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
@@ -265,14 +255,13 @@ async function fetchInfos(
 
   // These threadInfos won't have currentUser set
   const { threadInfos: serverThreadInfos, userInfos: threadUserInfos } =
-    await fetchServerThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`);
+    await fetchServerThreadInfos(SQL`t.id IN (${[...threadIDs]})`);
   const mergedUserInfos = {
     ...collapsableNotifsResult.userInfos,
     ...threadUserInfos,
   };
 
   const userInfos = await fetchMissingUserInfos(
-    conn,
     mergedUserInfos,
     usersToCollapsableNotifInfo,
   );
@@ -281,7 +270,6 @@ async function fetchInfos(
 }
 
 async function fetchMissingUserInfos(
-  conn: Connection,
   userInfos: { [id: string]: UserInfo },
   usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
 ) {
@@ -321,21 +309,18 @@ async function fetchMissingUserInfos(
 
   let finalUserInfos = userInfos;
   if (missingUserIDs.size > 0) {
-    const newUserInfos = await fetchUserInfos(conn, [...missingUserIDs]);
+    const newUserInfos = await fetchUserInfos([...missingUserIDs]);
     finalUserInfos = { ...userInfos, ...newUserInfos };
   }
   return finalUserInfos;
 }
 
-async function createDBIDs(
-  conn: Connection,
-  pushInfo: PushInfo,
-): Promise<string[]> {
+async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
   let numIDsNeeded = 0;
   for (let userID in pushInfo) {
     numIDsNeeded += pushInfo[userID].messageInfos.length;
   }
-  return await createIDs(conn, "notifications", numIDsNeeded);
+  return await createIDs("notifications", numIDsNeeded);
 }
 
 function getDevicesByDeviceType(
@@ -401,10 +386,7 @@ type InvalidToken = {
   fcmTokens?: string[],
   apnTokens?: string[],
 };
-async function removeInvalidTokens(
-  conn: Connection,
-  invalidTokens: InvalidToken[],
-) {
+async function removeInvalidTokens(invalidTokens: InvalidToken[]) {
   const query = SQL`
     UPDATE cookies
     SET android_device_token = NULL, ios_device_token = NULL
@@ -430,7 +412,7 @@ async function removeInvalidTokens(
   }
   query.append(mergeOrConditions(sqlTuples));
 
-  await conn.query(query);
+  await pool.query(query);
 }
 
 export {

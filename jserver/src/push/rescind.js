@@ -1,14 +1,11 @@
 // @flow
 
-import type { Connection } from '../database';
-
 import apn from 'apn';
 
-import { SQL } from '../database';
+import { pool, SQL } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 async function rescindPushNotifs(
-  conn: Connection,
   userID: string,
   threadIDs: $ReadOnlyArray<string>,
 ) {
@@ -19,8 +16,8 @@ async function rescindPushNotifs(
       AND rescinded = 0
   `;
   const [ [ fetchResult ], unreadCounts ] = await Promise.all([
-    conn.query(fetchQuery),
-    getUnreadCounts(conn, [ userID ]),
+    pool.query(fetchQuery),
+    getUnreadCounts([ userID ]),
   ]);
 
   const promises = [];
@@ -63,7 +60,7 @@ async function rescindPushNotifs(
     const rescindQuery = SQL`
       UPDATE notifications SET rescinded = 1 WHERE id IN (${rescindedIDs})
     `;
-    promises.push(conn.query(rescindQuery));
+    promises.push(pool.query(rescindQuery));
   }
 
   await Promise.all(promises);

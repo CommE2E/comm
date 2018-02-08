@@ -1,6 +1,5 @@
 // @flow
 
-import type { Connection } from '../database';
 import type { MessageData, RawMessageInfo } from 'lib/types/message-types';
 
 import invariant from 'invariant';
@@ -16,6 +15,7 @@ import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
 import {
+  pool,
   SQL,
   SQLStatement,
   appendSQLArray,
@@ -31,14 +31,13 @@ type ThreadRestriction = {|
 |};
 
 async function createMessages(
-  conn: Connection,
   messageDatas: MessageData[],
 ): Promise<RawMessageInfo[]> {
   if (messageDatas.length === 0) {
     return [];
   }
 
-  const ids = await createIDs(conn, "messages", messageDatas.length);
+  const ids = await createIDs("messages", messageDatas.length);
 
   // threadRestrictions contains the conditions that must be met for a
   // membership row to be set to unread or the corresponding user notified for a
@@ -152,10 +151,9 @@ async function createMessages(
     VALUES ${messageInsertRows}
   `;
   await Promise.all([
-    conn.query(messageInsertQuery),
-    updateUnreadStatus(conn, threadRestrictions),
+    pool.query(messageInsertQuery),
+    updateUnreadStatus(threadRestrictions),
     sendPushNotifsForNewMessages(
-      conn,
       threadRestrictions,
       subthreadPermissionsToCheck,
       threadsToMessageIndices,
@@ -167,7 +165,6 @@ async function createMessages(
 }
 
 async function updateUnreadStatus(
-  conn: Connection,
   threadRestrictions: Map<string, ThreadRestriction>,
 ) {
   const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
@@ -222,11 +219,10 @@ async function updateUnreadStatus(
     ) AND
   `);
   query.append(conditionClause);
-  await conn.query(query);
+  await pool.query(query);
 }
 
 async function sendPushNotifsForNewMessages(
-  conn: Connection,
   threadRestrictions: Map<string, ThreadRestriction>,
   subthreadPermissionsToCheck: Set<string>,
   threadsToMessageIndices: Map<string, number[]>,
@@ -282,7 +278,7 @@ async function sendPushNotifsForNewMessages(
   query.append(conditionClause);
 
   const prePushInfo = new Map();
-  const [ result ] = await conn.query(query);
+  const [ result ] = await pool.query(query);
   for (let row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
@@ -354,7 +350,7 @@ async function sendPushNotifsForNewMessages(
     }
   }
 
-  await sendPushNotifs(conn, pushInfo);
+  await sendPushNotifs(pushInfo);
 }
 
 // Note: does *not* consider subthread
