@@ -13,6 +13,7 @@ import {
 } from 'lib/types/thread-types';
 import { rawMessageInfoFromMessageData } from 'lib/shared/message-utils';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
+import { permissionHelper } from 'lib/permissions/thread-permissions';
 
 import {
   SQL,
@@ -22,7 +23,6 @@ import {
   mergeOrConditions,
 } from '../database';
 import createIDs from './id-creator';
-import { permissionHelper } from '../permissions/permissions';
 import { sendPushNotifs } from '../push/send';
 
 type ThreadRestriction = {|

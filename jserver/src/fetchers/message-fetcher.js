@@ -15,9 +15,9 @@ import {
   visibilityRules,
 } from 'lib/types/thread-types';
 import { sortMessageInfoList } from 'lib/shared/message-utils';
+import { permissionHelper } from 'lib/permissions/thread-permissions';
 
 import { SQL, mergeOrConditions } from '../database';
-import { permissionHelper } from '../permissions/permissions';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,

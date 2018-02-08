@@ -2,7 +2,7 @@
 
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
-import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types';
+import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { Connection } from '../database';
 import type { DeviceType } from 'lib/actions/device-actions';
 import type {
@@ -13,6 +13,9 @@ import type {
 import apn from 'apn';
 import invariant from 'invariant';
 import uuidv4 from 'uuid/v4';
+import _flow from 'lodash/fp/flow';
+import _mapValues from 'lodash/fp/mapValues';
+import _pickBy from 'lodash/fp/pickBy';
 
 import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import { messageType } from 'lib/types/message-types';
@@ -20,11 +23,14 @@ import {
   createMessageInfo,
   sortMessageInfoList,
 } from 'lib/shared/message-utils';
-import { rawThreadInfosToThreadInfos } from 'lib/selectors/thread-selectors';
+import {
+  rawThreadInfoFromServerThreadInfo,
+  threadInfoFromRawThreadInfo,
+} from 'lib/shared/thread-utils';
 
 import { SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
-import { fetchThreadInfos } from '../fetchers/thread-fetcher';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetcher';
 import { fetchUserInfos } from '../fetchers/user-fetcher';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetcher';
 import createIDs from '../creators/id-creator';
@@ -46,7 +52,7 @@ async function sendPushNotifs(
 
   const [
     unreadCounts,
-    { usersToCollapsableNotifInfo, rawThreadInfos, userInfos },
+    { usersToCollapsableNotifInfo, serverThreadInfos, userInfos },
     dbIDs,
   ] = await Promise.all([
     getUnreadCounts(conn, Object.keys(pushInfo)),
@@ -57,11 +63,25 @@ async function sendPushNotifs(
   const deliveryPromises = [];
   const notifications = {};
   for (let userID in usersToCollapsableNotifInfo) {
-    const threadInfos = rawThreadInfosToThreadInfos(
-      rawThreadInfos,
-      userID,
-      userInfos,
-    );
+    const threadInfos = _flow(
+      _mapValues(
+        (serverThreadInfo: ServerThreadInfo) => {
+          const rawThreadInfo = rawThreadInfoFromServerThreadInfo(
+            serverThreadInfo,
+            userID,
+          );
+          if (!rawThreadInfo) {
+            return null;
+          }
+          return threadInfoFromRawThreadInfo(
+            rawThreadInfo,
+            userID,
+            userInfos,
+          );
+        },
+      ),
+      _pickBy(threadInfo => threadInfo),
+    )(serverThreadInfos);
     for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
       const hydrateMessageInfo =
         (rawMessageInfo: RawMessageInfo) => createMessageInfo(
@@ -237,8 +257,8 @@ async function fetchInfos(
   }
 
   // These threadInfos won't have currentUser set
-  const { threadInfos: rawThreadInfos, userInfos: threadUserInfos } =
-    await fetchThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`, null);
+  const { threadInfos: serverThreadInfos, userInfos: threadUserInfos } =
+    await fetchServerThreadInfos(conn, SQL`t.id IN (${[...threadIDs]})`);
   const mergedUserInfos = {
     ...collapsableNotifsResult.userInfos,
     ...threadUserInfos,
@@ -250,7 +270,7 @@ async function fetchInfos(
     usersToCollapsableNotifInfo,
   );
 
-  return { usersToCollapsableNotifInfo, rawThreadInfos, userInfos };
+  return { usersToCollapsableNotifInfo, serverThreadInfos, userInfos };
 }
 
 async function fetchMissingUserInfos(

@@ -1,31 +1,28 @@
 // @flow
 
 import type { Connection } from '../database';
-import type { RawThreadInfo } from 'lib/types/thread-types';
+import type { RawThreadInfo, ServerThreadInfo  } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
-import type { Viewer } from '../session/viewer';
 
 import {
   assertVisibilityRules,
   threadPermissions,
 } from 'lib/types/thread-types';
+import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
+import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
 import { SQL, SQLStatement } from '../database';
-import {
-  permissionLookup,
-  getAllThreadPermissions,
-} from '../permissions/permissions';
+import { currentViewer } from '../session/viewer';
 
-type FetchThreadInfosResult = {|
-  threadInfos: {[id: string]: RawThreadInfo},
+type FetchServerThreadInfosResult = {|
+  threadInfos: {[id: string]: ServerThreadInfo},
   userInfos: {[id: string]: UserInfo},
 |};
 
-async function fetchThreadInfos(
+async function fetchServerThreadInfos(
   conn: Connection,
   condition?: SQLStatement,
-  viewer: ?Viewer,
-): Promise<FetchThreadInfosResult> {
+): Promise<FetchServerThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
 
   const query = SQL`
@@ -45,7 +42,6 @@ async function fetchThreadInfos(
   `.append(whereClause).append(SQL`ORDER BY m.user ASC`);
   const [ result ] = await conn.query(query);
 
-  const viewerID = viewer && viewer.id;
   const threadInfos = {};
   const userInfos = {};
   for (let row of result) {
@@ -61,7 +57,6 @@ async function fetchThreadInfos(
         parentThreadID: row.parent_thread_id,
         members: [],
         roles: {},
-        currentUser: null,
       };
     }
     if (row.role && !threadInfos[threadID].roles[row.role]) {
@@ -85,6 +80,8 @@ async function fetchThreadInfos(
         id: userID,
         permissions: allPermissions,
         role: row.role ? row.role : null,
+        subscription: row.subscription,
+        unread: row.role ? row.unread : null,
       };
       // This is a hack, similar to what we have in ThreadSettingsUser.
       // Basically we only want to return users that are either a member of this
@@ -99,56 +96,38 @@ async function fetchThreadInfos(
           };
         }
       }
-      if (userID === viewerID) {
-        threadInfos[threadID].currentUser = {
-          role: member.role,
-          permissions: member.permissions,
-          subscription: row.subscription,
-          unread: member.role ? row.unread : null,
-        };
+    }
+  }
+  return { threadInfos, userInfos };
+}
+
+type FetchThreadInfosResult = {|
+  threadInfos: {[id: string]: RawThreadInfo},
+  userInfos: {[id: string]: UserInfo},
+|};
+
+async function fetchThreadInfos(
+  conn: Connection,
+  condition?: SQLStatement,
+): Promise<FetchThreadInfosResult> {
+  const serverResult = await fetchServerThreadInfos(conn, condition);
+  const viewerID = currentViewer().id;
+  const threadInfos = {};
+  const userInfos = {};
+  for (let threadID in serverResult.threadInfos) {
+    const serverThreadInfo = serverResult.threadInfos[threadID];
+    const threadInfo = rawThreadInfoFromServerThreadInfo(
+      serverThreadInfo,
+      viewerID,
+    );
+    if (threadInfo) {
+      threadInfos[threadID] = threadInfo;
+      for (let member of threadInfo.members) {
+        userInfos[member.id] = serverResult.userInfos[member.id];
       }
     }
   }
-
-  const finalThreadInfos = {};
-  for (let threadID in threadInfos) {
-    let threadInfo = threadInfos[threadID];
-    let allPermissions;
-    if (!threadInfo.currentUser) {
-      allPermissions = getAllThreadPermissions(
-        {
-          permissions: null,
-          visibilityRules: threadInfo.visibilityRules,
-        },
-        threadID,
-      );
-      threadInfo = {
-        ...threadInfo,
-        currentUser: {
-          role: null,
-          permissions: allPermissions,
-          subscription: {
-            home: false,
-            pushNotifs: false,
-          },
-          unread: null,
-        },
-      };
-    } else {
-      allPermissions = threadInfo.currentUser.permissions;
-    }
-    if (
-      !viewer ||
-      permissionLookup(allPermissions, threadPermissions.KNOW_OF)
-    ) {
-      finalThreadInfos[threadID] = threadInfo;
-    }
-  }
-
-  return {
-    threadInfos: finalThreadInfos,
-    userInfos,
-  };
+  return { threadInfos, userInfos };
 }
 
 async function verifyThreadIDs(
@@ -170,6 +149,7 @@ async function verifyThreadIDs(
 }
 
 export {
+  fetchServerThreadInfos,
   fetchThreadInfos,
   verifyThreadIDs,
 };

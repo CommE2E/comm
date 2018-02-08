@@ -48,7 +48,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
-import { createThreadInfo } from 'lib/shared/thread-utils';
+import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 
 import {
   Calendar,
@@ -599,7 +599,11 @@ function replaceChatStackWithThread(
   viewerID: ?string,
   userInfos: {[id: string]: UserInfo},
 ): NavigationState {
-  const threadInfo = createThreadInfo(rawThreadInfo, viewerID, userInfos);
+  const threadInfo = threadInfoFromRawThreadInfo(
+    rawThreadInfo,
+    viewerID,
+    userInfos,
+  );
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
 
@@ -649,7 +653,7 @@ function handleNotificationPress(
     );
   }
 
-  const threadInfo = createThreadInfo(
+  const threadInfo = threadInfoFromRawThreadInfo(
     payload.rawThreadInfo,
     viewerID,
     userInfos,
