@@ -1,4 +1,4 @@
-// flow-typed signature: bce3ef3b3b413233a3e3a9c7aa2d79d8
+// flow-typed signature: ba6d1e1c09e13b7711ffb37d5bdb82f0
 // flow-typed version: <<STUB>>/react-native-notifications_vgit+https://git@github.com/ashoat/react-native-notifications.git/flow_v0.61.0
 
 /**
@@ -22,6 +22,14 @@ declare module 'react-native-notifications' {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
+declare module 'react-native-notifications/example/index.android' {
+  declare module.exports: any;
+}
+
+declare module 'react-native-notifications/example/index.ios' {
+  declare module.exports: any;
+}
+
 declare module 'react-native-notifications/index.android' {
   declare module.exports: any;
 }
@@ -38,7 +46,25 @@ declare module 'react-native-notifications/notification.ios' {
   declare module.exports: any;
 }
 
+declare module 'react-native-notifications/test/index.android.spec' {
+  declare module.exports: any;
+}
+
+declare module 'react-native-notifications/test/index.ios.spec' {
+  declare module.exports: any;
+}
+
+declare module 'react-native-notifications/test/notification.ios.spec' {
+  declare module.exports: any;
+}
+
 // Filename aliases
+declare module 'react-native-notifications/example/index.android.js' {
+  declare module.exports: $Exports<'react-native-notifications/example/index.android'>;
+}
+declare module 'react-native-notifications/example/index.ios.js' {
+  declare module.exports: $Exports<'react-native-notifications/example/index.ios'>;
+}
 declare module 'react-native-notifications/index.android.js' {
   declare module.exports: $Exports<'react-native-notifications/index.android'>;
 }
@@ -50,4 +76,13 @@ declare module 'react-native-notifications/notification.android.js' {
 }
 declare module 'react-native-notifications/notification.ios.js' {
   declare module.exports: $Exports<'react-native-notifications/notification.ios'>;
+}
+declare module 'react-native-notifications/test/index.android.spec.js' {
+  declare module.exports: $Exports<'react-native-notifications/test/index.android.spec'>;
+}
+declare module 'react-native-notifications/test/index.ios.spec.js' {
+  declare module.exports: $Exports<'react-native-notifications/test/index.ios.spec'>;
+}
+declare module 'react-native-notifications/test/notification.ios.spec.js' {
+  declare module.exports: $Exports<'react-native-notifications/test/notification.ios.spec'>;
 }
