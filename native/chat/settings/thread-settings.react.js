@@ -56,6 +56,7 @@ import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
 import ThreadSettingsParent from './thread-settings-parent.react';
 import ThreadSettingsVisibility from './thread-settings-visibility.react';
+import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 
 const itemPageLength = 5;
@@ -106,6 +107,11 @@ type ChatSettingsItem =
     |}
   | {|
       itemType: "visibility",
+      key: string,
+      threadInfo: ThreadInfo,
+    |}
+  | {|
+      itemType: "pushNotifs",
       key: string,
       threadInfo: ThreadInfo,
     |}
@@ -306,6 +312,23 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         canChangeSettings,
       });
     }
+
+    listData.push({
+      itemType: "header",
+      key: "subscriptionHeader",
+      title: "Subscription",
+      categoryType: "full",
+    });
+    listData.push({
+      itemType: "pushNotifs",
+      key: "pushNotifs",
+      threadInfo: this.props.threadInfo,
+    });
+    listData.push({
+      itemType: "footer",
+      key: "subscriptionFooter",
+      categoryType: "full",
+    });
 
     listData.push({
       itemType: "header",
@@ -532,6 +555,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === "visibility") {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
+    } else if (item.itemType === "pushNotifs") {
+      return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === "seeMore") {
       return <ThreadSettingsSeeMore onPress={item.onPress} />;
     } else if (item.itemType === "childThread") {
