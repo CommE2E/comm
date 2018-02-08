@@ -150,15 +150,16 @@ async function createMessages(
     INSERT INTO messages(id, thread, user, type, content, time)
     VALUES ${messageInsertRows}
   `;
+  // This returns a Promise but we don't want to wait on it
+  sendPushNotifsForNewMessages(
+    threadRestrictions,
+    subthreadPermissionsToCheck,
+    threadsToMessageIndices,
+    messageInfos,
+  );
   await Promise.all([
     pool.query(messageInsertQuery),
     updateUnreadStatus(threadRestrictions),
-    sendPushNotifsForNewMessages(
-      threadRestrictions,
-      subthreadPermissionsToCheck,
-      threadsToMessageIndices,
-      messageInfos,
-    ),
   ]);
 
   return messageInfos;
