@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/app",
   "scripts": {
+    "postinstall": "cd ../; npx flow-mono create-symlinks jserver/.flowconfig",
     "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','lib/package-lock.json' --copy-files",
     "prod": "node --experimental-modules --loader ./loader.mjs dist/app",
     "dev": "concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/app\""
