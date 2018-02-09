@@ -239,24 +239,30 @@ class Typeahead extends React.PureComponent<Props, State> {
           />
         );
       }
-      panes.push(
-        <TypeaheadPane
-          paneTitle="Member"
-          pageSize={5}
-          optionInfos={this.optionInfosForMemberPane()}
-          renderOption={this.renderOption}
-          key="member"
-        />
-      );
-      panes.push(
-        <TypeaheadPane
-          paneTitle="Recommended"
-          pageSize={this.state.recommendedThreads.length}
-          optionInfos={this.optionInfosForRecommendedPane()}
-          renderOption={this.renderOption}
-          key="recommended"
-        />
-      );
+      const memberOptionInfo = this.optionInfosForMemberPane();
+      if (memberOptionInfo.length > 0) {
+        panes.push(
+          <TypeaheadPane
+            paneTitle="Member"
+            pageSize={5}
+            optionInfos={memberOptionInfo}
+            renderOption={this.renderOption}
+            key="member"
+          />
+        );
+      }
+      const recommendedOptionInfo = this.optionInfosForRecommendedPane();
+      if (recommendedOptionInfo.length > 0) {
+        panes.push(
+          <TypeaheadPane
+            paneTitle="Recommended"
+            pageSize={this.state.recommendedThreads.length}
+            optionInfos={recommendedOptionInfo}
+            renderOption={this.renderOption}
+            key="recommended"
+          />
+        );
+      }
       panes.push(
         <TypeaheadPane
           paneTitle="Actions"
