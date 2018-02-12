@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 const ANDROID_VERSION_LOLLIPOP = 21;
 
 type Props = {
-  onPress: () => void,
+  onPress: () => *,
   disabled?: bool,
   style?: StyleObj,
   // style and topStyle just get merged in most cases. The separation only
