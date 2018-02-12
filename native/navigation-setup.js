@@ -59,7 +59,8 @@ import {
   ChatRouteName,
 } from './chat/chat.react';
 import { ChatThreadListRouteName } from './chat/chat-thread-list.react';
-import More from './more/more.react';
+import { MoreRouteName, More } from './more/more.react';
+import { MoreScreenRouteName } from './more/more-screen.react';
 import {
   LoggedOutModal,
   LoggedOutModalRouteName,
@@ -104,7 +105,7 @@ const AppNavigator = TabNavigator(
   {
     [CalendarRouteName]: { screen: Calendar },
     [ChatRouteName]: { screen: Chat },
-    More: { screen: More },
+    [MoreRouteName]: { screen: More },
   },
   {
     initialRouteName: CalendarRouteName,
@@ -207,7 +208,14 @@ const defaultNavigationState = {
             { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
           ],
         },
-        { key: 'More', routeName: 'More' },
+        {
+          key: 'More',
+          routeName: MoreRouteName,
+          index: 0,
+          routes: [
+            { key: 'MoreScreen', routeName: MoreScreenRouteName },
+          ],
+        },
       ],
     },
     { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
