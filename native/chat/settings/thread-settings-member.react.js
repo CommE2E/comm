@@ -300,6 +300,7 @@ const styles = StyleSheet.create({
   username: {
     flex: 1,
     fontSize: 16,
+    lineHeight: 20,
     color: "#333333",
   },
   anonymous: {
