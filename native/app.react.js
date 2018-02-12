@@ -20,7 +20,7 @@ import type {
 } from 'lib/types/activity-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
-import type { DeviceType } from 'lib/actions/device-actions';
+import type { DeviceType } from 'lib/types/device-types';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
