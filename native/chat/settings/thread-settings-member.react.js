@@ -114,14 +114,14 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
         )
       )
     ) {
-      result.push({ label: "Remove user", onPress: this.onPressRemoveUser });
+      result.push({ label: "Remove user", onPress: this.showRemoveUserConfirmation });
     }
 
     if (canChangeRoles && props.memberInfo.username) {
       const adminText = ThreadSettingsMember.memberIsAdmin(props)
         ? "Remove admin"
         : "Make admin";
-      result.push({ label: adminText, onPress: this.onPressMakeAdmin });
+      result.push({ label: adminText, onPress: this.showMakeAdminConfirmation });
     }
 
     return result;
@@ -207,15 +207,6 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
     );
   }
 
-  onPressRemoveUser = () => {
-    if (Platform.OS === "ios") {
-      // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showRemoveUserConfirmation, 500);
-    } else {
-      this.showRemoveUserConfirmation();
-    }
-  }
-
   showRemoveUserConfirmation = () => {
     const userText = stringForUser(this.props.memberInfo);
     Alert.alert(
@@ -243,15 +234,6 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
       this.props.threadInfo.id,
       [ this.props.memberInfo.id ],
     );
-  }
-
-  onPressMakeAdmin = () => {
-    if (Platform.OS === "ios") {
-      // https://github.com/facebook/react-native/issues/10471
-      setTimeout(this.showMakeAdminConfirmation, 500);
-    } else {
-      this.showMakeAdminConfirmation();
-    }
   }
 
   showMakeAdminConfirmation = () => {

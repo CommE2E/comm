@@ -7299,9 +7299,9 @@ react-native-onepassword@^1.0.6:
   dependencies:
     "1PasswordExtension" "git+https://github.com/jjshammas/onepassword-app-extension.git"
 
-react-native-popover-tooltip@^1.1.4:
+"react-native-popover-tooltip@git+https://git@github.com/ashoat/react-native-popover-tooltip.git":
   version "1.1.4"
-  resolved "https://registry.yarnpkg.com/react-native-popover-tooltip/-/react-native-popover-tooltip-1.1.4.tgz#f6f2121e6725e9da2c014a33b946162c197a4eb4"
+  resolved "git+https://git@github.com/ashoat/react-native-popover-tooltip.git#26b8eef75ade5afcbe45ea0393f8618f15020e7d"
   dependencies:
     invariant "^2.2.2"
     prop-types "^15.6.0"
@@ -7395,15 +7395,15 @@ react-native@^0.52.0:
     xmldoc "^0.4.0"
     yargs "^9.0.0"
 
-react-navigation-redux-helpers@^1.0.0:
+react-navigation-redux-helpers@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-navigation-redux-helpers/-/react-navigation-redux-helpers-1.0.1.tgz#1d98cb6364ebdf98a90d34aa7b4592b9073d76e2"
   dependencies:
     invariant "^2.2.2"
 
-react-navigation@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-1.0.2.tgz#a945d4342e5f713d9000414deeb1ebff4cfa6798"
+react-navigation@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-1.0.3.tgz#1687ea67a72a382633b01e7afda88582ebc3b5f9"
   dependencies:
     clamp "^1.0.1"
     hoist-non-react-statics "^2.2.0"
