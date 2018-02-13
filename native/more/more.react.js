@@ -8,12 +8,14 @@ import { StackNavigator } from 'react-navigation';
 import { MoreScreen, MoreScreenRouteName } from './more-screen.react';
 import { EditEmail, EditEmailRouteName } from './edit-email.react';
 import { EditPassword, EditPasswordRouteName } from './edit-password.react';
+import { DeleteAccount, DeleteAccountRouteName } from './delete-account.react';
 
 const More = StackNavigator(
   {
     [MoreScreenRouteName]: { screen: MoreScreen },
     [EditEmailRouteName]: { screen: EditEmail },
     [EditPasswordRouteName]: { screen: EditPassword },
+    [DeleteAccountRouteName]: { screen: DeleteAccount },
   },
   {
     navigationOptions: ({ navigation }) => ({

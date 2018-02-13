@@ -45,6 +45,7 @@ import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
 import { EditEmailRouteName } from './edit-email.react';
 import { EditPasswordRouteName } from './edit-password.react';
+import { DeleteAccountRouteName } from './delete-account.react';
 
 const forceInset = { top: 'always', bottom: 'never' };
 
@@ -166,6 +167,16 @@ class InnerMoreScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
+          <View style={styles.unpaddedSection}>
+            <Button
+              onPress={this.onPressDeleteAccount}
+              style={styles.deleteAccountButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor="#EEEEEEDD"
+            >
+              <Text style={styles.deleteAccountText}>Delete account...</Text>
+            </Button>
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -213,10 +224,11 @@ class InnerMoreScreen extends React.PureComponent<Props> {
   async logOutAndDeleteNativeCredentials() {
     const username = this.props.username;
     invariant(username, "can't log out if not logged in");
-    await Promise.all([
+    const [ result ] = await Promise.all([
       this.props.logOut(),
       deleteNativeCredentialsFor(username),
     ]);
+    return result;
   }
 
   onPressResendVerificationEmail = () => {
@@ -243,6 +255,10 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     this.props.navigation.navigate(EditPasswordRouteName);
   }
 
+  onPressDeleteAccount = () => {
+    this.props.navigation.navigate(DeleteAccountRouteName);
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -259,6 +275,13 @@ const styles = StyleSheet.create({
     borderColor: "#CCCCCC",
     paddingVertical: 12,
     paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  unpaddedSection: {
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#CCCCCC",
     marginBottom: 24,
   },
   row: {
@@ -326,6 +349,15 @@ const styles = StyleSheet.create({
   },
   editPasswordButton: {
     paddingTop: Platform.OS === "android" ? 3 : 2,
+  },
+  deleteAccountButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  deleteAccountText: {
+    fontSize: 16,
+    color: "#AA0000",
+    flex: 1,
   },
 });
 

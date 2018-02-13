@@ -1,10 +1,7 @@
 // @flow
 
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
-import {
-  threadInfoPropType,
-  relativeMemberInfoPropType,
-} from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LeaveThreadResult } from 'lib/actions/thread-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';

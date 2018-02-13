@@ -140,7 +140,6 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
               placeholder="Current password"
               secureTextEntry={true}
               autoFocus={true}
-              selectTextOnFocus={true}
               returnKeyType="next"
               onSubmitEditing={this.focusNewPassword}
               ref={this.currentPasswordRef}
@@ -414,7 +413,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const EditPasswordRouteName = 'EditAccount';
+const EditPasswordRouteName = 'EditPassword';
 const EditPassword = connect(
   (state: AppState) => ({
     cookie: state.cookie,
