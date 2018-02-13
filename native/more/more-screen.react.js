@@ -1,5 +1,6 @@
 // @flow
 
+import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -41,8 +42,14 @@ import {
   deleteNativeCredentialsFor,
 } from '../account/native-credentials';
 import Button from '../components/button.react';
+import EditSettingButton from '../components/edit-setting-button.react';
+import { EditEmailRouteName } from './edit-email.react';
+import { EditPasswordRouteName } from './edit-password.react';
+
+const forceInset = { top: 'always', bottom: 'never' };
 
 type Props = {
+  navigation: NavigationScreenProp<*>,
   // Redux state
   username: ?string,
   email: ?string,
@@ -58,6 +65,9 @@ type Props = {
 class InnerMoreScreen extends React.PureComponent<Props> {
 
   static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
     username: PropTypes.string,
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
@@ -66,6 +76,9 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     resendVerificationEmail: PropTypes.func.isRequired,
+  };
+  static navigationOptions = {
+    header: null,
   };
 
   render() {
@@ -112,10 +125,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
       );
     }
     return (
-      <SafeAreaView
-        forceInset={{ top: 'always', bottom: 'never' }}
-        style={styles.container}
-      >
+      <SafeAreaView forceInset={forceInset} style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.section}>
             <View style={styles.row}>
@@ -128,21 +138,32 @@ class InnerMoreScreen extends React.PureComponent<Props> {
               </Button>
             </View>
           </View>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>ACCOUNT</Text>
-            <Button onPress={this.onPressEditAccount}>
-              <Text style={styles.editButton}>EDIT</Text>
-            </Button>
-          </View>
+          <Text style={styles.header}>ACCOUNT</Text>
           <View style={styles.section}>
             <View style={styles.row}>
               <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>{this.props.email}</Text>
+              <View style={styles.content}>
+                <Text style={styles.value} numberOfLines={1}>
+                  {this.props.email}
+                </Text>
+                {emailVerified}
+              </View>
+              <EditSettingButton
+                onPress={this.onPressEditEmail}
+                canChangeSettings={true}
+                style={styles.editEmailButton}
+              />
             </View>
-            {emailVerified}
             <View style={styles.row}>
               <Text style={styles.label}>Password</Text>
-              <Text style={styles.value}>••••••••••••••••</Text>
+              <Text style={[styles.content, styles.value]} numberOfLines={1}>
+                ••••••••••••••••
+              </Text>
+              <EditSettingButton
+                onPress={this.onPressEditPassword}
+                canChangeSettings={true}
+                style={styles.editPasswordButton}
+              />
             </View>
           </View>
         </ScrollView>
@@ -214,7 +235,12 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     );
   }
 
-  onPressEditAccount = () => {
+  onPressEditEmail = () => {
+    this.props.navigation.navigate(EditEmailRouteName);
+  }
+
+  onPressEditPassword = () => {
+    this.props.navigation.navigate(EditPasswordRouteName);
   }
 
 }
@@ -230,18 +256,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: "#CCCCCC",
-    paddingHorizontal: 24,
     paddingVertical: 12,
+    paddingHorizontal: 24,
     marginBottom: 24,
   },
   row: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   label: {
-    flex: 1,
     fontSize: 16,
     color: "#888888",
+    paddingRight: 12,
   },
   username: {
     color: "#000000",
@@ -249,6 +276,10 @@ const styles = StyleSheet.create({
   value: {
     color: "#000000",
     fontSize: 16,
+    textAlign: 'right',
+  },
+  content: {
+    flex: 1,
   },
   logOutText: {
     fontSize: 16,
@@ -256,21 +287,11 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingBottom: 3,
-  },
-  headerTitle: {
-    flex: 1,
     fontSize: 12,
     fontWeight: "400",
     color: "#888888",
-  },
-  editButton: {
-    fontSize: 12,
-    fontWeight: "400",
-    color: "#036AFF",
   },
   verification: {
     flexDirection: 'row',
@@ -298,6 +319,12 @@ const styles = StyleSheet.create({
   resendVerificationEmailSpinner: {
     paddingHorizontal: 4,
     marginTop: Platform.OS === "ios" ? -4 : 0,
+  },
+  editEmailButton: {
+    paddingTop: Platform.OS === "android" ? 9 : 7,
+  },
+  editPasswordButton: {
+    paddingTop: Platform.OS === "android" ? 3 : 2,
   },
 });
 

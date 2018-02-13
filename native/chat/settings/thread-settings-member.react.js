@@ -42,7 +42,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import EditSettingButton from './edit-setting-button.react';
+import EditSettingButton from '../../components/edit-setting-button.react';
 import Button from '../../components/button.react';
 
 type Props = {|

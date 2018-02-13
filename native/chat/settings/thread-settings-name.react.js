@@ -8,7 +8,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
   StyleSheet,
@@ -31,7 +31,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import EditSettingButton from './edit-setting-button.react';
+import EditSettingButton from '../../components/edit-setting-button.react';
 import SaveSettingButton from './save-setting-button.react';
 
 type Props = {|
@@ -81,20 +81,20 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       this.props.nameEditValue === null ||
       this.props.nameEditValue === undefined
     ) {
-      return [
-        <Text
-          style={styles.currentValue}
-          onLayout={this.onLayoutText}
-          key="text"
-        >
-          {this.props.threadInfo.uiName}
-        </Text>,
-        <EditSettingButton
-          onPress={this.onPressEdit}
-          canChangeSettings={this.props.canChangeSettings}
-          key="editButton"
-        />,
-      ];
+      return (
+        <React.Fragment>
+          <Text
+            style={styles.currentValue}
+            onLayout={this.onLayoutText}
+          >
+            {this.props.threadInfo.uiName}
+          </Text>
+          <EditSettingButton
+            onPress={this.onPressEdit}
+            canChangeSettings={this.props.canChangeSettings}
+          />
+        </React.Fragment>
+      );
     }
 
     let button;
@@ -117,23 +117,25 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       textInputStyle.height = this.props.nameTextHeight;
     }
 
-    return [
-      <TextInput
-        style={[styles.currentValue, textInputStyle]}
-        underlineColorAndroid="transparent"
-        value={this.props.nameEditValue}
-        onChangeText={this.props.setNameEditValue}
-        multiline={true}
-        autoFocus={true}
-        selectTextOnFocus={true}
-        onBlur={this.onSubmit}
-        editable={this.props.loadingStatus !== "loading"}
-        onContentSizeChange={this.onTextInputContentSizeChange}
-        ref={this.textInputRef}
-        key="textInput"
-      />,
-      button,
-    ];
+    return (
+      <React.Fragment>
+        <TextInput
+          style={[styles.currentValue, textInputStyle]}
+          underlineColorAndroid="transparent"
+          value={this.props.nameEditValue}
+          onChangeText={this.props.setNameEditValue}
+          multiline={true}
+          autoFocus={true}
+          selectTextOnFocus={true}
+          onBlur={this.onSubmit}
+          editable={this.props.loadingStatus !== "loading"}
+          onContentSizeChange={this.onTextInputContentSizeChange}
+          ref={this.textInputRef}
+          key="textInput"
+        />
+        {button}
+      </React.Fragment>
+    );
   }
 
   textInputRef = (textInput: ?TextInput) => {

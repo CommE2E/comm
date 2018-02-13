@@ -30,7 +30,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import EditSettingButton from './edit-setting-button.react';
+import EditSettingButton from '../../components/edit-setting-button.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import ColorPickerModal from '../color-picker-modal.react';
 

@@ -33,7 +33,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 
-import EditSettingButton from './edit-setting-button.react';
+import EditSettingButton from '../../components/edit-setting-button.react';
 import SaveSettingButton from './save-setting-button.react';
 import {
   ThreadSettingsCategoryHeader,

@@ -92,6 +92,8 @@ type ExtraData = {
 // defined navigationOptions.tabBarOnPress below.
 let currentCalendarRef: ?InnerCalendar = null;
 
+const forceInset = { top: 'always', bottom: 'never' };
+
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
@@ -671,10 +673,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <SafeAreaView
-        forceInset={{ top: 'always', bottom: 'never' }}
-        style={styles.container}
-      >
+      <SafeAreaView forceInset={forceInset} style={styles.container}>
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}

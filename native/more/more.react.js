@@ -5,14 +5,15 @@ import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { StackNavigator } from 'react-navigation';
 
-import {
-  MoreScreen,
-  MoreScreenRouteName,
-} from './more-screen.react';
+import { MoreScreen, MoreScreenRouteName } from './more-screen.react';
+import { EditEmail, EditEmailRouteName } from './edit-email.react';
+import { EditPassword, EditPasswordRouteName } from './edit-password.react';
 
 const More = StackNavigator(
   {
     [MoreScreenRouteName]: { screen: MoreScreen },
+    [EditEmailRouteName]: { screen: EditEmail },
+    [EditPasswordRouteName]: { screen: EditPassword },
   },
   {
     navigationOptions: ({ navigation }) => ({
@@ -24,7 +25,7 @@ const More = StackNavigator(
         />
       ),
     }),
-    headerMode: "none",
+    mode: "modal",
   },
 );
 
