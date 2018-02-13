@@ -33,11 +33,7 @@ import {
 } from 'lib/shared/account-regexes';
 
 import { TextInput } from './modal-components.react';
-import {
-  PanelButton,
-  PanelOnePasswordButton,
-  Panel,
-} from './panel-components.react';
+import { PanelButton, Panel } from './panel-components.react';
 
 type Props = {
   setActiveAlert: (activeAlert: bool) => void,

@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: 'white',
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: "#CCCCCC",
     paddingVertical: 12,
     paddingHorizontal: 24,
@@ -329,7 +330,6 @@ const styles = StyleSheet.create({
 });
 
 registerFetchKey(logOutActionTypes);
-registerFetchKey(resendVerificationEmailActionTypes);
 const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );

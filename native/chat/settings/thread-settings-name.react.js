@@ -99,14 +99,9 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
     let button;
     if (this.props.loadingStatus !== "loading") {
-      button = (
-        <SaveSettingButton
-          onPress={this.onSubmit}
-          key="saveButton"
-        />
-      );
+      button = <SaveSettingButton onPress={this.onSubmit} />;
     } else {
-      button = <ActivityIndicator size="small" key="activityIndicator" />;
+      button = <ActivityIndicator size="small" />;
     }
 
     const textInputStyle = {};
@@ -131,7 +126,6 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           editable={this.props.loadingStatus !== "loading"}
           onContentSizeChange={this.onTextInputContentSizeChange}
           ref={this.textInputRef}
-          key="textInput"
         />
         {button}
       </React.Fragment>

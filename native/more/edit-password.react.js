@@ -8,7 +8,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'react-native';
 import { connect } from 'react-redux';
-import { SafeAreaView } from 'react-navigation';
 
 import {
   includeDispatchActionProps,
@@ -18,8 +17,6 @@ import {
   changeUserSettingsActionTypes,
   changeUserSettings,
 } from 'lib/actions/user-actions';
-
-const forceInset = { top: 'always', bottom: 'never' };
 
 type Props = {
   // Redux state
@@ -38,12 +35,13 @@ class InnerEditPassword extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
+  static navigationOptions = {
+    headerTitle: "Change password",
+  };
 
   render() {
     return (
-      <SafeAreaView forceInset={forceInset}>
-        <Text>Password</Text>
-      </SafeAreaView>
+      <Text>Password</Text>
     );
   }
 

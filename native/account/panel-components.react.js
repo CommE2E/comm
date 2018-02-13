@@ -12,14 +12,13 @@ import {
   ActivityIndicator,
   Text,
   StyleSheet,
-  TouchableWithoutFeedback,
-  Image,
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
+import OnePasswordButton from '../components/one-password-button.react';
 
 type ButtonProps = {
   text: string,
@@ -69,12 +68,10 @@ class PanelButton extends React.PureComponent<ButtonProps> {
 
 function PanelOnePasswordButton(props: { onPress: () => Promise<void> }) {
   return (
-    <TouchableWithoutFeedback onPress={props.onPress}>
-      <Image
-        source={require("../img/onepassword.png")}
-        style={styles.onePasswordImage}
-      />
-    </TouchableWithoutFeedback>
+    <OnePasswordButton
+      onPress={props.onPress}
+      style={styles.onePasswordImage}
+    />
   );
 }
 
@@ -123,9 +120,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 5,
-    width: 24,
-    height: 24,
-    opacity: 0.6,
   },
   container: {
     paddingBottom: 37,
