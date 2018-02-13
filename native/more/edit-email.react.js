@@ -167,6 +167,11 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
     this.emailInput = emailInput;
   }
 
+  focusEmailInput = () => {
+    invariant(this.emailInput, "emailInput should be set");
+    this.emailInput.focus();
+  }
+
   onChangePasswordText = (newPassword: string) => {
     this.setState({ password: newPassword });
   }
@@ -263,41 +268,27 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
   onEmailAlertAcknowledged = () => {
     this.setState(
       { email: "" },
-      () => {
-        invariant(this.emailInput, "ref should exist");
-        this.emailInput.focus();
-      },
+      this.focusEmailInput,
     );
   }
 
   onPasswordAlertAcknowledged = () => {
     this.setState(
       { password: "" },
-      () => {
-        invariant(this.passwordInput, "ref should exist");
-        this.passwordInput.focus();
-      },
+      this.focusPasswordInput,
     );
   }
 
   onUnknownErrorAlertAcknowledged = () => {
     this.setState(
       { email: "", password: "" },
-      () => {
-        invariant(this.emailInput, "ref should exist");
-        this.emailInput.focus();
-      },
+      this.focusEmailInput,
     );
   }
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 0,
-    margin: 0,
-  },
   scrollView: {
     paddingTop: 24,
   },

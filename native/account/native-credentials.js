@@ -16,14 +16,14 @@ import URL from 'url-parse';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { getConfig } from 'lib/utils/config';
 
-type Credentials = {
+type Credentials = {|
   username: string,
   password: string,
-};
-type StoredCredentials = {
+|};
+type StoredCredentials = {|
   state: "undetermined" | "determined" | "unsupported",
   credentials: ?Credentials,
-};
+|};
 let storedNativeKeychainCredentials = {
   state: "undetermined",
   credentials: null,
@@ -153,7 +153,20 @@ async function setNativeSharedWebCredentials(credentials: Credentials) {
   }
 }
 
-async function setNativeCredentials(credentials: Credentials) {
+async function setNativeCredentials(credentials: $Shape<Credentials>) {
+  if (!credentials.username || !credentials.password) {
+    const currentCredentials = await fetchNativeCredentials();
+    if (currentCredentials) {
+      credentials = {
+        username: credentials.username
+          ? credentials.username
+          : currentCredentials.username,
+        password: credentials.password
+          ? credentials.password
+          : currentCredentials.password,
+      };
+    }
+  }
   await Promise.all([
     setNativeKeychainCredentials(credentials),
     setNativeSharedWebCredentials(credentials),
