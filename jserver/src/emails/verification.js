@@ -53,7 +53,7 @@ async function sendEmailAddressVerificationEmail(
     from: "no-reply@squadcal.org",
     to: emailAddress,
     subject: title,
-    text: html,
+    html,
   });
 }
 

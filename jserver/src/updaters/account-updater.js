@@ -53,7 +53,7 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
       sendEmailAddressVerificationEmail(
         viewer.userID,
         verifyRow.username,
-        verifyRow.email,
+        email,
       ),
     );
   }
