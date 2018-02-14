@@ -7,17 +7,27 @@ import { chatThreadItemPropType } from '../selectors/chat-selectors';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, FlatList, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
+import { FloatingAction } from 'react-native-floating-action';
 
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
-import AddThreadButton from './add-thread-button.react';
+import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
+import { AddThreadRouteName } from './add-thread.react';
+
+const floatingActions = [{
+  text: 'Compose',
+  icon: (<IonIcon name="md-create" size={24} color="#FFFFFF" />),
+  name: 'compose',
+  position: 1,
+}];
 
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -39,7 +49,9 @@ class InnerChatThreadList extends React.PureComponent<Props> {
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
-    headerRight: <AddThreadButton navigate={navigation.navigate} />,
+    headerRight: Platform.OS === "ios"
+      ? (<ComposeThreadButton navigate={navigation.navigate} />)
+      : null,
   });
 
   componentDidMount() {
@@ -91,6 +103,17 @@ class InnerChatThreadList extends React.PureComponent<Props> {
   render() {
     // this.props.viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
+    let floatingAction = null;
+    if (Platform.OS === "android") {
+      floatingAction = (
+        <FloatingAction
+          actions={floatingActions}
+          overrideWithAction
+          onPressItem={this.composeThread}
+          buttonColor="#66AA66"
+        />
+      );
+    }
     return (
       <View style={styles.container}>
         <FlatList
@@ -102,6 +125,7 @@ class InnerChatThreadList extends React.PureComponent<Props> {
           extraData={this.props.viewerID}
           style={styles.flatList}
         />
+        {floatingAction}
       </View>
     );
   }
@@ -111,6 +135,10 @@ class InnerChatThreadList extends React.PureComponent<Props> {
       MessageListRouteName,
       { threadInfo },
     );
+  }
+
+  composeThread = () => {
+    this.props.navigation.navigate(AddThreadRouteName, {});
   }
 
 }

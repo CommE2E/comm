@@ -7279,6 +7279,12 @@ react-native-fcm@^11.2.0:
   version "11.3.1"
   resolved "https://registry.yarnpkg.com/react-native-fcm/-/react-native-fcm-11.3.1.tgz#eae59deb3972d19fdd8d8b52da18984377276e84"
 
+react-native-floating-action@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.9.0.tgz#5a10f47c5a1c2bf8fc1e07435d60f12576958835"
+  dependencies:
+    lodash "^4.17.4"
+
 react-native-in-app-notification@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-native-in-app-notification/-/react-native-in-app-notification-2.2.0.tgz#690a9ef75bd0eecc15de77468f009a762c9f1748"

@@ -1,4 +1,4 @@
-// flow-typed signature: 034e9f6dc5802ccdde9f3f7407fe12b2
+// flow-typed signature: 92bb348d313ffc88d7b6d48021652c54
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.61.0
 
 /**
@@ -230,6 +230,10 @@ declare module 'lib/types/activity-types' {
   declare module.exports: any;
 }
 
+declare module 'lib/types/device-types' {
+  declare module.exports: any;
+}
+
 declare module 'lib/types/entry-types' {
   declare module.exports: any;
 }
@@ -270,6 +274,10 @@ declare module 'lib/types/user-types' {
   declare module.exports: any;
 }
 
+declare module 'lib/types/verify-types' {
+  declare module.exports: any;
+}
+
 declare module 'lib/utils/action-utils' {
   declare module.exports: any;
 }
@@ -291,6 +299,10 @@ declare module 'lib/utils/fetch-utils' {
 }
 
 declare module 'lib/utils/local-ids' {
+  declare module.exports: any;
+}
+
+declare module 'lib/utils/promises' {
   declare module.exports: any;
 }
 
@@ -467,6 +479,9 @@ declare module 'lib/shared/user-utils.js' {
 declare module 'lib/types/activity-types.js' {
   declare module.exports: $Exports<'lib/types/activity-types'>;
 }
+declare module 'lib/types/device-types.js' {
+  declare module.exports: $Exports<'lib/types/device-types'>;
+}
 declare module 'lib/types/entry-types.js' {
   declare module.exports: $Exports<'lib/types/entry-types'>;
 }
@@ -497,6 +512,9 @@ declare module 'lib/types/thread-types.js' {
 declare module 'lib/types/user-types.js' {
   declare module.exports: $Exports<'lib/types/user-types'>;
 }
+declare module 'lib/types/verify-types.js' {
+  declare module.exports: $Exports<'lib/types/verify-types'>;
+}
 declare module 'lib/utils/action-utils.js' {
   declare module.exports: $Exports<'lib/utils/action-utils'>;
 }
@@ -514,6 +532,9 @@ declare module 'lib/utils/fetch-utils.js' {
 }
 declare module 'lib/utils/local-ids.js' {
   declare module.exports: $Exports<'lib/utils/local-ids'>;
+}
+declare module 'lib/utils/promises.js' {
+  declare module.exports: $Exports<'lib/utils/promises'>;
 }
 declare module 'lib/utils/sleep.js' {
   declare module.exports: $Exports<'lib/utils/sleep'>;

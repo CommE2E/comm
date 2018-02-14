@@ -58,10 +58,10 @@ import { Message, messageItemHeight } from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import InputBar from './input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
-import AddThreadButton from './add-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
+import ThreadSettingsButton from './thread-settings-button.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -152,12 +152,15 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         onWidthChange={onTitleWidthChange}
       />
     ),
-    headerRight: (
-      <AddThreadButton
-        parentThreadID={navigation.state.params.threadInfo.id}
-        navigate={navigation.navigate}
-      />
-    ),
+    headerRight:
+      Platform.OS === "android"
+        ? (
+            <ThreadSettingsButton
+              threadInfo={navigation.state.params.threadInfo}
+              navigate={navigation.navigate}
+            />
+          )
+        : null,
     header: (props: *) => (
       <MessageListHeader
         {...props}

@@ -3,7 +3,7 @@
 import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
@@ -17,7 +17,7 @@ type Props = {
     params?: NavigationParams,
   ) => bool,
 };
-class AddThreadButton extends React.PureComponent<Props> {
+class ComposeThreadButton extends React.PureComponent<Props> {
 
   static propTypes = {
     parentThreadID: PropTypes.string,
@@ -25,29 +25,14 @@ class AddThreadButton extends React.PureComponent<Props> {
   };
 
   render() {
-    let icon;
-    if (Platform.OS === "ios") {
-      icon = (
-        <Icon
-          name="ios-add"
-          size={36}
-          style={styles.addButton}
-          color="#036AFF"
-        />
-      );
-    } else {
-      icon = (
-        <Icon
-          name="md-add"
-          size={36}
-          style={styles.addButton}
-          color="#0077CC"
-        />
-      );
-    }
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
-        {icon}
+        <Icon
+          name="ios-create-outline"
+          size={30}
+          style={styles.composeButton}
+          color="#036AFF"
+        />
       </Button>
     );
   }
@@ -62,9 +47,9 @@ class AddThreadButton extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  addButton: {
+  composeButton: {
     paddingHorizontal: 10,
   },
 });
 
-export default AddThreadButton;
+export default ComposeThreadButton;

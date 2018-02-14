@@ -49,15 +49,6 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
           style={styles.fakeIcon}
         />
       );
-    } else {
-      icon = (
-        <Icon
-          name="md-arrow-forward"
-          size={20}
-          style={styles.forwardIcon}
-          color="#0077CC"
-        />
-      );
     }
     return (
       <Button
@@ -103,9 +94,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: Platform.OS === "android" ? "flex-start" : "center",
   },
   forwardIcon: {
     flex: 1,
