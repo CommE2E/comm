@@ -30,15 +30,13 @@ function call_node($path, $blob) {
 function proxy_to_node($path) {
   async_start();
 
-  if (!isset($_POST['input'])) {
-    async_end(array(
-      'error' => 'invalid_parameters',
-    ));
+  if (isset($_POST['input'])) {
+    $payload = fix_bools($_POST['input']);
+  } else {
+    $payload = (object)array();
   }
 
-  $fixed_bools = fix_bools($_POST['input']);
-
-  async_end(call_node($path, $fixed_bools));
+  async_end(call_node($path, $payload));
 }
 
 function fix_bools($input) {
