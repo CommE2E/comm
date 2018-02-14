@@ -51,12 +51,12 @@ async function accountUpdateResponder(req: $Request, res: $Response) {
     return { error: 'invalid_parameters' };
   }
 
+  await setCurrentViewerFromCookie(req.cookies);
   const viewer = currentViewer();
   if (!viewer.loggedIn) {
     return { error: 'not_logged_in' };
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
   try {
     await accountUpdater(viewer, accountUpdate);
   } catch (e) {

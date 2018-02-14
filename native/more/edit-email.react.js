@@ -6,6 +6,7 @@ import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { AccountUpdate } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -46,9 +47,7 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   changeUserSettings: (
-    currentPassword: string,
-    newEmail: string,
-    newPassword: string,
+    accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
 |};
 type State = {|
@@ -230,11 +229,12 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
 
   async saveEmail() {
     try {
-      const result = await this.props.changeUserSettings(
-        this.state.password,
-        this.state.email,
-        "",
-      );
+      const result = await this.props.changeUserSettings({
+        updatedFields: {
+          email: this.state.email,
+        },
+        currentPassword: this.state.password,
+      });
       this.props.navigation.goBack();
       Alert.alert(
         "Verify email",
@@ -266,8 +266,9 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
   }
 
   onEmailAlertAcknowledged = () => {
+    const resetEmail = this.props.email ? this.props.email : "";
     this.setState(
-      { email: "" },
+      { email: resetEmail },
       this.focusEmailInput,
     );
   }
@@ -280,8 +281,9 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
   }
 
   onUnknownErrorAlertAcknowledged = () => {
+    const resetEmail = this.props.email ? this.props.email : "";
     this.setState(
-      { email: "", password: "" },
+      { email: resetEmail, password: "" },
       this.focusEmailInput,
     );
   }

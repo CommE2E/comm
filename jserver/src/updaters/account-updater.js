@@ -10,24 +10,27 @@ import { promiseAll } from 'lib/utils/promises';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
+import {
+  sendEmailAddressVerificationEmail,
+} from '../emails/verify-email-address';
 
 async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   const email = update.updatedFields.email;
   const newPassword = update.updatedFields.password;
 
-  const promises = {};
+  const fetchPromises = {};
   if (email) {
     if (email.search(validEmailRegex) === -1) {
       throw new ServerError('invalid_email');
     }
-    promises.emailQuery = pool.query(SQL`
+    fetchPromises.emailQuery = pool.query(SQL`
       SELECT COUNT(id) AS count FROM users WHERE email = ${email}
     `);
   }
-  promises.verifyQuery = pool.query(SQL`
+  fetchPromises.verifyQuery = pool.query(SQL`
     SELECT username, email, hash FROM users WHERE id = ${viewer.userID}
   `);
-  const { verifyQuery, emailQuery } = await promiseAll(promises);
+  const { verifyQuery, emailQuery } = await promiseAll(fetchPromises);
 
   const [ verifyResult ] = verifyQuery;
   if (verifyResult.length === 0) {
@@ -38,8 +41,9 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
     throw new ServerError('invalid_credentials');
   }
 
+  const savePromises = [];
   const changedFields = {};
-  if (email) {
+  if (email && email !== verifyRow.email) {
     const [ emailResult ] = emailQuery;
     const emailRow = emailResult[0];
     if (emailRow.count !== 0) {
@@ -47,17 +51,24 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
     }
     changedFields.email = email;
     changedFields.email_verified = 0;
-    // TODO verify email
+    savePromises.push(
+      sendEmailAddressVerificationEmail(
+        viewer.userID,
+        verifyRow.username,
+        verifyRow.email,
+      ),
+    );
   }
   if (newPassword) {
     changedFields.hash = bcrypt.hashSync(newPassword);
   }
 
   if (Object.keys(changedFields).length > 0) {
-    pool.query(SQL`
+    savePromises.push(pool.query(SQL`
       UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
-    `);
+    `));
   }
+  await Promise.all(savePromises);
 }
 
 export {

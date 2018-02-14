@@ -10,3 +10,4 @@ web/dist/hot
 jserver/dist
 jserver/node_modules/*
 jserver/secrets
+jserver/facts

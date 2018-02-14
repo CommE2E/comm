@@ -6,6 +6,7 @@ import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { AccountUpdate } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -40,15 +41,12 @@ import { setNativeCredentials } from '../account/native-credentials';
 type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
-  email: ?string,
   loadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   changeUserSettings: (
-    currentPassword: string,
-    newEmail: string,
-    newPassword: string,
+    accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
 };
 type State = {|
@@ -63,7 +61,6 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
-    email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
@@ -292,11 +289,12 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
 
   async savePassword() {
     try {
-      const result = await this.props.changeUserSettings(
-        this.state.currentPassword,
-        this.props.email ? this.props.email : "",
-        this.state.newPassword,
-      );
+      const result = await this.props.changeUserSettings({
+        updatedFields: {
+          password: this.state.newPassword,
+        },
+        currentPassword: this.state.currentPassword,
+      });
       await setNativeCredentials({
         password: this.state.newPassword,
       });
@@ -417,9 +415,6 @@ const EditPasswordRouteName = 'EditPassword';
 const EditPassword = connect(
   (state: AppState) => ({
     cookie: state.cookie,
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.email
-      : undefined,
     loadingStatus: loadingStatusSelector(state),
   }),
   includeDispatchActionProps,

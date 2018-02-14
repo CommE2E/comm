@@ -5,6 +5,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 import type { LogOutResult } from 'lib/actions/user-actions';
+import type { AccountUpdate } from 'lib/types/user-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -72,9 +73,7 @@ type Props = {
   // async functions that hit server APIs
   deleteAccount: (password: string) => Promise<LogOutResult>,
   changeUserSettings: (
-    currentPassword: string,
-    newEmail: string,
-    newPassword: string,
+    accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
   resendVerificationEmail: () => Promise<void>,
 };
@@ -365,11 +364,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
   async changeUserSettingsAction() {
     const email = this.state.email;
     try {
-      const result = await this.props.changeUserSettings(
-        this.state.currentPassword,
-        email,
-        this.state.newPassword,
-      );
+      const result = await this.props.changeUserSettings({
+        updatedFields: {
+          email,
+          password: this.state.newPassword,
+        },
+        currentPassword: this.state.currentPassword,
+      });
       if (email !== this.props.email) {
         this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
       } else {
