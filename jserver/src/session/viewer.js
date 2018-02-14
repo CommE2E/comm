@@ -17,7 +17,7 @@ type AnonymousViewerData = {|
 
 type ViewerData = UserViewerData | AnonymousViewerData;
 
-type UserViewer = {
+export type UserViewer = {
   loggedIn: true,
   id: string,
   userID: string,

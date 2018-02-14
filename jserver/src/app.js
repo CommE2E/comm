@@ -8,7 +8,10 @@ import errorHandler from './error_handler';
 import { messageCreationResponder } from './responders/message-responders';
 import { updateActivityResponder } from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
-import { userSubscriptionUpdateResponder } from './responders/user-responders';
+import {
+  userSubscriptionUpdateResponder,
+  accountUpdateResponder,
+} from './responders/user-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -28,5 +31,9 @@ app.post(
 app.post(
   '/update_device_token',
   errorHandler(deviceTokenUpdateResponder),
+);
+app.post(
+  '/update_account',
+  errorHandler(accountUpdateResponder),
 );
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

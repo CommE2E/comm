@@ -2,26 +2,29 @@
 
 import type { $Response, $Request } from 'express';
 import type { SubscriptionUpdate } from 'lib/types/subscription-types';
+import type { AccountUpdate } from 'lib/types/user-types';
 
 import t from 'tcomb';
 
-import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
-import { setCurrentViewerFromCookie } from '../session/cookies';
+import { ServerError } from 'lib/utils/fetch-utils';
 
-const inputValidator = t.interface(
-  {
-    threadID: t.String,
-    updatedFields: t.interface(
-      { pushNotifs: t.maybe(t.Boolean), home: t.maybe(t.Boolean) },
-      { strict: true },
-    ),
-  },
-  { strict: true },
-);
+import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
+import { accountUpdater } from '../updaters/account-updater';
+import { setCurrentViewerFromCookie } from '../session/cookies';
+import { tShape } from '../utils/tcomb-utils';
+import { currentViewer } from '../session/viewer';
+
+const subscriptionUpdateInputValidator = tShape({
+  threadID: t.String,
+  updatedFields: tShape({
+    pushNotifs: t.maybe(t.Boolean),
+    home: t.maybe(t.Boolean)
+  }),
+});
 
 async function userSubscriptionUpdateResponder(req: $Request, res: $Response) {
   const subscriptionUpdate: SubscriptionUpdate = (req.body: any);
-  if (!inputValidator.is(subscriptionUpdate)) {
+  if (!subscriptionUpdateInputValidator.is(subscriptionUpdate)) {
     return { error: 'invalid_parameters' };
   }
 
@@ -34,6 +37,40 @@ async function userSubscriptionUpdateResponder(req: $Request, res: $Response) {
   return { success: true, threadSubscription };
 }
 
+const accountUpdateInputValidator = tShape({
+  updatedFields: tShape({
+    email: t.maybe(t.String),
+    password: t.maybe(t.String),
+  }),
+  currentPassword: t.String,
+});
+
+async function accountUpdateResponder(req: $Request, res: $Response) {
+  const accountUpdate: AccountUpdate = (req.body: any);
+  if (!accountUpdateInputValidator.is(accountUpdate)) {
+    return { error: 'invalid_parameters' };
+  }
+
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    return { error: 'not_logged_in' };
+  }
+
+  await setCurrentViewerFromCookie(req.cookies);
+  try {
+    await accountUpdater(viewer, accountUpdate);
+  } catch (e) {
+    if (e instanceof ServerError) {
+      return { error: e.message };
+    } else {
+      throw e;
+    }
+  }
+
+  return { success: true };
+}
+
 export {
   userSubscriptionUpdateResponder,
+  accountUpdateResponder,
 };

@@ -7,25 +7,21 @@ import t from 'tcomb';
 
 import { activityUpdater } from '../updaters/activity-updater';
 import { setCurrentViewerFromCookie } from '../session/cookies';
-import { tBool } from '../utils/tcomb-utils';
+import { tBool, tShape } from '../utils/tcomb-utils';
 
 const inputValidator = t.list(t.union([
-  t.interface(
-    { focus: tBool(true), threadID: t.String },
-    { strict: true },
-  ),
-  t.interface(
-    {
-      focus: tBool(false),
-      threadID: t.String,
-      latestMessage: t.maybe(t.String),
-    },
-    { strict: true },
-  ),
-  t.interface(
-    { closing: tBool(true) },
-    { strict: true },
-  ),
+  tShape({
+    focus: tBool(true),
+    threadID: t.String,
+  }),
+  tShape({
+    focus: tBool(false),
+    threadID: t.String,
+    latestMessage: t.maybe(t.String),
+  }),
+  tShape({
+    closing: tBool(true),
+  }),
 ]));
 
 async function updateActivityResponder(req: $Request, res: $Response) {
