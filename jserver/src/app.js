@@ -11,6 +11,7 @@ import { deviceTokenUpdateResponder } from './responders/device-responders';
 import {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
+  resendVerificationEmailResponder,
 } from './responders/user-responders';
 
 const app = express();
@@ -35,5 +36,9 @@ app.post(
 app.post(
   '/update_account',
   errorHandler(accountUpdateResponder),
+);
+app.post(
+  '/resend_verification_email',
+  errorHandler(resendVerificationEmailResponder),
 );
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

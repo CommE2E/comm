@@ -10,9 +10,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
-import {
-  sendEmailAddressVerificationEmail,
-} from '../emails/verify-email-address';
+import { sendEmailAddressVerificationEmail } from '../emails/verification';
 
 async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   const email = update.updatedFields.email;
@@ -71,6 +69,29 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   await Promise.all(savePromises);
 }
 
+async function resendVerificationEmail(viewer: UserViewer) {
+  const query = SQL`
+    SELECT username, email, email_verified
+    FROM users
+    WHERE id = ${viewer.userID}
+  `;
+  const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    throw new ServerError('internal_error');
+  }
+  const row = result[0];
+  if (row.email_verified) {
+    throw new ServerError('already_verified');
+  }
+
+  await sendEmailAddressVerificationEmail(
+    viewer.userID,
+    row.username,
+    row.email,
+  );
+}
+
 export {
   accountUpdater,
+  resendVerificationEmail,
 };

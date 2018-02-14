@@ -9,7 +9,10 @@ import t from 'tcomb';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
-import { accountUpdater } from '../updaters/account-updater';
+import {
+  accountUpdater,
+  resendVerificationEmail,
+} from '../updaters/account-updater';
 import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tShape } from '../utils/tcomb-utils';
 import { currentViewer } from '../session/viewer';
@@ -70,7 +73,28 @@ async function accountUpdateResponder(req: $Request, res: $Response) {
   return { success: true };
 }
 
+async function resendVerificationEmailResponder(req: $Request, res: $Response) {
+  await setCurrentViewerFromCookie(req.cookies);
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    return { error: 'not_logged_in' };
+  }
+
+  try {
+    await resendVerificationEmail(viewer);
+  } catch (e) {
+    if (e instanceof ServerError) {
+      return { error: e.message };
+    } else {
+      throw e;
+    }
+  }
+
+  return { success: true };
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
+  resendVerificationEmailResponder,
 };
