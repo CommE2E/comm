@@ -10,7 +10,7 @@
     "flow-mono-cli": "^1.3.0"
   },
   "scripts": {
-    "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf jserver/node_modules/",
-    "cleaninstall": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf jserver/node_modules/ && yarn"
+    "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf jserver/node_modules/ && rm -rf jserver/dist/",
+    "cleaninstall": "npm run clean && yarn"
   }
 }
