@@ -66,6 +66,7 @@ import { iosKeyboardHeight } from '../dimensions';
 const tagInputProps = {
   placeholder: "username",
   autoFocus: true,
+  returnKeyType: "go",
 };
 
 const segmentedPrivacyOptions = ['Public', 'Secret'];
@@ -241,6 +242,10 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         </View>
       );
     }
+    const inputProps = {
+      ...tagInputProps,
+      onSubmitEditing: this.onPressCreateThread,
+    };
     const content = (
       <React.Fragment>
         <View style={[
@@ -256,7 +261,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
               onChangeText={this.setUsernameInputText}
               onHeightChange={this.onTagInputHeightChange}
               labelExtractor={this.tagDataLabelExtractor}
-              inputProps={tagInputProps}
+              inputProps={inputProps}
               ref={this.tagInputRef}
             />
           </View>
@@ -346,6 +351,21 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onPressCreateThread = () => {
+    if (this.state.userInfoInputArray.length === 0) {
+      Alert.alert(
+        "Chatting to yourself?",
+        "Are you sure you want to create a thread containing only yourself?",
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Confirm', onPress: this.dispatchNewChatThreadAction },
+        ],
+      );
+    } else {
+      this.dispatchNewChatThreadAction();
+    }
+  }
+
+  dispatchNewChatThreadAction = () => {
     this.props.dispatchActionPromise(
       newThreadActionTypes,
       this.newChatThreadAction(),
