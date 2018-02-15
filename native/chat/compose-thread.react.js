@@ -50,10 +50,15 @@ import {
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import { generateRandomColor } from 'lib/shared/thread-utils';
+import {
+  generateRandomColor,
+  threadHasPermission,
+  viewerIsMember,
+} from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
@@ -210,9 +215,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     }
     return _flow(
       _filter(
-        (threadInfo: ThreadInfo) => userIDs.every(
-          userID => threadInfo.members.some(member => member.id === userID),
-        ),
+        (threadInfo: ThreadInfo) =>
+          viewerIsMember(threadInfo) &&
+          threadHasPermission(threadInfo, threadPermissions.VISIBLE) &&
+          userIDs.every(
+            userID => threadInfo.members.some(member => member.id === userID),
+          ),
       ),
       _sortBy([
         'members.length', 
