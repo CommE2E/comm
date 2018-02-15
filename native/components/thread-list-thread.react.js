@@ -4,8 +4,7 @@ import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -16,17 +15,18 @@ import {
 } from 'react-native';
 
 import Button from './button.react';
+import ColorSplotch from './color-splotch.react';
 
 type Props = {
-  userInfo: AccountUserInfo,
-  onSelect: (userID: string) => void,
+  threadInfo: ThreadInfo,
+  onSelect: (threadID: string) => void,
   style?: StyleObj,
   textStyle?: StyleObj,
 };
-class UserListUser extends React.PureComponent<Props> {
+class ThreadListThread extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfo: accountUserInfoPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
     style: ViewPropTypes.style,
     textStyle: Text.propTypes.style,
@@ -38,28 +38,35 @@ class UserListUser extends React.PureComponent<Props> {
         onPress={this.onSelect}
         iosFormat="highlight"
         iosActiveOpacity={0.85}
-        style={this.props.style}
+        style={[styles.button, this.props.style]}
       >
+        <ColorSplotch color={this.props.threadInfo.color} />
         <Text style={[styles.text, this.props.textStyle]} numberOfLines={1}>
-          {this.props.userInfo.username}
+          {this.props.threadInfo.uiName}
         </Text>
       </Button>
     );
   }
 
   onSelect = () => {
-    this.props.onSelect(this.props.userInfo.id);
+    this.props.onSelect(this.props.threadInfo.id);
   }
 
 }
 
 const styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 13,
+  },
   text: {
-    paddingHorizontal: 12,
+    paddingLeft: 9,
+    paddingRight: 12,
     paddingVertical: 6,
     fontSize: 16,
   },
 });
 
 
-export default UserListUser;
+export default ThreadListThread;

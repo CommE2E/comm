@@ -4,29 +4,33 @@ import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { ThreadInfo, VisibilityRules } from 'lib/types/thread-types';
-import { threadInfoPropType, visibilityRules } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  type VisibilityRules,
+  visibilityRules,
+} from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import { accountUserInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
 import type { NewThreadResult } from 'lib/actions/thread-actions';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Alert,
-  TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { connect } from 'react-redux';
-import SegmentedControlTab from 'react-native-segmented-control-tab';
 import invariant from 'invariant';
+import _flow from 'lodash/fp/flow';
+import _filter from 'lodash/fp/filter';
+import _sortBy from 'lodash/fp/sortBy';
 
 import {
   includeDispatchActionProps,
@@ -51,30 +55,29 @@ import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
-import ColorSplotch from '../components/color-splotch.react';
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
+import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
-import ColorPickerModal from './color-picker-modal.react';
 import { iosKeyboardHeight } from '../dimensions';
 
 const tagInputProps = {
   placeholder: "username",
+  autoFocus: true,
 };
 
-type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { parentThreadID: ?string } } };
 const segmentedPrivacyOptions = ['Public', 'Secret'];
 
 type Props = {
-  navigation: NavProp,
+  navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   loadingStatus: LoadingStatus,
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
+  threadInfos: {[id: string]: ThreadInfo},
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -88,24 +91,18 @@ type Props = {
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 type State = {
-  nameInputText: string,
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   userSearchResults: $ReadOnlyArray<AccountUserInfo>,
-  selectedPrivacyIndex: number,
   tagInputHeight: number,
-  showColorPicker: bool,
-  color: string,
+  existingThreads: ThreadInfo[],
 };
-class InnerAddThread extends React.PureComponent<Props, State> {
+class InnerComposeThread extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          parentThreadID: PropTypes.string,
-        }).isRequired,
       }).isRequired,
       setParams: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
@@ -115,23 +112,23 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newChatThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
-    title: 'New thread',
-    headerRight: navigation.state.params.showColorPicker
-      ? null
-      : (
-          <LinkButton
-            text="Create"
-            onPress={() => navigation.state.params.onPressCreateThread()}
-          />
-        ),
+    title: 'Compose thread',
+    headerRight: (
+      <LinkButton
+        text="Create"
+        onPress={() => navigation.state.params.onPressCreateThread()}
+      />
+    ),
+    headerBackTitle: "Back",
   });
   mounted = false;
-  nameInput: ?TextInput;
+  tagInput: ?TagInput<AccountUserInfo>;
 
   constructor(props: Props) {
     super(props);
@@ -142,16 +139,11 @@ class InnerAddThread extends React.PureComponent<Props, State> {
       [],
     );
     this.state = {
-      nameInputText: "",
       usernameInputText: "",
       userInfoInputArray: [],
       userSearchResults,
-      selectedPrivacyIndex: props.parentThreadInfo ? 0 : 1,
       tagInputHeight: 36,
-      showColorPicker: false,
-      color: props.parentThreadInfo
-        ? props.parentThreadInfo.color
-        : generateRandomColor(),
+      existingThreads: [],
     };
   }
 
@@ -175,6 +167,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     if (!this.mounted) {
       return;
     }
+    const newState = {};
     if (
       this.props.otherUserInfos !== nextProps.otherUserInfos ||
       this.props.userSearchIndex !== nextProps.userSearchIndex
@@ -185,84 +178,77 @@ class InnerAddThread extends React.PureComponent<Props, State> {
         nextProps.userSearchIndex,
         this.state.userInfoInputArray.map(userInfo => userInfo.id),
       );
-      this.setState({ userSearchResults });
+      newState.userSearchResults = userSearchResults;
+    }
+    if (this.props.threadInfos !== nextProps.threadInfos) {
+      const existingThreads = InnerComposeThread.existingThreadsWithUsers(
+        nextProps,
+        this.state,
+      );
+      newState.existingThreads = existingThreads;
+    }
+    if (Object.keys(newState).length > 0) {
+      this.setState(newState);
     }
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (this.state.showColorPicker !== nextState.showColorPicker) {
-      nextProps.navigation.setParams({
-        showColorPicker: nextState.showColorPicker,
-      });
+    if (this.state.userInfoInputArray !== nextState.userInfoInputArray) {
+      const existingThreads = InnerComposeThread.existingThreadsWithUsers(
+        nextProps,
+        nextState,
+      );
+      this.setState({ existingThreads });
     }
   }
 
+  static existingThreadsWithUsers(props: Props, state: State) {
+    const userIDs = state.userInfoInputArray.map(userInfo => userInfo.id);
+    if (userIDs.length === 0) {
+      return [];
+    }
+    return _flow(
+      _filter(
+        (threadInfo: ThreadInfo) => userIDs.every(
+          userID => threadInfo.members.some(member => member.id === userID),
+        ),
+      ),
+      _sortBy([
+        'members.length', 
+        (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
+      ]),
+    )(props.threadInfos);
+  }
+
   render() {
-    let visibility;
-    if (this.props.parentThreadInfo) {
-      visibility = (
-        <View style={styles.row}>
-          <Text style={styles.label}>Visibility</Text>
-          <View style={styles.input}>
-            <SegmentedControlTab
-              values={segmentedPrivacyOptions}
-              selectedIndex={this.state.selectedPrivacyIndex}
-              onTabPress={this.handleIndexChange}
-              tabStyle={styles.segmentedTabStyle}
-              activeTabStyle={styles.segmentedActiveTabStyle}
-              tabTextStyle={styles.segmentedTextStyle}
-            />
-            <Text
-              style={styles.parentThreadName}
-              numberOfLines={1}
-            >
-              <Text style={styles.parentThreadNameRobotext}>
-                {"within "}
-              </Text>
-              {this.props.parentThreadInfo.uiName}
+    let existingThreadsSection = null;
+    const existingThreads = this.state.existingThreads;
+    if (existingThreads.length > 0) {
+      existingThreadsSection = (
+        <View style={styles.existingThreads}>
+          <View style={styles.existingThreadsRow}>
+            <Text style={styles.existingThreadsLabel}>
+              Existing threads
             </Text>
+          </View>
+          <View style={styles.existingThreadList}>
+            <ThreadList
+              threadInfos={existingThreads}
+              onSelect={this.onSelectExistingThread}
+              itemTextStyle={styles.listItem}
+            />
           </View>
         </View>
       );
     }
-    const oldColor = this.props.parentThreadInfo
-      ? this.props.parentThreadInfo.color
-      : null;
     const content = (
-      <View style={styles.content}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Name</Text>
-          <View style={styles.input}>
-            <TextInput
-              style={styles.textInput}
-              value={this.state.nameInputText}
-              onChangeText={this.onChangeNameInputText}
-              placeholder="thread name"
-              autoFocus={true}
-              autoCorrect={false}
-              autoCapitalize="none"
-              returnKeyType="next"
-              editable={this.props.loadingStatus !== "loading"}
-              underlineColorAndroid="transparent"
-              ref={this.nameInputRef}
-            />
-          </View>
-        </View>
-        {visibility}
-        <View style={styles.row}>
-          <Text style={styles.label}>Color</Text>
-          <View style={[styles.input, styles.inlineInput]}>
-            <ColorSplotch color={this.state.color} />
-            <LinkButton
-              text="Change"
-              onPress={this.onPressChangeColor}
-              style={styles.changeColorButton}
-            />
-          </View>
-        </View>
-        <View style={[styles.row, { height: this.state.tagInputHeight }]}>
-          <Text style={styles.tagInputLabel}>People</Text>
-          <View style={styles.input}>
+      <React.Fragment>
+        <View style={[
+          styles.userSelectionRow,
+          { height: this.state.tagInputHeight + 13 },
+        ]}>
+          <Text style={styles.tagInputLabel}>To: </Text>
+          <View style={styles.tagInputContainer}>
             <TagInput
               value={this.state.userInfoInputArray}
               onChange={this.onChangeTagInput}
@@ -271,6 +257,7 @@ class InnerAddThread extends React.PureComponent<Props, State> {
               onHeightChange={this.onTagInputHeightChange}
               labelExtractor={this.tagDataLabelExtractor}
               inputProps={tagInputProps}
+              ref={this.tagInputRef}
             />
           </View>
         </View>
@@ -278,16 +265,11 @@ class InnerAddThread extends React.PureComponent<Props, State> {
           <UserList
             userInfos={this.state.userSearchResults}
             onSelect={this.onUserSelect}
+            itemTextStyle={styles.listItem}
           />
         </View>
-        <ColorPickerModal
-          isVisible={this.state.showColorPicker}
-          closeModal={this.closeColorPicker}
-          color={this.state.color}
-          oldColor={oldColor}
-          onColorSelected={this.onColorSelected}
-        />
-      </View>
+        {existingThreadsSection}
+      </React.Fragment>
     );
     if (Platform.OS === "ios") {
       return (
@@ -302,12 +284,8 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     }
   }
 
-  nameInputRef = (nameInput: ?TextInput) => {
-    this.nameInput = nameInput;
-  }
-
-  onChangeNameInputText = (text: string) => {
-    this.setState({ nameInputText: text });
+  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+    this.tagInput = tagInput;
   }
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
@@ -321,10 +299,6 @@ class InnerAddThread extends React.PureComponent<Props, State> {
   }
 
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
-
-  handleIndexChange = (index: number) => {
-    this.setState({ selectedPrivacyIndex: index });
-  }
 
   setUsernameInputText = (text: string) => {
     const userSearchResults = getUserSearchResults(
@@ -371,21 +345,6 @@ class InnerAddThread extends React.PureComponent<Props, State> {
     this.setState({ tagInputHeight: height });
   }
 
-  onPressChangeColor = () => {
-    this.setState({ showColorPicker: true });
-  }
-
-  onColorSelected = (color: string) => {
-    this.setState({
-      showColorPicker: false,
-      color: color.substr(1),
-    });
-  }
-
-  closeColorPicker = () => {
-    this.setState({ showColorPicker: false });
-  }
-
   onPressCreateThread = () => {
     this.props.dispatchActionPromise(
       newThreadActionTypes,
@@ -394,18 +353,15 @@ class InnerAddThread extends React.PureComponent<Props, State> {
   }
 
   async newChatThreadAction() {
-    const name = this.state.nameInputText.trim();
     try {
       return await this.props.newChatThread(
-        name,
-        this.state.selectedPrivacyIndex === 0
-          ? visibilityRules.CHAT_NESTED_OPEN
-          : visibilityRules.CHAT_SECRET,
-        this.state.color,
+        "",
+        visibilityRules.CHAT_SECRET,
+        generateRandomColor(),
         this.state.userInfoInputArray.map(
           (userInfo: AccountUserInfo) => userInfo.id,
         ),
-        this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
+        null,
       );
     } catch (e) {
       Alert.alert(
@@ -421,20 +377,25 @@ class InnerAddThread extends React.PureComponent<Props, State> {
   }
 
   onErrorAcknowledged = () => {
-    invariant(this.nameInput, "nameInput should be set");
-    this.nameInput.focus();
+    invariant(this.tagInput, "tagInput should be set");
+    this.tagInput.focus();
   }
 
   onUnknownErrorAlertAcknowledged = () => {
     this.setState(
       {
-        nameInputText: "",
         usernameInputText: "",
         userSearchResults: [],
-        selectedPrivacyIndex: 0,
         tagInputHeight: 36,
       },
       this.onErrorAcknowledged,
+    );
+  }
+
+  onSelectExistingThread = (threadID: string) => {
+    this.props.navigation.navigate(
+      MessageListRouteName,
+      { threadInfo: this.props.threadInfos[threadID] },
     );
   }
 
@@ -442,116 +403,75 @@ class InnerAddThread extends React.PureComponent<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 5,
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  content: {
     flex: 1,
   },
-  row: {
+  userSelectionRow: {
     flexDirection: 'row',
-    marginBottom: 10,
-  },
-  input: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  inlineInput: {
-    flexDirection: 'row',
-  },
-  label: {
-    paddingTop: 2,
-    paddingLeft: 12,
-    fontSize: 20,
-    width: 100,
+    alignItems: 'center',
+    backgroundColor: "white",
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderColor: "#CCCCCC",
   },
   tagInputLabel: {
-    paddingTop: 2,
     paddingLeft: 12,
-    fontSize: 20,
-    width: 100,
+    fontSize: 16,
+    color: "#888888",
   },
-  textInput: {
-    fontSize: 18,
-    paddingTop: 4,
-    paddingBottom: 0,
-    paddingHorizontal: 0,
-    margin: 0,
-  },
-  parentThreadName: {
-    paddingTop: 5,
-    fontSize: 18,
-  },
-  parentThreadNameRobotext: {
-    color: '#AAAAAA',
-  },
-  segmentedTabStyle: {
-    borderColor: '#777',
-  },
-  segmentedActiveTabStyle: {
-    backgroundColor: '#777',
-  },
-  segmentedTextStyle: {
-    color: '#777',
-  },
-  colorPicker: {
-    top: 10,
-    bottom: 10,
-    left: 10,
-    right: 10,
-    position: 'absolute',
-  },
-  changeColorButton: {
-    paddingTop: 2,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 18,
-    height: 18,
-    borderRadius: 3,
-  },
-  closeButtonIcon: {
-    position: 'absolute',
-    left: 3,
+  tagInputContainer: {
+    flex: 1,
+    marginLeft: 8,
+    paddingRight: 12,
   },
   userList: {
-    marginLeft: 88,
+    flex: 1,
+    paddingLeft: 35,
+    paddingRight: 12,
+  },
+  listItem: {
+    color: "#222222",
+  },
+  existingThreadsRow: {
+    backgroundColor: "white",
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
+  },
+  existingThreadsLabel: {
+    textAlign: 'center',
+    paddingLeft: 12,
+    fontSize: 16,
+    color: "#888888",
+  },
+  existingThreadList: {
+    flex: 1,
     marginRight: 12,
+  },
+  existingThreads: {
+    flex: 1,
   },
 });
 
-const AddThreadRouteName = 'AddThread';
+const ComposeThreadRouteName = 'ComposeThread';
 
 const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
-const AddThread = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
-    let parentThreadInfo = null;
-    const parentThreadID = ownProps.navigation.state.params.parentThreadID;
-    if (parentThreadID) {
-      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, "parent thread should exist");
-    }
-    return {
-      loadingStatus: loadingStatusSelector(state),
-      parentThreadInfo,
-      otherUserInfos:
-        userInfoSelectorForOtherMembersOfThread(parentThreadID)(state),
-      userSearchIndex:
-        userSearchIndexForOtherMembersOfThread(parentThreadID)(state),
-      cookie: state.cookie,
-    };
-  },
+const ComposeThread = connect(
+  (state: AppState) => ({
+    loadingStatus: loadingStatusSelector(state),
+    otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
+    userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
+    threadInfos: threadInfoSelector(state),
+    cookie: state.cookie,
+  }),
   includeDispatchActionProps,
   bindServerCalls({ newChatThread, searchUsers }),
-)(InnerAddThread);
+)(InnerComposeThread);
 
 export {
-  AddThread,
-  AddThreadRouteName,
+  ComposeThread,
+  ComposeThreadRouteName,
 };

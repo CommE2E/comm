@@ -18,8 +18,11 @@ if (Platform.OS === "ios") {
   contentVerticalOffset = DeviceInfo.isIPhoneX_deprecated ? 44 : 20;
 }
 
+const iosKeyboardHeight = DeviceInfo.isIPhoneX_deprecated ? 89 : 65;
+
 export {
   windowHeight,
   windowWidth,
   contentVerticalOffset,
+  iosKeyboardHeight,
 };

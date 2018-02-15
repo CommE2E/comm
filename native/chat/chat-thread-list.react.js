@@ -20,7 +20,7 @@ import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
-import { AddThreadRouteName } from './add-thread.react';
+import { ComposeThreadRouteName } from './compose-thread.react';
 
 const floatingActions = [{
   text: 'Compose',
@@ -138,7 +138,7 @@ class InnerChatThreadList extends React.PureComponent<Props> {
   }
 
   composeThread = () => {
-    this.props.navigation.navigate(AddThreadRouteName, {});
+    this.props.navigation.navigate(ComposeThreadRouteName, {});
   }
 
 }

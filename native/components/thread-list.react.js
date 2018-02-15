@@ -4,25 +4,24 @@ import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FlatList, ViewPropTypes, Text } from 'react-native';
 
-import UserListUser from './user-list-user.react';
+import ThreadListThread from './thread-list-thread.react';
 
 type Props = {
-  userInfos: $ReadOnlyArray<AccountUserInfo>,
-  onSelect: (userID: string) => void,
+  threadInfos: $ReadOnlyArray<ThreadInfo>,
+  onSelect: (threadID: string) => void,
   itemStyle?: StyleObj,
   itemTextStyle?: StyleObj,
 };
-class UserList extends React.PureComponent<Props> {
+class ThreadList extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfos: PropTypes.arrayOf(accountUserInfoPropType).isRequired,
+    threadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
     itemStyle: ViewPropTypes.style,
     itemTextStyle: Text.propTypes.style,
@@ -31,24 +30,24 @@ class UserList extends React.PureComponent<Props> {
   render() {
     return (
       <FlatList
-        data={this.props.userInfos}
+        data={this.props.threadInfos}
         renderItem={this.renderItem}
-        keyExtractor={UserList.keyExtractor}
-        getItemLayout={UserList.getItemLayout}
+        keyExtractor={ThreadList.keyExtractor}
+        getItemLayout={ThreadList.getItemLayout}
         keyboardShouldPersistTaps="handled"
         initialNumToRender={20}
       />
     );
   }
 
-  static keyExtractor(userInfo: AccountUserInfo) {
-    return userInfo.id;
+  static keyExtractor(threadInfo: ThreadInfo) {
+    return threadInfo.id;
   }
 
-  renderItem = (row: { item: AccountUserInfo }) => {
+  renderItem = (row: { item: ThreadInfo }) => {
     return (
-      <UserListUser
-        userInfo={row.item}
+      <ThreadListThread
+        threadInfo={row.item}
         onSelect={this.props.onSelect}
         style={this.props.itemStyle}
         textStyle={this.props.itemTextStyle}
@@ -56,10 +55,10 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static getItemLayout(data: ?$ReadOnlyArray<AccountUserInfo>, index: number) {
+  static getItemLayout(data: ?$ReadOnlyArray<ThreadInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 
 }
 
-export default UserList;
+export default ThreadList;

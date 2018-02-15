@@ -50,6 +50,7 @@ import { threadActualMembers } from 'lib/shared/thread-utils';
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
+import { iosKeyboardHeight } from '../../dimensions';
 
 const tagInputProps = {
   placeholder: "Select users to add",
@@ -228,7 +229,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         <KeyboardAvoidingView
           style={styles.container}
           behavior="padding"
-          keyboardVerticalOffset={65}
+          keyboardVerticalOffset={iosKeyboardHeight}
         >{content}</KeyboardAvoidingView>
       );
     } else {

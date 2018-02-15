@@ -118,6 +118,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   // scroll to bottom
   contentHeight = 0;
   scrollViewHeight = 0;
+  scrollToBottomAfterNextScrollViewLayout = false;
   // refs
   tagInput: ?React.ElementRef<typeof TextInput> = null;
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
@@ -309,28 +310,35 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   }
 
   onScrollViewContentSizeChange = (w: number, h: number) => {
-    if (this.contentHeight === h) {
+    const oldContentHeight = this.contentHeight;
+    if (oldContentHeight === h) {
       return;
     }
+    this.contentHeight = h;
     const nextWrapperHeight = Math.max(
       Math.min(this.props.maxHeight, h),
       this.props.minHeight,
     );
     if (nextWrapperHeight !== this.state.wrapperHeight) {
-      this.setState(
-        { wrapperHeight: nextWrapperHeight },
-        this.contentHeight < h ? this.scrollToBottom : undefined,
-      );
-    } else if (this.contentHeight < h) {
-      this.scrollToBottom();
+      this.setState({ wrapperHeight: nextWrapperHeight });
     }
-    this.contentHeight = h;
+    if (oldContentHeight < h) {
+      if (this.scrollViewHeight === this.props.maxHeight) {
+        this.scrollToBottom();
+      } else {
+        this.scrollToBottomAfterNextScrollViewLayout = true;
+      }
+    }
   }
 
   onScrollViewLayout = (
     event: { nativeEvent: { layout: { height: number } } },
   ) => {
     this.scrollViewHeight = event.nativeEvent.layout.height;
+    if (this.scrollToBottomAfterNextScrollViewLayout) {
+      this.scrollToBottom();
+      this.scrollToBottomAfterNextScrollViewLayout = false;
+    }
   }
 
   onLayoutLastTag = (endPosOfTag: number) => {
@@ -441,10 +449,11 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontSize: 18,
+    height: 24,
     flex: .6,
     padding: 0,
     marginTop: 3,
-    marginBottom: 0,
+    marginBottom: 3,
     marginHorizontal: 0,
   },
   textInputContainer: {
