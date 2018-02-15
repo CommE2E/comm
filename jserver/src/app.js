@@ -11,7 +11,8 @@ import { deviceTokenUpdateResponder } from './responders/device-responders';
 import {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
-  resendVerificationEmailResponder,
+  sendVerificationEmailResponder,
+  sendPasswordResetEmailResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
 
@@ -39,11 +40,15 @@ app.post(
   errorHandler(accountUpdateResponder),
 );
 app.post(
-  '/resend_verification_email',
-  errorHandler(resendVerificationEmailResponder),
+  '/send_verification_email',
+  errorHandler(sendVerificationEmailResponder),
 );
 app.post(
   '/search_users',
   errorHandler(userSearchResponder),
+);
+app.post(
+  '/send_password_reset_email',
+  errorHandler(sendPasswordResetEmailResponder),
 );
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

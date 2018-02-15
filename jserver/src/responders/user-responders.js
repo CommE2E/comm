@@ -3,6 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { SubscriptionUpdate } from 'lib/types/subscription-types';
 import type { AccountUpdate } from 'lib/types/user-types';
+import type { PasswordResetRequest } from 'lib/types/account-types';
 
 import t from 'tcomb';
 
@@ -11,7 +12,8 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
 import {
   accountUpdater,
-  resendVerificationEmail,
+  checkAndSendVerificationEmail,
+  checkAndSendPasswordResetEmail,
 } from '../updaters/account-updater';
 import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tShape } from '../utils/tcomb-utils';
@@ -73,7 +75,7 @@ async function accountUpdateResponder(req: $Request, res: $Response) {
   return { success: true };
 }
 
-async function resendVerificationEmailResponder(req: $Request, res: $Response) {
+async function sendVerificationEmailResponder(req: $Request, res: $Response) {
   await setCurrentViewerFromCookie(req.cookies);
   const viewer = currentViewer();
   if (!viewer.loggedIn) {
@@ -81,7 +83,32 @@ async function resendVerificationEmailResponder(req: $Request, res: $Response) {
   }
 
   try {
-    await resendVerificationEmail(viewer);
+    await checkAndSendVerificationEmail(viewer);
+  } catch (e) {
+    if (e instanceof ServerError) {
+      return { error: e.message };
+    } else {
+      throw e;
+    }
+  }
+
+  return { success: true };
+}
+
+const resetPasswordRequestInputValidator = tShape({
+  usernameOrEmail: t.String,
+});
+
+async function sendPasswordResetEmailResponder(req: $Request, res: $Response) {
+  const resetPasswordRequest: PasswordResetRequest = (req.body: any);
+  if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
+    return { error: 'invalid_parameters' };
+  }
+
+  await setCurrentViewerFromCookie(req.cookies);
+
+  try {
+    await checkAndSendPasswordResetEmail(resetPasswordRequest);
   } catch (e) {
     if (e instanceof ServerError) {
       return { error: e.message };
@@ -96,5 +123,6 @@ async function resendVerificationEmailResponder(req: $Request, res: $Response) {
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
-  resendVerificationEmailResponder,
+  sendVerificationEmailResponder,
+  sendPasswordResetEmailResponder,
 };

@@ -2,6 +2,7 @@
 
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { UserViewer } from '../session/viewer';
+import type { PasswordResetRequest } from 'lib/types/account-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -11,6 +12,7 @@ import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
+import { sendPasswordResetEmail } from '../emails/reset-password';
 
 async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   const email = update.updatedFields.email;
@@ -69,7 +71,7 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   await Promise.all(savePromises);
 }
 
-async function resendVerificationEmail(viewer: UserViewer) {
+async function checkAndSendVerificationEmail(viewer: UserViewer) {
   const query = SQL`
     SELECT username, email, email_verified
     FROM users
@@ -91,7 +93,28 @@ async function resendVerificationEmail(viewer: UserViewer) {
   );
 }
 
+async function checkAndSendPasswordResetEmail(request: PasswordResetRequest) {
+  const query = SQL`
+    SELECT id, username, email
+    FROM users
+    WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
+      OR LCASE(email) = LCASE(${request.usernameOrEmail})
+  `;
+  const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    throw new ServerError('invalid_user');
+  }
+  const row = result[0];
+
+  await sendPasswordResetEmail(
+    row.id.toString(),
+    row.username,
+    row.email,
+  );
+}
+
 export {
   accountUpdater,
-  resendVerificationEmail,
+  checkAndSendVerificationEmail,
+  checkAndSendPasswordResetEmail,
 };

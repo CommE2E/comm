@@ -12,35 +12,26 @@ import sendmail from './sendmail';
 const { Email, Item, Span, A, renderEmail } = ReactHTML;
 const { baseDomain, basePath } = urlFacts;
 
-async function sendEmailAddressVerificationEmail(
+async function sendPasswordResetEmail(
   userID: string,
   username: string,
   emailAddress: string,
-  welcome: bool = false,
 ): Promise<void> {
-  const code = await createVerificationCode(userID, verifyField.EMAIL);
+  const code = await createVerificationCode(userID, verifyField.RESET_PASSWORD);
   const link = baseDomain + basePath + `verify/${code}/`;
 
-  let welcomeText = null;
-  let action = "verify your email";
-  if (welcome) {
-    welcomeText = (
-      <Item>
-        <Span fontSize={24}>
-          {`Welcome to SquadCal, ${username}!`}
-        </Span>
-      </Item>
-    );
-    action = `complete your registration and ${action}`;
-  }
-
-  const title = "Verify email for SquadCal";
+  const title = "Reset password for SquadCal";
+  const text =
+    "We received a request to reset the password associated with your " +
+    `account ${username} on SquadCal. If you did not issue this request, you ` +
+    "do not need to do anything, and your password will remain the same. " +
+    "However, if you did issue this request, please visit this link to reset " +
+    "your password: ";
   const email = (
     <Email title={title}>
-      {welcomeText}
       <Item>
         <Span>
-          {`Please ${action} by clicking this link: `}
+          {text}
           <A href={link}>{link}</A>
         </Span>
       </Item>
@@ -57,5 +48,5 @@ async function sendEmailAddressVerificationEmail(
 }
 
 export {
-  sendEmailAddressVerificationEmail,
+  sendPasswordResetEmail,
 };
