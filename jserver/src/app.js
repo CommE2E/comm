@@ -13,6 +13,7 @@ import {
   accountUpdateResponder,
   resendVerificationEmailResponder,
 } from './responders/user-responders';
+import { userSearchResponder } from './responders/search-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -40,5 +41,9 @@ app.post(
 app.post(
   '/resend_verification_email',
   errorHandler(resendVerificationEmailResponder),
+);
+app.post(
+  '/search_users',
+  errorHandler(userSearchResponder),
 );
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

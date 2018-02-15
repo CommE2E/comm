@@ -18,8 +18,9 @@ async function fetchUserInfos(
 
   const userInfos = {};
   for (let row of result) {
-    userInfos[row.id] = {
-      id: row.id,
+    const id = row.id.toString();
+    userInfos[id] = {
+      id,
       username: row.username,
     };
   }
