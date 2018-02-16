@@ -22,7 +22,7 @@ class ThreadSettingsVisibility extends React.PureComponent<Props> {
     const visibility =
       visRules === visibilityRules.OPEN ||
       visRules === visibilityRules.CHAT_NESTED_OPEN
-        ? "Public"
+        ? "Open"
         : "Secret";
     return (
       <View style={styles.row}>

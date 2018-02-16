@@ -12,7 +12,6 @@ import {
   ChatThreadListRouteName,
 } from './chat-thread-list.react';
 import { MessageList, MessageListRouteName } from './message-list.react';
-import { AddThread, AddThreadRouteName } from './add-thread.react';
 import { ComposeThread, ComposeThreadRouteName } from './compose-thread.react';
 import {
   ThreadSettings,
@@ -24,7 +23,6 @@ const Chat = StackNavigator(
   {
     [ChatThreadListRouteName]: { screen: ChatThreadList },
     [MessageListRouteName]: { screen: MessageList },
-    [AddThreadRouteName]: { screen: AddThread },
     [ComposeThreadRouteName]: { screen: ComposeThread },
     [ThreadSettingsRouteName]: { screen: ThreadSettings },
   },

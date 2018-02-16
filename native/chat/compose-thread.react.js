@@ -31,6 +31,7 @@ import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
   includeDispatchActionProps,
@@ -74,11 +75,17 @@ const tagInputProps = {
   returnKeyType: "go",
 };
 
-const segmentedPrivacyOptions = ['Public', 'Secret'];
+type NavProp =
+  & NavigationScreenProp<NavigationRoute>
+  & { state: { params: {
+      parentThreadID?: string,
+      visibilityRules?: VisibilityRules,
+    } } };
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationRoute>,
+  navigation: NavProp,
   // Redux state
+  parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
@@ -100,7 +107,6 @@ type State = {
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   userSearchResults: $ReadOnlyArray<AccountUserInfo>,
-  tagInputHeight: number,
   existingThreads: ThreadInfo[],
 };
 class InnerComposeThread extends React.PureComponent<Props, State> {
@@ -109,11 +115,16 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         key: PropTypes.string.isRequired,
+        params: PropTypes.shape({
+          parentThreadID: PropTypes.string,
+          visibilityRules: PropTypes.number,
+        }).isRequired,
       }).isRequired,
       setParams: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
     }).isRequired,
+    parentThreadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
@@ -148,7 +159,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       usernameInputText: "",
       userInfoInputArray: [],
       userSearchResults,
-      tagInputHeight: 36,
       existingThreads: [],
     };
   }
@@ -250,16 +260,58 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         </View>
       );
     }
+    let parentThreadRow = null;
+    const parentThreadID = this.props.navigation.state.params.parentThreadID;
+    if (parentThreadID) {
+      const parentThreadInfo = this.props.parentThreadInfo;
+      invariant(
+        parentThreadInfo,
+        `can't find ThreadInfo for parent ${parentThreadID}`,
+      );
+      const visRules = this.props.navigation.state.params.visibilityRules;
+      invariant(
+        visRules !== undefined && visRules !== null,
+        `no visibilityRules provided for ${parentThreadID}`,
+      );
+      let visibilityInfo;
+      if (visRules === visibilityRules.CHAT_NESTED_OPEN) {
+        visibilityInfo = (
+          <React.Fragment>
+            <Icon name="public" size={18} />
+            <Text style={styles.visibilityLabel}>Open</Text>
+          </React.Fragment>
+        );
+      } else if (visRules === visibilityRules.CHAT_SECRET) {
+        visibilityInfo = (
+          <React.Fragment>
+            <Icon name="lock-outline" size={18} />
+            <Text style={styles.visibilityLabel}>Secret</Text>
+          </React.Fragment>
+        );
+      } else {
+        invariant(
+          false,
+          `invalid visibilityRules passed to ComposeThread: ${visRules}`,
+        );
+      }
+      parentThreadRow = (
+        <View style={styles.parentThreadRow}>
+          {visibilityInfo}
+          <Text style={styles.parentThreadLabel}>within</Text>
+          <Text style={styles.parentThreadName}>
+            {parentThreadInfo.uiName}
+          </Text>
+        </View>
+      );
+    }
     const inputProps = {
       ...tagInputProps,
       onSubmitEditing: this.onPressCreateThread,
     };
     const content = (
       <React.Fragment>
-        <View style={[
-          styles.userSelectionRow,
-          { height: this.state.tagInputHeight + 13 },
-        ]}>
+        {parentThreadRow}
+        <View style={styles.userSelectionRow}>
           <Text style={styles.tagInputLabel}>To: </Text>
           <View style={styles.tagInputContainer}>
             <TagInput
@@ -267,7 +319,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
               onChange={this.onChangeTagInput}
               text={this.state.usernameInputText}
               onChangeText={this.setUsernameInputText}
-              onHeightChange={this.onTagInputHeightChange}
               labelExtractor={this.tagDataLabelExtractor}
               inputProps={inputProps}
               ref={this.tagInputRef}
@@ -354,10 +405,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     });
   }
 
-  onTagInputHeightChange = (height: number) => {
-    this.setState({ tagInputHeight: height });
-  }
-
   onPressCreateThread = () => {
     if (this.state.userInfoInputArray.length === 0) {
       Alert.alert(
@@ -389,7 +436,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         this.state.userInfoInputArray.map(
           (userInfo: AccountUserInfo) => userInfo.id,
         ),
-        null,
+        this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
       );
     } catch (e) {
       Alert.alert(
@@ -414,7 +461,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       {
         usernameInputText: "",
         userSearchResults: [],
-        tagInputHeight: 36,
       },
       this.onErrorAcknowledged,
     );
@@ -432,6 +478,27 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  parentThreadRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "#CCCCCC",
+    paddingVertical: 6,
+    paddingLeft: 12,
+  },
+  parentThreadLabel: {
+    fontSize: 16,
+    color: "#777777",
+    paddingLeft: 6,
+  },
+  parentThreadName: {
+    fontSize: 16,
+    paddingLeft: 6,
+  },
+  visibilityLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingLeft: 4,
   },
   userSelectionRow: {
     flexDirection: 'row',
@@ -488,13 +555,22 @@ const loadingStatusSelector
 registerFetchKey(searchUsersActionTypes);
 
 const ComposeThread = connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
-    userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-    threadInfos: threadInfoSelector(state),
-    cookie: state.cookie,
-  }),
+  (state: AppState, ownProps: { navigation: NavProp }) => {
+    let parentThreadInfo = null;
+    const parentThreadID = ownProps.navigation.state.params.parentThreadID;
+    if (parentThreadID) {
+      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
+      invariant(parentThreadInfo, "parent thread should exist");
+    }
+    return {
+      parentThreadInfo,
+      loadingStatus: loadingStatusSelector(state),
+      otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
+      userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
+      threadInfos: threadInfoSelector(state),
+      cookie: state.cookie,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ newChatThread, searchUsers }),
 )(InnerComposeThread);

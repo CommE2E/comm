@@ -49,6 +49,7 @@ import {
   ThreadSettingsAddChildThread,
 } from './thread-settings-list-action.react';
 import AddUsersModal from './add-users-modal.react';
+import ComposeSubthreadModal from './compose-subthread-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 import ThreadSettingsName from './thread-settings-name.react';
@@ -129,8 +130,6 @@ type ChatSettingsItem =
   | {|
       itemType: "addChildThread",
       key: string,
-      threadInfo: ThreadInfo,
-      navigate: (routeName: string, params?: NavigationParams) => bool,
     |}
   | {|
       itemType: "member",
@@ -162,6 +161,7 @@ type Props = {|
 |};
 type State = {|
   showAddUsersModal: bool,
+  showComposeSubthreadModal: bool,
   showMaxMembers: number,
   showMaxChildThreads: number,
   nameEditValue: ?string,
@@ -198,6 +198,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       showAddUsersModal: false,
+      showComposeSubthreadModal: false,
       showMaxMembers: itemPageLength,
       showMaxChildThreads: itemPageLength,
       nameEditValue: null,
@@ -254,6 +255,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   canReset = () => {
     return !this.state.showAddUsersModal &&
+      !this.state.showComposeSubthreadModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
       !this.state.showEditColorModal &&
@@ -388,8 +390,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       addChildThread = {
         itemType: "addChildThread",
         key: "addChildThread",
-        threadInfo: this.props.threadInfo,
-        navigate: this.props.navigation.navigate,
       };
     }
 
@@ -498,6 +498,17 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
             close={this.closeAddUsersModal}
           />
         </Modal>
+        <Modal
+          isVisible={this.state.showComposeSubthreadModal}
+          onBackButtonPress={this.closeComposeSubthreadModal}
+          onBackdropPress={this.closeComposeSubthreadModal}
+        >
+          <ComposeSubthreadModal
+            threadInfo={this.props.threadInfo}
+            navigate={this.props.navigation.navigate}
+            closeModal={this.closeComposeSubthreadModal}
+          />
+        </Modal>
       </View>
     );
   }
@@ -568,10 +579,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === "addChildThread") {
       return (
-        <ThreadSettingsAddChildThread
-          threadInfo={item.threadInfo}
-          navigate={item.navigate}
-        />
+        <ThreadSettingsAddChildThread onPress={this.onPressComposeSubthread} />
       );
     } else if (item.itemType === "member") {
       return (
@@ -610,6 +618,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   setDescriptionTextHeight = (height: number) => {
     this.setState({ descriptionTextHeight: height });
+  }
+
+  onPressComposeSubthread = () => {
+    this.setState({ showComposeSubthreadModal: true });
+  }
+
+  closeComposeSubthreadModal = () => {
+    this.setState({ showComposeSubthreadModal: false });
   }
 
   onPressAddMember = () => {

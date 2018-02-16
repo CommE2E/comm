@@ -357,8 +357,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginLeft: 15,
-    marginRight: 15,
+    marginHorizontal: 15,
     marginTop: 100,
   },
   modal: {

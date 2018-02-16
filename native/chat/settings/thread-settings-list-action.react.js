@@ -3,15 +3,12 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Button from '../../components/button.react';
-import { AddThreadRouteName } from '../add-thread.react';
 
 type ListActionProps = {|
   onPress: () => void,
@@ -73,11 +70,7 @@ function ThreadSettingsAddMember(props: AddMemberProps) {
 }
 
 type AddChildThreadProps = {|
-  threadInfo: ThreadInfo,
-  navigate: (
-    routeName: string,
-    params?: NavigationParams,
-  ) => bool,
+  onPress: () => void,
 |};
 class ThreadSettingsAddChildThread
   extends React.PureComponent<AddChildThreadProps> {
@@ -86,20 +79,13 @@ class ThreadSettingsAddChildThread
     return (
       <View style={styles.addItemRow}>
         <ThreadSettingsListAction
-          onPress={this.onPressAddChildThread}
+          onPress={this.props.onPress}
           text="Add child thread"
           iconName="md-add"
           iconColor="#009900"
           iconSize={20}
         />
       </View>
-    );
-  }
-
-  onPressAddChildThread = () => {
-    this.props.navigate(
-      AddThreadRouteName,
-      { parentThreadID: this.props.threadInfo.id },
     );
   }
 
