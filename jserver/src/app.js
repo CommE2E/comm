@@ -5,7 +5,10 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 import errorHandler from './error_handler';
-import { messageCreationResponder } from './responders/message-responders';
+import {
+  messageCreationResponder,
+  textMessageCreationResponder,
+} from './responders/message-responders';
 import { updateActivityResponder } from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
 import {
@@ -50,5 +53,9 @@ app.post(
 app.post(
   '/send_password_reset_email',
   errorHandler(sendPasswordResetEmailResponder),
+);
+app.post(
+  '/create_text_message',
+  errorHandler(textMessageCreationResponder),
 );
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

@@ -1,13 +1,21 @@
 // @flow
 
-import type { RawThreadInfo, ServerThreadInfo  } from 'lib/types/thread-types';
+import type {
+  RawThreadInfo,
+  ServerThreadInfo,
+  ThreadPermission,
+} from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
+import type { PermissionsInfo } from 'lib/permissions/thread-permissions';
 
 import {
   assertVisibilityRules,
   threadPermissions,
 } from 'lib/types/thread-types';
-import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
+import {
+  getAllThreadPermissions,
+  permissionHelper,
+} from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
 import { pool, SQL, SQLStatement } from '../database';
@@ -147,8 +155,39 @@ async function verifyThreadIDs(
   return verified;
 }
 
+async function fetchThreadPermissionsInfo(
+  threadID: string,
+): Promise<?PermissionsInfo> {
+  const viewerID = currentViewer().id;
+  const query = SQL`
+    SELECT t.visibility_rules, m.permissions
+    FROM threads t
+    LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
+    WHERE t.id = ${threadID}
+  `;
+  const [ result ] = await pool.query(query);
+
+  if (result.length === 0) {
+    return null;
+  }
+  const row = result[0];
+  return {
+    permissions: row.permissions,
+    visibilityRules: assertVisibilityRules(row.visibility_rules),
+  };
+}
+
+async function checkThreadPermission(
+  threadID: string,
+  permission: ThreadPermission,
+): Promise<bool> {
+  const permissionsInfo = await fetchThreadPermissionsInfo(threadID);
+  return permissionHelper(permissionsInfo, permission);
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
   verifyThreadIDs,
+  checkThreadPermission,
 };
