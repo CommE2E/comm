@@ -10,8 +10,11 @@ import {
   type VisibilityRules,
   visibilityRules,
 } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import {
+  type AccountUserInfo,
+  accountUserInfoPropType,
+  type UserListItem,
+} from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
 import type { NewThreadResult } from 'lib/actions/thread-actions';
@@ -88,7 +91,6 @@ type Props = {
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
-  parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
@@ -107,7 +109,7 @@ type Props = {
 type State = {
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-  userSearchResults: $ReadOnlyArray<AccountUserInfo>,
+  userSearchResults: $ReadOnlyArray<UserListItem>,
   existingThreads: ThreadInfo[],
 };
 class InnerComposeThread extends React.PureComponent<Props, State> {
@@ -127,7 +129,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
-    parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
@@ -150,11 +151,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const userSearchResults = getUserSearchResults(
+    const userSearchResults = InnerComposeThread.getSearchResults(
       "",
       props.otherUserInfos,
       props.userSearchIndex,
       [],
+      props.parentThreadInfo,
     );
     this.state = {
       usernameInputText: "",
@@ -162,6 +164,22 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       userSearchResults,
       existingThreads: [],
     };
+  }
+
+  static getSearchResults(
+    text: string,
+    userInfos: {[id: string]: AccountUserInfo},
+    searchIndex: SearchIndex,
+    userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+    parentThreadInfo: ?ThreadInfo,
+  ) {
+    return getUserSearchResults(
+      text,
+      userInfos,
+      searchIndex,
+      userInfoInputArray.map(userInfo => userInfo.id),
+      parentThreadInfo,
+    );
   }
 
   componentDidMount() {
@@ -189,11 +207,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       this.props.otherUserInfos !== nextProps.otherUserInfos ||
       this.props.userSearchIndex !== nextProps.userSearchIndex
     ) {
-      const userSearchResults = getUserSearchResults(
+      const userSearchResults = InnerComposeThread.getSearchResults(
         this.state.usernameInputText,
         nextProps.otherUserInfos,
         nextProps.userSearchIndex,
-        this.state.userInfoInputArray.map(userInfo => userInfo.id),
+        this.state.userInfoInputArray,
+        nextProps.parentThreadInfo,
       );
       newState.userSearchResults = userSearchResults;
     }
@@ -234,7 +253,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
           userIDs.every(userID => userIsMember(threadInfo, userID)),
       ),
       _sortBy([
-        'members.length', 
+        'members.length',
         (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
       ]),
     )(props.threadInfos);
@@ -278,14 +297,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       if (visRules === visibilityRules.CHAT_NESTED_OPEN) {
         visibilityInfo = (
           <React.Fragment>
-            <Icon name="public" size={18} />
+            <Icon name="public" size={18} color="black" />
             <Text style={styles.visibilityLabel}>Open</Text>
           </React.Fragment>
         );
       } else if (visRules === visibilityRules.CHAT_SECRET) {
         visibilityInfo = (
           <React.Fragment>
-            <Icon name="lock-outline" size={18} />
+            <Icon name="lock-outline" size={18} color="black" />
             <Text style={styles.visibilityLabel}>Secret</Text>
           </React.Fragment>
         );
@@ -354,11 +373,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    const userSearchResults = getUserSearchResults(
+    const userSearchResults = InnerComposeThread.getSearchResults(
       this.state.usernameInputText,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      userInfoInputArray.map(userInfo => userInfo.id),
+      userInfoInputArray,
+      this.props.parentThreadInfo,
     );
     this.setState({ userInfoInputArray, userSearchResults });
   }
@@ -366,11 +386,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    const userSearchResults = getUserSearchResults(
+    const userSearchResults = InnerComposeThread.getSearchResults(
       text,
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      this.state.userInfoInputArray.map(userInfo => userInfo.id),
+      this.state.userInfoInputArray,
+      this.props.parentThreadInfo,
     );
     this.searchUsers(text);
     this.setState({ usernameInputText: text, userSearchResults });
@@ -393,11 +414,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       ...this.state.userInfoInputArray,
       this.props.otherUserInfos[userID],
     ];
-    const userSearchResults = getUserSearchResults(
+    const userSearchResults = InnerComposeThread.getSearchResults(
       "",
       this.props.otherUserInfos,
       this.props.userSearchIndex,
-      userInfoInputArray.map(userInfo => userInfo.id),
+      userInfoInputArray,
+      this.props.parentThreadInfo,
     );
     this.setState({
       userInfoInputArray,
@@ -495,11 +517,13 @@ const styles = StyleSheet.create({
   parentThreadName: {
     fontSize: 16,
     paddingLeft: 6,
+    color: "black",
   },
   visibilityLabel: {
     fontSize: 16,
     fontWeight: "bold",
     paddingLeft: 4,
+    color: "black",
   },
   userSelectionRow: {
     flexDirection: 'row',

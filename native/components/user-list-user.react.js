@@ -3,46 +3,49 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
-
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  StyleSheet,
-  Text,
-  ViewPropTypes,
-} from 'react-native';
+import { StyleSheet, Text, Platform } from 'react-native';
 
 import Button from './button.react';
 
+const getUserListItemHeight = (item: UserListItem) => {
+  return Platform.OS === "ios" ? 31.5 : 33.5;
+};
+
 type Props = {
-  userInfo: AccountUserInfo,
+  userInfo: UserListItem,
   onSelect: (userID: string) => void,
-  style?: StyleObj,
   textStyle?: StyleObj,
 };
 class UserListUser extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfo: accountUserInfoPropType.isRequired,
+    userInfo: userListItemPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
-    style: ViewPropTypes.style,
     textStyle: Text.propTypes.style,
   };
 
   render() {
+    let parentThreadNotice = null;
+    if (!this.props.userInfo.memberOfParentThread) {
+      parentThreadNotice = (
+        <Text style={styles.parentThreadNotice}>not in parent thread</Text>
+      );
+    }
     return (
       <Button
         onPress={this.onSelect}
         iosFormat="highlight"
         iosActiveOpacity={0.85}
-        style={this.props.style}
+        style={styles.button}
       >
         <Text style={[styles.text, this.props.textStyle]} numberOfLines={1}>
           {this.props.userInfo.username}
         </Text>
+        {parentThreadNotice}
       </Button>
     );
   }
@@ -54,12 +57,25 @@ class UserListUser extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   text: {
+    flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 6,
     fontSize: 16,
   },
+  parentThreadNotice: {
+    color: "#888888",
+    fontStyle: 'italic',
+  },
 });
 
 
-export default UserListUser;
+export {
+  UserListUser,
+  getUserListItemHeight,
+};

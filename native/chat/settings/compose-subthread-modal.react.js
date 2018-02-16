@@ -43,7 +43,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       <View style={styles.modal}>
         <Text style={styles.visibility}>Visibility</Text>
         <Button style={styles.option} onPress={this.onPressOpen}>
-          <Icon name="public" size={32} />
+          <Icon name="public" size={32} color="black" />
           <Text style={styles.optionText}>Open</Text>
           <Text style={styles.optionExplanation}>
             Anybody in the parent thread can see an open child thread.
@@ -56,7 +56,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           />
         </Button>
         <Button style={styles.option} onPress={this.onPressSecret}>
-          <Icon name="lock-outline" size={32} />
+          <Icon name="lock-outline" size={32} color="black" />
           <Text style={styles.optionText}>Secret</Text>
           <Text style={styles.optionExplanation}>
             Only visible to its members and admins of ancestor threads.
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
   visibility: {
     fontSize: 24,
     textAlign: 'center',
+    color: "black",
   },
   option: {
     flexDirection: 'row',
@@ -133,12 +134,14 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 20,
     paddingLeft: 5,
+    color: "black",
   },
   optionExplanation: {
     flex: 1,
     fontSize: 14,
     paddingLeft: 10,
     textAlign: 'center',
+    color: "black",
   },
   forwardIcon: {
     paddingLeft: 10,

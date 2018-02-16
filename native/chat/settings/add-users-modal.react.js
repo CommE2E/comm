@@ -3,8 +3,11 @@
 import type { AppState } from '../../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import {
+  type AccountUserInfo,
+  accountUserInfoPropType,
+  type UserListItem,
+} from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
@@ -46,6 +49,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadActualMembers } from 'lib/shared/thread-utils';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
@@ -61,6 +65,7 @@ type Props = {
   threadInfo: ThreadInfo,
   close: () => void,
   // Redux state
+  parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   addUsersLoadingStatus: LoadingStatus,
@@ -74,7 +79,7 @@ type Props = {
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 type State = {|
-  userSearchResults: $ReadOnlyArray<AccountUserInfo>,
+  userSearchResults: $ReadOnlyArray<UserListItem>,
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 |};
@@ -83,6 +88,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     close: PropTypes.func.isRequired,
+    parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     addUsersLoadingStatus: loadingStatusPropType.isRequired,
@@ -101,6 +107,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       props.userSearchIndex,
       [],
       props.threadInfo,
+      props.parentThreadInfo,
     );
     this.state = {
       userSearchResults,
@@ -115,6 +122,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     searchIndex: SearchIndex,
     userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) {
     const excludeUserIDs = userInfoInputArray
       .map(userInfo => userInfo.id)
@@ -124,6 +132,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       userInfos,
       searchIndex,
       excludeUserIDs,
+      parentThreadInfo,
     );
   }
 
@@ -158,6 +167,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         nextProps.userSearchIndex,
         this.state.userInfoInputArray,
         nextProps.threadInfo,
+        nextProps.parentThreadInfo,
       );
       this.setState({ userSearchResults });
     }
@@ -251,6 +261,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.userSearchIndex,
       userInfoInputArray,
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
     this.setState({ userInfoInputArray, userSearchResults });
   }
@@ -267,6 +278,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.userSearchIndex,
       this.state.userInfoInputArray,
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
     this.searchUsers(text);
     this.setState({ usernameInputText: text, userSearchResults });
@@ -291,6 +303,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.userSearchIndex,
       userInfoInputArray,
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
     this.setState({
       userInfoInputArray,
@@ -341,6 +354,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.userSearchIndex,
       userInfoInputArray,
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
     this.setState(
       {
@@ -402,12 +416,21 @@ const addUsersToThreadLoadingStatusSelector
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState) => ({
-    otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
-    userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-    addUsersLoadingStatus: addUsersToThreadLoadingStatusSelector(state),
-    cookie: state.cookie,
-  }),
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+    let parentThreadInfo = null;
+    const parentThreadID = ownProps.threadInfo.parentThreadID;
+    if (parentThreadID) {
+      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
+      invariant(parentThreadInfo, "parent thread should exist");
+    }
+    return {
+      parentThreadInfo,
+      otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
+      userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
+      addUsersLoadingStatus: addUsersToThreadLoadingStatusSelector(state),
+      cookie: state.cookie,
+    };
+  },
   includeDispatchActionProps,
   bindServerCalls({ addUsersToThread, searchUsers }),
 )(AddUsersModal);

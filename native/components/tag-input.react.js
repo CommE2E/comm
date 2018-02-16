@@ -226,16 +226,12 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   }
 
   scrollToBottom = () => {
-    const y = this.contentHeight - this.scrollViewHeight;
-    if (y <= 0) {
-      return;
-    }
     const scrollView = this.scrollView;
     invariant(
       scrollView,
       "this.scrollView ref should exist before scrollToBottom called",
     );
-    scrollView.scrollTo({ y, animated: true });
+    scrollView.scrollToEnd();
   }
 
   render() {

@@ -3,28 +3,25 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
-
-import type { AccountUserInfo } from 'lib/types/user-types';
-import { accountUserInfoPropType } from 'lib/types/user-types';
+import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FlatList, ViewPropTypes, Text } from 'react-native';
+import { FlatList, Text } from 'react-native';
+import _sum from 'lodash/fp/sum';
 
-import UserListUser from './user-list-user.react';
+import { UserListUser, getUserListItemHeight } from './user-list-user.react';
 
 type Props = {
-  userInfos: $ReadOnlyArray<AccountUserInfo>,
+  userInfos: $ReadOnlyArray<UserListItem>,
   onSelect: (userID: string) => void,
-  itemStyle?: StyleObj,
   itemTextStyle?: StyleObj,
 };
 class UserList extends React.PureComponent<Props> {
 
   static propTypes = {
-    userInfos: PropTypes.arrayOf(accountUserInfoPropType).isRequired,
+    userInfos: PropTypes.arrayOf(userListItemPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
-    itemStyle: ViewPropTypes.style,
     itemTextStyle: Text.propTypes.style,
   };
 
@@ -41,23 +38,28 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static keyExtractor(userInfo: AccountUserInfo) {
+  static keyExtractor(userInfo: UserListItem) {
     return userInfo.id;
   }
 
-  renderItem = (row: { item: AccountUserInfo }) => {
+  renderItem = (row: { item: UserListItem }) => {
     return (
       <UserListUser
         userInfo={row.item}
         onSelect={this.props.onSelect}
-        style={this.props.itemStyle}
         textStyle={this.props.itemTextStyle}
       />
     );
   }
 
-  static getItemLayout(data: ?$ReadOnlyArray<AccountUserInfo>, index: number) {
-    return { length: 24, offset: 24 * index, index };
+  static getItemLayout(data: ?$ReadOnlyArray<UserListItem>, index: number) {
+    if (!data) {
+      return { length: 0, offset: 0, index };
+    }
+    const offset = _sum(data.filter((_, i) => i < index).map(getUserListItemHeight));
+    const item = data[index];
+    const length = item ? getUserListItemHeight(item) : 0;
+    return { length, offset, index };
   }
 
 }
