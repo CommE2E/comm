@@ -55,6 +55,7 @@ import {
   generateRandomColor,
   threadHasPermission,
   viewerIsMember,
+  userIsMember,
 } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -228,9 +229,9 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         (threadInfo: ThreadInfo) =>
           viewerIsMember(threadInfo) &&
           threadHasPermission(threadInfo, threadPermissions.VISIBLE) &&
-          userIDs.every(
-            userID => threadInfo.members.some(member => member.id === userID),
-          ),
+          (!props.parentThreadInfo ||
+            threadInfo.parentThreadID === props.parentThreadInfo.id) &&
+          userIDs.every(userID => userIsMember(threadInfo, userID)),
       ),
       _sortBy([
         'members.length', 
