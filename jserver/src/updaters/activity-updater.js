@@ -14,7 +14,7 @@ import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
 
 import { currentViewer } from '../session/viewer';
 import { pool, SQL, mergeOrConditions } from '../database';
-import { verifyThreadIDs } from '../fetchers/thread-fetcher';
+import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 
 async function activityUpdater(

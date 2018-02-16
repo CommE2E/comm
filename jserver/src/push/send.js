@@ -7,7 +7,7 @@ import type { DeviceType } from 'lib/types/device-types';
 import type {
   CollapsableNotifInfo,
   FetchCollapsableNotifsResult,
-} from '../fetchers/message-fetcher';
+} from '../fetchers/message-fetchers';
 
 import apn from 'apn';
 import invariant from 'invariant';
@@ -29,9 +29,9 @@ import {
 
 import { pool, SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetcher';
-import { fetchUserInfos } from '../fetchers/user-fetcher';
-import { fetchCollapsableNotifs } from '../fetchers/message-fetcher';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchUserInfos } from '../fetchers/user-fetchers';
+import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import createIDs from '../creators/id-creator';
 
 type Device = { deviceType: DeviceType, deviceToken: string };

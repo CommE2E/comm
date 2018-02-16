@@ -14,7 +14,7 @@ import { messageType } from 'lib/types/message-types';
 
 import createMessages from '../creators/message-creator';
 import { tShape } from '../utils/tcomb-utils';
-import { checkThreadPermission } from '../fetchers/thread-fetcher';
+import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { currentViewer } from '../session/viewer';
 
 async function messageCreationResponder(req: $Request, res: $Response) {
