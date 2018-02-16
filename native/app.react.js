@@ -13,7 +13,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
   ActivityUpdate,
   UpdateActivityResult,

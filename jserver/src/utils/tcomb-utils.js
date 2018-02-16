@@ -10,7 +10,12 @@ function tShape(spec: *) {
   return t.interface(spec, { strict: true });
 }
 
+function tRegex(regex: RegExp) {
+  return t.refinement(t.String, val => regex.test(val));
+}
+
 export {
   tBool,
   tShape,
+  tRegex,
 };

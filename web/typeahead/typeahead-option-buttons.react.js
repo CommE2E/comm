@@ -6,7 +6,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarResult } from 'lib/actions/entry-actions';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
   JoinThreadResult,
   LeaveThreadResult,
@@ -145,11 +145,14 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
 
     // If we are at home we need to load the new thread
     if (this.props.home) {
+      const query = this.props.currentCalendarQuery();
       this.props.dispatchActionPromise(
         fetchEntriesActionTypes,
         this.props.fetchEntries({
-          ...this.props.currentCalendarQuery(),
           navID: this.props.threadInfo.id,
+          startDate: query.startDate,
+          endDate: query.endDate,
+          includeDeleted: query.includeDeleted,
         }),
       );
     }

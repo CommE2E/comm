@@ -5,7 +5,7 @@ import type {
   ServerThreadInfo,
   ThreadPermission,
 } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
 import type { PermissionsInfo } from 'lib/permissions/thread-permissions';
 
 import {
@@ -23,7 +23,7 @@ import { currentViewer } from '../session/viewer';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: {[id: string]: ServerThreadInfo},
-  userInfos: {[id: string]: UserInfo},
+  userInfos: {[id: string]: AccountUserInfo},
 |};
 
 async function fetchServerThreadInfos(
@@ -112,7 +112,7 @@ async function fetchServerThreadInfos(
 
 type FetchThreadInfosResult = {|
   threadInfos: {[id: string]: RawThreadInfo},
-  userInfos: {[id: string]: UserInfo},
+  userInfos: {[id: string]: AccountUserInfo},
 |};
 
 async function fetchThreadInfos(
@@ -155,6 +155,11 @@ async function verifyThreadIDs(
   return verified;
 }
 
+async function verifyThreadID(threadID: string): Promise<bool> {
+  const result = await verifyThreadIDs([threadID]);
+  return result.length !== 0;
+}
+
 async function fetchThreadPermissionsInfo(
   threadID: string,
 ): Promise<?PermissionsInfo> {
@@ -189,5 +194,6 @@ export {
   fetchServerThreadInfos,
   fetchThreadInfos,
   verifyThreadIDs,
+  verifyThreadID,
   checkThreadPermission,
 };

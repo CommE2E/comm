@@ -13,7 +13,7 @@ import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard';
 
 import React from 'react';

@@ -1,11 +1,13 @@
 // @flow
 
-import type { UserInfo } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
 import type { UserSearchQuery } from 'lib/types/search-types';
 
 import { pool, SQL } from '../database';
 
-async function searchForUsers(query: UserSearchQuery): Promise<UserInfo[]> {
+async function searchForUsers(
+  query: UserSearchQuery,
+): Promise<AccountUserInfo[]> {
   const sqlQuery = SQL`SELECT id, username FROM users `;
   const prefix = query.prefix;
   if (prefix) {

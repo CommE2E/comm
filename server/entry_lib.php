@@ -57,7 +57,6 @@ function get_entry_infos($input) {
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
-  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $select_query = <<<SQL
 SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,

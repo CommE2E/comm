@@ -4,7 +4,7 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LogOutResult } from 'lib/actions/user-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';

@@ -1,13 +1,12 @@
 // @flow
 
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { EntryInfo, CalendarQuery } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
 import type { CalendarItem } from '../selectors/calendar-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 import type { KeyboardEvent } from '../keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';

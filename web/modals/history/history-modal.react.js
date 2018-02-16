@@ -1,12 +1,11 @@
 // @flow
 
 import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
-import type { EntryInfo } from 'lib/types/entry-types';
+import type { EntryInfo, CalendarQuery } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../../redux-setup';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
 
 import * as React from 'react';
 import invariant from 'invariant';

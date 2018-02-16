@@ -9,7 +9,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { VerifyField } from 'lib/utils/verify-utils';
 import type { CalendarResult } from 'lib/actions/entry-actions';
-import type { CalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 
 import * as React from 'react';
