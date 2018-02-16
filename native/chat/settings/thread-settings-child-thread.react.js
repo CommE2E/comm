@@ -9,6 +9,7 @@ import { Text, StyleSheet, View } from 'react-native';
 import { MessageListRouteName } from '../message-list.react';
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
+import ThreadVisibility from '../../components/thread-visibility.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -23,10 +24,17 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
     return (
       <View style={styles.container}>
         <Button onPress={this.onPress} style={styles.button}>
-          <Text style={styles.text} numberOfLines={1}>
-            {this.props.threadInfo.uiName}
-          </Text>
-          <ColorSplotch color={this.props.threadInfo.color} />
+          <View style={styles.leftSide}>
+            <ColorSplotch color={this.props.threadInfo.color} />
+            <Text style={styles.text} numberOfLines={1}>
+              {this.props.threadInfo.uiName}
+            </Text>
+          </View>
+          <ThreadVisibility
+            visibilityRules={this.props.threadInfo.visibilityRules}
+            color="#333333"
+            includeLabel={false}
+          />
         </Button>
       </View>
     );
@@ -45,7 +53,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    paddingHorizontal: 12,
+    paddingLeft: 12,
+    paddingRight: 16,
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
     backgroundColor: "white",
@@ -58,10 +67,15 @@ const styles = StyleSheet.create({
     paddingRight: 6,
     alignItems: 'center',
   },
-  text: {
+  leftSide: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  text: {
     fontSize: 16,
     color: "#036AFF",
+    paddingLeft: 8,
   },
 });
 

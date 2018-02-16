@@ -34,7 +34,6 @@ import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
   includeDispatchActionProps,
@@ -72,6 +71,7 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { iosKeyboardHeight } from '../dimensions';
+import ThreadVisibility from '../components/thread-visibility.react';
 
 const tagInputProps = {
   placeholder: "username",
@@ -293,30 +293,9 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         visRules !== undefined && visRules !== null,
         `no visibilityRules provided for ${parentThreadID}`,
       );
-      let visibilityInfo;
-      if (visRules === visibilityRules.CHAT_NESTED_OPEN) {
-        visibilityInfo = (
-          <React.Fragment>
-            <Icon name="public" size={18} color="black" />
-            <Text style={styles.visibilityLabel}>Open</Text>
-          </React.Fragment>
-        );
-      } else if (visRules === visibilityRules.CHAT_SECRET) {
-        visibilityInfo = (
-          <React.Fragment>
-            <Icon name="lock-outline" size={18} color="black" />
-            <Text style={styles.visibilityLabel}>Secret</Text>
-          </React.Fragment>
-        );
-      } else {
-        invariant(
-          false,
-          `invalid visibilityRules passed to ComposeThread: ${visRules}`,
-        );
-      }
       parentThreadRow = (
         <View style={styles.parentThreadRow}>
-          {visibilityInfo}
+          <ThreadVisibility visibilityRules={visRules} />
           <Text style={styles.parentThreadLabel}>within</Text>
           <Text style={styles.parentThreadName}>
             {parentThreadInfo.uiName}
@@ -517,12 +496,6 @@ const styles = StyleSheet.create({
   parentThreadName: {
     fontSize: 16,
     paddingLeft: 6,
-    color: "black",
-  },
-  visibilityLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    paddingLeft: 4,
     color: "black",
   },
   userSelectionRow: {
