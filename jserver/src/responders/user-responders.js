@@ -15,7 +15,6 @@ import {
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
 } from '../updaters/account-updater';
-import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tShape } from '../utils/tcomb-utils';
 import { currentViewer } from '../session/viewer';
 
@@ -30,16 +29,15 @@ const subscriptionUpdateInputValidator = tShape({
 async function userSubscriptionUpdateResponder(req: $Request, res: $Response) {
   const subscriptionUpdate: SubscriptionUpdate = (req.body: any);
   if (!subscriptionUpdateInputValidator.is(subscriptionUpdate)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
   const threadSubscription = await userSubscriptionUpdater(subscriptionUpdate);
 
   if (!threadSubscription) {
-    return { error: 'not_member' };
+    throw new ServerError('not_member');
   }
-  return { success: true, threadSubscription };
+  return { threadSubscription };
 }
 
 const accountUpdateInputValidator = tShape({
@@ -53,46 +51,24 @@ const accountUpdateInputValidator = tShape({
 async function accountUpdateResponder(req: $Request, res: $Response) {
   const accountUpdate: AccountUpdate = (req.body: any);
   if (!accountUpdateInputValidator.is(accountUpdate)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
   const viewer = currentViewer();
   if (!viewer.loggedIn) {
-    return { error: 'not_logged_in' };
+    throw new ServerError('not_logged_in');
   }
 
-  try {
-    await accountUpdater(viewer, accountUpdate);
-  } catch (e) {
-    if (e instanceof ServerError) {
-      return { error: e.message };
-    } else {
-      throw e;
-    }
-  }
-
-  return { success: true };
+  await accountUpdater(viewer, accountUpdate);
 }
 
 async function sendVerificationEmailResponder(req: $Request, res: $Response) {
-  await setCurrentViewerFromCookie(req.cookies);
   const viewer = currentViewer();
   if (!viewer.loggedIn) {
-    return { error: 'not_logged_in' };
+    throw new ServerError('not_logged_in');
   }
 
-  try {
-    await checkAndSendVerificationEmail(viewer);
-  } catch (e) {
-    if (e instanceof ServerError) {
-      return { error: e.message };
-    } else {
-      throw e;
-    }
-  }
-
-  return { success: true };
+  await checkAndSendVerificationEmail(viewer);
 }
 
 const resetPasswordRequestInputValidator = tShape({
@@ -102,22 +78,10 @@ const resetPasswordRequestInputValidator = tShape({
 async function sendPasswordResetEmailResponder(req: $Request, res: $Response) {
   const resetPasswordRequest: PasswordResetRequest = (req.body: any);
   if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
-
-  try {
-    await checkAndSendPasswordResetEmail(resetPasswordRequest);
-  } catch (e) {
-    if (e instanceof ServerError) {
-      return { error: e.message };
-    } else {
-      throw e;
-    }
-  }
-
-  return { success: true };
+  await checkAndSendPasswordResetEmail(resetPasswordRequest);
 }
 
 export {

@@ -5,8 +5,9 @@ import type { ActivityUpdate } from 'lib/types/activity-types';
 
 import t from 'tcomb';
 
+import { ServerError } from 'lib/utils/fetch-utils';
+
 import { activityUpdater } from '../updaters/activity-updater';
-import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tBool, tShape } from '../utils/tcomb-utils';
 
 const inputValidator = t.list(t.union([
@@ -27,17 +28,16 @@ const inputValidator = t.list(t.union([
 async function updateActivityResponder(req: $Request, res: $Response) {
   const updates: $ReadOnlyArray<ActivityUpdate> = (req.body: any);
   if (!inputValidator.is(updates)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
   const result = await activityUpdater(updates);
 
-  if (result) {
-    return { success: true, unfocusedToUnread: result.unfocusedToUnread };
-  } else {
-    return { error: 'invalid_credentials' };
+  if (!result) {
+    throw new ServerError('invalid_credentials');
   }
+
+  return { unfocusedToUnread: result.unfocusedToUnread };
 }
 
 export {

@@ -4,7 +4,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
-import errorHandler from './error_handler';
+import { jsonHandler } from './responders/handlers';
 import {
   messageCreationResponder,
   textMessageCreationResponder,
@@ -22,40 +22,21 @@ import { userSearchResponder } from './responders/search-responders';
 const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.post(
-  '/create_messages',
-  errorHandler(messageCreationResponder),
-);
-app.post(
-  '/update_activity',
-  errorHandler(updateActivityResponder),
-);
-app.post(
-  '/update_user_subscription',
-  errorHandler(userSubscriptionUpdateResponder),
-);
-app.post(
-  '/update_device_token',
-  errorHandler(deviceTokenUpdateResponder),
-);
-app.post(
-  '/update_account',
-  errorHandler(accountUpdateResponder),
-);
-app.post(
-  '/send_verification_email',
-  errorHandler(sendVerificationEmailResponder),
-);
-app.post(
-  '/search_users',
-  errorHandler(userSearchResponder),
-);
-app.post(
-  '/send_password_reset_email',
-  errorHandler(sendPasswordResetEmailResponder),
-);
-app.post(
-  '/create_text_message',
-  errorHandler(textMessageCreationResponder),
-);
+
+const jsonEndpoints = {
+  'create_messages': messageCreationResponder,
+  'update_activity': updateActivityResponder,
+  'update_user_subscription': userSubscriptionUpdateResponder,
+  'update_device_token': deviceTokenUpdateResponder,
+  'update_account': accountUpdateResponder,
+  'send_verification_email': sendVerificationEmailResponder,
+  'search_users': userSearchResponder,
+  'send_password_reset_email': sendPasswordResetEmailResponder,
+  'create_text_message': textMessageCreationResponder,
+};
+for (let endpoint in jsonEndpoints) {
+  const responder = jsonEndpoints[endpoint];
+  app.post(`/${endpoint}`, jsonHandler(responder));
+}
+
 app.listen(parseInt(process.env.PORT) || 3000, 'localhost');

@@ -5,8 +5,9 @@ import type { UserSearchQuery } from 'lib/types/search-types';
 
 import t from 'tcomb';
 
+import { ServerError } from 'lib/utils/fetch-utils';
+
 import { tShape } from '../utils/tcomb-utils';
-import { setCurrentViewerFromCookie } from '../session/cookies';
 import { searchForUsers } from '../search/users';
 
 const userSearchQueryInputValidator = tShape({
@@ -16,13 +17,12 @@ const userSearchQueryInputValidator = tShape({
 async function userSearchResponder(req: $Request, res: $Response) {
   const userSearchQuery: UserSearchQuery = (req.body: any);
   if (!userSearchQueryInputValidator.is(userSearchQuery)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
 
-  await setCurrentViewerFromCookie(req.cookies);
   const searchResults = await searchForUsers(userSearchQuery);
 
-  return { success: true, userInfos: searchResults };
+  return { userInfos: searchResults };
 }
 
 export {

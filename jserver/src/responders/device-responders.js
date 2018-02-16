@@ -5,8 +5,9 @@ import type { DeviceTokenUpdate } from 'lib/types/device-types';
 
 import t from 'tcomb';
 
+import { ServerError } from 'lib/utils/fetch-utils';
+
 import { deviceTokenUpdater } from '../updaters/device-token-updater';
-import { setCurrentViewerFromCookie } from '../session/cookies';
 import { tShape } from '../utils/tcomb-utils';
 
 const inputValidator = tShape({
@@ -17,11 +18,9 @@ const inputValidator = tShape({
 async function deviceTokenUpdateResponder(req: $Request, res: $Response) {
   const deviceTokenUpdate: DeviceTokenUpdate = (req.body: any);
   if (!inputValidator.is(deviceTokenUpdate)) {
-    return { error: 'invalid_parameters' };
+    throw new ServerError('invalid_parameters');
   }
-  await setCurrentViewerFromCookie(req.cookies);
   await deviceTokenUpdater(deviceTokenUpdate);
-  return { success: true };
 }
 
 export {
