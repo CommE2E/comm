@@ -18,7 +18,10 @@ import {
   sendPasswordResetEmailResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
-import { entryFetchResponder } from './responders/entry-responders';
+import {
+  entryFetchResponder,
+  entryRevisionFetchResponder,
+} from './responders/entry-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -35,6 +38,7 @@ const jsonEndpoints = {
   'send_password_reset_email': sendPasswordResetEmailResponder,
   'create_text_message': textMessageCreationResponder,
   'fetch_entries': entryFetchResponder,
+  'fetch_entry_revisions': entryRevisionFetchResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

@@ -2,8 +2,15 @@
 
 import type { RawEntryInfo, CalendarQuery } from 'lib/types/entry-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
+import type { HistoryRevisionInfo } from 'lib/types/history-types';
+import type { ThreadPermission } from 'lib/types/thread-types';
 
-import { threadPermissions, visibilityRules } from 'lib/types/thread-types';
+import {
+  threadPermissions,
+  visibilityRules,
+  assertVisibilityRules,
+} from 'lib/types/thread-types';
+import { permissionHelper } from 'lib/permissions/thread-permissions';
 
 import { pool, SQL } from '../database';
 import { currentViewer } from '../session/viewer';
@@ -72,6 +79,67 @@ async function fetchEntryInfos(
   return { rawEntryInfos, userInfos };
 }
 
+async function checkThreadPermissionForEntry(
+  entryID: string,
+  permission: ThreadPermission,
+): Promise<bool> {
+  const viewerID = currentViewer().id;
+  const query = SQL`
+    SELECT m.permissions, t.visibility_rules
+    FROM entries e
+    LEFT JOIN days d ON d.id = e.day
+    LEFT JOIN threads t ON t.id = d.thread
+    LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
+    WHERE e.id = ${entryID}
+  `;
+  const [ result ] = await pool.query(query);
+
+  if (result.length === 0) {
+    return false;
+  }
+  const row = result[0];
+  if (row.visibility_rules === null) {
+    return false;
+  }
+  const permissionsInfo = {
+    permissions: row.permissions,
+    visibilityRules: assertVisibilityRules(row.visibility_rules),
+  };
+  return permissionHelper(permissionsInfo, permission);
+}
+
+async function fetchEntryRevisionInfo(
+ entryID: string,
+): Promise<HistoryRevisionInfo[]> {
+  const query = SQL`
+    SELECT r.id, u.username AS author, r.text, r.last_update AS lastUpdate,
+      r.deleted, d.thread AS threadID, r.entry AS entryID
+    FROM revisions r
+    LEFT JOIN users u ON u.id = r.author
+    LEFT JOIN entries e ON e.id = r.entry
+    LEFT JOIN days d ON d.id = e.day
+    WHERE r.entry = ${entryID}
+    ORDER BY r.last_update DESC
+  `;
+  const [ result ] = await pool.query(query);
+
+  const revisions = [];
+  for (let row of result) {
+    revisions.push({
+      id: row.id.toString(),
+      author: row.author,
+      text: row.text,
+      lastUpdate: row.lastUpdate,
+      deleted: !!row.deleted,
+      threadID: row.threadID.toString(),
+      entryID: row.entryID.toString(),
+    });
+  }
+  return revisions;
+}
+
 export {
   fetchEntryInfos,
+  checkThreadPermissionForEntry,
+  fetchEntryRevisionInfo,
 };
