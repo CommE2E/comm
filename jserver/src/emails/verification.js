@@ -6,7 +6,7 @@ import ReactHTML from 'react-html-email';
 import { verifyField } from 'lib/types/verify-types';
 
 import urlFacts from '../../facts/url';
-import createVerificationCode from '../creators/verification-code-creator';
+import { createVerificationCode } from '../models/verification';
 import sendmail from './sendmail';
 
 const { Email, Item, Span, A, renderEmail } = ReactHTML;

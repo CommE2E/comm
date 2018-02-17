@@ -22,6 +22,9 @@ import {
   entryFetchResponder,
   entryRevisionFetchResponder,
 } from './responders/entry-responders';
+import {
+  codeVerificationResponder,
+} from './responders/verification-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -39,6 +42,7 @@ const jsonEndpoints = {
   'create_text_message': textMessageCreationResponder,
   'fetch_entries': entryFetchResponder,
   'fetch_entry_revisions': entryRevisionFetchResponder,
+  'verify_code': codeVerificationResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

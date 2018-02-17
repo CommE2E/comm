@@ -6,7 +6,7 @@ import type { EntryStore } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
-import type { VerifyField } from 'lib/utils/verify-utils';
+import type { VerifyField } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
 
 import PropTypes from 'prop-types';

@@ -28,7 +28,7 @@ import invariant from 'invariant';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { registerConfig } from 'lib/utils/config';
-import { assertVerifyField } from 'lib/utils/verify-utils';
+import { assertVerifyField } from 'lib/types/verify-types';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,

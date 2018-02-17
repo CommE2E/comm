@@ -7,7 +7,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { VerifyField } from 'lib/utils/verify-utils';
+import { type VerifyField, verifyField } from 'lib/types/verify-types';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
@@ -35,7 +35,6 @@ import {
   includeDispatchActionProps,
   bindServerCalls,
 } from 'lib/utils/action-utils';
-import { verifyField } from 'lib/utils/verify-utils';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency } from 'lib/shared/ping-utils';

@@ -5,12 +5,15 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
-import type { HandleVerificationCodeResult } from 'lib/actions/user-actions';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { VerifyField } from 'lib/utils/verify-utils';
+import {
+  type VerifyField,
+  verifyField,
+  type HandleVerificationCodeResult,
+} from 'lib/types/verify-types';
 import type { KeyboardEvent } from '../keyboard';
 
 import React from 'react';
@@ -42,7 +45,6 @@ import {
   handleVerificationCodeActionTypes,
   handleVerificationCode,
 } from 'lib/actions/user-actions';
-import { verifyField } from 'lib/utils/verify-utils';
 import sleep from 'lib/utils/sleep';
 
 import { windowHeight } from '../dimensions';
