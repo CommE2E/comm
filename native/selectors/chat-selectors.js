@@ -26,15 +26,16 @@ import {
   robotextForMessageInfo,
   createMessageInfo,
 } from 'lib/shared/message-utils';
-import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
-export type ChatThreadItem = {
+export type ChatThreadItem = {|
+  type: "chatThreadItem",
   threadInfo: ThreadInfo,
   mostRecentMessageInfo?: MessageInfo,
   lastUpdatedTime: number,
-};
+|};
 const chatThreadItemPropType = PropTypes.shape({
+  type: PropTypes.oneOf(["chatThreadItem"]),
   threadInfo: threadInfoPropType.isRequired,
   mostRecentMessageInfo: messageInfoPropType,
   lastUpdatedTime: PropTypes.number.isRequired,
@@ -50,11 +51,14 @@ const chatListData = createSelector(
     viewerID: ?string,
     userInfos: {[id: string]: UserInfo},
   ): ChatThreadItem[] => _flow(
-    _filter(viewerIsMember),
     _map((threadInfo: ThreadInfo): ChatThreadItem => {
       const thread = messageStore.threads[threadInfo.id];
       if (!thread || thread.messageIDs.length === 0) {
-        return { threadInfo, lastUpdatedTime: threadInfo.creationTime };
+        return {
+          type: "chatThreadItem",
+          threadInfo,
+          lastUpdatedTime: threadInfo.creationTime,
+        };
       }
       let mostRecentMessageInfo = undefined;
       for (let messageID of thread.messageIDs) {
@@ -70,9 +74,14 @@ const chatListData = createSelector(
         }
       }
       if (!mostRecentMessageInfo) {
-        return { threadInfo, lastUpdatedTime: threadInfo.creationTime };
+        return {
+          type: "chatThreadItem",
+          threadInfo,
+          lastUpdatedTime: threadInfo.creationTime,
+        };
       }
       return {
+        type: "chatThreadItem",
         threadInfo,
         mostRecentMessageInfo,
         lastUpdatedTime: mostRecentMessageInfo.time,

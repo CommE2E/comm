@@ -6,8 +6,15 @@ import type { ChatThreadItem } from '../selectors/chat-selectors';
 import { chatThreadItemPropType } from '../selectors/chat-selectors';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 
-import React from 'react';
-import { View, StyleSheet, FlatList, Platform } from 'react-native';
+import * as React from 'react';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Platform,
+  TextInput,
+  KeyboardAvoidingView,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
@@ -15,12 +22,17 @@ import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
 import { FloatingAction } from 'react-native-floating-action';
 
+import { viewerIsMember } from 'lib/shared/thread-utils';
+import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import SearchIndex from 'lib/shared/search-index';
+
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
+import { iosKeyboardHeight } from '../dimensions';
 
 const floatingActions = [{
   text: 'Compose',
@@ -29,13 +41,21 @@ const floatingActions = [{
   position: 1,
 }];
 
-type Props = {
+type Item = ChatThreadItem | {| type: "search", searchText: string |};
+
+type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
-};
-class InnerChatThreadList extends React.PureComponent<Props> {
+  threadSearchIndex: SearchIndex,
+|};
+type State = {|
+  listData: $ReadOnlyArray<Item>,
+  searchText: string,
+  searchResults: Set<string>,
+|};
+class InnerChatThreadList extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -46,6 +66,7 @@ class InnerChatThreadList extends React.PureComponent<Props> {
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
+    threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
@@ -53,6 +74,16 @@ class InnerChatThreadList extends React.PureComponent<Props> {
       ? (<ComposeThreadButton navigate={navigation.navigate} />)
       : null,
   });
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      listData: [],
+      searchText: "",
+      searchResults: new Set(),
+    };
+    this.state.listData = InnerChatThreadList.listData(props, this.state);
+  }
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
@@ -62,20 +93,68 @@ class InnerChatThreadList extends React.PureComponent<Props> {
     registerChatScreen(this.props.navigation.state.key, null);
   }
 
+  componentWillReceiveProps(newProps: Props) {
+    if (newProps.chatListData !== this.props.chatListData) {
+      this.setState((prevState: State) => ({
+        listData: InnerChatThreadList.listData(newProps, prevState),
+      }));
+    }
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (nextState.searchText !== this.state.searchText) {
+      this.setState((prevState: State) => ({
+        listData: InnerChatThreadList.listData(nextProps, nextState),
+      }));
+    }
+  }
+
   canReset = () => false;
 
-  renderItem = (row: { item: ChatThreadItem }) => {
+  renderItem = (row: { item: Item }) => {
+    const item = row.item;
+    if (item.type === "search") {
+      return this.renderSearchBar();
+    }
     return (
-      <ChatThreadListItem data={row.item} onPressItem={this.onPressItem} />
+      <ChatThreadListItem data={item} onPressItem={this.onPressItem} />
     );
   }
 
-  static keyExtractor(item: ChatThreadItem) {
-    return item.threadInfo.id;
+  renderSearchBar = () => {
+    return (
+      <View style={styles.searchContainer}>
+        <View style={styles.search}>
+          <Icon
+            name="search"
+            size={18}
+            color="#AAAAAA"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            underlineColorAndroid="transparent"
+            value={this.state.searchText}
+            onChangeText={this.onChangeSearchText}
+            placeholder="Search threads"
+            placeholderTextColor="#AAAAAA"
+            returnKeyType="go"
+          />
+        </View>
+      </View>
+    );
+  }
+
+  static keyExtractor(item: Item) {
+    if (item.threadInfo) {
+      return item.threadInfo.id;
+    } else {
+      return "search";
+    }
   }
 
   static getItemLayout(
-    data: ?$ReadOnlyArray<ChatThreadItem>,
+    data: ?$ReadOnlyArray<Item>,
     index: number,
   ) {
     if (!data) {
@@ -88,16 +167,32 @@ class InnerChatThreadList extends React.PureComponent<Props> {
     return { length, offset, index };
   }
 
-  static itemHeight(item: ChatThreadItem): number {
+  static itemHeight(item: Item): number {
+    if (item.type === "search") {
+      return Platform.OS === "ios" ? 54.5 : 55;
+    }
     return 60;
   }
 
-  static heightOfItems(data: $ReadOnlyArray<ChatThreadItem>): number {
+  static heightOfItems(data: $ReadOnlyArray<Item>): number {
     return _sum(data.map(InnerChatThreadList.itemHeight));
   }
 
-  static ListHeaderComponent(props: {}) {
-    return <View style={styles.header} />;
+  static listData(props: Props, state: State) {
+    let chatItems;
+    if (!state.searchText) {
+      chatItems = props.chatListData.filter(
+        item => viewerIsMember(item.threadInfo),
+      );
+    } else {
+      chatItems = props.chatListData.filter(
+        item => state.searchResults.has(item.threadInfo.id),
+      );
+    }
+    return [
+      { type: "search", searchText: state.searchText },
+      ...chatItems,
+    ];
   }
 
   render() {
@@ -114,20 +209,35 @@ class InnerChatThreadList extends React.PureComponent<Props> {
         />
       );
     }
-    return (
-      <View style={styles.container}>
+    const content = (
+      <React.Fragment>
         <FlatList
-          data={this.props.chatListData}
+          data={this.state.listData}
           renderItem={this.renderItem}
           keyExtractor={InnerChatThreadList.keyExtractor}
           getItemLayout={InnerChatThreadList.getItemLayout}
-          ListHeaderComponent={InnerChatThreadList.ListHeaderComponent}
           extraData={this.props.viewerID}
           style={styles.flatList}
         />
         {floatingAction}
-      </View>
+      </React.Fragment>
     );
+    if (Platform.OS === "ios") {
+      return (
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior="padding"
+          keyboardVerticalOffset={iosKeyboardHeight}
+        >{content}</KeyboardAvoidingView>
+      );
+    } else {
+      return <View style={styles.container}>{content}</View>;
+    }
+  }
+
+  onChangeSearchText = (searchText: string) => {
+    const results = this.props.threadSearchIndex.getSearchResults(searchText);
+    this.setState({ searchText, searchResults: new Set(results) });
   }
 
   onPressItem = (threadInfo: ThreadInfo) => {
@@ -150,12 +260,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    height: 5,
+  searchContainer: {
+    backgroundColor: '#F6F6F6',
+    borderBottomWidth: 1,
+    borderColor: '#DDDDDD',
+    marginBottom: 5,
+  },
+  searchIcon: {
+    paddingBottom: Platform.OS === "android" ? 0 : 2,
+  },
+  search: {
+    backgroundColor: '#DDDDDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    marginBottom: 8,
+    marginTop: Platform.OS === "android" ? 10 : 8,
+    paddingHorizontal: 14,
+    paddingTop: Platform.OS === "android" ? 1 : 6,
+    paddingBottom: Platform.OS === "android" ? 2 : 6,
+    borderRadius: 6,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    padding: 0,
+    marginVertical: 0,
   },
   flatList: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'white',
   },
 });
 
@@ -163,6 +298,7 @@ const ChatThreadListRouteName = 'ChatThreadList';
 const ChatThreadList = connect((state: AppState): * => ({
   chatListData: chatListData(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
+  threadSearchIndex: threadSearchIndex(state),
 }))(InnerChatThreadList);
 
 export {
