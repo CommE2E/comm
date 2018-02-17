@@ -25,6 +25,7 @@ import {
 import {
   codeVerificationResponder,
 } from './responders/verification-responders';
+import { threadDeletionResponder } from './responders/thread-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -43,6 +44,7 @@ const jsonEndpoints = {
   'fetch_entries': entryFetchResponder,
   'fetch_entry_revisions': entryRevisionFetchResponder,
   'verify_code': codeVerificationResponder,
+  'delete_thread': threadDeletionResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
