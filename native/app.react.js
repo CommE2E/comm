@@ -446,7 +446,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   failedToRegisterPushPermissions = (error) => {
-    if (Platform.OS === "ios") {
+    if (Platform.OS === "ios" && !__DEV__) {
       Alert.alert(
         "Need notif permissions",
         "SquadCal needs notification permissions to keep you in the loop! " +

@@ -29,12 +29,14 @@ import {
   Platform,
   BackHandler,
   ActivityIndicator,
+  DeviceInfo,
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { SafeAreaView } from 'react-navigation';
 
 import {
   includeDispatchActionProps,
@@ -54,6 +56,8 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
+
+const forceInset = { top: 'always', bottom: 'always' };
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -333,6 +337,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
   static calculateFooterPaddingTop(keyboardHeight: number) {
     const textHeight = Platform.OS === "ios" ? 17 : 19;
+    if (DeviceInfo.isIPhoneX_deprecated) {
+      keyboardHeight -= 34;
+    }
     return windowHeight - keyboardHeight - textHeight - 20;
   }
 
@@ -607,13 +614,13 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     let content;
     if (Platform.OS === "ios") {
       return (
-        <View style={styles.container}>
+        <SafeAreaView forceInset={forceInset} style={styles.container}>
           {statusBar}
           {background}
           {animatedContent}
           {buttons}
           {forgotPasswordLink}
-        </View>
+        </SafeAreaView>
       );
     } else {
       return (

@@ -29,12 +29,14 @@ import {
   Keyboard,
   TouchableHighlight,
   Easing,
+  DeviceInfo,
 } from 'react-native';
 import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
+import { SafeAreaView } from 'react-navigation';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -52,6 +54,8 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
+
+const forceInset = { top: 'always', bottom: 'always' };
 
 type VerificationModalMode = "simple-text" | "reset-password";
 type Props = {
@@ -440,16 +444,20 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       </Animated.View>
     );
     return (
-      <View style={styles.container}>
+      <SafeAreaView forceInset={forceInset} style={styles.container}>
         {statusBar}
         {background}
         {animatedContent}
         {closeButton}
-      </View>
+      </SafeAreaView>
     );
   }
 
 }
+
+const closeButtonTop = Platform.OS === "ios"
+  ? (DeviceInfo.isIPhoneX_deprecated ? 49 : 25)
+  : 15;
 
 const styles = StyleSheet.create({
   modalBackgroundContainer: {
@@ -479,7 +487,7 @@ const styles = StyleSheet.create({
   closeButton: {
     position: 'absolute',
     backgroundColor: "#D0D0D055",
-    top: Platform.OS === "ios" ? 25 : 15,
+    top: closeButtonTop,
     right: 15,
     width: 36,
     height: 36,
