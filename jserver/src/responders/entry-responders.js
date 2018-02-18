@@ -1,27 +1,31 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type {
+  CalendarQuery,
+  SaveEntryRequest,
+  CreateEntryRequest,
+} from 'lib/types/entry-types';
 
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
 
-import { tShape, tRegex } from '../utils/tcomb-utils';
+import { tShape, tDate } from '../utils/tcomb-utils';
 import { verifyThreadID } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
   checkThreadPermissionForEntry,
   fetchEntryRevisionInfo,
 } from '../fetchers/entry-fetchers';
-
-const dateType = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
+import createEntry from '../creators/entry-creator';
+import { updateEntry } from '../updaters/entry-updater';
 
 const entryQueryInputValidator = tShape({
   navID: t.String,
-  startDate: dateType,
-  endDate: dateType,
+  startDate: tDate,
+  endDate: tDate,
   includeDeleted: t.maybe(t.Boolean),
 });
 
@@ -70,7 +74,45 @@ async function entryRevisionFetchResponder(req: $Request, res: $Response) {
   return { result: entryHistory };
 }
 
+const createEntryRequestInputValidator = tShape({
+  text: t.String,
+  sessionID: t.String,
+  timestamp: t.Number,
+  date: tDate,
+  threadID: t.String,
+});
+
+async function entryCreationResponder(req: $Request, res: $Response) {
+  const createEntryRequest: CreateEntryRequest = (req.body: any);
+  if (!createEntryRequestInputValidator.is(createEntryRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { entryID, newMessageInfos } = await createEntry(createEntryRequest);
+  return { entryID, newMessageInfos };
+}
+
+const saveEntryRequestInputValidator = tShape({
+  entryID: t.String,
+  text: t.String,
+  prevText: t.String,
+  sessionID: t.String,
+  timestamp: t.Number,
+});
+
+async function entryUpdateResponder(req: $Request, res: $Response) {
+  const saveEntryRequest: SaveEntryRequest = (req.body: any);
+  if (!saveEntryRequestInputValidator.is(saveEntryRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { entryID, newMessageInfos } = await updateEntry(saveEntryRequest);
+  return { entryID, newMessageInfos };
+}
+
 export {
   entryFetchResponder,
   entryRevisionFetchResponder,
+  entryCreationResponder,
+  entryUpdateResponder,
 };

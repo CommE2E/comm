@@ -1,7 +1,12 @@
 // @flow
 
 import type { EntryInfoWithHeight } from './calendar.react';
-import { entryInfoPropType } from 'lib/types/entry-types';
+import {
+  entryInfoPropType,
+  type CreateEntryRequest,
+  type SaveEntryRequest,
+  type SaveEntryResponse,
+} from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
@@ -9,7 +14,6 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { SaveResult } from 'lib/actions/entry-actions';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { NavigationParams, NavigationAction } from 'react-navigation';
 
@@ -41,6 +45,8 @@ import {
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
 import {
+  createEntryActionTypes,
+  createEntry,
   saveEntryActionTypes,
   saveEntry,
   deleteEntryActionTypes,
@@ -55,6 +61,7 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { dateString } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
 import { ChatRouteName } from '../chat/chat.react';
@@ -84,17 +91,8 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  saveEntry: (
-    serverID: ?string,
-    newText: string,
-    prevText: string,
-    sessionID: string,
-    year: number,
-    month: number,
-    day: number,
-    threadID: string,
-    creationTime: number,
-  ) => Promise<SaveResult>,
+  createEntry: (request: CreateEntryRequest) => Promise<SaveEntryResponse>,
+  saveEntry: (request: SaveEntryRequest) => Promise<SaveEntryResponse>,
   deleteEntry: (
     serverID: string,
     prevText: string,
@@ -122,6 +120,7 @@ class Entry extends React.Component<Props, State> {
     currentChatThreadID: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
+    createEntry: PropTypes.func.isRequired,
     saveEntry: PropTypes.func.isRequired,
     deleteEntry: PropTypes.func.isRequired,
   };
@@ -383,56 +382,76 @@ class Entry extends React.Component<Props, State> {
     }
 
     const startingPayload = this.props.sessionStartingPayload();
-    this.props.dispatchActionPromise(
-      saveEntryActionTypes,
-      this.saveAction(serverID, newText),
-      undefined,
-      startingPayload,
-    );
+    if (!serverID) {
+      this.props.dispatchActionPromise(
+        createEntryActionTypes,
+        this.createAction(newText),
+        undefined,
+        startingPayload,
+      );
+    } else {
+      this.props.dispatchActionPromise(
+        saveEntryActionTypes,
+        this.saveAction(serverID, newText),
+        undefined,
+        startingPayload,
+      );
+    }
   }
 
-  async saveAction(serverID: ?string, newText: string) {
+  async createAction(text: string) {
+    const localID = this.props.entryInfo.localID;
+    invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     this.guardedSetState({ loadingStatus: "loading" });
     try {
-      const response = await this.props.saveEntry(
-        serverID,
-        newText,
-        this.props.entryInfo.text,
-        this.props.sessionID(),
-        this.props.entryInfo.year,
-        this.props.entryInfo.month,
-        this.props.entryInfo.day,
-        this.props.entryInfo.threadID,
-        this.props.entryInfo.creationTime,
-      );
+      const response = await this.props.createEntry({
+        text,
+        sessionID: this.props.sessionID(),
+        timestamp: this.props.entryInfo.creationTime,
+        date: dateString(
+          this.props.entryInfo.year,
+          this.props.entryInfo.month,
+          this.props.entryInfo.day,
+        ),
+        threadID: this.props.entryInfo.threadID,
+      });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "inactive" });
       }
-      const payload = {
-        localID: (null: ?string),
-        serverID: serverID,
-        text: newText,
-        newMessageInfos: response.newMessageInfos,
-        threadID: this.props.threadInfo.id,
-      };
-      if (!serverID && response.entryID) {
-        const newServerID = response.entryID;
-        payload.serverID = newServerID;
-        const localID = this.props.entryInfo.localID;
-        invariant(localID, "if there's no serverID, there should be a localID");
-        payload.localID = localID;
-        this.creating = false;
-        if (this.needsUpdateAfterCreation) {
-          this.needsUpdateAfterCreation = false;
-          this.save(newServerID, this.state.text);
-        }
-        if (this.needsDeleteAfterCreation) {
-          this.needsDeleteAfterCreation = false;
-          this.delete(newServerID);
-        }
+      this.creating = false;
+      if (this.needsUpdateAfterCreation) {
+        this.needsUpdateAfterCreation = false;
+        this.save(response.entryID, this.state.text);
       }
-      return payload;
+      if (this.needsDeleteAfterCreation) {
+        this.needsDeleteAfterCreation = false;
+        this.delete(response.entryID);
+      }
+      return { ...response, localID };
+    } catch(e) {
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "error" });
+      }
+      throw e;
+    }
+  }
+
+  async saveAction(entryID: string, newText: string) {
+    const curSaveAttempt = this.nextSaveAttemptIndex++;
+    this.guardedSetState({ loadingStatus: "loading" });
+    try {
+      const response = await this.props.saveEntry({
+        entryID,
+        text: newText,
+        prevText: this.props.entryInfo.text,
+        sessionID: this.props.sessionID(),
+        timestamp: Date.now(),
+      });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "inactive" });
+      }
+      return { ...response, threadID: this.props.entryInfo.threadID };
     } catch(e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
@@ -442,7 +461,7 @@ class Entry extends React.Component<Props, State> {
           this.guardedSetState({ loadingStatus: "inactive" });
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { id: serverID, dbText: e.result.db },
+            { id: entryID, dbText: e.result.db },
           );
         };
         Alert.alert(
@@ -594,5 +613,5 @@ export default connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ saveEntry, deleteEntry }),
+  bindServerCalls({ createEntry, saveEntry, deleteEntry }),
 )(Entry);

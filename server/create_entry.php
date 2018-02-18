@@ -4,4 +4,4 @@ require_once('call_node.php');
 
 $_POST['input']['timestamp'] = intval($_POST['input']['timestamp']);
 
-proxy_to_node('update_entry');
+proxy_to_node('create_entry');

@@ -21,6 +21,8 @@ import { userSearchResponder } from './responders/search-responders';
 import {
   entryFetchResponder,
   entryRevisionFetchResponder,
+  entryCreationResponder,
+  entryUpdateResponder,
 } from './responders/entry-responders';
 import {
   codeVerificationResponder,
@@ -45,6 +47,8 @@ const jsonEndpoints = {
   'fetch_entry_revisions': entryRevisionFetchResponder,
   'verify_code': codeVerificationResponder,
   'delete_thread': threadDeletionResponder,
+  'create_entry': entryCreationResponder,
+  'update_entry': entryUpdateResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

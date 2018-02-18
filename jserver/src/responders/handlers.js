@@ -22,7 +22,7 @@ function jsonHandler(responder: Responder) {
         return;
       }
       if (e instanceof ServerError) {
-        res.json({ error: e.message });
+        res.json({ error: e.message, ...e.result });
       } else {
         res.status(500).send(e.message);
       }

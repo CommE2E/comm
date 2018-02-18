@@ -34,7 +34,7 @@ async function threadDeletionResponder(req: $Request, res: $Response) {
     threadPermissions.DELETE_THREAD,
   );
   if (!hasPermission) {
-    throw new ServerError('invalid_parameters');
+    throw new ServerError('invalid_credentials');
   }
 
   await deleteThread(viewer, threadDeletionRequest);

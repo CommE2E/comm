@@ -1,7 +1,12 @@
 // @flow
 
-import type { EntryInfo } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
+import {
+  type EntryInfo,
+  entryInfoPropType,
+  type CreateEntryRequest,
+  type SaveEntryRequest,
+  type SaveEntryResponse,
+} from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -10,7 +15,6 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { SaveResult } from 'lib/actions/entry-actions';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -25,6 +29,8 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
+  createEntryActionTypes,
+  createEntry,
   saveEntryActionTypes,
   saveEntry,
   deleteEntryActionTypes,
@@ -65,17 +71,8 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  saveEntry: (
-    serverID: ?string,
-    newText: string,
-    prevText: string,
-    sessionID: string,
-    year: number,
-    month: number,
-    day: number,
-    threadID: string,
-    creationTime: number,
-  ) => Promise<SaveResult>,
+  createEntry: (request: CreateEntryRequest) => Promise<SaveEntryResponse>,
+  saveEntry: (request: SaveEntryRequest) => Promise<SaveEntryResponse>,
   deleteEntry: (
     serverID: string,
     prevText: string,
@@ -109,6 +106,12 @@ class Entry extends React.PureComponent<Props, State> {
     this.needsDeleteAfterCreation = false;
     this.nextSaveAttemptIndex = 0;
     this.mounted = true;
+  }
+
+  guardedSetState(input) {
+    if (this.mounted) {
+      this.setState(input);
+    }
   }
 
   componentDidMount() {
@@ -288,64 +291,81 @@ class Entry extends React.PureComponent<Props, State> {
     }
 
     const startingPayload = this.props.sessionStartingPayload();
-    this.props.dispatchActionPromise(
-      saveEntryActionTypes,
-      this.saveAction(serverID, newText),
-      undefined,
-      startingPayload,
-    );
+    if (!serverID) {
+      this.props.dispatchActionPromise(
+        createEntryActionTypes,
+        this.createAction(newText),
+        undefined,
+        startingPayload,
+      );
+    } else {
+      this.props.dispatchActionPromise(
+        saveEntryActionTypes,
+        this.saveAction(serverID, newText),
+        undefined,
+        startingPayload,
+      );
+    }
   }
 
-  async saveAction(serverID: ?string, newText: string) {
+  async createAction(text: string) {
+    const localID = this.props.entryInfo.localID;
+    invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
-    if (this.mounted) {
-      this.setState({ loadingStatus: "loading" });
-    }
+    this.guardedSetState({ loadingStatus: "loading" });
     try {
-      const response = await this.props.saveEntry(
-        serverID,
-        newText,
-        this.props.entryInfo.text,
-        this.props.sessionID(),
-        this.props.entryInfo.year,
-        this.props.entryInfo.month,
-        this.props.entryInfo.day,
-        this.props.entryInfo.threadID,
-        this.props.entryInfo.creationTime,
-      );
-      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.setState({ loadingStatus: "inactive" });
+      const response = await this.props.createEntry({
+        text,
+        sessionID: this.props.sessionID(),
+        timestamp: this.props.entryInfo.creationTime,
+        date: dateString(
+          this.props.entryInfo.year,
+          this.props.entryInfo.month,
+          this.props.entryInfo.day,
+        ),
+        threadID: this.props.entryInfo.threadID,
+      });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "inactive" });
       }
-      const payload = {
-        localID: (null: ?string),
-        serverID: serverID,
-        text: newText,
-        newMessageInfos: response.newMessageInfos,
-        threadID: this.props.threadInfo.id,
-      };
-      if (!serverID && response.entryID) {
-        const newServerID = response.entryID;
-        payload.serverID = newServerID;
-        const localID = this.props.entryInfo.localID;
-        invariant(localID, "if there's no serverID, there should be a localID");
-        payload.localID = localID;
-        this.creating = false;
-        if (this.needsUpdateAfterCreation) {
-          this.needsUpdateAfterCreation = false;
-          this.save(newServerID, this.state.text);
-        }
-        if (this.needsDeleteAfterCreation) {
-          this.needsDeleteAfterCreation = false;
-          this.delete(newServerID, false);
-        }
+      this.creating = false;
+      if (this.needsUpdateAfterCreation) {
+        this.needsUpdateAfterCreation = false;
+        this.save(response.entryID, this.state.text);
       }
-      return payload;
+      if (this.needsDeleteAfterCreation) {
+        this.needsDeleteAfterCreation = false;
+        this.delete(response.entryID, false);
+      }
+      return { ...response, localID };
     } catch(e) {
-      if (this.mounted && curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.setState({ loadingStatus: "error" });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "error" });
+      }
+      throw e;
+    }
+  }
+
+  async saveAction(entryID: string, newText: string) {
+    const curSaveAttempt = this.nextSaveAttemptIndex++;
+    this.guardedSetState({ loadingStatus: "loading" });
+    try {
+      const response = await this.props.saveEntry({
+        entryID,
+        text: newText,
+        prevText: this.props.entryInfo.text,
+        sessionID: this.props.sessionID(),
+        timestamp: Date.now(),
+      });
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "inactive" });
+      }
+      return { ...response, threadID: this.props.entryInfo.threadID };
+    } catch(e) {
+      if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
+        this.guardedSetState({ loadingStatus: "error" });
       }
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
-        invariant(serverID, "serverID should be set");
         const onRefresh = () => {
           this.setState(
             { loadingStatus: "inactive" },
@@ -353,7 +373,7 @@ class Entry extends React.PureComponent<Props, State> {
           );
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { id: serverID, dbText: e.result.db },
+            { id: entryID, dbText: e.result.db },
           );
           this.props.clearModal();
         };
@@ -453,6 +473,7 @@ Entry.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
+  createEntry: PropTypes.func.isRequired,
   saveEntry: PropTypes.func.isRequired,
   deleteEntry: PropTypes.func.isRequired,
 }
@@ -471,5 +492,5 @@ export default connect(
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
-  bindServerCalls({ saveEntry, deleteEntry }),
+  bindServerCalls({ createEntry, saveEntry, deleteEntry }),
 )(Entry);
