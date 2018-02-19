@@ -24,6 +24,7 @@ import {
   entryCreationResponder,
   entryUpdateResponder,
   entryDeletionResponder,
+  entryRestorationResponder,
 } from './responders/entry-responders';
 import {
   codeVerificationResponder,
@@ -51,6 +52,7 @@ const jsonEndpoints = {
   'create_entry': entryCreationResponder,
   'update_entry': entryUpdateResponder,
   'delete_entry': entryDeletionResponder,
+  'restore_entry': entryRestorationResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

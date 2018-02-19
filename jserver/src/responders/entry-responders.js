@@ -6,6 +6,7 @@ import type {
   SaveEntryRequest,
   CreateEntryRequest,
   DeleteEntryRequest,
+  RestoreEntryRequest,
 } from 'lib/types/entry-types';
 
 import t from 'tcomb';
@@ -21,7 +22,7 @@ import {
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updater';
-import { deleteEntry } from '../deleters/entry-deleters';
+import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
 
 const entryQueryInputValidator = tShape({
   navID: t.String,
@@ -119,10 +120,26 @@ async function entryDeletionResponder(req: $Request, res: $Response) {
   await deleteEntry(deleteEntryRequest);
 }
 
+const restoreEntryRequestInputValidator = tShape({
+  entryID: t.String,
+  sessionID: t.String,
+  timestamp: t.Number,
+});
+
+async function entryRestorationResponder(req: $Request, res: $Response) {
+  const restoreEntryRequest: RestoreEntryRequest = (req.body: any);
+  if (!restoreEntryRequestInputValidator.is(restoreEntryRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  await restoreEntry(restoreEntryRequest);
+}
+
 export {
   entryFetchResponder,
   entryRevisionFetchResponder,
   entryCreationResponder,
   entryUpdateResponder,
   entryDeletionResponder,
+  entryRestorationResponder,
 };
