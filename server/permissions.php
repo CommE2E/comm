@@ -186,11 +186,11 @@ SQL;
 // $role_permissions: ?array<permission: int, value: bool>
 //   can be null if role = 0
 // $permissions_from_parent:
-//   ?array<permission: string, array(value => bool, source => int)>
+//   ?array<permission: string, array(value => bool, source => string)>
 //   can be null if no permissions from parent (should never be empty array)
 // $thread_id: int
 // $vis_rules: int
-// return: ?array<permission: string, array(value => bool, source => int)>
+// return: ?array<permission: string, array(value => bool, source => string)>
 //   can be null if no permissions exist
 function make_permissions_blob(
   $role_permissions,
@@ -227,7 +227,7 @@ function make_permissions_blob(
       if ($value || (!$value && (!$current_pair || !$current_pair['value']))) {
         $permissions[$permission] = array(
           'value' => $value,
-          'source' => $thread_id,
+          'source' => (string)$thread_id,
         );
       }
     }
@@ -240,9 +240,13 @@ function make_permissions_blob(
   return $permissions;
 }
 
-// $permissions: ?array<permission: string, array(value => bool, source => int)>
+// $permissions:
+//   ?array<
+//     permission: string,
+//     array(value => bool, source => string),
+//   >
 //   can be null if make_permissions_blob returns null
-// return: ?array<permission: string, array(value => bool, source => int)>
+// return: ?array<permission: string, array(value => bool, source => string)>
 //   can be null if $permissions is null, or if no permissions go to children
 function permissions_for_children($permissions) {
   if (!$permissions) {
@@ -266,9 +270,12 @@ function permissions_for_children($permissions) {
 // $to_save: array<array(
 //   user_id: int,
 //   thread_id: int,
-//   permissions: array<permission: string, array(value => bool, source => int)>
+//   permissions: array<
+//     permission: string,
+//     array(value => bool, source => string),
+//   >
 //   permissions_for_children:
-//     ?array<permission: string, array(value => bool, source => int)>
+//     ?array<permission: string, array(value => bool, source => string)>
 //   role: int,
 //   subscription?: array(home => bool, pushNotifs => bool),
 //   unread?: bool,
@@ -365,16 +372,19 @@ SQL;
 // $initial_users_to_permissions_from_parent:
 //   array<
 //     user_id: int,
-//     array<permission: string, array(value => bool, source => int)>,
+//     array<permission: string, array(value => bool, source => string)>,
 //   >
 // returns:
 //   array(
 //     to_save => array<array(
 //       user_id: int,
 //       thread_id: int,
-//       permissions: array<permission: string, array(value => bool, source => int)>
+//       permissions: array<permission: string, array(
+//         value => bool,
+//         source => string,
+//       )>,
 //       permissions_for_children:
-//         ?array<permission: string, array(value => bool, source => int)>
+//         ?array<permission: string, array(value => bool, source => string)>,
 //       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
@@ -506,10 +516,10 @@ SQL;
 //       thread_id: int,
 //       permissions: array<
 //         permission: string,
-//         array(value => bool, source => int),
+//         array(value => bool, source => string),
 //       >,
 //       permissions_for_children:
-//         ?array<permission: string, array(value => bool, source => int)>
+//         ?array<permission: string, array(value => bool, source => string)>
 //       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
@@ -661,10 +671,10 @@ SQL;
 //       thread_id: int,
 //       permissions: array<
 //         permission: string,
-//         array(value => bool, source => int),
+//         array(value => bool, source => string),
 //       >,
 //       permissions_for_children:
-//         ?array<permission: string, array(value => bool, source => int)>
+//         ?array<permission: string, array(value => bool, source => string)>
 //       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,
@@ -778,9 +788,12 @@ SQL;
 //     to_save => array<array(
 //       user_id: int,
 //       thread_id: int,
-//       permissions: array<permission: string, array(value => bool, source => int)>
+//       permissions: array<permission: string, array(
+//         value => bool,
+//         source => string,
+//       )>,
 //       permissions_for_children:
-//         ?array<permission: string, array(value => bool, source => int)>
+//         ?array<permission: string, array(value => bool, source => string)>,
 //       role: int,
 //     )>,
 //     to_delete: array<array(user_id: int, thread_id: int)>,

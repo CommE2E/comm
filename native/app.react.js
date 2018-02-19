@@ -92,12 +92,12 @@ if (!__DEV__) {
   // This is a magic IP address that forwards to the emulator's host
   urlPrefix = "http://10.0.2.2/~ashoat/squadcal/";
   // Uncomment below and update IP address if testing on physical device
-  //urlPrefix = "http://192.168.1.7/~ashoat/squadcal/";
+  //urlPrefix = "http://192.168.1.4/~ashoat/squadcal/";
 } else if (Platform.OS === "ios") {
   // Since iOS is simulated and not emulated, we can use localhost
   urlPrefix = "http://localhost/~ashoat/squadcal/";
   // Uncomment below and update IP address if testing on physical device
-  //urlPrefix = "http://192.168.1.7/~ashoat/squadcal/";
+  //urlPrefix = "http://192.168.1.4/~ashoat/squadcal/";
 } else {
   invariant(false, "unsupported platform");
 }
