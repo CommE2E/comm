@@ -5598,6 +5598,10 @@ md5@^2.1.0:
     crypt "~0.0.1"
     is-buffer "~1.1.1"
 
+mdurl@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
+
 media-typer@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
@@ -7291,11 +7295,12 @@ react-native-floating-action@^1.9.0:
   dependencies:
     lodash "^4.17.4"
 
-"react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git":
+"react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git#both":
   version "0.0.12"
-  resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#49fcdc3e27e23f894427a3c3fa6cb3d3058971db"
+  resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#7fe82da2c0729e0cf3cd47cb3184b8739135ef97"
   dependencies:
     linkify-it "^1.2.0"
+    mdurl "^1.0.1"
 
 react-native-in-app-notification@^2.1.0:
   version "2.2.0"
