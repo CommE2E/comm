@@ -5,6 +5,7 @@ import type {
   CalendarQuery,
   SaveEntryRequest,
   CreateEntryRequest,
+  DeleteEntryRequest,
 } from 'lib/types/entry-types';
 
 import t from 'tcomb';
@@ -20,6 +21,7 @@ import {
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updater';
+import { deleteEntry } from '../deleters/entry-deleters';
 
 const entryQueryInputValidator = tShape({
   navID: t.String,
@@ -101,9 +103,26 @@ async function entryUpdateResponder(req: $Request, res: $Response) {
   return { entryID, newMessageInfos };
 }
 
+const deleteEntryRequestInputValidator = tShape({
+  entryID: t.String,
+  prevText: t.String,
+  sessionID: t.String,
+  timestamp: t.Number,
+});
+
+async function entryDeletionResponder(req: $Request, res: $Response) {
+  const deleteEntryRequest: DeleteEntryRequest = (req.body: any);
+  if (!deleteEntryRequestInputValidator.is(deleteEntryRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  await deleteEntry(deleteEntryRequest);
+}
+
 export {
   entryFetchResponder,
   entryRevisionFetchResponder,
   entryCreationResponder,
   entryUpdateResponder,
+  entryDeletionResponder,
 };

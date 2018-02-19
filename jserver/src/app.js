@@ -23,6 +23,7 @@ import {
   entryRevisionFetchResponder,
   entryCreationResponder,
   entryUpdateResponder,
+  entryDeletionResponder,
 } from './responders/entry-responders';
 import {
   codeVerificationResponder,
@@ -49,6 +50,7 @@ const jsonEndpoints = {
   'delete_thread': threadDeletionResponder,
   'create_entry': entryCreationResponder,
   'update_entry': entryUpdateResponder,
+  'delete_entry': entryDeletionResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
