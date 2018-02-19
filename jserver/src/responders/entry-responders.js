@@ -23,7 +23,7 @@ import {
   fetchEntryRevisionInfo,
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
-import { updateEntry } from '../updaters/entry-updater';
+import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
 
 const entryQueryInputValidator = tShape({

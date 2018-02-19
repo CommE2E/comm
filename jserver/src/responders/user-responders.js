@@ -9,12 +9,12 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { userSubscriptionUpdater } from '../updaters/user-subscription-updater';
+import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
-} from '../updaters/account-updater';
+} from '../updaters/account-updaters';
 import { tShape } from '../utils/tcomb-utils';
 import { currentViewer } from '../session/viewer';
 

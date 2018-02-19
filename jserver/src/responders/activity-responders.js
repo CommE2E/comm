@@ -7,7 +7,7 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { activityUpdater } from '../updaters/activity-updater';
+import { activityUpdater } from '../updaters/activity-updaters';
 import { tBool, tShape } from '../utils/tcomb-utils';
 
 const inputValidator = t.list(t.union([

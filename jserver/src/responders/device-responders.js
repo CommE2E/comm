@@ -7,7 +7,7 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { deviceTokenUpdater } from '../updaters/device-token-updater';
+import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { tShape } from '../utils/tcomb-utils';
 
 const inputValidator = tShape({
