@@ -22,6 +22,8 @@ define("MESSAGE_TYPE_LEAVE_THREAD", 7);
 define("MESSAGE_TYPE_JOIN_THREAD", 8);
 define("MESSAGE_TYPE_CREATE_ENTRY", 9);
 define("MESSAGE_TYPE_EDIT_ENTRY", 10);
+define("MESSAGE_TYPE_DELETE_ENTRY", 11);
+define("MESSAGE_TYPE_RESTORE_ENTRY", 12);
 
 // Every time the client asks us for MessageInfos, we need to let them know if
 // the result for a given thread affects startReached. If it's just new messages
@@ -319,12 +321,12 @@ function message_from_row($row) {
     $content = json_decode($row['content'], true);
     $message['userIDs'] = $content['userIDs'];
     $message['newRole'] = $content['newRole'];
-  } else if ($type === MESSAGE_TYPE_CREATE_ENTRY) {
-    $content = json_decode($row['content'], true);
-    $message['entryID'] = $content['entryID'];
-    $message['date'] = $content['date'];
-    $message['text'] = $content['text'];
-  } else if ($type === MESSAGE_TYPE_EDIT_ENTRY) {
+  } else if (
+    $type === MESSAGE_TYPE_CREATE_ENTRY ||
+    $type === MESSAGE_TYPE_EDIT_ENTRY ||
+    $type === MESSAGE_TYPE_DELETE_ENTRY ||
+    $type === MESSAGE_TYPE_RESTORE_ENTRY
+  ) {
     $content = json_decode($row['content'], true);
     $message['entryID'] = $content['entryID'];
     $message['date'] = $content['date'];

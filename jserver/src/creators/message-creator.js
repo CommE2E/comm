@@ -127,7 +127,9 @@ async function createMessages(
       });
     } else if (
       messageData.type === messageType.CREATE_ENTRY ||
-      messageData.type === messageType.EDIT_ENTRY
+      messageData.type === messageType.EDIT_ENTRY ||
+      messageData.type === messageType.DELETE_ENTRY ||
+      messageData.type === messageType.RESTORE_ENTRY
     ) {
       content = JSON.stringify({
         entryID: messageData.entryID,

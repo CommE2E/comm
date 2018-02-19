@@ -242,6 +242,28 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       date: row.content.date,
       text: row.content.text,
     };
+  } else if (type === messageType.DELETE_ENTRY) {
+    return {
+      type: messageType.DELETE_ENTRY,
+      id: row.id,
+      threadID: row.threadID,
+      time: parseInt(row.time),
+      creatorID: row.creatorID,
+      entryID: row.content.entryID,
+      date: row.content.date,
+      text: row.content.text,
+    };
+  } else if (type === messageType.RESTORE_ENTRY) {
+    return {
+      type: messageType.RESTORE_ENTRY,
+      id: row.id,
+      threadID: row.threadID,
+      time: parseInt(row.time),
+      creatorID: row.creatorID,
+      entryID: row.content.entryID,
+      date: row.content.date,
+      text: row.content.text,
+    };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
   }
