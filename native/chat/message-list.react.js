@@ -364,12 +364,12 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       <Message
         item={messageInfoItem}
         focused={focused}
-        onFocus={this.onMessageFocus}
+        toggleFocus={this.toggleMessageFocus}
       />
     );
   }
 
-  onMessageFocus = (messageKey: string) => {
+  toggleMessageFocus = (messageKey: string) => {
     if (this.state.focusedMessageKey === messageKey) {
       this.setState({ focusedMessageKey: null });
     } else {

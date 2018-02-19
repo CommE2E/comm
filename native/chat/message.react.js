@@ -47,7 +47,7 @@ function messageItemHeight(
 type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
-  onFocus: (messageKey: string) => void,
+  toggleFocus: (messageKey: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
 };
@@ -59,7 +59,7 @@ class InnerMessage extends React.PureComponent<Props, State> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
-    onFocus: PropTypes.func.isRequired,
+    toggleFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
   };
 
@@ -105,7 +105,7 @@ class InnerMessage extends React.PureComponent<Props, State> {
         <TextMessage
           item={this.props.item}
           focused={this.props.focused}
-          onFocus={this.props.onFocus}
+          toggleFocus={this.props.toggleFocus}
           threadInfo={this.props.threadInfo}
         />
       );
@@ -113,7 +113,7 @@ class InnerMessage extends React.PureComponent<Props, State> {
       message = (
         <RobotextMessage
           item={this.props.item}
-          onFocus={this.props.onFocus}
+          toggleFocus={this.props.toggleFocus}
           threadInfo={this.props.threadInfo}
         />
       );

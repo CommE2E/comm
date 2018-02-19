@@ -4,6 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import type { TooltipItemData } from '../components/tooltip.react';
 
 import React from 'react';
 import {
@@ -12,6 +13,7 @@ import {
   View,
   TouchableOpacity,
   LayoutAnimation,
+  Clipboard,
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
@@ -22,6 +24,8 @@ import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { messageType } from 'lib/types/message-types';
+
+import Tooltip from '../components/tooltip.react';
 
 function textMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -40,7 +44,7 @@ function textMessageItemHeight(
 type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
-  onFocus: (messageKey: string) => void,
+  toggleFocus: (messageKey: string) => void,
   threadInfo: ThreadInfo,
 };
 class TextMessage extends React.PureComponent<Props> {
@@ -48,9 +52,10 @@ class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
-    onFocus: PropTypes.func.isRequired,
+    toggleFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
   };
+  popoverConfig: $ReadOnlyArray<TooltipItemData>;
 
   constructor(props: Props) {
     super(props);
@@ -58,6 +63,9 @@ class TextMessage extends React.PureComponent<Props> {
       props.item.messageInfo.type === messageType.TEXT,
       "TextMessage should only be used for messageType.TEXT",
     );
+    this.popoverConfig = [
+      { label: "Copy", onPress: this.onPressCopy },
+    ];
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -111,30 +119,47 @@ class TextMessage extends React.PureComponent<Props> {
     );
     const text = this.props.item.messageInfo.text;
 
+    const content = (
+      <View style={[styles.message, messageStyle]}>
+        <Hyperlink linkDefault={true} linkStyle={styles.linkText}>
+          <Text style={[styles.text, textStyle]}>{text}</Text>
+        </Hyperlink>
+      </View>
+    );
+
     return (
       <View style={containerStyle}>
         {authorName}
-        <View
-          style={[styles.message, messageStyle]}
-          onStartShouldSetResponder={this.onStartShouldSetResponder}
-          onResponderGrant={this.onResponderGrant}
-          onResponderTerminationRequest={this.onResponderTerminationRequest}
-        >
-          <Hyperlink linkDefault={true} linkStyle={styles.linkText}>
-            <Text style={[styles.text, textStyle]}>{text}</Text>
-          </Hyperlink>
-        </View>
+        <Tooltip
+          buttonComponent={content}
+          items={this.popoverConfig}
+          labelStyle={styles.popoverLabelStyle}
+          onOpenTooltipMenu={this.onFocus}
+          onCloseTooltipMenu={this.onBlur}
+        />
       </View>
     );
   }
 
-  onStartShouldSetResponder = () => true;
-
-  onResponderGrant = () => {
-    this.props.onFocus(messageKey(this.props.item.messageInfo));
+  onFocus = () => {
+    if (!this.props.focused) {
+      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    }
   }
 
-  onResponderTerminationRequest = () => true;
+  onBlur = () => {
+    if (this.props.focused) {
+      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    }
+  }
+
+  onPressCopy = () => {
+    invariant(
+      this.props.item.messageInfo.type === messageType.TEXT,
+      "TextMessage should only be used for messageType.TEXT",
+    );
+    Clipboard.setString(this.props.item.messageInfo.text);
+  }
 
 }
 
@@ -159,6 +184,10 @@ const styles = StyleSheet.create({
   linkText: {
     color: "#036AFF",
     textDecorationLine: "underline",
+  },
+  popoverLabelStyle: {
+    textAlign: 'center',
+    color: '#444',
   },
 });
 

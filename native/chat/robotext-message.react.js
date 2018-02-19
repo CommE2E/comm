@@ -33,14 +33,14 @@ function robotextMessageItemHeight(
 
 type Props = {
   item: ChatMessageInfoItemWithHeight,
-  onFocus: (messageKey: string) => void,
+  toggleFocus: (messageKey: string) => void,
   threadInfo: ThreadInfo,
 };
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    onFocus: PropTypes.func.isRequired,
+    toggleFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
   };
 
@@ -111,7 +111,7 @@ class RobotextMessage extends React.PureComponent<Props> {
   onStartShouldSetResponder = () => true;
 
   onResponderGrant = () => {
-    this.props.onFocus(messageKey(this.props.item.messageInfo));
+    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
 
   onResponderTerminationRequest = () => true;

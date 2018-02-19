@@ -26,7 +26,6 @@ import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
-import PopoverTooltip from 'react-native-popover-tooltip';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -44,6 +43,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
 import Button from '../../components/button.react';
+import Tooltip from '../../components/tooltip.react';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,
@@ -164,7 +164,7 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
       editButton = <ActivityIndicator size="small" />;
     } else if (this.state.popoverConfig.length !== 0) {
       editButton = (
-        <PopoverTooltip
+        <Tooltip
           buttonComponent={icon}
           items={this.state.popoverConfig}
           labelStyle={styles.popoverLabelStyle}
