@@ -12,7 +12,6 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  LayoutAnimation,
   Clipboard,
 } from 'react-native';
 import invariant from 'invariant';
@@ -55,7 +54,8 @@ class TextMessage extends React.PureComponent<Props> {
     toggleFocus: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
   };
-  popoverConfig: $ReadOnlyArray<TooltipItemData>;
+  tooltipConfig: $ReadOnlyArray<TooltipItemData>;
+  tooltip: ?Tooltip;
 
   constructor(props: Props) {
     super(props);
@@ -63,7 +63,7 @@ class TextMessage extends React.PureComponent<Props> {
       props.item.messageInfo.type === messageType.TEXT,
       "TextMessage should only be used for messageType.TEXT",
     );
-    this.popoverConfig = [
+    this.tooltipConfig = [
       { label: "Copy", onPress: this.onPressCopy },
     ];
   }
@@ -122,7 +122,11 @@ class TextMessage extends React.PureComponent<Props> {
     const content = (
       <View style={[styles.message, messageStyle]}>
         <Hyperlink linkDefault={true} linkStyle={styles.linkText}>
-          <Text style={[styles.text, textStyle]}>{text}</Text>
+          <Text
+            onPress={this.onPress}
+            onLongPress={this.onPress}
+            style={[styles.text, textStyle]}
+          >{text}</Text>
         </Hyperlink>
       </View>
     );
@@ -132,13 +136,18 @@ class TextMessage extends React.PureComponent<Props> {
         {authorName}
         <Tooltip
           buttonComponent={content}
-          items={this.popoverConfig}
+          items={this.tooltipConfig}
           labelStyle={styles.popoverLabelStyle}
           onOpenTooltipMenu={this.onFocus}
           onCloseTooltipMenu={this.onBlur}
+          ref={this.tooltipRef}
         />
       </View>
     );
+  }
+
+  tooltipRef = (tooltip: ?Tooltip) => {
+    this.tooltip = tooltip;
   }
 
   onFocus = () => {
@@ -159,6 +168,16 @@ class TextMessage extends React.PureComponent<Props> {
       "TextMessage should only be used for messageType.TEXT",
     );
     Clipboard.setString(this.props.item.messageInfo.text);
+  }
+
+  onPress = () => {
+    const tooltip = this.tooltip;
+    invariant(tooltip, "tooltip should be set");
+    if (this.props.focused) {
+      tooltip.hideModal();
+    } else {
+      tooltip.openModal();
+    }
   }
 
 }

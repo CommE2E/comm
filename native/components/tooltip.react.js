@@ -42,7 +42,6 @@ type Props = {
   delayLongPress: number,
   onOpenTooltipMenu?: () => void,
   onCloseTooltipMenu?: () => void,
-  onPress?: () => void,
   componentContainerStyle?: StyleObj,
   timingConfig?: { duration?: number },
   springConfig?: { tension?: number, friction?: number },
@@ -88,7 +87,6 @@ class Tooltip extends React.PureComponent<Props, State> {
     delayLongPress: PropTypes.number,
     onOpenTooltipMenu: PropTypes.func,
     onCloseTooltipMenu: PropTypes.func,
-    onPress: PropTypes.func,
     componentContainerStyle: ViewPropTypes.style,
     timingConfig: PropTypes.object,
     springConfig: PropTypes.object,
@@ -296,7 +294,7 @@ class Tooltip extends React.PureComponent<Props, State> {
       <TouchableOpacity
         ref={this.wrapperRef}
         style={this.props.componentWrapperStyle}
-        onPress={this.props.onPress}
+        onPress={this.toggle}
         onLongPress={this.toggle}
         delayLongPress={this.props.delayLongPress}
         activeOpacity={1.0}

@@ -7327,13 +7327,6 @@ react-native-onepassword@^1.0.6:
   dependencies:
     "1PasswordExtension" "git+https://github.com/jjshammas/onepassword-app-extension.git"
 
-"react-native-popover-tooltip@git+https://git@github.com/ashoat/react-native-popover-tooltip.git":
-  version "1.1.4"
-  resolved "git+https://git@github.com/ashoat/react-native-popover-tooltip.git#26b8eef75ade5afcbe45ea0393f8618f15020e7d"
-  dependencies:
-    invariant "^2.2.2"
-    prop-types "^15.6.0"
-
 react-native-safe-area-view@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.6.0.tgz#ce01eb27905a77780219537e0f53fe9c783a8b3d"
