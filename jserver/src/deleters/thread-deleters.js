@@ -6,13 +6,23 @@ import type { UserViewer } from '../session/viewer';
 import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/fetch-utils';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import { pool, SQL } from '../database';
+import { checkThreadPermission } from '../fetchers/thread-fetchers';
 
 async function deleteThread(
   viewer: UserViewer,
   threadDeletionRequest: ThreadDeletionRequest,
 ) {
+  const hasPermission = await checkThreadPermission(
+    threadDeletionRequest.threadID,
+    threadPermissions.DELETE_THREAD,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
   const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
   const [ result ] = await pool.query(hashQuery);
   if (result.length === 0) {

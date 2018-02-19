@@ -3,15 +3,27 @@
 import type { CreateEntryRequest } from 'lib/types/entry-types';
 
 import { messageType } from 'lib/types/message-types';
+import { threadPermissions } from 'lib/types/thread-types';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import { currentViewer } from '../session/viewer';
 import createMessages from '../creators/message-creator';
+import { checkThreadPermission } from '../fetchers/thread-fetchers';
 
 async function createEntry(request: CreateEntryRequest) {
-  const [ dayID, [ entryID ], [ revisionID ] ] = await Promise.all([
+  const [
+    hasPermission,
+    dayID,
+    [ entryID ],
+    [ revisionID ],
+  ] = await Promise.all([
+    checkThreadPermission(
+      request.threadID,
+      threadPermissions.EDIT_ENTRIES,
+    ),
     fetchOrCreateDayID(
       request.threadID,
       request.date,
@@ -19,6 +31,9 @@ async function createEntry(request: CreateEntryRequest) {
     createIDs("entries", 1),
     createIDs("revisions", 1),
   ]);
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
 
   const viewerID = currentViewer().id;
   const entryRow = [

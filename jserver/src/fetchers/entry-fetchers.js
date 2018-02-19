@@ -11,6 +11,7 @@ import {
   assertVisibilityRules,
 } from 'lib/types/thread-types';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
 import { currentViewer } from '../session/viewer';
@@ -111,6 +112,14 @@ async function checkThreadPermissionForEntry(
 async function fetchEntryRevisionInfo(
  entryID: string,
 ): Promise<HistoryRevisionInfo[]> {
+  const hasPermission = await checkThreadPermissionForEntry(
+    entryID,
+    threadPermissions.VISIBLE,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
   const query = SQL`
     SELECT r.id, u.username AS author, r.text, r.last_update AS lastUpdate,
       r.deleted, d.thread AS threadID, r.entry AS entryID

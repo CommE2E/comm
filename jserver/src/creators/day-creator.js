@@ -1,10 +1,8 @@
 // @flow
 
-import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
-import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import createIDs from './id-creator';
 
 async function fetchOrCreateDayID(
@@ -13,13 +11,6 @@ async function fetchOrCreateDayID(
 ): Promise<string> {
   if (!threadID || !date) {
     throw new ServerError('invalid_parameters');
-  }
-  const hasPermission = await checkThreadPermission(
-    threadID,
-    threadPermissions.EDIT_ENTRIES,
-  );
-  if (!hasPermission) {
-    throw new ServerError('invalid_credentials');
   }
 
   const existingQuery = SQL`

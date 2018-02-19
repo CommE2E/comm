@@ -30,6 +30,7 @@ type ThreadRestriction = {|
   subthread?: ?string,
 |};
 
+// Does not do permission checks! (checkThreadPermission)
 async function createMessages(
   messageDatas: MessageData[],
 ): Promise<RawMessageInfo[]> {

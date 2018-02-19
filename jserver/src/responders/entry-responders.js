@@ -16,7 +16,6 @@ import { tShape, tDate } from '../utils/tcomb-utils';
 import { verifyThreadID } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
-  checkThreadPermissionForEntry,
   fetchEntryRevisionInfo,
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
@@ -58,14 +57,6 @@ async function entryRevisionFetchResponder(req: $Request, res: $Response) {
   const entryRevisionHistoryFetch: EntryRevisionHistoryFetch = (req.body: any);
   if (!entryRevisionHistoryFetchInputValidator.is(entryRevisionHistoryFetch)) {
     throw new ServerError('invalid_parameters');
-  }
-
-  const hasPermission = await checkThreadPermissionForEntry(
-    entryRevisionHistoryFetch.id,
-    threadPermissions.VISIBLE,
-  );
-  if (!hasPermission) {
-    throw new ServerError('invalid_credentials');
   }
 
   const entryHistory = await fetchEntryRevisionInfo(
