@@ -16,6 +16,7 @@ import {
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
+import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
@@ -119,7 +120,9 @@ class TextMessage extends React.PureComponent<Props> {
           onResponderGrant={this.onResponderGrant}
           onResponderTerminationRequest={this.onResponderTerminationRequest}
         >
-          <Text style={[styles.text, textStyle]}>{text}</Text>
+          <Hyperlink linkDefault={true} linkStyle={styles.linkText}>
+            <Text style={[styles.text, textStyle]}>{text}</Text>
+          </Hyperlink>
         </View>
       </View>
     );
@@ -152,6 +155,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 4,
     height: 25,
+  },
+  linkText: {
+    color: "#036AFF",
+    textDecorationLine: "underline",
   },
 });
 

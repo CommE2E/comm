@@ -5249,6 +5249,12 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+linkify-it@^1.2.0:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-1.2.4.tgz#0773526c317c8fd13bd534ee1d180ff88abf881a"
+  dependencies:
+    uc.micro "^1.0.1"
+
 load-json-file@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-1.1.0.tgz#956905708d58b4bab4c2261b04f59f31c99374c0"
@@ -7285,6 +7291,12 @@ react-native-floating-action@^1.9.0:
   dependencies:
     lodash "^4.17.4"
 
+"react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git":
+  version "0.0.12"
+  resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#49fcdc3e27e23f894427a3c3fa6cb3d3058971db"
+  dependencies:
+    linkify-it "^1.2.0"
+
 react-native-in-app-notification@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-native-in-app-notification/-/react-native-in-app-notification-2.2.0.tgz#690a9ef75bd0eecc15de77468f009a762c9f1748"
@@ -8883,6 +8895,10 @@ typedarray@^0.0.6:
 ua-parser-js@^0.7.9:
   version "0.7.17"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.17.tgz#e9ec5f9498b9ec910e7ae3ac626a805c4d09ecac"
+
+uc.micro@^1.0.1:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.5.tgz#0c65f15f815aa08b560a61ce8b4db7ffc3f45376"
 
 uglify-es@^3.1.9:
   version "3.3.10"

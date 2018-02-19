@@ -38,6 +38,7 @@ import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { NavigationActions } from 'react-navigation';
+import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
@@ -281,10 +282,13 @@ class Entry extends React.Component<Props, State> {
         />
       );
     } else {
+      const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
       text = (
-        <Text style={[styles.text, textStyle]}>
-          {this.state.text}
-        </Text>
+        <Hyperlink linkDefault={true} linkStyle={linkStyle}>
+          <Text style={[styles.text, textStyle]}>
+            {this.state.text}
+          </Text>
+        </Hyperlink>
       );
     }
     let entry;
@@ -589,6 +593,14 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 10,
     paddingVertical: 5,
+  },
+  darkLinkText: {
+    color: "#036AFF",
+    textDecorationLine: "underline",
+  },
+  lightLinkText: {
+    color: "#129AFF",
+    textDecorationLine: "underline",
   },
 });
 
