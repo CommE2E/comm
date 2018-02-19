@@ -6,7 +6,9 @@ import type {
   SaveEntryRequest,
   CreateEntryRequest,
   DeleteEntryRequest,
+  DeleteEntryResponse,
   RestoreEntryRequest,
+  RestoreEntryResponse,
 } from 'lib/types/entry-types';
 
 import t from 'tcomb';
@@ -111,13 +113,17 @@ const deleteEntryRequestInputValidator = tShape({
   timestamp: t.Number,
 });
 
-async function entryDeletionResponder(req: $Request, res: $Response) {
+async function entryDeletionResponder(
+  req: $Request,
+  res: $Response,
+): Promise<DeleteEntryResponse> {
   const deleteEntryRequest: DeleteEntryRequest = (req.body: any);
   if (!deleteEntryRequestInputValidator.is(deleteEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
-  await deleteEntry(deleteEntryRequest);
+  const { threadID, newMessageInfos } = await deleteEntry(deleteEntryRequest);
+  return { threadID, newMessageInfos };
 }
 
 const restoreEntryRequestInputValidator = tShape({
@@ -126,13 +132,18 @@ const restoreEntryRequestInputValidator = tShape({
   timestamp: t.Number,
 });
 
-async function entryRestorationResponder(req: $Request, res: $Response) {
+async function entryRestorationResponder(
+  req: $Request,
+  res: $Response,
+): Promise<RestoreEntryResponse> {
   const restoreEntryRequest: RestoreEntryRequest = (req.body: any);
   if (!restoreEntryRequestInputValidator.is(restoreEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
-  await restoreEntry(restoreEntryRequest);
+  const result = await restoreEntry(restoreEntryRequest);
+  const { entryInfo, newMessageInfos } = result;
+  return { entryInfo, newMessageInfos };
 }
 
 export {

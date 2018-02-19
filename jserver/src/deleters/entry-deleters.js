@@ -7,18 +7,25 @@ import type {
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
+import { dateString } from 'lib/utils/date-utils';
+import { messageType } from 'lib/types/message-types';
 
 import { pool, SQL } from '../database';
 import { currentViewer } from '../session/viewer';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
+import createMessages from '../creators/message-creator';
 
 const lastRevisionQuery = (entryID: string) =>
   (SQL`
-    SELECT id, author, text, session_id, last_update, deleted
-    FROM revisions
-    WHERE entry = ${entryID}
-    ORDER BY last_update DESC
+    SELECT r.id, r.author, r.text, r.session_id, r.last_update, r.deleted,
+      DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
+      d.thread, d.date, e.creation_time, e.creator
+    FROM revisions r
+    LEFT JOIN entries e ON e.id = r.entry
+    LEFT JOIN days d ON d.id = e.day
+    WHERE r.entry = ${entryID}
+    ORDER BY r.last_update DESC
     LIMIT 1
   `);
 
@@ -58,6 +65,10 @@ async function deleteEntry(request: DeleteEntryRequest) {
     );
   }
 
+  const promises = [];
+  promises.push(pool.query(SQL`
+    UPDATE entries SET deleted = 1 WHERE id = ${request.entryID}
+  `));
   const [ revisionID ] = await createIDs("revisions", 1);
   const revisionRow = [
     revisionID,
@@ -69,18 +80,25 @@ async function deleteEntry(request: DeleteEntryRequest) {
     request.timestamp,
     1,
   ];
-  const revisionInsertQuery = SQL`
+  promises.push(pool.query(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}
-  `;
-  const entryUpdateQuery = SQL`
-    UPDATE entries SET deleted = 1 WHERE id = ${request.entryID}
-  `;
-  await Promise.all([
-    pool.query(revisionInsertQuery),
-    pool.query(entryUpdateQuery),
-  ]);
+  `));
+  const threadID = lastRevisionRow.thread.toString();
+  const messageData = {
+    type: messageType.DELETE_ENTRY,
+    threadID: threadID,
+    creatorID: viewerID,
+    time: Date.now(),
+    entryID: request.entryID.toString(),
+    date: dateString(lastRevisionRow.date),
+    text,
+  };
+  promises.unshift(createMessages([messageData]));
+
+  const [ newMessageInfos ] = await Promise.all(promises);
+  return { threadID, newMessageInfos };
 }
 
 async function restoreEntry(request: RestoreEntryRequest) {
@@ -104,6 +122,10 @@ async function restoreEntry(request: RestoreEntryRequest) {
 
   const text = lastRevisionRow.text;
   const viewerID = currentViewer().id;
+  const promises = [];
+  promises.push(pool.query(SQL`
+    UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}
+  `));
   const [ revisionID ] = await createIDs("revisions", 1);
   const revisionRow = [
     revisionID,
@@ -115,18 +137,37 @@ async function restoreEntry(request: RestoreEntryRequest) {
     request.timestamp,
     0,
   ];
-  const revisionInsertQuery = SQL`
+  promises.push(pool.query(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}
-  `;
-  const entryUpdateQuery = SQL`
-    UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}
-  `;
-  await Promise.all([
-    pool.query(revisionInsertQuery),
-    pool.query(entryUpdateQuery),
-  ]);
+  `));
+  const threadID = lastRevisionRow.thread.toString();
+  const messageData = {
+    type: messageType.RESTORE_ENTRY,
+    threadID,
+    creatorID: viewerID,
+    time: Date.now(),
+    entryID: request.entryID.toString(),
+    date: dateString(lastRevisionRow.date),
+    text,
+  };
+  promises.unshift(createMessages([messageData]));
+
+  const [ newMessageInfos ] = await Promise.all(promises);
+  const entryInfo = {
+    id: request.entryID,
+    threadID,
+    text,
+    year: lastRevisionRow.year,
+    month: lastRevisionRow.month,
+    day: lastRevisionRow.day,
+    creationTime: lastRevisionRow.creation_time,
+    creatorID: lastRevisionRow.creator.toString(),
+    deleted: false,
+  }
+
+  return { entryInfo, newMessageInfos };
 }
 
 export {

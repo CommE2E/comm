@@ -6,6 +6,7 @@ import {
   type CreateEntryRequest,
   type SaveEntryRequest,
   type SaveEntryResponse,
+  type DeleteEntryResponse,
 } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
@@ -74,10 +75,10 @@ type Props = {
   createEntry: (request: CreateEntryRequest) => Promise<SaveEntryResponse>,
   saveEntry: (request: SaveEntryRequest) => Promise<SaveEntryResponse>,
   deleteEntry: (
-    serverID: string,
+    entryID: string,
     prevText: string,
     sessionID: string,
-  ) => Promise<void>,
+  ) => Promise<DeleteEntryResponse>,
 };
 type State = {
   focused: bool,
@@ -429,7 +430,7 @@ class Entry extends React.PureComponent<Props, State> {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
     if (serverID) {
-      await this.props.deleteEntry(
+      return await this.props.deleteEntry(
         serverID,
         this.props.entryInfo.text,
         this.props.sessionID(),
@@ -437,6 +438,7 @@ class Entry extends React.PureComponent<Props, State> {
     } else if (this.creating) {
       this.needsDeleteAfterCreation = true;
     }
+    return null;
   }
 
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {

@@ -2,8 +2,11 @@
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { EntryInfo } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
+import {
+  type EntryInfo,
+  entryInfoPropType,
+  type RestoreEntryResponse,
+} from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -47,10 +50,11 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  restoreEntry: (entryID: string, sessionID: string) => Promise<void>,
+  restoreEntry: (
+    entryID: string,
+    sessionID: string,
+  ) => Promise<RestoreEntryResponse>,
 };
-type State = {
-}
 
 class HistoryEntry extends React.PureComponent<Props> {
 
@@ -141,9 +145,12 @@ class HistoryEntry extends React.PureComponent<Props> {
   async restoreEntryAction() {
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entry should have ID");
-    await this.props.restoreEntry(entryID, this.props.sessionID());
+    const result = await this.props.restoreEntry(
+      entryID,
+      this.props.sessionID(),
+    );
     this.props.animateAndLoadEntry(entryID);
-    return entryID;
+    return result;
   }
 
 }
