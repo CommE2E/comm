@@ -47,7 +47,22 @@ async function verifyUserIDs(
   return result.map(row => row.id.toString());
 }
 
+async function verifyUserOrCookieIDs(
+  ids: $ReadOnlyArray<string>,
+): Promise<string[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+  const query = SQL`
+    SELECT id FROM users WHERE id IN (${ids})
+    UNION SELECT id FROM cookies WHERE id IN (${ids})
+  `;
+  const [ result ] = await pool.query(query);
+  return result.map(row => row.id.toString());
+}
+
 export {
   fetchUserInfos,
   verifyUserIDs,
+  verifyUserOrCookieIDs,
 };

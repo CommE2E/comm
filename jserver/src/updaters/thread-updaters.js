@@ -3,6 +3,7 @@
 import type {
   RoleChangeRequest,
   ChangeThreadSettingsResult,
+  RemoveMembersRequest,
 } from 'lib/types/thread-types';
 
 import { threadPermissions } from 'lib/types/thread-types';
@@ -10,7 +11,10 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { messageType } from 'lib/types/message-types';
 
 import { pool, SQL } from '../database';
-import { verifyUserIDs } from '../fetchers/user-fetchers';
+import {
+  verifyUserIDs,
+  verifyUserOrCookieIDs,
+} from '../fetchers/user-fetchers';
 import {
   checkThreadPermission,
   fetchThreadInfos,
@@ -92,6 +96,90 @@ async function updateRole(
   };
 }
 
+async function removeMembers(
+  request: RemoveMembersRequest,
+): Promise<ChangeThreadSettingsResult> {
+  const viewerID = currentViewer().id;
+  if (request.memberIDs.includes(viewerID)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const [ memberIDs, hasPermission ] = await Promise.all([
+    verifyUserOrCookieIDs(request.memberIDs),
+    checkThreadPermission(
+      request.threadID,
+      threadPermissions.REMOVE_MEMBERS,
+    ),
+  ]);
+  if (memberIDs.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const query = SQL`
+    SELECT m.user, m.role, t.default_role
+    FROM memberships m
+    LEFT JOIN threads t ON t.id = m.thread
+    WHERE m.user IN (${memberIDs}) AND m.thread = ${request.threadID}
+  `;
+  const [ result ] = await pool.query(query);
+
+  let nonDefaultRoleUser = false;
+  const actualMemberIDs = [];
+  for (let row of result) {
+    if (!row.role) {
+      continue;
+    }
+    actualMemberIDs.push(row.user.toString());
+    if (row.role !== row.default_role) {
+      nonDefaultRoleUser = true;
+    }
+  }
+
+  if (nonDefaultRoleUser) {
+    const hasChangeRolePermission = await checkThreadPermission(
+      request.threadID,
+      threadPermissions.CHANGE_ROLE,
+    );
+    if (!hasChangeRolePermission) {
+      throw new ServerError('invalid_credentials');
+    }
+  }
+
+  const changeset = await changeRole(
+    request.threadID,
+    actualMemberIDs,
+    0,
+  );
+  if (!changeset) {
+    throw new ServerError('unknown_error');
+  }
+
+  const messageData = {
+    type: messageType.REMOVE_MEMBERS,
+    threadID: request.threadID,
+    creatorID: viewerID,
+    time: Date.now(),
+    removedUserIDs: actualMemberIDs,
+  };
+  const [ newMessageInfos ] = await Promise.all([
+    createMessages([messageData]),
+    saveMemberships(changeset.toSave),
+    deleteMemberships(changeset.toDelete),
+  ]);
+  const { threadInfos } = await fetchThreadInfos(
+    SQL`t.id = ${request.threadID}`,
+  );
+
+  return {
+    threadInfo: threadInfos[request.threadID],
+    newMessageInfos,
+  };
+}
+
 export {
   updateRole,
+  removeMembers,
 };
