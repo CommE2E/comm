@@ -27,7 +27,6 @@ class SectionFooter extends React.PureComponent<Props> {
       <View style={styles.sectionFooter}>
         <Button
           onPress={this.onSubmit}
-          androidBorderlessRipple={true}
           iosFormat="highlight"
           iosActiveOpacity={0.85}
           style={styles.addButton}

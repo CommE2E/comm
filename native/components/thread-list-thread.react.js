@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     paddingVertical: 6,
     fontSize: 16,
+    color: 'black',
   },
 });
 

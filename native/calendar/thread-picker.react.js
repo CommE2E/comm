@@ -7,14 +7,7 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableHighlight,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 
@@ -25,7 +18,7 @@ import {
 } from 'lib/actions/entry-actions';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
-import ThreadPickerThread from './thread-picker-thread.react';
+import ThreadList from '../components/thread-list.react';
 
 type Props = {
   dateString: ?string,
@@ -49,54 +42,16 @@ class ThreadPicker extends React.PureComponent<Props> {
   render() {
     return (
       <View style={styles.picker}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>
-            Pick a thread
-          </Text>
-          <TouchableHighlight
-            onPress={this.props.close}
-            style={styles.closeButton}
-            underlayColor="#CCCCCCDD"
-          >
-            <Icon
-              name="close"
-              size={16}
-              color="#AAAAAA"
-              style={styles.closeButtonIcon}
-            />
-          </TouchableHighlight>
-        </View>
-        <FlatList
-          data={this.props.onScreenThreadInfos}
-          renderItem={this.renderItem}
-          keyExtractor={ThreadPicker.keyExtractor}
-          getItemLayout={ThreadPicker.getItemLayout}
-          ItemSeparatorComponent={ThreadPicker.itemSeperator}
-          style={styles.contents}
+        <Text style={styles.headerText}>
+          Pick a thread
+        </Text>
+        <ThreadList
+          threadInfos={this.props.onScreenThreadInfos}
+          onSelect={this.threadPicked}
+          itemStyle={styles.threadListItem}
         />
       </View>
     );
-  }
-
-  static keyExtractor(threadInfo: ThreadInfo) {
-    return threadInfo.id;
-  }
-
-  renderItem = (row: { item: ThreadInfo }) => {
-    return (
-      <ThreadPickerThread
-        threadInfo={row.item}
-        threadPicked={this.threadPicked}
-      />
-    );
-  }
-
-  static getItemLayout(data: ?$ReadOnlyArray<ThreadInfo>, index: number) {
-    return { length: 24, offset: 24 * index, index };
-  }
-
-  static itemSeperator() {
-    return <View style={styles.itemSeperator} />;
   }
 
   threadPicked = (threadID: string) => {
@@ -114,46 +69,22 @@ class ThreadPicker extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   picker: {
     flex: 1,
-    marginLeft: 15,
-    marginRight: 15,
-    marginTop: 100,
-    marginBottom: 100,
+    padding: 12,
     borderRadius: 5,
     backgroundColor: '#EEEEEE',
-  },
-  header: {
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderColor: '#CCCCCC',
-    paddingTop: 15,
-    paddingBottom: 14,
+    marginHorizontal: 10,
+    marginVertical: 100,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 24,
     textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#333333',
+    color: "black",
+    paddingBottom: 8,
   },
-  contents: {
-    flex: 1,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 18,
-    height: 18,
-    borderRadius: 3,
-  },
-  closeButtonIcon: {
-    position: 'absolute',
-    left: 3,
-  },
-  itemSeperator: {
-    height: 1,
-    backgroundColor: '#CCCCCC',
+  threadListItem: {
+    paddingVertical: 2,
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 });
 
