@@ -2,12 +2,15 @@
 
 import type { PushInfo } from '../push/send';
 import type { UserInfo } from 'lib/types/user-types';
-import type { RawMessageInfo } from 'lib/types/message-types';
+import {
+  type RawMessageInfo,
+  messageType,
+  assertMessageType,
+} from 'lib/types/message-types';
 
 import invariant from 'invariant';
 
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
-import { messageType } from 'lib/types/message-types';
 import {
   assertVisibilityRules,
   threadPermissions,
@@ -130,33 +133,33 @@ async function fetchCollapsableNotifs(
 }
 
 function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
-  const type = parseInt(row.type);
+  const type = assertMessageType(row.type);
   if (type === messageType.TEXT) {
     return {
       type: messageType.TEXT,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
       text: row.content,
     };
   } else if (type === messageType.CREATE_THREAD) {
     return {
       type: messageType.CREATE_THREAD,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      initialThreadState: row.content,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      initialThreadState: JSON.parse(row.content),
     };
   } else if (type === messageType.ADD_MEMBERS) {
     return {
       type: messageType.ADD_MEMBERS,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      addedUserIDs: row.content,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      addedUserIDs: JSON.parse(row.content),
     };
   } else if (type === messageType.CREATE_SUB_THREAD) {
     const subthreadPermissionInfo = {
@@ -168,101 +171,107 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
     }
     return {
       type: messageType.CREATE_SUB_THREAD,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
       childThreadID: row.content,
     };
   } else if (type === messageType.CHANGE_SETTINGS) {
-    const field = Object.keys(row.content)[0];
+    const content = JSON.parse(row.content);
+    const field = Object.keys(content)[0];
     return {
       type: messageType.CHANGE_SETTINGS,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
       field,
-      value: row.content[field],
+      value: content[field],
     };
   } else if (type === messageType.REMOVE_MEMBERS) {
     return {
       type: messageType.REMOVE_MEMBERS,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      removedUserIDs: row.content,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      removedUserIDs: JSON.parse(row.content),
     };
   } else if (type === messageType.CHANGE_ROLE) {
+    const content = JSON.parse(row.content);
     return {
       type: messageType.CHANGE_ROLE,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      userIDs: row.content.userIDs,
-      newRole: row.content.newRole,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      userIDs: content.userIDs,
+      newRole: content.newRole,
     };
   } else if (type === messageType.LEAVE_THREAD) {
     return {
       type: messageType.LEAVE_THREAD,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
     };
   } else if (type === messageType.JOIN_THREAD) {
     return {
       type: messageType.JOIN_THREAD,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
     };
   } else if (type === messageType.CREATE_ENTRY) {
+    const content = JSON.parse(row.content);
     return {
       type: messageType.CREATE_ENTRY,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      entryID: row.content.entryID,
-      date: row.content.date,
-      text: row.content.text,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      entryID: content.entryID,
+      date: content.date,
+      text: content.text,
     };
   } else if (type === messageType.EDIT_ENTRY) {
+    const content = JSON.parse(row.content);
     return {
       type: messageType.EDIT_ENTRY,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      entryID: row.content.entryID,
-      date: row.content.date,
-      text: row.content.text,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      entryID: content.entryID,
+      date: content.date,
+      text: content.text,
     };
   } else if (type === messageType.DELETE_ENTRY) {
+    const content = JSON.parse(row.content);
     return {
       type: messageType.DELETE_ENTRY,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      entryID: row.content.entryID,
-      date: row.content.date,
-      text: row.content.text,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      entryID: content.entryID,
+      date: content.date,
+      text: content.text,
     };
   } else if (type === messageType.RESTORE_ENTRY) {
+    const content = JSON.parse(row.content);
     return {
       type: messageType.RESTORE_ENTRY,
-      id: row.id,
-      threadID: row.threadID,
-      time: parseInt(row.time),
-      creatorID: row.creatorID,
-      entryID: row.content.entryID,
-      date: row.content.date,
-      text: row.content.text,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      entryID: content.entryID,
+      date: content.date,
+      text: content.text,
     };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
