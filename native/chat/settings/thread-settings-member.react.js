@@ -1,16 +1,17 @@
 // @flow
 
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import {
+  type ThreadInfo,
+  type RelativeMemberInfo,
   threadInfoPropType,
   threadPermissions,
   relativeMemberInfoPropType,
+  type ChangeThreadSettingsResult,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
 
 import React from 'react';
 import {

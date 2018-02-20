@@ -68,11 +68,11 @@ async function fetchServerThreadInfos(
       };
     }
     const role = row.role.toString();
-    if (role && !threadInfos[threadID].roles[role]) {
+    if (row.role && !threadInfos[threadID].roles[role]) {
       threadInfos[threadID].roles[role] = {
         id: role,
         name: row.role_name,
-        permissions: row.role_permissions,
+        permissions: JSON.parse(row.role_permissions),
         isDefault: role === row.default_role.toString(),
       };
     }
@@ -90,7 +90,7 @@ async function fetchServerThreadInfos(
         permissions: allPermissions,
         role: row.role ? role : null,
         subscription: row.subscription,
-        unread: row.role ? row.unread : null,
+        unread: row.role ? !!row.unread : null,
       };
       // This is a hack, similar to what we have in ThreadSettingsUser.
       // Basically we only want to return users that are either a member of this

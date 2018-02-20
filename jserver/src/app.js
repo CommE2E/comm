@@ -29,7 +29,10 @@ import {
 import {
   codeVerificationResponder,
 } from './responders/verification-responders';
-import { threadDeletionResponder } from './responders/thread-responders';
+import {
+  threadDeletionResponder,
+  roleUpdateResponder,
+} from './responders/thread-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -53,6 +56,7 @@ const jsonEndpoints = {
   'update_entry': entryUpdateResponder,
   'delete_entry': entryDeletionResponder,
   'restore_entry': entryRestorationResponder,
+  'update_role': roleUpdateResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

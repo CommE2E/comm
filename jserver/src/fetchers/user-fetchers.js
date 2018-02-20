@@ -36,6 +36,18 @@ async function fetchUserInfos(
   return userInfos;
 }
 
+async function verifyUserIDs(
+  userIDs: $ReadOnlyArray<string>,
+): Promise<string[]> {
+  if (userIDs.length === 0) {
+    return [];
+  }
+  const query = SQL`SELECT id FROM users WHERE id IN (${userIDs})`;
+  const [ result ] = await pool.query(query);
+  return result.map(row => row.id.toString());
+}
+
 export {
   fetchUserInfos,
+  verifyUserIDs,
 };

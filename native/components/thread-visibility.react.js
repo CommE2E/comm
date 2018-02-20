@@ -11,6 +11,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
 
+import { visRulesAreOpen } from 'lib/permissions/thread-permissions';
+
 type Props = {|
   visibilityRules: VisibilityRules,
   color?: string,
@@ -31,10 +33,7 @@ class ThreadVisibility extends React.PureComponent<Props> {
     const visRules = this.props.visibilityRules;
     const color = this.props.color ? this.props.color : "black";
     const visLabelStyle = [styles.visibilityLabel, { color }];
-    if (
-      visRules === visibilityRules.CHAT_NESTED_OPEN ||
-      visRules === visibilityRules.OPEN
-    ) {
+    if (visRulesAreOpen(visRules)) {
       const label = this.props.includeLabel
         ? <Text style={visLabelStyle}>Open</Text>
         : null;

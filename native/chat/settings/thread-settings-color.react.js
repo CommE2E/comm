@@ -1,8 +1,10 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { ChangeThreadSettingsResult } from 'lib/actions/thread-actions';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  type ChangeThreadSettingsResult,
+} from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
