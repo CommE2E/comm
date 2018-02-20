@@ -46,7 +46,6 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import Button from '../components/button.react';
 
@@ -54,12 +53,11 @@ const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
 
 type Props = {
-  threadID: string,
+  threadInfo: ThreadInfo,
   // Redux state
   username: ?string,
   viewerID: ?string,
   draft: string,
-  threadInfo: ThreadInfo,
   joinThreadLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -78,11 +76,10 @@ type State = {
 class ChatInputBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    threadID: PropTypes.string.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     username: PropTypes.string,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -232,7 +229,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({ text });
     this.props.dispatchActionPayload(
       saveDraftActionType,
-      { key: draftKeyFromThreadID(this.props.threadID), draft: text },
+      { key: draftKeyFromThreadID(this.props.threadInfo.id), draft: text },
     );
   }
 
@@ -251,7 +248,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const messageInfo = ({
       type: messageType.TEXT,
       localID,
-      threadID: this.props.threadID,
+      threadID: this.props.threadInfo.id,
       text: this.state.text,
       creatorID,
       time: Date.now(),
@@ -356,15 +353,14 @@ const joinThreadLoadingStatusSelector
   = createLoadingStatusSelector(joinThreadActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { threadID: string }) => {
-    const draft = state.drafts[draftKeyFromThreadID(ownProps.threadID)];
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+    const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
     return {
       username: state.currentUserInfo && !state.currentUserInfo.anonymous
         ? state.currentUserInfo.username
         : undefined,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
-      threadInfo: threadInfoSelector(state)[ownProps.threadID],
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       cookie: state.cookie,
     };

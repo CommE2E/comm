@@ -1,19 +1,10 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 
 import React from 'react';
-import {
-  Text,
-  StyleSheet,
-  View,
-  LayoutAnimation,
-} from 'react-native';
-import { connect } from 'react-redux';
+import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
@@ -48,40 +39,16 @@ type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  // Redux state
-  threadInfo: ThreadInfo,
 };
-type State = {
-  threadInfo: ThreadInfo,
-};
-class InnerMessage extends React.PureComponent<Props, State> {
+class Message extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
   };
 
-  constructor(props: Props) {
-    super(props);
-    invariant(props.threadInfo, "should be set");
-    this.state = {
-      // On log out, it's possible for the thread to be deauthorized before
-      // the log out animation completes. To avoid having rendering issues in
-      // that case, we cache the threadInfo in state and don't reset it when the
-      // threadInfo is undefined.
-      threadInfo: props.threadInfo,
-    };
-  }
-
   componentWillReceiveProps(nextProps: Props) {
-    if (
-      nextProps.threadInfo &&
-      !_isEqual(nextProps.threadInfo)(this.state.threadInfo)
-    ) {
-      this.setState({ threadInfo: nextProps.threadInfo });
-    }
     if (
       (nextProps.focused || nextProps.item.startsConversation) !==
         (this.props.focused || this.props.item.startsConversation)
@@ -106,7 +73,7 @@ class InnerMessage extends React.PureComponent<Props, State> {
           item={this.props.item}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
-          threadInfo={this.props.threadInfo}
+          threadInfo={this.props.item.threadInfo}
         />
       );
     } else {
@@ -114,7 +81,7 @@ class InnerMessage extends React.PureComponent<Props, State> {
         <RobotextMessage
           item={this.props.item}
           toggleFocus={this.props.toggleFocus}
-          threadInfo={this.props.threadInfo}
+          threadInfo={this.props.item.threadInfo}
         />
       );
     }
@@ -137,12 +104,6 @@ const styles = StyleSheet.create({
     height: 26,
   },
 });
-
-const Message = connect(
-  (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }): * => ({
-    threadInfo: threadInfoSelector(state)[ownProps.item.messageInfo.threadID],
-  }),
-)(InnerMessage);
 
 export {
   Message,

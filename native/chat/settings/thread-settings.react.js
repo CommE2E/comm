@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
 import _isEqual from 'lodash/fp/isEqual';
+import invariant from 'invariant';
 
 import {
   relativeMemberInfoSelectorForMembersOfThread,
@@ -149,7 +150,7 @@ type ChatSettingsItem =
     |};
 
 type StateProps = {|
-  threadInfo: ThreadInfo,
+  threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?ThreadInfo[],
   somethingIsSaving: bool,
@@ -184,7 +185,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       navigate: PropTypes.func.isRequired,
       setParams: PropTypes.func.isRequired,
     }).isRequired,
-    threadInfo: threadInfoPropType.isRequired,
+    threadInfo: threadInfoPropType,
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
@@ -196,6 +197,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const threadInfo = props.threadInfo;
+    invariant(
+      threadInfo,
+      "ThreadInfo should exist when ThreadSettings opened",
+    );
     this.state = {
       showAddUsersModal: false,
       showComposeSubthreadModal: false,
@@ -206,50 +212,59 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       nameTextHeight: null,
       descriptionTextHeight: null,
       showEditColorModal: false,
-      colorEditValue: props.threadInfo.color,
+      colorEditValue: threadInfo.color,
     };
+  }
+
+  static getThreadInfo(props: Props): ThreadInfo {
+    return props.navigation.state.params.threadInfo;
   }
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
-    if (!viewerIsMember(this.props.threadInfo)) {
-      threadWatcher.watchID(this.props.threadInfo.id);
+    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    if (!viewerIsMember(threadInfo)) {
+      threadWatcher.watchID(threadInfo.id);
     }
   }
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
-    if (!viewerIsMember(this.props.threadInfo)) {
-      threadWatcher.removeID(this.props.threadInfo.id);
+    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    if (!viewerIsMember(threadInfo)) {
+      threadWatcher.removeID(threadInfo.id);
     }
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (
-      viewerIsMember(this.props.threadInfo) &&
-      !viewerIsMember(nextProps.threadInfo)
-    ) {
-      threadWatcher.watchID(nextProps.threadInfo.id);
-    } else if (
-      !viewerIsMember(this.props.threadInfo) &&
-      viewerIsMember(nextProps.threadInfo)
-    ) {
-      threadWatcher.removeID(nextProps.threadInfo.id);
-    }
+    const oldThreadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const newThreadInfo = nextProps.threadInfo;
 
     if (
-      !_isEqual(nextProps.threadInfo)
-        (this.props.navigation.state.params.threadInfo)
+      viewerIsMember(oldThreadInfo) &&
+      !viewerIsMember(newThreadInfo)
     ) {
-      this.props.navigation.setParams({
-        threadInfo: nextProps.threadInfo,
-      });
+      threadWatcher.watchID(oldThreadInfo.id);
+    } else if (
+      !viewerIsMember(oldThreadInfo) &&
+      viewerIsMember(newThreadInfo)
+    ) {
+      threadWatcher.removeID(oldThreadInfo.id);
+    }
+
+    if (!newThreadInfo) {
+      return;
+    }
+
+    const newState = {};
+    if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
+      this.props.navigation.setParams({ threadInfo: newThreadInfo });
     }
     if (
-      nextProps.threadInfo.color !== this.props.threadInfo.color &&
-      this.state.colorEditValue === this.props.threadInfo.color
+      newThreadInfo.color !== oldThreadInfo.color &&
+      this.state.colorEditValue === oldThreadInfo.color
     ) {
-      this.setState({ colorEditValue: nextProps.threadInfo.color });
+      this.setState({ colorEditValue: newThreadInfo.color });
     }
   }
 
@@ -263,9 +278,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+
     const canStartEditing = this.canReset();
     const canEditThread = threadHasPermission(
-      this.props.threadInfo,
+      threadInfo,
       threadPermissions.EDIT_THREAD,
     );
     const canChangeSettings = canEditThread && canStartEditing;
@@ -280,7 +297,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     listData.push({
       itemType: "name",
       key: "name",
-      threadInfo: this.props.threadInfo,
+      threadInfo,
       nameEditValue: this.state.nameEditValue,
       nameTextHeight: this.state.nameTextHeight,
       canChangeSettings,
@@ -288,7 +305,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     listData.push({
       itemType: "color",
       key: "color",
-      threadInfo: this.props.threadInfo,
+      threadInfo,
       colorEditValue: this.state.colorEditValue,
       showEditColorModal: this.state.showEditColorModal,
       canChangeSettings,
@@ -302,13 +319,13 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     if (
       (this.state.descriptionEditValue !== null &&
         this.state.descriptionEditValue !== undefined) ||
-      this.props.threadInfo.description ||
+      threadInfo.description ||
       canEditThread
     ) {
       listData.push({
         itemType: "description",
         key: "description",
-        threadInfo: this.props.threadInfo,
+        threadInfo,
         descriptionEditValue: this.state.descriptionEditValue,
         descriptionTextHeight: this.state.descriptionTextHeight,
         canChangeSettings,
@@ -324,7 +341,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     listData.push({
       itemType: "pushNotifs",
       key: "pushNotifs",
-      threadInfo: this.props.threadInfo,
+      threadInfo,
     });
     listData.push({
       itemType: "footer",
@@ -341,13 +358,13 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     listData.push({
       itemType: "parent",
       key: "parent",
-      threadInfo: this.props.threadInfo,
+      threadInfo,
       navigate: this.props.navigation.navigate,
     });
     listData.push({
       itemType: "visibility",
       key: "visibility",
-      threadInfo: this.props.threadInfo,
+      threadInfo,
     });
     listData.push({
       itemType: "footer",
@@ -370,10 +387,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       } else {
         childThreadInfos = this.props.childThreadInfos;
       }
-      childThreads = childThreadInfos.map(threadInfo => ({
+      childThreads = childThreadInfos.map(childThreadInfo => ({
         itemType: "childThread",
-        key: `childThread${threadInfo.id}`,
-        threadInfo,
+        key: `childThread${childThreadInfo.id}`,
+        threadInfo: childThreadInfo,
         navigate: this.props.navigation.navigate,
       }));
       if (seeMoreChildThreads) {
@@ -383,7 +400,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
     let addChildThread = null;
     const canCreateSubthreads = threadHasPermission(
-      this.props.threadInfo,
+      threadInfo,
       threadPermissions.CREATE_SUBTHREADS,
     );
     if (canCreateSubthreads) {
@@ -432,7 +449,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       itemType: "member",
       key: `member${memberInfo.id}`,
       memberInfo,
-      threadInfo: this.props.threadInfo,
+      threadInfo,
       canEdit: canStartEditing,
     }));
     if (seeMoreMembers) {
@@ -441,7 +458,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
     let addMembers = null;
     const canAddMembers = threadHasPermission(
-      this.props.threadInfo,
+      threadInfo,
       threadPermissions.ADD_MEMBERS,
     );
     if (canAddMembers) {
@@ -473,11 +490,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       });
     }
 
-    if (viewerIsMember(this.props.threadInfo)) {
+    if (viewerIsMember(threadInfo)) {
       listData.push({
         itemType: "leaveThread",
         key: "leaveThread",
-        threadInfo: this.props.threadInfo,
+        threadInfo,
       });
     }
 
@@ -494,7 +511,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           onBackdropPress={this.closeAddUsersModal}
         >
           <AddUsersModal
-            threadInfo={this.props.threadInfo}
+            threadInfo={threadInfo}
             close={this.closeAddUsersModal}
           />
         </Modal>
@@ -504,7 +521,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           onBackdropPress={this.closeComposeSubthreadModal}
         >
           <ComposeSubthreadModal
-            threadInfo={this.props.threadInfo}
+            threadInfo={threadInfo}
             navigate={this.props.navigation.navigate}
             closeModal={this.closeComposeSubthreadModal}
           />
@@ -705,16 +722,13 @@ const somethingIsSaving = (
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }): * => {
-    const parsedThreadInfos = threadInfoSelector(state);
-    const passedThreadInfo = ownProps.navigation.state.params.threadInfo;
-    // We pull the version from Redux so we get updates once they go through
-    const threadInfo = parsedThreadInfos[passedThreadInfo.id];
+    const threadID = ownProps.navigation.state.params.threadInfo.id;
     const threadMembers =
-      relativeMemberInfoSelectorForMembersOfThread(threadInfo.id)(state);
+      relativeMemberInfoSelectorForMembersOfThread(threadID)(state);
     return {
-      threadInfo,
+      threadInfo: threadInfoSelector(state)[threadID],
       threadMembers,
-      childThreadInfos: childThreadInfos(state)[threadInfo.id],
+      childThreadInfos: childThreadInfos(state)[threadID],
       somethingIsSaving: somethingIsSaving(state, threadMembers),
     };
   },

@@ -70,6 +70,7 @@ type NavProp = NavigationScreenProp<NavigationRoute>
 export type RobotextChatMessageInfoItemWithHeight = {|
   itemType: "message",
   messageInfo: RobotextMessageInfo,
+  threadInfo: ThreadInfo,
   startsConversation: bool,
   startsCluster: bool,
   endsCluster: bool,
@@ -81,6 +82,7 @@ export type ChatMessageInfoItemWithHeight =
   RobotextChatMessageInfoItemWithHeight | {|
     itemType: "message",
     messageInfo: TextMessageInfo,
+    threadInfo: ThreadInfo,
     startsConversation: bool,
     startsCluster: bool,
     endsCluster: bool,
@@ -191,22 +193,22 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
+    const threadInfo = InnerMessageList.getThreadInfo(this.props);
     registerChatScreen(this.props.navigation.state.key, this);
-    if (!viewerIsMember(InnerMessageList.getThreadInfo(this.props))) {
-      threadWatcher.watchID(InnerMessageList.getThreadInfo(this.props).id);
+    if (!viewerIsMember(threadInfo)) {
+      threadWatcher.watchID(threadInfo.id);
       this.props.dispatchActionPromise(
         fetchMostRecentMessagesActionTypes,
-        this.props.fetchMostRecentMessages(
-          InnerMessageList.getThreadInfo(this.props).id,
-        ),
+        this.props.fetchMostRecentMessages(threadInfo.id),
       );
     }
   }
 
   componentWillUnmount() {
+    const threadInfo = InnerMessageList.getThreadInfo(this.props);
     registerChatScreen(this.props.navigation.state.key, null);
-    if (!viewerIsMember(InnerMessageList.getThreadInfo(this.props))) {
-      threadWatcher.removeID(InnerMessageList.getThreadInfo(this.props).id);
+    if (!viewerIsMember(threadInfo)) {
+      threadWatcher.removeID(threadInfo.id);
     }
   }
 
@@ -241,39 +243,41 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (
-      nextProps.threadInfo &&
-      !_isEqual(nextProps.threadInfo)
-        (this.props.navigation.state.params.threadInfo)
-    ) {
-      this.props.navigation.setParams({
-        threadInfo: nextProps.threadInfo,
-      });
+    const oldThreadInfo = InnerMessageList.getThreadInfo(this.props);
+    const newThreadInfo = nextProps.threadInfo;
+
+    let threadInfoChanged = false;
+    if (newThreadInfo && !_isEqual(newThreadInfo)(oldThreadInfo)) {
+      threadInfoChanged = true;
+      this.props.navigation.setParams({ threadInfo: newThreadInfo });
     }
 
     if (
-      viewerIsMember(InnerMessageList.getThreadInfo(this.props)) &&
-      !viewerIsMember(InnerMessageList.getThreadInfo(nextProps))
+      viewerIsMember(oldThreadInfo) &&
+      !viewerIsMember(newThreadInfo)
     ) {
-      threadWatcher.watchID(InnerMessageList.getThreadInfo(nextProps).id);
+      threadWatcher.watchID(oldThreadInfo.id);
     } else if (
-      !viewerIsMember(InnerMessageList.getThreadInfo(this.props)) &&
-      viewerIsMember(InnerMessageList.getThreadInfo(nextProps))
+      !viewerIsMember(oldThreadInfo) &&
+      viewerIsMember(newThreadInfo)
     ) {
-      threadWatcher.removeID(InnerMessageList.getThreadInfo(nextProps).id);
+      threadWatcher.removeID(oldThreadInfo.id);
     }
 
-    if (nextProps.listData === this.props.messageListData) {
-      return;
-    }
+    const oldListData = this.props.messageListData;
     const newListData = nextProps.messageListData;
-
-    if (!newListData) {
+    if (!newListData && oldListData) {
       this.setState({
         textToMeasure: [],
         listDataWithHeights: null,
         focusedMessageKey: null,
       });
+    }
+    if (!newListData) {
+      return;
+    }
+
+    if (newListData === oldListData && !threadInfoChanged) {
       return;
     }
 
@@ -291,6 +295,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         }
       }
     }
+
     if (allTextAlreadyMeasured) {
       this.mergeHeightsIntoListData(newListData);
       return;
@@ -311,10 +316,10 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       this.textHeights = null;
       this.setState({ textToMeasure: newTextToMeasure });
     }
-
   }
 
   mergeHeightsIntoListData(listData: $ReadOnlyArray<ChatMessageItem>) {
+    const threadInfo = InnerMessageList.getThreadInfo(this.props);
     const textHeights = this.textHeights;
     invariant(textHeights, "textHeights should be set");
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
@@ -330,6 +335,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         return {
           itemType: "message",
           messageInfo: item.messageInfo,
+          threadInfo,
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
@@ -343,6 +349,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         return {
           itemType: "message",
           messageInfo: item.messageInfo,
+          threadInfo,
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
@@ -465,8 +472,8 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       );
     }
 
-    const threadID = InnerMessageList.getThreadInfo(this.props).id;
-    const inputBar = <ChatInputBar threadID={threadID} />;
+    const threadInfo = InnerMessageList.getThreadInfo(this.props);
+    const inputBar = <ChatInputBar threadInfo={threadInfo} />;
 
     const behavior = Platform.OS === "ios" ? "padding" : undefined;
     const keyboardVerticalOffset = Platform.OS === "ios"
