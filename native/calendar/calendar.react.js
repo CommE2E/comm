@@ -22,6 +22,7 @@ import {
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -53,7 +54,7 @@ import { simpleNavID } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
 
-import Entry from './entry.react';
+import { Entry, InternalEntry } from './entry.react';
 import { contentVerticalOffset, windowHeight } from '../dimensions';
 import { calendarListData } from '../selectors/calendar-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
@@ -61,6 +62,8 @@ import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
+import CalendarInputBar from './calendar-input-bar.react';
+import { iosKeyboardHeight } from '../dimensions';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
 type CalendarItemWithHeight =
@@ -190,6 +193,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   // We wait until the loaders leave view before letting them be triggered again
   topLoaderWaitingToLeaveView = true;
   bottomLoaderWaitingToLeaveView = true;
+  // We keep refs to the entries so CalendarInputBar can save them
+  entryRefs = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -545,6 +550,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           visible={!!this.state.extraData.visibleEntries[key]}
           onFocus={this.onEntryFocus}
           navigate={this.props.navigation.navigate}
+          entryRef={this.entryRef}
         />
       );
     } else if (item.itemType === "footer") {
@@ -671,6 +677,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         </View>
       );
     }
+    const keyboardAvoidingViewBehavior = Platform.OS === "ios"
+      ? "padding"
+      : undefined;
+    const keyboardVerticalOffset = Platform.OS === "ios"
+      ? iosKeyboardHeight
+      : 0;
     return (
       <SafeAreaView forceInset={forceInset} style={styles.container}>
         <TextHeightMeasurer
@@ -678,8 +690,14 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={styles.text}
         />
-        {loadingIndicator}
-        {flatList}
+        <KeyboardAvoidingView
+          behavior={keyboardAvoidingViewBehavior}
+          style={styles.keyboardAvoidingView}
+        >
+          {loadingIndicator}
+          {flatList}
+          <CalendarInputBar onSave={this.onSaveEntry} />
+        </KeyboardAvoidingView>
         <Modal
           isVisible={!!this.state.pickerOpenForDateString}
           onBackButtonPress={this.closePicker}
@@ -714,6 +732,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
     this.flatList = flatList;
+  }
+
+  entryRef = (entryKey: string, entry: ?InternalEntry) => {
+    this.entryRefs.set(entryKey, entry);
   }
 
   onEntryFocus = (key: string, focused: bool) => {
@@ -764,10 +786,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
-    this.keyboardShownHeight = event.endCoordinates.height;
+    const inputBarHeight = Platform.OS === "android" ? 37.7 : 35.5;
+    this.keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
     const lastEntryKeyFocused = this.lastEntryKeyFocused;
     if (lastEntryKeyFocused) {
-      this.scrollToKey(lastEntryKeyFocused, event.endCoordinates.height);
+      this.scrollToKey(lastEntryKeyFocused, this.keyboardShownHeight);
       this.lastEntryKeyFocused = null;
     }
   }
@@ -787,7 +810,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       data.filter((_, i) => i < index),
     );
     const itemHeight = InnerCalendar.itemHeight(data[index]);
-    const itemEnd = itemStart + itemHeight;
+    const entryAdditionalFocusHeight = Platform.OS === "android" ? 21 : 20;
+    const itemEnd = itemStart + itemHeight + entryAdditionalFocusHeight;
     const visibleHeight = InnerCalendar.flatListHeight() -
       keyboardHeight;
     invariant(
@@ -925,6 +949,18 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.setState({ pickerOpenForDateString: null });
   }
 
+  onSaveEntry = () => {
+    const entryKeys = Object.keys(this.latestExtraData.focusedEntries);
+    if (entryKeys.length === 0) {
+      return;
+    }
+    const entryKey = entryKeys[0];
+    const entryRef = this.entryRefs.get(entryKey);
+    if (entryRef) {
+      entryRef.saveFromInputBar();
+    }
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -964,6 +1000,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
 });
 

@@ -56,12 +56,13 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
-import InputBar from './input-bar.react';
+import ChatInputBar from './chat-input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
+import { iosKeyboardHeight } from '../dimensions';
 
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -465,14 +466,12 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     }
 
     const threadID = InnerMessageList.getThreadInfo(this.props).id;
-    const inputBar = <InputBar threadID={threadID} />;
+    const inputBar = <ChatInputBar threadID={threadID} />;
 
-    let behavior;
-    let keyboardVerticalOffset = 0;
-    if (Platform.OS === "ios") {
-      behavior = "padding";
-      keyboardVerticalOffset = DeviceInfo.isIPhoneX_deprecated ? 88 : 64;
-    }
+    const behavior = Platform.OS === "ios" ? "padding" : undefined;
+    const keyboardVerticalOffset = Platform.OS === "ios"
+      ? iosKeyboardHeight
+      : 0;
     return (
       <KeyboardAvoidingView
         behavior={behavior}

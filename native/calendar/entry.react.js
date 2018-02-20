@@ -83,6 +83,7 @@ type Props = {
     params?: NavigationParams,
     action?: NavigationAction,
   ) => bool,
+  entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   threadInfo: ThreadInfo,
   sessionStartingPayload: () => { newSessionID?: string },
@@ -107,7 +108,7 @@ type State = {
   height: number,
   threadInfo: ThreadInfo,
 };
-class Entry extends React.Component<Props, State> {
+class InternalEntry extends React.Component<Props, State> {
   
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
@@ -150,7 +151,7 @@ class Entry extends React.Component<Props, State> {
     };
   }
 
-  guardedSetState(input) {
+  guardedSetState(input: $Shape<State>) {
     if (this.mounted) {
       this.setState(input);
     }
@@ -158,7 +159,7 @@ class Entry extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     if (
-      !Entry.isFocused(nextProps) &&
+      !InternalEntry.isFocused(nextProps) &&
       (nextProps.entryInfo.text !== this.props.entryInfo.text &&
         nextProps.entryInfo.text !== this.state.text) ||
       (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
@@ -193,7 +194,7 @@ class Entry extends React.Component<Props, State> {
   componentWillUpdate(nextProps: Props, nextState: State) {
     if (
       nextState.height !== this.state.height ||
-        Entry.isFocused(nextProps) !== Entry.isFocused(this.props)
+      InternalEntry.isFocused(nextProps) !== InternalEntry.isFocused(this.props)
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -201,10 +202,12 @@ class Entry extends React.Component<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    this.props.entryRef(entryKey(this.props.entryInfo), this);
   }
 
   componentWillUnmount() {
     this.mounted = false;
+    this.props.entryRef(entryKey(this.props.entryInfo), null);
   }
 
   static isFocused(props: Props) {
@@ -212,7 +215,7 @@ class Entry extends React.Component<Props, State> {
   }
 
   render() {
-    const focused = Entry.isFocused(this.props);
+    const focused = InternalEntry.isFocused(this.props);
 
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
@@ -324,7 +327,7 @@ class Entry extends React.Component<Props, State> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-    if (textInput && Entry.isFocused(this.props)) {
+    if (textInput && InternalEntry.isFocused(this.props)) {
       setTimeout(textInput.focus, 400);
     }
   }
@@ -349,8 +352,15 @@ class Entry extends React.Component<Props, State> {
     this.props.onFocus(entryKey(this.props.entryInfo), false);
   }
 
-  onContentSizeChange = (event) => {
-    if (!Entry.isFocused(this.props)) {
+  saveFromInputBar = () => {
+    this.save(this.props.entryInfo.id, this.state.text);
+    this.props.onFocus(entryKey(this.props.entryInfo), false);
+  }
+
+  onContentSizeChange = (
+    event: { nativeEvent: { contentSize: { height: number }}},
+  ) => {
+    if (!InternalEntry.isFocused(this.props)) {
       return;
     }
     let height = event.nativeEvent.contentSize.height;
@@ -607,7 +617,7 @@ const styles = StyleSheet.create({
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
 
-export default connect(
+const Entry = connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => {
     const appRoute =
       assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
@@ -628,4 +638,9 @@ export default connect(
   },
   includeDispatchActionProps,
   bindServerCalls({ createEntry, saveEntry, deleteEntry }),
-)(Entry);
+)(InternalEntry);
+
+export {
+  InternalEntry,
+  Entry,
+};

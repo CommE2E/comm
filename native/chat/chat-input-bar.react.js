@@ -75,7 +75,7 @@ type State = {
   text: string,
   height: number,
 };
-class InputBar extends React.PureComponent<Props, State> {
+class ChatInputBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadID: PropTypes.string.isRequired,
@@ -371,4 +371,4 @@ export default connect(
   },
   includeDispatchActionProps,
   bindServerCalls({ sendMessage, joinThread }),
-)(InputBar);
+)(ChatInputBar);
