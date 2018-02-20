@@ -190,10 +190,26 @@ async function checkThreadPermission(
   return permissionHelper(permissionsInfo, permission);
 }
 
+async function viewerIsMember(threadID: string): Promise<bool> {
+  const viewerID = currentViewer().id;
+  const query = SQL`
+    SELECT role
+    FROM memberships
+    WHERE user = ${viewerID} AND thread = ${threadID}
+  `;
+  const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    return false;
+  }
+  const row = result[0];
+  return !!row.role;
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
   checkThreadPermission,
+  viewerIsMember,
 };

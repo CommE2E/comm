@@ -1,8 +1,10 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { LeaveThreadResult } from 'lib/actions/thread-actions';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  type LeaveThreadPayload,
+} from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux-setup';
@@ -40,7 +42,7 @@ type Props = {|
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
+  leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
 |};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 

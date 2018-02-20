@@ -33,6 +33,7 @@ import {
   threadDeletionResponder,
   roleUpdateResponder,
   memberRemovalResponder,
+  threadLeaveResponder,
 } from './responders/thread-responders';
 
 const app = express();
@@ -59,6 +60,7 @@ const jsonEndpoints = {
   'restore_entry': entryRestorationResponder,
   'update_role': roleUpdateResponder,
   'remove_members': memberRemovalResponder,
+  'leave_thread': threadLeaveResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

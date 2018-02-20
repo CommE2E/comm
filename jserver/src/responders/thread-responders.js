@@ -6,6 +6,8 @@ import type {
   RoleChangeRequest,
   ChangeThreadSettingsResult,
   RemoveMembersRequest,
+  LeaveThreadRequest,
+  LeaveThreadResult,
 } from 'lib/types/thread-types';
 
 import t from 'tcomb';
@@ -15,7 +17,11 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { tShape } from '../utils/tcomb-utils';
 import { currentViewer } from '../session/viewer';
 import { deleteThread } from '../deleters/thread-deleters';
-import { updateRole, removeMembers } from '../updaters/thread-updaters';
+import {
+  updateRole,
+  removeMembers,
+  leaveThread,
+} from '../updaters/thread-updaters';
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,
@@ -81,8 +87,26 @@ async function memberRemovalResponder(
   return { threadInfo, newMessageInfos };
 }
 
+const leaveThreadRequestInputValidator = tShape({
+  threadID: t.String,
+});
+
+async function threadLeaveResponder(
+  req: $Request,
+  res: $Response,
+): Promise<LeaveThreadResult> {
+  const leaveThreadRequest: LeaveThreadRequest = (req.body: any);
+  if (!leaveThreadRequestInputValidator.is(leaveThreadRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { threadInfos } = await leaveThread(leaveThreadRequest);
+  return { threadInfos };
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
   memberRemovalResponder,
+  threadLeaveResponder,
 };

@@ -2,7 +2,10 @@
 
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { RawThreadInfo } from 'lib/types/thread-types';
+import type {
+  RawThreadInfo,
+  LeaveThreadPayload,
+} from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationScreenProp,
@@ -13,7 +16,6 @@ import type {
 import type { PingSuccessPayload } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
-import type { LeaveThreadResult } from 'lib/actions/thread-actions';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from './push/android';
 import type { UserInfo } from 'lib/types/user-types';
@@ -533,7 +535,7 @@ function removeModalsIfPingIndicatesLoggedIn(
 
 function popChatScreensForThreadID(
   state: NavigationState,
-  actionPayload: LeaveThreadResult,
+  actionPayload: LeaveThreadPayload,
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);

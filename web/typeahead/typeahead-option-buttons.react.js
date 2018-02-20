@@ -1,16 +1,17 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  threadPermissions,
+  type LeaveThreadPayload,
+} from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type {
-  JoinThreadResult,
-  LeaveThreadResult,
-} from 'lib/actions/thread-actions';
+import type { JoinThreadResult } from 'lib/actions/thread-actions';
 
 import PropTypes from 'prop-types';
 
@@ -71,7 +72,7 @@ type Props = {
     threadID: string,
     threadPassword?: string,
   ) => Promise<JoinThreadResult>,
-  leaveThread: (threadID: string) => Promise<LeaveThreadResult>,
+  leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
 

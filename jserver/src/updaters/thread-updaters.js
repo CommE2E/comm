@@ -4,6 +4,8 @@ import type {
   RoleChangeRequest,
   ChangeThreadSettingsResult,
   RemoveMembersRequest,
+  LeaveThreadRequest,
+  LeaveThreadResult,
 } from 'lib/types/thread-types';
 
 import { threadPermissions } from 'lib/types/thread-types';
@@ -17,7 +19,9 @@ import {
 } from '../fetchers/user-fetchers';
 import {
   checkThreadPermission,
+  fetchServerThreadInfos,
   fetchThreadInfos,
+  viewerIsMember,
 } from '../fetchers/thread-fetchers';
 import {
   changeRole,
@@ -179,7 +183,67 @@ async function removeMembers(
   };
 }
 
+async function leaveThread(
+  request: LeaveThreadRequest,
+): Promise<LeaveThreadResult> {
+  const [ isMember, { threadInfos: serverThreadInfos } ] = await Promise.all([
+    viewerIsMember(request.threadID),
+    fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
+  ]);
+  if (!isMember) {
+    throw new ServerError('invalid_parameters');
+  }
+  const serverThreadInfo = serverThreadInfos[request.threadID];
+
+  const viewerID = currentViewer().id;
+  let otherUsersExist = false;
+  let otherAdminsExist = false;
+  for (let member of serverThreadInfo.members) {
+    const role = member.role;
+    if (!role || member.id === viewerID) {
+      continue;
+    }
+    otherUsersExist = true;
+    if (serverThreadInfo.roles[role].name === "Admins") {
+      otherAdminsExist = true;
+      break;
+    }
+  }
+  if (otherUsersExist && !otherAdminsExist) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const changeset = await changeRole(
+    request.threadID,
+    [viewerID],
+    0,
+  );
+  if (!changeset) {
+    throw new ServerError('unknown_error');
+  }
+  const toSave = changeset.toSave.map(rowToSave => ({
+    ...rowToSave,
+    subscription: { home: false, pushNotifs: false },
+  }));
+
+  const messageData = {
+    type: messageType.LEAVE_THREAD,
+    threadID: request.threadID,
+    creatorID: viewerID,
+    time: Date.now(),
+  };
+  await Promise.all([
+    createMessages([messageData]),
+    saveMemberships(toSave),
+    deleteMemberships(changeset.toDelete),
+  ]);
+
+  const { threadInfos } = await fetchThreadInfos();
+  return { threadInfos };
+}
+
 export {
   updateRole,
   removeMembers,
+  leaveThread,
 };
