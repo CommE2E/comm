@@ -8,6 +8,7 @@ import { jsonHandler } from './responders/handlers';
 import {
   messageCreationResponder,
   textMessageCreationResponder,
+  messageFetchResponder,
 } from './responders/message-responders';
 import { updateActivityResponder } from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
@@ -65,6 +66,7 @@ const jsonEndpoints = {
   'leave_thread': threadLeaveResponder,
   'update_thread': threadUpdateResponder,
   'create_thread': threadCreationResponder,
+  'fetch_messages': messageFetchResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

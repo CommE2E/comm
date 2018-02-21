@@ -13,9 +13,9 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type {
   TextMessageInfo,
   RobotextMessageInfo,
+  FetchMessageInfosPayload,
 } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { PageMessagesResult } from 'lib/actions/message-actions';
 import type { TextToMeasure } from '../text-height-measurer.react';
 
 import React from 'react';
@@ -115,10 +115,10 @@ type Props = {
   fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
-  ) => Promise<PageMessagesResult>,
+  ) => Promise<FetchMessageInfosPayload>,
   fetchMostRecentMessages: (
     threadID: string,
-  ) => Promise<PageMessagesResult>,
+  ) => Promise<FetchMessageInfosPayload>,
 };
 type State = {
   textToMeasure: TextToMeasure[],

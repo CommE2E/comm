@@ -1,25 +1,33 @@
 // @flow
 
 import type { PushInfo } from '../push/send';
-import type { UserInfo } from 'lib/types/user-types';
+import type { UserInfos } from 'lib/types/user-types';
 import {
   type RawMessageInfo,
   messageType,
   assertMessageType,
+  type ThreadSelectionCriteria,
+  type MessageTruncationStatus,
+  messageTruncationStatus,
+  type MessageTruncationStatuses,
+  type FetchMessageInfosResult,
 } from 'lib/types/message-types';
-
-import invariant from 'invariant';
-
-import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import {
   assertVisibilityRules,
   threadPermissions,
   visibilityRules,
 } from 'lib/types/thread-types';
+
+import invariant from 'invariant';
+
+import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import { sortMessageInfoList } from 'lib/shared/message-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL, mergeOrConditions } from '../database';
+import { currentViewer } from '../session/viewer';
+import { fetchUserInfos } from './user-fetchers';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -28,7 +36,7 @@ export type CollapsableNotifInfo = {|
 |};
 export type FetchCollapsableNotifsResult = {|
   usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
-  userInfos: { [id: string]: UserInfo },
+  userInfos: UserInfos,
 |};
 
 async function fetchCollapsableNotifs(
@@ -278,6 +286,153 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   }
 }
 
+async function fetchMessageInfos(
+  criteria: ThreadSelectionCriteria,
+  numberPerThread: number,
+): Promise<FetchMessageInfosResult> {
+  const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
+  const truncationStatuses = threadSelectionCriteriaToInitialTruncationStatuses(
+    criteria,
+    messageTruncationStatus.EXHAUSTIVE,
+  );
+
+  const viewerID = currentViewer().id;
+  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+  const query = SQL`
+    SELECT * FROM (
+      SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
+        u.username AS creator, x.subthread_permissions,
+        x.subthread_visibility_rules,
+        @num := if(@thread = x.thread, @num + 1, 1) AS number,
+        @thread := x.thread AS threadID
+      FROM (SELECT @num := 0, @thread := '') init
+      JOIN (
+        SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
+          stm.permissions AS subthread_permissions,
+          st.visibility_rules AS subthread_visibility_rules
+        FROM messages m
+        LEFT JOIN threads t ON t.id = m.thread
+        LEFT JOIN memberships mm
+          ON mm.thread = m.thread AND mm.user = ${viewerID}
+        LEFT JOIN threads st
+          ON m.type = ${messageType.CREATE_SUB_THREAD} AND st.id = m.content
+        LEFT JOIN memberships stm ON m.type = ${messageType.CREATE_SUB_THREAD}
+          AND stm.thread = m.content AND stm.user = ${viewerID}
+        WHERE
+          (
+            JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+            OR t.visibility_rules = ${visibilityRules.OPEN}
+          )
+          AND
+  `;
+  query.append(threadSelectionClause);
+  query.append(SQL`
+        ORDER BY m.thread, m.time DESC
+      ) x
+      LEFT JOIN users u ON u.id = x.user
+    ) y
+    WHERE y.number <= ${numberPerThread}
+  `);
+  const [ result ] = await pool.query(query);
+
+  const rawMessageInfos = [];
+  const userInfos = {};
+  const threadToMessageCount = new Map();
+  for (let row of result) {
+    const creatorID = row.creatorID.toString();
+    userInfos[creatorID] = {
+      id: creatorID,
+      username: row.creator,
+    };
+    const rawMessageInfo = rawMessageInfoFromRow(row);
+    if (rawMessageInfo) {
+      rawMessageInfos.push(rawMessageInfo);
+    }
+    const threadID = row.threadID.toString();
+    const currentCountValue = threadToMessageCount.get(threadID);
+    const currentCount = currentCountValue ? currentCountValue : 0;
+    threadToMessageCount.set(threadID, currentCount + 1);
+  }
+
+  for (let [ threadID, messageCount ] of threadToMessageCount) {
+    truncationStatuses[threadID] = messageCount < numberPerThread
+      ? messageTruncationStatus.EXHAUSTIVE
+      : messageTruncationStatus.TRUNCATED;
+  }
+
+  const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
+
+  return {
+    rawMessageInfos,
+    truncationStatuses,
+    userInfos: allUserInfos,
+  };
+}
+
+function threadSelectionCriteriaToSQLClause(criteria: ThreadSelectionCriteria) {
+  const conditions = [];
+  if (criteria.joinedThreads === true) {
+    conditions.push(SQL`mm.role != 0`);
+  }
+  if (criteria.threadCursors) {
+    for (let threadID in criteria.threadCursors) {
+      const cursor = criteria.threadCursors[threadID];
+      if (cursor) {
+        conditions.push(SQL`(m.thread = ${threadID} AND m.id < ${cursor})`);
+      } else {
+        conditions.push(SQL`m.thread = ${threadID}`);
+      }
+    }
+  }
+  if (conditions.length === 0) {
+    throw new ServerError('internal_error');
+  }
+  return mergeOrConditions(conditions);
+}
+
+function threadSelectionCriteriaToInitialTruncationStatuses(
+  criteria: ThreadSelectionCriteria,
+  defaultTruncationStatus: MessageTruncationStatus,
+) {
+  const truncationStatuses = {};
+  if (criteria.threadCursors) {
+    for (let threadID in criteria.threadCursors) {
+      truncationStatuses[threadID] = defaultTruncationStatus;
+    }
+  }
+  return truncationStatuses;
+}
+
+async function fetchAllUsers(
+  rawMessageInfos: RawMessageInfo[],
+  userInfos: UserInfos,
+): Promise<UserInfos> {
+  const allAddedUserIDs = [];
+  for (let rawMessageInfo of rawMessageInfos) {
+    let newUsers = [];
+    if (rawMessageInfo.type === messageType.ADD_MEMBERS) {
+      newUsers = rawMessageInfo.addedUserIDs;
+    } else if (rawMessageInfo.type === messageType.CREATE_THREAD) {
+      newUsers = rawMessageInfo.initialThreadState.memberIDs;
+    }
+    for (let userID of newUsers) {
+      if (!userInfos[userID]) {
+        allAddedUserIDs.push(userID);
+      }
+    }
+  }
+  if (allAddedUserIDs.length === 0) {
+    return userInfos;
+  }
+
+  const newUserInfos = await fetchUserInfos(allAddedUserIDs);
+  return {
+    ...userInfos,
+    ...newUserInfos,
+  };
+}
+
 export {
   fetchCollapsableNotifs,
+  fetchMessageInfos,
 };

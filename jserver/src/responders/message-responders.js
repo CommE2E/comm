@@ -1,21 +1,25 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type {
-  MessageData,
-  TextMessageCreationInfo,
+import {
+  messageType,
+  type MessageData,
+  type TextMessageCreationInfo,
+  type FetchMessageInfosResult,
+  type FetchMessageInfosRequest,
+  defaultNumberPerThread,
 } from 'lib/types/message-types';
 
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
-import { messageType } from 'lib/types/message-types';
 
 import createMessages from '../creators/message-creator';
 import { tShape } from '../utils/tcomb-utils';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { currentViewer } from '../session/viewer';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
 async function messageCreationResponder(req: $Request, res: $Response) {
   const messageDatas: MessageData[] = (req.body: any);
@@ -56,7 +60,36 @@ async function textMessageCreationResponder(req: $Request, res: $Response) {
   return { newMessageInfo: rawMessageInfos[0] };
 }
 
+const fetchMessageInfosRequestInputValidator = tShape({
+  cursors: t.dict(t.String, t.maybe(t.String)),
+  numberPerThread: t.maybe(t.Number),
+});
+
+async function messageFetchResponder(
+  req: $Request,
+  res: $Response,
+): Promise<FetchMessageInfosResult> {
+  const fetchMessageInfosRequest: FetchMessageInfosRequest = (req.body: any);
+  if (!fetchMessageInfosRequestInputValidator.is(fetchMessageInfosRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const numberPerThread = fetchMessageInfosRequest.numberPerThread
+    ? fetchMessageInfosRequest.numberPerThread
+    : defaultNumberPerThread;
+  const threadSelectionCriteria = {
+    threadCursors: fetchMessageInfosRequest.cursors,
+  };
+  const result = await fetchMessageInfos(
+    threadSelectionCriteria,
+    numberPerThread,
+  );
+  const { rawMessageInfos, truncationStatuses, userInfos } = result;
+  return { rawMessageInfos, truncationStatuses, userInfos };
+}
+
 export {
   messageCreationResponder,
   textMessageCreationResponder,
+  messageFetchResponder,
 };

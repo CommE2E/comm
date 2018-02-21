@@ -1,12 +1,12 @@
 // @flow
 
-import type { UserInfo } from 'lib/types/user-types';
+import type { UserInfos } from 'lib/types/user-types';
 
 import { pool, SQL } from '../database';
 
 async function fetchUserInfos(
   userIDs: string[],
-): Promise<{[id: string]: UserInfo}> {
+): Promise<UserInfos> {
   if (userIDs.length <= 0) {
     return {};
   }

@@ -1,7 +1,7 @@
 // @flow
 
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { UserInfos } from 'lib/types/user-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
 import type {
@@ -270,7 +270,7 @@ async function fetchInfos(pushInfo: PushInfo) {
 }
 
 async function fetchMissingUserInfos(
-  userInfos: { [id: string]: UserInfo },
+  userInfos: UserInfos,
   usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
 ) {
   const missingUserIDs = new Set();

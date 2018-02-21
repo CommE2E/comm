@@ -120,7 +120,6 @@ function get_message_infos($thread_selection_criteria, $number_per_thread) {
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
-  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $int_number_per_thread = (int)$number_per_thread;
   $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
@@ -220,7 +219,6 @@ function get_messages_since(
 
   $viewer_id = get_viewer_id();
   $visibility_open = VISIBILITY_OPEN;
-  $visibility_nested_open = VISIBILITY_NESTED_OPEN;
   $vis_permission_extract_string = "$." . PERMISSION_VISIBLE . ".value";
   $create_sub_thread = MESSAGE_TYPE_CREATE_SUB_THREAD;
   $query = <<<SQL
