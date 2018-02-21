@@ -5,6 +5,7 @@ import {
   threadInfoPropType,
   threadPermissions,
   type ChangeThreadSettingsResult,
+  type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -31,7 +32,7 @@ import {
 } from 'lib/utils/action-utils';
 import {
   changeThreadSettingsActionTypes,
-  changeSingleThreadSetting,
+  changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
@@ -56,10 +57,8 @@ type Props = {|
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeSingleThreadSetting: (
-    threadID: string,
-    field: "name" | "description" | "color",
-    value: string,
+  changeThreadSettings: (
+    update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsDescription extends React.PureComponent<Props> {
@@ -73,7 +72,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     canChangeSettings: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    changeSingleThreadSetting: PropTypes.func.isRequired,
+    changeThreadSettings: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
 
@@ -211,11 +210,10 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 
   async editDescription(newDescription: string) {
     try {
-      const result = await this.props.changeSingleThreadSetting(
-        this.props.threadInfo.id,
-        "description",
-        newDescription,
-      );
+      const result = await this.props.changeThreadSettings({
+        threadID: this.props.threadInfo.id,
+        changes: { description: newDescription },
+      });
       this.props.setDescriptionEditValue(null);
       return result;
     } catch (e) {
@@ -294,5 +292,5 @@ export default connect(
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
-  bindServerCalls({ changeSingleThreadSetting }),
+  bindServerCalls({ changeThreadSettings }),
 )(ThreadSettingsDescription);

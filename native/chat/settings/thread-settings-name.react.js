@@ -4,6 +4,7 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   type ChangeThreadSettingsResult,
+  type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -29,7 +30,7 @@ import {
 } from 'lib/utils/action-utils';
 import {
   changeThreadSettingsActionTypes,
-  changeSingleThreadSetting,
+  changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -48,10 +49,8 @@ type Props = {|
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeSingleThreadSetting: (
-    threadID: string,
-    field: "name" | "description" | "color",
-    value: string,
+  changeThreadSettings: (
+    update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsName extends React.PureComponent<Props> {
@@ -65,7 +64,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     canChangeSettings: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    changeSingleThreadSetting: PropTypes.func.isRequired,
+    changeThreadSettings: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
 
@@ -178,11 +177,10 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
   async editName(newName: string) {
     try {
-      const result = await this.props.changeSingleThreadSetting(
-        this.props.threadInfo.id,
-        "name",
-        newName,
-      );
+      const result = await this.props.changeThreadSettings({
+        threadID: this.props.threadInfo.id,
+        changes: { name: newName },
+      });
       this.props.setNameEditValue(null);
       return result;
     } catch (e) {
@@ -245,5 +243,5 @@ export default connect(
     cookie: state.cookie,
   }),
   includeDispatchActionProps,
-  bindServerCalls({ changeSingleThreadSetting }),
+  bindServerCalls({ changeThreadSettings }),
 )(ThreadSettingsName);

@@ -49,8 +49,8 @@ SQL;
     if (!isset($thread_infos[$thread_id])) {
       $thread_infos[$thread_id] = array(
         "id" => $thread_id,
-        "name" => $row['name'],
-        "description" => $row['description'],
+        "name" => $row['name'] ? $row['name'] : "",
+        "description" => $row['description'] ? $row['description'] : "",
         "visibilityRules" => (int)$row['visibility_rules'],
         "color" => $row['color'],
         "creationTime" => (int)$row['creation_time'],

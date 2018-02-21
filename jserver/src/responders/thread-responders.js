@@ -1,26 +1,29 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type {
-  ThreadDeletionRequest,
-  RoleChangeRequest,
-  ChangeThreadSettingsResult,
-  RemoveMembersRequest,
-  LeaveThreadRequest,
-  LeaveThreadResult,
+import {
+  type ThreadDeletionRequest,
+  type RoleChangeRequest,
+  type ChangeThreadSettingsResult,
+  type RemoveMembersRequest,
+  type LeaveThreadRequest,
+  type LeaveThreadResult,
+  type UpdateThreadRequest,
+  assertVisibilityRules,
 } from 'lib/types/thread-types';
 
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { tShape } from '../utils/tcomb-utils';
+import { tShape, tNumEnum, tColor } from '../utils/tcomb-utils';
 import { currentViewer } from '../session/viewer';
 import { deleteThread } from '../deleters/thread-deleters';
 import {
   updateRole,
   removeMembers,
   leaveThread,
+  updateThread,
 } from '../updaters/thread-updaters';
 
 const threadDeletionRequestInputValidator = tShape({
@@ -104,9 +107,43 @@ async function threadLeaveResponder(
   return { threadInfos };
 }
 
+const updateThreadRequestInputValidator = tShape({
+  threadID: t.String,
+  fields: tShape({
+    name: t.maybe(t.String),
+    description: t.maybe(t.String),
+    color: t.maybe(tColor),
+    password: t.maybe(t.String),
+    parentThreadID: t.maybe(t.String),
+    visibilityRules: t.maybe(tNumEnum(assertVisibilityRules)),
+    newMemberIDs: t.maybe(t.list(t.String)),
+  }),
+  accountPassword: t.maybe(t.String),
+});
+
+async function threadUpdateResponder(
+  req: $Request,
+  res: $Response,
+): Promise<ChangeThreadSettingsResult> {
+  const updateThreadRequest: UpdateThreadRequest = (req.body: any);
+  if (!updateThreadRequestInputValidator.is(updateThreadRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const result = await updateThread(viewer, updateThreadRequest);
+  const { threadInfo, newMessageInfos } = result;
+  return { threadInfo, newMessageInfos };
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
   memberRemovalResponder,
   threadLeaveResponder,
+  threadUpdateResponder,
 };

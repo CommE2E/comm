@@ -1,10 +1,13 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
 import {
+  type ThreadInfo,
   threadInfoPropType,
   visibilityRules,
   assertVisibilityRules,
+  type ChangeThreadSettingsResult,
+  type UpdateThreadRequest,
+  type DeleteThreadPayload,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -67,13 +70,13 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteThread:
-    (threadID: string, currentAccountPassword: string) => Promise<Object>,
-  changeThreadSettings: (
+  deleteThread: (
+    threadID: string,
     currentAccountPassword: string,
-    newThreadInfo: ThreadInfo,
-    newThreadPassword: ?string,
-  ) => Promise<Object>,
+  ) => Promise<DeleteThreadPayload>,
+  changeThreadSettings: (
+    update: UpdateThreadRequest,
+  ) => Promise<ChangeThreadSettingsResult>,
 };
 type State = {
   threadInfo: ThreadInfo,
@@ -586,11 +589,17 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       const newThreadPassword = this.state.newThreadPassword.trim() !== ''
         ? this.state.newThreadPassword
         : null;
-      const response = await this.props.changeThreadSettings(
-        this.state.accountPassword,
-        newThreadInfo,
-        newThreadPassword,
-      );
+      const response = await this.props.changeThreadSettings({
+        threadID: newThreadInfo.id,
+        changes: {
+          name: newThreadInfo.name,
+          description: newThreadInfo.description,
+          visibilityRules: newThreadInfo.visibilityRules,
+          color: newThreadInfo.color,
+          password: newThreadPassword,
+        },
+        accountPassword: this.state.accountPassword,
+      });
       this.props.onClose();
       return response;
     } catch (e) {

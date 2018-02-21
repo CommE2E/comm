@@ -55,8 +55,8 @@ async function fetchServerThreadInfos(
     if (!threadInfos[threadID]) {
       threadInfos[threadID] = {
         id: threadID,
-        name: row.name,
-        description: row.description,
+        name: row.name ? row.name : "",
+        description: row.description ? row.description : "",
         visibilityRules: row.visibility_rules,
         color: row.color,
         creationTime: row.creation_time,
@@ -210,6 +210,7 @@ export {
   fetchThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
+  fetchThreadPermissionsInfo,
   checkThreadPermission,
   viewerIsMember,
 };

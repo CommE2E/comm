@@ -5,6 +5,7 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   type ChangeThreadSettingsResult,
+  type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import {
   type AccountUserInfo,
@@ -41,8 +42,8 @@ import {
   bindServerCalls,
 } from 'lib/utils/action-utils';
 import {
-  addUsersToThreadActionTypes,
-  addUsersToThread,
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import {
   searchUsersActionTypes,
@@ -70,13 +71,12 @@ type Props = {
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
-  addUsersLoadingStatus: LoadingStatus,
+  changeThreadSettingsLoadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  addUsersToThread: (
-    threadID: string,
-    userIDs: string[],
+  changeThreadSettings: (
+    request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
@@ -93,9 +93,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    addUsersLoadingStatus: loadingStatusPropType.isRequired,
+    changeThreadSettingsLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    addUsersToThread: PropTypes.func.isRequired,
+    changeThreadSettings: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
   mounted = false;
@@ -180,7 +180,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     const inputLength = this.state.userInfoInputArray.length;
     if (inputLength > 0) {
       let activityIndicator = null;
-      if (this.props.addUsersLoadingStatus === "loading") {
+      if (this.props.changeThreadSettingsLoadingStatus === "loading") {
         activityIndicator = (
           <View style={styles.activityIndicator}>
             <ActivityIndicator color="#555" />
@@ -192,7 +192,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         <Button
           onPress={this.onPressAdd}
           style={styles.addButton}
-          disabled={this.props.addUsersLoadingStatus === "loading"}
+          disabled={this.props.changeThreadSettingsLoadingStatus === "loading"}
         >
           {activityIndicator}
           <Text style={styles.addText}>{addButtonText}</Text>
@@ -201,7 +201,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     }
 
     let cancelButton;
-    if (this.props.addUsersLoadingStatus !== "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus !== "loading") {
       cancelButton = (
         <Button onPress={this.props.close} style={styles.cancelButton}>
           <Text style={styles.cancelText}>Cancel</Text>
@@ -254,7 +254,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    if (this.props.addUsersLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
       return;
     }
     const userSearchResults = AddUsersModal.getSearchResults(
@@ -271,7 +271,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    if (this.props.addUsersLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
       return;
     }
     const userSearchResults = AddUsersModal.getSearchResults(
@@ -287,7 +287,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   onUserSelect = (userID: string) => {
-    if (this.props.addUsersLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
       return;
     }
     for (let existingUserInfo of this.state.userInfoInputArray) {
@@ -316,17 +316,19 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 
   onPressAdd = () => {
     this.props.dispatchActionPromise(
-      addUsersToThreadActionTypes,
+      changeThreadSettingsActionTypes,
       this.addUsersToThread(),
     );
   }
 
   async addUsersToThread() {
     try {
-      const result = await this.props.addUsersToThread(
-        this.props.threadInfo.id,
-        this.state.userInfoInputArray.map((userInfo) => userInfo.id),
-      );
+      const newMemberIDs =
+        this.state.userInfoInputArray.map((userInfo) => userInfo.id);
+      const result = await this.props.changeThreadSettings({
+        threadID: this.props.threadInfo.id,
+        changes: { newMemberIDs },
+      });
       this.props.close();
       return result;
     } catch (e) {
@@ -413,8 +415,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const addUsersToThreadLoadingStatusSelector
-  = createLoadingStatusSelector(addUsersToThreadActionTypes);
+const changeThreadSettingsLoadingStatusSelector
+  = createLoadingStatusSelector(changeThreadSettingsActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
@@ -429,10 +431,11 @@ export default connect(
       parentThreadInfo,
       otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-      addUsersLoadingStatus: addUsersToThreadLoadingStatusSelector(state),
+      changeThreadSettingsLoadingStatus:
+        changeThreadSettingsLoadingStatusSelector(state),
       cookie: state.cookie,
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ addUsersToThread, searchUsers }),
+  bindServerCalls({ changeThreadSettings, searchUsers }),
 )(AddUsersModal);

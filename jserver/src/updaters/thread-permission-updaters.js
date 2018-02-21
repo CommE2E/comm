@@ -303,6 +303,93 @@ async function updateDescendantPermissions(
   return { toSave, toDelete };
 }
 
+// Unlike changeRole and others, this doesn't just create a MembershipChangeset.
+// It mutates the threads table by setting the visibility_rules column.
+// Caller still needs to save the resultant MembershipChangeset.
+async function recalculateAllPermissions(
+  threadID: string,
+  newVisRules: VisibilityRules,
+): Promise<MembershipChangeset> {
+  const updateQuery = SQL`
+    UPDATE threads SET visibility_rules = ${newVisRules} WHERE id = ${threadID}
+  `;
+  const selectQuery = SQL`
+    SELECT m.user, m.role, m.permissions, m.permissions_for_children,
+      pm.permissions_for_children AS permissions_from_parent,
+      r.permissions AS role_permissions
+    FROM memberships m
+    LEFT JOIN threads t ON t.id = m.thread
+    LEFT JOIN roles r ON r.id = m.role
+    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
+    WHERE m.thread = ${threadID}
+    UNION SELECT pm.user, 0 AS role, NULL AS permissions,
+      NULL AS permissions_for_children,
+      pm.permissions_for_children AS permissions_from_parent,
+      NULL AS role_permissions
+    FROM threads t
+    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
+    LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
+    WHERE t.id = ${threadID} AND m.thread IS NULL
+  `;
+  const [ [ selectResult ] ] = await Promise.all([
+    pool.query(selectQuery),
+    pool.query(updateQuery),
+  ]);
+
+  const toSave = [];
+  const toDelete = [];
+  const toUpdateDescendants = new Map();
+  for (let row of selectResult) {
+    const userID = row.user.toString();
+    const role = row.role.toString();
+    const oldPermissions = row.permissions;
+    const oldPermissionsForChildren = row.permissions_for_children;
+    const permissionsFromParent = row.permissions_from_parent;
+    const rolePermissions = row.role_permissions;
+    const permissions = makePermissionsBlob(
+      rolePermissions,
+      permissionsFromParent,
+      threadID,
+      newVisRules,
+    );
+    if (_isEqual(permissions)(oldPermissions)) {
+      // This thread and all of its children need no updates, since its
+      // permissions are unchanged by this operation
+      continue;
+    }
+    const permissionsForChildren = makePermissionsForChildrenBlob(
+      permissions,
+    );
+    if (permissions) {
+      toSave.push({
+        userID,
+        threadID,
+        permissions,
+        permissionsForChildren,
+        role,
+      });
+    } else {
+      toDelete.push({ userID, threadID });
+    }
+    if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
+      toUpdateDescendants.set(userID, permissionsForChildren);
+    }
+  }
+
+  if (toUpdateDescendants.size > 0) {
+    const descendantResults = await updateDescendantPermissions(
+      threadID,
+      toUpdateDescendants,
+    );
+    return {
+      toSave: [...toSave, ...descendantResults.toSave],
+      toDelete: [...toDelete, ...descendantResults.toDelete],
+    };
+  }
+
+  return { toSave, toDelete };
+}
+
 const defaultSubscriptionString =
   JSON.stringify({ home: false, pushNotifs: false });
 
@@ -371,6 +458,7 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
 
 export {
   changeRole,
+  recalculateAllPermissions,
   saveMemberships,
   deleteMemberships,
 };
