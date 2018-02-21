@@ -9,6 +9,8 @@ import {
   threadInfoPropType,
   type VisibilityRules,
   visibilityRules,
+  type NewThreadRequest,
+  type NewThreadResult,
 } from 'lib/types/thread-types';
 import {
   type AccountUserInfo,
@@ -17,7 +19,6 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { SearchUsersResult } from 'lib/actions/user-actions';
-import type { NewThreadResult } from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -41,7 +42,7 @@ import {
 } from 'lib/utils/action-utils';
 import {
   newThreadActionTypes,
-  newChatThread,
+  newThread,
 } from 'lib/actions/thread-actions';
 import {
   searchUsersActionTypes,
@@ -54,7 +55,6 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
-  generateRandomColor,
   threadHasPermission,
   viewerIsMember,
   userIsMember,
@@ -97,13 +97,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  newChatThread: (
-    name: string,
-    ourVisibilityRules: VisibilityRules,
-    color: string,
-    userIDs: string[],
-    parentThreadID: ?string,
-  ) => Promise<NewThreadResult>,
+  newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
   searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
 };
 type State = {
@@ -133,7 +127,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    newChatThread: PropTypes.func.isRequired,
+    newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
@@ -431,15 +425,22 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
 
   async newChatThreadAction() {
     try {
-      return await this.props.newChatThread(
-        "",
-        visibilityRules.CHAT_SECRET,
-        generateRandomColor(),
-        this.state.userInfoInputArray.map(
-          (userInfo: AccountUserInfo) => userInfo.id,
-        ),
-        this.props.parentThreadInfo ? this.props.parentThreadInfo.id : null,
+      const visRules = this.props.navigation.state.params.visibilityRules
+        ? this.props.navigation.state.params.visibilityRules
+        : visibilityRules.CHAT_SECRET;
+      const initialMemberIDs = this.state.userInfoInputArray.map(
+        (userInfo: AccountUserInfo) => userInfo.id,
       );
+      return await this.props.newThread({
+        visibilityRules: visRules,
+        parentThreadID: this.props.parentThreadInfo
+          ? this.props.parentThreadInfo.id
+          : null,
+        initialMemberIDs,
+        color: this.props.parentThreadInfo
+          ? this.props.parentThreadInfo.color
+          : null,
+      });
     } catch (e) {
       Alert.alert(
         "Unknown error",
@@ -570,7 +571,7 @@ const ComposeThread = connect(
     };
   },
   includeDispatchActionProps,
-  bindServerCalls({ newChatThread, searchUsers }),
+  bindServerCalls({ newThread, searchUsers }),
 )(InnerComposeThread);
 
 export {

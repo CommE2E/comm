@@ -1,13 +1,14 @@
 // @flow
 
-import type { VisibilityRules } from 'lib/types/thread-types';
 import {
   visibilityRules,
   assertVisibilityRules,
+  type VisibilityRules,
+  type NewThreadRequest,
+  type NewThreadResult,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { NewThreadResult } from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -35,13 +36,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  newThread: (
-    name: string,
-    description: string,
-    ourVisibilityRules: VisibilityRules,
-    password: string,
-    color: string,
-  ) => Promise<NewThreadResult>,
+  newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
 };
 type State = {
   name: string,
@@ -382,13 +377,13 @@ class NewThreadModal extends React.PureComponent<Props, State> {
 
   async newThreadAction(name: string, ourVisibilityRules: VisibilityRules) {
     try {
-      const response = await this.props.newThread(
+      const response = await this.props.newThread({
         name,
-        this.state.description,
-        ourVisibilityRules,
-        this.state.threadPassword,
-        this.state.color,
-      );
+        description: this.state.description,
+        visibilityRules: ourVisibilityRules,
+        password: this.state.threadPassword,
+        color: this.state.color,
+      });
       this.props.onClose();
       return response;
     } catch (e) {

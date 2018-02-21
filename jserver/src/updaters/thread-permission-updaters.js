@@ -340,11 +340,14 @@ async function recalculateAllPermissions(
   const toDelete = [];
   const toUpdateDescendants = new Map();
   for (let row of selectResult) {
+    if (!row.user) {
+      continue;
+    }
     const userID = row.user.toString();
     const role = row.role.toString();
     const oldPermissions = row.permissions;
     const oldPermissionsForChildren = row.permissions_for_children;
-    const permissionsFromParent = row.permissions_from_parent;
+    const permissionsFromParent = JSON.parse(row.permissions_from_parent);
     const rolePermissions = row.role_permissions;
     const permissions = makePermissionsBlob(
       rolePermissions,

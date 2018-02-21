@@ -9,6 +9,8 @@ import {
   type LeaveThreadRequest,
   type LeaveThreadResult,
   type UpdateThreadRequest,
+  type NewThreadRequest,
+  type NewThreadResult,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
 
@@ -25,6 +27,7 @@ import {
   leaveThread,
   updateThread,
 } from '../updaters/thread-updaters';
+import createThread from '../creators/thread-creator';
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,
@@ -109,7 +112,7 @@ async function threadLeaveResponder(
 
 const updateThreadRequestInputValidator = tShape({
   threadID: t.String,
-  fields: tShape({
+  changes: tShape({
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
@@ -140,10 +143,39 @@ async function threadUpdateResponder(
   return { threadInfo, newMessageInfos };
 }
 
+const newThreadRequestInputValidator = tShape({
+  name: t.maybe(t.String),
+  description: t.maybe(t.String),
+  color: t.maybe(tColor),
+  password: t.maybe(t.String),
+  parentThreadID: t.maybe(t.String),
+  visibilityRules: tNumEnum(assertVisibilityRules),
+  initialMemberIDs: t.maybe(t.list(t.String)),
+});
+async function threadCreationResponder(
+  req: $Request,
+  res: $Response,
+): Promise<NewThreadResult> {
+  const newThreadRequest: NewThreadRequest = (req.body: any);
+  if (!newThreadRequestInputValidator.is(newThreadRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const result = await createThread(viewer, newThreadRequest);
+  const { newThreadInfo, newMessageInfos } = result;
+  return { newThreadInfo, newMessageInfos };
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
   memberRemovalResponder,
   threadLeaveResponder,
   threadUpdateResponder,
+  threadCreationResponder,
 };

@@ -15,9 +15,8 @@ async function createIDs(
   const idInserts = Array(numIDsToCreate).fill([tableName]);
   const query = SQL`INSERT INTO ids(table_name) VALUES ${idInserts}`;
   const [ result ] = await pool.query(query);
-  const lastNewID = result.insertId;
-  invariant(lastNewID !== null && lastNewID !== undefined, "should be set");
-  const firstNewID = lastNewID - numIDsToCreate + 1;
+  const firstNewID = result.insertId;
+  invariant(firstNewID !== null && firstNewID !== undefined, "should be set");
   return Array.from(
     new Array(numIDsToCreate),
     (val, index) => (index + firstNewID).toString(),
