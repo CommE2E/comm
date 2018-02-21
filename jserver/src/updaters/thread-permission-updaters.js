@@ -345,10 +345,10 @@ async function recalculateAllPermissions(
     }
     const userID = row.user.toString();
     const role = row.role.toString();
-    const oldPermissions = row.permissions;
-    const oldPermissionsForChildren = row.permissions_for_children;
+    const oldPermissions = JSON.parse(row.permissions);
+    const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
     const permissionsFromParent = JSON.parse(row.permissions_from_parent);
-    const rolePermissions = row.role_permissions;
+    const rolePermissions = JSON.parse(row.role_permissions);
     const permissions = makePermissionsBlob(
       rolePermissions,
       permissionsFromParent,
