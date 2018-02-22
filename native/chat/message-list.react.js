@@ -62,7 +62,7 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
-import { iosKeyboardHeight } from '../dimensions';
+import { iosKeyboardOffset } from '../dimensions';
 
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };
@@ -477,7 +477,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 
     const behavior = Platform.OS === "ios" ? "padding" : undefined;
     const keyboardVerticalOffset = Platform.OS === "ios"
-      ? iosKeyboardHeight
+      ? iosKeyboardOffset
       : 0;
     return (
       <KeyboardAvoidingView

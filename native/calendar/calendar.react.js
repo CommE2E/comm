@@ -55,7 +55,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
-import { contentVerticalOffset, windowHeight } from '../dimensions';
+import { contentVerticalOffset, windowHeight, tabBarSize } from '../dimensions';
 import { calendarListData } from '../selectors/calendar-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
@@ -63,7 +63,7 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
 import CalendarInputBar from './calendar-input-bar.react';
-import { iosKeyboardHeight } from '../dimensions';
+import { iosKeyboardOffset } from '../dimensions';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
 type CalendarItemWithHeight =
@@ -680,7 +680,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       ? "padding"
       : undefined;
     const keyboardVerticalOffset = Platform.OS === "ios"
-      ? iosKeyboardHeight
+      ? iosKeyboardOffset
       : 0;
     return (
       <SafeAreaView forceInset={forceInset} style={styles.container}>
@@ -712,9 +712,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   static flatListHeight() {
-    return Platform.OS === "android"
-      ? windowHeight - contentVerticalOffset - 50
-      : windowHeight - contentVerticalOffset - 49;
+    return windowHeight - contentVerticalOffset - tabBarSize;
   }
 
   static initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
@@ -811,8 +809,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const itemHeight = InnerCalendar.itemHeight(data[index]);
     const entryAdditionalFocusHeight = Platform.OS === "android" ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalFocusHeight;
-    const visibleHeight = InnerCalendar.flatListHeight() -
-      keyboardHeight;
+    let visibleHeight = InnerCalendar.flatListHeight() - keyboardHeight;
+    // flatListHeight() factors in the size of the iOS tab bar, but it is hidden
+    // by the keyboard since it is at the bottom
+    if (Platform.OS === "ios") {
+      visibleHeight += tabBarSize;
+    }
     invariant(
       this.currentScrollPosition !== undefined &&
         this.currentScrollPosition !== null,

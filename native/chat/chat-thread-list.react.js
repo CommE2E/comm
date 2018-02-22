@@ -32,7 +32,7 @@ import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
-import { iosKeyboardHeight } from '../dimensions';
+import { iosKeyboardOffset } from '../dimensions';
 
 const floatingActions = [{
   text: 'Compose',
@@ -227,7 +227,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
         <KeyboardAvoidingView
           style={styles.container}
           behavior="padding"
-          keyboardVerticalOffset={iosKeyboardHeight}
+          keyboardVerticalOffset={iosKeyboardOffset}
         >{content}</KeyboardAvoidingView>
       );
     } else {

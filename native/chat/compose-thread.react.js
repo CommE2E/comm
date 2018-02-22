@@ -70,7 +70,7 @@ import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
-import { iosKeyboardHeight } from '../dimensions';
+import { iosKeyboardOffset } from '../dimensions';
 import ThreadVisibility from '../components/thread-visibility.react';
 
 const tagInputProps = {
@@ -333,7 +333,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         <KeyboardAvoidingView
           style={styles.container}
           behavior="padding"
-          keyboardVerticalOffset={iosKeyboardHeight}
+          keyboardVerticalOffset={iosKeyboardOffset}
         >{content}</KeyboardAvoidingView>
       );
     } else {

@@ -18,7 +18,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { visibilityRules } from 'lib/types/thread-types';
 
-import { iosKeyboardHeight } from '../../dimensions';
+import { iosKeyboardOffset } from '../../dimensions';
 import Button from '../../components/button.react';
 import { ComposeThreadRouteName } from '../compose-thread.react';
 
@@ -75,7 +75,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
         <KeyboardAvoidingView
           style={styles.container}
           behavior="padding"
-          keyboardVerticalOffset={iosKeyboardHeight}
+          keyboardVerticalOffset={iosKeyboardOffset}
         >{content}</KeyboardAvoidingView>
       );
     } else {
