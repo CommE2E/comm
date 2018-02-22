@@ -8,8 +8,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
-import type { CalendarResult } from 'lib/actions/entry-actions';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
 import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 
 import * as React from 'react';

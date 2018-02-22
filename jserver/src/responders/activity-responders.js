@@ -1,7 +1,10 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { ActivityUpdate } from 'lib/types/activity-types';
+import type {
+  ActivityUpdate,
+  UpdateActivityResult,
+} from 'lib/types/activity-types';
 
 import t from 'tcomb';
 
@@ -25,19 +28,16 @@ const inputValidator = t.list(t.union([
   }),
 ]));
 
-async function updateActivityResponder(req: $Request, res: $Response) {
+async function updateActivityResponder(
+  req: $Request,
+  res: $Response,
+): Promise<UpdateActivityResult> {
   const updates: $ReadOnlyArray<ActivityUpdate> = (req.body: any);
   if (!inputValidator.is(updates)) {
     throw new ServerError('invalid_parameters');
   }
 
-  const result = await activityUpdater(updates);
-
-  if (!result) {
-    throw new ServerError('invalid_credentials');
-  }
-
-  return { unfocusedToUnread: result.unfocusedToUnread };
+  return await activityUpdater(updates);
 }
 
 export {

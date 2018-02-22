@@ -1,6 +1,6 @@
 // @flow
 
-import type { SaveEntryRequest } from 'lib/types/entry-types';
+import type { SaveEntryRequest, SaveEntryResult } from 'lib/types/entry-types';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -13,7 +13,9 @@ import { currentViewer } from '../session/viewer';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 
-async function updateEntry(request: SaveEntryRequest) {
+async function updateEntry(
+  request: SaveEntryRequest,
+): Promise<SaveEntryResult> {
   const entryQuery = SQL`
     SELECT e.deleted, d.thread, d.date
     FROM entries e

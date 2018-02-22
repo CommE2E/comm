@@ -1,11 +1,13 @@
 // @flow
 
-import type { DeviceTokenUpdate } from 'lib/types/device-types';
+import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 
 import { currentViewer } from '../session/viewer';
 import { pool, SQL } from '../database';
 
-async function deviceTokenUpdater(update: DeviceTokenUpdate) {
+async function deviceTokenUpdater(
+  update: DeviceTokenUpdateRequest,
+): Promise<void> {
   const column = update.deviceType === "ios"
     ? "ios_device_token"
     : "android_device_token";

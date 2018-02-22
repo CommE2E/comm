@@ -4,10 +4,11 @@ import type { $Response, $Request } from 'express';
 import {
   messageType,
   type MessageData,
-  type TextMessageCreationInfo,
+  type SendTextMessageRequest,
   type FetchMessageInfosResult,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
+  type SendTextMessageResponse,
 } from 'lib/types/message-types';
 
 import t from 'tcomb';
@@ -21,27 +22,22 @@ import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { currentViewer } from '../session/viewer';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
-async function messageCreationResponder(req: $Request, res: $Response) {
-  const messageDatas: MessageData[] = (req.body: any);
-  // We don't currently do any input validation since we have only internal
-  // callers as of now
-  const rawMessageInfos = await createMessages(messageDatas);
-  return { rawMessageInfos };
-}
-
-const textMessageCreationInfoInputValidator = tShape({
+const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
   text: t.String,
 });
 
-async function textMessageCreationResponder(req: $Request, res: $Response) {
-  const textMessageCreationInfo: TextMessageCreationInfo = (req.body: any);
-  if (!textMessageCreationInfoInputValidator.is(textMessageCreationInfo)) {
+async function textMessageCreationResponder(
+  req: $Request,
+  res: $Response,
+): Promise<SendTextMessageResponse> {
+  const sendTextMessageRequest: SendTextMessageRequest = (req.body: any);
+  if (!sendTextMessageRequestInputValidator.is(sendTextMessageRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
   const hasPermission = await checkThreadPermission(
-    textMessageCreationInfo.threadID,
+    sendTextMessageRequest.threadID,
     threadPermissions.VOICED,
   );
   if (!hasPermission) {
@@ -50,10 +46,10 @@ async function textMessageCreationResponder(req: $Request, res: $Response) {
 
   const messageData = {
     type: messageType.TEXT,
-    threadID: textMessageCreationInfo.threadID,
+    threadID: sendTextMessageRequest.threadID,
     creatorID: currentViewer().id,
     time: Date.now(),
-    text: textMessageCreationInfo.text,
+    text: sendTextMessageRequest.text,
   };
   const rawMessageInfos = await createMessages([messageData]);
 
@@ -74,22 +70,15 @@ async function messageFetchResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const numberPerThread = fetchMessageInfosRequest.numberPerThread
-    ? fetchMessageInfosRequest.numberPerThread
-    : defaultNumberPerThread;
-  const threadSelectionCriteria = {
-    threadCursors: fetchMessageInfosRequest.cursors,
-  };
-  const result = await fetchMessageInfos(
-    threadSelectionCriteria,
-    numberPerThread,
+  return await fetchMessageInfos(
+    { threadCursors: fetchMessageInfosRequest.cursors },
+    fetchMessageInfosRequest.numberPerThread
+      ? fetchMessageInfosRequest.numberPerThread
+      : defaultNumberPerThread,
   );
-  const { rawMessageInfos, truncationStatuses, userInfos } = result;
-  return { rawMessageInfos, truncationStatuses, userInfos };
 }
 
 export {
-  messageCreationResponder,
   textMessageCreationResponder,
   messageFetchResponder,
 };

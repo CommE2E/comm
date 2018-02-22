@@ -9,7 +9,10 @@ import type {
   DeleteEntryResponse,
   RestoreEntryRequest,
   RestoreEntryResponse,
+  FetchEntryInfosResponse,
+  SaveEntryResult,
 } from 'lib/types/entry-types';
+import type { FetchEntryRevisionInfosResult } from 'lib/types/history-types';
 
 import t from 'tcomb';
 
@@ -33,7 +36,10 @@ const entryQueryInputValidator = tShape({
   includeDeleted: t.maybe(t.Boolean),
 });
 
-async function entryFetchResponder(req: $Request, res: $Response) {
+async function entryFetchResponder(
+  req: $Request,
+  res: $Response,
+): Promise<FetchEntryInfosResponse> {
   const entryQuery: CalendarQuery = (req.body: any);
   if (!entryQueryInputValidator.is(entryQuery)) {
     throw new ServerError('invalid_parameters');
@@ -58,7 +64,10 @@ const entryRevisionHistoryFetchInputValidator = tShape({
   id: t.String,
 });
 
-async function entryRevisionFetchResponder(req: $Request, res: $Response) {
+async function entryRevisionFetchResponder(
+  req: $Request,
+  res: $Response,
+): Promise<FetchEntryRevisionInfosResult> {
   const entryRevisionHistoryFetch: EntryRevisionHistoryFetch = (req.body: any);
   if (!entryRevisionHistoryFetchInputValidator.is(entryRevisionHistoryFetch)) {
     throw new ServerError('invalid_parameters');
@@ -78,14 +87,16 @@ const createEntryRequestInputValidator = tShape({
   threadID: t.String,
 });
 
-async function entryCreationResponder(req: $Request, res: $Response) {
+async function entryCreationResponder(
+  req: $Request,
+  res: $Response,
+): Promise<SaveEntryResult> {
   const createEntryRequest: CreateEntryRequest = (req.body: any);
   if (!createEntryRequestInputValidator.is(createEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
-  const { entryID, newMessageInfos } = await createEntry(createEntryRequest);
-  return { entryID, newMessageInfos };
+  return await createEntry(createEntryRequest);
 }
 
 const saveEntryRequestInputValidator = tShape({
@@ -96,14 +107,16 @@ const saveEntryRequestInputValidator = tShape({
   timestamp: t.Number,
 });
 
-async function entryUpdateResponder(req: $Request, res: $Response) {
+async function entryUpdateResponder(
+  req: $Request,
+  res: $Response,
+): Promise<SaveEntryResult> {
   const saveEntryRequest: SaveEntryRequest = (req.body: any);
   if (!saveEntryRequestInputValidator.is(saveEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
-  const { entryID, newMessageInfos } = await updateEntry(saveEntryRequest);
-  return { entryID, newMessageInfos };
+  return await updateEntry(saveEntryRequest);
 }
 
 const deleteEntryRequestInputValidator = tShape({
@@ -122,8 +135,7 @@ async function entryDeletionResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { threadID, newMessageInfos } = await deleteEntry(deleteEntryRequest);
-  return { threadID, newMessageInfos };
+  return await deleteEntry(deleteEntryRequest);
 }
 
 const restoreEntryRequestInputValidator = tShape({
@@ -141,9 +153,7 @@ async function entryRestorationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const result = await restoreEntry(restoreEntryRequest);
-  const { entryInfo, newMessageInfos } = result;
-  return { entryInfo, newMessageInfos };
+  return await restoreEntry(restoreEntryRequest);
 }
 
 export {

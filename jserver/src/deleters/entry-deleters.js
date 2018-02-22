@@ -2,7 +2,9 @@
 
 import type {
   DeleteEntryRequest,
+  DeleteEntryResponse,
   RestoreEntryRequest,
+  RestoreEntryResponse,
 } from 'lib/types/entry-types';
 
 import { ServerError } from 'lib/utils/fetch-utils';
@@ -29,7 +31,9 @@ const lastRevisionQuery = (entryID: string) =>
     LIMIT 1
   `);
 
-async function deleteEntry(request: DeleteEntryRequest) {
+async function deleteEntry(
+  request: DeleteEntryRequest,
+): Promise<DeleteEntryResponse> {
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
       request.entryID,
@@ -101,7 +105,9 @@ async function deleteEntry(request: DeleteEntryRequest) {
   return { threadID, newMessageInfos };
 }
 
-async function restoreEntry(request: RestoreEntryRequest) {
+async function restoreEntry(
+  request: RestoreEntryRequest,
+): Promise<RestoreEntryResponse> {
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
       request.entryID,

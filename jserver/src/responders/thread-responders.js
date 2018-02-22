@@ -21,7 +21,6 @@ import t from 'tcomb';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { tShape, tNumEnum, tColor } from '../utils/tcomb-utils';
-import { currentViewer } from '../session/viewer';
 import { deleteThread } from '../deleters/thread-deleters';
 import {
   updateRole,
@@ -37,18 +36,16 @@ const threadDeletionRequestInputValidator = tShape({
   accountPassword: t.String,
 });
 
-async function threadDeletionResponder(req: $Request, res: $Response) {
+async function threadDeletionResponder(
+  req: $Request,
+  res: $Response,
+): Promise<void> {
   const threadDeletionRequest: ThreadDeletionRequest = (req.body: any);
   if (!threadDeletionRequestInputValidator.is(threadDeletionRequest)) {
     throw new ServerError('invalid_parameters');
   }
 
-  const viewer = currentViewer();
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
-  await deleteThread(viewer, threadDeletionRequest);
+  await deleteThread(threadDeletionRequest);
 }
 
 const roleChangeRequestInputValidator = tShape({
@@ -131,12 +128,7 @@ async function threadUpdateResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const viewer = currentViewer();
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
-  return await updateThread(viewer, updateThreadRequest);
+  return await updateThread(updateThreadRequest);
 }
 
 const newThreadRequestInputValidator = tShape({
@@ -157,12 +149,7 @@ async function threadCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const viewer = currentViewer();
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
-  return await createThread(viewer, newThreadRequest);
+  return await createThread(newThreadRequest);
 }
 
 const joinThreadRequestInputValidator = tShape({

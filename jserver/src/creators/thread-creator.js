@@ -27,11 +27,16 @@ import {
   deleteMemberships,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
+import { currentViewer } from '../session/viewer';
 
 async function createThread(
-  viewer: UserViewer,
   request: NewThreadRequest,
 ): Promise<NewThreadResult> {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const visRules = request.visibilityRules;
   let password = null;
   if (

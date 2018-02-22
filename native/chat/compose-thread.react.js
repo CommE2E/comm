@@ -18,7 +18,7 @@ import {
   type UserListItem,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { SearchUsersResult } from 'lib/actions/user-actions';
+import type { UserSearchResult } from 'lib/types/search-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -98,7 +98,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
-  searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
+  searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 };
 type State = {
   usernameInputText: string,

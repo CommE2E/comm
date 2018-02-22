@@ -1,6 +1,9 @@
 // @flow
 
-import type { CreateEntryRequest } from 'lib/types/entry-types';
+import type {
+  CreateEntryRequest,
+  SaveEntryResult,
+} from 'lib/types/entry-types';
 
 import { messageType } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -13,7 +16,9 @@ import { currentViewer } from '../session/viewer';
 import createMessages from '../creators/message-creator';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 
-async function createEntry(request: CreateEntryRequest) {
+async function createEntry(
+  request: CreateEntryRequest,
+): Promise<SaveEntryResult> {
   const [
     hasPermission,
     dayID,

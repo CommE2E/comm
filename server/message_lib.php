@@ -368,12 +368,3 @@ SQL;
   }
   return $users;
 }
-
-// returns message infos with IDs
-function create_message_infos($new_message_infos) {
-  if (!$new_message_infos) {
-    return array();
-  }
-  $result = call_node('create_messages', $new_message_infos);
-  return $result['rawMessageInfos'];
-}

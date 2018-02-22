@@ -10,11 +10,16 @@ import { threadPermissions } from 'lib/types/thread-types';
 
 import { pool, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import { currentViewer } from '../session/viewer';
 
 async function deleteThread(
-  viewer: UserViewer,
   threadDeletionRequest: ThreadDeletionRequest,
-) {
+): Promise<void> {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const hasPermission = await checkThreadPermission(
     threadDeletionRequest.threadID,
     threadPermissions.DELETE_THREAD,

@@ -2,15 +2,17 @@
 
 import type {
   ThreadSubscription,
-  SubscriptionUpdate,
+  SubscriptionUpdateRequest,
 } from 'lib/types/subscription-types';
+
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { currentViewer } from '../session/viewer';
 import { pool, SQL } from '../database';
 
 async function userSubscriptionUpdater(
-  update: SubscriptionUpdate,
-): Promise<?ThreadSubscription> {
+  update: SubscriptionUpdateRequest,
+): Promise<ThreadSubscription> {
   const viewer = currentViewer();
   const query = SQL`
     SELECT subscription
@@ -19,7 +21,7 @@ async function userSubscriptionUpdater(
   `;
   const [ result ] = await pool.query(query);
   if (result.length === 0) {
-    return null;
+    throw new ServerError('not_member');
   }
   const row = result[0];
 

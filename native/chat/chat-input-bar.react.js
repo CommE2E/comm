@@ -5,8 +5,10 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { SendMessageResult } from 'lib/actions/message-actions';
-import type { RawTextMessageInfo } from 'lib/types/message-types';
+import type {
+  RawTextMessageInfo,
+  SendTextMessageResult,
+} from 'lib/types/message-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -66,7 +68,7 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendMessage: (threadID: string, text: string) => Promise<SendMessageResult>,
+  sendMessage: (threadID: string, text: string) => Promise<SendTextMessageResult>,
   joinThread: (
     threadID: string,
     threadPassword?: string,

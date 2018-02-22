@@ -1,7 +1,9 @@
 // @flow
 
-import type { RawEntryInfo, CalendarQuery } from 'lib/types/entry-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import type {
+  CalendarQuery,
+  FetchEntryInfosResponse,
+} from 'lib/types/entry-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import type { ThreadPermission } from 'lib/types/thread-types';
 
@@ -16,14 +18,9 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { pool, SQL } from '../database';
 import { currentViewer } from '../session/viewer';
 
-type FetchEntryInfosResult = {|
-  rawEntryInfos: RawEntryInfo[],
-  userInfos: {[id: string]: AccountUserInfo},
-|};
-
 async function fetchEntryInfos(
   entryQuery: CalendarQuery,
-): Promise<FetchEntryInfosResult> {
+): Promise<FetchEntryInfosResponse> {
   const navCondition = entryQuery.navID === "home"
     ? SQL`AND m.role != 0 `
     : SQL`AND d.thread = ${entryQuery.navID} `;
@@ -111,7 +108,7 @@ async function checkThreadPermissionForEntry(
 
 async function fetchEntryRevisionInfo(
  entryID: string,
-): Promise<HistoryRevisionInfo[]> {
+): Promise<$ReadOnlyArray<HistoryRevisionInfo>> {
   const hasPermission = await checkThreadPermissionForEntry(
     entryID,
     threadPermissions.VISIBLE,

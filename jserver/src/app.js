@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 
 import { jsonHandler } from './responders/handlers';
 import {
-  messageCreationResponder,
   textMessageCreationResponder,
   messageFetchResponder,
 } from './responders/message-responders';
@@ -45,7 +44,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 const jsonEndpoints = {
-  'create_messages': messageCreationResponder,
   'update_activity': updateActivityResponder,
   'update_user_subscription': userSubscriptionUpdateResponder,
   'update_device_token': deviceTokenUpdateResponder,

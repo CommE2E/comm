@@ -5,7 +5,7 @@ import { threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type {
-  SubscriptionUpdate,
+  SubscriptionUpdateRequest,
   ThreadSubscription,
 } from 'lib/types/subscription-types';
 
@@ -30,7 +30,7 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   updateSubscription: (
-    subscriptionUpdate: SubscriptionUpdate,
+    subscriptionUpdate: SubscriptionUpdateRequest,
   ) => Promise<ThreadSubscription>,
 |};
 type State = {|

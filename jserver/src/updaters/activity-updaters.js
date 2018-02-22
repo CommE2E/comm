@@ -11,6 +11,7 @@ import _difference from 'lodash/fp/difference';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { messageType } from 'lib/types/message-types';
 import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { currentViewer } from '../session/viewer';
 import { pool, SQL, mergeOrConditions } from '../database';
@@ -19,10 +20,10 @@ import { rescindPushNotifs } from '../push/rescind';
 
 async function activityUpdater(
   updates: $ReadOnlyArray<ActivityUpdate>,
-): Promise<?UpdateActivityResult> {
+): Promise<UpdateActivityResult> {
   const viewer = currentViewer();
   if (!viewer.loggedIn) {
-    return null;
+    throw new ServerError('invalid_credentials');
   }
 
   const unverifiedThreadIDs = new Set();

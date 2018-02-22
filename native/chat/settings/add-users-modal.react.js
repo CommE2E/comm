@@ -13,7 +13,7 @@ import {
   type UserListItem,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { SearchUsersResult } from 'lib/actions/user-actions';
+import type { UserSearchResult } from 'lib/types/search-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 
@@ -78,7 +78,7 @@ type Props = {
   changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
-  searchUsers: (usernamePrefix: string) => Promise<SearchUsersResult>,
+  searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 };
 type State = {|
   userSearchResults: $ReadOnlyArray<UserListItem>,

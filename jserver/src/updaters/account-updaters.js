@@ -13,8 +13,14 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { pool, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { sendPasswordResetEmail } from '../emails/reset-password';
+import { currentViewer } from '../session/viewer';
 
-async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
+async function accountUpdater(update: AccountUpdate) {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const email = update.updatedFields.email;
   const newPassword = update.updatedFields.password;
 
@@ -71,7 +77,12 @@ async function accountUpdater(viewer: UserViewer, update: AccountUpdate) {
   await Promise.all(savePromises);
 }
 
-async function checkAndSendVerificationEmail(viewer: UserViewer) {
+async function checkAndSendVerificationEmail() {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const query = SQL`
     SELECT username, email, email_verified
     FROM users
