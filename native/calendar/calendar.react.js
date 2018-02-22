@@ -958,7 +958,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const entryKey = entryKeys[0];
     const entryRef = this.entryRefs.get(entryKey);
     if (entryRef) {
-      entryRef.saveFromInputBar();
+      entryRef.save();
     }
   }
 

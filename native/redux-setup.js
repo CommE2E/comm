@@ -241,7 +241,7 @@ const store = createStore(
     persistConfig,
     reducer,
   ),
-  undefined,
+  defaultState,
   composeWithDevTools(
     applyMiddleware(thunk, reactNavigationMiddleware),
   ),

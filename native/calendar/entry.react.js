@@ -18,7 +18,7 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { NavigationParams, NavigationAction } from 'react-navigation';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   Text,
@@ -103,6 +103,7 @@ type Props = {
   ) => Promise<DeleteEntryResponse>,
 };
 type State = {|
+  editing: bool,
   text: string,
   loadingStatus: LoadingStatus,
   height: number,
@@ -140,6 +141,7 @@ class InternalEntry extends React.Component<Props, State> {
     super(props);
     invariant(props.threadInfo, "should be set");
     this.state = {
+      editing: false,
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight,
@@ -213,8 +215,13 @@ class InternalEntry extends React.Component<Props, State> {
     return props.focused || !props.entryInfo.id;
   }
 
+  static isEditing(props: Props, state: State) {
+    return (props.focused && state.editing) || !props.entryInfo.id;
+  }
+
   render() {
     const focused = InternalEntry.isFocused(this.props);
+    const editing = InternalEntry.isEditing(this.props, this.state);
 
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
@@ -222,17 +229,46 @@ class InternalEntry extends React.Component<Props, State> {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
+      let editButtonContent;
+      if (this.state.editing) {
+        editButtonContent = (
+          <React.Fragment>
+            <Icon
+              name="check"
+              size={14}
+              color={actionLinksColor}
+            />
+            <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+              SAVE
+            </Text>
+          </React.Fragment>
+        );
+      } else {
+        editButtonContent = (
+          <React.Fragment>
+            <Icon
+              name="pencil"
+              size={12}
+              color={actionLinksColor}
+              style={styles.pencilIcon}
+            />
+            <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+              EDIT
+            </Text>
+          </React.Fragment>
+        );
+      }
       actionLinks = (
         <View style={styles.actionLinks}>
           <View style={styles.leftLinks}>
             <Button
-              onPress={this.onPressDelete}
+              onPress={this.delete}
               iosFormat="highlight"
               iosHighlightUnderlayColor={actionLinksUnderlayColor}
               iosActiveOpacity={0.85}
               style={styles.button}
             >
-              <View style={styles.deleteButtonContents}>
+              <View style={styles.buttonContents}>
                 <Icon
                   name="close"
                   size={14}
@@ -241,6 +277,17 @@ class InternalEntry extends React.Component<Props, State> {
                 <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
                   DELETE
                 </Text>
+              </View>
+            </Button>
+            <Button
+              onPress={this.onPressEdit}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={actionLinksUnderlayColor}
+              iosActiveOpacity={0.85}
+              style={styles.button}
+            >
+              <View style={styles.buttonContents}>
+                {editButtonContent}
               </View>
             </Button>
           </View>
@@ -266,7 +313,7 @@ class InternalEntry extends React.Component<Props, State> {
 
     const textColor = darkColor ? 'white' : 'black';
     let textInput;
-    if (focused) {
+    if (editing) {
       const textInputStyle = {
         color: textColor,
         backgroundColor: `#${this.state.threadInfo.color}`,
@@ -316,10 +363,10 @@ class InternalEntry extends React.Component<Props, State> {
     );
 
     const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
-    const opacity = focused ? 1.0 : 0.6;
+    const opacity = editing ? 1.0 : 0.6;
     const entry = (
       <Button
-        onPress={this.onFocus}
+        onPress={this.focus}
         style={[styles.entry, entryStyle]}
         androidFormat="opacity"
         iosActiveOpacity={opacity}
@@ -342,20 +389,25 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
+  focus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
 
-  onBlur = () => {
-    if (this.state.text.trim() === "") {
-      this.delete(this.props.entryInfo.id);
-    } else if (this.props.entryInfo.text !== this.state.text) {
-      this.save(this.props.entryInfo.id, this.state.text);
-    }
+  blur = () => {
+    this.setState({ editing: false });
     this.props.onFocus(entryKey(this.props.entryInfo), false);
   }
 
-  saveFromInputBar = () => {
-    this.save(this.props.entryInfo.id, this.state.text);
-    this.props.onFocus(entryKey(this.props.entryInfo), false);
+  onBlur = () => {
+    if (this.state.text.trim() === "") {
+      this.dispatchDelete(this.props.entryInfo.id);
+    } else if (this.props.entryInfo.text !== this.state.text) {
+      this.dispatchSave(this.props.entryInfo.id, this.state.text);
+    }
+    this.blur();
+  }
+
+  save = () => {
+    this.dispatchSave(this.props.entryInfo.id, this.state.text);
+    this.blur();
   }
 
   onTextLayout = (
@@ -370,7 +422,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.guardedSetState({ text: newText });
   }
 
-  save(serverID: ?string, newText: string) {
+  dispatchSave(serverID: ?string, newText: string) {
     if (this.currentlySaving === newText) {
       return;
     }
@@ -434,11 +486,11 @@ class InternalEntry extends React.Component<Props, State> {
       this.creating = false;
       if (this.needsUpdateAfterCreation) {
         this.needsUpdateAfterCreation = false;
-        this.save(response.entryID, this.state.text);
+        this.dispatchSave(response.entryID, this.state.text);
       }
       if (this.needsDeleteAfterCreation) {
         this.needsDeleteAfterCreation = false;
-        this.delete(response.entryID);
+        this.dispatchDelete(response.entryID);
       }
       return { ...response, localID };
     } catch(e) {
@@ -490,11 +542,19 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  onPressDelete = () => {
-    this.delete(this.props.entryInfo.id);
+  delete = () => {
+    this.dispatchDelete(this.props.entryInfo.id);
   }
 
-  delete(serverID: ?string) {
+  onPressEdit = () => {
+    if (this.state.editing) {
+      this.save();
+    } else {
+      this.setState({ editing: true });
+    }
+  }
+
+  dispatchDelete(serverID: ?string) {
     if (this.deleted) {
       return;
     }
@@ -585,7 +645,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: -5,
   },
-  deleteButtonContents: {
+  buttonContents: {
     flex: 1,
     flexDirection: 'row',
   },
@@ -593,6 +653,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    paddingHorizontal: 5,
   },
   leftLinksText: {
     paddingLeft: 5,
@@ -603,14 +664,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    paddingHorizontal: 5,
   },
   rightLinksText: {
     fontWeight: 'bold',
     fontSize: 12,
   },
   button: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    padding: 5,
   },
   darkLinkText: {
     color: "#036AFF",
@@ -619,6 +680,9 @@ const styles = StyleSheet.create({
   lightLinkText: {
     color: "#129AFF",
     textDecorationLine: "underline",
+  },
+  pencilIcon: {
+    paddingTop: 1,
   },
 });
 
