@@ -1,8 +1,10 @@
 // @flow
 
-import type { UserInfos } from 'lib/types/user-types';
+import type { UserInfos, CurrentUserInfo } from 'lib/types/user-types';
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
+import { currentViewer } from '../session/viewer';
 
 async function fetchUserInfos(
   userIDs: string[],
@@ -61,8 +63,33 @@ async function verifyUserOrCookieIDs(
   return result.map(row => row.id.toString());
 }
 
+async function fetchCurrentUserInfo(): Promise<CurrentUserInfo> {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    return { id: viewer.cookieID, anonymous: true };
+  }
+
+  const query = SQL`
+    SELECT username, email, email_verified
+    FROM users
+    WHERE id = ${viewer.userID}
+  `;
+  const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    throw new ServerError('unknown_error');
+  }
+  const row = result[0];
+  return {
+    id: viewer.userID,
+    username: row.username,
+    email: row.email,
+    emailVerified: !!row.email_verified,
+  };
+}
+
 export {
   fetchUserInfos,
   verifyUserIDs,
   verifyUserOrCookieIDs,
+  fetchCurrentUserInfo,
 };

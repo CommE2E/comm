@@ -200,6 +200,33 @@ async function checkThreadsFocused(
   return focusedThreadUserPairs;
 }
 
+async function updateActivityTime(
+  time: number,
+  clientSupportsMessages: bool,
+): Promise<void> {
+  const viewer = currentViewer();
+  if (!viewer.loggedIn) {
+    return;
+  }
+
+  const promises = [];
+  const focusedQuery = SQL`
+    UPDATE focused
+    SET time = ${time}
+    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
+  `;
+  promises.push(pool.query(focusedQuery));
+  if (clientSupportsMessages) {
+    const cookieQuery = SQL`
+      UPDATE cookies SET last_ping = ${time} WHERE id = ${viewer.cookieID}
+    `;
+    promises.push(pool.query(cookieQuery));
+  }
+
+  await Promise.all(promises);
+}
+
 export {
   activityUpdater,
+  updateActivityTime,
 };

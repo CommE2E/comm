@@ -432,7 +432,89 @@ async function fetchAllUsers(
   };
 }
 
+async function fetchMessageInfosSince(
+  criteria: ThreadSelectionCriteria,
+  currentAsOf: number,
+  maxNumberPerThread: number,
+): Promise<FetchMessageInfosResult> {
+  const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
+  const truncationStatuses = threadSelectionCriteriaToInitialTruncationStatuses(
+    criteria,
+    messageTruncationStatus.EXHAUSTIVE,
+  );
+
+  const viewerID = currentViewer().id;
+  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+  const query = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
+      u.username AS creator, m.user AS creatorID,
+      stm.permissions AS subthread_permissions,
+      st.visibility_rules AS subthread_visibility_rules
+    FROM messages m
+    LEFT JOIN threads t ON t.id = m.thread
+    LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
+    LEFT JOIN threads st
+      ON m.type = ${messageType.CREATE_SUB_THREAD} AND st.id = m.content
+    LEFT JOIN memberships stm ON m.type = ${messageType.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = ${viewerID}
+    LEFT JOIN users u ON u.id = m.user
+    WHERE
+      (
+        JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+        OR t.visibility_rules = ${visibilityRules.OPEN}
+      )
+      AND m.time > ${currentAsOf}
+      AND
+  `;
+  query.append(threadSelectionClause);
+  query.append(SQL`
+    ORDER BY m.thread, m.time DESC
+  `);
+  const [ result ] = await pool.query(query);
+
+  const rawMessageInfos = [];
+  const userInfos = {};
+  let currentThreadID = null;
+  let numMessagesForCurrentThreadID = 0;
+  for (let row of result) {
+    const threadID = row.threadID.toString();
+    if (threadID !== currentThreadID) {
+      currentThreadID = threadID;
+      numMessagesForCurrentThreadID = 1;
+      truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
+    } else {
+      numMessagesForCurrentThreadID++;
+    }
+    if (numMessagesForCurrentThreadID <= maxNumberPerThread) {
+      if (row.type === messageType.CREATE_THREAD) {
+        // If a CREATE_THREAD message is here, then we have all messages
+        truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+      }
+      const creatorID = row.creatorID.toString();
+      userInfos[creatorID] = {
+        id: creatorID,
+        username: row.creator,
+      };
+      const rawMessageInfo = rawMessageInfoFromRow(row);
+      if (rawMessageInfo) {
+        rawMessageInfos.push(rawMessageInfo);
+      }
+    } else if (numMessagesForCurrentThreadID === maxNumberPerThread + 1) {
+      truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
+    }
+  }
+
+  const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
+
+  return {
+    rawMessageInfos,
+    truncationStatuses,
+    userInfos: allUserInfos,
+  };
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
+  fetchMessageInfosSince,
 };

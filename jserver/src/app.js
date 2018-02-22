@@ -38,6 +38,7 @@ import {
   threadCreationResponder,
   threadJoinResponder,
 } from './responders/thread-responders';
+import { pingResponder } from './responders/ping-responders';
 
 const app = express();
 app.use(bodyParser.json());
@@ -67,6 +68,7 @@ const jsonEndpoints = {
   'create_thread': threadCreationResponder,
   'fetch_messages': messageFetchResponder,
   'join_thread': threadJoinResponder,
+  'ping': pingResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

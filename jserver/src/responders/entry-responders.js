@@ -157,6 +157,7 @@ async function entryRestorationResponder(
 }
 
 export {
+  entryQueryInputValidator,
   entryFetchResponder,
   entryRevisionFetchResponder,
   entryCreationResponder,
