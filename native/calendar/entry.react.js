@@ -102,12 +102,12 @@ type Props = {
     sessionID: string,
   ) => Promise<DeleteEntryResponse>,
 };
-type State = {
+type State = {|
   text: string,
   loadingStatus: LoadingStatus,
   height: number,
   threadInfo: ThreadInfo,
-};
+|};
 class InternalEntry extends React.Component<Props, State> {
   
   static propTypes = {
@@ -142,7 +142,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.state = {
       text: props.entryInfo.text,
       loadingStatus: "inactive",
-      height: props.entryInfo.textHeight + 10,
+      height: props.entryInfo.textHeight,
       // On log out, it's possible for the thread to be deauthorized before
       // the log out animation completes. To avoid having rendering issues in
       // that case, we cache the threadInfo in state and don't reset it when the
@@ -163,24 +163,23 @@ class InternalEntry extends React.Component<Props, State> {
       (nextProps.entryInfo.text !== this.props.entryInfo.text &&
         nextProps.entryInfo.text !== this.state.text) ||
       (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
-        nextProps.entryInfo.textHeight !== (this.state.height - 10))
+        nextProps.entryInfo.textHeight !== this.state.height)
     ) {
-      this.setState({
+      this.guardedSetState({
         text: nextProps.entryInfo.text,
-        height: nextProps.entryInfo.textHeight + 10,
+        height: nextProps.entryInfo.textHeight,
       });
     }
     if (
       nextProps.threadInfo &&
       !_isEqual(nextProps.threadInfo)(this.state.threadInfo)
     ) {
-      this.setState({ threadInfo: nextProps.threadInfo });
+      this.guardedSetState({ threadInfo: nextProps.threadInfo });
     }
     if (!nextProps.focused && this.props.focused) {
       if (this.textInput) {
         this.textInput.blur();
       }
-      this.onBlur();
     }
   }
 
@@ -264,65 +263,76 @@ class InternalEntry extends React.Component<Props, State> {
         </View>
       );
     }
-    const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
-    const textStyle = {
-      color: darkColor ? 'white' : 'black',
-      height: this.state.height,
-    };
-    let text;
-    if (this.props.visible || focused) {
-      text = (
+
+    const textColor = darkColor ? 'white' : 'black';
+    let textInput;
+    if (focused) {
+      const textInputStyle = {
+        color: textColor,
+        backgroundColor: `#${this.state.threadInfo.color}`,
+      };
+      const selectionColor = darkColor ? '#129AFF' : '#036AFF';
+      textInput = (
         <TextInput
-          style={[styles.text, textStyle]}
+          style={[styles.textInput, textInputStyle]}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
           multiline={true}
           onBlur={this.onBlur}
-          onFocus={this.onFocus}
-          onContentSizeChange={this.onContentSizeChange}
+          selectionColor={selectionColor}
           ref={this.textInputRef}
         />
       );
-    } else {
-      const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
-      text = (
-        <Hyperlink linkDefault={true} linkStyle={linkStyle}>
-          <Text style={[styles.text, textStyle]}>
-            {this.state.text}
-          </Text>
-        </Hyperlink>
-      );
     }
-    let entry;
-    if (Platform.OS === "ios") {
-      // On iOS, we can take the capture away from our child TextInput and
-      // everything still works properly - the keyboard pops open and cursor
-      // appears where the TextInput was pressed. Hooking in here allows us to
-      // speed up our response times to TextInput presses (as onFocus is
-      // painfully slow). On Android, the response time to TextInput onFocus is
-      // faster anyways, and plus stealing the capture here causes problems.
-      entry = (
-        <View
-          style={[styles.entry, entryStyle]}
-          onStartShouldSetResponderCapture={this.onStartShouldSetResponderCapture}
-          onResponderGrant={this.onFocus}
-          onResponderTerminationRequest={this.onResponderTerminationRequest}
-          onResponderTerminate={this.onResponderTerminate}
+
+    const textStyle = {
+      color: textColor,
+    };
+    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    let rawText = this.state.text;
+    if (Platform.OS === "android" && rawText.slice(-1) === "\n") {
+      rawText += " ";
+    }
+    const text = (
+      <Hyperlink linkDefault={true} linkStyle={linkStyle}>
+        <Text
+          style={[styles.text, textStyle]}
+          onLayout={this.onTextLayout}
         >
-          {text}
-          {actionLinks}
-        </View>
-      );
-    } else {
-      entry = (
-        <View style={[styles.entry, entryStyle]}>
-          {text}
-          {actionLinks}
-        </View>
-      );
-    }
-    return <View style={styles.container}>{entry}</View>;
+          {rawText}
+        </Text>
+      </Hyperlink>
+    );
+
+    const textContainerStyle = {
+      height: this.state.height,
+    };
+    const textContainer = (
+      <View style={textContainerStyle}>
+        {text}
+        {textInput}
+      </View>
+    );
+
+    const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
+    const opacity = focused ? 1.0 : 0.6;
+    const entry = (
+      <Button
+        onPress={this.onFocus}
+        style={[styles.entry, entryStyle]}
+        androidFormat="opacity"
+        iosActiveOpacity={opacity}
+      >
+        {textContainer}
+        {actionLinks}
+      </Button>
+    );
+    return (
+      <View style={styles.container}>
+        {entry}
+      </View>
+    );
   }
 
   textInputRef = (textInput: ?TextInput) => {
@@ -333,15 +343,6 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   onFocus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
-
-  onStartShouldSetResponderCapture = (
-    event: { nativeEvent: { pageY: number } },
-  ) => event.nativeEvent.pageY < this.state.height + 5;
-
-  onResponderTerminationRequest = () => true;
-
-  onResponderTerminate =
-    () => this.props.onFocus(entryKey(this.props.entryInfo), false);
 
   onBlur = () => {
     if (this.state.text.trim() === "") {
@@ -357,16 +358,12 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.onFocus(entryKey(this.props.entryInfo), false);
   }
 
-  onContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number }}},
+  onTextLayout = (
+    event: { nativeEvent: { layout: { height: number }}},
   ) => {
-    if (!InternalEntry.isFocused(this.props)) {
-      return;
-    }
-    let height = event.nativeEvent.contentSize.height;
-    // iOS doesn't include the margin on this callback
-    height = Platform.OS === "ios" ? height + 10 : height + 5;
-    this.guardedSetState({ height });
+    this.guardedSetState({
+      height: Math.ceil(event.nativeEvent.layout.height),
+    });
   }
 
   onChangeText = (newText: string) => {
@@ -564,10 +561,21 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     paddingTop: 5,
-    paddingBottom: 4,
+    paddingBottom: 6,
     paddingLeft: 10,
     paddingRight: 10,
-    marginBottom: 1,
+    color: '#333333',
+    fontFamily: 'Arial',
+  },
+  textInput: {
+    position: 'absolute',
+    top: Platform.OS === "android" ? 5 : 0,
+    bottom: Platform.OS === "android" ? 6 : 0,
+    left: 10,
+    right: 10,
+    padding: 0,
+    margin: 0,
+    fontSize: 16,
     color: '#333333',
     fontFamily: 'Arial',
   },
@@ -643,4 +651,5 @@ const Entry = connect(
 export {
   InternalEntry,
   Entry,
+  styles as entryStyles,
 };

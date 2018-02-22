@@ -29,6 +29,7 @@ type Props = {
   children?: React.Node,
   androidBorderlessRipple: bool,
   iosFormat: "highlight" | "opacity",
+  androidFormat: "ripple" | "highlight" | "opacity",
   iosHighlightUnderlayColor: string,
   iosActiveOpacity: number,
 };
@@ -45,12 +46,18 @@ class Button extends React.PureComponent<Props> {
       "highlight",
       "opacity",
     ]),
+    androidFormat: PropTypes.oneOf([
+      "ripple",
+      "highlight",
+      "opacity",
+    ]),
     iosHighlightUnderlayColor: PropTypes.string,
     iosActiveOpacity: PropTypes.number,
   };
   static defaultProps = {
     androidBorderlessRipple: false,
     iosFormat: "opacity",
+    androidFormat: "ripple",
     iosHighlightUnderlayColor: "#CCCCCCDD",
     iosActiveOpacity: 0.2,
   };
@@ -58,6 +65,7 @@ class Button extends React.PureComponent<Props> {
   render() {
     if (
       Platform.OS === "android" &&
+      this.props.androidFormat === "ripple" &&
       Platform.Version >= ANDROID_VERSION_LOLLIPOP
     ) {
       return (
@@ -74,7 +82,14 @@ class Button extends React.PureComponent<Props> {
           </View>
         </TouchableNativeFeedback>
       );
-    } else if (this.props.iosFormat === "highlight") {
+    }
+    let format = "opacity";
+    if (Platform.OS === "ios") {
+      format = this.props.iosFormat;
+    } else if (Platform.OS === "android" && this.props.androidFormat !== "ripple") {
+      format = this.props.androidFormat;
+    }
+    if (format === "highlight") {
       const underlayColor = this.props.iosHighlightUnderlayColor;
       const child = this.props.children ? this.props.children : <View />;
       return (

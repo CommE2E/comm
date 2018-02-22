@@ -33,7 +33,7 @@ import _findIndex from 'lodash/fp/findIndex';
 import _isEqual from 'lodash/fp/isEqual';
 import _map from 'lodash/fp/map';
 import _find from 'lodash/fp/find';
-import _difference from 'lodash/fp/difference';
+import _differenceWith from 'lodash/fp/differenceWith';
 import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
@@ -54,7 +54,7 @@ import { simpleNavID } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
 
-import { Entry, InternalEntry } from './entry.react';
+import { Entry, InternalEntry, entryStyles } from './entry.react';
 import { contentVerticalOffset, windowHeight } from '../dimensions';
 import { calendarListData } from '../selectors/calendar-selectors';
 import { createActiveTabSelector } from '../selectors/nav-selectors';
@@ -290,6 +290,18 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
       newListData,
     );
+    const newText =
+      _differenceWith(_isEqual)(newTextToMeasure)(this.state.textToMeasure);
+    if (newText.length !== 0) {
+      // We set textHeights to null here since if a future set of text
+      // came in before we completed text measurement that was a subset
+      // of the earlier text, we would end up merging directly there, but
+      // then when the measurement for the middle text came in it would
+      // override the newer text heights.
+      this.textHeights = null;
+      this.setState({ textToMeasure: newTextToMeasure });
+      return;
+    }
 
     let allTextAlreadyMeasured = false;
     if (this.textHeights) {
@@ -303,24 +315,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
     if (allTextAlreadyMeasured) {
       this.mergeHeightsIntoListData(newListData);
-      return;
     }
 
-    const newText =
-      _difference(newTextToMeasure)(this.state.textToMeasure);
-    if (newText.length === 0) {
-      // Since we don't have everything in textHeights, but we do have
-      // everything in textToMeasure, we can conclude that we're just
-      // waiting for the measurement to complete and then we'll be good.
-    } else {
-      // We set textHeights to null here since if a future set of text
-      // came in before we completed text measurement that was a subset
-      // of the earlier text, we would end up merging directly there, but
-      // then when the measurement for the middle text came in it would
-      // override the newer text heights.
-      this.textHeights = null;
-      this.setState({ textToMeasure: newTextToMeasure });
-    }
+    // If we don't have everything in textHeights, but we do have everything in
+    // textToMeasure, we can conclude that we're just waiting for the
+    // measurement to complete and then we'll be good.
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
@@ -502,7 +501,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         ...item,
         entryInfo: {
           ...item.entryInfo,
-          textHeight,
+          textHeight: Math.ceil(textHeight),
         },
       };
     })(listData);
@@ -621,7 +620,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     } else if (item.itemType === "header") {
       return 31;
     } else if (item.itemType === "entryInfo") {
-      const verticalPadding = Platform.OS === "ios" ? 21 : 20;
+      const verticalPadding = 10;
       return verticalPadding + item.entryInfo.textHeight;
     } else if (item.itemType === "footer") {
       return 40;
@@ -688,7 +687,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={styles.text}
+          style={entryStyles.text}
         />
         <KeyboardAvoidingView
           behavior={keyboardAvoidingViewBehavior}
@@ -984,12 +983,6 @@ const styles = StyleSheet.create({
     padding: 5,
     fontWeight: 'bold',
     color: '#555555',
-  },
-  text: {
-    left: 15,
-    right: 15,
-    fontSize: 16,
-    fontFamily: 'Arial',
   },
   loadingIndicator: {
     flex: 1,
