@@ -14,7 +14,7 @@ import thunk from 'redux-thunk';
 import storage from 'redux-persist/lib/storage';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { persistStore, persistReducer } from 'redux-persist';
+import { persistStore, persistReducer, createMigrate } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions } from 'react-navigation';
 import {
@@ -38,6 +38,7 @@ import {
   clearAndroidNotificationActionType,
   reduceThreadIDsToNotifIDs,
 } from './push/android';
+import migrations from './redux-migrations';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -231,6 +232,8 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
+  version: 0,
+  migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   "root",
