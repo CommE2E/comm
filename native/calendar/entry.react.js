@@ -76,8 +76,9 @@ import {
 type Props = {
   entryInfo: EntryInfoWithHeight,
   visible: bool,
-  focused: bool,
-  onFocus: (entryKey: string, focused: bool) => void,
+  active: bool,
+  makeActive: (entryKey: string, active: bool) => void,
+  onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
   navigate: (
     routeName: string,
     params?: NavigationParams,
@@ -114,8 +115,9 @@ class InternalEntry extends React.Component<Props, State> {
   static propTypes = {
     entryInfo: entryInfoPropType.isRequired,
     visible: PropTypes.bool.isRequired,
-    focused: PropTypes.bool.isRequired,
-    onFocus: PropTypes.func.isRequired,
+    active: PropTypes.bool.isRequired,
+    makeActive: PropTypes.func.isRequired,
+    onEnterEditMode: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
@@ -141,7 +143,7 @@ class InternalEntry extends React.Component<Props, State> {
     super(props);
     invariant(props.threadInfo, "should be set");
     this.state = {
-      editing: false,
+      editing: InternalEntry.isFocused(props),
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight,
@@ -178,7 +180,7 @@ class InternalEntry extends React.Component<Props, State> {
     ) {
       this.guardedSetState({ threadInfo: nextProps.threadInfo });
     }
-    if (!nextProps.focused && this.props.focused) {
+    if (!nextProps.active && this.props.active) {
       if (this.textInput) {
         this.textInput.blur();
       }
@@ -212,11 +214,11 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   static isFocused(props: Props) {
-    return props.focused || !props.entryInfo.id;
+    return props.active || !props.entryInfo.id;
   }
 
   static isEditing(props: Props, state: State) {
-    return (props.focused && state.editing) || !props.entryInfo.id;
+    return (props.active && state.editing) || !props.entryInfo.id;
   }
 
   render() {
@@ -230,7 +232,7 @@ class InternalEntry extends React.Component<Props, State> {
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
       let editButtonContent;
-      if (this.state.editing) {
+      if (editing) {
         editButtonContent = (
           <React.Fragment>
             <Icon
@@ -319,9 +321,11 @@ class InternalEntry extends React.Component<Props, State> {
         backgroundColor: `#${this.state.threadInfo.color}`,
       };
       const selectionColor = darkColor ? '#129AFF' : '#036AFF';
+      // For why autoFocus is platform-dependant, see comment in enterEditMode
       textInput = (
         <TextInput
           style={[styles.textInput, textInputStyle]}
+          autoFocus={Platform.OS !== "android"}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -338,7 +342,10 @@ class InternalEntry extends React.Component<Props, State> {
     };
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     let rawText = this.state.text;
-    if (Platform.OS === "android" && rawText.slice(-1) === "\n") {
+    if (
+      Platform.OS === "android" &&
+      (rawText === "" || rawText.slice(-1) === "\n")
+    ) {
       rawText += " ";
     }
     const text = (
@@ -366,7 +373,7 @@ class InternalEntry extends React.Component<Props, State> {
     const opacity = editing ? 1.0 : 0.6;
     const entry = (
       <Button
-        onPress={this.focus}
+        onPress={this.setActive}
         style={[styles.entry, entryStyle]}
         androidFormat="opacity"
         iosActiveOpacity={opacity}
@@ -384,16 +391,25 @@ class InternalEntry extends React.Component<Props, State> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-    if (textInput && InternalEntry.isFocused(this.props)) {
-      setTimeout(textInput.focus, 400);
+    if (textInput && InternalEntry.isEditing(this.props, this.state)) {
+      this.enterEditMode(textInput);
     }
   }
 
-  focus = () => this.props.onFocus(entryKey(this.props.entryInfo), true);
+  enterEditMode = (textInput: TextInput) => {
+    if (Platform.OS === "android") {
+      // On Android autoFocus doesn't seem to work for some reason
+      setTimeout(textInput.focus, 400);
+    }
+    this.setActive();
+    this.props.onEnterEditMode(this.props.entryInfo);
+  }
 
-  blur = () => {
+  setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
+
+  setInactive = () => {
     this.setState({ editing: false });
-    this.props.onFocus(entryKey(this.props.entryInfo), false);
+    this.props.makeActive(entryKey(this.props.entryInfo), false);
   }
 
   onBlur = () => {
@@ -402,12 +418,12 @@ class InternalEntry extends React.Component<Props, State> {
     } else if (this.props.entryInfo.text !== this.state.text) {
       this.dispatchSave(this.props.entryInfo.id, this.state.text);
     }
-    this.blur();
+    this.setInactive();
   }
 
   save = () => {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
-    this.blur();
+    this.setInactive();
   }
 
   onTextLayout = (
@@ -547,7 +563,7 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   onPressEdit = () => {
-    if (this.state.editing) {
+    if (InternalEntry.isEditing(this.props, this.state)) {
       this.save();
     } else {
       this.setState({ editing: true });

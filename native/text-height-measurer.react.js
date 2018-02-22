@@ -153,10 +153,13 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     const dummies = Array.from(set).map((textToMeasure: TextToMeasure) => {
       const style = textToMeasure.style ? textToMeasure.style : this.props.style;
       invariant(style, "style should exist for every text being measured!");
-      const text =
-        Platform.OS === "android" && textToMeasure.text.slice(-1) === "\n"
-          ? `${textToMeasure.text} `
-          : textToMeasure.text;
+      let text = textToMeasure.text;
+      if (
+        Platform.OS === "android" &&
+        (text === "" || text.slice(-1) === "\n")
+      ) {
+        text += " ";
+      }
       return (
         <Text
           style={[styles.text, style]}

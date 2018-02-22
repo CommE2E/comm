@@ -84,7 +84,7 @@ type CalendarItemWithHeight =
     dateString: string,
   };
 type ExtraData = {
-  focusedEntries: {[key: string]: bool},
+  activeEntries: {[key: string]: bool},
   visibleEntries: {[key: string]: bool},
 };
 
@@ -205,7 +205,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       ? InnerCalendar.textToMeasureFromListData(props.listData)
       : [];
     this.latestExtraData = {
-      focusedEntries: {},
+      activeEntries: {},
       visibleEntries: {},
     };
     this.state = {
@@ -276,7 +276,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
     if (!newListData) {
       this.latestExtraData = {
-        focusedEntries: {},
+        activeEntries: {},
         visibleEntries: {},
       };
       this.setState({
@@ -548,9 +548,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       return (
         <Entry
           entryInfo={item.entryInfo}
-          focused={!!this.state.extraData.focusedEntries[key]}
+          active={!!this.state.extraData.activeEntries[key]}
           visible={!!this.state.extraData.visibleEntries[key]}
-          onFocus={this.onEntryFocus}
+          makeActive={this.makeActive}
+          onEnterEditMode={this.onEnterEntryEditMode}
           navigate={this.props.navigation.navigate}
           entryRef={this.entryRef}
         />
@@ -738,45 +739,49 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.entryRefs.set(entryKey, entry);
   }
 
-  onEntryFocus = (key: string, focused: bool) => {
+  makeActive = (key: string, focused: bool) => {
     if (!focused) {
-      if (_size(this.state.extraData.focusedEntries) === 0) {
-        if (_size(this.latestExtraData.focusedEntries) !== 0) {
+      if (_size(this.state.extraData.activeEntries) === 0) {
+        if (_size(this.latestExtraData.activeEntries) !== 0) {
           this.latestExtraData = {
             visibleEntries: this.latestExtraData.visibleEntries,
-            focusedEntries: this.state.extraData.focusedEntries,
+            activeEntries: this.state.extraData.activeEntries,
           };
         }
         return;
       }
       this.latestExtraData = {
         visibleEntries: this.latestExtraData.visibleEntries,
-        focusedEntries: {},
+        activeEntries: {},
       };
       this.setState({ extraData: this.latestExtraData });
       return;
     }
 
     if (
-      _size(this.state.extraData.focusedEntries) === 1 &&
-      this.state.extraData.focusedEntries[key]
+      _size(this.state.extraData.activeEntries) === 1 &&
+      this.state.extraData.activeEntries[key]
     ) {
       if (
-        _size(this.latestExtraData.focusedEntries) !== 1 ||
-        !this.latestExtraData.focusedEntries[key]
+        _size(this.latestExtraData.activeEntries) !== 1 ||
+        !this.latestExtraData.activeEntries[key]
       ) {
         this.latestExtraData = {
           visibleEntries: this.latestExtraData.visibleEntries,
-          focusedEntries: this.state.extraData.focusedEntries,
+          activeEntries: this.state.extraData.activeEntries,
         };
       }
       return;
     }
     this.latestExtraData = {
       visibleEntries: this.latestExtraData.visibleEntries,
-      focusedEntries: { [key]: true },
+      activeEntries: { [key]: true },
     };
     this.setState({ extraData: this.latestExtraData });
+  }
+
+  onEnterEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
+    const key = entryKey(entryInfo);
     const keyboardShownHeight = this.keyboardShownHeight;
     if (keyboardShownHeight) {
       this.scrollToKey(key, keyboardShownHeight);
@@ -787,10 +792,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   keyboardShow = (event: KeyboardEvent) => {
     const inputBarHeight = Platform.OS === "android" ? 37.7 : 35.5;
-    this.keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
+    const keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
+    this.keyboardShownHeight = keyboardShownHeight;
     const lastEntryKeyFocused = this.lastEntryKeyFocused;
     if (lastEntryKeyFocused) {
-      this.scrollToKey(lastEntryKeyFocused, this.keyboardShownHeight);
+      this.scrollToKey(lastEntryKeyFocused, keyboardShownHeight);
       this.lastEntryKeyFocused = null;
     }
   }
@@ -867,8 +873,14 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       }
     }
     this.latestExtraData = {
-      focusedEntries: _pickBy((_, key: string) => visibleEntries[key])
-        (this.latestExtraData.focusedEntries),
+      activeEntries: _pickBy(
+        (_, key: string) => {
+          const item = _find
+            (item => item.entryInfo && entryKey(item.entryInfo) === key)
+            (this.state.listDataWithHeights);
+          return visibleEntries[key] || (item && !item.id);
+        },
+      )(this.latestExtraData.activeEntries),
       visibleEntries,
     };
 
@@ -954,7 +966,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   onSaveEntry = () => {
-    const entryKeys = Object.keys(this.latestExtraData.focusedEntries);
+    const entryKeys = Object.keys(this.latestExtraData.activeEntries);
     if (entryKeys.length === 0) {
       return;
     }
