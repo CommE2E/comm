@@ -7,6 +7,8 @@ import {
   type LeaveThreadRequest,
   type LeaveThreadResult,
   type UpdateThreadRequest,
+  type ThreadJoinRequest,
+  type ThreadJoinResult,
   threadPermissions,
   visibilityRules,
   assertVisibilityRules,
@@ -16,7 +18,7 @@ import type { UserViewer } from '../session/viewer';
 import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/fetch-utils';
-import { messageType } from 'lib/types/message-types';
+import { messageType, defaultNumberPerThread } from 'lib/types/message-types';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
@@ -40,6 +42,7 @@ import {
 } from './thread-permission-updaters';
 import { currentViewer } from '../session/viewer';
 import createMessages from '../creators/message-creator';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
 async function updateRole(
   request: RoleChangeRequest,
@@ -552,9 +555,90 @@ async function updateThread(
   };
 }
 
+async function joinThread(
+  request: ThreadJoinRequest,
+): Promise<ThreadJoinResult> {
+  const threadQuery = SQL`
+    SELECT visibility_rules, hash FROM threads WHERE id = ${request.threadID}
+  `;
+  const [ isMember, hasPermission, [ threadResult ] ] = await Promise.all([
+    viewerIsMember(request.threadID),
+    checkThreadPermission(request.threadID, threadPermissions.JOIN_THREAD),
+    pool.query(threadQuery),
+  ]);
+  if (isMember || !hasPermission || threadResult.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+  const threadRow = threadResult[0];
+
+  // You can only be added to these visibility types if you know the password
+  const visRules = assertVisibilityRules(threadRow.visibility_rules);
+  if (
+    visRules === visibilityRules.CLOSED ||
+    visRules === visibilityRules.SECRET
+  ) {
+    if (!threadRow.hash) {
+      throw new ServerError('database_corruption');
+    }
+    if (!request.password) {
+      throw new ServerError('invalid_parameters');
+    }
+    if (!bcrypt.compareSync(request.password, threadRow.hash)) {
+      throw new ServerError('invalid_credentials');
+    }
+  }
+
+  const changeset = await changeRole(
+    request.threadID,
+    [currentViewer().id],
+    null,
+  );
+  if (!changeset) {
+    throw new ServerError('unknown_error');
+  }
+  const toSave = changeset.toSave.map(rowToSave => ({
+    ...rowToSave,
+    subscription: { home: true, pushNotifs: true },
+  }));
+
+  const messageData = {
+    type: messageType.JOIN_THREAD,
+    threadID: request.threadID,
+    creatorID: currentViewer().id,
+    time: Date.now(),
+  };
+  await Promise.all([
+    createMessages([messageData]),
+    saveMemberships(toSave),
+    deleteMemberships(changeset.toDelete),
+  ]);
+
+  const threadSelectionCriteria = {
+    threadCursors: {[request.threadID]: false},
+  };
+  const [ fetchMessagesResult, fetchThreadsResult ] = await Promise.all([
+    fetchMessageInfos(
+      threadSelectionCriteria,
+      defaultNumberPerThread,
+    ),
+    fetchThreadInfos(),
+  ]);
+
+  return {
+    threadInfos: fetchThreadsResult.threadInfos,
+    rawMessageInfos: fetchMessagesResult.rawMessageInfos,
+    truncationStatuses: fetchMessagesResult.truncationStatuses,
+    userInfos: {
+      ...fetchMessagesResult.userInfos,
+      ...fetchThreadsResult.userInfos,
+    },
+  };
+}
+
 export {
   updateRole,
   removeMembers,
   leaveThread,
   updateThread,
+  joinThread,
 };

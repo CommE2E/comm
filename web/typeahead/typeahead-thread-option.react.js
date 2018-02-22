@@ -1,7 +1,11 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  threadPermissions,
+  type ThreadJoinPayload,
+} from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState, NavInfo } from '../redux-setup';
 import { navInfoPropType } from '../redux-setup';
@@ -9,7 +13,6 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { JoinThreadResult } from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -62,7 +65,7 @@ type Props = {
   joinThread: (
     threadID: string,
     threadPassword?: string,
-  ) => Promise<JoinThreadResult>;
+  ) => Promise<ThreadJoinPayload>;
 };
 type State = {
   passwordEntryValue: string,

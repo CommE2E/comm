@@ -5,13 +5,13 @@ import {
   threadInfoPropType,
   threadPermissions,
   type LeaveThreadPayload,
+  type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { CalendarResult } from 'lib/actions/entry-actions';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { JoinThreadResult } from 'lib/actions/thread-actions';
 
 import PropTypes from 'prop-types';
 
@@ -71,7 +71,7 @@ type Props = {
   joinThread: (
     threadID: string,
     threadPassword?: string,
-  ) => Promise<JoinThreadResult>,
+  ) => Promise<ThreadJoinPayload>,
   leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };

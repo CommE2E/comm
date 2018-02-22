@@ -7,9 +7,12 @@ import type {
 } from 'lib/utils/action-utils';
 import type { SendMessageResult } from 'lib/actions/message-actions';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
-import type { JoinThreadResult } from 'lib/actions/thread-actions';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  threadPermissions,
+  type ThreadJoinPayload,
+} from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 
@@ -67,7 +70,7 @@ type Props = {
   joinThread: (
     threadID: string,
     threadPassword?: string,
-  ) => Promise<JoinThreadResult>,
+  ) => Promise<ThreadJoinPayload>,
 };
 type State = {
   text: string,

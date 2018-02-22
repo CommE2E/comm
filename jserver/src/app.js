@@ -37,6 +37,7 @@ import {
   threadLeaveResponder,
   threadUpdateResponder,
   threadCreationResponder,
+  threadJoinResponder,
 } from './responders/thread-responders';
 
 const app = express();
@@ -67,6 +68,7 @@ const jsonEndpoints = {
   'update_thread': threadUpdateResponder,
   'create_thread': threadCreationResponder,
   'fetch_messages': messageFetchResponder,
+  'join_thread': threadJoinResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];

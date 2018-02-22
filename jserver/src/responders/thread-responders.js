@@ -11,6 +11,8 @@ import {
   type UpdateThreadRequest,
   type NewThreadRequest,
   type NewThreadResult,
+  type ThreadJoinRequest,
+  type ThreadJoinResult,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
 
@@ -26,6 +28,7 @@ import {
   removeMembers,
   leaveThread,
   updateThread,
+  joinThread,
 } from '../updaters/thread-updaters';
 import createThread from '../creators/thread-creator';
 
@@ -69,8 +72,7 @@ async function roleUpdateResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { threadInfo, newMessageInfos } = await updateRole(roleChangeRequest);
-  return { threadInfo, newMessageInfos };
+  return await updateRole(roleChangeRequest);
 }
 
 const removeMembersRequestInputValidator = tShape({
@@ -87,10 +89,7 @@ async function memberRemovalResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { threadInfo, newMessageInfos } = await removeMembers(
-    removeMembersRequest,
-  );
-  return { threadInfo, newMessageInfos };
+  return await removeMembers(removeMembersRequest);
 }
 
 const leaveThreadRequestInputValidator = tShape({
@@ -106,8 +105,7 @@ async function threadLeaveResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { threadInfos } = await leaveThread(leaveThreadRequest);
-  return { threadInfos };
+  return await leaveThread(leaveThreadRequest);
 }
 
 const updateThreadRequestInputValidator = tShape({
@@ -138,9 +136,7 @@ async function threadUpdateResponder(
     throw new ServerError('not_logged_in');
   }
 
-  const result = await updateThread(viewer, updateThreadRequest);
-  const { threadInfo, newMessageInfos } = result;
-  return { threadInfo, newMessageInfos };
+  return await updateThread(viewer, updateThreadRequest);
 }
 
 const newThreadRequestInputValidator = tShape({
@@ -166,9 +162,23 @@ async function threadCreationResponder(
     throw new ServerError('not_logged_in');
   }
 
-  const result = await createThread(viewer, newThreadRequest);
-  const { newThreadInfo, newMessageInfos } = result;
-  return { newThreadInfo, newMessageInfos };
+  return await createThread(viewer, newThreadRequest);
+}
+
+const joinThreadRequestInputValidator = tShape({
+  threadID: t.String,
+  password: t.maybe(t.String),
+});
+async function threadJoinResponder(
+  req: $Request,
+  res: $Response,
+): Promise<ThreadJoinResult> {
+  const threadJoinRequest: ThreadJoinRequest = (req.body: any);
+  if (!joinThreadRequestInputValidator.is(threadJoinRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  return await joinThread(threadJoinRequest);
 }
 
 export {
@@ -178,4 +188,5 @@ export {
   threadLeaveResponder,
   threadUpdateResponder,
   threadCreationResponder,
+  threadJoinResponder,
 };
