@@ -6,6 +6,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { NavInfo } from './navigation-setup';
+import type { PersistState } from 'redux-persist/src/types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -13,7 +14,7 @@ import thunk from 'redux-thunk';
 import storage from 'redux-persist/lib/storage';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
+import { persistStore, persistReducer } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions } from 'react-navigation';
 import {
@@ -53,7 +54,7 @@ export type AppState = {|
   cookie: ?string,
   deviceToken: ?string,
   threadIDsToNotifIDs: {[threadID: string]: string[]},
-  rehydrateConcluded: bool,
+  _persist: ?PersistState,
 |};
 
 const defaultState = ({
@@ -78,7 +79,7 @@ const defaultState = ({
   cookie: null,
   deviceToken: null,
   threadIDsToNotifIDs: {},
-  rehydrateConcluded: false,
+  _persist: null,
 }: AppState);
 
 const blacklist = __DEV__
@@ -86,17 +87,15 @@ const blacklist = __DEV__
       'sessionID',
       'lastUserInteraction',
       'loadingStatuses',
-      'rehydrateConcluded',
     ]
   : [
       'sessionID',
       'lastUserInteraction',
       'loadingStatuses',
-      'rehydrateConcluded',
       'navInfo',
     ];
 
-function reducer(state: AppState, action: *) {
+function reducer(state: AppState = defaultState, action: *) {
   const oldState = state;
   const navInfo = reduceNavInfo(state, action);
   if (navInfo && navInfo !== state.navInfo) {
@@ -115,26 +114,7 @@ function reducer(state: AppState, action: *) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      rehydrateConcluded: state.rehydrateConcluded,
-    };
-  }
-  if (action.type === REHYDRATE) {
-    state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      currentAsOf: state.currentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      rehydrateConcluded: true,
+      _persist: state._persist,
     };
   }
   if (
@@ -159,7 +139,7 @@ function reducer(state: AppState, action: *) {
         state.threadIDsToNotifIDs,
         action.payload,
       ),
-      rehydrateConcluded: state.rehydrateConcluded,
+      _persist: state._persist,
     };
   }
   // These action type are handled by reduceNavInfo above
@@ -207,7 +187,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      rehydrateConcluded: state.rehydrateConcluded,
+      _persist: state._persist,
     };
   }
   if (
@@ -240,7 +220,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      rehydrateConcluded: state.rehydrateConcluded,
+      _persist: state._persist,
     };
   }
   return state;
@@ -261,7 +241,7 @@ const store = createStore(
     persistConfig,
     reducer,
   ),
-  defaultState,
+  undefined,
   composeWithDevTools(
     applyMiddleware(thunk, reactNavigationMiddleware),
   ),

@@ -42,7 +42,6 @@ import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
-import { REHYDRATE } from 'redux-persist';
 
 import { registerConfig } from 'lib/utils/config';
 import {
@@ -177,9 +176,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   initialAndroidNotifHandled = false;
 
   componentDidMount() {
-    if (__DEV__ && Platform.OS === "android") {
-      this.props.dispatchActionPayload(REHYDRATE, null);
-    }
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);

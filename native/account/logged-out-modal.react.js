@@ -733,7 +733,7 @@ const isForegroundSelector =
   createIsForegroundSelector(LoggedOutModalRouteName);
 const LoggedOutModal = connect(
   (state: AppState) => ({
-    rehydrateConcluded: state.rehydrateConcluded,
+    rehydrateConcluded: state._persist && state._persist.rehydrated,
     cookie: state.cookie,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
