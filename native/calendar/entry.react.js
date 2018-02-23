@@ -85,6 +85,7 @@ type Props = {
     params?: NavigationParams,
     action?: NavigationAction,
   ) => bool,
+  onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   threadInfo: ThreadInfo,
@@ -120,6 +121,8 @@ class InternalEntry extends React.Component<Props, State> {
     makeActive: PropTypes.func.isRequired,
     onEnterEditMode: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
+    onPressWhitespace: PropTypes.func.isRequired,
+    entryRef: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
@@ -340,10 +343,6 @@ class InternalEntry extends React.Component<Props, State> {
       );
     }
 
-    const textStyle = {
-      color: textColor,
-    };
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     let rawText = this.state.text;
     if (
       Platform.OS === "android" &&
@@ -351,44 +350,35 @@ class InternalEntry extends React.Component<Props, State> {
     ) {
       rawText += " ";
     }
-    const text = (
-      <Hyperlink linkDefault={true} linkStyle={linkStyle}>
-        <Text
-          style={[styles.text, textStyle]}
-          onLayout={this.onTextLayout}
-        >
-          {rawText}
-        </Text>
-      </Hyperlink>
-    );
-
-    const textContainerStyle = {
-      height: this.state.height,
-    };
-    const textContainer = (
-      <View style={textContainerStyle}>
-        {text}
-        {textInput}
-      </View>
-    );
-
+    const textStyle = { color: textColor };
+    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    const textContainerStyle = { height: this.state.height };
     const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
     const opacity = editing ? 1.0 : 0.6;
-    const entry = (
-      <Button
-        onPress={this.setActive}
-        style={[styles.entry, entryStyle]}
-        androidFormat="opacity"
-        iosActiveOpacity={opacity}
-      >
-        {textContainer}
-        {actionLinks}
-      </Button>
-    );
     return (
-      <View style={styles.container}>
-        {entry}
-      </View>
+      <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
+        <View style={styles.container}>
+          <Button
+            onPress={this.setActive}
+            style={[styles.entry, entryStyle]}
+            androidFormat="opacity"
+            iosActiveOpacity={opacity}
+          >
+            <View style={textContainerStyle}>
+              <Hyperlink linkDefault={true} linkStyle={linkStyle}>
+                <Text
+                  style={[styles.text, textStyle]}
+                  onLayout={this.onTextLayout}
+                >
+                  {rawText}
+                </Text>
+              </Hyperlink>
+              {textInput}
+            </View>
+            {actionLinks}
+          </Button>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 

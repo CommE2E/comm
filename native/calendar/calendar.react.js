@@ -26,6 +26,7 @@ import {
   Keyboard,
   LayoutAnimation,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -544,7 +545,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (item.itemType === "loader") {
       return <ListLoadingIndicator />;
     } else if (item.itemType === "header") {
-      return InnerCalendar.renderSectionHeader(row);
+      return this.renderSectionHeader(row);
     } else if (item.itemType === "entryInfo") {
       const key = entryKey(item.entryInfo);
       return (
@@ -555,6 +556,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           makeActive={this.makeActive}
           onEnterEditMode={this.onEnterEntryEditMode}
           navigate={this.props.navigation.navigate}
+          onPressWhitespace={this.makeAllEntriesInactive}
           entryRef={this.entryRef}
         />
       );
@@ -564,27 +566,31 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     invariant(false, "renderItem conditions should be exhaustive");
   }
 
-  static renderSectionHeader = (row: { item: CalendarItemWithHeight }) => {
+  renderSectionHeader = (row: { item: CalendarItemWithHeight }) => {
     invariant(row.item.itemType === "header", "itemType should be header");
     let date = prettyDate(row.item.dateString);
     if (dateString(new Date()) === row.item.dateString) {
       date += " (today)";
     }
     return (
-      <View style={styles.sectionHeader}>
-        <View>
+      <TouchableWithoutFeedback onPress={this.makeAllEntriesInactive}>
+        <View style={styles.sectionHeader}>
           <Text style={styles.sectionHeaderText}>
             {date}
           </Text>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 
   renderSectionFooter = (row: { item: CalendarItemWithHeight }) => {
     invariant(row.item.itemType === "footer", "itemType should be footer");
     return (
-      <SectionFooter dateString={row.item.dateString} onAdd={this.onAdd} />
+      <SectionFooter
+        dateString={row.item.dateString}
+        onAdd={this.onAdd}
+        onPressWhitespace={this.makeAllEntriesInactive}
+      />
     );
   }
 
@@ -744,22 +750,26 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.entryRefs.set(entryKey, entry);
   }
 
+  makeAllEntriesInactive = () => {
+    if (_size(this.state.extraData.activeEntries) === 0) {
+      if (_size(this.latestExtraData.activeEntries) !== 0) {
+        this.latestExtraData = {
+          visibleEntries: this.latestExtraData.visibleEntries,
+          activeEntries: this.state.extraData.activeEntries,
+        };
+      }
+      return;
+    }
+    this.latestExtraData = {
+      visibleEntries: this.latestExtraData.visibleEntries,
+      activeEntries: {},
+    };
+    this.setState({ extraData: this.latestExtraData });
+  }
+
   makeActive = (key: string, active: bool) => {
     if (!active) {
-      if (_size(this.state.extraData.activeEntries) === 0) {
-        if (_size(this.latestExtraData.activeEntries) !== 0) {
-          this.latestExtraData = {
-            visibleEntries: this.latestExtraData.visibleEntries,
-            activeEntries: this.state.extraData.activeEntries,
-          };
-        }
-        return;
-      }
-      this.latestExtraData = {
-        visibleEntries: this.latestExtraData.visibleEntries,
-        activeEntries: {},
-      };
-      this.setState({ extraData: this.latestExtraData });
+      this.makeAllEntriesInactive();
       return;
     }
 

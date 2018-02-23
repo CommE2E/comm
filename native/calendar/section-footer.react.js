@@ -5,6 +5,7 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
@@ -14,29 +15,33 @@ import Button from '../components/button.react';
 type Props = {
   dateString: string,
   onAdd: (dateString: string) => void,
+  onPressWhitespace: () => void,
 };
 class SectionFooter extends React.PureComponent<Props> {
 
   static propTypes = {
     dateString: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,
+    onPressWhitespace: PropTypes.func.isRequired,
   };
 
   render() {
     return (
-      <View style={styles.sectionFooter}>
-        <Button
-          onPress={this.onSubmit}
-          iosFormat="highlight"
-          iosActiveOpacity={0.85}
-          style={styles.addButton}
-        >
-          <View style={styles.addButtonContents}>
-            <Icon name="plus" style={styles.addIcon} />
-            <Text style={styles.actionLinksText}>Add</Text>
-          </View>
-        </Button>
-      </View>
+      <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
+        <View style={styles.sectionFooter}>
+          <Button
+            onPress={this.onSubmit}
+            iosFormat="highlight"
+            iosActiveOpacity={0.85}
+            style={styles.addButton}
+          >
+            <View style={styles.addButtonContents}>
+              <Icon name="plus" style={styles.addIcon} />
+              <Text style={styles.actionLinksText}>Add</Text>
+            </View>
+          </Button>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 
