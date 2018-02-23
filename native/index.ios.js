@@ -1,3 +1,0 @@
-// @flow
-
-import './app.react';
