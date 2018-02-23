@@ -186,8 +186,9 @@ class InternalEntry extends React.Component<Props, State> {
     ) {
       this.guardedSetState({ threadInfo: nextProps.threadInfo });
     }
-    if (!willBeActive && wasActive && this.textInput) {
+    if (!nextProps.active && wasActive && this.textInput) {
       this.textInput.blur();
+      this.setInactive();
     }
   }
 
@@ -236,7 +237,7 @@ class InternalEntry extends React.Component<Props, State> {
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
     if (active) {
-      const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
+      const actionLinksColor = darkColor ? '#D3D3D3' : '#404040';
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
       let editButtonContent;
@@ -344,10 +345,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
 
     let rawText = this.state.text;
-    if (
-      Platform.OS === "android" &&
-      (rawText === "" || rawText.slice(-1) === "\n")
-    ) {
+    if (rawText === "" || rawText.slice(-1) === "\n") {
       rawText += " ";
     }
     const textStyle = { color: textColor };

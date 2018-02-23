@@ -769,7 +769,21 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   makeActive = (key: string, active: bool) => {
     if (!active) {
-      this.makeAllEntriesInactive();
+      const activeKeys = Object.keys(this.latestExtraData.activeEntries);
+      if (activeKeys.length === 0) {
+        if (Object.keys(this.state.extraData.activeEntries).length !== 0) {
+          this.setState({ extraData: this.latestExtraData });
+        }
+        return;
+      }
+      const activeKey = activeKeys[0];
+      if (activeKey === key) {
+        this.latestExtraData = {
+          visibleEntries: this.latestExtraData.visibleEntries,
+          activeEntries: {},
+        };
+        this.setState({ extraData: this.latestExtraData });
+      }
       return;
     }
 
