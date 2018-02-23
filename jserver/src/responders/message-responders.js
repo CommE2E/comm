@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { Viewer } from '../session/viewer';
 import {
   messageType,
   type MessageData,
@@ -19,7 +20,6 @@ import { threadPermissions } from 'lib/types/thread-types';
 import createMessages from '../creators/message-creator';
 import { tShape } from '../utils/tcomb-utils';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
-import { currentViewer } from '../session/viewer';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
 const sendTextMessageRequestInputValidator = tShape({
@@ -28,6 +28,7 @@ const sendTextMessageRequestInputValidator = tShape({
 });
 
 async function textMessageCreationResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<SendTextMessageResponse> {
@@ -37,6 +38,7 @@ async function textMessageCreationResponder(
   }
 
   const hasPermission = await checkThreadPermission(
+    viewer,
     sendTextMessageRequest.threadID,
     threadPermissions.VOICED,
   );
@@ -47,7 +49,7 @@ async function textMessageCreationResponder(
   const messageData = {
     type: messageType.TEXT,
     threadID: sendTextMessageRequest.threadID,
-    creatorID: currentViewer().id,
+    creatorID: viewer.id,
     time: Date.now(),
     text: sendTextMessageRequest.text,
   };
@@ -62,6 +64,7 @@ const fetchMessageInfosRequestInputValidator = tShape({
 });
 
 async function messageFetchResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<FetchMessageInfosResult> {
@@ -71,6 +74,7 @@ async function messageFetchResponder(
   }
 
   return await fetchMessageInfos(
+    viewer,
     { threadCursors: fetchMessageInfosRequest.cursors },
     fetchMessageInfosRequest.numberPerThread
       ? fetchMessageInfosRequest.numberPerThread

@@ -1,5 +1,7 @@
 // @flow
 
+import type { Viewer } from '../session/viewer';
+
 import type {
   DeleteEntryRequest,
   DeleteEntryResponse,
@@ -13,7 +15,6 @@ import { dateString } from 'lib/utils/date-utils';
 import { messageType } from 'lib/types/message-types';
 
 import { pool, SQL } from '../database';
-import { currentViewer } from '../session/viewer';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
@@ -32,10 +33,12 @@ const lastRevisionQuery = (entryID: string) =>
   `);
 
 async function deleteEntry(
+  viewer: Viewer,
   request: DeleteEntryRequest,
 ): Promise<DeleteEntryResponse> {
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
+      viewer,
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
@@ -53,7 +56,7 @@ async function deleteEntry(
   }
 
   const text = lastRevisionRow.text;
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   if (
     request.sessionID !== lastRevisionRow.session_id &&
     request.prevText !== text
@@ -106,10 +109,12 @@ async function deleteEntry(
 }
 
 async function restoreEntry(
+  viewer: Viewer,
   request: RestoreEntryRequest,
 ): Promise<RestoreEntryResponse> {
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
+      viewer,
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
@@ -127,7 +132,7 @@ async function restoreEntry(
   }
 
   const text = lastRevisionRow.text;
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const promises = [];
   promises.push(pool.query(SQL`
     UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}

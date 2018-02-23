@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { Viewer } from '../session/viewer';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -29,6 +30,7 @@ const inputValidator = t.list(t.union([
 ]));
 
 async function updateActivityResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<UpdateActivityResult> {
@@ -37,7 +39,7 @@ async function updateActivityResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  return await activityUpdater(updates);
+  return await activityUpdater(viewer, updates);
 }
 
 export {

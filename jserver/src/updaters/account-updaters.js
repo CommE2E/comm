@@ -1,7 +1,7 @@
 // @flow
 
 import type { AccountUpdate } from 'lib/types/user-types';
-import type { UserViewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer';
 import type { PasswordResetRequest } from 'lib/types/account-types';
 
 import bcrypt from 'twin-bcrypt';
@@ -13,10 +13,11 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { pool, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { sendPasswordResetEmail } from '../emails/reset-password';
-import { currentViewer } from '../session/viewer';
 
-async function accountUpdater(update: AccountUpdate) {
-  const viewer = currentViewer();
+async function accountUpdater(
+  viewer: Viewer,
+  update: AccountUpdate,
+): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -77,8 +78,9 @@ async function accountUpdater(update: AccountUpdate) {
   await Promise.all(savePromises);
 }
 
-async function checkAndSendVerificationEmail() {
-  const viewer = currentViewer();
+async function checkAndSendVerificationEmail(
+  viewer: Viewer,
+): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }

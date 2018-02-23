@@ -6,7 +6,7 @@ import {
   visibilityRules,
   threadPermissions,
 } from 'lib/types/thread-types';
-import type { UserViewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -27,12 +27,11 @@ import {
   deleteMemberships,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
-import { currentViewer } from '../session/viewer';
 
 async function createThread(
+  viewer: Viewer,
   request: NewThreadRequest,
 ): Promise<NewThreadResult> {
-  const viewer = currentViewer();
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -64,6 +63,7 @@ async function createThread(
     }
     parentThreadID = request.parentThreadID;
     const hasPermission = await checkThreadPermission(
+      viewer,
       parentThreadID,
       threadPermissions.CREATE_SUBTHREADS,
     );

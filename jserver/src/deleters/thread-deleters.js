@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadDeletionRequest } from 'lib/types/thread-types';
-import type { UserViewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -10,17 +10,17 @@ import { threadPermissions } from 'lib/types/thread-types';
 
 import { pool, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
-import { currentViewer } from '../session/viewer';
 
 async function deleteThread(
+  viewer: Viewer,
   threadDeletionRequest: ThreadDeletionRequest,
 ): Promise<void> {
-  const viewer = currentViewer();
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
 
   const hasPermission = await checkThreadPermission(
+    viewer,
     threadDeletionRequest.threadID,
     threadPermissions.DELETE_THREAD,
   );

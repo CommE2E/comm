@@ -2,9 +2,9 @@
 
 import type { UserInfos, CurrentUserInfo } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/fetch-utils';
+import type { Viewer } from '../session/viewer';
 
 import { pool, SQL } from '../database';
-import { currentViewer } from '../session/viewer';
 
 async function fetchUserInfos(
   userIDs: string[],
@@ -63,8 +63,9 @@ async function verifyUserOrCookieIDs(
   return result.map(row => row.id.toString());
 }
 
-async function fetchCurrentUserInfo(): Promise<CurrentUserInfo> {
-  const viewer = currentViewer();
+async function fetchCurrentUserInfo(
+  viewer: Viewer,
+): Promise<CurrentUserInfo> {
   if (!viewer.loggedIn) {
     return { id: viewer.cookieID, anonymous: true };
   }

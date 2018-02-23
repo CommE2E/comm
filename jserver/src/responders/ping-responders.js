@@ -3,6 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { PingRequest, PingResponse } from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
@@ -24,6 +25,7 @@ const pingRequestInputValidator = tShape({
 });
 
 async function pingResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<PingResponse> {
@@ -56,17 +58,22 @@ async function pingResponder(
     currentUserInfo,
   ] = await Promise.all([
     fetchMessageInfosSince(
+      viewer,
       threadSelectionCriteria,
       pingRequest.lastPing,
       defaultNumberPerThread,
     ),
-    fetchThreadInfos(),
-    fetchEntryInfos(pingRequest.calendarQuery),
-    fetchCurrentUserInfo(),
+    fetchThreadInfos(viewer),
+    fetchEntryInfos(viewer, pingRequest.calendarQuery),
+    fetchCurrentUserInfo(viewer),
   ]);
 
   // Do this one separately in case any of the above throw an exception
-  await updateActivityTime(newPingTime, pingRequest.clientSupportsMessages);
+  await updateActivityTime(
+    viewer,
+    newPingTime,
+    pingRequest.clientSupportsMessages,
+  );
 
   const userInfos: any = Object.values({
     ...messagesResult.userInfos,

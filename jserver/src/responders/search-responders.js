@@ -5,6 +5,7 @@ import type {
   UserSearchRequest,
   UserSearchResult,
 } from 'lib/types/search-types';
+import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
@@ -18,6 +19,7 @@ const userSearchRequestInputValidator = tShape({
 });
 
 async function userSearchResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<UserSearchResult> {

@@ -1,18 +1,19 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { setCurrentViewerFromCookie } from '../session/cookies';
+import { getViewerFromCookie } from '../session/cookies';
 
-type Responder = (req: $Request, res: $Response) => Promise<*>;
+type Responder = (viewer: Viewer, req: $Request, res: $Response) => Promise<*>;
 
 function jsonHandler(responder: Responder) {
   return async (req: $Request, res: $Response) => {
     try {
-      await setCurrentViewerFromCookie(req.cookies);
-      const result = await responder(req, res);
+      const viewer = await getViewerFromCookie(req.cookies);
+      const result = await responder(viewer, req, res);
       if (!res.headersSent) {
         res.json({ success: true, ...result });
       }

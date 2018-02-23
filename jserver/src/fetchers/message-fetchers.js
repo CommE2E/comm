@@ -17,6 +17,7 @@ import {
   threadPermissions,
   visibilityRules,
 } from 'lib/types/thread-types';
+import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
@@ -26,7 +27,6 @@ import { permissionHelper } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL, mergeOrConditions } from '../database';
-import { currentViewer } from '../session/viewer';
 import { fetchUserInfos } from './user-fetchers';
 
 export type CollapsableNotifInfo = {|
@@ -287,6 +287,7 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
 }
 
 async function fetchMessageInfos(
+  viewer: Viewer,
   criteria: ThreadSelectionCriteria,
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
@@ -296,7 +297,7 @@ async function fetchMessageInfos(
     messageTruncationStatus.EXHAUSTIVE,
   );
 
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT * FROM (
@@ -433,6 +434,7 @@ async function fetchAllUsers(
 }
 
 async function fetchMessageInfosSince(
+  viewer: Viewer,
   criteria: ThreadSelectionCriteria,
   currentAsOf: number,
   maxNumberPerThread: number,
@@ -443,7 +445,7 @@ async function fetchMessageInfosSince(
     messageTruncationStatus.EXHAUSTIVE,
   );
 
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,

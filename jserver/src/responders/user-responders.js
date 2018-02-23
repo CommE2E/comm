@@ -7,6 +7,7 @@ import type {
 } from 'lib/types/subscription-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { PasswordResetRequest } from 'lib/types/account-types';
+import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
@@ -19,7 +20,6 @@ import {
   checkAndSendPasswordResetEmail,
 } from '../updaters/account-updaters';
 import { tShape } from '../utils/tcomb-utils';
-import { currentViewer } from '../session/viewer';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -30,6 +30,7 @@ const subscriptionUpdateRequestInputValidator = tShape({
 });
 
 async function userSubscriptionUpdateResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<SubscriptionUpdateResponse> {
@@ -39,6 +40,7 @@ async function userSubscriptionUpdateResponder(
   }
 
   const threadSubscription = await userSubscriptionUpdater(
+    viewer,
     subscriptionUpdateRequest,
   );
   return { threadSubscription };
@@ -53,6 +55,7 @@ const accountUpdateInputValidator = tShape({
 });
 
 async function accountUpdateResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
@@ -61,14 +64,15 @@ async function accountUpdateResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  await accountUpdater(accountUpdate);
+  await accountUpdater(viewer, accountUpdate);
 }
 
 async function sendVerificationEmailResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  await checkAndSendVerificationEmail();
+  await checkAndSendVerificationEmail(viewer);
 }
 
 const resetPasswordRequestInputValidator = tShape({
@@ -76,6 +80,7 @@ const resetPasswordRequestInputValidator = tShape({
 });
 
 async function sendPasswordResetEmailResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {

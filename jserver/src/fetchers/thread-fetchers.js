@@ -7,6 +7,7 @@ import type {
 } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import type { PermissionsInfo } from 'lib/permissions/thread-permissions';
+import type { Viewer } from '../session/viewer';
 
 import {
   assertVisibilityRules,
@@ -19,7 +20,6 @@ import {
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
 import { pool, SQL, SQLStatement } from '../database';
-import { currentViewer } from '../session/viewer';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: {[id: string]: ServerThreadInfo},
@@ -27,6 +27,7 @@ type FetchServerThreadInfosResult = {|
 |};
 
 async function fetchServerThreadInfos(
+  viewer: Viewer,
   condition?: SQLStatement,
 ): Promise<FetchServerThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
@@ -116,10 +117,11 @@ type FetchThreadInfosResult = {|
 |};
 
 async function fetchThreadInfos(
+  viewer: Viewer,
   condition?: SQLStatement,
 ): Promise<FetchThreadInfosResult> {
-  const serverResult = await fetchServerThreadInfos(condition);
-  const viewerID = currentViewer().id;
+  const serverResult = await fetchServerThreadInfos(viewer, condition);
+  const viewerID = viewer.id;
   const threadInfos = {};
   const userInfos = {};
   for (let threadID in serverResult.threadInfos) {
@@ -161,9 +163,10 @@ async function verifyThreadID(threadID: string): Promise<bool> {
 }
 
 async function fetchThreadPermissionsInfo(
+  viewer: Viewer,
   threadID: string,
 ): Promise<?PermissionsInfo> {
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const query = SQL`
     SELECT t.visibility_rules, m.permissions
     FROM threads t
@@ -183,15 +186,19 @@ async function fetchThreadPermissionsInfo(
 }
 
 async function checkThreadPermission(
+  viewer: Viewer,
   threadID: string,
   permission: ThreadPermission,
 ): Promise<bool> {
-  const permissionsInfo = await fetchThreadPermissionsInfo(threadID);
+  const permissionsInfo = await fetchThreadPermissionsInfo(viewer, threadID);
   return permissionHelper(permissionsInfo, permission);
 }
 
-async function viewerIsMember(threadID: string): Promise<bool> {
-  const viewerID = currentViewer().id;
+async function viewerIsMember(
+  viewer: Viewer,
+  threadID: string,
+): Promise<bool> {
+  const viewerID = viewer.id;
   const query = SQL`
     SELECT role
     FROM memberships

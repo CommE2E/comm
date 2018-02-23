@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { Viewer } from '../session/viewer';
 import type {
   CalendarQuery,
   SaveEntryRequest,
@@ -37,6 +38,7 @@ const entryQueryInputValidator = tShape({
 });
 
 async function entryFetchResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<FetchEntryInfosResponse> {
@@ -53,8 +55,7 @@ async function entryFetchResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { rawEntryInfos, userInfos } = await fetchEntryInfos(entryQuery);
-  return { rawEntryInfos, userInfos };
+  return await fetchEntryInfos(viewer, entryQuery);
 }
 
 type EntryRevisionHistoryFetch = {|
@@ -65,6 +66,7 @@ const entryRevisionHistoryFetchInputValidator = tShape({
 });
 
 async function entryRevisionFetchResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<FetchEntryRevisionInfosResult> {
@@ -74,6 +76,7 @@ async function entryRevisionFetchResponder(
   }
 
   const entryHistory = await fetchEntryRevisionInfo(
+    viewer,
     entryRevisionHistoryFetch.id,
   );
   return { result: entryHistory };
@@ -88,6 +91,7 @@ const createEntryRequestInputValidator = tShape({
 });
 
 async function entryCreationResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<SaveEntryResult> {
@@ -96,7 +100,7 @@ async function entryCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  return await createEntry(createEntryRequest);
+  return await createEntry(viewer, createEntryRequest);
 }
 
 const saveEntryRequestInputValidator = tShape({
@@ -108,6 +112,7 @@ const saveEntryRequestInputValidator = tShape({
 });
 
 async function entryUpdateResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<SaveEntryResult> {
@@ -116,7 +121,7 @@ async function entryUpdateResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  return await updateEntry(saveEntryRequest);
+  return await updateEntry(viewer, saveEntryRequest);
 }
 
 const deleteEntryRequestInputValidator = tShape({
@@ -127,6 +132,7 @@ const deleteEntryRequestInputValidator = tShape({
 });
 
 async function entryDeletionResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<DeleteEntryResponse> {
@@ -135,7 +141,7 @@ async function entryDeletionResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  return await deleteEntry(deleteEntryRequest);
+  return await deleteEntry(viewer, deleteEntryRequest);
 }
 
 const restoreEntryRequestInputValidator = tShape({
@@ -145,6 +151,7 @@ const restoreEntryRequestInputValidator = tShape({
 });
 
 async function entryRestorationResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<RestoreEntryResponse> {
@@ -153,7 +160,7 @@ async function entryRestorationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  return await restoreEntry(restoreEntryRequest);
+  return await restoreEntry(viewer, restoreEntryRequest);
 }
 
 export {

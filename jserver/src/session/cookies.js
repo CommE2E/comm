@@ -1,9 +1,10 @@
 // @flow
 
+import type { Viewer } from './viewer';
+
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
-import { setCurrentViewer } from './viewer';
 import { pool, SQL } from '../database';
 
 const cookieLifetime = 30*24*60*60*1000; // in milliseconds
@@ -11,9 +12,9 @@ const cookieLifetime = 30*24*60*60*1000; // in milliseconds
 // This function is meant to consume a cookie that has already been processed.
 // That means it doesn't have any logic to handle an invalid cookie, and it
 // doesn't the cookie's last_update timestamp.
-async function setCurrentViewerFromCookie(
+async function getViewerFromCookie(
   cookieData: {[cookieName: string]: string},
-) {
+): Promise<Viewer> {
   if (cookieData.user) {
     const [ cookieID, cookiePassword ] = cookieData.user.split(':');
     invariant(cookieID && cookiePassword, `invalid cookie ${cookieData.user}`);
@@ -32,9 +33,11 @@ async function setCurrentViewerFromCookie(
       cookieRow.last_update + cookieLifetime > Date.now(),
       `user cookie ID ${cookieID} is expired`,
     );
-    setCurrentViewer({
-      anonymous: false,
-      userID: cookieRow.user.toString(),
+    const userID = cookieRow.user.toString();
+    return Object.freeze({
+      loggedIn: true,
+      id: userID,
+      userID,
       cookieID,
       cookiePassword,
     });
@@ -56,8 +59,9 @@ async function setCurrentViewerFromCookie(
       cookieRow.last_update + cookieLifetime > Date.now(),
       `anonymous cookie ID ${cookieID} is expired`,
     );
-    setCurrentViewer({
-      anonymous: true,
+    return Object.freeze({
+      loggedIn: false,
+      id: cookieID,
       cookieID,
       cookiePassword,
     });
@@ -67,5 +71,5 @@ async function setCurrentViewerFromCookie(
 }
 
 export {
-  setCurrentViewerFromCookie,
+  getViewerFromCookie,
 };

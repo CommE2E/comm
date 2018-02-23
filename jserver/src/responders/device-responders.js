@@ -2,6 +2,7 @@
 
 import type { $Response, $Request } from 'express';
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
+import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
@@ -16,6 +17,7 @@ const deviceTokenUpdateRequestInputValidator = tShape({
 });
 
 async function deviceTokenUpdateResponder(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
@@ -23,7 +25,7 @@ async function deviceTokenUpdateResponder(
   if (!deviceTokenUpdateRequestInputValidator.is(deviceTokenUpdateRequest)) {
     throw new ServerError('invalid_parameters');
   }
-  await deviceTokenUpdater(deviceTokenUpdateRequest);
+  await deviceTokenUpdater(viewer, deviceTokenUpdateRequest);
 }
 
 export {

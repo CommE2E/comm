@@ -13,7 +13,7 @@ import {
   visibilityRules,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
-import type { UserViewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -40,16 +40,17 @@ import {
   saveMemberships,
   deleteMemberships,
 } from './thread-permission-updaters';
-import { currentViewer } from '../session/viewer';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
 async function updateRole(
+  viewer: Viewer,
   request: RoleChangeRequest,
 ): Promise<ChangeThreadSettingsResult> {
   const [ memberIDs, hasPermission ] = await Promise.all([
     verifyUserIDs(request.memberIDs),
     checkThreadPermission(
+      viewer,
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
@@ -93,7 +94,7 @@ async function updateRole(
   const messageData = {
     type: messageType.CHANGE_ROLE,
     threadID: request.threadID,
-    creatorID: currentViewer().id,
+    creatorID: viewer.id,
     time: Date.now(),
     userIDs: memberIDs,
     newRole: request.role,
@@ -104,6 +105,7 @@ async function updateRole(
     deleteMemberships(changeset.toDelete),
   ]);
   const { threadInfos } = await fetchThreadInfos(
+    viewer,
     SQL`t.id = ${request.threadID}`,
   );
 
@@ -114,9 +116,10 @@ async function updateRole(
 }
 
 async function removeMembers(
+  viewer: Viewer,
   request: RemoveMembersRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   if (request.memberIDs.includes(viewerID)) {
     throw new ServerError('invalid_parameters');
   }
@@ -124,6 +127,7 @@ async function removeMembers(
   const [ memberIDs, hasPermission ] = await Promise.all([
     verifyUserOrCookieIDs(request.memberIDs),
     checkThreadPermission(
+      viewer,
       request.threadID,
       threadPermissions.REMOVE_MEMBERS,
     ),
@@ -157,6 +161,7 @@ async function removeMembers(
 
   if (nonDefaultRoleUser) {
     const hasChangeRolePermission = await checkThreadPermission(
+      viewer,
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     );
@@ -187,6 +192,7 @@ async function removeMembers(
     deleteMemberships(changeset.toDelete),
   ]);
   const { threadInfos } = await fetchThreadInfos(
+    viewer,
     SQL`t.id = ${request.threadID}`,
   );
 
@@ -197,18 +203,19 @@ async function removeMembers(
 }
 
 async function leaveThread(
+  viewer: Viewer,
   request: LeaveThreadRequest,
 ): Promise<LeaveThreadResult> {
   const [ isMember, { threadInfos: serverThreadInfos } ] = await Promise.all([
-    viewerIsMember(request.threadID),
-    fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
+    viewerIsMember(viewer, request.threadID),
+    fetchServerThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
   ]);
   if (!isMember) {
     throw new ServerError('invalid_parameters');
   }
   const serverThreadInfo = serverThreadInfos[request.threadID];
 
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   let otherUsersExist = false;
   let otherAdminsExist = false;
   for (let member of serverThreadInfo.members) {
@@ -251,14 +258,14 @@ async function leaveThread(
     deleteMemberships(changeset.toDelete),
   ]);
 
-  const { threadInfos } = await fetchThreadInfos();
+  const { threadInfos } = await fetchThreadInfos(viewer);
   return { threadInfos };
 }
 
 async function updateThread(
+  viewer: Viewer,
   request: UpdateThreadRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const viewer = currentViewer();
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -295,6 +302,7 @@ async function updateThread(
   if (parentThreadID !== undefined) {
     if (parentThreadID !== null) {
       validationPromises.canMoveThread = checkThreadPermission(
+        viewer,
         parentThreadID,
         threadPermissions.CREATE_SUBTHREADS,
       );
@@ -337,6 +345,7 @@ async function updateThread(
   }
 
   validationPromises.threadPermissionInfo = fetchThreadPermissionsInfo(
+    viewer,
     request.threadID,
   );
 
@@ -550,6 +559,7 @@ async function updateThread(
   ]);
 
   const { threadInfos } = await fetchThreadInfos(
+    viewer,
     SQL`t.id = ${request.threadID}`,
   );
 
@@ -560,14 +570,19 @@ async function updateThread(
 }
 
 async function joinThread(
+  viewer: Viewer,
   request: ThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
   const threadQuery = SQL`
     SELECT visibility_rules, hash FROM threads WHERE id = ${request.threadID}
   `;
   const [ isMember, hasPermission, [ threadResult ] ] = await Promise.all([
-    viewerIsMember(request.threadID),
-    checkThreadPermission(request.threadID, threadPermissions.JOIN_THREAD),
+    viewerIsMember(viewer, request.threadID),
+    checkThreadPermission(
+      viewer,
+      request.threadID,
+      threadPermissions.JOIN_THREAD,
+    ),
     pool.query(threadQuery),
   ]);
   if (isMember || !hasPermission || threadResult.length === 0) {
@@ -594,7 +609,7 @@ async function joinThread(
 
   const changeset = await changeRole(
     request.threadID,
-    [currentViewer().id],
+    [viewer.id],
     null,
   );
   if (!changeset) {
@@ -608,7 +623,7 @@ async function joinThread(
   const messageData = {
     type: messageType.JOIN_THREAD,
     threadID: request.threadID,
-    creatorID: currentViewer().id,
+    creatorID: viewer.id,
     time: Date.now(),
   };
   await Promise.all([
@@ -622,10 +637,11 @@ async function joinThread(
   };
   const [ fetchMessagesResult, fetchThreadsResult ] = await Promise.all([
     fetchMessageInfos(
+      viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    fetchThreadInfos(),
+    fetchThreadInfos(viewer),
   ]);
 
   return {

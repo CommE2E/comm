@@ -1,6 +1,7 @@
 // @flow
 
 import type { SaveEntryRequest, SaveEntryResult } from 'lib/types/entry-types';
+import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -9,11 +10,11 @@ import { dateString } from 'lib/utils/date-utils';
 
 import { pool, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
-import { currentViewer } from '../session/viewer';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 
 async function updateEntry(
+  viewer: Viewer,
   request: SaveEntryRequest,
 ): Promise<SaveEntryResult> {
   const entryQuery = SQL`
@@ -37,6 +38,7 @@ async function updateEntry(
     [ lastRevisionResult ],
   ] = await Promise.all([
     checkThreadPermissionForEntry(
+      viewer,
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
@@ -65,7 +67,7 @@ async function updateEntry(
     throw new ServerError('database_corruption');
   }
 
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const promises = [];
   let insertNewRevision = false;
   let updateEntry = false;

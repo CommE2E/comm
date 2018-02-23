@@ -4,16 +4,16 @@ import type {
   ThreadSubscription,
   SubscriptionUpdateRequest,
 } from 'lib/types/subscription-types';
+import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { currentViewer } from '../session/viewer';
 import { pool, SQL } from '../database';
 
 async function userSubscriptionUpdater(
+  viewer: Viewer,
   update: SubscriptionUpdateRequest,
 ): Promise<ThreadSubscription> {
-  const viewer = currentViewer();
   const query = SQL`
     SELECT subscription
     FROM memberships

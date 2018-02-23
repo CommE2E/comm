@@ -1,5 +1,6 @@
 // @flow
 
+import type { Viewer, UserViewer } from '../session/viewer';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -13,16 +14,16 @@ import { messageType } from 'lib/types/message-types';
 import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { currentViewer } from '../session/viewer';
 import { pool, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 
 async function activityUpdater(
+  viewer: Viewer,
   updates: $ReadOnlyArray<ActivityUpdate>,
 ): Promise<UpdateActivityResult> {
-  const viewer = currentViewer();
-  if (!viewer.loggedIn) {
+  const localViewer = viewer;
+  if (!localViewer.loggedIn) {
     throw new ServerError('invalid_credentials');
   }
 
@@ -42,11 +43,11 @@ async function activityUpdater(
   const dbPromises = [];
   dbPromises.push(pool.query(SQL`
     DELETE FROM focused
-    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
+    WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
   `));
   if (closing) {
     dbPromises.push(pool.query(SQL`
-      UPDATE cookies SET last_ping = 0 WHERE id = ${viewer.cookieID}
+      UPDATE cookies SET last_ping = 0 WHERE id = ${localViewer.cookieID}
     `));
   }
   const [ verifiedThreadIDs ] = await Promise.all([
@@ -75,8 +76,8 @@ async function activityUpdater(
   if (focusedThreadIDs.length > 0) {
     const time = Date.now();
     const focusedInsertRows = focusedThreadIDs.map(threadID => [
-      viewer.userID,
-      viewer.cookieID,
+      localViewer.userID,
+      localViewer.cookieID,
       threadID,
       time,
     ]);
@@ -89,16 +90,17 @@ async function activityUpdater(
       SET unread = 0
       WHERE role != 0
         AND thread IN (${focusedThreadIDs})
-        AND user = ${viewer.userID}
+        AND user = ${localViewer.userID}
     `));
     promises.push(rescindPushNotifs(
-      viewer.userID,
+      localViewer.userID,
       focusedThreadIDs,
     ));
   }
 
   const [ resetToUnread ] = await Promise.all([
     possiblyResetThreadsToUnread(
+      localViewer,
       unfocusedThreadIDs,
       unfocusedThreadLatestMessages,
     ),
@@ -114,10 +116,10 @@ async function activityUpdater(
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
 async function possiblyResetThreadsToUnread(
+  viewer: UserViewer,
   unfocusedThreadIDs: $ReadOnlyArray<string>,
   unfocusedThreadLatestMessages: Map<string, string>,
 ): Promise<string[]> {
-  const viewer = currentViewer();
   if (unfocusedThreadIDs.length === 0 || !viewer.loggedIn) {
     return [];
   }
@@ -201,10 +203,10 @@ async function checkThreadsFocused(
 }
 
 async function updateActivityTime(
+  viewer: Viewer,
   time: number,
   clientSupportsMessages: bool,
 ): Promise<void> {
-  const viewer = currentViewer();
   if (!viewer.loggedIn) {
     return;
   }

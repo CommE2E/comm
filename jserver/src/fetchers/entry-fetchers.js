@@ -6,6 +6,7 @@ import type {
 } from 'lib/types/entry-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import type { ThreadPermission } from 'lib/types/thread-types';
+import type { Viewer } from '../session/viewer';
 
 import {
   threadPermissions,
@@ -16,9 +17,9 @@ import { permissionHelper } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
-import { currentViewer } from '../session/viewer';
 
 async function fetchEntryInfos(
+  viewer: Viewer,
   entryQuery: CalendarQuery,
 ): Promise<FetchEntryInfosResponse> {
   const navCondition = entryQuery.navID === "home"
@@ -27,7 +28,7 @@ async function fetchEntryInfos(
   const deletedCondition = entryQuery.includeDeleted
     ? SQL`AND e.deleted = 0 `
     : null;
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
@@ -78,10 +79,11 @@ async function fetchEntryInfos(
 }
 
 async function checkThreadPermissionForEntry(
+  viewer: Viewer,
   entryID: string,
   permission: ThreadPermission,
 ): Promise<bool> {
-  const viewerID = currentViewer().id;
+  const viewerID = viewer.id;
   const query = SQL`
     SELECT m.permissions, t.visibility_rules
     FROM entries e
@@ -107,9 +109,11 @@ async function checkThreadPermissionForEntry(
 }
 
 async function fetchEntryRevisionInfo(
- entryID: string,
+  viewer: Viewer,
+  entryID: string,
 ): Promise<$ReadOnlyArray<HistoryRevisionInfo>> {
   const hasPermission = await checkThreadPermissionForEntry(
+    viewer,
     entryID,
     threadPermissions.VISIBLE,
   );
