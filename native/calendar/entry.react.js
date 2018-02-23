@@ -29,6 +29,7 @@ import {
   Alert,
   LayoutAnimation,
   Keyboard,
+  InteractionManager,
 } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -143,7 +144,7 @@ class InternalEntry extends React.Component<Props, State> {
     super(props);
     invariant(props.threadInfo, "should be set");
     this.state = {
-      editing: InternalEntry.isFocused(props),
+      editing: InternalEntry.isActive(props),
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight,
@@ -162,8 +163,10 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    const wasActive = InternalEntry.isActive(this.props);
+    const willBeActive = InternalEntry.isActive(nextProps);
     if (
-      !InternalEntry.isFocused(nextProps) &&
+      !willBeActive &&
       (nextProps.entryInfo.text !== this.props.entryInfo.text &&
         nextProps.entryInfo.text !== this.state.text) ||
       (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
@@ -180,10 +183,8 @@ class InternalEntry extends React.Component<Props, State> {
     ) {
       this.guardedSetState({ threadInfo: nextProps.threadInfo });
     }
-    if (!nextProps.active && this.props.active) {
-      if (this.textInput) {
-        this.textInput.blur();
-      }
+    if (!willBeActive && wasActive && this.textInput) {
+      this.textInput.blur();
     }
   }
 
@@ -195,10 +196,14 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (
-      nextState.height !== this.state.height ||
-      InternalEntry.isFocused(nextProps) !== InternalEntry.isFocused(this.props)
-    ) {
+    const wasActive = InternalEntry.isActive(this.props);
+    const willBeActive = InternalEntry.isActive(nextProps);
+    const wasEditing = InternalEntry.isEditing(this.props, this.state);
+    const willBeEditing = InternalEntry.isEditing(nextProps, nextState);
+    if (!willBeEditing && wasEditing && this.textInput) {
+      this.textInput.blur();
+    }
+    if (nextState.height !== this.state.height || willBeActive !== wasActive) {
       LayoutAnimation.easeInEaseOut();
     }
   }
@@ -213,7 +218,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.entryRef(entryKey(this.props.entryInfo), null);
   }
 
-  static isFocused(props: Props) {
+  static isActive(props: Props) {
     return props.active || !props.entryInfo.id;
   }
 
@@ -222,12 +227,12 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   render() {
-    const focused = InternalEntry.isFocused(this.props);
+    const active = InternalEntry.isActive(this.props);
     const editing = InternalEntry.isEditing(this.props, this.state);
 
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
-    if (focused) {
+    if (active) {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#808080';
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
@@ -321,11 +326,9 @@ class InternalEntry extends React.Component<Props, State> {
         backgroundColor: `#${this.state.threadInfo.color}`,
       };
       const selectionColor = darkColor ? '#129AFF' : '#036AFF';
-      // For why autoFocus is platform-dependant, see comment in enterEditMode
       textInput = (
         <TextInput
           style={[styles.textInput, textInputStyle]}
-          autoFocus={Platform.OS !== "android"}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -397,12 +400,13 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   enterEditMode = (textInput: TextInput) => {
-    if (Platform.OS === "android") {
-      // On Android autoFocus doesn't seem to work for some reason
-      setTimeout(textInput.focus, 400);
-    }
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
+    // For some reason if we don't do this the keyboard immediately dismisses
+    // after focus
+    InteractionManager.runAfterInteractions(() => {
+      setTimeout(textInput.focus);
+    });
   }
 
   setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
@@ -445,8 +449,8 @@ class InternalEntry extends React.Component<Props, State> {
     this.currentlySaving = newText;
 
     if (newText.trim() === "") {
-      // We don't save the empty string, since as soon as the element loses
-      // focus it'll get deleted
+      // We don't save the empty string, since as soon as the element becomes
+      // inactive it'll get deleted
       return;
     }
 

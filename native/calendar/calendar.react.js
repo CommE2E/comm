@@ -120,7 +120,8 @@ type State = {
   textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
-  pickerOpenForDateString: ?string,
+  threadPickerOpen: bool,
+  pendingNewEntryDateString: ?string,
   extraData: ExtraData,
   scrollToOffsetAfterSuppressingKeyboardDismissal: ?number,
 };
@@ -187,9 +188,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   // For some reason, we have to delay the scrollToToday call after the first
   // scroll upwards on Android. I don't know why. Might only be on the emulator.
   firstScrollUpOnAndroidComplete = false;
-  // When an entry is focused, we make a note of which one was focused so that
-  // once the keyboard event happens, we know where to move the scrollPos to
-  lastEntryKeyFocused: ?string = null;
+  // When an entry becomes active, we make a note of its key so that once the
+  // keyboard event happens, we know where to move the scrollPos to
+  lastEntryKeyActive: ?string = null;
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
   keyboardShownHeight: ?number = null;
@@ -212,7 +213,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       textToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
-      pickerOpenForDateString: null,
+      threadPickerOpen: false,
+      pendingNewEntryDateString: null,
       extraData: this.latestExtraData,
       scrollToOffsetAfterSuppressingKeyboardDismissal: null,
     };
@@ -588,7 +590,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   onAdd = (dayString: string) => {
     Keyboard.dismiss();
-    this.setState({ pickerOpenForDateString: dayString });
+    this.setState({
+      threadPickerOpen: true,
+      pendingNewEntryDateString: dayString,
+    });
   }
 
   static keyExtractor = (item: CalendarItemWithHeight) => {
@@ -702,12 +707,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           <CalendarInputBar onSave={this.onSaveEntry} />
         </KeyboardAvoidingView>
         <Modal
-          isVisible={!!this.state.pickerOpenForDateString}
+          isVisible={this.state.threadPickerOpen}
           onBackButtonPress={this.closePicker}
           onBackdropPress={this.closePicker}
         >
           <ThreadPicker
-            dateString={this.state.pickerOpenForDateString}
+            dateString={this.state.pendingNewEntryDateString}
             close={this.closePicker}
           />
         </Modal>
@@ -739,8 +744,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.entryRefs.set(entryKey, entry);
   }
 
-  makeActive = (key: string, focused: bool) => {
-    if (!focused) {
+  makeActive = (key: string, active: bool) => {
+    if (!active) {
       if (_size(this.state.extraData.activeEntries) === 0) {
         if (_size(this.latestExtraData.activeEntries) !== 0) {
           this.latestExtraData = {
@@ -786,7 +791,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (keyboardShownHeight) {
       this.scrollToKey(key, keyboardShownHeight);
     } else {
-      this.lastEntryKeyFocused = key;
+      this.lastEntryKeyActive = key;
     }
   }
 
@@ -794,10 +799,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const inputBarHeight = Platform.OS === "android" ? 37.7 : 35.5;
     const keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
     this.keyboardShownHeight = keyboardShownHeight;
-    const lastEntryKeyFocused = this.lastEntryKeyFocused;
-    if (lastEntryKeyFocused) {
-      this.scrollToKey(lastEntryKeyFocused, keyboardShownHeight);
-      this.lastEntryKeyFocused = null;
+    const lastEntryKeyActive = this.lastEntryKeyActive;
+    if (lastEntryKeyActive) {
+      this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
+      this.lastEntryKeyActive = null;
     }
   }
 
@@ -805,19 +810,19 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.keyboardShownHeight = null;
   }
 
-  scrollToKey(lastEntryKeyFocused: string, keyboardHeight: number) {
+  scrollToKey(lastEntryKeyActive: string, keyboardHeight: number) {
     const data = this.state.listDataWithHeights;
     invariant(data, "should be set");
     const index = _findIndex(
       (item: CalendarItemWithHeight) =>
-        InnerCalendar.keyExtractor(item) === lastEntryKeyFocused,
+        InnerCalendar.keyExtractor(item) === lastEntryKeyActive,
     )(data);
     const itemStart = InnerCalendar.heightOfItems(
       data.filter((_, i) => i < index),
     );
     const itemHeight = InnerCalendar.itemHeight(data[index]);
-    const entryAdditionalFocusHeight = Platform.OS === "android" ? 21 : 20;
-    const itemEnd = itemStart + itemHeight + entryAdditionalFocusHeight;
+    const entryAdditionalActiveHeight = Platform.OS === "android" ? 21 : 20;
+    const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
     let visibleHeight = InnerCalendar.flatListHeight() - keyboardHeight;
     // flatListHeight() factors in the size of the iOS tab bar, but it is hidden
     // by the keyboard since it is at the bottom
@@ -962,7 +967,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   closePicker = () => {
-    this.setState({ pickerOpenForDateString: null });
+    this.setState({ threadPickerOpen: false });
   }
 
   onSaveEntry = () => {
