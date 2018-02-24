@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { Viewer } from '../session/viewer';
 import {
   messageType,
@@ -29,10 +28,9 @@ const sendTextMessageRequestInputValidator = tShape({
 
 async function textMessageCreationResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<SendTextMessageResponse> {
-  const sendTextMessageRequest: SendTextMessageRequest = (req.body: any);
+  const sendTextMessageRequest: SendTextMessageRequest = body;
   if (!sendTextMessageRequestInputValidator.is(sendTextMessageRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -65,10 +63,9 @@ const fetchMessageInfosRequestInputValidator = tShape({
 
 async function messageFetchResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<FetchMessageInfosResult> {
-  const fetchMessageInfosRequest: FetchMessageInfosRequest = (req.body: any);
+  const fetchMessageInfosRequest: FetchMessageInfosRequest = body;
   if (!fetchMessageInfosRequestInputValidator.is(fetchMessageInfosRequest)) {
     throw new ServerError('invalid_parameters');
   }

@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { Viewer } from '../session/viewer';
 import type {
   CalendarQuery,
@@ -39,10 +38,9 @@ const entryQueryInputValidator = tShape({
 
 async function entryFetchResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<FetchEntryInfosResponse> {
-  const entryQuery: CalendarQuery = (req.body: any);
+  const entryQuery: CalendarQuery = body;
   if (!entryQueryInputValidator.is(entryQuery)) {
     throw new ServerError('invalid_parameters');
   }
@@ -67,10 +65,9 @@ const entryRevisionHistoryFetchInputValidator = tShape({
 
 async function entryRevisionFetchResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<FetchEntryRevisionInfosResult> {
-  const entryRevisionHistoryFetch: EntryRevisionHistoryFetch = (req.body: any);
+  const entryRevisionHistoryFetch: EntryRevisionHistoryFetch = body;
   if (!entryRevisionHistoryFetchInputValidator.is(entryRevisionHistoryFetch)) {
     throw new ServerError('invalid_parameters');
   }
@@ -92,10 +89,9 @@ const createEntryRequestInputValidator = tShape({
 
 async function entryCreationResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<SaveEntryResult> {
-  const createEntryRequest: CreateEntryRequest = (req.body: any);
+  const createEntryRequest: CreateEntryRequest = body;
   if (!createEntryRequestInputValidator.is(createEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -113,10 +109,9 @@ const saveEntryRequestInputValidator = tShape({
 
 async function entryUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<SaveEntryResult> {
-  const saveEntryRequest: SaveEntryRequest = (req.body: any);
+  const saveEntryRequest: SaveEntryRequest = body;
   if (!saveEntryRequestInputValidator.is(saveEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -133,10 +128,9 @@ const deleteEntryRequestInputValidator = tShape({
 
 async function entryDeletionResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<DeleteEntryResponse> {
-  const deleteEntryRequest: DeleteEntryRequest = (req.body: any);
+  const deleteEntryRequest: DeleteEntryRequest = body;
   if (!deleteEntryRequestInputValidator.is(deleteEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -152,10 +146,9 @@ const restoreEntryRequestInputValidator = tShape({
 
 async function entryRestorationResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<RestoreEntryResponse> {
-  const restoreEntryRequest: RestoreEntryRequest = (req.body: any);
+  const restoreEntryRequest: RestoreEntryRequest = body;
   if (!restoreEntryRequestInputValidator.is(restoreEntryRequest)) {
     throw new ServerError('invalid_parameters');
   }

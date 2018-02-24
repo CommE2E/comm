@@ -122,9 +122,9 @@ async function fetchViewerFromRequestBody(req: $Request): Promise<?Viewer> {
 }
 
 async function fetchViewerFromRequest(req: $Request): Promise<Viewer> {
-  let viewer = await fetchViewerFromCookieData(req.cookies);
+  let viewer = await fetchViewerFromRequestBody(req);
   if (!viewer) {
-    viewer = await fetchViewerFromRequestBody(req);
+    viewer = await fetchViewerFromCookieData(req.cookies);
   }
   if (!viewer) {
     throw new ServerError("no_cookie");

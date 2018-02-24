@@ -38,9 +38,12 @@ function proxy_to_node($path) {
   async_start();
 
   if (isset($_POST['input'])) {
-    $payload = fix_bools($_POST['input']);
+    $payload = array('input' => fix_bools($_POST['input']));
   } else {
-    $payload = (object)array();
+    $payload = array('input' => (object)array());
+  }
+  if (isset($_POST['cookie'])) {
+    $payload['cookie'] = $_POST['cookie'];
   }
 
   async_end(call_node($path, $payload));

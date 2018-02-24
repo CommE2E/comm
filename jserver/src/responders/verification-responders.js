@@ -1,10 +1,10 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type {
   CodeVerificationRequest,
   HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
+import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
@@ -20,10 +20,10 @@ const codeVerificationRequestInputValidator = tShape({
 });
 
 async function codeVerificationResponder(
-  req: $Request,
-  res: $Response,
+  viewer: Viewer,
+  body: any,
 ): Promise<HandleVerificationCodeResult> {
-  const codeVerificationRequest: CodeVerificationRequest = (req.body: any);
+  const codeVerificationRequest: CodeVerificationRequest = body;
   if (!codeVerificationRequestInputValidator.is(codeVerificationRequest)) {
     throw new ServerError('invalid_parameters');
   }

@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -39,10 +38,9 @@ const threadDeletionRequestInputValidator = tShape({
 
 async function threadDeletionResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<void> {
-  const threadDeletionRequest: ThreadDeletionRequest = (req.body: any);
+  const threadDeletionRequest: ThreadDeletionRequest = body;
   if (!threadDeletionRequestInputValidator.is(threadDeletionRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -64,10 +62,9 @@ const roleChangeRequestInputValidator = tShape({
 
 async function roleUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const roleChangeRequest: RoleChangeRequest = (req.body: any);
+  const roleChangeRequest: RoleChangeRequest = body;
   if (!roleChangeRequestInputValidator.is(roleChangeRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -82,10 +79,9 @@ const removeMembersRequestInputValidator = tShape({
 
 async function memberRemovalResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const removeMembersRequest: RemoveMembersRequest = (req.body: any);
+  const removeMembersRequest: RemoveMembersRequest = body;
   if (!removeMembersRequestInputValidator.is(removeMembersRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -99,10 +95,9 @@ const leaveThreadRequestInputValidator = tShape({
 
 async function threadLeaveResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<LeaveThreadResult> {
-  const leaveThreadRequest: LeaveThreadRequest = (req.body: any);
+  const leaveThreadRequest: LeaveThreadRequest = body;
   if (!leaveThreadRequestInputValidator.is(leaveThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -126,10 +121,9 @@ const updateThreadRequestInputValidator = tShape({
 
 async function threadUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const updateThreadRequest: UpdateThreadRequest = (req.body: any);
+  const updateThreadRequest: UpdateThreadRequest = body;
   if (!updateThreadRequestInputValidator.is(updateThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -148,10 +142,9 @@ const newThreadRequestInputValidator = tShape({
 });
 async function threadCreationResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<NewThreadResult> {
-  const newThreadRequest: NewThreadRequest = (req.body: any);
+  const newThreadRequest: NewThreadRequest = body;
   if (!newThreadRequestInputValidator.is(newThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -165,10 +158,9 @@ const joinThreadRequestInputValidator = tShape({
 });
 async function threadJoinResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<ThreadJoinResult> {
-  const threadJoinRequest: ThreadJoinRequest = (req.body: any);
+  const threadJoinRequest: ThreadJoinRequest = body;
   if (!joinThreadRequestInputValidator.is(threadJoinRequest)) {
     throw new ServerError('invalid_parameters');
   }

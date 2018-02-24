@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
@@ -32,10 +31,9 @@ const subscriptionUpdateRequestInputValidator = tShape({
 
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<SubscriptionUpdateResponse> {
-  const subscriptionUpdateRequest: SubscriptionUpdateRequest = (req.body: any);
+  const subscriptionUpdateRequest: SubscriptionUpdateRequest = body;
   if (!subscriptionUpdateRequestInputValidator.is(subscriptionUpdateRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -57,10 +55,9 @@ const accountUpdateInputValidator = tShape({
 
 async function accountUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<void> {
-  const accountUpdate: AccountUpdate = (req.body: any);
+  const accountUpdate: AccountUpdate = body;
   if (!accountUpdateInputValidator.is(accountUpdate)) {
     throw new ServerError('invalid_parameters');
   }
@@ -70,8 +67,7 @@ async function accountUpdateResponder(
 
 async function sendVerificationEmailResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<void> {
   await checkAndSendVerificationEmail(viewer);
 }
@@ -82,10 +78,9 @@ const resetPasswordRequestInputValidator = tShape({
 
 async function sendPasswordResetEmailResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<void> {
-  const resetPasswordRequest: PasswordResetRequest = (req.body: any);
+  const resetPasswordRequest: PasswordResetRequest = body;
   if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -95,8 +90,7 @@ async function sendPasswordResetEmailResponder(
 
 async function logOutResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<LogOutResponse> {
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([

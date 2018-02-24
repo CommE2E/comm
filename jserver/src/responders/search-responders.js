@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type {
   UserSearchRequest,
   UserSearchResult,
@@ -20,10 +19,9 @@ const userSearchRequestInputValidator = tShape({
 
 async function userSearchResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<UserSearchResult> {
-  const userSearchRequest: UserSearchRequest = (req.body: any);
+  const userSearchRequest: UserSearchRequest = body;
   if (!userSearchRequestInputValidator.is(userSearchRequest)) {
     throw new ServerError('invalid_parameters');
   }

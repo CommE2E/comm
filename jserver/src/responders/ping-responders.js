@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { PingRequest, PingResponse } from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
@@ -26,10 +25,9 @@ const pingRequestInputValidator = tShape({
 
 async function pingResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<PingResponse> {
-  const pingRequest: PingRequest = (req.body: any);
+  const pingRequest: PingRequest = body;
   if (!pingRequestInputValidator.is(pingRequest)) {
     throw new ServerError('invalid_parameters');
   }

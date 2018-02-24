@@ -16,7 +16,7 @@ function jsonHandler(responder: Responder) {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerFromRequest(req);
-      const result = await responder(viewer, req, res);
+      const result = await responder(viewer, req.body.input);
       if (res.headersSent) {
         return;
       }

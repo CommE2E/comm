@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 import type { Viewer } from '../session/viewer';
 
@@ -18,10 +17,9 @@ const deviceTokenUpdateRequestInputValidator = tShape({
 
 async function deviceTokenUpdateResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<void> {
-  const deviceTokenUpdateRequest: DeviceTokenUpdateRequest = (req.body: any);
+  const deviceTokenUpdateRequest: DeviceTokenUpdateRequest = body;
   if (!deviceTokenUpdateRequestInputValidator.is(deviceTokenUpdateRequest)) {
     throw new ServerError('invalid_parameters');
   }

@@ -1,6 +1,5 @@
 // @flow
 
-import type { $Response, $Request } from 'express';
 import type { Viewer } from '../session/viewer';
 import type {
   ActivityUpdate,
@@ -31,10 +30,9 @@ const inputValidator = t.list(t.union([
 
 async function updateActivityResponder(
   viewer: Viewer,
-  req: $Request,
-  res: $Response,
+  body: any,
 ): Promise<UpdateActivityResult> {
-  const updates: $ReadOnlyArray<ActivityUpdate> = (req.body: any);
+  const updates: $ReadOnlyArray<ActivityUpdate> = body;
   if (!inputValidator.is(updates)) {
     throw new ServerError('invalid_parameters');
   }
