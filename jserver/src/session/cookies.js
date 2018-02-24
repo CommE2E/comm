@@ -3,10 +3,12 @@
 import type { $Response, $Request } from 'express';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
+import type { ViewerData, AnonymousViewerData } from './viewer';
 
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
-import { URL } from 'url';
+import url from 'url';
+import crypto from 'crypto';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
@@ -14,6 +16,7 @@ import { pool, SQL } from '../database';
 import { Viewer } from './viewer';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
+import createIDs from '../creators/id-creator';
 
 const { baseDomain, basePath } = urlFacts;
 
@@ -109,10 +112,10 @@ async function fetchViewerFromRequestBody(req: $Request): Promise<?Viewer> {
   if (!cookiePair || !(typeof cookiePair === "string")) {
     return null;
   }
-  const [ cookieType, cookie ] = cookiePair.split("=");
-  if (cookieType === "user" && cookie) {
+  const [ type, cookie ] = cookiePair.split("=");
+  if (type === cookieType.USER && cookie) {
     return await fetchUserViewer(cookie, cookieSource.BODY);
-  } else if (cookieType === "anonymous" && cookie) {
+  } else if (type === cookieType.ANONYMOUS && cookie) {
     return await fetchAnonymousViewer(cookie, cookieSource.BODY);
   }
   return null;
@@ -142,7 +145,6 @@ async function addCookieChangeInfoToResult(
   res: $Response,
   result: Object,
 ) {
-  const cookiePair = cookiePairStringForViewer(viewer);
   const { threadInfos, userInfos } = await fetchThreadInfos(viewer);
   const userInfosArray: any = Object.values(userInfos);
   const cookieChange: CookieChange = {
@@ -157,13 +159,13 @@ async function addCookieChangeInfoToResult(
     };
   }
   if (viewer.initializationSource === cookieSource.BODY) {
-    cookieChange.cookie = cookiePair;
+    cookieChange.cookie = viewer.cookiePairString;
   } else {
-    const url = new URL(baseDomain);
-    const domain = url.hostname;
+    const domainAsURL = new url.URL(baseDomain);
+    const domain = domainAsURL.hostname;
     res.cookie(
-      viewer.loggedIn ? cookieType.USER : cookieType.ANONYMOUS,
-      cookieStringForViewer(viewer),
+      viewer.cookieName,
+      viewer.cookieString,
       {
         maxAge: cookieLifetime,
         domain,
@@ -172,23 +174,44 @@ async function addCookieChangeInfoToResult(
         secure: true,
       },
     );
+    if (viewer.cookieName !== viewer.initialCookieName) {
+      res.clearCookie(viewer.initialCookieName);
+    }
   }
   result.cookieChange = cookieChange;
 }
 
-function cookieStringForViewer(viewer: Viewer) {
-  return `${viewer.cookieID}:${viewer.cookiePassword}`;
+async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
+  const time = Date.now();
+  const cookiePassword = crypto.randomBytes(32).toString('hex');
+  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const [ id ] = await createIDs("cookies", 1);
+  const cookieRow = [id, cookieHash, null, time, time, 0];
+  const query = SQL`
+    INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+    VALUES ${[cookieRow]}
+  `;
+  return {
+    loggedIn: false,
+    id,
+    cookieID: id,
+    cookiePassword,
+  };
 }
 
-function cookiePairStringForViewer(viewer: Viewer) {
-  if (viewer.loggedIn) {
-    return `${cookieType.USER}=${cookieStringForViewer(viewer)}`;
-  } else {
-    return `${cookieType.ANONYMOUS}=${cookieStringForViewer(viewer)}`;
-  }
+async function deleteCookie(viewerData: ViewerData): Promise<void> {
+  await pool.query(SQL`
+    DELETE c, i
+    FROM cookies c
+    LEFT JOIN ids i ON i.id = c.id
+    WHERE c.id = ${viewerData.cookieID}
+  `);
 }
 
 export {
+  cookieType,
   fetchViewerFromRequest,
   addCookieChangeInfoToResult,
+  createNewAnonymousCookie,
+  deleteCookie,
 };

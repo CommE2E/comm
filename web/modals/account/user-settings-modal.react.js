@@ -4,8 +4,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
-import type { LogOutResult } from 'lib/actions/user-actions';
-import type { AccountUpdate } from 'lib/types/user-types';
+import type { LogOutResult, AccountUpdate } from 'lib/types/user-types';
 
 import * as React from 'react';
 import invariant from 'invariant';

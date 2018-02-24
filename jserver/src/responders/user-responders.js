@@ -5,7 +5,7 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import type { AccountUpdate, LogOutResponse } from 'lib/types/user-types';
 import type { PasswordResetRequest } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
@@ -20,6 +20,7 @@ import {
   checkAndSendPasswordResetEmail,
 } from '../updaters/account-updaters';
 import { tShape } from '../utils/tcomb-utils';
+import { createNewAnonymousCookie, deleteCookie } from '../session/cookies';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -92,9 +93,30 @@ async function sendPasswordResetEmailResponder(
   await checkAndSendPasswordResetEmail(resetPasswordRequest);
 }
 
+async function logOutResponder(
+  viewer: Viewer,
+  req: $Request,
+  res: $Response,
+): Promise<LogOutResponse> {
+  if (viewer.loggedIn) {
+    const [ anonymousViewerData ] = await Promise.all([
+      createNewAnonymousCookie(),
+      deleteCookie(viewer.getData()),
+    ]);
+    viewer.setNewCookie(anonymousViewerData);
+  }
+  return {
+    currentUserInfo: {
+      id: viewer.id,
+      anonymous: true,
+    },
+  };
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
   sendVerificationEmailResponder,
   sendPasswordResetEmailResponder,
+  logOutResponder,
 };

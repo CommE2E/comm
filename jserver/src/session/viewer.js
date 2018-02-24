@@ -1,6 +1,6 @@
 // @flow
 
-import type { CookieSource } from './cookies';
+import { type CookieSource, cookieType } from './cookies';
 
 import invariant from 'invariant';
 
@@ -12,25 +12,33 @@ export type UserViewerData = {|
   +cookiePassword: string,
 |};
 
-type AnonymousViewerData = {|
+export type AnonymousViewerData = {|
   +loggedIn: false,
   +id: string,
   +cookieID: string,
   +cookiePassword: string,
 |};
 
-type ViewerData = UserViewerData | AnonymousViewerData;
+export type ViewerData = UserViewerData | AnonymousViewerData;
 
 class Viewer {
 
   data: ViewerData;
   cookieChanged = false;
   cookieInvalidated = false;
+  initialCookieName: string;
   initializationSource: CookieSource;
 
   constructor(data: ViewerData, initializationSource: CookieSource) {
     this.data = data;
+    this.initialCookieName = Viewer.cookieNameFromViewerData(data);
     this.initializationSource = initializationSource;
+  }
+
+  static cookieNameFromViewerData(data: ViewerData) {
+    return data.loggedIn
+      ? cookieType.USER
+      : cookieType.ANONYMOUS;
   }
 
   getData() {
@@ -66,6 +74,18 @@ class Viewer {
   get userID(): string {
     invariant(this.data.userID, "should be set");
     return this.data.userID;
+  }
+
+  get cookieName(): string {
+    return Viewer.cookieNameFromViewerData(this.data);
+  }
+
+  get cookieString(): string {
+    return `${this.cookieID}:${this.cookiePassword}`;
+  }
+
+  get cookiePairString(): string {
+    return `${this.cookieName}=${this.cookieString}`;
   }
 
 }

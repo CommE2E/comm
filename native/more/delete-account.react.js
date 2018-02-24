@@ -6,7 +6,7 @@ import type { ChangeUserSettingsResult } from 'lib/actions/user-actions';
 import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { LogOutResult } from 'lib/actions/user-actions';
+import type { LogOutResult } from 'lib/types/user-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';
