@@ -23,6 +23,13 @@ function call_node($path, $blob) {
 
   $result = curl_exec($ch);
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $header_array = explode("\r\n", substr($result, 0, $header_size));
+  foreach ($header_array as $header) {
+    if (strpos($header, "Set-Cookie: ") === 0) {
+      header($header);
+    }
+  }
+
   $body = substr($result, $header_size);
   return json_decode($body, true);
 }

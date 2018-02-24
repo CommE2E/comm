@@ -1,6 +1,6 @@
 // @flow
 
-import type { Viewer, UserViewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -116,7 +116,7 @@ async function activityUpdater(
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
 async function possiblyResetThreadsToUnread(
-  viewer: UserViewer,
+  viewer: Viewer,
   unfocusedThreadIDs: $ReadOnlyArray<string>,
   unfocusedThreadLatestMessages: Map<string, string>,
 ): Promise<string[]> {

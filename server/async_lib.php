@@ -34,18 +34,18 @@ function async_end($payload) {
   if (cookie_has_changed()) {
     $cookie_invalidated = cookie_invalidated();
     list($thread_infos, $users) = get_thread_infos();
-    $payload['cookie_change'] = array(
-      'thread_infos' => $thread_infos,
-      'user_infos' => array_values($users),
-      'cookie_invalidated' => $cookie_invalidated,
+    $payload['cookieChange'] = array(
+      'threadInfos' => $thread_infos,
+      'userInfos' => array_values($users),
+      'cookieInvalidated' => $cookie_invalidated,
     );
     $viewer_info = get_viewer_info();
     // Only include in the raw response since on web we want it to be httponly
     if (isset($_POST['cookie'])) {
-      $payload['cookie_change']['cookie'] = $viewer_info[3];
+      $payload['cookieChange']['cookie'] = $viewer_info[3];
     }
     if ($cookie_invalidated) {
-      $payload['cookie_change']['current_user_info'] = array(
+      $payload['cookieChange']['currentUserInfo'] = array(
         'id' => (string)$viewer_info[0],
         'anonymous' => true,
       );

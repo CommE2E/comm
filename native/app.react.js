@@ -104,8 +104,8 @@ registerConfig({
   urlPrefix,
   resolveInvalidatedCookie,
   getNewCookie: async (response: Object) => {
-    if (response.cookie_change && response.cookie_change.cookie) {
-      return response.cookie_change.cookie;
+    if (response.cookieChange && response.cookieChange.cookie) {
+      return response.cookieChange.cookie;
     }
     return null;
   },
