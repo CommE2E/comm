@@ -28,9 +28,9 @@ const sendTextMessageRequestInputValidator = tShape({
 
 async function textMessageCreationResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<SendTextMessageResponse> {
-  const sendTextMessageRequest: SendTextMessageRequest = body;
+  const sendTextMessageRequest: SendTextMessageRequest = input;
   if (!sendTextMessageRequestInputValidator.is(sendTextMessageRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -63,9 +63,9 @@ const fetchMessageInfosRequestInputValidator = tShape({
 
 async function messageFetchResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<FetchMessageInfosResult> {
-  const fetchMessageInfosRequest: FetchMessageInfosRequest = body;
+  const fetchMessageInfosRequest: FetchMessageInfosRequest = input;
   if (!fetchMessageInfosRequestInputValidator.is(fetchMessageInfosRequest)) {
     throw new ServerError('invalid_parameters');
   }

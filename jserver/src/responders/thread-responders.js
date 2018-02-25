@@ -38,9 +38,9 @@ const threadDeletionRequestInputValidator = tShape({
 
 async function threadDeletionResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<void> {
-  const threadDeletionRequest: ThreadDeletionRequest = body;
+  const threadDeletionRequest: ThreadDeletionRequest = input;
   if (!threadDeletionRequestInputValidator.is(threadDeletionRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -62,9 +62,9 @@ const roleChangeRequestInputValidator = tShape({
 
 async function roleUpdateResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const roleChangeRequest: RoleChangeRequest = body;
+  const roleChangeRequest: RoleChangeRequest = input;
   if (!roleChangeRequestInputValidator.is(roleChangeRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -79,9 +79,9 @@ const removeMembersRequestInputValidator = tShape({
 
 async function memberRemovalResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const removeMembersRequest: RemoveMembersRequest = body;
+  const removeMembersRequest: RemoveMembersRequest = input;
   if (!removeMembersRequestInputValidator.is(removeMembersRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -95,9 +95,9 @@ const leaveThreadRequestInputValidator = tShape({
 
 async function threadLeaveResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<LeaveThreadResult> {
-  const leaveThreadRequest: LeaveThreadRequest = body;
+  const leaveThreadRequest: LeaveThreadRequest = input;
   if (!leaveThreadRequestInputValidator.is(leaveThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -121,9 +121,9 @@ const updateThreadRequestInputValidator = tShape({
 
 async function threadUpdateResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const updateThreadRequest: UpdateThreadRequest = body;
+  const updateThreadRequest: UpdateThreadRequest = input;
   if (!updateThreadRequestInputValidator.is(updateThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -142,9 +142,9 @@ const newThreadRequestInputValidator = tShape({
 });
 async function threadCreationResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<NewThreadResult> {
-  const newThreadRequest: NewThreadRequest = body;
+  const newThreadRequest: NewThreadRequest = input;
   if (!newThreadRequestInputValidator.is(newThreadRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -158,9 +158,9 @@ const joinThreadRequestInputValidator = tShape({
 });
 async function threadJoinResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<ThreadJoinResult> {
-  const threadJoinRequest: ThreadJoinRequest = body;
+  const threadJoinRequest: ThreadJoinRequest = input;
   if (!joinThreadRequestInputValidator.is(threadJoinRequest)) {
     throw new ServerError('invalid_parameters');
   }

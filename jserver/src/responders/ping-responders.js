@@ -25,9 +25,9 @@ const pingRequestInputValidator = tShape({
 
 async function pingResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<PingResponse> {
-  const pingRequest: PingRequest = body;
+  const pingRequest: PingRequest = input;
   if (!pingRequestInputValidator.is(pingRequest)) {
     throw new ServerError('invalid_parameters');
   }

@@ -30,9 +30,9 @@ const inputValidator = t.list(t.union([
 
 async function updateActivityResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<UpdateActivityResult> {
-  const updates: $ReadOnlyArray<ActivityUpdate> = body;
+  const updates: $ReadOnlyArray<ActivityUpdate> = input;
   if (!inputValidator.is(updates)) {
     throw new ServerError('invalid_parameters');
   }

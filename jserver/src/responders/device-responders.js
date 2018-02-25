@@ -17,9 +17,9 @@ const deviceTokenUpdateRequestInputValidator = tShape({
 
 async function deviceTokenUpdateResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<void> {
-  const deviceTokenUpdateRequest: DeviceTokenUpdateRequest = body;
+  const deviceTokenUpdateRequest: DeviceTokenUpdateRequest = input;
   if (!deviceTokenUpdateRequestInputValidator.is(deviceTokenUpdateRequest)) {
     throw new ServerError('invalid_parameters');
   }

@@ -21,9 +21,9 @@ const codeVerificationRequestInputValidator = tShape({
 
 async function codeVerificationResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<HandleVerificationCodeResult> {
-  const codeVerificationRequest: CodeVerificationRequest = body;
+  const codeVerificationRequest: CodeVerificationRequest = input;
   if (!codeVerificationRequestInputValidator.is(codeVerificationRequest)) {
     throw new ServerError('invalid_parameters');
   }

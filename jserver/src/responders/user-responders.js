@@ -36,9 +36,9 @@ const subscriptionUpdateRequestInputValidator = tShape({
 
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<SubscriptionUpdateResponse> {
-  const subscriptionUpdateRequest: SubscriptionUpdateRequest = body;
+  const subscriptionUpdateRequest: SubscriptionUpdateRequest = input;
   if (!subscriptionUpdateRequestInputValidator.is(subscriptionUpdateRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -60,9 +60,9 @@ const accountUpdateInputValidator = tShape({
 
 async function accountUpdateResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<void> {
-  const accountUpdate: AccountUpdate = body;
+  const accountUpdate: AccountUpdate = input;
   if (!accountUpdateInputValidator.is(accountUpdate)) {
     throw new ServerError('invalid_parameters');
   }
@@ -72,7 +72,7 @@ async function accountUpdateResponder(
 
 async function sendVerificationEmailResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<void> {
   await checkAndSendVerificationEmail(viewer);
 }
@@ -83,9 +83,9 @@ const resetPasswordRequestInputValidator = tShape({
 
 async function sendPasswordResetEmailResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<void> {
-  const resetPasswordRequest: PasswordResetRequest = body;
+  const resetPasswordRequest: PasswordResetRequest = input;
   if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -95,7 +95,7 @@ async function sendPasswordResetEmailResponder(
 
 async function logOutResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<LogOutResponse> {
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
@@ -118,9 +118,9 @@ const deleteAccountRequestInputValidator = tShape({
 
 async function accountDeletionResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<LogOutResponse> {
-  const deleteAccountRequest: DeleteAccountRequest = body;
+  const deleteAccountRequest: DeleteAccountRequest = input;
   if (!deleteAccountRequestInputValidator.is(deleteAccountRequest)) {
     throw new ServerError('invalid_parameters');
   }

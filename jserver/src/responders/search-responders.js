@@ -19,9 +19,9 @@ const userSearchRequestInputValidator = tShape({
 
 async function userSearchResponder(
   viewer: Viewer,
-  body: any,
+  input: any,
 ): Promise<UserSearchResult> {
-  const userSearchRequest: UserSearchRequest = body;
+  const userSearchRequest: UserSearchRequest = input;
   if (!userSearchRequestInputValidator.is(userSearchRequest)) {
     throw new ServerError('invalid_parameters');
   }

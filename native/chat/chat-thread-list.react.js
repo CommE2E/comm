@@ -217,6 +217,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
           keyExtractor={InnerChatThreadList.keyExtractor}
           getItemLayout={InnerChatThreadList.getItemLayout}
           extraData={this.props.viewerID}
+          initialNumToRender={11}
           style={styles.flatList}
         />
         {floatingAction}
