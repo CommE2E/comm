@@ -133,7 +133,10 @@ async function fetchThreadInfos(
     if (threadInfo) {
       threadInfos[threadID] = threadInfo;
       for (let member of threadInfo.members) {
-        userInfos[member.id] = serverResult.userInfos[member.id];
+        const userInfo = serverResult.userInfos[member.id];
+        if (userInfo) {
+          userInfos[member.id] = userInfo;
+        }
       }
     }
   }
