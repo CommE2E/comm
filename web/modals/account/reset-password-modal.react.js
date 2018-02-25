@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LogInResult } from 'lib/actions/user-actions';
+import type { LogInResult } from 'lib/types/user-types';
 
 import * as React from 'react';
 import invariant from 'invariant';

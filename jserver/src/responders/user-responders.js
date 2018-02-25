@@ -10,13 +10,18 @@ import type {
   DeleteAccountRequest,
   RegisterResponse,
   RegisterRequest,
+  LogInResponse,
+  LogInRequest,
 } from 'lib/types/user-types';
 import type { PasswordResetRequest } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
+import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/fetch-utils';
+import { promiseAll } from 'lib/utils/promises';
+import { defaultNumberPerThread } from 'lib/types/message-types';
 
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
@@ -25,9 +30,18 @@ import {
   checkAndSendPasswordResetEmail,
 } from '../updaters/account-updaters';
 import { tShape } from '../utils/tcomb-utils';
-import { createNewAnonymousCookie, deleteCookie } from '../session/cookies';
+import {
+  createNewAnonymousCookie,
+  createNewUserCookie,
+  deleteCookie,
+} from '../session/cookies';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
+import { entryQueryInputValidator } from './entry-responders';
+import { verifyThreadID } from '../fetchers/thread-fetchers';
+import { pool, SQL } from '../database';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -149,6 +163,96 @@ async function accountCreationResponder(
   return await createAccount(viewer, registerRequest);
 }
 
+const logInRequestInputValidator = tShape({
+  usernameOrEmail: t.String,
+  password: t.String,
+  watchedIDs: t.list(t.String),
+  calendarQuery: t.maybe(entryQueryInputValidator),
+});
+
+async function logInResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<LogInResponse> {
+  const logInRequest: LogInRequest = input;
+  if (!logInRequestInputValidator.is(logInRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const calendarQuery = logInRequest.calendarQuery;
+  const promises = {};
+  if (calendarQuery && calendarQuery.navID !== "home") {
+    promises.validThreadID = verifyThreadID(calendarQuery.navID);
+  }
+  const userQuery = SQL`
+    SELECT id, hash, username, email, email_verified
+    FROM users
+    WHERE LCASE(username) = LCASE(${logInRequest.usernameOrEmail})
+      OR LCASE(email) = LCASE(${logInRequest.usernameOrEmail})
+  `;
+  promises.userQuery = pool.query(userQuery);
+  const {
+    validThreadID,
+    userQuery: [ userResult ],
+  } = await promiseAll(promises);
+
+  if (validThreadID === false) {
+    throw new ServerError('invalid_parameters');
+  }
+  if (userResult.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+  const userRow = userResult[0];
+  if (!bcrypt.compareSync(logInRequest.password, userRow.hash)) {
+    throw new ServerError('invalid_credentials');
+  }
+  const id = userRow.id.toString();
+
+  const userViewerData = await createNewUserCookie(id);
+  viewer.setNewCookie(userViewerData);
+  const newPingTime = Date.now();
+
+  const threadCursors = {};
+  for (let watchedThreadID of logInRequest.watchedIDs) {
+    threadCursors[watchedThreadID] = null;
+  }
+  const threadSelectionCriteria = { threadCursors, joinedThreads: true };
+
+  const [
+    messagesResult,
+    entriesResult,
+  ] = await Promise.all([
+    fetchMessageInfos(
+      viewer,
+      threadSelectionCriteria,
+      defaultNumberPerThread,
+    ),
+    calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+  ]);
+
+  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
+  const userInfos = entriesResult
+    ? { ...messagesResult.userInfos, ...entriesResult.userInfos }
+    : messagesResult.userInfos;
+  const userInfosArray: any = Object.values(userInfos);
+  const response: LogInResponse = {
+    currentUserInfo: {
+      id,
+      username: userRow.username,
+      email: userRow.email,
+      emailVerified: !!userRow.email_verified,
+    },
+    rawMessageInfos: messagesResult.rawMessageInfos,
+    truncationStatuses: messagesResult.truncationStatuses,
+    serverTime: newPingTime,
+    userInfos: userInfosArray,
+  };
+  if (rawEntryInfos) {
+    response.rawEntryInfos = rawEntryInfos;
+  }
+  return response;
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -157,4 +261,5 @@ export {
   logOutResponder,
   accountDeletionResponder,
   accountCreationResponder,
+  logInResponder,
 };
