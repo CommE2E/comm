@@ -50,7 +50,7 @@ $result = $conn->query(
 );
 $matching_username_row = $result->fetch_assoc();
 if ($matching_username_row['count'] !== '0') {
-  async(array(
+  async_end(array(
     'error' => 'username_taken',
   ));
 }

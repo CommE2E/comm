@@ -10,12 +10,15 @@ import {
   addCookieChangeInfoToResult,
 } from '../session/cookies';
 
-type Responder = (viewer: Viewer, req: $Request, res: $Response) => Promise<*>;
+type Responder = (viewer: Viewer, input: any) => Promise<*>;
 
 function jsonHandler(responder: Responder) {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerFromRequest(req);
+      if (!req.body || typeof req.body !== "object") {
+        throw new ServerError('invalid_parameters');
+      }
       const result = await responder(viewer, req.body.input);
       if (res.headersSent) {
         return;

@@ -191,6 +191,7 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
     INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
     VALUES ${[cookieRow]}
   `;
+  await pool.query(query);
   return {
     loggedIn: false,
     id,

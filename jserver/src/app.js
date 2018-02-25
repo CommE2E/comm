@@ -17,6 +17,7 @@ import {
   sendVerificationEmailResponder,
   sendPasswordResetEmailResponder,
   logOutResponder,
+  accountDeletionResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
 import {
@@ -71,6 +72,7 @@ const jsonEndpoints = {
   'join_thread': threadJoinResponder,
   'ping': pingResponder,
   'log_out': logOutResponder,
+  'delete_account': accountDeletionResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
