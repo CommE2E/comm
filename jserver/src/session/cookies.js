@@ -3,7 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
-import type { ViewerData, AnonymousViewerData } from './viewer';
+import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
 
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
@@ -18,7 +18,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 
-const { baseDomain, basePath } = urlFacts;
+const { baseDomain, basePath, https } = urlFacts;
 
 const cookieLifetime = 30*24*60*60*1000; // in milliseconds
 const cookieSource = Object.freeze({
@@ -140,6 +140,14 @@ type CookieChange = {|
   cookie?: string,
 |};
 
+const domainAsURL = new url.URL(baseDomain);
+const cookieOptions = {
+  domain: domainAsURL.hostname,
+  path: basePath,
+  httpOnly: true,
+  secure: https,
+};
+
 async function addCookieChangeInfoToResult(
   viewer: Viewer,
   res: $Response,
@@ -161,21 +169,16 @@ async function addCookieChangeInfoToResult(
   if (viewer.initializationSource === cookieSource.BODY) {
     cookieChange.cookie = viewer.cookiePairString;
   } else {
-    const domainAsURL = new url.URL(baseDomain);
-    const domain = domainAsURL.hostname;
     res.cookie(
       viewer.cookieName,
       viewer.cookieString,
       {
+        ...cookieOptions,
         maxAge: cookieLifetime,
-        domain,
-        path: basePath,
-        httpOnly: true,
-        secure: true,
       },
     );
     if (viewer.cookieName !== viewer.initialCookieName) {
-      res.clearCookie(viewer.initialCookieName);
+      res.clearCookie(viewer.initialCookieName, cookieOptions);
     }
   }
   result.cookieChange = cookieChange;
@@ -209,10 +212,31 @@ async function deleteCookie(viewerData: ViewerData): Promise<void> {
   `);
 }
 
+async function createNewUserCookie(userID: string): Promise<UserViewerData> {
+  const time = Date.now();
+  const cookiePassword = crypto.randomBytes(32).toString('hex');
+  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const [ cookieID ] = await createIDs("cookies", 1);
+  const cookieRow = [cookieID, cookieHash, userID, time, time, 0];
+  const query = SQL`
+    INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+    VALUES ${[cookieRow]}
+  `;
+  await pool.query(query);
+  return {
+    loggedIn: true,
+    id: userID,
+    userID,
+    cookieID,
+    cookiePassword,
+  };
+}
+
 export {
   cookieType,
   fetchViewerFromRequest,
   addCookieChangeInfoToResult,
   createNewAnonymousCookie,
   deleteCookie,
+  createNewUserCookie,
 };

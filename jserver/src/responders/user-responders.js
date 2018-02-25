@@ -8,6 +8,8 @@ import type {
   AccountUpdate,
   LogOutResponse,
   DeleteAccountRequest,
+  RegisterResponse,
+  RegisterRequest,
 } from 'lib/types/user-types';
 import type { PasswordResetRequest } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
@@ -25,6 +27,7 @@ import {
 import { tShape } from '../utils/tcomb-utils';
 import { createNewAnonymousCookie, deleteCookie } from '../session/cookies';
 import { deleteAccount } from '../deleters/account-deleters';
+import createAccount from '../creators/account-creator';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -128,6 +131,24 @@ async function accountDeletionResponder(
   return await deleteAccount(viewer, deleteAccountRequest);
 }
 
+const registerRequestInputValidator = tShape({
+  username: t.String,
+  email: t.String,
+  password: t.String,
+});
+
+async function accountCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<RegisterResponse> {
+  const registerRequest: RegisterRequest = input;
+  if (!registerRequestInputValidator.is(registerRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  return await createAccount(viewer, registerRequest);
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -135,4 +156,5 @@ export {
   sendPasswordResetEmailResponder,
   logOutResponder,
   accountDeletionResponder,
+  accountCreationResponder,
 };

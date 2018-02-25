@@ -24,9 +24,11 @@ function call_node($path, $blob) {
   $result = curl_exec($ch);
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $header_array = explode("\r\n", substr($result, 0, $header_size));
+  $first_header = true;
   foreach ($header_array as $header) {
     if (strpos($header, "Set-Cookie: ") === 0) {
-      header($header);
+      header($header, $first_header);
+      $first_header = false;
     }
   }
 
