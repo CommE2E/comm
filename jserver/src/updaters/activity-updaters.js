@@ -2,8 +2,8 @@
 
 import type { Viewer } from '../session/viewer';
 import type {
-  ActivityUpdate,
   UpdateActivityResult,
+  UpdateActivityRequest,
 } from 'lib/types/activity-types';
 
 import invariant from 'invariant';
@@ -20,7 +20,7 @@ import { rescindPushNotifs } from '../push/rescind';
 
 async function activityUpdater(
   viewer: Viewer,
-  updates: $ReadOnlyArray<ActivityUpdate>,
+  request: UpdateActivityRequest,
 ): Promise<UpdateActivityResult> {
   const localViewer = viewer;
   if (!localViewer.loggedIn) {
@@ -30,7 +30,7 @@ async function activityUpdater(
   const unverifiedThreadIDs = new Set();
   const focusUpdatesByThreadID = new Map();
   let closing = false;
-  for (let activityUpdate of updates) {
+  for (let activityUpdate of request.updates) {
     if (activityUpdate.closing) {
       closing = true;
       continue;
