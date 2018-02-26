@@ -10,6 +10,7 @@ export type UserViewerData = {|
   +userID: string,
   +cookieID: string,
   +cookiePassword: string,
+  +insertionTime?: ?number,
 |};
 
 export type AnonymousViewerData = {|
@@ -17,6 +18,7 @@ export type AnonymousViewerData = {|
   +id: string,
   +cookieID: string,
   +cookiePassword: string,
+  +insertionTime?: ?number,
 |};
 
 export type ViewerData = UserViewerData | AnonymousViewerData;

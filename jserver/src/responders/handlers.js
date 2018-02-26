@@ -8,6 +8,7 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import {
   fetchViewerFromRequest,
   addCookieChangeInfoToResult,
+  addCookieInfoToResponse,
 } from '../session/cookies';
 
 type Responder = (viewer: Viewer, input: any) => Promise<*>;
@@ -25,6 +26,8 @@ function jsonHandler(responder: Responder) {
       }
       if (viewer.cookieChanged) {
         await addCookieChangeInfoToResult(viewer, res, result);
+      } else {
+        await addCookieInfoToResponse(viewer, res);
       }
       res.json({ success: true, ...result });
     } catch (e) {

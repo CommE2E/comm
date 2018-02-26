@@ -34,7 +34,7 @@ type CookieType = $Values<typeof cookieType>;
 
 type FetchViewerResult =
   | {| type: "valid", viewer: Viewer |}
-  | {| type: "nonexistant", cookieName: string, source: CookieSource |}
+  | {| type: "nonexistant", cookieName: ?string, source: CookieSource |}
   | {|
       type: "invalidated",
       cookieName: string,
@@ -143,6 +143,9 @@ async function fetchViewerFromRequestBody(
 ): Promise<?FetchViewerResult> {
   const body = (req.body: any);
   const cookiePair = body.cookie;
+  if (cookiePair === null) {
+    return { type: "nonexistant", cookieName: null, source: cookieSource.BODY };
+  }
   if (!cookiePair || !(typeof cookiePair === "string")) {
     return null;
   }
@@ -166,17 +169,24 @@ async function fetchViewerFromRequest(req: $Request): Promise<Viewer> {
 
   const [ anonymousViewerData ] = await Promise.all([
     createNewAnonymousCookie(),
-    result && result.invalidated
+    result && result.type === "invalidated"
       ? deleteCookie(result.cookieID)
       : null,
   ]);
   const source = result ? result.source : cookieSource.GENERATED;
   const viewer = new Viewer(anonymousViewerData, source);
+
   if (result) {
     viewer.cookieChanged = true;
-    viewer.cookieInvalidated = true;
-    viewer.initialCookieName = result.cookieName;
+    // If cookieName is falsey, that means it's not an actual invalidation. It
+    // means there was a null cookie specified in the request body, which tells
+    // us that the client wants the new cookie specified in the result body.
+    if (result.cookieName) {
+      viewer.cookieInvalidated = true;
+      viewer.initialCookieName = result.cookieName;
+    }
   }
+
   return viewer;
 }
 
@@ -248,6 +258,7 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
     id,
     cookieID: id,
     cookiePassword,
+    insertionTime: time,
   };
 }
 
@@ -277,7 +288,32 @@ async function createNewUserCookie(userID: string): Promise<UserViewerData> {
     userID,
     cookieID,
     cookiePassword,
+    insertionTime: time,
   };
+}
+
+async function addCookieInfoToResponse(
+  viewer: Viewer,
+  res: $Response,
+) {
+  let time = viewer.getData().insertionTime;
+  if (!time) {
+    time = Date.now();
+    const extendLifespanQuery = SQL`
+      UPDATE cookies SET last_update = ${time} WHERE id = ${viewer.cookieID}
+    `;
+    await pool.query(extendLifespanQuery);
+  }
+  if (viewer.initializationSource !== cookieSource.BODY) {
+    res.cookie(
+      viewer.cookieName,
+      viewer.cookieString,
+      {
+        ...cookieOptions,
+        maxAge: cookieLifetime,
+      },
+    );
+  }
 }
 
 export {
@@ -287,4 +323,5 @@ export {
   createNewAnonymousCookie,
   deleteCookie,
   createNewUserCookie,
+  addCookieInfoToResponse,
 };
