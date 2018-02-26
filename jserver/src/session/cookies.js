@@ -5,7 +5,6 @@ import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
 
-import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
 import crypto from 'crypto';
@@ -24,6 +23,7 @@ const cookieLifetime = 30*24*60*60*1000; // in milliseconds
 const cookieSource = Object.freeze({
   BODY: 0,
   HEADER: 1,
+  GENERATED: 2,
 });
 export type CookieSource = $Values<typeof cookieSource>;
 const cookieType = Object.freeze({
@@ -32,26 +32,46 @@ const cookieType = Object.freeze({
 });
 type CookieType = $Values<typeof cookieType>;
 
-async function fetchUserViewer(cookie: string, source: CookieSource) {
+type FetchViewerResult =
+  | {| type: "valid", viewer: Viewer |}
+  | {| type: "nonexistant", cookieName: string, source: CookieSource |}
+  | {|
+      type: "invalidated",
+      cookieName: string,
+      cookieID: string,
+      source: CookieSource,
+    |};
+
+async function fetchUserViewer(
+  cookie: string,
+  source: CookieSource,
+): Promise<FetchViewerResult> {
   const [ cookieID, cookiePassword ] = cookie.split(':');
-  invariant(cookieID && cookiePassword, `invalid cookie ${cookie}`);
+  if (!cookieID || !cookiePassword) {
+    return { type: "nonexistant", cookieName: cookieType.USER, source };
+  }
   const query = SQL`
     SELECT hash, user, last_update FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
   const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    return { type: "nonexistant", cookieName: cookieType.USER, source };
+  }
   const cookieRow = result[0];
-  invariant(cookieRow, `invalid user cookie ID ${cookieID}`);
-  invariant(
-    bcrypt.compareSync(cookiePassword, cookieRow.hash),
-    `invalid cookie password for user cookie ID ${cookieID}`,
-  );
-  invariant(
-    cookieRow.last_update + cookieLifetime > Date.now(),
-    `user cookie ID ${cookieID} is expired`,
-  );
+  if (
+    !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
+    cookieRow.last_update + cookieLifetime <= Date.now()
+  ) {
+    return {
+      type: "invalidated",
+      cookieName: cookieType.USER,
+      cookieID,
+      source,
+    };
+  }
   const userID = cookieRow.user.toString();
-  return new Viewer(
+  const viewer = new Viewer(
     {
       loggedIn: true,
       id: userID,
@@ -61,27 +81,38 @@ async function fetchUserViewer(cookie: string, source: CookieSource) {
     },
     source,
   );
+  return { type: "valid", viewer };
 }
 
-async function fetchAnonymousViewer(cookie: string, source: CookieSource) {
+async function fetchAnonymousViewer(
+  cookie: string,
+  source: CookieSource,
+): Promise<FetchViewerResult> {
   const [ cookieID, cookiePassword ] = cookie.split(':');
-  invariant(cookieID && cookiePassword, `invalid cookie ${cookie}`);
+  if (!cookieID || !cookiePassword) {
+    return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
+  }
   const query = SQL`
     SELECT last_update, hash FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
   const [ result ] = await pool.query(query);
+  if (result.length === 0) {
+    return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
+  }
   const cookieRow = result[0];
-  invariant(cookieRow, `invalid anonymous cookie ID ${cookieID}`);
-  invariant(
-    bcrypt.compareSync(cookiePassword, cookieRow.hash),
-    `invalid cookie password for anonymous cookie ID ${cookieID}`,
-  );
-  invariant(
-    cookieRow.last_update + cookieLifetime > Date.now(),
-    `anonymous cookie ID ${cookieID} is expired`,
-  );
-  return new Viewer(
+  if (
+    !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
+    cookieRow.last_update + cookieLifetime <= Date.now()
+  ) {
+    return {
+      type: "invalidated",
+      cookieName: cookieType.ANONYMOUS,
+      cookieID,
+      source,
+    };
+  }
+  const viewer = new Viewer(
     {
       loggedIn: false,
       id: cookieID,
@@ -90,6 +121,7 @@ async function fetchAnonymousViewer(cookie: string, source: CookieSource) {
     },
     source,
   );
+  return { type: "valid", viewer };
 }
 
 // This function is meant to consume a cookie that has already been processed.
@@ -97,7 +129,7 @@ async function fetchAnonymousViewer(cookie: string, source: CookieSource) {
 // doesn't the cookie's last_update timestamp.
 async function fetchViewerFromCookieData(
   cookieData: {[cookieName: string]: string},
-): Promise<?Viewer> {
+): Promise<?FetchViewerResult> {
   if (cookieData.user) {
     return await fetchUserViewer(cookieData.user, cookieSource.HEADER);
   } else if (cookieData.anonymous) {
@@ -106,7 +138,9 @@ async function fetchViewerFromCookieData(
   return null;
 }
 
-async function fetchViewerFromRequestBody(req: $Request): Promise<?Viewer> {
+async function fetchViewerFromRequestBody(
+  req: $Request,
+): Promise<?FetchViewerResult> {
   const body = (req.body: any);
   const cookiePair = body.cookie;
   if (!cookiePair || !(typeof cookiePair === "string")) {
@@ -122,12 +156,26 @@ async function fetchViewerFromRequestBody(req: $Request): Promise<?Viewer> {
 }
 
 async function fetchViewerFromRequest(req: $Request): Promise<Viewer> {
-  let viewer = await fetchViewerFromRequestBody(req);
-  if (!viewer) {
-    viewer = await fetchViewerFromCookieData(req.cookies);
+  let result = await fetchViewerFromRequestBody(req);
+  if (!result) {
+    result = await fetchViewerFromCookieData(req.cookies);
   }
-  if (!viewer) {
-    throw new ServerError("no_cookie");
+  if (result && result.type === "valid") {
+    return result.viewer;
+  }
+
+  const [ anonymousViewerData ] = await Promise.all([
+    createNewAnonymousCookie(),
+    result && result.invalidated
+      ? deleteCookie(result.cookieID)
+      : null,
+  ]);
+  const source = result ? result.source : cookieSource.GENERATED;
+  const viewer = new Viewer(anonymousViewerData, source);
+  if (result) {
+    viewer.cookieChanged = true;
+    viewer.cookieInvalidated = true;
+    viewer.initialCookieName = result.cookieName;
   }
   return viewer;
 }
@@ -203,12 +251,12 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
   };
 }
 
-async function deleteCookie(viewerData: ViewerData): Promise<void> {
+async function deleteCookie(cookieID: string): Promise<void> {
   await pool.query(SQL`
     DELETE c, i
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    WHERE c.id = ${viewerData.cookieID}
+    WHERE c.id = ${cookieID}
   `);
 }
 
