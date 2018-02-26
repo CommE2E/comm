@@ -1,6 +1,11 @@
 // @flow
 
-import { type VerifyField, assertVerifyField } from 'lib/types/verify-types';
+import {
+  type VerifyField,
+  verifyField,
+  assertVerifyField,
+  type VerificationResult,
+} from 'lib/types/verify-types';
 
 import crypto from 'crypto';
 import bcrypt from 'twin-bcrypt';
@@ -80,8 +85,37 @@ async function clearVerifyCodes(result: CodeVerification) {
   await pool.query(deleteQuery);
 }
 
+async function handleCodeVerificationRequest(
+  code: string,
+): Promise<?VerificationResult> {
+  const result = await verifyCode(code);
+  const { userID, field } = result;
+  if (field === verifyField.EMAIL) {
+    const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
+    await Promise.all([
+      pool.query(query),
+      clearVerifyCodes(result),
+    ]);
+    return { field: verifyField.EMAIL, userID };
+  } else if (field === verifyField.RESET_PASSWORD) {
+    const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
+    const [ usernameResult ] = await pool.query(usernameQuery);
+    if (usernameResult.length === 0) {
+      throw new ServerError('invalid_code');
+    }
+    const usernameRow = usernameResult[0];
+    return {
+      field: verifyField.RESET_PASSWORD,
+      userID,
+      resetPasswordUsername: usernameRow.username,
+    };
+  }
+  return null;
+}
+
 export {
   createVerificationCode,
   verifyCode,
   clearVerifyCodes,
+  handleCodeVerificationRequest,
 };

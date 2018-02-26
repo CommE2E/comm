@@ -12,7 +12,7 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { verifyField } from 'lib/types/verify-types';
 
 import { tShape } from '../utils/tcomb-utils';
-import { verifyCode, clearVerifyCodes } from '../models/verification';
+import { handleCodeVerificationRequest } from '../models/verification';
 import { pool, SQL } from '../database';
 
 const codeVerificationRequestInputValidator = tShape({
@@ -28,26 +28,21 @@ async function codeVerificationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const result = await verifyCode(codeVerificationRequest.code);
-  const { userID, field } = result;
-  if (field === verifyField.EMAIL) {
-    const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
-    await Promise.all([
-      pool.query(query),
-      clearVerifyCodes(result),
-    ]);
-    return { verifyField: field };
-  } else if (field === verifyField.RESET_PASSWORD) {
-    const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
-    const [ usernameResult ] = await pool.query(usernameQuery);
-    if (usernameResult.length === 0) {
-      throw new ServerError('invalid_code');
-    }
-    const usernameRow = usernameResult[0];
-    return { verifyField: field, resetPasswordUsername: usernameRow.username };
-  } else {
+  const result = await handleCodeVerificationRequest(
+    codeVerificationRequest.code,
+  );
+  if (!result) {
     throw new ServerError('unhandled_field');
   }
+  if (result.field === verifyField.EMAIL) {
+    return { verifyField: result.field };
+  } else if (result.field === verifyField.RESET_PASSWORD) {
+    return {
+      verifyField: result.field,
+      resetPasswordUsername: result.resetPasswordUsername,
+    };
+  }
+  throw new ServerError('unhandled_field');
 }
 
 export {
