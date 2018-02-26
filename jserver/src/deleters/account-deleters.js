@@ -3,7 +3,7 @@
 import type {
   LogOutResponse,
   DeleteAccountRequest,
-} from 'lib/types/user-types';
+} from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';

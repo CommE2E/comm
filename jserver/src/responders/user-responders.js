@@ -4,16 +4,17 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types';
+import type { AccountUpdate } from 'lib/types/user-types';
 import type {
-  AccountUpdate,
+  ResetPasswordRequest,
   LogOutResponse,
   DeleteAccountRequest,
   RegisterResponse,
   RegisterRequest,
   LogInResponse,
   LogInRequest,
-} from 'lib/types/user-types';
-import type { PasswordResetRequest } from 'lib/types/account-types';
+  UpdatePasswordRequest,
+} from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
@@ -28,6 +29,7 @@ import {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
+  updatePassword,
 } from '../updaters/account-updaters';
 import { tShape } from '../utils/tcomb-utils';
 import {
@@ -102,7 +104,7 @@ async function sendPasswordResetEmailResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
-  const resetPasswordRequest: PasswordResetRequest = input;
+  const resetPasswordRequest: ResetPasswordRequest = input;
   if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
     throw new ServerError('invalid_parameters');
   }
@@ -218,10 +220,7 @@ async function logInResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [
-    messagesResult,
-    entriesResult,
-  ] = await Promise.all([
+  const [ messagesResult, entriesResult ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
@@ -253,6 +252,25 @@ async function logInResponder(
   return response;
 }
 
+const updatePasswordRequestInputValidator = tShape({
+  code: t.String,
+  password: t.String,
+  watchedIDs: t.list(t.String),
+  calendarQuery: t.maybe(entryQueryInputValidator),
+});
+
+async function passwordUpdateResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<LogInResponse> {
+  const updatePasswordRequest: UpdatePasswordRequest = input;
+  if (!updatePasswordRequestInputValidator.is(updatePasswordRequest)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  return await updatePassword(viewer, updatePasswordRequest);
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -262,4 +280,5 @@ export {
   accountDeletionResponder,
   accountCreationResponder,
   logInResponder,
+  passwordUpdateResponder,
 };

@@ -5,7 +5,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { LogOutResult } from 'lib/types/user-types';
+import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 

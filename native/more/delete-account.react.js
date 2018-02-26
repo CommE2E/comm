@@ -5,10 +5,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type {
-  LogOutResult,
-  ChangeUserSettingsResult,
-} from 'lib/types/user-types';
+import type { LogOutResult } from 'lib/types/account-types';
 
 import React from 'react';
 import PropTypes from 'prop-types';

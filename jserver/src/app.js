@@ -20,6 +20,7 @@ import {
   accountDeletionResponder,
   accountCreationResponder,
   logInResponder,
+  passwordUpdateResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
 import {
@@ -77,6 +78,7 @@ const jsonEndpoints = {
   'delete_account': accountDeletionResponder,
   'create_account': accountCreationResponder,
   'log_in': logInResponder,
+  'update_password': passwordUpdateResponder,
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
