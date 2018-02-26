@@ -6,9 +6,8 @@ import type { Viewer } from '../session/viewer';
 import { ServerError } from 'lib/utils/fetch-utils';
 
 import {
-  fetchViewerFromRequest,
-  addCookieChangeInfoToResult,
-  addCookieInfoToResponse,
+  fetchViewerForJSONRequest,
+  addCookieToJSONResponse,
 } from '../session/cookies';
 
 type Responder = (viewer: Viewer, input: any) => Promise<*>;
@@ -16,7 +15,7 @@ type Responder = (viewer: Viewer, input: any) => Promise<*>;
 function jsonHandler(responder: Responder) {
   return async (req: $Request, res: $Response) => {
     try {
-      const viewer = await fetchViewerFromRequest(req);
+      const viewer = await fetchViewerForJSONRequest(req);
       if (!req.body || typeof req.body !== "object") {
         throw new ServerError('invalid_parameters');
       }
@@ -24,11 +23,7 @@ function jsonHandler(responder: Responder) {
       if (res.headersSent) {
         return;
       }
-      if (viewer.cookieChanged) {
-        await addCookieChangeInfoToResult(viewer, res, result);
-      } else {
-        await addCookieInfoToResponse(viewer, res);
-      }
+      await addCookieToJSONResponse(viewer, res, result);
       res.json({ success: true, ...result });
     } catch (e) {
       console.warn(e);

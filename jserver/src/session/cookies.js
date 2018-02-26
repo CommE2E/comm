@@ -158,11 +158,20 @@ async function fetchViewerFromRequestBody(
   return null;
 }
 
-async function fetchViewerFromRequest(req: $Request): Promise<Viewer> {
+async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   let result = await fetchViewerFromRequestBody(req);
   if (!result) {
     result = await fetchViewerFromCookieData(req.cookies);
   }
+  return await handleFetchViewerResult(result);
+}
+
+async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
+  const result = await fetchViewerFromCookieData(req.cookies);
+  return await handleFetchViewerResult(result);
+}
+
+async function handleFetchViewerResult(result: ?FetchViewerResult) {
   if (result && result.type === "valid") {
     return result.viewer;
   }
@@ -292,17 +301,25 @@ async function createNewUserCookie(userID: string): Promise<UserViewerData> {
   };
 }
 
-async function addCookieInfoToResponse(
+async function extendCookieLifespan(cookieID: string) {
+  const time = Date.now();
+  const query = SQL`
+    UPDATE cookies SET last_update = ${time} WHERE id = ${cookieID}
+  `;
+  await pool.query(query);
+}
+
+async function addCookieToJSONResponse(
   viewer: Viewer,
   res: $Response,
+  result: Object,
 ) {
-  let time = viewer.getData().insertionTime;
-  if (!time) {
-    time = Date.now();
-    const extendLifespanQuery = SQL`
-      UPDATE cookies SET last_update = ${time} WHERE id = ${viewer.cookieID}
-    `;
-    await pool.query(extendLifespanQuery);
+  if (viewer.cookieChanged) {
+    await addCookieChangeInfoToResult(viewer, res, result);
+    return;
+  }
+  if (!viewer.getData().insertionTime) {
+    extendCookieLifespan(viewer.cookieID);
   }
   if (viewer.initializationSource !== cookieSource.BODY) {
     res.cookie(
@@ -316,12 +333,30 @@ async function addCookieInfoToResponse(
   }
 }
 
+function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
+  if (!viewer.getData().insertionTime) {
+    extendCookieLifespan(viewer.cookieID);
+  }
+  res.cookie(
+    viewer.cookieName,
+    viewer.cookieString,
+    {
+      ...cookieOptions,
+      maxAge: cookieLifetime,
+    },
+  );
+  if (viewer.cookieName !== viewer.initialCookieName) {
+    res.clearCookie(viewer.initialCookieName, cookieOptions);
+  }
+}
+
 export {
   cookieType,
-  fetchViewerFromRequest,
-  addCookieChangeInfoToResult,
+  fetchViewerForJSONRequest,
+  fetchViewerForHomeRequest,
   createNewAnonymousCookie,
   deleteCookie,
   createNewUserCookie,
-  addCookieInfoToResponse,
+  addCookieToJSONResponse,
+  addCookieToHomeResponse,
 };

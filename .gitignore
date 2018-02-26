@@ -11,3 +11,4 @@ jserver/dist
 jserver/node_modules/*
 jserver/secrets
 jserver/facts
+jserver/fonts

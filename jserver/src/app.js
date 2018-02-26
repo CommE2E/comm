@@ -1,7 +1,6 @@
 // @flow
 
 import express from 'express';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 import { jsonHandler } from './responders/handlers';
@@ -44,10 +43,22 @@ import {
   threadJoinResponder,
 } from './responders/thread-responders';
 import { pingResponder } from './responders/ping-responders';
+import { websiteResponder } from './responders/website-responders';
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cookieParser());
+const server = express();
+server.use(express.json());
+server.use(cookieParser());
+server.use('/images', express.static('images'));
+server.use('/fonts', express.static('fonts'));
+server.use(
+  '/.well-known',
+  express.static(
+    '.well-known',
+    // Necessary for apple-app-site-association file
+    { setHeaders: res => res.setHeader("Content-Type", "application/json") },
+  ),
+);
+server.use('/compiled', express.static('compiled'));
 
 const jsonEndpoints = {
   'update_activity': updateActivityResponder,
@@ -82,7 +93,9 @@ const jsonEndpoints = {
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
-  app.post(`/${endpoint}`, jsonHandler(responder));
+  server.post(`/${endpoint}`, jsonHandler(responder));
 }
 
-app.listen(parseInt(process.env.PORT) || 3000, 'localhost');
+server.get('*', websiteResponder);
+
+server.listen(parseInt(process.env.PORT) || 3000, 'localhost');
