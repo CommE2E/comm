@@ -68,7 +68,6 @@ registerConfig({
   setCookieOnRequest: false,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
-  clientSupportsMessages: false,
 });
 
 const entryInfos = _keyBy('id')(entry_infos);

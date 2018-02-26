@@ -202,27 +202,30 @@ async function checkThreadsFocused(
   return focusedThreadUserPairs;
 }
 
-async function updateActivityTime(
-  viewer: Viewer,
-  time: number,
-  clientSupportsMessages: bool,
-): Promise<void> {
-  if (!viewer.loggedIn) {
-    return;
-  }
-
+// This function updates tables that track recent activity.
+// - We have a `last_ping` column in the cookies table just to track when a user
+//   has last interacted with SquadCal.
+// - The `focused` table tracks which chat threads are currently in view for a
+//   given cookie. We track this so that if a user is currently viewing a
+//   thread's messages, then notification on that thread are not sent. This
+//   function does not add new rows to the `focused` table, but instead extends
+//   currently active rows for the current cookie. This is a no-op for clients
+//   that don't have any rows in the focused table (such as web, currently).
+async function updateActivityTime(viewer: Viewer, time: number): Promise<void> {
   const promises = [];
-  const focusedQuery = SQL`
-    UPDATE focused
-    SET time = ${time}
-    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
+
+  const cookieQuery = SQL`
+    UPDATE cookies SET last_ping = ${time} WHERE id = ${viewer.cookieID}
   `;
-  promises.push(pool.query(focusedQuery));
-  if (clientSupportsMessages) {
-    const cookieQuery = SQL`
-      UPDATE cookies SET last_ping = ${time} WHERE id = ${viewer.cookieID}
+  promises.push(pool.query(cookieQuery));
+
+  if (viewer.loggedIn) {
+    const focusedQuery = SQL`
+      UPDATE focused
+      SET time = ${time}
+      WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
     `;
-    promises.push(pool.query(cookieQuery));
+    promises.push(pool.query(focusedQuery));
   }
 
   await Promise.all(promises);

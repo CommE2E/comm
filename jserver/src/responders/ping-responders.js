@@ -20,7 +20,6 @@ const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
   lastPing: t.Number,
   watchedIDs: t.list(t.String),
-  clientSupportsMessages: t.Boolean,
 });
 
 async function pingResponder(
@@ -67,11 +66,7 @@ async function pingResponder(
   ]);
 
   // Do this one separately in case any of the above throw an exception
-  await updateActivityTime(
-    viewer,
-    newPingTime,
-    pingRequest.clientSupportsMessages,
-  );
+  await updateActivityTime(viewer, newPingTime);
 
   const userInfos: any = Object.values({
     ...messagesResult.userInfos,
