@@ -5051,10 +5051,6 @@ jquery-param@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/jquery-param/-/jquery-param-0.2.0.tgz#55da8130428c50980eb516491c1b77cc78f0dcb1"
 
-jquery@>=1.2.3, jquery@^3.2.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
-
 js-base64@^2.1.9:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
@@ -7549,6 +7545,10 @@ react-text-truncate@^0.10.2:
   dependencies:
     prop-types "^15.5.7"
 
+react-timeago@^3.4.3:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/react-timeago/-/react-timeago-3.4.3.tgz#eb9061eefb044e4a2b09ce8c99d34645b2dbfa25"
+
 react-timer-mixin@^0.13.2:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/react-timer-mixin/-/react-timer-mixin-0.13.3.tgz#0da8b9f807ec07dc3e854d082c737c65605b3d22"
@@ -8795,12 +8795,6 @@ time-stamp@^1.0.0:
 time-stamp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/time-stamp/-/time-stamp-2.0.0.tgz#95c6a44530e15ba8d6f4a3ecb8c3a3fac46da357"
-
-timeago@^1.5.4:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/timeago/-/timeago-1.6.1.tgz#fa9aa932e6cfae1f0c9b62f49d8a6071fdf69c5b"
-  dependencies:
-    jquery ">=1.2.3"
 
 timed-out@^4.0.0:
   version "4.0.1"

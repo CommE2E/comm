@@ -8,12 +8,11 @@ import type { AppState } from '../../redux-setup';
 
 import * as React from 'react';
 import classNames from 'classnames';
-import $ from 'jquery';
-import 'timeago'; // side effect: $.timeago
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import TimeAgo from 'react-timeago';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -27,25 +26,6 @@ type Props = {
 }
 
 class HistoryRevision extends React.PureComponent<Props> {
-
-  time: ?HTMLElement;
-
-  componentDidMount() {
-    // TODO investigate React replacement for jQuery timeago plugin
-    invariant(this.time instanceof HTMLElement, "time ref should be set");
-    // $FlowFixMe
-    $(this.time).timeago();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.revisionInfo.lastUpdate !== prevProps.revisionInfo.lastUpdate
-    ) {
-      invariant(this.time instanceof HTMLElement, "time ref should be set");
-      // $FlowFixMe
-      $(this.time).timeago();
-    }
-  }
 
   render() {
     let change;
@@ -82,20 +62,14 @@ class HistoryRevision extends React.PureComponent<Props> {
           {"updated by "}
           {author}
         </span>
-        <time
+        <TimeAgo
+          date={date.toISOString()}
+          title={hovertext}
           className={css['entry-time']}
-          dateTime={date.toISOString()}
-          ref={this.timeRef}
-        >
-          {hovertext}
-        </time>
+        />
         <div className={css['clear']} />
       </li>
     );
-  }
-
-  timeRef = (time: ?HTMLElement) => {
-    this.time = time;
   }
 
 }

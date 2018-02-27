@@ -1,4 +1,4 @@
-// flow-typed signature: 7ad355562bbde6487379d0ec0139ed10
+// flow-typed signature: 30d3534c61e83c843ca757a09385aea3
 // flow-typed version: <<STUB>>/css-loader_v^0.28.4/flow_v0.64.0
 
 /**
@@ -54,6 +54,10 @@ declare module 'css-loader/lib/processCss' {
   declare module.exports: any;
 }
 
+declare module 'css-loader/lib/url/escape' {
+  declare module.exports: any;
+}
+
 declare module 'css-loader/locals' {
   declare module.exports: any;
 }
@@ -88,6 +92,9 @@ declare module 'css-loader/lib/localsLoader.js' {
 }
 declare module 'css-loader/lib/processCss.js' {
   declare module.exports: $Exports<'css-loader/lib/processCss'>;
+}
+declare module 'css-loader/lib/url/escape.js' {
+  declare module.exports: $Exports<'css-loader/lib/url/escape'>;
 }
 declare module 'css-loader/locals.js' {
   declare module.exports: $Exports<'css-loader/locals'>;

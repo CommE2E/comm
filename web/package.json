@@ -11,14 +11,14 @@
     "babel-plugin-transform-remove-console": "^6.8.4",
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "concurrently": "^3.5.1",
     "css-loader": "^0.28.4",
     "extract-text-webpack-plugin": "^2.1.2",
     "flow-bin": "^0.64.0",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0",
-    "concurrently": "^3.5.1"
+    "webpack-dev-server": "^2.5.0"
   },
   "scripts": {
     "postinstall": "cd ../; npx flow-mono create-symlinks web/.flowconfig",
@@ -33,7 +33,6 @@
     "history": "^4.6.3",
     "invariant": "^2.2.2",
     "isomorphic-fetch": "^2.2.1",
-    "jquery": "^3.2.1",
     "lib": "0.0.1",
     "lodash": "^4.17.5",
     "prop-types": "^15.6.0",
@@ -45,11 +44,11 @@
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
     "react-text-truncate": "^0.10.2",
+    "react-timeago": "^3.4.3",
     "redux": "^3.7.2",
     "redux-devtools-extension": "^2.13.2",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
-    "timeago": "^1.5.4",
     "visibilityjs": "^1.2.4"
   }
 }
