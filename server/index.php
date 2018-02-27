@@ -1,5 +1,19 @@
 <?php
 
+require_once('call_node.php');
+
+$url = "http://localhost:3000/" . $_SERVER['REQUEST_URI'];
+error_log($url);
+$ch = curl_init($url);
+list($_, $_, $_, $cookie) = get_viewer_info();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+
+$result = curl_exec($ch);
+echo $result;
+exit;
+
 require_once('config.php');
 require_once('auth.php');
 require_once('verify_lib.php');

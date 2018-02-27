@@ -2,12 +2,12 @@
   "name": "jserver",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/app",
+  "main": "dist/server",
   "scripts": {
     "postinstall": "cd ../; npx flow-mono create-symlinks jserver/.flowconfig",
-    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','lib/package-lock.json' --copy-files",
-    "prod": "node --experimental-modules --loader ./loader.mjs dist/app",
-    "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/app\""
+    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','web/flow-typed','web/node_modules','web/package.json','web/dist/hot','web/dist/dev.build.js','web/dist/prod.build.js','web/dist/prod.build.css' --copy-files",
+    "prod": "node --experimental-modules --loader ./loader.mjs dist/server",
+    "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/server\""
   },
   "author": "",
   "license": "ISC",
@@ -34,10 +34,16 @@
     "nodemailer": "^4.4.2",
     "promise": "^8.0.1",
     "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-hot-loader": "^3.1.3",
     "react-html-email": "^3.0.0",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.2.0",
+    "redux": "^3.7.2",
     "sql-template-strings": "^2.2.2",
     "tcomb": "^3.2.24",
     "twin-bcrypt": "^2.1.1",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "web": "0.0.1"
   }
 }

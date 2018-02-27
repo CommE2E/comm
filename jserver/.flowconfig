@@ -2,9 +2,11 @@
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/node_modules/google-gax/node_modules/grpc/node_modules/protobufjs/src/bower.json
 .*/node_modules/protobufjs/src/bower.json
+.*/node_modules/react-timeago/.*
 
 [include]
 ../lib
+../web
 
 [libs]
 

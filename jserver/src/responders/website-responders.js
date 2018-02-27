@@ -1,8 +1,17 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { AppState, Action } from 'web/redux-setup';
+import type { Store } from 'redux';
 
 import html from 'common-tags/lib/html';
+import { createStore } from 'redux';
+import ReactDOMServer from 'react-dom/server';
+import ReactHotLoader from 'react-hot-loader';
+import ReactRedux from 'react-redux';
+import { Route, StaticRouter } from 'react-router';
+import React from 'react';
+import _keyBy from 'lodash/fp/keyBy';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import {
@@ -10,6 +19,12 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import { newSessionID } from 'lib/selectors/session-selectors';
+import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
+import { freshMessageStore } from 'lib/reducers/message-reducer';
+import { verifyField } from 'lib/types/verify-types';
+import * as ReduxSetup from 'web/redux-setup';
+import App from 'web/dist/app.build';
 
 import {
   fetchViewerForHomeRequest,
@@ -25,6 +40,10 @@ import { updateActivityTime } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
 
 const { basePath } = urlFacts;
+const { renderToString } = ReactDOMServer;
+const { AppContainer } = ReactHotLoader;
+const { Provider } = ReactRedux;
+const { reducer } = ReduxSetup;
 
 async function websiteResponder(req: $Request, res: $Response) {
   try {
@@ -70,11 +89,6 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
       ? handleCodeVerificationRequest(urlInfo.verificationCode)
       : null,
   ]);
-  const userInfos = {
-    ...messageUserInfos,
-    ...entryUserInfos,
-    ...threadUserInfos,
-  };
   if (urlInfo.threadID && !threadInfos[urlInfo.threadID]) {
     const validThreadID = await verifyThreadID(urlInfo.threadID);
     if (!validThreadID) {
@@ -85,7 +99,69 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
   // Do this one separately in case any of the above throw an exception
   await updateActivityTime(viewer, serverTime);
 
-  // handle verificationCode
+  const time = Date.now();
+  const store: Store<AppState, Action> = createStore(
+    reducer,
+    ({
+      navInfo: {
+        startDate: calendarQuery.startDate,
+        endDate: calendarQuery.endDate,
+        home: urlInfo.home,
+        threadID: urlInfo.threadID,
+        verify: urlInfo.verificationCode,
+      },
+      currentUserInfo,
+      sessionID: newSessionID(),
+      verifyField: verificationResult && verificationResult.field,
+      resetPasswordUsername:
+        verificationResult && verificationResult.resetPasswordUsername
+          ? verificationResult.resetPasswordUsername
+          : "",
+      entryStore: {
+        entryInfos: _keyBy('id')(rawEntryInfos),
+        daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
+        lastUserInteractionCalendar: time,
+      },
+      lastUserInteraction: { sessionReset: time },
+      threadInfos,
+      userInfos: {
+        ...messageUserInfos,
+        ...entryUserInfos,
+        ...threadUserInfos,
+      },
+      messageStore: freshMessageStore(
+        rawMessageInfos,
+        truncationStatuses,
+        threadInfos,
+      ),
+      drafts: {},
+      currentAsOf: serverTime,
+      loadingStatuses: {},
+      cookie: undefined,
+      deviceToken: null,
+    }: AppState),
+  );
+  const routerContext = {};
+  const baseURL = basePath.replace(/\/$/, '');
+  const rendered = renderToString(
+    <AppContainer>
+      <Provider store={store}>
+        <StaticRouter
+          location={url}
+          basename={baseURL}
+          context={routerContext}
+        >
+          <Route path="*" component={App.default} />
+        </StaticRouter>
+      </Provider>
+    </AppContainer>,
+  );
+  if (routerContext.url) {
+    throw new ServerError("URL modified during server render!");
+  }
+
+  const state = store.getState();
+  const stringifiedState = JSON.stringify(state).replace(/</g, '\\u003c');
 
   const fontsURL = process.env.NODE_ENV === "dev"
     ? "fonts/local-fonts.css"
@@ -93,6 +169,13 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
   const jsURL = process.env.NODE_ENV === "dev"
     ? "compiled/dev.build.js"
     : "compiled/prod.build.js";
+  const cssInclude = process.env.NODE_ENV === "dev"
+    ? ""
+    : `<link
+        rel="stylesheet"
+        type="text/css"
+        href="compiled/prod.build.css"
+      />`;
   return html`
     <html lang="en" class="no-js">
       <head>
@@ -100,11 +183,14 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
         <title>SquadCal</title>
         <base href="${basePath}" />
         <link rel="stylesheet" type="text/css" href="${fontsURL}" />
+        ${cssInclude}
         <script>
+          var preloadedState = ${stringifiedState};
+          var baseURL = "${baseURL}";
         </script>
       </head>
       <body>
-        <div id="react-root" />
+        <div id="react-root">${rendered}</div>
         <script src="${jsURL}"></script>
       </body>
     </html>

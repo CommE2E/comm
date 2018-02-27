@@ -41,21 +41,6 @@ import { reducer } from './redux-setup';
 import App from './app.react';
 import history from './router-history';
 
-declare var current_user_info: CurrentUserInfo;
-declare var thread_infos: {[id: string]: RawThreadInfo};
-declare var entry_infos: RawEntryInfo[];
-declare var month: number;
-declare var year: number;
-declare var verify_code: ?string;
-declare var verify_field: ?number;
-declare var reset_password_username: string;
-declare var home: bool;
-declare var thread_id: ?string;
-declare var current_as_of: number;
-declare var message_infos: RawMessageInfo[];
-declare var truncation_status: {[threadID: string]: MessageTruncationStatus};
-declare var user_infos: {[id: string]: UserInfo};
-
 registerConfig({
   // We can use paths local to the <base href> on web
   urlPrefix: "",
@@ -70,55 +55,22 @@ registerConfig({
   calendarRangeInactivityLimit: null,
 });
 
-const entryInfos = _keyBy('id')(entry_infos);
-const daysToEntries = daysToEntriesFromEntryInfos(entry_infos);
-const startDate = startDateForYearAndMonth(year, month);
-const endDate = endDateForYearAndMonth(year, month);
-const messageStore = freshMessageStore(
-  message_infos,
-  truncation_status,
-  thread_infos,
-);
-
+declare var preloadedState: AppState;
 const store: Store<AppState, Action> = createStore(
   reducer,
-  ({
-    navInfo: {
-      startDate,
-      endDate,
-      home,
-      threadID: thread_id,
-      verify: verify_code,
-    },
-    currentUserInfo: current_user_info,
-    sessionID: newSessionID(),
-    verifyField: verify_field ? assertVerifyField(verify_field) : verify_field,
-    resetPasswordUsername: reset_password_username,
-    entryStore: {
-      entryInfos,
-      daysToEntries,
-      lastUserInteractionCalendar: Date.now(),
-    },
-    lastUserInteraction: { sessionReset: Date.now() },
-    threadInfos: thread_infos,
-    userInfos: user_infos,
-    messageStore,
-    drafts: {},
-    currentAsOf: current_as_of,
-    loadingStatuses: {},
-    cookie: undefined,
-    deviceToken: null,
-  }: AppState),
+  preloadedState,
   composeWithDevTools({})(applyMiddleware(thunk)),
 );
 
 const root = document.getElementById('react-root');
 invariant(root, "cannot find id='react-root' element!");
 
-const render = (Component) => ReactDOM.render(
+// TODO maybe hot-loader need full render
+// $FlowFixMe https://github.com/facebook/flow/issues/5035
+const render = (Component) => ReactDOM.hydrate(
   <AppContainer>
     <Provider store={store}>
-      <Router history={history}>
+      <Router history={history.getHistoryObject()}>
         <Route path="*" component={Component} />
       </Router>
     </Provider>

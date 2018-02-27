@@ -44,13 +44,18 @@ import {
 } from './responders/thread-responders';
 import { pingResponder } from './responders/ping-responders';
 import { websiteResponder } from './responders/website-responders';
+import urlFacts from '../facts/url';
+
+const { basePath } = urlFacts;
 
 const server = express();
 server.use(express.json());
 server.use(cookieParser());
-server.use('/images', express.static('images'));
-server.use('/fonts', express.static('fonts'));
-server.use(
+
+const router = express.Router();
+router.use('/images', express.static('images'));
+router.use('/fonts', express.static('fonts'));
+router.use(
   '/.well-known',
   express.static(
     '.well-known',
@@ -58,7 +63,7 @@ server.use(
     { setHeaders: res => res.setHeader("Content-Type", "application/json") },
   ),
 );
-server.use('/compiled', express.static('compiled'));
+router.use('/compiled', express.static('compiled'));
 
 const jsonEndpoints = {
   'update_activity': updateActivityResponder,
@@ -93,9 +98,10 @@ const jsonEndpoints = {
 };
 for (let endpoint in jsonEndpoints) {
   const responder = jsonEndpoints[endpoint];
-  server.post(`/${endpoint}`, jsonHandler(responder));
+  router.post(`/${endpoint}`, jsonHandler(responder));
 }
 
-server.get('*', websiteResponder);
+router.get('*', websiteResponder);
 
+server.use(basePath, router);
 server.listen(parseInt(process.env.PORT) || 3000, 'localhost');

@@ -10,19 +10,20 @@ import {
   addCookieToJSONResponse,
 } from '../session/cookies';
 
-type Responder = (viewer: Viewer, input: any) => Promise<*>;
+export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 
-function jsonHandler(responder: Responder) {
+function jsonHandler(responder: JSONResponder) {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerForJSONRequest(req);
       if (!req.body || typeof req.body !== "object") {
         throw new ServerError('invalid_parameters');
       }
-      const result = await responder(viewer, req.body.input);
+      const responderResult = await responder(viewer, req.body.input);
       if (res.headersSent) {
         return;
       }
+      const result = { ...responderResult };
       await addCookieToJSONResponse(viewer, res, result);
       res.json({ success: true, ...result });
     } catch (e) {
