@@ -25,7 +25,6 @@ import { dateString, dateFromString } from 'lib/utils/date-utils'
 
 import css from '../style.css';
 import Entry from './entry.react';
-import Modernizr from '../modernizr-custom';
 import HistoryModal from '../modals/history/history-modal.react';
 import ThreadPicker from './thread-picker.react';
 import { htmlTargetFromEvent } from '../vector-utils';
@@ -84,7 +83,7 @@ class Day extends React.PureComponent<Props, State> {
     const tdClasses = classNames(css['day'], { [css['current-day']]: isToday });
 
     let actionLinks = null;
-    const hovered = this.state.hovered || Modernizr.touchevents;
+    const hovered = this.state.hovered;
     if (hovered) {
       actionLinks = (
         <div
