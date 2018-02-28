@@ -65,7 +65,6 @@ const store: Store<AppState, Action> = createStore(
 const root = document.getElementById('react-root');
 invariant(root, "cannot find id='react-root' element!");
 
-// TODO maybe hot-loader need full render
 // $FlowFixMe https://github.com/facebook/flow/issues/5035
 const render = (Component) => ReactDOM.hydrate(
   <AppContainer>

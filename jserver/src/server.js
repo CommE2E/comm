@@ -1,5 +1,8 @@
 // @flow
 
+import type { JSONResponder } from './responders/handlers';
+import type { Endpoint } from 'lib/types/endpoints';
+
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
@@ -65,7 +68,7 @@ router.use(
 );
 router.use('/compiled', express.static('compiled'));
 
-const jsonEndpoints = {
+const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'update_activity': updateActivityResponder,
   'update_user_subscription': userSubscriptionUpdateResponder,
   'update_device_token': deviceTokenUpdateResponder,
@@ -97,6 +100,7 @@ const jsonEndpoints = {
   'update_password': passwordUpdateResponder,
 };
 for (let endpoint in jsonEndpoints) {
+  // $FlowFixMe Flow thinks endpoint is string
   const responder = jsonEndpoints[endpoint];
   router.post(`/${endpoint}`, jsonHandler(responder));
 }

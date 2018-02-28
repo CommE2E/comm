@@ -5047,10 +5047,6 @@ jest@^20.0.4:
   dependencies:
     jest-cli "^20.0.4"
 
-jquery-param@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/jquery-param/-/jquery-param-0.2.0.tgz#55da8130428c50980eb516491c1b77cc78f0dcb1"
-
 js-base64@^2.1.9:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
