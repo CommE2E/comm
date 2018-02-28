@@ -1,4 +1,4 @@
-// flow-typed signature: 92bb348d313ffc88d7b6d48021652c54
+// flow-typed signature: 5cf4e8d952395adddff5a9aa3c04488b
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.61.0
 
 /**
@@ -226,11 +226,19 @@ declare module 'lib/shared/user-utils' {
   declare module.exports: any;
 }
 
+declare module 'lib/types/account-types' {
+  declare module.exports: any;
+}
+
 declare module 'lib/types/activity-types' {
   declare module.exports: any;
 }
 
 declare module 'lib/types/device-types' {
+  declare module.exports: any;
+}
+
+declare module 'lib/types/endpoints' {
   declare module.exports: any;
 }
 
@@ -259,6 +267,10 @@ declare module 'lib/types/ping-types' {
 }
 
 declare module 'lib/types/redux-types' {
+  declare module.exports: any;
+}
+
+declare module 'lib/types/search-types' {
   declare module.exports: any;
 }
 
@@ -315,10 +327,6 @@ declare module 'lib/utils/text-utils' {
 }
 
 declare module 'lib/utils/url-utils' {
-  declare module.exports: any;
-}
-
-declare module 'lib/utils/verify-utils' {
   declare module.exports: any;
 }
 
@@ -476,11 +484,17 @@ declare module 'lib/shared/typeahead-text.js' {
 declare module 'lib/shared/user-utils.js' {
   declare module.exports: $Exports<'lib/shared/user-utils'>;
 }
+declare module 'lib/types/account-types.js' {
+  declare module.exports: $Exports<'lib/types/account-types'>;
+}
 declare module 'lib/types/activity-types.js' {
   declare module.exports: $Exports<'lib/types/activity-types'>;
 }
 declare module 'lib/types/device-types.js' {
   declare module.exports: $Exports<'lib/types/device-types'>;
+}
+declare module 'lib/types/endpoints.js' {
+  declare module.exports: $Exports<'lib/types/endpoints'>;
 }
 declare module 'lib/types/entry-types.js' {
   declare module.exports: $Exports<'lib/types/entry-types'>;
@@ -502,6 +516,9 @@ declare module 'lib/types/ping-types.js' {
 }
 declare module 'lib/types/redux-types.js' {
   declare module.exports: $Exports<'lib/types/redux-types'>;
+}
+declare module 'lib/types/search-types.js' {
+  declare module.exports: $Exports<'lib/types/search-types'>;
 }
 declare module 'lib/types/subscription-types.js' {
   declare module.exports: $Exports<'lib/types/subscription-types'>;
@@ -544,7 +561,4 @@ declare module 'lib/utils/text-utils.js' {
 }
 declare module 'lib/utils/url-utils.js' {
   declare module.exports: $Exports<'lib/utils/url-utils'>;
-}
-declare module 'lib/utils/verify-utils.js' {
-  declare module.exports: $Exports<'lib/utils/verify-utils'>;
 }

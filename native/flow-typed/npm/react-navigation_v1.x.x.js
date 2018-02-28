@@ -1,5 +1,5 @@
-// flow-typed signature: 2ec149f998c0e60bacc18810504a8499
-// flow-typed version: 061d4cda47/react-navigation_v1.x.x/flow_>=v0.60.x
+// flow-typed signature: ecb76745a94f4ec4dff2ff9090351482
+// flow-typed version: 23b9c2c70c/react-navigation_v1.x.x/flow_>=v0.60.x
 
 // @flow
 
@@ -756,7 +756,7 @@ declare module 'react-navigation' {
       toString: () => string,
     },
     init: {
-      (payload: { params?: NavigationParams }): NavigationInitAction,
+      (payload?: { params?: NavigationParams }): NavigationInitAction,
       toString: () => string,
     },
     navigate: {
@@ -952,7 +952,9 @@ declare module 'react-navigation' {
   };
   declare export var SafeAreaView: React$ComponentType<_SafeAreaViewProps>;
 
-  declare export var Header: React$ComponentType<HeaderProps>;
+  declare export class Header<P: HeaderProps, S> extends React$Component<P, S> {
+    static HEIGHT: number
+  }
 
   declare type _HeaderTitleProps = {
     children: React$Node,

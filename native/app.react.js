@@ -21,6 +21,7 @@ import type {
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
+import type { ErrorInfo, ErrorData } from './crash.react';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -83,20 +84,21 @@ import {
   clearAndroidNotificationActionType,
 } from './push/android';
 import NotificationBody from './push/notification-body.react';
+import Crash from './crash.react';
 
 let urlPrefix;
 if (!__DEV__) {
   urlPrefix = "https://squadcal.org/";
 } else if (Platform.OS === "android") {
   // This is a magic IP address that forwards to the emulator's host
-  urlPrefix = "http://10.0.2.2/~ashoat/squadcal/";
+  urlPrefix = "http://10.0.2.2/squadcal/";
   // Uncomment below and update IP address if testing on physical device
-  //urlPrefix = "http://192.168.1.4/~ashoat/squadcal/";
+  //urlPrefix = "http://192.168.1.4/squadcal/";
 } else if (Platform.OS === "ios") {
   // Since iOS is simulated and not emulated, we can use localhost
-  urlPrefix = "http://localhost/~ashoat/squadcal/";
+  urlPrefix = "http://localhost/squadcal/";
   // Uncomment below and update IP address if testing on physical device
-  //urlPrefix = "http://192.168.1.4/~ashoat/squadcal/";
+  //urlPrefix = "http://192.168.1.4/squadcal/";
 } else {
   invariant(false, "unsupported platform");
 }
@@ -147,7 +149,10 @@ type Props = {
     deviceType: DeviceType,
   ) => Promise<string>,
 };
-class AppWithNavigationState extends React.PureComponent<Props> {
+type State = {|
+  errorData: ?ErrorData,
+|};
+class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   static propTypes = {
     cookie: PropTypes.string,
@@ -173,6 +178,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   androidNotifListener: ?Object = null;
   androidRefreshTokenListener: ?Object = null;
   initialAndroidNotifHandled = false;
+  state = {
+    errorData: null,
+  };
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
@@ -546,6 +554,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    this.setState({ errorData: { error, info } });
+  }
+
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
     if (
@@ -634,6 +646,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   render() {
+    if (this.state.errorData) {
+      return (
+        <Crash errorData={this.state.errorData} />
+      );
+    }
     const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
