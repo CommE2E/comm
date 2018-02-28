@@ -49,7 +49,7 @@ import { pingResponder } from './responders/ping-responders';
 import { websiteResponder } from './responders/website-responders';
 import urlFacts from '../facts/url';
 
-const { basePath } = urlFacts;
+const { baseRoutePath } = urlFacts;
 
 const server = express();
 server.use(express.json());
@@ -107,5 +107,5 @@ for (let endpoint in jsonEndpoints) {
 
 router.get('*', websiteResponder);
 
-server.use(basePath, router);
+server.use(baseRoutePath, router);
 server.listen(parseInt(process.env.PORT) || 3000, 'localhost');
