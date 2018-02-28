@@ -4,6 +4,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { NavID } from './typeahead-action-option.react';
 import type { AppState } from '../redux-setup';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import PropTypes from 'prop-types';
 
@@ -16,6 +17,7 @@ import _some from 'lodash/fp/some';
 import _isEmpty from 'lodash/fp/isEmpty';
 import _omit from 'lodash/fp/omit';
 import _sampleSize from 'lodash/fp/sampleSize';
+import _map from 'lodash/fp/map';
 import { connect } from 'react-redux';
 
 import SearchIndex from 'lib/shared/search-index';
@@ -28,6 +30,7 @@ import {
   typeaheadSortedThreadInfos,
 } from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
+import { includeDispatchActionProps } from 'lib/utils/action-utils';
 
 import css from '../style.css';
 import TypeaheadActionOption from './typeahead-action-option.react';
@@ -36,6 +39,7 @@ import TypeaheadOptionButtons from './typeahead-option-buttons.react';
 import TypeaheadPane from './typeahead-pane.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
+import { updateTypeaheadRecommendedThreads } from '../redux-setup';
 
 export type TypeaheadOptionInfo =
   | {| type: "thread", threadInfo: ThreadInfo, frozen: bool |}
@@ -44,15 +48,19 @@ export type TypeaheadOptionInfo =
   | {| type: "noResults" |};
 
 type Props = {
-  currentNavID: ?string,
-  threadInfos: {[id: string]: ThreadInfo},
-  currentlyHome: bool,
-  currentThreadID: ?string,
-  threadSearchIndex: SearchIndex,
-  sortedThreadInfos: {[id: string]: ThreadInfo[]},
   setModal: (modal: React.Node) => void,
   clearModal: () => void,
   modalExists: bool,
+  // Redux state
+  currentNavID: ?string,
+  currentlyHome: bool,
+  currentThreadID: ?string,
+  threadSearchIndex: SearchIndex,
+  threadInfos: {[id: string]: ThreadInfo},
+  sortedThreadInfos: {[id: string]: ThreadInfo[]},
+  typeaheadRecommendedThreads: ?$ReadOnlyArray<string>,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
 };
 type State = {
   typeaheadFocused: bool,
@@ -60,7 +68,7 @@ type State = {
   frozenNavIDs: {[id: string]: bool},
   typeaheadValue: string,
   searchResults: string[],
-  recommendedThreads: ThreadInfo[],
+  recommendedThreadIDs: $ReadOnlyArray<string>,
 };
 
 const emptyArray = [];
@@ -77,13 +85,22 @@ class Typeahead extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    // The logic here makes sure that the server saves whatever recommended
+    // threads it picks in Redux so the client doesn't pick a new set
+    const recommendedThreadIDs = props.typeaheadRecommendedThreads
+      ? props.typeaheadRecommendedThreads
+      : Typeahead.sampleRecommendations(props);
+    props.dispatchActionPayload(
+      updateTypeaheadRecommendedThreads,
+      recommendedThreadIDs,
+    );
     this.state = {
       typeaheadFocused: false,
       searchActive: false,
       frozenNavIDs: {},
       typeaheadValue: Typeahead.getCurrentNavName(props),
       searchResults: [],
-      recommendedThreads: Typeahead.sampleRecommendations(props),
+      recommendedThreadIDs,
     };
   }
 
@@ -114,7 +131,7 @@ class Typeahead extends React.PureComponent<Props, State> {
     if (!newActive && oldActive) {
       updateObj.typeaheadValue = newName;
       updateObj.searchActive = false;
-      updateObj.recommendedThreads =
+      updateObj.recommendedThreadIDs =
         Typeahead.sampleRecommendations(nextProps);
     }
 
@@ -124,32 +141,33 @@ class Typeahead extends React.PureComponent<Props, State> {
       Typeahead.getRecommendationSize(nextProps) >
         Typeahead.getRecommendationSize(this.props)
     ) {
-      const stillValidRecommendations = _filter(
-        (threadInfo: ThreadInfo) => _some({ id: threadInfo.id })
+      const stillValidRecommendations = this.state.recommendedThreadIDs.filter(
+        (threadID: string) => _some({ id: threadID })
           (nextProps.sortedThreadInfos.recommended),
-      )(this.state.recommendedThreads);
+      );
       const recommendationSize = Typeahead.getRecommendationSize(nextProps);
       const newRecommendationsNeeded = recommendationSize
         - stillValidRecommendations.length;
       if (newRecommendationsNeeded > 0) {
         const randomThreadInfos = _flow(
-          _filter((threadInfo: ThreadInfo) =>
-            !_some({ id: threadInfo.id })(stillValidRecommendations),
+          _map((threadInfo: ThreadInfo) => threadInfo.id),
+          _filter((threadID: string) =>
+            !_some({ id: threadID })(stillValidRecommendations),
           ),
           _sampleSize(newRecommendationsNeeded),
         )(nextProps.sortedThreadInfos.recommended);
-        updateObj.recommendedThreads = [
+        updateObj.recommendedThreadIDs = [
           ...stillValidRecommendations,
           ...randomThreadInfos,
         ];
       } else if (newRecommendationsNeeded < 0) {
-        updateObj.recommendedThreads =
+        updateObj.recommendedThreadIDs =
           stillValidRecommendations.slice(0, recommendationSize);
       } else if (
         stillValidRecommendations.length <
-          this.state.recommendedThreads.length
+          this.state.recommendedThreadIDs.length
       ) {
-        updateObj.recommendedThreads = stillValidRecommendations;
+        updateObj.recommendedThreadIDs = stillValidRecommendations;
       }
     }
 
@@ -184,7 +202,7 @@ class Typeahead extends React.PureComponent<Props, State> {
       this.setState({
         typeaheadValue: newName,
         searchActive: false,
-        recommendedThreads: Typeahead.sampleRecommendations(this.props),
+        recommendedThreadIDs: Typeahead.sampleRecommendations(this.props),
       });
     }
 
@@ -256,7 +274,7 @@ class Typeahead extends React.PureComponent<Props, State> {
         panes.push(
           <TypeaheadPane
             paneTitle="Recommended"
-            pageSize={this.state.recommendedThreads.length}
+            pageSize={this.state.recommendedThreadIDs.length}
             optionInfos={recommendedOptionInfo}
             renderOption={this.renderOption}
             key="recommended"
@@ -509,7 +527,10 @@ class Typeahead extends React.PureComponent<Props, State> {
   }
 
   optionInfosForRecommendedPane = () => {
-    return this.state.recommendedThreads.map(this.threadOptionInfo);
+    return this.state.recommendedThreadIDs.map(
+      (threadID: string) =>
+        this.threadOptionInfo(this.props.threadInfos[threadID]),
+    );
   }
 
   optionInfosForActionsPane = () => {
@@ -629,8 +650,9 @@ class Typeahead extends React.PureComponent<Props, State> {
   }
 
   static sampleRecommendations(props: Props) {
-    return _sampleSize(Typeahead.getRecommendationSize(props))
+    const result = _sampleSize(Typeahead.getRecommendationSize(props))
       (props.sortedThreadInfos.recommended);
+    return result.map(threadInfo => threadInfo.id);
   }
 
 }
@@ -647,13 +669,19 @@ Typeahead.propTypes = {
   setModal: PropTypes.func.isRequired,
   clearModal: PropTypes.func.isRequired,
   modalExists: PropTypes.bool.isRequired,
+  dispatchActionPayload: PropTypes.func.isRequired,
+  typeaheadRecommendedThreads: PropTypes.arrayOf(PropTypes.string),
 };
 
-export default connect((state: AppState): * => ({
-  currentNavID: currentNavID(state),
-  threadInfos: threadInfoSelector(state),
-  currentlyHome: state.navInfo.home,
-  currentThreadID: state.navInfo.threadID,
-  threadSearchIndex: threadSearchIndex(state),
-  sortedThreadInfos: typeaheadSortedThreadInfos(state),
-}))(Typeahead);
+export default connect(
+  (state: AppState) => ({
+    currentNavID: currentNavID(state),
+    threadInfos: threadInfoSelector(state),
+    currentlyHome: state.navInfo.home,
+    currentThreadID: state.navInfo.threadID,
+    threadSearchIndex: threadSearchIndex(state),
+    sortedThreadInfos: typeaheadSortedThreadInfos(state),
+    typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+  }),
+  includeDispatchActionProps,
+)(Typeahead);

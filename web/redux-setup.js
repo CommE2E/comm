@@ -43,13 +43,20 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
+  typeaheadRecommendedThreads: $ReadOnlyArray<string>,
 |};
 
 export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
+export const updateTypeaheadRecommendedThreads =
+  "UPDATE_TYPEAHEAD_RECOMMENDED_THREADS";
 
 export type Action =
   | BaseAction
-  | {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |};
+  | {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |}
+  | {|
+      type: "UPDATE_TYPEAHEAD_RECOMMENDED_THREADS",
+      payload: $ReadOnlyArray<string>,
+    |};
 
 export function reducer(state: AppState, action: Action) {
   if (action.type === reflectRouteChangeActionType) {
@@ -69,6 +76,26 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+    };
+  } else if (action.type === updateTypeaheadRecommendedThreads) {
+    return {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      typeaheadRecommendedThreads: action.payload,
     };
   } else if (action.type === newThreadActionTypes.success) {
     return {
@@ -93,6 +120,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
     };
   }
   return baseReducer(state, action);
