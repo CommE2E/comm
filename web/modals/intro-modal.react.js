@@ -18,8 +18,8 @@ class IntroModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      screenWidth: window.innerWidth ? window.innerWidth : 439,
-      screenHeight: window.innerHeight ? window.innerHeight : 1680,
+      screenWidth: window.innerWidth ? window.innerWidth : 1680,
+      screenHeight: window.innerHeight ? window.innerHeight : 848,
     };
   }
 

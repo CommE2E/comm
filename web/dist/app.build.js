@@ -55156,7 +55156,7 @@ class Day extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
   }
 
   render() {
-    const isToday = Object(__WEBPACK_IMPORTED_MODULE_12_lib_utils_date_utils__["b" /* dateString */])(new Date()) === this.props.dayString;
+    const isToday = this.state.mounted && Object(__WEBPACK_IMPORTED_MODULE_12_lib_utils_date_utils__["b" /* dateString */])(new Date()) === this.props.dayString;
     const tdClasses = __WEBPACK_IMPORTED_MODULE_3_classnames___default()(__WEBPACK_IMPORTED_MODULE_13__style_css___default.a['day'], { [__WEBPACK_IMPORTED_MODULE_13__style_css___default.a['current-day']]: isToday });
 
     let actionLinks = null;
@@ -56928,8 +56928,8 @@ class IntroModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
       }
     });
     this.state = {
-      screenWidth: window.innerWidth ? window.innerWidth : 439,
-      screenHeight: window.innerHeight ? window.innerHeight : 1680
+      screenWidth: window.innerWidth ? window.innerWidth : 1680,
+      screenHeight: window.innerHeight ? window.innerHeight : 848
     };
   }
 
