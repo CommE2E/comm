@@ -9,7 +9,7 @@ const access = Promise.denodeify(fs.access);
 const readFile = Promise.denodeify(fs.readFile);
 
 export async function resolve(specifier, parentModuleURL, defaultResolve) {
-  // Hitting node.js builtins from jserver
+  // Hitting node.js builtins from server
   if (builtins.includes(specifier)) {
     //console.log(`${specifier} is builtin`);
     return {
@@ -18,30 +18,30 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     };
   }
 
-  // Hitting lib from jserver or web
+  // Hitting lib from server or web
   if (specifier.startsWith('lib')) {
     const result = defaultResolve(specifier, parentModuleURL);
     const resultURL =
-      result.url.replace("squadcal/lib", "squadcal/jserver/dist/lib");
-    //console.log(`${specifier} -> ${resultURL} is jserver/web -> lib`);
+      result.url.replace("squadcal/lib", "squadcal/server/dist/lib");
+    //console.log(`${specifier} -> ${resultURL} is server/web -> lib`);
     return {
       url: resultURL,
       format: 'esm',
     };
   }
 
-  // Hitting web from jserver
+  // Hitting web from server
   if (specifier.startsWith('web')) {
     const result = defaultResolve(specifier, parentModuleURL);
-    const resultURL = result.url.replace("squadcal/web", "squadcal/jserver/dist/web");
-    //console.log(`${specifier} -> ${resultURL} is jserver -> web`);
+    const resultURL = result.url.replace("squadcal/web", "squadcal/server/dist/web");
+    //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
       format: specifier === 'web/dist/app.build' ? 'cjs' : 'esm',
     };
   }
 
-  // Hitting jserver from jserver
+  // Hitting server from server
   if (
     /^\.{0,2}[/]/.test(specifier) === true ||
     specifier.startsWith('file:')
@@ -63,7 +63,7 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
         const candidateURL = new url.URL(candidate, parentModuleURL);
         await access(candidateURL.pathname);
         const resultURL = candidateURL.href;
-        //console.log(`${specifier} -> ${resultURL} is jserver -> jserver`);
+        //console.log(`${specifier} -> ${resultURL} is server -> server`);
         return {
           url: resultURL,
           format: extensions[extension],
@@ -78,9 +78,9 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
   }
 
   // Hitting node_modules from lib
-  if (parentModuleURL.includes("squadcal/jserver/dist/lib")) {
+  if (parentModuleURL.includes("squadcal/server/dist/lib")) {
     const replacedModuleURL = parentModuleURL.replace(
-      "squadcal/jserver/dist/lib",
+      "squadcal/server/dist/lib",
       "squadcal/lib",
     );
     const result = await resolveModule(
@@ -92,9 +92,9 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
   }
 
   // Hitting node_modules from web
-  if (parentModuleURL.includes("squadcal/jserver/dist/web")) {
+  if (parentModuleURL.includes("squadcal/server/dist/web")) {
     const replacedModuleURL = parentModuleURL.replace(
-      "squadcal/jserver/dist/web",
+      "squadcal/server/dist/web",
       "squadcal/web",
     );
     const result = await resolveModule(
@@ -105,12 +105,12 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     return result;
   }
 
-  // Hitting node_modules from jserver
+  // Hitting node_modules from server
   const result = await resolveModule(
     specifier,
     defaultResolve(specifier, parentModuleURL),
   );
-  //console.log(`${specifier} -> ${result.url} is jserver -> node_modules`);
+  //console.log(`${specifier} -> ${result.url} is server -> node_modules`);
   return result;
 }
 

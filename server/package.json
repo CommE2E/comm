@@ -1,10 +1,10 @@
 {
-  "name": "jserver",
+  "name": "server",
   "version": "0.0.1",
   "description": "",
   "main": "dist/server",
   "scripts": {
-    "postinstall": "cd ../; npx flow-mono create-symlinks jserver/.flowconfig",
+    "postinstall": "cd ../; npx flow-mono create-symlinks server/.flowconfig",
     "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','web/flow-typed','web/node_modules','web/package.json','web/dist/hot','web/dist/dev.build.js','web/dist/prod.build.js','web/dist/prod.build.css' --copy-files",
     "prod": "node --experimental-modules --loader ./loader.mjs dist/server",
     "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/server\""

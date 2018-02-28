@@ -4,13 +4,13 @@
     "lib",
     "web",
     "native",
-    "jserver"
+    "server"
   ],
   "devDependencies": {
     "flow-mono-cli": "^1.3.0"
   },
   "scripts": {
-    "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf jserver/node_modules/ && rm -rf jserver/dist/",
+    "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf server/node_modules/ && rm -rf server/dist/",
     "cleaninstall": "npm run clean && yarn"
   }
 }
