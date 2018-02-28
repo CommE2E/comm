@@ -47,6 +47,7 @@ type Props = {
 type State = {
   pickerOpen: bool,
   hovered: bool,
+  mounted: bool,
 };
 
 class Day extends React.PureComponent<Props, State> {
@@ -61,8 +62,15 @@ class Day extends React.PureComponent<Props, State> {
     this.state = {
       pickerOpen: false,
       hovered: false,
+      mounted: false,
     };
     this.entries = new Map();
+  }
+
+  componentDidMount() {
+    // We do this to force a re-render since the render depends on the
+    // client's timezone, and the server will always render in Pacific Time
+    this.setState({ mounted: true });
   }
 
   componentWillReceiveProps(newProps: Props) {

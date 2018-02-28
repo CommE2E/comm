@@ -55130,9 +55130,16 @@ class Day extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
     });
     this.state = {
       pickerOpen: false,
-      hovered: false
+      hovered: false,
+      mounted: false
     };
     this.entries = new Map();
+  }
+
+  componentDidMount() {
+    // We do this to force a re-render since the render depends on the
+    // client's timezone, and the server will always render in Pacific Time
+    this.setState({ mounted: true });
   }
 
   componentWillReceiveProps(newProps) {
