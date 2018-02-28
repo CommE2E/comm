@@ -177,7 +177,7 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
         href="compiled/prod.build.css"
       />`;
   return html`
-    <html lang="en" class="no-js">
+    <html lang="en">
       <head>
         <meta charset="utf-8" />
         <title>SquadCal</title>

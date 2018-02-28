@@ -32,7 +32,6 @@ input[type='submit']::-moz-focus-inner {
 }
 
 table {
-  height: 100%;
   width: 100%;
   table-layout: fixed;
 }
