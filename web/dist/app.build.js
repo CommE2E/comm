@@ -56882,13 +56882,14 @@ class IntroModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
       }
     });
     this.state = {
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight
+      screenWidth: window.innerWidth ? window.innerWidth : 439,
+      screenHeight: window.innerHeight ? window.innerHeight : 1680
     };
   }
 
   componentDidMount() {
     window.addEventListener("resize", this.onResize);
+    this.onResize();
   }
 
   componentWillUnmount() {

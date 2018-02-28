@@ -18,13 +18,14 @@ class IntroModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight,
+      screenWidth: window.innerWidth ? window.innerWidth : 439,
+      screenHeight: window.innerHeight ? window.innerHeight : 1680,
     };
   }
 
   componentDidMount() {
     window.addEventListener("resize", this.onResize);
+    this.onResize();
   }
 
   componentWillUnmount() {
