@@ -2,6 +2,8 @@
 
 import type { AppState } from './redux-setup';
 
+import { REHYDRATE } from 'redux-persist';
+
 class ReduxLogger {
 
   static n = 20;
@@ -13,6 +15,13 @@ class ReduxLogger {
   }
 
   addAction(action: *, state: AppState) {
+    if (action.type === REHYDRATE) {
+      // redux-persist can't handle replaying REHYDRATE
+      // https://github.com/rt2zz/redux-persist/issues/743
+      this.lastNActions = [];
+      this.lastNStates = [];
+      return;
+    }
     if (this.lastNActions.length === ReduxLogger.n) {
       this.lastNActions.shift();
       this.lastNStates.shift();

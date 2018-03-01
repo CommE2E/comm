@@ -7,6 +7,7 @@ import type {
   FetchErrorReportInfosRequest,
 } from 'lib/types/report-types';
 import type { Viewer } from '../session/viewer';
+import type { $Response, $Request } from 'express';
 
 import t from 'tcomb';
 
@@ -14,7 +15,11 @@ import { ServerError } from 'lib/utils/fetch-utils';
 
 import { tShape } from '../utils/tcomb-utils';
 import createErrorReport from '../creators/error-report-creator';
-import { fetchErrorReportInfos } from '../fetchers/report-fetchers';
+import {
+  fetchErrorReportInfos,
+  fetchReduxToolsImport,
+} from '../fetchers/report-fetchers';
+import { fetchViewerForJSONRequest } from '../session/cookies';
 
 const errorReportCreationRequestInputValidator = tShape({
   deviceType: t.enums.of(['ios', 'android']),
@@ -55,7 +60,37 @@ async function errorReportFetchInfosResponder(
   return await fetchErrorReportInfos(viewer, request);
 }
 
+async function errorReportDownloadHandler(
+  req: $Request,
+  res: $Response,
+): Promise<void> {
+  try {
+    const viewer = await fetchViewerForJSONRequest(req);
+    const id = req.params.reportID;
+    if (!id) {
+      throw new ServerError('invalid_parameters');
+    }
+    const result = await fetchReduxToolsImport(viewer, id);
+    res.set("Content-Disposition", `attachment; filename=report-${id}.json`);
+    res.json({
+      preloadedState: JSON.stringify(result.preloadedState),
+      payload: JSON.stringify(result.payload),
+    });
+  } catch (e) {
+    console.warn(e);
+    if (res.headersSent) {
+      return;
+    }
+    if (e instanceof ServerError) {
+      res.json({ error: e.message, ...e.result });
+    } else {
+      res.status(500).send(e.message);
+    }
+  }
+}
+
 export {
   errorReportCreationResponder,
   errorReportFetchInfosResponder,
+  errorReportDownloadHandler,
 };

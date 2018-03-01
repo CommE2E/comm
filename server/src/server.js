@@ -50,6 +50,7 @@ import { websiteResponder } from './responders/website-responders';
 import {
   errorReportCreationResponder,
   errorReportFetchInfosResponder,
+  errorReportDownloadHandler,
 } from './responders/report-responders';
 import urlFacts from '../facts/url';
 
@@ -111,6 +112,7 @@ for (let endpoint in jsonEndpoints) {
   router.post(`/${endpoint}`, jsonHandler(responder));
 }
 
+router.get('/download_error_report/:reportID', errorReportDownloadHandler);
 router.get('*', websiteResponder);
 
 server.use(baseRoutePath, router);
