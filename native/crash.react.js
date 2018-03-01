@@ -62,7 +62,7 @@ class Crash extends React.PureComponent<Props, State> {
       error: PropTypes.object.isRequired,
       info: PropTypes.shape({
         componentStack: PropTypes.string.isRequired,
-      }).isRequired,
+      }),
     })).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendErrorReport: PropTypes.func.isRequired,
@@ -137,7 +137,7 @@ class Crash extends React.PureComponent<Props, State> {
       deviceType: Platform.OS,
       errors: this.props.errorData.map(data => ({
         errorMessage: data.error.message,
-        componentStack: data.info.componentStack,
+        componentStack: data.info && data.info.componentStack,
       })),
       preloadedState: reduxLogger.preloadedState,
       currentState: store.getState(),

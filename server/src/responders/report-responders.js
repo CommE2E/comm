@@ -25,7 +25,7 @@ const errorReportCreationRequestInputValidator = tShape({
   deviceType: t.enums.of(['ios', 'android']),
   errors: t.list(tShape({
     errorMessage: t.String,
-    componentStack: t.String,
+    componentStack: t.maybe(t.String),
   })),
   preloadedState: t.Object,
   currentState: t.Object,

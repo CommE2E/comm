@@ -115,6 +115,15 @@ registerConfig({
   calendarRangeInactivityLimit: sessionInactivityLimit,
 });
 
+let appInstance = null;
+const defaultHandler = global.ErrorUtils.getGlobalHandler();
+global.ErrorUtils.setGlobalHandler((error) => {
+  defaultHandler(error);
+  if (appInstance) {
+    appInstance.reportError(error);
+  }
+});
+
 const reactNavigationAddListener = createReduxBoundAddListener("root");
 
 type NativeDispatch = Dispatch
@@ -183,6 +192,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
+    appInstance = this;
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
@@ -273,6 +283,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
+    appInstance = null;
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
     Linking.removeEventListener('url', this.handleURLChange);
     if (this.activePingSubscription) {
@@ -559,6 +570,15 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
       errorData: [
         ...prevState.errorData,
         { error, info },
+      ],
+    }));
+  }
+
+  reportError(error: Error) {
+    this.setState((prevState, props) => ({
+      errorData: [
+        ...prevState.errorData,
+        { error },
       ],
     }));
   }
