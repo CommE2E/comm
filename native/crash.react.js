@@ -141,7 +141,7 @@ class Crash extends React.PureComponent<Props, State> {
       })),
       preloadedState: reduxLogger.preloadedState,
       currentState: store.getState(),
-      actions: reduxLogger.lastNActions,
+      actions: reduxLogger.actions,
       codeVersion: 0,
       stateVersion: persistConfig.version,
     });

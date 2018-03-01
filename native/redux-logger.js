@@ -14,13 +14,19 @@ class ReduxLogger {
     return this.lastNStates[0];
   }
 
+  get actions(): Array<*> {
+    return [...this.lastNActions];
+  }
+
   addAction(action: *, state: AppState) {
-    if (action.type === REHYDRATE) {
+    if (
+      this.lastNActions.length > 0 &&
+      this.lastNActions[this.lastNActions.length - 1].type === REHYDRATE
+    ) {
       // redux-persist can't handle replaying REHYDRATE
       // https://github.com/rt2zz/redux-persist/issues/743
       this.lastNActions = [];
       this.lastNStates = [];
-      return;
     }
     if (this.lastNActions.length === ReduxLogger.n) {
       this.lastNActions.shift();

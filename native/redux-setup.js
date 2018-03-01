@@ -98,6 +98,12 @@ const blacklist = __DEV__
     ];
 
 function reducer(state: AppState = defaultState, action: *) {
+  if (action.type === "crash") {
+    return {
+      ...state,
+      crash: true,
+    };
+  }
   const oldState = state;
   const navInfo = reduceNavInfo(state, action);
   if (navInfo && navInfo !== state.navInfo) {

@@ -21,7 +21,6 @@ import type {
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
-import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -84,7 +83,7 @@ import {
   clearAndroidNotificationActionType,
 } from './push/android';
 import NotificationBody from './push/notification-body.react';
-import Crash from './crash.react';
+import ErrorBoundary from './error-boundary.react';
 
 let urlPrefix;
 if (!__DEV__) {
@@ -113,15 +112,6 @@ registerConfig({
   },
   setCookieOnRequest: true,
   calendarRangeInactivityLimit: sessionInactivityLimit,
-});
-
-let appInstance = null;
-const defaultHandler = global.ErrorUtils.getGlobalHandler();
-global.ErrorUtils.setGlobalHandler((error) => {
-  defaultHandler(error);
-  if (appInstance) {
-    appInstance.reportError(error);
-  }
 });
 
 const reactNavigationAddListener = createReduxBoundAddListener("root");
@@ -158,10 +148,7 @@ type Props = {
     deviceType: DeviceType,
   ) => Promise<string>,
 };
-type State = {|
-  errorData: $ReadOnlyArray<ErrorData>,
-|};
-class AppWithNavigationState extends React.PureComponent<Props, State> {
+class AppWithNavigationState extends React.PureComponent<Props> {
 
   static propTypes = {
     cookie: PropTypes.string,
@@ -187,12 +174,8 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   androidNotifListener: ?Object = null;
   androidRefreshTokenListener: ?Object = null;
   initialAndroidNotifHandled = false;
-  state = {
-    errorData: [],
-  };
 
   componentDidMount() {
-    appInstance = this;
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
@@ -283,7 +266,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    appInstance = null;
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
     Linking.removeEventListener('url', this.handleURLChange);
     if (this.activePingSubscription) {
@@ -565,24 +547,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    this.setState((prevState, props) => ({
-      errorData: [
-        ...prevState.errorData,
-        { error, info },
-      ],
-    }));
-  }
-
-  reportError(error: Error) {
-    this.setState((prevState, props) => ({
-      errorData: [
-        ...prevState.errorData,
-        { error },
-      ],
-    }));
-  }
-
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
     if (
@@ -671,11 +635,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   render() {
-    if (this.state.errorData.length > 0) {
-      return (
-        <Crash errorData={this.state.errorData} />
-      );
-    }
     const navigation: NavigationScreenProp<any> = addNavigationHelpers({
       dispatch: this.props.dispatch,
       state: this.props.navigationState,
@@ -733,6 +692,8 @@ const ConnectedAppWithNavigationState = connect(
 
 const App = (props: {}) =>
   <Provider store={store}>
-    <ConnectedAppWithNavigationState />
+    <ErrorBoundary>
+      <ConnectedAppWithNavigationState />
+    </ErrorBoundary>
   </Provider>;
 AppRegistry.registerComponent('SquadCal', () => App);
