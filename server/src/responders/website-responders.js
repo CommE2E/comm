@@ -139,7 +139,8 @@ async function renderHTML(viewer: Viewer, url: string): Promise<string> {
       loadingStatuses: {},
       cookie: undefined,
       deviceToken: null,
-      typeaheadRecommendedThreads: [],
+      typeaheadRecommendedThreads: null,
+      windowDimensions: { width: 1680, height: 848 },
     }: AppState),
   );
   const routerContext = {};

@@ -1,8 +1,9 @@
 // @flow
 
 import type { UserInfos, CurrentUserInfo } from 'lib/types/user-types';
-import { ServerError } from 'lib/utils/fetch-utils';
 import type { Viewer } from '../session/viewer';
+
+import { ServerError } from 'lib/utils/fetch-utils';
 
 import { pool, SQL } from '../database';
 

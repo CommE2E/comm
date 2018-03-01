@@ -27,6 +27,7 @@ export const navInfoPropType = PropTypes.shape({
   verify: PropTypes.string,
 });
 
+export type WindowDimensions = {| width: number, height: number |};
 export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
@@ -43,12 +44,14 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
-  typeaheadRecommendedThreads: $ReadOnlyArray<string>,
+  typeaheadRecommendedThreads: ?$ReadOnlyArray<string>,
+  windowDimensions: WindowDimensions,
 |};
 
 export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
 export const updateTypeaheadRecommendedThreads =
   "UPDATE_TYPEAHEAD_RECOMMENDED_THREADS";
+export const updateWindowDimensions = "UPDATE_WINDOW_DIMENSIONS";
 
 export type Action =
   | BaseAction
@@ -56,6 +59,10 @@ export type Action =
   | {|
       type: "UPDATE_TYPEAHEAD_RECOMMENDED_THREADS",
       payload: $ReadOnlyArray<string>,
+    |}
+  | {|
+      type: "UPDATE_WINDOW_DIMENSIONS",
+      payload: WindowDimensions,
     |};
 
 export function reducer(state: AppState, action: Action) {
@@ -77,6 +84,7 @@ export function reducer(state: AppState, action: Action) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+      windowDimensions: state.windowDimensions,
     };
   } else if (action.type === updateTypeaheadRecommendedThreads) {
     return {
@@ -96,6 +104,27 @@ export function reducer(state: AppState, action: Action) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       typeaheadRecommendedThreads: action.payload,
+      windowDimensions: state.windowDimensions,
+    };
+  } else if (action.type === updateWindowDimensions) {
+    return {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+      windowDimensions: action.payload,
     };
   } else if (action.type === newThreadActionTypes.success) {
     return {
@@ -121,6 +150,7 @@ export function reducer(state: AppState, action: Action) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+      windowDimensions: state.windowDimensions,
     };
   }
   return baseReducer(state, action);
