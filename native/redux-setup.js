@@ -39,6 +39,7 @@ import {
   reduceThreadIDsToNotifIDs,
 } from './push/android';
 import migrations from './redux-migrations';
+import reduxLogger from './redux-logger';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -227,6 +228,13 @@ function validateState(oldState: AppState, state: AppState): AppState {
   return state;
 }
 
+const reduxLoggerMiddleware = store => next => action => {
+  // We want the state before the action
+  const state = store.getState();
+  reduxLogger.addAction(action, state);
+  return next(action);
+};
+
 const persistConfig = {
   key: 'root',
   storage,
@@ -246,7 +254,7 @@ const store = createStore(
   ),
   defaultState,
   composeWithDevTools(
-    applyMiddleware(thunk, reactNavigationMiddleware),
+    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
   ),
 );
 const persistor = persistStore(store);
@@ -254,4 +262,5 @@ const persistor = persistStore(store);
 export {
   store,
   persistor,
+  persistConfig,
 };

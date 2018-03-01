@@ -47,12 +47,16 @@ import {
 } from './responders/thread-responders';
 import { pingResponder } from './responders/ping-responders';
 import { websiteResponder } from './responders/website-responders';
+import {
+  errorReportCreationResponder,
+  errorReportFetchInfosResponder,
+} from './responders/report-responders';
 import urlFacts from '../facts/url';
 
 const { baseRoutePath } = urlFacts;
 
 const server = express();
-server.use(express.json());
+server.use(express.json({ limit: "50mb" }));
 server.use(cookieParser());
 
 const router = express.Router();
@@ -98,6 +102,8 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'create_account': accountCreationResponder,
   'log_in': logInResponder,
   'update_password': passwordUpdateResponder,
+  'create_error_report': errorReportCreationResponder,
+  'fetch_error_report_infos': errorReportFetchInfosResponder,
 };
 for (let endpoint in jsonEndpoints) {
   // $FlowFixMe Flow thinks endpoint is string

@@ -21,7 +21,7 @@ import type {
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
-import type { ErrorInfo, ErrorData } from './crash.react';
+import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
 
 import React from 'react';
 import { Provider, connect } from 'react-redux';
@@ -150,7 +150,7 @@ type Props = {
   ) => Promise<string>,
 };
 type State = {|
-  errorData: ?ErrorData,
+  errorData: $ReadOnlyArray<ErrorData>,
 |};
 class AppWithNavigationState extends React.PureComponent<Props, State> {
 
@@ -179,7 +179,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   androidRefreshTokenListener: ?Object = null;
   initialAndroidNotifHandled = false;
   state = {
-    errorData: null,
+    errorData: [],
   };
 
   componentDidMount() {
@@ -555,7 +555,12 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    this.setState({ errorData: { error, info } });
+    this.setState((prevState, props) => ({
+      errorData: [
+        ...prevState.errorData,
+        { error, info },
+      ],
+    }));
   }
 
   ping = () => {
@@ -646,7 +651,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   render() {
-    if (this.state.errorData) {
+    if (this.state.errorData.length > 0) {
       return (
         <Crash errorData={this.state.errorData} />
       );
