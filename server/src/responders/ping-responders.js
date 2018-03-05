@@ -8,7 +8,7 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
 import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -26,12 +26,10 @@ async function pingResponder(
   viewer: Viewer,
   input: any,
 ): Promise<PingResponse> {
-  const pingRequest: PingRequest = input;
-  if (!pingRequestInputValidator.is(pingRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
+  const request: PingRequest = input;
+  validateInput(pingRequestInputValidator, request);
 
-  const navID = pingRequest.calendarQuery.navID;
+  const navID = request.calendarQuery.navID;
   let validNav = navID === "home";
   if (!validNav) {
     validNav = await verifyThreadID(navID);
@@ -43,7 +41,7 @@ async function pingResponder(
   const newPingTime = Date.now();
 
   const threadCursors = {};
-  for (let watchedThreadID of pingRequest.watchedIDs) {
+  for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
@@ -57,11 +55,11 @@ async function pingResponder(
     fetchMessageInfosSince(
       viewer,
       threadSelectionCriteria,
-      pingRequest.lastPing,
+      request.lastPing,
       defaultNumberPerThread,
     ),
     fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, pingRequest.calendarQuery),
+    fetchEntryInfos(viewer, request.calendarQuery),
     fetchCurrentUserInfo(viewer),
   ]);
 

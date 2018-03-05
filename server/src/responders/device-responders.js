@@ -5,10 +5,8 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
-
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 
 const deviceTokenUpdateRequestInputValidator = tShape({
   deviceType: t.enums.of(['ios', 'android']),
@@ -19,11 +17,9 @@ async function deviceTokenUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
-  const deviceTokenUpdateRequest: DeviceTokenUpdateRequest = input;
-  if (!deviceTokenUpdateRequestInputValidator.is(deviceTokenUpdateRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-  await deviceTokenUpdater(viewer, deviceTokenUpdateRequest);
+  const request: DeviceTokenUpdateRequest = input;
+  validateInput(deviceTokenUpdateRequestInputValidator, request);
+  await deviceTokenUpdater(viewer, request);
 }
 
 export {

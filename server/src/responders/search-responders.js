@@ -8,9 +8,7 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
-
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import { searchForUsers } from '../search/users';
 
 const userSearchRequestInputValidator = tShape({
@@ -21,13 +19,9 @@ async function userSearchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<UserSearchResult> {
-  const userSearchRequest: UserSearchRequest = input;
-  if (!userSearchRequestInputValidator.is(userSearchRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const searchResults = await searchForUsers(userSearchRequest);
-
+  const request: UserSearchRequest = input;
+  validateInput(userSearchRequestInputValidator, request);
+  const searchResults = await searchForUsers(request);
   return { userInfos: searchResults };
 }
 

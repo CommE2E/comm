@@ -13,7 +13,7 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import createErrorReport from '../creators/error-report-creator';
 import {
   fetchErrorReportInfos,
@@ -39,9 +39,7 @@ async function errorReportCreationResponder(
   input: any,
 ): Promise<ErrorReportCreationResponse> {
   const request: ErrorReportCreationRequest = input;
-  if (!errorReportCreationRequestInputValidator.is(request)) {
-    throw new ServerError('invalid_parameters');
-  }
+  validateInput(errorReportCreationRequestInputValidator, request);
   return await createErrorReport(viewer, request);
 }
 
@@ -54,9 +52,7 @@ async function errorReportFetchInfosResponder(
   input: any,
 ): Promise<FetchErrorReportInfosResponse> {
   const request: FetchErrorReportInfosRequest = input;
-  if (!fetchErrorReportInfosRequestInputValidator.is(request)) {
-    throw new ServerError('invalid_parameters');
-  }
+  validateInput(fetchErrorReportInfosRequestInputValidator, request);
   return await fetchErrorReportInfos(viewer, request);
 }
 

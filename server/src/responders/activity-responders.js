@@ -8,10 +8,8 @@ import type {
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
-
 import { activityUpdater } from '../updaters/activity-updaters';
-import { tBool, tShape } from '../utils/tcomb-utils';
+import { validateInput, tBool, tShape } from '../utils/validation-utils';
 
 const inputValidator = tShape({
   updates: t.list(t.union([
@@ -34,12 +32,9 @@ async function updateActivityResponder(
   viewer: Viewer,
   input: any,
 ): Promise<UpdateActivityResult> {
-  const updateActivityRequest: UpdateActivityRequest = input;
-  if (!inputValidator.is(updateActivityRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await activityUpdater(viewer, updateActivityRequest);
+  const request: UpdateActivityRequest = input;
+  validateInput(inputValidator, request);
+  return await activityUpdater(viewer, request);
 }
 
 export {

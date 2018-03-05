@@ -17,7 +17,7 @@ import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import createMessages from '../creators/message-creator';
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
@@ -30,14 +30,12 @@ async function textMessageCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<SendTextMessageResponse> {
-  const sendTextMessageRequest: SendTextMessageRequest = input;
-  if (!sendTextMessageRequestInputValidator.is(sendTextMessageRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
+  const request: SendTextMessageRequest = input;
+  validateInput(sendTextMessageRequestInputValidator, request);
 
   const hasPermission = await checkThreadPermission(
     viewer,
-    sendTextMessageRequest.threadID,
+    request.threadID,
     threadPermissions.VOICED,
   );
   if (!hasPermission) {
@@ -46,10 +44,10 @@ async function textMessageCreationResponder(
 
   const messageData = {
     type: messageType.TEXT,
-    threadID: sendTextMessageRequest.threadID,
+    threadID: request.threadID,
     creatorID: viewer.id,
     time: Date.now(),
-    text: sendTextMessageRequest.text,
+    text: request.text,
   };
   const rawMessageInfos = await createMessages([messageData]);
 
@@ -65,17 +63,12 @@ async function messageFetchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<FetchMessageInfosResult> {
-  const fetchMessageInfosRequest: FetchMessageInfosRequest = input;
-  if (!fetchMessageInfosRequestInputValidator.is(fetchMessageInfosRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
+  const request: FetchMessageInfosRequest = input;
+  validateInput(fetchMessageInfosRequestInputValidator, request);
   return await fetchMessageInfos(
     viewer,
-    { threadCursors: fetchMessageInfosRequest.cursors },
-    fetchMessageInfosRequest.numberPerThread
-      ? fetchMessageInfosRequest.numberPerThread
-      : defaultNumberPerThread,
+    { threadCursors: request.cursors },
+    request.numberPerThread ? request.numberPerThread : defaultNumberPerThread,
   );
 }
 

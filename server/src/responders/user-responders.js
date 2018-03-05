@@ -31,7 +31,7 @@ import {
   checkAndSendPasswordResetEmail,
   updatePassword,
 } from '../updaters/account-updaters';
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
@@ -57,15 +57,9 @@ async function userSubscriptionUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<SubscriptionUpdateResponse> {
-  const subscriptionUpdateRequest: SubscriptionUpdateRequest = input;
-  if (!subscriptionUpdateRequestInputValidator.is(subscriptionUpdateRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const threadSubscription = await userSubscriptionUpdater(
-    viewer,
-    subscriptionUpdateRequest,
-  );
+  const request: SubscriptionUpdateRequest = input;
+  validateInput(subscriptionUpdateRequestInputValidator, request);
+  const threadSubscription = await userSubscriptionUpdater(viewer, request);
   return { threadSubscription };
 }
 
@@ -81,12 +75,9 @@ async function accountUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
-  const accountUpdate: AccountUpdate = input;
-  if (!accountUpdateInputValidator.is(accountUpdate)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  await accountUpdater(viewer, accountUpdate);
+  const request: AccountUpdate = input;
+  validateInput(accountUpdateInputValidator, request);
+  await accountUpdater(viewer, request);
 }
 
 async function sendVerificationEmailResponder(
@@ -104,12 +95,9 @@ async function sendPasswordResetEmailResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
-  const resetPasswordRequest: ResetPasswordRequest = input;
-  if (!resetPasswordRequestInputValidator.is(resetPasswordRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  await checkAndSendPasswordResetEmail(resetPasswordRequest);
+  const request: ResetPasswordRequest = input;
+  validateInput(resetPasswordRequestInputValidator, request);
+  await checkAndSendPasswordResetEmail(request);
 }
 
 async function logOutResponder(
@@ -139,12 +127,9 @@ async function accountDeletionResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogOutResponse> {
-  const deleteAccountRequest: DeleteAccountRequest = input;
-  if (!deleteAccountRequestInputValidator.is(deleteAccountRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await deleteAccount(viewer, deleteAccountRequest);
+  const request: DeleteAccountRequest = input;
+  validateInput(deleteAccountRequestInputValidator, request);
+  return await deleteAccount(viewer, request);
 }
 
 const registerRequestInputValidator = tShape({
@@ -157,12 +142,9 @@ async function accountCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<RegisterResponse> {
-  const registerRequest: RegisterRequest = input;
-  if (!registerRequestInputValidator.is(registerRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await createAccount(viewer, registerRequest);
+  const request: RegisterRequest = input;
+  validateInput(registerRequestInputValidator, request);
+  return await createAccount(viewer, request);
 }
 
 const logInRequestInputValidator = tShape({
@@ -176,12 +158,10 @@ async function logInResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
-  const logInRequest: LogInRequest = input;
-  if (!logInRequestInputValidator.is(logInRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
+  const request: LogInRequest = input;
+  validateInput(logInRequestInputValidator, request);
 
-  const calendarQuery = logInRequest.calendarQuery;
+  const calendarQuery = request.calendarQuery;
   const promises = {};
   if (calendarQuery && calendarQuery.navID !== "home") {
     promises.validThreadID = verifyThreadID(calendarQuery.navID);
@@ -189,8 +169,8 @@ async function logInResponder(
   const userQuery = SQL`
     SELECT id, hash, username, email, email_verified
     FROM users
-    WHERE LCASE(username) = LCASE(${logInRequest.usernameOrEmail})
-      OR LCASE(email) = LCASE(${logInRequest.usernameOrEmail})
+    WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
+      OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
   promises.userQuery = pool.query(userQuery);
   const {
@@ -205,7 +185,7 @@ async function logInResponder(
     throw new ServerError('invalid_parameters');
   }
   const userRow = userResult[0];
-  if (!bcrypt.compareSync(logInRequest.password, userRow.hash)) {
+  if (!bcrypt.compareSync(request.password, userRow.hash)) {
     throw new ServerError('invalid_credentials');
   }
   const id = userRow.id.toString();
@@ -215,7 +195,7 @@ async function logInResponder(
   const newPingTime = Date.now();
 
   const threadCursors = {};
-  for (let watchedThreadID of logInRequest.watchedIDs) {
+  for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
@@ -263,12 +243,9 @@ async function passwordUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
-  const updatePasswordRequest: UpdatePasswordRequest = input;
-  if (!updatePasswordRequestInputValidator.is(updatePasswordRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await updatePassword(viewer, updatePasswordRequest);
+  const request: UpdatePasswordRequest = input;
+  validateInput(updatePasswordRequestInputValidator, request);
+  return await updatePassword(viewer, request);
 }
 
 export {

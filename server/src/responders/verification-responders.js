@@ -11,7 +11,7 @@ import t from 'tcomb';
 import { ServerError } from 'lib/utils/fetch-utils';
 import { verifyField } from 'lib/types/verify-types';
 
-import { tShape } from '../utils/tcomb-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 import { handleCodeVerificationRequest } from '../models/verification';
 import { pool, SQL } from '../database';
 
@@ -23,14 +23,10 @@ async function codeVerificationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<HandleVerificationCodeResult> {
-  const codeVerificationRequest: CodeVerificationRequest = input;
-  if (!codeVerificationRequestInputValidator.is(codeVerificationRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
+  const request: CodeVerificationRequest = input;
+  validateInput(codeVerificationRequestInputValidator, request);
 
-  const result = await handleCodeVerificationRequest(
-    codeVerificationRequest.code,
-  );
+  const result = await handleCodeVerificationRequest(request.code);
   if (!result) {
     throw new ServerError('unhandled_field');
   }

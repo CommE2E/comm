@@ -12,14 +12,17 @@ import type {
   FetchEntryInfosResponse,
   SaveEntryResult,
 } from 'lib/types/entry-types';
-import type { FetchEntryRevisionInfosResult } from 'lib/types/history-types';
+import type {
+  FetchEntryRevisionInfosResult,
+  FetchEntryRevisionInfosRequest,
+} from 'lib/types/history-types';
 
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/fetch-utils';
 import { threadPermissions } from 'lib/types/thread-types';
 
-import { tShape, tDate } from '../utils/tcomb-utils';
+import { validateInput, tShape, tDate } from '../utils/validation-utils';
 import { verifyThreadID } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
@@ -40,25 +43,20 @@ async function entryFetchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<FetchEntryInfosResponse> {
-  const entryQuery: CalendarQuery = input;
-  if (!entryQueryInputValidator.is(entryQuery)) {
-    throw new ServerError('invalid_parameters');
-  }
+  const request: CalendarQuery = input;
+  validateInput(entryQueryInputValidator, request);
 
-  let validNav = entryQuery.navID === "home";
+  let validNav = request.navID === "home";
   if (!validNav) {
-    validNav = await verifyThreadID(entryQuery.navID);
+    validNav = await verifyThreadID(request.navID);
   }
   if (!validNav) {
     throw new ServerError('invalid_parameters');
   }
 
-  return await fetchEntryInfos(viewer, entryQuery);
+  return await fetchEntryInfos(viewer, request);
 }
 
-type EntryRevisionHistoryFetch = {|
-  id: string,
-|};
 const entryRevisionHistoryFetchInputValidator = tShape({
   id: t.String,
 });
@@ -67,15 +65,9 @@ async function entryRevisionFetchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<FetchEntryRevisionInfosResult> {
-  const entryRevisionHistoryFetch: EntryRevisionHistoryFetch = input;
-  if (!entryRevisionHistoryFetchInputValidator.is(entryRevisionHistoryFetch)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const entryHistory = await fetchEntryRevisionInfo(
-    viewer,
-    entryRevisionHistoryFetch.id,
-  );
+  const request: FetchEntryRevisionInfosRequest = input;
+  validateInput(entryRevisionHistoryFetchInputValidator, request);
+  const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
   return { result: entryHistory };
 }
 
@@ -91,12 +83,9 @@ async function entryCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<SaveEntryResult> {
-  const createEntryRequest: CreateEntryRequest = input;
-  if (!createEntryRequestInputValidator.is(createEntryRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await createEntry(viewer, createEntryRequest);
+  const request: CreateEntryRequest = input;
+  validateInput(createEntryRequestInputValidator, request);
+  return await createEntry(viewer, request);
 }
 
 const saveEntryRequestInputValidator = tShape({
@@ -111,12 +100,9 @@ async function entryUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<SaveEntryResult> {
-  const saveEntryRequest: SaveEntryRequest = input;
-  if (!saveEntryRequestInputValidator.is(saveEntryRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await updateEntry(viewer, saveEntryRequest);
+  const request: SaveEntryRequest = input;
+  validateInput(saveEntryRequestInputValidator, request);
+  return await updateEntry(viewer, request);
 }
 
 const deleteEntryRequestInputValidator = tShape({
@@ -130,12 +116,9 @@ async function entryDeletionResponder(
   viewer: Viewer,
   input: any,
 ): Promise<DeleteEntryResponse> {
-  const deleteEntryRequest: DeleteEntryRequest = input;
-  if (!deleteEntryRequestInputValidator.is(deleteEntryRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await deleteEntry(viewer, deleteEntryRequest);
+  const request: DeleteEntryRequest = input;
+  validateInput(deleteEntryRequestInputValidator, request);
+  return await deleteEntry(viewer, request);
 }
 
 const restoreEntryRequestInputValidator = tShape({
@@ -148,12 +131,9 @@ async function entryRestorationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<RestoreEntryResponse> {
-  const restoreEntryRequest: RestoreEntryRequest = input;
-  if (!restoreEntryRequestInputValidator.is(restoreEntryRequest)) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  return await restoreEntry(viewer, restoreEntryRequest);
+  const request: RestoreEntryRequest = input;
+  validateInput(restoreEntryRequestInputValidator, request);
+  return await restoreEntry(viewer, request);
 }
 
 export {
