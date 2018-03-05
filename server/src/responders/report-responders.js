@@ -57,34 +57,20 @@ async function errorReportFetchInfosResponder(
 }
 
 async function errorReportDownloadHandler(
+  viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  try {
-    const viewer = await fetchViewerForJSONRequest(req);
-    const id = req.params.reportID;
-    if (!id) {
-      throw new ServerError('invalid_parameters');
-    }
-    const result = await fetchReduxToolsImport(viewer, id);
-    res.set("Content-Disposition", `attachment; filename=report-${id}.json`);
-    res.json({
-      preloadedState: JSON.stringify(result.preloadedState),
-      payload: JSON.stringify(result.payload),
-    });
-  } catch (e) {
-    console.warn(e);
-    if (res.headersSent) {
-      return;
-    }
-    if (e instanceof ServerError && e.payload) {
-      res.json({ error: e.message, payload: e.payload });
-    } else if (e instanceof ServerError) {
-      res.json({ error: e.message });
-    } else {
-      res.status(500).send(e.message);
-    }
+  const id = req.params.reportID;
+  if (!id) {
+    throw new ServerError('invalid_parameters');
   }
+  const result = await fetchReduxToolsImport(viewer, id);
+  res.set("Content-Disposition", `attachment; filename=report-${id}.json`);
+  res.json({
+    preloadedState: JSON.stringify(result.preloadedState),
+    payload: JSON.stringify(result.payload),
+  });
 }
 
 export {

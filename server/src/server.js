@@ -6,7 +6,11 @@ import type { Endpoint } from 'lib/types/endpoints';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import { jsonHandler } from './responders/handlers';
+import {
+  jsonHandler,
+  downloadHandler,
+  htmlHandler,
+} from './responders/handlers';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -112,8 +116,11 @@ for (let endpoint in jsonEndpoints) {
   router.post(`/${endpoint}`, jsonHandler(responder));
 }
 
-router.get('/download_error_report/:reportID', errorReportDownloadHandler);
-router.get('*', websiteResponder);
+router.get(
+  '/download_error_report/:reportID',
+  downloadHandler(errorReportDownloadHandler),
+);
+router.get('*', htmlHandler(websiteResponder));
 
 server.use(baseRoutePath, router);
 server.listen(parseInt(process.env.PORT) || 3000, 'localhost');

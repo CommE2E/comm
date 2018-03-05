@@ -26,10 +26,6 @@ import { verifyField } from 'lib/types/verify-types';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 
-import {
-  fetchViewerForHomeRequest,
-  addCookieToHomeResponse,
-} from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
@@ -45,21 +41,7 @@ const { AppContainer } = ReactHotLoader;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
 
-async function websiteResponder(req: $Request, res: $Response) {
-  try {
-    const viewer = await fetchViewerForHomeRequest(req);
-    const rendered = await renderHTML(viewer, req.url);
-    addCookieToHomeResponse(viewer, res);
-    res.send(rendered);
-  } catch (e) {
-    console.warn(e);
-    if (!res.headersSent) {
-      res.status(500).send(e.message);
-    }
-  }
-}
-
-async function renderHTML(viewer: Viewer, url: string): Promise<string> {
+async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   const urlInfo = parseURL(url);
 
   const calendarQuery = {
