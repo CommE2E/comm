@@ -374,7 +374,7 @@ class Entry extends React.PureComponent<Props, State> {
           );
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { id: entryID, dbText: e.result.db },
+            { id: entryID, dbText: e.payload.db },
           );
           this.props.clearModal();
         };

@@ -533,7 +533,7 @@ class InternalEntry extends React.Component<Props, State> {
           this.guardedSetState({ loadingStatus: "inactive" });
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { id: entryID, dbText: e.result.db },
+            { id: entryID, dbText: e.payload.db },
           );
         };
         Alert.alert(

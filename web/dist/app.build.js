@@ -497,7 +497,7 @@ function wrapActionPromise(actionTypes, promise, loadingOptions, startingPayload
         loadingInfo
       });
     } catch (e) {
-      console.log(e);
+      console.warn(e);
       dispatch({
         type: actionTypes.failed,
         error: true,
@@ -10050,9 +10050,9 @@ class ExtendableError extends _extendableBuiltin(Error) {
 
 class ServerError extends ExtendableError {
 
-  constructor(error, result) {
+  constructor(error, payload) {
     super(error);
-    this.result = result;
+    this.payload = payload;
   }
 
 }
@@ -34344,7 +34344,7 @@ async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, coo
   }
 
   if (json.error) {
-    throw new __WEBPACK_IMPORTED_MODULE_4__fetch_utils__["b" /* ServerError */](json.error, json);
+    throw new __WEBPACK_IMPORTED_MODULE_4__fetch_utils__["b" /* ServerError */](json.error, json.payload);
   }
   return json;
 }
@@ -55663,7 +55663,7 @@ class Entry extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       if (e instanceof __WEBPACK_IMPORTED_MODULE_11_lib_utils_fetch_utils__["b" /* ServerError */] && e.message === 'concurrent_modification') {
         const onRefresh = () => {
           this.setState({ loadingStatus: "inactive" }, this.updateHeight.bind(this));
-          this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_10_lib_actions_entry_actions__["a" /* concurrentModificationResetActionType */], { id: entryID, dbText: e.result.db });
+          this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_10_lib_actions_entry_actions__["a" /* concurrentModificationResetActionType */], { id: entryID, dbText: e.payload.db });
           this.props.clearModal();
         };
         this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_17__modals_concurrent_modification_modal_react__["a" /* default */], {

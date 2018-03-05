@@ -81,8 +81,10 @@ async function errorReportDownloadHandler(
     if (res.headersSent) {
       return;
     }
-    if (e instanceof ServerError) {
-      res.json({ error: e.message, ...e.result });
+    if (e instanceof ServerError && e.payload) {
+      res.json({ error: e.message, payload: e.payload });
+    } else if (e instanceof ServerError) {
+      res.json({ error: e.message });
     } else {
       res.status(500).send(e.message);
     }

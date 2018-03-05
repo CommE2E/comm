@@ -261,10 +261,10 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === setCookieActionType
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
-      navigationState,
+      navInfoState.navigationState,
       action.payload.threadInfos,
     );
-    if (navigationState !== filteredNavigationState) {
+    if (navInfoState.navigationState !== filteredNavigationState) {
       navInfoState = {
         startDate: navInfoState.startDate,
         endDate: navInfoState.endDate,
@@ -281,7 +281,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       endDate: navInfoState.endDate,
       home: navInfoState.home,
       threadID: navInfoState.threadID,
-      navigationState: handleURL(navigationState, action.payload),
+      navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
   } else if (
     action.type === logInActionTypes.success ||
@@ -294,7 +294,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       home: navInfoState.home,
       threadID: navInfoState.threadID,
       navigationState: removeModals(
-        navigationState,
+        navInfoState.navigationState,
         accountModals,
       ),
     };
@@ -312,7 +312,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       home: navInfoState.home,
       threadID: navInfoState.threadID,
       navigationState: removeModalsIfPingIndicatesLoggedIn(
-        navigationState,
+        navInfoState.navigationState,
         action.payload,
       ),
     };
@@ -323,7 +323,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       home: navInfoState.home,
       threadID: navInfoState.threadID,
       navigationState: popChatScreensForThreadID(
-        navigationState,
+        navInfoState.navigationState,
         action.payload,
       ),
     };
@@ -334,7 +334,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       home: navInfoState.home,
       threadID: navInfoState.threadID,
       navigationState: replaceChatStackWithThread(
-        navigationState,
+        navInfoState.navigationState,
         action.payload.newThreadInfo,
         state.currentUserInfo && state.currentUserInfo.id,
         state.userInfos,
@@ -347,7 +347,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       home: navInfoState.home,
       threadID: navInfoState.threadID,
       navigationState: handleNotificationPress(
-        navigationState,
+        navInfoState.navigationState,
         action.payload,
         state.currentUserInfo && state.currentUserInfo.id,
         state.userInfos,
