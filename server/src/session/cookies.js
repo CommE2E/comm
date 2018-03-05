@@ -16,6 +16,7 @@ import { Viewer } from './viewer';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
+import { assertSecureRequest } from '../utils/security-utils';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -159,6 +160,7 @@ async function fetchViewerFromRequestBody(
 }
 
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
+  assertSecureRequest(req);
   let result = await fetchViewerFromRequestBody(req);
   if (!result) {
     result = await fetchViewerFromCookieData(req.cookies);
@@ -167,6 +169,7 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
 }
 
 async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
+  assertSecureRequest(req);
   const result = await fetchViewerFromCookieData(req.cookies);
   return await handleFetchViewerResult(result);
 }
