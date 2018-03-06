@@ -12,11 +12,11 @@ import bcrypt from 'twin-bcrypt';
 
 import { validEmailRegex } from 'lib/shared/account-regexes';
 import { promiseAll } from 'lib/utils/promises';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { verifyField } from 'lib/types/verify-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { sendPasswordResetEmail } from '../emails/reset-password';
 import { verifyCode, clearVerifyCodes } from '../models/verification';
@@ -41,11 +41,11 @@ async function accountUpdater(
     if (email.search(validEmailRegex) === -1) {
       throw new ServerError('invalid_email');
     }
-    fetchPromises.emailQuery = pool.query(SQL`
+    fetchPromises.emailQuery = dbQuery(SQL`
       SELECT COUNT(id) AS count FROM users WHERE email = ${email}
     `);
   }
-  fetchPromises.verifyQuery = pool.query(SQL`
+  fetchPromises.verifyQuery = dbQuery(SQL`
     SELECT username, email, hash FROM users WHERE id = ${viewer.userID}
   `);
   const { verifyQuery, emailQuery } = await promiseAll(fetchPromises);
@@ -82,7 +82,7 @@ async function accountUpdater(
   }
 
   if (Object.keys(changedFields).length > 0) {
-    savePromises.push(pool.query(SQL`
+    savePromises.push(dbQuery(SQL`
       UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
     `));
   }
@@ -101,7 +101,7 @@ async function checkAndSendVerificationEmail(
     FROM users
     WHERE id = ${viewer.userID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('internal_error');
   }
@@ -124,7 +124,7 @@ async function checkAndSendPasswordResetEmail(request: ResetPasswordRequest) {
     WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
       OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_user');
   }
@@ -167,8 +167,8 @@ async function updatePassword(
   const hash = bcrypt.hashSync(request.password);
   const updateQuery = SQL`UPDATE users SET hash = ${hash} WHERE id = ${userID}`;
   const [ [ userResult ] ] = await Promise.all([
-    pool.query(userQuery),
-    pool.query(updateQuery),
+    dbQuery(userQuery),
+    dbQuery(updateQuery),
   ]);
   if (userResult.length === 0) {
     throw new ServerError('invalid_parameters');

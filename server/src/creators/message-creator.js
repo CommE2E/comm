@@ -15,7 +15,7 @@ import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
 import {
-  pool,
+  dbQuery,
   SQL,
   SQLStatement,
   appendSQLArray,
@@ -161,7 +161,7 @@ async function createMessages(
     messageInfos,
   );
   await Promise.all([
-    pool.query(messageInsertQuery),
+    dbQuery(messageInsertQuery),
     updateUnreadStatus(threadRestrictions),
   ]);
 
@@ -223,7 +223,7 @@ async function updateUnreadStatus(
     ) AND
   `);
   query.append(conditionClause);
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 async function sendPushNotifsForNewMessages(
@@ -282,7 +282,7 @@ async function sendPushNotifsForNewMessages(
   query.append(conditionClause);
 
   const prePushInfo = new Map();
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   for (let row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();

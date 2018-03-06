@@ -19,7 +19,7 @@ import type {
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { validateInput, tShape, tDate } from '../utils/validation-utils';

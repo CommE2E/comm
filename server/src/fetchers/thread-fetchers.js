@@ -19,7 +19,7 @@ import {
 } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
-import { pool, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: {[id: string]: ServerThreadInfo},
@@ -47,7 +47,7 @@ async function fetchServerThreadInfos(
     LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
     LEFT JOIN users u ON u.id = m.user
   `.append(whereClause).append(SQL`ORDER BY m.user ASC`);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const threadInfos = {};
   const userInfos = {};
@@ -151,7 +151,7 @@ async function verifyThreadIDs(
   }
 
   const query = SQL`SELECT id FROM threads WHERE id IN (${threadIDs})`;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const verified = [];
   for (let row of result) {
@@ -176,7 +176,7 @@ async function fetchThreadPermissionsInfo(
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
     WHERE t.id = ${threadID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   if (result.length === 0) {
     return null;
@@ -207,7 +207,7 @@ async function viewerIsMember(
     FROM memberships
     WHERE user = ${viewerID} AND thread = ${threadID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     return false;
   }

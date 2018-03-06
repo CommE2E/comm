@@ -6,7 +6,7 @@ import type {
   ErrorReportCreationResponse,
 } from 'lib/types/report-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 async function createErrorReport(
@@ -26,7 +26,7 @@ async function createErrorReport(
     INSERT INTO reports (id, user, platform, report, creation_time)
     VALUES ${[row]}
   `;
-  await pool.query(query);
+  await dbQuery(query);
   return { id };
 }
 

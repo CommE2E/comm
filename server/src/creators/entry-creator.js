@@ -8,9 +8,9 @@ import type { Viewer } from '../session/viewer';
 
 import { messageType } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
@@ -83,8 +83,8 @@ async function createEntry(
   };
   const [ newMessageInfos ] = await Promise.all([
     createMessages([messageData]),
-    pool.query(entryInsertQuery),
-    pool.query(revisionInsertQuery),
+    dbQuery(entryInsertQuery),
+    dbQuery(revisionInsertQuery),
   ]);
 
   return { entryID, newMessageInfos };

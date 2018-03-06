@@ -3,12 +3,12 @@
 import type { SaveEntryRequest, SaveEntryResult } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 import { messageType } from 'lib/types/message-types';
 import { dateString } from 'lib/utils/date-utils';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
@@ -42,8 +42,8 @@ async function updateEntry(
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
-    pool.query(entryQuery),
-    pool.query(lastRevisionQuery),
+    dbQuery(entryQuery),
+    dbQuery(lastRevisionQuery),
   ]);
 
   if (!hasPermission) {
@@ -82,7 +82,7 @@ async function updateEntry(
     }
     updateEntry = true;
     if (lastRevisionRow.last_update + 120000 > request.timestamp) {
-      promises.push(pool.query(SQL`
+      promises.push(dbQuery(SQL`
         UPDATE revisions
         SET last_update = ${request.timestamp}, text = ${request.text}
         WHERE id = ${lastRevisionRow.id}
@@ -108,7 +108,7 @@ async function updateEntry(
     insertNewRevision = true;
   }
   if (updateEntry) {
-    promises.push(pool.query(SQL`
+    promises.push(dbQuery(SQL`
       UPDATE entries
       SET last_update = ${request.timestamp}, text = ${request.text}
       WHERE id = ${request.entryID}
@@ -126,7 +126,7 @@ async function updateEntry(
       request.timestamp,
       0,
     ];
-    promises.push(pool.query(SQL`
+    promises.push(dbQuery(SQL`
       INSERT INTO revisions(id, entry, author, text, creation_time,
         session_id, last_update, deleted)
       VALUES ${[revisionRow]}

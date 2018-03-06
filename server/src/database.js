@@ -54,11 +54,20 @@ function mergeOrConditions(andConditions: SQLStatement[]) {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
+async function dbQuery(statement: SQLStatement) {
+  try {
+    return await pool.query(statement);
+  } catch (e) {
+    e.query = statement.sql;
+    throw e;
+  }
+}
+
 export {
-  pool,
   SQL,
   SQLStatement,
   appendSQLArray,
   mergeAndConditions,
   mergeOrConditions,
+  dbQuery,
 };

@@ -9,9 +9,9 @@ import bcrypt from 'twin-bcrypt';
 import url from 'url';
 import crypto from 'crypto';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { Viewer } from './viewer';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
@@ -55,7 +55,7 @@ async function fetchUserViewer(
     SELECT hash, user, last_update FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     return { type: "nonexistant", cookieName: cookieType.USER, source };
   }
@@ -97,7 +97,7 @@ async function fetchAnonymousViewer(
     SELECT last_update, hash FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
   }
@@ -264,7 +264,7 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
     INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
     VALUES ${[cookieRow]}
   `;
-  await pool.query(query);
+  await dbQuery(query);
   return {
     loggedIn: false,
     id,
@@ -275,7 +275,7 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
 }
 
 async function deleteCookie(cookieID: string): Promise<void> {
-  await pool.query(SQL`
+  await dbQuery(SQL`
     DELETE c, i
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
@@ -293,7 +293,7 @@ async function createNewUserCookie(userID: string): Promise<UserViewerData> {
     INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
     VALUES ${[cookieRow]}
   `;
-  await pool.query(query);
+  await dbQuery(query);
   return {
     loggedIn: true,
     id: userID,
@@ -309,7 +309,7 @@ async function extendCookieLifespan(cookieID: string) {
   const query = SQL`
     UPDATE cookies SET last_update = ${time} WHERE id = ${cookieID}
   `;
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 async function addCookieToJSONResponse(

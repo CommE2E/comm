@@ -6,7 +6,7 @@ import {
   threadPermissionPrefixes,
 } from 'lib/types/thread-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 type InitialRoles = {|
@@ -109,7 +109,7 @@ async function createInitialRolesForNewThread(
     INSERT INTO roles (id, thread, name, permissions, creation_time)
     VALUES ${newRows}
   `;
-  await pool.query(query);
+  await dbQuery(query);
 
   return {
     members: {

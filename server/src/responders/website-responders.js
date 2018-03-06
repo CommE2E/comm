@@ -13,7 +13,7 @@ import { Route, StaticRouter } from 'react-router';
 import React from 'react';
 import _keyBy from 'lodash/fp/keyBy';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,

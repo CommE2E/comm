@@ -11,11 +11,11 @@ import type { Viewer } from '../session/viewer';
 import bcrypt from 'twin-bcrypt';
 
 import { generateRandomColor } from 'lib/shared/thread-utils';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { messageType } from 'lib/types/message-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import createIDs from './id-creator';
 import createInitialRolesForNewThread from './role-creator';
@@ -101,10 +101,10 @@ async function createThread(
     VALUES ${[row]}
   `;
   const [ initialMemberIDs, [ result ] ] = await Promise.all([
-    request.initialMemberIDs
+    request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? verifyUserIDs(request.initialMemberIDs)
       : undefined,
-    pool.query(query),
+    dbQuery(query),
   ]);
 
   const [
@@ -113,7 +113,7 @@ async function createThread(
     recalculatePermissionsChangeset,
   ] = await Promise.all([
     changeRole(id, [viewer.userID], newRoles.admins.id),
-    initialMemberIDs
+    initialMemberIDs && initialMemberIDs.length > 0
       ? changeRole(id, initialMemberIDs, null)
       : undefined,
     recalculateAllPermissions(id, visRules),

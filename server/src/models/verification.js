@@ -10,9 +10,9 @@ import {
 import crypto from 'crypto';
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import createIDs from '../creators/id-creator';
 
 const verifyCodeLifetime = 24 * 60 * 60 * 1000; // in ms
@@ -30,7 +30,7 @@ async function createVerificationCode(
     INSERT INTO verifications(id, user, field, hash, creation_time)
     VALUES ${[row]}
   `;
-  await pool.query(query);
+  await dbQuery(query);
   return `${code}${parseInt(id).toString(16)}`;
 }
 
@@ -46,7 +46,7 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
     SELECT hash, user, field, creation_time
     FROM verifications WHERE id = ${id}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_code');
   }
@@ -64,7 +64,7 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
       LEFT JOIN ids i ON i.id = v.id
       WHERE v.id = ${id}
     `;
-    await pool.query(deleteQuery);
+    await dbQuery(deleteQuery);
     throw new ServerError('invalid_code');
   }
 
@@ -82,7 +82,7 @@ async function clearVerifyCodes(result: CodeVerification) {
     LEFT JOIN ids i ON i.id = v.id
     WHERE v.user = ${result.userID} and v.field = ${result.field}
   `;
-  await pool.query(deleteQuery);
+  await dbQuery(deleteQuery);
 }
 
 async function handleCodeVerificationRequest(
@@ -93,13 +93,13 @@ async function handleCodeVerificationRequest(
   if (field === verifyField.EMAIL) {
     const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
     await Promise.all([
-      pool.query(query),
+      dbQuery(query),
       clearVerifyCodes(result),
     ]);
     return { field: verifyField.EMAIL, userID };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
-    const [ usernameResult ] = await pool.query(usernameQuery);
+    const [ usernameResult ] = await dbQuery(usernameQuery);
     if (usernameResult.length === 0) {
       throw new ServerError('invalid_code');
     }

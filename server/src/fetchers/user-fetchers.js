@@ -3,9 +3,9 @@
 import type { UserInfos, CurrentUserInfo } from 'lib/types/user-types';
 import type { Viewer } from '../session/viewer';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function fetchUserInfos(
   userIDs: string[],
@@ -17,7 +17,7 @@ async function fetchUserInfos(
   const query = SQL`
     SELECT id, username FROM users WHERE id IN (${userIDs})
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const userInfos = {};
   for (let row of result) {
@@ -46,7 +46,7 @@ async function verifyUserIDs(
     return [];
   }
   const query = SQL`SELECT id FROM users WHERE id IN (${userIDs})`;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
@@ -60,7 +60,7 @@ async function verifyUserOrCookieIDs(
     SELECT id FROM users WHERE id IN (${ids})
     UNION SELECT id FROM cookies WHERE id IN (${ids})
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
@@ -76,7 +76,7 @@ async function fetchCurrentUserInfo(
     FROM users
     WHERE id = ${viewer.userID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('unknown_error');
   }

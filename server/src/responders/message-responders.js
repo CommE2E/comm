@@ -13,7 +13,7 @@ import {
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import createMessages from '../creators/message-creator';

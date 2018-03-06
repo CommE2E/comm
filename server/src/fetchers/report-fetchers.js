@@ -7,10 +7,10 @@ import type {
   ReduxToolsImport,
 } from 'lib/types/report-types';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { isStaff } from 'lib/shared/user-utils';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function fetchErrorReportInfos(
   viewer: Viewer,
@@ -29,7 +29,7 @@ async function fetchErrorReportInfos(
     query.append(SQL`WHERE r.id < ${request.cursor} `);
   }
   query.append(SQL`ORDER BY r.id DESC`);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const reports = [];
   const userInfos = {};
@@ -68,7 +68,7 @@ async function fetchReduxToolsImport(
     FROM reports
     WHERE id = ${id}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }

@@ -24,9 +24,9 @@ import invariant from 'invariant';
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import { sortMessageInfoList } from 'lib/shared/message-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchUserInfos } from './user-fetchers';
 
 export type CollapsableNotifInfo = {|
@@ -113,7 +113,7 @@ async function fetchCollapsableNotifs(
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
-  const [ collapseResult ] = await pool.query(collapseQuery);
+  const [ collapseResult ] = await dbQuery(collapseQuery);
 
   const userInfos = {};
   for (let row of collapseResult) {
@@ -334,7 +334,7 @@ async function fetchMessageInfos(
     ) y
     WHERE y.number <= ${numberPerThread}
   `);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const rawMessageInfos = [];
   const userInfos = {};
@@ -472,7 +472,7 @@ async function fetchMessageInfosSince(
   query.append(SQL`
     ORDER BY m.thread, m.time DESC
   `);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const rawMessageInfos = [];
   const userInfos = {};

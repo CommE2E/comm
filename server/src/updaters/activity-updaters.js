@@ -12,9 +12,9 @@ import _difference from 'lodash/fp/difference';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { messageType } from 'lib/types/message-types';
 import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 
@@ -41,12 +41,12 @@ async function activityUpdater(
   }
 
   const dbPromises = [];
-  dbPromises.push(pool.query(SQL`
+  dbPromises.push(dbQuery(SQL`
     DELETE FROM focused
     WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
   `));
   if (closing) {
-    dbPromises.push(pool.query(SQL`
+    dbPromises.push(dbQuery(SQL`
       UPDATE cookies SET last_ping = 0 WHERE id = ${localViewer.cookieID}
     `));
   }
@@ -81,11 +81,11 @@ async function activityUpdater(
       threadID,
       time,
     ]);
-    promises.push(pool.query(SQL`
+    promises.push(dbQuery(SQL`
       INSERT INTO focused (user, cookie, thread, time)
       VALUES ${focusedInsertRows}
     `));
-    promises.push(pool.query(SQL`
+    promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
       WHERE role != 0
@@ -151,7 +151,7 @@ async function possiblyResetThreadsToUnread(
       )
     GROUP BY m.thread
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const resetToUnread = [];
   for (let row of result) {
@@ -173,7 +173,7 @@ async function possiblyResetThreadsToUnread(
       AND thread IN (${resetToUnread})
       AND user = ${viewer.userID}
   `;
-  await pool.query(unreadQuery);
+  await dbQuery(unreadQuery);
 
   return resetToUnread;
 }
@@ -193,7 +193,7 @@ async function checkThreadsFocused(
   `;
   query.append(mergeOrConditions(conditions));
   query.append(SQL`GROUP BY user, thread`);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const focusedThreadUserPairs = [];
   for (let row of result) {
@@ -217,7 +217,7 @@ async function updateActivityTime(viewer: Viewer, time: number): Promise<void> {
   const cookieQuery = SQL`
     UPDATE cookies SET last_ping = ${time} WHERE id = ${viewer.cookieID}
   `;
-  promises.push(pool.query(cookieQuery));
+  promises.push(dbQuery(cookieQuery));
 
   if (viewer.loggedIn) {
     const focusedQuery = SQL`
@@ -225,7 +225,7 @@ async function updateActivityTime(viewer: Viewer, time: number): Promise<void> {
       SET time = ${time}
       WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
     `;
-    promises.push(pool.query(focusedQuery));
+    promises.push(dbQuery(focusedQuery));
   }
 
   await Promise.all(promises);

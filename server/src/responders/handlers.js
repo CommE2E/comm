@@ -3,7 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { Viewer } from '../session/viewer';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
 import {
   fetchViewerForJSONRequest,

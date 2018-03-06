@@ -8,9 +8,9 @@ import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { createNewAnonymousCookie } from '../session/cookies';
 
 async function deleteAccount(
@@ -22,7 +22,7 @@ async function deleteAccount(
   }
 
   const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-  const [ result ] = await pool.query(hashQuery);
+  const [ result ] = await dbQuery(hashQuery);
   if (result.length === 0) {
     throw new ServerError('internal_error');
   }
@@ -49,7 +49,7 @@ async function deleteAccount(
   `;
   const [ anonymousViewerData ] = await Promise.all([
     createNewAnonymousCookie(),
-    pool.query(deletionQuery),
+    dbQuery(deletionQuery),
   ]);
   viewer.setNewCookie(anonymousViewerData);
 

@@ -38,7 +38,7 @@ import {
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import {
   currentSessionID,
   nextSessionID,

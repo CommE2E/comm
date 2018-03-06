@@ -9,12 +9,12 @@ import type {
   RestoreEntryResponse,
 } from 'lib/types/entry-types';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';
 import { messageType } from 'lib/types/message-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
@@ -42,7 +42,7 @@ async function deleteEntry(
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
-    pool.query(lastRevisionQuery(request.entryID)),
+    dbQuery(lastRevisionQuery(request.entryID)),
   ]);
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
@@ -73,7 +73,7 @@ async function deleteEntry(
   }
 
   const promises = [];
-  promises.push(pool.query(SQL`
+  promises.push(dbQuery(SQL`
     UPDATE entries SET deleted = 1 WHERE id = ${request.entryID}
   `));
   const [ revisionID ] = await createIDs("revisions", 1);
@@ -87,7 +87,7 @@ async function deleteEntry(
     request.timestamp,
     1,
   ];
-  promises.push(pool.query(SQL`
+  promises.push(dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}
@@ -118,7 +118,7 @@ async function restoreEntry(
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
-    pool.query(lastRevisionQuery(request.entryID)),
+    dbQuery(lastRevisionQuery(request.entryID)),
   ]);
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
@@ -134,7 +134,7 @@ async function restoreEntry(
   const text = lastRevisionRow.text;
   const viewerID = viewer.id;
   const promises = [];
-  promises.push(pool.query(SQL`
+  promises.push(dbQuery(SQL`
     UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}
   `));
   const [ revisionID ] = await createIDs("revisions", 1);
@@ -148,7 +148,7 @@ async function restoreEntry(
     request.timestamp,
     0,
   ];
-  promises.push(pool.query(SQL`
+  promises.push(dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}

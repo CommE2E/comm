@@ -17,7 +17,7 @@ import {
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
 
-import { pool, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 
 type RowToSave = {|
   userID: string,
@@ -56,7 +56,7 @@ async function changeRole(
     WHERE m.thread = ${threadID} AND m.user IN (${userIDs})
   `;
   const [ [ membershipResult ], roleThreadResult ] = await Promise.all([
-    pool.query(membershipQuery),
+    dbQuery(membershipQuery),
     changeRoleThreadQuery(threadID, role),
   ]);
   if (!roleThreadResult) {
@@ -154,7 +154,7 @@ async function changeRoleThreadQuery(
     const query = SQL`
       SELECT visibility_rules FROM threads WHERE id = ${threadID}
     `;
-    const [ result ] = await pool.query(query);
+    const [ result ] = await dbQuery(query);
     if (result.length === 0) {
       return null;
     }
@@ -171,7 +171,7 @@ async function changeRoleThreadQuery(
       LEFT JOIN roles r ON r.id = ${role}
       WHERE t.id = ${threadID}
     `;
-    const [ result ] = await pool.query(query);
+    const [ result ] = await dbQuery(query);
     if (result.length === 0) {
       return null;
     }
@@ -188,7 +188,7 @@ async function changeRoleThreadQuery(
       LEFT JOIN roles r ON r.id = t.default_role
       WHERE t.id = ${threadID}
     `;
-    const [ result ] = await pool.query(query);
+    const [ result ] = await dbQuery(query);
     if (result.length === 0) {
       return null;
     }
@@ -224,7 +224,7 @@ async function updateDescendantPermissions(
       LEFT JOIN roles r ON r.id = m.role
       WHERE t.parent_thread_id = ${parentThreadID}
     `;
-    const [ result ] = await pool.query(query);
+    const [ result ] = await dbQuery(query);
 
     const childThreadInfos = new Map();
     for (let row of result) {
@@ -332,8 +332,8 @@ async function recalculateAllPermissions(
     WHERE t.id = ${threadID} AND m.thread IS NULL
   `;
   const [ [ selectResult ] ] = await Promise.all([
-    pool.query(selectQuery),
-    pool.query(updateQuery),
+    dbQuery(selectQuery),
+    dbQuery(updateQuery),
   ]);
 
   const toSave = [];
@@ -442,7 +442,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
       permissions = VALUES(permissions),
       permissions_for_children = VALUES(permissions_for_children)
   `;
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
@@ -456,7 +456,7 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
   const conditions = mergeOrConditions(deleteRows);
   const query = SQL`DELETE FROM memberships WHERE `;
   query.append(conditions);
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 export {

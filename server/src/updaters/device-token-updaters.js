@@ -3,7 +3,7 @@
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 import type { Viewer } from '../session/viewer';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function deviceTokenUpdater(
   viewer: Viewer,
@@ -16,7 +16,7 @@ async function deviceTokenUpdater(
   const query = SQL`UPDATE cookies SET `;
   query.append(column);
   query.append(SQL` = ${update.deviceToken} WHERE id = ${cookieID}`);
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 export {

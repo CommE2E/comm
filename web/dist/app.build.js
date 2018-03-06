@@ -34267,7 +34267,7 @@ module.exports = baseValues;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_find___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_find__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_filter__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_filter__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__fetch_utils__ = __webpack_require__(209);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__errors__ = __webpack_require__(209);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__sleep__ = __webpack_require__(396);
 
@@ -34317,7 +34317,7 @@ async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, coo
   });
   const rejectPromise = (async () => {
     await Object(__WEBPACK_IMPORTED_MODULE_6__sleep__["a" /* default */])(10000);
-    throw new __WEBPACK_IMPORTED_MODULE_4__fetch_utils__["a" /* FetchTimeout */](`fetchJSON timed out call to ${endpoint}`, endpoint);
+    throw new __WEBPACK_IMPORTED_MODULE_4__errors__["a" /* FetchTimeout */](`fetchJSON timed out call to ${endpoint}`, endpoint);
   })();
   const response = await Promise.race([fetchPromise, rejectPromise]);
   const text = await response.text();
@@ -34344,7 +34344,7 @@ async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, coo
   }
 
   if (json.error) {
-    throw new __WEBPACK_IMPORTED_MODULE_4__fetch_utils__["b" /* ServerError */](json.error, json.payload);
+    throw new __WEBPACK_IMPORTED_MODULE_4__errors__["b" /* ServerError */](json.error, json.payload);
   }
   return json;
 }
@@ -55318,7 +55318,7 @@ Day.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_utils_action_utils__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_actions_entry_actions__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_utils_fetch_utils__ = __webpack_require__(209);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_utils_errors__ = __webpack_require__(209);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_selectors_session_selectors__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_lib_utils_date_utils__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lib_selectors_thread_selectors__ = __webpack_require__(35);
@@ -55660,7 +55660,7 @@ class Entry extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
       }
-      if (e instanceof __WEBPACK_IMPORTED_MODULE_11_lib_utils_fetch_utils__["b" /* ServerError */] && e.message === 'concurrent_modification') {
+      if (e instanceof __WEBPACK_IMPORTED_MODULE_11_lib_utils_errors__["b" /* ServerError */] && e.message === 'concurrent_modification') {
         const onRefresh = () => {
           this.setState({ loadingStatus: "inactive" }, this.updateHeight.bind(this));
           this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_10_lib_actions_entry_actions__["a" /* concurrentModificationResetActionType */], { id: entryID, dbText: e.payload.db });

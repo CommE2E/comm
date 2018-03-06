@@ -12,9 +12,9 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 import { createNewUserCookie, deleteCookie } from '../session/cookies';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
@@ -44,8 +44,8 @@ async function createAccount(
     WHERE LCASE(email) = LCASE(${request.email})
   `;
   const [ [ usernameResult ], [ emailResult ] ] = await Promise.all([
-    pool.query(usernameQuery),
-    pool.query(emailQuery),
+    dbQuery(usernameQuery),
+    dbQuery(emailQuery),
   ]);
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
@@ -65,7 +65,7 @@ async function createAccount(
   const [ userViewerData ] = await Promise.all([
     createNewUserCookie(id),
     deleteCookie(viewer.getData().cookieID),
-    pool.query(newUserQuery),
+    dbQuery(newUserQuery),
     sendEmailAddressVerificationEmail(
       id,
       request.username,

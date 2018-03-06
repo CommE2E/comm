@@ -17,12 +17,12 @@ import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { messageType, defaultNumberPerThread } from 'lib/types/message-types';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import {
   verifyUserIDs,
   verifyUserOrCookieIDs,
@@ -67,7 +67,7 @@ async function updateRole(
     FROM memberships
     WHERE user IN (${memberIDs}) AND thread = ${request.threadID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   let nonMemberUser = false;
   let numResults = 0;
@@ -145,7 +145,7 @@ async function removeMembers(
     LEFT JOIN threads t ON t.id = m.thread
     WHERE m.user IN (${memberIDs}) AND m.thread = ${request.threadID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   let nonDefaultRoleUser = false;
   const actualMemberIDs = [];
@@ -358,7 +358,7 @@ async function updateThread(
     LEFT JOIN threads t ON t.id = ${request.threadID}
     WHERE u.id = ${viewer.userID}
   `;
-  validationPromises.validationQuery = pool.query(validationQuery);
+  validationPromises.validationQuery = dbQuery(validationQuery);
 
   const {
     canMoveThread,
@@ -486,7 +486,7 @@ async function updateThread(
     const updateQuery = SQL`
       UPDATE threads SET ${sqlUpdate} WHERE id = ${request.threadID}
     `;
-    savePromises.updateQuery = pool.query(updateQuery);
+    savePromises.updateQuery = dbQuery(updateQuery);
   }
   if (newMemberIDs) {
     savePromises.addMembersChangeset = changeRole(
@@ -583,7 +583,7 @@ async function joinThread(
       request.threadID,
       threadPermissions.JOIN_THREAD,
     ),
-    pool.query(threadQuery),
+    dbQuery(threadQuery),
   ]);
   if (isMember || !hasPermission || threadResult.length === 0) {
     throw new ServerError('invalid_parameters');

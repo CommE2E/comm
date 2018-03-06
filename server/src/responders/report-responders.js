@@ -11,7 +11,7 @@ import type { $Response, $Request } from 'express';
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
 import { validateInput, tShape } from '../utils/validation-utils';
 import createErrorReport from '../creators/error-report-creator';

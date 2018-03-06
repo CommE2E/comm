@@ -3,7 +3,7 @@
 import type { AccountUserInfo } from 'lib/types/user-types';
 import type { UserSearchRequest } from 'lib/types/search-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function searchForUsers(
   query: UserSearchRequest,
@@ -15,7 +15,7 @@ async function searchForUsers(
   }
   sqlQuery.append(SQL`LIMIT 20`);
 
-  const [ result ] = await pool.query(sqlQuery);
+  const [ result ] = await dbQuery(sqlQuery);
 
   const userInfos = [];
   for (let row of result) {

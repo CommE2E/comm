@@ -20,7 +20,7 @@ import type { Viewer } from '../session/viewer';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 
@@ -41,7 +41,7 @@ import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
 import { entryQueryInputValidator } from './entry-responders';
 import { verifyThreadID } from '../fetchers/thread-fetchers';
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 
@@ -172,7 +172,7 @@ async function logInResponder(
     WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
       OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
-  promises.userQuery = pool.query(userQuery);
+  promises.userQuery = dbQuery(userQuery);
   const {
     validThreadID,
     userQuery: [ userResult ],

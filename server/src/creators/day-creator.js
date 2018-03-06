@@ -1,8 +1,8 @@
 // @flow
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 async function fetchOrCreateDayID(
@@ -16,7 +16,7 @@ async function fetchOrCreateDayID(
   const existingQuery = SQL`
     SELECT id FROM days WHERE date = ${date} AND thread = ${threadID}
   `;
-  const [ existingResult ] = await pool.query(existingQuery);
+  const [ existingResult ] = await dbQuery(existingQuery);
   if (existingResult.length > 0) {
     const existingRow = existingResult[0];
     return existingRow.id.toString();
@@ -27,7 +27,7 @@ async function fetchOrCreateDayID(
     INSERT INTO days(id, date, thread) VALUES ${[[ id, date, threadID]]}
   `;
   try {
-    await pool.query(insertQuery);
+    await dbQuery(insertQuery);
     return id;
   } catch (e) {
     if (e.errno !== 1062) {
@@ -41,8 +41,8 @@ async function fetchOrCreateDayID(
     // and deleting the extra ID we created from the `ids` table.
     const deleteIDQuery = SQL`DELETE FROM ids WHERE id = ${id}`;
     const [ [ raceResult ] ] = await Promise.all([
-      pool.query(existingQuery),
-      pool.query(deleteIDQuery),
+      dbQuery(existingQuery),
+      dbQuery(deleteIDQuery),
     ]);
     if (raceResult.length === 0) {
       throw new ServerError('unknown_error');

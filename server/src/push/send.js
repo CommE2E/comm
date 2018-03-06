@@ -27,7 +27,7 @@ import {
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
 
-import { pool, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
@@ -170,7 +170,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   const cleanUpPromises = [];
   if (dbIDs.length > 0) {
     const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
-    cleanUpPromises.push(pool.query(query));
+    cleanUpPromises.push(dbQuery(query));
   }
   const [ deliveryResults ] = await Promise.all([
     Promise.all(deliveryPromises),
@@ -218,7 +218,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         (id, user, thread, message, collapse_key, delivery, rescinded)
       VALUES ${flattenedNotifications}
     `;
-    dbPromises.push(pool.query(query));
+    dbPromises.push(dbQuery(query));
   }
   if (dbPromises.length > 0) {
     await Promise.all(dbPromises);
@@ -412,7 +412,7 @@ async function removeInvalidTokens(invalidTokens: InvalidToken[]) {
   }
   query.append(mergeOrConditions(sqlTuples));
 
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 export {

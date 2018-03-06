@@ -2,7 +2,7 @@
 
 import apn from 'apn';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 async function rescindPushNotifs(
@@ -16,7 +16,7 @@ async function rescindPushNotifs(
       AND rescinded = 0
   `;
   const [ [ fetchResult ], unreadCounts ] = await Promise.all([
-    pool.query(fetchQuery),
+    dbQuery(fetchQuery),
     getUnreadCounts([ userID ]),
   ]);
 
@@ -60,7 +60,7 @@ async function rescindPushNotifs(
     const rescindQuery = SQL`
       UPDATE notifications SET rescinded = 1 WHERE id IN (${rescindedIDs})
     `;
-    promises.push(pool.query(rescindQuery));
+    promises.push(dbQuery(rescindQuery));
   }
 
   await Promise.all(promises);

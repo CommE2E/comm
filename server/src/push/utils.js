@@ -3,7 +3,7 @@
 import apn from 'apn';
 import fcmAdmin from 'firebase-admin';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import apnConfig from '../../secrets/apn_config';
 import fcmConfig from '../../secrets/fcm_config';
 
@@ -134,7 +134,7 @@ async function getUnreadCounts(
     WHERE user IN (${userIDs}) AND unread = 1 AND role != 0
     GROUP BY user
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   const usersToUnreadCounts = {};
   for (let row of result) {
     usersToUnreadCounts[row.user.toString()] = row.unread_count;

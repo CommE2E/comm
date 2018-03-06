@@ -6,9 +6,9 @@ import type {
 } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function userSubscriptionUpdater(
   viewer: Viewer,
@@ -19,7 +19,7 @@ async function userSubscriptionUpdater(
     FROM memberships
     WHERE user = ${viewer.id} AND thread = ${update.threadID} AND role != 0
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('not_member');
   }
@@ -34,7 +34,7 @@ async function userSubscriptionUpdater(
     SET subscription = ${JSON.stringify(newSubscription)}
     WHERE user = ${viewer.id} AND thread = ${update.threadID}
   `;
-  await pool.query(saveQuery);
+  await dbQuery(saveQuery);
 
   return newSubscription;
 }

@@ -6,7 +6,7 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
 import { validateInput, tShape } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';

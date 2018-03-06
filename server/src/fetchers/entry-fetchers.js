@@ -14,9 +14,9 @@ import {
   assertVisibilityRules,
 } from 'lib/types/thread-types';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function fetchEntryInfos(
   viewer: Viewer,
@@ -51,7 +51,7 @@ async function fetchEntryInfos(
     query.append(deletedCondition);
   }
   query.append(SQL`ORDER BY e.creation_time DESC`);
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const rawEntryInfos = [];
   const userInfos = {};
@@ -92,7 +92,7 @@ async function checkThreadPermissionForEntry(
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
     WHERE e.id = ${entryID}
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   if (result.length === 0) {
     return false;
@@ -131,7 +131,7 @@ async function fetchEntryRevisionInfo(
     WHERE r.entry = ${entryID}
     ORDER BY r.last_update DESC
   `;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
 
   const revisions = [];
   for (let row of result) {

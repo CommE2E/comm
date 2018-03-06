@@ -5,10 +5,10 @@ import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 
 async function deleteThread(
@@ -29,7 +29,7 @@ async function deleteThread(
   }
 
   const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-  const [ result ] = await pool.query(hashQuery);
+  const [ result ] = await dbQuery(hashQuery);
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }
@@ -57,7 +57,7 @@ async function deleteThread(
     LEFT JOIN ids ino ON ino.id = n.id
     WHERE t.id = ${threadDeletionRequest.threadID}
   `;
-  await pool.query(query);
+  await dbQuery(query);
 }
 
 export {

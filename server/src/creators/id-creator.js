@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function createIDs(
   tableName: string,
@@ -14,7 +14,7 @@ async function createIDs(
 
   const idInserts = Array(numIDsToCreate).fill([tableName]);
   const query = SQL`INSERT INTO ids(table_name) VALUES ${idInserts}`;
-  const [ result ] = await pool.query(query);
+  const [ result ] = await dbQuery(query);
   const firstNewID = result.insertId;
   invariant(firstNewID !== null && firstNewID !== undefined, "should be set");
   return Array.from(

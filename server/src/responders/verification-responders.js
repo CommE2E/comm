@@ -8,12 +8,12 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 import { verifyField } from 'lib/types/verify-types';
 
 import { validateInput, tShape } from '../utils/validation-utils';
 import { handleCodeVerificationRequest } from '../models/verification';
-import { pool, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 
 const codeVerificationRequestInputValidator = tShape({
   code: t.String,

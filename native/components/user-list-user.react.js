@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
+    color: "black",
     paddingHorizontal: 12,
     paddingVertical: 6,
     fontSize: 16,

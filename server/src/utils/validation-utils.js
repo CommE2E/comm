@@ -2,7 +2,7 @@
 
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/fetch-utils';
+import { ServerError } from 'lib/utils/errors';
 
 function validateInput(inputValidator: *, input: *) {
   if (!inputValidator.is(input)) {
