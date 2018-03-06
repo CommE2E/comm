@@ -339,10 +339,12 @@ const styles = StyleSheet.create({
   joinButton: {
     marginHorizontal: 12,
     marginVertical: 3,
-    paddingVertical: 3,
+    paddingTop: 3,
+    paddingBottom: 5,
     flex: 1,
     backgroundColor: '#44CC99FF',
     borderRadius: 5,
+    justifyContent: 'center',
   },
   joinButtonText: {
     fontSize: 20,
