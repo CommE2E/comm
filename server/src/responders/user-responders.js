@@ -36,6 +36,7 @@ import {
   createNewAnonymousCookie,
   createNewUserCookie,
   deleteCookie,
+  deleteCookiesWithDeviceTokens,
 } from '../session/cookies';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
@@ -44,6 +45,7 @@ import { verifyThreadID } from '../fetchers/thread-fetchers';
 import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -104,10 +106,14 @@ async function logOutResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogOutResponse> {
+  const cookieID = viewer.getData().cookieID;
   if (viewer.loggedIn) {
+    const deviceTokens = await fetchDeviceTokensForCookie(cookieID);
     const [ anonymousViewerData ] = await Promise.all([
       createNewAnonymousCookie(),
-      deleteCookie(viewer.getData().cookieID),
+      deleteCookiesWithDeviceTokens(viewer.userID, deviceTokens),
+      // deleteCookiesWithDeviceTokens should delete it, but just in case...
+      deleteCookie(cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }

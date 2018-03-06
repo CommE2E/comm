@@ -4,6 +4,7 @@ import type { $Response, $Request } from 'express';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
+import type { DeviceTokens } from 'lib/types/device-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
@@ -11,7 +12,7 @@ import crypto from 'crypto';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { Viewer } from './viewer';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
@@ -283,6 +284,30 @@ async function deleteCookie(cookieID: string): Promise<void> {
   `);
 }
 
+async function deleteCookiesWithDeviceTokens(
+  userID: string,
+  deviceTokens: DeviceTokens,
+): Promise<void> {
+  const conditions = [];
+  if (deviceTokens.ios) {
+    conditions.push(SQL`ios_device_token = ${deviceTokens.ios}`);
+  }
+  if (deviceTokens.android) {
+    conditions.push(SQL`android_device_token = ${deviceTokens.android}`);
+  }
+  if (conditions.length === 0) {
+    return;
+  }
+  const query = SQL`
+    DELETE c, i
+    FROM cookies c
+    LEFT JOIN ids i ON i.id = c.id
+    WHERE c.user = ${userID} AND
+  `;
+  query.append(mergeOrConditions(conditions));
+  await dbQuery(query);
+}
+
 async function createNewUserCookie(userID: string): Promise<UserViewerData> {
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
@@ -359,6 +384,7 @@ export {
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,
   deleteCookie,
+  deleteCookiesWithDeviceTokens,
   createNewUserCookie,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
