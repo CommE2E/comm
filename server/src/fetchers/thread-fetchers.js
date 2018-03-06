@@ -97,7 +97,11 @@ async function fetchServerThreadInfos(
       // Basically we only want to return users that are either a member of this
       // thread, or are a "parent admin". We approximate "parent admin" by
       // looking for the PERMISSION_CHANGE_ROLE permission.
-      if (row.role || allPermissions[threadPermissions.CHANGE_ROLE].value) {
+      if (
+        userID === viewer.id ||
+        row.role ||
+        allPermissions[threadPermissions.CHANGE_ROLE].value
+      ) {
         threadInfos[threadID].members.push(member);
         if (row.username) {
           userInfos[userID] = {

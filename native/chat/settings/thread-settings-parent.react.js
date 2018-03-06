@@ -45,6 +45,16 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
           </Text>
         </Button>
       );
+    } else if (this.props.threadInfo.parentThreadID) {
+      parent = (
+        <Text style={[
+          styles.currentValue,
+          styles.currentValueText,
+          styles.noParent,
+        ]}>
+          Secret parent
+        </Text>
+      );
     } else {
       parent = (
         <Text style={[
@@ -101,6 +111,7 @@ const styles = StyleSheet.create({
   },
   noParent: {
     fontStyle: 'italic',
+    paddingLeft: 2,
   },
   parentThreadLink: {
     color: "#036AFF",

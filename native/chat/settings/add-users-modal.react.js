@@ -425,7 +425,6 @@ export default connect(
     const parentThreadID = ownProps.threadInfo.parentThreadID;
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, "parent thread should exist");
     }
     return {
       parentThreadInfo,

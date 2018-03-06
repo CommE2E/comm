@@ -134,7 +134,6 @@ async function threadCreationResponder(
 ): Promise<NewThreadResult> {
   const request: NewThreadRequest = input;
   validateInput(newThreadRequestInputValidator, request);
-  console.log(input);
   return await createThread(viewer, request);
 }
 
