@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -46,6 +47,7 @@ import EditSettingButton from '../components/edit-setting-button.react';
 import { EditEmailRouteName } from './edit-email.react';
 import { EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccountRouteName } from './delete-account.react';
+import { BuildInfoRouteName} from './build-info.react';
 
 const forceInset = { top: 'always', bottom: 'never' };
 
@@ -169,6 +171,22 @@ class InnerMoreScreen extends React.PureComponent<Props> {
           </View>
           <View style={styles.unpaddedSection}>
             <Button
+              onPress={this.onPressBuildInfo}
+              style={styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor="#EEEEEEDD"
+              onPress={this.onPressBuildInfo}
+            >
+              <Text style={styles.submenuText}>Build info</Text>
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color="#036AFF"
+              />
+            </Button>
+          </View>
+          <View style={styles.unpaddedSection}>
+            <Button
               onPress={this.onPressDeleteAccount}
               style={styles.deleteAccountButton}
               iosFormat="highlight"
@@ -257,6 +275,10 @@ class InnerMoreScreen extends React.PureComponent<Props> {
 
   onPressDeleteAccount = () => {
     this.props.navigation.navigate(DeleteAccountRouteName);
+  }
+
+  onPressBuildInfo = () => {
+    this.props.navigation.navigate(BuildInfoRouteName);
   }
 
 }
@@ -357,6 +379,15 @@ const styles = StyleSheet.create({
   deleteAccountText: {
     fontSize: 16,
     color: "#AA0000",
+    flex: 1,
+  },
+  submenuButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  submenuText: {
+    fontSize: 16,
     flex: 1,
   },
 });

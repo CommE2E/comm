@@ -62,9 +62,9 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
   };
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = {
     headerTitle: "Delete account",
-  });
+  };
   mounted = false;
   passwordInput: ?TextInput;
 

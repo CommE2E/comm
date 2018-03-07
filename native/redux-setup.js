@@ -11,10 +11,9 @@ import type { PersistState } from 'redux-persist/src/types';
 import React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
-import storage from 'redux-persist/lib/storage';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { persistStore, persistReducer, createMigrate } from 'redux-persist';
+import { persistStore, persistReducer } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions } from 'react-navigation';
 import {
@@ -38,7 +37,7 @@ import {
   clearAndroidNotificationActionType,
   reduceThreadIDsToNotifIDs,
 } from './push/android';
-import migrations from './redux-migrations';
+import { persistConfig } from './persist';
 import reduxLogger from './redux-logger';
 
 export type AppState = {|
@@ -83,19 +82,6 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   _persist: null,
 }: AppState);
-
-const blacklist = __DEV__
-  ? [
-      'sessionID',
-      'lastUserInteraction',
-      'loadingStatuses',
-    ]
-  : [
-      'sessionID',
-      'lastUserInteraction',
-      'loadingStatuses',
-      'navInfo',
-    ];
 
 function reducer(state: AppState = defaultState, action: *) {
   if (action.type === "crash") {
@@ -241,23 +227,12 @@ const reduxLoggerMiddleware = store => next => action => {
   return next(action);
 };
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  blacklist,
-  debug: __DEV__,
-  version: 0,
-  migrate: createMigrate(migrations, { debug: __DEV__ }),
-};
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   "root",
   (state: AppState) => state.navInfo.navigationState,
 );
 const store = createStore(
-  persistReducer(
-    persistConfig,
-    reducer,
-  ),
+  persistReducer(persistConfig, reducer),
   defaultState,
   composeWithDevTools(
     applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
@@ -268,5 +243,4 @@ const persistor = persistStore(store);
 export {
   store,
   persistor,
-  persistConfig,
 };
