@@ -2,7 +2,7 @@
 
 import type {
   NavigationState,
-  PossiblyDeprecatedNavigationAction,
+  NavigationAction,
   NavigationScreenProp,
 } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -116,8 +116,7 @@ registerConfig({
 
 const reactNavigationAddListener = createReduxBoundAddListener("root");
 
-type NativeDispatch = Dispatch
-  & ((action: PossiblyDeprecatedNavigationAction) => boolean);
+type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
 type Props = {
   // Redux state
