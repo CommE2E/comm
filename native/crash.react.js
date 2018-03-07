@@ -35,8 +35,8 @@ import {
 } from 'lib/actions/report-actions';
 
 import Button from './components/button.react';
-import { store, persistor } from './redux-setup';
-import { persistConfig, codeVersion } from './persist';
+import { store } from './redux-setup';
+import { persistConfig, codeVersion, getPersistor } from './persist';
 import reduxLogger from './redux-logger';
 
 const errorTitles = [
@@ -154,7 +154,7 @@ class Crash extends React.PureComponent<Props, State> {
   }
 
   onPressWipe = () => {
-    persistor.purge();
+    getPersistor().purge();
     ExitApp.exitApp();
   }
 

@@ -2,6 +2,7 @@
 
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
+import invariant from 'invariant';
 
 const blacklist = __DEV__
   ? [
@@ -35,7 +36,21 @@ const persistConfig = {
 
 const codeVersion = 0;
 
+// This local exists to avoid a circular dependency where redux-setup needs to
+// import all the navigation and screen stuff, but some of those screens want to
+// access the persistor to purge its state.
+let storedPersistor = null;
+function setPersistor(persistor: *) {
+  storedPersistor = persistor;
+}
+function getPersistor() {
+  invariant(storedPersistor, "should be set");
+  return storedPersistor;
+}
+
 export {
   persistConfig,
   codeVersion,
+  setPersistor,
+  getPersistor,
 };

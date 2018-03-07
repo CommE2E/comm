@@ -37,7 +37,7 @@ import {
   clearAndroidNotificationActionType,
   reduceThreadIDsToNotifIDs,
 } from './push/android';
-import { persistConfig } from './persist';
+import { persistConfig, setPersistor } from './persist';
 import reduxLogger from './redux-logger';
 
 export type AppState = {|
@@ -239,8 +239,8 @@ const store = createStore(
   ),
 );
 const persistor = persistStore(store);
+setPersistor(persistor);
 
 export {
   store,
-  persistor,
 };

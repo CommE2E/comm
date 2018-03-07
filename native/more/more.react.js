@@ -10,6 +10,7 @@ import { EditEmail, EditEmailRouteName } from './edit-email.react';
 import { EditPassword, EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccount, DeleteAccountRouteName } from './delete-account.react';
 import { BuildInfo, BuildInfoRouteName } from './build-info.react';
+import { DevTools, DevToolsRouteName } from './dev-tools.react';
 
 const More = StackNavigator(
   {
@@ -18,6 +19,7 @@ const More = StackNavigator(
     [EditPasswordRouteName]: { screen: EditPassword },
     [DeleteAccountRouteName]: { screen: DeleteAccount },
     [BuildInfoRouteName]: { screen: BuildInfo },
+    [DevToolsRouteName]: { screen: DevTools },
   },
   {
     navigationOptions: ({ navigation }) => ({

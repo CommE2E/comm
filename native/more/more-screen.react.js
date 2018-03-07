@@ -48,6 +48,7 @@ import { EditEmailRouteName } from './edit-email.react';
 import { EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccountRouteName } from './delete-account.react';
 import { BuildInfoRouteName} from './build-info.react';
+import { DevToolsRouteName} from './dev-tools.react';
 
 const forceInset = { top: 'always', bottom: 'never' };
 
@@ -169,15 +170,27 @@ class InnerMoreScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
-          <View style={styles.unpaddedSection}>
+          <View style={styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressBuildInfo}
               style={styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor="#EEEEEEDD"
-              onPress={this.onPressBuildInfo}
             >
               <Text style={styles.submenuText}>Build info</Text>
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color="#036AFF"
+              />
+            </Button>
+            <Button
+              onPress={this.onPressDevTools}
+              style={styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor="#EEEEEEDD"
+            >
+              <Text style={styles.submenuText}>Developer tools</Text>
               <Icon
                 name="ios-arrow-forward"
                 size={20}
@@ -281,6 +294,10 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     this.props.navigation.navigate(BuildInfoRouteName);
   }
 
+  onPressDevTools = () => {
+    this.props.navigation.navigate(DevToolsRouteName);
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -305,6 +322,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#CCCCCC",
     marginBottom: 24,
+  },
+  slightlyPaddedSection: {
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#CCCCCC",
+    marginBottom: 24,
+    paddingVertical: 6,
   },
   row: {
     flex: 1,
@@ -384,7 +409,7 @@ const styles = StyleSheet.create({
   submenuButton: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 6,
   },
   submenuText: {
     fontSize: 16,
