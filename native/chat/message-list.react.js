@@ -19,7 +19,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { TextToMeasure } from '../text-height-measurer.react';
 
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -37,10 +36,7 @@ import _find from 'lodash/fp/find';
 import _isEqual from 'lodash/fp/isEqual';
 
 import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
@@ -602,11 +598,9 @@ const MessageList = connect(
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
       threadInfo: threadInfoSelector(state)[threadID],
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ fetchMessagesBeforeCursor, fetchMostRecentMessages }),
+  { fetchMessagesBeforeCursor, fetchMostRecentMessages },
 )(InnerMessageList);
 
 export {

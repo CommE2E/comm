@@ -31,7 +31,6 @@ import {
   Easing,
   DeviceInfo,
 } from 'react-native';
-import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
@@ -39,10 +38,7 @@ import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   handleVerificationCodeActionTypes,
   handleVerificationCode,
@@ -507,11 +503,9 @@ const isForegroundSelector =
   createIsForegroundSelector(VerificationModalRouteName);
 const VerificationModal = connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     isForeground: isForegroundSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ handleVerificationCode }),
+  { handleVerificationCode },
 )(InnerVerificationModal);
 
 export {

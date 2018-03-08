@@ -19,14 +19,10 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   deleteAccountActionTypes,
   deleteAccount,
@@ -279,14 +275,12 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const DeleteAccountRouteName = 'DeleteAccount';
 const DeleteAccount = connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
       : undefined,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ deleteAccount }),
+  { deleteAccount },
 )(InnerDeleteAccount);
 
 export {

@@ -15,7 +15,6 @@ import {
   View,
   Text,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -26,10 +25,7 @@ import {
   resetPasswordActionTypes,
   resetPasswordAndFetchInitialData,
 } from 'lib/actions/user-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import { TextInput } from './modal-components.react';
@@ -276,10 +272,8 @@ const loadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ resetPasswordAndFetchInitialData }),
+  { resetPasswordAndFetchInitialData },
 )(ResetPasswordPanel);

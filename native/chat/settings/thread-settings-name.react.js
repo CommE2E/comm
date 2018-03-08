@@ -20,14 +20,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -240,8 +236,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ changeThreadSettings }),
+  { changeThreadSettings },
 )(ThreadSettingsName);

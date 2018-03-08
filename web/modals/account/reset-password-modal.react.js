@@ -6,13 +6,9 @@ import type { LogInResult } from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   resetPasswordActionTypes,
   resetPassword,
@@ -210,8 +206,6 @@ export default connect(
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
     inputDisabled: loadingStatusSelector(state) === "loading",
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ resetPassword }),
+  { resetPassword },
 )(ResetPasswordModal);

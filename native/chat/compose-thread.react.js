@@ -30,16 +30,12 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   newThreadActionTypes,
   newThread,
@@ -567,11 +563,9 @@ const ComposeThread = connect(
       otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ newThread, searchUsers }),
+  { newThread, searchUsers },
 )(InnerComposeThread);
 
 export {

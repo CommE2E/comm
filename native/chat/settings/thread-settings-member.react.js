@@ -25,15 +25,11 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   removeUsersFromThreadActionTypes,
   removeUsersFromThread,
@@ -345,8 +341,6 @@ export default connect(
       changeThreadMemberRolesActionTypes,
       `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
     )(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ removeUsersFromThread, changeThreadMemberRoles }),
+  { removeUsersFromThread, changeThreadMemberRoles },
 )(ThreadSettingsMember);

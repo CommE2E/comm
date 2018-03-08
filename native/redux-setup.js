@@ -110,6 +110,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };
@@ -132,6 +133,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
         state.threadIDsToNotifIDs,
         action.payload,
@@ -183,6 +185,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };
@@ -216,6 +219,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };

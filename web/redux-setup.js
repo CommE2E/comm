@@ -44,6 +44,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
+  urlPrefix: string,
   typeaheadRecommendedThreads: ?$ReadOnlyArray<string>,
   windowDimensions: WindowDimensions,
 |};
@@ -83,6 +84,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
       windowDimensions: state.windowDimensions,
     };
@@ -103,6 +105,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       typeaheadRecommendedThreads: action.payload,
       windowDimensions: state.windowDimensions,
     };
@@ -123,6 +126,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
       windowDimensions: action.payload,
     };
@@ -149,6 +153,7 @@ export function reducer(state: AppState, action: Action) {
       loadingStatuses: state.loadingStatuses,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
       windowDimensions: state.windowDimensions,
     };

@@ -3,24 +3,38 @@
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 
+const productionServer = "https://squadcal.org";
+const localhostServer = "http://localhost/squadcal";
+const localhostServerFromAndroidEmulator = "http://10.0.2.2/squadcal";
+const natServer = "http://192.168.1.4/squadcal";
+
 function defaultURLPrefix() {
   if (!__DEV__) {
-    return "https://squadcal.org/";
+    return productionServer;
   } else if (Platform.OS === "android") {
-    // This is a magic IP address that forwards to the emulator's host
-    return "http://10.0.2.2/squadcal/";
+    return localhostServerFromAndroidEmulator;
     // Uncomment below and update IP address if testing on physical device
-    //return "http://192.168.1.4/squadcal/";
+    //return natServer;
   } else if (Platform.OS === "ios") {
-    // Since iOS is simulated and not emulated, we can use localhost
-    return "http://localhost/squadcal/";
+    return localhostServer;
     // Uncomment below and update IP address if testing on physical device
-    //return "http://192.168.1.4/squadcal/";
+    //return natServer;
   } else {
     invariant(false, "unsupported platform");
   }
 }
 
+const serverOptions = [
+  productionServer,
+  natServer,
+];
+if (Platform.OS === "android") {
+  serverOptions.push(localhostServerFromAndroidEmulator);
+} else {
+  serverOptions.push(localhostServer);
+}
+
 export {
   defaultURLPrefix,
+  serverOptions,
 }

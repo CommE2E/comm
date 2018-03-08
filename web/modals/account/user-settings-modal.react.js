@@ -12,7 +12,6 @@ import type {
 import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { validEmailRegex } from 'lib/shared/account-regexes';
@@ -24,10 +23,7 @@ import {
   resendVerificationEmailActionTypes,
   resendVerificationEmail,
 } from 'lib/actions/user-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import css from '../../style.css';
@@ -500,12 +496,10 @@ export default connect(
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({
+  {
     deleteAccount,
     changeUserSettings,
     resendVerificationEmail,
-  }),
+  },
 )(UserSettingsModal);

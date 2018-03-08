@@ -23,7 +23,7 @@ import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
 
 import React from 'react';
-import { Provider, connect } from 'react-redux';
+import { Provider } from 'react-redux';
 import {
   AppRegistry,
   Platform,
@@ -44,10 +44,7 @@ import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
 
 import { registerConfig } from 'lib/utils/config';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
@@ -653,7 +650,6 @@ const ConnectedAppWithNavigationState = connect(
   (state: AppState) => {
     const activeThread = activeThreadSelector(state);
     return {
-      cookie: state.cookie,
       navigationState: state.navInfo.navigationState,
       pingStartingPayload: pingNativeStartingPayload(state),
       currentAsOf: state.currentAsOf,
@@ -668,8 +664,7 @@ const ConnectedAppWithNavigationState = connect(
       rawThreadInfos: state.threadInfos,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ ping, updateActivity, setDeviceToken }),
+  { ping, updateActivity, setDeviceToken },
 )(AppWithNavigationState);
 
 const App = (props: {}) =>

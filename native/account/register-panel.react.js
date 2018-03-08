@@ -15,15 +15,11 @@ import {
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -410,9 +406,7 @@ const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
 export default connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ register }),
+  { register },
 )(RegisterPanel);

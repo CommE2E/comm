@@ -5,17 +5,13 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import invariant from 'invariant';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   forgotPasswordActionTypes,
   forgotPassword,
@@ -178,8 +174,6 @@ const loadingStatusSelector
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ forgotPassword }),
+  { forgotPassword },
 )(ForgotPasswordModal);

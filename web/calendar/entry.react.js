@@ -20,15 +20,11 @@ import type {
 import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   createEntryActionTypes,
   createEntry,
@@ -491,8 +487,6 @@ export default connect(
     sessionStartingPayload: sessionStartingPayload(state),
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ createEntry, saveEntry, deleteEntry }),
+  { createEntry, saveEntry, deleteEntry },
 )(Entry);

@@ -20,14 +20,10 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   changeUserSettingsActionTypes,
   changeUserSettings,
@@ -347,14 +343,12 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const EditEmailRouteName = 'EditEmail';
 const EditEmail = connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     email: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.email
       : undefined,
     loadingStatus: loadingStatusSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ changeUserSettings }),
+  { changeUserSettings },
 )(InnerEditEmail);
 
 export {

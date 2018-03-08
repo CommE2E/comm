@@ -11,7 +11,6 @@ import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
-import { connect } from 'react-redux';
 import _flow from 'lodash/fp/flow';
 import _unionBy from 'lodash/fp/unionBy';
 import _map from 'lodash/fp/map';
@@ -28,10 +27,7 @@ import {
 } from 'lib/actions/entry-actions';
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { allDaysToEntries } from '../../selectors/entry-selectors';
 
 import css from '../../style.css';
@@ -275,8 +271,6 @@ export default connect(
     entryInfos: allDaysToEntries(state)[ownProps.dayString],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ fetchEntries, fetchRevisionsForEntry }),
+  { fetchEntries, fetchRevisionsForEntry },
 )(HistoryModal);

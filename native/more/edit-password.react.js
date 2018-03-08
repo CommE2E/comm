@@ -20,14 +20,10 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   changeUserSettingsActionTypes,
   changeUserSettings,
@@ -414,11 +410,9 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const EditPasswordRouteName = 'EditPassword';
 const EditPassword = connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ changeUserSettings }),
+  { changeUserSettings },
 )(InnerEditPassword);
 
 export {

@@ -22,13 +22,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import _shuffle from 'lodash/fp/shuffle';
 import ExitApp from 'react-native-exit-app';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   sendErrorReportActionTypes,
   sendErrorReport,
@@ -232,9 +228,6 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState) => ({
-    cookie: state.cookie,
-  }),
-  includeDispatchActionProps,
-  bindServerCalls({ sendErrorReport }),
+  undefined,
+  { sendErrorReport },
 )(Crash);

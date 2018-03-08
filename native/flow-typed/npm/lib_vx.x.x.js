@@ -1,4 +1,4 @@
-// flow-typed signature: 5cf4e8d952395adddff5a9aa3c04488b
+// flow-typed signature: 839814b73a340d4052f68e85b191d326
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.61.0
 
 /**
@@ -35,6 +35,10 @@ declare module 'lib/actions/message-actions' {
 }
 
 declare module 'lib/actions/ping-actions' {
+  declare module.exports: any;
+}
+
+declare module 'lib/actions/report-actions' {
   declare module.exports: any;
 }
 
@@ -270,6 +274,10 @@ declare module 'lib/types/redux-types' {
   declare module.exports: any;
 }
 
+declare module 'lib/types/report-types' {
+  declare module.exports: any;
+}
+
 declare module 'lib/types/search-types' {
   declare module.exports: any;
 }
@@ -302,11 +310,11 @@ declare module 'lib/utils/date-utils' {
   declare module.exports: any;
 }
 
-declare module 'lib/utils/fetch-json' {
+declare module 'lib/utils/errors' {
   declare module.exports: any;
 }
 
-declare module 'lib/utils/fetch-utils' {
+declare module 'lib/utils/fetch-json' {
   declare module.exports: any;
 }
 
@@ -315,6 +323,10 @@ declare module 'lib/utils/local-ids' {
 }
 
 declare module 'lib/utils/promises' {
+  declare module.exports: any;
+}
+
+declare module 'lib/utils/redux-utils' {
   declare module.exports: any;
 }
 
@@ -342,6 +354,9 @@ declare module 'lib/actions/message-actions.js' {
 }
 declare module 'lib/actions/ping-actions.js' {
   declare module.exports: $Exports<'lib/actions/ping-actions'>;
+}
+declare module 'lib/actions/report-actions.js' {
+  declare module.exports: $Exports<'lib/actions/report-actions'>;
 }
 declare module 'lib/actions/thread-actions.js' {
   declare module.exports: $Exports<'lib/actions/thread-actions'>;
@@ -517,6 +532,9 @@ declare module 'lib/types/ping-types.js' {
 declare module 'lib/types/redux-types.js' {
   declare module.exports: $Exports<'lib/types/redux-types'>;
 }
+declare module 'lib/types/report-types.js' {
+  declare module.exports: $Exports<'lib/types/report-types'>;
+}
 declare module 'lib/types/search-types.js' {
   declare module.exports: $Exports<'lib/types/search-types'>;
 }
@@ -541,17 +559,20 @@ declare module 'lib/utils/config.js' {
 declare module 'lib/utils/date-utils.js' {
   declare module.exports: $Exports<'lib/utils/date-utils'>;
 }
+declare module 'lib/utils/errors.js' {
+  declare module.exports: $Exports<'lib/utils/errors'>;
+}
 declare module 'lib/utils/fetch-json.js' {
   declare module.exports: $Exports<'lib/utils/fetch-json'>;
-}
-declare module 'lib/utils/fetch-utils.js' {
-  declare module.exports: $Exports<'lib/utils/fetch-utils'>;
 }
 declare module 'lib/utils/local-ids.js' {
   declare module.exports: $Exports<'lib/utils/local-ids'>;
 }
 declare module 'lib/utils/promises.js' {
   declare module.exports: $Exports<'lib/utils/promises'>;
+}
+declare module 'lib/utils/redux-utils.js' {
+  declare module.exports: $Exports<'lib/utils/redux-utils'>;
 }
 declare module 'lib/utils/sleep.js' {
   declare module.exports: $Exports<'lib/utils/sleep'>;

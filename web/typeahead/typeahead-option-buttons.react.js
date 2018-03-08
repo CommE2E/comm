@@ -15,7 +15,6 @@ import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
 import PropTypes from 'prop-types';
 
 import * as React from 'react';
-import { connect } from 'react-redux';
 
 import {
   currentNavID,
@@ -35,10 +34,7 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 import { visibilityRules } from 'lib/types/thread-types';
@@ -261,8 +257,6 @@ export default connect(
     otherUsersButNoOtherAdmins:
       otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
     currentCalendarQuery: currentCalendarQuery(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ joinThread, leaveThread, fetchEntries }),
+  { joinThread, leaveThread, fetchEntries },
 )(TypeaheadOptionButtons);

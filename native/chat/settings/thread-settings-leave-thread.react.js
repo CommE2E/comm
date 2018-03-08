@@ -18,13 +18,9 @@ import {
   ActivityIndicator,
   View,
 } from 'react-native';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   leaveThreadActionTypes,
   leaveThread,
@@ -138,8 +134,6 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
     otherUsersButNoOtherAdmins:
       otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ leaveThread }),
+  { leaveThread },
 )(ThreadSettingsLeaveThread);

@@ -15,13 +15,9 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   deleteThreadActionTypes,
   deleteThread,
@@ -707,8 +703,6 @@ export default connect(
   (state: AppState) => ({
     inputDisabled: deleteThreadLoadingStatusSelector(state) === "loading" ||
       changeThreadSettingsLoadingStatusSelector(state) === "loading",
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ deleteThread, changeThreadSettings }),
+  { deleteThread, changeThreadSettings },
 )(ThreadSettingsModal);

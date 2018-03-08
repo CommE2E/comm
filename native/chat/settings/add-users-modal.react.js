@@ -27,7 +27,6 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
@@ -37,10 +36,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { getUserSearchResults } from 'lib/shared/search-utils';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -432,9 +428,7 @@ export default connect(
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       changeThreadSettingsLoadingStatus:
         changeThreadSettingsLoadingStatusSelector(state),
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ changeThreadSettings, searchUsers }),
+  { changeThreadSettings, searchUsers },
 )(AddUsersModal);

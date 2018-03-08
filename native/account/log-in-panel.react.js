@@ -15,7 +15,6 @@ import {
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
@@ -24,10 +23,7 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   logInActionTypes,
   logInAndFetchInitialData,
@@ -324,10 +320,8 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
 export default connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ logInAndFetchInitialData }),
+  { logInAndFetchInitialData },
 )(LogInPanel);

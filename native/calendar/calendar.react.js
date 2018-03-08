@@ -30,7 +30,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
@@ -50,10 +49,7 @@ import {
   fetchEntriesAndAppendRangeActionTypes,
   fetchEntriesWithRange,
 } from 'lib/actions/entry-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { simpleNavID } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
@@ -1058,10 +1054,8 @@ const Calendar = connect(
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     simpleNavID: simpleNavID(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ fetchEntriesWithRange }),
+  { fetchEntriesWithRange },
 )(InnerCalendar);
 
 export {

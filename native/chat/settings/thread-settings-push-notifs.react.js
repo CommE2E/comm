@@ -12,13 +12,9 @@ import type {
 import React from 'react';
 import { Text, StyleSheet, View, Switch } from 'react-native';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 import { visibilityRules } from 'lib/types/thread-types';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   updateSubscriptionActionTypes,
   updateSubscription,
@@ -104,9 +100,6 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState) => ({
-    cookie: state.cookie,
-  }),
-  includeDispatchActionProps,
-  bindServerCalls({ updateSubscription }),
+  undefined,
+  { updateSubscription },
 )(ThreadSettingsPushNotifs);

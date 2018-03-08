@@ -19,17 +19,13 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   logOutActionTypes,
   logOut,
@@ -425,7 +421,6 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
 const MoreScreenRouteName = 'MoreScreen';
 const MoreScreen = connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
       : undefined,
@@ -439,8 +434,7 @@ const MoreScreen = connect(
     resendVerificationLoadingStatus:
       resendVerificationLoadingStatusSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ logOut, resendVerificationEmail }),
+  { logOut, resendVerificationEmail },
 )(InnerMoreScreen);
 
 export {

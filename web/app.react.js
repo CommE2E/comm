@@ -14,7 +14,6 @@ import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
 import * as React from 'react';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
@@ -30,10 +29,7 @@ import {
   fetchEntries,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { pingStartingPayload } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency } from 'lib/shared/ping-utils';
@@ -346,8 +342,6 @@ export default connect(
     currentCalendarQuery: currentCalendarQuery(state),
     pingStartingPayload: pingStartingPayload(state),
     currentAsOf: state.currentAsOf,
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ fetchEntries, ping }),
+  { fetchEntries, ping },
 )(App);

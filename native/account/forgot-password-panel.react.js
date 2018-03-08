@@ -6,7 +6,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
-import { connect } from 'react-redux';
 import {
   StyleSheet,
   View,
@@ -23,10 +22,7 @@ import {
   forgotPasswordActionTypes,
   forgotPassword,
 } from 'lib/actions/user-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   validUsernameRegex,
   validEmailRegex,
@@ -186,9 +182,7 @@ const loadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    cookie: state.cookie,
     loadingStatus: loadingStatusSelector(state),
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ forgotPassword }),
+  { forgotPassword },
 )(ForgotPasswordPanel);

@@ -6,17 +6,13 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { LogOutResult } from 'lib/types/account-types';
 
 import * as React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { currentNavID } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -209,8 +205,6 @@ export default connect(
       ? state.currentUserInfo.username
       : undefined,
     currentNavID: currentNavID(state),
-    cookie: state.cookie,
   }),
-  includeDispatchActionProps,
-  bindServerCalls({ logOut }),
+  { logOut },
 )(AccountBar);

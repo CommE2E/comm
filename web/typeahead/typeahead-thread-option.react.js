@@ -17,7 +17,6 @@ import type {
 import * as React from 'react';
 import classNames from 'classnames';
 import TextTruncate from 'react-text-truncate';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
@@ -28,10 +27,7 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import css from '../style.css';
@@ -342,9 +338,7 @@ export default connect(
         `${joinThreadActionTypes.started}:${id}`,
       )(state),
       navInfo: state.navInfo,
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ joinThread }),
+  { joinThread },
 )(TypeaheadThreadOption);

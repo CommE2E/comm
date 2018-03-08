@@ -31,7 +31,6 @@ import {
   Keyboard,
   InteractionManager,
 } from 'react-native';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import shallowequal from 'shallowequal';
@@ -56,10 +55,7 @@ import {
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import { ServerError } from 'lib/utils/errors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -713,11 +709,9 @@ const Entry = connect(
       sessionID: currentSessionID(state),
       nextSessionID: nextSessionID(state),
       currentChatThreadID,
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ createEntry, saveEntry, deleteEntry }),
+  { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);
 
 export {

@@ -1,48 +1,56 @@
 // @flow
 
+import type { AppState } from '../redux-setup';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
 
-import { registerConfig, getConfig } from 'lib/utils/config';
+import { connect } from 'lib/utils/redux-utils';
+import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import { getPersistor } from '../persist';
+import { serverOptions } from '../utils/url-utils';
 
 type Props = {|
+  // Redux state
+  urlPrefix: string,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
 |};
-class DevTools extends React.PureComponent<Props> {
+class InnerDevTools extends React.PureComponent<Props> {
 
+  static propTypes = {
+    urlPrefix: PropTypes.string.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+  };
   static navigationOptions = {
     headerTitle: "Developer tools",
   };
 
   render() {
-    const iconName = "md-checkmark";
-    const serverOptions = [
-      "https://squadcal.org",
-      "http://192.168.1.4/squadcal",
-    ];
-    if (Platform.OS === "android") {
-      serverOptions.push("http://10.0.2.2/squadcal");
-    } else {
-      serverOptions.push("http://localhost/squadcal");
-    }
-    const currentPrefix = getConfig().urlPrefix;
-    const serverButtons = serverOptions.map(server => {
+    let firstServerButtonProcessed = false;
+    const serverButtons = [];
+    for (let server of serverOptions) {
       let icon = null;
-      if (server === currentPrefix) {
+      if (server === this.props.urlPrefix) {
         icon = (
           <Icon
-            name={iconName}
+            name="md-checkmark"
             size={20}
             color="#036AFF"
             style={styles.icon}
           />
         );
       }
-      return (
+      if (firstServerButtonProcessed) {
+        serverButtons.push(<View style={styles.hr} key={`hr${server}`} />);
+      }
+      serverButtons.push(
         <Button
           onPress={() => this.onSelectServer(server)}
           style={styles.row}
@@ -54,7 +62,9 @@ class DevTools extends React.PureComponent<Props> {
           {icon}
         </Button>
       );
-    });
+      firstServerButtonProcessed = true;
+    }
+
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.slightlyPaddedSection}>
@@ -107,7 +117,7 @@ class DevTools extends React.PureComponent<Props> {
   }
 
   onSelectServer = (server: string) => {
-    registerConfig({ urlPrefix: server });
+    this.props.dispatchActionPayload(setURLPrefix, server);
   }
 
 }
@@ -157,6 +167,13 @@ const styles = StyleSheet.create({
 });
 
 const DevToolsRouteName = 'DevTools';
+const DevTools = connect(
+  (state: AppState) => ({
+    urlPrefix: state.urlPrefix,
+  }),
+  null,
+  true,
+)(InnerDevTools);
 
 export {
   DevTools,

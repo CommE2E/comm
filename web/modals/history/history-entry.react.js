@@ -14,7 +14,6 @@ import type { CurrentUserInfo } from 'lib/types/user-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
@@ -24,10 +23,7 @@ import {
   restoreEntry,
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   currentSessionID,
   sessionStartingPayload,
@@ -182,9 +178,7 @@ export default connect(
         `${restoreEntryActionTypes.started}:${entryID}`,
       )(state),
       sessionStartingPayload: sessionStartingPayload(state),
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ restoreEntry }),
+  { restoreEntry },
 )(HistoryEntry);

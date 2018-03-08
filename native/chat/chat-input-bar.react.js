@@ -30,14 +30,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
-import {
-  includeDispatchActionProps,
-  bindServerCalls,
-} from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import {
   sendMessageActionTypes,
   sendMessage,
@@ -369,9 +365,7 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-      cookie: state.cookie,
     };
   },
-  includeDispatchActionProps,
-  bindServerCalls({ sendMessage, joinThread }),
+  { sendMessage, joinThread },
 )(ChatInputBar);
