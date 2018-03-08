@@ -7473,9 +7473,9 @@ react-navigation-redux-helpers@^1.0.3:
   dependencies:
     invariant "^2.2.2"
 
-react-navigation@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-1.1.2.tgz#6e041b8a3cd0f5266072df0b52a55117892875f2"
+react-navigation@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-1.5.0.tgz#0dbef16a086d8fcdbcf44147e0c77fa53121648e"
   dependencies:
     clamp "^1.0.1"
     hoist-non-react-statics "^2.2.0"

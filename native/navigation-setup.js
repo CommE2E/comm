@@ -111,6 +111,7 @@ const AppNavigator = TabNavigator(
   },
   {
     initialRouteName: CalendarRouteName,
+    lazy: false,
   },
 );
 type WrappedAppNavigatorProps = {|
