@@ -65,6 +65,7 @@ type Props = {
   // Redux state
   rehydrateConcluded: bool,
   cookie: ?string,
+  urlPrefix: string,
   loggedIn: bool,
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
@@ -106,6 +107,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     }).isRequired,
     rehydrateConcluded: PropTypes.bool.isRequired,
     cookie: PropTypes.string,
+    urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
@@ -203,6 +205,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   // Not when it is returned from being backgrounded
   async onInitialAppLoad(nextProps: Props) {
     let cookie = nextProps.cookie;
+    const urlPrefix = nextProps.urlPrefix;
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.setState({ mode: "prompt" });
@@ -223,6 +226,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         nextProps.dispatch,
         cookie,
         appStartNativeCredentialsAutoLogIn,
+        urlPrefix,
       );
       if (!newCookie || !newCookie.startsWith("user=")) {
         showPrompt();
@@ -235,7 +239,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       if (cookie && cookie.startsWith("user=")) {
         nextProps.dispatchActionPayload(navigateToAppActionType, null);
         // Send out a ping to check if our cookie is invalidated
-        InnerLoggedOutModal.dispatchPing(nextProps, cookie, () => {});
+        InnerLoggedOutModal.dispatchPing(nextProps, cookie, urlPrefix);
         return;
       }
       // This is an unusual error state that should never happen
@@ -243,6 +247,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         nextProps.dispatch,
         cookie,
         appStartReduxLoggedInButInvalidCookie,
+        urlPrefix,
       );
       if (newCookie && newCookie.startsWith("user=")) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
@@ -258,21 +263,21 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
-    InnerLoggedOutModal.dispatchPing(nextProps, cookie, showPrompt);
+    InnerLoggedOutModal.dispatchPing(nextProps, cookie, urlPrefix);
   }
 
-  static dispatchPing(props: Props, cookie: ?string, callback: () => void) {
+  static dispatchPing(props: Props, cookie: ?string, urlPrefix: string) {
     const boundPing = bindCookieAndUtilsIntoServerCall(
       ping,
       props.dispatch,
       cookie,
+      urlPrefix,
     );
     const startingPayload = props.pingStartingPayload();
     props.dispatchActionPromise(
       pingActionTypes,
       InnerLoggedOutModal.pingAction(
         boundPing,
-        callback,
         startingPayload,
         props.currentAsOf,
       ),
@@ -284,21 +289,16 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   static async pingAction(
     ping:
       (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
-    callback: () => void,
     startingPayload: PingStartingPayload,
     lastPing: number,
   ) {
     try {
       const result = await ping(startingPayload.calendarQuery, lastPing);
-      if (!result.userInfo) {
-        callback();
-      }
       return {
         ...result,
         loggedIn: startingPayload.loggedIn,
       };
     } catch (e) {
-      callback();
       throw e;
     }
   }
@@ -735,6 +735,7 @@ const LoggedOutModal = connect(
   (state: AppState) => ({
     rehydrateConcluded: state._persist && state._persist.rehydrated,
     cookie: state.cookie,
+    urlPrefix: state.urlPrefix,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),

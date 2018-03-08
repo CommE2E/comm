@@ -42,8 +42,6 @@ import App from './app.react';
 import history from './router-history';
 
 registerConfig({
-  // We can use paths local to the <base href> on web
-  urlPrefix: "",
   // We can't securely cache credentials on web, so we have no way to recover
   // from a cookie invalidation
   resolveInvalidatedCookie: null,

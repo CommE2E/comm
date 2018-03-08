@@ -39,6 +39,7 @@ import {
 } from './push/android';
 import { persistConfig, setPersistor } from './persist';
 import reduxLogger from './redux-logger';
+import { defaultURLPrefix } from './utils/url-utils';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -54,6 +55,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   cookie: ?string,
   deviceToken: ?string,
+  urlPrefix: string,
   threadIDsToNotifIDs: {[threadID: string]: string[]},
   _persist: ?PersistState,
 |};
@@ -79,6 +81,7 @@ const defaultState = ({
   loadingStatuses: {},
   cookie: null,
   deviceToken: null,
+  urlPrefix: defaultURLPrefix(),
   threadIDsToNotifIDs: {},
   _persist: null,
 }: AppState);

@@ -121,6 +121,8 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       loadingStatuses: {},
       cookie: undefined,
       deviceToken: null,
+      // We can use paths local to the <base href> on web
+      urlPrefix: "",
       typeaheadRecommendedThreads: null,
       windowDimensions: { width: 0, height: 0 },
     }: AppState),

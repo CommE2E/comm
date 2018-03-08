@@ -552,10 +552,10 @@ function setCookie(dispatch, currentCookie, newCookie, response) {
   }
 }
 
-async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source) {
+async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, urlPrefix) {
   let newValidCookie = null;
   let fetchJSONCallback = null;
-  const boundFetchJSON = async (url, data) => {
+  const boundFetchJSON = async (endpoint, data) => {
     const innerBoundSetCookie = (newCookie, response) => {
       if (newCookie !== cookie) {
         newValidCookie = newCookie;
@@ -563,7 +563,7 @@ async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source) {
       setCookie(dispatch, cookie, newCookie, response);
     };
     try {
-      const result = await Object(__WEBPACK_IMPORTED_MODULE_2__fetch_json__["a" /* default */])(cookie, innerBoundSetCookie, () => new Promise(r => r(null)), someCookie => new Promise(r => r(null)), url, data);
+      const result = await Object(__WEBPACK_IMPORTED_MODULE_2__fetch_json__["a" /* default */])(cookie, innerBoundSetCookie, () => new Promise(r => r(null)), someCookie => new Promise(r => r(null)), urlPrefix, endpoint, data);
       if (fetchJSONCallback) {
         fetchJSONCallback(newValidCookie);
       }
@@ -588,7 +588,7 @@ async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source) {
 
 // Third param is optional and gets called with newCookie if we get a new cookie
 // Necessary to propagate cookie in cookieInvalidationRecovery below
-function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie) {
+function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix) {
   const boundSetCookie = (newCookie, response) => {
     setCookie(dispatch, cookie, newCookie, response);
   };
@@ -609,13 +609,13 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie) {
   };
   // This function is a helper for the next function defined below
   const attemptToResolveInvalidation = async newAnonymousCookie => {
-    const newValidCookie = await fetchNewCookieFromNativeCredentials(dispatch, newAnonymousCookie, __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["c" /* cookieInvalidationResolutionAttempt */]);
+    const newValidCookie = await fetchNewCookieFromNativeCredentials(dispatch, newAnonymousCookie, __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["c" /* cookieInvalidationResolutionAttempt */], urlPrefix);
 
     currentlyWaitingForNewCookie = false;
     const currentWaitingCalls = fetchJSONCallsWaitingForNewCookie;
     fetchJSONCallsWaitingForNewCookie = [];
 
-    const newFetchJSON = newValidCookie ? bindCookieAndUtilsIntoFetchJSON(dispatch, newValidCookie) : null;
+    const newFetchJSON = newValidCookie ? bindCookieAndUtilsIntoFetchJSON(dispatch, newValidCookie, urlPrefix) : null;
     for (const func of currentWaitingCalls) {
       func(newFetchJSON);
     }
@@ -637,8 +637,8 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie) {
     return attemptToResolveInvalidation(newAnonymousCookie);
   };
 
-  return async (url, data) => {
-    return await Object(__WEBPACK_IMPORTED_MODULE_2__fetch_json__["a" /* default */])(cookie, boundSetCookie, waitIfCookieInvalidated, cookieInvalidationRecovery, url, data);
+  return async (endpoint, data) => {
+    return await Object(__WEBPACK_IMPORTED_MODULE_2__fetch_json__["a" /* default */])(cookie, boundSetCookie, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, data);
   };
 }
 
@@ -650,8 +650,8 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie) {
 // onto fetchJSON within react-redux's connect's mapStateToProps function, and
 // then pass that "bound" fetchJSON that no longer needs the cookie as a
 // parameter on to the server call.
-function bindCookieAndUtilsIntoServerCall(actionFunc, dispatch, cookie) {
-  const boundFetchJSON = bindCookieAndUtilsIntoFetchJSON(dispatch, cookie);
+function bindCookieAndUtilsIntoServerCall(actionFunc, dispatch, cookie, urlPrefix) {
+  const boundFetchJSON = bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix);
   return async (...rest) => {
     return await actionFunc(boundFetchJSON, ...rest);
   };
@@ -661,8 +661,8 @@ function bindServerCalls(serverCalls) {
   return (stateProps, dispatchProps, ownProps) => {
     const dispatch = dispatchProps.dispatch;
     __WEBPACK_IMPORTED_MODULE_0_invariant___default()(dispatch, "should be defined");
-    const { cookie } = stateProps;
-    const boundServerCalls = __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default()(serverCall => bindCookieAndUtilsIntoServerCall(serverCall, dispatch, cookie))(serverCalls);
+    const { cookie, urlPrefix } = stateProps;
+    const boundServerCalls = __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default()(serverCall => bindCookieAndUtilsIntoServerCall(serverCall, dispatch, cookie, urlPrefix))(serverCalls);
     return _extends({}, ownProps, stateProps, dispatchProps, boundServerCalls);
   };
 }
@@ -5663,13 +5663,15 @@ function kindOf(val) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return getConfig; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 
 
 
 let registeredConfig = null;
 
 const registerConfig = config => {
-  registeredConfig = config;
+  registeredConfig = _extends({}, registeredConfig, config);
 };
 
 const getConfig = () => {
@@ -34295,7 +34297,7 @@ module.exports = baseValues;
 // underlying implementations and prefer for things to be explicit, and XSS
 // isn't a thing on native. Note that for native, cookie might be null
 // (indicating we don't have one), and we will then set an empty Cookie header.
-async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, cookieInvalidationRecovery, endpoint, input) {
+async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, input) {
   const possibleReplacement = await waitIfCookieInvalidated();
   if (possibleReplacement) {
     return await possibleReplacement(endpoint, input);
@@ -34303,7 +34305,7 @@ async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, coo
 
   const definedCookie = cookie ? cookie : null;
   const mergedData = Object(__WEBPACK_IMPORTED_MODULE_5__config__["a" /* getConfig */])().setCookieOnRequest ? { input, cookie: definedCookie } : { input };
-  const url = Object(__WEBPACK_IMPORTED_MODULE_5__config__["a" /* getConfig */])().urlPrefix + endpoint;
+  const url = `${urlPrefix}/${endpoint}`;
   const fetchPromise = fetch(url, {
     // Flow gets confused by some enum type, so we need this cast
     'method': 'POST',
