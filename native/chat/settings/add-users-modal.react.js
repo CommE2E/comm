@@ -21,8 +21,6 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  Platform,
-  KeyboardAvoidingView,
   Text,
   ActivityIndicator,
   Alert,
@@ -53,7 +51,8 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
-import { iosKeyboardOffset } from '../../dimensions';
+import KeyboardAvoidingModal
+  from '../../components/keyboard-avoiding-modal.react';
 
 const tagInputProps = {
   placeholder: "Select users to add",
@@ -209,8 +208,11 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       );
     }
 
-    const content = (
-      <View style={styles.modal}>
+    return (
+      <KeyboardAvoidingModal
+        containerStyle={styles.container}
+        style={styles.modal}
+      >
         <TagInput
           value={this.state.userInfoInputArray}
           onChange={this.onChangeTagInput}
@@ -230,19 +232,8 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           {cancelButton}
           {addButton}
         </View>
-      </View>
+      </KeyboardAvoidingModal>
     );
-    if (Platform.OS === "ios") {
-      return (
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior="padding"
-          keyboardVerticalOffset={iosKeyboardOffset}
-        >{content}</KeyboardAvoidingView>
-      );
-    } else {
-      return <View style={styles.container}>{content}</View>;
-    }
   }
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
@@ -371,14 +362,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 15,
-    marginTop: 100,
   },
   modal: {
     flex: 1,
-    padding: 12,
-    borderRadius: 5,
-    backgroundColor: '#EEEEEE',
   },
   buttons: {
     flexDirection: 'row',

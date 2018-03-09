@@ -39,7 +39,11 @@ import {
 } from './push/android';
 import { persistConfig, setPersistor } from './persist';
 import reduxLogger from './redux-logger';
-import { defaultURLPrefix } from './utils/url-utils';
+import {
+  defaultURLPrefix,
+  natServer,
+  setCustomServer,
+} from './utils/url-utils';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -56,6 +60,7 @@ export type AppState = {|
   cookie: ?string,
   deviceToken: ?string,
   urlPrefix: string,
+  customServer: ?string,
   threadIDsToNotifIDs: {[threadID: string]: string[]},
   _persist: ?PersistState,
 |};
@@ -82,6 +87,7 @@ const defaultState = ({
   cookie: null,
   deviceToken: null,
   urlPrefix: defaultURLPrefix(),
+  customServer: natServer,
   threadIDsToNotifIDs: {},
   _persist: null,
 }: AppState);
@@ -111,6 +117,7 @@ function reducer(state: AppState = defaultState, action: *) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };
@@ -134,10 +141,31 @@ function reducer(state: AppState = defaultState, action: *) {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
       threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
         state.threadIDsToNotifIDs,
         action.payload,
       ),
+      _persist: state._persist,
+    };
+  } else if (action.type === setCustomServer) {
+    return {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: action.payload,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };
   }
@@ -186,6 +214,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };
@@ -220,6 +249,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       _persist: state._persist,
     };

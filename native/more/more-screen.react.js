@@ -408,6 +408,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   submenuText: {
+    color: 'black',
     fontSize: 16,
     flex: 1,
   },

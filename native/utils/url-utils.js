@@ -26,7 +26,6 @@ function defaultURLPrefix() {
 
 const serverOptions = [
   productionServer,
-  natServer,
 ];
 if (Platform.OS === "android") {
   serverOptions.push(localhostServerFromAndroidEmulator);
@@ -34,7 +33,11 @@ if (Platform.OS === "android") {
   serverOptions.push(localhostServer);
 }
 
+const setCustomServer = "SET_CUSTOM_SERVER";
+
 export {
   defaultURLPrefix,
   serverOptions,
+  natServer,
+  setCustomServer,
 }
