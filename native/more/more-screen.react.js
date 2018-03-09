@@ -21,7 +21,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -45,8 +44,6 @@ import { EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccountRouteName } from './delete-account.react';
 import { BuildInfoRouteName} from './build-info.react';
 import { DevToolsRouteName} from './dev-tools.react';
-
-const forceInset = { top: 'always', bottom: 'never' };
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -78,7 +75,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     resendVerificationEmail: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    header: null,
+    headerTitle: "More",
   };
 
   render() {
@@ -125,7 +122,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
       );
     }
     return (
-      <SafeAreaView forceInset={forceInset} style={styles.container}>
+      <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.section}>
             <View style={styles.row}>
@@ -205,7 +202,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
             </Button>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -301,7 +298,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    paddingVertical: 16,
+    paddingVertical: 24,
   },
   section: {
     backgroundColor: 'white',
@@ -325,7 +322,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#CCCCCC",
     marginBottom: 24,
-    paddingVertical: 6,
+    paddingVertical: 2,
   },
   row: {
     flex: 1,
@@ -405,7 +402,7 @@ const styles = StyleSheet.create({
   submenuButton: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 6,
+    paddingVertical: 10,
   },
   submenuText: {
     color: 'black',

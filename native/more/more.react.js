@@ -31,7 +31,6 @@ const More = StackNavigator(
         />
       ),
     }),
-    mode: "modal",
   },
 );
 
