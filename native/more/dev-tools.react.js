@@ -12,6 +12,7 @@ import Modal from 'react-native-modal';
 
 import { connect } from 'lib/utils/redux-utils';
 import { setURLPrefix } from 'lib/utils/url-utils';
+import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
 import { getPersistor } from '../persist';
@@ -158,8 +159,9 @@ class InnerDevTools extends React.PureComponent<Props, State> {
     ExitApp.exitApp();
   }
 
-  onPressWipe = () => {
+  onPressWipe = async () => {
     getPersistor().purge();
+    await sleep(50);
     ExitApp.exitApp();
   }
 

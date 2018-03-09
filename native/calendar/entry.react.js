@@ -184,7 +184,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
     if (!nextProps.active && wasActive && this.textInput) {
       this.textInput.blur();
-      this.setInactive();
+      this.completeEdit();
     }
   }
 
@@ -395,23 +395,22 @@ class InternalEntry extends React.Component<Props, State> {
 
   setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
 
-  setInactive = () => {
-    this.setState({ editing: false });
+  completeEdit = () => {
+    this.onBlur();
+    this.guardedSetState({ editing: false });
     this.props.makeActive(entryKey(this.props.entryInfo), false);
   }
 
   onBlur = () => {
     if (this.state.text.trim() === "") {
-      this.dispatchDelete(this.props.entryInfo.id);
+      this.delete();
     } else if (this.props.entryInfo.text !== this.state.text) {
-      this.dispatchSave(this.props.entryInfo.id, this.state.text);
+      this.save();
     }
-    this.setInactive();
   }
 
   save = () => {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
-    this.setInactive();
   }
 
   onTextLayout = (
@@ -552,9 +551,9 @@ class InternalEntry extends React.Component<Props, State> {
 
   onPressEdit = () => {
     if (InternalEntry.isEditing(this.props, this.state)) {
-      this.save();
+      this.completeEdit();
     } else {
-      this.setState({ editing: true });
+      this.guardedSetState({ editing: true });
     }
   }
 
