@@ -24,9 +24,10 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     const resultURL =
       result.url.replace("squadcal/lib", "squadcal/server/dist/lib");
     //console.log(`${specifier} -> ${resultURL} is server/web -> lib`);
+    const isJSON = resultURL.search(/json(:[0-9]+)?$/) !== -1;
     return {
       url: resultURL,
-      format: 'esm',
+      format: isJSON ? 'json' : 'esm',
     };
   }
 

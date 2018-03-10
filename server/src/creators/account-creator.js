@@ -13,11 +13,22 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 import { ServerError } from 'lib/utils/errors';
+import { visibilityRules } from 'lib/types/thread-types';
+import { messageType } from 'lib/types/message-types';
+import ashoat from 'lib/facts/ashoat';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 import { createNewUserCookie, deleteCookie } from '../session/cookies';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
+import createMessages from './message-creator';
+import createThread from './thread-creator';
+
+const ashoatMessages = [
+  "welcome to SquadCal! thanks for helping to test the alpha.",
+  "as you inevitably discover bugs, have feature requests, or design " +
+    "suggestions, feel free to message them to me in the app.",
+];
 
 async function createAccount(
   viewer: Viewer,
@@ -75,7 +86,42 @@ async function createAccount(
   ]);
   viewer.setNewCookie(userViewerData);
 
-  return { id };
+  const [
+    personalThreadResult,
+    ashoatThreadResult,
+  ] = await Promise.all([
+    createThread(
+      viewer,
+      {
+        name: request.username,
+        description: "your personal calendar",
+        visibilityRules: visibilityRules.CHAT_SECRET,
+      },
+    ),
+    createThread(
+      viewer,
+      {
+        visibilityRules: visibilityRules.CHAT_SECRET,
+        initialMemberIDs: [ashoat.id],
+      },
+    ),
+  ]);
+  let messageTime = Date.now();
+  const ashoatMessageDatas = ashoatMessages.map(message => ({
+    type: messageType.TEXT,
+    threadID: ashoatThreadResult.newThreadInfo.id,
+    creatorID: ashoat.id,
+    time: messageTime++,
+    text: message,
+  }));
+  const ashoatMessageInfos = await createMessages(ashoatMessageDatas);
+  const rawMessageInfos = [
+    ...personalThreadResult.newMessageInfos,
+    ...ashoatThreadResult.newMessageInfos,
+    ...ashoatMessageInfos,
+  ];
+
+  return { id, rawMessageInfos };
 }
 
 export default createAccount;

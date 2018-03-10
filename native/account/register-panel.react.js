@@ -3,7 +3,7 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { LoggedInUserInfo } from 'lib/types/user-types';
+import type { RegisterResult } from 'lib/types/account-types';
 
 import React from 'react';
 import {
@@ -48,7 +48,7 @@ type Props = {
     username: string,
     email: string,
     password: string,
-  ) => Promise<LoggedInUserInfo>,
+  ) => Promise<RegisterResult>,
 };
 type State = {
   usernameInputText: string,
@@ -311,7 +311,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       );
       this.props.setActiveAlert(false);
       await setNativeCredentials({
-        username: result.username,
+        username: result.currentUserInfo.username,
         password: this.state.passwordInputText,
       });
       return result;

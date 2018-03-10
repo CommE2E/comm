@@ -1022,12 +1022,22 @@ const registerActionTypes = Object.freeze({
   failed: "REGISTER_FAILED"
 });
 async function register(fetchJSON, username, email, password) {
-  const result = await fetchJSON('create_account', {
+  const response = await fetchJSON('create_account', {
     username,
     email,
     password
   });
-  return { id: result.id, username, email, emailVerified: false };
+  return {
+    currentUserInfo: {
+      id: response.id,
+      username,
+      email,
+      emailVerified: false
+    },
+    rawMessageInfos: response.rawMessageInfos,
+    threadInfos: response.cookieChange.threadInfos,
+    userInfos: response.cookieChange.userInfos
+  };
 }
 
 function mergeUserInfos(...userInfoArrays) {
@@ -34701,7 +34711,7 @@ function reduceCurrentUserInfo(state, action) {
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_7__actions_ping_actions__["b" /* pingActionTypes */].success) {
     return action.payload.currentUserInfo;
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["m" /* registerActionTypes */].success) {
-    return action.payload;
+    return action.payload.currentUserInfo;
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["b" /* changeUserSettingsActionTypes */].success) {
     __WEBPACK_IMPORTED_MODULE_0_invariant___default()(state && !state.anonymous, "can't change settings if not logged in");
     const email = action.payload.email;
@@ -34719,7 +34729,7 @@ function reduceCurrentUserInfo(state, action) {
 }
 
 function reduceUserInfos(state, action) {
-  if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_7__actions_ping_actions__["b" /* pingActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_6__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_8__actions_message_actions__["a" /* fetchMessagesBeforeCursorActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_8__actions_message_actions__["b" /* fetchMostRecentMessagesActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["k" /* fetchEntriesAndSetRangeActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["j" /* fetchEntriesAndAppendRangeActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["i" /* fetchEntriesActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["r" /* searchUsersActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["e" /* deleteAccountActionTypes */].success) {
+  if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["m" /* registerActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_7__actions_ping_actions__["b" /* pingActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_6__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_8__actions_message_actions__["a" /* fetchMessagesBeforeCursorActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_8__actions_message_actions__["b" /* fetchMostRecentMessagesActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["k" /* fetchEntriesAndSetRangeActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["j" /* fetchEntriesAndAppendRangeActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_entry_actions__["i" /* fetchEntriesActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["r" /* searchUsersActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_user_actions__["e" /* deleteAccountActionTypes */].success) {
     const updated = _extends({}, state, __WEBPACK_IMPORTED_MODULE_1_lodash_fp_keyBy___default()('id')(action.payload.userInfos));
     if (!__WEBPACK_IMPORTED_MODULE_2_lodash_fp_isEqual___default()(state)(updated)) {
       return updated;
@@ -34763,7 +34773,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 function reduceThreadInfos(state, action) {
-  if (action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_6__actions_ping_actions__["b" /* pingActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_thread_actions__["i" /* leaveThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__utils_action_utils__["c" /* setCookieActionType */]) {
+  if (action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["m" /* registerActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_6__actions_ping_actions__["b" /* pingActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_thread_actions__["i" /* leaveThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__utils_action_utils__["c" /* setCookieActionType */]) {
     if (__WEBPACK_IMPORTED_MODULE_2_lodash_fp_isEqual___default()(state)(action.payload.threadInfos)) {
       return state;
     }
@@ -35186,6 +35196,12 @@ function reduceMessageStore(messageStore, action) {
       truncationStatuses[messageInfo.threadID] = messageInfo.threadID === newThreadID ? __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].EXHAUSTIVE : __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].UNCHANGED;
     }
     return mergeNewMessages(messageStore, action.payload.newMessageInfos, truncationStatuses, null, false);
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["m" /* registerActionTypes */].success) {
+    const truncationStatuses = {};
+    for (let messageInfo of action.payload.rawMessageInfos) {
+      truncationStatuses[messageInfo.threadID] = __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].EXHAUSTIVE;
+    }
+    return mergeNewMessages(messageStore, action.payload.rawMessageInfos, truncationStatuses, null, false);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["c" /* changeThreadSettingsActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["l" /* removeUsersFromThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["a" /* changeThreadMemberRolesActionTypes */].success) {
     return mergeNewMessages(messageStore, action.payload.newMessageInfos, { [action.payload.threadInfo.id]: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].UNCHANGED }, null, false);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_20__actions_entry_actions__["c" /* createEntryActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_20__actions_entry_actions__["q" /* saveEntryActionTypes */].success) {
