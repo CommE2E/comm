@@ -195,7 +195,7 @@ const baseMessageListData = (threadID: string) => createSelector(
           robotext,
         });
       }
-      lastMessageInfo = messageInfo;
+      lastMessageInfo = rawMessageInfo;
     }
     if (chatMessageItems.length > 0) {
       const lastMessageItem = chatMessageItems[chatMessageItems.length - 1];
