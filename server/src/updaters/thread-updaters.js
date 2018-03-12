@@ -16,6 +16,7 @@ import {
 import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
+import _find from 'lodash/fp/find';
 
 import { ServerError } from 'lib/utils/errors';
 import { messageType, defaultNumberPerThread } from 'lib/types/message-types';
@@ -216,21 +217,23 @@ async function leaveThread(
   const serverThreadInfo = serverThreadInfos[request.threadID];
 
   const viewerID = viewer.id;
-  let otherUsersExist = false;
-  let otherAdminsExist = false;
-  for (let member of serverThreadInfo.members) {
-    const role = member.role;
-    if (!role || member.id === viewerID) {
-      continue;
+  if (_find({ name: "Admins" })(serverThreadInfo.roles)) {
+    let otherUsersExist = false;
+    let otherAdminsExist = false;
+    for (let member of serverThreadInfo.members) {
+      const role = member.role;
+      if (!role || member.id === viewerID) {
+        continue;
+      }
+      otherUsersExist = true;
+      if (serverThreadInfo.roles[role].name === "Admins") {
+        otherAdminsExist = true;
+        break;
+      }
     }
-    otherUsersExist = true;
-    if (serverThreadInfo.roles[role].name === "Admins") {
-      otherAdminsExist = true;
-      break;
+    if (otherUsersExist && !otherAdminsExist) {
+      throw new ServerError('invalid_parameters');
     }
-  }
-  if (otherUsersExist && !otherAdminsExist) {
-    throw new ServerError('invalid_parameters');
   }
 
   const changeset = await changeRole(

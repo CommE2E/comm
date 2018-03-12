@@ -4,20 +4,83 @@ import {
   type RoleInfo,
   threadPermissions,
   threadPermissionPrefixes,
+  type ThreadRolePermissionsBlob,
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 type InitialRoles = {|
-  members: RoleInfo,
-  admins: RoleInfo,
+  default: RoleInfo,
+  creator: RoleInfo,
 |};
 async function createInitialRolesForNewThread(
   threadID: string,
 ): Promise<InitialRoles> {
-  const [ memberRoleID, adminRoleID ] = await createIDs("roles", 2);
+  const { defaultPermissions, creatorPermissions }
+    = getRolePermissionBlobsForChat();
+  const [ defaultRoleID, creatorRoleID ] = await createIDs(
+    "roles",
+    creatorPermissions ? 2 : 1,
+  );
 
+  const time = Date.now();
+  const newRows = [
+    [
+      defaultRoleID,
+      threadID,
+      "Members",
+      JSON.stringify(defaultPermissions),
+      time,
+    ],
+  ];
+  if (creatorPermissions) {
+    newRows.push([
+      creatorRoleID,
+      threadID,
+      "Admins",
+      JSON.stringify(creatorPermissions),
+      time,
+    ]);
+  }
+  const query = SQL`
+    INSERT INTO roles (id, thread, name, permissions, creation_time)
+    VALUES ${newRows}
+  `;
+  await dbQuery(query);
+
+  const defaultRoleInfo = {
+    id: defaultRoleID,
+    name: "Members",
+    permissions: defaultPermissions,
+    isDefault: true,
+  };
+  if (creatorPermissions) {
+    return {
+      default: defaultRoleInfo,
+      creator: {
+        id: creatorRoleID,
+        name: "Admins",
+        permissions: creatorPermissions,
+        isDefault: false,
+      },
+    };
+  } else {
+    return {
+      default: defaultRoleInfo,
+      creator: defaultRoleInfo,
+    };
+  }
+}
+
+type RolePermissionBlobs = {|
+  defaultPermissions: ThreadRolePermissionsBlob,
+  creatorPermissions?: ThreadRolePermissionsBlob,
+|};
+
+// Originally all chat threads were orgs, but for the alpha launch I decided
+// it's better to keep it simple. I'll probably reintroduce orgs at some point.
+function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const openDescendantKnowOf =
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible =
@@ -87,43 +150,36 @@ async function createInitialRolesForNewThread(
     [descendantRemoveMembers]: true,
     [descendantChangeRole]: true,
   };
-
-  const time = Date.now();
-  const newRows = [
-    [
-      memberRoleID,
-      threadID,
-      "Members",
-      JSON.stringify(memberPermissions),
-      time,
-    ],
-    [
-      adminRoleID,
-      threadID,
-      "Admins",
-      JSON.stringify(adminPermissions),
-      time,
-    ],
-  ];
-  const query = SQL`
-    INSERT INTO roles (id, thread, name, permissions, creation_time)
-    VALUES ${newRows}
-  `;
-  await dbQuery(query);
-
   return {
-    members: {
-      id: memberRoleID,
-      name: "Members",
-      permissions: memberPermissions,
-      isDefault: true,
-    },
-    admins: {
-      id: adminRoleID,
-      name: "Admins",
-      permissions: adminPermissions,
-      isDefault: false,
-    },
+    defaultPermissions: memberPermissions,
+    creatorPermissions: adminPermissions,
+  };
+}
+
+function getRolePermissionBlobsForChat(): RolePermissionBlobs {
+  const openDescendantKnowOf =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
+  const openDescendantVisible =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
+  const openDescendantJoinThread =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const memberPermissions = {
+    [threadPermissions.KNOW_OF]: true,
+    [threadPermissions.VISIBLE]: true,
+    [threadPermissions.JOIN_THREAD]: true,
+    [threadPermissions.VOICED]: true,
+    [threadPermissions.EDIT_ENTRIES]: true,
+    [threadPermissions.EDIT_THREAD]: true,
+    [threadPermissions.CREATE_SUBTHREADS]: true,
+    [threadPermissions.ADD_MEMBERS]: true,
+    [threadPermissions.EDIT_PERMISSIONS]: true,
+    [threadPermissions.REMOVE_MEMBERS]: true,
+    [openDescendantKnowOf]: true,
+    [openDescendantVisible]: true,
+    [openDescendantJoinThread]: true,
+  };
+  return {
+    defaultPermissions: memberPermissions,
   };
 }
 

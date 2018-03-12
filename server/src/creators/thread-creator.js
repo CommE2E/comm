@@ -93,7 +93,7 @@ async function createThread(
     time,
     color,
     parentThreadID,
-    newRoles.members.id,
+    newRoles.default.id,
   ];
   const query = SQL`
     INSERT INTO threads(id, name, description, visibility_rules, hash, creator,
@@ -112,7 +112,7 @@ async function createThread(
     initialMembersChangeset,
     recalculatePermissionsChangeset,
   ] = await Promise.all([
-    changeRole(id, [viewer.userID], newRoles.admins.id),
+    changeRole(id, [viewer.userID], newRoles.creator.id),
     initialMemberIDs && initialMemberIDs.length > 0
       ? changeRole(id, initialMemberIDs, null)
       : undefined,
@@ -211,6 +211,10 @@ async function createThread(
     deleteMemberships(toDelete),
   ]);
 
+  const roles = { [newRoles.default.id]: newRoles.default };
+  if (newRoles.creator.id !== newRoles.default.id) {
+    roles[newRoles.creator.id] = newRoles.creator;
+  }
   return {
     newThreadInfo: {
       id,
@@ -221,10 +225,7 @@ async function createThread(
       creationTime: time,
       parentThreadID,
       members,
-      roles: {
-        [newRoles.members.id]: newRoles.members,
-        [newRoles.admins.id]: newRoles.admins,
-      },
+      roles,
       currentUser: currentUserInfo,
     },
     newMessageInfos,
