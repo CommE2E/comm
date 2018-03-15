@@ -102,7 +102,7 @@ class InnerDevTools extends React.PureComponent<Props, State> {
     );
 
     return (
-      <View>
+      <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.slightlyPaddedSection}>
             <Button
@@ -192,6 +192,9 @@ class InnerDevTools extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scrollView: {
     paddingTop: 24,
   },

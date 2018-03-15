@@ -16,7 +16,7 @@ import {
 } from 'lib/types/verify-types';
 import type { KeyboardEvent } from '../keyboard';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Image,
   Text,
@@ -50,6 +50,7 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
+import { splashBackgroundURI } from './background-info';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -363,8 +364,8 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     const statusBar = <ConnectedStatusBar barStyle="light-content" />;
     const background = (
       <Image
-        source={require("../img/logged-out-modal-background.jpg")}
-        style={styles.modalBackgroundContainer}
+        source={{ uri: splashBackgroundURI }}
+        style={styles.modalBackground}
       />
     );
     const closeButton = (
@@ -440,12 +441,14 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       </Animated.View>
     );
     return (
-      <SafeAreaView forceInset={forceInset} style={styles.container}>
-        {statusBar}
+      <React.Fragment>
         {background}
-        {animatedContent}
-        {closeButton}
-      </SafeAreaView>
+        <SafeAreaView forceInset={forceInset} style={styles.container}>
+          {statusBar}
+          {animatedContent}
+          {closeButton}
+        </SafeAreaView>
+      </React.Fragment>
     );
   }
 
@@ -456,8 +459,10 @@ const closeButtonTop = Platform.OS === "ios"
   : 15;
 
 const styles = StyleSheet.create({
-  modalBackgroundContainer: {
+  modalBackground: {
     position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   container: {
     flex: 1,

@@ -42,6 +42,7 @@ import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
+import SplashScreen from 'react-native-splash-screen';
 
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
@@ -155,6 +156,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   initialAndroidNotifHandled = false;
 
   componentDidMount() {
+    if (Platform.OS === "android") {
+      setTimeout(SplashScreen.hide, 250);
+    } else {
+      SplashScreen.hide();
+    }
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
@@ -308,7 +314,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         null,
         null,
       );
-      this.ensurePushNotifsEnabled();
+      if (this.props.appLoggedIn) {
+        this.ensurePushNotifsEnabled();
+      }
       if (this.props.activeThread) {
         AppWithNavigationState.clearNotifsOfThread(this.props);
       }
@@ -421,6 +429,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   failedToRegisterPushPermissions = (error) => {
+    if (!this.props.appLoggedIn) {
+      return;
+    }
     if (Platform.OS === "ios" && !__DEV__) {
       Alert.alert(
         "Need notif permissions",

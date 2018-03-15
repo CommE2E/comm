@@ -146,6 +146,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-splash-screen')
     compile project(':react-native-exit-app')
     compile project(':react-native-fcm')
     compile 'com.google.firebase:firebase-core:10.0.1'

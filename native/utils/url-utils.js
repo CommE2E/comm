@@ -12,13 +12,13 @@ function defaultURLPrefix() {
   if (!__DEV__) {
     return productionServer;
   } else if (Platform.OS === "android") {
+    // Uncomment below and update IP address if testing on physical device
+    //return natServer;
     return localhostServerFromAndroidEmulator;
-    // Uncomment below and update IP address if testing on physical device
-    //return natServer;
   } else if (Platform.OS === "ios") {
-    return localhostServer;
     // Uncomment below and update IP address if testing on physical device
     //return natServer;
+    return localhostServer;
   } else {
     invariant(false, "unsupported platform");
   }

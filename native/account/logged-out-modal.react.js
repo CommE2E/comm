@@ -16,7 +16,7 @@ import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   StyleSheet,
@@ -49,13 +49,14 @@ import {
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 
-import { windowHeight } from '../dimensions';
+import { windowHeight, contentVerticalOffset } from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
+import { splashBackgroundURI } from './background-info';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -329,10 +330,13 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       containerSize += 246;
     } else {
       // This is arbitrary and artificial... actually centering just looks a bit
-      // weird because the buttons are at the bottom
-      containerSize += 80;
+      // weird because the buttons are at the bottom. The reason it's different
+      // for iPhone X is because that's where LaunchScreen.xib places it and I'm
+      // not sure how to get AutoLayout to behave consistently with Yoga.
+      containerSize += DeviceInfo.isIPhoneX_deprecated ? 50 : 61;
     }
-    return (windowHeight - containerSize - keyboardHeight) / 2;
+    const contentHeight = windowHeight - contentVerticalOffset;
+    return (contentHeight - containerSize - keyboardHeight) / 2;
   }
 
   static calculateFooterPaddingTop(keyboardHeight: number) {
@@ -509,8 +513,8 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     const statusBar = <ConnectedStatusBar barStyle="light-content" />;
     const background = (
       <Image
-        source={require("../img/logged-out-modal-background.jpg")}
-        style={styles.modalBackgroundContainer}
+        source={{ uri: splashBackgroundURI }}
+        style={styles.modalBackground}
       />
     );
 
@@ -614,22 +618,26 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     let content;
     if (Platform.OS === "ios") {
       return (
-        <SafeAreaView forceInset={forceInset} style={styles.container}>
-          {statusBar}
+        <React.Fragment>
           {background}
-          {animatedContent}
-          {buttons}
-          {forgotPasswordLink}
-        </SafeAreaView>
+          <SafeAreaView forceInset={forceInset} style={styles.container}>
+            {statusBar}
+            {animatedContent}
+            {buttons}
+            {forgotPasswordLink}
+          </SafeAreaView>
+        </React.Fragment>
       );
     } else {
       return (
-        <View style={styles.container}>
-          {statusBar}
+        <View style={styles.topContainer}>
           {background}
-          {buttons}
-          {animatedContent}
-          {forgotPasswordLink}
+					<View style={styles.container}>
+						{statusBar}
+						{buttons}
+						{animatedContent}
+						{forgotPasswordLink}
+					</View>
         </View>
       );
     }
@@ -669,8 +677,17 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  modalBackgroundContainer: {
+  modalBackground: {
     position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  topContainer: {
+    backgroundColor: 'transparent',
+		// https://github.com/facebook/react-native/issues/6785
+    height: windowHeight,
   },
   container: {
     flex: 1,
