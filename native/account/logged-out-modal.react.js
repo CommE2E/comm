@@ -57,6 +57,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
 import { splashBackgroundURI } from './background-info';
+import { splashStyle } from '../splash';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -683,6 +684,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    ...splashStyle,
   },
   topContainer: {
     backgroundColor: 'transparent',

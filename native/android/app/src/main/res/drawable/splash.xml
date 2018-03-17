@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <bitmap
+      android:src="@drawable/splash_background"
+      android:gravity="center"
+    />
+	</item>
+  <item>
+    <bitmap
+      android:src="@drawable/header"
+      android:width="177dp"
+      android:height="62dp"
+      android:gravity="center"
+    />
+	</item>
+</layer-list>

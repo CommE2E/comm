@@ -3,8 +3,7 @@
   </style>
   <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:windowNoTitle">true</item>
-    <item name="android:windowBackground">@null</item>
-    <item name="android:background">@drawable/splash_one</item>
+    <item name="android:background">@drawable/splash</item>
     <item name="android:windowDrawsSystemBarBackgrounds">false</item>
   </style>
 </resources>

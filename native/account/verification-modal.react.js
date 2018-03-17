@@ -51,6 +51,7 @@ import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
 import { splashBackgroundURI } from './background-info';
+import { splashStyle } from '../splash';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -461,8 +462,9 @@ const closeButtonTop = Platform.OS === "ios"
 const styles = StyleSheet.create({
   modalBackground: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
+    width: ('100%': number | string),
+    height: ('100%': number | string),
+    ...splashStyle,
   },
   container: {
     flex: 1,
