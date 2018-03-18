@@ -157,7 +157,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   componentDidMount() {
     if (Platform.OS === "android") {
-      setTimeout(SplashScreen.hide, 250);
+      setTimeout(SplashScreen.hide, 350);
     } else {
       SplashScreen.hide();
     }

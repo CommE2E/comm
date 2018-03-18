@@ -6,12 +6,7 @@
       android:gravity="fill"
     />
   </item>
-  <item>
-    <bitmap
-      android:src="@drawable/header"
-      android:width="177dp"
-      android:height="62dp"
-      android:gravity="center"
-    />
-	</item>
+  <item
+    android:drawable="@drawable/splash_header"
+  />
 </layer-list>
