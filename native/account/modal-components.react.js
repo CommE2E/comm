@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
+import { windowWidth } from '../dimensions';
+
 class TextInput extends React.PureComponent<*> {
   
   innerTextInput: ?BaseTextInput;
@@ -52,6 +54,11 @@ const styles = StyleSheet.create({
   },
 });
 
+const usernamePlaceholder = windowWidth < 360
+  ? "Username or email"
+  : "Username or email address";
+
 export {
   TextInput,
+  usernamePlaceholder,
 };

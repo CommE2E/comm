@@ -28,7 +28,7 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 
-import { TextInput } from './modal-components.react';
+import { TextInput, usernamePlaceholder } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 
 type Props = {
@@ -69,7 +69,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
             style={styles.input}
             value={this.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
-            placeholder="Username or email address"
+            placeholder={usernamePlaceholder}
             autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"

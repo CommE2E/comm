@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
+import { windowHeight } from '../dimensions';
 
 type ButtonProps = {
   text: string,
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     paddingRight: 18,
     marginLeft: 20,
     marginRight: 20,
-    marginTop: 40,
+    marginTop: windowHeight < 600 ? 15 : 40,
     borderRadius: 6,
     backgroundColor: '#FFFFFFAA',
   },

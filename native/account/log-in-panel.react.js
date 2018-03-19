@@ -31,7 +31,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
-import { TextInput } from './modal-components.react';
+import { TextInput, usernamePlaceholder } from './modal-components.react';
 import {
   PanelButton,
   PanelOnePasswordButton,
@@ -114,7 +114,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
             style={styles.input}
             value={this.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
-            placeholder="Username or email address"
+            placeholder={usernamePlaceholder}
             autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"

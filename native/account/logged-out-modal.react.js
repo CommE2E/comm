@@ -49,7 +49,11 @@ import {
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 
-import { windowHeight, contentVerticalOffset } from '../dimensions';
+import {
+  windowHeight,
+  windowWidth,
+  contentVerticalOffset,
+} from '../dimensions';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -326,9 +330,11 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   ) {
     let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
     if (mode === "log-in") {
-      containerSize += 165;
+      // We need to make space for the reset password button on smaller devices
+      containerSize += windowHeight < 600 ? 195 : 165;
     } else if (mode === "register") {
-      containerSize += 246;
+      // We need to make space for the password manager on smaller devices
+      containerSize += windowHeight < 600 ? 261 : 246;
     } else {
       // This is arbitrary and artificial... actually centering just looks a bit
       // weird because the buttons are at the bottom. The reason it's different
@@ -415,9 +421,11 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       // don't want to bother moving the panel between those events
       this.keyboardHeight = event.endCoordinates.height;
     }
-    this.activeKeyboard = true;
     this.animateToSecondMode(event.duration, event.endCoordinates.height);
-    this.opacityChangeQueued = false;
+    if (!this.activeKeyboard) {
+      this.opacityChangeQueued = false;
+    }
+    this.activeKeyboard = true;
   }
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
@@ -706,7 +714,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    left: 40,
+    left: windowWidth < 360 ? 28 : 40,
     top: 13,
   },
   buttonContainer: {
