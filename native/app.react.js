@@ -520,6 +520,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         priority: "high",
         sound: "default",
         threadID: notification.threadID,
+        icon: "notif_icon",
       });
       this.props.dispatchActionPayload(
         recordAndroidNotificationActionType,
