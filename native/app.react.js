@@ -74,7 +74,10 @@ import {
   activeThreadSelector,
   createIsForegroundSelector,
 } from './selectors/nav-selectors';
-import { requestIOSPushPermissions } from './push/ios';
+import {
+  requestIOSPushPermissions,
+  iosPushPermissionResponseReceived,
+} from './push/ios';
 import {
   requestAndroidPushPermissions,
   recordAndroidNotificationActionType,
@@ -422,6 +425,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (deviceType !== "android" && deviceType !== "ios") {
       return;
     }
+    if (deviceType === "ios") {
+      iosPushPermissionResponseReceived();
+    }
     this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceToken(deviceToken, deviceType),
@@ -432,14 +438,18 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (!this.props.appLoggedIn) {
       return;
     }
-    if (Platform.OS === "ios" && !__DEV__) {
+    const deviceType = Platform.OS;
+    if (deviceType === "ios") {
+      iosPushPermissionResponseReceived();
+    }
+    if (deviceType === "ios" && !__DEV__) {
       Alert.alert(
         "Need notif permissions",
         "SquadCal needs notification permissions to keep you in the loop! " +
           "Please enable in Settings App -> Notifications -> SquadCal.",
         [ { text: 'OK' } ],
       );
-    } else if (Platform.OS === "android") {
+    } else if (deviceType === "android") {
       Alert.alert(
         "Unable to initialize notifs!",
         "Please check your network connection, make sure Google Play " +

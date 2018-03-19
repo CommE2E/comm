@@ -19,9 +19,12 @@ async function requestIOSPushPermissions(missingDeviceToken: bool) {
     }
     currentlyActive = true;
     await NotificationsIOS.requestPermissions();
-    currentlyActive = false;
   }
   NotificationsIOS.consumeBackgroundQueue();
+}
+
+function iosPushPermissionResponseReceived() {
+  currentlyActive = false;
 }
 
 function permissionMissing(permissions: PushPermissions) {
@@ -30,4 +33,5 @@ function permissionMissing(permissions: PushPermissions) {
 
 export {
   requestIOSPushPermissions,
+  iosPushPermissionResponseReceived,
 };
