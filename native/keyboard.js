@@ -38,7 +38,7 @@ function decrementAppStateListeners() {
 
 function callCallbackIfAppActive(callback: KeyboardCallback): KeyboardCallback {
   return (event: KeyboardEvent) => {
-    if (this.currentState === "active") {
+    if (currentState === "active") {
       callback(event);
     }
   }

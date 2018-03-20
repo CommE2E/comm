@@ -249,6 +249,14 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
+    if (this.keyboardShowListener) {
+      removeKeyboardListener(this.keyboardShowListener);
+      this.keyboardShowListener = null;
+    }
+    if (this.keyboardDismissListener) {
+      removeKeyboardListener(this.keyboardDismissListener);
+      this.keyboardDismissListener = null;
+    }
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
