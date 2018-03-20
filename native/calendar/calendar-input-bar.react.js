@@ -1,9 +1,14 @@
 // @flow
 
 import React from 'react';
-import { View, StyleSheet, Text, Keyboard, Platform } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
 import Button from '../components/button.react';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
 
 type Props = {|
   onSave: () => void,
@@ -20,23 +25,19 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
   keyboardDismissListener: ?Object;
 
   componentDidMount() {
-    this.keyboardShowListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      this.keyboardShow,
-    );
-    this.keyboardDismissListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
+    this.keyboardDismissListener = addKeyboardDismissListener(
       this.keyboardDismiss,
     );
   }
 
   componentWillUnmount() {
     if (this.keyboardShowListener) {
-      this.keyboardShowListener.remove();
+      removeKeyboardListener(this.keyboardShowListener);
       this.keyboardShowListener = null;
     }
     if (this.keyboardDismissListener) {
-      this.keyboardDismissListener.remove();
+      removeKeyboardListener(this.keyboardDismissListener);
       this.keyboardDismissListener = null;
     }
   }

@@ -52,6 +52,11 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -168,24 +173,18 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   }
 
   onForeground() {
-    this.keyboardShowListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      this.keyboardShow,
-    );
-    this.keyboardHideListener = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      this.keyboardHide,
-    );
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
+    this.keyboardHideListener = addKeyboardDismissListener(this.keyboardHide);
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
     if (this.keyboardShowListener) {
-      this.keyboardShowListener.remove();
+      removeKeyboardListener(this.keyboardShowListener);
       this.keyboardShowListener = null;
     }
     if (this.keyboardHideListener) {
-      this.keyboardHideListener.remove();
+      removeKeyboardListener(this.keyboardHideListener);
       this.keyboardHideListener = null;
     }
     BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);

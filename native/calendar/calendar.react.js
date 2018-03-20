@@ -25,7 +25,6 @@ import {
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
@@ -64,6 +63,12 @@ import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
 import CalendarInputBar from './calendar-input-bar.react';
 import { iosKeyboardOffset } from '../dimensions';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
 type CalendarItemWithHeight =
@@ -235,12 +240,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     if (this.props.tabActive) {
-      this.keyboardShowListener = Keyboard.addListener(
-        Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-        this.keyboardShow,
-      );
-      this.keyboardDismissListener = Keyboard.addListener(
-        Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
+      this.keyboardDismissListener = addKeyboardDismissListener(
         this.keyboardDismiss,
       );
     }
@@ -327,24 +328,20 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   componentWillUpdate(nextProps: Props, nextState: State) {
     if (nextProps.tabActive && !this.props.tabActive) {
       if (!this.keyboardShowListener) {
-        this.keyboardShowListener = Keyboard.addListener(
-          Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-          this.keyboardShow,
-        );
+        this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
       }
       if (!this.keyboardDismissListener) {
-        this.keyboardDismissListener = Keyboard.addListener(
-          Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+        this.keyboardDismissListener = addKeyboardDismissListener(
           this.keyboardDismiss,
         );
       }
     } else if (!nextProps.tabActive && this.props.tabActive) {
       if (this.keyboardShowListener) {
-        this.keyboardShowListener.remove();
+        removeKeyboardListener(this.keyboardShowListener);
         this.keyboardShowListener = null;
       }
       if (this.keyboardDismissListener) {
-        this.keyboardDismissListener.remove();
+        removeKeyboardListener(this.keyboardDismissListener);
         this.keyboardDismissListener = null;
       }
     }

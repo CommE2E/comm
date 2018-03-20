@@ -27,7 +27,6 @@ import {
   Text,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import invariant from 'invariant';
@@ -68,6 +67,7 @@ import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { iosKeyboardOffset } from '../dimensions';
 import ThreadVisibility from '../components/thread-visibility.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const tagInputProps = {
   placeholder: "username",

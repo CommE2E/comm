@@ -24,7 +24,6 @@ import {
   View,
   StyleSheet,
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   FlatList,
   DeviceInfo,
@@ -59,6 +58,7 @@ import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { iosKeyboardOffset } from '../dimensions';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute>
   & { state: { params: { threadInfo: ThreadInfo } } };

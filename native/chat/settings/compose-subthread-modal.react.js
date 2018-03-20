@@ -9,7 +9,6 @@ import {
   View,
   StyleSheet,
   Platform,
-  KeyboardAvoidingView,
   Text,
   InteractionManager,
 } from 'react-native';
@@ -21,6 +20,8 @@ import { visibilityRules } from 'lib/types/thread-types';
 import { iosKeyboardOffset } from '../../dimensions';
 import Button from '../../components/button.react';
 import { ComposeThreadRouteName } from '../compose-thread.react';
+import KeyboardAvoidingView
+  from '../../components/keyboard-avoiding-view.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

@@ -5,16 +5,11 @@ import type {
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
-import {
-  StyleSheet,
-  View,
-  Platform,
-  KeyboardAvoidingView,
-  ViewPropTypes,
-} from 'react-native';
+import { StyleSheet, View, Platform, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { iosKeyboardOffset } from '../dimensions';
+import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = {|
   children?: React.Node,

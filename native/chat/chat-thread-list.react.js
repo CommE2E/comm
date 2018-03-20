@@ -13,7 +13,6 @@ import {
   FlatList,
   Platform,
   TextInput,
-  KeyboardAvoidingView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -33,6 +32,7 @@ import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
 import { iosKeyboardOffset } from '../dimensions';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const floatingActions = [{
   text: 'Compose',
