@@ -370,7 +370,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       // If there are fewer items in our new data, which happens when the
       // current calendar query gets reset due to inactivity, let's reset the
       // scroll position to the center (today)
-      setTimeout(() => this.scrollToToday(), 50);
+      if (!nextProps.tabActive) {
+        setTimeout(() => this.scrollToToday(), 50);
+      }
       this.firstScrollUpOnAndroidComplete = false;
     } else if (newStartDate < lastStartDate) {
       this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
