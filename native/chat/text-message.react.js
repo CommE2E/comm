@@ -80,10 +80,11 @@ class TextMessage extends React.PureComponent<Props> {
     let containerStyle = null,
       messageStyle = {},
       textStyle = {};
+    let darkColor = false;
     if (isViewer) {
       containerStyle = { alignSelf: 'flex-end' };
       messageStyle.backgroundColor = `#${this.props.threadInfo.color}`;
-      const darkColor = colorIsDark(this.props.threadInfo.color);
+      darkColor = colorIsDark(this.props.threadInfo.color);
       textStyle.color = darkColor ? 'white' : 'black';
     } else {
       containerStyle = { alignSelf: 'flex-start' };
@@ -119,9 +120,10 @@ class TextMessage extends React.PureComponent<Props> {
     );
     const text = this.props.item.messageInfo.text;
 
+    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     const content = (
       <View style={[styles.message, messageStyle]}>
-        <Hyperlink linkDefault={true} linkStyle={styles.linkText}>
+        <Hyperlink linkDefault={true} linkStyle={linkStyle}>
           <Text
             onPress={this.onPress}
             onLongPress={this.onPress}
@@ -200,8 +202,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     height: 25,
   },
-  linkText: {
+  darkLinkText: {
     color: "#036AFF",
+    textDecorationLine: "underline",
+  },
+  lightLinkText: {
+    color: "#129AFF",
     textDecorationLine: "underline",
   },
   popoverLabelStyle: {
