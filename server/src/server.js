@@ -76,6 +76,7 @@ router.use(
   ),
 );
 router.use('/compiled', express.static('compiled'));
+router.use('/', express.static('icons'));
 
 const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'update_activity': updateActivityResponder,
