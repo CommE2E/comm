@@ -28,7 +28,7 @@ import {
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _includes from 'lodash/fp/includes';
-import { Alert, BackHandler } from 'react-native';
+import { Alert, BackHandler, Platform } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -103,6 +103,19 @@ export type Action =
     payload: NotificationPressPayload,
   |} | AndroidNotificationActions;
 
+let tabBarOptions;
+if (Platform.OS === "android") {
+  tabBarOptions = {
+    style: {
+      backgroundColor: '#445588',
+    },
+    indicatorStyle: {
+      backgroundColor: '#AAFFCC',
+    },
+  };
+} else {
+  tabBarOptions = {};
+}
 const AppNavigator = TabNavigator(
   {
     [CalendarRouteName]: { screen: Calendar },
@@ -112,6 +125,7 @@ const AppNavigator = TabNavigator(
   {
     initialRouteName: CalendarRouteName,
     lazy: false,
+    tabBarOptions,
   },
 );
 type WrappedAppNavigatorProps = {|
