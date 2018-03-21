@@ -157,7 +157,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     : "compiled/prod.build.js";
   const cssInclude = process.env.NODE_ENV === "dev"
     ? ""
-    : `<link
+    : html`<link
         rel="stylesheet"
         type="text/css"
         href="compiled/prod.build.css"

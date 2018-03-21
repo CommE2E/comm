@@ -1,6 +1,10 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  visibilityRules,
+} from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
@@ -15,7 +19,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
-import { visibilityRules } from 'lib/types/thread-types';
+import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 
 import { iosKeyboardOffset } from '../../dimensions';
 import Button from '../../components/button.react';
@@ -42,12 +46,12 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   render() {
     const content = (
       <View style={styles.modal}>
-        <Text style={styles.visibility}>Visibility</Text>
+        <Text style={styles.visibility}>Thread type</Text>
         <Button style={styles.option} onPress={this.onPressOpen}>
           <Icon name="public" size={32} color="black" />
           <Text style={styles.optionText}>Open</Text>
           <Text style={styles.optionExplanation}>
-            Anybody in the parent thread can see an open child thread.
+            {threadTypeDescriptions[visibilityRules.CHAT_NESTED_OPEN]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
@@ -60,7 +64,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           <Icon name="lock-outline" size={32} color="black" />
           <Text style={styles.optionText}>Secret</Text>
           <Text style={styles.optionExplanation}>
-            Only visible to its members and admins of ancestor threads.
+            {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
