@@ -18,6 +18,10 @@ import {
   ThreadSettingsRouteName,
 } from './settings/thread-settings.react';
 import { getChatScreen } from './chat-screen-registry';
+import {
+  DeleteThread,
+  DeleteThreadRouteName,
+} from './settings/delete-thread.react';
 
 const Chat = StackNavigator(
   {
@@ -25,6 +29,7 @@ const Chat = StackNavigator(
     [MessageListRouteName]: { screen: MessageList },
     [ComposeThreadRouteName]: { screen: ComposeThread },
     [ThreadSettingsRouteName]: { screen: ThreadSettings },
+    [DeleteThreadRouteName]: { screen: DeleteThread },
   },
   {
     navigationOptions: ({ navigation }) => ({

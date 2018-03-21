@@ -4,21 +4,28 @@ import {
   type ThreadInfo,
   threadInfoPropType,
 } from 'lib/types/thread-types';
+import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
 import Button from '../../components/button.react';
+import { DeleteThreadRouteName } from './delete-thread.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
+  navigate: (
+    routeName: string,
+    params?: NavigationParams,
+  ) => bool,
   canLeaveThread: bool,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
+    navigate: PropTypes.func.isRequired,
     canLeaveThread: PropTypes.bool.isRequired,
   };
 
@@ -39,6 +46,10 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
   }
 
   onPress = () => {
+    this.props.navigate(
+      DeleteThreadRouteName,
+      { threadInfo: this.props.threadInfo },
+    );
   }
 
 }

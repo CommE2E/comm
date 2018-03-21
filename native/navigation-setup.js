@@ -46,6 +46,7 @@ import {
 import { pingActionTypes } from 'lib/actions/ping-actions';
 import {
   leaveThreadActionTypes,
+  deleteThreadActionTypes,
   joinThreadActionTypes,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
@@ -78,6 +79,7 @@ import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
 } from './utils/navigation-utils';
+import { DeleteThreadRouteName } from './chat/settings/delete-thread.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -273,6 +275,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === pingActionTypes.success ||
       action.type === joinThreadActionTypes.success ||
       action.type === leaveThreadActionTypes.success ||
+      action.type === deleteThreadActionTypes.success ||
       action.type === setCookieActionType
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
@@ -596,7 +599,8 @@ function filterChatScreensForThreadInfos(
     (route: NavigationRoute) => {
       if (
         route.routeName !== MessageListRouteName &&
-        route.routeName !== ThreadSettingsRouteName
+        route.routeName !== ThreadSettingsRouteName &&
+        route.routeName !== DeleteThreadRouteName
       ) {
         return "keep";
       }

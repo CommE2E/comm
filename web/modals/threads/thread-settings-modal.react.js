@@ -7,7 +7,7 @@ import {
   assertVisibilityRules,
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
-  type DeleteThreadPayload,
+  type LeaveThreadPayload,
   threadPermissions,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
@@ -74,7 +74,7 @@ type Props = {
   deleteThread: (
     threadID: string,
     currentAccountPassword: string,
-  ) => Promise<DeleteThreadPayload>,
+  ) => Promise<LeaveThreadPayload>,
   changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,

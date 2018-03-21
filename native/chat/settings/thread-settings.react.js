@@ -5,11 +5,12 @@ import type {
   NavigationRoute,
   NavigationParams,
 } from 'react-navigation';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import {
+  type ThreadInfo,
   threadInfoPropType,
-  threadPermissions,
+  type RelativeMemberInfo,
   relativeMemberInfoPropType,
+  threadPermissions,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
@@ -149,14 +150,15 @@ type ChatSettingsItem =
   | {|
       itemType: "leaveThread",
       key: string,
-      canDeleteThread: bool,
       threadInfo: ThreadInfo,
+      canDeleteThread: bool,
     |}
   | {|
       itemType: "deleteThread",
       key: string,
-      canLeaveThread: bool,
       threadInfo: ThreadInfo,
+      navigate: (routeName: string, params?: NavigationParams) => bool,
+      canLeaveThread: bool,
     |};
 
 type StateProps = {|
@@ -266,7 +268,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newState = {};
     if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
       this.props.navigation.setParams({ threadInfo: newThreadInfo });
     }
@@ -470,7 +471,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     let memberItems;
     if (seeMoreMembers) {
       memberItems = [ ...members, seeMoreMembers ];
-    } else {
+    } else if (members.length > 0) {
       members[members.length - 1].lastListItem = true;
       memberItems = members;
     }
@@ -526,16 +527,17 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       listData.push({
         itemType: "leaveThread",
         key: "leaveThread",
-        canDeleteThread: !!canDeleteThread,
         threadInfo,
+        canDeleteThread: !!canDeleteThread,
       });
     }
     if (canDeleteThread) {
       listData.push({
         itemType: "deleteThread",
         key: "deleteThread",
-        canLeaveThread: !!canLeaveThread,
         threadInfo,
+        navigate: this.props.navigation.navigate,
+        canLeaveThread: !!canLeaveThread,
       });
     }
     if (canLeaveThread || canDeleteThread) {
@@ -670,6 +672,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         <ThreadSettingsDeleteThread
           threadInfo={item.threadInfo}
           canLeaveThread={item.canLeaveThread}
+          navigate={item.navigate}
         />
       );
     }

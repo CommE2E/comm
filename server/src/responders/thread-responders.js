@@ -42,10 +42,10 @@ const threadDeletionRequestInputValidator = tShape({
 async function threadDeletionResponder(
   viewer: Viewer,
   input: any,
-): Promise<void> {
+): Promise<LeaveThreadResult> {
   const request: ThreadDeletionRequest = input;
   validateInput(threadDeletionRequestInputValidator, request);
-  await deleteThread(viewer, request);
+  return await deleteThread(viewer, request);
 }
 
 const roleChangeRequestInputValidator = tShape({

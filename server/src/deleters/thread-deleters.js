@@ -1,6 +1,9 @@
 // @flow
 
-import type { ThreadDeletionRequest } from 'lib/types/thread-types';
+import type {
+  ThreadDeletionRequest,
+  LeaveThreadResult,
+} from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
@@ -9,12 +12,15 @@ import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database';
-import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import {
+  checkThreadPermission,
+  fetchThreadInfos,
+} from '../fetchers/thread-fetchers';
 
 async function deleteThread(
   viewer: Viewer,
   threadDeletionRequest: ThreadDeletionRequest,
-): Promise<void> {
+): Promise<LeaveThreadResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -38,6 +44,7 @@ async function deleteThread(
     throw new ServerError('invalid_credentials');
   }
 
+  // TODO delete all descendant threads as well
   const query = SQL`
     DELETE t, ic, d, id, e, ie, re, ir, mm, r, ms, im, f, n, ino
     FROM threads t
@@ -58,6 +65,9 @@ async function deleteThread(
     WHERE t.id = ${threadDeletionRequest.threadID}
   `;
   await dbQuery(query);
+
+  const { threadInfos } = await fetchThreadInfos(viewer);
+  return { threadInfos };
 }
 
 export {
