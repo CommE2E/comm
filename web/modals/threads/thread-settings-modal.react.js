@@ -8,6 +8,7 @@ import {
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
   type DeleteThreadPayload,
+  threadPermissions,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -25,6 +26,10 @@ import {
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  threadHasPermission,
+  threadTypeDescriptions,
+} from 'lib/shared/thread-utils';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -156,72 +161,30 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         </div>
       );
     } else if (this.state.currentTabType === "privacy") {
-      let threadPasswordInputs = null;
-      if (this.state.threadInfo.visibilityRules >= visibilityRules.CLOSED) {
-        const currentlyClosed =
-          this.props.threadInfo.visibilityRules >= visibilityRules.CLOSED;
-        // Note: these depend on props, not state
-        const passwordPlaceholder = currentlyClosed
-          ? "New thread password (optional)"
-          : "New thread password";
-        const confirmPlaceholder = currentlyClosed
-          ? "Confirm thread password (optional)"
-          : "Confirm thread password";
-        threadPasswordInputs = (
-          <div>
-            <div className={css['form-enum-password']}>
-              <input
-                type="password"
-                placeholder={passwordPlaceholder}
-                value={this.state.newThreadPassword}
-                onChange={this.onChangeNewThreadPassword}
-                disabled={this.props.inputDisabled}
-                ref={this.newThreadPasswordInputRef}
-              />
-            </div>
-            <div className={css['form-enum-password']}>
-              <input
-                type="password"
-                placeholder={confirmPlaceholder}
-                value={this.state.confirmThreadPassword}
-                onChange={this.onChangeConfirmThreadPassword}
-                disabled={this.props.inputDisabled}
-              />
-            </div>
-          </div>
-        );
-      }
-      const closedPasswordEntry =
-        this.state.threadInfo.visibilityRules === visibilityRules.CLOSED
-          ? threadPasswordInputs
-          : null;
-      const secretPasswordEntry =
-        this.state.threadInfo.visibilityRules === visibilityRules.SECRET
-          ? threadPasswordInputs
-          : null;
-      mainContent = (
-        <div className={css['edit-thread-privacy-container']}>
+      let threadTypes = null;
+      if (this.state.threadInfo.parentThreadID) {
+        threadTypes = (
           <div className={css['modal-radio-selector']}>
-            <div className={css['form-title']}>Visibility</div>
+            <div className={css['form-title']}>Thread type</div>
             <div className={css['form-enum-selector']}>
               <div className={css['form-enum-container']}>
                 <input
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-open"
-                  value={visibilityRules.OPEN}
+                  value={visibilityRules.CHAT_NESTED_OPEN}
                   checked={
                     this.state.threadInfo.visibilityRules ===
-                    visibilityRules.OPEN
+                      visibilityRules.CHAT_NESTED_OPEN
                   }
-                  onChange={this.onChangeClosed}
+                  onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
                   <label htmlFor="edit-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      Anybody can view the contents of an open thread.
+                      {threadTypeDescriptions[visibilityRules.CHAT_NESTED_OPEN]}
                     </span>
                   </label>
                 </div>
@@ -231,52 +194,30 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-closed"
-                  value={visibilityRules.CLOSED}
+                  value={visibilityRules.CHAT_SECRET}
                   checked={
                     this.state.threadInfo.visibilityRules ===
-                    visibilityRules.CLOSED
+                      visibilityRules.CHAT_SECRET
                   }
-                  onChange={this.onChangeClosed}
+                  onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
                   <label htmlFor="edit-thread-closed">
-                    Closed
-                    <span className={css['form-enum-description']}>
-                      Only people with the password can view the contents of
-                      a closed thread.
-                    </span>
-                  </label>
-                  {closedPasswordEntry}
-                </div>
-              </div>
-              <div className={css['form-enum-container']}>
-                <input
-                  type="radio"
-                  name="edit-thread-type"
-                  id="edit-thread-secret"
-                  value={visibilityRules.SECRET}
-                  checked={
-                    this.state.threadInfo.visibilityRules ===
-                    visibilityRules.SECRET
-                  }
-                  onChange={this.onChangeClosed}
-                  disabled={this.props.inputDisabled}
-                />
-                <div className={css['form-enum-option']}>
-                  <label htmlFor="edit-thread-secret">
                     Secret
                     <span className={css['form-enum-description']}>
-                      Only people with the password can view the thread, and
-                      it won't appear in search results or recommendations.
-                      Share the URL and password with your friends to add them.
+                      {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
                     </span>
                   </label>
-                  {secretPasswordEntry}
                 </div>
               </div>
             </div>
           </div>
+        );
+      }
+      mainContent = (
+        <div className={css['edit-thread-privacy-container']}>
+          {threadTypes}
         </div>
       );
     } else if (this.state.currentTabType === "delete") {
@@ -315,6 +256,23 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const canDeleteThread = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.DELETE_THREAD,
+    );
+    let deleteTab = null;
+    if (canDeleteThread) {
+      deleteTab = (
+        <Tab
+          name="Delete"
+          tabType="delete"
+          onClick={this.setTab}
+          selected={this.state.currentTabType === "delete"}
+          key="delete"
+        />
+      );
+    }
+
     return (
       <Modal name="Thread settings" onClose={this.props.onClose} size="large">
         <ul className={css['tab-panel']}>
@@ -331,13 +289,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             onClick={this.setTab}
             selected={this.state.currentTabType === "privacy"}
             key="privacy"
-          />
-          <Tab
-            name="Delete"
-            tabType="delete"
-            onClick={this.setTab}
-            selected={this.state.currentTabType === "delete"}
-            key="delete"
           />
         </ul>
         <div className={css['modal-body']}>
@@ -448,7 +399,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     }));
   }
 
-  onChangeClosed = (event: SyntheticEvent<HTMLInputElement>) => {
+  onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
     this.setState((prevState, props) => ({
       ...prevState,

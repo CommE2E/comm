@@ -590,12 +590,6 @@ div.form-enum-selector span.form-enum-description {
   max-width: 260px;
   color: gray;
 }
-div.form-enum-selector div.form-enum-password {
-  margin-left: -5px;
-}
-div.form-enum-selector div.form-enum-password > input[type='password'] {
-  width: 257px;
-}
 div.color-title {
   margin-top: 4px;
 }

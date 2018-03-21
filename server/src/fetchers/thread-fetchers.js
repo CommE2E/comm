@@ -93,7 +93,7 @@ async function fetchServerThreadInfos(
         subscription: row.subscription,
         unread: row.role ? !!row.unread : null,
       };
-      // This is a hack, similar to what we have in ThreadSettingsUser.
+      // This is a hack, similar to what we have in ThreadSettingsMember.
       // Basically we only want to return users that are either a member of this
       // thread, or are a "parent admin". We approximate "parent admin" by
       // looking for the PERMISSION_CHANGE_ROLE permission.

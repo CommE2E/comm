@@ -103,7 +103,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                     this.state.visibilityRules ===
                       visibilityRules.CHAT_NESTED_OPEN
                   }
-                  onChange={this.onChangeClosed}
+                  onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                   ref={this.openPrivacyInputRef}
                 />
@@ -126,12 +126,12 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                     this.state.visibilityRules ===
                       visibilityRules.CHAT_SECRET
                   }
-                  onChange={this.onChangeClosed}
+                  onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                 />
                 <div className={css['form-enum-option']}>
                   <label htmlFor="new-thread-closed">
-                    Closed
+                    Secret
                     <span className={css['form-enum-description']}>
                       {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
                     </span>
@@ -228,7 +228,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     this.setState({ color: color });
   }
 
-  onChangeClosed = (event: SyntheticEvent<HTMLInputElement>) => {
+  onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({

@@ -299,7 +299,6 @@ module.exports = {
 	"form-enum-container": "style__form-enum-container--2uC_1",
 	"form-enum-option": "style__form-enum-option--WtiUu",
 	"form-enum-description": "style__form-enum-description--2QWm-",
-	"form-enum-password": "style__form-enum-password--30J0G",
 	"color-title": "style__color-title--2akqJ",
 	"form-footer": "style__form-footer--e2GTq",
 	"modal-form-error": "style__modal-form-error--1-PtI",
@@ -2152,45 +2151,6 @@ async function restoreEntry(fetchJSON, entryID, sessionID) {
 
 /***/ }),
 /* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isFunction = __webpack_require__(74),
-    isLength = __webpack_require__(116);
-
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */
-function isArrayLike(value) {
-  return value != null && isLength(value.length) && !isFunction(value);
-}
-
-module.exports = isArrayLike;
-
-
-/***/ }),
-/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2365,6 +2325,45 @@ const threadTypeDescriptions = {
   [__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CHAT_SECRET]: "Only visible to its members and admins of ancestor threads."
 };
 
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isFunction = __webpack_require__(74),
+    isLength = __webpack_require__(116);
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(value.length) && !isFunction(value);
+}
+
+module.exports = isArrayLike;
 
 
 /***/ }),
@@ -2722,7 +2721,7 @@ async function leaveThread(fetchJSON, threadID) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__nav_selectors__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__utils_date_utils__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shared_entry_utils__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__user_selectors__ = __webpack_require__(217);
 
 
@@ -2947,7 +2946,7 @@ module.exports = baseGetTag;
 
 var arrayLikeKeys = __webpack_require__(177),
     baseKeys = __webpack_require__(80),
-    isArrayLike = __webpack_require__(24);
+    isArrayLike = __webpack_require__(25);
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -3089,7 +3088,7 @@ async function updateActivity(fetchJSON, activityUpdates) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__utils_config__ = __webpack_require__(96);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shared_search_index__ = __webpack_require__(138);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shared_typeahead_text__ = __webpack_require__(145);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shared_thread_utils__ = __webpack_require__(24);
 
 
 
@@ -4364,7 +4363,7 @@ module.exports = func;
 /* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isArrayLike = __webpack_require__(24),
+var isArrayLike = __webpack_require__(25),
     isObjectLike = __webpack_require__(17);
 
 /**
@@ -5235,7 +5234,7 @@ module.exports = getMapData;
 
 var arrayLikeKeys = __webpack_require__(177),
     baseKeysIn = __webpack_require__(315),
-    isArrayLike = __webpack_require__(24);
+    isArrayLike = __webpack_require__(25);
 
 /**
  * Creates an array of the own and inherited enumerable property names of `object`.
@@ -5493,7 +5492,7 @@ module.exports = baseForOwn;
 /***/ (function(module, exports, __webpack_require__) {
 
 var eq = __webpack_require__(61),
-    isArrayLike = __webpack_require__(24),
+    isArrayLike = __webpack_require__(25),
     isIndex = __webpack_require__(59),
     isObject = __webpack_require__(15);
 
@@ -9784,7 +9783,7 @@ module.exports = last;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseEach = __webpack_require__(66),
-    isArrayLike = __webpack_require__(24);
+    isArrayLike = __webpack_require__(25);
 
 /**
  * The base implementation of `_.map` without support for iteratee shorthands.
@@ -10355,7 +10354,7 @@ module.exports = func;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_keys__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_keys__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shared_search_index__ = __webpack_require__(138);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shared_thread_utils__ = __webpack_require__(24);
 
 
 
@@ -26836,7 +26835,7 @@ var black = "#000000";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_utils_redux_utils__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__style_css__);
@@ -33295,7 +33294,7 @@ module.exports = createBaseFor;
 /* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isArrayLike = __webpack_require__(24);
+var isArrayLike = __webpack_require__(25);
 
 /**
  * Creates a `baseEach` or `baseEachRight` function.
@@ -34288,7 +34287,7 @@ var baseKeys = __webpack_require__(80),
     getTag = __webpack_require__(39),
     isArguments = __webpack_require__(62),
     isArray = __webpack_require__(7),
-    isArrayLike = __webpack_require__(24),
+    isArrayLike = __webpack_require__(25),
     isBuffer = __webpack_require__(63),
     isPrototype = __webpack_require__(81),
     isTypedArray = __webpack_require__(79);
@@ -34549,7 +34548,7 @@ module.exports = find;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIteratee = __webpack_require__(18),
-    isArrayLike = __webpack_require__(24),
+    isArrayLike = __webpack_require__(25),
     keys = __webpack_require__(32);
 
 /**
@@ -34973,7 +34972,7 @@ function reduceSessionID(state, lastUserInteractionSessionReset, action) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_message_utils__ = __webpack_require__(417);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__utils_local_ids__ = __webpack_require__(136);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__utils_action_utils__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__actions_entry_actions__ = __webpack_require__(23);
@@ -42374,7 +42373,7 @@ module.exports = func;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIndexOf = __webpack_require__(172),
-    isArrayLike = __webpack_require__(24),
+    isArrayLike = __webpack_require__(25),
     isString = __webpack_require__(146),
     toInteger = __webpack_require__(60),
     values = __webpack_require__(135);
@@ -45525,7 +45524,7 @@ module.exports = func;
 
 var baseKeys = __webpack_require__(80),
     getTag = __webpack_require__(39),
-    isArrayLike = __webpack_require__(24),
+    isArrayLike = __webpack_require__(25),
     isString = __webpack_require__(146),
     stringSize = __webpack_require__(507);
 
@@ -45821,7 +45820,7 @@ TypeaheadActionOption.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_utils_redux_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__style_css__);
@@ -45887,7 +45886,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
         this.setState({ color: color });
       }
     });
-    Object.defineProperty(this, 'onChangeClosed', {
+    Object.defineProperty(this, 'onChangeThreadType', {
       enumerable: true,
       writable: true,
       value: event => {
@@ -45959,7 +45958,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                 id: 'new-thread-open',
                 value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
                 checked: this.state.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
-                onChange: this.onChangeClosed,
+                onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled,
                 ref: this.openPrivacyInputRef
               }),
@@ -45987,7 +45986,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                 id: 'new-thread-closed',
                 value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
                 checked: this.state.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
-                onChange: this.onChangeClosed,
+                onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
@@ -45996,7 +45995,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                 __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                   'label',
                   { htmlFor: 'new-thread-closed' },
-                  'Closed',
+                  'Secret',
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
                     { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
@@ -53257,7 +53256,7 @@ exports.default = (0, _common.ColorWrap)(Twitter);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_thread_actions__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_selectors_loading_selectors__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_utils_redux_utils__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13__style_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__typeahead_option_buttons_react__ = __webpack_require__(251);
@@ -53879,11 +53878,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_utils_redux_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_actions_thread_actions__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_selectors_loading_selectors__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__style_css__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__modal_react__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__color_picker_react__ = __webpack_require__(245);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__style_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__modal_react__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__color_picker_react__ = __webpack_require__(245);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 
 
 
@@ -53916,8 +53917,8 @@ class Tab extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
 
   render() {
     const classNamesForTab = __WEBPACK_IMPORTED_MODULE_2_classnames___default()({
-      [__WEBPACK_IMPORTED_MODULE_8__style_css___default.a['current-tab']]: this.props.selected,
-      [__WEBPACK_IMPORTED_MODULE_8__style_css___default.a['delete-tab']]: this.props.selected && this.props.tabType === "delete"
+      [__WEBPACK_IMPORTED_MODULE_9__style_css___default.a['current-tab']]: this.props.selected,
+      [__WEBPACK_IMPORTED_MODULE_9__style_css___default.a['delete-tab']]: this.props.selected && this.props.tabType === "delete"
     });
     return __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
       'li',
@@ -54029,7 +54030,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         }));
       }
     });
-    Object.defineProperty(this, 'onChangeClosed', {
+    Object.defineProperty(this, 'onChangeThreadType', {
       enumerable: true,
       writable: true,
       value: event => {
@@ -54176,12 +54177,12 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
           null,
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-title'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-title'] },
             'Thread name'
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-content'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
               type: 'text',
               value: this.threadName(),
@@ -54193,15 +54194,15 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
-          { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-textarea-container'] },
+          { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-textarea-container'] },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-title'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-title'] },
             'Description'
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-content'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('textarea', {
               value: this.state.threadInfo.description,
               placeholder: 'Thread description',
@@ -54212,16 +54213,16 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
-          { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['edit-thread-color-container'] },
+          { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['edit-thread-color-container'] },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: `${__WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-title']} ${__WEBPACK_IMPORTED_MODULE_8__style_css___default.a['color-title']}` },
+            { className: `${__WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-title']} ${__WEBPACK_IMPORTED_MODULE_9__style_css___default.a['color-title']}` },
             'Color'
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-content'] },
-            __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_10__color_picker_react__["a" /* default */], {
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
+            __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__color_picker_react__["a" /* default */], {
               id: 'edit-thread-color',
               value: this.state.threadInfo.color,
               disabled: this.props.inputDisabled,
@@ -54231,141 +54232,80 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         )
       );
     } else if (this.state.currentTabType === "privacy") {
-      let threadPasswordInputs = null;
-      if (this.state.threadInfo.visibilityRules >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED) {
-        const currentlyClosed = this.props.threadInfo.visibilityRules >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED;
-        // Note: these depend on props, not state
-        const passwordPlaceholder = currentlyClosed ? "New thread password (optional)" : "New thread password";
-        const confirmPlaceholder = currentlyClosed ? "Confirm thread password (optional)" : "Confirm thread password";
-        threadPasswordInputs = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
+      let threadTypes = null;
+      if (this.state.threadInfo.parentThreadID) {
+        threadTypes = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
-          null,
+          { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['modal-radio-selector'] },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-password'] },
-            __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
-              type: 'password',
-              placeholder: passwordPlaceholder,
-              value: this.state.newThreadPassword,
-              onChange: this.onChangeNewThreadPassword,
-              disabled: this.props.inputDisabled,
-              ref: this.newThreadPasswordInputRef
-            })
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-title'] },
+            'Thread type'
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-password'] },
-            __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
-              type: 'password',
-              placeholder: confirmPlaceholder,
-              value: this.state.confirmThreadPassword,
-              onChange: this.onChangeConfirmThreadPassword,
-              disabled: this.props.inputDisabled
-            })
-          )
-        );
-      }
-      const closedPasswordEntry = this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED ? threadPasswordInputs : null;
-      const secretPasswordEntry = this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].SECRET ? threadPasswordInputs : null;
-      mainContent = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-        'div',
-        { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['edit-thread-privacy-container'] },
-        __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-          'div',
-          { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['modal-radio-selector'] },
-          __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-            'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-title'] },
-            'Visibility'
-          ),
-          __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-            'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-selector'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-selector'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'div',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-container'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-container'] },
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
                 type: 'radio',
                 name: 'edit-thread-type',
                 id: 'edit-thread-open',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].OPEN,
-                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].OPEN,
-                onChange: this.onChangeClosed,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
+                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
+                onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                 'div',
-                { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-option'] },
+                { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-option'] },
                 __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                   'label',
                   { htmlFor: 'edit-thread-open' },
                   'Open',
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
-                    { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-description'] },
-                    'Anybody can view the contents of an open thread.'
+                    { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
+                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN]
                   )
                 )
               )
             ),
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'div',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-container'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-container'] },
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
                 type: 'radio',
                 name: 'edit-thread-type',
                 id: 'edit-thread-closed',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED,
-                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED,
-                onChange: this.onChangeClosed,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
+                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
+                onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                 'div',
-                { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-option'] },
+                { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-option'] },
                 __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                   'label',
                   { htmlFor: 'edit-thread-closed' },
-                  'Closed',
-                  __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-                    'span',
-                    { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-description'] },
-                    'Only people with the password can view the contents of a closed thread.'
-                  )
-                ),
-                closedPasswordEntry
-              )
-            ),
-            __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-              'div',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-container'] },
-              __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
-                type: 'radio',
-                name: 'edit-thread-type',
-                id: 'edit-thread-secret',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].SECRET,
-                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].SECRET,
-                onChange: this.onChangeClosed,
-                disabled: this.props.inputDisabled
-              }),
-              __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-                'div',
-                { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-option'] },
-                __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-                  'label',
-                  { htmlFor: 'edit-thread-secret' },
                   'Secret',
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
-                    { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-enum-description'] },
-                    'Only people with the password can view the thread, and it won\'t appear in search results or recommendations. Share the URL and password with your friends to add them.'
+                    { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
+                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET]
                   )
-                ),
-                secretPasswordEntry
+                )
               )
             )
           )
-        )
+        );
+      }
+      mainContent = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
+        'div',
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['edit-thread-privacy-container'] },
+        threadTypes
       );
     } else if (this.state.currentTabType === "delete") {
       mainContent = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
@@ -54373,7 +54313,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         null,
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'p',
-          { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['italic'] },
+          { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['italic'] },
           'Your thread will be permanently deleted. There is no way to reverse this.'
         )
       );
@@ -54383,7 +54323,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
     if (this.state.currentTabType === "delete") {
       buttons = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'span',
-        { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-submit'] },
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-submit'] },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
           type: 'submit',
           value: 'Delete',
@@ -54394,7 +54334,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
     } else {
       buttons = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'span',
-        { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-submit'] },
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-submit'] },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
           type: 'submit',
           value: 'Save',
@@ -54404,12 +54344,24 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       );
     }
 
+    const canDeleteThread = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["d" /* threadHasPermission */])(this.props.threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].DELETE_THREAD);
+    let deleteTab = null;
+    if (canDeleteThread) {
+      deleteTab = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](Tab, {
+        name: 'Delete',
+        tabType: 'delete',
+        onClick: this.setTab,
+        selected: this.state.currentTabType === "delete",
+        key: 'delete'
+      });
+    }
+
     return __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
-      __WEBPACK_IMPORTED_MODULE_9__modal_react__["a" /* default */],
+      __WEBPACK_IMPORTED_MODULE_10__modal_react__["a" /* default */],
       { name: 'Thread settings', onClose: this.props.onClose, size: 'large' },
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'ul',
-        { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['tab-panel'] },
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['tab-panel'] },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](Tab, {
           name: 'General',
           tabType: 'general',
@@ -54423,38 +54375,31 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
           onClick: this.setTab,
           selected: this.state.currentTabType === "privacy",
           key: 'privacy'
-        }),
-        __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](Tab, {
-          name: 'Delete',
-          tabType: 'delete',
-          onClick: this.setTab,
-          selected: this.state.currentTabType === "delete",
-          key: 'delete'
         })
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['modal-body'] },
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['modal-body'] },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'form',
           { method: 'POST' },
           mainContent,
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['edit-thread-account-password'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['edit-thread-account-password'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'p',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['confirm-account-password'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['confirm-account-password'] },
               'Please enter your account password to confirm your identity'
             ),
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'div',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-title'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-title'] },
               'Account password'
             ),
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'div',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-content'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
               __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
                 type: 'password',
                 placeholder: 'Personal account password',
@@ -54467,10 +54412,10 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
-            { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['form-footer'] },
+            { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-footer'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
               'span',
-              { className: __WEBPACK_IMPORTED_MODULE_8__style_css___default.a['modal-form-error'] },
+              { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['modal-form-error'] },
               this.state.errorMessage
             ),
             buttons
@@ -55311,7 +55256,7 @@ Day.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_entry_utils__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_utils_redux_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_entry_actions__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_utils_errors__ = __webpack_require__(211);
@@ -55872,7 +55817,7 @@ const allDaysToEntries = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSe
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_prop_types__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_loading_selectors__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_utils_redux_utils__ = __webpack_require__(16);
@@ -56069,7 +56014,7 @@ HistoryEntry.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_react_timeago__ = __webpack_require__(588);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_react_timeago___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_react_timeago__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_thread_utils__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_thread_utils__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__style_css__);
