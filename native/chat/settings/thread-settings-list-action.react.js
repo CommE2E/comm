@@ -5,7 +5,7 @@ import type {
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Button from '../../components/button.react';
@@ -17,10 +17,11 @@ type ListActionProps = {|
   iconColor: string,
   iconSize: number,
   iconStyle?: StyleObj,
+  buttonStyle?: StyleObj,
 |};
 function ThreadSettingsListAction(props: ListActionProps) {
   return (
-    <Button onPress={props.onPress}>
+    <Button onPress={props.onPress} style={props.buttonStyle}>
       <View style={styles.container}>
         <Text style={styles.text}>{props.text}</Text>
         <Icon
@@ -48,6 +49,7 @@ function ThreadSettingsSeeMore(props: SeeMoreProps) {
           iconColor="#036AFF"
           iconSize={36}
           iconStyle={styles.seeMoreIcon}
+          buttonStyle={styles.seeMoreButton}
         />
       </View>
     </View>
@@ -66,6 +68,7 @@ function ThreadSettingsAddMember(props: AddMemberProps) {
         iconName="md-add"
         iconColor="#009900"
         iconSize={20}
+        buttonStyle={styles.addMemberButton}
       />
     </View>
   );
@@ -74,23 +77,19 @@ function ThreadSettingsAddMember(props: AddMemberProps) {
 type AddChildThreadProps = {|
   onPress: () => void,
 |};
-class ThreadSettingsAddChildThread
-  extends React.PureComponent<AddChildThreadProps> {
-
-  render() {
-    return (
-      <View style={styles.addItemRow}>
-        <ThreadSettingsListAction
-          onPress={this.props.onPress}
-          text="Add child thread"
-          iconName="md-add"
-          iconColor="#009900"
-          iconSize={20}
-        />
-      </View>
-    );
-  }
-
+function ThreadSettingsAddChildThread(props: AddChildThreadProps) {
+  return (
+    <View style={styles.addItemRow}>
+      <ThreadSettingsListAction
+        onPress={props.onPress}
+        text="Add child thread"
+        iconName="md-add"
+        iconColor="#009900"
+        iconSize={20}
+        buttonStyle={styles.addChildThreadButton}
+      />
+    </View>
+  );
 }
 
 
@@ -118,17 +117,25 @@ const styles = StyleSheet.create({
   seeMoreContents: {
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
-    paddingTop: 2,
   },
   seeMoreIcon: {
     position: 'absolute',
     right: 10,
-    top: 15,
+    top: Platform.OS === "android" ? 17 : 15,
   },
   addItemRow: {
     paddingHorizontal: 12,
-    paddingTop: 4,
     backgroundColor: "white",
+  },
+  addMemberButton: {
+    paddingTop: Platform.OS === "ios" ? 4 : 1,
+  },
+  addChildThreadButton: {
+    paddingTop: Platform.OS === "ios" ? 4 : 1,
+  },
+  seeMoreButton: {
+    paddingTop: Platform.OS === "ios" ? 2 : 0,
+    paddingBottom: Platform.OS === "ios" ? 4 : 2,
   },
 });
 

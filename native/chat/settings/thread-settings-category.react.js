@@ -43,7 +43,6 @@ function ThreadSettingsCategoryFooter(props: FooterProps) {
   } else if (props.type === "outline") {
   } else if (props.type === "unpadded") {
     contentStyle = styles.fullFooter;
-    paddingStyle = styles.unpaddedFooterPadding;
   } else {
     invariant(false, "invalid ThreadSettingsCategory type");
   }
@@ -84,10 +83,6 @@ const styles = StyleSheet.create({
   fullFooterPadding: {
     backgroundColor: "white",
     height: 6,
-  },
-  unpaddedFooterPadding: {
-    backgroundColor: "white",
-    height: 4,
   },
 });
 

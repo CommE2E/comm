@@ -1,10 +1,11 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, Platform } from 'react-native';
+import PropTypes from 'prop-types';
 
 import { MessageListRouteName } from '../message-list.react';
 import Button from '../../components/button.react';
@@ -17,13 +18,21 @@ type Props = {|
     routeName: string,
     params?: NavigationParams,
   ) => bool,
+  lastListItem: bool,
 |};
 class ThreadSettingsChildThread extends React.PureComponent<Props> {
 
+  static propTypes = {
+    threadInfo: threadInfoPropType.isRequired,
+    navigate: PropTypes.func.isRequired,
+    lastListItem: PropTypes.bool.isRequired,
+  };
+
   render() {
+    const lastButtonStyle = this.props.lastListItem ? styles.lastButton : null;
     return (
       <View style={styles.container}>
-        <Button onPress={this.onPress} style={styles.button}>
+        <Button onPress={this.onPress} style={[styles.button, lastButtonStyle]}>
           <View style={styles.leftSide}>
             <ColorSplotch color={this.props.threadInfo.color} />
             <Text style={styles.text} numberOfLines={1}>
@@ -74,6 +83,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#036AFF",
     paddingLeft: 8,
+  },
+  lastButton: {
+    paddingTop: 8,
+    paddingBottom: Platform.OS === "ios" ? 12 : 10,
   },
 });
 

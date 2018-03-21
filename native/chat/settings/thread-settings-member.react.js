@@ -46,6 +46,7 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
+  lastListItem: bool,
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
   changeRoleLoadingStatus: LoadingStatus,
@@ -71,6 +72,7 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
     memberInfo: relativeMemberInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     canEdit: PropTypes.bool.isRequired,
+    lastListItem: PropTypes.bool.isRequired,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -193,9 +195,12 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
       }
     }
 
+    const lastInnerContainer = this.props.lastListItem
+      ? styles.lastInnerContainer
+      : null;
     return (
       <View style={styles.container}>
-        <View style={styles.innerContainer}>
+        <View style={[styles.innerContainer, lastInnerContainer]}>
           <View style={styles.row}>
             {userInfo}
             {editButton}
@@ -325,6 +330,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#888888",
     paddingTop: 4,
+  },
+  lastInnerContainer: {
+    paddingTop: 8,
+    paddingBottom: Platform.OS === "ios" ? 12 : 10,
   },
 });
 

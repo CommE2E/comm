@@ -60,6 +60,7 @@ import ThreadSettingsParent from './thread-settings-parent.react';
 import ThreadSettingsVisibility from './thread-settings-visibility.react';
 import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
+import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 
 const itemPageLength = 5;
 
@@ -127,6 +128,7 @@ type ChatSettingsItem =
       key: string,
       threadInfo: ThreadInfo,
       navigate: (routeName: string, params?: NavigationParams) => bool,
+      lastListItem: bool,
     |}
   | {|
       itemType: "addChildThread",
@@ -138,6 +140,7 @@ type ChatSettingsItem =
       memberInfo: RelativeMemberInfo,
       threadInfo: ThreadInfo,
       canEdit: bool,
+      lastListItem: bool,
     |}
   | {|
       itemType: "addMember",
@@ -146,6 +149,13 @@ type ChatSettingsItem =
   | {|
       itemType: "leaveThread",
       key: string,
+      canDeleteThread: bool,
+      threadInfo: ThreadInfo,
+    |}
+  | {|
+      itemType: "deleteThread",
+      key: string,
+      canLeaveThread: bool,
       threadInfo: ThreadInfo,
     |};
 
@@ -372,7 +382,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       categoryType: "full",
     });
 
-    let childThreads = null;
+    let childThreadItems = null;
     if (this.props.childThreadInfos) {
       let childThreadInfos;
       let seeMoreChildThreads = null;
@@ -387,14 +397,18 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       } else {
         childThreadInfos = this.props.childThreadInfos;
       }
-      childThreads = childThreadInfos.map(childThreadInfo => ({
+      const childThreads = childThreadInfos.map(childThreadInfo => ({
         itemType: "childThread",
         key: `childThread${childThreadInfo.id}`,
         threadInfo: childThreadInfo,
         navigate: this.props.navigation.navigate,
+        lastListItem: false,
       }));
       if (seeMoreChildThreads) {
-        childThreads.push(seeMoreChildThreads);
+        childThreadItems = [ ...childThreads, seeMoreChildThreads ];
+      } else {
+        childThreads[childThreads.length - 1].lastListItem = true;
+        childThreadItems = childThreads;
       }
     }
 
@@ -410,7 +424,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       };
     }
 
-    if (addChildThread || childThreads) {
+    if (addChildThread || childThreadItems) {
       listData.push({
         itemType: "header",
         key: "childThreadHeader",
@@ -421,10 +435,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     if (addChildThread) {
       listData.push(addChildThread);
     }
-    if (childThreads) {
-      listData = [...listData, ...childThreads];
+    if (childThreadItems) {
+      listData = [...listData, ...childThreadItems];
     }
-    if (addChildThread || childThreads) {
+    if (addChildThread || childThreadItems) {
       listData.push({
         itemType: "footer",
         key: "childThreadFooter",
@@ -451,9 +465,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       memberInfo,
       threadInfo,
       canEdit: canStartEditing,
+      lastListItem: false,
     }));
+    let memberItems;
     if (seeMoreMembers) {
-      members.push(seeMoreMembers);
+      memberItems = [ ...members, seeMoreMembers ];
+    } else {
+      members[members.length - 1].lastListItem = true;
+      memberItems = members;
     }
 
     let addMembers = null;
@@ -468,7 +487,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       };
     }
 
-    if (addMembers || members) {
+    if (addMembers || memberItems) {
       listData.push({
         itemType: "header",
         key: "memberHeader",
@@ -479,10 +498,10 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     if (addMembers) {
       listData.push(addMembers);
     }
-    if (members) {
-      listData = [...listData, ...members];
+    if (memberItems) {
+      listData = [...listData, ...memberItems];
     }
-    if (addMembers || members) {
+    if (addMembers || memberItems) {
       listData.push({
         itemType: "footer",
         key: "memberFooter",
@@ -490,11 +509,40 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       });
     }
 
-    if (viewerIsMember(threadInfo)) {
+    const canLeaveThread = viewerIsMember(threadInfo);
+    const canDeleteThread = threadHasPermission(
+      threadInfo,
+      threadPermissions.DELETE_THREAD,
+    );
+    if (canLeaveThread || canDeleteThread) {
+      listData.push({
+        itemType: "header",
+        key: "actionsHeader",
+        title: "Actions",
+        categoryType: "unpadded",
+      });
+    }
+    if (canLeaveThread) {
       listData.push({
         itemType: "leaveThread",
         key: "leaveThread",
+        canDeleteThread: !!canDeleteThread,
         threadInfo,
+      });
+    }
+    if (canDeleteThread) {
+      listData.push({
+        itemType: "deleteThread",
+        key: "deleteThread",
+        canLeaveThread: !!canLeaveThread,
+        threadInfo,
+      });
+    }
+    if (canLeaveThread || canDeleteThread) {
+      listData.push({
+        itemType: "footer",
+        key: "actionsFooter",
+        categoryType: "unpadded",
       });
     }
 
@@ -592,6 +640,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         <ThreadSettingsChildThread
           threadInfo={item.threadInfo}
           navigate={item.navigate}
+          lastListItem={item.lastListItem}
         />
       );
     } else if (item.itemType === "addChildThread") {
@@ -604,12 +653,25 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           memberInfo={item.memberInfo}
           threadInfo={item.threadInfo}
           canEdit={item.canEdit}
+          lastListItem={item.lastListItem}
         />
       );
     } else if (item.itemType === "addMember") {
       return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
     } else if (item.itemType === "leaveThread") {
-      return <ThreadSettingsLeaveThread threadInfo={item.threadInfo} />;
+      return (
+        <ThreadSettingsLeaveThread
+          threadInfo={item.threadInfo}
+          canDeleteThread={item.canDeleteThread}
+        />
+      );
+    } else if (item.itemType === "deleteThread") {
+      return (
+        <ThreadSettingsDeleteThread
+          threadInfo={item.threadInfo}
+          canLeaveThread={item.canLeaveThread}
+        />
+      );
     }
   }
 
