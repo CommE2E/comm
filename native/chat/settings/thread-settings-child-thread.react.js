@@ -52,11 +52,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    paddingLeft: 12,
-    paddingRight: 16,
-    borderTopWidth: 1,
-    borderColor: "#CCCCCC",
+    paddingHorizontal: 12,
     backgroundColor: "white",
   },
   button: {
@@ -64,8 +60,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 8,
     paddingLeft: 12,
-    paddingRight: 6,
+    paddingRight: 10,
     alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: "#CCCCCC",
   },
   leftSide: {
     flex: 1,

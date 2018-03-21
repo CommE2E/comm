@@ -195,11 +195,13 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
 
     return (
       <View style={styles.container}>
-        <View style={styles.row}>
-          {userInfo}
-          {editButton}
+        <View style={styles.innerContainer}>
+          <View style={styles.row}>
+            {userInfo}
+            {editButton}
+          </View>
+          {roleInfo}
         </View>
-        {roleInfo}
       </View>
     );
   }
@@ -284,11 +286,15 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "white",
+  },
+  innerContainer: {
+    flex: 1,
+    paddingHorizontal: 12,
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
-    backgroundColor: "white",
+    paddingVertical: 8,
   },
   row: {
     flex: 1,

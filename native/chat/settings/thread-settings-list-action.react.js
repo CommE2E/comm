@@ -40,14 +40,16 @@ type SeeMoreProps = {|
 function ThreadSettingsSeeMore(props: SeeMoreProps) {
   return (
     <View style={styles.seeMoreRow}>
-      <ThreadSettingsListAction
-        onPress={props.onPress}
-        text="See more..."
-        iconName="ios-more"
-        iconColor="#036AFF"
-        iconSize={36}
-        iconStyle={styles.seeMoreIcon}
-      />
+      <View style={styles.seeMoreContents}>
+        <ThreadSettingsListAction
+          onPress={props.onPress}
+          text="See more..."
+          iconName="ios-more"
+          iconColor="#036AFF"
+          iconSize={36}
+          iconStyle={styles.seeMoreIcon}
+        />
+      </View>
     </View>
   );
 }
@@ -110,11 +112,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   seeMoreRow: {
+    paddingHorizontal: 12,
+    backgroundColor: "white",
+  },
+  seeMoreContents: {
     borderTopWidth: 1,
     borderColor: "#CCCCCC",
-    paddingHorizontal: 12,
     paddingTop: 2,
-    backgroundColor: "white",
   },
   seeMoreIcon: {
     position: 'absolute',
