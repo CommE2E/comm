@@ -3470,13 +3470,41 @@ function reducer(state, action) {
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
       windowDimensions: action.payload
     };
-  } else if (action.type === __WEBPACK_IMPORTED_MODULE_2_lib_actions_thread_actions__["k" /* newThreadActionTypes */].success) {
-    return {
+  }
+  if (action.type === __WEBPACK_IMPORTED_MODULE_2_lib_actions_thread_actions__["k" /* newThreadActionTypes */].success) {
+    state = {
       navInfo: {
         startDate: state.navInfo.startDate,
         endDate: state.navInfo.endDate,
         home: false,
         threadID: action.payload.newThreadInfo.id,
+        verify: state.navInfo.verify
+      },
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+      windowDimensions: state.windowDimensions
+    };
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_2_lib_actions_thread_actions__["e" /* deleteThreadActionTypes */].success && action.payload.threadID === state.navInfo.threadID) {
+    state = {
+      navInfo: {
+        startDate: state.navInfo.startDate,
+        endDate: state.navInfo.endDate,
+        home: true,
+        threadID: null,
         verify: state.navInfo.verify
       },
       currentUserInfo: state.currentUserInfo,
@@ -54352,7 +54380,8 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
           onClick: this.setTab,
           selected: this.state.currentTabType === "privacy",
           key: 'privacy'
-        })
+        }),
+        deleteTab
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',

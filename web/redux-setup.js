@@ -12,7 +12,10 @@ import type { MessageStore } from 'lib/types/message-types';
 import PropTypes from 'prop-types';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { newThreadActionTypes } from 'lib/actions/thread-actions';
+import {
+  newThreadActionTypes,
+  deleteThreadActionTypes,
+} from 'lib/actions/thread-actions';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -130,13 +133,44 @@ export function reducer(state: AppState, action: Action) {
       typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
       windowDimensions: action.payload,
     };
-  } else if (action.type === newThreadActionTypes.success) {
-    return {
+  }
+  if (action.type === newThreadActionTypes.success) {
+    state = {
       navInfo: {
         startDate: state.navInfo.startDate,
         endDate: state.navInfo.endDate,
         home: false,
         threadID: action.payload.newThreadInfo.id,
+        verify: state.navInfo.verify,
+      },
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
+      windowDimensions: state.windowDimensions,
+    };
+  } else if (
+    action.type === deleteThreadActionTypes.success &&
+    action.payload.threadID === state.navInfo.threadID
+  ) {
+    state = {
+      navInfo: {
+        startDate: state.navInfo.startDate,
+        endDate: state.navInfo.endDate,
+        home: true,
+        threadID: null,
         verify: state.navInfo.verify,
       },
       currentUserInfo: state.currentUserInfo,

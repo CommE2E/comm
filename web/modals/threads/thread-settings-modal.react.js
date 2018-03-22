@@ -290,6 +290,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             selected={this.state.currentTabType === "privacy"}
             key="privacy"
           />
+          {deleteTab}
         </ul>
         <div className={css['modal-body']}>
           <form method="POST">
