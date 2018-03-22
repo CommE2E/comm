@@ -157,6 +157,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   androidNotifListener: ?Object = null;
   androidRefreshTokenListener: ?Object = null;
   initialAndroidNotifHandled = false;
+  openThreadOnceReceived: Set<string> = new Set();
 
   componentDidMount() {
     if (Platform.OS === "android") {
@@ -336,6 +337,18 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
+  pingNow() {
+    if (this.activePingSubscription) {
+      // If the ping callback is active now, this restarts it so it runs
+      // immediately
+      clearInterval(this.activePingSubscription);
+      this.activePingSubscription = setInterval(this.ping, pingFrequency);
+    } else {
+      // Otherwise, we just do a one-off ping
+      this.ping();
+    }
+  }
+
   componentWillReceiveProps(nextProps: Props) {
     const justLoggedIn = nextProps.appLoggedIn && !this.props.appLoggedIn;
     if (
@@ -358,6 +371,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     if (nextProps.unreadCount !== this.props.unreadCount) {
       AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
+    }
+    for (let threadID of this.openThreadOnceReceived) {
+      const rawThreadInfo = nextProps.rawThreadInfos[threadID];
+      if (rawThreadInfo) {
+        this.navigateToThread(rawThreadInfo, false);
+        this.openThreadOnceReceived.clear();
+        break;
+      }
     }
   }
 
@@ -459,14 +480,23 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
-  onPressNotificationForThread(threadID: string, clearChatRoutes: bool) {
+  navigateToThread(rawThreadInfo: RawThreadInfo, clearChatRoutes: bool) {
     this.props.dispatchActionPayload(
       notificationPressActionType,
       {
-        rawThreadInfo: this.props.rawThreadInfos[threadID],
+        rawThreadInfo,
         clearChatRoutes,
       },
     );
+  }
+
+  onPressNotificationForThread(threadID: string, clearChatRoutes: bool) {
+    const rawThreadInfo = this.props.rawThreadInfos[threadID];
+    if (rawThreadInfo) {
+      this.navigateToThread(rawThreadInfo, clearChatRoutes);
+    } else {
+      this.openThreadOnceReceived.add(threadID);
+    }
   }
 
   iosForegroundNotificationReceived = (notification) => {
@@ -484,6 +514,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
+    this.pingNow();
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
       message: notification.getMessage(),
@@ -499,6 +530,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
+    this.pingNow();
     this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
@@ -518,12 +550,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         console.log("Notification with missing threadID received!");
         return;
       }
+      this.pingNow();
       invariant(this.inAppNotification, "should be set");
       this.inAppNotification.show({
         message: notification.notifBody,
         onPress: () => this.onPressNotificationForThread(threadID, false),
       });
     } else if (notification.notifBody) {
+      this.pingNow();
       FCM.presentLocalNotification({
         id: notification.notifID,
         body: notification.notifBody,
