@@ -22,9 +22,6 @@ const inputValidator = tShape({
       threadID: t.String,
       latestMessage: t.maybe(t.String),
     }),
-    tShape({
-      closing: tBool(true),
-    }),
   ])),
 });
 

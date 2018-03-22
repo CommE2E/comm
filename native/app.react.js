@@ -615,20 +615,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   closingApp() {
-    if (!this.props.appLoggedIn) {
+    if (!this.props.appLoggedIn || !this.props.activeThread) {
       return;
     }
-    const updates = [];
-    updates.push({
-      closing: true,
-    });
-    if (this.props.activeThread) {
-      updates.push({
-        focus: false,
-        threadID: this.props.activeThread,
-        latestMessage: this.props.activeThreadLatestMessage,
-      });
-    }
+    const updates = [{
+      focus: false,
+      threadID: this.props.activeThread,
+      latestMessage: this.props.activeThreadLatestMessage,
+    }];
     this.props.dispatchActionPromise(
       updateActivityActionTypes,
       this.props.updateActivity(updates),

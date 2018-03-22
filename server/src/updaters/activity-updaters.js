@@ -29,30 +29,19 @@ async function activityUpdater(
 
   const unverifiedThreadIDs = new Set();
   const focusUpdatesByThreadID = new Map();
-  let closing = false;
   for (let activityUpdate of request.updates) {
-    if (activityUpdate.closing) {
-      closing = true;
-      continue;
-    }
     const threadID = activityUpdate.threadID;
     unverifiedThreadIDs.add(threadID);
     focusUpdatesByThreadID.set(threadID, activityUpdate);
   }
 
-  const dbPromises = [];
-  dbPromises.push(dbQuery(SQL`
+  const deleteQuery = SQL`
     DELETE FROM focused
     WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
-  `));
-  if (closing) {
-    dbPromises.push(dbQuery(SQL`
-      UPDATE cookies SET last_ping = 0 WHERE id = ${localViewer.cookieID}
-    `));
-  }
+  `;
   const [ verifiedThreadIDs ] = await Promise.all([
     verifyThreadIDs([...unverifiedThreadIDs]),
-    Promise.all(dbPromises),
+    dbQuery(deleteQuery),
   ]);
 
   const focusedThreadIDs = [];
