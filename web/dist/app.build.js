@@ -2689,40 +2689,42 @@ async function leaveThread(fetchJSON, threadID) {
 
 "use strict";
 /* unused harmony export rawThreadInfosToThreadInfos */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return threadInfoSelector; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return onScreenThreadInfos; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return typeaheadSortedThreadInfos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return threadInfoSelector; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return onScreenThreadInfos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return onScreenEntryEditableThreadInfos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return typeaheadSortedThreadInfos; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return currentDaysToEntries; });
 /* unused harmony export childThreadInfos */
 /* unused harmony export unreadCount */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return otherUsersButNoOtherAdmins; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_flow__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_flow__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_some__ = __webpack_require__(99);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_some___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_some__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_map__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_compact__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_compact___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_compact__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash_fp_sortBy__ = __webpack_require__(503);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash_fp_sortBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_lodash_fp_sortBy__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lodash_fp_size__ = __webpack_require__(505);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lodash_fp_size___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_lodash_fp_size__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_memoize__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_memoize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash_memoize__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_fp_find__ = __webpack_require__(210);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_fp_find___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_lodash_fp_find__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__nav_selectors__ = __webpack_require__(35);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__utils_date_utils__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shared_entry_utils__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__user_selectors__ = __webpack_require__(217);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return otherUsersButNoOtherAdmins; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_thread_types__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_reselect__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_some__ = __webpack_require__(99);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_some___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_some__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_map__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_compact__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_compact___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash_fp_compact__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lodash_fp_sortBy__ = __webpack_require__(503);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lodash_fp_sortBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_lodash_fp_sortBy__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_fp_size__ = __webpack_require__(505);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_fp_size___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash_fp_size__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_memoize__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_memoize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_lodash_memoize__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash_fp_find__ = __webpack_require__(210);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash_fp_find___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_lodash_fp_find__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__nav_selectors__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__utils_date_utils__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shared_entry_utils__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__user_selectors__ = __webpack_require__(217);
 
 
 
@@ -2734,7 +2736,10 @@ async function leaveThread(fetchJSON, threadID) {
 
 
 
-const _mapValuesWithKeys = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues___default.a.convert({ cap: false });
+
+
+
+const _mapValuesWithKeys = __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues___default.a.convert({ cap: false });
 
 
 
@@ -2742,13 +2747,13 @@ const _mapValuesWithKeys = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues___def
 
 
 
-const rawThreadInfosToThreadInfos = (rawThreadInfos, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_3_lodash_fp_mapValues___default()(rawThreadInfo => Object(__WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__["e" /* threadInfoFromRawThreadInfo */])(rawThreadInfo, viewerID, userInfos))(rawThreadInfos);
+const rawThreadInfosToThreadInfos = (rawThreadInfos, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues___default()(rawThreadInfo => Object(__WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__["e" /* threadInfoFromRawThreadInfo */])(rawThreadInfo, viewerID, userInfos))(rawThreadInfos);
 
-const threadInfoSelector = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.threadInfos, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, rawThreadInfosToThreadInfos);
+const threadInfoSelector = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.threadInfos, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, rawThreadInfosToThreadInfos);
 
-const onScreenThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_11__nav_selectors__["b" /* currentNavID */], threadInfoSelector, (currentNavID, threadInfos) => {
+const onScreenThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_12__nav_selectors__["b" /* currentNavID */], threadInfoSelector, (currentNavID, threadInfos) => {
   if (currentNavID === "home") {
-    return __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__["g" /* viewerIsMember */])(threadInfos);
+    return __WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__["g" /* viewerIsMember */])(threadInfos);
   } else if (currentNavID && threadInfos[currentNavID]) {
     return [threadInfos[currentNavID]];
   } else {
@@ -2756,7 +2761,9 @@ const onScreenThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["creat
   }
 });
 
-const typeaheadSortedThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(threadInfoSelector, __WEBPACK_IMPORTED_MODULE_11__nav_selectors__["b" /* currentNavID */], state => state.navInfo.threadID, (threadInfos, currentNavID, currentThreadID) => {
+const onScreenEntryEditableThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(onScreenThreadInfos, threadInfos => threadInfos.filter(threadInfo => Object(__WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__["d" /* threadHasPermission */])(threadInfo, __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].EDIT_ENTRIES)));
+
+const typeaheadSortedThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(threadInfoSelector, __WEBPACK_IMPORTED_MODULE_12__nav_selectors__["b" /* currentNavID */], state => state.navInfo.threadID, (threadInfos, currentNavID, currentThreadID) => {
   const currentInfos = [];
   const memberInfos = [];
   const recommendedInfos = [];
@@ -2767,7 +2774,7 @@ const typeaheadSortedThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__
     const threadInfo = threadInfos[threadID];
     if (!currentNavID && threadID === currentThreadID) {
       currentInfos.push(threadInfo);
-    } else if (Object(__WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__["g" /* viewerIsMember */])(threadInfo)) {
+    } else if (Object(__WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__["g" /* viewerIsMember */])(threadInfo)) {
       memberInfos.push(threadInfo);
     } else {
       recommendedInfos.push(threadInfo);
@@ -2782,17 +2789,17 @@ const typeaheadSortedThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__
 
 // "current" means within startDate/endDate range, not deleted, and in
 // onScreenThreadInfos
-const currentDaysToEntries = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.entryStore.entryInfos, state => state.entryStore.daysToEntries, state => state.navInfo.startDate, state => state.navInfo.endDate, state => state.userInfos, state => state.currentUserInfo && state.currentUserInfo.id, onScreenThreadInfos, (entryInfos, daysToEntries, startDateString, endDateString, userInfos, viewerID, onScreenThreadInfos) => {
+const currentDaysToEntries = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.entryStore.entryInfos, state => state.entryStore.daysToEntries, state => state.navInfo.startDate, state => state.navInfo.endDate, state => state.userInfos, state => state.currentUserInfo && state.currentUserInfo.id, onScreenThreadInfos, (entryInfos, daysToEntries, startDateString, endDateString, userInfos, viewerID, onScreenThreadInfos) => {
   const allDaysWithinRange = {},
-        startDate = Object(__WEBPACK_IMPORTED_MODULE_12__utils_date_utils__["a" /* dateFromString */])(startDateString),
-        endDate = Object(__WEBPACK_IMPORTED_MODULE_12__utils_date_utils__["a" /* dateFromString */])(endDateString);
+        startDate = Object(__WEBPACK_IMPORTED_MODULE_13__utils_date_utils__["a" /* dateFromString */])(startDateString),
+        endDate = Object(__WEBPACK_IMPORTED_MODULE_13__utils_date_utils__["a" /* dateFromString */])(endDateString);
   for (const curDate = startDate; curDate <= endDate; curDate.setDate(curDate.getDate() + 1)) {
-    allDaysWithinRange[Object(__WEBPACK_IMPORTED_MODULE_12__utils_date_utils__["b" /* dateString */])(curDate)] = [];
+    allDaysWithinRange[Object(__WEBPACK_IMPORTED_MODULE_13__utils_date_utils__["b" /* dateString */])(curDate)] = [];
   }
-  return _mapValuesWithKeys((_, dayString) => __WEBPACK_IMPORTED_MODULE_1_lodash_fp_flow___default()(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_map___default()(entryID => Object(__WEBPACK_IMPORTED_MODULE_13__shared_entry_utils__["a" /* createEntryInfo */])(entryInfos[entryID], viewerID, userInfos)), __WEBPACK_IMPORTED_MODULE_5_lodash_fp_compact___default.a, __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(entryInfo => !entryInfo.deleted && __WEBPACK_IMPORTED_MODULE_2_lodash_fp_some___default()(['id', entryInfo.threadID])(onScreenThreadInfos)), __WEBPACK_IMPORTED_MODULE_7_lodash_fp_sortBy___default()("creationTime"))(daysToEntries[dayString] ? daysToEntries[dayString] : []))(allDaysWithinRange);
+  return _mapValuesWithKeys((_, dayString) => __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default()(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_map___default()(entryID => Object(__WEBPACK_IMPORTED_MODULE_14__shared_entry_utils__["a" /* createEntryInfo */])(entryInfos[entryID], viewerID, userInfos)), __WEBPACK_IMPORTED_MODULE_6_lodash_fp_compact___default.a, __WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter___default()(entryInfo => !entryInfo.deleted && __WEBPACK_IMPORTED_MODULE_3_lodash_fp_some___default()(['id', entryInfo.threadID])(onScreenThreadInfos)), __WEBPACK_IMPORTED_MODULE_8_lodash_fp_sortBy___default()("creationTime"))(daysToEntries[dayString] ? daysToEntries[dayString] : []))(allDaysWithinRange);
 });
 
-const childThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(threadInfoSelector, threadInfos => {
+const childThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(threadInfoSelector, threadInfos => {
   const result = {};
   for (let id in threadInfos) {
     const threadInfo = threadInfos[id];
@@ -2808,13 +2815,13 @@ const childThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSe
   return result;
 });
 
-const unreadCount = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.threadInfos, threadInfos => __WEBPACK_IMPORTED_MODULE_1_lodash_fp_flow___default()(__WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_14__shared_thread_utils__["g" /* viewerIsMember */]), __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()('currentUser.unread'), __WEBPACK_IMPORTED_MODULE_8_lodash_fp_size___default.a)(threadInfos));
+const unreadCount = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.threadInfos, threadInfos => __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default()(__WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__["g" /* viewerIsMember */]), __WEBPACK_IMPORTED_MODULE_7_lodash_fp_filter___default()('currentUser.unread'), __WEBPACK_IMPORTED_MODULE_9_lodash_fp_size___default.a)(threadInfos));
 
-const baseOtherUsersButNoOtherAdmins = threadID => Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.threadInfos[threadID], Object(__WEBPACK_IMPORTED_MODULE_15__user_selectors__["a" /* relativeMemberInfoSelectorForMembersOfThread */])(threadID), (threadInfo, members) => {
+const baseOtherUsersButNoOtherAdmins = threadID => Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.threadInfos[threadID], Object(__WEBPACK_IMPORTED_MODULE_16__user_selectors__["a" /* relativeMemberInfoSelectorForMembersOfThread */])(threadID), (threadInfo, members) => {
   if (!threadInfo) {
     return false;
   }
-  if (!__WEBPACK_IMPORTED_MODULE_10_lodash_fp_find___default()({ name: "Admins" })(threadInfo.roles)) {
+  if (!__WEBPACK_IMPORTED_MODULE_11_lodash_fp_find___default()({ name: "Admins" })(threadInfo.roles)) {
     return false;
   }
   let otherUsersExist = false;
@@ -2833,7 +2840,7 @@ const baseOtherUsersButNoOtherAdmins = threadID => Object(__WEBPACK_IMPORTED_MOD
   return otherUsersExist && !otherAdminsExist;
 });
 
-const otherUsersButNoOtherAdmins = __WEBPACK_IMPORTED_MODULE_9_lodash_memoize___default()(baseOtherUsersButNoOtherAdmins);
+const otherUsersButNoOtherAdmins = __WEBPACK_IMPORTED_MODULE_10_lodash_memoize___default()(baseOtherUsersButNoOtherAdmins);
 
 
 
@@ -26994,8 +27001,9 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
         )
       );
     }
+    const canEditThread = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["d" /* threadHasPermission */])(this.props.threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].EDIT_THREAD);
     let editButton = null;
-    if (this.props.currentNavID) {
+    if (canEditThread && this.props.currentNavID) {
       editButton = __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
         'li',
         null,
@@ -27065,7 +27073,7 @@ TypeaheadOptionButtons.propTypes = {
   home: state.navInfo.home,
   currentNavID: Object(__WEBPACK_IMPORTED_MODULE_3_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
   loadingStatus: Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["a" /* combineLoadingStatuses */])(Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state), Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state)),
-  otherUsersButNoOtherAdmins: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__["c" /* otherUsersButNoOtherAdmins */])(ownProps.threadInfo.id)(state),
+  otherUsersButNoOtherAdmins: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__["d" /* otherUsersButNoOtherAdmins */])(ownProps.threadInfo.id)(state),
   currentCalendarQuery: Object(__WEBPACK_IMPORTED_MODULE_3_lib_selectors_nav_selectors__["a" /* currentCalendarQuery */])(state)
 }), { joinThread: __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["f" /* joinThread */], leaveThread: __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["h" /* leaveThread */], fetchEntries: __WEBPACK_IMPORTED_MODULE_4_lib_actions_entry_actions__["h" /* fetchEntries */] })(TypeaheadOptionButtons));
 
@@ -45314,11 +45322,11 @@ Typeahead.propTypes = {
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_12_react_redux__["a" /* connect */])(state => ({
   currentNavID: Object(__WEBPACK_IMPORTED_MODULE_14_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
-  threadInfos: Object(__WEBPACK_IMPORTED_MODULE_15_lib_selectors_thread_selectors__["d" /* threadInfoSelector */])(state),
+  threadInfos: Object(__WEBPACK_IMPORTED_MODULE_15_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state),
   currentlyHome: state.navInfo.home,
   currentThreadID: state.navInfo.threadID,
   threadSearchIndex: Object(__WEBPACK_IMPORTED_MODULE_14_lib_selectors_nav_selectors__["c" /* threadSearchIndex */])(state),
-  sortedThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_15_lib_selectors_thread_selectors__["e" /* typeaheadSortedThreadInfos */])(state),
+  sortedThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_15_lib_selectors_thread_selectors__["f" /* typeaheadSortedThreadInfos */])(state),
   typeaheadRecommendedThreads: state.typeaheadRecommendedThreads
 }), __WEBPACK_IMPORTED_MODULE_17_lib_utils_action_utils__["b" /* includeDispatchActionProps */])(Typeahead));
 
@@ -46152,7 +46160,7 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_l
   let parentThreadInfo = null;
   const parentThreadID = ownProps.parentThreadID;
   if (parentThreadID) {
-    parentThreadInfo = Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__["d" /* threadInfoSelector */])(state)[parentThreadID];
+    parentThreadInfo = Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[parentThreadID];
     __WEBPACK_IMPORTED_MODULE_2_invariant___default()(parentThreadInfo, "parent thread should exist");
   }
   return {
@@ -55241,7 +55249,7 @@ Day.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_6_react_redux__["a" /* connect */])(state => ({
-  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__["b" /* onScreenThreadInfos */])(state),
+  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__["c" /* onScreenThreadInfos */])(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true)
 }), __WEBPACK_IMPORTED_MODULE_10_lib_utils_action_utils__["b" /* includeDispatchActionProps */])(Day));
@@ -55668,7 +55676,7 @@ Entry.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_8_lib_utils_redux_utils__["a" /* connect */])((state, ownProps) => ({
-  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_13_lib_selectors_thread_selectors__["d" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
+  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_13_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
   sessionID: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["a" /* currentSessionID */])(state),
   nextSessionID: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["c" /* nextSessionID */])(state),
   sessionStartingPayload: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["e" /* sessionStartingPayload */])(state),
@@ -55992,7 +56000,7 @@ HistoryEntry.propTypes = {
   const entryID = ownProps.entryInfo.id;
   __WEBPACK_IMPORTED_MODULE_4_invariant___default()(entryID, "entryInfo.id (serverID) should be set");
   return {
-    threadInfo: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_thread_selectors__["d" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
+    threadInfo: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
     sessionID: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_session_selectors__["a" /* currentSessionID */])(state),
     loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     restoreLoadingStatus: Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__["o" /* restoreEntryActionTypes */], `${__WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__["o" /* restoreEntryActionTypes */].started}:${entryID}`)(state),
@@ -56109,7 +56117,7 @@ HistoryRevision.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_6_react_redux__["a" /* connect */])((state, ownProps) => ({
-  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__["d" /* threadInfoSelector */])(state)[ownProps.revisionInfo.threadID]
+  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.revisionInfo.threadID]
 }))(HistoryRevision));
 
 /***/ }),
@@ -56606,7 +56614,7 @@ ThreadPicker.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_2_react_redux__["a" /* connect */])(state => ({
-  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_thread_selectors__["b" /* onScreenThreadInfos */])(state)
+  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_thread_selectors__["b" /* onScreenEntryEditableThreadInfos */])(state)
 }))(ThreadPicker));
 
 /***/ }),

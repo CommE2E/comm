@@ -11,7 +11,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 
-import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
+import {
+  onScreenEntryEditableThreadInfos,
+} from 'lib/selectors/thread-selectors';
 import {
   createLocalEntry,
   createLocalEntryActionType,
@@ -93,7 +95,7 @@ export default connect(
     const viewerID = state.currentUserInfo && state.currentUserInfo.id;
     invariant(viewerID, "should have viewer ID in to use ThreadPicker");
     return {
-      onScreenThreadInfos: onScreenThreadInfos(state),
+      onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
       viewerID,
     };
   },

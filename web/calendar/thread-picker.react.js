@@ -9,7 +9,9 @@ import { connect } from 'react-redux';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
+import {
+  onScreenEntryEditableThreadInfos,
+} from 'lib/selectors/thread-selectors';
 
 import css from '../style.css';
 import { LeftPager, RightPager } from '../vectors.react';
@@ -210,5 +212,5 @@ ThreadPicker.propTypes = {
 };
 
 export default connect((state: AppState): * => ({
-  onScreenThreadInfos: onScreenThreadInfos(state),
+  onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
 }))(ThreadPicker);
