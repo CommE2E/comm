@@ -961,10 +961,8 @@ module.exports = root;
 /* unused harmony export appStartReduxLoggedInButInvalidCookie */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return logInActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return logIn; });
-/* unused harmony export logInAndFetchInitialData */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return resetPasswordActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return resetPassword; });
-/* unused harmony export resetPasswordAndFetchInitialData */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return forgotPasswordActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return forgotPassword; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return changeUserSettingsActionTypes; });
@@ -980,6 +978,8 @@ module.exports = root;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_verify_types__ = __webpack_require__(212);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__types_message_types__ = __webpack_require__(136);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shared_thread_watcher__ = __webpack_require__(97);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 
 
 
@@ -1062,43 +1062,25 @@ const logInActionTypes = Object.freeze({
   success: "LOG_IN_SUCCESS",
   failed: "LOG_IN_FAILED"
 });
-async function logIn(fetchJSON, usernameOrEmail, password) {
+async function logIn(fetchJSON, logInInfo) {
   const watchedIDs = __WEBPACK_IMPORTED_MODULE_2__shared_thread_watcher__["a" /* default */].getWatchedIDs();
-  const response = await fetchJSON('log_in', {
-    usernameOrEmail,
-    password,
-    watchedIDs
-  });
-  return {
-    threadInfos: response.cookieChange.threadInfos,
-    currentUserInfo: response.currentUserInfo,
-    messagesResult: {
-      messageInfos: response.rawMessageInfos,
-      truncationStatus: response.truncationStatuses,
-      serverTime: response.serverTime,
-      watchedIDsAtRequestTime: watchedIDs
-    },
-    userInfos: mergeUserInfos(response.userInfos, response.cookieChange.userInfos)
-  };
-}
+  const request = _extends({}, logInInfo, { watchedIDs });
+  const response = await fetchJSON('log_in', request);
 
-async function logInAndFetchInitialData(fetchJSON, usernameOrEmail, password, calendarQuery) {
-  const watchedIDs = __WEBPACK_IMPORTED_MODULE_2__shared_thread_watcher__["a" /* default */].getWatchedIDs();
-  const response = await fetchJSON('log_in', {
-    usernameOrEmail,
-    password,
-    watchedIDs,
-    calendarQuery
-  });
   const userInfos = mergeUserInfos(response.userInfos, response.cookieChange.userInfos);
-  return {
-    threadInfos: response.cookieChange.threadInfos,
-    currentUserInfo: response.currentUserInfo,
-    calendarResult: {
-      calendarQuery,
+  let calendarResult = null;
+  if (logInInfo.calendarQuery) {
+    calendarResult = {
+      calendarQuery: logInInfo.calendarQuery,
       rawEntryInfos: response.rawEntryInfos,
       userInfos
-    },
+    };
+  }
+
+  return {
+    threadInfos: response.cookieChange.threadInfos,
+    currentUserInfo: response.currentUserInfo,
+    calendarResult,
     messagesResult: {
       messageInfos: response.rawMessageInfos,
       truncationStatus: response.truncationStatuses,
@@ -1114,43 +1096,25 @@ const resetPasswordActionTypes = Object.freeze({
   success: "RESET_PASSWORD_SUCCESS",
   failed: "RESET_PASSWORD_FAILED"
 });
-async function resetPassword(fetchJSON, code, password) {
+async function resetPassword(fetchJSON, updatePasswordInfo) {
   const watchedIDs = __WEBPACK_IMPORTED_MODULE_2__shared_thread_watcher__["a" /* default */].getWatchedIDs();
-  const response = await fetchJSON('update_password', {
-    code,
-    password,
-    watchedIDs
-  });
-  return {
-    threadInfos: response.cookieChange.threadInfos,
-    currentUserInfo: response.currentUserInfo,
-    messagesResult: {
-      messageInfos: response.rawMessageInfos,
-      truncationStatus: response.truncationStatuses,
-      serverTime: response.serverTime,
-      watchedIDsAtRequestTime: watchedIDs
-    },
-    userInfos: mergeUserInfos(response.userInfos, response.cookieChange.userInfos)
-  };
-}
+  const request = _extends({}, updatePasswordInfo, { watchedIDs });
+  const response = await fetchJSON('update_password', request);
 
-async function resetPasswordAndFetchInitialData(fetchJSON, code, password, calendarQuery) {
-  const watchedIDs = __WEBPACK_IMPORTED_MODULE_2__shared_thread_watcher__["a" /* default */].getWatchedIDs();
-  const response = await fetchJSON('update_password', {
-    code,
-    password,
-    watchedIDs,
-    calendarQuery
-  });
   const userInfos = mergeUserInfos(response.user_infos, response.cookieChange.userInfos);
-  return {
-    threadInfos: response.cookieChange.threadInfos,
-    currentUserInfo: response.currentUserInfo,
-    calendarResult: {
-      calendarQuery,
+  let calendarResult = null;
+  if (updatePasswordInfo.calendarQuery) {
+    calendarResult = {
+      calendarQuery: updatePasswordInfo.calendarQuery,
       rawEntryInfos: response.rawEntryInfos,
       userInfos
-    },
+    };
+  }
+
+  return {
+    threadInfos: response.cookieChange.threadInfos,
+    currentUserInfo: response.currentUserInfo,
+    calendarResult,
     messagesResult: {
       messageInfos: response.rawMessageInfos,
       truncationStatus: response.truncationStatuses,
@@ -1432,7 +1396,8 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       const state = objectState;
       return _extends({}, mapStateToProps(state, ownProps), {
         cookie: state.cookie,
-        urlPrefix: state.urlPrefix
+        urlPrefix: state.urlPrefix,
+        deviceToken: state.deviceToken
       });
     };
   } else if (serverCallExists && mapStateToProps) {
@@ -1440,7 +1405,8 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       const state = objectState;
       return _extends({}, mapStateToProps(state), {
         cookie: state.cookie,
-        urlPrefix: state.urlPrefix
+        urlPrefix: state.urlPrefix,
+        deviceToken: state.deviceToken
       });
     };
   } else if (mapStateToProps && mapStateToProps.length > 1) {
@@ -1459,7 +1425,8 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       const state = objectState;
       return {
         cookie: state.cookie,
-        urlPrefix: state.urlPrefix
+        urlPrefix: state.urlPrefix,
+        deviceToken: state.deviceToken
       };
     };
   } else {
@@ -1877,7 +1844,7 @@ function setCookie(dispatch, currentCookie, newCookie, response) {
   }
 }
 
-async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, urlPrefix) {
+async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, urlPrefix, deviceToken) {
   let newValidCookie = null;
   let fetchJSONCallback = null;
   const boundFetchJSON = async (endpoint, data) => {
@@ -1907,13 +1874,13 @@ async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, url
   };
   const resolveInvalidatedCookie = Object(__WEBPACK_IMPORTED_MODULE_3__config__["a" /* getConfig */])().resolveInvalidatedCookie;
   __WEBPACK_IMPORTED_MODULE_0_invariant___default()(resolveInvalidatedCookie, "cookieInvalidationRecovery should check this before it calls us");
-  await resolveInvalidatedCookie(boundFetchJSON, dispatchRecoveryAttempt);
+  await resolveInvalidatedCookie(boundFetchJSON, dispatchRecoveryAttempt, deviceToken);
   return newValidCookie;
 }
 
 // Third param is optional and gets called with newCookie if we get a new cookie
 // Necessary to propagate cookie in cookieInvalidationRecovery below
-function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix) {
+function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix, deviceToken) {
   const boundSetCookie = (newCookie, response) => {
     setCookie(dispatch, cookie, newCookie, response);
   };
@@ -1934,13 +1901,13 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix) {
   };
   // This function is a helper for the next function defined below
   const attemptToResolveInvalidation = async newAnonymousCookie => {
-    const newValidCookie = await fetchNewCookieFromNativeCredentials(dispatch, newAnonymousCookie, __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["c" /* cookieInvalidationResolutionAttempt */], urlPrefix);
+    const newValidCookie = await fetchNewCookieFromNativeCredentials(dispatch, newAnonymousCookie, __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__["c" /* cookieInvalidationResolutionAttempt */], urlPrefix, deviceToken);
 
     currentlyWaitingForNewCookie = false;
     const currentWaitingCalls = fetchJSONCallsWaitingForNewCookie;
     fetchJSONCallsWaitingForNewCookie = [];
 
-    const newFetchJSON = newValidCookie ? bindCookieAndUtilsIntoFetchJSON(dispatch, newValidCookie, urlPrefix) : null;
+    const newFetchJSON = newValidCookie ? bindCookieAndUtilsIntoFetchJSON(dispatch, newValidCookie, urlPrefix, deviceToken) : null;
     for (const func of currentWaitingCalls) {
       func(newFetchJSON);
     }
@@ -1975,8 +1942,8 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix) {
 // onto fetchJSON within react-redux's connect's mapStateToProps function, and
 // then pass that "bound" fetchJSON that no longer needs the cookie as a
 // parameter on to the server call.
-function bindCookieAndUtilsIntoServerCall(actionFunc, dispatch, cookie, urlPrefix) {
-  const boundFetchJSON = bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix);
+function bindCookieAndUtilsIntoServerCall(actionFunc, dispatch, cookie, urlPrefix, deviceToken) {
+  const boundFetchJSON = bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix, deviceToken);
   return async (...rest) => {
     return await actionFunc(boundFetchJSON, ...rest);
   };
@@ -1986,8 +1953,8 @@ function bindServerCalls(serverCalls) {
   return (stateProps, dispatchProps, ownProps) => {
     const dispatch = dispatchProps.dispatch;
     __WEBPACK_IMPORTED_MODULE_0_invariant___default()(dispatch, "should be defined");
-    const { cookie, urlPrefix } = stateProps;
-    const boundServerCalls = __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default()(serverCall => bindCookieAndUtilsIntoServerCall(serverCall, dispatch, cookie, urlPrefix))(serverCalls);
+    const { cookie, urlPrefix, deviceToken } = stateProps;
+    const boundServerCalls = __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default()(serverCall => bindCookieAndUtilsIntoServerCall(serverCall, dispatch, cookie, urlPrefix, deviceToken))(serverCalls);
     return _extends({}, ownProps, stateProps, dispatchProps, boundServerCalls);
   };
 }
@@ -25807,7 +25774,10 @@ class LogInModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
 
   async logInAction() {
     try {
-      const result = await this.props.logIn(this.state.usernameOrEmail, this.state.password);
+      const result = await this.props.logIn({
+        usernameOrEmail: this.state.usernameOrEmail,
+        password: this.state.password
+      });
       this.props.onClose();
       return result;
     } catch (e) {
@@ -56927,7 +56897,10 @@ class ResetPasswordModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureCompon
 
   async resetPasswordAction() {
     try {
-      const response = await this.props.resetPassword(this.props.verifyCode, this.state.password);
+      const response = await this.props.resetPassword({
+        code: this.props.verifyCode,
+        password: this.state.password
+      });
       this.props.onSuccess();
       return response;
     } catch (e) {

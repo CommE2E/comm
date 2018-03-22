@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LogInResult } from 'lib/types/account-types';
+import type { UpdatePasswordInfo, LogInResult } from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -28,7 +28,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  resetPassword: (code: string, password: string) => Promise<LogInResult>,
+  resetPassword: (info: UpdatePasswordInfo) => Promise<LogInResult>,
 };
 type State = {
   password: string,
@@ -164,10 +164,10 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
 
   async resetPasswordAction() {
     try {
-      const response = await this.props.resetPassword(
-        this.props.verifyCode,
-        this.state.password,
-      );
+      const response = await this.props.resetPassword({
+        code: this.props.verifyCode,
+        password: this.state.password,
+      });
       this.props.onSuccess();
       return response;
     } catch (e) {

@@ -81,6 +81,7 @@ type Props = {
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
   currentAsOf: number,
+  deviceToken: ?string,
   // Redux dispatch functions
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -123,6 +124,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
     currentAsOf: PropTypes.number.isRequired,
+    deviceToken: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -232,6 +234,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         appStartNativeCredentialsAutoLogIn,
         urlPrefix,
+        nextProps.deviceToken,
       );
       if (!newCookie || !newCookie.startsWith("user=")) {
         showPrompt();
@@ -253,6 +256,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         appStartReduxLoggedInButInvalidCookie,
         urlPrefix,
+        nextProps.deviceToken,
       );
       if (newCookie && newCookie.startsWith("user=")) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
@@ -277,6 +281,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       props.dispatch,
       cookie,
       urlPrefix,
+      props.deviceToken,
     );
     const startingPayload = props.pingStartingPayload();
     props.dispatchActionPromise(
@@ -767,6 +772,7 @@ const LoggedOutModal = connect(
     isForeground: isForegroundSelector(state),
     pingStartingPayload: pingNativeStartingPayload(state),
     currentAsOf: state.currentAsOf,
+    deviceToken: state.deviceToken,
   }),
   includeDispatchActionProps,
 )(InnerLoggedOutModal);

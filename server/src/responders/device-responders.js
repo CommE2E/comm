@@ -23,5 +23,6 @@ async function deviceTokenUpdateResponder(
 }
 
 export {
+  deviceTokenUpdateRequestInputValidator,
   deviceTokenUpdateResponder,
 };

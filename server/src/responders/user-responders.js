@@ -24,7 +24,9 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 
-import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
+import {
+  userSubscriptionUpdater,
+} from '../updaters/user-subscription-updaters';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
@@ -46,6 +48,8 @@ import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
+import { deviceTokenUpdater } from '../updaters/device-token-updaters';
+import { deviceTokenUpdateRequestInputValidator } from './device-responders';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -158,6 +162,7 @@ const logInRequestInputValidator = tShape({
   password: t.String,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
 });
 
 async function logInResponder(
@@ -213,6 +218,9 @@ async function logInResponder(
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    request.deviceTokenUpdateRequest
+      ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
+      : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -243,6 +251,7 @@ const updatePasswordRequestInputValidator = tShape({
   password: t.String,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
 });
 
 async function passwordUpdateResponder(
@@ -251,7 +260,13 @@ async function passwordUpdateResponder(
 ): Promise<LogInResponse> {
   const request: UpdatePasswordRequest = input;
   validateInput(updatePasswordRequestInputValidator, request);
-  return await updatePassword(viewer, request);
+  const response = await updatePassword(viewer, request);
+
+  if (request.deviceTokenUpdateRequest) {
+    await deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest);
+  }
+
+  return response;
 }
 
 export {

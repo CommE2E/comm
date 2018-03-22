@@ -16,6 +16,8 @@ import URL from 'url-parse';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { getConfig } from 'lib/utils/config';
 
+import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
+
 type Credentials = {|
   username: string,
   password: string,
@@ -218,15 +220,20 @@ async function deleteNativeCredentialsFor(username: string) {
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
+  deviceToken: ?string,
 ) {
+  const deviceTokenUpdateRequest = getDeviceTokenUpdateRequest(deviceToken);
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(
         fetchJSON,
-        keychainCredentials.username,
-        keychainCredentials.password,
+        {
+          usernameOrEmail: keychainCredentials.username,
+          password: keychainCredentials.password,
+          deviceTokenUpdateRequest,
+        },
       ),
     );
     if (newCookie) {
@@ -239,8 +246,11 @@ async function resolveInvalidatedCookie(
       logInActionTypes,
       logIn(
         fetchJSON,
-        sharedWebCredentials.username,
-        sharedWebCredentials.password,
+        {
+          usernameOrEmail: sharedWebCredentials.username,
+          password: sharedWebCredentials.password,
+          deviceTokenUpdateRequest,
+        },
       ),
     );
   }

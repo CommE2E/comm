@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LogInResult } from 'lib/types/account-types';
+import type { LogInInfo, LogInResult } from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -28,10 +28,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logIn: (
-    username: string,
-    password: string,
-  ) => Promise<LogInResult>,
+  logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 };
 type State = {
   usernameOrEmail: string,
@@ -171,10 +168,10 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   async logInAction() {
     try {
-      const result = await this.props.logIn(
-        this.state.usernameOrEmail,
-        this.state.password,
-      );
+      const result = await this.props.logIn({
+        usernameOrEmail: this.state.usernameOrEmail,
+        password: this.state.password,
+      });
       this.props.onClose();
       return result;
     } catch (e) {
