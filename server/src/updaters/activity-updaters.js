@@ -200,7 +200,8 @@ async function checkThreadsFocused(
 //   function does not add new rows to the `focused` table, but instead extends
 //   currently active rows for the current cookie. This is a no-op for clients
 //   that don't have any rows in the focused table (such as web, currently).
-async function updateActivityTime(viewer: Viewer, time: number): Promise<void> {
+async function updateActivityTime(viewer: Viewer): Promise<void> {
+  const time = Date.now();
   const promises = [];
 
   const cookieQuery = SQL`

@@ -7,6 +7,7 @@ import type { Viewer } from '../session/viewer';
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
+import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 
 import { validateInput, tShape } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';
@@ -38,8 +39,6 @@ async function pingResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const newPingTime = Date.now();
-
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
@@ -64,7 +63,7 @@ async function pingResponder(
   ]);
 
   // Do this one separately in case any of the above throw an exception
-  await updateActivityTime(viewer, newPingTime);
+  await updateActivityTime(viewer);
 
   const userInfos: any = Object.values({
     ...messagesResult.userInfos,
@@ -77,7 +76,10 @@ async function pingResponder(
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
-    serverTime: newPingTime,
+    serverTime: mostRecentMessageTimestamp(
+      messagesResult.rawMessageInfos,
+      request.lastPing,
+    ),
     rawEntryInfos: entriesResult.rawEntryInfos,
     userInfos,
   };

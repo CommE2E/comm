@@ -23,6 +23,7 @@ import { newSessionID } from 'lib/selectors/session-selectors';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
+import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 
@@ -50,7 +51,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     navID: urlInfo.home ? "home" : urlInfo.threadID,
   };
   const threadSelectionCriteria = { joinedThreads: true };
-  const serverTime = Date.now();
+  const initialTime = Date.now();
 
   const [
     { threadInfos, userInfos: threadUserInfos },
@@ -79,7 +80,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   }
 
   // Do this one separately in case any of the above throw an exception
-  await updateActivityTime(viewer, serverTime);
+  await updateActivityTime(viewer);
 
   const time = Date.now();
   const store: Store<AppState, Action> = createStore(
@@ -117,7 +118,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         threadInfos,
       ),
       drafts: {},
-      currentAsOf: serverTime,
+      currentAsOf: mostRecentMessageTimestamp(rawMessageInfos, initialTime),
       loadingStatuses: {},
       cookie: undefined,
       deviceToken: null,
