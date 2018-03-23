@@ -74,6 +74,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     headerRight: Platform.OS === "ios"
       ? (<ComposeThreadButton navigate={navigation.navigate} />)
       : null,
+    headerBackTitle: "Back",
   });
 
   constructor(props: Props) {

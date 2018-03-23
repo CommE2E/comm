@@ -19,16 +19,12 @@ type Props = {
     routeName: string,
     params?: NavigationParams,
   ) => bool,
-  sceneKey: string,
-  onWidthChange: (key: string, width: number) => void,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
-    sceneKey: PropTypes.string.isRequired,
-    onWidthChange: PropTypes.func.isRequired,
   };
 
   render() {
@@ -59,19 +55,12 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       >
         <View style={styles.container}>
           {fakeIcon}
-          <HeaderTitle onLayout={this.onLayout}>
+          <HeaderTitle>
             {this.props.threadInfo.uiName}
           </HeaderTitle>
           {icon}
         </View>
       </Button>
-    );
-  }
-
-  onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
-    this.props.onWidthChange(
-      this.props.sceneKey,
-      event.nativeEvent.layout.width,
     );
   }
 

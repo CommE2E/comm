@@ -54,7 +54,6 @@ import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
-import MessageListHeader from './message-list-header.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { iosKeyboardOffset } from '../dimensions';
@@ -87,16 +86,6 @@ export type ChatMessageInfoItemWithHeight =
 type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
-
-let messageListHeader = null;
-function messageListHeaderRef(header: ?MessageListHeader) {
-  messageListHeader = header;
-};
-function onTitleWidthChange(key: string, width: number) {
-  if (messageListHeader) {
-    messageListHeader.setTitleWidth(key, width);
-  }
-}
 
 type Props = {
   navigation: NavProp,
@@ -147,8 +136,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       <MessageListHeaderTitle
         threadInfo={navigation.state.params.threadInfo}
         navigate={navigation.navigate}
-        sceneKey={navigation.state.key}
-        onWidthChange={onTitleWidthChange}
       />
     ),
     headerRight:
@@ -160,13 +147,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
             />
           )
         : null,
-    header: (props: *) => (
-      <MessageListHeader
-        {...props}
-        routeKey={navigation.state.key}
-        ref={messageListHeaderRef}
-      />
-    ),
     headerBackTitle: "Back",
   });
   textHeights: ?Map<string, number> = null;

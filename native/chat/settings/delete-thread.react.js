@@ -77,6 +77,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   };
   static navigationOptions = {
     headerTitle: "Delete thread",
+    headerBackTitle: "Back",
   };
   mounted = false;
   passwordInput: ?TextInput;
