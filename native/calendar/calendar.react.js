@@ -71,20 +71,22 @@ import {
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
+type SectionHeaderItem = {|
+  itemType: "header",
+  dateString: string,
+|};
+type SectionFooterItem = {|
+  itemType: "footer",
+  dateString: string,
+|};
 type CalendarItemWithHeight =
-  {
+  {|
     itemType: "loader",
     key: string,
-  } | {
-    itemType: "header",
-    dateString: string,
-  } | {
+  |} | SectionHeaderItem | {|
     itemType: "entryInfo",
     entryInfo: EntryInfoWithHeight,
-  } | {
-    itemType: "footer",
-    dateString: string,
-  };
+  |} | SectionFooterItem;
 type ExtraData = {
   activeEntries: {[key: string]: bool},
   visibleEntries: {[key: string]: bool},
@@ -548,7 +550,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (item.itemType === "loader") {
       return <ListLoadingIndicator />;
     } else if (item.itemType === "header") {
-      return this.renderSectionHeader(row);
+      return this.renderSectionHeader(item);
     } else if (item.itemType === "entryInfo") {
       const key = entryKey(item.entryInfo);
       return (
@@ -564,18 +566,17 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         />
       );
     } else if (item.itemType === "footer") {
-      return this.renderSectionFooter(row);
+      return this.renderSectionFooter(item);
     }
     invariant(false, "renderItem conditions should be exhaustive");
   }
 
-  renderSectionHeader = (row: { item: CalendarItemWithHeight }) => {
-    invariant(row.item.itemType === "header", "itemType should be header");
-    let date = prettyDate(row.item.dateString);
-    if (dateString(new Date()) === row.item.dateString) {
+  renderSectionHeader = (item: SectionHeaderItem) => {
+    let date = prettyDate(item.dateString);
+    if (dateString(new Date()) === item.dateString) {
       date += " (today)";
     }
-    const dateObj = dateFromString(row.item.dateString).getDay();
+    const dateObj = dateFromString(item.dateString).getDay();
     const weekendStyle = dateObj === 0 || dateObj === 6
       ? styles.weekendSectionHeader
       : null;
@@ -590,11 +591,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSectionFooter = (row: { item: CalendarItemWithHeight }) => {
-    invariant(row.item.itemType === "footer", "itemType should be footer");
+  renderSectionFooter = (item: SectionFooterItem) => {
     return (
       <SectionFooter
-        dateString={row.item.dateString}
+        dateString={item.dateString}
         onAdd={this.onAdd}
         onPressWhitespace={this.makeAllEntriesInactive}
       />

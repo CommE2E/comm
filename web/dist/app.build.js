@@ -54074,19 +54074,9 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       value: event => {
         const target = event.currentTarget;
         this.setState((prevState, props) => _extends({}, prevState, {
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            description: prevState.threadInfo.description,
-            visibilityRules: prevState.threadInfo.visibilityRules,
-            color: prevState.threadInfo.color,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
-            name: target.value,
-            uiName: target.value
-          }
+          queuedChanges: _extends({}, prevState.queuedChanges, {
+            name: target.value
+          })
         }));
       }
     });
@@ -54096,19 +54086,9 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       value: event => {
         const target = event.currentTarget;
         this.setState((prevState, props) => _extends({}, prevState, {
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            name: prevState.threadInfo.name,
-            uiName: prevState.threadInfo.uiName,
-            visibilityRules: prevState.threadInfo.visibilityRules,
-            color: prevState.threadInfo.color,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
+          queuedChanges: _extends({}, prevState.queuedChanges, {
             description: target.value
-          }
+          })
         }));
       }
     });
@@ -54117,19 +54097,9 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       writable: true,
       value: color => {
         this.setState((prevState, props) => _extends({}, prevState, {
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            name: prevState.threadInfo.name,
-            uiName: prevState.threadInfo.uiName,
-            description: prevState.threadInfo.description,
-            visibilityRules: prevState.threadInfo.visibilityRules,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
+          queuedChanges: _extends({}, prevState.queuedChanges, {
             color
-          }
+          })
         }));
       }
     });
@@ -54139,19 +54109,9 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       value: event => {
         const target = event.currentTarget;
         this.setState((prevState, props) => _extends({}, prevState, {
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            name: prevState.threadInfo.name,
-            uiName: prevState.threadInfo.uiName,
-            description: prevState.threadInfo.description,
-            color: prevState.threadInfo.color,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
+          queuedChanges: _extends({}, prevState.queuedChanges, {
             visibilityRules: Object(__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["b" /* assertVisibilityRules */])(parseInt(target.value))
-          }
+          })
         }));
       }
     });
@@ -54185,32 +54145,10 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       value: event => {
         event.preventDefault();
 
-        const name = this.threadName().trim();
-        if (name === '') {
-          this.setState((prevState, props) => _extends({}, prevState, {
-            threadInfo: {
-              id: prevState.threadInfo.id,
-              description: prevState.threadInfo.description,
-              visibilityRules: prevState.threadInfo.visibilityRules,
-              color: prevState.threadInfo.color,
-              creationTime: prevState.threadInfo.creationTime,
-              parentThreadID: prevState.threadInfo.parentThreadID,
-              members: prevState.threadInfo.members,
-              roles: prevState.threadInfo.roles,
-              currentUser: prevState.threadInfo.currentUser,
-              name: this.props.threadInfo.name,
-              uiName: this.props.threadInfo.uiName
-            },
-            errorMessage: "empty thread name",
-            currentTabType: "general"
-          }), () => {
-            __WEBPACK_IMPORTED_MODULE_3_invariant___default()(this.nameInput, "nameInput ref unset");
-            this.nameInput.focus();
-          });
-          return;
-        }
+        const name = this.possiblyChangedValue("name").trim();
+        const visRules = this.possiblyChangedValue("visibilityRules");
 
-        if (this.state.threadInfo.visibilityRules >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED) {
+        if (visRules >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED) {
           // If the thread is currently open but is being switched to closed,
           // then a password *must* be specified
           if (this.props.threadInfo.visibilityRules < __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED && this.state.newThreadPassword.trim() === '') {
@@ -54251,7 +54189,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       }
     });
     this.state = {
-      threadInfo: props.threadInfo,
+      queuedChanges: {},
       errorMessage: "",
       newThreadPassword: "",
       confirmThreadPassword: "",
@@ -54265,8 +54203,8 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
     this.nameInput.focus();
   }
 
-  threadName() {
-    return this.state.threadInfo.name ? this.state.threadInfo.name : "";
+  possiblyChangedValue(key) {
+    return this.state.queuedChanges[key] ? this.state.queuedChanges[key] : this.props.threadInfo[key];
   }
 
   render() {
@@ -54288,7 +54226,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
             { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
               type: 'text',
-              value: this.threadName(),
+              value: this.possiblyChangedValue("name"),
               onChange: this.onChangeName,
               disabled: this.props.inputDisabled,
               ref: this.nameInputRef
@@ -54307,7 +54245,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
             'div',
             { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('textarea', {
-              value: this.state.threadInfo.description,
+              value: this.possiblyChangedValue("description"),
               placeholder: 'Thread description',
               onChange: this.onChangeDescription,
               disabled: this.props.inputDisabled
@@ -54327,7 +54265,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
             { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-content'] },
             __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__color_picker_react__["a" /* default */], {
               id: 'edit-thread-color',
-              value: this.state.threadInfo.color,
+              value: this.possiblyChangedValue("color"),
               disabled: this.props.inputDisabled,
               onChange: this.onChangeColor
             })
@@ -54336,7 +54274,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       );
     } else if (this.state.currentTabType === "privacy") {
       let threadTypes = null;
-      if (this.state.threadInfo.parentThreadID) {
+      if (this.possiblyChangedValue("parentThreadID")) {
         threadTypes = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
           { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['modal-radio-selector'] },
@@ -54356,7 +54294,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                 name: 'edit-thread-type',
                 id: 'edit-thread-open',
                 value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
-                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
+                checked: this.possiblyChangedValue("visibilityRules") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
@@ -54383,7 +54321,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                 name: 'edit-thread-type',
                 id: 'edit-thread-closed',
                 value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
-                checked: this.state.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
+                checked: this.possiblyChangedValue("visibilityRules") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
@@ -54531,29 +54469,10 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
 
   async changeThreadSettingsAction(name) {
     try {
-      const newThreadInfo = {
-        id: this.state.threadInfo.id,
-        name,
-        uiName: name,
-        description: this.state.threadInfo.description,
-        visibilityRules: this.state.threadInfo.visibilityRules,
-        color: this.state.threadInfo.color,
-        creationTime: this.state.threadInfo.creationTime,
-        parentThreadID: this.state.threadInfo.parentThreadID,
-        members: this.state.threadInfo.members,
-        roles: this.state.threadInfo.roles,
-        currentUser: this.state.threadInfo.currentUser
-      };
       const newThreadPassword = this.state.newThreadPassword.trim() !== '' ? this.state.newThreadPassword : null;
       const response = await this.props.changeThreadSettings({
-        threadID: newThreadInfo.id,
-        changes: {
-          name: newThreadInfo.name,
-          description: newThreadInfo.description,
-          visibilityRules: newThreadInfo.visibilityRules,
-          color: newThreadInfo.color,
-          password: newThreadPassword
-        },
+        threadID: this.props.threadInfo.id,
+        changes: this.state.queuedChanges,
         accountPassword: this.state.accountPassword
       });
       this.props.onClose();
@@ -54569,19 +54488,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         });
       } else {
         this.setState((prevState, props) => _extends({}, prevState, {
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
-            name: this.props.threadInfo.name,
-            uiName: this.props.threadInfo.uiName,
-            description: this.props.threadInfo.description,
-            visibilityRules: this.props.threadInfo.visibilityRules,
-            color: this.props.threadInfo.color
-          },
+          queuedChanges: {},
           newThreadPassword: "",
           confirmThreadPassword: "",
           accountPassword: "",

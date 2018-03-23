@@ -9,6 +9,7 @@ import {
   type UpdateThreadRequest,
   type LeaveThreadPayload,
   threadPermissions,
+  type ThreadChanges,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -79,15 +80,14 @@ type Props = {
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
 };
-type State = {
-  threadInfo: ThreadInfo,
+type State = {|
+  queuedChanges: ThreadChanges,
   errorMessage: string,
   newThreadPassword: string,
   confirmThreadPassword: string,
   accountPassword: string,
   currentTabType: TabType,
-};
-
+|};
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   nameInput: ?HTMLInputElement;
@@ -97,7 +97,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      threadInfo: props.threadInfo,
+      queuedChanges: {},
       errorMessage: "",
       newThreadPassword: "",
       confirmThreadPassword: "",
@@ -111,10 +111,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     this.nameInput.focus();
   }
 
-  threadName() {
-    return this.state.threadInfo.name
-      ? this.state.threadInfo.name
-      : "";
+  possiblyChangedValue(key: string) {
+    return this.state.queuedChanges[key]
+      ? this.state.queuedChanges[key]
+      : this.props.threadInfo[key];
   }
 
   render() {
@@ -127,7 +127,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <input
                 type="text"
-                value={this.threadName()}
+                value={this.possiblyChangedValue("name")}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
                 ref={this.nameInputRef}
@@ -138,7 +138,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-title']}>Description</div>
             <div className={css['form-content']}>
               <textarea
-                value={this.state.threadInfo.description}
+                value={this.possiblyChangedValue("description")}
                 placeholder="Thread description"
                 onChange={this.onChangeDescription}
                 disabled={this.props.inputDisabled}
@@ -152,7 +152,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <ColorPicker
                 id="edit-thread-color"
-                value={this.state.threadInfo.color}
+                value={this.possiblyChangedValue("color")}
                 disabled={this.props.inputDisabled}
                 onChange={this.onChangeColor}
               />
@@ -162,7 +162,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       );
     } else if (this.state.currentTabType === "privacy") {
       let threadTypes = null;
-      if (this.state.threadInfo.parentThreadID) {
+      if (this.possiblyChangedValue("parentThreadID")) {
         threadTypes = (
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Thread type</div>
@@ -174,7 +174,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   id="edit-thread-open"
                   value={visibilityRules.CHAT_NESTED_OPEN}
                   checked={
-                    this.state.threadInfo.visibilityRules ===
+                    this.possiblyChangedValue("visibilityRules") ===
                       visibilityRules.CHAT_NESTED_OPEN
                   }
                   onChange={this.onChangeThreadType}
@@ -196,7 +196,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   id="edit-thread-closed"
                   value={visibilityRules.CHAT_SECRET}
                   checked={
-                    this.state.threadInfo.visibilityRules ===
+                    this.possiblyChangedValue("visibilityRules") ===
                       visibilityRules.CHAT_SECRET
                   }
                   onChange={this.onChangeThreadType}
@@ -345,56 +345,29 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     const target = event.currentTarget;
     this.setState((prevState: State, props) => ({
       ...prevState,
-      threadInfo: {
-        id: prevState.threadInfo.id,
-        description: prevState.threadInfo.description,
-        visibilityRules: prevState.threadInfo.visibilityRules,
-        color: prevState.threadInfo.color,
-        creationTime: prevState.threadInfo.creationTime,
-        parentThreadID: prevState.threadInfo.parentThreadID,
-        members: prevState.threadInfo.members,
-        roles: prevState.threadInfo.roles,
-        currentUser: prevState.threadInfo.currentUser,
+      queuedChanges: {
+        ...prevState.queuedChanges,
         name: target.value,
-        uiName: target.value,
       },
     }));
   }
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
-    this.setState((prevState, props) => ({
+    this.setState((prevState: State, props) => ({
       ...prevState,
-      threadInfo: {
-        id: prevState.threadInfo.id,
-        name: prevState.threadInfo.name,
-        uiName: prevState.threadInfo.uiName,
-        visibilityRules: prevState.threadInfo.visibilityRules,
-        color: prevState.threadInfo.color,
-        creationTime: prevState.threadInfo.creationTime,
-        parentThreadID: prevState.threadInfo.parentThreadID,
-        members: prevState.threadInfo.members,
-        roles: prevState.threadInfo.roles,
-        currentUser: prevState.threadInfo.currentUser,
+      queuedChanges: {
+        ...prevState.queuedChanges,
         description: target.value,
       },
     }));
   }
 
   onChangeColor = (color: string) => {
-    this.setState((prevState, props) => ({
+    this.setState((prevState: State, props) => ({
       ...prevState,
-      threadInfo: {
-        id: prevState.threadInfo.id,
-        name: prevState.threadInfo.name,
-        uiName: prevState.threadInfo.uiName,
-        description: prevState.threadInfo.description,
-        visibilityRules: prevState.threadInfo.visibilityRules,
-        creationTime: prevState.threadInfo.creationTime,
-        parentThreadID: prevState.threadInfo.parentThreadID,
-        members: prevState.threadInfo.members,
-        roles: prevState.threadInfo.roles,
-        currentUser: prevState.threadInfo.currentUser,
+      queuedChanges: {
+        ...prevState.queuedChanges,
         color,
       },
     }));
@@ -402,19 +375,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
-    this.setState((prevState, props) => ({
+    this.setState((prevState: State, props) => ({
       ...prevState,
-      threadInfo: {
-        id: prevState.threadInfo.id,
-        name: prevState.threadInfo.name,
-        uiName: prevState.threadInfo.uiName,
-        description: prevState.threadInfo.description,
-        color: prevState.threadInfo.color,
-        creationTime: prevState.threadInfo.creationTime,
-        parentThreadID: prevState.threadInfo.parentThreadID,
-        members: prevState.threadInfo.members,
-        roles: prevState.threadInfo.roles,
-        currentUser: prevState.threadInfo.currentUser,
+      queuedChanges: {
+        ...prevState.queuedChanges,
         visibilityRules: assertVisibilityRules(parseInt(target.value)),
       },
     }));
@@ -438,36 +402,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    const name = this.threadName().trim();
-    if (name === '') {
-      this.setState(
-        (prevState, props) => ({
-          ...prevState,
-          threadInfo: {
-            id: prevState.threadInfo.id,
-            description: prevState.threadInfo.description,
-            visibilityRules: prevState.threadInfo.visibilityRules,
-            color: prevState.threadInfo.color,
-            creationTime: prevState.threadInfo.creationTime,
-            parentThreadID: prevState.threadInfo.parentThreadID,
-            members: prevState.threadInfo.members,
-            roles: prevState.threadInfo.roles,
-            currentUser: prevState.threadInfo.currentUser,
-            name: this.props.threadInfo.name,
-            uiName: this.props.threadInfo.uiName,
-          },
-          errorMessage: "empty thread name",
-          currentTabType: "general",
-        }),
-        () => {
-          invariant(this.nameInput, "nameInput ref unset");
-          this.nameInput.focus();
-        },
-      );
-      return;
-    }
+    const name = this.possiblyChangedValue("name").trim();
+    const visRules = this.possiblyChangedValue("visibilityRules");
 
-    if (this.state.threadInfo.visibilityRules >= visibilityRules.CLOSED) {
+    if (visRules >= visibilityRules.CLOSED) {
       // If the thread is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
@@ -521,31 +459,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   async changeThreadSettingsAction(name: string) {
     try {
-      const newThreadInfo: ThreadInfo = {
-        id: this.state.threadInfo.id,
-        name,
-        uiName: name,
-        description: this.state.threadInfo.description,
-        visibilityRules: this.state.threadInfo.visibilityRules,
-        color: this.state.threadInfo.color,
-        creationTime: this.state.threadInfo.creationTime,
-        parentThreadID: this.state.threadInfo.parentThreadID,
-        members: this.state.threadInfo.members,
-        roles: this.state.threadInfo.roles,
-        currentUser: this.state.threadInfo.currentUser,
-      };
       const newThreadPassword = this.state.newThreadPassword.trim() !== ''
         ? this.state.newThreadPassword
         : null;
       const response = await this.props.changeThreadSettings({
-        threadID: newThreadInfo.id,
-        changes: {
-          name: newThreadInfo.name,
-          description: newThreadInfo.description,
-          visibilityRules: newThreadInfo.visibilityRules,
-          color: newThreadInfo.color,
-          password: newThreadPassword,
-        },
+        threadID: this.props.threadInfo.id,
+        changes: this.state.queuedChanges,
         accountPassword: this.state.accountPassword,
       });
       this.props.onClose();
@@ -569,19 +488,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         this.setState(
           (prevState, props) => ({
             ...prevState,
-            threadInfo: {
-              id: prevState.threadInfo.id,
-              creationTime: prevState.threadInfo.creationTime,
-              parentThreadID: prevState.threadInfo.parentThreadID,
-              members: prevState.threadInfo.members,
-              roles: prevState.threadInfo.roles,
-              currentUser: prevState.threadInfo.currentUser,
-              name: this.props.threadInfo.name,
-              uiName: this.props.threadInfo.uiName,
-              description: this.props.threadInfo.description,
-              visibilityRules: this.props.threadInfo.visibilityRules,
-              color: this.props.threadInfo.color,
-            },
+            queuedChanges: {},
             newThreadPassword: "",
             confirmThreadPassword: "",
             accountPassword: "",
