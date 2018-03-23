@@ -34,7 +34,7 @@ const persistConfig = {
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
-const codeVersion = 0;
+const codeVersion = 3;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
