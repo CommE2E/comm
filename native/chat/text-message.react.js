@@ -142,6 +142,7 @@ class TextMessage extends React.PureComponent<Props> {
           labelStyle={styles.popoverLabelStyle}
           onOpenTooltipMenu={this.onFocus}
           onCloseTooltipMenu={this.onBlur}
+          componentWrapperStyle={containerStyle}
           ref={this.tooltipRef}
         />
       </View>
