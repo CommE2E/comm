@@ -13,6 +13,7 @@ import {
   FlatList,
   Platform,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -122,6 +123,21 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   }
 
   renderSearchBar = () => {
+    let clearSearchInputIcon = null;
+    if (this.state.searchText) {
+      clearSearchInputIcon = (
+        <TouchableOpacity
+          onPress={this.onPressClearSearch}
+          activeOpacity={0.5}
+        >
+          <Icon
+            name="times-circle"
+            size={18}
+            color="#AAAAAA"
+          />
+        </TouchableOpacity>
+      );
+    }
     return (
       <View style={styles.searchContainer}>
         <View style={styles.search}>
@@ -140,6 +156,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
             placeholderTextColor="#AAAAAA"
             returnKeyType="go"
           />
+          {clearSearchInputIcon}
         </View>
       </View>
     );
@@ -218,6 +235,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
           getItemLayout={InnerChatThreadList.getItemLayout}
           extraData={this.props.viewerID}
           initialNumToRender={11}
+          keyboardShouldPersistTaps="handled"
           style={styles.flatList}
         />
         {floatingAction}
@@ -239,6 +257,10 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   onChangeSearchText = (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
     this.setState({ searchText, searchResults: new Set(results) });
+  }
+
+  onPressClearSearch = () => {
+    this.onChangeSearchText("");
   }
 
   onPressItem = (threadInfo: ThreadInfo) => {
@@ -277,7 +299,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     marginBottom: 8,
     marginTop: Platform.OS === "android" ? 10 : 8,
-    paddingHorizontal: 14,
+    paddingLeft: 14,
+    paddingRight: 12,
     paddingTop: Platform.OS === "android" ? 1 : 6,
     paddingBottom: Platform.OS === "android" ? 2 : 6,
     borderRadius: 6,
