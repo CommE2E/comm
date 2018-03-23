@@ -575,9 +575,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (dateString(new Date()) === row.item.dateString) {
       date += " (today)";
     }
+    const dateObj = dateFromString(row.item.dateString).getDay();
+    const weekendStyle = dateObj === 0 || dateObj === 6
+      ? styles.weekendSectionHeader
+      : null;
     return (
       <TouchableWithoutFeedback onPress={this.makeAllEntriesInactive}>
-        <View style={styles.sectionHeader}>
+        <View style={[styles.sectionHeader, weekendStyle]}>
           <Text style={styles.sectionHeaderText}>
             {date}
           </Text>
@@ -1027,6 +1031,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
     borderBottomWidth: 2,
     borderColor: '#FFFFFF',
+  },
+  weekendSectionHeader: {
+    backgroundColor: '#EEEEEE',
   },
   sectionHeaderText: {
     padding: 5,
