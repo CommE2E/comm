@@ -80,6 +80,7 @@ type NavProp =
   & { state: { params: {
       parentThreadID?: string,
       visibilityRules?: VisibilityRules,
+      createButtonDisabled?: bool,
     } } };
 
 type Props = {
@@ -132,6 +133,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       <LinkButton
         text="Create"
         onPress={() => navigation.state.params.onPressCreateThread()}
+        disabled={!!navigation.state.params.createButtonDisabled}
       />
     ),
     headerBackTitle: "Back",
@@ -178,6 +180,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     this.searchUsers("");
     this.props.navigation.setParams({
       onPressCreateThread: this.onPressCreateThread,
+      createButtonDisabled: false,
     });
   }
 
@@ -420,6 +423,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   async newChatThreadAction() {
+    this.props.navigation.setParams({ createButtonDisabled: true });
     try {
       const visRules = this.props.navigation.state.params.visibilityRules
         ? this.props.navigation.state.params.visibilityRules
@@ -438,6 +442,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
           : null,
       });
     } catch (e) {
+      this.props.navigation.setParams({ createButtonDisabled: false });
       Alert.alert(
         "Unknown error",
         "Uhh... try again?",
