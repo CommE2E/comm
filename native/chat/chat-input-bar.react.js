@@ -242,6 +242,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   onSend = () => {
+    const text = this.state.text.trim();
     this.updateText("");
     const localID = `local${getNewLocalID()}`;
     const creatorID = this.props.viewerID;
@@ -250,7 +251,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       type: messageType.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
-      text: this.state.text,
+      text,
       creatorID,
       time: Date.now(),
     }: RawTextMessageInfo);
