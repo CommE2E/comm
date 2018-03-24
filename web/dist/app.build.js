@@ -34779,11 +34779,44 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 function reduceThreadInfos(state, action) {
-  if (action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["m" /* registerActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_5__actions_ping_actions__["b" /* pingActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["i" /* leaveThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["e" /* deleteThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_2__utils_action_utils__["c" /* setCookieActionType */]) {
+  if (action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["m" /* registerActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__["q" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["g" /* joinThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["i" /* leaveThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["e" /* deleteThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_2__utils_action_utils__["c" /* setCookieActionType */]) {
     if (__WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual___default()(state)(action.payload.threadInfos)) {
       return state;
     }
     return action.payload.threadInfos;
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_5__actions_ping_actions__["b" /* pingActionTypes */].success) {
+    const payload = action.payload;
+    if (__WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual___default()(state)(payload.threadInfos)) {
+      return state;
+    }
+    const newThreadInfos = {};
+    let threadIDsWithNewMessages = null;
+    const getThreadIDsWithNewMessages = () => {
+      if (threadIDsWithNewMessages) {
+        return threadIDsWithNewMessages;
+      }
+      threadIDsWithNewMessages = new Set();
+      for (let rawMessageInfo of payload.messagesResult.messageInfos) {
+        threadIDsWithNewMessages.add(rawMessageInfo.threadID);
+      }
+      return threadIDsWithNewMessages;
+    };
+    for (let threadID in payload.threadInfos) {
+      const newThreadInfo = payload.threadInfos[threadID];
+      const oldThreadInfo = state[threadID];
+      // To make sure the unread status doesn't update from a stale ping result,
+      // we check if there actually are any new messages for this threadInfo.
+      if (newThreadInfo.currentUser.unread && oldThreadInfo && !oldThreadInfo.currentUser.unread && !getThreadIDsWithNewMessages().has(threadID)) {
+        newThreadInfos[threadID] = _extends({}, newThreadInfo, {
+          currentUser: _extends({}, newThreadInfo.currentUser, {
+            unread: false
+          })
+        });
+      } else {
+        newThreadInfos[threadID] = newThreadInfo;
+      }
+    }
+    return newThreadInfos;
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["c" /* changeThreadSettingsActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["l" /* removeUsersFromThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__["a" /* changeThreadMemberRolesActionTypes */].success) {
     const newThreadInfo = action.payload.threadInfo;
     if (__WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual___default()(state[newThreadInfo.id])(newThreadInfo)) {
