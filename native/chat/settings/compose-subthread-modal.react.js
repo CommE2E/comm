@@ -6,6 +6,7 @@ import {
   visibilityRules,
 } from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
+import type { AppState } from '../../redux-setup';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -20,12 +21,18 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import { iosKeyboardOffset } from '../../dimensions';
 import Button from '../../components/button.react';
 import { ComposeThreadRouteName } from '../compose-thread.react';
 import KeyboardAvoidingView
   from '../../components/keyboard-avoiding-view.react';
+import { ThreadSettingsRouteName } from './thread-settings.react';
+import {
+  assertNavigationRouteNotLeafNode,
+  getThreadIDFromParams,
+} from '../../utils/navigation-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -34,6 +41,8 @@ type Props = {|
     params?: NavigationParams
   ) => bool,
   closeModal: () => void,
+  // Redux state
+  threadSettingsActive: bool,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
 
@@ -41,7 +50,9 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    threadSettingsActive: PropTypes.bool.isRequired,
   };
+  waitingToNavigate = false;
 
   render() {
     const content = (
@@ -89,6 +100,10 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   }
 
   onPressOpen = () => {
+    if (!this.props.threadSettingsActive || this.waitingToNavigate) {
+      return;
+    }
+    this.waitingToNavigate = true;
     InteractionManager.runAfterInteractions(() => {
       this.props.navigate(
         ComposeThreadRouteName,
@@ -97,11 +112,16 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           visibilityRules: visibilityRules.CHAT_NESTED_OPEN,
         },
       );
+      this.waitingToNavigate = false;
     });
     this.props.closeModal();
   }
 
   onPressSecret = () => {
+    if (!this.props.threadSettingsActive || this.waitingToNavigate) {
+      return;
+    }
+    this.waitingToNavigate = true;
     InteractionManager.runAfterInteractions(() => {
       this.props.navigate(
         ComposeThreadRouteName,
@@ -110,6 +130,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           visibilityRules: visibilityRules.CHAT_SECRET,
         },
       );
+      this.waitingToNavigate = false;
     });
     this.props.closeModal();
   }
@@ -153,4 +174,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ComposeSubthreadModal;
+export default connect(
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const currentChatSubroute = chatRoute.routes[chatRoute.index];
+    return {
+      threadSettingsActive:
+        currentChatSubroute.routeName === ThreadSettingsRouteName &&
+        getThreadIDFromParams(currentChatSubroute) === ownProps.threadInfo.id,
+    };
+  },
+)(ComposeSubthreadModal);

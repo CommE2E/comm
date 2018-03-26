@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
 import { FloatingAction } from 'react-native-floating-action';
@@ -25,6 +24,7 @@ import { FloatingAction } from 'react-native-floating-action';
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
+import { connect } from 'lib/utils/redux-utils';
 
 import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -34,6 +34,7 @@ import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
 import { iosKeyboardOffset } from '../dimensions';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 const floatingActions = [{
   text: 'Compose',
@@ -50,6 +51,7 @@ type Props = {|
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
+  active: bool,
 |};
 type State = {|
   listData: $ReadOnlyArray<Item>,
@@ -68,6 +70,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    active: PropTypes.bool.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
@@ -265,6 +268,9 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   }
 
   onPressItem = (threadInfo: ThreadInfo) => {
+    if (!this.props.active) {
+      return;
+    }
     this.props.navigation.navigate(
       MessageListRouteName,
       { threadInfo },
@@ -272,7 +278,9 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   }
 
   composeThread = () => {
-    this.props.navigation.navigate(ComposeThreadRouteName, {});
+    if (this.props.active) {
+      this.props.navigation.navigate(ComposeThreadRouteName, {});
+    }
   }
 
 }
@@ -320,11 +328,18 @@ const styles = StyleSheet.create({
 });
 
 const ChatThreadListRouteName = 'ChatThreadList';
-const ChatThreadList = connect((state: AppState): * => ({
-  chatListData: chatListData(state),
-  viewerID: state.currentUserInfo && state.currentUserInfo.id,
-  threadSearchIndex: threadSearchIndex(state),
-}))(InnerChatThreadList);
+const ChatThreadList = connect((state: AppState) => {
+  const appRoute =
+    assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+  const currentChatSubroute = chatRoute.routes[chatRoute.index];
+  return {
+    chatListData: chatListData(state),
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
+    threadSearchIndex: threadSearchIndex(state),
+    active: currentChatSubroute.routeName === ChatThreadListRouteName,
+  };
+})(InnerChatThreadList);
 
 export {
   ChatThreadList,

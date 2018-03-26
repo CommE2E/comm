@@ -44,6 +44,7 @@ import { EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccountRouteName } from './delete-account.react';
 import { BuildInfoRouteName} from './build-info.react';
 import { DevToolsRouteName} from './dev-tools.react';
+import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -53,6 +54,7 @@ type Props = {
   emailVerified: ?bool,
   currentAsOf: number,
   resendVerificationLoadingStatus: LoadingStatus,
+  active: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -70,6 +72,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     emailVerified: PropTypes.bool,
     currentAsOf: PropTypes.number.isRequired,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
+    active: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     resendVerificationEmail: PropTypes.func.isRequired,
@@ -271,24 +274,30 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     );
   }
 
+  navigateIfActive(routeName: string) {
+    if (this.props.active) {
+      this.props.navigation.navigate(routeName);
+    }
+  }
+
   onPressEditEmail = () => {
-    this.props.navigation.navigate(EditEmailRouteName);
+    this.navigateIfActive(EditEmailRouteName);
   }
 
   onPressEditPassword = () => {
-    this.props.navigation.navigate(EditPasswordRouteName);
+    this.navigateIfActive(EditPasswordRouteName);
   }
 
   onPressDeleteAccount = () => {
-    this.props.navigation.navigate(DeleteAccountRouteName);
+    this.navigateIfActive(DeleteAccountRouteName);
   }
 
   onPressBuildInfo = () => {
-    this.props.navigation.navigate(BuildInfoRouteName);
+    this.navigateIfActive(BuildInfoRouteName);
   }
 
   onPressDevTools = () => {
-    this.props.navigation.navigate(DevToolsRouteName);
+    this.navigateIfActive(DevToolsRouteName);
   }
 
 }
@@ -418,20 +427,26 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
 
 const MoreScreenRouteName = 'MoreScreen';
 const MoreScreen = connect(
-  (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.email
-      : undefined,
-    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.emailVerified
-      : undefined,
-    currentAsOf: state.currentAsOf,
-    resendVerificationLoadingStatus:
-      resendVerificationLoadingStatusSelector(state),
-  }),
+  (state: AppState) => {
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const moreRoute = assertNavigationRouteNotLeafNode(appRoute.routes[2]);
+    return {
+      username: state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.username
+        : undefined,
+      email: state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.email
+        : undefined,
+      emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.emailVerified
+        : undefined,
+      currentAsOf: state.currentAsOf,
+      resendVerificationLoadingStatus:
+        resendVerificationLoadingStatusSelector(state),
+      active: moreRoute.index === 0,
+    };
+  },
   { logOut, resendVerificationEmail },
 )(InnerMoreScreen);
 

@@ -68,6 +68,7 @@ import { registerChatScreen } from './chat-screen-registry';
 import { iosKeyboardOffset } from '../dimensions';
 import ThreadVisibility from '../components/thread-visibility.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 const tagInputProps = {
   placeholder: "username",
@@ -83,6 +84,26 @@ type NavProp =
       createButtonDisabled?: bool,
     } } };
 
+let queuedPress = false;
+function setQueuedPress() {
+  queuedPress = true;
+}
+let onPressCreateThread = setQueuedPress;
+function setOnPressCreateThread(func: ?() => void) {
+  if (!func) {
+    onPressCreateThread = setQueuedPress;
+    return;
+  }
+  onPressCreateThread = func;
+  if (queuedPress) {
+    onPressCreateThread();
+    queuedPress = false;
+  }
+}
+function pressCreateThread() {
+  onPressCreateThread();
+}
+
 type Props = {
   navigation: NavProp,
   // Redux state
@@ -91,6 +112,7 @@ type Props = {
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
+  active: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -123,6 +145,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
+    active: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -132,7 +155,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     headerRight: (
       <LinkButton
         text="Create"
-        onPress={() => navigation.state.params.onPressCreateThread()}
+        onPress={pressCreateThread}
         disabled={!!navigation.state.params.createButtonDisabled}
       />
     ),
@@ -140,6 +163,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   });
   mounted = false;
   tagInput: ?TagInput<AccountUserInfo>;
+  createThreadPressed = false;
 
   constructor(props: Props) {
     super(props);
@@ -177,16 +201,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     registerChatScreen(this.props.navigation.state.key, this);
+    setOnPressCreateThread(this.onPressCreateThread);
     this.searchUsers("");
-    this.props.navigation.setParams({
-      onPressCreateThread: this.onPressCreateThread,
-      createButtonDisabled: false,
-    });
   }
 
   componentWillUnmount() {
     this.mounted = false;
     registerChatScreen(this.props.navigation.state.key, null);
+    setOnPressCreateThread(null);
   }
 
   canReset = () => false;
@@ -401,6 +423,10 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onPressCreateThread = () => {
+    if (this.createThreadPressed) {
+      return;
+    }
+    this.createThreadPressed = true;
     if (this.state.userInfoInputArray.length === 0) {
       Alert.alert(
         "Chatting to yourself?",
@@ -442,6 +468,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
           : null,
       });
     } catch (e) {
+      this.createThreadPressed = false;
       this.props.navigation.setParams({ createButtonDisabled: false });
       Alert.alert(
         "Unknown error",
@@ -471,6 +498,9 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onSelectExistingThread = (threadID: string) => {
+    if (!this.props.active) {
+      return;
+    }
     this.props.navigation.navigate(
       MessageListRouteName,
       { threadInfo: this.props.threadInfos[threadID] },
@@ -548,12 +578,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const ComposeThreadRouteName = 'ComposeThread';
-
 const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
+const ComposeThreadRouteName = 'ComposeThread';
 const ComposeThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
@@ -562,12 +591,17 @@ const ComposeThread = connect(
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const currentChatSubroute = chatRoute.routes[chatRoute.index];
     return {
       parentThreadInfo,
       loadingStatus: loadingStatusSelector(state),
       otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
+      active: currentChatSubroute.routeName === ComposeThreadRouteName,
     };
   },
   { newThread, searchUsers },

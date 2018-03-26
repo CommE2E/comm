@@ -5,13 +5,21 @@ import {
   threadInfoPropType,
 } from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
+import type { AppState } from '../../redux-setup';
 
 import React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from './delete-thread.react';
+import { ThreadSettingsRouteName } from './thread-settings.react';
+import {
+  assertNavigationRouteNotLeafNode,
+  getThreadIDFromParams,
+} from '../../utils/navigation-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -20,6 +28,8 @@ type Props = {|
     params?: NavigationParams,
   ) => bool,
   canLeaveThread: bool,
+  // Redux state
+  threadSettingsActive: bool,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
 
@@ -27,6 +37,7 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     canLeaveThread: PropTypes.bool.isRequired,
+    threadSettingsActive: PropTypes.bool.isRequired,
   };
 
   render() {
@@ -46,6 +57,9 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
   }
 
   onPress = () => {
+    if (!this.props.threadSettingsActive) {
+      return;
+    }
     this.props.navigate(
       DeleteThreadRouteName,
       { threadInfo: this.props.threadInfo },
@@ -76,4 +90,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ThreadSettingsDeleteThread;
+export default connect(
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+    const appRoute =
+      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
+    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+    const currentChatSubroute = chatRoute.routes[chatRoute.index];
+    return {
+      threadSettingsActive:
+        currentChatSubroute.routeName === ThreadSettingsRouteName &&
+        getThreadIDFromParams(currentChatSubroute) === ownProps.threadInfo.id,
+    };
+  },
+)(ThreadSettingsDeleteThread);
