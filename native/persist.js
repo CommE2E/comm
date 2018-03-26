@@ -1,8 +1,12 @@
 // @flow
 
+import type { AppState } from './redux-setup';
+
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
+
+import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
 const blacklist = __DEV__
   ? [
@@ -18,11 +22,10 @@ const blacklist = __DEV__
     ];
 
 const migrations = {
-  /** example
-  [0]: (state) => ({
+  [1]: (state: AppState) => ({
     ...state,
-    test: "hello",
-  }), **/
+    notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+  }),
 };
 
 const persistConfig = {
@@ -30,11 +33,11 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 0,
+  version: 1,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
-const codeVersion = 3;
+const codeVersion = 4;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
