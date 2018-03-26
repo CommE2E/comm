@@ -245,6 +245,9 @@ async function sendPushNotifsForNewMessages(
     );
     threadConditionClauses.push(mergeAndConditions(conditions));
   }
+  if (threadConditionClauses.length === 0) {
+    return;
+  }
   const conditionClause = mergeOrConditions(threadConditionClauses);
 
   let joinIndex = 0;
