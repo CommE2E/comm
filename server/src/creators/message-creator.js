@@ -339,7 +339,9 @@ async function sendPushNotifsForNewMessages(
     };
     for (let threadID of preUserPushInfo.threadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
-      invariant(messageIndices, `indices should exist for thread ${threadID}`);
+      if (!messageIndices) {
+        continue;
+      }
       for (let messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         if (
