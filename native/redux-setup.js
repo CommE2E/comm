@@ -7,6 +7,11 @@ import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { NavInfo } from './navigation-setup';
 import type { PersistState } from 'redux-persist/src/types';
+import {
+  type NotifPermissionAlertInfo,
+  defaultNotifPermissionAlertInfo,
+  recordNotifPermissionAlertActionType,
+} from './push/alerts';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -62,6 +67,7 @@ export type AppState = {|
   urlPrefix: string,
   customServer: ?string,
   threadIDsToNotifIDs: {[threadID: string]: string[]},
+  notifPermissionAlertInfo: NotifPermissionAlertInfo,
   _persist: ?PersistState,
 |};
 
@@ -89,6 +95,7 @@ const defaultState = ({
   urlPrefix: defaultURLPrefix(),
   customServer: natServer,
   threadIDsToNotifIDs: {},
+  notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   _persist: null,
 }: AppState);
 
@@ -113,6 +120,7 @@ function reducer(state: AppState = defaultState, action: *) {
       urlPrefix: state.urlPrefix,
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       _persist: state._persist,
     };
   }
@@ -140,6 +148,7 @@ function reducer(state: AppState = defaultState, action: *) {
         state.threadIDsToNotifIDs,
         action.payload,
       ),
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       _persist: state._persist,
     };
   } else if (action.type === setCustomServer) {
@@ -160,6 +169,31 @@ function reducer(state: AppState = defaultState, action: *) {
       urlPrefix: state.urlPrefix,
       customServer: action.payload,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      _persist: state._persist,
+    };
+  } else if (action.type === recordNotifPermissionAlertActionType) {
+    return {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: {
+        totalAlerts: state.notifPermissionAlertInfo.totalAlerts + 1,
+        lastAlertTime: action.payload.time,
+      },
       _persist: state._persist,
     };
   }
@@ -210,6 +244,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       urlPrefix: state.urlPrefix,
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       _persist: state._persist,
     };
   }
@@ -245,6 +280,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       urlPrefix: state.urlPrefix,
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       _persist: state._persist,
     };
   }

@@ -21,6 +21,11 @@ import type {
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
+import {
+  type NotifPermissionAlertInfo,
+  notifPermissionAlertInfoPropType,
+  recordNotifPermissionAlertActionType,
+} from './push/alerts';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -99,6 +104,7 @@ registerConfig({
 });
 
 const reactNavigationAddListener = createReduxBoundAddListener("root");
+const msInDay = 24 * 60 * 60 * 1000;
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
@@ -114,6 +120,7 @@ type Props = {
   deviceToken: ?string,
   unreadCount: number,
   rawThreadInfos: {[id: string]: RawThreadInfo},
+  notifPermissionAlertInfo: NotifPermissionAlertInfo,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -144,6 +151,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     deviceToken: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
+    notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -462,8 +470,29 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const deviceType = Platform.OS;
     if (deviceType === "ios") {
       iosPushPermissionResponseReceived();
+      if (__DEV__) {
+        // iOS simulator can't handle notifs
+        return;
+      }
     }
-    if (deviceType === "ios" && !__DEV__) {
+
+    const alertInfo = this.props.notifPermissionAlertInfo;
+    if (
+      (alertInfo.totalAlerts > 3 &&
+        alertInfo.lastAlertTime > (Date.now() - msInDay)) ||
+      (alertInfo.totalAlerts > 6 &&
+        alertInfo.lastAlertTime > (Date.now() - msInDay * 3)) ||
+      (alertInfo.totalAlerts > 9 &&
+        alertInfo.lastAlertTime > (Date.now() - msInDay * 7))
+    ) {
+      return;
+    }
+    this.props.dispatchActionPayload(
+      recordNotifPermissionAlertActionType,
+      { time: Date.now() },
+    );
+
+    if (deviceType === "ios") {
       Alert.alert(
         "Need notif permissions",
         "SquadCal needs notification permissions to keep you in the loop! " +
@@ -712,6 +741,7 @@ const ConnectedAppWithNavigationState = connect(
       deviceToken: state.deviceToken,
       unreadCount: unreadCount(state),
       rawThreadInfos: state.threadInfos,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
     };
   },
   { ping, updateActivity, setDeviceToken },

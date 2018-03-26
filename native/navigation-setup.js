@@ -101,9 +101,11 @@ export type Action =
   | {| type: "HANDLE_URL", payload: string |}
   | {| type: "NAVIGATE_TO_APP", payload: null |}
   | {|
-    type: "NOTIFICATION_PRESS",
-    payload: NotificationPressPayload,
-  |} | AndroidNotificationActions;
+      type: "NOTIFICATION_PRESS",
+      payload: NotificationPressPayload,
+    |}
+  | AndroidNotificationActions
+  | {| type: "RECORD_NOTIF_PERMISSION_ALERT", time: number |};
 
 let tabBarOptions;
 if (Platform.OS === "android") {
