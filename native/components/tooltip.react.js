@@ -134,6 +134,9 @@ class Tooltip extends React.PureComponent<Props, State> {
   }
 
   toggleModal = () => {
+    if (this.state.isModalOpen) {
+      this.onDismiss();
+    }
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
