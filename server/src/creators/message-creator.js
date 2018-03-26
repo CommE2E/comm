@@ -236,6 +236,9 @@ async function sendPushNotifsForNewMessages(
   const threadConditionClauses = [];
   for (let pair of threadRestrictions) {
     const [ threadID, threadRestriction ] = pair;
+    if (!threadsToMessageIndices.has(threadID)) {
+      continue;
+    }
     const conditions = getSQLConditionsForThreadRestriction(
       threadID,
       threadRestriction,
@@ -339,9 +342,7 @@ async function sendPushNotifsForNewMessages(
     };
     for (let threadID of preUserPushInfo.threadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
-      if (!messageIndices) {
-        continue;
-      }
+      invariant(messageIndices, `indices should exist for thread ${threadID}`);
       for (let messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         if (
