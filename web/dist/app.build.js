@@ -35702,13 +35702,16 @@ module.exports = uniq;
 /* unused harmony export sortMessageInfoList */
 /* unused harmony export rawMessageInfoFromMessageData */
 /* unused harmony export mostRecentMessageTimestamp */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_maxBy__ = __webpack_require__(418);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_maxBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_maxBy__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__types_message_types__ = __webpack_require__(136);
+/* unused harmony export messageTypeGeneratesNotifs */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_message_types__ = __webpack_require__(136);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_invariant__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_maxBy__ = __webpack_require__(418);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_maxBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_maxBy__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_date_utils__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__ = __webpack_require__(217);
+
+
 
 
 
@@ -35721,7 +35724,7 @@ function messageKey(messageInfo) {
   if (messageInfo.type === 0 && messageInfo.localID) {
     return messageInfo.localID;
   }
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(messageInfo.id, "localID should exist if ID does not");
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.id, "localID should exist if ID does not");
   return messageInfo.id;
 }
 
@@ -35730,8 +35733,8 @@ function messageID(messageInfo) {
   if (messageInfo.id) {
     return messageInfo.id;
   }
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(messageInfo.type === 0, "only MessageType.TEXT can have localID");
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(messageInfo.localID, "localID should exist if ID does not");
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.type === 0, "only MessageType.TEXT can have localID");
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.localID, "localID should exist if ID does not");
   return messageInfo.localID;
 }
 
@@ -35762,9 +35765,9 @@ function encodedThreadEntity(threadID, text) {
 }
 
 function robotextForMessageInfo(messageInfo, threadInfo) {
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(messageInfo.type !== __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].TEXT, "robotext is no substitute for human text!");
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT, "robotext is no substitute for human text!");
   const creator = robotextForUser(messageInfo.creator);
-  if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
     let text = `created ${encodedThreadEntity(messageInfo.threadID, 'this thread')}`;
     const parentThread = messageInfo.initialThreadState.parentThreadInfo;
     if (parentThread) {
@@ -35779,19 +35782,19 @@ function robotextForMessageInfo(messageInfo, threadInfo) {
       text += ` and added ${initialUsersString}`;
     }
     return `${creator} ${text}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
     const users = messageInfo.addedMembers;
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(users.length !== 0, "added who??");
+    __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "added who??");
     const addedUsersString = robotextForUsers(users);
     return `${creator} added ${addedUsersString}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
     let text = `${creator} created a child thread`;
     const childName = messageInfo.childThreadInfo.name;
     if (childName) {
       text += ` named "<${encodeURI(childName)}|t${messageInfo.childThreadInfo.id}>"`;
     }
     return text;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
     let value;
     if (messageInfo.field === "color") {
       value = `<#${messageInfo.value}|c${messageInfo.threadID}>`;
@@ -35799,36 +35802,36 @@ function robotextForMessageInfo(messageInfo, threadInfo) {
       value = messageInfo.value;
     }
     return `${creator} updated ` + `${encodedThreadEntity(messageInfo.threadID, 'the thread')}'s ` + `${messageInfo.field} to "${value}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
     const users = messageInfo.removedMembers;
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(users.length !== 0, "removed who??");
+    __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "removed who??");
     const removedUsersString = robotextForUsers(users);
     return `${creator} removed ${removedUsersString}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
     const users = messageInfo.members;
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(users.length !== 0, "changed whose role??");
+    __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "changed whose role??");
     const usersString = robotextForUsers(users);
     const verb = threadInfo.roles[messageInfo.newRole].isDefault ? "removed" : "added";
     const noun = users.length === 1 ? "an admin" : "admins";
     return `${creator} ${verb} ${usersString} as ${noun}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
     return `${creator} left ` + encodedThreadEntity(messageInfo.threadID, 'this thread');
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
     return `${creator} joined ` + encodedThreadEntity(messageInfo.threadID, 'this thread');
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} created an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} updated the text of an event scheduled for ` + `${date}: "${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} deleted an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} restored an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
   }
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(false, `${messageInfo.type} is not a messageType!`);
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(false, `${messageInfo.type} is not a messageType!`);
 }
 
 function robotextToRawString(robotext) {
@@ -35840,9 +35843,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
   if (!creatorInfo) {
     return null;
   }
-  if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].TEXT) {
+  if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT) {
     const messageInfo = {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].TEXT,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT,
       threadID: rawMessageInfo.threadID,
       creator: {
         id: rawMessageInfo.creatorID,
@@ -35859,10 +35862,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       messageInfo.localID = rawMessageInfo.localID;
     }
     return messageInfo;
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
     const initialParentThreadID = rawMessageInfo.initialThreadState.parentThreadID;
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35879,10 +35882,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
         otherMembers: Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.initialThreadState.memberIDs.filter(userID => userID !== rawMessageInfo.creatorID), viewerID, userInfos)
       }
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
     const addedMembers = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.addedUserIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].ADD_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35893,9 +35896,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       addedMembers
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35906,9 +35909,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       childThreadInfo: threadInfos[rawMessageInfo.childThreadID]
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35920,10 +35923,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       field: rawMessageInfo.field,
       value: rawMessageInfo.value
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
     const removedMembers = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.removedUserIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35934,10 +35937,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       removedMembers
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
     const members = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.userIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_ROLE,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35949,9 +35952,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       members,
       newRole: rawMessageInfo.newRole
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].LEAVE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35961,9 +35964,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       },
       time: rawMessageInfo.time
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].JOIN_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35973,9 +35976,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       },
       time: rawMessageInfo.time
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35988,9 +35991,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].EDIT_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -36003,9 +36006,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].DELETE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -36018,9 +36021,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -36034,7 +36037,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       text: rawMessageInfo.text
     };
   }
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(false, `${rawMessageInfo.type} is not a messageType!`);
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(false, `${rawMessageInfo.type} is not a messageType!`);
 }
 
 function sortMessageInfoList(messageInfos) {
@@ -36042,45 +36045,45 @@ function sortMessageInfoList(messageInfos) {
 }
 
 function rawMessageInfoFromMessageData(messageData, id) {
-  if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].TEXT) {
+  if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].TEXT,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       initialThreadState: messageData.initialThreadState
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].ADD_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       addedUserIDs: messageData.addedUserIDs
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       childThreadID: messageData.childThreadID
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36088,18 +36091,18 @@ function rawMessageInfoFromMessageData(messageData, id) {
       field: messageData.field,
       value: messageData.value
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       removedUserIDs: messageData.removedUserIDs
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CHANGE_ROLE,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36107,25 +36110,25 @@ function rawMessageInfoFromMessageData(messageData, id) {
       userIDs: messageData.userIDs,
       newRole: messageData.newRole
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].LEAVE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].JOIN_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].CREATE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36134,9 +36137,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].EDIT_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36145,9 +36148,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].DELETE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36156,9 +36159,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_2__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36168,7 +36171,7 @@ function rawMessageInfoFromMessageData(messageData, id) {
       text: messageData.text
     };
   } else {
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(false, `unrecognized messageType ${messageData.type}`);
+    __WEBPACK_IMPORTED_MODULE_1_invariant___default()(false, `unrecognized messageType ${messageData.type}`);
   }
 }
 
@@ -36176,7 +36179,11 @@ function mostRecentMessageTimestamp(messageInfos, lastPing) {
   if (messageInfos.length === 0) {
     return lastPing;
   }
-  return __WEBPACK_IMPORTED_MODULE_1_lodash_fp_maxBy___default()('time')(messageInfos).time;
+  return __WEBPACK_IMPORTED_MODULE_2_lodash_fp_maxBy___default()('time')(messageInfos).time;
+}
+
+function messageTypeGeneratesNotifs(type) {
+  return type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS;
 }
 
 

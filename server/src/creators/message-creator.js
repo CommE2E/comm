@@ -10,7 +10,10 @@ import {
   threadPermissions,
   assertVisibilityRules,
 } from 'lib/types/thread-types';
-import { rawMessageInfoFromMessageData } from 'lib/shared/message-utils';
+import {
+  rawMessageInfoFromMessageData,
+  messageTypeGeneratesNotifs,
+} from 'lib/shared/message-utils';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
@@ -45,7 +48,7 @@ async function createMessages(
   // given thread
   const subthreadPermissionsToCheck: Set<string> = new Set();
   const threadRestrictions: Map<string, ThreadRestriction> = new Map();
-  const threadsToMessageIndices: Map<string, number[]> = new Map();
+  const threadsToNotifMessageIndices: Map<string, number[]> = new Map();
   const messageInsertRows = [];
   const messageInfos: RawMessageInfo[] = [];
   for (let i = 0; i < messageDatas.length; i++) {
@@ -94,15 +97,13 @@ async function createMessages(
       }
     }
 
-    if (!threadsToMessageIndices.has(threadID)) {
-      threadsToMessageIndices.set(threadID, [i]);
-    } else {
-      const currentMessageIndices = threadsToMessageIndices.get(threadID);
-      invariant(
-        currentMessageIndices,
-        `message indices for thread ${threadID} should exist`,
-      );
-      threadsToMessageIndices.set(threadID, [...currentMessageIndices, i]);
+    if (messageTypeGeneratesNotifs(messageData.type)) {
+      const messageIndices = threadsToNotifMessageIndices.get(threadID);
+      if (messageIndices) {
+        threadsToNotifMessageIndices.set(threadID, [...messageIndices, i]);
+      } else {
+        threadsToNotifMessageIndices.set(threadID, [i]);
+      }
     }
 
     let content;
@@ -157,7 +158,7 @@ async function createMessages(
   sendPushNotifsForNewMessages(
     threadRestrictions,
     subthreadPermissionsToCheck,
-    threadsToMessageIndices,
+    threadsToNotifMessageIndices,
     messageInfos,
   );
   await Promise.all([
