@@ -35864,6 +35864,13 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
     return messageInfo;
   } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
     const initialParentThreadID = rawMessageInfo.initialThreadState.parentThreadID;
+    let parentThreadInfo = null;
+    if (initialParentThreadID) {
+      parentThreadInfo = threadInfos[initialParentThreadID];
+      if (!parentThreadInfo) {
+        return null;
+      }
+    }
     return {
       type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD,
       id: rawMessageInfo.id,
@@ -35876,7 +35883,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       initialThreadState: {
         name: rawMessageInfo.initialThreadState.name,
-        parentThreadInfo: initialParentThreadID ? threadInfos[initialParentThreadID] : null,
+        parentThreadInfo,
         visibilityRules: rawMessageInfo.initialThreadState.visibilityRules,
         color: rawMessageInfo.initialThreadState.color,
         otherMembers: Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.initialThreadState.memberIDs.filter(userID => userID !== rawMessageInfo.creatorID), viewerID, userInfos)
@@ -35897,6 +35904,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       addedMembers
     };
   } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+    const childThreadInfo = threadInfos[rawMessageInfo.childThreadID];
+    if (!childThreadInfo) {
+      return null;
+    }
     return {
       type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
       id: rawMessageInfo.id,
@@ -35907,7 +35918,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
         isViewer: rawMessageInfo.creatorID === viewerID
       },
       time: rawMessageInfo.time,
-      childThreadInfo: threadInfos[rawMessageInfo.childThreadID]
+      childThreadInfo
     };
   } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
     return {
