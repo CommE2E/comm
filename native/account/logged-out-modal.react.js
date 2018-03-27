@@ -136,6 +136,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
   keyboardShowListener: ?Object;
   keyboardHideListener: ?Object;
+  expectingKeyboardToAppear = false;
 
   mounted = false;
   nextMode: LoggedOutMode = "loading";
@@ -358,7 +359,10 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     return windowHeight - keyboardHeight - textHeight - 20;
   }
 
-  animateToSecondMode(inputDuration: ?number, realKeyboardHeight: ?number) {
+  animateToSecondMode(
+    inputDuration: ?number = null,
+    realKeyboardHeight: ?number = null,
+  ) {
     const duration = inputDuration ? inputDuration : 150;
     if (!realKeyboardHeight) {
       realKeyboardHeight = this.keyboardHeight;
@@ -420,6 +424,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
+    if (this.expectingKeyboardToAppear) {
+      this.expectingKeyboardToAppear = false;
+    }
     if (!this.activeKeyboard) {
       // We do this because the Android keyboard can change in height and we
       // don't want to bother moving the panel between those events
@@ -486,6 +493,15 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   keyboardHide = (event: ?KeyboardEvent) => {
+    if (this.expectingKeyboardToAppear) {
+      // On the iOS simulator, it's possible to disable the keyboard. In this
+      // case, when a TextInput's autoFocus would normally cause keyboardShow
+      // to trigger, keyboardHide is instead triggered. Since the Apple app
+      // testers seem to use the iOS simulator, we need to support this case.
+      this.expectingKeyboardToAppear = false;
+      this.animateToSecondMode();
+      return;
+    }
     this.keyboardHeight = 0;
     this.activeKeyboard = false;
     if (this.activeAlert) {
@@ -667,7 +683,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
-      this.animateToSecondMode(null);
+      this.animateToSecondMode();
+    } else if (Platform.OS === "ios") {
+      this.expectingKeyboardToAppear = true;
     }
   }
 
@@ -678,7 +696,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
-      this.animateToSecondMode(null);
+      this.animateToSecondMode();
+    } else if (Platform.OS === "ios") {
+      this.expectingKeyboardToAppear = true;
     }
   }
 

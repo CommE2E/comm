@@ -98,6 +98,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
   };
+
   state = {
     mode: "simple-text",
     paddingTop: new Animated.Value(
@@ -109,9 +110,12 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     resetPasswordPanelOpacityValue: new Animated.Value(0),
     onePasswordSupported: false,
   };
-  activeAlert = false;
+
   keyboardShowListener: ?Object;
   keyboardHideListener: ?Object;
+  expectingKeyboardToAppear = false;
+
+  activeAlert = false;
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
@@ -251,7 +255,9 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
         if (this.activeKeyboard) {
           // If keyboard isn't currently active, keyboardShow will handle the
           // animation. This is so we can run all animations in parallel
-          this.animateToResetPassword(null);
+          this.animateToResetPassword();
+        } else if (Platform.OS === "ios") {
+          this.expectingKeyboardToAppear = true;
         }
       }
     } catch (e) {
@@ -277,7 +283,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     return (windowHeight - containerSize - keyboardHeight) / 2;
   }
 
-  animateToResetPassword(inputDuration: ?number) {
+  animateToResetPassword(inputDuration: ?number = null) {
     const duration = inputDuration ? inputDuration : 150;
     const animations = [
       Animated.timing(
@@ -308,6 +314,9 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
+    if (this.expectingKeyboardToAppear) {
+      this.expectingKeyboardToAppear = false;
+    }
     this.keyboardHeight = event.endCoordinates.height;
     if (this.activeKeyboard) {
       // We do this because the Android keyboard can change in height and we
@@ -347,6 +356,15 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   }
 
   keyboardHide = (event: ?KeyboardEvent) => {
+    if (this.expectingKeyboardToAppear) {
+      // On the iOS simulator, it's possible to disable the keyboard. In this
+      // case, when a TextInput's autoFocus would normally cause keyboardShow
+      // to trigger, keyboardHide is instead triggered. Since the Apple app
+      // testers seem to use the iOS simulator, we need to support this case.
+      this.expectingKeyboardToAppear = false;
+      this.animateToResetPassword();
+      return;
+    }
     this.keyboardHeight = 0;
     this.activeKeyboard = false;
     if (this.activeAlert) {
