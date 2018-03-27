@@ -92,10 +92,7 @@ async function handleCodeVerificationRequest(
   const { userID, field } = result;
   if (field === verifyField.EMAIL) {
     const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
-    await Promise.all([
-      dbQuery(query),
-      clearVerifyCodes(result),
-    ]);
+    await dbQuery(query);
     return { field: verifyField.EMAIL, userID };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
