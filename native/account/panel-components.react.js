@@ -5,6 +5,7 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 
 import * as React from 'react';
 import {
@@ -13,6 +14,8 @@ import {
   Text,
   StyleSheet,
   Animated,
+  ScrollView,
+  LayoutAnimation,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
@@ -20,12 +23,17 @@ import PropTypes from 'prop-types';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { windowHeight } from '../dimensions';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
 
-type ButtonProps = {
+type ButtonProps = {|
   text: string,
   loadingStatus: LoadingStatus,
   onSubmit: () => void,
-};
+|};
 class PanelButton extends React.PureComponent<ButtonProps> {
 
   static propTypes = {
@@ -67,7 +75,7 @@ class PanelButton extends React.PureComponent<ButtonProps> {
 
 }
 
-function PanelOnePasswordButton(props: { onPress: () => Promise<void> }) {
+function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
   return (
     <OnePasswordButton
       onPress={props.onPress}
@@ -76,18 +84,78 @@ function PanelOnePasswordButton(props: { onPress: () => Promise<void> }) {
   );
 }
 
-type PanelProps = {
+type PanelProps = {|
   opacityValue: Animated.Value,
   children: React.Node,
   style?: StyleObj,
-};
-function Panel(props: PanelProps) {
-  const opacityStyle = { opacity: props.opacityValue };
-  return (
-    <Animated.View style={[styles.container, opacityStyle, props.style]}>
-      {props.children}
-    </Animated.View>
-  );
+|};
+type PanelState = {|
+  keyboardHeight: number,
+|};
+class Panel extends React.PureComponent<PanelProps, PanelState> {
+
+  state = {
+    keyboardHeight: 0,
+  };
+  keyboardShowListener: ?EmitterSubscription;
+  keyboardHideListener: ?EmitterSubscription;
+
+  componentDidMount() {
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardHandler);
+    this.keyboardHideListener =
+      addKeyboardDismissListener(this.keyboardHandler);
+  }
+
+  componentWillUnmount() {
+    if (this.keyboardShowListener) {
+      removeKeyboardListener(this.keyboardShowListener);
+      this.keyboardShowListener = null;
+    }
+    if (this.keyboardHideListener) {
+      removeKeyboardListener(this.keyboardHideListener);
+      this.keyboardHideListener = null;
+    }
+  }
+
+  keyboardHandler = (event: KeyboardEvent) => {
+    const keyboardHeight = windowHeight - event.endCoordinates.screenY;
+    if (keyboardHeight === this.state.keyboardHeight) {
+      return;
+    }
+    if (event.duration && event.easing) {
+      LayoutAnimation.configureNext({
+        duration: event.duration,
+        update: {
+          duration: event.duration,
+          type: LayoutAnimation.Types[event.easing] || 'keyboard',
+        },
+      });
+    }
+    this.setState({ keyboardHeight });
+  }
+
+  render() {
+    const opacityStyle = { opacity: this.props.opacityValue };
+    const content = (
+      <Animated.View style={[styles.container, opacityStyle, this.props.style]}>
+        {this.props.children}
+      </Animated.View>
+    );
+    if (windowHeight >= 568) {
+      return content;
+    }
+    const scrollViewStyle = {
+      paddingBottom: 73.5 + this.state.keyboardHeight,
+    };
+    return (
+      <View style={scrollViewStyle}>
+        <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
+          {content}
+        </ScrollView>
+      </View>
+    );
+  }
+
 }
 
 const styles = StyleSheet.create({

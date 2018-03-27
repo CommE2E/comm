@@ -2,14 +2,16 @@
 
 import { AppState, Keyboard, Platform } from 'react-native';
 
+type Coordinates = {
+  width: number,
+  height: number,
+  screenX: number,
+  screenY: number,
+};
 export type KeyboardEvent = {
   duration: number,
-  endCoordinates: {
-    width: number,
-    height: number,
-    screenX: number,
-    screenY: number,
-  },
+  startCoordinates: Coordinates,
+  endCoordinates: Coordinates,
 };
 type KeyboardCallback = (event: KeyboardEvent) => void;
 type IgnoredKeyboardEvent = {|
@@ -17,6 +19,9 @@ type IgnoredKeyboardEvent = {|
   event: KeyboardEvent,
   time: number,
 |};
+export type EmitterSubscription = {
+  +remove: () => void,
+};
 // If the app becomes active within 500ms after a keyboard event is triggered,
 // we will call the relevant keyboard callbacks.
 const appStateChangeDelay = 500;
@@ -81,7 +86,7 @@ function addKeyboardDismissListener(callback: KeyboardCallback) {
     callCallbackIfAppActive(callback),
   );
 }
-function removeKeyboardListener(listener: { remove: () => void }) {
+function removeKeyboardListener(listener: EmitterSubscription) {
   decrementAppStateListeners();
   listener.remove();
 }

@@ -14,7 +14,7 @@ import type { AppState } from '../redux-setup';
 import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { KeyboardEvent } from '../keyboard';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 
 import * as React from 'react';
 import {
@@ -37,6 +37,7 @@ import OnePassword from 'react-native-onepassword';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
+import _isEqual from 'lodash/fp/isEqual';
 
 import {
   includeDispatchActionProps,
@@ -134,8 +135,8 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     gesturesEnabled: false,
   };
 
-  keyboardShowListener: ?Object;
-  keyboardHideListener: ?Object;
+  keyboardShowListener: ?EmitterSubscription;
+  keyboardHideListener: ?EmitterSubscription;
   expectingKeyboardToAppear = false;
 
   mounted = false;
@@ -356,7 +357,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     if (DeviceInfo.isIPhoneX_deprecated) {
       keyboardHeight -= 34;
     }
-    return windowHeight - keyboardHeight - textHeight - 20;
+    return windowHeight - keyboardHeight - textHeight - 15;
   }
 
   animateToSecondMode(
@@ -424,6 +425,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
+    if (_isEqual(event.startCoordinates)(event.endCoordinates)) {
+      return;
+    }
     if (this.expectingKeyboardToAppear) {
       this.expectingKeyboardToAppear = false;
     }
@@ -500,6 +504,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       // testers seem to use the iOS simulator, we need to support this case.
       this.expectingKeyboardToAppear = false;
       this.animateToSecondMode();
+      return;
+    }
+    if (event && _isEqual(event.startCoordinates)(event.endCoordinates)) {
       return;
     }
     this.keyboardHeight = 0;

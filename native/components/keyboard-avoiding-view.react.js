@@ -3,6 +3,7 @@
 import type {
   StyleObj,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { EmitterSubscription } from '../keyboard';
 
 import * as React from 'react';
 import {
@@ -14,6 +15,7 @@ import {
   AppState,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { iosKeyboardOffset } from '../dimensions';
 
@@ -34,9 +36,6 @@ type KeyboardChangeEvent = {
   endCoordinates: ScreenRect,
   duration?: number,
   easing?: string,
-};
-type EmitterSubscription = {
-  +remove: () => void,
 };
 
 const viewRef = 'VIEW';
@@ -86,6 +85,10 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
 
     if (!event) {
       this.setState({ bottom: 0 });
+      return;
+    }
+
+    if (_isEqual(event.startCoordinates)(event.endCoordinates)) {
       return;
     }
 
