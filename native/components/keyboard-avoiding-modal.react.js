@@ -5,10 +5,9 @@ import type {
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
-import { StyleSheet, View, Platform, ViewPropTypes } from 'react-native';
+import { StyleSheet, View, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { iosKeyboardOffset } from '../dimensions';
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = {|
@@ -30,21 +29,11 @@ class KeyboardAvoidingModal extends React.PureComponent<Props> {
         {this.props.children}
       </View>
     );
-    if (Platform.OS === "ios") {
-      return (
-        <KeyboardAvoidingView
-          style={[styles.container, this.props.containerStyle]}
-          behavior="padding"
-          keyboardVerticalOffset={iosKeyboardOffset}
-        >{content}</KeyboardAvoidingView>
-      );
-    } else {
-      return (
-        <View style={[styles.container, this.props.containerStyle]}>
-          {content}
-        </View>
-      );
-    }
+    return (
+      <KeyboardAvoidingView
+        style={[styles.container, this.props.containerStyle]}
+      >{content}</KeyboardAvoidingView>
+    );
   }
 
 }

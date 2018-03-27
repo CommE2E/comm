@@ -56,7 +56,6 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
-import { iosKeyboardOffset } from '../dimensions';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 type NavProp = NavigationScreenProp<NavigationRoute>
@@ -451,16 +450,8 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const threadInfo = InnerMessageList.getThreadInfo(this.props);
     const inputBar = <ChatInputBar threadInfo={threadInfo} />;
 
-    const behavior = Platform.OS === "ios" ? "padding" : undefined;
-    const keyboardVerticalOffset = Platform.OS === "ios"
-      ? iosKeyboardOffset
-      : 0;
     return (
-      <KeyboardAvoidingView
-        behavior={behavior}
-        keyboardVerticalOffset={keyboardVerticalOffset}
-        style={styles.container}
-      >
+      <KeyboardAvoidingView style={styles.container}>
         {textHeightMeasurer}
         <View style={styles.flatListContainer}>
           {flatList}

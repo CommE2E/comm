@@ -32,7 +32,6 @@ import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
-import { iosKeyboardOffset } from '../dimensions';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
@@ -245,17 +244,11 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
         {floatingAction}
       </React.Fragment>
     );
-    if (Platform.OS === "ios") {
-      return (
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior="padding"
-          keyboardVerticalOffset={iosKeyboardOffset}
-        >{content}</KeyboardAvoidingView>
-      );
-    } else {
-      return <View style={styles.container}>{content}</View>;
-    }
+    return (
+      <KeyboardAvoidingView style={styles.container}>
+        {content}
+      </KeyboardAvoidingView>
+    );
   }
 
   onChangeSearchText = (searchText: string) => {

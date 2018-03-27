@@ -22,13 +22,7 @@ import type { UserSearchResult } from 'lib/types/search-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
@@ -65,7 +59,6 @@ import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
-import { iosKeyboardOffset } from '../dimensions';
 import ThreadVisibility from '../components/thread-visibility.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
@@ -349,17 +342,11 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         {existingThreadsSection}
       </React.Fragment>
     );
-    if (Platform.OS === "ios") {
-      return (
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior="padding"
-          keyboardVerticalOffset={iosKeyboardOffset}
-        >{content}</KeyboardAvoidingView>
-      );
-    } else {
-      return <View style={styles.container}>{content}</View>;
-    }
+    return (
+      <KeyboardAvoidingView style={styles.container}>
+        {content}
+      </KeyboardAvoidingView>
+    );
   }
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {

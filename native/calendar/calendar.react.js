@@ -62,7 +62,6 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import ThreadPicker from './thread-picker.react';
 import CalendarInputBar from './calendar-input-bar.react';
-import { iosKeyboardOffset } from '../dimensions';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -698,12 +697,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         </View>
       );
     }
-    const keyboardAvoidingViewBehavior = Platform.OS === "ios"
-      ? "padding"
-      : undefined;
-    const keyboardVerticalOffset = Platform.OS === "ios"
-      ? iosKeyboardOffset
-      : 0;
     return (
       <SafeAreaView forceInset={forceInset} style={styles.container}>
         <TextHeightMeasurer
@@ -712,8 +705,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           style={entryStyles.text}
         />
         <KeyboardAvoidingView
-          behavior={keyboardAvoidingViewBehavior}
           style={styles.keyboardAvoidingView}
+          keyboardVerticalOffset={0}
         >
           {loadingIndicator}
           {flatList}
