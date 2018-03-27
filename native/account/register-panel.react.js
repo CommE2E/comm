@@ -4,6 +4,10 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { RegisterResult } from 'lib/types/account-types';
+import {
+  type StateContainer,
+  stateContainerPropType,
+} from '../utils/state-container';
 
 import React from 'react';
 import {
@@ -35,10 +39,17 @@ import {
 } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
 
+export type RegisterState = {
+  usernameInputText: string,
+  emailInputText: string,
+  passwordInputText: string,
+  confirmPasswordInputText: string,
+};
 type Props = {
   setActiveAlert: (activeAlert: bool) => void,
   opacityValue: Animated.Value,
   onePasswordSupported: bool,
+  state: StateContainer<RegisterState>,
   // Redux state
   loadingStatus: LoadingStatus,
   // Redux dispatch functions
@@ -50,27 +61,16 @@ type Props = {
     password: string,
   ) => Promise<RegisterResult>,
 };
-type State = {
-  usernameInputText: string,
-  emailInputText: string,
-  passwordInputText: string,
-  confirmPasswordInputText: string,
-};
-class RegisterPanel extends React.PureComponent<Props, State> {
+class RegisterPanel extends React.PureComponent<Props> {
 
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     onePasswordSupported: PropTypes.bool.isRequired,
+    state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     register: PropTypes.func.isRequired,
-  };
-  state = {
-    usernameInputText: "",
-    emailInputText: "",
-    passwordInputText: "",
-    confirmPasswordInputText: "",
   };
   usernameInput: ?TextInput;
   emailInput: ?TextInput;
@@ -92,7 +92,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={this.state.usernameInputText}
+            value={this.props.state.state.usernameInputText}
             onChangeText={this.onChangeUsernameInputText}
             placeholder="Username"
             autoFocus={true}
@@ -115,7 +115,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           />
           <TextInput
             style={styles.input}
-            value={this.state.emailInputText}
+            value={this.props.state.state.emailInputText}
             onChangeText={this.onChangeEmailInputText}
             placeholder="Email address"
             autoCorrect={false}
@@ -132,7 +132,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={[styles.input, passwordStyle]}
-            value={this.state.passwordInputText}
+            value={this.props.state.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
             secureTextEntry={true}
@@ -147,7 +147,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         <View>
           <TextInput
             style={styles.input}
-            value={this.state.confirmPasswordInputText}
+            value={this.props.state.state.confirmPasswordInputText}
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             secureTextEntry={true}
@@ -199,24 +199,24 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   }
 
   onChangeUsernameInputText = (text: string) => {
-    this.setState({ usernameInputText: text });
+    this.props.state.setState({ usernameInputText: text });
   }
 
   onChangeEmailInputText = (text: string) => {
-    this.setState({ emailInputText: text });
+    this.props.state.setState({ emailInputText: text });
   }
 
   onChangePasswordInputText = (text: string) => {
-    this.setState({ passwordInputText: text });
+    this.props.state.setState({ passwordInputText: text });
   }
 
   onChangeConfirmPasswordInputText = (text: string) => {
-    this.setState({ confirmPasswordInputText: text });
+    this.props.state.setState({ confirmPasswordInputText: text });
   }
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
-    if (this.state.passwordInputText === '') {
+    if (this.props.state.state.passwordInputText === '') {
       Alert.alert(
         "Empty password",
         "Password cannot be empty",
@@ -226,7 +226,8 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         { cancelable: false },
       );
     } else if (
-      this.state.passwordInputText !== this.state.confirmPasswordInputText
+      this.props.state.state.passwordInputText !==
+        this.props.state.state.confirmPasswordInputText
     ) {
       Alert.alert(
         "Passwords don't match",
@@ -236,7 +237,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         ],
         { cancelable: false },
       );
-    } else if (this.state.usernameInputText.search(validUsernameRegex) === -1) {
+    } else if (
+      this.props.state.state.usernameInputText.search(validUsernameRegex) === -1
+    ) {
       Alert.alert(
         "Invalid username",
         "Alphanumeric usernames only",
@@ -245,7 +248,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         ],
         { cancelable: false },
       );
-    } else if (this.state.emailInputText.search(validEmailRegex) === -1) {
+    } else if (
+      this.props.state.state.emailInputText.search(validEmailRegex) === -1
+    ) {
       Alert.alert(
         "Invalid email address",
         "Valid email addresses only",
@@ -265,7 +270,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         passwordInputText: "",
         confirmPasswordInputText: "",
@@ -279,7 +284,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onUsernameAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         usernameInputText: "",
       },
@@ -292,7 +297,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         emailInputText: "",
       },
@@ -306,14 +311,15 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   async registerAction() {
     try {
       const result = await this.props.register(
-        this.state.usernameInputText,
-        this.state.emailInputText,
-        this.state.passwordInputText,
+        this.props.state.state.usernameInputText,
+        this.props.state.state.emailInputText,
+        this.props.state.state.passwordInputText,
       );
       this.props.setActiveAlert(false);
+      this.props.state.clearState();
       await setNativeCredentials({
         username: result.currentUserInfo.username,
-        password: this.state.passwordInputText,
+        password: this.props.state.state.passwordInputText,
       });
       return result;
     } catch (e) {
@@ -351,7 +357,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onUnknownErrorAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         usernameInputText: "",
         emailInputText: "",
@@ -368,12 +374,12 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   onPressOnePassword = async () => {
     try {
       const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState({
+      this.props.state.setState({
         usernameInputText: credentials.username,
         passwordInputText: credentials.password,
         confirmPasswordInputText: credentials.password,
       });
-      if (this.state.emailInputText) {
+      if (this.props.state.state.emailInputText) {
         this.onSubmit();
       } else {
         invariant(this.emailInput, "ref should exist");

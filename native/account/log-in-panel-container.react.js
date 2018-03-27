@@ -1,6 +1,11 @@
 // @flow
 
 import type { InnerLogInPanel } from './log-in-panel.react';
+import {
+  type StateContainer,
+  stateContainerPropType,
+} from '../utils/state-container';
+import type { LogInState } from './log-in-panel.react';
 
 import React from 'react';
 import {
@@ -27,6 +32,7 @@ type Props = {
   setActiveAlert: (activeAlert: bool) => void,
   opacityValue: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
+  logInState: StateContainer<LogInState>,
 };
 type State = {
   panelTransition: Animated.Value,
@@ -40,6 +46,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     forgotPasswordLinkOpacity: PropTypes.object.isRequired,
+    logInState: stateContainerPropType.isRequired,
   };
   state = {
     panelTransition: new Animated.Value(0),
@@ -66,6 +73,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
           opacityValue={this.props.opacityValue}
           onePasswordSupported={this.props.onePasswordSupported}
           innerRef={this.logInPanelRef}
+          state={this.props.logInState}
         />
       </Animated.View>
     );

@@ -15,6 +15,8 @@ import type { Action } from '../navigation-setup';
 import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
+import type { LogInState } from './log-in-panel.react';
+import type { RegisterState } from './register-panel.react';
 
 import * as React from 'react';
 import {
@@ -49,6 +51,7 @@ import {
   appStartNativeCredentialsAutoLogIn,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
+import sleep from 'lib/utils/sleep';
 
 import {
   windowHeight,
@@ -68,6 +71,11 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
+import {
+  type SimpleStateSetter,
+  type StateContainer,
+  setStateForContainer,
+} from '../utils/state-container';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -96,23 +104,12 @@ type State = {
   forgotPasswordLinkOpacity: Animated.Value,
   buttonOpacity: Animated.Value,
   onePasswordSupported: bool,
+  logInState: StateContainer<LogInState>;
+  registerState: StateContainer<RegisterState>;
 };
 
 class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
-  state = {
-    mode: "loading",
-    panelPaddingTop: new Animated.Value(
-      InnerLoggedOutModal.calculatePanelPaddingTop("prompt", 0),
-    ),
-    footerPaddingTop: new Animated.Value(
-      InnerLoggedOutModal.calculateFooterPaddingTop(0),
-    ),
-    panelOpacity: new Animated.Value(0),
-    forgotPasswordLinkOpacity: new Animated.Value(0),
-    buttonOpacity: new Animated.Value(0),
-    onePasswordSupported: false,
-  };
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -150,12 +147,87 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    this.determineOnePasswordSupport();
+
+    // Man, this is a lot of boilerplate just to containerize some state.
+    // Mostly due to Flow typing requirements...
+    const setState = this.setState.bind(this);
+    const setLogInState = setStateForContainer(
+      setState,
+      (change: $Shape<LogInState>) => (fullState: State) => ({
+        logInState: {
+          ...fullState.logInState,
+          state: { ...fullState.logInState.state, ...change },
+        },
+      }),
+    );
+    const setRegisterState = setStateForContainer(
+      setState,
+      (change: $Shape<RegisterState>) => (fullState: State) => ({
+        registerState: {
+          ...fullState.registerState,
+          state: { ...fullState.registerState.state, ...change },
+        },
+      }),
+    );
+    const initialLogInState = {
+      usernameOrEmailInputText: "",
+      passwordInputText: "",
+    };
+    const initialRegisterState = {
+      usernameInputText: "",
+      emailInputText: "",
+      passwordInputText: "",
+      confirmPasswordInputText: "",
+    };
+    const clearState = async () => {
+      await sleep(500);
+      setState((fullState: State) => ({
+        logInState: {
+          ...fullState.logInState,
+          state: initialLogInState,
+        },
+        registerState: {
+          ...fullState.registerState,
+          state: initialRegisterState,
+        },
+      }));
+    };
+
+    this.state = {
+      mode: props.rehydrateConcluded ? "prompt" : "loading",
+      panelPaddingTop: new Animated.Value(
+        InnerLoggedOutModal.calculatePanelPaddingTop("prompt", 0),
+      ),
+      footerPaddingTop: new Animated.Value(
+        InnerLoggedOutModal.calculateFooterPaddingTop(0),
+      ),
+      panelOpacity: new Animated.Value(0),
+      forgotPasswordLinkOpacity: new Animated.Value(0),
+      buttonOpacity: new Animated.Value(props.rehydrateConcluded ? 1 : 0),
+      onePasswordSupported: false,
+      logInState: {
+        state: {
+          usernameOrEmailInputText: "",
+          passwordInputText: "",
+        },
+        setState: setLogInState,
+        clearState,
+      },
+      registerState: {
+        state: {
+          usernameInputText: "",
+          emailInputText: "",
+          passwordInputText: "",
+          confirmPasswordInputText: "",
+        },
+        setState: setRegisterState,
+        clearState,
+      },
+    };
     if (props.rehydrateConcluded) {
-      this.state.mode = "prompt";
-      this.state.buttonOpacity = new Animated.Value(1);
       this.nextMode = "prompt";
     }
-    this.determineOnePasswordSupport();
   }
 
   async determineOnePasswordSupport() {
@@ -563,6 +635,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.panelOpacity}
           forgotPasswordLinkOpacity={this.state.forgotPasswordLinkOpacity}
+          logInState={this.state.logInState}
           ref={this.logInPanelContainerRef}
         />
       );
@@ -572,6 +645,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.state.panelOpacity}
           onePasswordSupported={this.state.onePasswordSupported}
+          state={this.state.registerState}
         />
       );
     } else if (this.state.mode === "prompt") {

@@ -5,6 +5,10 @@ import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LogInInfo, LogInResult } from 'lib/types/account-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import {
+  type StateContainer,
+  stateContainerPropType,
+} from '../utils/state-container';
 
 import React from 'react';
 import {
@@ -43,11 +47,16 @@ import {
 } from './native-credentials';
 import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
 
+export type LogInState = {
+  usernameOrEmailInputText: string,
+  passwordInputText: string,
+};
 type Props = {
   setActiveAlert: (activeAlert: bool) => void,
   opacityValue: Animated.Value,
   onePasswordSupported: bool,
   innerRef: (logInPanel: LogInPanel) => void,
+  state: StateContainer<LogInState>,
   // Redux state
   loadingStatus: LoadingStatus,
   currentCalendarQuery: () => CalendarQuery,
@@ -57,26 +66,19 @@ type Props = {
   // async functions that hit server APIs
   logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 };
-type State = {
-  usernameOrEmailInputText: string,
-  passwordInputText: string,
-};
-class LogInPanel extends React.PureComponent<Props, State> {
+class LogInPanel extends React.PureComponent<Props> {
 
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     onePasswordSupported: PropTypes.bool.isRequired,
     innerRef: PropTypes.func.isRequired,
+    state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     currentCalendarQuery: PropTypes.func.isRequired,
     deviceToken: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     logIn: PropTypes.func.isRequired,
-  };
-  state = {
-    usernameOrEmailInputText: "",
-    passwordInputText: "",
   };
   usernameOrEmailInput: ?TextInput;
   passwordInput: ?TextInput;
@@ -89,7 +91,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   async attemptToFetchCredentials() {
     const credentials = await fetchNativeCredentials();
     if (credentials) {
-      this.setState({
+      this.props.state.setState({
         usernameOrEmailInputText: credentials.username,
         passwordInputText: credentials.password,
       });
@@ -111,7 +113,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={this.state.usernameOrEmailInputText}
+            value={this.props.state.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
             placeholder={usernamePlaceholder}
             autoFocus={true}
@@ -129,7 +131,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={[styles.input, passwordStyle]}
-            value={this.state.passwordInputText}
+            value={this.props.state.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
             secureTextEntry={true}
@@ -169,18 +171,22 @@ class LogInPanel extends React.PureComponent<Props, State> {
   }
 
   onChangeUsernameOrEmailInputText = (text: string) => {
-    this.setState({ usernameOrEmailInputText: text });
+    this.props.state.setState({ usernameOrEmailInputText: text });
   }
 
   onChangePasswordInputText = (text: string) => {
-    this.setState({ passwordInputText: text });
+    this.props.state.setState({ passwordInputText: text });
   }
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
     if (
-      this.state.usernameOrEmailInputText.search(validUsernameRegex) === -1 &&
-      this.state.usernameOrEmailInputText.search(validEmailRegex) === -1
+      this.props.state.state.usernameOrEmailInputText.search(
+        validUsernameRegex,
+      ) === -1 &&
+      this.props.state.state.usernameOrEmailInputText.search(
+        validEmailRegex,
+      ) === -1
     ) {
       Alert.alert(
         "Invalid username",
@@ -205,7 +211,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
 
   onUsernameOrEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         usernameOrEmailInputText: "",
       },
@@ -221,15 +227,16 @@ class LogInPanel extends React.PureComponent<Props, State> {
       getDeviceTokenUpdateRequest(this.props.deviceToken);
     try {
       const result = await this.props.logIn({
-        usernameOrEmail: this.state.usernameOrEmailInputText,
-        password: this.state.passwordInputText,
+        usernameOrEmail: this.props.state.state.usernameOrEmailInputText,
+        password: this.props.state.state.passwordInputText,
         calendarQuery,
         deviceTokenUpdateRequest,
       });
       this.props.setActiveAlert(false);
+      this.props.state.clearState();
       await setNativeCredentials({
         username: result.currentUserInfo.username,
-        password: this.state.passwordInputText,
+        password: this.props.state.state.passwordInputText,
       });
       return result;
     } catch (e) {
@@ -267,7 +274,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         passwordInputText: "",
       },
@@ -280,7 +287,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
 
   onUnknownErrorAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.setState(
+    this.props.state.setState(
       {
         usernameOrEmailInputText: "",
         passwordInputText: "",
@@ -295,7 +302,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   onPressOnePassword = async () => {
     try {
       const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState({
+      this.props.state.setState({
         usernameOrEmailInputText: credentials.username,
         passwordInputText: credentials.password,
       });
