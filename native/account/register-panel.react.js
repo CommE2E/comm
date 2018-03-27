@@ -291,6 +291,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   }
 
   onEmailAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
     this.setState(
       {
         emailInputText: "",
