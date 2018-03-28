@@ -5,6 +5,8 @@ import type { Endpoint } from 'lib/types/endpoints';
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cluster from 'cluster';
+import os from 'os';
 
 import {
   jsonHandler,
@@ -60,24 +62,6 @@ import urlFacts from '../facts/url';
 
 const { baseRoutePath } = urlFacts;
 
-const server = express();
-server.use(express.json({ limit: "50mb" }));
-server.use(cookieParser());
-
-const router = express.Router();
-router.use('/images', express.static('images'));
-router.use('/fonts', express.static('fonts'));
-router.use(
-  '/.well-known',
-  express.static(
-    '.well-known',
-    // Necessary for apple-app-site-association file
-    { setHeaders: res => res.setHeader("Content-Type", "application/json") },
-  ),
-);
-router.use('/compiled', express.static('compiled'));
-router.use('/', express.static('icons'));
-
 const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'update_activity': updateActivityResponder,
   'update_user_subscription': userSubscriptionUpdateResponder,
@@ -111,17 +95,43 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'create_error_report': errorReportCreationResponder,
   'fetch_error_report_infos': errorReportFetchInfosResponder,
 };
-for (let endpoint in jsonEndpoints) {
-  // $FlowFixMe Flow thinks endpoint is string
-  const responder = jsonEndpoints[endpoint];
-  router.post(`/${endpoint}`, jsonHandler(responder));
+
+if (cluster.isMaster) {
+  const cpuCount = os.cpus().length;
+  for (let i = 0; i < cpuCount; i++) {
+    cluster.fork();
+  }
+} else {
+  const server = express();
+  server.use(express.json({ limit: "50mb" }));
+  server.use(cookieParser());
+
+  const router = express.Router();
+  router.use('/images', express.static('images'));
+  router.use('/fonts', express.static('fonts'));
+  router.use(
+    '/.well-known',
+    express.static(
+      '.well-known',
+      // Necessary for apple-app-site-association file
+      { setHeaders: res => res.setHeader("Content-Type", "application/json") },
+    ),
+  );
+  router.use('/compiled', express.static('compiled'));
+  router.use('/', express.static('icons'));
+
+  for (let endpoint in jsonEndpoints) {
+    // $FlowFixMe Flow thinks endpoint is string
+    const responder = jsonEndpoints[endpoint];
+    router.post(`/${endpoint}`, jsonHandler(responder));
+  }
+
+  router.get(
+    '/download_error_report/:reportID',
+    downloadHandler(errorReportDownloadHandler),
+  );
+  router.get('*', htmlHandler(websiteResponder));
+
+  server.use(baseRoutePath, router);
+  server.listen(parseInt(process.env.PORT) || 3000, 'localhost');
 }
-
-router.get(
-  '/download_error_report/:reportID',
-  downloadHandler(errorReportDownloadHandler),
-);
-router.get('*', htmlHandler(websiteResponder));
-
-server.use(baseRoutePath, router);
-server.listen(parseInt(process.env.PORT) || 3000, 'localhost');
