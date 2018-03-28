@@ -15,6 +15,7 @@ import {
   Text,
   Easing,
   ViewPropTypes,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -134,9 +135,6 @@ class Tooltip extends React.PureComponent<Props, State> {
   }
 
   toggleModal = () => {
-    if (this.state.isModalOpen) {
-      this.onDismiss();
-    }
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
@@ -153,7 +151,7 @@ class Tooltip extends React.PureComponent<Props, State> {
   }
 
   onPressItem = (userCallback: () => void) => {
-    if (this.state.isModalOpen) {
+    if (this.state.isModalOpen && Platform.OS === "ios") {
       this.callOnDismiss = userCallback;
     } else {
       userCallback();
