@@ -26,7 +26,6 @@ import {
 import _keyBy from 'lodash/fp/keyBy';
 import invariant from 'invariant';
 
-import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { registerConfig } from 'lib/utils/config';
 import { assertVerifyField } from 'lib/types/verify-types';
 import {

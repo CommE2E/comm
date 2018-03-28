@@ -13,7 +13,7 @@ import type {
   NavigationRouter,
   NavigationRoute,
 } from 'react-navigation';
-import type { PingSuccessPayload } from 'lib/types/ping-types';
+import type { PingResult } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SetCookiePayload } from 'lib/utils/action-utils';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
@@ -542,7 +542,7 @@ function logOutIfCookieInvalidated(
 const justLoggedOutModal = [ LoggedOutModalRouteName ];
 function removeModalsIfPingIndicatesLoggedIn(
   state: NavigationState,
-  payload: PingSuccessPayload,
+  payload: PingResult,
 ): NavigationState {
   if (!payload.userInfo || payload.loggedIn) {
     // The SET_COOKIE action should handle logging somebody out as a result of a

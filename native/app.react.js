@@ -8,12 +8,15 @@ import type {
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
 import type { Action } from './navigation-setup';
-import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
+import type {
+  PingStartingPayload,
+  PingActionInput,
+  PingResult,
+} from 'lib/types/ping-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -74,6 +77,7 @@ import {
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import { pingNativeStartingPayload } from './selectors/ping-selectors';
+import { pingActionInput } from 'lib/selectors/ping-selectors';
 import ConnectedStatusBar from './connected-status-bar.react';
 import {
   activeThreadSelector,
@@ -113,7 +117,7 @@ type Props = {
   cookie: ?string,
   navigationState: NavigationState,
   pingStartingPayload: () => PingStartingPayload,
-  currentAsOf: number,
+  pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   activeThread: ?string,
   appLoggedIn: bool,
   activeThreadLatestMessage: ?string,
@@ -126,10 +130,7 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  ping: (
-    calendarQuery: CalendarQuery,
-    lastPing: number,
-  ) => Promise<PingResult>,
+  ping: (actionInput: PingActionInput) => Promise<PingResult>,
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,
   ) => Promise<UpdateActivityResult>,
@@ -144,7 +145,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
-    currentAsOf: PropTypes.number.isRequired,
+    pingActionInput: PropTypes.func.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
     activeThreadLatestMessage: PropTypes.string,
@@ -613,13 +614,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
+    const actionInput = this.props.pingActionInput(startingPayload);
     if (
       startingPayload.loggedIn ||
       (this.props.cookie && this.props.cookie.startsWith("user="))
     ) {
       this.props.dispatchActionPromise(
         pingActionTypes,
-        this.pingAction(startingPayload),
+        this.props.ping(actionInput),
         undefined,
         startingPayload,
       );
@@ -632,17 +634,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         startingPayload.newSessionID,
       );
     }
-  }
-
-  async pingAction(startingPayload: PingStartingPayload) {
-    const pingResult = await this.props.ping(
-      startingPayload.calendarQuery,
-      this.props.currentAsOf,
-    );
-    return {
-      ...pingResult,
-      loggedIn: startingPayload.loggedIn,
-    };
   }
 
   static updateFocusedThreads(
@@ -731,7 +722,7 @@ const ConnectedAppWithNavigationState = connect(
     return {
       navigationState: state.navInfo.navigationState,
       pingStartingPayload: pingNativeStartingPayload(state),
-      currentAsOf: state.currentAsOf,
+      pingActionInput: pingActionInput(state),
       activeThread,
       appLoggedIn: isForegroundSelector(state),
       activeThreadLatestMessage:

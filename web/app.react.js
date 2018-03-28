@@ -9,7 +9,11 @@ import type {
 } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
 import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
-import type { PingResult, PingStartingPayload } from 'lib/types/ping-types';
+import type {
+  PingStartingPayload,
+  PingActionInput,
+  PingResult,
+} from 'lib/types/ping-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -30,7 +34,10 @@ import {
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import { pingStartingPayload } from 'lib/selectors/ping-selectors';
+import {
+  pingStartingPayload,
+  pingActionInput,
+} from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency } from 'lib/shared/ping-utils';
 
@@ -72,7 +79,7 @@ type Props = {
   month: number,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
-  currentAsOf: number,
+  pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -80,7 +87,7 @@ type Props = {
   fetchEntries: (
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
-  ping: (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
+  ping: (actionInput: PingActionInput) => Promise<PingResult>,
 };
 type State = {
   // In null state cases, currentModal can be set to something, but modalExists
@@ -131,23 +138,13 @@ class App extends React.PureComponent<Props, State> {
 
   ping = () => {
     const startingPayload = this.props.pingStartingPayload();
+    const actionInput = this.props.pingActionInput(startingPayload);
     this.props.dispatchActionPromise(
       pingActionTypes,
-      this.pingAction(startingPayload),
+      this.props.ping(actionInput),
       undefined,
       startingPayload,
     );
-  }
-
-  async pingAction(startingPayload: PingStartingPayload) {
-    const pingResult = await this.props.ping(
-      startingPayload.calendarQuery,
-      this.props.currentAsOf,
-    );
-    return {
-      ...pingResult,
-      loggedIn: startingPayload.loggedIn,
-    };
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -319,7 +316,7 @@ App.propTypes = {
   month: PropTypes.number.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
-  currentAsOf: PropTypes.number.isRequired,
+  pingActionInput: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
@@ -341,7 +338,7 @@ export default connect(
     month: monthAssertingSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),
     pingStartingPayload: pingStartingPayload(state),
-    currentAsOf: state.currentAsOf,
+    pingActionInput: pingActionInput(state),
   }),
   { fetchEntries, ping },
 )(App);

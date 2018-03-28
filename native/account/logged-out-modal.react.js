@@ -12,8 +12,11 @@ import type {
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 import type { Action } from '../navigation-setup';
-import type { PingStartingPayload, PingResult } from 'lib/types/ping-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type {
+  PingStartingPayload,
+  PingActionInput,
+  PingResult,
+} from 'lib/types/ping-types';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -63,6 +66,7 @@ import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { pingNativeStartingPayload } from '../selectors/ping-selectors';
+import { pingActionInput } from 'lib/selectors/ping-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
@@ -89,7 +93,7 @@ type Props = {
   loggedIn: bool,
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
-  currentAsOf: number,
+  pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   deviceToken: ?string,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -121,7 +125,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
-    currentAsOf: PropTypes.number.isRequired,
+    pingActionInput: PropTypes.func.isRequired,
     deviceToken: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -358,33 +362,13 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       props.deviceToken,
     );
     const startingPayload = props.pingStartingPayload();
+    const actionInput = props.pingActionInput(startingPayload);
     props.dispatchActionPromise(
       pingActionTypes,
-      InnerLoggedOutModal.pingAction(
-        boundPing,
-        startingPayload,
-        props.currentAsOf,
-      ),
+      boundPing(actionInput),
       undefined,
       startingPayload,
     );
-  }
-
-  static async pingAction(
-    ping:
-      (calendarQuery: CalendarQuery, lastPing: number) => Promise<PingResult>,
-    startingPayload: PingStartingPayload,
-    lastPing: number,
-  ) {
-    try {
-      const result = await ping(startingPayload.calendarQuery, lastPing);
-      return {
-        ...result,
-        loggedIn: startingPayload.loggedIn,
-      };
-    } catch (e) {
-      throw e;
-    }
   }
 
   hardwareBack = () => {
@@ -872,7 +856,7 @@ const LoggedOutModal = connect(
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
     pingStartingPayload: pingNativeStartingPayload(state),
-    currentAsOf: state.currentAsOf,
+    pingActionInput: pingActionInput(state),
     deviceToken: state.deviceToken,
   }),
   includeDispatchActionProps,
