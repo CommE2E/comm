@@ -679,6 +679,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           keyboardDismissMode={keyboardDismissMode}
           onMomentumScrollEnd={this.onMomentumScrollEnd}
           onScrollEndDrag={this.onScrollEndDrag}
+          scrollsToTop={false}
           extraData={this.state.extraData}
           style={[styles.flatList, flatListStyle]}
           ref={this.flatListRef}

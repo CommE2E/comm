@@ -353,9 +353,9 @@ class Tooltip extends React.PureComponent<Props, State> {
             width: this.state.width,
             height: this.state.height,
             backgroundColor: 'transparent',
-            opacity: this.state.buttonComponentOpacity, // At the first frame, the button will be rendered
-                                                        // in the top-left corner. So we dont render it
-                                                        // until its position has been calculated.
+            // At the first frame, the button will be rendered in the top-left
+            // corner. So we don't render until the position has been calculated
+            opacity: this.state.buttonComponentOpacity,
             transform: [
               { scale: this.state.buttonComponentContainerScale },
             ],

@@ -432,6 +432,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
           getItemLayout={this.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           ListFooterComponent={footer}
+          scrollsToTop={false}
           extraData={this.state.focusedMessageKey}
         />
       );
