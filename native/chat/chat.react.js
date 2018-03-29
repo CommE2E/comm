@@ -3,8 +3,7 @@
 import type { NavigationStateRoute } from 'react-navigation';
 
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { Platform } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import {
@@ -22,6 +21,8 @@ import {
   DeleteThread,
   DeleteThreadRouteName,
 } from './settings/delete-thread.react';
+import ChatIcon from './chat-icon.react';
+import ChatLabel from './chat-label.react';
 
 const Chat = StackNavigator(
   {
@@ -33,13 +34,10 @@ const Chat = StackNavigator(
   },
   {
     navigationOptions: ({ navigation }) => ({
-      tabBarLabel: 'Chat',
-      tabBarIcon: ({ tintColor }) => (
-        <Icon
-          name="comments-o"
-          style={[styles.icon, { color: tintColor }]}
-        />
-      ),
+      tabBarLabel: Platform.OS === "android"
+        ? ({ tintColor }) => <ChatLabel color={tintColor} />
+        : 'Chat',
+      tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
       tabBarOnPress: ({ scene, jumpToIndex}: {
         scene: { index: number, focused: bool, route: NavigationStateRoute },
         jumpToIndex: (index: number) => void,
@@ -63,12 +61,6 @@ const Chat = StackNavigator(
     }),
   },
 );
-
-const styles = StyleSheet.create({
-  icon: {
-    fontSize: 28,
-  },
-});
 
 const ChatRouteName = 'Chat';
 export {
