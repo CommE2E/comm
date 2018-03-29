@@ -101,6 +101,7 @@ if (cluster.isMaster) {
   for (let i = 0; i < cpuCount; i++) {
     cluster.fork();
   }
+  cluster.on('exit', worker => cluster.fork());
 } else {
   const server = express();
   server.use(express.json({ limit: "50mb" }));
