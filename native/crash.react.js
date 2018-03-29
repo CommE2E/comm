@@ -29,6 +29,7 @@ import {
   sendErrorReportActionTypes,
   sendErrorReport,
 } from 'lib/actions/report-actions';
+import sleep from 'lib/utils/sleep';
 
 import Button from './components/button.react';
 import { store } from './redux-setup';
@@ -51,6 +52,7 @@ type Props = {
 };
 type State = {|
   errorReportID: ?string,
+  doneWaiting: bool,
 |};
 class Crash extends React.PureComponent<Props, State> {
 
@@ -67,6 +69,7 @@ class Crash extends React.PureComponent<Props, State> {
   errorTitle = _shuffle(errorTitles)[0];
   state = {
     errorReportID: null,
+    doneWaiting: false,
   };
 
   componentDidMount() {
@@ -74,6 +77,13 @@ class Crash extends React.PureComponent<Props, State> {
       sendErrorReportActionTypes,
       this.sendReport(),
     );
+    this.timeOut();
+  }
+
+  async timeOut() {
+    // If it takes more than 10s, give up and let the user exit
+    await sleep(10000);
+    this.setState({ doneWaiting: true });
   }
 
   render() {
@@ -81,6 +91,7 @@ class Crash extends React.PureComponent<Props, State> {
       .reverse()
       .map(errorData => errorData.error.message)
       .join("\n");
+
     let crashID;
     if (this.state.errorReportID) {
       crashID = (
@@ -98,6 +109,9 @@ class Crash extends React.PureComponent<Props, State> {
     } else {
       crashID = <ActivityIndicator size="small" />;
     }
+
+    const buttonStyle = { opacity: Number(this.state.doneWaiting) };
+
     return (
       <View style={styles.container}>
         <Icon name="bug" size={32} color="red" />
@@ -117,7 +131,7 @@ class Crash extends React.PureComponent<Props, State> {
             {errorText}
           </Text>
         </ScrollView>
-        <View style={styles.buttons}>
+        <View style={[styles.buttons, buttonStyle]}>
           <Button onPress={this.onPressKill} style={styles.button}>
             <Text style={styles.buttonText}>Kill the app</Text>
           </Button>
@@ -142,14 +156,23 @@ class Crash extends React.PureComponent<Props, State> {
       codeVersion,
       stateVersion: persistConfig.version,
     });
-    this.setState({ errorReportID: result.id });
+    this.setState({
+      errorReportID: result.id,
+      doneWaiting: true,
+    });
   }
 
   onPressKill = () => {
+    if (!this.state.doneWaiting) {
+      return;
+    }
     ExitApp.exitApp();
   }
 
   onPressWipe = () => {
+    if (!this.state.doneWaiting) {
+      return;
+    }
     getPersistor().purge();
     ExitApp.exitApp();
   }
