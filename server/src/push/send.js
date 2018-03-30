@@ -371,23 +371,26 @@ function prepareAndroidNotification(
   dbID: string,
 ): Object {
   const notifID = collapseKey ? collapseKey : dbID;
-  const data = {
-    badgeCount: unreadCount.toString(),
-    threadID: threadInfo.id.toString(),
-    notifID,
-  };
   if (badgeOnly) {
-    return { data };
+    return {
+      badgeCount: unreadCount.toString(),
+      threadID: threadInfo.id.toString(),
+      notifID,
+    };
   }
   return {
-    custom_notification: JSON.stringify({
-      body: notifTextForMessageInfo(messageInfos, threadInfo),
-      id: notifID,
-      priority: "high",
-      sound: "default",
-      icon: "notif_icon",
-    }),
-    data,
+    data: {
+      custom_notification: JSON.stringify({
+        body: notifTextForMessageInfo(messageInfos, threadInfo),
+        id: notifID,
+        priority: "high",
+        sound: "default",
+        icon: "notif_icon",
+      }),
+      badgeCount: unreadCount.toString(),
+      threadID: threadInfo.id.toString(),
+      notifID,
+    }
   };
 }
 
