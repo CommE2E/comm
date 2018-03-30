@@ -78,10 +78,12 @@ import {
 import {
   type SimpleStateSetter,
   type StateContainer,
+  type StateChange,
   setStateForContainer,
 } from '../utils/state-container';
 
 const forceInset = { top: 'always', bottom: 'always' };
+let initialAppLoad = true;
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -155,9 +157,8 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
 
     // Man, this is a lot of boilerplate just to containerize some state.
     // Mostly due to Flow typing requirements...
-    const setState = this.setState.bind(this);
     const setLogInState = setStateForContainer(
-      setState,
+      this.guardedSetState,
       (change: $Shape<LogInState>) => (fullState: State) => ({
         logInState: {
           ...fullState.logInState,
@@ -166,7 +167,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       }),
     );
     const setRegisterState = setStateForContainer(
-      setState,
+      this.guardedSetState,
       (change: $Shape<RegisterState>) => (fullState: State) => ({
         registerState: {
           ...fullState.registerState,
@@ -183,19 +184,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       emailInputText: "",
       passwordInputText: "",
       confirmPasswordInputText: "",
-    };
-    const clearState = async () => {
-      await sleep(500);
-      setState((fullState: State) => ({
-        logInState: {
-          ...fullState.logInState,
-          state: initialLogInState,
-        },
-        registerState: {
-          ...fullState.registerState,
-          state: initialRegisterState,
-        },
-      }));
     };
 
     this.state = {
@@ -216,7 +204,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
           passwordInputText: "",
         },
         setState: setLogInState,
-        clearState,
       },
       registerState: {
         state: {
@@ -226,11 +213,16 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
           confirmPasswordInputText: "",
         },
         setState: setRegisterState,
-        clearState,
       },
     };
     if (props.rehydrateConcluded) {
       this.nextMode = "prompt";
+    }
+  }
+
+  guardedSetState = (change: StateChange<State>) => {
+    if (this.mounted) {
+      this.setState(change);
     }
   }
 
@@ -241,9 +233,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     } catch (e) {
       onePasswordSupported = false;
     }
-    if (this.mounted) {
-      this.setState({ onePasswordSupported });
-    }
+    this.guardedSetState({ onePasswordSupported });
   }
 
   componentDidMount() {
@@ -295,11 +285,16 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
   async onInitialAppLoad(nextProps: Props) {
+    if (!initialAppLoad) {
+      return;
+    }
+    initialAppLoad = false;
+
     let cookie = nextProps.cookie;
     const urlPrefix = nextProps.urlPrefix;
     const showPrompt = () => {
       this.nextMode = "prompt";
-      this.setState({ mode: "prompt" });
+      this.guardedSetState({ mode: "prompt" });
       Animated.timing(
         this.state.buttonOpacity,
         {
@@ -588,7 +583,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
-        this.setState({ mode: this.nextMode });
+        this.guardedSetState({ mode: this.nextMode });
         invariant(opacityListenerID, "should be set");
         this.state.panelOpacity.removeListener(opacityListenerID);
       }
@@ -750,7 +745,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   onPressLogIn = () => {
     this.opacityChangeQueued = true;
     this.nextMode = "log-in";
-    this.setState({ mode: "log-in" });
+    this.guardedSetState({ mode: "log-in" });
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
@@ -763,7 +758,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   onPressRegister = () => {
     this.opacityChangeQueued = true;
     this.nextMode = "register";
-    this.setState({ mode: "register" });
+    this.guardedSetState({ mode: "register" });
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel

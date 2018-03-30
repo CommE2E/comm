@@ -18,6 +18,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
+import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -284,20 +285,20 @@ async function deleteCookie(cookieID: string): Promise<void> {
   `);
 }
 
-async function deleteCookiesWithDeviceTokens(
+async function deleteCookiesOnLogOut(
   userID: string,
-  deviceTokens: DeviceTokens,
+  cookieID: string,
 ): Promise<void> {
-  const conditions = [];
+  const deviceTokens = await fetchDeviceTokensForCookie(cookieID);
+
+  const conditions = [ SQL`c.id = ${cookieID}` ];
   if (deviceTokens.ios) {
-    conditions.push(SQL`ios_device_token = ${deviceTokens.ios}`);
+    conditions.push(SQL`c.ios_device_token = ${deviceTokens.ios}`);
   }
   if (deviceTokens.android) {
-    conditions.push(SQL`android_device_token = ${deviceTokens.android}`);
+    conditions.push(SQL`c.android_device_token = ${deviceTokens.android}`);
   }
-  if (conditions.length === 0) {
-    return;
-  }
+
   const query = SQL`
     DELETE c, i
     FROM cookies c
@@ -305,6 +306,7 @@ async function deleteCookiesWithDeviceTokens(
     WHERE c.user = ${userID} AND
   `;
   query.append(mergeOrConditions(conditions));
+
   await dbQuery(query);
 }
 
@@ -384,7 +386,7 @@ export {
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,
   deleteCookie,
-  deleteCookiesWithDeviceTokens,
+  deleteCookiesOnLogOut,
   createNewUserCookie,
   addCookieToJSONResponse,
   addCookieToHomeResponse,

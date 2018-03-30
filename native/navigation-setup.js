@@ -476,12 +476,7 @@ function removeModals(
 }
 
 function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
-  const navigationState = {
-    ...state.navigationState,
-    routes: [
-      ...state.navigationState.routes,
-    ],
-  };
+  const navigationState = { ...state.navigationState };
   navigationState.routes[0] = defaultNavInfo.navigationState.routes[0];
   const currentModalIndex =
     _findIndex(['routeName', LoggedOutModalRouteName])(navigationState.routes);

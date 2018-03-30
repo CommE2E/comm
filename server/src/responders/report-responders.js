@@ -19,7 +19,6 @@ import {
   fetchErrorReportInfos,
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers';
-import { fetchViewerForJSONRequest } from '../session/cookies';
 
 const errorReportCreationRequestInputValidator = tShape({
   deviceType: t.enums.of(['ios', 'android']),

@@ -38,7 +38,7 @@ import {
   createNewAnonymousCookie,
   createNewUserCookie,
   deleteCookie,
-  deleteCookiesWithDeviceTokens,
+  deleteCookiesOnLogOut,
 } from '../session/cookies';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
@@ -47,7 +47,6 @@ import { verifyThreadID } from '../fetchers/thread-fetchers';
 import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { deviceTokenUpdateRequestInputValidator } from './device-responders';
 
@@ -112,12 +111,9 @@ async function logOutResponder(
 ): Promise<LogOutResponse> {
   const cookieID = viewer.getData().cookieID;
   if (viewer.loggedIn) {
-    const deviceTokens = await fetchDeviceTokensForCookie(cookieID);
     const [ anonymousViewerData ] = await Promise.all([
       createNewAnonymousCookie(),
-      deleteCookiesWithDeviceTokens(viewer.userID, deviceTokens),
-      // deleteCookiesWithDeviceTokens should delete it, but just in case...
-      deleteCookie(cookieID),
+      deleteCookiesOnLogOut(viewer.userID, cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
@@ -201,7 +197,10 @@ async function logInResponder(
   }
   const id = userRow.id.toString();
 
-  const userViewerData = await createNewUserCookie(id);
+  const [ userViewerData ] = await Promise.all([
+    createNewUserCookie(id),
+    deleteCookie(viewer.getData().cookieID),
+  ]);
   viewer.setNewCookie(userViewerData);
   const newPingTime = Date.now();
 

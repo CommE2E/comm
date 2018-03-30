@@ -316,7 +316,6 @@ class RegisterPanel extends React.PureComponent<Props> {
         this.props.state.state.passwordInputText,
       );
       this.props.setActiveAlert(false);
-      this.props.state.clearState();
       await setNativeCredentials({
         username: result.currentUserInfo.username,
         password: this.props.state.state.passwordInputText,

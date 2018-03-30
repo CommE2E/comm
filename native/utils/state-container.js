@@ -7,7 +7,7 @@ export type SimpleStateSetter<S: {}> = (
   callback?: () => mixed,
 ) => void;
 
-type StateChange<S: {}> = $Shape<S> | S => $Shape<S>;
+export type StateChange<S: {}> = $Shape<S> | S => $Shape<S>;
 type StateSetter<S: {}> = (
   newState: StateChange<S>,
   callback?: () => mixed,
@@ -16,13 +16,11 @@ type StateSetter<S: {}> = (
 export type StateContainer<S: {}> = {
   state: S,
   setState: SimpleStateSetter<S>,
-  clearState: () => mixed,
 };
 
 const stateContainerPropType = PropTypes.shape({
   state: PropTypes.object.isRequired,
   setState: PropTypes.func.isRequired,
-  clearState: PropTypes.func.isRequired,
 });
 
 function setStateForContainer<FullState: {}, OurContainer: {}>(
