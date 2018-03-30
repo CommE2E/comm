@@ -212,6 +212,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       );
     }
     AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+    if (this.props.appLoggedIn) {
+      this.ensurePushNotifsEnabled();
+    }
   }
 
   static updateBadgeCount(unreadCount: number) {
