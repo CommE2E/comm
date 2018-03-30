@@ -196,7 +196,7 @@ async function logInResponder(
     throw new ServerError('invalid_parameters');
   }
   const userRow = userResult[0];
-  if (!bcrypt.compareSync(request.password, userRow.hash)) {
+  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
     throw new ServerError('invalid_credentials');
   }
   const id = userRow.id.toString();
