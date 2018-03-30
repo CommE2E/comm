@@ -117,9 +117,15 @@ class Panel extends React.PureComponent<PanelProps, PanelState> {
     }
   }
 
-  keyboardHandler = (event: KeyboardEvent) => {
-    const keyboardHeight = windowHeight - event.endCoordinates.screenY;
+  keyboardHandler = (event: ?KeyboardEvent) => {
+    const keyboardHeight = event
+      ? windowHeight - event.endCoordinates.screenY
+      : 0;
     if (keyboardHeight === this.state.keyboardHeight) {
+      return;
+    }
+    if (!event) {
+      this.setState({ keyboardHeight });
       return;
     }
     if (event.duration && event.easing) {

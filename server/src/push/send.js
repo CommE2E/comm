@@ -343,11 +343,11 @@ function prepareIOSNotification(
   badgeOnly: bool,
   unreadCount: number,
 ): apn.Notification {
-  const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
   notification.topic = "org.squadcal.app";
   if (!badgeOnly) {
+    const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
     notification.body = notifText;
     notification.sound = "default";
   }
@@ -370,9 +370,9 @@ function prepareAndroidNotification(
   unreadCount: number,
   dbID: string,
 ): Object {
-  const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
   const data = {};
   if (!badgeOnly) {
+    const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
     data.notifBody = notifText;
   }
   data.badgeCount = unreadCount.toString();
