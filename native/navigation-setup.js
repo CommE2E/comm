@@ -80,6 +80,7 @@ import {
   getThreadIDFromParams,
 } from './utils/navigation-utils';
 import { DeleteThreadRouteName } from './chat/settings/delete-thread.react';
+import { ComposeThreadRouteName } from './chat/compose-thread.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -353,7 +354,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       endDate: navInfoState.endDate,
       home: navInfoState.home,
       threadID: navInfoState.threadID,
-      navigationState: replaceChatStackWithThread(
+      navigationState: handleNewThread(
         navInfoState.navigationState,
         action.payload.newThreadInfo,
         state.currentUserInfo && state.currentUserInfo.id,
@@ -619,6 +620,40 @@ function filterChatScreensForThreadInfos(
   return { ...state, routes: newRootSubRoutes };
 }
 
+function handleNewThread(
+  state: NavigationState,
+  rawThreadInfo: RawThreadInfo,
+  viewerID: ?string,
+  userInfos: {[id: string]: UserInfo},
+): NavigationState {
+  const threadInfo = threadInfoFromRawThreadInfo(
+    rawThreadInfo,
+    viewerID,
+    userInfos,
+  );
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+
+  const newChatRoute = removeScreensFromStack(
+    chatRoute,
+    (route: NavigationRoute) => route.routeName === ComposeThreadRouteName
+      ? "remove"
+      : "break",
+  );
+  newChatRoute.routes.push({
+    key: 'NewThreadMessageList',
+    routeName: MessageListRouteName,
+    params: { threadInfo },
+  });
+  newChatRoute.index = newChatRoute.routes.length - 1;
+
+  const newAppSubRoutes = [ ...appRoute.routes ];
+  newAppSubRoutes[1] = newChatRoute;
+  const newRootSubRoutes = [ ...state.routes ];
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  return { ...state, routes: newRootSubRoutes };
+}
+
 function replaceChatStackWithThread(
   state: NavigationState,
   rawThreadInfo: RawThreadInfo,
@@ -665,18 +700,21 @@ function handleNotificationPress(
   const currentChatRoute = chatRoute.routes[chatRoute.index];
   if (
     currentChatRoute.routeName === MessageListRouteName &&
-    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id
+    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id &&
+    appRoute.index === 1
   ) {
     return state;
   }
 
   if (payload.clearChatRoutes) {
-    return replaceChatStackWithThread(
+    const newState = replaceChatStackWithThread(
       state,
       payload.rawThreadInfo,
       viewerID,
       userInfos,
     );
+    newState.routes[0] = { ...newState.routes[0], index: 1 };
+    return newState;
   }
 
   const threadInfo = threadInfoFromRawThreadInfo(
@@ -699,7 +737,7 @@ function handleNotificationPress(
   const newAppSubRoutes = [ ...appRoute.routes ];
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes, index: 1 };
   return { ...state, routes: newRootSubRoutes };
 }
 
