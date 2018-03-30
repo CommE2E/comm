@@ -370,15 +370,25 @@ function prepareAndroidNotification(
   unreadCount: number,
   dbID: string,
 ): Object {
-  const data = {};
-  if (!badgeOnly) {
-    const notifText = notifTextForMessageInfo(messageInfos, threadInfo);
-    data.notifBody = notifText;
+  const notifID = collapseKey ? collapseKey : dbID;
+  const data = {
+    badgeCount: unreadCount.toString(),
+    threadID: threadInfo.id.toString(),
+    notifID,
+  };
+  if (badgeOnly) {
+    return { data };
   }
-  data.badgeCount = unreadCount.toString();
-  data.threadID = threadInfo.id.toString();
-  data.notifID = collapseKey ? collapseKey : dbID;
-  return { data };
+  return {
+    custom_notification: JSON.stringify({
+      body: notifTextForMessageInfo(messageInfos, threadInfo),
+      id: notifID,
+      priority: "high",
+      sound: "default",
+      icon: "notif_icon",
+    }),
+    data,
+  };
 }
 
 type InvalidToken = {
