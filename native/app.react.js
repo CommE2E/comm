@@ -449,7 +449,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.initialAndroidNotifHandled = true;
     const initialNotif = await FCM.getInitialNotification();
     if (initialNotif) {
-      await this.androidNotificationReceived(initialNotif);
+      await this.androidNotificationReceived(initialNotif, true);
     }
   }
 
@@ -568,48 +568,59 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
-  androidNotificationReceived = async (notification) => {
-    if (notification.badgeCount) {
-      AppWithNavigationState.updateBadgeCount(
-        parseInt(notification.badgeCount),
-      );
-    }
-    if (
-      notification.notifBody &&
-      this.currentState === "active"
-    ) {
-      const threadID = notification.threadID;
-      if (!threadID) {
-        console.log("Notification with missing threadID received!");
+  androidNotificationReceived = async (
+    notification,
+    appOpenedFromNotif = false,
+  ) => {
+    if (appOpenedFromNotif) {
+      const badgeCount = notification.badgeCount;
+      if (badgeCount === null || badgeCount === undefined) {
+        console.log("Local notification with missing badgeCount received!");
         return;
       }
-      this.pingNow();
-      invariant(this.inAppNotification, "should be set");
-      this.inAppNotification.show({
-        message: notification.notifBody,
-        onPress: () => this.onPressNotificationForThread(threadID, false),
-      });
-    } else if (notification.notifBody) {
-      this.pingNow();
-      FCM.presentLocalNotification({
-        id: notification.notifID,
-        body: notification.notifBody,
-        priority: "high",
-        sound: "default",
-        threadID: notification.threadID,
-        icon: "notif_icon",
-      });
-      this.props.dispatchActionPayload(
-        recordAndroidNotificationActionType,
-        {
-          threadID: notification.threadID,
-          notifID: notification.notifID,
-        },
-      );
+      // In the appOpenedFromNotif case, the local notif is the only version of
+      // a notif we get, so we do the badge count update there
+      AppWithNavigationState.updateBadgeCount(badgeCount);
     }
+
+    if (notification.custom_notification) {
+      const customNotification = JSON.parse(notification.custom_notification);
+      const threadID = customNotification.threadID;
+      const badgeCount = customNotification.badgeCount;
+      if (!threadID) {
+        console.log("Server notification with missing threadID received!");
+        return;
+      }
+      if (!badgeCount) {
+        console.log("Local notification with missing badgeCount received!");
+        return;
+      }
+
+      this.pingNow();
+      AppWithNavigationState.updateBadgeCount(badgeCount);
+
+      if (this.currentState === "active") {
+        invariant(this.inAppNotification, "should be set");
+        this.inAppNotification.show({
+          message: customNotification.body,
+          onPress: () => this.onPressNotificationForThread(threadID, false),
+        });
+      } else {
+        FCM.presentLocalNotification(customNotification);
+        this.props.dispatchActionPayload(
+          recordAndroidNotificationActionType,
+          {
+            threadID,
+            notifID: customNotification.id,
+          },
+        );
+      }
+    }
+
     if (notification.body) {
       this.onPressNotificationForThread(notification.threadID, true);
     }
+
     if (notification.rescind) {
       FCM.removeDeliveredNotification(notification.notifID);
     }
