@@ -396,7 +396,7 @@ function prepareAndroidNotification(
         icon: "notif_icon",
         badgeCount: unreadCount,
         threadID: threadInfo.id,
-        messageInfos: newMessageInfos,
+        messageInfos: JSON.stringify(newMessageInfos),
       }),
     }
   };
