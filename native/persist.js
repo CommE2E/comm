@@ -26,6 +26,10 @@ const migrations = {
     ...state,
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   }),
+  [2]: (state: AppState) => ({
+    ...state,
+    messageSentFromRoute: [],
+  }),
 };
 
 const persistConfig = {
@@ -33,11 +37,11 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 1,
+  version: 2,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
-const codeVersion = 5;
+const codeVersion = 6;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
