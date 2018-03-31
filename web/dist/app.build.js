@@ -10064,8 +10064,9 @@ module.exports = func;
 /* unused harmony export fetchMessagesBeforeCursor */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return fetchMostRecentMessagesActionTypes; });
 /* unused harmony export fetchMostRecentMessages */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return sendMessageActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return sendMessageActionTypes; });
 /* unused harmony export sendMessage */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return saveMessagesActionType; });
 
 
 const fetchMessagesBeforeCursorActionTypes = Object.freeze({
@@ -10123,6 +10124,8 @@ async function sendMessage(fetchJSON, threadID, text) {
     time: response.newMessageInfo.time
   };
 }
+
+const saveMessagesActionType = "SAVE_MESSAGES";
 
 
 
@@ -34923,7 +34926,7 @@ function reduceMessageStore(messageStore, action) {
     return mergeNewMessages(messageStore, action.payload.newMessageInfos, { [threadID]: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].UNCHANGED }, null, false);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["g" /* joinThreadActionTypes */].success) {
     return mergeNewMessages(messageStore, action.payload.rawMessageInfos, action.payload.truncationStatuses, action.payload.threadInfos, true);
-  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["c" /* sendMessageActionTypes */].started) {
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["d" /* sendMessageActionTypes */].started) {
     const payload = action.payload;
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(payload.localID, `localID should be set on ${action.type}`);
     return {
@@ -34936,7 +34939,7 @@ function reduceMessageStore(messageStore, action) {
         })
       })
     };
-  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["c" /* sendMessageActionTypes */].failed) {
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["d" /* sendMessageActionTypes */].failed) {
     const payload = action.payload;
     const isNotLocalID = localID => localID !== payload.localID;
     const newMessages = __WEBPACK_IMPORTED_MODULE_11_lodash_fp_pickBy___default()(messageInfo => messageInfo.type !== 0 || isNotLocalID(messageInfo.localID))(messageStore.messages);
@@ -34949,7 +34952,7 @@ function reduceMessageStore(messageStore, action) {
         })
       })
     };
-  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["c" /* sendMessageActionTypes */].success) {
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["d" /* sendMessageActionTypes */].success) {
     const payload = action.payload;
     const replaceMessageKey = messageKey => messageKey === payload.localID ? payload.serverID : messageKey;
     let newMessages;
@@ -35025,6 +35028,12 @@ function reduceMessageStore(messageStore, action) {
       messages: __WEBPACK_IMPORTED_MODULE_9_lodash_fp_omit___default()(messageIDsToPrune)(messageStore.messages),
       threads: newThreads
     };
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["c" /* saveMessagesActionType */]) {
+    const truncationStatuses = {};
+    for (let messageInfo of action.payload.rawMessageInfos) {
+      truncationStatuses[messageInfo.threadID] = __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].UNCHANGED;
+    }
+    return mergeNewMessages(messageStore, action.payload.rawMessageInfos, truncationStatuses, null, false);
   }
   return messageStore;
 }

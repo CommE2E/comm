@@ -29,6 +29,7 @@ import {
   notifPermissionAlertInfoPropType,
   recordNotifPermissionAlertActionType,
 } from './push/alerts';
+import type { RawMessageInfo } from 'lib/types/message-types';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -68,6 +69,7 @@ import {
 import { unreadCount } from 'lib/selectors/thread-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { pingFrequency } from 'lib/shared/ping-utils';
+import { saveMessagesActionType } from 'lib/actions/message-actions';
 
 import {
   handleURLActionType,
@@ -532,6 +534,15 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
+  saveMessageInfos(messageInfosString: string) {
+    const messageInfos: $ReadOnlyArray<RawMessageInfo> =
+      JSON.parse(messageInfosString);
+    this.props.dispatchActionPayload(
+      saveMessagesActionType,
+      { rawMessageInfos: messageInfos },
+    );
+  }
+
   iosForegroundNotificationReceived = (notification) => {
     if (
       notification.getData() &&
@@ -546,6 +557,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       console.log("Notification with missing threadID received!");
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
+    }
+    const messageInfos = notification.getData().messageInfos;
+    if (messageInfos) {
+      this.saveMessageInfos(messageInfos);
     }
     this.pingNow();
     invariant(this.inAppNotification, "should be set");
@@ -563,6 +578,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
+    const messageInfos = notification.getData().messageInfos;
+    if (messageInfos) {
+      this.saveMessageInfos(messageInfos);
+    }
     this.pingNow();
     this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
@@ -572,32 +591,41 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     notification,
     appOpenedFromNotif = false,
   ) => {
+    const badgeCount = notification.badgeCount;
     if (appOpenedFromNotif) {
-      const badgeCount = notification.badgeCount;
       if (badgeCount === null || badgeCount === undefined) {
         console.log("Local notification with missing badgeCount received!");
         return;
       }
       // In the appOpenedFromNotif case, the local notif is the only version of
-      // a notif we get, so we do the badge count update there
+      // a notif we get, so we do the badge count update here, as well as the
+      // Redux action to integrate the new RawMessageInfos into the state.
       AppWithNavigationState.updateBadgeCount(badgeCount);
+      this.saveMessageInfos(notification.messageInfos);
+    } else if (badgeCount && !notification.body) {
+      // If it's a badgeOnly notif, the badgeCount is delivered directly in the
+      // data payload. However, it's a string, due to weird Google restrictions.
+      AppWithNavigationState.updateBadgeCount(parseInt(badgeCount));
+      // Namely, that top-level fields must be strings, so we JSON.parse here.
+      this.saveMessageInfos(notification.messageInfos);
     }
 
     if (notification.custom_notification) {
       const customNotification = JSON.parse(notification.custom_notification);
       const threadID = customNotification.threadID;
-      const badgeCount = customNotification.badgeCount;
+      const customBadgeCount = customNotification.badgeCount;
       if (!threadID) {
         console.log("Server notification with missing threadID received!");
         return;
       }
-      if (!badgeCount) {
+      if (!customBadgeCount) {
         console.log("Local notification with missing badgeCount received!");
         return;
       }
 
       this.pingNow();
-      AppWithNavigationState.updateBadgeCount(badgeCount);
+      AppWithNavigationState.updateBadgeCount(customBadgeCount);
+      this.saveMessageInfos(customNotification.messageInfos);
 
       if (this.currentState === "active") {
         invariant(this.inAppNotification, "should be set");
