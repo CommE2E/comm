@@ -125,7 +125,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSearchBar = () => {
+  renderSearchBar() {
     let clearSearchInputIcon = null;
     if (this.state.searchText) {
       clearSearchInputIcon = (

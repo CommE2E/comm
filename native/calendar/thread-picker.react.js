@@ -19,8 +19,11 @@ import {
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import SearchIndex from 'lib/shared/search-index';
 
 import ThreadList from '../components/thread-list.react';
+import KeyboardAvoidingModal from '../components/keyboard-avoiding-modal.react';
 
 type Props = {
   dateString: ?string,
@@ -28,6 +31,7 @@ type Props = {
   // Redux state
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   viewerID: string,
+  threadSearchIndex: SearchIndex,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -38,21 +42,23 @@ class ThreadPicker extends React.PureComponent<Props> {
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     viewerID: PropTypes.string.isRequired,
+    threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   render() {
     return (
-      <View style={styles.picker}>
-        <Text style={styles.headerText}>
-          Pick a thread
-        </Text>
+      <KeyboardAvoidingModal
+        containerStyle={styles.container}
+        style={styles.container}
+      >
         <ThreadList
           threadInfos={this.props.onScreenThreadInfos}
           onSelect={this.threadPicked}
           itemStyle={styles.threadListItem}
+          searchIndex={this.props.threadSearchIndex}
         />
-      </View>
+      </KeyboardAvoidingModal>
     );
   }
 
@@ -69,13 +75,8 @@ class ThreadPicker extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  picker: {
+  container: {
     flex: 1,
-    padding: 12,
-    borderRadius: 5,
-    backgroundColor: '#EEEEEE',
-    marginHorizontal: 10,
-    marginVertical: 100,
   },
   headerText: {
     fontSize: 24,
@@ -97,6 +98,7 @@ export default connect(
     return {
       onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
       viewerID,
+      threadSearchIndex: threadSearchIndex(state),
     };
   },
   includeDispatchActionProps,
