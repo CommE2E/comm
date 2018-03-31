@@ -86,15 +86,24 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           userInfos,
           threadInfos,
         );
-      const newMessageInfos = notifInfo.newMessageInfos.map(
-        hydrateMessageInfo,
-      ).filter(Boolean);
+      const newMessageInfos = [];
+      const newRawMessageInfos = [];
+      for (let newRawMessageInfo of notifInfo.newMessageInfos) {
+        const newMessageInfo = hydrateMessageInfo(newRawMessageInfo);
+        if (newMessageInfo) {
+          newMessageInfos.push(newMessageInfo);
+          newRawMessageInfos.push(newRawMessageInfo);
+        }
+      }
       if (newMessageInfos.length === 0) {
         continue;
       }
       const existingMessageInfos = notifInfo.existingMessageInfos.map(
         hydrateMessageInfo,
       ).filter(Boolean);
+      const allMessageInfos = sortMessageInfoList(
+        [ ...newMessageInfos, ...existingMessageInfos ],
+      );
       const [ firstNewMessageInfo, ...remainingNewMessageInfos ] =
         newMessageInfos;
       const threadID = firstNewMessageInfo.threadID;
@@ -111,8 +120,8 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const delivery = {};
       if (byDeviceType.ios) {
         const notification = prepareIOSNotification(
-          newMessageInfos,
-          existingMessageInfos,
+          allMessageInfos,
+          newRawMessageInfos,
           threadInfo,
           notifInfo.collapseKey,
           badgeOnly,
@@ -124,8 +133,8 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       if (byDeviceType.android) {
         const notification = prepareAndroidNotification(
-          newMessageInfos,
-          existingMessageInfos,
+          allMessageInfos,
+          newRawMessageInfos,
           threadInfo,
           notifInfo.collapseKey,
           badgeOnly,
@@ -336,8 +345,8 @@ function getDevicesByDeviceType(
 }
 
 function prepareIOSNotification(
-  newMessageInfos: MessageInfo[],
-  existingMessageInfos: MessageInfo[],
+  allMessageInfos: MessageInfo[],
+  newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
   badgeOnly: bool,
@@ -347,9 +356,6 @@ function prepareIOSNotification(
   const notification = new apn.Notification();
   notification.topic = "org.squadcal.app";
   if (!badgeOnly) {
-    const allMessageInfos = sortMessageInfoList(
-      [ ...newMessageInfos, ...existingMessageInfos ],
-    );
     const notifText = notifTextForMessageInfo(allMessageInfos, threadInfo);
     notification.body = notifText;
     notification.sound = "default";
@@ -359,7 +365,7 @@ function prepareIOSNotification(
   notification.id = uniqueID;
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
-  notification.messageInfos = JSON.stringify(newMessageInfos);
+  notification.messageInfos = JSON.stringify(newRawMessageInfos);
   if (collapseKey) {
     notification.collapseId = collapseKey;
   }
@@ -367,8 +373,8 @@ function prepareIOSNotification(
 }
 
 function prepareAndroidNotification(
-  newMessageInfos: MessageInfo[],
-  existingMessageInfos: MessageInfo[],
+  allMessageInfos: MessageInfo[],
+  newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
   badgeOnly: bool,
@@ -379,13 +385,10 @@ function prepareAndroidNotification(
   if (badgeOnly) {
     return {
       badgeCount: unreadCount.toString(),
-      messageInfos: JSON.stringify(newMessageInfos),
+      messageInfos: JSON.stringify(newRawMessageInfos),
       notifID,
     };
   }
-  const allMessageInfos = sortMessageInfoList(
-    [ ...newMessageInfos, ...existingMessageInfos ],
-  );
   return {
     data: {
       custom_notification: JSON.stringify({
@@ -396,7 +399,7 @@ function prepareAndroidNotification(
         icon: "notif_icon",
         badgeCount: unreadCount,
         threadID: threadInfo.id,
-        messageInfos: JSON.stringify(newMessageInfos),
+        messageInfos: JSON.stringify(newRawMessageInfos),
       }),
     }
   };
