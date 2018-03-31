@@ -747,7 +747,6 @@ export {
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
-  LoggedOutModalRouteName,
-  VerificationModalRouteName,
   AppRouteName,
+  removeScreensFromStack,
 };

@@ -12,6 +12,7 @@ import {
   defaultNotifPermissionAlertInfo,
   recordNotifPermissionAlertActionType,
 } from './push/alerts';
+import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -28,6 +29,7 @@ import {
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
+import { sendMessageActionTypes } from 'lib/actions/message-actions';
 
 import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
@@ -36,6 +38,7 @@ import {
   navigateToAppActionType,
   defaultNavInfo,
   reduceNavInfo,
+  removeScreensFromStack,
 } from './navigation-setup';
 import {
   recordAndroidNotificationActionType,
@@ -49,6 +52,12 @@ import {
   natServer,
   setCustomServer,
 } from './utils/url-utils';
+import {
+  assertNavigationRouteNotLeafNode,
+  currentLeafRoute,
+  findRouteIndexWithKey,
+} from './utils/navigation-utils';
+import { ComposeThreadRouteName } from './chat/compose-thread.react';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -68,6 +77,7 @@ export type AppState = {|
   customServer: ?string,
   threadIDsToNotifIDs: {[threadID: string]: string[]},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  messageSentFromRoute: $ReadOnlyArray<string>,
   _persist: ?PersistState,
 |};
 
@@ -96,13 +106,66 @@ const defaultState = ({
   customServer: natServer,
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+  messageSentFromRoute: [],
   _persist: null,
 }: AppState);
 
+function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
+  const navState = navInfo.navigationState;
+  const appRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
+  return assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+}
+
 function reducer(state: AppState = defaultState, action: *) {
   const oldState = state;
-  const navInfo = reduceNavInfo(state, action);
+  let navInfo = reduceNavInfo(state, action);
+
   if (navInfo && navInfo !== state.navInfo) {
+    const chatRoute = chatRouteFromNavInfo(navInfo);
+    const currentChatSubroute = currentLeafRoute(chatRoute);
+    if (currentChatSubroute.routeName === ComposeThreadRouteName) {
+      const oldChatRoute = chatRouteFromNavInfo(state.navInfo);
+      const oldRouteIndex = findRouteIndexWithKey(
+        oldChatRoute,
+        currentChatSubroute.key,
+      );
+      const oldNextRoute = oldChatRoute.routes[oldRouteIndex + 1];
+      if (
+        oldNextRoute &&
+        state.messageSentFromRoute.includes(oldNextRoute.key)
+      ) {
+        // This indicates that the user went to the compose thread screen, then
+        // saw that a thread already existed for the people they wanted to
+        // contact, and sent a message to that thread. We are now about to
+        // navigate back to that compose thread screen, but instead, since the
+        // user's intent has ostensibly already been satisfied, we will pop up
+        // to the screen right before that one.
+        const newChatRoute = removeScreensFromStack(
+          chatRoute,
+          (route: NavigationRoute) => route.key === currentChatSubroute.key
+            ? "remove"
+            : "keep",
+        );
+
+        const appRoute =
+          assertNavigationRouteNotLeafNode(navInfo.navigationState.routes[0]);
+        const newAppSubRoutes = [ ...appRoute.routes ];
+        newAppSubRoutes[1] = newChatRoute;
+        const newRootSubRoutes = [ ...navInfo.navigationState.routes ];
+        newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+        navInfo = {
+          startDate: navInfo.startDate,
+          endDate: navInfo.endDate,
+          home: navInfo.home,
+          threadID: navInfo.threadID,
+          navigationState: {
+            ...navInfo.navigationState,
+            routes: newRootSubRoutes,
+          },
+        };
+      }
+    }
+
     state = {
       navInfo,
       currentUserInfo: state.currentUserInfo,
@@ -121,6 +184,7 @@ function reducer(state: AppState = defaultState, action: *) {
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   }
@@ -149,6 +213,7 @@ function reducer(state: AppState = defaultState, action: *) {
         action.payload,
       ),
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   } else if (action.type === setCustomServer) {
@@ -170,6 +235,7 @@ function reducer(state: AppState = defaultState, action: *) {
       customServer: action.payload,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   } else if (action.type === recordNotifPermissionAlertActionType) {
@@ -194,6 +260,7 @@ function reducer(state: AppState = defaultState, action: *) {
         totalAlerts: state.notifPermissionAlertInfo.totalAlerts + 1,
         lastAlertTime: action.payload.time,
       },
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   }
@@ -209,6 +276,35 @@ function reducer(state: AppState = defaultState, action: *) {
       action.type === NavigationActions.RESET
   ) {
     return validateState(oldState, state);
+  }
+  if (action.type === sendMessageActionTypes.started) {
+    const chatRoute = chatRouteFromNavInfo(state.navInfo);
+    const currentChatSubroute = currentLeafRoute(chatRoute);
+    const messageSentFromRoute =
+      state.messageSentFromRoute.includes(currentChatSubroute.key)
+        ? state.messageSentFromRoute
+        : [ ...state.messageSentFromRoute, currentChatSubroute.key];
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute,
+      _persist: state._persist,
+    };
   }
   return validateState(oldState, baseReducer(state, action));
 }
@@ -245,6 +341,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   }
@@ -281,9 +378,40 @@ function validateState(oldState: AppState, state: AppState): AppState {
       customServer: state.customServer,
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
       _persist: state._persist,
     };
   }
+
+  const chatRoute = chatRouteFromNavInfo(state.navInfo);
+  const chatSubrouteKeys = new Set(chatRoute.routes.map(route => route.key));
+  const messageSentFromRoute = state.messageSentFromRoute.filter(
+    key => chatSubrouteKeys.has(key),
+  );
+  if (messageSentFromRoute.length !== state.messageSentFromRoute.length) {
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      currentAsOf: state.currentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute,
+      _persist: state._persist,
+    };
+  }
+
   return state;
 }
 

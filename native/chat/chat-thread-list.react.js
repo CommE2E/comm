@@ -130,7 +130,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     if (this.state.searchText) {
       clearSearchInputIcon = (
         <TouchableOpacity
-          onPress={this.onPressClearSearch}
+          onPress={this.clearSearch}
           activeOpacity={0.5}
         >
           <Icon
@@ -256,7 +256,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     this.setState({ searchText, searchResults: new Set(results) });
   }
 
-  onPressClearSearch = () => {
+  clearSearch = () => {
     this.onChangeSearchText("");
   }
 
@@ -264,6 +264,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     if (!this.props.active) {
       return;
     }
+    this.clearSearch();
     this.props.navigation.navigate(
       MessageListRouteName,
       { threadInfo },

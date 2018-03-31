@@ -5,6 +5,7 @@ import type {
   NavigationStateRoute,
   NavigationRoute,
   NavigationParams,
+  NavigationState,
 } from 'react-navigation';
 
 import invariant from 'invariant';
@@ -78,7 +79,35 @@ function getThreadIDFromParams(object: { params?: NavigationParams }): string {
   return object.params.threadInfo.id;
 }
 
+function currentRouteRecurse(state: NavigationRoute): NavigationLeafRoute {
+  if (state.index) {
+    const stateRoute = assertNavigationRouteNotLeafNode(state);
+    return currentRouteRecurse(stateRoute.routes[stateRoute.index]);
+  } else {
+    return state;
+  }
+}
+
+function currentLeafRoute(state: NavigationState): NavigationLeafRoute {
+  return currentRouteRecurse(state.routes[state.index]);
+}
+
+function findRouteIndexWithKey(
+  state: NavigationState,
+  key: string,
+): ?number {
+  for (let i = 0; i < state.routes.length; i++) {
+    const route = state.routes[i];
+    if (route.key === key) {
+      return i;
+    }
+  }
+  return null;
+}
+
 export {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
+  currentLeafRoute,
+  findRouteIndexWithKey,
 };
