@@ -386,10 +386,9 @@ function prepareAndroidNotification(
         priority: "high",
         sound: "default",
         icon: "notif_icon",
+        badgeCount: unreadCount,
+        threadID: threadInfo.id,
       }),
-      badgeCount: unreadCount.toString(),
-      threadID: threadInfo.id.toString(),
-      notifID,
     }
   };
 }
