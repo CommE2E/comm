@@ -7,7 +7,7 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 
@@ -66,9 +66,12 @@ class ThreadPicker extends React.PureComponent<Props> {
     this.props.close();
     const dateString = this.props.dateString;
     invariant(dateString, "should be set");
-    this.props.dispatchActionPayload(
-      createLocalEntryActionType,
-      createLocalEntry(threadID, dateString, this.props.viewerID),
+    setTimeout(
+      () => this.props.dispatchActionPayload(
+        createLocalEntryActionType,
+        createLocalEntry(threadID, dateString, this.props.viewerID),
+      ),
+      Platform.OS === "android" ? 500 : 100,
     );
   }
 
