@@ -163,7 +163,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         type="text/css"
         href="compiled/prod.build.css"
       />`;
-  return html`
+  let result = html`
     <html lang="en">
       <head>
         <meta charset="utf-8" />
@@ -200,11 +200,16 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         </script>
       </head>
       <body>
-        <div id="react-root">${rendered}</div>
+        <div id="react-root">
+  `;
+  result += rendered;
+  result += html`
+        </div>
         <script src="${jsURL}"></script>
       </body>
     </html>
   `;
+  return result;
 }
 
 type BaseURLInfo = {| year: number, month: number, verificationCode: ?string |};
