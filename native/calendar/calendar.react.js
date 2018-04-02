@@ -711,7 +711,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         >
           {loadingIndicator}
           {flatList}
-          <CalendarInputBar onSave={this.onSaveEntry} />
+          <CalendarInputBar
+            onSave={this.onSaveEntry}
+            disabled={this.state.threadPickerOpen}
+          />
         </KeyboardAvoidingView>
         <Modal
           isVisible={this.state.threadPickerOpen}
@@ -992,6 +995,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   closePicker = () => {
+    LayoutAnimation.easeInEaseOut();
     this.setState({ threadPickerOpen: false });
   }
 

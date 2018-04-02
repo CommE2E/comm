@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import PropTypes from 'prop-types';
 
 import Button from '../components/button.react';
 import {
@@ -12,12 +13,17 @@ import {
 
 type Props = {|
   onSave: () => void,
+  disabled: bool,
 |};
 type State = {|
   keyboardActive: bool,
 |};
 class CalendarInputBar extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    onSave: PropTypes.func.isRequired,
+    disabled: PropTypes.bool.isRequired,
+  };
   state = {
     keyboardActive: false,
   };
@@ -51,7 +57,7 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const inactiveStyle = this.state.keyboardActive
+    const inactiveStyle = this.state.keyboardActive && !this.props.disabled
       ? undefined
       : styles.inactiveContainer;
     return (
