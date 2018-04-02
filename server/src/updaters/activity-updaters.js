@@ -81,10 +81,10 @@ async function activityUpdater(
         AND thread IN (${focusedThreadIDs})
         AND user = ${localViewer.userID}
     `));
-    promises.push(rescindPushNotifs(
-      localViewer.userID,
-      focusedThreadIDs,
-    ));
+    const rescindCondition = SQL`
+      n.user = ${localViewer.userID} AND n.thread IN (${focusedThreadIDs})
+    `;
+    promises.push(rescindPushNotifs(rescindCondition));
   }
 
   const [ resetToUnread ] = await Promise.all([

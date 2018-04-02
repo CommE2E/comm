@@ -16,6 +16,7 @@ import {
   checkThreadPermission,
   fetchThreadInfos,
 } from '../fetchers/thread-fetchers';
+import { rescindPushNotifs } from '../push/rescind';
 
 async function deleteThread(
   viewer: Viewer,
@@ -43,6 +44,8 @@ async function deleteThread(
   if (!bcrypt.compareSync(threadDeletionRequest.accountPassword, row.hash)) {
     throw new ServerError('invalid_credentials');
   }
+
+  await rescindPushNotifs(SQL`n.thread = ${threadDeletionRequest.threadID}`);
 
   // TODO: if org, delete all descendant threads as well. make sure to warn user
   const query = SQL`

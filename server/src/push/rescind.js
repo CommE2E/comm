@@ -2,23 +2,19 @@
 
 import apn from 'apn';
 
-import { dbQuery, SQL } from '../database';
-import { apnPush, fcmPush, getUnreadCounts } from './utils';
+import { dbQuery, SQL, SQLStatement } from '../database';
+import { apnPush, fcmPush } from './utils';
 
-async function rescindPushNotifs(
-  userID: string,
-  threadIDs: $ReadOnlyArray<string>,
-) {
+async function rescindPushNotifs(condition: SQLStatement) {
   const fetchQuery = SQL`
-    SELECT id, delivery, collapse_key
-    FROM notifications
-    WHERE user = ${userID} AND thread IN (${threadIDs})
-      AND rescinded = 0
+    SELECT n.id, n.delivery, n.collapse_key, COUNT(m.thread) AS unread_count
+    FROM notifications n
+    LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0
+    WHERE n.rescinded = 0 AND
   `;
-  const [ [ fetchResult ], unreadCounts ] = await Promise.all([
-    dbQuery(fetchQuery),
-    getUnreadCounts([ userID ]),
-  ]);
+  fetchQuery.append(condition);
+  fetchQuery.append(SQL` GROUP BY n.id, m.user`);
+  const [ fetchResult ] = await dbQuery(fetchQuery);
 
   const promises = [];
   const rescindedIDs = [];
@@ -26,7 +22,7 @@ async function rescindPushNotifs(
     if (row.delivery.iosID) {
       const notification = new apn.Notification();
       notification.contentAvailable = true;
-      notification.badge = unreadCounts[userID];
+      notification.badge = row.unread_count;
       notification.topic = "org.squadcal.app";
       notification.payload = {
         managedAps: {
