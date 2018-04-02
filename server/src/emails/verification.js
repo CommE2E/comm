@@ -10,7 +10,7 @@ import { createVerificationCode } from '../models/verification';
 import sendmail from './sendmail';
 import Template from './template.react';
 
-const { Span, A, renderEmail } = ReactHTML;
+const { Item, Span, A, renderEmail } = ReactHTML;
 const { baseDomain, basePath } = urlFacts;
 
 async function sendEmailAddressVerificationEmail(
@@ -26,9 +26,11 @@ async function sendEmailAddressVerificationEmail(
   let action = "verify your email";
   if (welcome) {
     welcomeText = (
-      <Span fontSize={24}>
-        {`Welcome to SquadCal, ${username}!`}
-      </Span>
+      <Item>
+        <Span fontSize={24}>
+          {`Welcome to SquadCal, ${username}!`}
+        </Span>
+      </Item>
     );
     action = `complete your registration and ${action}`;
   }
@@ -37,10 +39,12 @@ async function sendEmailAddressVerificationEmail(
   const email = (
     <Template title={title}>
       {welcomeText}
-      <Span>
-        {`Please ${action} by clicking this link: `}
-        <A href={link}>{link}</A>
-      </Span>
+      <Item>
+        <Span>
+          {`Please ${action} by clicking this link: `}
+          <A href={link}>{link}</A>
+        </Span>
+      </Item>
     </Template>
   );
   const html = renderEmail(email);

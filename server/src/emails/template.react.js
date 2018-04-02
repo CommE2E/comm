@@ -4,7 +4,7 @@ import React from 'react';
 import * as React2 from 'react';
 import ReactHTML from 'react-html-email';
 
-const { Email, Box, Item } = ReactHTML;
+const { Email, Box } = ReactHTML;
 
 const css = `
 @media only screen and (max-device-width: 480px) {
@@ -19,9 +19,7 @@ function Template(props: Props) {
   return (
     <Email title={props.title} headCSS={css}>
       <Box>
-        <Item>
-          {props.children}
-        </Item>
+        {props.children}
       </Box>
     </Email>
   );

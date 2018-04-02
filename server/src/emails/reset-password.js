@@ -10,7 +10,7 @@ import { createVerificationCode } from '../models/verification';
 import sendmail from './sendmail';
 import Template from './template.react';
 
-const { Span, A, renderEmail } = ReactHTML;
+const { Item, Span, A, renderEmail } = ReactHTML;
 const { baseDomain, basePath } = urlFacts;
 
 async function sendPasswordResetEmail(
@@ -30,10 +30,12 @@ async function sendPasswordResetEmail(
     "your password: ";
   const email = (
     <Template title={title}>
-      <Span>
-        {text}
-        <A href={link}>{link}</A>
-      </Span>
+      <Item>
+        <Span>
+          {text}
+          <A href={link}>{link}</A>
+        </Span>
+      </Item>
     </Template>
   );
   const html = renderEmail(email);
