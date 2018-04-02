@@ -11,17 +11,16 @@ import * as React from 'react';
 import classNames from 'classnames';
 import _some from 'lodash/fp/some';
 import invariant from 'invariant';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
 import { dateString, dateFromString } from 'lib/utils/date-utils'
+import { connect } from 'lib/utils/redux-utils';
 
 import css from '../style.css';
 import Entry from './entry.react';
@@ -300,5 +299,6 @@ export default connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
   }),
-  includeDispatchActionProps,
+  null,
+  true,
 )(Day);

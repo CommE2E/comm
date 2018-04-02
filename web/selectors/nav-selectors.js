@@ -1,6 +1,6 @@
 // @flow
 
-import type { BaseAppState } from 'lib/types/redux-types';
+import type { AppState } from '../redux-setup';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
@@ -19,8 +19,8 @@ function yearAssertingExtractor(startDate: string, endDate: string) {
 }
 
 const yearAssertingSelector = createSelector(
-  (state: BaseAppState) => state.navInfo.startDate,
-  (state: BaseAppState) => state.navInfo.endDate,
+  (state: AppState) => state.navInfo.startDate,
+  (state: AppState) => state.navInfo.endDate,
   yearAssertingExtractor,
 );
 
@@ -41,8 +41,8 @@ function monthAssertingExtractor(startDate: string, endDate: string) {
 
 // 1-indexed
 const monthAssertingSelector = createSelector(
-  (state: BaseAppState) => state.navInfo.startDate,
-  (state: BaseAppState) => state.navInfo.endDate,
+  (state: AppState) => state.navInfo.startDate,
+  (state: AppState) => state.navInfo.endDate,
   monthAssertingExtractor,
 );
 

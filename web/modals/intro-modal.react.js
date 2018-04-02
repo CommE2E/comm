@@ -4,10 +4,9 @@ import type { AppState, WindowDimensions } from '../redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import * as React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import css from '../style.css';
 import { updateWindowDimensions } from '../redux-setup';
@@ -85,5 +84,6 @@ export default connect(
     windowDimensions: state.windowDimensions,
     cookie: state.cookie,
   }),
-  includeDispatchActionProps,
+  null,
+  true,
 )(IntroModal);

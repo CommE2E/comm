@@ -1,7 +1,7 @@
 // @flow
 
-import type { BaseAppState } from 'lib/types/redux-types';
 import type { EntryInfo } from 'lib/types/entry-types';
+import type { AppState } from '../redux-setup';
 
 import { createSelector } from 'reselect';
 import _map from 'lodash/fp/map';
@@ -27,7 +27,7 @@ export type CalendarItem =
   };
 
 const calendarListData = createSelector(
-  (state: BaseAppState) => !!(state.currentUserInfo &&
+  (state: AppState) => !!(state.currentUserInfo &&
     !state.currentUserInfo.anonymous && true),
   currentDaysToEntries,
   (

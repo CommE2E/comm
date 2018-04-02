@@ -18,7 +18,6 @@ import _isEmpty from 'lodash/fp/isEmpty';
 import _omit from 'lodash/fp/omit';
 import _sampleSize from 'lodash/fp/sampleSize';
 import _map from 'lodash/fp/map';
-import { connect } from 'react-redux';
 
 import SearchIndex from 'lib/shared/search-index';
 import {
@@ -30,7 +29,7 @@ import {
   typeaheadSortedThreadInfos,
 } from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import css from '../style.css';
 import TypeaheadActionOption from './typeahead-action-option.react';
@@ -683,5 +682,6 @@ export default connect(
     sortedThreadInfos: typeaheadSortedThreadInfos(state),
     typeaheadRecommendedThreads: state.typeaheadRecommendedThreads,
   }),
-  includeDispatchActionProps,
+  null,
+  true,
 )(Typeahead);

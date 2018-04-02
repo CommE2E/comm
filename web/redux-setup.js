@@ -10,6 +10,7 @@ import type { VerifyField } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
 
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import {
@@ -69,7 +70,9 @@ export type Action =
       payload: WindowDimensions,
     |};
 
-export function reducer(state: AppState, action: Action) {
+export function reducer(inputState: AppState | void, action: Action) {
+  let state = inputState;
+  invariant(state, "should be set");
   if (action.type === reflectRouteChangeActionType) {
     return {
       navInfo: action.payload,
