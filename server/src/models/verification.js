@@ -56,7 +56,7 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
     throw new ServerError('invalid_code');
   }
 
-  if (row.creation_time + verifyCodeLifetime < Date.now()) {
+  if (row.creation_time + verifyCodeLifetime <= Date.now()) {
     // Code is expired. Delete it...
     const deleteQuery = SQL`
       DELETE v, i
@@ -110,9 +110,22 @@ async function handleCodeVerificationRequest(
   return null;
 }
 
+async function deleteExpiredVerifications(): Promise<void> {
+  const earliestInvalidCreationTime = Date.now() - verifyCodeLifetime;
+  const query = SQL`
+    DELETE v, i
+    FROM verifications v
+    LEFT JOIN ids i ON i.id = v.id
+    WHERE v.creation_time <= ${earliestInvalidCreationTime}
+  `;
+  await dbQuery(query);
+}
+
+
 export {
   createVerificationCode,
   verifyCode,
   clearVerifyCodes,
   handleCodeVerificationRequest,
+  deleteExpiredVerifications,
 };

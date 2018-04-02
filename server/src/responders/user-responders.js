@@ -37,9 +37,11 @@ import { validateInput, tShape } from '../utils/validation-utils';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
+} from '../session/cookies';
+import {
   deleteCookie,
   deleteCookiesOnLogOut,
-} from '../session/cookies';
+} from '../deleters/cookie-deleters';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
 import { entryQueryInputValidator } from './entry-responders';

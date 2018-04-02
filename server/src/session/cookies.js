@@ -12,13 +12,13 @@ import crypto from 'crypto';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL } from '../database';
 import { Viewer } from './viewer';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
-import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
+import { deleteCookie } from '../deleters/cookie-deleters';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -34,6 +34,10 @@ const cookieType = Object.freeze({
   ANONYMOUS: "anonymous",
 });
 type CookieType = $Values<typeof cookieType>;
+
+function cookieIsExpired(lastUpdate: number) {
+  return lastUpdate + cookieLifetime <= Date.now();
+}
 
 type FetchViewerResult =
   | {| type: "valid", viewer: Viewer |}
@@ -64,7 +68,7 @@ async function fetchUserViewer(
   const cookieRow = result[0];
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
-    cookieRow.last_update + cookieLifetime <= Date.now()
+    cookieIsExpired(cookieRow.last_update)
   ) {
     return {
       type: "invalidated",
@@ -106,7 +110,7 @@ async function fetchAnonymousViewer(
   const cookieRow = result[0];
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
-    cookieRow.last_update + cookieLifetime <= Date.now()
+    cookieIsExpired(cookieRow.last_update)
   ) {
     return {
       type: "invalidated",
@@ -276,40 +280,6 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
   };
 }
 
-async function deleteCookie(cookieID: string): Promise<void> {
-  await dbQuery(SQL`
-    DELETE c, i
-    FROM cookies c
-    LEFT JOIN ids i ON i.id = c.id
-    WHERE c.id = ${cookieID}
-  `);
-}
-
-async function deleteCookiesOnLogOut(
-  userID: string,
-  cookieID: string,
-): Promise<void> {
-  const deviceTokens = await fetchDeviceTokensForCookie(cookieID);
-
-  const conditions = [ SQL`c.id = ${cookieID}` ];
-  if (deviceTokens.ios) {
-    conditions.push(SQL`c.ios_device_token = ${deviceTokens.ios}`);
-  }
-  if (deviceTokens.android) {
-    conditions.push(SQL`c.android_device_token = ${deviceTokens.android}`);
-  }
-
-  const query = SQL`
-    DELETE c, i
-    FROM cookies c
-    LEFT JOIN ids i ON i.id = c.id
-    WHERE c.user = ${userID} AND
-  `;
-  query.append(mergeOrConditions(conditions));
-
-  await dbQuery(query);
-}
-
 async function createNewUserCookie(userID: string): Promise<UserViewerData> {
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
@@ -381,12 +351,11 @@ function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
 }
 
 export {
+  cookieLifetime,
   cookieType,
   fetchViewerForJSONRequest,
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,
-  deleteCookie,
-  deleteCookiesOnLogOut,
   createNewUserCookie,
   addCookieToJSONResponse,
   addCookieToHomeResponse,

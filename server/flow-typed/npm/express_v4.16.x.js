@@ -1,5 +1,5 @@
-// flow-typed signature: 41a220e96fcef89a09244ac3797039e8
-// flow-typed version: 9f7cf2ab0c/express_v4.16.x/flow_>=v0.32.x
+// flow-typed signature: 106bbf49ff0c0b351c95d483d617ffba
+// flow-typed version: 7fe23c8e85/express_v4.16.x/flow_>=v0.32.x
 
 import type { Server } from "http";
 import type { Socket } from "net";
@@ -266,6 +266,20 @@ declare type JsonOptions = {
   ) => mixed
 };
 
+declare type express$UrlEncodedOptions = {
+  extended?: boolean,
+  inflate?: boolean,
+  limit?: string | number,
+  parameterLimit?: number,
+  type?: string | Array<string> | ((req: express$Request) => boolean),
+  verify?: (
+    req: express$Request,
+    res: express$Response,
+    buf: Buffer,
+    encoding: string
+  ) => mixed,
+}
+
 declare module "express" {
   declare export type RouterOptions = express$RouterOptions;
   declare export type CookieOptions = express$CookieOptions;
@@ -280,6 +294,7 @@ declare module "express" {
     (): express$Application, // If you try to call like a function, it will use this signature
     json: (opts: ?JsonOptions) => express$Middleware,
     static: (root: string, options?: Object) => express$Middleware, // `static` property on the function
-    Router: typeof express$Router // `Router` property on the function
+    Router: typeof express$Router, // `Router` property on the function
+    urlencoded: (opts: ?express$UrlEncodedOptions) => express$Middleware,
   };
 }

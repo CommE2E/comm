@@ -59,6 +59,7 @@ import {
   errorReportDownloadHandler,
 } from './responders/report-responders';
 import urlFacts from '../facts/url';
+import './cron';
 
 const { baseRoutePath } = urlFacts;
 
