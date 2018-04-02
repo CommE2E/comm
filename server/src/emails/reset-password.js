@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react'
+import React from 'react';
 import ReactHTML from 'react-html-email';
 
 import { verifyField } from 'lib/types/verify-types';

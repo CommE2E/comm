@@ -1,6 +1,7 @@
 // @flow
 
-import * as React from 'react'
+import React from 'react';
+import * as React2 from 'react';
 import ReactHTML from 'react-html-email';
 
 const { Email, Box, Item } = ReactHTML;
@@ -12,7 +13,7 @@ const css = `
 
 type Props = {|
   title: string,
-  children: React.Node,
+  children: React2.Node,
 |};
 function Template(props: Props) {
   return (
