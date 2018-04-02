@@ -8,8 +8,9 @@ import { verifyField } from 'lib/types/verify-types';
 import urlFacts from '../../facts/url';
 import { createVerificationCode } from '../models/verification';
 import sendmail from './sendmail';
+import Template from './template.react';
 
-const { Email, Item, Span, A, renderEmail } = ReactHTML;
+const { Span, A, renderEmail } = ReactHTML;
 const { baseDomain, basePath } = urlFacts;
 
 async function sendEmailAddressVerificationEmail(
@@ -25,26 +26,22 @@ async function sendEmailAddressVerificationEmail(
   let action = "verify your email";
   if (welcome) {
     welcomeText = (
-      <Item>
-        <Span fontSize={24}>
-          {`Welcome to SquadCal, ${username}!`}
-        </Span>
-      </Item>
+      <Span fontSize={24}>
+        {`Welcome to SquadCal, ${username}!`}
+      </Span>
     );
     action = `complete your registration and ${action}`;
   }
 
   const title = "Verify email for SquadCal";
   const email = (
-    <Email title={title}>
+    <Template title={title}>
       {welcomeText}
-      <Item>
-        <Span>
-          {`Please ${action} by clicking this link: `}
-          <A href={link}>{link}</A>
-        </Span>
-      </Item>
-    </Email>
+      <Span>
+        {`Please ${action} by clicking this link: `}
+        <A href={link}>{link}</A>
+      </Span>
+    </Template>
   );
   const html = renderEmail(email);
 

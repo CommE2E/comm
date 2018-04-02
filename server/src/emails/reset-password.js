@@ -8,8 +8,9 @@ import { verifyField } from 'lib/types/verify-types';
 import urlFacts from '../../facts/url';
 import { createVerificationCode } from '../models/verification';
 import sendmail from './sendmail';
+import Template from './template.react';
 
-const { Email, Item, Span, A, renderEmail } = ReactHTML;
+const { Span, A, renderEmail } = ReactHTML;
 const { baseDomain, basePath } = urlFacts;
 
 async function sendPasswordResetEmail(
@@ -28,14 +29,12 @@ async function sendPasswordResetEmail(
     "However, if you did issue this request, please visit this link to reset " +
     "your password: ";
   const email = (
-    <Email title={title}>
-      <Item>
-        <Span>
-          {text}
-          <A href={link}>{link}</A>
-        </Span>
-      </Item>
-    </Email>
+    <Template title={title}>
+      <Span>
+        {text}
+        <A href={link}>{link}</A>
+      </Span>
+    </Template>
   );
   const html = renderEmail(email);
 
