@@ -78,6 +78,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
       : null,
     headerBackTitle: "Back",
   });
+  searchInput: ?TextInput;
 
   constructor(props: Props) {
     super(props);
@@ -158,11 +159,16 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
             placeholder="Search threads"
             placeholderTextColor="#AAAAAA"
             returnKeyType="go"
+            ref={this.searchInputRef}
           />
           {clearSearchInputIcon}
         </View>
       </View>
     );
+  }
+
+  searchInputRef = (searchInput: ?TextInput) => {
+    this.searchInput = searchInput;
   }
 
   static keyExtractor(item: Item) {
@@ -265,6 +271,9 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
       return;
     }
     this.clearSearch();
+    if (this.searchInput) {
+      this.searchInput.blur();
+    }
     this.props.navigation.navigate(
       MessageListRouteName,
       { threadInfo },
