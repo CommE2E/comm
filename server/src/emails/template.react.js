@@ -17,8 +17,8 @@ type Props = {|
 |};
 function Template(props: Props) {
   return (
-    <Email title={props.title} headCSS={css}>
-      <Box>
+    <Email title={props.title} headCSS={css} align="left">
+      <Box align="left">
         {props.children}
       </Box>
     </Email>

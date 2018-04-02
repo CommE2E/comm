@@ -28,7 +28,7 @@ async function sendEmailAddressVerificationEmail(
     welcomeText = (
       <Item align="left">
         <Span fontSize={24}>
-          {`Welcome to SquadCal, ${username}!`}
+          {`Welcome to SquadCal, ${username}! `}
         </Span>
       </Item>
     );
