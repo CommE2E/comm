@@ -30,7 +30,7 @@ async function sendPasswordResetEmail(
     "your password: ";
   const email = (
     <Template title={title}>
-      <Item>
+      <Item align="left">
         <Span>
           {text}
           <A href={link}>{link}</A>

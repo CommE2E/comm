@@ -26,7 +26,7 @@ async function sendEmailAddressVerificationEmail(
   let action = "verify your email";
   if (welcome) {
     welcomeText = (
-      <Item>
+      <Item align="left">
         <Span fontSize={24}>
           {`Welcome to SquadCal, ${username}!`}
         </Span>
@@ -39,7 +39,7 @@ async function sendEmailAddressVerificationEmail(
   const email = (
     <Template title={title}>
       {welcomeText}
-      <Item>
+      <Item align="left">
         <Span>
           {`Please ${action} by clicking this link: `}
           <A href={link}>{link}</A>
