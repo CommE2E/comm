@@ -31,8 +31,7 @@ async function deleteAccount(
     throw new ServerError('invalid_credentials');
   }
 
-  // TODO figure out what to do with threads this account admins
-  // TODO delete orphaned threads
+  // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
     DELETE u, iu, v, iv, c, ic, m, f, n, ino
     FROM users u
