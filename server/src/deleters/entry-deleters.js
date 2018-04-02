@@ -181,7 +181,18 @@ async function restoreEntry(
   return { entryInfo, newMessageInfos };
 }
 
+async function deleteOrphanedEntries(): Promise<void> {
+  await dbQuery(SQL`
+    DELETE e, i
+    FROM entries e
+    LEFT JOIN ids i ON i.id = e.id
+    LEFT JOIN days d ON d.id = e.day
+    WHERE d.id IS NULL
+  `);
+}
+
 export {
   deleteEntry,
   restoreEntry,
+  deleteOrphanedEntries,
 };

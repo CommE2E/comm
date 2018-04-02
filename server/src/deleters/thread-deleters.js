@@ -44,7 +44,7 @@ async function deleteThread(
     throw new ServerError('invalid_credentials');
   }
 
-  // TODO delete all descendant threads as well
+  // TODO: if org, delete all descendant threads as well. make sure to warn user
   const query = SQL`
     DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, f, n, ino
     FROM threads t
