@@ -47,7 +47,7 @@ import _isEqual from 'lodash/fp/isEqual';
 import {
   includeDispatchActionProps,
   fetchNewCookieFromNativeCredentials,
-  bindCookieAndUtilsIntoServerCall,
+  createBoundServerCallsSelector,
 } from 'lib/utils/action-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import {
@@ -84,6 +84,7 @@ import {
 
 const forceInset = { top: 'always', bottom: 'always' };
 let initialAppLoad = true;
+const boundPingSelector = createBoundServerCallsSelector(ping);
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -355,13 +356,12 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   static dispatchPing(props: Props, cookie: ?string, urlPrefix: string) {
-    const boundPing = bindCookieAndUtilsIntoServerCall(
-      ping,
-      props.dispatch,
+    const boundPing = boundPingSelector({
+      dispatch: props.dispatch,
       cookie,
       urlPrefix,
-      props.deviceToken,
-    );
+      deviceToken: props.deviceToken,
+    });
     const startingPayload = props.pingStartingPayload();
     const actionInput = props.pingActionInput(startingPayload);
     props.dispatchActionPromise(
