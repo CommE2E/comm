@@ -200,6 +200,8 @@ async function updateUnreadStatus(
     threadConditionClauses.push(mergeAndConditions(conditions));
   }
   const conditionClause = mergeOrConditions(threadConditionClauses);
+  console.log(threadRestrictions);
+  console.log(conditionClause);
 
   const subthreadJoins = [];
   for (let pair of joinSubthreads) {
