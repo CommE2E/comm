@@ -147,6 +147,7 @@ async function possiblyResetThreadsToUnread(
     const threadID = row.thread.toString();
     const serverLatestMessage = row.latest_message.toString();
     const clientLatestMessage = unfocusedThreadLatestMessages.get(threadID);
+    console.log(clientLatestMessage);
     if (clientLatestMessage !== serverLatestMessage) {
       resetToUnread.push(threadID);
     }
