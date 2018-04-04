@@ -51,6 +51,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { deviceTokenUpdateRequestInputValidator } from './device-responders';
+import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -199,12 +200,12 @@ async function logInResponder(
   }
   const id = userRow.id.toString();
 
+  const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id),
+    createNewUserCookie(id, newPingTime),
     deleteCookie(viewer.getData().cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
-  const newPingTime = Date.now();
 
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
@@ -212,13 +213,14 @@ async function logInResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult ] = await Promise.all([
+  const [ messagesResult, entriesResult, newUpdates ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    fetchUpdateInfos(viewer, newPingTime),
     request.deviceTokenUpdateRequest
       ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
       : undefined,
@@ -240,6 +242,7 @@ async function logInResponder(
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
     userInfos: userInfosArray,
+    newUpdates,
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

@@ -58,7 +58,7 @@ async function fetchUserViewer(
     return { type: "nonexistant", cookieName: cookieType.USER, source };
   }
   const query = SQL`
-    SELECT hash, user, last_update FROM cookies
+    SELECT hash, user, last_used FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
   const [ result ] = await dbQuery(query);
@@ -68,7 +68,7 @@ async function fetchUserViewer(
   const cookieRow = result[0];
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
-    cookieIsExpired(cookieRow.last_update)
+    cookieIsExpired(cookieRow.last_used)
   ) {
     return {
       type: "invalidated",
@@ -100,7 +100,7 @@ async function fetchAnonymousViewer(
     return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
   }
   const query = SQL`
-    SELECT last_update, hash FROM cookies
+    SELECT last_used, hash FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
   const [ result ] = await dbQuery(query);
@@ -110,7 +110,7 @@ async function fetchAnonymousViewer(
   const cookieRow = result[0];
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
-    cookieIsExpired(cookieRow.last_update)
+    cookieIsExpired(cookieRow.last_used)
   ) {
     return {
       type: "invalidated",
@@ -133,7 +133,7 @@ async function fetchAnonymousViewer(
 
 // This function is meant to consume a cookie that has already been processed.
 // That means it doesn't have any logic to handle an invalid cookie, and it
-// doesn't the cookie's last_update timestamp.
+// doesn't update the cookie's last_used timestamp.
 async function fetchViewerFromCookieData(
   cookieData: {[cookieName: string]: string},
 ): Promise<?FetchViewerResult> {
@@ -267,7 +267,7 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
   const [ id ] = await createIDs("cookies", 1);
   const cookieRow = [id, cookieHash, null, time, time, 0];
   const query = SQL`
-    INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+    INSERT INTO cookies(id, hash, user, creation_time, last_used, last_update)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -280,14 +280,18 @@ async function createNewAnonymousCookie(): Promise<AnonymousViewerData> {
   };
 }
 
-async function createNewUserCookie(userID: string): Promise<UserViewerData> {
+async function createNewUserCookie(
+  userID: string,
+  initialLastUpdate: number,
+): Promise<UserViewerData> {
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
   const cookieHash = bcrypt.hashSync(cookiePassword);
   const [ cookieID ] = await createIDs("cookies", 1);
-  const cookieRow = [cookieID, cookieHash, userID, time, time, 0];
+  const cookieRow =
+    [cookieID, cookieHash, userID, time, time, initialLastUpdate];
   const query = SQL`
-    INSERT INTO cookies(id, hash, user, creation_time, last_update, last_ping)
+    INSERT INTO cookies(id, hash, user, creation_time, last_used, last_update)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -304,7 +308,19 @@ async function createNewUserCookie(userID: string): Promise<UserViewerData> {
 async function extendCookieLifespan(cookieID: string) {
   const time = Date.now();
   const query = SQL`
-    UPDATE cookies SET last_update = ${time} WHERE id = ${cookieID}
+    UPDATE cookies SET last_used = ${time} WHERE id = ${cookieID}
+  `;
+  await dbQuery(query);
+}
+
+async function recordDeliveredUpdate(
+  cookieID: string,
+  mostRecentUpdateTimestamp: number,
+) {
+  const query = SQL`
+    UPDATE cookies
+    SET last_update = ${mostRecentUpdateTimestamp}
+    WHERE id = ${cookieID}
   `;
   await dbQuery(query);
 }
@@ -357,6 +373,7 @@ export {
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,
   createNewUserCookie,
+  recordDeliveredUpdate,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
 };

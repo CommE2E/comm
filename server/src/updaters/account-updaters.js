@@ -24,6 +24,7 @@ import { createNewUserCookie } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { verifyThreadID } from '../fetchers/thread-fetchers';
+import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 
 async function accountUpdater(
   viewer: Viewer,
@@ -175,12 +176,12 @@ async function updatePassword(
   }
   const userRow = userResult[0];
 
+  const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(userID),
+    createNewUserCookie(userID, newPingTime),
     clearVerifyCodes(verificationResult),
   ]);
   viewer.setNewCookie(userViewerData);
-  const newPingTime = Date.now();
 
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
@@ -188,13 +189,14 @@ async function updatePassword(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult ] = await Promise.all([
+  const [ messagesResult, entriesResult, newUpdates ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    fetchUpdateInfos(viewer, newPingTime),
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -213,6 +215,7 @@ async function updatePassword(
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
     userInfos: userInfosArray,
+    newUpdates,
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

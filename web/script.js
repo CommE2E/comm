@@ -4,14 +4,7 @@ import 'babel-polyfill';
 import 'isomorphic-fetch';
 
 import type { Store } from 'redux';
-import type { RawThreadInfo } from 'lib/types/thread-types';
-import type { RawEntryInfo } from 'lib/types/entry-types';
-import type {
-  RawMessageInfo,
-  MessageTruncationStatus,
-} from 'lib/types/message-types';
 import type { AppState, Action } from './redux-setup';
-import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -23,17 +16,9 @@ import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
-import _keyBy from 'lodash/fp/keyBy';
 import invariant from 'invariant';
 
 import { registerConfig } from 'lib/utils/config';
-import { assertVerifyField } from 'lib/types/verify-types';
-import {
-  startDateForYearAndMonth,
-  endDateForYearAndMonth,
-} from 'lib/utils/date-utils';
-import { newSessionID } from 'lib/selectors/session-selectors';
-import { freshMessageStore } from 'lib/reducers/message-reducer';
 
 import { reducer } from './redux-setup';
 

@@ -83,6 +83,10 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   await updateActivityTime(viewer);
 
   const time = Date.now();
+  const messagesCurrentAsOf = mostRecentMessageTimestamp(
+    rawMessageInfos,
+    initialTime,
+  );
   const store: Store<AppState, Action> = createStore(
     reducer,
     ({
@@ -115,10 +119,11 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       messageStore: freshMessageStore(
         rawMessageInfos,
         truncationStatuses,
+        messagesCurrentAsOf,
         threadInfos,
       ),
       drafts: {},
-      currentAsOf: mostRecentMessageTimestamp(rawMessageInfos, initialTime),
+      updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
       cookie: undefined,
       deviceToken: null,

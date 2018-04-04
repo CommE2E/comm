@@ -52,7 +52,6 @@ type Props = {
   username: ?string,
   email: ?string,
   emailVerified: ?bool,
-  currentAsOf: number,
   resendVerificationLoadingStatus: LoadingStatus,
   active: bool,
   // Redux dispatch functions
@@ -70,7 +69,6 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     username: PropTypes.string,
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
-    currentAsOf: PropTypes.number.isRequired,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
     active: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -441,7 +439,6 @@ const MoreScreen = connect(
       emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
         ? state.currentUserInfo.emailVerified
         : undefined,
-      currentAsOf: state.currentAsOf,
       resendVerificationLoadingStatus:
         resendVerificationLoadingStatusSelector(state),
       active: moreRoute.index === 0,

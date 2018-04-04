@@ -30,6 +30,26 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
+  [3]: (state: AppState) => ({
+    currentUserInfo: state.currentUserInfo,
+    entryStore: state.entryStore,
+    threadInfos: state.threadInfos,
+    userInfos: state.userInfos,
+    messageStore: {
+      ...state.messageStore,
+      currentAsOf: state.currentAsOf,
+    },
+    drafts: state.drafts,
+    updatesCurrentAsOf: state.currentAsOf,
+    cookie: state.cookie,
+    deviceToken: state.deviceToken,
+    urlPrefix: state.urlPrefix,
+    customServer: state.customServer,
+    threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+    notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+    messageSentFromRoute: state.messageSentFromRoute,
+    _persist: state._persist,
+  }),
 };
 
 const persistConfig = {
@@ -37,7 +57,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 2,
+  version: 3,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
