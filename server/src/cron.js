@@ -14,6 +14,7 @@ import { deleteOrphanedRoles } from './deleters/role-deleters';
 import { deleteOrphanedMessages } from './deleters/message-deleters';
 import { deleteOrphanedFocused } from './deleters/activity-deleters';
 import { deleteOrphanedNotifs } from './deleters/notif-deleters';
+import { deleteExpiredUpdates } from './deleters/update-deleters';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -32,6 +33,7 @@ if (cluster.isMaster) {
       await deleteOrphanedMessages();
       await deleteOrphanedFocused();
       await deleteOrphanedNotifs();
+      await deleteExpiredUpdates();
     },
   );
 }
