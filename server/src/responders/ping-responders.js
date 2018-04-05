@@ -108,15 +108,17 @@ async function pingResponder(
     ...threadsResult.userInfos,
   });
 
+  const messagesCurrentAsOf = mostRecentMessageTimestamp(
+    messagesResult.rawMessageInfos,
+    clientMessagesCurrentAsOf,
+  );
   const response: PingResponse = {
     threadInfos: threadsResult.threadInfos,
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
-    messagesCurrentAsOf: mostRecentMessageTimestamp(
-      messagesResult.rawMessageInfos,
-      clientMessagesCurrentAsOf,
-    ),
+    messagesCurrentAsOf,
+    serverTime: messagesCurrentAsOf,
     rawEntryInfos: entriesResult.rawEntryInfos,
     userInfos,
   };

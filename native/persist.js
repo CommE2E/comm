@@ -30,7 +30,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: (state: AppState) => ({
+  [3]: (state: Object) => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
