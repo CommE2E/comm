@@ -35,7 +35,7 @@ type ThreadRestriction = {|
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
-  messageDatas: MessageData[],
+  messageDatas: $ReadOnlyArray<MessageData>,
 ): Promise<RawMessageInfo[]> {
   if (messageDatas.length === 0) {
     return [];

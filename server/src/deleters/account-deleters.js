@@ -5,6 +5,7 @@ import type {
   DeleteAccountRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
+import { updateType } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -12,6 +13,8 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 import { createNewAnonymousCookie } from '../session/cookies';
+import { fetchAllUserIDs } from '../fetchers/user-fetchers';
+import { createUpdates } from '../creators/update-creator';
 
 async function deleteAccount(
   viewer: Viewer,
@@ -32,6 +35,7 @@ async function deleteAccount(
   }
 
   // TODO: if this results in any orphaned orgs, convert them to chats
+  const deletedUserID = viewer.userID;
   const deletionQuery = SQL`
     DELETE u, iu, v, iv, c, ic, m, f, n, ino
     FROM users u
@@ -44,13 +48,16 @@ async function deleteAccount(
     LEFT JOIN focused f ON f.user = u.id
     LEFT JOIN notifications n ON n.user = u.id
     LEFT JOIN ids ino ON ino.id = n.id
-    WHERE u.id = ${viewer.userID}
+    WHERE u.id = ${deletedUserID}
   `;
-  const [ anonymousViewerData ] = await Promise.all([
+  const [ anonymousViewerData, allUserIDs ] = await Promise.all([
     createNewAnonymousCookie(),
+    fetchAllUserIDs(),
     dbQuery(deletionQuery),
   ]);
   viewer.setNewCookie(anonymousViewerData);
+
+  sendAccountDeletionUpdates(deletedUserID, allUserIDs);
 
   return {
     currentUserInfo: {
@@ -58,6 +65,20 @@ async function deleteAccount(
       anonymous: true,
     },
   };
+}
+
+async function sendAccountDeletionUpdates(
+  deletedUserID: string,
+  allUserIDs: $ReadOnlyArray<string>,
+): Promise<void> {
+  const time = Date.now();
+  const updateDatas = allUserIDs.map(userID => ({
+    type: updateType.DELETE_ACCOUNT,
+    userID,
+    time,
+    deletedUserID,
+  }));
+  await createUpdates(updateDatas);
 }
 
 export {

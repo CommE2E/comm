@@ -89,9 +89,16 @@ async function fetchCurrentUserInfo(
   };
 }
 
+async function fetchAllUserIDs(): Promise<string[]> {
+  const query = SQL`SELECT id FROM users`;
+  const [ result ] = await dbQuery(query);
+  return result.map(row => row.id.toString());
+}
+
 export {
   fetchUserInfos,
   verifyUserIDs,
   verifyUserOrCookieIDs,
   fetchCurrentUserInfo,
+  fetchAllUserIDs,
 };
