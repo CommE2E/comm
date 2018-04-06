@@ -37,9 +37,12 @@ async function pingResponder(
   validateInput(pingRequestInputValidator, request);
 
   let clientMessagesCurrentAsOf;
-  if (request.messagesCurrentAsOf) {
+  if (
+    request.messagesCurrentAsOf !== null &&
+    request.messagesCurrentAsOf !== undefined
+  ) {
     clientMessagesCurrentAsOf = request.messagesCurrentAsOf;
-  } else if (request.lastPing) {
+  } else if (request.lastPing !== null && request.lastPing !== undefined) {
     clientMessagesCurrentAsOf = request.lastPing;
   }
   if (!clientMessagesCurrentAsOf) {
