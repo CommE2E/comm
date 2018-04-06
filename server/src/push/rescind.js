@@ -18,7 +18,7 @@ async function rescindPushNotifs(
     FROM notifications n
     LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0
     WHERE n.rescinded = 0 AND
-  `;
+  `);
   fetchQuery.append(notifCondition);
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
   const [ fetchResult ] = await dbQuery(fetchQuery);
