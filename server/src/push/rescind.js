@@ -5,14 +5,21 @@ import apn from 'apn';
 import { dbQuery, SQL, SQLStatement } from '../database';
 import { apnPush, fcmPush } from './utils';
 
-async function rescindPushNotifs(condition: SQLStatement) {
+async function rescindPushNotifs(
+  notifCondition: SQLStatement,
+  inputCountCondition?: SQLStatement,
+) {
   const fetchQuery = SQL`
-    SELECT n.id, n.delivery, n.collapse_key, COUNT(m.thread) AS unread_count
+    SELECT n.id, n.delivery, n.collapse_key, COUNT(
+  `;
+  fetchQuery.append(inputCountCondition ? inputCountCondition : SQL`m.thread`);
+  fetchQuery.append(SQL`
+      ) AS unread_count
     FROM notifications n
     LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0
     WHERE n.rescinded = 0 AND
   `;
-  fetchQuery.append(condition);
+  fetchQuery.append(notifCondition);
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
   const [ fetchResult ] = await dbQuery(fetchQuery);
 

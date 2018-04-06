@@ -45,6 +45,11 @@ async function deleteThread(
     throw new ServerError('invalid_credentials');
   }
 
+  await rescindPushNotifs(
+    SQL`n.thread = ${threadDeletionRequest.threadID}`,
+    SQL`IF(m.thread = ${threadDeletionRequest.threadID}, NULL, 1)`,
+  );
+
   // TODO: if org, delete all descendant threads as well. make sure to warn user
   const query = SQL`
     DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, f, n, ino
@@ -67,8 +72,6 @@ async function deleteThread(
     WHERE t.id = ${threadDeletionRequest.threadID}
   `;
   await dbQuery(query);
-
-  rescindPushNotifs(SQL`n.thread = ${threadDeletionRequest.threadID}`);
 
   const { threadInfos } = await fetchThreadInfos(viewer);
   return { threadInfos };
