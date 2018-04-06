@@ -22,7 +22,7 @@
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme">
       <receiver android:name="com.evollu.react.fcm.FIRLocalMessagingPublisher"/>
-      <receiver android:enabled="true" android:exported="true"  android:name="com.evollu.react.fcm.FIRSystemBootEventReceiver">
+      <receiver android:enabled="true" android:exported="true" android:name="com.evollu.react.fcm.FIRSystemBootEventReceiver">
         <intent-filter>
           <action android:name="android.intent.action.BOOT_COMPLETED"/>
           <action android:name="android.intent.action.QUICKBOOT_POWERON"/>

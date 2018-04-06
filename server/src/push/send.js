@@ -384,22 +384,26 @@ function prepareAndroidNotification(
   const notifID = collapseKey ? collapseKey : dbID;
   if (badgeOnly) {
     return {
-      badgeCount: unreadCount.toString(),
-      messageInfos: JSON.stringify(newRawMessageInfos),
-      notifID,
+      data: {
+        badge: unreadCount.toString(),
+        messageInfos: JSON.stringify(newRawMessageInfos),
+        notifID,
+      },
     };
   }
   return {
     data: {
+      badge: unreadCount.toString(),
       custom_notification: JSON.stringify({
         body: notifTextForMessageInfo(allMessageInfos, threadInfo),
+        badgeCount: unreadCount, // TODO: remove this
         id: notifID,
         priority: "high",
         sound: "default",
         icon: "notif_icon",
-        badgeCount: unreadCount,
         threadID: threadInfo.id,
         messageInfos: JSON.stringify(newRawMessageInfos),
+        click_action: "fcm.ACTION.HELLO",
       }),
     }
   };

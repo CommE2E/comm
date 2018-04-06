@@ -591,40 +591,33 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     notification,
     appOpenedFromNotif = false,
   ) => {
-    const badgeCount = notification.badgeCount;
-    if (appOpenedFromNotif) {
-      if (badgeCount === null || badgeCount === undefined) {
-        console.log("Local notification with missing badgeCount received!");
-        return;
-      }
-      // In the appOpenedFromNotif case, the local notif is the only version of
-      // a notif we get, so we do the badge count update here, as well as the
-      // Redux action to integrate the new RawMessageInfos into the state.
-      AppWithNavigationState.updateBadgeCount(badgeCount);
+    if (
+      notification.messageInfos &&
+      (appOpenedFromNotif ||
+        (!notification.custom_notification && !notification.body))
+    ) {
       this.saveMessageInfos(notification.messageInfos);
-    } else if (badgeCount && !notification.body) {
-      // If it's a badgeOnly notif, the badgeCount is delivered directly in the
-      // data payload. However, it's a string, due to weird Google restrictions.
-      AppWithNavigationState.updateBadgeCount(parseInt(badgeCount));
-      // Namely, that top-level fields must be strings, so we JSON.parse here.
-      this.saveMessageInfos(notification.messageInfos);
+    }
+
+    if (notification.body) {
+      this.onPressNotificationForThread(notification.threadID, true);
+      return;
     }
 
     if (notification.custom_notification) {
       const customNotification = JSON.parse(notification.custom_notification);
+      if (customNotification.rescind === "true") {
+        // These are handled by the native layer
+        return;
+      }
+
       const threadID = customNotification.threadID;
-      const customBadgeCount = customNotification.badgeCount;
       if (!threadID) {
         console.log("Server notification with missing threadID received!");
         return;
       }
-      if (!customBadgeCount) {
-        console.log("Local notification with missing badgeCount received!");
-        return;
-      }
 
       this.pingNow();
-      AppWithNavigationState.updateBadgeCount(customBadgeCount);
       this.saveMessageInfos(customNotification.messageInfos);
 
       if (this.currentState === "active") {
@@ -643,14 +636,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           },
         );
       }
-    }
-
-    if (notification.body) {
-      this.onPressNotificationForThread(notification.threadID, true);
-    }
-
-    if (notification.rescind) {
-      FCM.removeDeliveredNotification(notification.notifID);
     }
   }
 

@@ -231,7 +231,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
           actions={floatingActions}
           overrideWithAction
           onPressItem={this.composeThread}
-          buttonColor="#66AA66"
+          color="#66AA66"
         />
       );
     }
