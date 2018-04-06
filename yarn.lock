@@ -7470,9 +7470,9 @@ react-native-exit-app@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-exit-app/-/react-native-exit-app-1.0.0.tgz#a2fbb121d902e6967cd8a365fe8453e5c4bc3172"
 
-react-native-fcm@^11.2.0:
-  version "11.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-fcm/-/react-native-fcm-11.3.1.tgz#eae59deb3972d19fdd8d8b52da18984377276e84"
+"react-native-fcm@git+https://git@github.com/ashoat/react-native-fcm.git":
+  version "14.1.3"
+  resolved "git+https://git@github.com/ashoat/react-native-fcm.git#44d03fc615be26c7e7ac9ab4a9a7569a81325bba"
 
 react-native-floating-action@^1.9.0:
   version "1.10.1"
