@@ -45,7 +45,10 @@ async function pingResponder(
   } else if (request.lastPing !== null && request.lastPing !== undefined) {
     clientMessagesCurrentAsOf = request.lastPing;
   }
-  if (!clientMessagesCurrentAsOf) {
+  if (
+    clientMessagesCurrentAsOf === null ||
+    clientMessagesCurrentAsOf === undefined
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
