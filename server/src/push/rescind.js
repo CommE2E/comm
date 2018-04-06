@@ -46,8 +46,11 @@ async function rescindPushNotifs(
     if (row.delivery.androidID) {
       const notification = {
         data: {
-          rescind: "true",
-          notifID: row.collapse_key ? row.collapse_key : row.id.toString(),
+          badge: row.unread_count.toString(),
+          custom_notification: JSON.stringify({
+            rescind: "true",
+            notifID: row.collapse_key ? row.collapse_key : row.id.toString(),
+          }),
         },
       };
       promises.push(fcmPush(
