@@ -627,7 +627,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           onPress: () => this.onPressNotificationForThread(threadID, false),
         });
       } else {
-        FCM.presentLocalNotification(customNotification);
         this.props.dispatchActionPayload(
           recordAndroidNotificationActionType,
           {
