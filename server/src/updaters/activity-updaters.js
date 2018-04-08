@@ -63,17 +63,7 @@ async function activityUpdater(
 
   const promises = [];
   if (focusedThreadIDs.length > 0) {
-    const time = Date.now();
-    const focusedInsertRows = focusedThreadIDs.map(threadID => [
-      localViewer.userID,
-      localViewer.cookieID,
-      threadID,
-      time,
-    ]);
-    promises.push(dbQuery(SQL`
-      INSERT INTO focused (user, cookie, thread, time)
-      VALUES ${focusedInsertRows}
-    `));
+    promises.push(insertFocusedRows(localViewer, focusedThreadIDs));
     promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
@@ -97,6 +87,29 @@ async function activityUpdater(
   ]);
 
   return { unfocusedToUnread: resetToUnread };
+}
+
+async function insertFocusedRows(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<void> {
+  const time = Date.now();
+  const focusedInsertRows = threadIDs.map(threadID => [
+    viewer.userID,
+    viewer.cookieID,
+    threadID,
+    time,
+  ]);
+  try {
+    await dbQuery(SQL`
+      INSERT INTO focused (user, cookie, thread, time)
+      VALUES ${focusedInsertRows}
+    `);
+  } catch (e) {
+    if (e.code !== "ER_DUP_ENTRY") {
+      throw e;
+    }
+  }
 }
 
 // To protect against a possible race condition, we reset the thread to unread
