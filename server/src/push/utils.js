@@ -28,7 +28,7 @@ async function apnPush(
   const invalidTokens = [];
   for (let error of result.failed) {
     errors.push(error);
-    if (error.status === apnTokenInvalidationErrorCode) {
+    if (error.status == apnTokenInvalidationErrorCode) {
       invalidTokens.push(error.device);
     }
   }
