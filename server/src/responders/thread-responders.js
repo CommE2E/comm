@@ -12,7 +12,7 @@ import {
   type NewThreadResult,
   type ThreadJoinRequest,
   type ThreadJoinResult,
-  assertVisibilityRules,
+  assertThreadType,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 
@@ -99,12 +99,12 @@ async function threadLeaveResponder(
 const updateThreadRequestInputValidator = tShape({
   threadID: t.String,
   changes: tShape({
+    type: t.maybe(tNumEnum(assertThreadType)),
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
     password: t.maybe(t.String),
     parentThreadID: t.maybe(t.String),
-    visibilityRules: t.maybe(tNumEnum(assertVisibilityRules)),
     newMemberIDs: t.maybe(t.list(t.String)),
   }),
   accountPassword: t.maybe(t.String),
@@ -120,12 +120,12 @@ async function threadUpdateResponder(
 }
 
 const newThreadRequestInputValidator = tShape({
+  type: tNumEnum(assertThreadType),
   name: t.maybe(t.String),
   description: t.maybe(t.String),
   color: t.maybe(tColor),
   password: t.maybe(t.String),
   parentThreadID: t.maybe(t.String),
-  visibilityRules: tNumEnum(assertVisibilityRules),
   initialMemberIDs: t.maybe(t.list(t.String)),
 });
 async function threadCreationResponder(

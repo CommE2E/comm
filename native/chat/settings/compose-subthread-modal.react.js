@@ -3,7 +3,7 @@
 import {
   type ThreadInfo,
   threadInfoPropType,
-  visibilityRules,
+  threadTypes,
 } from 'lib/types/thread-types';
 import type { NavigationParams } from 'react-navigation';
 import type { AppState } from '../../redux-setup';
@@ -55,7 +55,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           <Icon name="public" size={32} color="black" />
           <Text style={styles.optionText}>Open</Text>
           <Text style={styles.optionExplanation}>
-            {threadTypeDescriptions[visibilityRules.CHAT_NESTED_OPEN]}
+            {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
@@ -68,7 +68,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           <Icon name="lock-outline" size={32} color="black" />
           <Text style={styles.optionText}>Secret</Text>
           <Text style={styles.optionExplanation}>
-            {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
+            {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
@@ -95,8 +95,8 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       this.props.navigate(
         ComposeThreadRouteName,
         {
+          threadType: threadTypes.CHAT_NESTED_OPEN,
           parentThreadID: this.props.threadInfo.id,
-          visibilityRules: visibilityRules.CHAT_NESTED_OPEN,
         },
       );
       this.waitingToNavigate = false;
@@ -113,8 +113,8 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       this.props.navigate(
         ComposeThreadRouteName,
         {
+          threadType: threadTypes.CHAT_SECRET,
           parentThreadID: this.props.threadInfo.id,
-          visibilityRules: visibilityRules.CHAT_SECRET,
         },
       );
       this.waitingToNavigate = false;

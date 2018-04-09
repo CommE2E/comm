@@ -1,9 +1,9 @@
 // @flow
 
 import {
-  visibilityRules,
-  type VisibilityRules,
-  visibilityRulesPropType,
+  threadTypes,
+  type ThreadType,
+  threadTypePropType,
 } from 'lib/types/thread-types';
 
 import * as React from 'react';
@@ -11,17 +11,17 @@ import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
 
-import { visRulesAreOpen } from 'lib/permissions/thread-permissions';
+import { threadIsOpen } from 'lib/permissions/thread-permissions';
 
 type Props = {|
-  visibilityRules: VisibilityRules,
+  threadType: ThreadType,
   color?: string,
   includeLabel: bool,
 |};
 class ThreadVisibility extends React.PureComponent<Props> {
 
   static propTypes = {
-    visibilityRules: visibilityRulesPropType.isRequired,
+    threadType: threadTypePropType.isRequired,
     color: PropTypes.string,
     includeLabel: PropTypes.bool,
   };
@@ -30,10 +30,10 @@ class ThreadVisibility extends React.PureComponent<Props> {
   };
 
   render() {
-    const visRules = this.props.visibilityRules;
+    const threadType = this.props.threadType;
     const color = this.props.color ? this.props.color : "black";
     const visLabelStyle = [styles.visibilityLabel, { color }];
-    if (visRulesAreOpen(visRules)) {
+    if (threadIsOpen(threadType)) {
       const label = this.props.includeLabel
         ? <Text style={visLabelStyle}>Open</Text>
         : null;

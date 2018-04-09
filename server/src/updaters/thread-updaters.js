@@ -10,8 +10,8 @@ import {
   type ThreadJoinRequest,
   type ThreadJoinResult,
   threadPermissions,
-  visibilityRules,
-  assertVisibilityRules,
+  threadTypes,
+  assertThreadType,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 
@@ -314,12 +314,12 @@ async function updateThread(
     sqlUpdate.parent_thread_id = parentThreadID;
   }
 
-  const visRules = request.changes.visibilityRules; 
-  if (visRules !== null && visRules !== undefined) {
+  const threadType = request.changes.type;
+  if (threadType !== null && threadType !== undefined) {
     if (
-      visRules === visibilityRules.OPEN ||
-      visRules === visibilityRules.CLOSED ||
-      visRules === visibilityRules.SECRET
+      threadType === threadTypes.OPEN ||
+      threadType === threadTypes.CLOSED ||
+      threadType === threadTypes.SECRET
     ) {
       if (parentThreadID) {
         throw new ServerError('invalid_parameters');
@@ -329,16 +329,16 @@ async function updateThread(
       // remove it here!
     }
     if (
-      visRules !== visibilityRules.CLOSED &&
-      visRules !== visibilityRules.SECRET
+      threadType !== threadTypes.CLOSED &&
+      threadType !== threadTypes.SECRET
     ) {
       if (newPassword) {
         throw new ServerError('invalid_parameters');
       }
       sqlUpdate.hash = null;
     }
-    changedFields.visibilityRules = visRules;
-    sqlUpdate.type = visRules;
+    changedFields.type = threadType;
+    sqlUpdate.type = threadType;
   }
 
   const unverifiedNewMemberIDs = request.changes.newMemberIDs;
@@ -430,7 +430,7 @@ async function updateThread(
     }
   }
 
-  const oldVisRules = assertVisibilityRules(validationRow.type);
+  const oldThreadType = assertThreadType(validationRow.type);
   const oldParentThreadID = validationRow.parentThreadID
     ? validationRow.parentThreadID.toString()
     : null;
@@ -438,10 +438,10 @@ async function updateThread(
   // If the thread is being switched to closed, then a password *must* be
   // specified
   if (
-    oldVisRules !== visibilityRules.CLOSED &&
-    oldVisRules !== visibilityRules.SECRET &&
-    (visRules === visibilityRules.CLOSED ||
-      visRules === visibilityRules.CLOSED) &&
+    oldThreadType !== threadTypes.CLOSED &&
+    oldThreadType !== threadTypes.SECRET &&
+    (threadType === threadTypes.CLOSED ||
+      threadType === threadTypes.CLOSED) &&
     !newPassword
   ) {
     throw new ServerError('empty_password');
@@ -449,17 +449,17 @@ async function updateThread(
 
   // If the thread is being switched to nested, a parent must be specified
   if (
-    oldVisRules !== visibilityRules.NESTED_OPEN &&
-    visRules === visibilityRules.NESTED_OPEN &&
+    oldThreadType !== threadTypes.NESTED_OPEN &&
+    threadType === threadTypes.NESTED_OPEN &&
     oldParentThreadID === null &&
     parentThreadID === null
   ) {
     throw new ServerError('no_parent_thread_specified');
   }
 
-  const nextVisRules = visRules !== null && visRules !== undefined
-    ? visRules
-    : oldVisRules;
+  const nextThreadType = threadType !== null && threadType !== undefined
+    ? threadType
+    : oldThreadType;
   const nextParentThreadID = parentThreadID
     ? parentThreadID
     : oldParentThreadID;
@@ -467,9 +467,9 @@ async function updateThread(
   // It is not valid to set a parent thread ID on v1 visibilities
   if (
     (
-      nextVisRules === visibilityRules.OPEN ||
-      nextVisRules === visibilityRules.CLOSED ||
-      nextVisRules === visibilityRules.SECRET
+      nextThreadType === threadTypes.OPEN ||
+      nextThreadType === threadTypes.CLOSED ||
+      nextThreadType === threadTypes.SECRET
     ) && parentThreadID
   ) {
     throw new ServerError('invalid_parameters');
@@ -477,8 +477,8 @@ async function updateThread(
 
   // It is not valid to set a password on anything other than these visibilities
   if (
-    nextVisRules !== visibilityRules.CLOSED &&
-    nextVisRules !== visibilityRules.SECRET &&
+    nextThreadType !== threadTypes.CLOSED &&
+    nextThreadType !== threadTypes.SECRET &&
     newPassword
   ) {
     throw new ServerError('invalid_parameters');
@@ -499,12 +499,12 @@ async function updateThread(
     );
   }
   if (
-    nextVisRules !== oldVisRules ||
+    nextThreadType !== oldThreadType ||
     nextParentThreadID !== oldParentThreadID
   ) {
     savePromises.recalculatePermissionsChangeset = recalculateAllPermissions(
       request.threadID,
-      nextVisRules,
+      nextThreadType,
     );
   }
   const {
@@ -594,11 +594,8 @@ async function joinThread(
   const threadRow = threadResult[0];
 
   // You can only be added to these visibility types if you know the password
-  const visRules = assertVisibilityRules(threadRow.type);
-  if (
-    visRules === visibilityRules.CLOSED ||
-    visRules === visibilityRules.SECRET
-  ) {
+  const threadType = assertThreadType(threadRow.type);
+  if (threadType === threadTypes.CLOSED || threadType === threadTypes.SECRET) {
     if (!threadRow.hash) {
       throw new ServerError('database_corruption');
     }

@@ -1,7 +1,6 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type {
@@ -13,7 +12,6 @@ import React from 'react';
 import { Text, StyleSheet, View, Switch } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { visibilityRules } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
 import {
   updateSubscriptionActionTypes,

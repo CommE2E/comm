@@ -3,8 +3,8 @@
 import {
   type ThreadInfo,
   threadInfoPropType,
-  visibilityRules,
-  assertVisibilityRules,
+  threadTypes,
+  assertThreadType,
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
   type LeaveThreadPayload,
@@ -161,9 +161,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         </div>
       );
     } else if (this.state.currentTabType === "privacy") {
-      let threadTypes = null;
+      let threadTypeSection = null;
       if (this.possiblyChangedValue("parentThreadID")) {
-        threadTypes = (
+        threadTypeSection = (
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Thread type</div>
             <div className={css['form-enum-selector']}>
@@ -172,10 +172,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-open"
-                  value={visibilityRules.CHAT_NESTED_OPEN}
+                  value={threadTypes.CHAT_NESTED_OPEN}
                   checked={
-                    this.possiblyChangedValue("visibilityRules") ===
-                      visibilityRules.CHAT_NESTED_OPEN
+                    this.possiblyChangedValue("type") ===
+                      threadTypes.CHAT_NESTED_OPEN
                   }
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
@@ -184,7 +184,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   <label htmlFor="edit-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[visibilityRules.CHAT_NESTED_OPEN]}
+                      {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
                     </span>
                   </label>
                 </div>
@@ -194,10 +194,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-closed"
-                  value={visibilityRules.CHAT_SECRET}
+                  value={threadTypes.CHAT_SECRET}
                   checked={
-                    this.possiblyChangedValue("visibilityRules") ===
-                      visibilityRules.CHAT_SECRET
+                    this.possiblyChangedValue("type") ===
+                      threadTypes.CHAT_SECRET
                   }
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
@@ -206,7 +206,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   <label htmlFor="edit-thread-closed">
                     Secret
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
+                      {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
                     </span>
                   </label>
                 </div>
@@ -217,7 +217,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       }
       mainContent = (
         <div className={css['edit-thread-privacy-container']}>
-          {threadTypes}
+          {threadTypeSection}
         </div>
       );
     } else if (this.state.currentTabType === "delete") {
@@ -379,7 +379,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        visibilityRules: assertVisibilityRules(parseInt(target.value)),
+        type: assertThreadType(parseInt(target.value)),
       },
     }));
   }
@@ -403,13 +403,13 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     event.preventDefault();
 
     const name = this.possiblyChangedValue("name").trim();
-    const visRules = this.possiblyChangedValue("visibilityRules");
+    const threadType = this.possiblyChangedValue("type");
 
-    if (visRules >= visibilityRules.CLOSED) {
+    if (threadType >= threadTypes.CLOSED) {
       // If the thread is currently open but is being switched to closed,
       // then a password *must* be specified
       if (
-        this.props.threadInfo.visibilityRules < visibilityRules.CLOSED &&
+        this.props.threadInfo.type < threadTypes.CLOSED &&
         this.state.newThreadPassword.trim() === ''
       ) {
         this.setState(

@@ -6,6 +6,7 @@ import {
   threadPermissions,
   type LeaveThreadPayload,
   type ThreadJoinPayload,
+  threadTypes,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -37,7 +38,6 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
-import { visibilityRules } from 'lib/types/thread-types';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -76,11 +76,11 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
   render() {
     // We show "Closed" if the viewer is not a member, and either they don't
     // have permission to join the thread, or they are password-protected
-    // visibilityRules.CLOSED threads.
+    // threadTypes.CLOSED threads.
     const isMember = viewerIsMember(this.props.threadInfo);
     const showClosed =
       !isMember && (
-        this.props.threadInfo.visibilityRules === visibilityRules.CLOSED ||
+        this.props.threadInfo.type === threadTypes.CLOSED ||
         !threadHasPermission(
           this.props.threadInfo,
           threadPermissions.JOIN_THREAD,

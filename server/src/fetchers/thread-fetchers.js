@@ -1,18 +1,16 @@
 // @flow
 
-import type {
-  RawThreadInfo,
-  ServerThreadInfo,
-  ThreadPermission,
+import {
+  type RawThreadInfo,
+  type ServerThreadInfo,
+  type ThreadPermission,
+  assertThreadType,
+  threadPermissions,
 } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import type { PermissionsInfo } from 'lib/permissions/thread-permissions';
 import type { Viewer } from '../session/viewer';
 
-import {
-  assertVisibilityRules,
-  threadPermissions,
-} from 'lib/types/thread-types';
 import {
   getAllThreadPermissions,
   permissionHelper,
@@ -56,9 +54,9 @@ async function fetchServerThreadInfos(
     if (!threadInfos[threadID]) {
       threadInfos[threadID] = {
         id: threadID,
+        type: row.type,
         name: row.name ? row.name : "",
         description: row.description ? row.description : "",
-        visibilityRules: row.type,
         color: row.color,
         creationTime: row.creation_time,
         parentThreadID: row.parent_thread_id
@@ -82,7 +80,7 @@ async function fetchServerThreadInfos(
       const allPermissions = getAllThreadPermissions(
         {
           permissions: row.permissions,
-          visibilityRules: assertVisibilityRules(row.type),
+          threadType: assertThreadType(row.type),
         },
         threadID,
       );
@@ -188,7 +186,7 @@ async function fetchThreadPermissionsInfo(
   const row = result[0];
   return {
     permissions: row.permissions,
-    visibilityRules: assertVisibilityRules(row.type),
+    threadType: assertThreadType(row.type),
   };
 }
 

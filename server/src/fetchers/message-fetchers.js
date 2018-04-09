@@ -13,9 +13,9 @@ import {
   type FetchMessageInfosResult,
 } from 'lib/types/message-types';
 import {
-  assertVisibilityRules,
+  assertThreadType,
   threadPermissions,
-  visibilityRules,
+  threadTypes,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 
@@ -106,7 +106,7 @@ async function fetchCollapsableNotifs(
     WHERE
       (
         JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.type = ${visibilityRules.OPEN}
+        OR t.type = ${threadTypes.OPEN}
       )
       AND n.rescinded = 0
       AND
@@ -172,7 +172,7 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   } else if (type === messageType.CREATE_SUB_THREAD) {
     const subthreadPermissionInfo = {
       permissions: row.subthread_permissions,
-      visibilityRules: assertVisibilityRules(row.subthread_type),
+      threadType: assertThreadType(row.subthread_type),
     };
     if (!permissionHelper(subthreadPermissionInfo, threadPermissions.KNOW_OF)) {
       return null;
@@ -321,7 +321,7 @@ async function fetchMessageInfos(
         WHERE
           (
             JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-            OR t.type = ${visibilityRules.OPEN}
+            OR t.type = ${threadTypes.OPEN}
           )
           AND
   `;
@@ -461,7 +461,7 @@ async function fetchMessageInfosSince(
     WHERE
       (
         JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-        OR t.type = ${visibilityRules.OPEN}
+        OR t.type = ${threadTypes.OPEN}
       )
       AND m.time > ${currentAsOf}
       AND

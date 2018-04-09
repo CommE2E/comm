@@ -7,8 +7,9 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
-  type VisibilityRules,
-  visibilityRules,
+  type ThreadType,
+  threadTypes,
+  threadTypePropType,
   type NewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
@@ -72,8 +73,8 @@ const tagInputProps = {
 type NavProp =
   & NavigationScreenProp<NavigationRoute>
   & { state: { params: {
+      threadType?: ThreadType,
       parentThreadID?: string,
-      visibilityRules?: VisibilityRules,
       createButtonDisabled?: bool,
     } } };
 
@@ -126,7 +127,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           parentThreadID: PropTypes.string,
-          visibilityRules: PropTypes.number,
+          threadType: threadTypePropType,
         }).isRequired,
       }).isRequired,
       setParams: PropTypes.func.isRequired,
@@ -296,14 +297,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         parentThreadInfo,
         `can't find ThreadInfo for parent ${parentThreadID}`,
       );
-      const visRules = this.props.navigation.state.params.visibilityRules;
+      const threadType = this.props.navigation.state.params.threadType;
       invariant(
-        visRules !== undefined && visRules !== null,
-        `no visibilityRules provided for ${parentThreadID}`,
+        threadType !== undefined && threadType !== null,
+        `no threadType provided for ${parentThreadID}`,
       );
       parentThreadRow = (
         <View style={styles.parentThreadRow}>
-          <ThreadVisibility visibilityRules={visRules} />
+          <ThreadVisibility threadType={threadType} />
           <Text style={styles.parentThreadLabel}>within</Text>
           <Text style={styles.parentThreadName}>
             {parentThreadInfo.uiName}
@@ -438,14 +439,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   async newChatThreadAction() {
     this.props.navigation.setParams({ createButtonDisabled: true });
     try {
-      const visRules = this.props.navigation.state.params.visibilityRules
-        ? this.props.navigation.state.params.visibilityRules
-        : visibilityRules.CHAT_SECRET;
+      const threadType = this.props.navigation.state.params.threadType
+        ? this.props.navigation.state.params.threadType
+        : threadTypes.CHAT_SECRET;
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
       return await this.props.newThread({
-        visibilityRules: visRules,
+        type: threadType,
         parentThreadID: this.props.parentThreadInfo
           ? this.props.parentThreadInfo.id
           : null,

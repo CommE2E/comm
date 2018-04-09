@@ -1,15 +1,18 @@
 // @flow
 
-import type { MessageData, RawMessageInfo } from 'lib/types/message-types';
+import {
+  messageType,
+  type MessageData,
+  type RawMessageInfo,
+} from 'lib/types/message-types';
+import {
+  threadTypes,
+  threadPermissions,
+  assertThreadType,
+} from 'lib/types/thread-types';
 
 import invariant from 'invariant';
 
-import { messageType } from 'lib/types/message-types';
-import {
-  visibilityRules,
-  threadPermissions,
-  assertVisibilityRules,
-} from 'lib/types/thread-types';
 import {
   rawMessageInfoFromMessageData,
   messageTypeGeneratesNotifs,
@@ -194,7 +197,7 @@ async function updateUnreadStatus(
       condition.append(SQL`.permissions, ${knowOfExtractString}) IS TRUE `);
       condition.append(SQL`OR st`);
       condition.append(index);
-      condition.append(SQL`.type = ${visibilityRules.OPEN})`);
+      condition.append(SQL`.type = ${threadTypes.OPEN})`);
       conditions.push(condition);
     }
     threadConditionClauses.push(mergeAndConditions(conditions));
@@ -220,7 +223,7 @@ async function updateUnreadStatus(
     SET m.unread = 1
     WHERE m.role != 0 AND f.user IS NULL AND (
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-      OR t.type = ${visibilityRules.OPEN}
+      OR t.type = ${threadTypes.OPEN}
     ) AND
   `);
   query.append(conditionClause);
@@ -283,7 +286,7 @@ async function sendPushNotifsForNewMessages(
     WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND
       (
         JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-        OR t.type = ${visibilityRules.OPEN}
+        OR t.type = ${threadTypes.OPEN}
       ) AND
   `);
   query.append(conditionClause);
@@ -305,9 +308,7 @@ async function sendPushNotifsForNewMessages(
       for (let subthread of subthreadPermissionsToCheck) {
         const permissionsInfo = {
           permissions: row[`subthread${subthread}_permissions`],
-          visibilityRules: assertVisibilityRules(
-            row[`subthread${subthread}_type`],
-          ),
+          threadType: assertThreadType(row[`subthread${subthread}_type`]),
         };
         const isSubthreadMember = !!row[`subthread${subthread}_role`];
         // Only include the notification from the superthread if there is no

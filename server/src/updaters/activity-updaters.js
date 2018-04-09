@@ -5,13 +5,13 @@ import type {
   UpdateActivityResult,
   UpdateActivityRequest,
 } from 'lib/types/activity-types';
+import { messageType } from 'lib/types/message-types';
+import { threadTypes, threadPermissions } from 'lib/types/thread-types';
 
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
-import { messageType } from 'lib/types/message-types';
-import { visibilityRules, threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
@@ -148,7 +148,7 @@ async function possiblyResetThreadsToUnread(
     WHERE m.thread IN (${unreadCandidates}) AND
       (
         m.type != ${messageType.CREATE_SUB_THREAD} OR
-        st.type = ${visibilityRules.OPEN} OR
+        st.type = ${threadTypes.OPEN} OR
         JSON_EXTRACT(stm.permissions, ${knowOfExtractString}) IS TRUE
       )
     GROUP BY m.thread

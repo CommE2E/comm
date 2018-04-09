@@ -5,6 +5,8 @@ import type {
   RegisterRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
+import { threadTypes } from 'lib/types/thread-types';
+import { messageType } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -13,8 +15,6 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 import { ServerError } from 'lib/utils/errors';
-import { visibilityRules } from 'lib/types/thread-types';
-import { messageType } from 'lib/types/message-types';
 import ashoat from 'lib/facts/ashoat';
 
 import { dbQuery, SQL } from '../database';
@@ -94,15 +94,15 @@ async function createAccount(
     createThread(
       viewer,
       {
+        type: threadTypes.CHAT_SECRET,
         name: request.username,
         description: "your personal calendar",
-        visibilityRules: visibilityRules.CHAT_SECRET,
       },
     ),
     createThread(
       viewer,
       {
-        visibilityRules: visibilityRules.CHAT_SECRET,
+        type: threadTypes.CHAT_SECRET,
         initialMemberIDs: [ashoat.id],
       },
     ),

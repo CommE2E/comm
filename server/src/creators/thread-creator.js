@@ -3,9 +3,10 @@
 import {
   type NewThreadRequest,
   type NewThreadResult,
-  visibilityRules,
+  threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
+import { messageType } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
@@ -13,7 +14,6 @@ import bcrypt from 'twin-bcrypt';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
-import { messageType } from 'lib/types/message-types';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
@@ -36,17 +36,14 @@ async function createThread(
     throw new ServerError('not_logged_in');
   }
 
-  const visRules = request.visibilityRules;
+  const threadType = request.type;
   let password = null;
-  if (
-    visRules === visibilityRules.CLOSED ||
-    visRules === visibilityRules.SECRET
-  ) {
+  if (threadType === threadTypes.CLOSED || threadType === threadTypes.SECRET) {
     if (!request.password || request.password.trim() === "") {
       throw new ServerError('empty_password');
     }
     password = request.password;
-  } else if (visRules === visibilityRules.NESTED_OPEN) {
+  } else if (threadType === threadTypes.NESTED_OPEN) {
     if (!request.parentThreadID) {
       throw new ServerError('invalid_parameters');
     }
@@ -55,9 +52,9 @@ async function createThread(
   let parentThreadID = null;
   if (request.parentThreadID) {
     if (
-      visRules === visibilityRules.OPEN ||
-      visRules === visibilityRules.CLOSED ||
-      visRules === visibilityRules.SECRET
+      threadType === threadTypes.OPEN ||
+      threadType === threadTypes.CLOSED ||
+      threadType === threadTypes.SECRET
     ) {
       throw new ServerError('invalid_parameters');
     }
@@ -85,9 +82,9 @@ async function createThread(
 
   const row = [
     id,
+    threadType,
     name,
     description,
-    visRules,
     hash,
     viewer.userID,
     time,
@@ -96,7 +93,7 @@ async function createThread(
     newRoles.default.id,
   ];
   const query = SQL`
-    INSERT INTO threads(id, name, description, visibility_rules, hash, creator,
+    INSERT INTO threads(id, type, name, description, hash, creator,
       creation_time, color, parent_thread_id, default_role)
     VALUES ${[row]}
   `;
@@ -116,7 +113,7 @@ async function createThread(
     initialMemberIDs && initialMemberIDs.length > 0
       ? changeRole(id, initialMemberIDs, null)
       : undefined,
-    recalculateAllPermissions(id, visRules),
+    recalculateAllPermissions(id, threadType),
   ]);
   if (!creatorChangeset) {
     throw new ServerError('unknown_error');
@@ -160,7 +157,7 @@ async function createThread(
       const member = {
         id: rowToSave.userID,
         permissions: getAllThreadPermissions(
-          { permissions: rowToSave.permissions, visibilityRules: visRules },
+          { permissions: rowToSave.permissions, threadType },
           id,
         ),
         role: rowToSave.role && rowToSave.role !== "0"
@@ -188,9 +185,9 @@ async function createThread(
     creatorID: viewer.userID,
     time,
     initialThreadState: {
+      type: threadType,
       name,
       parentThreadID,
-      visibilityRules: visRules,
       color,
       memberIDs: initialMemberAndCreatorIDs,
     },
@@ -218,9 +215,9 @@ async function createThread(
   return {
     newThreadInfo: {
       id,
+      type: threadType,
       name,
       description,
-      visibilityRules: visRules,
       color,
       creationTime: time,
       parentThreadID,

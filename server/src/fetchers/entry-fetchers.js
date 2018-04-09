@@ -5,14 +5,14 @@ import type {
   FetchEntryInfosResponse,
 } from 'lib/types/entry-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
-import type { ThreadPermission } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
-
 import {
   threadPermissions,
-  visibilityRules,
-  assertVisibilityRules,
+  threadTypes,
+  assertThreadType,
+  type ThreadPermission,
 } from 'lib/types/thread-types';
+
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
@@ -42,7 +42,7 @@ async function fetchEntryInfos(
     WHERE
       (
         JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.type = ${visibilityRules.OPEN}
+        OR t.type = ${threadTypes.OPEN}
       )
       AND d.date BETWEEN ${entryQuery.startDate} AND ${entryQuery.endDate}
   `;
@@ -103,7 +103,7 @@ async function checkThreadPermissionForEntry(
   }
   const permissionsInfo = {
     permissions: row.permissions,
-    visibilityRules: assertVisibilityRules(row.type),
+    threadType: assertThreadType(row.type),
   };
   return permissionHelper(permissionsInfo, permission);
 }

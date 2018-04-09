@@ -723,7 +723,7 @@ process.umask = function() { return 0; };
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["b"] = assertVisibilityRules;
+/* harmony export (immutable) */ __webpack_exports__["b"] = assertThreadType;
 /* harmony export (immutable) */ __webpack_exports__["a"] = assertThreadPermissions;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_prop_types__);
@@ -735,19 +735,19 @@ process.umask = function() { return 0; };
 
 
 
-const visibilityRules = Object.freeze({
+const threadTypes = Object.freeze({
   OPEN: 0,
   CLOSED: 1,
   SECRET: 2,
   CHAT_NESTED_OPEN: 3,
   CHAT_SECRET: 4
 });
-/* harmony export (immutable) */ __webpack_exports__["f"] = visibilityRules;
+/* harmony export (immutable) */ __webpack_exports__["g"] = threadTypes;
 
 
-function assertVisibilityRules(ourVisibilityRules) {
-  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(ourVisibilityRules === 0 || ourVisibilityRules === 1 || ourVisibilityRules === 2 || ourVisibilityRules === 3 || ourVisibilityRules === 4, "number is not visibilityRules enum");
-  return ourVisibilityRules;
+function assertThreadType(threadType) {
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(threadType === 0 || threadType === 1 || threadType === 2 || threadType === 3 || threadType === 4, "number is not ThreadType enum");
+  return threadType;
 }
 
 // Keep in sync with server/permissions.php
@@ -810,8 +810,8 @@ const relativeMemberInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___defa
 /* unused harmony export relativeMemberInfoPropType */
 
 
-const visibilityRulesPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.oneOf([visibilityRules.OPEN, visibilityRules.CLOSED, visibilityRules.SECRET, visibilityRules.CHAT_NESTED_OPEN, visibilityRules.CHAT_SECRET]);
-/* harmony export (immutable) */ __webpack_exports__["g"] = visibilityRulesPropType;
+const threadTypePropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.oneOf([threadTypes.OPEN, threadTypes.CLOSED, threadTypes.SECRET, threadTypes.CHAT_NESTED_OPEN, threadTypes.CHAT_SECRET]);
+/* harmony export (immutable) */ __webpack_exports__["f"] = threadTypePropType;
 
 
 const rolePropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape({
@@ -833,9 +833,9 @@ const currentUserPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.s
 
 const rawThreadInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape({
   id: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
+  type: threadTypePropType.isRequired,
   name: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
   description: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
-  visibilityRules: visibilityRulesPropType.isRequired,
   color: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   creationTime: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.number.isRequired,
   parentThreadID: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
@@ -848,10 +848,10 @@ const rawThreadInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a
 
 const threadInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape({
   id: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
+  type: threadTypePropType.isRequired,
   name: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
   uiName: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   description: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
-  visibilityRules: visibilityRulesPropType.isRequired,
   color: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   creationTime: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.number.isRequired,
   parentThreadID: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
@@ -2004,7 +2004,7 @@ function rawThreadInfoFromServerThreadInfo(serverThreadInfo, viewerID) {
   } else {
     currentUserPermissions = Object(__WEBPACK_IMPORTED_MODULE_3__permissions_thread_permissions__["a" /* getAllThreadPermissions */])({
       permissions: null,
-      visibilityRules: serverThreadInfo.visibilityRules
+      threadType: serverThreadInfo.type
     }, serverThreadInfo.id);
     currentUser = {
       role: null,
@@ -2022,9 +2022,9 @@ function rawThreadInfoFromServerThreadInfo(serverThreadInfo, viewerID) {
 
   return {
     id: serverThreadInfo.id,
+    type: serverThreadInfo.type,
     name: serverThreadInfo.name,
     description: serverThreadInfo.description,
-    visibilityRules: serverThreadInfo.visibilityRules,
     color: serverThreadInfo.color,
     creationTime: serverThreadInfo.creationTime,
     parentThreadID: serverThreadInfo.parentThreadID,
@@ -2037,10 +2037,10 @@ function rawThreadInfoFromServerThreadInfo(serverThreadInfo, viewerID) {
 function threadInfoFromRawThreadInfo(rawThreadInfo, viewerID, userInfos) {
   return {
     id: rawThreadInfo.id,
+    type: rawThreadInfo.type,
     name: rawThreadInfo.name,
     uiName: threadUIName(rawThreadInfo, viewerID, userInfos),
     description: rawThreadInfo.description,
-    visibilityRules: rawThreadInfo.visibilityRules,
     color: rawThreadInfo.color,
     creationTime: rawThreadInfo.creationTime,
     parentThreadID: rawThreadInfo.parentThreadID,
@@ -2053,9 +2053,9 @@ function threadInfoFromRawThreadInfo(rawThreadInfo, viewerID, userInfos) {
 function rawThreadInfoFromThreadInfo(threadInfo) {
   return {
     id: threadInfo.id,
+    type: threadInfo.type,
     name: threadInfo.name,
     description: threadInfo.description,
-    visibilityRules: threadInfo.visibilityRules,
     color: threadInfo.color,
     creationTime: threadInfo.creationTime,
     parentThreadID: threadInfo.parentThreadID,
@@ -2066,8 +2066,8 @@ function rawThreadInfoFromThreadInfo(threadInfo) {
 }
 
 const threadTypeDescriptions = {
-  [__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN]: "Anybody in the parent thread can see an open child thread.",
-  [__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CHAT_SECRET]: "Only visible to its members and admins of ancestor threads."
+  [__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN]: "Anybody in the parent thread can see an open child thread.",
+  [__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].CHAT_SECRET]: "Only visible to its members and admins of ancestor threads."
 };
 
 
@@ -2408,9 +2408,6 @@ module.exports = map;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return joinThread; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return leaveThreadActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return leaveThread; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_thread_types__ = __webpack_require__(10);
-
-
 const deleteThreadActionTypes = Object.freeze({
   started: "DELETE_THREAD_STARTED",
   success: "DELETE_THREAD_SUCCESS",
@@ -10077,9 +10074,9 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired,
   initialThreadState: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
+    type: __WEBPACK_IMPORTED_MODULE_0__thread_types__["f" /* threadTypePropType */].isRequired,
     name: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string,
     parentThreadInfo: __WEBPACK_IMPORTED_MODULE_0__thread_types__["c" /* threadInfoPropType */],
-    visibilityRules: __WEBPACK_IMPORTED_MODULE_0__thread_types__["g" /* visibilityRulesPropType */].isRequired,
     color: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
     otherMembers: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.arrayOf(__WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */]).isRequired
   }).isRequired
@@ -26782,7 +26779,6 @@ var black = "#000000";
 
 
 
-
 class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
   constructor(...args) {
     var _temp;
@@ -26870,9 +26866,9 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
   render() {
     // We show "Closed" if the viewer is not a member, and either they don't
     // have permission to join the thread, or they are password-protected
-    // visibilityRules.CLOSED threads.
+    // threadTypes.CLOSED threads.
     const isMember = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["g" /* viewerIsMember */])(this.props.threadInfo);
-    const showClosed = !isMember && (this.props.threadInfo.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED || !Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["d" /* threadHasPermission */])(this.props.threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].JOIN_THREAD));
+    const showClosed = !isMember && (this.props.threadInfo.type === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CLOSED || !Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["d" /* threadHasPermission */])(this.props.threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].JOIN_THREAD));
     if (showClosed) {
       return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
         'ul',
@@ -35732,7 +35728,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       initialThreadState: {
         name: rawMessageInfo.initialThreadState.name,
         parentThreadInfo,
-        visibilityRules: rawMessageInfo.initialThreadState.visibilityRules,
+        type: rawMessageInfo.initialThreadState.type,
         color: rawMessageInfo.initialThreadState.color,
         otherMembers: Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.initialThreadState.memberIDs.filter(userID => userID !== rawMessageInfo.creatorID), viewerID, userInfos)
       }
@@ -37567,7 +37563,7 @@ function pluralize(nouns) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return permissionLookup; });
 /* unused harmony export permissionHelper */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return getAllThreadPermissions; });
-/* unused harmony export visRulesAreOpen */
+/* unused harmony export threadIsOpen */
 /* unused harmony export makePermissionsBlob */
 /* unused harmony export makePermissionsForChildrenBlob */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_thread_types__ = __webpack_require__(10);
@@ -37584,9 +37580,9 @@ function permissionHelper(permissionsInfo, permission) {
   if (!permissionsInfo) {
     return false;
   }
-  const visRules = permissionsInfo.visibilityRules;
-  if (permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].KNOW_OF && (visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].OPEN || visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CLOSED) || permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE && visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].OPEN || permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].JOIN_THREAD && (visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].OPEN || visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CLOSED || // with closed or secret, you
-  visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].SECRET // need to know thread password
+  const threadType = permissionsInfo.threadType;
+  if (permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].KNOW_OF && (threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].OPEN || threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].CLOSED) || permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE && threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].OPEN || permission === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].JOIN_THREAD && (threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].OPEN || threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].CLOSED || // with closed or secret, you
+  threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].SECRET // need to know thread password
   )) {
     return true;
   }
@@ -37611,21 +37607,21 @@ function getAllThreadPermissions(permissionsInfo, threadID) {
   return result;
 }
 
-function visRulesAreOpen(visRules) {
-  return visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].OPEN || visRules === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN;
+function threadIsOpen(threadType) {
+  return threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].OPEN || threadType === __WEBPACK_IMPORTED_MODULE_0__types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN;
 }
 
 // - rolePermissions can be null if role = 0, ie. not a member
 // - permissionsFromParent can be null if there are no permissions from the
 //   parent
 // - return can be null if no permissions exist
-function makePermissionsBlob(rolePermissions, permissionsFromParent, threadID, visRules) {
+function makePermissionsBlob(rolePermissions, permissionsFromParent, threadID, threadType) {
   const permissions = {};
 
   if (permissionsFromParent) {
     for (let permissionKey in permissionsFromParent) {
       const permissionValue = permissionsFromParent[permissionKey];
-      if (!visRulesAreOpen(visRules) && (permissionKey.startsWith(__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["d" /* threadPermissionPrefixes */].OPEN_DESCENDANT) || permissionKey.startsWith(__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["d" /* threadPermissionPrefixes */].OPEN))) {
+      if (!threadIsOpen(threadType) && (permissionKey.startsWith(__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["d" /* threadPermissionPrefixes */].OPEN_DESCENDANT) || permissionKey.startsWith(__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["d" /* threadPermissionPrefixes */].OPEN))) {
         continue;
       }
       if (permissionKey.startsWith(__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["d" /* threadPermissionPrefixes */].OPEN)) {
@@ -45992,7 +45988,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
         const target = event.target;
         __WEBPACK_IMPORTED_MODULE_2_invariant___default()(target instanceof HTMLInputElement, "target not input");
         this.setState({
-          visibilityRules: Object(__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["b" /* assertVisibilityRules */])(parseInt(target.value))
+          threadType: Object(__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["b" /* assertThreadType */])(parseInt(target.value))
         });
       }
     });
@@ -46002,9 +45998,9 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
       value: event => {
         event.preventDefault();
 
-        const ourVisibilityRules = this.state.visibilityRules;
-        __WEBPACK_IMPORTED_MODULE_2_invariant___default()(ourVisibilityRules !== null, "visibilityRules state should never be set to null");
-        if (ourVisibilityRules === undefined) {
+        const threadType = this.state.threadType;
+        __WEBPACK_IMPORTED_MODULE_2_invariant___default()(threadType !== null, "threadType state should never be set to null");
+        if (threadType === undefined) {
           this.setState({
             errorMessage: "visibility unspecified"
           }, () => {
@@ -46014,14 +46010,14 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
           return;
         }
 
-        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["k" /* newThreadActionTypes */], this.newThreadAction(ourVisibilityRules));
+        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["k" /* newThreadActionTypes */], this.newThreadAction(threadType));
       }
     });
     this.state = {
+      threadType: props.parentThreadID ? undefined : __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET,
       name: "",
       description: "",
       color: props.parentThreadInfo ? props.parentThreadInfo.color : Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["b" /* generateRandomColor */])(),
-      visibilityRules: props.parentThreadID ? undefined : __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
       errorMessage: ""
     };
   }
@@ -46032,9 +46028,9 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
   }
 
   render() {
-    let threadTypes = null;
+    let threadTypeSection = null;
     if (this.props.parentThreadID) {
-      threadTypes = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
+      threadTypeSection = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
         { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['new-thread-privacy-container'] },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
@@ -46055,8 +46051,8 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                 type: 'radio',
                 name: 'new-thread-type',
                 id: 'new-thread-open',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
-                checked: this.state.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN,
+                checked: this.state.threadType === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled,
                 ref: this.openPrivacyInputRef
@@ -46071,7 +46067,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
                     { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
-                    __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN]
+                    __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN]
                   )
                 )
               )
@@ -46083,8 +46079,8 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                 type: 'radio',
                 name: 'new-thread-type',
                 id: 'new-thread-closed',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
-                checked: this.state.visibilityRules === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET,
+                checked: this.state.threadType === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
@@ -46098,7 +46094,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
                     { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
-                    __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET]
+                    __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET]
                   )
                 )
               )
@@ -46156,7 +46152,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
               })
             )
           ),
-          threadTypes,
+          threadTypeSection,
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
             'div',
             null,
@@ -46200,23 +46196,23 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
     );
   }
 
-  async newThreadAction(ourVisibilityRules) {
+  async newThreadAction(threadType) {
     const name = this.state.name.trim();
     try {
       const response = await this.props.newThread({
+        type: threadType,
         name,
         description: this.state.description,
-        visibilityRules: ourVisibilityRules,
         color: this.state.color
       });
       this.props.onClose();
       return response;
     } catch (e) {
       this.setState({
+        threadType: undefined,
         name: "",
         description: "",
         color: "",
-        visibilityRules: undefined,
         errorMessage: "unknown error"
       }, () => {
         __WEBPACK_IMPORTED_MODULE_2_invariant___default()(this.nameInput, "nameInput ref unset");
@@ -54137,7 +54133,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         const target = event.currentTarget;
         this.setState((prevState, props) => _extends({}, prevState, {
           queuedChanges: _extends({}, prevState.queuedChanges, {
-            visibilityRules: Object(__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["b" /* assertVisibilityRules */])(parseInt(target.value))
+            type: Object(__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["b" /* assertThreadType */])(parseInt(target.value))
           })
         }));
       }
@@ -54173,12 +54169,12 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         event.preventDefault();
 
         const name = this.possiblyChangedValue("name").trim();
-        const visRules = this.possiblyChangedValue("visibilityRules");
+        const threadType = this.possiblyChangedValue("type");
 
-        if (visRules >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED) {
+        if (threadType >= __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CLOSED) {
           // If the thread is currently open but is being switched to closed,
           // then a password *must* be specified
-          if (this.props.threadInfo.visibilityRules < __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CLOSED && this.state.newThreadPassword.trim() === '') {
+          if (this.props.threadInfo.type < __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CLOSED && this.state.newThreadPassword.trim() === '') {
             this.setState({
               newThreadPassword: "",
               confirmThreadPassword: "",
@@ -54300,9 +54296,9 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
         )
       );
     } else if (this.state.currentTabType === "privacy") {
-      let threadTypes = null;
+      let threadTypeSection = null;
       if (this.possiblyChangedValue("parentThreadID")) {
-        threadTypes = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
+        threadTypeSection = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
           { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['modal-radio-selector'] },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
@@ -54320,8 +54316,8 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                 type: 'radio',
                 name: 'edit-thread-type',
                 id: 'edit-thread-open',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
-                checked: this.possiblyChangedValue("visibilityRules") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN,
+                checked: this.possiblyChangedValue("type") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
@@ -54335,7 +54331,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
                     { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
-                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_NESTED_OPEN]
+                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_NESTED_OPEN]
                   )
                 )
               )
@@ -54347,8 +54343,8 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                 type: 'radio',
                 name: 'edit-thread-type',
                 id: 'edit-thread-closed',
-                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
-                checked: this.possiblyChangedValue("visibilityRules") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET,
+                value: __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET,
+                checked: this.possiblyChangedValue("type") === __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET,
                 onChange: this.onChangeThreadType,
                 disabled: this.props.inputDisabled
               }),
@@ -54362,7 +54358,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
                   __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
                     'span',
                     { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['form-enum-description'] },
-                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["f" /* visibilityRules */].CHAT_SECRET]
+                    __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["f" /* threadTypeDescriptions */][__WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["g" /* threadTypes */].CHAT_SECRET]
                   )
                 )
               )
@@ -54373,7 +54369,7 @@ class ThreadSettingsModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureCompo
       mainContent = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
         { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['edit-thread-privacy-container'] },
-        threadTypes
+        threadTypeSection
       );
     } else if (this.state.currentTabType === "delete") {
       mainContent = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](

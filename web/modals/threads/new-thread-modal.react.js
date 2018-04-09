@@ -3,9 +3,9 @@
 import {
   type ThreadInfo,
   threadInfoPropType,
-  visibilityRules,
-  assertVisibilityRules,
-  type VisibilityRules,
+  threadTypes,
+  assertThreadType,
+  type ThreadType,
   type NewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
@@ -44,10 +44,10 @@ type Props = {
   newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
 };
 type State = {
+  threadType: ?ThreadType,
   name: string,
   description: string,
   color: string,
-  visibilityRules: ?VisibilityRules,
   errorMessage: string,
 };
 
@@ -68,14 +68,14 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      threadType: props.parentThreadID
+        ? undefined
+        : threadTypes.CHAT_SECRET,
       name: "",
       description: "",
       color: props.parentThreadInfo
         ? props.parentThreadInfo.color
         : generateRandomColor(),
-      visibilityRules: props.parentThreadID
-        ? undefined
-        : visibilityRules.CHAT_SECRET,
       errorMessage: "",
     };
   }
@@ -86,9 +86,9 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let threadTypes = null;
+    let threadTypeSection = null;
     if (this.props.parentThreadID) {
-      threadTypes = (
+      threadTypeSection = (
         <div className={css['new-thread-privacy-container']}>
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Thread type</div>
@@ -98,10 +98,9 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="new-thread-type"
                   id="new-thread-open"
-                  value={visibilityRules.CHAT_NESTED_OPEN}
+                  value={threadTypes.CHAT_NESTED_OPEN}
                   checked={
-                    this.state.visibilityRules ===
-                      visibilityRules.CHAT_NESTED_OPEN
+                    this.state.threadType === threadTypes.CHAT_NESTED_OPEN
                   }
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
@@ -111,7 +110,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   <label htmlFor="new-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[visibilityRules.CHAT_NESTED_OPEN]}
+                      {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
                     </span>
                   </label>
                 </div>
@@ -121,11 +120,8 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="new-thread-type"
                   id="new-thread-closed"
-                  value={visibilityRules.CHAT_SECRET}
-                  checked={
-                    this.state.visibilityRules ===
-                      visibilityRules.CHAT_SECRET
-                  }
+                  value={threadTypes.CHAT_SECRET}
+                  checked={this.state.threadType === threadTypes.CHAT_SECRET}
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                 />
@@ -133,7 +129,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   <label htmlFor="new-thread-closed">
                     Secret
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[visibilityRules.CHAT_SECRET]}
+                      {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
                     </span>
                   </label>
                 </div>
@@ -171,7 +167,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                 />
               </div>
             </div>
-            {threadTypes}
+            {threadTypeSection}
             <div>
               <div className={`${css['form-title']} ${css['color-title']}`}>
                 Color
@@ -232,19 +228,19 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
-      visibilityRules: assertVisibilityRules(parseInt(target.value)),
+      threadType: assertThreadType(parseInt(target.value)),
     });
   }
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    const ourVisibilityRules = this.state.visibilityRules;
+    const threadType = this.state.threadType;
     invariant(
-      ourVisibilityRules !== null,
-      "visibilityRules state should never be set to null",
+      threadType !== null,
+      "threadType state should never be set to null",
     );
-    if (ourVisibilityRules === undefined) {
+    if (threadType === undefined) {
       this.setState(
         {
           errorMessage: "visibility unspecified",
@@ -259,17 +255,17 @@ class NewThreadModal extends React.PureComponent<Props, State> {
 
     this.props.dispatchActionPromise(
       newThreadActionTypes,
-      this.newThreadAction(ourVisibilityRules),
+      this.newThreadAction(threadType),
     );
   }
 
-  async newThreadAction(ourVisibilityRules: VisibilityRules) {
+  async newThreadAction(threadType: ThreadType) {
     const name = this.state.name.trim();
     try {
       const response = await this.props.newThread({
+        type: threadType,
         name,
         description: this.state.description,
-        visibilityRules: ourVisibilityRules,
         color: this.state.color,
       });
       this.props.onClose();
@@ -277,10 +273,10 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     } catch (e) {
       this.setState(
         {
+          threadType: undefined,
           name: "",
           description: "",
           color: "",
-          visibilityRules: undefined,
           errorMessage: "unknown error",
         },
         () => {

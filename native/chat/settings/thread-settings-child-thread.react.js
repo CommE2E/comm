@@ -48,7 +48,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
             </Text>
           </View>
           <ThreadVisibility
-            visibilityRules={this.props.threadInfo.visibilityRules}
+            threadType={this.props.threadInfo.type}
             color="#333333"
             includeLabel={false}
           />

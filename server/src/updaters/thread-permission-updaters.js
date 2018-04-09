@@ -3,9 +3,9 @@
 import {
   type ThreadPermissionsBlob,
   type ThreadRolePermissionsBlob,
-  type VisibilityRules,
+  type ThreadType,
   type ThreadPermissionInfo,
-  assertVisibilityRules,
+  assertThreadType,
 } from 'lib/types/thread-types';
 import type { ThreadSubscription } from 'lib/types/subscription-types';
 
@@ -104,7 +104,7 @@ async function changeRole(
       roleThreadResult.rolePermissions,
       permissionsFromParent,
       threadID,
-      roleThreadResult.visibilityRules,
+      roleThreadResult.threadType,
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(
       permissions,
@@ -143,7 +143,7 @@ async function changeRole(
 
 type RoleThreadResult = {|
   roleColumnValue: string,
-  visibilityRules: VisibilityRules,
+  threadType: ThreadType,
   rolePermissions: ?ThreadRolePermissionsBlob,
 |};
 async function changeRoleThreadQuery(
@@ -159,7 +159,7 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: "0",
-      visibilityRules: assertVisibilityRules(row.type),
+      threadType: assertThreadType(row.type),
       rolePermissions: null,
     };
   } else if (role !== null) {
@@ -176,7 +176,7 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: role,
-      visibilityRules: assertVisibilityRules(row.type),
+      threadType: assertThreadType(row.type),
       rolePermissions: row.permissions,
     };
   } else {
@@ -193,7 +193,7 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: row.default_role.toString(),
-      visibilityRules: assertVisibilityRules(row.type),
+      threadType: assertThreadType(row.type),
       rolePermissions: row.permissions,
     };
   }
@@ -229,7 +229,7 @@ async function updateDescendantPermissions(
       const threadID = row.id.toString();
       if (!childThreadInfos.has(threadID)) {
         childThreadInfos.set(threadID, {
-          visibilityRules: assertVisibilityRules(row.type),
+          threadType: assertThreadType(row.type),
           userInfos: new Map(),
         });
       }
@@ -268,7 +268,7 @@ async function updateDescendantPermissions(
           rolePermissions,
           permissionsFromParent,
           threadID,
-          childThreadInfo.visibilityRules,
+          childThreadInfo.threadType,
         );
         if (_isEqual(permissions)(oldPermissions)) {
           // This thread and all of its children need no updates, since its
@@ -306,10 +306,10 @@ async function updateDescendantPermissions(
 // Caller still needs to save the resultant MembershipChangeset.
 async function recalculateAllPermissions(
   threadID: string,
-  newVisRules: VisibilityRules,
+  newThreadType: ThreadType,
 ): Promise<MembershipChangeset> {
   const updateQuery = SQL`
-    UPDATE threads SET type = ${newVisRules} WHERE id = ${threadID}
+    UPDATE threads SET type = ${newThreadType} WHERE id = ${threadID}
   `;
   const selectQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
@@ -351,7 +351,7 @@ async function recalculateAllPermissions(
       rolePermissions,
       permissionsFromParent,
       threadID,
-      newVisRules,
+      newThreadType,
     );
     if (_isEqual(permissions)(oldPermissions)) {
       // This thread and all of its children need no updates, since its
