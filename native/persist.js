@@ -50,6 +50,10 @@ const migrations = {
     messageSentFromRoute: state.messageSentFromRoute,
     _persist: state._persist,
   }),
+  [4]: (state: AppState) => ({
+    ...state,
+    lastPingTime: 0,
+  }),
 };
 
 const persistConfig = {
@@ -57,7 +61,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 3,
+  version: 4,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

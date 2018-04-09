@@ -30,6 +30,7 @@ import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { sendMessageActionTypes } from 'lib/actions/message-actions';
+import { pingActionTypes } from 'lib/actions/ping-actions';
 
 import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
@@ -78,6 +79,7 @@ export type AppState = {|
   threadIDsToNotifIDs: {[threadID: string]: string[]},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   messageSentFromRoute: $ReadOnlyArray<string>,
+  lastPingTime: number,
   _persist: ?PersistState,
 |};
 
@@ -108,6 +110,7 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   messageSentFromRoute: [],
+  lastPingTime: 0,
   _persist: null,
 }: AppState);
 
@@ -186,6 +189,7 @@ function reducer(state: AppState = defaultState, action: *) {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   }
@@ -215,6 +219,7 @@ function reducer(state: AppState = defaultState, action: *) {
       ),
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   } else if (action.type === setCustomServer) {
@@ -237,6 +242,7 @@ function reducer(state: AppState = defaultState, action: *) {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   } else if (action.type === recordNotifPermissionAlertActionType) {
@@ -262,6 +268,7 @@ function reducer(state: AppState = defaultState, action: *) {
         lastAlertTime: action.payload.time,
       },
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   }
@@ -304,6 +311,31 @@ function reducer(state: AppState = defaultState, action: *) {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
+      _persist: state._persist,
+    };
+  }
+  if (action.type === pingActionTypes.success) {
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
+      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: Date.now(),
       _persist: state._persist,
     };
   }
@@ -343,6 +375,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   }
@@ -381,6 +414,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   }
@@ -410,6 +444,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       threadIDsToNotifIDs: state.threadIDsToNotifIDs,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute,
+      lastPingTime: state.lastPingTime,
       _persist: state._persist,
     };
   }

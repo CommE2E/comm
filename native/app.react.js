@@ -127,6 +127,7 @@ type Props = {
   unreadCount: number,
   rawThreadInfos: {[id: string]: RawThreadInfo},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  lastPingTime: number,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -155,6 +156,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     unreadCount: PropTypes.number.isRequired,
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
+    lastPingTime: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -169,6 +171,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   androidRefreshTokenListener: ?Object = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
+  updateBadgeCountAfterNextPing = true;
 
   componentDidMount() {
     if (Platform.OS === "android") {
@@ -213,7 +216,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.registerPushPermissionsAndHandleInitialNotif,
       );
     }
-    AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
     if (this.props.appLoggedIn) {
       this.ensurePushNotifsEnabled();
     }
@@ -338,7 +340,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       if (this.props.activeThread) {
         AppWithNavigationState.clearNotifsOfThread(this.props);
       }
-      AppWithNavigationState.updateBadgeCount(this.props.unreadCount);
+      this.updateBadgeCountAfterNextPing = true;
     } else if (
       lastState === "active" &&
       this.currentState &&
@@ -379,11 +381,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
     }
+
     const nextActiveThread = nextProps.activeThread;
     if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
       AppWithNavigationState.clearNotifsOfThread(nextProps);
     }
-    if (nextProps.unreadCount !== this.props.unreadCount) {
+    if (
+      nextProps.unreadCount !== this.props.unreadCount ||
+      (nextProps.lastPingTime !== this.props.lastPingTime &&
+        this.updateBadgeCountAfterNextPing)
+    ) {
+      this.updateBadgeCountAfterNextPing = false;
       AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
     }
     for (let threadID of this.openThreadOnceReceived) {
@@ -784,6 +792,7 @@ const ConnectedAppWithNavigationState = connect(
       unreadCount: unreadCount(state),
       rawThreadInfos: state.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      lastPingTime: state.lastPingTime,
     };
   },
   { ping, updateActivity, setDeviceToken },
