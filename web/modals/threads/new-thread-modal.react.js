@@ -243,7 +243,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     if (threadType === undefined) {
       this.setState(
         {
-          errorMessage: "visibility unspecified",
+          errorMessage: "thread type unspecified",
         },
         () => {
           invariant(this.openPrivacyInput, "openPrivacyInput ref unset");

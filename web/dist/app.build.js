@@ -44933,7 +44933,7 @@ class Typeahead extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       enumerable: true,
       writable: true,
       value: () => {
-        if (this.state.searchResults.length !== 0) {
+        if (this.state.searchResults.length === 0) {
           return [{ type: "noResults" }];
         }
         return this.state.searchResults.map(navID => {
@@ -46002,7 +46002,7 @@ class NewThreadModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"
         __WEBPACK_IMPORTED_MODULE_2_invariant___default()(threadType !== null, "threadType state should never be set to null");
         if (threadType === undefined) {
           this.setState({
-            errorMessage: "visibility unspecified"
+            errorMessage: "thread type unspecified"
           }, () => {
             __WEBPACK_IMPORTED_MODULE_2_invariant___default()(this.openPrivacyInput, "openPrivacyInput ref unset");
             this.openPrivacyInput.focus();

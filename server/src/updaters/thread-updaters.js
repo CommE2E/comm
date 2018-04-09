@@ -593,7 +593,7 @@ async function joinThread(
   }
   const threadRow = threadResult[0];
 
-  // You can only be added to these visibility types if you know the password
+  // You can only be added to these thread types if you know the password
   const threadType = assertThreadType(threadRow.type);
   if (threadType === threadTypes.CLOSED || threadType === threadTypes.SECRET) {
     if (!threadRow.hash) {

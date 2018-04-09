@@ -537,7 +537,7 @@ class Typeahead extends React.PureComponent<Props, State> {
   }
 
   optionInfosForSearchResults = () => {
-    if (this.state.searchResults.length !== 0) {
+    if (this.state.searchResults.length === 0) {
       return [{ type: "noResults" }];
     }
     return this.state.searchResults.map((navID) => {
