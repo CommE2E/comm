@@ -2,6 +2,7 @@
 
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import { messageTypes } from 'lib/types/message-types';
 
 import React from 'react';
 import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';
@@ -10,7 +11,6 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
-import { messageType } from 'lib/types/message-types';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
@@ -24,7 +24,7 @@ function messageItemHeight(
   viewerID: ?string,
 ) {
   let height = 0;
-  if (item.messageInfo.type === messageType.TEXT) {
+  if (item.messageInfo.type === messageTypes.TEXT) {
     height += textMessageItemHeight(item, viewerID);
   } else {
     height += robotextMessageItemHeight(item, viewerID);
@@ -67,7 +67,7 @@ class Message extends React.PureComponent<Props> {
       );
     }
     let message;
-    if (this.props.item.messageInfo.type === messageType.TEXT) {
+    if (this.props.item.messageInfo.type === messageTypes.TEXT) {
       message = (
         <TextMessage
           item={this.props.item}

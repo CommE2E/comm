@@ -5,9 +5,9 @@ import type {
   SaveEntryResult,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
-
-import { messageType } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
+
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
@@ -73,7 +73,7 @@ async function createEntry(
     VALUES ${[revisionRow]}
   `;
   const messageData = {
-    type: messageType.CREATE_ENTRY,
+    type: messageTypes.CREATE_ENTRY,
     threadID: request.threadID,
     creatorID: viewerID,
     time: Date.now(),

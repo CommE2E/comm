@@ -4,7 +4,7 @@ import type { PushInfo } from '../push/send';
 import type { UserInfos } from 'lib/types/user-types';
 import {
   type RawMessageInfo,
-  messageType,
+  messageTypes,
   assertMessageType,
   type ThreadSelectionCriteria,
   type MessageTruncationStatus,
@@ -98,9 +98,9 @@ async function fetchCollapsableNotifs(
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN threads st
-      ON m.type = ${messageType.CREATE_SUB_THREAD} AND st.id = m.content
+      ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
     LEFT JOIN memberships stm
-      ON m.type = ${messageType.CREATE_SUB_THREAD}
+      ON m.type = ${messageTypes.CREATE_SUB_THREAD}
         AND stm.thread = m.content AND stm.user = n.user
     LEFT JOIN users u ON u.id = m.user
     WHERE
@@ -142,34 +142,34 @@ async function fetchCollapsableNotifs(
 
 function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   const type = assertMessageType(row.type);
-  if (type === messageType.TEXT) {
+  if (type === messageTypes.TEXT) {
     return {
-      type: messageType.TEXT,
+      type: messageTypes.TEXT,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
       text: row.content,
     };
-  } else if (type === messageType.CREATE_THREAD) {
+  } else if (type === messageTypes.CREATE_THREAD) {
     return {
-      type: messageType.CREATE_THREAD,
+      type: messageTypes.CREATE_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
       initialThreadState: JSON.parse(row.content),
     };
-  } else if (type === messageType.ADD_MEMBERS) {
+  } else if (type === messageTypes.ADD_MEMBERS) {
     return {
-      type: messageType.ADD_MEMBERS,
+      type: messageTypes.ADD_MEMBERS,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
       addedUserIDs: JSON.parse(row.content),
     };
-  } else if (type === messageType.CREATE_SUB_THREAD) {
+  } else if (type === messageTypes.CREATE_SUB_THREAD) {
     const subthreadPermissionInfo = {
       permissions: row.subthread_permissions,
       threadType: assertThreadType(row.subthread_type),
@@ -178,18 +178,18 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       return null;
     }
     return {
-      type: messageType.CREATE_SUB_THREAD,
+      type: messageTypes.CREATE_SUB_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
       childThreadID: row.content,
     };
-  } else if (type === messageType.CHANGE_SETTINGS) {
+  } else if (type === messageTypes.CHANGE_SETTINGS) {
     const content = JSON.parse(row.content);
     const field = Object.keys(content)[0];
     return {
-      type: messageType.CHANGE_SETTINGS,
+      type: messageTypes.CHANGE_SETTINGS,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -197,19 +197,19 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       field,
       value: content[field],
     };
-  } else if (type === messageType.REMOVE_MEMBERS) {
+  } else if (type === messageTypes.REMOVE_MEMBERS) {
     return {
-      type: messageType.REMOVE_MEMBERS,
+      type: messageTypes.REMOVE_MEMBERS,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
       removedUserIDs: JSON.parse(row.content),
     };
-  } else if (type === messageType.CHANGE_ROLE) {
+  } else if (type === messageTypes.CHANGE_ROLE) {
     const content = JSON.parse(row.content);
     return {
-      type: messageType.CHANGE_ROLE,
+      type: messageTypes.CHANGE_ROLE,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -217,26 +217,26 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       userIDs: content.userIDs,
       newRole: content.newRole,
     };
-  } else if (type === messageType.LEAVE_THREAD) {
+  } else if (type === messageTypes.LEAVE_THREAD) {
     return {
-      type: messageType.LEAVE_THREAD,
+      type: messageTypes.LEAVE_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
     };
-  } else if (type === messageType.JOIN_THREAD) {
+  } else if (type === messageTypes.JOIN_THREAD) {
     return {
-      type: messageType.JOIN_THREAD,
+      type: messageTypes.JOIN_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
     };
-  } else if (type === messageType.CREATE_ENTRY) {
+  } else if (type === messageTypes.CREATE_ENTRY) {
     const content = JSON.parse(row.content);
     return {
-      type: messageType.CREATE_ENTRY,
+      type: messageTypes.CREATE_ENTRY,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -245,10 +245,10 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       date: content.date,
       text: content.text,
     };
-  } else if (type === messageType.EDIT_ENTRY) {
+  } else if (type === messageTypes.EDIT_ENTRY) {
     const content = JSON.parse(row.content);
     return {
-      type: messageType.EDIT_ENTRY,
+      type: messageTypes.EDIT_ENTRY,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -257,10 +257,10 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       date: content.date,
       text: content.text,
     };
-  } else if (type === messageType.DELETE_ENTRY) {
+  } else if (type === messageTypes.DELETE_ENTRY) {
     const content = JSON.parse(row.content);
     return {
-      type: messageType.DELETE_ENTRY,
+      type: messageTypes.DELETE_ENTRY,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -269,10 +269,10 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       date: content.date,
       text: content.text,
     };
-  } else if (type === messageType.RESTORE_ENTRY) {
+  } else if (type === messageTypes.RESTORE_ENTRY) {
     const content = JSON.parse(row.content);
     return {
-      type: messageType.RESTORE_ENTRY,
+      type: messageTypes.RESTORE_ENTRY,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -315,8 +315,8 @@ async function fetchMessageInfos(
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
         LEFT JOIN threads st
-          ON m.type = ${messageType.CREATE_SUB_THREAD} AND st.id = m.content
-        LEFT JOIN memberships stm ON m.type = ${messageType.CREATE_SUB_THREAD}
+          ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
+        LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
           AND stm.thread = m.content AND stm.user = ${viewerID}
         WHERE
           (
@@ -410,9 +410,9 @@ async function fetchAllUsers(
   const allAddedUserIDs = [];
   for (let rawMessageInfo of rawMessageInfos) {
     let newUsers = [];
-    if (rawMessageInfo.type === messageType.ADD_MEMBERS) {
+    if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
       newUsers = rawMessageInfo.addedUserIDs;
-    } else if (rawMessageInfo.type === messageType.CREATE_THREAD) {
+    } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
       newUsers = rawMessageInfo.initialThreadState.memberIDs;
     }
     for (let userID of newUsers) {
@@ -454,8 +454,8 @@ async function fetchMessageInfosSince(
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN threads st
-      ON m.type = ${messageType.CREATE_SUB_THREAD} AND st.id = m.content
-    LEFT JOIN memberships stm ON m.type = ${messageType.CREATE_SUB_THREAD}
+      ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
     LEFT JOIN users u ON u.id = m.user
     WHERE
@@ -486,7 +486,7 @@ async function fetchMessageInfosSince(
       numMessagesForCurrentThreadID++;
     }
     if (numMessagesForCurrentThreadID <= maxNumberPerThread) {
-      if (row.type === messageType.CREATE_THREAD) {
+      if (row.type === messageTypes.CREATE_THREAD) {
         // If a CREATE_THREAD message is here, then we have all messages
         truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
       }

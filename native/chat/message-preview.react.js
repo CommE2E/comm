@@ -1,14 +1,15 @@
 // @flow
 
-import type { MessageInfo } from 'lib/types/message-types';
-import { messageInfoPropType } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type MessageInfo,
+  messageInfoPropType,
+  messageTypes,
+} from 'lib/types/message-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import { messageType } from 'lib/types/message-types';
 import {
   robotextForMessageInfo,
   robotextToRawString,
@@ -35,7 +36,7 @@ class MessagePreview extends React.PureComponent<Props> {
     const unreadStyle = this.props.threadInfo.currentUser.unread
       ? styles.unread
       : null;
-    if (messageInfo.type === messageType.TEXT) {
+    if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
       if (
         !threadIsPersonalChat(this.props.threadInfo) &&

@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  messageType,
+  messageTypes,
   type MessageData,
   type RawMessageInfo,
 } from 'lib/types/message-types';
@@ -59,13 +59,13 @@ async function createMessages(
     const threadID = messageData.threadID;
     const creatorID = messageData.creatorID;
 
-    if (messageData.type === messageType.CREATE_SUB_THREAD) {
+    if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
       subthreadPermissionsToCheck.add(messageData.childThreadID);
     }
 
     if (!threadRestrictions.has(threadID)) {
       const newThreadRestriction: ThreadRestriction = { creatorID };
-      if (messageData.type === messageType.CREATE_SUB_THREAD) {
+      if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
         newThreadRestriction.subthread = messageData.childThreadID;
       }
       threadRestrictions.set(threadID, newThreadRestriction);
@@ -87,7 +87,7 @@ async function createMessages(
       }
       if (
         threadRestriction.subthread &&
-        (messageData.type !== messageType.CREATE_SUB_THREAD ||
+        (messageData.type !== messageTypes.CREATE_SUB_THREAD ||
           threadRestriction.subthread !== messageData.childThreadID)
       ) {
         newThreadRestriction = {
@@ -110,30 +110,30 @@ async function createMessages(
     }
 
     let content;
-    if (messageData.type === messageType.CREATE_THREAD) {
+    if (messageData.type === messageTypes.CREATE_THREAD) {
       content = JSON.stringify(messageData.initialThreadState);
-    } else if (messageData.type === messageType.CREATE_SUB_THREAD) {
+    } else if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
       content = messageData.childThreadID;
-    } else if (messageData.type === messageType.TEXT) {
+    } else if (messageData.type === messageTypes.TEXT) {
       content = messageData.text;
-    } else if (messageData.type === messageType.ADD_MEMBERS) {
+    } else if (messageData.type === messageTypes.ADD_MEMBERS) {
       content = JSON.stringify(messageData.addedUserIDs);
-    } else if (messageData.type === messageType.CHANGE_SETTINGS) {
+    } else if (messageData.type === messageTypes.CHANGE_SETTINGS) {
       content = JSON.stringify({
         [messageData.field]: messageData.value,
       });
-    } else if (messageData.type === messageType.REMOVE_MEMBERS) {
+    } else if (messageData.type === messageTypes.REMOVE_MEMBERS) {
       content = JSON.stringify(messageData.removedUserIDs);
-    } else if (messageData.type === messageType.CHANGE_ROLE) {
+    } else if (messageData.type === messageTypes.CHANGE_ROLE) {
       content = JSON.stringify({
         userIDs: messageData.userIDs,
         newRole: messageData.newRole,
       });
     } else if (
-      messageData.type === messageType.CREATE_ENTRY ||
-      messageData.type === messageType.EDIT_ENTRY ||
-      messageData.type === messageType.DELETE_ENTRY ||
-      messageData.type === messageType.RESTORE_ENTRY
+      messageData.type === messageTypes.CREATE_ENTRY ||
+      messageData.type === messageTypes.EDIT_ENTRY ||
+      messageData.type === messageTypes.DELETE_ENTRY ||
+      messageData.type === messageTypes.RESTORE_ENTRY
     ) {
       content = JSON.stringify({
         entryID: messageData.entryID,
@@ -350,7 +350,7 @@ async function sendPushNotifsForNewMessages(
       for (let messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         if (
-          messageInfo.type !== messageType.CREATE_SUB_THREAD ||
+          messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
           preUserPushInfo.subthreads.has(messageInfo.childThreadID)
         ) {
           userPushInfo.messageInfos.push(messageInfo);

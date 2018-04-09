@@ -1,11 +1,11 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
+import { messageTypes } from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -18,7 +18,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
-import { messageType } from 'lib/types/message-types';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
@@ -47,15 +46,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
     invariant(
-      props.item.messageInfo.type !== messageType.TEXT,
-      "TextMessage cannot be used for messageType.TEXT",
+      props.item.messageInfo.type !== messageTypes.TEXT,
+      "TextMessage cannot be used for messageTypes.TEXT",
     );
   }
 
   componentWillReceiveProps(nextProps: Props) {
     invariant(
-      nextProps.item.messageInfo.type !== messageType.TEXT,
-      "TextMessage cannot be used for messageType.TEXT",
+      nextProps.item.messageInfo.type !== messageTypes.TEXT,
+      "TextMessage cannot be used for messageTypes.TEXT",
     );
   }
 

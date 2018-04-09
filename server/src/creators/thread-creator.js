@@ -6,7 +6,7 @@ import {
   threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
-import { messageType } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 
 import bcrypt from 'twin-bcrypt';
@@ -180,7 +180,7 @@ async function createThread(
   }
 
   const messageDatas = [{
-    type: messageType.CREATE_THREAD,
+    type: messageTypes.CREATE_THREAD,
     threadID: id,
     creatorID: viewer.userID,
     time,
@@ -194,7 +194,7 @@ async function createThread(
   }];
   if (parentThreadID) {
     messageDatas.push({
-      type: messageType.CREATE_SUB_THREAD,
+      type: messageTypes.CREATE_SUB_THREAD,
       threadID: parentThreadID,
       creatorID: viewer.userID,
       time,

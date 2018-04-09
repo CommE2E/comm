@@ -5,9 +5,10 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type {
-  RawTextMessageInfo,
-  SendTextMessageResult,
+import {
+  type RawTextMessageInfo,
+  type SendTextMessageResult,
+  messageTypes,
 } from 'lib/types/message-types';
 import {
   type ThreadInfo,
@@ -39,7 +40,6 @@ import {
   sendMessage,
 } from 'lib/actions/message-actions';
 import { getNewLocalID } from 'lib/utils/local-ids';
-import { messageType } from 'lib/types/message-types';
 import { saveDraftActionType } from 'lib/reducers/draft-reducer';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import {
@@ -248,7 +248,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
     const messageInfo = ({
-      type: messageType.TEXT,
+      type: messageTypes.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
       text,

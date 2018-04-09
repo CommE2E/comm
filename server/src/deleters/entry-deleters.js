@@ -1,6 +1,8 @@
 // @flow
 
 import type { Viewer } from '../session/viewer';
+import { threadPermissions } from 'lib/types/thread-types';
+import { messageTypes } from 'lib/types/message-types';
 
 import type {
   DeleteEntryRequest,
@@ -10,9 +12,7 @@ import type {
 } from 'lib/types/entry-types';
 
 import { ServerError } from 'lib/utils/errors';
-import { threadPermissions } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';
-import { messageType } from 'lib/types/message-types';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
@@ -94,7 +94,7 @@ async function deleteEntry(
   `));
   const threadID = lastRevisionRow.thread.toString();
   const messageData = {
-    type: messageType.DELETE_ENTRY,
+    type: messageTypes.DELETE_ENTRY,
     threadID: threadID,
     creatorID: viewerID,
     time: Date.now(),
@@ -155,7 +155,7 @@ async function restoreEntry(
   `));
   const threadID = lastRevisionRow.thread.toString();
   const messageData = {
-    type: messageType.RESTORE_ENTRY,
+    type: messageTypes.RESTORE_ENTRY,
     threadID,
     creatorID: viewerID,
     time: Date.now(),

@@ -6,7 +6,7 @@ import type {
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 import { threadTypes } from 'lib/types/thread-types';
-import { messageType } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -109,7 +109,7 @@ async function createAccount(
   ]);
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
-    type: messageType.TEXT,
+    type: messageTypes.TEXT,
     threadID: ashoatThreadResult.newThreadInfo.id,
     creatorID: ashoat.id,
     time: messageTime++,

@@ -1,15 +1,15 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type {
-  MessageInfo,
-  MessageStore,
-  TextMessageInfo,
-  RobotextMessageInfo,
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type MessageInfo,
+  type MessageStore,
+  type TextMessageInfo,
+  type RobotextMessageInfo,
+  messageInfoPropType,
+  messageTypes,
 } from 'lib/types/message-types';
-import { messageInfoPropType } from 'lib/types/message-types';
 import type { UserInfo } from 'lib/types/user-types';
 
 import { createSelector } from 'reselect';
@@ -21,7 +21,6 @@ import _map from 'lodash/fp/map';
 import _orderBy from 'lodash/fp/orderBy';
 import _memoize from 'lodash/memoize';
 
-import { messageType } from 'lib/types/message-types';
 import {
   robotextForMessageInfo,
   createMessageInfo,
@@ -152,8 +151,8 @@ const baseMessageListData = (threadID: string) => createSelector(
       ) {
         startsConversation = false;
         if (
-          lastMessageInfo.type === messageType.TEXT &&
-          rawMessageInfo.type === messageType.TEXT &&
+          lastMessageInfo.type === messageTypes.TEXT &&
+          rawMessageInfo.type === messageTypes.TEXT &&
           lastMessageInfo.creatorID === rawMessageInfo.creatorID
         ) {
           startsCluster = false;
@@ -173,7 +172,7 @@ const baseMessageListData = (threadID: string) => createSelector(
       if (!messageInfo) {
         continue;
       }
-      if (messageInfo.type === messageType.TEXT) {
+      if (messageInfo.type === messageTypes.TEXT) {
         chatMessageItems.push({
           itemType: "message",
           messageInfo,

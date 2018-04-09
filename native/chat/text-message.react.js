@@ -1,10 +1,10 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
+import { messageTypes } from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -22,7 +22,6 @@ import Hyperlink from 'react-native-hyperlink';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import { messageType } from 'lib/types/message-types';
 
 import Tooltip from '../components/tooltip.react';
 
@@ -60,8 +59,8 @@ class TextMessage extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
     invariant(
-      props.item.messageInfo.type === messageType.TEXT,
-      "TextMessage should only be used for messageType.TEXT",
+      props.item.messageInfo.type === messageTypes.TEXT,
+      "TextMessage should only be used for messageTypes.TEXT",
     );
     this.tooltipConfig = [
       { label: "Copy", onPress: this.onPressCopy },
@@ -70,8 +69,8 @@ class TextMessage extends React.PureComponent<Props> {
 
   componentWillReceiveProps(nextProps: Props) {
     invariant(
-      nextProps.item.messageInfo.type === messageType.TEXT,
-      "TextMessage should only be used for messageType.TEXT",
+      nextProps.item.messageInfo.type === messageTypes.TEXT,
+      "TextMessage should only be used for messageTypes.TEXT",
     );
   }
 
@@ -115,8 +114,8 @@ class TextMessage extends React.PureComponent<Props> {
     textStyle.height = this.props.item.textHeight;
 
     invariant(
-      this.props.item.messageInfo.type === messageType.TEXT,
-      "TextMessage should only be used for messageType.TEXT",
+      this.props.item.messageInfo.type === messageTypes.TEXT,
+      "TextMessage should only be used for messageTypes.TEXT",
     );
     const text = this.props.item.messageInfo.text;
 
@@ -167,8 +166,8 @@ class TextMessage extends React.PureComponent<Props> {
 
   onPressCopy = () => {
     invariant(
-      this.props.item.messageInfo.type === messageType.TEXT,
-      "TextMessage should only be used for messageType.TEXT",
+      this.props.item.messageInfo.type === messageTypes.TEXT,
+      "TextMessage should only be used for messageTypes.TEXT",
     );
     Clipboard.setString(this.props.item.messageInfo.text);
   }

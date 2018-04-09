@@ -2,7 +2,7 @@
 
 import type { Viewer } from '../session/viewer';
 import {
-  messageType,
+  messageTypes,
   type MessageData,
   type SendTextMessageRequest,
   type FetchMessageInfosResult,
@@ -43,7 +43,7 @@ async function textMessageCreationResponder(
   }
 
   const messageData = {
-    type: messageType.TEXT,
+    type: messageTypes.TEXT,
     threadID: request.threadID,
     creatorID: viewer.id,
     time: Date.now(),

@@ -5,7 +5,7 @@ import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
-import { messageType } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import { dateString } from 'lib/utils/date-utils';
 
 import { dbQuery, SQL } from '../database';
@@ -133,7 +133,7 @@ async function updateEntry(
     `));
   }
   const messageData = {
-    type: messageType.EDIT_ENTRY,
+    type: messageTypes.EDIT_ENTRY,
     threadID: entryRow.thread.toString(),
     creatorID: viewerID,
     time: Date.now(),

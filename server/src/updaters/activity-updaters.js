@@ -5,7 +5,7 @@ import type {
   UpdateActivityResult,
   UpdateActivityRequest,
 } from 'lib/types/activity-types';
-import { messageType } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import { threadTypes, threadPermissions } from 'lib/types/thread-types';
 
 import invariant from 'invariant';
@@ -141,13 +141,13 @@ async function possiblyResetThreadsToUnread(
   const query = SQL`
     SELECT m.thread, MAX(m.id) AS latest_message
     FROM messages m
-    LEFT JOIN threads st ON m.type = ${messageType.CREATE_SUB_THREAD}
+    LEFT JOIN threads st ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND st.id = m.content
-    LEFT JOIN memberships stm ON m.type = ${messageType.CREATE_SUB_THREAD}
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewer.userID}
     WHERE m.thread IN (${unreadCandidates}) AND
       (
-        m.type != ${messageType.CREATE_SUB_THREAD} OR
+        m.type != ${messageTypes.CREATE_SUB_THREAD} OR
         st.type = ${threadTypes.OPEN} OR
         JSON_EXTRACT(stm.permissions, ${knowOfExtractString}) IS TRUE
       )

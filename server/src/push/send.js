@@ -1,6 +1,10 @@
 // @flow
 
-import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
+import {
+  type RawMessageInfo,
+  type MessageInfo,
+  messageTypes,
+} from 'lib/types/message-types';
 import type { UserInfos } from 'lib/types/user-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
@@ -17,7 +21,6 @@ import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
 
 import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
-import { messageType } from 'lib/types/message-types';
 import {
   createMessageInfo,
   sortMessageInfoList,
@@ -240,11 +243,11 @@ async function fetchInfos(pushInfo: PushInfo) {
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     threadIDs.add(rawMessageInfo.threadID);
     if (
-      rawMessageInfo.type === messageType.CREATE_THREAD &&
+      rawMessageInfo.type === messageTypes.CREATE_THREAD &&
       rawMessageInfo.initialThreadState.parentThreadID
     ) {
       threadIDs.add(rawMessageInfo.initialThreadState.parentThreadID);
-    } else if (rawMessageInfo.type === messageType.CREATE_SUB_THREAD) {
+    } else if (rawMessageInfo.type === messageTypes.CREATE_SUB_THREAD) {
       threadIDs.add(rawMessageInfo.childThreadID);
     }
   };
@@ -289,15 +292,15 @@ async function fetchMissingUserInfos(
   };
   const addUserIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     addIfMissing(rawMessageInfo.creatorID);
-    if (rawMessageInfo.type === messageType.ADD_MEMBERS) {
+    if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
       for (let userID of rawMessageInfo.addedUserIDs) {
         addIfMissing(userID);
       }
-    } else if (rawMessageInfo.type === messageType.REMOVE_MEMBERS) {
+    } else if (rawMessageInfo.type === messageTypes.REMOVE_MEMBERS) {
       for (let userID of rawMessageInfo.removedUserIDs) {
         addIfMissing(userID);
       }
-    } else if (rawMessageInfo.type === messageType.CREATE_THREAD) {
+    } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
       for (let userID of rawMessageInfo.initialThreadState.memberIDs) {
         addIfMissing(userID);
       }

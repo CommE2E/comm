@@ -2,18 +2,18 @@
 
 import type { AppState } from '../redux-setup';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type {
   ChatMessageItem,
   ChatMessageInfoItem,
 } from '../selectors/chat-selectors';
 import { chatMessageItemPropType } from '../selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
-import type {
-  TextMessageInfo,
-  RobotextMessageInfo,
-  FetchMessageInfosPayload,
+import {
+  type TextMessageInfo,
+  type RobotextMessageInfo,
+  type FetchMessageInfosPayload,
+  messageTypes,
 } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { TextToMeasure } from '../text-height-measurer.react';
@@ -42,7 +42,6 @@ import {
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
-import { messageType } from 'lib/types/message-types';
 import threadWatcher from 'lib/shared/thread-watcher';
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -196,7 +195,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         continue;
       }
       const messageInfo = item.messageInfo;
-      if (messageInfo.type === messageType.TEXT) {
+      if (messageInfo.type === messageTypes.TEXT) {
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: messageInfo.text,
@@ -306,7 +305,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         textHeight,
         `height for ${messageKey(item.messageInfo)} should be set`,
       );
-      if (item.messageInfo.type === messageType.TEXT) {
+      if (item.messageInfo.type === messageTypes.TEXT) {
         return {
           itemType: "message",
           messageInfo: item.messageInfo,

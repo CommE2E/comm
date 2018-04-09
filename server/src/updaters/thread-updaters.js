@@ -14,12 +14,12 @@ import {
   assertThreadType,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
+import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
 
 import { ServerError } from 'lib/utils/errors';
-import { messageType, defaultNumberPerThread } from 'lib/types/message-types';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionHelper } from 'lib/permissions/thread-permissions';
 
@@ -93,7 +93,7 @@ async function updateRole(
   }
 
   const messageData = {
-    type: messageType.CHANGE_ROLE,
+    type: messageTypes.CHANGE_ROLE,
     threadID: request.threadID,
     creatorID: viewer.id,
     time: Date.now(),
@@ -181,7 +181,7 @@ async function removeMembers(
   }
 
   const messageData = {
-    type: messageType.REMOVE_MEMBERS,
+    type: messageTypes.REMOVE_MEMBERS,
     threadID: request.threadID,
     creatorID: viewerID,
     time: Date.now(),
@@ -250,7 +250,7 @@ async function leaveThread(
   }));
 
   const messageData = {
-    type: messageType.LEAVE_THREAD,
+    type: messageTypes.LEAVE_THREAD,
     threadID: request.threadID,
     creatorID: viewerID,
     time: Date.now(),
@@ -537,7 +537,7 @@ async function updateThread(
   for (let fieldName in changedFields) {
     const newValue = changedFields[fieldName];
     messageDatas.push({
-      type: messageType.CHANGE_SETTINGS,
+      type: messageTypes.CHANGE_SETTINGS,
       threadID: request.threadID,
       creatorID: viewer.userID,
       time,
@@ -547,7 +547,7 @@ async function updateThread(
   }
   if (newMemberIDs) {
     messageDatas.push({
-      type: messageType.ADD_MEMBERS,
+      type: messageTypes.ADD_MEMBERS,
       threadID: request.threadID,
       creatorID: viewer.userID,
       time,
@@ -621,7 +621,7 @@ async function joinThread(
   }));
 
   const messageData = {
-    type: messageType.JOIN_THREAD,
+    type: messageTypes.JOIN_THREAD,
     threadID: request.threadID,
     creatorID: viewer.id,
     time: Date.now(),

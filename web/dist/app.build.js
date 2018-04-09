@@ -10032,7 +10032,7 @@ const saveMessagesActionType = "SAVE_MESSAGES";
 
 
 
-const messageType = Object.freeze({
+const messageTypes = Object.freeze({
   TEXT: 0,
   CREATE_THREAD: 1,
   ADD_MEMBERS: 2,
@@ -10047,7 +10047,7 @@ const messageType = Object.freeze({
   DELETE_ENTRY: 11,
   RESTORE_ENTRY: 12
 });
-/* harmony export (immutable) */ __webpack_exports__["c"] = messageType;
+/* harmony export (immutable) */ __webpack_exports__["c"] = messageTypes;
 
 
 function assertMessageType(ourMessageType) {
@@ -10060,7 +10060,7 @@ function assertMessageType(ourMessageType) {
 // *MessageInfo = used by client in UI code
 
 const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOfType([__WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.TEXT]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.TEXT]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string,
   localID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
@@ -10068,7 +10068,7 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired,
   text: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.CREATE_THREAD]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.CREATE_THREAD]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10081,21 +10081,21 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
     otherMembers: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.arrayOf(__WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */]).isRequired
   }).isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.ADD_MEMBERS]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.ADD_MEMBERS]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired,
   addedMembers: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.arrayOf(__WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */]).isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.CREATE_SUB_THREAD]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.CREATE_SUB_THREAD]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired,
   childThreadInfo: __WEBPACK_IMPORTED_MODULE_0__thread_types__["c" /* threadInfoPropType */].isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.CHANGE_SETTINGS]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.CHANGE_SETTINGS]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10103,14 +10103,14 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   field: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   value: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOfType([__WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number, __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string]).isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.REMOVE_MEMBERS]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.REMOVE_MEMBERS]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired,
   removedMembers: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.arrayOf(__WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */]).isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.CHANGE_ROLE]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.CHANGE_ROLE]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10118,19 +10118,19 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   members: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.arrayOf(__WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */]).isRequired,
   newRole: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.LEAVE_THREAD]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.LEAVE_THREAD]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.JOIN_THREAD]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.JOIN_THREAD]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
   time: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.CREATE_ENTRY]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.CREATE_ENTRY]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10139,7 +10139,7 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   date: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   text: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.EDIT_ENTRY]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.EDIT_ENTRY]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10148,7 +10148,7 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   date: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   text: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.DELETE_ENTRY]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.DELETE_ENTRY]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -10157,7 +10157,7 @@ const messageInfoPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.o
   date: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   text: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired
 }), __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
-  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageType.RESTORE_ENTRY]).isRequired,
+  type: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf([messageTypes.RESTORE_ENTRY]).isRequired,
   id: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string.isRequired,
   creator: __WEBPACK_IMPORTED_MODULE_1__user_types__["a" /* relativeUserInfoPropType */].isRequired,
@@ -34874,11 +34874,11 @@ function mergeNewMessages(oldMessageStore, newMessageInfos, truncationStatus, th
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(inputMessageInfo.id, "new messageInfos should have serverID");
     const currentMessageInfo = oldMessageStore.messages[inputMessageInfo.id];
     if (currentMessageInfo && typeof currentMessageInfo.localID === "string") {
-      __WEBPACK_IMPORTED_MODULE_1_invariant___default()(inputMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT, "only MessageType.TEXT has localID");
+      __WEBPACK_IMPORTED_MODULE_1_invariant___default()(inputMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT, "only MessageType.TEXT has localID");
       // Try to preserve localIDs. This is because we use them as React
       // keys and changing React keys leads to loss of component state.
       messageInfo = {
-        type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT,
+        type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT,
         id: inputMessageInfo.id,
         localID: currentMessageInfo.localID,
         threadID: inputMessageInfo.threadID,
@@ -35609,9 +35609,9 @@ function encodedThreadEntity(threadID, text) {
 }
 
 function robotextForMessageInfo(messageInfo, threadInfo) {
-  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT, "robotext is no substitute for human text!");
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(messageInfo.type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT, "robotext is no substitute for human text!");
   const creator = robotextForUser(messageInfo.creator);
-  if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_THREAD) {
     let text = `created ${encodedThreadEntity(messageInfo.threadID, 'this thread')}`;
     const parentThread = messageInfo.initialThreadState.parentThreadInfo;
     if (parentThread) {
@@ -35626,19 +35626,19 @@ function robotextForMessageInfo(messageInfo, threadInfo) {
       text += ` and added ${initialUsersString}`;
     }
     return `${creator} ${text}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS) {
     const users = messageInfo.addedMembers;
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "added who??");
     const addedUsersString = robotextForUsers(users);
     return `${creator} added ${addedUsersString}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_SUB_THREAD) {
     let text = `${creator} created a child thread`;
     const childName = messageInfo.childThreadInfo.name;
     if (childName) {
       text += ` named "<${encodeURI(childName)}|t${messageInfo.childThreadInfo.id}>"`;
     }
     return text;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_SETTINGS) {
     let value;
     if (messageInfo.field === "color") {
       value = `<#${messageInfo.value}|c${messageInfo.threadID}>`;
@@ -35646,32 +35646,32 @@ function robotextForMessageInfo(messageInfo, threadInfo) {
       value = messageInfo.value;
     }
     return `${creator} updated ` + `${encodedThreadEntity(messageInfo.threadID, 'the thread')}'s ` + `${messageInfo.field} to "${value}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS) {
     const users = messageInfo.removedMembers;
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "removed who??");
     const removedUsersString = robotextForUsers(users);
     return `${creator} removed ${removedUsersString}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_ROLE) {
     const users = messageInfo.members;
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(users.length !== 0, "changed whose role??");
     const usersString = robotextForUsers(users);
     const verb = threadInfo.roles[messageInfo.newRole].isDefault ? "removed" : "added";
     const noun = users.length === 1 ? "an admin" : "admins";
     return `${creator} ${verb} ${usersString} as ${noun}`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD) {
     return `${creator} left ` + encodedThreadEntity(messageInfo.threadID, 'this thread');
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD) {
     return `${creator} joined ` + encodedThreadEntity(messageInfo.threadID, 'this thread');
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} created an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].EDIT_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} updated the text of an event scheduled for ` + `${date}: "${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].DELETE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} deleted an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
-  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (messageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].RESTORE_ENTRY) {
     const date = Object(__WEBPACK_IMPORTED_MODULE_3__utils_date_utils__["g" /* prettyDate */])(messageInfo.date);
     return `${creator} restored an event scheduled for ${date}: ` + `"${messageInfo.text}"`;
   }
@@ -35687,9 +35687,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
   if (!creatorInfo) {
     return null;
   }
-  if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT) {
+  if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT) {
     const messageInfo = {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT,
       threadID: rawMessageInfo.threadID,
       creator: {
         id: rawMessageInfo.creatorID,
@@ -35706,7 +35706,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       messageInfo.localID = rawMessageInfo.localID;
     }
     return messageInfo;
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_THREAD) {
     const initialParentThreadID = rawMessageInfo.initialThreadState.parentThreadID;
     let parentThreadInfo = null;
     if (initialParentThreadID) {
@@ -35716,7 +35716,7 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       }
     }
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35733,10 +35733,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
         otherMembers: Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.initialThreadState.memberIDs.filter(userID => userID !== rawMessageInfo.creatorID), viewerID, userInfos)
       }
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS) {
     const addedMembers = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.addedUserIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35747,13 +35747,13 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       addedMembers
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_SUB_THREAD) {
     const childThreadInfo = threadInfos[rawMessageInfo.childThreadID];
     if (!childThreadInfo) {
       return null;
     }
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_SUB_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35764,9 +35764,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       childThreadInfo
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_SETTINGS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_SETTINGS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35778,10 +35778,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       field: rawMessageInfo.field,
       value: rawMessageInfo.value
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS) {
     const removedMembers = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.removedUserIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35792,10 +35792,10 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       time: rawMessageInfo.time,
       removedMembers
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_ROLE) {
     const members = Object(__WEBPACK_IMPORTED_MODULE_4__selectors_user_selectors__["b" /* userIDsToRelativeUserInfos */])(rawMessageInfo.userIDs, viewerID, userInfos);
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_ROLE,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35807,9 +35807,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       members,
       newRole: rawMessageInfo.newRole
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35819,9 +35819,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       },
       time: rawMessageInfo.time
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35831,9 +35831,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       },
       time: rawMessageInfo.time
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35846,9 +35846,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].EDIT_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].EDIT_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35861,9 +35861,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].DELETE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].DELETE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35876,9 +35876,9 @@ function createMessageInfo(rawMessageInfo, viewerID, userInfos, threadInfos) {
       date: rawMessageInfo.date,
       text: rawMessageInfo.text
     };
-  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (rawMessageInfo.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].RESTORE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].RESTORE_ENTRY,
       id: rawMessageInfo.id,
       threadID: rawMessageInfo.threadID,
       creator: {
@@ -35900,45 +35900,45 @@ function sortMessageInfoList(messageInfos) {
 }
 
 function rawMessageInfoFromMessageData(messageData, id) {
-  if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT) {
+  if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].TEXT,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].TEXT,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       initialThreadState: messageData.initialThreadState
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       addedUserIDs: messageData.addedUserIDs
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_SUB_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_SUB_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_SUB_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       childThreadID: messageData.childThreadID
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_SETTINGS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_SETTINGS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_SETTINGS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -35946,18 +35946,18 @@ function rawMessageInfoFromMessageData(messageData, id) {
       field: messageData.field,
       value: messageData.value
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time,
       removedUserIDs: messageData.removedUserIDs
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_ROLE) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CHANGE_ROLE,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CHANGE_ROLE,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -35965,25 +35965,25 @@ function rawMessageInfoFromMessageData(messageData, id) {
       userIDs: messageData.userIDs,
       newRole: messageData.newRole
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
       time: messageData.time
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].CREATE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].CREATE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -35992,9 +35992,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].EDIT_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].EDIT_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].EDIT_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36003,9 +36003,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].DELETE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].DELETE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].DELETE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36014,9 +36014,9 @@ function rawMessageInfoFromMessageData(messageData, id) {
       date: messageData.date,
       text: messageData.text
     };
-  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY) {
+  } else if (messageData.type === __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].RESTORE_ENTRY) {
     return {
-      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].RESTORE_ENTRY,
+      type: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].RESTORE_ENTRY,
       id,
       threadID: messageData.threadID,
       creatorID: messageData.creatorID,
@@ -36038,7 +36038,7 @@ function mostRecentMessageTimestamp(messageInfos, lastPing) {
 }
 
 function messageTypeGeneratesNotifs(type) {
-  return type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].JOIN_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].LEAVE_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].ADD_MEMBERS && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageType */].REMOVE_MEMBERS;
+  return type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].JOIN_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].LEAVE_THREAD && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].ADD_MEMBERS && type !== __WEBPACK_IMPORTED_MODULE_0__types_message_types__["c" /* messageTypes */].REMOVE_MEMBERS;
 }
 
 
