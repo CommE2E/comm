@@ -587,19 +587,35 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
+  // This function gets called when:
+  // - The app is open (either foreground or background) and a notif is
+  //   received. In this case, notification has a custom_notification property.
+  //   custom_notification can have either a new notif or a payload indicating a
+  //   notif should be rescinded. In both cases, the native side will handle
+  //   presenting or rescinding the notif.
+  // - The app is open and a notif is pressed. In this case, notification has a
+  //   body property.
+  // - The app is closed and a notif is pressed. This is possible because when
+  //   the app is closed and a notif is recevied, the native side will boot up
+  //   to process it. However, in this case, this function does not get
+  //   triggered when the notif is received - only when it is pressed.
   androidNotificationReceived = async (
     notification,
     appOpenedFromNotif = false,
   ) => {
-    if (
-      notification.messageInfos &&
-      (appOpenedFromNotif ||
-        (!notification.custom_notification && !notification.body))
-    ) {
+    if (appOpenedFromNotif && notification.messageInfos) {
+      // This indicates that while the app was closed (not backgrounded), a
+      // notif was delivered to the native side, which presented a local notif.
+      // The local notif was then pressed, opening the app and triggering here.
+      // Normally, this callback is called initially when the local notif is
+      // generated, and at that point the MessageInfos get saved. But in the
+      // case of a notif press opening the app, that doesn't happen, so we'll
+      // save the notifs here.
       this.saveMessageInfos(notification.messageInfos);
     }
 
     if (notification.body) {
+      // This indicates that we're being called because a notif was pressed
       this.onPressNotificationForThread(notification.threadID, true);
       return;
     }
@@ -607,7 +623,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (notification.custom_notification) {
       const customNotification = JSON.parse(notification.custom_notification);
       if (customNotification.rescind === "true") {
-        // These are handled by the native layer
+        // We have nothing to do on the JS thread in the case of a rescind
         return;
       }
 
@@ -617,16 +633,25 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         return;
       }
 
+      // We are here because notif was received, but hasn't been pressed yet. We
+      // will preemptively dispatch a ping to fetch any missing info, and
+      // integrate whatever MessageInfos were delivered into our Redux state.
       this.pingNow();
       this.saveMessageInfos(customNotification.messageInfos);
 
       if (this.currentState === "active") {
+        // In the case where the app is in the foreground, we will show an
+        // in-app notif
         invariant(this.inAppNotification, "should be set");
         this.inAppNotification.show({
           message: customNotification.body,
           onPress: () => this.onPressNotificationForThread(threadID, false),
         });
       } else {
+        // We keep track of what notifs have been rendered for a given thread so
+        // that we can clear them immediately (without waiting for the rescind)
+        // when the user navigates to that thread. Since we can't do this while
+        // the app is closed, we rely on the rescind notif in that case.
         this.props.dispatchActionPayload(
           recordAndroidNotificationActionType,
           {

@@ -35,14 +35,24 @@ function reduceThreadIDsToNotifIDs(
   action: AndroidNotificationActions,
 ): {[threadID: string]: string[]} {
   if (action.type === recordAndroidNotificationActionType) {
+    const existingNotifIDs = state[action.payload.threadID];
+    let set;
+    if (existingNotifIDs) {
+      set = new Set([...existingNotifIDs, action.payload.notifID]);
+    } else {
+      set = new Set([action.payload.notifID]);
+    }
     return {
       ...state,
-      [action.payload.threadID]: [
-        ...state[action.payload.threadID],
-        action.payload.notifID,
-      ],
+      [action.payload.threadID]: [...set],
     };
   } else if (action.type === clearAndroidNotificationActionType) {
+    if (!state[action.payload.threadID]) {
+      return state;
+    }
+    for (let notifID of state[action.payload.threadID]) {
+      FCM.removeDeliveredNotification(notifID);
+    }
     return {
       ...state,
       [action.payload.threadID]: [],

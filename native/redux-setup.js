@@ -211,7 +211,7 @@ function reducer(state: AppState = defaultState, action: *) {
       customServer: state.customServer,
       threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
         state.threadIDsToNotifIDs,
-        action.payload,
+        action,
       ),
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       messageSentFromRoute: state.messageSentFromRoute,
