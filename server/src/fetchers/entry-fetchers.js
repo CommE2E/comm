@@ -42,7 +42,7 @@ async function fetchEntryInfos(
     WHERE
       (
         JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.visibility_rules = ${visibilityRules.OPEN}
+        OR t.type = ${visibilityRules.OPEN}
       )
       AND d.date BETWEEN ${entryQuery.startDate} AND ${entryQuery.endDate}
   `;
@@ -85,7 +85,7 @@ async function checkThreadPermissionForEntry(
 ): Promise<bool> {
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT m.permissions, t.visibility_rules
+    SELECT m.permissions, t.type
     FROM entries e
     LEFT JOIN days d ON d.id = e.day
     LEFT JOIN threads t ON t.id = d.thread
@@ -98,12 +98,12 @@ async function checkThreadPermissionForEntry(
     return false;
   }
   const row = result[0];
-  if (row.visibility_rules === null) {
+  if (row.type === null) {
     return false;
   }
   const permissionsInfo = {
     permissions: row.permissions,
-    visibilityRules: assertVisibilityRules(row.visibility_rules),
+    visibilityRules: assertVisibilityRules(row.type),
   };
   return permissionHelper(permissionsInfo, permission);
 }

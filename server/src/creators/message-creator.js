@@ -194,7 +194,7 @@ async function updateUnreadStatus(
       condition.append(SQL`.permissions, ${knowOfExtractString}) IS TRUE `);
       condition.append(SQL`OR st`);
       condition.append(index);
-      condition.append(SQL`.visibility_rules = ${visibilityRules.OPEN})`);
+      condition.append(SQL`.type = ${visibilityRules.OPEN})`);
       conditions.push(condition);
     }
     threadConditionClauses.push(mergeAndConditions(conditions));
@@ -220,7 +220,7 @@ async function updateUnreadStatus(
     SET m.unread = 1
     WHERE m.role != 0 AND f.user IS NULL AND (
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-      OR t.visibility_rules = ${visibilityRules.OPEN}
+      OR t.type = ${visibilityRules.OPEN}
     ) AND
   `);
   query.append(conditionClause);
@@ -258,7 +258,7 @@ async function sendPushNotifsForNewMessages(
     subthreadSelects += `
       ,
       stm${index}.permissions AS subthread${subthread}_permissions,
-      st${index}.visibility_rules AS subthread${subthread}_visibility_rules,
+      st${index}.type AS subthread${subthread}_type,
       stm${index}.role AS subthread${subthread}_role
     `;
     subthreadJoins.push(subthreadJoin(index, subthread));
@@ -283,7 +283,7 @@ async function sendPushNotifsForNewMessages(
     WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND
       (
         JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-        OR t.visibility_rules = ${visibilityRules.OPEN}
+        OR t.type = ${visibilityRules.OPEN}
       ) AND
   `);
   query.append(conditionClause);
@@ -306,7 +306,7 @@ async function sendPushNotifsForNewMessages(
         const permissionsInfo = {
           permissions: row[`subthread${subthread}_permissions`],
           visibilityRules: assertVisibilityRules(
-            row[`subthread${subthread}_visibility_rules`],
+            row[`subthread${subthread}_type`],
           ),
         };
         const isSubthreadMember = !!row[`subthread${subthread}_role`];

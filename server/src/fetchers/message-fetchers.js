@@ -91,7 +91,7 @@ async function fetchCollapsableNotifs(
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
       stm.permissions AS subthread_permissions,
-      st.visibility_rules AS subthread_visibility_rules,
+      st.type AS subthread_type,
       n.user, n.collapse_key
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
@@ -106,7 +106,7 @@ async function fetchCollapsableNotifs(
     WHERE
       (
         JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.visibility_rules = ${visibilityRules.OPEN}
+        OR t.type = ${visibilityRules.OPEN}
       )
       AND n.rescinded = 0
       AND
@@ -172,7 +172,7 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   } else if (type === messageType.CREATE_SUB_THREAD) {
     const subthreadPermissionInfo = {
       permissions: row.subthread_permissions,
-      visibilityRules: assertVisibilityRules(row.subthread_visibility_rules),
+      visibilityRules: assertVisibilityRules(row.subthread_type),
     };
     if (!permissionHelper(subthreadPermissionInfo, threadPermissions.KNOW_OF)) {
       return null;
@@ -302,15 +302,14 @@ async function fetchMessageInfos(
   const query = SQL`
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
-        u.username AS creator, x.subthread_permissions,
-        x.subthread_visibility_rules,
+        u.username AS creator, x.subthread_permissions, x.subthread_type,
         @num := if(@thread = x.thread, @num + 1, 1) AS number,
         @thread := x.thread AS threadID
       FROM (SELECT @num := 0, @thread := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
           stm.permissions AS subthread_permissions,
-          st.visibility_rules AS subthread_visibility_rules
+          st.type AS subthread_type
         FROM messages m
         LEFT JOIN threads t ON t.id = m.thread
         LEFT JOIN memberships mm
@@ -322,7 +321,7 @@ async function fetchMessageInfos(
         WHERE
           (
             JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-            OR t.visibility_rules = ${visibilityRules.OPEN}
+            OR t.type = ${visibilityRules.OPEN}
           )
           AND
   `;
@@ -450,8 +449,7 @@ async function fetchMessageInfosSince(
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions,
-      st.visibility_rules AS subthread_visibility_rules
+      stm.permissions AS subthread_permissions, st.type AS subthread_type
     FROM messages m
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -463,7 +461,7 @@ async function fetchMessageInfosSince(
     WHERE
       (
         JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-        OR t.visibility_rules = ${visibilityRules.OPEN}
+        OR t.type = ${visibilityRules.OPEN}
       )
       AND m.time > ${currentAsOf}
       AND

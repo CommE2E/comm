@@ -338,7 +338,7 @@ async function updateThread(
       sqlUpdate.hash = null;
     }
     changedFields.visibilityRules = visRules;
-    sqlUpdate.visibility_rules = visRules;
+    sqlUpdate.type = visRules;
   }
 
   const unverifiedNewMemberIDs = request.changes.newMemberIDs;
@@ -354,9 +354,9 @@ async function updateThread(
 
   // Two unrelated purposes for this query:
   // - get hash for viewer password check (users table)
-  // - get current value of visibility_rules, parent_thread_id (threads table)
+  // - get current value of type, parent_thread_id (threads table)
   const validationQuery = SQL`
-    SELECT u.hash, t.visibility_rules, t.parent_thread_id
+    SELECT u.hash, t.type, t.parent_thread_id
     FROM users u
     LEFT JOIN threads t ON t.id = ${request.threadID}
     WHERE u.id = ${viewer.userID}
@@ -382,7 +382,7 @@ async function updateThread(
 
   if (
     validationResult.length === 0 ||
-    validationResult[0].visibility_rules === null
+    validationResult[0].type === null
   ) {
     throw new ServerError('internal_error');
   }
@@ -403,7 +403,7 @@ async function updateThread(
   }
   if (
     sqlUpdate.parent_thread_id ||
-    sqlUpdate.visibility_rules ||
+    sqlUpdate.type ||
     sqlUpdate.hash
   ) {
     const canEditPermissions = permissionHelper(
@@ -430,7 +430,7 @@ async function updateThread(
     }
   }
 
-  const oldVisRules = assertVisibilityRules(validationRow.visibility_rules);
+  const oldVisRules = assertVisibilityRules(validationRow.type);
   const oldParentThreadID = validationRow.parentThreadID
     ? validationRow.parentThreadID.toString()
     : null;
@@ -577,7 +577,7 @@ async function joinThread(
   request: ThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
   const threadQuery = SQL`
-    SELECT visibility_rules, hash FROM threads WHERE id = ${request.threadID}
+    SELECT type, hash FROM threads WHERE id = ${request.threadID}
   `;
   const [ isMember, hasPermission, [ threadResult ] ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
@@ -594,7 +594,7 @@ async function joinThread(
   const threadRow = threadResult[0];
 
   // You can only be added to these visibility types if you know the password
-  const visRules = assertVisibilityRules(threadRow.visibility_rules);
+  const visRules = assertVisibilityRules(threadRow.type);
   if (
     visRules === visibilityRules.CLOSED ||
     visRules === visibilityRules.SECRET

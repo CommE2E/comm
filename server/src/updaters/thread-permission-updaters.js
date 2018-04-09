@@ -151,9 +151,7 @@ async function changeRoleThreadQuery(
   role: string | 0 | null,
 ): Promise<?RoleThreadResult> {
   if (role === 0) {
-    const query = SQL`
-      SELECT visibility_rules FROM threads WHERE id = ${threadID}
-    `;
+    const query = SQL`SELECT type FROM threads WHERE id = ${threadID}`;
     const [ result ] = await dbQuery(query);
     if (result.length === 0) {
       return null;
@@ -161,12 +159,12 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: "0",
-      visibilityRules: assertVisibilityRules(row.visibility_rules),
+      visibilityRules: assertVisibilityRules(row.type),
       rolePermissions: null,
     };
   } else if (role !== null) {
     const query = SQL`
-      SELECT t.visibility_rules, r.permissions
+      SELECT t.type, r.permissions
       FROM threads t
       LEFT JOIN roles r ON r.id = ${role}
       WHERE t.id = ${threadID}
@@ -178,12 +176,12 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: role,
-      visibilityRules: assertVisibilityRules(row.visibility_rules),
+      visibilityRules: assertVisibilityRules(row.type),
       rolePermissions: row.permissions,
     };
   } else {
     const query = SQL`
-      SELECT t.visibility_rules, t.default_role, r.permissions
+      SELECT t.type, t.default_role, r.permissions
       FROM threads t
       LEFT JOIN roles r ON r.id = t.default_role
       WHERE t.id = ${threadID}
@@ -195,7 +193,7 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: row.default_role.toString(),
-      visibilityRules: assertVisibilityRules(row.visibility_rules),
+      visibilityRules: assertVisibilityRules(row.type),
       rolePermissions: row.permissions,
     };
   }
@@ -216,7 +214,7 @@ async function updateDescendantPermissions(
 
     const userIDs = [...usersToPermissionsFromParent.keys()];
     const query = SQL`
-      SELECT t.id, m.user, t.visibility_rules,
+      SELECT t.id, m.user, t.type,
         r.permissions AS role_permissions, m.permissions,
         m.permissions_for_children, m.role
       FROM threads t
@@ -231,7 +229,7 @@ async function updateDescendantPermissions(
       const threadID = row.id.toString();
       if (!childThreadInfos.has(threadID)) {
         childThreadInfos.set(threadID, {
-          visibilityRules: assertVisibilityRules(row.visibility_rules),
+          visibilityRules: assertVisibilityRules(row.type),
           userInfos: new Map(),
         });
       }
@@ -304,14 +302,14 @@ async function updateDescendantPermissions(
 }
 
 // Unlike changeRole and others, this doesn't just create a MembershipChangeset.
-// It mutates the threads table by setting the visibility_rules column.
+// It mutates the threads table by setting the type column.
 // Caller still needs to save the resultant MembershipChangeset.
 async function recalculateAllPermissions(
   threadID: string,
   newVisRules: VisibilityRules,
 ): Promise<MembershipChangeset> {
   const updateQuery = SQL`
-    UPDATE threads SET visibility_rules = ${newVisRules} WHERE id = ${threadID}
+    UPDATE threads SET type = ${newVisRules} WHERE id = ${threadID}
   `;
   const selectQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,

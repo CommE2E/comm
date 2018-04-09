@@ -148,7 +148,7 @@ async function possiblyResetThreadsToUnread(
     WHERE m.thread IN (${unreadCandidates}) AND
       (
         m.type != ${messageType.CREATE_SUB_THREAD} OR
-        st.visibility_rules = ${visibilityRules.OPEN} OR
+        st.type = ${visibilityRules.OPEN} OR
         JSON_EXTRACT(stm.permissions, ${knowOfExtractString}) IS TRUE
       )
     GROUP BY m.thread

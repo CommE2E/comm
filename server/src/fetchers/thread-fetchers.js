@@ -34,7 +34,7 @@ async function fetchServerThreadInfos(
 
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
-      t.visibility_rules, t.creation_time, t.default_role, r.id AS role,
+      t.type, t.creation_time, t.default_role, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
       m.permissions, m.subscription, m.unread, u.username
     FROM threads t
@@ -58,7 +58,7 @@ async function fetchServerThreadInfos(
         id: threadID,
         name: row.name ? row.name : "",
         description: row.description ? row.description : "",
-        visibilityRules: row.visibility_rules,
+        visibilityRules: row.type,
         color: row.color,
         creationTime: row.creation_time,
         parentThreadID: row.parent_thread_id
@@ -82,7 +82,7 @@ async function fetchServerThreadInfos(
       const allPermissions = getAllThreadPermissions(
         {
           permissions: row.permissions,
-          visibilityRules: assertVisibilityRules(row.visibility_rules),
+          visibilityRules: assertVisibilityRules(row.type),
         },
         threadID,
       );
@@ -175,7 +175,7 @@ async function fetchThreadPermissionsInfo(
 ): Promise<?PermissionsInfo> {
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT t.visibility_rules, m.permissions
+    SELECT t.type, m.permissions
     FROM threads t
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
     WHERE t.id = ${threadID}
@@ -188,7 +188,7 @@ async function fetchThreadPermissionsInfo(
   const row = result[0];
   return {
     permissions: row.permissions,
-    visibilityRules: assertVisibilityRules(row.visibility_rules),
+    visibilityRules: assertVisibilityRules(row.type),
   };
 }
 
