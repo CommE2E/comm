@@ -884,8 +884,7 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
   const serverCallExists = serverCalls && Object.keys(serverCalls).length > 0;
   let mapState;
   if (serverCallExists && mapStateToProps && mapStateToProps.length > 1) {
-    mapState = (objectState, ownProps) => {
-      const state = objectState;
+    mapState = (state, ownProps) => {
       return _extends({}, mapStateToProps(state, ownProps), {
         cookie: state.cookie,
         urlPrefix: state.urlPrefix,
@@ -893,8 +892,7 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       });
     };
   } else if (serverCallExists && mapStateToProps) {
-    mapState = objectState => {
-      const state = objectState;
+    mapState = state => {
       return _extends({}, mapStateToProps(state), {
         cookie: state.cookie,
         urlPrefix: state.urlPrefix,
@@ -902,8 +900,7 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       });
     };
   } else if (mapStateToProps && mapStateToProps.length > 1) {
-    mapState = (objectState, ownProps) => {
-      const state = objectState;
+    mapState = (state, ownProps) => {
       return mapStateToProps(state, ownProps);
     };
   } else if (mapStateToProps) {
@@ -913,8 +910,7 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
       return mapStateToProps(state);
     };
   } else if (serverCallExists) {
-    mapState = objectState => {
-      const state = objectState;
+    mapState = state => {
       return {
         cookie: state.cookie,
         urlPrefix: state.urlPrefix,
