@@ -18,6 +18,8 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
+import { ServerError } from 'lib/utils/errors';
+
 import {
   validateInput,
   tShape,
@@ -100,6 +102,7 @@ const updateThreadRequestInputValidator = tShape({
   threadID: t.String,
   changes: tShape({
     type: t.maybe(tNumEnum(assertThreadType)),
+    visibilityRules: t.maybe(tNumEnum(assertThreadType)),
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
@@ -114,13 +117,51 @@ async function threadUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<ChangeThreadSettingsResult> {
-  const request: UpdateThreadRequest = input;
-  validateInput(updateThreadRequestInputValidator, request);
+  validateInput(updateThreadRequestInputValidator, input);
+  let request;
+  if (
+    input.changes.visibilityRules !== null &&
+    input.changes.visibilityRules !== undefined &&
+    (input.changes.type === null ||
+      input.changes.type === undefined)
+  ) {
+    request = ({
+      ...input,
+      changes: {
+        type: input.changes.visibilityRules,
+        name: input.changes.name,
+        description: input.changes.description,
+        color: input.changes.color,
+        password: input.changes.password,
+        parentThreadID: input.changes.parentThreadID,
+        newMemberIDs: input.changes.newMemberIDs,
+      },
+    }: UpdateThreadRequest);
+  } else if (
+    input.changes.visibilityRules !== null &&
+    input.changes.visibilityRules !== undefined
+  ) {
+    request = ({
+      ...input,
+      changes: {
+        type: input.changes.type,
+        name: input.changes.name,
+        description: input.changes.description,
+        color: input.changes.color,
+        password: input.changes.password,
+        parentThreadID: input.changes.parentThreadID,
+        newMemberIDs: input.changes.newMemberIDs,
+      },
+    }: UpdateThreadRequest);
+  } else {
+    request = (input: UpdateThreadRequest);
+  }
   return await updateThread(viewer, request);
 }
 
 const newThreadRequestInputValidator = tShape({
-  type: tNumEnum(assertThreadType),
+  type: t.maybe(tNumEnum(assertThreadType)),
+  visibilityRules: t.maybe(tNumEnum(assertThreadType)),
   name: t.maybe(t.String),
   description: t.maybe(t.String),
   color: t.maybe(tColor),
@@ -132,8 +173,27 @@ async function threadCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<NewThreadResult> {
-  const request: NewThreadRequest = input;
-  validateInput(newThreadRequestInputValidator, request);
+  validateInput(newThreadRequestInputValidator, input);
+  let request;
+  if (
+    (input.visibilityRules === null ||
+      input.visibilityRules === undefined) &&
+    (input.type === null || input.type === undefined)
+  ) {
+    throw new ServerError('invalid_parameters');
+  } else if (input.type === null || input.type === undefined) {
+    request = ({
+      type: input.visibilityRules,
+      name: input.name,
+      description: input.description,
+      color: input.color,
+      password: input.password,
+      parentThreadID: input.parentThreadID,
+      initialMemberIDs: input.initialMemberIDs,
+    }: NewThreadRequest);
+  } else {
+    request = (input: NewThreadRequest);
+  }
   return await createThread(viewer, request);
 }
 
