@@ -2023,6 +2023,7 @@ function rawThreadInfoFromServerThreadInfo(serverThreadInfo, viewerID) {
   return {
     id: serverThreadInfo.id,
     type: serverThreadInfo.type,
+    visibilityRules: serverThreadInfo.type,
     name: serverThreadInfo.name,
     description: serverThreadInfo.description,
     color: serverThreadInfo.color,
@@ -2054,6 +2055,7 @@ function rawThreadInfoFromThreadInfo(threadInfo) {
   return {
     id: threadInfo.id,
     type: threadInfo.type,
+    visibilityRules: threadInfo.type,
     name: threadInfo.name,
     description: threadInfo.description,
     color: threadInfo.color,
@@ -27469,22 +27471,26 @@ class App extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
           modalExists: this.state.modalExists
         }),
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
-          'h2',
+          'div',
           { className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['upper-center'] },
           __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
-            __WEBPACK_IMPORTED_MODULE_5_react_router_dom__["a" /* Link */],
-            { to: prevURL, className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['previous-month-link'] },
-            '<'
-          ),
-          " ",
-          monthName,
-          " ",
-          year,
-          " ",
-          __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
-            __WEBPACK_IMPORTED_MODULE_5_react_router_dom__["a" /* Link */],
-            { to: nextURL, className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['next-month-link'] },
-            '>'
+            'h2',
+            null,
+            __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
+              __WEBPACK_IMPORTED_MODULE_5_react_router_dom__["a" /* Link */],
+              { to: prevURL, className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['previous-month-link'] },
+              '<'
+            ),
+            " ",
+            monthName,
+            " ",
+            year,
+            " ",
+            __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
+              __WEBPACK_IMPORTED_MODULE_5_react_router_dom__["a" /* Link */],
+              { to: nextURL, className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['next-month-link'] },
+              '>'
+            )
           )
         )
       ),

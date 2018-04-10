@@ -1,11 +1,11 @@
-header, tr {
+header {
   font-family: 'Anaheim', sans-serif;
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
-  background-color: #FFFAF0;
+  background-color: #FAFAFA;
 }
 a {
   text-decoration: none;
@@ -34,6 +34,14 @@ input[type='submit']::-moz-focus-inner {
 table {
   width: 100%;
   table-layout: fixed;
+  margin-top: 72px;
+}
+thead > tr > th {
+  padding-bottom: 6px;
+  color: #888888;
+  font-weight: normal;
+  text-transform: uppercase;
+  font-size: 14px;
 }
 textarea.entry-text {
   background: none;
@@ -55,7 +63,16 @@ textarea.entry-text {
   margin: 0;
 }
 header {
-  height: 42px;
+  height: 64px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-image: url(../images/header.png);
+  background-size: 2560px 64px;
+  background-attachment: fixed;
+  background-position-x: 50%;
+  z-index: 2;
+  border-bottom: 3px solid lightgray;
 }
 td.day {
   background-color: white;
@@ -165,10 +182,11 @@ td.day > h2 {
   position: absolute;
   bottom: 2px;
   right: 3px;
-  color: #FEE5AC;
+  color: #999999;
   font-size: 32px;
   line-height: 32px;
   z-index: 1;
+  font-family: 'Anaheim', sans-serif;
 }
 td.current-day > h2 {
   color: #FF944D;
@@ -176,12 +194,15 @@ td.current-day > h2 {
 
 h1 {
   position: absolute;
-  padding-left: 4px;
+  padding-top: 5px;
+  padding-left: 16px;
+  color: white;
+  font-size: 38px;
 }
 
 div.upper-right {
   position: absolute;
-  padding: 6px;
+  padding: 15px 16px;
   right: 0;
 }
 div.thread-nav {
@@ -377,18 +398,26 @@ span.thread-nav-pager-status {
   vertical-align: top;
 }
 
-h2.upper-center {
+div.upper-center {
+  color: white;
   text-align: center;
+  margin: 11px auto 0 auto;
+  width: 200px;
+  background-color: #22222222;
+  padding: 6px 18px;
+  border-radius: 15px;
 }
-h2.upper-center > a.previous-month-link {
+div.upper-center a.previous-month-link {
   position: absolute;
   left: 50%;
   margin-left: -100px;
+  color: #036AFF;
 }
-h2.upper-center > a.next-month-link {
+div.upper-center a.next-month-link {
   position: absolute;
   right: 50%;
   margin-right: -100px;
+  color: #036AFF;
 }
 
 div.lower-left {
@@ -1110,4 +1139,16 @@ div.intro-modal {
     "Helvetica Neue", sans-serif;
   margin-top: 100px;
   box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
+}
+
+@media
+  only screen and (-webkit-min-device-pixel-ratio: 2.0),
+  only screen and ( min--moz-device-pixel-ratio: 2.0),
+  only screen and ( -o-min-device-pixel-ratio: 2.0/1),
+  only screen and ( min-device-pixel-ratio: 2.0),
+  only screen and ( min-resolution: 320dpi),
+  only screen and ( min-resolution: 2.0dppx) {
+  header {
+    background-image: url(../images/header@2x.png);
+  }
 }

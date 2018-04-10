@@ -257,19 +257,21 @@ class App extends React.PureComponent<Props, State> {
             clearModal={this.clearModal}
             modalExists={this.state.modalExists}
           />
-          <h2 className={css['upper-center']}>
-            <Link to={prevURL} className={css['previous-month-link']}>
-              &lt;
-            </Link>
-            {" "}
-            {monthName}
-            {" "}
-            {year}
-            {" "}
-            <Link to={nextURL} className={css['next-month-link']}>
-              &gt;
-            </Link>
-          </h2>
+          <div className={css['upper-center']}>
+            <h2>
+              <Link to={prevURL} className={css['previous-month-link']}>
+                &lt;
+              </Link>
+              {" "}
+              {monthName}
+              {" "}
+              {year}
+              {" "}
+              <Link to={nextURL} className={css['next-month-link']}>
+                &gt;
+              </Link>
+            </h2>
+          </div>
         </header>
         <Calendar
           setModal={this.setModal}

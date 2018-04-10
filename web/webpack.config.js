@@ -38,7 +38,11 @@ const baseBrowserConfig = {
             ['latest', { 'es2015': { modules: false } }],
           ],
         },
-      }
+      },
+      {
+        test: /\.png$/,
+        loader: "url-loader",
+      },
     ],
   },
   resolve: {
@@ -56,6 +60,7 @@ const baseBrowserConfig = {
       'lodash': path.resolve('./node_modules/lodash'),
       'jquery': path.resolve('./node_modules/jquery'),
       'isomorphic-fetch': path.resolve('./node_modules/isomorphic-fetch'),
+      '../images': path.resolve('../server/images'),
     },
   },
 };
@@ -89,7 +94,7 @@ module.exports = function(env) {
       output: {
         ...browserConfig.output,
         pathinfo: true,
-        publicPath: 'http://localhost:8080/',
+        publicPath: 'http://localhost/squadcal/',
         hotUpdateChunkFilename: 'hot/hot-update.js',
         hotUpdateMainFilename: 'hot/hot-update.json',
       },
@@ -117,17 +122,17 @@ module.exports = function(env) {
               ],
             },
           },
+          browserConfig.module.rules[1],
           {
             test: /\.css$/,
             use: [
-              'style-loader',
               {
-                ...cssLoader,
+                loader: 'style-loader',
                 options: {
-                  ...cssLoader.options,
                   sourceMap: true,
                 },
               },
+              cssLoader,
             ],
           },
         ],
@@ -168,9 +173,18 @@ module.exports = function(env) {
               ],
             },
           },
+          browserConfig.module.rules[1],
           {
             test: /\.css$/,
-            use: ExtractTextPlugin.extract({ loader: cssLoader }),
+            use: ExtractTextPlugin.extract({
+              use: {
+                ...cssLoader,
+                options: {
+                  ...cssLoader.options,
+                  url: false,
+                },
+              },
+            }),
           },
         ],
       },
@@ -194,6 +208,7 @@ module.exports = function(env) {
             loader: 'css-loader/locals',
           },
         },
+        browserConfig.module.rules[1],
       ],
     }
   };
