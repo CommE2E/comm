@@ -216,6 +216,7 @@ async function createThread(
     newThreadInfo: {
       id,
       type: threadType,
+      visibilityRules: threadType,
       name,
       description,
       color,
