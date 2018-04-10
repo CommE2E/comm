@@ -27514,13 +27514,13 @@ class App extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
               '>'
             )
           )
-        )
+        ),
+        this.state.currentModal
       ),
       __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_21__calendar_calendar_react__["a" /* default */], {
         setModal: this.setModal,
         clearModal: this.clearModal
-      }),
-      this.state.currentModal
+      })
     );
   }
 

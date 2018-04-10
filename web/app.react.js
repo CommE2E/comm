@@ -274,12 +274,12 @@ class App extends React.PureComponent<Props, State> {
               </Link>
             </h2>
           </div>
+          {this.state.currentModal}
         </header>
         <Calendar
           setModal={this.setModal}
           clearModal={this.clearModal}
         />
-        {this.state.currentModal}
       </div>
     );
   }
