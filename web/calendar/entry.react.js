@@ -191,12 +191,14 @@ class Entry extends React.PureComponent<Props, State> {
       );
     }
 
+    const darkColor = colorIsDark(this.props.threadInfo.color);
     const entryClasses = classNames({
       [css['entry']]: true,
-      [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
+      [css['dark-entry']]: darkColor,
       [css['focused-entry']]: this.state.focused,
     });
     const style = { backgroundColor: "#" + this.props.threadInfo.color };
+    const loadingIndicatorColor = darkColor ? "white" : "black";
     return (
       <div
         className={entryClasses}
@@ -216,7 +218,9 @@ class Entry extends React.PureComponent<Props, State> {
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
-          className={css['entry-loading']}
+          color={loadingIndicatorColor}
+          loadingClassName={css['entry-loading']}
+          errorClassName={css['entry-error']}
         />
         {actionLinks}
       </div>

@@ -115,7 +115,9 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
         <li>
           <LoadingIndicator
             status={this.props.loadingStatus}
-            className={css['thread-nav-option-buttons-loading']}
+            color="black"
+            loadingClassName={css['thread-nav-option-buttons-loading']}
+            errorClassName={css['thread-nav-option-buttons-error']}
           />
           <a href='#' onClick={buttonAction}>{buttonText}</a>
         </li>

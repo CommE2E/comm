@@ -176,7 +176,9 @@ class HistoryModal extends React.PureComponent<Props, State> {
             <span className={css['history-date']}>{prettyDate}</span>
             <LoadingIndicator
               status={loadingStatus}
-              className={css['history-loading']}
+              color="black"
+              loadingClassName={css['history-loading']}
+              errorClassName={css['history-error']}
             />
           </div>
           <div className={dayClasses}><ul>{entries}</ul></div>

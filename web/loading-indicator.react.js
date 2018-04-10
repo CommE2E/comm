@@ -8,26 +8,36 @@ import css from './style.css';
 
 type Props = {
   status: LoadingStatus,
-  className: ?string,
+  size?: "small" | "large",
+  color?: "black" | "white",
+  loadingClassName?: string,
+  errorClassName?: string,
 };
 
 export default function LoadingIndicator(props: Props) {
-  if (props.status === "inactive") {
-    return null;
-  }
-  let cssClassNames = css[`loading-indicator-${props.status}`];
-  if (props.className) {
-    cssClassNames += " " + props.className;
-  }
+  const size = props.size ? props.size : "small";
+  const color = props.color ? props.color : "white";
   if (props.status === "loading") {
-    return (
-      <img
-        className={cssClassNames}
-        src="images/ajax-loader.gif"
-        alt="loading"
-      />
-    );
+    let cssClassNames = size === "small"
+      ? css['loading-indicator-loading-small']
+      : css['loading-indicator-loading'];
+    if (props.loadingClassName) {
+      cssClassNames += " " + props.loadingClassName;
+    }
+    if (color === "black") {
+      cssClassNames += " " + css['loading-indicator-black'];
+    }
+    return <span className={cssClassNames} />;
   } else if (props.status === "error") {
-    return <span className={cssClassNames} title="error">!</span>;
+    let cssClassNames = css['loading-indicator-error'];
+    if (props.loadingClassName) {
+      cssClassNames += " " + props.errorClassName;
+    }
+    if (color === "black") {
+      cssClassNames += " " + css['loading-indicator-error-black'];
+    }
+    return <span className={cssClassNames}>!</span>;
+  } else {
+    return null;
   }
 }

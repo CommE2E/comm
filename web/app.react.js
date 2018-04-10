@@ -244,7 +244,9 @@ class App extends React.PureComponent<Props, State> {
           <div className={css['upper-right']}>
             <LoadingIndicator
               status={this.props.entriesLoadingStatus}
-              className={css['page-loading']}
+              size="large"
+              loadingClassName={css['page-loading']}
+              errorClassName={css['page-error']}
             />
             <Typeahead
               setModal={this.setModal}

@@ -142,7 +142,9 @@ class TypeaheadThreadOption extends React.PureComponent<Props, State> {
           />
           <LoadingIndicator
             status={this.props.passwordEntryLoadingStatus}
-            className={css['thread-pasword-entry-loading']}
+            color="black"
+            loadingClassName={css['thread-pasword-entry-loading']}
+            errorClassName={css['thread-pasword-entry-error']}
           />
           <div className={css['thread-password-entry-input-container']}>
             <input

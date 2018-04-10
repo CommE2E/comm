@@ -239,6 +239,7 @@ module.exports = {
 	"dark-entry": "style__dark-entry--2dc_a",
 	"action-links": "style__action-links--2fUa6",
 	"entry-loading": "style__entry-loading--AAfKP",
+	"entry-error": "style__entry-error--3mDkd",
 	"day-action-links": "style__day-action-links--pyNpz",
 	"action-links-text": "style__action-links-text--37mv2",
 	"right-action-links": "style__right-action-links--3kgPm",
@@ -263,8 +264,12 @@ module.exports = {
 	"thread-nav-option-name": "style__thread-nav-option-name--3edRD",
 	"thread-nav-option-buttons": "style__thread-nav-option-buttons--1hTtl",
 	"thread-nav-option-buttons-loading": "style__thread-nav-option-buttons-loading--1mcA4",
+	"thread-nav-option-buttons-error": "style__thread-nav-option-buttons-error--1NtmR",
 	"loading-indicator-loading": "style__loading-indicator-loading--2AO3Y",
+	"loading-indicator-loading-small": "style__loading-indicator-loading-small--3W7pF",
+	"loading-indicator-black": "style__loading-indicator-black--1_-XS",
 	"loading-indicator-error": "style__loading-indicator-error--3rllh",
+	"loading-indicator-error-black": "style__loading-indicator-error-black--n2358",
 	"thread-nav-option-description": "style__thread-nav-option-description--_ahC6",
 	"thread-nav-frozen-option": "style__thread-nav-frozen-option--1LFBw",
 	"thread-nav-open-option": "style__thread-nav-open-option--qMtEQ",
@@ -312,6 +317,7 @@ module.exports = {
 	"italic": "style__italic--3zZuj",
 	"history-modal-body": "style__history-modal-body--19dYB",
 	"history-loading": "style__history-loading--1ncSj",
+	"history-error": "style__history-error--2KfVR",
 	"entry-history": "style__entry-history--3JUCQ",
 	"entry-history-visible": "style__entry-history-visible--24Jd5",
 	"entry-history-invisible": "style__entry-history-invisible--Fi8pf",
@@ -339,6 +345,7 @@ module.exports = {
 	"deleted-entry-label": "style__deleted-entry-label--3FLlY",
 	"restore-entry-label": "style__restore-entry-label--18XjI",
 	"restore-loading": "style__restore-loading--rnpa2",
+	"restore-error": "style__restore-error--3oRLB",
 	"revision-history-button": "style__revision-history-button--2y5ge",
 	"entry-history-restored": "style__entry-history-restored--3hSUh",
 	"entry-history-deleted": "style__entry-history-deleted--NCoz-",
@@ -363,10 +370,12 @@ module.exports = {
 	"delete-tab": "style__delete-tab--cOPrs",
 	"new-thread-privacy-container": "style__new-thread-privacy-container--3WhE5",
 	"page-loading": "style__page-loading--2_FtC",
+	"page-error": "style__page-error--3Gczj",
 	"thread-password-entry-input-container": "style__thread-password-entry-input-container--1jxMV",
 	"thread-password-entry-input": "style__thread-password-entry-input--1Z06c",
 	"thread-password-entry-submit": "style__thread-password-entry-submit--2w_ob",
 	"thread-pasword-entry-loading": "style__thread-pasword-entry-loading--2y9SI",
+	"thread-pasword-entry-error": "style__thread-pasword-entry-error--1m0Bu",
 	"color-picker-container": "style__color-picker-container--3EBRt",
 	"color-picker-button": "style__color-picker-button--22iR5",
 	"color-picker-preview": "style__color-picker-preview--1eoRI",
@@ -3838,25 +3847,32 @@ function MagnifyingGlass(props) {
 
 
 function LoadingIndicator(props) {
-  if (props.status === "inactive") {
-    return null;
-  }
-  let cssClassNames = __WEBPACK_IMPORTED_MODULE_1__style_css___default.a[`loading-indicator-${props.status}`];
-  if (props.className) {
-    cssClassNames += " " + props.className;
-  }
+  const size = props.size ? props.size : "small";
+  const color = props.color ? props.color : "white";
   if (props.status === "loading") {
-    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('img', {
-      className: cssClassNames,
-      src: 'images/ajax-loader.gif',
-      alt: 'loading'
-    });
+    let cssClassNames = size === "small" ? __WEBPACK_IMPORTED_MODULE_1__style_css___default.a['loading-indicator-loading-small'] : __WEBPACK_IMPORTED_MODULE_1__style_css___default.a['loading-indicator-loading'];
+    if (props.loadingClassName) {
+      cssClassNames += " " + props.loadingClassName;
+    }
+    if (color === "black") {
+      cssClassNames += " " + __WEBPACK_IMPORTED_MODULE_1__style_css___default.a['loading-indicator-black'];
+    }
+    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: cssClassNames });
   } else if (props.status === "error") {
+    let cssClassNames = __WEBPACK_IMPORTED_MODULE_1__style_css___default.a['loading-indicator-error'];
+    if (props.loadingClassName) {
+      cssClassNames += " " + props.errorClassName;
+    }
+    if (color === "black") {
+      cssClassNames += " " + __WEBPACK_IMPORTED_MODULE_1__style_css___default.a['loading-indicator-error-black'];
+    }
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       'span',
-      { className: cssClassNames, title: 'error' },
+      { className: cssClassNames },
       '!'
     );
+  } else {
+    return null;
   }
 }
 
@@ -26906,7 +26922,9 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
         null,
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__loading_indicator_react__["a" /* default */], {
           status: this.props.loadingStatus,
-          className: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons-loading']
+          color: 'black',
+          loadingClassName: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons-loading'],
+          errorClassName: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons-error']
         }),
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
           'a',
@@ -27160,7 +27178,9 @@ class HistoryModal extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] 
           ),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_19__loading_indicator_react__["a" /* default */], {
             status: loadingStatus,
-            className: __WEBPACK_IMPORTED_MODULE_17__style_css___default.a['history-loading']
+            color: 'black',
+            loadingClassName: __WEBPACK_IMPORTED_MODULE_17__style_css___default.a['history-loading'],
+            errorClassName: __WEBPACK_IMPORTED_MODULE_17__style_css___default.a['history-error']
           })
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
@@ -27457,7 +27477,9 @@ class App extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
           { className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['upper-right'] },
           __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_24__loading_indicator_react__["a" /* default */], {
             status: this.props.entriesLoadingStatus,
-            className: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['page-loading']
+            size: 'large',
+            loadingClassName: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['page-loading'],
+            errorClassName: __WEBPACK_IMPORTED_MODULE_18__style_css___default.a['page-error']
           }),
           __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_20__typeahead_typeahead_react__["a" /* default */], {
             setModal: this.setModal,
@@ -53556,7 +53578,9 @@ class TypeaheadThreadOption extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCom
         }),
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_17__loading_indicator_react__["a" /* default */], {
           status: this.props.passwordEntryLoadingStatus,
-          className: __WEBPACK_IMPORTED_MODULE_13__style_css___default.a['thread-pasword-entry-loading']
+          color: 'black',
+          loadingClassName: __WEBPACK_IMPORTED_MODULE_13__style_css___default.a['thread-pasword-entry-loading'],
+          errorClassName: __WEBPACK_IMPORTED_MODULE_13__style_css___default.a['thread-pasword-entry-error']
         }),
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
           'div',
@@ -55527,12 +55551,14 @@ class Entry extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       );
     }
 
+    const darkColor = Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["a" /* colorIsDark */])(this.props.threadInfo.color);
     const entryClasses = __WEBPACK_IMPORTED_MODULE_3_classnames___default()({
       [__WEBPACK_IMPORTED_MODULE_14__style_css___default.a['entry']]: true,
-      [__WEBPACK_IMPORTED_MODULE_14__style_css___default.a['dark-entry']]: Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["a" /* colorIsDark */])(this.props.threadInfo.color),
+      [__WEBPACK_IMPORTED_MODULE_14__style_css___default.a['dark-entry']]: darkColor,
       [__WEBPACK_IMPORTED_MODULE_14__style_css___default.a['focused-entry']]: this.state.focused
     });
     const style = { backgroundColor: "#" + this.props.threadInfo.color };
+    const loadingIndicatorColor = darkColor ? "white" : "black";
     return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
       'div',
       {
@@ -55553,7 +55579,9 @@ class Entry extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       }),
       __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_15__loading_indicator_react__["a" /* default */], {
         status: this.state.loadingStatus,
-        className: __WEBPACK_IMPORTED_MODULE_14__style_css___default.a['entry-loading']
+        color: loadingIndicatorColor,
+        loadingClassName: __WEBPACK_IMPORTED_MODULE_14__style_css___default.a['entry-loading'],
+        errorClassName: __WEBPACK_IMPORTED_MODULE_14__style_css___default.a['entry-error']
       }),
       actionLinks
     );
@@ -55935,7 +55963,9 @@ class HistoryEntry extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] 
           ),
           __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_13__loading_indicator_react__["a" /* default */], {
             status: this.props.restoreLoadingStatus,
-            className: __WEBPACK_IMPORTED_MODULE_12__style_css___default.a['restore-loading']
+            color: 'black',
+            loadingClassName: __WEBPACK_IMPORTED_MODULE_12__style_css___default.a['restore-loading'],
+            errorClassName: __WEBPACK_IMPORTED_MODULE_12__style_css___default.a['restore-error']
           })
         );
       }

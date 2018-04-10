@@ -69,7 +69,9 @@ class HistoryEntry extends React.PureComponent<Props> {
             </span>
             <LoadingIndicator
               status={this.props.restoreLoadingStatus}
-              className={css['restore-loading']}
+              color="black"
+              loadingClassName={css['restore-loading']}
+              errorClassName={css['restore-error']}
             />
           </span>
         );

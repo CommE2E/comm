@@ -110,15 +110,15 @@ div.dark-entry div.action-links > a {
 div.dark-entry div.action-links > a:hover {
   color: white;
 }
-img.entry-loading {
+span.entry-loading {
   position: absolute;
-  top: 6px;
+  top: 5px;
   right: 5px;
   width: 12px;
 }
-span.entry-loading {
+span.entry-error {
   position: absolute;
-  top: 13px;
+  top: 11px;
   right: 5px;
   font-size: 16px;
   width: 6px;
@@ -328,17 +328,57 @@ ul.thread-nav-option-buttons > li + li:before {
 ul.thread-nav-option-buttons a:hover {
   text-decoration: underline;
 }
-.thread-nav-option-buttons-loading {
+span.thread-nav-option-buttons-loading, span.thread-nav-option-buttons-error {
   position: relative;
-  padding-left: 3px;
-  top: 2px;
+  padding: 0 3px;
+  top: 4px;
   right: 3px;
   width: 10px;
   font-size: 14px;
 }
-img.loading-indicator-loading {
+span.loading-indicator-loading {
+  display: inline-block;
+}
+span.loading-indicator-loading:after {
+  content: " ";
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: loading-indicator-loading 1.2s linear infinite;
+}
+span.loading-indicator-loading-small {
+  display: inline-block;
+}
+span.loading-indicator-loading-small:after {
+  content: " ";
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: loading-indicator-loading 1.2s linear infinite;
+}
+span.loading-indicator-black:after {
+  border-color: #000 transparent #000 transparent;
+}
+@keyframes loading-indicator-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 span.loading-indicator-error {
+  font-weight: bold;
+  color: white;
+  line-height: 0;
+}
+span.loading-indicator-error-black {
   font-weight: bold;
   color: red;
   line-height: 0;
@@ -686,12 +726,12 @@ div.history-modal-body {
   height: 240px;
   overflow: hidden;
 }
-img.history-loading {
-  position: absolute;
-  right: 6px;
-  top: 5px;
-}
 span.history-loading {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+}
+span.history-error {
   position: absolute;
   line-height: 16px;
   font-size: 16px;
@@ -860,15 +900,15 @@ span.deleted-entry-label {
 span.restore-entry-label {
   padding-left: 5px;
 }
-img.restore-loading {
+span.restore-loading {
   position: relative;
   top: 2px;
   left: 5px;
   width: 12px;
 }
-span.restore-loading {
+span.restore-error {
   position: relative;
-  top: 2px;
+  top: 1px;
   left: 7px;
   font-size: 15px;
 }
@@ -1028,12 +1068,12 @@ div.new-thread-privacy-container {
   margin-top: -6px;
 }
 
-img.page-loading {
-  margin-top: 8px;
+span.page-loading {
+  margin-top: 6px;
   margin-right: 10px;
   float: left;
 }
-span.page-loading {
+span.page-error {
   margin-top: 16px;
   margin-right: 10px;
   font-size: 28px;
@@ -1079,12 +1119,12 @@ input.thread-password-entry-submit:disabled {
   text-decoration: none;
   color: #999999;
 }
-img.thread-pasword-entry-loading {
+span.thread-pasword-entry-loading {
   float: right;
   width: 14px;
   padding: 9px 1px 0px 3px;
 }
-span.thread-pasword-entry-loading {
+span.thread-pasword-entry-error {
   float: right;
   line-height: 14px;
   padding: 9px 3px 0px 5px;
