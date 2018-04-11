@@ -30,7 +30,7 @@ export default function LoadingIndicator(props: Props) {
     return <span className={cssClassNames} />;
   } else if (props.status === "error") {
     let cssClassNames = css['loading-indicator-error'];
-    if (props.loadingClassName) {
+    if (props.errorClassName) {
       cssClassNames += " " + props.errorClassName;
     }
     if (color === "black") {

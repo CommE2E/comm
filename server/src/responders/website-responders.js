@@ -3,6 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { AppState, Action } from 'web/redux-setup';
 import type { Store } from 'redux';
+import { defaultPingTimestamps } from 'lib/types/ping-types';
 
 import html from 'common-tags/lib/html';
 import { createStore } from 'redux';
@@ -125,6 +126,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       drafts: {},
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
+      pingTimestamps: defaultPingTimestamps,
       cookie: undefined,
       deviceToken: null,
       // We can use paths local to the <base href> on web

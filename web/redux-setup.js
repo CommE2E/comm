@@ -8,6 +8,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
+import type { PingTimestamps } from 'lib/types/ping-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -46,6 +47,7 @@ export type AppState = {|
   drafts: {[key: string]: string},
   updatesCurrentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
+  pingTimestamps: PingTimestamps,
   cookie: ?string,
   deviceToken: ?string,
   urlPrefix: string,
@@ -88,6 +90,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       drafts: state.drafts,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -109,6 +112,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       drafts: state.drafts,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -130,6 +134,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       drafts: state.drafts,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -158,6 +163,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       drafts: state.drafts,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -188,6 +194,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       drafts: state.drafts,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,

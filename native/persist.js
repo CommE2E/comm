@@ -1,6 +1,7 @@
 // @flow
 
 import type { AppState } from './redux-setup';
+import { defaultPingTimestamps } from 'lib/types/ping-types';
 
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
@@ -52,7 +53,7 @@ const migrations = {
   }),
   [4]: (state: AppState) => ({
     ...state,
-    lastPingTime: 0,
+    pingTimestamps: defaultPingTimestamps,
   }),
 };
 

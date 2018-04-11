@@ -9,10 +9,12 @@ import type {
 } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
 import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
-import type {
-  PingStartingPayload,
-  PingActionInput,
-  PingResult,
+import {
+  type PingStartingPayload,
+  type PingActionInput,
+  type PingResult,
+  type PingTimestamps,
+  pingTimestampsPropType,
 } from 'lib/types/ping-types';
 
 import * as React from 'react';
@@ -39,7 +41,7 @@ import {
   pingActionInput,
 } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { pingFrequency } from 'lib/shared/ping-utils';
+import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
 
 import {
   thisURL,
@@ -80,6 +82,8 @@ type Props = {
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
+  pingTimestamps: PingTimestamps,
+  cookie: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -98,6 +102,8 @@ type State = {
 };
 
 class App extends React.PureComponent<Props, State> {
+
+  pingCounter = 0;
 
   constructor(props: Props) {
     super(props);
@@ -133,18 +139,47 @@ class App extends React.PureComponent<Props, State> {
     if (this.props.location.pathname !== newURL) {
       history.replace(newURL);
     }
-    Visibility.every(pingFrequency, this.ping);
+    this.pingNow();
+    Visibility.change(this.onVisibilityChange);
   }
 
-  ping = () => {
-    const startingPayload = this.props.pingStartingPayload();
-    const actionInput = this.props.pingActionInput(startingPayload);
-    this.props.dispatchActionPromise(
-      pingActionTypes,
-      this.props.ping(actionInput),
-      undefined,
-      startingPayload,
-    );
+  onVisibilityChange = (e, state: string) => {
+    if (state === "visible") {
+      this.possiblePing();
+    }
+  }
+
+  shouldDispatchPing(props: Props) {
+    if (Visibility.hidden()) {
+      return false;
+    }
+    const lastPingStart = props.pingTimestamps.lastStarted;
+    if (this.pingCounter === 0 && lastPingStart < Date.now() - pingFrequency) {
+      return true;
+    } else if (lastPingStart < Date.now() - pingFrequency * 10) {
+      // It seems we have encountered some error start where ping isn't firing
+      this.pingCounter = 0;
+      return true;
+    }
+    return false;
+  }
+
+  possiblePing = (inputProps?: Props) => {
+    const props = inputProps ? inputProps : this.props;
+    if (this.shouldDispatchPing(props)) {
+      this.pingNow();
+    }
+  }
+
+  pingNow() {
+    dispatchPing(this.props);
+    // This will only trigger if the ping is complete by then. If the ping isn't
+    // complete by the time this timeout fires, componentWillReceiveProps takes
+    // responsibility for starting the next ping.
+    setTimeout(this.possiblePing, pingFrequency);
+    // This one runs in case something is wrong with pingCounter state or timing
+    // and the first one gets swallowed without triggering another ping.
+    setTimeout(this.possiblePing, pingFrequency * 10);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -165,27 +200,27 @@ class App extends React.PureComponent<Props, State> {
     );
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.location.pathname !== this.props.location.pathname) {
-      const newNavInfo = navInfoFromURL(newProps.location.pathname);
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.location.pathname !== this.props.location.pathname) {
+      const newNavInfo = navInfoFromURL(nextProps.location.pathname);
       if (!newNavInfo.home && !newNavInfo.threadID) {
-        const strippedPathname = newProps.location.pathname.replace(/^\//, '');
+        const strippedPathname = nextProps.location.pathname.replace(/^\//, '');
         history.replace(`/${this.props.thisNavURLFragment}${strippedPathname}`);
-        newNavInfo.home = newProps.navInfo.home;
-        newNavInfo.threadID = newProps.navInfo.threadID;
+        newNavInfo.home = nextProps.navInfo.home;
+        newNavInfo.threadID = nextProps.navInfo.threadID;
       }
-      if (!_isEqual(newNavInfo)(newProps.navInfo)) {
+      if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
         this.props.dispatchActionPayload(
           reflectRouteChangeActionType,
           newNavInfo,
         );
       }
-    } else if (!_isEqual(newProps.navInfo)(this.props.navInfo)) {
+    } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
-        newProps.navInfo,
-        newProps.location.pathname,
+        nextProps.navInfo,
+        nextProps.location.pathname,
       );
-      if (newURL !== newProps.location.pathname) {
+      if (newURL !== nextProps.location.pathname) {
         history.replace(newURL);
       }
     }
@@ -193,16 +228,16 @@ class App extends React.PureComponent<Props, State> {
     if (!this.state.modalExists) {
       let newModal = undefined;
       if (
-        (newProps.navInfo.home && !newProps.currentNavID) &&
+        (nextProps.navInfo.home && !nextProps.currentNavID) &&
         (!this.props.navInfo.home || this.props.currentNavID)
       ) {
         newModal = <IntroModal />;
       } else if (
-        (newProps.navInfo.threadID && !newProps.currentNavID) &&
+        (nextProps.navInfo.threadID && !nextProps.currentNavID) &&
         (!this.props.navInfo.threadID || this.props.currentNavID)
       ) {
         newModal = <div className={css['modal-overlay']} />;
-      } else if (newProps.currentNavID && !this.props.currentNavID) {
+      } else if (nextProps.currentNavID && !this.props.currentNavID) {
         newModal = null;
       }
       if (newModal !== undefined) {
@@ -211,15 +246,31 @@ class App extends React.PureComponent<Props, State> {
     }
 
     if (
-      newProps.currentNavID &&
-      (newProps.currentNavID !== this.props.currentNavID ||
-        newProps.navInfo.startDate !== this.props.navInfo.startDate ||
-        newProps.navInfo.endDate !== this.props.navInfo.endDate)
+      nextProps.currentNavID &&
+      (nextProps.currentNavID !== this.props.currentNavID ||
+        nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
+        nextProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
-      newProps.dispatchActionPromise(
+      nextProps.dispatchActionPromise(
         fetchEntriesActionTypes,
-        newProps.fetchEntries(newProps.currentCalendarQuery()),
+        nextProps.fetchEntries(nextProps.currentCalendarQuery()),
       );
+    }
+
+    const prevLastPingSuccess = this.props.pingTimestamps.lastSuccess;
+    const nextLastPingSuccess = nextProps.pingTimestamps.lastSuccess;
+    const prevLastPingStart = this.props.pingTimestamps.lastStarted;
+    const nextLastPingStart = nextProps.pingTimestamps.lastStarted;
+    const prevLastPingComplete = this.props.pingTimestamps.lastCompletion;
+    const nextLastPingComplete = nextProps.pingTimestamps.lastCompletion;
+    if (prevLastPingComplete !== nextLastPingComplete) {
+      if (this.pingCounter > 0) {
+        this.pingCounter--;
+      }
+      this.possiblePing(nextProps);
+    }
+    if (prevLastPingStart !== nextLastPingStart) {
+      this.pingCounter++;
     }
   }
 
@@ -321,6 +372,8 @@ App.propTypes = {
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
   pingActionInput: PropTypes.func.isRequired,
+  pingTimestamps: pingTimestampsPropType.isRequired,
+  cookie: PropTypes.string,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
@@ -343,6 +396,8 @@ export default connect(
     currentCalendarQuery: currentCalendarQuery(state),
     pingStartingPayload: pingStartingPayload(state),
     pingActionInput: pingActionInput(state),
+    pingTimestamps: state.pingTimestamps,
+    cookie: state.cookie,
   }),
   { fetchEntries, ping },
 )(App);
