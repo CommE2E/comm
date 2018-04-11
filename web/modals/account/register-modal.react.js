@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { RegisterResult } from 'lib/types/account-types';
+import type { RegisterInfo, RegisterResult } from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -28,11 +28,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  register: (
-    username: string,
-    email: string,
-    password: string,
-  ) => Promise<RegisterResult>,
+  register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 };
 type State = {
   username: string,
@@ -233,11 +229,12 @@ class RegisterModal extends React.PureComponent<Props, State> {
 
   async registerAction() {
     try {
-      const result = await this.props.register(
-        this.state.username,
-        this.state.email,
-        this.state.password,
-      );
+      const result = await this.props.register({
+        username: this.state.username,
+        email: this.state.email,
+        password: this.state.password,
+        platform: "web",
+      });
       this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
       return result;
     } catch (e) {

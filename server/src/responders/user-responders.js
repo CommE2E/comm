@@ -33,7 +33,7 @@ import {
   checkAndSendPasswordResetEmail,
   updatePassword,
 } from '../updaters/account-updaters';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
@@ -115,7 +115,7 @@ async function logOutResponder(
   const cookieID = viewer.getData().cookieID;
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
-      createNewAnonymousCookie(),
+      createNewAnonymousCookie(viewer.platform),
       deleteCookiesOnLogOut(viewer.userID, cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
@@ -145,6 +145,7 @@ const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.String,
   password: t.String,
+  platform: tPlatform,
 });
 
 async function accountCreationResponder(
@@ -162,6 +163,7 @@ const logInRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+  platform: tPlatform,
 });
 
 async function logInResponder(
@@ -202,7 +204,7 @@ async function logInResponder(
 
   const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, newPingTime),
+    createNewUserCookie(id, newPingTime, request.platform),
     deleteCookie(viewer.getData().cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
@@ -256,6 +258,7 @@ const updatePasswordRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+  platform: tPlatform,
 });
 
 async function passwordUpdateResponder(

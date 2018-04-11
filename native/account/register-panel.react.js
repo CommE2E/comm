@@ -3,7 +3,7 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { RegisterResult } from 'lib/types/account-types';
+import type { RegisterInfo, RegisterResult } from 'lib/types/account-types';
 import {
   type StateContainer,
   stateContainerPropType,
@@ -55,11 +55,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  register: (
-    username: string,
-    email: string,
-    password: string,
-  ) => Promise<RegisterResult>,
+  register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 };
 class RegisterPanel extends React.PureComponent<Props> {
 
@@ -310,11 +306,12 @@ class RegisterPanel extends React.PureComponent<Props> {
 
   async registerAction() {
     try {
-      const result = await this.props.register(
-        this.props.state.state.usernameInputText,
-        this.props.state.state.emailInputText,
-        this.props.state.state.passwordInputText,
-      );
+      const result = await this.props.register({
+        username: this.props.state.state.usernameInputText,
+        email: this.props.state.state.emailInputText,
+        password: this.props.state.state.passwordInputText,
+        platform: Platform.OS,
+      });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
         username: result.currentUserInfo.username,

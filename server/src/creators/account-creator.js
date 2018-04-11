@@ -75,7 +75,7 @@ async function createAccount(
     VALUES ${[newUserRow]}
   `;
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, 0),
+    createNewUserCookie(id, 0, request.platform),
     deleteCookie(viewer.getData().cookieID),
     dbQuery(newUserQuery),
     sendEmailAddressVerificationEmail(

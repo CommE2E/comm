@@ -1,12 +1,14 @@
 // @flow
 
 import { type CookieSource, cookieType } from './cookies';
+import type { Platform } from 'lib/types/device-types';
 
 import invariant from 'invariant';
 
 export type UserViewerData = {|
   +loggedIn: true,
   +id: string,
+  +platform: ?Platform,
   +userID: string,
   +cookieID: string,
   +cookiePassword: string,
@@ -16,6 +18,7 @@ export type UserViewerData = {|
 export type AnonymousViewerData = {|
   +loggedIn: false,
   +id: string,
+  +platform: ?Platform,
   +cookieID: string,
   +cookiePassword: string,
   +insertionTime?: ?number,
@@ -88,6 +91,10 @@ class Viewer {
 
   get cookiePairString(): string {
     return `${this.cookieName}=${this.cookieString}`;
+  }
+
+  get platform(): ?Platform {
+    return this.data.platform;
   }
 
 }

@@ -38,6 +38,7 @@ function tNumEnum(assertFunc: (input: number) => *) {
 
 const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
 const tColor = tRegex(/^[a-fA-F0-9]{6}$/); // we don't include # char
+const tPlatform = t.maybe(t.enums.of(['ios', 'android', 'web']));
 
 export {
   validateInput,
@@ -47,4 +48,5 @@ export {
   tNumEnum,
   tDate,
   tColor,
+  tPlatform,
 };

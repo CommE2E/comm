@@ -1099,17 +1099,13 @@ const registerActionTypes = Object.freeze({
   success: "REGISTER_SUCCESS",
   failed: "REGISTER_FAILED"
 });
-async function register(fetchJSON, username, email, password) {
-  const response = await fetchJSON('create_account', {
-    username,
-    email,
-    password
-  });
+async function register(fetchJSON, registerInfo) {
+  const response = await fetchJSON('create_account', registerInfo);
   return {
     currentUserInfo: {
       id: response.id,
-      username,
-      email,
+      username: registerInfo.username,
+      email: registerInfo.email,
       emailVerified: false
     },
     rawMessageInfos: response.rawMessageInfos,
@@ -25737,7 +25733,8 @@ class LogInModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
     try {
       const result = await this.props.logIn({
         usernameOrEmail: this.state.usernameOrEmail,
-        password: this.state.password
+        password: this.state.password,
+        platform: "web"
       });
       this.props.onClose();
       return result;
@@ -26057,7 +26054,12 @@ class RegisterModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"]
 
   async registerAction() {
     try {
-      const result = await this.props.register(this.state.username, this.state.email, this.state.password);
+      const result = await this.props.register({
+        username: this.state.username,
+        email: this.state.email,
+        password: this.state.password,
+        platform: "web"
+      });
       this.props.setModal(__WEBPACK_IMPORTED_MODULE_0_react__["createElement"](__WEBPACK_IMPORTED_MODULE_9__verify_email_modal_react__["a" /* default */], { onClose: this.props.onClose }));
       return result;
     } catch (e) {
@@ -57015,7 +57017,8 @@ class ResetPasswordModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureCompon
     try {
       const response = await this.props.resetPassword({
         code: this.props.verifyCode,
-        password: this.state.password
+        password: this.state.password,
+        platform: "web"
       });
       this.props.onSuccess();
       return response;
