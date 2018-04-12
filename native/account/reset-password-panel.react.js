@@ -14,7 +14,6 @@ import {
   Keyboard,
   View,
   Text,
-  Platform,
 } from 'react-native';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
@@ -215,7 +214,6 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
         password: this.state.passwordInputText,
         calendarQuery,
         deviceTokenUpdateRequest,
-        platform: Platform.OS,
       });
       this.props.setActiveAlert(false);
       this.props.onSuccess();

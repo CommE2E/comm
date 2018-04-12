@@ -109,6 +109,7 @@ registerConfig({
   },
   setCookieOnRequest: true,
   calendarRangeInactivityLimit: sessionInactivityLimit,
+  platform: Platform.OS,
 });
 
 const reactNavigationAddListener = createReduxBoundAddListener("root");

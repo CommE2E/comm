@@ -233,7 +233,6 @@ async function resolveInvalidatedCookie(
           usernameOrEmail: keychainCredentials.username,
           password: keychainCredentials.password,
           deviceTokenUpdateRequest,
-          platform: Platform.OS,
         },
       ),
     );
@@ -251,7 +250,6 @@ async function resolveInvalidatedCookie(
           usernameOrEmail: sharedWebCredentials.username,
           password: sharedWebCredentials.password,
           deviceTokenUpdateRequest,
-          platform: Platform.OS,
         },
       ),
     );

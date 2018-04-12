@@ -167,7 +167,6 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
       const response = await this.props.resetPassword({
         code: this.props.verifyCode,
         password: this.state.password,
-        platform: "web",
       });
       this.props.onSuccess();
       return response;

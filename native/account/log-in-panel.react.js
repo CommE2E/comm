@@ -17,7 +17,6 @@ import {
   Alert,
   Keyboard,
   Animated,
-  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
@@ -232,7 +231,6 @@ class LogInPanel extends React.PureComponent<Props> {
         password: this.props.state.state.passwordInputText,
         calendarQuery,
         deviceTokenUpdateRequest,
-        platform: Platform.OS,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({

@@ -35,6 +35,7 @@ registerConfig({
   setCookieOnRequest: false,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
+  platform: "web",
 });
 
 declare var preloadedState: AppState;

@@ -310,7 +310,6 @@ class RegisterPanel extends React.PureComponent<Props> {
         username: this.props.state.state.usernameInputText,
         email: this.props.state.state.emailInputText,
         password: this.props.state.state.passwordInputText,
-        platform: Platform.OS,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({

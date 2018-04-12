@@ -233,7 +233,6 @@ class RegisterModal extends React.PureComponent<Props, State> {
         username: this.state.username,
         email: this.state.email,
         password: this.state.password,
-        platform: "web",
       });
       this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
       return result;

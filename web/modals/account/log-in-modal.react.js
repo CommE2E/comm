@@ -171,7 +171,6 @@ class LogInModal extends React.PureComponent<Props, State> {
       const result = await this.props.logIn({
         usernameOrEmail: this.state.usernameOrEmail,
         password: this.state.password,
-        platform: "web",
       });
       this.props.onClose();
       return result;
