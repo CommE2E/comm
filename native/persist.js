@@ -54,6 +54,7 @@ const migrations = {
   [4]: (state: AppState) => ({
     ...state,
     pingTimestamps: defaultPingTimestamps,
+    activeServerRequests: [],
   }),
 };
 

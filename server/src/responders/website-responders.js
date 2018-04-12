@@ -127,6 +127,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
       pingTimestamps: defaultPingTimestamps,
+      activeServerRequests: [],
       cookie: undefined,
       deviceToken: null,
       // We can use paths local to the <base href> on web

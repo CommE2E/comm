@@ -386,6 +386,18 @@ function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
   }
 }
 
+async function setCookiePlatform(
+  cookieID: string,
+  platform: Platform,
+): Promise<void> {
+  const query = SQL`
+    UPDATE cookies
+    SET platform = ${platform}
+    WHERE id = ${cookieID}
+  `;
+  await dbQuery(query);
+}
+
 export {
   cookieLifetime,
   cookieType,
@@ -396,4 +408,5 @@ export {
   recordDeliveredUpdate,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
+  setCookiePlatform,
 };

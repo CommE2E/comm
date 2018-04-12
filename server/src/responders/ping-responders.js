@@ -3,6 +3,7 @@
 import type { PingRequest, PingResponse } from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
+import { serverRequestTypes } from 'lib/types/request-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -11,7 +12,7 @@ import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
 import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -19,7 +20,7 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
-import { recordDeliveredUpdate } from '../session/cookies';
+import { recordDeliveredUpdate, setCookiePlatform } from '../session/cookies';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -27,6 +28,15 @@ const pingRequestInputValidator = tShape({
   messagesCurrentAsOf: t.maybe(t.Number),
   updatesCurrentAsOf: t.maybe(t.Number),
   watchedIDs: t.list(t.String),
+  clientResponses: t.maybe(t.list(
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.PLATFORM',
+        x => x === serverRequestTypes.PLATFORM,
+      ),
+      platform: tPlatform,
+    }),
+  )),
 });
 
 async function pingResponder(
@@ -67,6 +77,20 @@ async function pingResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
+  const clientResponsePromises = [];
+  let viewerMissingPlatform = !viewer.platform;
+  if (request.clientResponses) {
+    for (let clientResponse of request.clientResponses) {
+      if (clientResponse.type === serverRequestTypes.PLATFORM) {
+        clientResponsePromises.push(setCookiePlatform(
+          viewer.cookieID,
+          clientResponse.platform,
+        ));
+        viewerMissingPlatform = false;
+      }
+    }
+  }
+
   const [
     messagesResult,
     threadsResult,
@@ -85,6 +109,9 @@ async function pingResponder(
     fetchCurrentUserInfo(viewer),
     request.updatesCurrentAsOf
       ? fetchUpdateInfos(viewer, request.updatesCurrentAsOf)
+      : null,
+    clientResponsePromises.length > 0
+      ? Promise.all(clientResponsePromises)
       : null,
   ]);
 
@@ -130,6 +157,11 @@ async function pingResponder(
   };
   if (updatesResult) {
     response.updatesResult = updatesResult;
+  }
+  if (viewerMissingPlatform) {
+    response.serverRequests = [
+      { type: serverRequestTypes.PLATFORM },
+    ];
   }
   return response;
 }
