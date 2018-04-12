@@ -27456,7 +27456,8 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       return false;
     }
     const lastPingStart = props.pingTimestamps.lastStarted;
-    if (this.pingCounter === 0 && lastPingStart < Date.now() - __WEBPACK_IMPORTED_MODULE_17_lib_shared_ping_utils__["b" /* pingFrequency */]) {
+    const timeUntilNextPing = lastPingStart + __WEBPACK_IMPORTED_MODULE_17_lib_shared_ping_utils__["b" /* pingFrequency */] - Date.now();
+    if (this.pingCounter === 0 && timeUntilNextPing < 500) {
       return true;
     } else if (lastPingStart < Date.now() - __WEBPACK_IMPORTED_MODULE_17_lib_shared_ping_utils__["b" /* pingFrequency */] * 10) {
       // It seems we have encountered some error start where ping isn't firing

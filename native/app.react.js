@@ -322,7 +322,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return false;
     }
     const lastPingStart = props.pingTimestamps.lastStarted;
-    if (this.pingCounter === 0 && lastPingStart < Date.now() - pingFrequency) {
+    const timeUntilNextPing = lastPingStart + pingFrequency - Date.now();
+    if (this.pingCounter === 0 && timeUntilNextPing < 500) {
       return true;
     } else if (lastPingStart < Date.now() - pingFrequency * 10) {
       // It seems we have encountered some error start where ping isn't firing
@@ -415,7 +416,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       }
       this.possiblePing(nextProps);
     }
-    if (prevLastPingStart !== nextLastPingStart) {
+    if (prevLastPingStart && prevLastPingStart !== nextLastPingStart) {
       this.pingCounter++;
     }
 
