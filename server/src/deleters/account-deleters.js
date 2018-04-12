@@ -5,7 +5,7 @@ import type {
   DeleteAccountRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
-import { updateType } from 'lib/types/update-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -73,7 +73,7 @@ async function sendAccountDeletionUpdates(
 ): Promise<void> {
   const time = Date.now();
   const updateDatas = allUserIDs.map(userID => ({
-    type: updateType.DELETE_ACCOUNT,
+    type: updateTypes.DELETE_ACCOUNT,
     userID,
     time,
     deletedUserID,

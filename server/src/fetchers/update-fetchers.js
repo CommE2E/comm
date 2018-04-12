@@ -2,7 +2,7 @@
 
 import {
   type UpdateInfo,
-  updateType,
+  updateTypes,
   assertUpdateType,
 } from 'lib/types/update-types';
 import type { Viewer } from '../session/viewer';
@@ -13,10 +13,10 @@ import { dbQuery, SQL } from '../database';
 
 function updateInfoFromRow(row: Object): UpdateInfo {
   const type = assertUpdateType(row.type);
-  if (type === updateType.DELETE_ACCOUNT) {
+  if (type === updateTypes.DELETE_ACCOUNT) {
     const content = JSON.parse(row.content);
     return {
-      type: updateType.DELETE_ACCOUNT,
+      type: updateTypes.DELETE_ACCOUNT,
       id: row.id,
       time: row.time,
       deletedUserID: content.deletedUserID,

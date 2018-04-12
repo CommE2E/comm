@@ -3,7 +3,7 @@
 import {
   type UpdateInfo,
   type UpdateData,
-  updateType,
+  updateTypes,
 } from 'lib/types/update-types';
 
 import { updateInfoFromUpdateData } from 'lib/shared/update-utils';
@@ -26,7 +26,7 @@ async function createUpdates(
     updateInfos.push(updateInfoFromUpdateData(updateData, ids[i]));
 
     let content;
-    if (updateData.type === updateType.DELETE_ACCOUNT) {
+    if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     }
     insertRows.push([
