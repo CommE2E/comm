@@ -9,13 +9,11 @@ async function deviceTokenUpdater(
   viewer: Viewer,
   update: DeviceTokenUpdateRequest,
 ): Promise<void> {
-  const column = update.deviceType === "ios"
-    ? "ios_device_token"
-    : "android_device_token";
-  const cookieID = viewer.cookieID;
-  const query = SQL`UPDATE cookies SET `;
-  query.append(column);
-  query.append(SQL` = ${update.deviceToken} WHERE id = ${cookieID}`);
+  const query = SQL`
+    UPDATE cookies
+    SET device_token = ${update.deviceToken}, platform = ${update.deviceType}
+    WHERE id = ${viewer.cookieID}
+  `;
   await dbQuery(query);
 }
 

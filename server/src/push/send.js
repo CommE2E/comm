@@ -420,7 +420,7 @@ type InvalidToken = {
 async function removeInvalidTokens(invalidTokens: InvalidToken[]) {
   const query = SQL`
     UPDATE cookies
-    SET android_device_token = NULL, ios_device_token = NULL
+    SET device_token = NULL
     WHERE
   `;
 
@@ -429,12 +429,12 @@ async function removeInvalidTokens(invalidTokens: InvalidToken[]) {
     const deviceConditions = [];
     if (invalidTokenUser.fcmTokens && invalidTokenUser.fcmTokens.length > 0) {
       deviceConditions.push(
-        SQL`android_device_token IN (${invalidTokenUser.fcmTokens})`,
+        SQL`device_token IN (${invalidTokenUser.fcmTokens})`,
       );
     }
     if (invalidTokenUser.apnTokens && invalidTokenUser.apnTokens.length > 0) {
       deviceConditions.push(
-        SQL`ios_device_token IN (${invalidTokenUser.apnTokens})`,
+        SQL`device_token IN (${invalidTokenUser.apnTokens})`,
       );
     }
     const statement = SQL`(user = ${invalidTokenUser.userID} AND `;

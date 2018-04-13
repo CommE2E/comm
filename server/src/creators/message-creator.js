@@ -270,14 +270,13 @@ async function sendPushNotifsForNewMessages(
   const time = earliestTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    SELECT m.user, m.thread, c.ios_device_token, c.android_device_token
+    SELECT m.user, m.thread, c.platform, c.device_token
   `;
   query.append(subthreadSelects);
   query.append(SQL`
     FROM memberships m
     LEFT JOIN threads t ON t.id = m.thread
-    LEFT JOIN cookies c ON c.user = m.user
-      AND (c.ios_device_token IS NOT NULL OR c.android_device_token IS NOT NULL)
+    LEFT JOIN cookies c ON c.user = m.user AND c.device_token IS NOT NULL
     LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
       AND f.time > ${time}
   `);
@@ -296,8 +295,8 @@ async function sendPushNotifsForNewMessages(
   for (let row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
-    const iosDeviceToken = row.ios_device_token;
-    const androidDeviceToken = row.android_device_token;
+    const deviceToken = row.device_token;
+    const platform = row.platform;
     let preUserPushInfo = prePushInfo.get(userID);
     if (!preUserPushInfo) {
       preUserPushInfo = {
@@ -322,15 +321,10 @@ async function sendPushNotifsForNewMessages(
         }
       }
     }
-    if (iosDeviceToken) {
-      preUserPushInfo.devices.set(iosDeviceToken, {
-        deviceType: "ios",
-        deviceToken: iosDeviceToken,
-      });
-    } else if (androidDeviceToken) {
-      preUserPushInfo.devices.set(androidDeviceToken, {
-        deviceType: "android",
-        deviceToken: androidDeviceToken,
+    if (deviceToken) {
+      preUserPushInfo.devices.set(deviceToken, {
+        deviceType: platform,
+        deviceToken,
       });
     }
     preUserPushInfo.threadIDs.add(threadID);

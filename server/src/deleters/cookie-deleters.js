@@ -17,14 +17,11 @@ async function deleteCookiesOnLogOut(
   userID: string,
   cookieID: string,
 ): Promise<void> {
-  const deviceTokens = await fetchDeviceTokensForCookie(cookieID);
+  const deviceToken = await fetchDeviceTokensForCookie(cookieID);
 
   const conditions = [ SQL`c.id = ${cookieID}` ];
-  if (deviceTokens.ios) {
-    conditions.push(SQL`c.ios_device_token = ${deviceTokens.ios}`);
-  }
-  if (deviceTokens.android) {
-    conditions.push(SQL`c.android_device_token = ${deviceTokens.android}`);
+  if (deviceToken) {
+    conditions.push(SQL`c.device_token = ${deviceToken}`);
   }
 
   const query = SQL`

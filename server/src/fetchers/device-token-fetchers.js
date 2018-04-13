@@ -1,16 +1,14 @@
 // @flow
 
-import type { DeviceTokens } from 'lib/types/device-types';
-
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 
 async function fetchDeviceTokensForCookie(
   cookieID: string,
-): Promise<DeviceTokens> {
+): Promise<?string> {
   const query = SQL`
-    SELECT ios_device_token, android_device_token
+    SELECT device_token
     FROM cookies
     WHERE id = ${cookieID}
   `;
@@ -19,10 +17,7 @@ async function fetchDeviceTokensForCookie(
     throw new ServerError('invalid_cookie');
   }
   const row = result[0];
-  return {
-    ios: row.ios_device_token,
-    android: row.android_device_token,
-  };
+  return row.device_token;
 }
 
 export {

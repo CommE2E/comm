@@ -4,7 +4,7 @@ import type { $Response, $Request } from 'express';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
-import type { DeviceTokens, Platform } from 'lib/types/device-types';
+import type { Platform } from 'lib/types/device-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
