@@ -14,6 +14,7 @@ import type {
   LogInResponse,
   LogInRequest,
   UpdatePasswordRequest,
+  AccessRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
@@ -33,7 +34,12 @@ import {
   checkAndSendPasswordResetEmail,
   updatePassword,
 } from '../updaters/account-updaters';
-import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
+import {
+  validateInput,
+  tShape,
+  tPlatform,
+  tDeviceType,
+} from '../utils/validation-utils';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
@@ -52,6 +58,7 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { deviceTokenUpdateRequestInputValidator } from './device-responders';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
+import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -276,6 +283,21 @@ async function passwordUpdateResponder(
   return response;
 }
 
+const accessRequestInputValidator = tShape({
+  email: t.String,
+  platform: tDeviceType,
+});
+
+async function requestAccessResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: AccessRequest = input;
+  validateInput(accessRequestInputValidator, request);
+
+  await sendAccessRequestEmailToAshoat(request);
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -286,4 +308,5 @@ export {
   accountCreationResponder,
   logInResponder,
   passwordUpdateResponder,
+  requestAccessResponder,
 };

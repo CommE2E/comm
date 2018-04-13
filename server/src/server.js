@@ -29,6 +29,7 @@ import {
   accountCreationResponder,
   logInResponder,
   passwordUpdateResponder,
+  requestAccessResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
 import {
@@ -95,6 +96,7 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'update_password': passwordUpdateResponder,
   'create_error_report': errorReportCreationResponder,
   'fetch_error_report_infos': errorReportFetchInfosResponder,
+  'request_access': requestAccessResponder,
 };
 
 if (cluster.isMaster) {

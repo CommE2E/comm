@@ -71,6 +71,7 @@ import {
   monthAssertingSelector,
 } from './selectors/nav-selectors';
 import { reflectRouteChangeActionType } from './redux-setup';
+import Splash from './splash/splash.react';
 
 const isset = x => x !== undefined && x !== null;
 
@@ -325,6 +326,9 @@ class App extends React.PureComponent<Props, State> {
   }
 
   render() {
+    if (!this.props.loggedIn) {
+      return <Splash />;
+    }
     const year = this.props.year;
     const month = this.props.month;
     const lastMonthDate = getDate(year, month - 1, 1);
@@ -339,8 +343,8 @@ class App extends React.PureComponent<Props, State> {
     );
     const monthName = dateFormat(getDate(year, month, 1), "mmmm");
     return (
-      <div>
-        <header>
+      <React.Fragment>
+        <header className={css['main-header']}>
           <h1>SquadCal</h1>
           <div className={css['upper-right']}>
             <LoadingIndicator
@@ -381,7 +385,7 @@ class App extends React.PureComponent<Props, State> {
           setModal={this.setModal}
           clearModal={this.clearModal}
         />
-      </div>
+      </React.Fragment>
     );
   }
 
