@@ -1,10 +1,6 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-  NavigationAction,
-} from 'react-navigation';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -49,12 +45,13 @@ import {
   fetchNewCookieFromNativeCredentials,
   createBoundServerCallsSelector,
 } from 'lib/utils/action-utils';
-import { pingActionTypes, ping } from 'lib/actions/ping-actions';
+import { ping } from 'lib/actions/ping-actions';
 import {
   appStartNativeCredentialsAutoLogIn,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
+import { dispatchPing } from 'lib/shared/ping-utils';
 
 import {
   windowHeight,
@@ -88,7 +85,7 @@ const boundPingSelector = createBoundServerCallsSelector(ping);
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
-  navigation: NavigationScreenProp<NavigationRoute, NavigationAction>,
+  navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   rehydrateConcluded: bool,
   cookie: ?string,
@@ -326,8 +323,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     if (nextProps.loggedIn) {
       if (cookie && cookie.startsWith("user=")) {
         nextProps.dispatchActionPayload(navigateToAppActionType, null);
-        // Send out a ping to check if our cookie is invalidated
-        InnerLoggedOutModal.dispatchPing(nextProps, cookie, urlPrefix);
         return;
       }
       // This is an unusual error state that should never happen
@@ -362,14 +357,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       urlPrefix,
       deviceToken: props.deviceToken,
     });
-    const startingPayload = props.pingStartingPayload();
-    const actionInput = props.pingActionInput(startingPayload);
-    props.dispatchActionPromise(
-      pingActionTypes,
-      boundPing(actionInput),
-      undefined,
-      startingPayload,
-    );
+    dispatchPing({ ...props, ping: boundPing });
   }
 
   hardwareBack = () => {

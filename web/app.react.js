@@ -42,6 +42,12 @@ import {
 } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
+import {
+  sessionInactivityLimit,
+  sessionTimeLeft,
+  nextSessionID,
+} from 'lib/selectors/session-selectors';
+import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 
 import {
   thisURL,
@@ -66,6 +72,8 @@ import {
 } from './selectors/nav-selectors';
 import { reflectRouteChangeActionType } from './redux-setup';
 
+const isset = x => x !== undefined && x !== null;
+
 type Props = {
   location: {
     pathname: string,
@@ -83,6 +91,9 @@ type Props = {
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   pingTimestamps: PingTimestamps,
+  sessionTimeLeft: () => number,
+  nextSessionID: () => ?string,
+  loggedIn: bool,
   cookie: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -139,18 +150,21 @@ class App extends React.PureComponent<Props, State> {
     if (this.props.location.pathname !== newURL) {
       history.replace(newURL);
     }
-    this.pingNow();
+    if (this.props.loggedIn) {
+      this.startTimeouts(this.props);
+    }
     Visibility.change(this.onVisibilityChange);
   }
 
   onVisibilityChange = (e, state: string) => {
     if (state === "visible") {
       this.possiblePing();
+      this.startTimeouts(this.props);
     }
   }
 
   shouldDispatchPing(props: Props) {
-    if (Visibility.hidden()) {
+    if (Visibility.hidden() || !props.loggedIn) {
       return false;
     }
     const lastPingStart = props.pingTimestamps.lastStarted;
@@ -168,12 +182,12 @@ class App extends React.PureComponent<Props, State> {
   possiblePing = (inputProps?: Props) => {
     const props = inputProps ? inputProps : this.props;
     if (this.shouldDispatchPing(props)) {
-      this.pingNow();
+      this.pingNow(inputProps);
     }
   }
 
-  pingNow() {
-    dispatchPing(this.props);
+  pingNow(inputProps?: Props) {
+    const props = inputProps ? inputProps : this.props;
     // This will only trigger if the ping is complete by then. If the ping isn't
     // complete by the time this timeout fires, componentWillReceiveProps takes
     // responsibility for starting the next ping.
@@ -181,6 +195,37 @@ class App extends React.PureComponent<Props, State> {
     // This one runs in case something is wrong with pingCounter state or timing
     // and the first one gets swallowed without triggering another ping.
     setTimeout(this.possiblePing, pingFrequency * 10);
+    dispatchPing(props);
+  }
+
+  possiblyNewSessionID = (inputProps?: Props) => {
+    const props = inputProps ? inputProps : this.props;
+    if (!Visibility.hidden() || props.loggedIn) {
+      return;
+    }
+    const sessionID = props.nextSessionID();
+    if (sessionID) {
+      props.dispatchActionPayload(newSessionIDActionType, sessionID);
+      setTimeout(
+        this.possiblyNewSessionID,
+        sessionInactivityLimit,
+      );
+    } else {
+      const timeLeft = props.sessionTimeLeft();
+      setTimeout(
+        this.possiblyNewSessionID,
+        timeLeft + 10,
+      );
+    }
+  }
+
+  startTimeouts(inputProps?: Props) {
+    const props = inputProps ? inputProps : this.props;
+    if (props.loggedIn) {
+      this.possiblePing(props);
+    } else {
+      this.possiblyNewSessionID(props);
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -272,6 +317,10 @@ class App extends React.PureComponent<Props, State> {
     }
     if (prevLastPingStart !== nextLastPingStart) {
       this.pingCounter++;
+    }
+
+    if (nextProps.loggedIn && !this.props.loggedIn) {
+      this.startTimeouts(nextProps);
     }
   }
 
@@ -374,6 +423,9 @@ App.propTypes = {
   pingStartingPayload: PropTypes.func.isRequired,
   pingActionInput: PropTypes.func.isRequired,
   pingTimestamps: pingTimestampsPropType.isRequired,
+  sessionTimeLeft: PropTypes.func.isRequired,
+  nextSessionID: PropTypes.func.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
   cookie: PropTypes.string,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -398,6 +450,10 @@ export default connect(
     pingStartingPayload: pingStartingPayload(state),
     pingActionInput: pingActionInput(state),
     pingTimestamps: state.pingTimestamps,
+    sessionTimeLeft: sessionTimeLeft(state),
+    nextSessionID: nextSessionID(state),
+    loggedIn: !!(state.currentUserInfo &&
+      !state.currentUserInfo.anonymous && true),
     cookie: state.cookie,
   }),
   { fetchEntries, ping },

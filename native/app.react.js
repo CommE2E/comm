@@ -58,7 +58,11 @@ import SplashScreen from 'react-native-splash-screen';
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { sessionInactivityLimit } from 'lib/selectors/session-selectors';
+import {
+  sessionInactivityLimit,
+  sessionTimeLeft,
+  nextSessionID,
+} from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 import {
   updateActivityActionTypes,
@@ -125,12 +129,15 @@ type Props = {
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   activeThread: ?string,
   appLoggedIn: bool,
+  loggedIn: bool,
   activeThreadLatestMessage: ?string,
   deviceToken: ?string,
   unreadCount: number,
   rawThreadInfos: {[id: string]: RawThreadInfo},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   pingTimestamps: PingTimestamps,
+  sessionTimeLeft: () => number,
+  nextSessionID: () => ?string,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -154,12 +161,15 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     pingActionInput: PropTypes.func.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
+    loggedIn: PropTypes.bool.isRequired,
     activeThreadLatestMessage: PropTypes.string,
     deviceToken: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     pingTimestamps: pingTimestampsPropType.isRequired,
+    sessionTimeLeft: PropTypes.func.isRequired,
+    nextSessionID: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -185,7 +195,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
-    this.pingNow();
+    if (this.props.loggedIn) {
+      this.startTimeouts(this.props, "active");
+    }
     AppWithNavigationState.updateFocusedThreads(
       this.props,
       this.props.activeThread,
@@ -317,31 +329,32 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.props.dispatchActionPayload(handleURLActionType, url);
   }
 
-  shouldDispatchPing(props: Props) {
-    if (this.currentState !== "active") {
+  shouldDispatchPing(props: Props, appState: ?string) {
+    if (appState !== "active" || !props.loggedIn) {
       return false;
     }
     const lastPingStart = props.pingTimestamps.lastStarted;
     const timeUntilNextPing = lastPingStart + pingFrequency - Date.now();
-    if (this.pingCounter === 0 && timeUntilNextPing < 500) {
+    if (this.pingCounter === 0 && lastPingStart < Date.now() - pingFrequency) {
       return true;
     } else if (lastPingStart < Date.now() - pingFrequency * 10) {
-      // It seems we have encountered some error start where ping isn't firing
+      // It seems we have encountered some error state where ping isn't firing
       this.pingCounter = 0;
       return true;
     }
     return false;
   }
 
-  possiblePing = (inputProps?: Props) => {
+  possiblePing = (inputProps?: Props, inputAppState?: ?string) => {
+    const appState = inputAppState ? inputAppState : this.currentState;
     const props = inputProps ? inputProps : this.props;
-    if (this.shouldDispatchPing(props)) {
-      this.pingNow();
+    if (this.shouldDispatchPing(props, appState)) {
+      this.pingNow(inputProps);
     }
   }
 
-  pingNow() {
-    dispatchPing(this.props);
+  pingNow(inputProps?: Props) {
+    const props = inputProps ? inputProps : this.props;
     // This will only trigger if the ping is complete by then. If the ping isn't
     // complete by the time this timeout fires, componentWillReceiveProps takes
     // responsibility for starting the next ping.
@@ -349,6 +362,39 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     // This one runs in case something is wrong with pingCounter state or timing
     // and the first one gets swallowed without triggering another ping.
     setTimeout(this.possiblePing, pingFrequency * 10);
+    dispatchPing(props);
+  }
+
+  possiblyNewSessionID = (inputProps?: Props, inputAppState?: ?string) => {
+    const props = inputProps ? inputProps : this.props;
+    const appState = inputAppState ? inputAppState : this.currentState;
+    if (appState !== "active" || props.loggedIn) {
+      return;
+    }
+    const sessionID = props.nextSessionID();
+    if (sessionID) {
+      props.dispatchActionPayload(newSessionIDActionType, sessionID);
+      setTimeout(
+        this.possiblyNewSessionID,
+        sessionInactivityLimit,
+      );
+    } else {
+      const timeLeft = props.sessionTimeLeft();
+      setTimeout(
+        this.possiblyNewSessionID,
+        timeLeft + 10,
+      );
+    }
+  }
+
+  startTimeouts(inputProps?: Props, inputAppState?: ?string) {
+    const props = inputProps ? inputProps : this.props;
+    const appState = inputAppState ? inputAppState : this.currentState;
+    if (props.loggedIn) {
+      this.possiblePing(props, appState);
+    } else {
+      this.possiblyNewSessionID(props, appState);
+    }
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
@@ -359,7 +405,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       lastState.match(/inactive|background/) &&
       this.currentState === "active"
     ) {
-      this.possiblePing();
+      this.startTimeouts();
       AppWithNavigationState.updateFocusedThreads(
         this.props,
         this.props.activeThread,
@@ -383,7 +429,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const justLoggedIn = nextProps.appLoggedIn && !this.props.appLoggedIn;
+    const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
     if (
       justLoggedIn ||
       nextProps.activeThread !== this.props.activeThread
@@ -397,6 +443,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     if (justLoggedIn) {
       this.ensurePushNotifsEnabled();
+      this.startTimeouts(nextProps, "active");
     }
 
     const nextActiveThread = nextProps.activeThread;
@@ -410,13 +457,19 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const nextLastPingStart = nextProps.pingTimestamps.lastStarted;
     const prevLastPingComplete = this.props.pingTimestamps.lastCompletion;
     const nextLastPingComplete = nextProps.pingTimestamps.lastCompletion;
-    if (prevLastPingComplete !== nextLastPingComplete) {
+    const lastPingCompleteChanged = prevLastPingComplete !== nextLastPingComplete;
+    const lastPingStartChanged = prevLastPingStart !== nextLastPingStart;
+    if (lastPingCompleteChanged && lastPingStartChanged) {
+      // If both of these change, that indicates it's not an actual ping action.
+      // It's probably a redux-persist rehydrate action.
+    } else if (lastPingCompleteChanged) {
       if (this.pingCounter > 0) {
         this.pingCounter--;
       }
-      this.possiblePing(nextProps);
-    }
-    if (prevLastPingStart && prevLastPingStart !== nextLastPingStart) {
+      if (!justLoggedIn) {
+        this.possiblePing(nextProps);
+      }
+    } else if (lastPingStartChanged) {
       this.pingCounter++;
     }
 
@@ -789,12 +842,15 @@ const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => {
     const activeThread = activeThreadSelector(state);
+    const appLoggedIn = isForegroundSelector(state);
     return {
       navigationState: state.navInfo.navigationState,
       pingStartingPayload: pingNativeStartingPayload(state),
       pingActionInput: pingActionInput(state),
       activeThread,
-      appLoggedIn: isForegroundSelector(state),
+      appLoggedIn,
+      loggedIn: appLoggedIn &&
+        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
       activeThreadLatestMessage:
         activeThread && state.messageStore.threads[activeThread]
           ? state.messageStore.threads[activeThread].messageIDs[0]
@@ -804,6 +860,8 @@ const ConnectedAppWithNavigationState = connect(
       rawThreadInfos: state.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       pingTimestamps: state.pingTimestamps,
+      sessionTimeLeft: sessionTimeLeft(state),
+      nextSessionID: nextSessionID(state),
       cookie: state.cookie,
     };
   },
