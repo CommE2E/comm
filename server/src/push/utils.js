@@ -17,6 +17,8 @@ const fcmTokenInvalidationErrors = new Set([
   "messaging/invalid-registration-token",
 ]);
 const apnTokenInvalidationErrorCode = 410;
+const apnBadRequestErrorCode = 400;
+const apnBadTokenErrorString = "BadDeviceToken";
 
 async function apnPush(
   notification: apn.Notification,
@@ -28,7 +30,11 @@ async function apnPush(
   const invalidTokens = [];
   for (let error of result.failed) {
     errors.push(error);
-    if (error.status == apnTokenInvalidationErrorCode) {
+    if (
+      error.status == apnTokenInvalidationErrorCode ||
+      (error.status == apnBadRequestErrorCode &&
+        error.response.reason === apnBadTokenErrorString)
+    ) {
       invalidTokens.push(error.device);
     }
   }
