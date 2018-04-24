@@ -38,6 +38,13 @@ const pingRequestInputValidator = tShape({
       ),
       platform: tPlatform,
     }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.DEVICE_TOKEN',
+        x => x === serverRequestTypes.DEVICE_TOKEN,
+      ),
+      deviceToken: t.String,
+    }),
   )),
 });
 
