@@ -9,6 +9,7 @@ export type UserViewerData = {|
   +loggedIn: true,
   +id: string,
   +platform: ?Platform,
+  +deviceToken: ?string,
   +userID: string,
   +cookieID: string,
   +cookiePassword: string,
@@ -19,6 +20,7 @@ export type AnonymousViewerData = {|
   +loggedIn: false,
   +id: string,
   +platform: ?Platform,
+  +deviceToken: ?string,
   +cookieID: string,
   +cookiePassword: string,
   +insertionTime?: ?number,
@@ -95,6 +97,10 @@ class Viewer {
 
   get platform(): ?Platform {
     return this.data.platform;
+  }
+
+  get deviceToken(): ?string {
+    return this.data.deviceToken;
   }
 
 }

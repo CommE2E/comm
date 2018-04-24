@@ -4,6 +4,7 @@ import type { PingRequest, PingResponse } from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 import { serverRequestTypes } from 'lib/types/request-types';
+import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -21,6 +22,7 @@ import { updateActivityTime } from '../updaters/activity-updaters';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { recordDeliveredUpdate, setCookiePlatform } from '../session/cookies';
+import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -79,6 +81,8 @@ async function pingResponder(
 
   const clientResponsePromises = [];
   let viewerMissingPlatform = !viewer.platform;
+  let viewerMissingDeviceToken =
+    isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
   if (request.clientResponses) {
     for (let clientResponse of request.clientResponses) {
       if (clientResponse.type === serverRequestTypes.PLATFORM) {
@@ -87,6 +91,15 @@ async function pingResponder(
           clientResponse.platform,
         ));
         viewerMissingPlatform = false;
+      } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
+        clientResponsePromises.push(deviceTokenUpdater(
+          viewer,
+          {
+            deviceToken: clientResponse.deviceToken,
+            deviceType: assertDeviceType(viewer.platform),
+          },
+        ));
+        viewerMissingDeviceToken = false;
       }
     }
   }
@@ -158,11 +171,18 @@ async function pingResponder(
   if (updatesResult) {
     response.updatesResult = updatesResult;
   }
+
+  const serverRequests = [];
   if (viewerMissingPlatform) {
-    response.serverRequests = [
-      { type: serverRequestTypes.PLATFORM },
-    ];
+    serverRequests.push({ type: serverRequestTypes.PLATFORM });
   }
+  if (viewerMissingDeviceToken) {
+    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
+  }
+  if (serverRequests.length > 0) {
+    response.serverRequests = serverRequests;
+  }
+
   return response;
 }
 

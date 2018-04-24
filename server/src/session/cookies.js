@@ -59,7 +59,8 @@ async function fetchUserViewer(
     return { type: "nonexistant", cookieName: cookieType.USER, source };
   }
   const query = SQL`
-    SELECT hash, user, last_used, platform FROM cookies
+    SELECT hash, user, last_used, platform, device_token
+    FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
   const [ result ] = await dbQuery(query);
@@ -85,6 +86,7 @@ async function fetchUserViewer(
       loggedIn: true,
       id: userID,
       platform: cookieRow.platform,
+      deviceToken: cookieRow.device_token,
       userID,
       cookieID,
       cookiePassword,
@@ -103,7 +105,8 @@ async function fetchAnonymousViewer(
     return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
   }
   const query = SQL`
-    SELECT last_used, hash, platform FROM cookies
+    SELECT last_used, hash, platform, device_token
+    FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
   const [ result ] = await dbQuery(query);
@@ -128,6 +131,7 @@ async function fetchAnonymousViewer(
       loggedIn: false,
       id: cookieID,
       platform: cookieRow.platform,
+      deviceToken: cookieRow.device_token,
       cookieID,
       cookiePassword,
     },
@@ -291,6 +295,7 @@ async function createNewAnonymousCookie(
     loggedIn: false,
     id,
     platform,
+    deviceToken: null,
     cookieID: id,
     cookiePassword,
     insertionTime: time,
@@ -318,6 +323,7 @@ async function createNewUserCookie(
     loggedIn: true,
     id: userID,
     platform,
+    deviceToken: null,
     userID,
     cookieID,
     cookiePassword,

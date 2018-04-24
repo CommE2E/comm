@@ -32,6 +32,11 @@ import {
   recordNotifPermissionAlertActionType,
 } from './push/alerts';
 import type { RawMessageInfo } from 'lib/types/message-types';
+import {
+  type ServerRequest,
+  serverRequestPropType,
+  serverRequestTypes,
+} from 'lib/types/request-types';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -138,6 +143,7 @@ type Props = {
   pingTimestamps: PingTimestamps,
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
+  activeServerRequests: $ReadOnlyArray<ServerRequest>,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -170,6 +176,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     pingTimestamps: pingTimestampsPropType.isRequired,
     sessionTimeLeft: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
+    activeServerRequests: PropTypes.arrayOf(serverRequestPropType).isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -490,6 +497,25 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         break;
       }
     }
+
+    if (
+      AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
+        nextProps.activeServerRequests,
+      ) &&
+      !AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
+        this.props.activeServerRequests,
+      )
+    ) {
+      this.ensurePushNotifsEnabled();
+    }
+  }
+
+  static serverRequestsHasDeviceTokenRequest(
+    requests: $ReadOnlyArray<ServerRequest>,
+  ) {
+    return requests.some(
+      request => request.type === serverRequestTypes.DEVICE_TOKEN,
+    );
   }
 
   async ensurePushNotifsEnabled() {
@@ -862,6 +888,7 @@ const ConnectedAppWithNavigationState = connect(
       pingTimestamps: state.pingTimestamps,
       sessionTimeLeft: sessionTimeLeft(state),
       nextSessionID: nextSessionID(state),
+      activeServerRequests: state.activeServerRequests,
       cookie: state.cookie,
     };
   },
