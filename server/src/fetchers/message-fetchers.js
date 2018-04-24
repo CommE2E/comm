@@ -152,13 +152,19 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       text: row.content,
     };
   } else if (type === messageTypes.CREATE_THREAD) {
+    const dbInitialThreadState = JSON.parse(row.content);
+    // For legacy clients before the rename
+    const initialThreadState = {
+      ...dbInitialThreadState,
+      visibilityRules: dbInitialThreadState.type,
+    };
     return {
       type: messageTypes.CREATE_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
-      initialThreadState: JSON.parse(row.content),
+      initialThreadState,
     };
   } else if (type === messageTypes.ADD_MEMBERS) {
     return {

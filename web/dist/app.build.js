@@ -43978,13 +43978,18 @@ const pingStartingPayload = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["creat
 
 // This gets generated and passed in to the action function, which then passes
 // it on in the PING_SUCCESS payload
-const pingActionInput = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.threadInfos, state => state.entryStore.entryInfos, state => state.currentUserInfo, state => state.messageStore.currentAsOf, state => state.updatesCurrentAsOf, state => state.activeServerRequests, (threadInfos, entryInfos, currentUserInfo, messagesCurrentAsOf, updatesCurrentAsOf, activeServerRequests) => {
+const pingActionInput = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(state => state.threadInfos, state => state.entryStore.entryInfos, state => state.currentUserInfo, state => state.messageStore.currentAsOf, state => state.updatesCurrentAsOf, state => state.activeServerRequests, state => state.deviceToken, (threadInfos, entryInfos, currentUserInfo, messagesCurrentAsOf, updatesCurrentAsOf, activeServerRequests, deviceToken) => {
   const clientResponses = [];
   for (let serverRequest of activeServerRequests) {
     if (serverRequest.type === __WEBPACK_IMPORTED_MODULE_0__types_request_types__["a" /* serverRequestTypes */].PLATFORM) {
       clientResponses.push({
         type: __WEBPACK_IMPORTED_MODULE_0__types_request_types__["a" /* serverRequestTypes */].PLATFORM,
         platform: Object(__WEBPACK_IMPORTED_MODULE_4__utils_config__["a" /* getConfig */])().platform
+      });
+    } else if (serverRequest.type === __WEBPACK_IMPORTED_MODULE_0__types_request_types__["a" /* serverRequestTypes */].DEVICE_TOKEN && deviceToken !== null && deviceToken !== undefined) {
+      clientResponses.push({
+        type: __WEBPACK_IMPORTED_MODULE_0__types_request_types__["a" /* serverRequestTypes */].DEVICE_TOKEN,
+        deviceToken
       });
     }
   }
@@ -44012,24 +44017,35 @@ const pingActionInput = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSel
 /* unused harmony export assertServerRequestType */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_prop_types__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_prop_types__);
+
+
 
 
 
 
 // "Server requests" are requests for information that the server delivers to
 // clients. Clients then respond to those requests with a "client response".
-
-
 const serverRequestTypes = Object.freeze({
-  PLATFORM: 0
+  PLATFORM: 0,
+  DEVICE_TOKEN: 1
 });
 /* harmony export (immutable) */ __webpack_exports__["a"] = serverRequestTypes;
 
 
 function assertServerRequestType(serverRequestType) {
-  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(serverRequestType === 0, "number is not ServerRequestType enum");
+  __WEBPACK_IMPORTED_MODULE_0_invariant___default()(serverRequestType === 0 || serverRequestType === 1, "number is not ServerRequestType enum");
   return serverRequestType;
 }
+
+const serverRequestPropType = __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.oneOfType([__WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.shape({
+  type: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.oneOf([serverRequestTypes.PLATFORM]).isRequired
+}), __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.shape({
+  type: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.oneOf([serverRequestTypes.DEVICE_TOKEN]).isRequired
+})]);
+/* unused harmony export serverRequestPropType */
+
 
 /***/ }),
 /* 491 */
@@ -57714,10 +57730,15 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_l
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* unused harmony export isDeviceType */
 /* harmony export (immutable) */ __webpack_exports__["a"] = assertDeviceType;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
 
+
+function isDeviceType(platform) {
+  return platform === "ios" || platform === "android";
+}
 
 function assertDeviceType(deviceType) {
   __WEBPACK_IMPORTED_MODULE_0_invariant___default()(deviceType === "ios" || deviceType === "android", "string is not DeviceType enum");
