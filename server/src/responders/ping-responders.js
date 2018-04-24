@@ -30,7 +30,7 @@ const pingRequestInputValidator = tShape({
   messagesCurrentAsOf: t.maybe(t.Number),
   updatesCurrentAsOf: t.maybe(t.Number),
   watchedIDs: t.list(t.String),
-  clientResponses: t.maybe(t.list(
+  clientResponses: t.maybe(t.list(t.union([
     tShape({
       type: t.irreducible(
         'serverRequestTypes.PLATFORM',
@@ -45,7 +45,7 @@ const pingRequestInputValidator = tShape({
       ),
       deviceToken: t.String,
     }),
-  )),
+  ]))),
 });
 
 async function pingResponder(
