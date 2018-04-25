@@ -243,7 +243,8 @@ async function fetchInfos(pushInfo: PushInfo) {
   const threadIDs = new Set();
   const threadWithChangedNamesToMessages = new Map();
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
-    threadIDs.add(rawMessageInfo.threadID);
+    const threadID = rawMessageInfo.threadID;
+    threadIDs.add(threadID);
     if (
       rawMessageInfo.type === messageTypes.CREATE_THREAD &&
       rawMessageInfo.initialThreadState.parentThreadID
@@ -251,6 +252,17 @@ async function fetchInfos(pushInfo: PushInfo) {
       threadIDs.add(rawMessageInfo.initialThreadState.parentThreadID);
     } else if (rawMessageInfo.type === messageTypes.CREATE_SUB_THREAD) {
       threadIDs.add(rawMessageInfo.childThreadID);
+    }
+    if (
+      rawMessageInfo.type === messageTypes.CHANGE_SETTINGS &&
+      rawMessageInfo.field === "name"
+    ) {
+      const messages = threadWithChangedNamesToMessages.get(threadID);
+      if (messages) {
+        messages.push(rawMessageInfo.id);
+      } else {
+        threadWithChangedNamesToMessages.set(threadID, [rawMessageInfo.id]);
+      }
     }
   };
   const usersToCollapsableNotifInfo =
@@ -262,18 +274,6 @@ async function fetchInfos(pushInfo: PushInfo) {
       }
       for (let rawMessageInfo of notifInfo.newMessageInfos) {
         addThreadIDsFromMessageInfos(rawMessageInfo);
-        if (
-          rawMessageInfo.type === messageTypes.CHANGE_SETTINGS &&
-          rawMessageInfo.field === "name"
-        ) {
-          const threadID = rawMessageInfo.threadID;
-          const messages = threadWithChangedNamesToMessages.get(threadID);
-          if (messages) {
-            messages.push(rawMessageInfo.id);
-          } else {
-            threadWithChangedNamesToMessages.set(threadID, [rawMessageInfo.id]);
-          }
-        }
       }
     }
   }
