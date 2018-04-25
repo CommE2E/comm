@@ -13,11 +13,13 @@ import {
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import _pickBy from 'lodash/fp/pickBy';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -30,6 +32,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   threadHasPermission,
   threadTypeDescriptions,
+  robotextName,
 } from 'lib/shared/thread-utils';
 
 import css from '../../style.css';
@@ -69,6 +72,8 @@ type Props = {
   onClose: () => void,
   // Redux state
   inputDisabled: bool,
+  viewerID: ?string,
+  userInfos: {[id: string]: UserInfo},
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -112,9 +117,29 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   possiblyChangedValue(key: string) {
-    return this.state.queuedChanges[key]
+    const valueChanged = this.state.queuedChanges[key] !== null
+      && this.state.queuedChanges[key] !== undefined;
+    return valueChanged
       ? this.state.queuedChanges[key]
       : this.props.threadInfo[key];
+  }
+
+  namePlaceholder() {
+    return robotextName(
+      this.props.threadInfo,
+      this.props.viewerID,
+      this.props.userInfos,
+    );
+  }
+
+  changeQueued() {
+    return Object.keys(
+      _pickBy(
+        value => value !== null && value !== undefined
+      // the lodash/fp libdef coerces the returned object's properties to the
+      // same type, which means it only works for object-as-maps $FlowFixMe
+      )(this.state.queuedChanges),
+    ).length > 0;
   }
 
   render() {
@@ -128,6 +153,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
               <input
                 type="text"
                 value={this.possiblyChangedValue("name")}
+                placeholder={this.namePlaceholder()}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
                 ref={this.nameInputRef}
@@ -250,7 +276,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             type="submit"
             value="Save"
             onClick={this.onSubmit}
-            disabled={this.props.inputDisabled}
+            disabled={this.props.inputDisabled || !this.changeQueued()}
           />
         </span>
       );
@@ -343,55 +369,57 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
+    const newValue = target.value !== this.props.threadInfo.name
+      ? target.value
+      : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        name: target.value,
+        name: newValue,
       },
     }));
   }
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
+    const newValue = target.value !== this.props.threadInfo.description
+      ? target.value
+      : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        description: target.value,
+        description: newValue,
       },
     }));
   }
 
   onChangeColor = (color: string) => {
+    const newValue = color !== this.props.threadInfo.color
+      ? color
+      : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        color,
+        color: newValue,
       },
     }));
   }
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
+    const uiValue = assertThreadType(parseInt(event.currentTarget.value));
+    const newValue = uiValue !== this.props.threadInfo.type
+      ? uiValue
+      : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        type: assertThreadType(parseInt(target.value)),
+        type: newValue,
       },
     }));
-  }
-
-  onChangeNewThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    this.setState({ newThreadPassword: target.value });
-  }
-
-  onChangeConfirmThreadPassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    this.setState({ confirmThreadPassword: target.value });
   }
 
   onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -548,6 +576,8 @@ ThreadSettingsModal.propTypes = {
   threadInfo: threadInfoPropType.isRequired,
   onClose: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
+  viewerID: PropTypes.string,
+  userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   deleteThread: PropTypes.func.isRequired,
   changeThreadSettings: PropTypes.func.isRequired,
@@ -562,6 +592,8 @@ export default connect(
   (state: AppState) => ({
     inputDisabled: deleteThreadLoadingStatusSelector(state) === "loading" ||
       changeThreadSettingsLoadingStatusSelector(state) === "loading",
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
+    userInfos: state.userInfos,
   }),
   { deleteThread, changeThreadSettings },
 )(ThreadSettingsModal);
