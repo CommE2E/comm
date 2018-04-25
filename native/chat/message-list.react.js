@@ -46,6 +46,7 @@ import threadWatcher from 'lib/shared/thread-watcher';
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
@@ -196,10 +197,13 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       }
       const messageInfo = item.messageInfo;
       if (messageInfo.type === messageTypes.TEXT) {
+        const style = onlyEmojiRegex.test(messageInfo.text)
+          ? styles.emojiOnlyText
+          : styles.text;
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: messageInfo.text,
-          style: styles.text,
+          style,
         });
       } else {
         invariant(
@@ -410,12 +414,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const textHeightMeasurer = (
-      <TextHeightMeasurer
-        textToMeasure={this.state.textToMeasure}
-        allHeightsMeasuredCallback={this.allHeightsMeasured}
-      />
-    );
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
@@ -452,7 +450,10 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 
     return (
       <KeyboardAvoidingView style={styles.container}>
-        {textHeightMeasurer}
+        <TextHeightMeasurer
+          textToMeasure={this.state.textToMeasure}
+          allHeightsMeasuredCallback={this.allHeightsMeasured}
+        />
         <View style={styles.flatListContainer}>
           {flatList}
         </View>
@@ -537,6 +538,12 @@ const styles = StyleSheet.create({
     left: 24,
     right: 24,
     fontSize: 18,
+    fontFamily: 'Arial',
+  },
+  emojiOnlyText: {
+    left: 24,
+    right: 24,
+    fontSize: 36,
     fontFamily: 'Arial',
   },
   robotext: {

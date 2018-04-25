@@ -22,6 +22,7 @@ import Hyperlink from 'react-native-hyperlink';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
 import { stringForUser } from 'lib/shared/user-utils';
+import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import Tooltip from '../components/tooltip.react';
 
@@ -78,17 +79,17 @@ class TextMessage extends React.PureComponent<Props> {
     const isViewer = this.props.item.messageInfo.creator.isViewer;
     let containerStyle = null,
       messageStyle = {},
-      textStyle = {};
+      textCustomStyle = {};
     let darkColor = false;
     if (isViewer) {
       containerStyle = { alignSelf: 'flex-end' };
       messageStyle.backgroundColor = `#${this.props.threadInfo.color}`;
       darkColor = colorIsDark(this.props.threadInfo.color);
-      textStyle.color = darkColor ? 'white' : 'black';
+      textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
       containerStyle = { alignSelf: 'flex-start' };
       messageStyle.backgroundColor = "#DDDDDDBB";
-      textStyle.color = 'black';
+      textCustomStyle.color = 'black';
     }
     let authorName = null;
     if (!isViewer && this.props.item.startsCluster) {
@@ -111,7 +112,7 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
-    textStyle.height = this.props.item.textHeight;
+    textCustomStyle.height = this.props.item.textHeight;
 
     invariant(
       this.props.item.messageInfo.type === messageTypes.TEXT,
@@ -120,13 +121,16 @@ class TextMessage extends React.PureComponent<Props> {
     const text = this.props.item.messageInfo.text;
 
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    const textStyle = onlyEmojiRegex.test(text)
+      ? styles.emojiOnlyText
+      : styles.text;
     const content = (
       <View style={[styles.message, messageStyle]}>
         <Hyperlink linkDefault={true} linkStyle={linkStyle}>
           <Text
             onPress={this.onPress}
             onLongPress={this.onPress}
-            style={[styles.text, textStyle]}
+            style={[textStyle, textCustomStyle]}
           >{text}</Text>
         </Hyperlink>
       </View>
@@ -187,6 +191,10 @@ class TextMessage extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   text: {
     fontSize: 18,
+    fontFamily: 'Arial',
+  },
+  emojiOnlyText: {
+    fontSize: 36,
     fontFamily: 'Arial',
   },
   message: {
