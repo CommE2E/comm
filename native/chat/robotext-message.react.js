@@ -11,11 +11,12 @@ import React from 'react';
 import {
   Text,
   StyleSheet,
-  View,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import Hyperlink from 'react-native-hyperlink';
 
 import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
 import { includeDispatchActionProps } from 'lib/utils/action-utils';
@@ -60,13 +61,9 @@ class RobotextMessage extends React.PureComponent<Props> {
 
   render() {
     return (
-      <View
-        onStartShouldSetResponder={this.onStartShouldSetResponder}
-        onResponderGrant={this.onResponderGrant}
-        onResponderTerminationRequest={this.onResponderTerminationRequest}
-      >
+      <TouchableWithoutFeedback onPress={this.onPress}>
         {this.linkedRobotext()}
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -96,24 +93,22 @@ class RobotextMessage extends React.PureComponent<Props> {
 
       if (entityType === "t" && id !== this.props.item.messageInfo.threadID) {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
-        continue;
       } else if (entityType === "c") {
         textParts.push(<ColorEntity key={id} color={rawText} />);
-        continue;
+      } else {
+        textParts.push(rawText);
       }
-
-      textParts.push(rawText);
     }
-    return <Text style={styles.robotext}>{textParts}</Text>;
+    return (
+      <Hyperlink linkDefault={true} linkStyle={styles.link}>
+        <Text style={styles.robotext}>{textParts}</Text>
+      </Hyperlink>
+    );
   }
 
-  onStartShouldSetResponder = () => true;
-
-  onResponderGrant = () => {
+  onPress = () => {
     this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
-
-  onResponderTerminationRequest = () => true;
 
 }
 
