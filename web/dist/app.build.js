@@ -3029,7 +3029,7 @@ function setCookie(dispatch, currentCookie, newCookie, response) {
 async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, urlPrefix, deviceToken) {
   let newValidCookie = null;
   let fetchJSONCallback = null;
-  const boundFetchJSON = async (endpoint, data) => {
+  const boundFetchJSON = async (endpoint, data, options) => {
     const innerBoundSetCookie = (newCookie, response) => {
       if (newCookie !== cookie) {
         newValidCookie = newCookie;
@@ -3037,7 +3037,7 @@ async function fetchNewCookieFromNativeCredentials(dispatch, cookie, source, url
       setCookie(dispatch, cookie, newCookie, response);
     };
     try {
-      const result = await Object(__WEBPACK_IMPORTED_MODULE_4__fetch_json__["a" /* default */])(cookie, innerBoundSetCookie, () => new Promise(r => r(null)), someCookie => new Promise(r => r(null)), urlPrefix, endpoint, data);
+      const result = await Object(__WEBPACK_IMPORTED_MODULE_4__fetch_json__["a" /* default */])(cookie, innerBoundSetCookie, () => new Promise(r => r(null)), someCookie => new Promise(r => r(null)), urlPrefix, endpoint, data, options);
       if (fetchJSONCallback) {
         fetchJSONCallback(newValidCookie);
       }
@@ -3111,8 +3111,8 @@ function bindCookieAndUtilsIntoFetchJSON(dispatch, cookie, urlPrefix, deviceToke
     return attemptToResolveInvalidation(newAnonymousCookie);
   };
 
-  return async (endpoint, data) => {
-    return await Object(__WEBPACK_IMPORTED_MODULE_4__fetch_json__["a" /* default */])(cookie, boundSetCookie, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, data);
+  return async (endpoint, data, options) => {
+    return await Object(__WEBPACK_IMPORTED_MODULE_4__fetch_json__["a" /* default */])(cookie, boundSetCookie, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, data, options);
   };
 }
 
@@ -34416,6 +34416,7 @@ module.exports = baseValues;
 // helpers in lib/utils/action-utils.js. This type represents the form of the
 // fetchJSON function that gets passed to the action function in lib/actions.
 
+const defaultTimeout = 10000;
 
 // If cookie is undefined, then we will defer to the underlying environment to
 // handle cookies, and we won't worry about them. We do this on the web since
@@ -34424,7 +34425,7 @@ module.exports = baseValues;
 // underlying implementations and prefer for things to be explicit, and XSS
 // isn't a thing on native. Note that for native, cookie might be null
 // (indicating we don't have one), and we will then set an empty Cookie header.
-async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, input) {
+async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, cookieInvalidationRecovery, urlPrefix, endpoint, input, options) {
   const possibleReplacement = await waitIfCookieInvalidated();
   if (possibleReplacement) {
     return await possibleReplacement(endpoint, input);
@@ -34444,8 +34445,9 @@ async function fetchJSON(cookie, setCookieCallback, waitIfCookieInvalidated, coo
       'Content-Type': 'application/json'
     }
   });
+  const timeout = options && options.timeout ? options.timeout : defaultTimeout;
   const rejectPromise = (async () => {
-    await Object(__WEBPACK_IMPORTED_MODULE_6__sleep__["a" /* default */])(10000);
+    await Object(__WEBPACK_IMPORTED_MODULE_6__sleep__["a" /* default */])(timeout);
     throw new __WEBPACK_IMPORTED_MODULE_4__errors__["a" /* FetchTimeout */](`fetchJSON timed out call to ${endpoint}`, endpoint);
   })();
   const response = await Promise.race([fetchPromise, rejectPromise]);
