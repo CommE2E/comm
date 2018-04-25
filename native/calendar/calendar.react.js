@@ -183,6 +183,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?Map<string, number> = null;
   currentState: ?string = NativeAppState.currentState;
+  lastForegrounded = 0;
+  lastSessionReset = 0;
   loadingFromScroll = false;
   currentScrollPosition: ?number = null;
   // We don't always want an extraData update to trigger a state update, so we
@@ -261,18 +263,25 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
-    // If upon foregrounding we find the session expired we scroll to today
     const lastState = this.currentState;
     this.currentState = nextAppState;
     if (
-      lastState &&
-      lastState.match(/inactive|background/) &&
-      this.currentState === "active" &&
-      this.props.sessionExpired() &&
-      !this.props.tabActive &&
-      this.flatList
+      !lastState ||
+      !lastState.match(/inactive|background/) ||
+      this.currentState !== "active"
     ) {
-      this.scrollToToday();
+      // We're only handling foregrounding here
+      return;
+    }
+    if (Date.now() - this.lastSessionReset < 500) {
+      // If the session got reset right before this callback triggered, that
+      // indicates we should reset the scroll position
+      this.lastSessionReset = 0;
+      this.scrollToToday(false);
+    } else {
+      // Otherwise, it's possible that the session is about to get reset. We
+      // record a timestamp here so we can scrollToToday there.
+      this.lastForegrounded = Date.now();
     }
   }
 
@@ -355,13 +364,23 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       }
     }
 
-    // If the sessionID gets reset and the user isn't looking we scroll to today
     if (
       nextProps.sessionID !== this.props.sessionID &&
-      !nextProps.tabActive &&
       this.flatList
     ) {
-      this.scrollToToday();
+      if (!nextProps.tabActive) {
+        // If the sessionID gets reset and the user isn't looking we reset
+        this.scrollToToday();
+      } else if (Date.now() - this.lastForegrounded < 500) {
+        // If the app got foregrounded right before the session got reset, that
+        // indicates we should reset the scroll position
+        this.lastForegrounded = 0;
+        this.scrollToToday(false);
+      } else {
+        // Otherwise, it's possible that the foreground callback is about to get
+        // triggered. We record a timestamp here so we can scrollToToday there.
+        this.lastSessionReset = Date.now();
+      }
     }
 
     const lastLDWH = this.state.listDataWithHeights;
@@ -529,7 +548,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.setState({ listDataWithHeights });
   }
 
-  scrollToToday = (animated: ?bool = undefined) => {
+  scrollToToday(animated: ?bool = undefined) {
     if (animated === undefined) {
       animated = this.props.tabActive;
     }
