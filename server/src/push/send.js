@@ -29,6 +29,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
+import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
@@ -240,6 +241,7 @@ async function fetchInfos(pushInfo: PushInfo) {
   const collapsableNotifsResult = await fetchCollapsableNotifs(pushInfo);
 
   const threadIDs = new Set();
+  const threadWithChangedNamesToMessages = new Map();
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     threadIDs.add(rawMessageInfo.threadID);
     if (
@@ -260,17 +262,73 @@ async function fetchInfos(pushInfo: PushInfo) {
       }
       for (let rawMessageInfo of notifInfo.newMessageInfos) {
         addThreadIDsFromMessageInfos(rawMessageInfo);
+        if (
+          rawMessageInfo.type === messageTypes.CHANGE_SETTINGS &&
+          rawMessageInfo.field === "name"
+        ) {
+          const threadID = rawMessageInfo.threadID;
+          const messages = threadWithChangedNamesToMessages.get(threadID);
+          if (messages) {
+            messages.push(rawMessageInfo.id);
+          } else {
+            threadWithChangedNamesToMessages.set(threadID, [rawMessageInfo.id]);
+          }
+        }
       }
     }
   }
 
+  const promises = {};
+  promises.threadResult =
+    fetchServerThreadInfos(SQL`t.id IN (${[...threadIDs]})`);
+  if (threadWithChangedNamesToMessages.size > 0) {
+    const typesThatAffectName = [
+      messageTypes.CHANGE_SETTINGS,
+      messageTypes.CREATE_THREAD,
+    ];
+    const oldNameQuery = SQL`
+      SELECT IF(
+        JSON_TYPE(JSON_EXTRACT(m.content, "$.name")) = 'NULL',
+        "",
+        JSON_UNQUOTE(JSON_EXTRACT(m.content, "$.name"))
+      ) AS name, m.thread
+      FROM (
+        SELECT MAX(id) AS id
+        FROM messages
+        WHERE type IN (${typesThatAffectName})
+          AND JSON_EXTRACT(content, "$.name") IS NOT NULL
+          AND`;
+    const threadClauses = [];
+    for (let [threadID, messages] of threadWithChangedNamesToMessages) {
+      threadClauses.push(
+        SQL`(thread = ${threadID} AND id NOT IN (${messages}))`,
+      );
+    }
+    oldNameQuery.append(mergeOrConditions(threadClauses));
+    oldNameQuery.append(SQL`
+        GROUP BY thread
+      ) x
+      LEFT JOIN messages m ON m.id = x.id
+    `);
+    promises.oldNames = dbQuery(oldNameQuery);
+  }
+  const { threadResult, oldNames } = await promiseAll(promises);
+
   // These threadInfos won't have currentUser set
-  const { threadInfos: serverThreadInfos, userInfos: threadUserInfos } =
-    await fetchServerThreadInfos(SQL`t.id IN (${[...threadIDs]})`);
+  const { threadInfos: serverThreadInfos, userInfos: threadUserInfos }
+    = threadResult;
   const mergedUserInfos = {
     ...collapsableNotifsResult.userInfos,
     ...threadUserInfos,
   };
+
+  if (oldNames) {
+    const [ result ] = oldNames;
+    for (let row of result) {
+      const threadID = row.thread.toString();
+      serverThreadInfos[threadID].name = row.name;
+    }
+  }
 
   const userInfos = await fetchMissingUserInfos(
     mergedUserInfos,
