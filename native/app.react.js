@@ -341,10 +341,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return false;
     }
     const lastPingStart = props.pingTimestamps.lastStarted;
-    const timeUntilNextPing = lastPingStart + pingFrequency - Date.now();
-    if (this.pingCounter === 0 && lastPingStart < Date.now() - pingFrequency) {
+    const now = Date.now();
+    // We add 10 to the timing check below to account for potential lag between
+    // the setTimeout call in pingNow and when PING_STARTED gets processed by
+    // the reducer
+    if (this.pingCounter === 0 && lastPingStart < now - pingFrequency + 10) {
       return true;
-    } else if (lastPingStart < Date.now() - pingFrequency * 10) {
+    } else if (lastPingStart < now - pingFrequency * 10) {
       // It seems we have encountered some error state where ping isn't firing
       this.pingCounter = 0;
       return true;
@@ -356,7 +359,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const appState = inputAppState ? inputAppState : this.currentState;
     const props = inputProps ? inputProps : this.props;
     if (this.shouldDispatchPing(props, appState)) {
-      this.pingNow(inputProps);
+      this.pingNow(props);
     }
   }
 
