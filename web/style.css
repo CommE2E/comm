@@ -219,7 +219,7 @@ div.thread-nav {
   float: left;
 }
 div.thread-nav-null-state {
-  z-index: 4;
+  z-index: 5;
   cursor: default;
 }
 div.thread-nav-current {

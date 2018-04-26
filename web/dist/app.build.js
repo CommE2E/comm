@@ -57364,7 +57364,7 @@ class IntroModal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
         __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
           'p',
           null,
-          'You\'re home, but you haven\'t joined any threads yet, so there\'s nothing to show. You can browse and join some threads using the dialog at right.'
+          'You\'re home, but you\'re not in any threads, so there\'s nothing to show. You can create a new thread using the dialog at right.'
         )
       )
     );
