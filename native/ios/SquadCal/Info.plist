@@ -75,5 +75,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>React Native binary makes Apple think we use this, but we don't.</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>React Native binary makes Apple think we use this, but we don't.</string>
 </dict>
 </plist>
