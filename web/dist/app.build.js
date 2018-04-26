@@ -34724,9 +34724,11 @@ function reduceUserInfos(state, action) {
     }
     const newUserInfos = __WEBPACK_IMPORTED_MODULE_2_lodash_fp_keyBy___default()('id')(action.payload.userInfos);
     const updated = _extends({}, state, newUserInfos);
-    for (let update of action.payload.updatesResult.newUpdates) {
-      if (update.type === __WEBPACK_IMPORTED_MODULE_0__types_update_types__["a" /* updateTypes */].DELETE_ACCOUNT) {
-        delete updated[update.deletedUserID];
+    if (action.payload.updatesResult) {
+      for (let update of action.payload.updatesResult.newUpdates) {
+        if (update.type === __WEBPACK_IMPORTED_MODULE_0__types_update_types__["a" /* updateTypes */].DELETE_ACCOUNT) {
+          delete updated[update.deletedUserID];
+        }
       }
     }
     if (!__WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual___default()(state)(updated)) {
@@ -37922,6 +37924,9 @@ function makePermissionsForChildrenBlob(permissions) {
 
 function reduceUpdatesCurrentAsOf(currentAsOf, action) {
   if (action.type !== __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["i" /* logInActionTypes */].success && action.type !== __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["s" /* resetPasswordActionTypes */].success && action.type !== __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__["b" /* pingActionTypes */].success) {
+    return currentAsOf;
+  }
+  if (!action.payload.updatesResult) {
     return currentAsOf;
   }
   return action.payload.updatesResult.currentAsOf;

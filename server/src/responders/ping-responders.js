@@ -12,6 +12,7 @@ import invariant from 'invariant';
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
+import { isSet } from 'lib/shared/core';
 
 import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';
@@ -127,7 +128,7 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, request.calendarQuery),
     fetchCurrentUserInfo(viewer),
-    request.updatesCurrentAsOf
+    isSet(request.updatesCurrentAsOf)
       ? fetchUpdateInfos(viewer, request.updatesCurrentAsOf)
       : null,
     clientResponsePromises.length > 0
