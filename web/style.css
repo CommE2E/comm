@@ -398,9 +398,6 @@ div.thread-nav-option:hover {
 div.thread-nav-frozen-option {
   background-color: #E8E8E8;
 }
-div.thread-nav-open-option {
-  cursor: default;
-}
 div.thread-nav-no-results {
   text-align: center;
   font-style: italic;
@@ -1078,56 +1075,6 @@ span.page-error {
   margin-right: 10px;
   font-size: 28px;
   float: left;
-}
-
-div.thread-password-entry-input-container {
-  overflow: hidden;
-  padding-right: 6px;
-}
-input.thread-password-entry-input {
-  font-size: 14px;
-  padding: 2px;
-  width: 100%;
-  margin-top: 5px;
-  border-radius: 3px;
-}
-input.thread-password-entry-input:focus {
-  outline: none;
-}
-
-input.thread-password-entry-submit {
-  float: right;
-  padding: 3px 5px;
-  font-size: 9px;
-  margin-right: 3px;
-  border-radius: 3px;
-  border: 1px solid #C8C8C8;
-  background-color: #F8F8F8;
-  text-transform: uppercase;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 600;
-  color: #777777;
-  margin-top: 6px;
-  margin-left: 3px;
-  cursor: pointer;
-}
-input.thread-password-entry-submit:hover {
-  text-decoration: underline;
-}
-input.thread-password-entry-submit:disabled {
-  cursor: initial;
-  text-decoration: none;
-  color: #999999;
-}
-span.thread-pasword-entry-loading {
-  float: right;
-  width: 14px;
-  padding: 9px 1px 0px 3px;
-}
-span.thread-pasword-entry-error {
-  float: right;
-  line-height: 14px;
-  padding: 9px 3px 0px 5px;
 }
 
 div.color-picker-container {

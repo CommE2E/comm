@@ -65,10 +65,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendMessage: (threadID: string, text: string) => Promise<SendTextMessageResult>,
-  joinThread: (
-    threadID: string,
-    threadPassword?: string,
-  ) => Promise<ThreadJoinPayload>,
+  joinThread: (threadID: string) => Promise<ThreadJoinPayload>,
 };
 type State = {
   text: string,

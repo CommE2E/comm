@@ -5,11 +5,7 @@ import {
   type MessageData,
   type RawMessageInfo,
 } from 'lib/types/message-types';
-import {
-  threadTypes,
-  threadPermissions,
-  assertThreadType,
-} from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import invariant from 'invariant';
 
@@ -18,7 +14,7 @@ import {
   messageTypeGeneratesNotifs,
 } from 'lib/shared/message-utils';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
-import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import {
   dbQuery,
@@ -192,12 +188,9 @@ async function updateUnreadStatus(
         index = joinIndex++;
         joinSubthreads.set(subthread, index);
       }
-      const condition = SQL`(JSON_EXTRACT(stm`;
+      const condition = SQL`JSON_EXTRACT(stm`;
       condition.append(index);
-      condition.append(SQL`.permissions, ${knowOfExtractString}) IS TRUE `);
-      condition.append(SQL`OR st`);
-      condition.append(index);
-      condition.append(SQL`.type = ${threadTypes.OPEN})`);
+      condition.append(SQL`.permissions, ${knowOfExtractString}) IS TRUE`);
       conditions.push(condition);
     }
     threadConditionClauses.push(mergeAndConditions(conditions));
@@ -214,17 +207,14 @@ async function updateUnreadStatus(
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     UPDATE memberships m
-    LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
       AND f.time > ${time}
   `;
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
     SET m.unread = 1
-    WHERE m.role != 0 AND f.user IS NULL AND (
-      JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-      OR t.type = ${threadTypes.OPEN}
-    ) AND
+    WHERE m.role != 0 AND f.user IS NULL AND
+      JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
   `);
   query.append(conditionClause);
   await dbQuery(query);
@@ -261,7 +251,6 @@ async function sendPushNotifsForNewMessages(
     subthreadSelects += `
       ,
       stm${index}.permissions AS subthread${subthread}_permissions,
-      st${index}.type AS subthread${subthread}_type,
       stm${index}.role AS subthread${subthread}_role
     `;
     subthreadJoins.push(subthreadJoin(index, subthread));
@@ -275,7 +264,6 @@ async function sendPushNotifsForNewMessages(
   query.append(subthreadSelects);
   query.append(SQL`
     FROM memberships m
-    LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN cookies c ON c.user = m.user AND c.device_token IS NOT NULL
     LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
       AND f.time > ${time}
@@ -283,10 +271,7 @@ async function sendPushNotifsForNewMessages(
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
     WHERE m.role != 0 AND c.user IS NOT NULL AND f.user IS NULL AND
-      (
-        JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE
-        OR t.type = ${threadTypes.OPEN}
-      ) AND
+      JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
   `);
   query.append(conditionClause);
 
@@ -305,17 +290,14 @@ async function sendPushNotifsForNewMessages(
         subthreads: new Set(),
       };
       for (let subthread of subthreadPermissionsToCheck) {
-        const permissionsInfo = {
-          permissions: row[`subthread${subthread}_permissions`],
-          threadType: assertThreadType(row[`subthread${subthread}_type`]),
-        };
+        const permissions = row[`subthread${subthread}_permissions`];
         const isSubthreadMember = !!row[`subthread${subthread}_role`];
         // Only include the notification from the superthread if there is no
         // notification from the subthread
         if (
-          permissionHelper(permissionsInfo, threadPermissions.KNOW_OF) &&
+          permissionLookup(permissions, threadPermissions.KNOW_OF) &&
           (!isSubthreadMember ||
-            !permissionHelper(permissionsInfo, threadPermissions.VISIBLE))
+            !permissionLookup(permissions, threadPermissions.VISIBLE))
         ) {
           preUserPushInfo.subthreads.add(subthread);
         }
@@ -372,10 +354,8 @@ function getSQLConditionsForThreadRestriction(
 }
 
 function subthreadJoin(index: number, subthread: string) {
-  const join = SQL`LEFT JOIN threads `;
-  join.append(`st${index} ON st${index}.`);
-  join.append(SQL`id = ${subthread} `);
-  join.append(`LEFT JOIN memberships stm${index} ON stm${index}.`);
+  const join = SQL`LEFT JOIN memberships `;
+  join.append(`stm${index} ON stm${index}.`);
   join.append(SQL`thread = ${subthread} AND `);
   join.append(`stm${index}.user = m.user`);
   return join;

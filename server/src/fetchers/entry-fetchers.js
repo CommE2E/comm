@@ -8,12 +8,10 @@ import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import type { Viewer } from '../session/viewer';
 import {
   threadPermissions,
-  threadTypes,
-  assertThreadType,
   type ThreadPermission,
 } from 'lib/types/thread-types';
 
-import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
@@ -36,15 +34,10 @@ async function fetchEntryInfos(
       e.deleted, e.creator AS creatorID, u.username AS creator
     FROM entries e
     LEFT JOIN days d ON d.id = e.day
-    LEFT JOIN threads t ON t.id = d.thread
     LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
     LEFT JOIN users u ON u.id = e.creator
-    WHERE
-      (
-        JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.type = ${threadTypes.OPEN}
-      )
-      AND d.date BETWEEN ${entryQuery.startDate} AND ${entryQuery.endDate}
+    WHERE JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE AND
+      d.date BETWEEN ${entryQuery.startDate} AND ${entryQuery.endDate}
   `;
   query.append(navCondition);
   if (deletedCondition) {
@@ -85,7 +78,7 @@ async function checkThreadPermissionForEntry(
 ): Promise<bool> {
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT m.permissions, t.type
+    SELECT m.permissions, t.id
     FROM entries e
     LEFT JOIN days d ON d.id = e.day
     LEFT JOIN threads t ON t.id = d.thread
@@ -98,14 +91,10 @@ async function checkThreadPermissionForEntry(
     return false;
   }
   const row = result[0];
-  if (row.type === null) {
+  if (row.id === null) {
     return false;
   }
-  const permissionsInfo = {
-    permissions: row.permissions,
-    threadType: assertThreadType(row.type),
-  };
-  return permissionHelper(permissionsInfo, permission);
+  return permissionLookup(row.permissions, permission);
 }
 
 async function fetchEntryRevisionInfo(

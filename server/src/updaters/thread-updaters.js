@@ -21,7 +21,7 @@ import _find from 'lodash/fp/find';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -33,7 +33,7 @@ import {
   fetchServerThreadInfos,
   fetchThreadInfos,
   viewerIsMember,
-  fetchThreadPermissionsInfo,
+  fetchThreadPermissionsBlob,
 } from '../fetchers/thread-fetchers';
 import {
   changeRole,
@@ -294,13 +294,6 @@ async function updateThread(
     changedFields.color = color;
     sqlUpdate.color = color;
   }
-  const newPassword = request.changes.password;
-  if (newPassword) {
-    if (newPassword.trim() === "") {
-      throw new ServerError('empty_password');
-    }
-    sqlUpdate.hash = bcrypt.hashSync(newPassword);
-  }
   const parentThreadID = request.changes.parentThreadID;
   if (parentThreadID !== undefined) {
     if (parentThreadID !== null) {
@@ -316,27 +309,6 @@ async function updateThread(
 
   const threadType = request.changes.type;
   if (threadType !== null && threadType !== undefined) {
-    if (
-      threadType === threadTypes.OPEN ||
-      threadType === threadTypes.CLOSED ||
-      threadType === threadTypes.SECRET
-    ) {
-      if (parentThreadID) {
-        throw new ServerError('invalid_parameters');
-      }
-      sqlUpdate.parent_thread_id = null;
-      // TODO when you create the message for the above todo, make sure to
-      // remove it here!
-    }
-    if (
-      threadType !== threadTypes.CLOSED &&
-      threadType !== threadTypes.SECRET
-    ) {
-      if (newPassword) {
-        throw new ServerError('invalid_parameters');
-      }
-      sqlUpdate.hash = null;
-    }
     changedFields.type = threadType;
     sqlUpdate.type = threadType;
   }
@@ -347,7 +319,7 @@ async function updateThread(
       = verifyUserIDs(unverifiedNewMemberIDs);
   }
 
-  validationPromises.threadPermissionInfo = fetchThreadPermissionsInfo(
+  validationPromises.threadPermissionsBlob = fetchThreadPermissionsBlob(
     viewer,
     request.threadID,
   );
@@ -365,7 +337,7 @@ async function updateThread(
 
   const {
     canMoveThread,
-    threadPermissionInfo,
+    threadPermissionsBlob,
     verifiedNewMemberIDs,
     validationQuery: [ validationResult ],
   } = await promiseAll(validationPromises);
@@ -393,8 +365,8 @@ async function updateThread(
     sqlUpdate.description ||
     sqlUpdate.color
   ) {
-    const canEditThread = permissionHelper(
-      threadPermissionInfo,
+    const canEditThread = permissionLookup(
+      threadPermissionsBlob,
       threadPermissions.EDIT_THREAD,
     );
     if (!canEditThread) {
@@ -403,11 +375,10 @@ async function updateThread(
   }
   if (
     sqlUpdate.parent_thread_id ||
-    sqlUpdate.type ||
-    sqlUpdate.hash
+    sqlUpdate.type
   ) {
-    const canEditPermissions = permissionHelper(
-      threadPermissionInfo,
+    const canEditPermissions = permissionLookup(
+      threadPermissionsBlob,
       threadPermissions.EDIT_PERMISSIONS,
     );
     if (!canEditPermissions) {
@@ -421,8 +392,8 @@ async function updateThread(
     }
   }
   if (newMemberIDs) {
-    const canAddMembers = permissionHelper(
-      threadPermissionInfo,
+    const canAddMembers = permissionLookup(
+      threadPermissionsBlob,
       threadPermissions.ADD_MEMBERS,
     );
     if (!canAddMembers) {
@@ -434,18 +405,6 @@ async function updateThread(
   const oldParentThreadID = validationRow.parentThreadID
     ? validationRow.parentThreadID.toString()
     : null;
-
-  // If the thread is being switched to closed, then a password *must* be
-  // specified
-  if (
-    oldThreadType !== threadTypes.CLOSED &&
-    oldThreadType !== threadTypes.SECRET &&
-    (threadType === threadTypes.CLOSED ||
-      threadType === threadTypes.CLOSED) &&
-    !newPassword
-  ) {
-    throw new ServerError('empty_password');
-  }
 
   // If the thread is being switched to nested, a parent must be specified
   if (
@@ -463,26 +422,6 @@ async function updateThread(
   const nextParentThreadID = parentThreadID
     ? parentThreadID
     : oldParentThreadID;
-
-  // It is not valid to set a parent thread ID on v1 visibilities
-  if (
-    (
-      nextThreadType === threadTypes.OPEN ||
-      nextThreadType === threadTypes.CLOSED ||
-      nextThreadType === threadTypes.SECRET
-    ) && parentThreadID
-  ) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  // It is not valid to set a password on anything other than these visibilities
-  if (
-    nextThreadType !== threadTypes.CLOSED &&
-    nextThreadType !== threadTypes.SECRET &&
-    newPassword
-  ) {
-    throw new ServerError('invalid_parameters');
-  }
 
   const savePromises = {};
   if (Object.keys(sqlUpdate).length > 0) {
@@ -576,35 +515,16 @@ async function joinThread(
   viewer: Viewer,
   request: ThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
-  const threadQuery = SQL`
-    SELECT type, hash FROM threads WHERE id = ${request.threadID}
-  `;
-  const [ isMember, hasPermission, [ threadResult ] ] = await Promise.all([
+  const [ isMember, hasPermission ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
     checkThreadPermission(
       viewer,
       request.threadID,
       threadPermissions.JOIN_THREAD,
     ),
-    dbQuery(threadQuery),
   ]);
-  if (isMember || !hasPermission || threadResult.length === 0) {
+  if (isMember || !hasPermission) {
     throw new ServerError('invalid_parameters');
-  }
-  const threadRow = threadResult[0];
-
-  // You can only be added to these thread types if you know the password
-  const threadType = assertThreadType(threadRow.type);
-  if (threadType === threadTypes.CLOSED || threadType === threadTypes.SECRET) {
-    if (!threadRow.hash) {
-      throw new ServerError('database_corruption');
-    }
-    if (!request.password) {
-      throw new ServerError('invalid_parameters');
-    }
-    if (!bcrypt.compareSync(request.password, threadRow.hash)) {
-      throw new ServerError('invalid_credentials');
-    }
   }
 
   const changeset = await changeRole(

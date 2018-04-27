@@ -9,8 +9,6 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 
-import bcrypt from 'twin-bcrypt';
-
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
@@ -37,27 +35,11 @@ async function createThread(
   }
 
   const threadType = request.type;
-  let password = null;
-  if (threadType === threadTypes.CLOSED || threadType === threadTypes.SECRET) {
-    if (!request.password || request.password.trim() === "") {
-      throw new ServerError('empty_password');
-    }
-    password = request.password;
-  } else if (threadType === threadTypes.NESTED_OPEN) {
-    if (!request.parentThreadID) {
-      throw new ServerError('invalid_parameters');
-    }
+  if (threadType === threadTypes.NESTED_OPEN && !request.parentThreadID) {
+    throw new ServerError('invalid_parameters');
   }
-
   let parentThreadID = null;
   if (request.parentThreadID) {
-    if (
-      threadType === threadTypes.OPEN ||
-      threadType === threadTypes.CLOSED ||
-      threadType === threadTypes.SECRET
-    ) {
-      throw new ServerError('invalid_parameters');
-    }
     parentThreadID = request.parentThreadID;
     const hasPermission = await checkThreadPermission(
       viewer,
@@ -78,14 +60,12 @@ async function createThread(
     ? request.color.toLowerCase()
     : generateRandomColor();
   const time = Date.now();
-  const hash = password ? bcrypt.hashSync(password) : null;
 
   const row = [
     id,
     threadType,
     name,
     description,
-    hash,
     viewer.userID,
     time,
     color,
@@ -93,7 +73,7 @@ async function createThread(
     newRoles.default.id,
   ];
   const query = SQL`
-    INSERT INTO threads(id, type, name, description, hash, creator,
+    INSERT INTO threads(id, type, name, description, creator,
       creation_time, color, parent_thread_id, default_role)
     VALUES ${[row]}
   `;
@@ -156,10 +136,7 @@ async function createThread(
       rowToSave.subscription = subscription;
       const member = {
         id: rowToSave.userID,
-        permissions: getAllThreadPermissions(
-          { permissions: rowToSave.permissions, threadType },
-          id,
-        ),
+        permissions: getAllThreadPermissions(rowToSave.permissions, id),
         role: rowToSave.role && rowToSave.role !== "0"
           ? rowToSave.role
           : null,

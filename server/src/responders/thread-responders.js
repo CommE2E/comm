@@ -106,7 +106,6 @@ const updateThreadRequestInputValidator = tShape({
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
-    password: t.maybe(t.String),
     parentThreadID: t.maybe(t.String),
     newMemberIDs: t.maybe(t.list(t.String)),
   }),
@@ -132,7 +131,6 @@ async function threadUpdateResponder(
         name: input.changes.name,
         description: input.changes.description,
         color: input.changes.color,
-        password: input.changes.password,
         parentThreadID: input.changes.parentThreadID,
         newMemberIDs: input.changes.newMemberIDs,
       },
@@ -148,7 +146,6 @@ async function threadUpdateResponder(
         name: input.changes.name,
         description: input.changes.description,
         color: input.changes.color,
-        password: input.changes.password,
         parentThreadID: input.changes.parentThreadID,
         newMemberIDs: input.changes.newMemberIDs,
       },
@@ -165,7 +162,6 @@ const newThreadRequestInputValidator = tShape({
   name: t.maybe(t.String),
   description: t.maybe(t.String),
   color: t.maybe(tColor),
-  password: t.maybe(t.String),
   parentThreadID: t.maybe(t.String),
   initialMemberIDs: t.maybe(t.list(t.String)),
 });
@@ -187,7 +183,6 @@ async function threadCreationResponder(
       name: input.name,
       description: input.description,
       color: input.color,
-      password: input.password,
       parentThreadID: input.parentThreadID,
       initialMemberIDs: input.initialMemberIDs,
     }: NewThreadRequest);
@@ -199,7 +194,6 @@ async function threadCreationResponder(
 
 const joinThreadRequestInputValidator = tShape({
   threadID: t.String,
-  password: t.maybe(t.String),
 });
 async function threadJoinResponder(
   viewer: Viewer,

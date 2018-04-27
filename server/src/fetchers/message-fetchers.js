@@ -12,18 +12,14 @@ import {
   type MessageTruncationStatuses,
   type FetchMessageInfosResult,
 } from 'lib/types/message-types';
-import {
-  assertThreadType,
-  threadPermissions,
-  threadTypes,
-} from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import { sortMessageInfoList } from 'lib/shared/message-utils';
-import { permissionHelper } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
@@ -90,26 +86,16 @@ async function fetchCollapsableNotifs(
   const collapseQuery = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions,
-      st.type AS subthread_type,
-      n.user, n.collapse_key
+      stm.permissions AS subthread_permissions, n.user, n.collapse_key
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
-    LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
-    LEFT JOIN threads st
-      ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
     LEFT JOIN memberships stm
       ON m.type = ${messageTypes.CREATE_SUB_THREAD}
         AND stm.thread = m.content AND stm.user = n.user
     LEFT JOIN users u ON u.id = m.user
-    WHERE
-      (
-        JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE
-        OR t.type = ${threadTypes.OPEN}
-      )
-      AND n.rescinded = 0
-      AND
+    WHERE n.rescinded = 0 AND
+      JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE AND
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
@@ -176,11 +162,8 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       addedUserIDs: JSON.parse(row.content),
     };
   } else if (type === messageTypes.CREATE_SUB_THREAD) {
-    const subthreadPermissionInfo = {
-      permissions: row.subthread_permissions,
-      threadType: assertThreadType(row.subthread_type),
-    };
-    if (!permissionHelper(subthreadPermissionInfo, threadPermissions.KNOW_OF)) {
+    const subthreadPermissions = row.subthread_permissions;
+    if (!permissionLookup(subthreadPermissions, threadPermissions.KNOW_OF)) {
       return null;
     }
     return {
@@ -308,28 +291,19 @@ async function fetchMessageInfos(
   const query = SQL`
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
-        u.username AS creator, x.subthread_permissions, x.subthread_type,
+        u.username AS creator, x.subthread_permissions,
         @num := if(@thread = x.thread, @num + 1, 1) AS number,
         @thread := x.thread AS threadID
       FROM (SELECT @num := 0, @thread := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
-          stm.permissions AS subthread_permissions,
-          st.type AS subthread_type
+          stm.permissions AS subthread_permissions
         FROM messages m
-        LEFT JOIN threads t ON t.id = m.thread
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
-        LEFT JOIN threads st
-          ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
         LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
           AND stm.thread = m.content AND stm.user = ${viewerID}
-        WHERE
-          (
-            JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-            OR t.type = ${threadTypes.OPEN}
-          )
-          AND
+        WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   query.append(threadSelectionClause);
   query.append(SQL`
@@ -455,22 +429,14 @@ async function fetchMessageInfosSince(
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions, st.type AS subthread_type
+      stm.permissions AS subthread_permissions
     FROM messages m
-    LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
-    LEFT JOIN threads st
-      ON m.type = ${messageTypes.CREATE_SUB_THREAD} AND st.id = m.content
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
     LEFT JOIN users u ON u.id = m.user
-    WHERE
-      (
-        JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-        OR t.type = ${threadTypes.OPEN}
-      )
-      AND m.time > ${currentAsOf}
-      AND
+    WHERE m.time > ${currentAsOf} AND
+      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   query.append(threadSelectionClause);
   query.append(SQL`

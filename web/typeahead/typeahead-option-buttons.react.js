@@ -6,7 +6,6 @@ import {
   threadPermissions,
   type LeaveThreadPayload,
   type ThreadJoinPayload,
-  threadTypes,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -63,10 +62,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  joinThread: (
-    threadID: string,
-    threadPassword?: string,
-  ) => Promise<ThreadJoinPayload>,
+  joinThread: (threadID: string) => Promise<ThreadJoinPayload>,
   leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
   fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
@@ -74,18 +70,12 @@ type Props = {
 class TypeaheadOptionButtons extends React.PureComponent<Props> {
 
   render() {
-    // We show "Closed" if the viewer is not a member, and either they don't
-    // have permission to join the thread, or they are password-protected
-    // threadTypes.CLOSED threads.
-    const isMember = viewerIsMember(this.props.threadInfo);
-    const showClosed =
-      !isMember && (
-        this.props.threadInfo.type === threadTypes.CLOSED ||
-        !threadHasPermission(
-          this.props.threadInfo,
-          threadPermissions.JOIN_THREAD,
-        )
-      );
+    // We show "Closed" if the viewer is not a member and they don't have
+    // permission to join the thread (hypothetical custom permissions)
+    const threadInfo = this.props.threadInfo;
+    const isMember = viewerIsMember(threadInfo);
+    const showClosed = !isMember && 
+      !threadHasPermission(threadInfo, threadPermissions.JOIN_THREAD);
     if (showClosed) {
       return (
         <ul className={css['thread-nav-option-buttons']}>
@@ -94,7 +84,7 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
       );
     }
     const canEditThread = threadHasPermission(
-      this.props.threadInfo,
+      threadInfo,
       threadPermissions.EDIT_THREAD,
     );
     let editButton = null;

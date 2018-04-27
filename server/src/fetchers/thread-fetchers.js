@@ -4,16 +4,15 @@ import {
   type RawThreadInfo,
   type ServerThreadInfo,
   type ThreadPermission,
-  assertThreadType,
   threadPermissions,
+  type ThreadPermissionsBlob,
 } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
-import type { PermissionsInfo } from 'lib/permissions/thread-permissions';
 import type { Viewer } from '../session/viewer';
 
 import {
   getAllThreadPermissions,
-  permissionHelper,
+  permissionLookup,
 } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
@@ -78,13 +77,7 @@ async function fetchServerThreadInfos(
     }
     if (row.user) {
       const userID = row.user.toString();
-      const allPermissions = getAllThreadPermissions(
-        {
-          permissions: row.permissions,
-          threadType: assertThreadType(row.type),
-        },
-        threadID,
-      );
+      const allPermissions = getAllThreadPermissions(row.permissions, threadID);
       const member = {
         id: userID,
         permissions: allPermissions,
@@ -168,16 +161,15 @@ async function verifyThreadID(threadID: string): Promise<bool> {
   return result.length !== 0;
 }
 
-async function fetchThreadPermissionsInfo(
+async function fetchThreadPermissionsBlob(
   viewer: Viewer,
   threadID: string,
-): Promise<?PermissionsInfo> {
+): Promise<?ThreadPermissionsBlob> {
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT t.type, m.permissions
-    FROM threads t
-    LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
-    WHERE t.id = ${threadID}
+    SELECT permissions
+    FROM memberships
+    WHERE thread = ${threadID} AND user = ${viewerID}
   `;
   const [ result ] = await dbQuery(query);
 
@@ -185,10 +177,7 @@ async function fetchThreadPermissionsInfo(
     return null;
   }
   const row = result[0];
-  return {
-    permissions: row.permissions,
-    threadType: assertThreadType(row.type),
-  };
+  return row.permissions;
 }
 
 async function checkThreadPermission(
@@ -196,8 +185,8 @@ async function checkThreadPermission(
   threadID: string,
   permission: ThreadPermission,
 ): Promise<bool> {
-  const permissionsInfo = await fetchThreadPermissionsInfo(viewer, threadID);
-  return permissionHelper(permissionsInfo, permission);
+  const permissionsBlob = await fetchThreadPermissionsBlob(viewer, threadID);
+  return permissionLookup(permissionsBlob, permission);
 }
 
 async function viewerIsMember(
@@ -223,7 +212,7 @@ export {
   fetchThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
-  fetchThreadPermissionsInfo,
+  fetchThreadPermissionsBlob,
   checkThreadPermission,
   viewerIsMember,
 };

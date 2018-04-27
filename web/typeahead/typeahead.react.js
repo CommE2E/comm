@@ -42,7 +42,6 @@ import { UpCaret, DownCaret, MagnifyingGlass } from '../vectors.react';
 export type TypeaheadOptionInfo =
   | {| type: "thread", threadInfo: ThreadInfo, frozen: bool |}
   | {| type: "action", navID: NavID, name: string, frozen: bool |}
-  | {| type: "secret", threadID: string, frozen: bool |}
   | {| type: "noResults" |};
 
 type Props = {
@@ -52,7 +51,6 @@ type Props = {
   // Redux state
   currentNavID: ?string,
   currentlyHome: bool,
-  currentThreadID: ?string,
   threadSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
   sortedThreadInfos: {[id: string]: ThreadInfo[]},
@@ -122,15 +120,7 @@ class Typeahead extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props, prevState: State) {
     const newName = Typeahead.getCurrentNavName(this.props);
     const oldName = Typeahead.getCurrentNavName(prevProps);
-    // Mirroring functionality in TypeaheadThreadOption.componentDidUpdate
-    const passwordEntryWillBeFocused =
-      !this.props.currentNavID && this.props.currentThreadID &&
-      (prevProps.currentNavID || !prevProps.currentThreadID);
-    if (
-      newName !== oldName &&
-      Typeahead.isActive(this.props, this.state) &&
-      !passwordEntryWillBeFocused
-    ) {
+    if (newName !== oldName && Typeahead.isActive(this.props, this.state)) {
       const input = this.input;
       invariant(input, "ref should be set");
       input.focus();
@@ -151,7 +141,7 @@ class Typeahead extends React.PureComponent<Props, State> {
     const input = this.input;
     invariant(input, "ref should be set");
     const oldActive = Typeahead.isActive(prevProps, prevState);
-    if (newActive && !oldActive && !passwordEntryWillBeFocused) {
+    if (newActive && !oldActive) {
       input.focus();
       input.select();
     } else if (!newActive && oldActive) {
@@ -333,8 +323,6 @@ class Typeahead extends React.PureComponent<Props, State> {
         optionInfo.name,
         optionInfo.frozen,
       );
-    } else if (optionInfo.type === "secret") {
-      return this.renderSecretOption(optionInfo.threadID, optionInfo.frozen);
     } else if (optionInfo.type === "noResults") {
       return (
         <div className={css['thread-nav-no-results']} key="none">
@@ -382,23 +370,6 @@ class Typeahead extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSecretOption(secretThreadID: string, frozen: bool) {
-    return (
-      <TypeaheadThreadOption
-        secretThreadID={secretThreadID}
-        freezeTypeahead={this.freeze}
-        unfreezeTypeahead={this.unfreeze}
-        focusTypeahead={this.focusIfNotFocused}
-        onTransition={this.blur}
-        frozen={frozen}
-        setModal={this.props.setModal}
-        clearModal={this.props.clearModal}
-        typeaheadFocused={this.state.typeaheadFocused}
-        key={secretThreadID}
-      />
-    );
-  }
-
   static isActive(props: Props, state: State) {
     return state.typeaheadFocused ||
       !props.currentNavID ||
@@ -422,22 +393,9 @@ class Typeahead extends React.PureComponent<Props, State> {
     };
   }
 
-  secretOptionInfo = (threadID: string) => {
-    return {
-      type: "secret",
-      threadID,
-      frozen: !!this.state.frozenNavIDs[threadID],
-    };
-  }
-
   optionInfosForCurrentPane = () => {
     if (this.props.sortedThreadInfos.current.length > 0) {
       return this.props.sortedThreadInfos.current.map(this.threadOptionInfo);
-    } else if (
-      this.props.currentThreadID &&
-      !this.props.threadInfos[this.props.currentThreadID]
-    ) {
-      return [ this.secretOptionInfo(this.props.currentThreadID) ];
     }
     return emptyArray;
   }
@@ -472,8 +430,6 @@ class Typeahead extends React.PureComponent<Props, State> {
         return this.actionOptionInfo("home", TypeaheadText.homeText);
       } else if (navID === "new") {
         return this.actionOptionInfo("new", TypeaheadText.newText);
-      } else if (navID === this.props.currentThreadID) {
-        return this.secretOptionInfo(navID);
       } else {
         invariant(false, "invalid navID returned as a search result");
       }
@@ -570,7 +526,6 @@ Typeahead.propTypes = {
   currentNavID: PropTypes.string,
   threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
   currentlyHome: PropTypes.bool.isRequired,
-  currentThreadID: PropTypes.string,
   threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   sortedThreadInfos: PropTypes.objectOf(
     PropTypes.arrayOf(threadInfoPropType),
@@ -585,7 +540,6 @@ export default connect(
     currentNavID: currentNavID(state),
     threadInfos: threadInfoSelector(state),
     currentlyHome: state.navInfo.home,
-    currentThreadID: state.navInfo.threadID,
     threadSearchIndex: threadSearchIndex(state),
     sortedThreadInfos: typeaheadSortedThreadInfos(state),
   }),

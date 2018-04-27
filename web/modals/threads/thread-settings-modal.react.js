@@ -88,8 +88,6 @@ type Props = {
 type State = {|
   queuedChanges: ThreadChanges,
   errorMessage: string,
-  newThreadPassword: string,
-  confirmThreadPassword: string,
   accountPassword: string,
   currentTabType: TabType,
 |};
@@ -104,8 +102,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     this.state = {
       queuedChanges: {},
       errorMessage: "",
-      newThreadPassword: "",
-      confirmThreadPassword: "",
       accountPassword: "",
       currentTabType: "general",
     };
@@ -429,67 +425,14 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
-
-    const name = this.possiblyChangedValue("name").trim();
-    const threadType = this.possiblyChangedValue("type");
-
-    if (threadType >= threadTypes.CLOSED) {
-      // If the thread is currently open but is being switched to closed,
-      // then a password *must* be specified
-      if (
-        this.props.threadInfo.type < threadTypes.CLOSED &&
-        this.state.newThreadPassword.trim() === ''
-      ) {
-        this.setState(
-          {
-            newThreadPassword: "",
-            confirmThreadPassword: "",
-            errorMessage: "empty password",
-            currentTabType: "privacy",
-          },
-          () => {
-            invariant(
-              this.newThreadPasswordInput,
-              "newThreadPasswordInput ref unset",
-            );
-            this.newThreadPasswordInput.focus();
-          },
-        );
-        return;
-      }
-      if (
-        this.state.newThreadPassword !== this.state.confirmThreadPassword
-      ) {
-        this.setState(
-          {
-            newThreadPassword: "",
-            confirmThreadPassword: "",
-            errorMessage: "passwords don't match",
-            currentTabType: "privacy",
-          },
-          () => {
-            invariant(
-              this.newThreadPasswordInput,
-              "newThreadPasswordInput ref unset",
-            );
-            this.newThreadPasswordInput.focus();
-          },
-        );
-        return;
-      }
-    }
-
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      this.changeThreadSettingsAction(name),
+      this.changeThreadSettingsAction(),
     );
   }
 
-  async changeThreadSettingsAction(name: string) {
+  async changeThreadSettingsAction() {
     try {
-      const newThreadPassword = this.state.newThreadPassword.trim() !== ''
-        ? this.state.newThreadPassword
-        : null;
       const response = await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
         changes: this.state.queuedChanges,
@@ -517,8 +460,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           (prevState, props) => ({
             ...prevState,
             queuedChanges: {},
-            newThreadPassword: "",
-            confirmThreadPassword: "",
             accountPassword: "",
             errorMessage: "unknown error",
             currentTabType: "general",
