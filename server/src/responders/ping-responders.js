@@ -12,7 +12,6 @@ import invariant from 'invariant';
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
-import { isSet } from 'lib/shared/core';
 
 import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
 import { entryQueryInputValidator } from './entry-responders';
@@ -112,6 +111,7 @@ async function pingResponder(
     }
   }
 
+  const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
   const [
     messagesResult,
     threadsResult,
@@ -128,8 +128,8 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, request.calendarQuery),
     fetchCurrentUserInfo(viewer),
-    isSet(request.updatesCurrentAsOf)
-      ? fetchUpdateInfos(viewer, request.updatesCurrentAsOf)
+    oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined
+      ? fetchUpdateInfos(viewer, oldUpdatesCurrentAsOf)
       : null,
     clientResponsePromises.length > 0
       ? Promise.all(clientResponsePromises)
@@ -139,19 +139,22 @@ async function pingResponder(
   let updatesResult = null;
   const timestampUpdatePromises = [ updateActivityTime(viewer) ];
   if (newUpdates) {
-    invariant(request.updatesCurrentAsOf, "should be set");
-    const updatesCurrentAsOf = mostRecentUpdateTimestamp(
+    invariant(
+      oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
+      "should be set",
+    );
+    const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       newUpdates,
-      request.updatesCurrentAsOf,
+      oldUpdatesCurrentAsOf,
     );
     if (newUpdates.length > 0) {
       timestampUpdatePromises.push(
-        recordDeliveredUpdate(viewer.cookieID, updatesCurrentAsOf),
+        recordDeliveredUpdate(viewer.cookieID, newUpdatesCurrentAsOf),
       );
     }
     updatesResult = {
       newUpdates,
-      currentAsOf: updatesCurrentAsOf,
+      currentAsOf: newUpdatesCurrentAsOf,
     };
   }
   await Promise.all(timestampUpdatePromises);
