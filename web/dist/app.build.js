@@ -231,6 +231,8 @@ exports.default = ReactCSS;
 
 module.exports = {
 	"main-header": "style__main-header--2pN8e",
+	"main-content": "style__main-content--1BQ5U",
+	"left-bar": "style__left-bar--3F0rz",
 	"calendar": "style__calendar--1Jvqn",
 	"entry-text": "style__entry-text--Z3Yoi",
 	"day": "style__day--3Rz-S",
@@ -27700,11 +27702,16 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       ),
       __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_21__style_css___default.a['calendar'] },
-        __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_24__calendar_calendar_react__["a" /* default */], {
-          setModal: this.setModal,
-          clearModal: this.clearModal
-        })
+        { className: __WEBPACK_IMPORTED_MODULE_21__style_css___default.a['main-content'] },
+        __WEBPACK_IMPORTED_MODULE_3_react__["createElement"]('div', { className: __WEBPACK_IMPORTED_MODULE_21__style_css___default.a['left-bar'] }),
+        __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
+          'div',
+          { className: __WEBPACK_IMPORTED_MODULE_21__style_css___default.a['calendar'] },
+          __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_24__calendar_calendar_react__["a" /* default */], {
+            setModal: this.setModal,
+            clearModal: this.clearModal
+          })
+        )
       )
     );
   }

@@ -33,17 +33,25 @@ input[type='submit']::-moz-focus-inner {
   padding: 0;
 }
 
-div.calendar {
-  background-color: #FFFFFFD5;
+div.main-content {
   margin-top: 62px;
-  padding: 20px;
-  min-height: calc(100% - 102px);
+  min-height: calc(100% - 62px);
+  display: flex;
 }
-table {
+div.left-bar {
+  background-color: #000000C4;
+}
+div.calendar {
+  padding: 20px;
+  background-color: #FFFFFFD5;
+  min-height: calc(100% - 102px);
+  flex-grow: 1;
+}
+div.calendar > table {
   width: 100%;
   table-layout: fixed;
 }
-thead > tr > th {
+div.calendar > table > thead > tr > th {
   padding-bottom: 6px;
   color: #888888;
   font-weight: normal;
@@ -70,7 +78,7 @@ textarea.entry-text {
   margin: 0;
 }
 header.main-header {
-  height: 64px;
+  height: 62px;
   position: fixed;
   top: 0;
   width: 100%;

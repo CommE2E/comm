@@ -381,11 +381,15 @@ class App extends React.PureComponent<Props, State> {
           </div>
           {this.state.currentModal}
         </header>
-        <div className={css['calendar']}>
-          <Calendar
-            setModal={this.setModal}
-            clearModal={this.clearModal}
-          />
+        <div className={css['main-content']}>
+          <div className={css['left-bar']}>
+          </div>
+          <div className={css['calendar']}>
+            <Calendar
+              setModal={this.setModal}
+              clearModal={this.clearModal}
+            />
+          </div>
         </div>
       </React.Fragment>
     );
