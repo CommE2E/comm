@@ -381,10 +381,12 @@ class App extends React.PureComponent<Props, State> {
           </div>
           {this.state.currentModal}
         </header>
-        <Calendar
-          setModal={this.setModal}
-          clearModal={this.clearModal}
-        />
+        <div className={css['calendar']}>
+          <Calendar
+            setModal={this.setModal}
+            clearModal={this.clearModal}
+          />
+        </div>
       </React.Fragment>
     );
   }

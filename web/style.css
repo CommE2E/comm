@@ -5,7 +5,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
-  background-color: #FAFAFA;
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
+  background-attachment: fixed;
 }
 a {
   text-decoration: none;
@@ -31,10 +33,15 @@ input[type='submit']::-moz-focus-inner {
   padding: 0;
 }
 
+div.calendar {
+  background-color: #FFFFFFD5;
+  margin-top: 62px;
+  padding: 20px;
+  min-height: calc(100% - 102px);
+}
 table {
   width: 100%;
   table-layout: fixed;
-  margin-top: 72px;
 }
 thead > tr > th {
   padding-bottom: 6px;
@@ -71,7 +78,6 @@ header.main-header {
   background-size: 3000px 2000px;
   background-attachment: fixed;
   z-index: 2;
-  border-bottom: 3px solid lightgray;
 }
 td.day {
   background-color: white;

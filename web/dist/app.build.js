@@ -231,6 +231,7 @@ exports.default = ReactCSS;
 
 module.exports = {
 	"main-header": "style__main-header--2pN8e",
+	"calendar": "style__calendar--1Jvqn",
 	"entry-text": "style__entry-text--Z3Yoi",
 	"day": "style__day--3Rz-S",
 	"entry-container": "style__entry-container--877Fx",
@@ -27697,10 +27698,14 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
         ),
         this.state.currentModal
       ),
-      __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_24__calendar_calendar_react__["a" /* default */], {
-        setModal: this.setModal,
-        clearModal: this.clearModal
-      })
+      __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
+        'div',
+        { className: __WEBPACK_IMPORTED_MODULE_21__style_css___default.a['calendar'] },
+        __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_24__calendar_calendar_react__["a" /* default */], {
+          setModal: this.setModal,
+          clearModal: this.clearModal
+        })
+      )
     );
   }
 
