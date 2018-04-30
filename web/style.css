@@ -67,10 +67,9 @@ header.main-header {
   position: fixed;
   top: 0;
   width: 100%;
-  background-image: url(../images/header.png);
-  background-size: 2560px 64px;
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
   background-attachment: fixed;
-  background-position-x: 50%;
   z-index: 2;
   border-bottom: 3px solid lightgray;
 }
@@ -1383,9 +1382,7 @@ div.custom-select select:focus {
   only screen and (min-device-pixel-ratio: 2.0),
   only screen and (min-resolution: 320dpi),
   only screen and (min-resolution: 2.0dppx) {
-  header.main-header {
-    background-image: url(../images/header@2x.png);
-  }
+  header.main-header,
   div.splash-header-container,
   div.splash-top-container,
   div.splash-bottom,
