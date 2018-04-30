@@ -291,8 +291,9 @@ module.exports = {
 	"modal-overlay": "style__modal-overlay--2r12A",
 	"small-modal-overlay": "style__small-modal-overlay--oBODp",
 	"large-modal-overlay": "style__large-modal-overlay--2SAuH",
+	"modal-container": "style__modal-container--3EwCZ",
+	"large-modal-container": "style__large-modal-container--ApgbU",
 	"modal": "style__modal--22Sm9",
-	"large-modal": "style__large-modal--gVblj",
 	"modal-close": "style__modal-close--1NLJd",
 	"modal-header": "style__modal-header--3LDhL",
 	"modal-body": "style__modal-body--3vkc_",
@@ -1370,7 +1371,7 @@ class Modal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
 
   render() {
     const overlayClasses = __WEBPACK_IMPORTED_MODULE_2_classnames___default()(__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-overlay'], { [__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['small-modal-overlay']]: this.props.size === "small" }, { [__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['large-modal-overlay']]: this.props.size === "large" });
-    const modalClasses = __WEBPACK_IMPORTED_MODULE_2_classnames___default()(__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal'], { [__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['large-modal']]: this.props.size === "large" });
+    const modalContainerClasses = __WEBPACK_IMPORTED_MODULE_2_classnames___default()(__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-container'], { [__WEBPACK_IMPORTED_MODULE_4__style_css___default.a['large-modal-container']]: this.props.size === "large" });
     return __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
       'div',
       {
@@ -1382,25 +1383,29 @@ class Modal extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
       },
       __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
         'div',
-        { className: modalClasses },
+        { className: modalContainerClasses },
         __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
           'div',
-          { className: __WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-header'] },
+          { className: __WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal'] },
           __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
-            'span',
-            {
-              className: __WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-close'],
-              onClick: this.props.onClose
-            },
-            '\xD7'
+            'div',
+            { className: __WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-header'] },
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
+              'span',
+              {
+                className: __WEBPACK_IMPORTED_MODULE_4__style_css___default.a['modal-close'],
+                onClick: this.props.onClose
+              },
+              '\xD7'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
+              'h2',
+              null,
+              this.props.name
+            )
           ),
-          __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
-            'h2',
-            null,
-            this.props.name
-          )
-        ),
-        this.props.children
+          this.props.children
+        )
       )
     );
   }

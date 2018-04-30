@@ -31,9 +31,9 @@ class Modal extends React.PureComponent<Props> {
       { [css['small-modal-overlay']]: this.props.size === "small" },
       { [css['large-modal-overlay']]: this.props.size === "large" },
     );
-    const modalClasses = classNames(
-      css['modal'],
-      { [css['large-modal']]: this.props.size === "large" },
+    const modalContainerClasses = classNames(
+      css['modal-container'],
+      { [css['large-modal-container']]: this.props.size === "large" },
     );
     return (
       <div
@@ -43,15 +43,17 @@ class Modal extends React.PureComponent<Props> {
         tabIndex={0}
         onKeyDown={this.onKeyDown}
       >
-        <div className={modalClasses}>
-          <div className={css['modal-header']}>
-            <span
-              className={css['modal-close']}
-              onClick={this.props.onClose}
-            >×</span>
-            <h2>{this.props.name}</h2>
+        <div className={modalContainerClasses}>
+          <div className={css['modal']}>
+            <div className={css['modal-header']}>
+              <span
+                className={css['modal-close']}
+                onClick={this.props.onClose}
+              >×</span>
+              <h2>{this.props.name}</h2>
+            </div>
+            {this.props.children}
           </div>
-          {this.props.children}
         </div>
       </div>
     );

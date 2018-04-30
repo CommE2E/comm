@@ -515,33 +515,36 @@ div.small-modal-overlay {
 div.large-modal-overlay {
   padding-top: 50px;
 }
+div.modal-container {
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
+  background-attachment: fixed;
+  margin: auto;
+  max-width: 330px;
+  border-radius: 15px;
+}
+div.large-modal-container {
+  max-width: 500px;
+}
 div.modal {
   position: relative;
-  background-color: white;
-  margin: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, .3),
     0 0 0 1px rgba(0, 0, 0, .1);
-  border-radius: 3px;
-  max-width: 330px;
-}
-div.large-modal {
-  max-width: 500px;
+  background-color: #FFFFFFB5;
+  border-radius: 15px;
 }
 span.modal-close {
   float: right;
   font-size: 32px;
   font-weight: 300;
-  line-height: 26px;
+  line-height: 30px;
 }
 span.modal-close:hover {
   color: black;
   cursor: pointer;
 }
 div.modal-header {
-  padding: 6px;
-  background-color: #A6AFBF;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+  padding: 8px 15px;
   font-family: 'Open Sans', sans-serif;
 }
 div.modal-header > h2 {
@@ -552,6 +555,9 @@ div.modal-body {
   padding: 6px 6px;
   width: 100%;
   box-sizing: border-box;
+  background-color: white;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 div.modal-body p {
   padding: 1px 3px 4px 3px;
@@ -573,9 +579,9 @@ div.modal-body textarea {
   padding: 1px;
   width: 175px;
 }
-div.large-modal div.modal-body input[type='text'],
-div.large-modal div.modal-body input[type='password'],
-div.large-modal div.modal-body textarea {
+div.large-modal-container div.modal-body input[type='text'],
+div.large-modal-container div.modal-body input[type='password'],
+div.large-modal-container div.modal-body textarea {
   width: 275px;
 }
 div.modal-body input[type='submit'] {
@@ -611,7 +617,7 @@ div.modal-body div.form-title {
   vertical-align: top;
   width: 110px;
 }
-div.large-modal div.modal-body div.form-title {
+div.large-modal-container div.modal-body div.form-title {
   width: 140px;
 }
 div.modal-body div.form-content {
@@ -662,9 +668,9 @@ div.color-title {
 
 div.modal-body div.form-footer {
   margin-top: 5px;
-  padding-top: 3px;
   border-top: 2px solid #EFEFEF;
   min-height: 26px;
+  padding: 7px 4px 4px 0;
 }
 div.modal-body div.form-footer span.modal-form-error {
   display: inline-block;
@@ -1380,7 +1386,10 @@ div.custom-select select:focus {
   header.main-header {
     background-image: url(../images/header@2x.png);
   }
-  div.splash-header-container, div.splash-top-container, div.splash-bottom {
+  div.splash-header-container,
+  div.splash-top-container,
+  div.splash-bottom,
+  div.modal-container {
     background-image: url(../images/background@2x.png);
   }
 }
