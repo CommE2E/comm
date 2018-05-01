@@ -5,17 +5,28 @@ import type { AppState } from '../redux-setup';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-function yearAssertingExtractor(startDate: string, endDate: string) {
-  const regExp = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
-  const startDateResults = regExp.exec(startDate);
-  const endDateResults = regExp.exec(endDate);
+const dateExtractionRegex = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
+
+function yearExtractor(startDate: string, endDate: string): ?number {
+  const startDateResults = dateExtractionRegex.exec(startDate);
+  const endDateResults = dateExtractionRegex.exec(endDate);
+  if (
+    !startDateResults || !startDateResults[1] ||
+    !endDateResults || !endDateResults[1] ||
+    startDateResults[1] !== endDateResults[1]
+  ) {
+    return null;
+  }
+  return parseInt(startDateResults[1]);
+}
+
+function yearAssertingExtractor(startDate: string, endDate: string): number {
+  const result = yearExtractor(startDate, endDate);
   invariant(
-    startDateResults && startDateResults[1] &&
-      endDateResults && endDateResults[1] &&
-      startDateResults[1] === endDateResults[1],
+    result !== null && result !== undefined,
     `${startDate} and ${endDate} aren't in the same year`,
   );
-  return parseInt(startDateResults[1]);
+  return result;
 }
 
 const yearAssertingSelector = createSelector(
@@ -25,18 +36,28 @@ const yearAssertingSelector = createSelector(
 );
 
 // 1-indexed
-function monthAssertingExtractor(startDate: string, endDate: string) {
-  const regExp = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
-  const startDateResults = regExp.exec(startDate);
-  const endDateResults = regExp.exec(endDate);
+function monthExtractor(startDate: string, endDate: string): ?number {
+  const startDateResults = dateExtractionRegex.exec(startDate);
+  const endDateResults = dateExtractionRegex.exec(endDate);
+  if (
+    !startDateResults || !startDateResults[1] || !startDateResults[2] ||
+    !endDateResults || !endDateResults[1] || !endDateResults[2] ||
+    startDateResults[1] !== endDateResults[1] ||
+    startDateResults[2] !== endDateResults[2]
+  ) {
+    return null;
+  }
+  return parseInt(startDateResults[2]);
+}
+
+// 1-indexed
+function monthAssertingExtractor(startDate: string, endDate: string): number {
+  const result = monthExtractor(startDate, endDate);
   invariant(
-    startDateResults && startDateResults[1] && startDateResults[2] &&
-      endDateResults && endDateResults[1] && endDateResults[2] &&
-      startDateResults[1] === endDateResults[1] &&
-      startDateResults[2] === endDateResults[2],
+    result !== null && result !== undefined,
     `${startDate} and ${endDate} aren't in the same month`,
   );
-  return parseInt(startDateResults[2]);
+  return result;
 }
 
 // 1-indexed
@@ -47,8 +68,8 @@ const monthAssertingSelector = createSelector(
 );
 
 export {
-  yearAssertingExtractor,
+  yearExtractor,
   yearAssertingSelector,
-  monthAssertingExtractor,
+  monthExtractor,
   monthAssertingSelector,
 };

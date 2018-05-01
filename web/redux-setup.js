@@ -22,6 +22,8 @@ import {
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
+  calendar: bool,
+  chat: bool,
   verify: ?string,
 |};
 
@@ -30,6 +32,8 @@ export const navInfoPropType = PropTypes.shape({
   endDate: PropTypes.string.isRequired,
   home: PropTypes.bool.isRequired,
   threadID: PropTypes.string,
+  calendar: PropTypes.bool.isRequired,
+  chat: PropTypes.bool.isRequired,
   verify: PropTypes.string,
 });
 
@@ -122,6 +126,8 @@ export function reducer(inputState: AppState | void, action: Action) {
         endDate: state.navInfo.endDate,
         home: false,
         threadID: action.payload.newThreadInfo.id,
+        calendar: state.navInfo.calendar,
+        chat: state.navInfo.chat,
         verify: state.navInfo.verify,
       },
       currentUserInfo: state.currentUserInfo,
@@ -153,6 +159,8 @@ export function reducer(inputState: AppState | void, action: Action) {
         endDate: state.navInfo.endDate,
         home: true,
         threadID: null,
+        calendar: state.navInfo.calendar,
+        chat: state.navInfo.chat,
         verify: state.navInfo.verify,
       },
       currentUserInfo: state.currentUserInfo,

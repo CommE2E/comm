@@ -8,9 +8,9 @@ import { createSelector } from 'reselect';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import {
-  yearAssertingExtractor,
+  yearExtractor,
   yearAssertingSelector,
-  monthAssertingExtractor,
+  monthExtractor,
   monthAssertingSelector,
 } from './selectors/nav-selectors';
 import {
@@ -53,19 +53,39 @@ const thisURL = createSelector(
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
+  const today = new Date();
   let newURL = `/${urlForHomeAndThreadID(navInfo.home, navInfo.threadID)}`;
 
+  const year = yearExtractor(navInfo.startDate, navInfo.endDate);
   if (urlInfo.year !== undefined) {
-    const year = yearAssertingExtractor(navInfo.startDate, navInfo.endDate);
+    invariant(
+      year !== null && year !== undefined,
+      `${navInfo.startDate} and ${navInfo.endDate} aren't in the same year`,
+    );
+    newURL += `year/${year}/`;
+  } else if (
+    year !== null && year !== undefined && year !== today.getFullYear()
+  ) {
     newURL += `year/${year}/`;
   }
+
+  const month = monthExtractor(navInfo.startDate, navInfo.endDate);
   if (urlInfo.month !== undefined) {
-    const month = monthAssertingExtractor(navInfo.startDate, navInfo.endDate);
+    invariant(
+      month !== null && month !== undefined,
+      `${navInfo.startDate} and ${navInfo.endDate} aren't in the same month`,
+    );
+    newURL += `month/${month}/`;
+  } else if (
+    month !== null && month !== undefined && month !== (today.getMonth() + 1)
+  ) {
     newURL += `month/${month}/`;
   }
+
   if (navInfo.verify) {
     newURL += `verify/${navInfo.verify}/`;
   }
+
   return newURL;
 }
 
@@ -81,8 +101,40 @@ function navInfoFromURL(url: string): NavInfo {
     endDate: endDateForYearAndMonth(year, month),
     home: !!urlInfo.home,
     threadID: urlInfo.threadID ? urlInfo.threadID : null,
+    calendar: !!urlInfo.calendar,
+    chat: !!urlInfo.chat,
     verify: urlInfo.verify ? urlInfo.verify : null,
   };
+}
+
+function ensureNavInfoValid(
+  newNavInfo: NavInfo,
+  oldNavInfo?: NavInfo,
+): NavInfo {
+  if (newNavInfo.home || newNavInfo.threadID) {
+    return newNavInfo;
+  }
+  if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
+    return {
+      startDate: newNavInfo.startDate,
+      endDate: newNavInfo.endDate,
+      home: false,
+      threadID: oldNavInfo.threadID,
+      calendar: newNavInfo.calendar,
+      chat: newNavInfo.chat,
+      verify: newNavInfo.verify,
+    };
+  } else {
+    return {
+      startDate: newNavInfo.startDate,
+      endDate: newNavInfo.endDate,
+      home: true,
+      threadID: null,
+      calendar: newNavInfo.calendar,
+      chat: newNavInfo.chat,
+      verify: newNavInfo.verify,
+    };
+  }
 }
 
 export {
@@ -92,4 +144,5 @@ export {
   thisURL,
   canonicalURLFromReduxState,
   navInfoFromURL,
+  ensureNavInfoValid,
 };

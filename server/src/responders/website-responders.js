@@ -28,7 +28,7 @@ import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { simpleNavID } from 'lib/selectors/nav-selectors';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
-import { navInfoFromURL } from 'web/url-utils';
+import { navInfoFromURL, ensureNavInfoValid } from 'web/url-utils';
 
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
@@ -48,7 +48,7 @@ const { reducer } = ReduxSetup;
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   let navInfo;
   try {
-    navInfo = navInfoFromURL(url);
+    navInfo = ensureNavInfoValid(navInfoFromURL(url));
   } catch (e) {
     throw new ServerError(e.message);
   }

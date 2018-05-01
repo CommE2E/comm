@@ -3925,6 +3925,8 @@ const navInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape
   endDate: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   home: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
+  calendar: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
+  chat: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
   verify: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string
 });
 /* harmony export (immutable) */ __webpack_exports__["a"] = navInfoPropType;
@@ -3992,6 +3994,8 @@ function reducer(inputState, action) {
         endDate: state.navInfo.endDate,
         home: false,
         threadID: action.payload.newThreadInfo.id,
+        calendar: state.navInfo.calendar,
+        chat: state.navInfo.chat,
         verify: state.navInfo.verify
       },
       currentUserInfo: state.currentUserInfo,
@@ -4020,6 +4024,8 @@ function reducer(inputState, action) {
         endDate: state.navInfo.endDate,
         home: true,
         threadID: null,
+        calendar: state.navInfo.calendar,
+        chat: state.navInfo.chat,
         verify: state.navInfo.verify
       },
       currentUserInfo: state.currentUserInfo,
@@ -7819,12 +7825,13 @@ function isPlainObject(value) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return urlForYearAndMonth; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return monthURL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return thisNavURLFragment; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return thisURL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return urlForYearAndMonth; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return monthURL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return thisNavURLFragment; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return thisURL; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return canonicalURLFromReduxState; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return navInfoFromURL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return navInfoFromURL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return ensureNavInfoValid; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(26);
@@ -7843,7 +7850,7 @@ function urlForYearAndMonth(year, month) {
   return `year/${year}/month/${month}/`;
 }
 
-const monthURL = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearAssertingSelector */], __WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["b" /* monthAssertingSelector */], (year, month) => urlForYearAndMonth(year, month));
+const monthURL = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["c" /* yearAssertingSelector */], __WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["a" /* monthAssertingSelector */], (year, month) => urlForYearAndMonth(year, month));
 
 function urlForHomeAndThreadID(home, threadID) {
   if (home) {
@@ -7859,19 +7866,29 @@ const thisURL = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])
 
 function canonicalURLFromReduxState(navInfo, currentURL) {
   const urlInfo = Object(__WEBPACK_IMPORTED_MODULE_2_lib_utils_url_utils__["a" /* infoFromURL */])(currentURL);
+  const today = new Date();
   let newURL = `/${urlForHomeAndThreadID(navInfo.home, navInfo.threadID)}`;
 
+  const year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearExtractor */])(navInfo.startDate, navInfo.endDate);
   if (urlInfo.year !== undefined) {
-    const year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["c" /* yearAssertingExtractor */])(navInfo.startDate, navInfo.endDate);
+    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(year !== null && year !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same year`);
+    newURL += `year/${year}/`;
+  } else if (year !== null && year !== undefined && year !== today.getFullYear()) {
     newURL += `year/${year}/`;
   }
+
+  const month = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["b" /* monthExtractor */])(navInfo.startDate, navInfo.endDate);
   if (urlInfo.month !== undefined) {
-    const month = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["a" /* monthAssertingExtractor */])(navInfo.startDate, navInfo.endDate);
+    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(month !== null && month !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same month`);
+    newURL += `month/${month}/`;
+  } else if (month !== null && month !== undefined && month !== today.getMonth() + 1) {
     newURL += `month/${month}/`;
   }
+
   if (navInfo.verify) {
     newURL += `verify/${navInfo.verify}/`;
   }
+
   return newURL;
 }
 
@@ -7887,8 +7904,37 @@ function navInfoFromURL(url) {
     endDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["c" /* endDateForYearAndMonth */])(year, month),
     home: !!urlInfo.home,
     threadID: urlInfo.threadID ? urlInfo.threadID : null,
+    calendar: !!urlInfo.calendar,
+    chat: !!urlInfo.chat,
     verify: urlInfo.verify ? urlInfo.verify : null
   };
+}
+
+function ensureNavInfoValid(newNavInfo, oldNavInfo) {
+  if (newNavInfo.home || newNavInfo.threadID) {
+    return newNavInfo;
+  }
+  if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
+    return {
+      startDate: newNavInfo.startDate,
+      endDate: newNavInfo.endDate,
+      home: false,
+      threadID: oldNavInfo.threadID,
+      calendar: newNavInfo.calendar,
+      chat: newNavInfo.chat,
+      verify: newNavInfo.verify
+    };
+  } else {
+    return {
+      startDate: newNavInfo.startDate,
+      endDate: newNavInfo.endDate,
+      home: true,
+      threadID: null,
+      calendar: newNavInfo.calendar,
+      chat: newNavInfo.chat,
+      verify: newNavInfo.verify
+    };
+  }
 }
 
 
@@ -7898,10 +7944,10 @@ function navInfoFromURL(url) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return yearAssertingExtractor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return yearAssertingSelector; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return monthAssertingExtractor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return monthAssertingSelector; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return yearExtractor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return yearAssertingSelector; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return monthExtractor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return monthAssertingSelector; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant__ = __webpack_require__(2);
@@ -7912,23 +7958,40 @@ function navInfoFromURL(url) {
 
 
 
-function yearAssertingExtractor(startDate, endDate) {
-  const regExp = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
-  const startDateResults = regExp.exec(startDate);
-  const endDateResults = regExp.exec(endDate);
-  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(startDateResults && startDateResults[1] && endDateResults && endDateResults[1] && startDateResults[1] === endDateResults[1], `${startDate} and ${endDate} aren't in the same year`);
+const dateExtractionRegex = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
+
+function yearExtractor(startDate, endDate) {
+  const startDateResults = dateExtractionRegex.exec(startDate);
+  const endDateResults = dateExtractionRegex.exec(endDate);
+  if (!startDateResults || !startDateResults[1] || !endDateResults || !endDateResults[1] || startDateResults[1] !== endDateResults[1]) {
+    return null;
+  }
   return parseInt(startDateResults[1]);
+}
+
+function yearAssertingExtractor(startDate, endDate) {
+  const result = yearExtractor(startDate, endDate);
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(result !== null && result !== undefined, `${startDate} and ${endDate} aren't in the same year`);
+  return result;
 }
 
 const yearAssertingSelector = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.navInfo.startDate, state => state.navInfo.endDate, yearAssertingExtractor);
 
 // 1-indexed
-function monthAssertingExtractor(startDate, endDate) {
-  const regExp = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
-  const startDateResults = regExp.exec(startDate);
-  const endDateResults = regExp.exec(endDate);
-  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(startDateResults && startDateResults[1] && startDateResults[2] && endDateResults && endDateResults[1] && endDateResults[2] && startDateResults[1] === endDateResults[1] && startDateResults[2] === endDateResults[2], `${startDate} and ${endDate} aren't in the same month`);
+function monthExtractor(startDate, endDate) {
+  const startDateResults = dateExtractionRegex.exec(startDate);
+  const endDateResults = dateExtractionRegex.exec(endDate);
+  if (!startDateResults || !startDateResults[1] || !startDateResults[2] || !endDateResults || !endDateResults[1] || !endDateResults[2] || startDateResults[1] !== endDateResults[1] || startDateResults[2] !== endDateResults[2]) {
+    return null;
+  }
   return parseInt(startDateResults[2]);
+}
+
+// 1-indexed
+function monthAssertingExtractor(startDate, endDate) {
+  const result = monthExtractor(startDate, endDate);
+  __WEBPACK_IMPORTED_MODULE_1_invariant___default()(result !== null && result !== undefined, `${startDate} and ${endDate} aren't in the same month`);
+  return result;
 }
 
 // 1-indexed
@@ -24122,6 +24185,8 @@ const monthRegex = new RegExp('(/|^)month/([0-9]+)(/|$)', 'i');
 const threadRegex = new RegExp('(/|^)thread/([0-9]+)(/|$)', 'i');
 const verifyRegex = new RegExp('(/|^)verify/([a-f0-9]+)(/|$)', 'i');
 const homeRegex = new RegExp('(/|^)home(/|$)', 'i');
+const calendarRegex = new RegExp('(/|^)calendar(/|$)', 'i');
+const chatRegex = new RegExp('(/|^)chat(/|$)', 'i');
 
 function infoFromURL(url) {
   const yearMatches = yearRegex.exec(url);
@@ -24129,6 +24194,8 @@ function infoFromURL(url) {
   const threadMatches = threadRegex.exec(url);
   const verifyMatches = verifyRegex.exec(url);
   const homeTest = homeRegex.test(url);
+  const calendarTest = calendarRegex.test(url);
+  const chatTest = chatRegex.test(url);
   __WEBPACK_IMPORTED_MODULE_0_invariant___default()(!homeTest || !threadMatches, 'home and thread should never be set at the same time');
   const returnObj = {};
   if (yearMatches) {
@@ -24149,6 +24216,12 @@ function infoFromURL(url) {
   }
   if (homeTest) {
     returnObj.home = true;
+  }
+  if (calendarTest) {
+    returnObj.calendar = true;
+  }
+  if (chatTest) {
+    returnObj.chat = true;
   }
   return returnObj;
 }
@@ -29438,15 +29511,14 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
-      const newNavInfo = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["c" /* navInfoFromURL */])(nextProps.location.pathname);
-      if (!newNavInfo.home && !newNavInfo.threadID) {
-        const strippedPathname = nextProps.location.pathname.replace(/^\//, '');
-        __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(`/${this.props.thisNavURLFragment}${strippedPathname}`);
-        newNavInfo.home = nextProps.navInfo.home;
-        newNavInfo.threadID = nextProps.navInfo.threadID;
+      const newNavInfo = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["d" /* navInfoFromURL */])(nextProps.location.pathname);
+      const validatedNavInfo = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["b" /* ensureNavInfoValid */])(newNavInfo, nextProps.navInfo);
+      if (validatedNavInfo !== newNavInfo) {
+        const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(validatedNavInfo, nextProps.location.pathname);
+        __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(newURL);
       }
-      if (!__WEBPACK_IMPORTED_MODULE_7_lodash_fp_isEqual___default()(newNavInfo)(nextProps.navInfo)) {
-        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], newNavInfo);
+      if (!__WEBPACK_IMPORTED_MODULE_7_lodash_fp_isEqual___default()(validatedNavInfo)(nextProps.navInfo)) {
+        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], validatedNavInfo);
       }
     } else if (!__WEBPACK_IMPORTED_MODULE_7_lodash_fp_isEqual___default()(nextProps.navInfo)(this.props.navInfo)) {
       const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(nextProps.navInfo, nextProps.location.pathname);
@@ -29501,9 +29573,9 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
     const year = this.props.year;
     const month = this.props.month;
     const lastMonthDate = Object(__WEBPACK_IMPORTED_MODULE_15_lib_utils_date_utils__["f" /* getDate */])(year, month - 1, 1);
-    const prevURL = "/" + this.props.thisNavURLFragment + Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["f" /* urlForYearAndMonth */])(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1);
+    const prevURL = "/" + this.props.thisNavURLFragment + Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["g" /* urlForYearAndMonth */])(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1);
     const nextMonthDate = Object(__WEBPACK_IMPORTED_MODULE_15_lib_utils_date_utils__["f" /* getDate */])(year, month + 1, 1);
-    const nextURL = "/" + this.props.thisNavURLFragment + Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["f" /* urlForYearAndMonth */])(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1);
+    const nextURL = "/" + this.props.thisNavURLFragment + Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["g" /* urlForYearAndMonth */])(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1);
     const monthName = __WEBPACK_IMPORTED_MODULE_5_dateformat___default()(Object(__WEBPACK_IMPORTED_MODULE_15_lib_utils_date_utils__["f" /* getDate */])(year, month, 1), "mmmm");
     const calendarNavClasses = __WEBPACK_IMPORTED_MODULE_13_classnames___default()({
       [__WEBPACK_IMPORTED_MODULE_26__style_css___default.a['current-tab']]: this.state.tab === "calendar"
@@ -29751,14 +29823,14 @@ App.propTypes = {
 const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_18_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__["i" /* fetchEntriesActionTypes */]);
 
 /* harmony default export */ __webpack_exports__["default"] = (Object(__WEBPACK_IMPORTED_MODULE_19_lib_utils_redux_utils__["a" /* connect */])(state => ({
-  thisNavURLFragment: Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["d" /* thisNavURLFragment */])(state),
+  thisNavURLFragment: Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["e" /* thisNavURLFragment */])(state),
   navInfo: state.navInfo,
   verifyField: state.verifyField,
   entriesLoadingStatus: loadingStatusSelector(state),
   currentNavID: Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
-  thisURL: Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["e" /* thisURL */])(state),
-  year: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["d" /* yearAssertingSelector */])(state),
-  month: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["b" /* monthAssertingSelector */])(state),
+  thisURL: Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["f" /* thisURL */])(state),
+  year: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["c" /* yearAssertingSelector */])(state),
+  month: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["a" /* monthAssertingSelector */])(state),
   currentCalendarQuery: Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["a" /* currentCalendarQuery */])(state),
   pingStartingPayload: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["b" /* pingStartingPayload */])(state),
   pingActionInput: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["a" /* pingActionInput */])(state),
@@ -48653,7 +48725,7 @@ TypeaheadActionOption.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_2_react_redux__["a" /* connect */])(state => ({
-  monthURL: Object(__WEBPACK_IMPORTED_MODULE_7__url_utils__["b" /* monthURL */])(state),
+  monthURL: Object(__WEBPACK_IMPORTED_MODULE_7__url_utils__["c" /* monthURL */])(state),
   loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true)
 }))(TypeaheadActionOption));
 
@@ -56264,7 +56336,7 @@ TypeaheadThreadOption.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_10_lib_utils_redux_utils__["a" /* connect */])((state, ownProps) => ({
-  monthURL: Object(__WEBPACK_IMPORTED_MODULE_14__url_utils__["b" /* monthURL */])(state),
+  monthURL: Object(__WEBPACK_IMPORTED_MODULE_14__url_utils__["c" /* monthURL */])(state),
   currentNavID: Object(__WEBPACK_IMPORTED_MODULE_7_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
   currentThreadID: state.navInfo.threadID,
   passwordEntryLoadingStatus: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_8_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_8_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state),
@@ -57513,8 +57585,8 @@ Calendar.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_3_react_redux__["a" /* connect */])(state => ({
-  year: Object(__WEBPACK_IMPORTED_MODULE_9__selectors_nav_selectors__["d" /* yearAssertingSelector */])(state),
-  month: Object(__WEBPACK_IMPORTED_MODULE_9__selectors_nav_selectors__["b" /* monthAssertingSelector */])(state),
+  year: Object(__WEBPACK_IMPORTED_MODULE_9__selectors_nav_selectors__["c" /* yearAssertingSelector */])(state),
+  month: Object(__WEBPACK_IMPORTED_MODULE_9__selectors_nav_selectors__["a" /* monthAssertingSelector */])(state),
   daysToEntries: Object(__WEBPACK_IMPORTED_MODULE_7_lib_selectors_thread_selectors__["a" /* currentDaysToEntries */])(state)
 }))(Calendar));
 

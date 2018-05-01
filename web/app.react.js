@@ -60,6 +60,7 @@ import {
   thisNavURLFragment,
   canonicalURLFromReduxState,
   navInfoFromURL,
+  ensureNavInfoValid,
 } from './url-utils';
 import css from './style.css';
 import AccountBar from './account-bar.react';
@@ -263,16 +264,21 @@ class App extends React.PureComponent<Props, State> {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(nextProps.location.pathname);
-      if (!newNavInfo.home && !newNavInfo.threadID) {
-        const strippedPathname = nextProps.location.pathname.replace(/^\//, '');
-        history.replace(`/${this.props.thisNavURLFragment}${strippedPathname}`);
-        newNavInfo.home = nextProps.navInfo.home;
-        newNavInfo.threadID = nextProps.navInfo.threadID;
+      const validatedNavInfo = ensureNavInfoValid(
+        newNavInfo,
+        nextProps.navInfo,
+      );
+      if (validatedNavInfo !== newNavInfo) {
+        const newURL = canonicalURLFromReduxState(
+          validatedNavInfo,
+          nextProps.location.pathname,
+        );
+        history.replace(newURL);
       }
-      if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
+      if (!_isEqual(validatedNavInfo)(nextProps.navInfo)) {
         this.props.dispatchActionPayload(
           reflectRouteChangeActionType,
-          newNavInfo,
+          validatedNavInfo,
         );
       }
     } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
