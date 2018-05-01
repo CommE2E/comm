@@ -125,6 +125,7 @@ module.exports = function(env) {
           browserConfig.module.rules[1],
           {
             test: /\.css$/,
+            exclude: /fontawesome\/styles.css$/,
             use: [
               {
                 loader: 'style-loader',
@@ -133,6 +134,24 @@ module.exports = function(env) {
                 },
               },
               cssLoader,
+            ],
+          },
+          {
+            test: /fontawesome\/styles.css$/,
+            use: [
+              {
+                loader: 'style-loader',
+                options: {
+                  sourceMap: true,
+                },
+              },
+              {
+                ...cssLoader,
+                options: {
+                  ...cssLoader.options,
+                  modules: false,
+                },
+              },
             ],
           },
         ],
@@ -176,12 +195,26 @@ module.exports = function(env) {
           browserConfig.module.rules[1],
           {
             test: /\.css$/,
+            exclude: /fontawesome\/styles.css$/,
             use: ExtractTextPlugin.extract({
               use: {
                 ...cssLoader,
                 options: {
                   ...cssLoader.options,
                   url: false,
+                },
+              },
+            }),
+          },
+          {
+            test: /fontawesome\/styles.css$/,
+            use: ExtractTextPlugin.extract({
+              use: {
+                ...cssLoader,
+                options: {
+                  ...cssLoader.options,
+                  url: false,
+                  modules: false,
                 },
               },
             }),

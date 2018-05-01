@@ -24,6 +24,11 @@ import { Link } from 'react-router-dom';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
 import Visibility from 'visibilityjs';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faCalendar from '@fortawesome/fontawesome-free-solid/faCalendar';
+import faChat from '@fortawesome/fontawesome-free-solid/faComments';
+import classNames from 'classnames';
+import fontawesome from '@fortawesome/fontawesome';
 
 import { getDate } from 'lib/utils/date-utils';
 import {
@@ -72,6 +77,12 @@ import {
 } from './selectors/nav-selectors';
 import { reflectRouteChangeActionType } from './redux-setup';
 import Splash from './splash/splash.react';
+import Chat from './chat/chat.react';
+
+// We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
+// so we disable the autoAddCss logic and import the CSS file.
+fontawesome.config = { autoAddCss: false };
+import '@fortawesome/fontawesome/styles.css';
 
 const isset = x => x !== undefined && x !== null;
 
@@ -106,6 +117,7 @@ type Props = {
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
 };
 type State = {
+  tab: "calendar" | "chat",
   // In null state cases, currentModal can be set to something, but modalExists
   // will be false. This is because we need to know if a modal is overlaid over
   // the null state
@@ -128,6 +140,7 @@ class App extends React.PureComponent<Props, State> {
       }
     }
     this.state = {
+      tab: "calendar",
       modalExists: false,
       currentModal: currentModal,
     };
@@ -342,53 +355,91 @@ class App extends React.PureComponent<Props, State> {
       nextMonthDate.getMonth() + 1,
     );
     const monthName = dateFormat(getDate(year, month, 1), "mmmm");
+    const calendarNavClasses = classNames({
+      [css['current-tab']]: this.state.tab === "calendar",
+    });
+    const chatNavClasses = classNames({
+      [css['current-tab']]: this.state.tab === "chat",
+    });
+
+    let mainContent;
+    if (this.state.tab === "calendar") {
+      mainContent = (
+        <Calendar
+          setModal={this.setModal}
+          clearModal={this.clearModal}
+        />
+      );
+    } else if (this.state.tab === "chat") {
+      mainContent = (
+        <Chat />
+      );
+    }
+
     return (
       <React.Fragment>
-        <header className={css['main-header']}>
-          <h1>SquadCal</h1>
-          <div className={css['upper-right']}>
-            <LoadingIndicator
-              status={this.props.entriesLoadingStatus}
-              size="large"
-              loadingClassName={css['page-loading']}
-              errorClassName={css['page-error']}
-            />
-            <Typeahead
-              setModal={this.setModal}
-              clearModal={this.clearModal}
-              modalExists={this.state.modalExists}
-            />
+        <header className={css['header']}>
+          <div className={css['main-header']}>
+            <h1>SquadCal</h1>
+            <ul className={css['nav-bar']}>
+              <li className={calendarNavClasses}>
+                <div><a onClick={this.onClickCalendar}>
+                  <FontAwesomeIcon
+                    icon={faCalendar}
+                    className={css['nav-bar-icon']}
+                  />
+                  Calendar
+                </a></div>
+              </li>
+              <li className={chatNavClasses}>
+                <div><a onClick={this.onClickChat}>
+                  <FontAwesomeIcon
+                    icon={faChat}
+                    className={css['nav-bar-icon']}
+                  />
+                  Chat
+                </a></div>
+              </li>
+            </ul>
+            <div className={css['upper-center']}>
+              <h2>
+                <Link to={prevURL} className={css['previous-month-link']}>
+                  &lt;
+                </Link>
+                {" "}
+                {monthName}
+                {" "}
+                {year}
+                {" "}
+                <Link to={nextURL} className={css['next-month-link']}>
+                  &gt;
+                </Link>
+              </h2>
+            </div>
+            <div className={css['upper-right']}>
+              <LoadingIndicator
+                status={this.props.entriesLoadingStatus}
+                size="large"
+                loadingClassName={css['page-loading']}
+                errorClassName={css['page-error']}
+              />
+              <Typeahead
+                setModal={this.setModal}
+                clearModal={this.clearModal}
+                modalExists={this.state.modalExists}
+              />
+            </div>
           </div>
           <AccountBar
             setModal={this.setModal}
             clearModal={this.clearModal}
             modalExists={this.state.modalExists}
           />
-          <div className={css['upper-center']}>
-            <h2>
-              <Link to={prevURL} className={css['previous-month-link']}>
-                &lt;
-              </Link>
-              {" "}
-              {monthName}
-              {" "}
-              {year}
-              {" "}
-              <Link to={nextURL} className={css['next-month-link']}>
-                &gt;
-              </Link>
-            </h2>
-          </div>
           {this.state.currentModal}
         </header>
-        <div className={css['main-content']}>
-          <div className={css['left-bar']}>
-          </div>
-          <div className={css['calendar']}>
-            <Calendar
-              setModal={this.setModal}
-              clearModal={this.clearModal}
-            />
+        <div className={css['main-content-container']}>
+          <div className={css['main-content']}>
+            {mainContent}
           </div>
         </div>
       </React.Fragment>
@@ -413,6 +464,16 @@ class App extends React.PureComponent<Props, State> {
       currentModal,
       modalExists: false,
     });
+  }
+
+  onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.setState({ tab: "calendar" });
+  }
+
+  onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.setState({ tab: "chat" });
   }
 
 }

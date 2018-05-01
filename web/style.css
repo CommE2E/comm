@@ -1,5 +1,6 @@
-header.main-header {
-  font-family: 'Anaheim', sans-serif;
+* {
+  padding: 0;
+  margin: 0;
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
@@ -33,25 +34,77 @@ input[type='submit']::-moz-focus-inner {
   padding: 0;
 }
 
-div.main-content {
+header.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
+  background-attachment: fixed;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+div.main-header {
+  font-family: 'Anaheim', sans-serif;
+}
+div.main-header > h1 {
+  position: absolute;
+  padding-top: 5px;
+  padding-left: 16px;
+  color: white;
+  font-size: 38px;
+}
+ul.nav-bar {
+  position: absolute;
+  padding-left: 180px;
+}
+ul.nav-bar > li {
+  display: inline-block;
+  list-style-type: none;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+ul.nav-bar > li.current-tab {
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
+  background-attachment: fixed;
+  cursor: default;
+}
+ul.nav-bar > li > div {
+  padding: 3px 20px 3px 20px;
+}
+ul.nav-bar > li > div > a {
+  color: #FFFFFF;
+}
+ul.nav-bar > li.current-tab > div > a {
+  color: #444444;
+}
+ul.nav-bar > li.current-tab > div {
+  background-color: #FFFFFFD5;
+  padding: 17px 20px 18px 20px;
+}
+svg.nav-bar-icon {
+  padding-right: 8px;
+}
+
+div.main-content-container {
   margin-top: 62px;
   min-height: calc(100% - 62px);
-  display: flex;
 }
-div.left-bar {
-  background-color: #000000C4;
-}
-div.calendar {
+div.main-content {
   padding: 20px;
   background-color: #FFFFFFD5;
   min-height: calc(100% - 102px);
-  flex-grow: 1;
 }
-div.calendar > table {
+
+table.calendar {
   width: 100%;
   table-layout: fixed;
 }
-div.calendar > table > thead > tr > th {
+table.calendar > thead > tr > th {
   padding-bottom: 6px;
   color: #888888;
   font-weight: normal;
@@ -72,20 +125,6 @@ textarea.entry-text {
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
   font-size: 11px;
-}
-* {
-  padding: 0;
-  margin: 0;
-}
-header.main-header {
-  height: 62px;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
-  background-attachment: fixed;
-  z-index: 2;
 }
 td.day {
   background-color: white;
@@ -205,17 +244,16 @@ td.current-day > h2 {
   color: #FF944D;
 }
 
-header.main-header h1 {
-  position: absolute;
-  padding-top: 5px;
-  padding-left: 16px;
-  color: white;
-  font-size: 38px;
+div.chat-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 div.upper-right {
   position: absolute;
   padding: 15px 16px;
+  top: 0;
   right: 0;
 }
 div.thread-nav {
@@ -1054,7 +1092,7 @@ ul.tab-panel {
   padding-left: 10px;
   padding-top: 5px;
 }
-ul.tab-panel li {
+ul.tab-panel > li {
   display: inline-block;
   list-style-type: none;
   font-family: 'Open Sans', sans-serif;
@@ -1063,19 +1101,19 @@ ul.tab-panel li {
   cursor: pointer;
   padding: 3px 10px 3px 10px;
 }
-ul.tab-panel li.current-tab {
+ul.tab-panel > li.current-tab {
   background-color: white;
   border-radius: 5px 5px 0 0;
   cursor: default;
 }
-ul.tab-panel li > a {
+ul.tab-panel > li > a {
   color: #555555;
 }
-ul.tab-panel li.current-tab > a {
+ul.tab-panel > li.current-tab > a {
   color: #123a7b;
   cursor: default;
 }
-ul.tab-panel li.delete-tab > a {
+ul.tab-panel > li.delete-tab > a {
   color: #ff0000 !important;
 }
 
@@ -1189,10 +1227,6 @@ div.splash-header-contents {
   padding-top: 5px;
   padding-bottom: 7px;
 }
-header.splash-header {
-}
-div.splash-action-links {
-}
 div.splash-action-links > * {
   padding-right: 15px;
   color: white;
@@ -1210,8 +1244,6 @@ header.splash-header span.request-access {
   padding: 10px 20px;
   border-radius: 20px;
   border: 1px solid white;
-}
-header.splash-header span.log-in {
 }
 div.splash-body {
   padding: 30px 0 20px 0;
@@ -1400,7 +1432,8 @@ div.custom-select select:focus {
   div.splash-header-container,
   div.splash-top-container,
   div.splash-bottom,
-  div.modal-container {
+  div.modal-container,
+  ul.nav-bar > li.current-tab {
     background-image: url(../images/background@2x.png);
   }
 }

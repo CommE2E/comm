@@ -2,5 +2,5 @@
 // expects the window global to be initialized
 if (!process.env.BROWSER) {
   global.window = {};
-  global.document = null;
+  global.document = {};
 }

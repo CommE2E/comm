@@ -18,6 +18,7 @@ import {
   yearAssertingSelector,
   monthAssertingSelector,
 } from '../selectors/nav-selectors';
+import css from '../style.css';
 
 type Props = {
   year: number,
@@ -86,7 +87,7 @@ class Calendar extends React.PureComponent<Props> {
     }
 
     return (
-      <table>
+      <table className={css['calendar']}>
         <thead>
           <tr>
             <th>Sunday</th>

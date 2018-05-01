@@ -108,7 +108,7 @@ class Splash extends React.PureComponent<Props, State> {
                     </span>
                   </a>
                   <a href="#" onClick={this.onClickLogIn}>
-                    <span className={css['log-in']}>
+                    <span>
                       Log in
                     </span>
                   </a>
