@@ -49,7 +49,7 @@ import {
   fetchEntriesWithRange,
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { simpleNavID } from 'lib/selectors/nav-selectors';
+import { simpleNavIDSelector } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
 
@@ -1084,7 +1084,7 @@ const Calendar = connect(
     sessionExpired: sessionExpired(state),
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
-    simpleNavID: simpleNavID(state),
+    simpleNavID: simpleNavIDSelector(state),
   }),
   { fetchEntriesWithRange },
 )(InnerCalendar);

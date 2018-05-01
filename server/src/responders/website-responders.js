@@ -25,8 +25,10 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
+import { simpleNavID } from 'lib/selectors/nav-selectors';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
+import { navInfoFromURL } from 'web/url-utils';
 
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
@@ -44,12 +46,17 @@ const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
 
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
-  const urlInfo = parseURL(url);
+  let navInfo;
+  try {
+    navInfo = navInfoFromURL(url);
+  } catch (e) {
+    throw new ServerError(e.message);
+  }
 
   const calendarQuery = {
-    startDate: startDateForYearAndMonth(urlInfo.year, urlInfo.month),
-    endDate: endDateForYearAndMonth(urlInfo.year, urlInfo.month),
-    navID: urlInfo.home ? "home" : urlInfo.threadID,
+    startDate: navInfo.startDate,
+    endDate: navInfo.endDate,
+    navID: simpleNavID(navInfo),
   };
   const threadSelectionCriteria = { joinedThreads: true };
   const initialTime = Date.now();
@@ -69,12 +76,10 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    urlInfo.verificationCode
-      ? handleCodeVerificationRequest(urlInfo.verificationCode)
-      : null,
+    navInfo.verify ? handleCodeVerificationRequest(navInfo.verify) : null,
   ]);
-  if (urlInfo.threadID && !threadInfos[urlInfo.threadID]) {
-    const validThreadID = await verifyThreadID(urlInfo.threadID);
+  if (navInfo.threadID && !threadInfos[navInfo.threadID]) {
+    const validThreadID = await verifyThreadID(navInfo.threadID);
     if (!validThreadID) {
       throw new ServerError("invalid_thread_id");
     }
@@ -91,13 +96,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   const store: Store<AppState, Action> = createStore(
     reducer,
     ({
-      navInfo: {
-        startDate: calendarQuery.startDate,
-        endDate: calendarQuery.endDate,
-        home: urlInfo.home,
-        threadID: urlInfo.threadID,
-        verify: urlInfo.verificationCode,
-      },
+      navInfo,
       currentUserInfo,
       sessionID: newSessionID(),
       verifyField: verificationResult && verificationResult.field,
@@ -217,43 +216,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     </html>
   `;
   return result;
-}
-
-type BaseURLInfo = {| year: number, month: number, verificationCode: ?string |};
-type URLInfo =
-  | {| ...BaseURLInfo, home: true, threadID: null |}
-  | {| ...BaseURLInfo, home: false, threadID: string |};
-
-const yearRegex = new RegExp("/year/([0-9]+)(/|$)", 'i');
-const monthRegex = new RegExp("/month/([0-9]+)(/|$)", 'i');
-const threadRegex = new RegExp("/thread/([0-9]+)(/|$)", 'i');
-const homeRegex = new RegExp("/home(/|$)", 'i');
-const verifyRegex = new RegExp("/verify/([a-f0-9]+)(/|$)", 'i');
-
-function parseURL(url: string): URLInfo {
-  const yearMatches = yearRegex.exec(url);
-  const monthMatches = monthRegex.exec(url);
-  const threadMatches = threadRegex.exec(url);
-  const homeMatches = homeRegex.exec(url);
-  const verifyMatches = verifyRegex.exec(url);
-
-  const year = yearMatches
-    ? parseInt(yearMatches[1])
-    : new Date().getFullYear();
-  const month = monthMatches
-    ? parseInt(monthMatches[1])
-    : new Date().getMonth() + 1;
-  if (month < 1 || month > 12) {
-    throw new ServerError("invalid_month");
-  }
-  const verificationCode = verifyMatches ? verifyMatches[1] : null;
-
-  if (!homeMatches && threadMatches) {
-    const threadID = parseInt(threadMatches[1]).toString();
-    return { year, month, home: false, threadID, verificationCode };
-  } else {
-    return { year, month, home: true, threadID: null, verificationCode };
-  }
 }
 
 export {

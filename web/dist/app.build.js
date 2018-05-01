@@ -3156,6 +3156,7 @@ function bindServerCalls(serverCalls) {
 
 "use strict";
 /* unused harmony export simpleNavID */
+/* unused harmony export simpleNavIDSelector */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return currentNavID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return currentCalendarQuery; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return threadSearchIndex; });
@@ -3187,14 +3188,16 @@ function bindServerCalls(serverCalls) {
 
 const membershipExists = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.threadInfos, threadInfos => __WEBPACK_IMPORTED_MODULE_1_lodash_fp_some___default()(__WEBPACK_IMPORTED_MODULE_8__shared_thread_utils__["h" /* viewerIsMember */])(threadInfos));
 
-// never returns null; appropriate to use with server APIs
-const simpleNavID = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.navInfo, navInfo => {
+function simpleNavID(navInfo) {
   if (navInfo.home) {
     return "home";
   }
   __WEBPACK_IMPORTED_MODULE_2_invariant___default()(navInfo.threadID, "either home or threadID should be set");
   return navInfo.threadID;
-});
+}
+
+// never returns null; appropriate to use with server APIs
+const simpleNavIDSelector = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.navInfo, simpleNavID);
 
 const currentNavID = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(state => state.navInfo, state => state.threadInfos, membershipExists, (navInfo, threadInfos, membershipExists) => {
   if (navInfo.home) {
@@ -24114,19 +24117,29 @@ convert.rgb.gray = function (rgb) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
 
 
+const yearRegex = new RegExp('(/|^)year/([0-9]+)(/|$)', 'i');
+const monthRegex = new RegExp('(/|^)month/([0-9]+)(/|$)', 'i');
+const threadRegex = new RegExp('(/|^)thread/([0-9]+)(/|$)', 'i');
+const verifyRegex = new RegExp('(/|^)verify/([a-f0-9]+)(/|$)', 'i');
+const homeRegex = new RegExp('(/|^)home(/|$)', 'i');
+
 function infoFromURL(url) {
-  const yearMatches = new RegExp('(/|^)year/([0-9]+)(/|$)', 'i').exec(url);
-  const monthMatches = new RegExp('(/|^)month/([0-9]+)(/|$)', 'i').exec(url);
-  const threadMatches = new RegExp('(/|^)thread/([0-9]+)(/|$)', 'i').exec(url);
-  const verifyMatches = new RegExp('(/|^)verify/([a-f0-9]+)(/|$)', 'i').exec(url);
-  const homeTest = new RegExp('(/|^)home(/|$)', 'i').test(url);
+  const yearMatches = yearRegex.exec(url);
+  const monthMatches = monthRegex.exec(url);
+  const threadMatches = threadRegex.exec(url);
+  const verifyMatches = verifyRegex.exec(url);
+  const homeTest = homeRegex.test(url);
   __WEBPACK_IMPORTED_MODULE_0_invariant___default()(!homeTest || !threadMatches, 'home and thread should never be set at the same time');
   const returnObj = {};
   if (yearMatches) {
     returnObj.year = parseInt(yearMatches[2]);
   }
   if (monthMatches) {
-    returnObj.month = parseInt(monthMatches[2]);
+    const month = parseInt(monthMatches[2]);
+    if (month < 1 || month > 12) {
+      throw new Error("invalid_month");
+    }
+    returnObj.month = month;
   }
   if (threadMatches) {
     returnObj.threadID = threadMatches[2];

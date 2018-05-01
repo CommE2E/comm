@@ -1,4 +1,4 @@
-// flow-typed signature: de35e67401d07949d26660c420d532de
+// flow-typed signature: 7246e2d17248caa0cc26cf7a85e85688
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.64.0
 
 /**
@@ -122,10 +122,6 @@ declare module 'lib/reducers/cookie-reducer' {
   declare module.exports: any;
 }
 
-declare module 'lib/reducers/current-as-of-reducer' {
-  declare module.exports: any;
-}
-
 declare module 'lib/reducers/device-token-reducer' {
   declare module.exports: any;
 }
@@ -154,11 +150,23 @@ declare module 'lib/reducers/nav-reducer' {
   declare module.exports: any;
 }
 
+declare module 'lib/reducers/ping-timestamps-reducer' {
+  declare module.exports: any;
+}
+
+declare module 'lib/reducers/server-requests-reducer' {
+  declare module.exports: any;
+}
+
 declare module 'lib/reducers/session-reducer' {
   declare module.exports: any;
 }
 
 declare module 'lib/reducers/thread-reducer' {
+  declare module.exports: any;
+}
+
+declare module 'lib/reducers/updates-reducer' {
   declare module.exports: any;
 }
 
@@ -198,6 +206,14 @@ declare module 'lib/shared/account-regexes' {
   declare module.exports: any;
 }
 
+declare module 'lib/shared/core' {
+  declare module.exports: any;
+}
+
+declare module 'lib/shared/emojis' {
+  declare module.exports: any;
+}
+
 declare module 'lib/shared/entry-utils' {
   declare module.exports: any;
 }
@@ -231,6 +247,10 @@ declare module 'lib/shared/thread-watcher' {
 }
 
 declare module 'lib/shared/typeahead-text' {
+  declare module.exports: any;
+}
+
+declare module 'lib/shared/update-utils' {
   declare module.exports: any;
 }
 
@@ -286,6 +306,10 @@ declare module 'lib/types/report-types' {
   declare module.exports: any;
 }
 
+declare module 'lib/types/request-types' {
+  declare module.exports: any;
+}
+
 declare module 'lib/types/search-types' {
   declare module.exports: any;
 }
@@ -295,6 +319,10 @@ declare module 'lib/types/subscription-types' {
 }
 
 declare module 'lib/types/thread-types' {
+  declare module.exports: any;
+}
+
+declare module 'lib/types/update-types' {
   declare module.exports: any;
 }
 
@@ -426,9 +454,6 @@ declare module 'lib/permissions/thread-permissions.js' {
 declare module 'lib/reducers/cookie-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/cookie-reducer'>;
 }
-declare module 'lib/reducers/current-as-of-reducer.js' {
-  declare module.exports: $Exports<'lib/reducers/current-as-of-reducer'>;
-}
 declare module 'lib/reducers/device-token-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/device-token-reducer'>;
 }
@@ -450,11 +475,20 @@ declare module 'lib/reducers/message-reducer.js' {
 declare module 'lib/reducers/nav-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/nav-reducer'>;
 }
+declare module 'lib/reducers/ping-timestamps-reducer.js' {
+  declare module.exports: $Exports<'lib/reducers/ping-timestamps-reducer'>;
+}
+declare module 'lib/reducers/server-requests-reducer.js' {
+  declare module.exports: $Exports<'lib/reducers/server-requests-reducer'>;
+}
 declare module 'lib/reducers/session-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/session-reducer'>;
 }
 declare module 'lib/reducers/thread-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/thread-reducer'>;
+}
+declare module 'lib/reducers/updates-reducer.js' {
+  declare module.exports: $Exports<'lib/reducers/updates-reducer'>;
 }
 declare module 'lib/reducers/url-prefix-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/url-prefix-reducer'>;
@@ -483,6 +517,12 @@ declare module 'lib/selectors/user-selectors.js' {
 declare module 'lib/shared/account-regexes.js' {
   declare module.exports: $Exports<'lib/shared/account-regexes'>;
 }
+declare module 'lib/shared/core.js' {
+  declare module.exports: $Exports<'lib/shared/core'>;
+}
+declare module 'lib/shared/emojis.js' {
+  declare module.exports: $Exports<'lib/shared/emojis'>;
+}
 declare module 'lib/shared/entry-utils.js' {
   declare module.exports: $Exports<'lib/shared/entry-utils'>;
 }
@@ -509,6 +549,9 @@ declare module 'lib/shared/thread-watcher.js' {
 }
 declare module 'lib/shared/typeahead-text.js' {
   declare module.exports: $Exports<'lib/shared/typeahead-text'>;
+}
+declare module 'lib/shared/update-utils.js' {
+  declare module.exports: $Exports<'lib/shared/update-utils'>;
 }
 declare module 'lib/shared/user-utils.js' {
   declare module.exports: $Exports<'lib/shared/user-utils'>;
@@ -549,6 +592,9 @@ declare module 'lib/types/redux-types.js' {
 declare module 'lib/types/report-types.js' {
   declare module.exports: $Exports<'lib/types/report-types'>;
 }
+declare module 'lib/types/request-types.js' {
+  declare module.exports: $Exports<'lib/types/request-types'>;
+}
 declare module 'lib/types/search-types.js' {
   declare module.exports: $Exports<'lib/types/search-types'>;
 }
@@ -557,6 +603,9 @@ declare module 'lib/types/subscription-types.js' {
 }
 declare module 'lib/types/thread-types.js' {
   declare module.exports: $Exports<'lib/types/thread-types'>;
+}
+declare module 'lib/types/update-types.js' {
+  declare module.exports: $Exports<'lib/types/update-types'>;
 }
 declare module 'lib/types/user-types.js' {
   declare module.exports: $Exports<'lib/types/user-types'>;

@@ -1,4 +1,4 @@
-// flow-typed signature: a78a5a9bc6cc6d15199e67283d98bfde
+// flow-typed signature: 3e43a2a47b53bd042b5a5fff13e6710c
 // flow-typed version: <<STUB>>/firebase-admin_v^5.7.0/flow_v0.64.0
 
 /**
@@ -35,6 +35,14 @@ declare module 'firebase-admin/lib/auth/credential' {
 }
 
 declare module 'firebase-admin/lib/auth/token-generator' {
+  declare module.exports: any;
+}
+
+declare module 'firebase-admin/lib/auth/token-verifier' {
+  declare module.exports: any;
+}
+
+declare module 'firebase-admin/lib/auth/user-import-builder' {
   declare module.exports: any;
 }
 
@@ -122,6 +130,12 @@ declare module 'firebase-admin/lib/auth/credential.js' {
 }
 declare module 'firebase-admin/lib/auth/token-generator.js' {
   declare module.exports: $Exports<'firebase-admin/lib/auth/token-generator'>;
+}
+declare module 'firebase-admin/lib/auth/token-verifier.js' {
+  declare module.exports: $Exports<'firebase-admin/lib/auth/token-verifier'>;
+}
+declare module 'firebase-admin/lib/auth/user-import-builder.js' {
+  declare module.exports: $Exports<'firebase-admin/lib/auth/user-import-builder'>;
 }
 declare module 'firebase-admin/lib/auth/user-record.js' {
   declare module.exports: $Exports<'firebase-admin/lib/auth/user-record'>;
