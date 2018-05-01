@@ -1,34 +1,55 @@
 // @flow
 
-import type { AppState, NavInfo } from '../redux-setup';
+import {
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+  reflectRouteChangeActionType,
+} from '../redux-setup';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import css from '../style.css';
 import NewThreadModal from '../modals/threads/new-thread-modal.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
-import { monthURL } from '../url-utils';
 import history from '../router-history';
 
 export type NavID = "home" | "new";
 type Props = {
   navID: NavID,
   name: string,
-  monthURL: string,
-  loggedIn: bool,
   setModal: (modal: React.Node) => void,
   clearModal: () => void,
   freezeTypeahead: (navID: string) => void,
   unfreezeTypeahead: (navID: string) => void,
   onTransition: () => void,
   frozen?: bool,
+  // Redux state
+  loggedIn: bool,
+  navInfo: NavInfo,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
 };
-
 class TypeaheadActionOption extends React.PureComponent<Props> {
 
+  static propTypes = {
+    navID: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    setModal: PropTypes.func.isRequired,
+    clearModal: PropTypes.func.isRequired,
+    freezeTypeahead: PropTypes.func.isRequired,
+    unfreezeTypeahead: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired,
+    frozen: PropTypes.bool,
+    loggedIn: PropTypes.bool.isRequired,
+    navInfo: navInfoPropType.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+  };
   static defaultProps = { frozen: false };
 
   render() {
@@ -74,28 +95,26 @@ class TypeaheadActionOption extends React.PureComponent<Props> {
         );
       }
     } else if (this.props.navID == 'home') {
-      history.push(`/home/${this.props.monthURL}`);
+      this.props.dispatchActionPayload(
+        reflectRouteChangeActionType,
+        {
+          ...this.props.navInfo,
+          home: true,
+          threadID: null,
+        },
+      );
       this.props.onTransition();
     } 
   }
 
 }
 
-TypeaheadActionOption.propTypes = {
-  navID: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  monthURL: PropTypes.string.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  setModal: PropTypes.func.isRequired,
-  clearModal: PropTypes.func.isRequired,
-  freezeTypeahead: PropTypes.func.isRequired,
-  unfreezeTypeahead: PropTypes.func.isRequired,
-  onTransition: PropTypes.func.isRequired,
-  frozen: PropTypes.bool,
-};
-
-export default connect((state: AppState): * => ({
-  monthURL: monthURL(state),
-  loggedIn: !!(state.currentUserInfo &&
-    !state.currentUserInfo.anonymous && true),
-}))(TypeaheadActionOption);
+export default connect(
+  (state: AppState) => ({
+    loggedIn: !!(state.currentUserInfo &&
+      !state.currentUserInfo.anonymous && true),
+    navInfo: state.navInfo,
+  }),
+  null,
+  true,
+)(TypeaheadActionOption);

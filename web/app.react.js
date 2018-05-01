@@ -30,7 +30,11 @@ import faChat from '@fortawesome/fontawesome-free-solid/faComments';
 import classNames from 'classnames';
 import fontawesome from '@fortawesome/fontawesome';
 
-import { getDate } from 'lib/utils/date-utils';
+import {
+  getDate,
+  startDateForYearAndMonth,
+  endDateForYearAndMonth,
+} from 'lib/utils/date-utils';
 import {
   currentNavID,
   currentCalendarQuery,
@@ -55,9 +59,6 @@ import {
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 
 import {
-  thisURL,
-  urlForYearAndMonth,
-  thisNavURLFragment,
   canonicalURLFromReduxState,
   navInfoFromURL,
   ensureNavInfoValid,
@@ -92,12 +93,10 @@ type Props = {
     pathname: string,
   },
   // Redux state
-  thisNavURLFragment: string,
   navInfo: NavInfo,
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
-  thisURL: string,
   year: number,
   month: number,
   currentCalendarQuery: () => CalendarQuery,
@@ -152,7 +151,19 @@ class App extends React.PureComponent<Props, State> {
       if (this.props.verifyField === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
       } else if (this.props.verifyField === verifyField.EMAIL) {
-        history.replace(`/${this.props.thisURL}`);
+        const newURL = canonicalURLFromReduxState(
+          {
+            startDate: this.props.navInfo.startDate,
+            endDate: this.props.navInfo.endDate,
+            home: this.props.navInfo.home,
+            threadID: this.props.navInfo.threadID,
+            calendar: this.props.navInfo.calendar,
+            chat: this.props.navInfo.chat,
+            verify: null,
+          },
+          this.props.location.pathname,
+        );
+        history.replace(newURL);
         this.setModal(
           <VerificationSuccessModal onClose={this.clearModal} />
         );
@@ -254,8 +265,20 @@ class App extends React.PureComponent<Props, State> {
   }
 
   showResetPasswordModal() {
-    const onClose = () => history.push(`/${this.props.thisURL}`);
-    const onSuccess = () => history.replace(`/${this.props.thisURL}`);
+    const newURL = canonicalURLFromReduxState(
+      {
+        startDate: this.props.navInfo.startDate,
+        endDate: this.props.navInfo.endDate,
+        home: this.props.navInfo.home,
+        threadID: this.props.navInfo.threadID,
+        calendar: this.props.navInfo.calendar,
+        chat: this.props.navInfo.chat,
+        verify: null,
+      },
+      this.props.location.pathname,
+    );
+    const onClose = () => history.push(newURL);
+    const onSuccess = () => history.replace(newURL);
     this.setModal(
       <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />
     );
@@ -348,18 +371,34 @@ class App extends React.PureComponent<Props, State> {
     if (!this.props.loggedIn) {
       return <Splash />;
     }
+
     const year = this.props.year;
     const month = this.props.month;
+
     const lastMonthDate = getDate(year, month - 1, 1);
-    const prevURL = "/" + this.props.thisNavURLFragment + urlForYearAndMonth(
-      lastMonthDate.getFullYear(),
-      lastMonthDate.getMonth() + 1,
+    const prevYear = lastMonthDate.getFullYear();
+    const prevMonth = lastMonthDate.getMonth() + 1;
+    const prevURL = canonicalURLFromReduxState(
+      {
+        ...this.props.navInfo,
+        startDate: startDateForYearAndMonth(prevYear, prevMonth),
+        endDate: endDateForYearAndMonth(prevYear, prevMonth),
+      },
+      this.props.location.pathname,
     );
+
     const nextMonthDate = getDate(year, month + 1, 1);
-    const nextURL = "/" + this.props.thisNavURLFragment + urlForYearAndMonth(
-      nextMonthDate.getFullYear(),
-      nextMonthDate.getMonth() + 1,
+    const nextYear = nextMonthDate.getFullYear();
+    const nextMonth = nextMonthDate.getMonth() + 1;
+    const nextURL = canonicalURLFromReduxState(
+      {
+        ...this.props.navInfo,
+        startDate: startDateForYearAndMonth(nextYear, nextMonth),
+        endDate: endDateForYearAndMonth(nextYear, nextMonth),
+      },
+      this.props.location.pathname,
     );
+
     const monthName = dateFormat(getDate(year, month, 1), "mmmm");
     const calendarNavClasses = classNames({
       [css['current-tab']]: this.state.tab === "calendar",
@@ -488,12 +527,10 @@ App.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string.isRequired,
   }).isRequired,
-  thisNavURLFragment: PropTypes.string.isRequired,
   navInfo: navInfoPropType.isRequired,
   verifyField: PropTypes.number,
   entriesLoadingStatus: PropTypes.string.isRequired,
   currentNavID: PropTypes.string,
-  thisURL: PropTypes.string.isRequired,
   year: PropTypes.number.isRequired,
   month: PropTypes.number.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
@@ -515,12 +552,10 @@ const loadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    thisNavURLFragment: thisNavURLFragment(state),
     navInfo: state.navInfo,
     verifyField: state.verifyField,
     entriesLoadingStatus: loadingStatusSelector(state),
     currentNavID: currentNavID(state),
-    thisURL: thisURL(state),
     year: yearAssertingSelector(state),
     month: monthAssertingSelector(state),
     currentCalendarQuery: currentCalendarQuery(state),

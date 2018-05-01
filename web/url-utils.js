@@ -18,16 +18,6 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 
-function urlForYearAndMonth(year: number, month: number) {
-  return `year/${year}/month/${month}/`;
-}
-
-const monthURL = createSelector(
-  yearAssertingSelector,
-  monthAssertingSelector,
-  (year: number, month: number) => urlForYearAndMonth(year, month),
-);
-
 function urlForHomeAndThreadID(home: bool, threadID: ?string) {
   if (home) {
     return "home/";
@@ -35,21 +25,6 @@ function urlForHomeAndThreadID(home: bool, threadID: ?string) {
   invariant(threadID, "either home or threadID should be set");
   return `thread/${threadID}/`;
 }
-
-const thisNavURLFragment = createSelector(
-  (state: AppState) => state.navInfo,
-  (navInfo: NavInfo) => urlForHomeAndThreadID(
-    navInfo.home,
-    navInfo.threadID
-  ),
-);
-
-const thisURL = createSelector(
-  monthURL,
-  thisNavURLFragment,
-  (monthURL: string, thisNavURLFragment: string) =>
-    thisNavURLFragment + monthURL,
-);
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
@@ -138,10 +113,6 @@ function ensureNavInfoValid(
 }
 
 export {
-  urlForYearAndMonth,
-  monthURL,
-  thisNavURLFragment,
-  thisURL,
   canonicalURLFromReduxState,
   navInfoFromURL,
   ensureNavInfoValid,
