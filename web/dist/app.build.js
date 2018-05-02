@@ -846,9 +846,6 @@ function connect(inputMapStateToProps, serverCalls, includeDispatch) {
 
 
 
-
-
-
 const threadTypes = Object.freeze({
   //OPEN: 0,   (DEPRECATED)
   //CLOSED: 1, (DEPRECATED)
@@ -1721,7 +1718,7 @@ module.exports = isObject;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return createLoadingStatusSelector; });
 /* unused harmony export globalLoadingStatusSelector */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return combineLoadingStatuses; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEmpty__ = __webpack_require__(130);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEmpty___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEmpty__);
@@ -1798,164 +1795,6 @@ const globalLoadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_0_reselect_
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return fetchEntriesActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return fetchEntries; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return fetchEntriesAndSetRangeActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return fetchEntriesAndAppendRangeActionTypes; });
-/* unused harmony export fetchEntriesWithRange */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return createLocalEntryActionType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return createLocalEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return createEntryActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return createEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return saveEntryActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return concurrentModificationResetActionType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return saveEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return deleteEntryActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return deleteEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return fetchRevisionsForEntryActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return fetchRevisionsForEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return restoreEntryActionTypes; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return restoreEntry; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_date_utils__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_local_ids__ = __webpack_require__(132);
-
-
-
-
-
-
-const fetchEntriesActionTypes = Object.freeze({
-  started: "FETCH_ENTRIES_STARTED",
-  success: "FETCH_ENTRIES_SUCCESS",
-  failed: "FETCH_ENTRIES_FAILED"
-});
-async function fetchEntries(fetchJSON, calendarQuery) {
-  const response = await fetchJSON('fetch_entries', calendarQuery);
-  const userInfos = Object.values(response.userInfos);
-  return {
-    rawEntryInfos: response.rawEntryInfos,
-    userInfos
-  };
-}
-
-const fetchEntriesAndSetRangeActionTypes = Object.freeze({
-  started: "FETCH_ENTRIES_AND_SET_RANGE_STARTED",
-  success: "FETCH_ENTRIES_AND_SET_RANGE_SUCCESS",
-  failed: "FETCH_ENTRIES_AND_SET_RANGE_FAILED"
-});
-const fetchEntriesAndAppendRangeActionTypes = Object.freeze({
-  started: "FETCH_ENTRIES_AND_APPEND_RANGE_STARTED",
-  success: "FETCH_ENTRIES_AND_APPEND_RANGE_SUCCESS",
-  failed: "FETCH_ENTRIES_AND_APPEND_RANGE_FAILED"
-});
-async function fetchEntriesWithRange(fetchJSON, calendarQuery) {
-  const fetchEntriesResult = await fetchEntries(fetchJSON, calendarQuery);
-  return {
-    rawEntryInfos: fetchEntriesResult.rawEntryInfos,
-    calendarQuery,
-    userInfos: fetchEntriesResult.userInfos
-  };
-}
-
-const createLocalEntryActionType = "CREATE_LOCAL_ENTRY";
-function createLocalEntry(threadID, dateString, creatorID) {
-  const date = Object(__WEBPACK_IMPORTED_MODULE_0__utils_date_utils__["a" /* dateFromString */])(dateString);
-  const newEntryInfo = {
-    localID: `local${Object(__WEBPACK_IMPORTED_MODULE_1__utils_local_ids__["a" /* getNewLocalID */])()}`,
-    threadID,
-    text: "",
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-    creationTime: Date.now(),
-    creatorID,
-    deleted: false
-  };
-  return newEntryInfo;
-}
-
-const createEntryActionTypes = Object.freeze({
-  started: "CREATE_ENTRY_STARTED",
-  success: "CREATE_ENTRY_SUCCESS",
-  failed: "CREATE_ENTRY_FAILED"
-});
-async function createEntry(fetchJSON, request) {
-  const result = await fetchJSON('create_entry', request);
-  return {
-    entryID: result.entryID,
-    text: request.text,
-    newMessageInfos: result.newMessageInfos,
-    threadID: request.threadID
-  };
-}
-
-const saveEntryActionTypes = Object.freeze({
-  started: "SAVE_ENTRY_STARTED",
-  success: "SAVE_ENTRY_SUCCESS",
-  failed: "SAVE_ENTRY_FAILED"
-});
-const concurrentModificationResetActionType = "CONCURRENT_MODIFICATION_RESET";
-async function saveEntry(fetchJSON, request) {
-  const result = await fetchJSON('update_entry', request);
-  return {
-    entryID: result.entryID,
-    text: request.text,
-    newMessageInfos: result.newMessageInfos
-  };
-}
-
-const deleteEntryActionTypes = Object.freeze({
-  started: "DELETE_ENTRY_STARTED",
-  success: "DELETE_ENTRY_SUCCESS",
-  failed: "DELETE_ENTRY_FAILED"
-});
-async function deleteEntry(fetchJSON, entryID, prevText, sessionID) {
-  const response = await fetchJSON('delete_entry', {
-    entryID,
-    prevText,
-    sessionID,
-    timestamp: Date.now()
-  });
-  return {
-    newMessageInfos: response.newMessageInfos,
-    threadID: response.threadID
-  };
-}
-
-const fetchRevisionsForEntryActionTypes = Object.freeze({
-  started: "FETCH_REVISIONS_FOR_ENTRY_STARTED",
-  success: "FETCH_REVISIONS_FOR_ENTRY_SUCCESS",
-  failed: "FETCH_REVISIONS_FOR_ENTRY_FAILED"
-});
-async function fetchRevisionsForEntry(fetchJSON, entryID) {
-  const response = await fetchJSON('fetch_entry_revisions', { id: entryID });
-  return response.result;
-}
-
-const restoreEntryActionTypes = Object.freeze({
-  started: "RESTORE_ENTRY_STARTED",
-  success: "RESTORE_ENTRY_SUCCESS",
-  failed: "RESTORE_ENTRY_FAILED"
-});
-async function restoreEntry(fetchJSON, entryID, sessionID) {
-  const response = await fetchJSON('restore_entry', {
-    entryID,
-    sessionID,
-    timestamp: Date.now()
-  });
-  return {
-    newMessageInfos: response.newMessageInfos,
-    entryInfo: response.entryInfo
-  };
-}
-
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return pingActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return updateActivityActionTypes; });
@@ -2022,7 +1861,7 @@ async function updateActivity(fetchJSON, activityUpdates) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2204,7 +2043,7 @@ const threadTypeDescriptions = {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2292,7 +2131,7 @@ var red = exports.red = {
 };
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2423,7 +2262,7 @@ function createStructuredSelector(selectors) {
 }
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var isFunction = __webpack_require__(101),
@@ -2459,6 +2298,164 @@ function isArrayLike(value) {
 }
 
 module.exports = isArrayLike;
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return fetchEntriesActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return fetchEntries; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return fetchEntriesAndSetRangeActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return fetchEntriesAndAppendRangeActionTypes; });
+/* unused harmony export fetchEntriesWithRange */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return createLocalEntryActionType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return createLocalEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return createEntryActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return createEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return saveEntryActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return concurrentModificationResetActionType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return saveEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return deleteEntryActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return deleteEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return fetchRevisionsForEntryActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return fetchRevisionsForEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return restoreEntryActionTypes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return restoreEntry; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_date_utils__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_local_ids__ = __webpack_require__(132);
+
+
+
+
+
+
+const fetchEntriesActionTypes = Object.freeze({
+  started: "FETCH_ENTRIES_STARTED",
+  success: "FETCH_ENTRIES_SUCCESS",
+  failed: "FETCH_ENTRIES_FAILED"
+});
+async function fetchEntries(fetchJSON, calendarQuery) {
+  const response = await fetchJSON('fetch_entries', calendarQuery);
+  const userInfos = Object.values(response.userInfos);
+  return {
+    rawEntryInfos: response.rawEntryInfos,
+    userInfos
+  };
+}
+
+const fetchEntriesAndSetRangeActionTypes = Object.freeze({
+  started: "FETCH_ENTRIES_AND_SET_RANGE_STARTED",
+  success: "FETCH_ENTRIES_AND_SET_RANGE_SUCCESS",
+  failed: "FETCH_ENTRIES_AND_SET_RANGE_FAILED"
+});
+const fetchEntriesAndAppendRangeActionTypes = Object.freeze({
+  started: "FETCH_ENTRIES_AND_APPEND_RANGE_STARTED",
+  success: "FETCH_ENTRIES_AND_APPEND_RANGE_SUCCESS",
+  failed: "FETCH_ENTRIES_AND_APPEND_RANGE_FAILED"
+});
+async function fetchEntriesWithRange(fetchJSON, calendarQuery) {
+  const fetchEntriesResult = await fetchEntries(fetchJSON, calendarQuery);
+  return {
+    rawEntryInfos: fetchEntriesResult.rawEntryInfos,
+    calendarQuery,
+    userInfos: fetchEntriesResult.userInfos
+  };
+}
+
+const createLocalEntryActionType = "CREATE_LOCAL_ENTRY";
+function createLocalEntry(threadID, dateString, creatorID) {
+  const date = Object(__WEBPACK_IMPORTED_MODULE_0__utils_date_utils__["a" /* dateFromString */])(dateString);
+  const newEntryInfo = {
+    localID: `local${Object(__WEBPACK_IMPORTED_MODULE_1__utils_local_ids__["a" /* getNewLocalID */])()}`,
+    threadID,
+    text: "",
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    creationTime: Date.now(),
+    creatorID,
+    deleted: false
+  };
+  return newEntryInfo;
+}
+
+const createEntryActionTypes = Object.freeze({
+  started: "CREATE_ENTRY_STARTED",
+  success: "CREATE_ENTRY_SUCCESS",
+  failed: "CREATE_ENTRY_FAILED"
+});
+async function createEntry(fetchJSON, request) {
+  const result = await fetchJSON('create_entry', request);
+  return {
+    entryID: result.entryID,
+    text: request.text,
+    newMessageInfos: result.newMessageInfos,
+    threadID: request.threadID
+  };
+}
+
+const saveEntryActionTypes = Object.freeze({
+  started: "SAVE_ENTRY_STARTED",
+  success: "SAVE_ENTRY_SUCCESS",
+  failed: "SAVE_ENTRY_FAILED"
+});
+const concurrentModificationResetActionType = "CONCURRENT_MODIFICATION_RESET";
+async function saveEntry(fetchJSON, request) {
+  const result = await fetchJSON('update_entry', request);
+  return {
+    entryID: result.entryID,
+    text: request.text,
+    newMessageInfos: result.newMessageInfos
+  };
+}
+
+const deleteEntryActionTypes = Object.freeze({
+  started: "DELETE_ENTRY_STARTED",
+  success: "DELETE_ENTRY_SUCCESS",
+  failed: "DELETE_ENTRY_FAILED"
+});
+async function deleteEntry(fetchJSON, entryID, prevText, sessionID) {
+  const response = await fetchJSON('delete_entry', {
+    entryID,
+    prevText,
+    sessionID,
+    timestamp: Date.now()
+  });
+  return {
+    newMessageInfos: response.newMessageInfos,
+    threadID: response.threadID
+  };
+}
+
+const fetchRevisionsForEntryActionTypes = Object.freeze({
+  started: "FETCH_REVISIONS_FOR_ENTRY_STARTED",
+  success: "FETCH_REVISIONS_FOR_ENTRY_SUCCESS",
+  failed: "FETCH_REVISIONS_FOR_ENTRY_FAILED"
+});
+async function fetchRevisionsForEntry(fetchJSON, entryID) {
+  const response = await fetchJSON('fetch_entry_revisions', { id: entryID });
+  return response.result;
+}
+
+const restoreEntryActionTypes = Object.freeze({
+  started: "RESTORE_ENTRY_STARTED",
+  success: "RESTORE_ENTRY_SUCCESS",
+  failed: "RESTORE_ENTRY_FAILED"
+});
+async function restoreEntry(fetchJSON, entryID, sessionID) {
+  const response = await fetchJSON('restore_entry', {
+    entryID,
+    sessionID,
+    timestamp: Date.now()
+  });
+  return {
+    newMessageInfos: response.newMessageInfos,
+    entryInfo: response.entryInfo
+  };
+}
+
 
 
 /***/ }),
@@ -2535,7 +2532,7 @@ module.exports = map;
 /* unused harmony export unreadCount */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return otherUsersButNoOtherAdmins; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_thread_types__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__ = __webpack_require__(47);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__);
@@ -2560,7 +2557,7 @@ module.exports = map;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__nav_selectors__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__utils_date_utils__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shared_entry_utils__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__user_selectors__ = __webpack_require__(210);
 
 
@@ -2721,7 +2718,7 @@ module.exports = baseGetTag;
 
 var arrayLikeKeys = __webpack_require__(171),
     baseKeys = __webpack_require__(79),
-    isArrayLike = __webpack_require__(27);
+    isArrayLike = __webpack_require__(26);
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -2799,7 +2796,7 @@ module.exports = arrayMap;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_memoize__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_memoize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_memoize__);
@@ -3125,16 +3122,28 @@ const joinThreadActionTypes = Object.freeze({
   success: "JOIN_THREAD_SUCCESS",
   failed: "JOIN_THREAD_FAILED"
 });
-async function joinThread(fetchJSON, threadID) {
-  const response = await fetchJSON('join_thread', { threadID });
+async function joinThread(fetchJSON, request) {
+  const response = await fetchJSON('join_thread', request);
+
   // https://github.com/facebook/flow/issues/2221
   const userInfos = Object.values(response.userInfos);
+
+  let calendarResult = null;
+  if (request.calendarQuery) {
+    calendarResult = {
+      calendarQuery: request.calendarQuery,
+      rawEntryInfos: response.rawEntryInfos,
+      userInfos
+    };
+  }
+
   return {
-    threadID,
+    threadID: request.threadID,
     threadInfos: response.threadInfos,
     rawMessageInfos: response.rawMessageInfos,
     truncationStatuses: response.truncationStatuses,
-    userInfos
+    userInfos,
+    calendarResult
   };
 }
 
@@ -3320,7 +3329,7 @@ module.exports = func;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return currentNavID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return currentCalendarQuery; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return threadSearchIndex; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_some__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_some___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_some__);
@@ -3331,7 +3340,7 @@ module.exports = func;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__utils_config__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shared_search_index__ = __webpack_require__(133);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shared_typeahead_text__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shared_thread_utils__ = __webpack_require__(23);
 
 
 
@@ -3478,7 +3487,7 @@ module.exports = g;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return currentSessionID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return nextSessionID; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return sessionStartingPayload; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_invariant__);
@@ -5386,7 +5395,7 @@ module.exports = baseForOwn;
 /* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isArrayLike = __webpack_require__(27),
+var isArrayLike = __webpack_require__(26),
     isObjectLike = __webpack_require__(17);
 
 /**
@@ -7650,7 +7659,7 @@ var createTransitionManager = function createTransitionManager() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var eq = __webpack_require__(75),
-    isArrayLike = __webpack_require__(27),
+    isArrayLike = __webpack_require__(26),
     isIndex = __webpack_require__(56),
     isObject = __webpack_require__(20);
 
@@ -7826,7 +7835,7 @@ function isPlainObject(value) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return yearAssertingSelector; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return monthExtractor; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return monthAssertingSelector; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_invariant__);
@@ -9213,7 +9222,7 @@ module.exports = overArg;
 
 var arrayLikeKeys = __webpack_require__(171),
     baseKeysIn = __webpack_require__(311),
-    isArrayLike = __webpack_require__(27);
+    isArrayLike = __webpack_require__(26);
 
 /**
  * Creates an array of the own and inherited enumerable property names of `object`.
@@ -9774,7 +9783,7 @@ module.exports = last;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseEach = __webpack_require__(62),
-    isArrayLike = __webpack_require__(27);
+    isArrayLike = __webpack_require__(26);
 
 /**
  * The base implementation of `_.map` without support for iteratee shorthands.
@@ -10230,8 +10239,8 @@ const saveMessagesActionType = "SAVE_MESSAGES";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return reduceSessionID; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__selectors_session_selectors__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_action_utils__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_entry_actions__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_entry_actions__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__actions_user_actions__ = __webpack_require__(12);
 
 
@@ -10531,14 +10540,14 @@ module.exports = func;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return relativeMemberInfoSelectorForMembersOfThread; });
 /* unused harmony export userInfoSelectorForOtherMembersOfThread */
 /* unused harmony export userSearchIndexForOtherMembersOfThread */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_memoize__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_memoize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_memoize__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_keys__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_keys__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shared_search_index__ = __webpack_require__(133);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shared_thread_utils__ = __webpack_require__(23);
 
 
 
@@ -28449,7 +28458,7 @@ var _debounce = __webpack_require__(243);
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -28662,19 +28671,17 @@ const history = process.env.BROWSER ? __WEBPACK_IMPORTED_MODULE_0_history_create
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lib_selectors_nav_selectors__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_actions_entry_actions__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_utils_redux_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__style_css__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__loading_indicator_react__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modals_threads_thread_settings_modal_react__ = __webpack_require__(578);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modals_threads_confirm_leave_thread_modal_react__ = __webpack_require__(579);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modals_threads_cant_leave_thread_modal_react__ = __webpack_require__(580);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_selectors_loading_selectors__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_utils_redux_utils__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__style_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__loading_indicator_react__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__modals_threads_thread_settings_modal_react__ = __webpack_require__(578);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modals_threads_confirm_leave_thread_modal_react__ = __webpack_require__(579);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modals_threads_cant_leave_thread_modal_react__ = __webpack_require__(580);
 
 
 
@@ -28709,20 +28716,9 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
           return;
         }
 
-        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], this.joinAction(), {
-          customKeyName: `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${this.props.threadInfo.id}`
+        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], this.joinAction(), {
+          customKeyName: `${__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${this.props.threadInfo.id}`
         });
-
-        // If we are at home we need to load the new thread
-        if (this.props.home) {
-          const query = this.props.currentCalendarQuery();
-          this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_4_lib_actions_entry_actions__["i" /* fetchEntriesActionTypes */], this.props.fetchEntries({
-            navID: this.props.threadInfo.id,
-            startDate: query.startDate,
-            endDate: query.endDate,
-            includeDeleted: query.includeDeleted
-          }));
-        }
       }
     }), Object.defineProperty(this, 'onLeave', {
       enumerable: true,
@@ -28737,11 +28733,11 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
         this.props.freezeTypeahead(this.props.threadInfo.id);
 
         if (this.props.otherUsersButNoOtherAdmins) {
-          this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_14__modals_threads_cant_leave_thread_modal_react__["a" /* default */], { onClose: this.onClose }));
+          this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_13__modals_threads_cant_leave_thread_modal_react__["a" /* default */], { onClose: this.onClose }));
           return;
         }
 
-        this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_13__modals_threads_confirm_leave_thread_modal_react__["a" /* default */], {
+        this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_12__modals_threads_confirm_leave_thread_modal_react__["a" /* default */], {
           threadInfo: this.props.threadInfo,
           onClose: this.onClose,
           onConfirm: this.onConfirmLeave
@@ -28760,8 +28756,8 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
       writable: true,
       value: () => {
         this.onClose();
-        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */], this.props.leaveThread(this.props.threadInfo.id), {
-          customKeyName: `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */].started}:${this.props.threadInfo.id}`
+        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */], this.props.leaveThread(this.props.threadInfo.id), {
+          customKeyName: `${__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */].started}:${this.props.threadInfo.id}`
         });
       }
     }), Object.defineProperty(this, 'edit', {
@@ -28771,7 +28767,7 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
         event.preventDefault();
         event.stopPropagation();
         this.props.freezeTypeahead(this.props.threadInfo.id);
-        this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_12__modals_threads_thread_settings_modal_react__["a" /* default */], {
+        this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__modals_threads_thread_settings_modal_react__["a" /* default */], {
           threadInfo: this.props.threadInfo,
           onClose: this.onClose
         }));
@@ -28783,12 +28779,12 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
     // We show "Closed" if the viewer is not a member and they don't have
     // permission to join the thread (hypothetical custom permissions)
     const threadInfo = this.props.threadInfo;
-    const isMember = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["h" /* viewerIsMember */])(threadInfo);
-    const showClosed = !isMember && !Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["e" /* threadHasPermission */])(threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].JOIN_THREAD);
+    const isMember = Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["h" /* viewerIsMember */])(threadInfo);
+    const showClosed = !isMember && !Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["e" /* threadHasPermission */])(threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].JOIN_THREAD);
     if (showClosed) {
       return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
         'ul',
-        { className: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons'] },
+        { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['thread-nav-option-buttons'] },
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
           'li',
           null,
@@ -28796,9 +28792,9 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
         )
       );
     }
-    const canEditThread = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["e" /* threadHasPermission */])(threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].EDIT_THREAD);
+    const canEditThread = Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["e" /* threadHasPermission */])(threadInfo, __WEBPACK_IMPORTED_MODULE_0_lib_types_thread_types__["e" /* threadPermissions */].EDIT_THREAD);
     let editButton = null;
-    if (canEditThread && this.props.currentNavID) {
+    if (canEditThread) {
       editButton = __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
         'li',
         null,
@@ -28813,16 +28809,16 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
     const buttonAction = isMember ? this.onLeave : this.onJoin;
     return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
       'ul',
-      { className: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons'] },
+      { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['thread-nav-option-buttons'] },
       editButton,
       __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
         'li',
         null,
-        __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__loading_indicator_react__["a" /* default */], {
+        __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_10__loading_indicator_react__["a" /* default */], {
           status: this.props.loadingStatus,
           color: 'black',
-          loadingClassName: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons-loading'],
-          errorClassName: __WEBPACK_IMPORTED_MODULE_10__style_css___default.a['thread-nav-option-buttons-error']
+          loadingClassName: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['thread-nav-option-buttons-loading'],
+          errorClassName: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['thread-nav-option-buttons-error']
         }),
         __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
           'a',
@@ -28834,16 +28830,16 @@ class TypeaheadOptionButtons extends __WEBPACK_IMPORTED_MODULE_2_react__["PureCo
   }
 
   async joinAction() {
-    const result = await this.props.joinThread(this.props.threadInfo.id);
-    // If this subscription action causes us to leave the null home state, then
-    // we need to make sure that the typeahead is active iff it's focused. The
-    // default resolution in Typeahead would be to close the typeahead, but it's
-    // more natural to leave the typeahead open in this situation, so we choose
-    // to focus the typeahead input field instead.
-    if (!this.props.currentNavID && this.props.home) {
-      this.props.focusTypeahead();
-    }
-    return result;
+    const query = this.props.currentCalendarQuery();
+    return await this.props.joinThread({
+      threadID: this.props.threadInfo.id,
+      calendarQuery: {
+        navID: this.props.threadInfo.id,
+        startDate: query.startDate,
+        endDate: query.endDate,
+        includeDeleted: query.includeDeleted
+      }
+    });
   }
 
 }
@@ -28855,24 +28851,19 @@ TypeaheadOptionButtons.propTypes = {
   freezeTypeahead: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
   unfreezeTypeahead: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
   focusTypeahead: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
-  home: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.bool.isRequired,
-  currentNavID: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.string,
   loadingStatus: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.string.isRequired,
   otherUsersButNoOtherAdmins: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.bool.isRequired,
   currentCalendarQuery: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
   dispatchActionPromise: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
   joinThread: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
-  leaveThread: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired,
-  fetchEntries: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired
+  leaveThread: __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a.func.isRequired
 };
 
-/* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_7_lib_utils_redux_utils__["a" /* connect */])((state, ownProps) => ({
-  home: state.navInfo.home,
-  currentNavID: Object(__WEBPACK_IMPORTED_MODULE_3_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
-  loadingStatus: Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["a" /* combineLoadingStatuses */])(Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state), Object(__WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state)),
-  otherUsersButNoOtherAdmins: Object(__WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__["d" /* otherUsersButNoOtherAdmins */])(ownProps.threadInfo.id)(state),
+/* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_6_lib_utils_redux_utils__["a" /* connect */])((state, ownProps) => ({
+  loadingStatus: Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_loading_selectors__["a" /* combineLoadingStatuses */])(Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["g" /* joinThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["g" /* joinThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state), Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */], `${__WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["i" /* leaveThreadActionTypes */].started}:${ownProps.threadInfo.id}`)(state)),
+  otherUsersButNoOtherAdmins: Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__["d" /* otherUsersButNoOtherAdmins */])(ownProps.threadInfo.id)(state),
   currentCalendarQuery: Object(__WEBPACK_IMPORTED_MODULE_3_lib_selectors_nav_selectors__["a" /* currentCalendarQuery */])(state)
-}), { joinThread: __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["f" /* joinThread */], leaveThread: __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__["h" /* leaveThread */], fetchEntries: __WEBPACK_IMPORTED_MODULE_4_lib_actions_entry_actions__["h" /* fetchEntries */] })(TypeaheadOptionButtons));
+}), { joinThread: __WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["f" /* joinThread */], leaveThread: __WEBPACK_IMPORTED_MODULE_4_lib_actions_thread_actions__["h" /* leaveThread */] })(TypeaheadOptionButtons));
 
 /***/ }),
 /* 248 */
@@ -28900,7 +28891,7 @@ TypeaheadOptionButtons.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_utils_date_utils__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_selectors_nav_selectors__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_lib_shared_entry_utils__ = __webpack_require__(50);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lib_selectors_loading_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_lib_utils_redux_utils__ = __webpack_require__(10);
@@ -29216,11 +29207,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__fortawesome_fontawesome__ = __webpack_require__(225);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_lib_utils_date_utils__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_lib_selectors_loading_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19_lib_utils_redux_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__ = __webpack_require__(492);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21_lib_actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21_lib_actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22_lib_shared_ping_utils__ = __webpack_require__(494);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23_lib_selectors_session_selectors__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24_lib_reducers_session_reducer__ = __webpack_require__(205);
@@ -35050,10 +35041,10 @@ module.exports = customOmitClone;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__utils_date_utils__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__utils_local_ids__ = __webpack_require__(132);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__utils_action_utils__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__actions_thread_actions__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__types_redux_types__ = __webpack_require__(202);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__shared_entry_utils__ = __webpack_require__(50);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -35341,7 +35332,7 @@ function reduceEntryInfos(entryStore, action) {
       daysToEntries,
       lastUserInteractionCalendar: Date.now()
     };
-  } else if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["s" /* resetPasswordActionTypes */].success) {
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["s" /* resetPasswordActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_20__actions_thread_actions__["g" /* joinThreadActionTypes */].success) {
     const calendarResult = action.payload.calendarResult;
     if (calendarResult) {
       const [updatedEntryInfos, updatedDaysToEntries] = mergeNewEntryInfos(entryInfos, daysToEntries, calendarResult.rawEntryInfos);
@@ -35560,7 +35551,7 @@ module.exports = createBaseFor;
 /* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isArrayLike = __webpack_require__(27);
+var isArrayLike = __webpack_require__(26);
 
 /**
  * Creates a `baseEach` or `baseEachRight` function.
@@ -36178,7 +36169,7 @@ var baseKeys = __webpack_require__(79),
     getTag = __webpack_require__(37),
     isArguments = __webpack_require__(76),
     isArray = __webpack_require__(8),
-    isArrayLike = __webpack_require__(27),
+    isArrayLike = __webpack_require__(26),
     isBuffer = __webpack_require__(77),
     isPrototype = __webpack_require__(80),
     isTypedArray = __webpack_require__(111);
@@ -36441,7 +36432,7 @@ module.exports = find;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIteratee = __webpack_require__(16),
-    isArrayLike = __webpack_require__(27),
+    isArrayLike = __webpack_require__(26),
     keys = __webpack_require__(31);
 
 /**
@@ -36553,10 +36544,10 @@ function sleep(ms) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_action_utils__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__actions_user_actions__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__actions_thread_actions__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__actions_message_actions__ = __webpack_require__(204);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -36722,7 +36713,7 @@ module.exports = keyBy;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_action_utils__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__actions_thread_actions__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__actions_ping_actions__ = __webpack_require__(22);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 
@@ -36842,9 +36833,9 @@ function reduceThreadInfos(state, action) {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = reduceBaseNavInfo;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_date_utils__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_user_actions__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_ping_actions__ = __webpack_require__(22);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 
@@ -36948,12 +36939,12 @@ function reduceCookie(state, action) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_message_utils__ = __webpack_require__(408);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__utils_local_ids__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__utils_action_utils__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__types_redux_types__ = __webpack_require__(202);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__ = __webpack_require__(204);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__shared_thread_watcher__ = __webpack_require__(91);
@@ -39799,7 +39790,7 @@ function makePermissionsForChildrenBlob(permissions) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash_fp_difference__ = __webpack_require__(209);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash_fp_difference___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash_fp_difference__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shared_thread_watcher__ = __webpack_require__(91);
 
 
@@ -39915,7 +39906,7 @@ function reduceURLPrefix(state, action) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = reducePingTimestamps;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(22);
 
 
 function reducePingTimestamps(state, action) {
@@ -39948,7 +39939,7 @@ function reducePingTimestamps(state, action) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = reduceServerRequests;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(22);
 
 
 function reduceServerRequests(state, action) {
@@ -45213,7 +45204,7 @@ module.exports = func;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIndexOf = __webpack_require__(166),
-    isArrayLike = __webpack_require__(27),
+    isArrayLike = __webpack_require__(26),
     isString = __webpack_require__(141),
     toInteger = __webpack_require__(57),
     values = __webpack_require__(131);
@@ -46453,7 +46444,7 @@ function verifySubselectors(mapStateToProps, mapDispatchToProps, mergeProps, dis
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return pingStartingPayload; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return pingActionInput; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_request_types__ = __webpack_require__(493);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__session_selectors__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__nav_selectors__ = __webpack_require__(40);
@@ -46559,7 +46550,7 @@ const serverRequestPropType = __WEBPACK_IMPORTED_MODULE_1_prop_types___default.a
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return pingFrequency; });
 /* unused harmony export earliestTimeConsideredCurrent */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return dispatchPing; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__actions_ping_actions__ = __webpack_require__(22);
 
 
 // We can't push yet, so we rely on pings to keep Redux state updated with the
@@ -46589,7 +46580,7 @@ function dispatchPing(props) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return ensureNavInfoValid; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lib_utils_url_utils__ = __webpack_require__(214);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__ = __webpack_require__(144);
@@ -48484,7 +48475,7 @@ module.exports = func;
 
 var baseKeys = __webpack_require__(79),
     getTag = __webpack_require__(37),
-    isArrayLike = __webpack_require__(27),
+    isArrayLike = __webpack_require__(26),
     isString = __webpack_require__(141),
     stringSize = __webpack_require__(511);
 
@@ -48789,7 +48780,7 @@ Object.defineProperty(TypeaheadActionOption, 'defaultProps', {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_utils_redux_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_actions_thread_actions__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_selectors_loading_selectors__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__style_css__);
@@ -52377,7 +52368,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -52993,7 +52984,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -53436,7 +53427,7 @@ var _map = __webpack_require__(28);
 
 var _map2 = _interopRequireDefault(_map);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -53545,7 +53536,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -54127,7 +54118,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -54506,7 +54497,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -55169,7 +55160,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -55754,7 +55745,7 @@ var _map = __webpack_require__(28);
 
 var _map2 = _interopRequireDefault(_map);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -55936,7 +55927,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -56057,7 +56048,7 @@ var _map = __webpack_require__(28);
 
 var _map2 = _interopRequireDefault(_map);
 
-var _color = __webpack_require__(25);
+var _color = __webpack_require__(24);
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -56250,7 +56241,7 @@ exports.default = (0, _common.ColorWrap)(Twitter);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_utils_redux_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__style_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__typeahead_option_buttons_react__ = __webpack_require__(247);
@@ -56690,7 +56681,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_utils_redux_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_actions_thread_actions__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_selectors_loading_selectors__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__style_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modal_react__ = __webpack_require__(15);
@@ -57632,7 +57623,7 @@ Calendar.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_entry_utils__ = __webpack_require__(50);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_utils_date_utils__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_utils_redux_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__style_css__ = __webpack_require__(4);
@@ -57946,9 +57937,9 @@ Day.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_entry_utils__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_utils_redux_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_utils_errors__ = __webpack_require__(200);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_utils_date_utils__ = __webpack_require__(18);
@@ -58470,7 +58461,7 @@ module.exports = unionBy;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return allDaysToEntries; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__);
@@ -58511,8 +58502,8 @@ const allDaysToEntries = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSe
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_prop_types__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_thread_utils__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_thread_utils__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_selectors_loading_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_utils_redux_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_selectors_session_selectors__ = __webpack_require__(42);
@@ -58710,7 +58701,7 @@ HistoryEntry.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_react_timeago__ = __webpack_require__(592);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_react_timeago___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_react_timeago__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_thread_utils__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_thread_utils__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__style_css__);

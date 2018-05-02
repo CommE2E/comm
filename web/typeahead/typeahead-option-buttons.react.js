@@ -5,25 +5,19 @@ import {
   threadInfoPropType,
   threadPermissions,
   type LeaveThreadPayload,
+  type ThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
-import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import PropTypes from 'prop-types';
 
 import * as React from 'react';
 
-import {
-  currentNavID,
-  currentCalendarQuery,
-} from 'lib/selectors/nav-selectors';
-import {
-  fetchEntriesActionTypes,
-  fetchEntries,
-} from 'lib/actions/entry-actions';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import {
   joinThreadActionTypes,
   joinThread,
@@ -54,17 +48,14 @@ type Props = {
   unfreezeTypeahead: (navID: string) => void,
   focusTypeahead: () => void,
   // Redux state
-  home: bool,
-  currentNavID: ?string,
   loadingStatus: LoadingStatus,
   otherUsersButNoOtherAdmins: bool,
   currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  joinThread: (threadID: string) => Promise<ThreadJoinPayload>,
+  joinThread: (request: ThreadJoinRequest) => Promise<ThreadJoinPayload>,
   leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
-  fetchEntries: (calendarQuery: CalendarQuery) => Promise<CalendarResult>,
 };
 
 class TypeaheadOptionButtons extends React.PureComponent<Props> {
@@ -88,7 +79,7 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
       threadPermissions.EDIT_THREAD,
     );
     let editButton = null;
-    if (canEditThread && this.props.currentNavID) {
+    if (canEditThread) {
       editButton = (
         <li>
           <a href='#' onClick={this.edit}>
@@ -130,33 +121,19 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
           `${joinThreadActionTypes.started}:${this.props.threadInfo.id}`,
       },
     );
-
-    // If we are at home we need to load the new thread
-    if (this.props.home) {
-      const query = this.props.currentCalendarQuery();
-      this.props.dispatchActionPromise(
-        fetchEntriesActionTypes,
-        this.props.fetchEntries({
-          navID: this.props.threadInfo.id,
-          startDate: query.startDate,
-          endDate: query.endDate,
-          includeDeleted: query.includeDeleted,
-        }),
-      );
-    }
   }
 
   async joinAction() {
-    const result = await this.props.joinThread(this.props.threadInfo.id);
-    // If this subscription action causes us to leave the null home state, then
-    // we need to make sure that the typeahead is active iff it's focused. The
-    // default resolution in Typeahead would be to close the typeahead, but it's
-    // more natural to leave the typeahead open in this situation, so we choose
-    // to focus the typeahead input field instead.
-    if (!this.props.currentNavID && this.props.home) {
-      this.props.focusTypeahead();
-    }
-    return result;
+    const query = this.props.currentCalendarQuery();
+    return await this.props.joinThread({
+      threadID: this.props.threadInfo.id,
+      calendarQuery: {
+        navID: this.props.threadInfo.id,
+        startDate: query.startDate,
+        endDate: query.endDate,
+        includeDeleted: query.includeDeleted,
+      },
+    });
   }
 
   onLeave = (event: SyntheticEvent<HTMLAnchorElement>) => {
@@ -221,21 +198,16 @@ TypeaheadOptionButtons.propTypes = {
   freezeTypeahead: PropTypes.func.isRequired,
   unfreezeTypeahead: PropTypes.func.isRequired,
   focusTypeahead: PropTypes.func.isRequired,
-  home: PropTypes.bool.isRequired,
-  currentNavID: PropTypes.string,
   loadingStatus: PropTypes.string.isRequired,
   otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   joinThread: PropTypes.func.isRequired,
   leaveThread: PropTypes.func.isRequired,
-  fetchEntries: PropTypes.func.isRequired,
 };
 
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
-    home: state.navInfo.home,
-    currentNavID: currentNavID(state),
     loadingStatus: combineLoadingStatuses(
       createLoadingStatusSelector(
         joinThreadActionTypes,
@@ -250,5 +222,5 @@ export default connect(
       otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
     currentCalendarQuery: currentCalendarQuery(state),
   }),
-  { joinThread, leaveThread, fetchEntries },
+  { joinThread, leaveThread },
 )(TypeaheadOptionButtons);

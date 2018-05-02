@@ -14,10 +14,12 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   threadPermissions,
+  type ThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import React from 'react';
 import {
@@ -47,6 +49,7 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
 
@@ -60,12 +63,13 @@ type Props = {
   viewerID: ?string,
   draft: string,
   joinThreadLoadingStatus: LoadingStatus,
+  currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendMessage: (threadID: string, text: string) => Promise<SendTextMessageResult>,
-  joinThread: (threadID: string) => Promise<ThreadJoinPayload>,
+  joinThread: (request: ThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
 type State = {
   text: string,
@@ -79,6 +83,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
+    currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
@@ -282,8 +287,21 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   onPressJoin = () => {
     this.props.dispatchActionPromise(
       joinThreadActionTypes,
-      this.props.joinThread(this.props.threadInfo.id),
+      this.joinAction(),
     );
+  }
+
+  async joinAction() {
+    const query = this.props.currentCalendarQuery();
+    return await this.props.joinThread({
+      threadID: this.props.threadInfo.id,
+      calendarQuery: {
+        navID: this.props.threadInfo.id,
+        startDate: query.startDate,
+        endDate: query.endDate,
+        includeDeleted: query.includeDeleted,
+      },
+    });
   }
 
 }
@@ -363,6 +381,7 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
+      currentCalendarQuery: currentCalendarQuery(state),
     };
   },
   { sendMessage, joinThread },

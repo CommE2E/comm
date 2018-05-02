@@ -43,6 +43,7 @@ import {
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 
 async function updateRole(
   viewer: Viewer,
@@ -527,6 +528,11 @@ async function joinThread(
     throw new ServerError('invalid_parameters');
   }
 
+  const calendarQuery = request.calendarQuery;
+  if (calendarQuery && calendarQuery.navID !== request.threadID) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const changeset = await changeRole(
     request.threadID,
     [viewer.id],
@@ -555,24 +561,43 @@ async function joinThread(
   const threadSelectionCriteria = {
     threadCursors: {[request.threadID]: false},
   };
-  const [ fetchMessagesResult, fetchThreadsResult ] = await Promise.all([
+  const [
+    fetchMessagesResult,
+    fetchThreadsResult,
+    fetchEntriesResult,
+  ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
     fetchThreadInfos(viewer),
+    calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
   ]);
 
-  return {
+  let userInfos = {
+    ...fetchMessagesResult.userInfos,
+    ...fetchThreadsResult.userInfos,
+  };
+  let rawEntryInfos;
+  if (fetchEntriesResult) {
+    userInfos = {
+      ...userInfos,
+      ...fetchEntriesResult.userInfos,
+    };
+    rawEntryInfos = fetchEntriesResult.rawEntryInfos;
+  }
+
+  const response: ThreadJoinResult = {
     threadInfos: fetchThreadsResult.threadInfos,
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
-    userInfos: {
-      ...fetchMessagesResult.userInfos,
-      ...fetchThreadsResult.userInfos,
-    },
+    userInfos,
   };
+  if (rawEntryInfos) {
+    response.rawEntryInfos = rawEntryInfos;
+  }
+  return response;
 }
 
 export {
