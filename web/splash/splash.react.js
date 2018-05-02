@@ -26,6 +26,9 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
 
 type Props = {
+  setModal: (modal: React.Node) => void,
+  clearModal: () => void,
+  currentModal: ?React.Node,
   // Redux state
   loadingStatus: LoadingStatus,
   // Redux dispatch functions
@@ -34,7 +37,6 @@ type Props = {
   requestAccess: (accessRequest: AccessRequest) => Promise<void>,
 };
 type State = {|
-  currentModal: ?React.Node,
   platform: DeviceType,
   email: string,
   error: ?string,
@@ -43,13 +45,15 @@ type State = {|
 class Splash extends React.PureComponent<Props, State> {
 
   static propTypes = {
+    setModal: PropTypes.func.isRequired,
+    clearModal: PropTypes.func.isRequired,
+    currentModal: PropTypes.node,
     loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     requestAccess: PropTypes.func.isRequired,
   };
   emailInput: ?HTMLInputElement;
   state = {
-    currentModal: null,
     platform: "ios",
     email: "",
     error: null,
@@ -190,7 +194,7 @@ class Splash extends React.PureComponent<Props, State> {
             <div className={css['splash-header-overscroll']} />
           </div>
         </div>
-        {this.state.currentModal}
+        {this.props.currentModal}
       </div>
     );
   }
@@ -209,10 +213,10 @@ class Splash extends React.PureComponent<Props, State> {
 
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.setModal(
+    this.props.setModal(
       <LogInModal 
-        onClose={this.clearModal}
-        setModal={this.setModal}
+        onClose={this.props.clearModal}
+        setModal={this.props.setModal}
       />
     );
   }
@@ -263,14 +267,6 @@ class Splash extends React.PureComponent<Props, State> {
       this.setState({ success: null, error: "Unknown error..." });
       throw e;
     }
-  }
-
-  setModal = (modal: ?React.Node) => {
-    this.setState({ currentModal: modal });
-  }
-
-  clearModal = () => {
-    this.setModal(null);
   }
 
 }

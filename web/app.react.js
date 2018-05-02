@@ -332,6 +332,7 @@ class App extends React.PureComponent<Props, State> {
 
     if (
       nextProps.currentNavID &&
+      nextProps.currentNavID !== "splash" &&
       (nextProps.currentNavID !== this.props.currentNavID ||
         nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
         nextProps.navInfo.endDate !== this.props.navInfo.endDate)
@@ -364,10 +365,29 @@ class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    if (!this.props.loggedIn) {
-      return <Splash />;
+    let content;
+    if (this.props.loggedIn) {
+      content = this.renderMainContent();
+    } else {
+      content = (
+        <Splash
+          setModal={this.setModal}
+          clearModal={this.clearModal}
+          currentModal={this.state.currentModal}
+        />
+      );
     }
+    // TODO: issue with moving currentModal out of stacking context...
+    // TODO: we need to pass setModal/clearModal in to Splash
+    return (
+      <React.Fragment>
+        {content}
+        {this.state.currentModal}
+      </React.Fragment>
+    );
+  }
 
+  renderMainContent() {
     const year = this.props.year;
     const month = this.props.month;
 
@@ -476,7 +496,6 @@ class App extends React.PureComponent<Props, State> {
             clearModal={this.clearModal}
             modalExists={this.state.modalExists}
           />
-          {this.state.currentModal}
         </header>
         <div className={css['main-content-container']}>
           <div className={css['main-content']}>
@@ -559,22 +578,25 @@ const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesActionTypes);
 
 export default connect(
-  (state: AppState) => ({
-    navInfo: state.navInfo,
-    verifyField: state.verifyField,
-    entriesLoadingStatus: loadingStatusSelector(state),
-    currentNavID: currentNavID(state),
-    year: yearAssertingSelector(state),
-    month: monthAssertingSelector(state),
-    currentCalendarQuery: currentCalendarQuery(state),
-    pingStartingPayload: pingStartingPayload(state),
-    pingActionInput: pingActionInput(state),
-    pingTimestamps: state.pingTimestamps,
-    sessionTimeLeft: sessionTimeLeft(state),
-    nextSessionID: nextSessionID(state),
-    loggedIn: !!(state.currentUserInfo &&
-      !state.currentUserInfo.anonymous && true),
-    cookie: state.cookie,
-  }),
+  (state: AppState) => {
+    const loggedIn = !!(state.currentUserInfo &&
+        !state.currentUserInfo.anonymous && true);
+    return {
+      navInfo: state.navInfo,
+      verifyField: state.verifyField,
+      entriesLoadingStatus: loadingStatusSelector(state),
+      currentNavID: loggedIn ? currentNavID(state) : "splash",
+      year: yearAssertingSelector(state),
+      month: monthAssertingSelector(state),
+      currentCalendarQuery: currentCalendarQuery(state),
+      pingStartingPayload: pingStartingPayload(state),
+      pingActionInput: pingActionInput(state),
+      pingTimestamps: state.pingTimestamps,
+      sessionTimeLeft: sessionTimeLeft(state),
+      nextSessionID: nextSessionID(state),
+      loggedIn,
+      cookie: state.cookie,
+    };
+  },
   { fetchEntries, ping },
 )(App);

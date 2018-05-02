@@ -29435,7 +29435,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       }
     }
 
-    if (nextProps.currentNavID && (nextProps.currentNavID !== this.props.currentNavID || nextProps.navInfo.startDate !== this.props.navInfo.startDate || nextProps.navInfo.endDate !== this.props.navInfo.endDate)) {
+    if (nextProps.currentNavID && nextProps.currentNavID !== "splash" && (nextProps.currentNavID !== this.props.currentNavID || nextProps.navInfo.startDate !== this.props.navInfo.startDate || nextProps.navInfo.endDate !== this.props.navInfo.endDate)) {
       nextProps.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__["i" /* fetchEntriesActionTypes */], nextProps.fetchEntries(nextProps.currentCalendarQuery()));
     }
 
@@ -29461,10 +29461,27 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
   }
 
   render() {
-    if (!this.props.loggedIn) {
-      return __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_36__splash_splash_react__["a" /* default */], null);
+    let content;
+    if (this.props.loggedIn) {
+      content = this.renderMainContent();
+    } else {
+      content = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_36__splash_splash_react__["a" /* default */], {
+        setModal: this.setModal,
+        clearModal: this.clearModal,
+        currentModal: this.state.currentModal
+      });
     }
+    // TODO: issue with moving currentModal out of stacking context...
+    // TODO: we need to pass setModal/clearModal in to Splash
+    return __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
+      __WEBPACK_IMPORTED_MODULE_3_react__["Fragment"],
+      null,
+      content,
+      this.state.currentModal
+    );
+  }
 
+  renderMainContent() {
     const year = this.props.year;
     const month = this.props.month;
 
@@ -29597,8 +29614,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
           setModal: this.setModal,
           clearModal: this.clearModal,
           modalExists: this.state.modalExists
-        }),
-        this.state.currentModal
+        })
       ),
       __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'div',
@@ -29732,22 +29748,25 @@ App.propTypes = {
 
 const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_18_lib_selectors_loading_selectors__["b" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__["i" /* fetchEntriesActionTypes */]);
 
-/* harmony default export */ __webpack_exports__["default"] = (Object(__WEBPACK_IMPORTED_MODULE_19_lib_utils_redux_utils__["a" /* connect */])(state => ({
-  navInfo: state.navInfo,
-  verifyField: state.verifyField,
-  entriesLoadingStatus: loadingStatusSelector(state),
-  currentNavID: Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["b" /* currentNavID */])(state),
-  year: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["c" /* yearAssertingSelector */])(state),
-  month: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["a" /* monthAssertingSelector */])(state),
-  currentCalendarQuery: Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["a" /* currentCalendarQuery */])(state),
-  pingStartingPayload: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["b" /* pingStartingPayload */])(state),
-  pingActionInput: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["a" /* pingActionInput */])(state),
-  pingTimestamps: state.pingTimestamps,
-  sessionTimeLeft: Object(__WEBPACK_IMPORTED_MODULE_23_lib_selectors_session_selectors__["f" /* sessionTimeLeft */])(state),
-  nextSessionID: Object(__WEBPACK_IMPORTED_MODULE_23_lib_selectors_session_selectors__["c" /* nextSessionID */])(state),
-  loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-  cookie: state.cookie
-}), { fetchEntries: __WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__["h" /* fetchEntries */], ping: __WEBPACK_IMPORTED_MODULE_21_lib_actions_ping_actions__["a" /* ping */] })(App));
+/* harmony default export */ __webpack_exports__["default"] = (Object(__WEBPACK_IMPORTED_MODULE_19_lib_utils_redux_utils__["a" /* connect */])(state => {
+  const loggedIn = !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true);
+  return {
+    navInfo: state.navInfo,
+    verifyField: state.verifyField,
+    entriesLoadingStatus: loadingStatusSelector(state),
+    currentNavID: loggedIn ? Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["b" /* currentNavID */])(state) : "splash",
+    year: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["c" /* yearAssertingSelector */])(state),
+    month: Object(__WEBPACK_IMPORTED_MODULE_35__selectors_nav_selectors__["a" /* monthAssertingSelector */])(state),
+    currentCalendarQuery: Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_nav_selectors__["a" /* currentCalendarQuery */])(state),
+    pingStartingPayload: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["b" /* pingStartingPayload */])(state),
+    pingActionInput: Object(__WEBPACK_IMPORTED_MODULE_20_lib_selectors_ping_selectors__["a" /* pingActionInput */])(state),
+    pingTimestamps: state.pingTimestamps,
+    sessionTimeLeft: Object(__WEBPACK_IMPORTED_MODULE_23_lib_selectors_session_selectors__["f" /* sessionTimeLeft */])(state),
+    nextSessionID: Object(__WEBPACK_IMPORTED_MODULE_23_lib_selectors_session_selectors__["c" /* nextSessionID */])(state),
+    loggedIn,
+    cookie: state.cookie
+  };
+}, { fetchEntries: __WEBPACK_IMPORTED_MODULE_17_lib_actions_entry_actions__["h" /* fetchEntries */], ping: __WEBPACK_IMPORTED_MODULE_21_lib_actions_ping_actions__["a" /* ping */] })(App));
 
 /***/ }),
 /* 252 */
@@ -59679,7 +59698,6 @@ class Splash extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       enumerable: true,
       writable: true,
       value: {
-        currentModal: null,
         platform: "ios",
         email: "",
         error: null,
@@ -59708,9 +59726,9 @@ class Splash extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
       writable: true,
       value: event => {
         event.preventDefault();
-        this.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__modals_account_log_in_modal_react__["a" /* default */], {
-          onClose: this.clearModal,
-          setModal: this.setModal
+        this.props.setModal(__WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_11__modals_account_log_in_modal_react__["a" /* default */], {
+          onClose: this.props.clearModal,
+          setModal: this.props.setModal
         }));
       }
     }), Object.defineProperty(this, 'onClickRequestAccess', {
@@ -59744,18 +59762,6 @@ class Splash extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
         }
 
         this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_7_lib_actions_user_actions__["o" /* requestAccessActionTypes */], this.requestAccessAction());
-      }
-    }), Object.defineProperty(this, 'setModal', {
-      enumerable: true,
-      writable: true,
-      value: modal => {
-        this.setState({ currentModal: modal });
-      }
-    }), Object.defineProperty(this, 'clearModal', {
-      enumerable: true,
-      writable: true,
-      value: () => {
-        this.setModal(null);
       }
     }), _temp;
   }
@@ -59960,7 +59966,7 @@ class Splash extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
           __WEBPACK_IMPORTED_MODULE_2_react__["createElement"]('div', { className: __WEBPACK_IMPORTED_MODULE_9__style_css___default.a['splash-header-overscroll'] })
         )
       ),
-      this.state.currentModal
+      this.props.currentModal
     );
   }
 
@@ -59986,6 +59992,9 @@ Object.defineProperty(Splash, 'propTypes', {
   enumerable: true,
   writable: true,
   value: {
+    setModal: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.func.isRequired,
+    clearModal: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.func.isRequired,
+    currentModal: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.node,
     loadingStatus: __WEBPACK_IMPORTED_MODULE_1_lib_types_loading_types__["a" /* loadingStatusPropType */].isRequired,
     dispatchActionPromise: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.func.isRequired,
     requestAccess: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.func.isRequired
