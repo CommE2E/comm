@@ -29332,13 +29332,15 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
         this.setModal(__WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_31__modals_account_verification_success_modal_react__["a" /* default */], { onClose: this.clearModal }));
       }
     }
-    const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(this.props.navInfo, this.props.location.pathname);
-    if (this.props.location.pathname !== newURL) {
-      __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(newURL);
-    }
+
     if (this.props.loggedIn) {
+      const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(this.props.navInfo, this.props.location.pathname);
+      if (this.props.location.pathname !== newURL) {
+        __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(newURL);
+      }
       this.startTimeouts(this.props);
     }
+
     __WEBPACK_IMPORTED_MODULE_9_visibilityjs___default.a.change(this.onVisibilityChange);
   }
 
@@ -29456,6 +29458,10 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
     }
 
     if (nextProps.loggedIn && !this.props.loggedIn) {
+      const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(nextProps.navInfo, nextProps.location.pathname);
+      if (nextProps.location.pathname !== newURL) {
+        __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(newURL);
+      }
       this.startTimeouts(nextProps);
     }
   }
@@ -29641,7 +29647,6 @@ var _initialiseProps = function () {
     writable: true,
     value: (e, state) => {
       if (state === "visible") {
-        this.possiblePing();
         this.startTimeouts(this.props);
       }
     }

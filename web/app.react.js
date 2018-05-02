@@ -166,22 +166,23 @@ class App extends React.PureComponent<Props, State> {
         );
       }
     }
-    const newURL = canonicalURLFromReduxState(
-      this.props.navInfo,
-      this.props.location.pathname,
-    );
-    if (this.props.location.pathname !== newURL) {
-      history.replace(newURL);
-    }
+
     if (this.props.loggedIn) {
+      const newURL = canonicalURLFromReduxState(
+        this.props.navInfo,
+        this.props.location.pathname,
+      );
+      if (this.props.location.pathname !== newURL) {
+        history.replace(newURL);
+      }
       this.startTimeouts(this.props);
     }
+
     Visibility.change(this.onVisibilityChange);
   }
 
   onVisibilityChange = (e, state: string) => {
     if (state === "visible") {
-      this.possiblePing();
       this.startTimeouts(this.props);
     }
   }
@@ -360,6 +361,13 @@ class App extends React.PureComponent<Props, State> {
     }
 
     if (nextProps.loggedIn && !this.props.loggedIn) {
+      const newURL = canonicalURLFromReduxState(
+        nextProps.navInfo,
+        nextProps.location.pathname,
+      );
+      if (nextProps.location.pathname !== newURL) {
+        history.replace(newURL);
+      }
       this.startTimeouts(nextProps);
     }
   }
