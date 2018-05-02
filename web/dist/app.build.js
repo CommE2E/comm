@@ -1136,7 +1136,7 @@ async function resetPassword(fetchJSON, updatePasswordInfo) {
     platform: Object(__WEBPACK_IMPORTED_MODULE_2__utils_config__["a" /* getConfig */])().platform
   }));
 
-  const userInfos = mergeUserInfos(response.user_infos, response.cookieChange.userInfos);
+  const userInfos = mergeUserInfos(response.userInfos, response.cookieChange.userInfos);
   let calendarResult = null;
   if (updatePasswordInfo.calendarQuery) {
     calendarResult = {
