@@ -3925,8 +3925,7 @@ const navInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape
   endDate: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   home: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
   threadID: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
-  calendar: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
-  chat: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.bool.isRequired,
+  tab: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.oneOf(["calendar", "chat"]).isRequired,
   verify: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string
 });
 /* harmony export (immutable) */ __webpack_exports__["a"] = navInfoPropType;
@@ -3994,8 +3993,7 @@ function reducer(inputState, action) {
         endDate: state.navInfo.endDate,
         home: false,
         threadID: action.payload.newThreadInfo.id,
-        calendar: state.navInfo.calendar,
-        chat: state.navInfo.chat,
+        tab: state.navInfo.tab,
         verify: state.navInfo.verify
       },
       currentUserInfo: state.currentUserInfo,
@@ -4024,8 +4022,7 @@ function reducer(inputState, action) {
         endDate: state.navInfo.endDate,
         home: true,
         threadID: null,
-        calendar: state.navInfo.calendar,
-        chat: state.navInfo.chat,
+        tab: state.navInfo.tab,
         verify: state.navInfo.verify
       },
       currentUserInfo: state.currentUserInfo,
@@ -7839,7 +7836,7 @@ function isPlainObject(value) {
 
 
 
-const dateExtractionRegex = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
+const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
 function yearExtractor(startDate, endDate) {
   const startDateResults = dateExtractionRegex.exec(startDate);
@@ -24070,8 +24067,7 @@ function infoFromURL(url) {
   }
   if (calendarTest) {
     returnObj.calendar = true;
-  }
-  if (chatTest) {
+  } else if (chatTest) {
     returnObj.chat = true;
   }
   return returnObj;
@@ -29314,7 +29310,6 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       }
     }
     this.state = {
-      tab: "calendar",
       modalExists: false,
       currentModal: currentModal
     };
@@ -29330,8 +29325,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
           endDate: this.props.navInfo.endDate,
           home: this.props.navInfo.home,
           threadID: this.props.navInfo.threadID,
-          calendar: this.props.navInfo.calendar,
-          chat: this.props.navInfo.chat,
+          tab: this.props.navInfo.tab,
           verify: null
         }, this.props.location.pathname);
         __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].replace(newURL);
@@ -29401,8 +29395,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       endDate: this.props.navInfo.endDate,
       home: this.props.navInfo.home,
       threadID: this.props.navInfo.threadID,
-      calendar: this.props.navInfo.calendar,
-      chat: this.props.navInfo.chat,
+      tab: this.props.navInfo.tab,
       verify: null
     }, this.props.location.pathname);
     const onClose = () => __WEBPACK_IMPORTED_MODULE_33__router_history__["a" /* default */].push(newURL);
@@ -29493,19 +29486,19 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
 
     const monthName = __WEBPACK_IMPORTED_MODULE_5_dateformat___default()(Object(__WEBPACK_IMPORTED_MODULE_15_lib_utils_date_utils__["f" /* getDate */])(year, month, 1), "mmmm");
     const calendarNavClasses = __WEBPACK_IMPORTED_MODULE_13_classnames___default()({
-      [__WEBPACK_IMPORTED_MODULE_26__style_css___default.a['current-tab']]: this.state.tab === "calendar"
+      [__WEBPACK_IMPORTED_MODULE_26__style_css___default.a['current-tab']]: this.props.navInfo.tab === "calendar"
     });
     const chatNavClasses = __WEBPACK_IMPORTED_MODULE_13_classnames___default()({
-      [__WEBPACK_IMPORTED_MODULE_26__style_css___default.a['current-tab']]: this.state.tab === "chat"
+      [__WEBPACK_IMPORTED_MODULE_26__style_css___default.a['current-tab']]: this.props.navInfo.tab === "chat"
     });
 
     let mainContent;
-    if (this.state.tab === "calendar") {
+    if (this.props.navInfo.tab === "calendar") {
       mainContent = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_29__calendar_calendar_react__["a" /* default */], {
         setModal: this.setModal,
         clearModal: this.clearModal
       });
-    } else if (this.state.tab === "chat") {
+    } else if (this.props.navInfo.tab === "chat") {
       mainContent = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_37__chat_chat_react__["a" /* default */], null);
     }
 
@@ -29696,7 +29689,9 @@ var _initialiseProps = function () {
     writable: true,
     value: event => {
       event.preventDefault();
-      this.setState({ tab: "calendar" });
+      this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], _extends({}, this.props.navInfo, {
+        tab: "calendar"
+      }));
     }
   });
   Object.defineProperty(this, 'onClickChat', {
@@ -29704,7 +29699,9 @@ var _initialiseProps = function () {
     writable: true,
     value: event => {
       event.preventDefault();
-      this.setState({ tab: "chat" });
+      this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], _extends({}, this.props.navInfo, {
+        tab: "chat"
+      }));
     }
   });
 };
@@ -46591,7 +46588,8 @@ function urlForHomeAndThreadID(home, threadID) {
 function canonicalURLFromReduxState(navInfo, currentURL) {
   const urlInfo = Object(__WEBPACK_IMPORTED_MODULE_2_lib_utils_url_utils__["a" /* infoFromURL */])(currentURL);
   const today = new Date();
-  let newURL = `/${urlForHomeAndThreadID(navInfo.home, navInfo.threadID)}`;
+  let newURL = `/${navInfo.tab}/`;
+  newURL += urlForHomeAndThreadID(navInfo.home, navInfo.threadID);
 
   const year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearExtractor */])(navInfo.startDate, navInfo.endDate);
   if (urlInfo.year !== undefined) {
@@ -46628,37 +46626,35 @@ function navInfoFromURL(url) {
     endDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["c" /* endDateForYearAndMonth */])(year, month),
     home: !!urlInfo.home,
     threadID: urlInfo.threadID ? urlInfo.threadID : null,
-    calendar: !!urlInfo.calendar,
-    chat: !!urlInfo.chat,
+    tab: urlInfo.chat ? "chat" : "calendar",
     verify: urlInfo.verify ? urlInfo.verify : null
   };
 }
 
 function ensureNavInfoValid(newNavInfo, oldNavInfo) {
-  if (newNavInfo.home || newNavInfo.threadID) {
-    return newNavInfo;
-  }
-  if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
-    return {
-      startDate: newNavInfo.startDate,
-      endDate: newNavInfo.endDate,
+  let result = newNavInfo;
+
+  if (result.home || result.threadID) {} else if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
+    result = {
+      startDate: result.startDate,
+      endDate: result.endDate,
       home: false,
       threadID: oldNavInfo.threadID,
-      calendar: newNavInfo.calendar,
-      chat: newNavInfo.chat,
-      verify: newNavInfo.verify
+      tab: result.tab,
+      verify: result.verify
     };
   } else {
-    return {
-      startDate: newNavInfo.startDate,
-      endDate: newNavInfo.endDate,
+    result = {
+      startDate: result.startDate,
+      endDate: result.endDate,
       home: true,
       threadID: null,
-      calendar: newNavInfo.calendar,
-      chat: newNavInfo.chat,
-      verify: newNavInfo.verify
+      tab: result.tab,
+      verify: result.verify
     };
   }
+
+  return result;
 }
 
 

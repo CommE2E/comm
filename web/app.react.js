@@ -117,7 +117,6 @@ type Props = {
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
 };
 type State = {
-  tab: "calendar" | "chat",
   // In null state cases, currentModal can be set to something, but modalExists
   // will be false. This is because we need to know if a modal is overlaid over
   // the null state
@@ -140,7 +139,6 @@ class App extends React.PureComponent<Props, State> {
       }
     }
     this.state = {
-      tab: "calendar",
       modalExists: false,
       currentModal: currentModal,
     };
@@ -157,8 +155,7 @@ class App extends React.PureComponent<Props, State> {
             endDate: this.props.navInfo.endDate,
             home: this.props.navInfo.home,
             threadID: this.props.navInfo.threadID,
-            calendar: this.props.navInfo.calendar,
-            chat: this.props.navInfo.chat,
+            tab: this.props.navInfo.tab,
             verify: null,
           },
           this.props.location.pathname,
@@ -271,8 +268,7 @@ class App extends React.PureComponent<Props, State> {
         endDate: this.props.navInfo.endDate,
         home: this.props.navInfo.home,
         threadID: this.props.navInfo.threadID,
-        calendar: this.props.navInfo.calendar,
-        chat: this.props.navInfo.chat,
+        tab: this.props.navInfo.tab,
         verify: null,
       },
       this.props.location.pathname,
@@ -401,21 +397,21 @@ class App extends React.PureComponent<Props, State> {
 
     const monthName = dateFormat(getDate(year, month, 1), "mmmm");
     const calendarNavClasses = classNames({
-      [css['current-tab']]: this.state.tab === "calendar",
+      [css['current-tab']]: this.props.navInfo.tab === "calendar",
     });
     const chatNavClasses = classNames({
-      [css['current-tab']]: this.state.tab === "chat",
+      [css['current-tab']]: this.props.navInfo.tab === "chat",
     });
 
     let mainContent;
-    if (this.state.tab === "calendar") {
+    if (this.props.navInfo.tab === "calendar") {
       mainContent = (
         <Calendar
           setModal={this.setModal}
           clearModal={this.clearModal}
         />
       );
-    } else if (this.state.tab === "chat") {
+    } else if (this.props.navInfo.tab === "chat") {
       mainContent = (
         <Chat />
       );
@@ -513,12 +509,24 @@ class App extends React.PureComponent<Props, State> {
 
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.setState({ tab: "calendar" });
+    this.props.dispatchActionPayload(
+      reflectRouteChangeActionType,
+      {
+        ...this.props.navInfo,
+        tab: "calendar",
+      },
+    );
   }
 
   onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.setState({ tab: "chat" });
+    this.props.dispatchActionPayload(
+      reflectRouteChangeActionType,
+      {
+        ...this.props.navInfo,
+        tab: "chat",
+      },
+    );
   }
 
 }

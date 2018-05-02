@@ -29,7 +29,8 @@ function urlForHomeAndThreadID(home: bool, threadID: ?string) {
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
   const today = new Date();
-  let newURL = `/${urlForHomeAndThreadID(navInfo.home, navInfo.threadID)}`;
+  let newURL = `/${navInfo.tab}/`;
+  newURL += urlForHomeAndThreadID(navInfo.home, navInfo.threadID);
 
   const year = yearExtractor(navInfo.startDate, navInfo.endDate);
   if (urlInfo.year !== undefined) {
@@ -76,8 +77,7 @@ function navInfoFromURL(url: string): NavInfo {
     endDate: endDateForYearAndMonth(year, month),
     home: !!urlInfo.home,
     threadID: urlInfo.threadID ? urlInfo.threadID : null,
-    calendar: !!urlInfo.calendar,
-    chat: !!urlInfo.chat,
+    tab: urlInfo.chat ? "chat" : "calendar",
     verify: urlInfo.verify ? urlInfo.verify : null,
   };
 }
@@ -86,30 +86,30 @@ function ensureNavInfoValid(
   newNavInfo: NavInfo,
   oldNavInfo?: NavInfo,
 ): NavInfo {
-  if (newNavInfo.home || newNavInfo.threadID) {
-    return newNavInfo;
-  }
-  if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
-    return {
-      startDate: newNavInfo.startDate,
-      endDate: newNavInfo.endDate,
+  let result = newNavInfo;
+
+  if (result.home || result.threadID) {
+  } else if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
+    result = {
+      startDate: result.startDate,
+      endDate: result.endDate,
       home: false,
       threadID: oldNavInfo.threadID,
-      calendar: newNavInfo.calendar,
-      chat: newNavInfo.chat,
-      verify: newNavInfo.verify,
+      tab: result.tab,
+      verify: result.verify,
     };
   } else {
-    return {
-      startDate: newNavInfo.startDate,
-      endDate: newNavInfo.endDate,
+    result = {
+      startDate: result.startDate,
+      endDate: result.endDate,
       home: true,
       threadID: null,
-      calendar: newNavInfo.calendar,
-      chat: newNavInfo.chat,
-      verify: newNavInfo.verify,
+      tab: result.tab,
+      verify: result.verify,
     };
   }
+
+  return result;
 }
 
 export {

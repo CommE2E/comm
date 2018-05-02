@@ -5,7 +5,7 @@ import type { AppState } from '../redux-setup';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-const dateExtractionRegex = /^([0-9]{4})-[0-9]{2}-[0-9]{2}$/;
+const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
 function yearExtractor(startDate: string, endDate: string): ?number {
   const startDateResults = dateExtractionRegex.exec(startDate);
