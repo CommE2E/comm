@@ -30423,12 +30423,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 function baseReducer(state, action) {
+  const threadInfos = Object(__WEBPACK_IMPORTED_MODULE_5__thread_reducer__["a" /* default */])(state.threadInfos, action);
+
   // NavInfo has to be handled differently because of the covariance
   // (see comment about "+" in redux-types.js)
   const baseNavInfo = Object(__WEBPACK_IMPORTED_MODULE_6__nav_reducer__["a" /* default */])(state.navInfo, action);
   const navInfo = baseNavInfo === state.navInfo ? state.navInfo : _extends({}, state.navInfo, baseNavInfo);
 
-  const entryStore = Object(__WEBPACK_IMPORTED_MODULE_3__entry_reducer__["a" /* reduceEntryInfos */])(state.entryStore, action);
+  const entryStore = Object(__WEBPACK_IMPORTED_MODULE_3__entry_reducer__["a" /* reduceEntryInfos */])(state.entryStore, action, threadInfos);
 
   const currentLastUserInteractionSessionReset = state.lastUserInteraction.sessionReset;
   __WEBPACK_IMPORTED_MODULE_0_invariant___default()(currentLastUserInteractionSessionReset !== undefined && currentLastUserInteractionSessionReset !== null, "sessionReset should have an entry in lastUserInteraction");
@@ -30448,9 +30450,9 @@ function baseReducer(state, action) {
     }),
     loadingStatuses: Object(__WEBPACK_IMPORTED_MODULE_2__loading_reducer__["a" /* reduceLoadingStatuses */])(state.loadingStatuses, action),
     currentUserInfo: Object(__WEBPACK_IMPORTED_MODULE_4__user_reducer__["a" /* reduceCurrentUserInfo */])(state.currentUserInfo, action),
-    threadInfos: Object(__WEBPACK_IMPORTED_MODULE_5__thread_reducer__["a" /* default */])(state.threadInfos, action),
+    threadInfos,
     userInfos: Object(__WEBPACK_IMPORTED_MODULE_4__user_reducer__["b" /* reduceUserInfos */])(state.userInfos, action),
-    messageStore: Object(__WEBPACK_IMPORTED_MODULE_9__message_reducer__["a" /* reduceMessageStore */])(state.messageStore, action),
+    messageStore: Object(__WEBPACK_IMPORTED_MODULE_9__message_reducer__["a" /* reduceMessageStore */])(state.messageStore, action, threadInfos),
     drafts: Object(__WEBPACK_IMPORTED_MODULE_11__draft_reducer__["a" /* reduceDrafts */])(state.drafts, action),
     updatesCurrentAsOf: Object(__WEBPACK_IMPORTED_MODULE_10__updates_reducer__["a" /* default */])(state.updatesCurrentAsOf, action),
     cookie: Object(__WEBPACK_IMPORTED_MODULE_7__cookie_reducer__["a" /* default */])(state.cookie, action),
@@ -35173,13 +35175,12 @@ function mergeNewEntryInfos(currentEntryInfos, oldDaysToEntries, newEntryInfos, 
   return [mergedEntryInfos, addedDaysToEntries];
 }
 
-function reduceEntryInfos(entryStore, action) {
+function reduceEntryInfos(entryStore, action, newThreadInfos) {
   const entryInfos = entryStore.entryInfos;
   const daysToEntries = entryStore.daysToEntries;
   const lastUserInteractionCalendar = entryStore.lastUserInteractionCalendar;
   if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_20__actions_thread_actions__["e" /* deleteThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_20__actions_thread_actions__["i" /* leaveThreadActionTypes */].success) {
-    const threadInfos = action.payload.threadInfos;
-    const authorizedThreadInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(`currentUser.permissions.${__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE}`)(threadInfos);
+    const authorizedThreadInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(`currentUser.permissions.${__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE}`)(newThreadInfos);
     const newEntryInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(entry => authorizedThreadInfos[entry.threadID])(entryInfos);
     const newDaysToEntries = filterExistingDaysToEntriesWithNewEntryInfos(daysToEntries, newEntryInfos);
     return {
@@ -35188,8 +35189,7 @@ function reduceEntryInfos(entryStore, action) {
       lastUserInteractionCalendar: 0
     };
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_17__utils_action_utils__["c" /* setCookieActionType */]) {
-    const threadInfos = action.payload.threadInfos;
-    const authorizedThreadInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(`currentUser.permissions.${__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE}`)(threadInfos);
+    const authorizedThreadInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(`currentUser.permissions.${__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].VISIBLE}`)(newThreadInfos);
     const newEntryInfos = __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default()(entry => authorizedThreadInfos[entry.threadID])(entryInfos);
     const newDaysToEntries = filterExistingDaysToEntriesWithNewEntryInfos(daysToEntries, newEntryInfos);
     const newLastUserInteractionCalendar = action.payload.cookieInvalidated ? 0 : lastUserInteractionCalendar;
@@ -35347,7 +35347,7 @@ function reduceEntryInfos(entryStore, action) {
     const [updatedEntryInfos, updatedDaysToEntries] = mergeNewEntryInfos(entryInfos, daysToEntries, calendarResult.rawEntryInfos, {
       prevEntryInfos: action.payload.prevState.entryInfos,
       calendarQuery: action.payload.calendarResult.calendarQuery,
-      threadInfos: action.payload.threadInfos
+      threadInfos: newThreadInfos
     });
     return {
       entryInfos: updatedEntryInfos,
@@ -37152,13 +37152,13 @@ function filterByNewThreadInfos(messageStore, threadInfos) {
   };
 }
 
-function reduceMessageStore(messageStore, action) {
+function reduceMessageStore(messageStore, action, newThreadInfos) {
   if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["s" /* resetPasswordActionTypes */].success) {
     const messagesResult = action.payload.messagesResult;
-    return freshMessageStore(messagesResult.messageInfos, messagesResult.truncationStatus, messagesResult.currentAsOf, action.payload.threadInfos);
+    return freshMessageStore(messagesResult.messageInfos, messagesResult.truncationStatus, messagesResult.currentAsOf, newThreadInfos);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_22__actions_ping_actions__["b" /* pingActionTypes */].success) {
     const messagesResult = action.payload.messagesResult;
-    const newMessageStore = mergeNewMessages(messageStore, messagesResult.messageInfos, messagesResult.truncationStatus, action.payload.threadInfos, true);
+    const newMessageStore = mergeNewMessages(messageStore, messagesResult.messageInfos, messagesResult.truncationStatus, newThreadInfos, true);
     const oldWatchedIDs = action.payload.messagesResult.watchedIDsAtRequestTime;
     const currentWatchedIDs = __WEBPACK_IMPORTED_MODULE_25__shared_thread_watcher__["a" /* default */].getWatchedIDs();
     if (__WEBPACK_IMPORTED_MODULE_8_lodash_fp_difference___default()(currentWatchedIDs)(oldWatchedIDs).length !== 0) {
@@ -37177,7 +37177,7 @@ function reduceMessageStore(messageStore, action) {
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["a" /* fetchMessagesBeforeCursorActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["b" /* fetchMostRecentMessagesActionTypes */].success) {
     return mergeNewMessages(messageStore, action.payload.rawMessageInfos, { [action.payload.threadID]: action.payload.truncationStatus }, null, false);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["k" /* logOutActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_19__actions_user_actions__["e" /* deleteAccountActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["e" /* deleteThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["i" /* leaveThreadActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_18__utils_action_utils__["c" /* setCookieActionType */]) {
-    return filterByNewThreadInfos(messageStore, action.payload.threadInfos);
+    return filterByNewThreadInfos(messageStore, newThreadInfos);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["k" /* newThreadActionTypes */].success) {
     const newThreadID = action.payload.newThreadInfo.id;
     const truncationStatuses = {};
@@ -37204,7 +37204,7 @@ function reduceMessageStore(messageStore, action) {
     const threadID = action.payload.entryInfo.threadID;
     return mergeNewMessages(messageStore, action.payload.newMessageInfos, { [threadID]: __WEBPACK_IMPORTED_MODULE_0__types_message_types__["b" /* messageTruncationStatus */].UNCHANGED }, null, false);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_21__actions_thread_actions__["g" /* joinThreadActionTypes */].success) {
-    return mergeNewMessages(messageStore, action.payload.rawMessageInfos, action.payload.truncationStatuses, action.payload.threadInfos, true);
+    return mergeNewMessages(messageStore, action.payload.rawMessageInfos, action.payload.truncationStatuses, newThreadInfos, true);
   } else if (action.type === __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__["d" /* sendMessageActionTypes */].started) {
     const payload = action.payload;
     __WEBPACK_IMPORTED_MODULE_1_invariant___default()(payload.localID, `localID should be set on ${action.type}`);
