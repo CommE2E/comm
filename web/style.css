@@ -97,6 +97,7 @@ div.main-content-container {
 }
 div.main-content {
   background-color: #FFFFFFD5;
+  min-height: calc(100% - 62px);
 }
 
 table.calendar {
@@ -249,6 +250,7 @@ div.chat-container {
   display: flex;
   align-items: center;
   flex-direction: column;
+  padding-top: 10px;
 }
 
 div.upper-right {
