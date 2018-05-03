@@ -26823,20 +26823,22 @@ function canonicalURLFromReduxState(navInfo, currentURL) {
   const today = new Date();
   let newURL = `/${navInfo.tab}/`;
 
-  const year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearExtractor */])(navInfo.startDate, navInfo.endDate);
-  if (urlInfo.year !== undefined) {
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(year !== null && year !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same year`);
-    newURL += `year/${year}/`;
-  } else if (year !== null && year !== undefined && year !== today.getFullYear()) {
-    newURL += `year/${year}/`;
-  }
+  if (navInfo.tab === "calendar") {
+    const year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearExtractor */])(navInfo.startDate, navInfo.endDate);
+    if (urlInfo.year !== undefined) {
+      __WEBPACK_IMPORTED_MODULE_0_invariant___default()(year !== null && year !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same year`);
+      newURL += `year/${year}/`;
+    } else if (year !== null && year !== undefined && year !== today.getFullYear()) {
+      newURL += `year/${year}/`;
+    }
 
-  const month = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["b" /* monthExtractor */])(navInfo.startDate, navInfo.endDate);
-  if (urlInfo.month !== undefined) {
-    __WEBPACK_IMPORTED_MODULE_0_invariant___default()(month !== null && month !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same month`);
-    newURL += `month/${month}/`;
-  } else if (month !== null && month !== undefined && month !== today.getMonth() + 1) {
-    newURL += `month/${month}/`;
+    const month = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["b" /* monthExtractor */])(navInfo.startDate, navInfo.endDate);
+    if (urlInfo.month !== undefined) {
+      __WEBPACK_IMPORTED_MODULE_0_invariant___default()(month !== null && month !== undefined, `${navInfo.startDate} and ${navInfo.endDate} aren't in the same month`);
+      newURL += `month/${month}/`;
+    } else if (month !== null && month !== undefined && month !== today.getMonth() + 1) {
+      newURL += `month/${month}/`;
+    }
   }
 
   if (navInfo.verify) {
@@ -26848,11 +26850,25 @@ function canonicalURLFromReduxState(navInfo, currentURL) {
 
 // Given a URL, this function parses out a navInfo object, leaving values as
 // default if they are unspecified. 
-function navInfoFromURL(url) {
+function navInfoFromURL(url, navInfo) {
   const urlInfo = Object(__WEBPACK_IMPORTED_MODULE_2_lib_utils_url_utils__["a" /* infoFromURL */])(url);
-  const today = new Date();
-  const year = urlInfo.year ? urlInfo.year : today.getFullYear();
-  const month = urlInfo.month ? urlInfo.month : today.getMonth() + 1;
+
+  let year = urlInfo.year;
+  if (!year && navInfo) {
+    year = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["d" /* yearExtractor */])(navInfo.startDate, navInfo.endDate);
+  }
+  if (!year) {
+    year = new Date().getFullYear();
+  }
+
+  let month = urlInfo.month;
+  if (!month && navInfo) {
+    month = Object(__WEBPACK_IMPORTED_MODULE_3__selectors_nav_selectors__["b" /* monthExtractor */])(navInfo.startDate, navInfo.endDate);
+  }
+  if (!month) {
+    month = new Date().getMonth() + 1;
+  }
+
   return {
     startDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["h" /* startDateForYearAndMonth */])(year, month),
     endDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["c" /* endDateForYearAndMonth */])(year, month),
@@ -29531,7 +29547,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
-      const newNavInfo = Object(__WEBPACK_IMPORTED_MODULE_24__url_utils__["b" /* navInfoFromURL */])(nextProps.location.pathname);
+      const newNavInfo = Object(__WEBPACK_IMPORTED_MODULE_24__url_utils__["b" /* navInfoFromURL */])(nextProps.location.pathname, nextProps.navInfo);
       if (!__WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual___default()(newNavInfo)(nextProps.navInfo)) {
         this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], newNavInfo);
       }
