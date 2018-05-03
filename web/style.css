@@ -47,6 +47,7 @@ header.header {
 }
 div.main-header {
   font-family: 'Anaheim', sans-serif;
+  height: 62px;
 }
 div.main-header > h1 {
   position: absolute;
@@ -103,6 +104,7 @@ div.main-content {
 table.calendar {
   width: 100%;
   table-layout: fixed;
+  border-collapse: collapse;
 }
 table.calendar > thead > tr > th {
   padding-bottom: 6px;
@@ -126,7 +128,8 @@ textarea.entry-text {
     "Helvetica Neue", sans-serif;
   font-size: 11px;
 }
-td.day {
+table.calendar td.day {
+  border: 1px solid transparent;
   background-color: white;
   position: relative;
   vertical-align: top;
@@ -486,22 +489,20 @@ span.thread-nav-pager-status {
   vertical-align: top;
 }
 
-div.upper-center {
-  color: white;
+h2.calendar-nav {
+  font-family: 'Anaheim', sans-serif;
   text-align: center;
-  margin: 11px auto 0 auto;
+  margin: 0 auto 20px auto;
   width: 200px;
-  background-color: #22222222;
-  padding: 6px 18px;
-  border-radius: 15px;
+  color: #333333;
 }
-div.upper-center a.previous-month-link {
+h2.calendar-nav > a.previous-month-link {
   position: absolute;
   left: 50%;
   margin-left: -100px;
   color: #036AFF;
 }
-div.upper-center a.next-month-link {
+h2.calendar-nav > a.next-month-link {
   position: absolute;
   right: 50%;
   margin-right: -100px;

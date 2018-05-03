@@ -1,8 +1,7 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState, NavInfo } from './redux-setup';
-import { navInfoPropType } from './redux-setup';
+import { type AppState, type NavInfo, navInfoPropType } from './redux-setup';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -19,8 +18,6 @@ import {
 
 import * as React from 'react';
 import invariant from 'invariant';
-import dateFormat from 'dateformat';
-import { Link } from 'react-router-dom';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
 import Visibility from 'visibilityjs';
@@ -30,11 +27,7 @@ import faChat from '@fortawesome/fontawesome-free-solid/faComments';
 import classNames from 'classnames';
 import fontawesome from '@fortawesome/fontawesome';
 
-import {
-  getDate,
-  startDateForYearAndMonth,
-  endDateForYearAndMonth,
-} from 'lib/utils/date-utils';
+import { getDate } from 'lib/utils/date-utils';
 import {
   currentNavID,
   currentCalendarQuery,
@@ -70,10 +63,6 @@ import VerificationSuccessModal
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
 import IntroModal from './modals/intro-modal.react';
-import {
-  yearAssertingSelector,
-  monthAssertingSelector,
-} from './selectors/nav-selectors';
 import { reflectRouteChangeActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
@@ -94,8 +83,6 @@ type Props = {
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
   currentNavID: ?string,
-  year: number,
-  month: number,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
@@ -377,34 +364,6 @@ class App extends React.PureComponent<Props, State> {
   }
 
   renderMainContent() {
-    const year = this.props.year;
-    const month = this.props.month;
-
-    const lastMonthDate = getDate(year, month - 1, 1);
-    const prevYear = lastMonthDate.getFullYear();
-    const prevMonth = lastMonthDate.getMonth() + 1;
-    const prevURL = canonicalURLFromReduxState(
-      {
-        ...this.props.navInfo,
-        startDate: startDateForYearAndMonth(prevYear, prevMonth),
-        endDate: endDateForYearAndMonth(prevYear, prevMonth),
-      },
-      this.props.location.pathname,
-    );
-
-    const nextMonthDate = getDate(year, month + 1, 1);
-    const nextYear = nextMonthDate.getFullYear();
-    const nextMonth = nextMonthDate.getMonth() + 1;
-    const nextURL = canonicalURLFromReduxState(
-      {
-        ...this.props.navInfo,
-        startDate: startDateForYearAndMonth(nextYear, nextMonth),
-        endDate: endDateForYearAndMonth(nextYear, nextMonth),
-      },
-      this.props.location.pathname,
-    );
-
-    const monthName = dateFormat(getDate(year, month, 1), "mmmm");
     const calendarNavClasses = classNames({
       [css['current-tab']]: this.props.navInfo.tab === "calendar",
     });
@@ -418,6 +377,7 @@ class App extends React.PureComponent<Props, State> {
         <Calendar
           setModal={this.setModal}
           clearModal={this.clearModal}
+          url={this.props.location.pathname}
         />
       );
     } else if (this.props.navInfo.tab === "chat") {
@@ -451,21 +411,6 @@ class App extends React.PureComponent<Props, State> {
                 </a></div>
               </li>
             </ul>
-            <div className={css['upper-center']}>
-              <h2>
-                <Link to={prevURL} className={css['previous-month-link']}>
-                  &lt;
-                </Link>
-                {" "}
-                {monthName}
-                {" "}
-                {year}
-                {" "}
-                <Link to={nextURL} className={css['next-month-link']}>
-                  &gt;
-                </Link>
-              </h2>
-            </div>
             <div className={css['upper-right']}>
               <LoadingIndicator
                 status={this.props.entriesLoadingStatus}
@@ -547,8 +492,6 @@ App.propTypes = {
   verifyField: PropTypes.number,
   entriesLoadingStatus: PropTypes.string.isRequired,
   currentNavID: PropTypes.string,
-  year: PropTypes.number.isRequired,
-  month: PropTypes.number.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
   pingActionInput: PropTypes.func.isRequired,
@@ -576,8 +519,6 @@ export default connect(
       verifyField: state.verifyField,
       entriesLoadingStatus: loadingStatusSelector(state),
       currentNavID: loggedIn ? currentNavID(state) : "splash",
-      year: yearAssertingSelector(state),
-      month: monthAssertingSelector(state),
       currentCalendarQuery: currentCalendarQuery(state),
       pingStartingPayload: pingStartingPayload(state),
       pingActionInput: pingActionInput(state),
