@@ -3,10 +3,10 @@
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import _filter from 'lodash/fp/filter';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
@@ -18,7 +18,11 @@ import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
-import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
+import {
+  memberThreadInfos,
+  currentDaysToEntries,
+} from 'lib/selectors/thread-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 import Day from './day.react';
 import {
@@ -37,6 +41,7 @@ type Props = {
   month: number, // 1-indexed
   daysToEntries: {[dayString: string]: EntryInfo[]},
   navInfo: NavInfo,
+  threadInfos: $ReadOnlyArray<ThreadInfo>,
 };
 
 class Calendar extends React.PureComponent<Props> {
@@ -51,6 +56,7 @@ class Calendar extends React.PureComponent<Props> {
       PropTypes.arrayOf(entryInfoPropType),
     ).isRequired,
     navInfo: navInfoPropType.isRequired,
+    threadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
   };
 
   getDate(
@@ -137,35 +143,55 @@ class Calendar extends React.PureComponent<Props> {
       }
     }
 
+    const filters = this.props.threadInfos.map(
+      threadInfo => (
+        <div className={css['calendar-filter-option']}>
+          <input type="checkbox" />
+          <span>{threadInfo.uiName}</span>
+        </div>
+      ),
+    );
+    const filterPanel = (
+      <div className={css['calendar-filters-container']}>
+        <div className={css['calendar-filters']}>
+          {filters}
+        </div>
+      </div>
+    );
+
     return (
-      <div>
-        <h2 className={css['calendar-nav']}>
-          <Link to={prevURL} className={css['previous-month-link']}>
-            &lt;
-          </Link>
-          {" "}
-          {monthName}
-          {" "}
-          {year}
-          {" "}
-          <Link to={nextURL} className={css['next-month-link']}>
-            &gt;
-          </Link>
-        </h2>
-        <table className={css['calendar']}>
-          <thead>
-            <tr>
-              <th>Sunday</th>
-              <th>Monday</th>
-              <th>Tuesday</th>
-              <th>Wednesday</th>
-              <th>Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </table>
+      <div className={css['calendar-container']}>
+        <div className={css['calendar-content']}>
+          <h2 className={css['calendar-nav']}>
+            <Link to={prevURL} className={css['previous-month-link']}>
+              &lt;
+            </Link>
+            <div className={css['calendar-month-name']}>
+              {" "}
+              {monthName}
+              {" "}
+              {year}
+              {" "}
+            </div>
+            <Link to={nextURL} className={css['next-month-link']}>
+              &gt;
+            </Link>
+          </h2>
+          <table className={css['calendar']}>
+            <thead>
+              <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+              </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -177,4 +203,5 @@ export default connect((state: AppState): * => ({
   month: monthAssertingSelector(state),
   daysToEntries: currentDaysToEntries(state),
   navInfo: state.navInfo,
+  threadInfos: memberThreadInfos(state),
 }))(Calendar);

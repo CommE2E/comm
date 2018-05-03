@@ -96,15 +96,13 @@ div.main-content-container {
   min-height: calc(100% - 62px);
 }
 div.main-content {
-  padding: 20px;
   background-color: #FFFFFFD5;
-  min-height: calc(100% - 102px);
 }
 
 table.calendar {
-  width: 100%;
   table-layout: fixed;
-  border-collapse: collapse;
+  padding: 10px;
+  width: 100%;
 }
 table.calendar > thead > tr > th {
   padding-bottom: 6px;
@@ -489,24 +487,55 @@ span.thread-nav-pager-status {
   vertical-align: top;
 }
 
+div.calendar-container {
+}
+div.calendar-filters-container {
+  position: fixed;
+  overflow-y: auto;
+  width: 300px;
+  top: 62px;
+  bottom: 0;
+  color: #CCCCCC;
+  background-image: url(../images/background.png);
+  background-size: 3000px 2000px;
+  background-attachment: fixed;
+}
+div.calendar-filters {
+  background-color: #000000CC;
+  padding: 5px 10px;
+}
+div.calendar-filter-option {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 5px 0;
+}
+div.calendar-filter-option > span {
+  padding-left: 5px;
+}
+div.calendar-content {
+  min-height: calc(100% - 72px);
+  padding-top: 10px;
+}
+
 h2.calendar-nav {
   font-family: 'Anaheim', sans-serif;
   text-align: center;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 15px auto;
   width: 200px;
   color: #333333;
 }
 h2.calendar-nav > a.previous-month-link {
-  position: absolute;
-  left: 50%;
   margin-left: -100px;
   color: #036AFF;
 }
 h2.calendar-nav > a.next-month-link {
-  position: absolute;
-  right: 50%;
   margin-right: -100px;
   color: #036AFF;
+}
+h2.calendar-nav > div.calendar-month-name {
+  display: inline-block;
+  width: 200px;
 }
 
 div.lower-left {
@@ -1429,12 +1458,14 @@ div.custom-select select:focus {
   only screen and (min-device-pixel-ratio: 2.0),
   only screen and (min-resolution: 320dpi),
   only screen and (min-resolution: 2.0dppx) {
+  header.header,
   header.main-header,
   div.splash-header-container,
   div.splash-top-container,
   div.splash-bottom,
   div.modal-container,
-  ul.nav-bar > li.current-tab {
+  ul.nav-bar > li.current-tab,
+  div.calendar-filters-container {
     background-image: url(../images/background@2x.png);
   }
 }
