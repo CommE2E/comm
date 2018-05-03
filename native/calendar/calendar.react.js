@@ -13,6 +13,10 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import {
+  type CalendarFilter,
+  calendarFilterPropType,
+} from 'lib/types/filter-types';
 
 import React from 'react';
 import {
@@ -49,7 +53,6 @@ import {
   fetchEntriesWithRange,
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { simpleNavIDSelector } from 'lib/selectors/nav-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import Modal from 'react-native-modal';
 
@@ -111,7 +114,7 @@ type Props = {
   sessionExpired: () => bool,
   startDate: string,
   endDate: string,
-  simpleNavID: string,
+  calendarFilters: $ReadOnlyArray<CalendarFilter>,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -157,7 +160,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     sessionExpired: PropTypes.func.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
-    simpleNavID: PropTypes.string.isRequired,
+    calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchEntriesWithRange: PropTypes.func.isRequired,
   };
@@ -980,9 +983,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.props.dispatchActionPromise(
       fetchEntriesAndAppendRangeActionTypes,
       this.props.fetchEntriesWithRange({
-        navID: this.props.simpleNavID,
         startDate: dateString(start),
         endDate: dateString(end),
+        filters: this.props.calendarFilters,
       }),
     );
   }
@@ -1084,7 +1087,7 @@ const Calendar = connect(
     sessionExpired: sessionExpired(state),
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
-    simpleNavID: simpleNavIDSelector(state),
+    calendarFilters: state.calendarFilters,
   }),
   { fetchEntriesWithRange },
 )(InnerCalendar);

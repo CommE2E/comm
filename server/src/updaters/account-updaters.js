@@ -23,8 +23,8 @@ import { verifyCode, clearVerifyCodes } from '../models/verification';
 import { createNewUserCookie } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { verifyThreadID } from '../fetchers/thread-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 
 async function accountUpdater(
   viewer: Viewer,
@@ -148,15 +148,13 @@ async function updatePassword(
 
   const calendarQuery = request.calendarQuery;
   const promises = {};
-  if (calendarQuery && calendarQuery.navID !== "home") {
-    promises.validThreadID = verifyThreadID(calendarQuery.navID);
+  if (calendarQuery) {
+    promises.verifyCalendarQueryThreadIDs =
+      verifyCalendarQueryThreadIDs(calendarQuery);
   }
   promises.verificationResult = verifyCode(request.code);
-  const { validThreadID, verificationResult } = await promiseAll(promises);
+  const { verificationResult } = await promiseAll(promises);
 
-  if (validThreadID === false) {
-    throw new ServerError('invalid_parameters');
-  }
   const { userID, field } = verificationResult;
   if (field !== verifyField.RESET_PASSWORD) {
     throw new ServerError('invalid_code');

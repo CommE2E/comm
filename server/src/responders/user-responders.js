@@ -50,8 +50,11 @@ import {
 } from '../deleters/cookie-deleters';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
-import { entryQueryInputValidator } from './entry-responders';
-import { verifyThreadID } from '../fetchers/thread-fetchers';
+import {
+  entryQueryInputValidator,
+  normalizeCalendarQuery,
+  verifyCalendarQueryThreadIDs,
+} from './entry-responders';
 import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
@@ -177,13 +180,15 @@ async function logInResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
+  validateInput(logInRequestInputValidator, input);
   const request: LogInRequest = input;
-  validateInput(logInRequestInputValidator, request);
+  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   const calendarQuery = request.calendarQuery;
   const promises = {};
-  if (calendarQuery && calendarQuery.navID !== "home") {
-    promises.validThreadID = verifyThreadID(calendarQuery.navID);
+  if (calendarQuery) {
+    promises.verifyCalendarQueryThreadIDs =
+      verifyCalendarQueryThreadIDs(calendarQuery);
   }
   const userQuery = SQL`
     SELECT id, hash, username, email, email_verified
@@ -192,14 +197,8 @@ async function logInResponder(
       OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
   promises.userQuery = dbQuery(userQuery);
-  const {
-    validThreadID,
-    userQuery: [ userResult ],
-  } = await promiseAll(promises);
+  const { userQuery: [ userResult ] } = await promiseAll(promises);
 
-  if (validThreadID === false) {
-    throw new ServerError('invalid_parameters');
-  }
   if (userResult.length === 0) {
     throw new ServerError('invalid_parameters');
   }
@@ -272,8 +271,9 @@ async function passwordUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
+  validateInput(updatePasswordRequestInputValidator, input);
   const request: UpdatePasswordRequest = input;
-  validateInput(updatePasswordRequestInputValidator, request);
+  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   const response = await updatePassword(viewer, request);
 
   if (request.deviceTokenUpdateRequest) {

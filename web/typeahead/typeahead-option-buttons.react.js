@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 
 import * as React from 'react';
 
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 import {
   joinThreadActionTypes,
   joinThread,
@@ -50,7 +50,7 @@ type Props = {
   // Redux state
   loadingStatus: LoadingStatus,
   otherUsersButNoOtherAdmins: bool,
-  currentCalendarQuery: () => CalendarQuery,
+  calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -124,14 +124,16 @@ class TypeaheadOptionButtons extends React.PureComponent<Props> {
   }
 
   async joinAction() {
-    const query = this.props.currentCalendarQuery();
+    const query = this.props.calendarQuery();
     return await this.props.joinThread({
       threadID: this.props.threadInfo.id,
       calendarQuery: {
-        navID: this.props.threadInfo.id,
         startDate: query.startDate,
         endDate: query.endDate,
-        includeDeleted: query.includeDeleted,
+        filters: [
+          ...query.filters,
+          { type: "threads", threadIDs: [this.props.threadInfo.id] },
+        ],
       },
     });
   }
@@ -200,7 +202,7 @@ TypeaheadOptionButtons.propTypes = {
   focusTypeahead: PropTypes.func.isRequired,
   loadingStatus: PropTypes.string.isRequired,
   otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
-  currentCalendarQuery: PropTypes.func.isRequired,
+  calendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   joinThread: PropTypes.func.isRequired,
   leaveThread: PropTypes.func.isRequired,
@@ -220,7 +222,7 @@ export default connect(
     ),
     otherUsersButNoOtherAdmins:
       otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
-    currentCalendarQuery: currentCalendarQuery(state),
+    calendarQuery: nonThreadCalendarQuery(state),
   }),
   { joinThread, leaveThread },
 )(TypeaheadOptionButtons);

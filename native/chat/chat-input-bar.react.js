@@ -49,7 +49,7 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
 
@@ -63,7 +63,7 @@ type Props = {
   viewerID: ?string,
   draft: string,
   joinThreadLoadingStatus: LoadingStatus,
-  currentCalendarQuery: () => CalendarQuery,
+  calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -83,7 +83,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
-    currentCalendarQuery: PropTypes.func.isRequired,
+    calendarQuery: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
@@ -292,14 +292,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   async joinAction() {
-    const query = this.props.currentCalendarQuery();
+    const query = this.props.calendarQuery();
     return await this.props.joinThread({
       threadID: this.props.threadInfo.id,
       calendarQuery: {
-        navID: this.props.threadInfo.id,
         startDate: query.startDate,
         endDate: query.endDate,
-        includeDeleted: query.includeDeleted,
+        filters: [
+          ...query.filters,
+          { type: "threads", threadIDs: [this.props.threadInfo.id] },
+        ],
       },
     });
   }
@@ -381,7 +383,7 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-      currentCalendarQuery: currentCalendarQuery(state),
+      calendarQuery: nonThreadCalendarQuery(state),
     };
   },
   { sendMessage, joinThread },

@@ -14,9 +14,13 @@ import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 
 import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
-import { entryQueryInputValidator } from './entry-responders';
+import {
+  entryQueryInputValidator,
+  normalizeCalendarQuery,
+  verifyCalendarQueryThreadIDs,
+} from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
-import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
@@ -53,6 +57,7 @@ async function pingResponder(
   input: any,
 ): Promise<PingResponse> {
   const request: PingRequest = input;
+  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   validateInput(pingRequestInputValidator, request);
 
   let clientMessagesCurrentAsOf;
@@ -71,14 +76,7 @@ async function pingResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const navID = request.calendarQuery.navID;
-  let validNav = navID === "home";
-  if (!validNav) {
-    validNav = await verifyThreadID(navID);
-  }
-  if (!validNav) {
-    throw new ServerError('invalid_parameters');
-  }
+  await verifyCalendarQueryThreadIDs(request.calendarQuery);
 
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {

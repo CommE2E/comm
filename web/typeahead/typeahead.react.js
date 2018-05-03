@@ -30,6 +30,7 @@ import {
 } from 'lib/selectors/thread-selectors';
 import * as TypeaheadText from 'lib/shared/typeahead-text';
 import { connect } from 'lib/utils/redux-utils';
+import { activeFilterThreadID } from 'lib/selectors/calendar-filter-selectors';
 
 import css from '../style.css';
 import TypeaheadActionOption from './typeahead-action-option.react';
@@ -50,7 +51,7 @@ type Props = {
   modalExists: bool,
   // Redux state
   currentNavID: ?string,
-  currentlyHome: bool,
+  activeFilterThreadID: ?string,
   threadSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
   sortedThreadInfos: {[id: string]: ThreadInfo[]},
@@ -84,7 +85,7 @@ class Typeahead extends React.PureComponent<Props, State> {
   }
 
   static getCurrentNavName(props: Props) {
-    if (props.currentlyHome) {
+    if (!props.activeFilterThreadID) {
       return TypeaheadText.homeText;
     } else if (props.currentNavID) {
       return props.threadInfos[props.currentNavID].uiName;
@@ -178,7 +179,7 @@ class Typeahead extends React.PureComponent<Props, State> {
           />
         );
       }
-      if (!this.props.currentlyHome) {
+      if (this.props.activeFilterThreadID) {
         panes.push(
           <TypeaheadPane
             paneTitle="Home"
@@ -525,7 +526,7 @@ class Typeahead extends React.PureComponent<Props, State> {
 Typeahead.propTypes = {
   currentNavID: PropTypes.string,
   threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
-  currentlyHome: PropTypes.bool.isRequired,
+  activeFilterThreadID: PropTypes.string,
   threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
   sortedThreadInfos: PropTypes.objectOf(
     PropTypes.arrayOf(threadInfoPropType),
@@ -539,7 +540,7 @@ export default connect(
   (state: AppState) => ({
     currentNavID: currentNavID(state),
     threadInfos: threadInfoSelector(state),
-    currentlyHome: state.navInfo.home,
+    activeFilterThreadID: activeFilterThreadID(state),
     threadSearchIndex: threadSearchIndex(state),
     sortedThreadInfos: typeaheadSortedThreadInfos(state),
   }),

@@ -57,12 +57,9 @@ import {
   nextSessionID,
 } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
+import { activeFilterThreadID } from 'lib/selectors/calendar-filter-selectors';
 
-import {
-  canonicalURLFromReduxState,
-  navInfoFromURL,
-  ensureNavInfoValid,
-} from './url-utils';
+import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
 import AccountBar from './account-bar.react';
 import Typeahead from './typeahead/typeahead.react';
@@ -106,6 +103,7 @@ type Props = {
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
   loggedIn: bool,
+  activeFilterThreadID: ?string,
   cookie: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -132,7 +130,7 @@ class App extends React.PureComponent<Props, State> {
     super(props);
     let currentModal = null;
     if (!props.currentNavID) {
-      if (props.navInfo.home) {
+      if (!props.activeFilterThreadID) {
         currentModal = <IntroModal />;
       } else {
         currentModal = <div className={css['modal-overlay']} />;
@@ -153,8 +151,6 @@ class App extends React.PureComponent<Props, State> {
           {
             startDate: this.props.navInfo.startDate,
             endDate: this.props.navInfo.endDate,
-            home: this.props.navInfo.home,
-            threadID: this.props.navInfo.threadID,
             tab: this.props.navInfo.tab,
             verify: null,
           },
@@ -267,8 +263,6 @@ class App extends React.PureComponent<Props, State> {
       {
         startDate: this.props.navInfo.startDate,
         endDate: this.props.navInfo.endDate,
-        home: this.props.navInfo.home,
-        threadID: this.props.navInfo.threadID,
         tab: this.props.navInfo.tab,
         verify: null,
       },
@@ -284,21 +278,10 @@ class App extends React.PureComponent<Props, State> {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = navInfoFromURL(nextProps.location.pathname);
-      const validatedNavInfo = ensureNavInfoValid(
-        newNavInfo,
-        nextProps.navInfo,
-      );
-      if (validatedNavInfo !== newNavInfo) {
-        const newURL = canonicalURLFromReduxState(
-          validatedNavInfo,
-          nextProps.location.pathname,
-        );
-        history.replace(newURL);
-      }
-      if (!_isEqual(validatedNavInfo)(nextProps.navInfo)) {
+      if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
         this.props.dispatchActionPayload(
           reflectRouteChangeActionType,
-          validatedNavInfo,
+          newNavInfo,
         );
       }
     } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
@@ -314,13 +297,13 @@ class App extends React.PureComponent<Props, State> {
     if (!this.state.modalExists) {
       let newModal = undefined;
       if (
-        (nextProps.navInfo.home && !nextProps.currentNavID) &&
-        (!this.props.navInfo.home || this.props.currentNavID)
+        (!nextProps.activeFilterThreadID && !nextProps.currentNavID) &&
+        (this.props.activeFilterThreadID || this.props.currentNavID)
       ) {
         newModal = <IntroModal />;
       } else if (
-        (nextProps.navInfo.threadID && !nextProps.currentNavID) &&
-        (!this.props.navInfo.threadID || this.props.currentNavID)
+        (nextProps.activeFilterThreadID && !nextProps.currentNavID) &&
+        (!this.props.activeFilterThreadID || this.props.currentNavID)
       ) {
         newModal = <div className={css['modal-overlay']} />;
       } else if (nextProps.currentNavID && !this.props.currentNavID) {
@@ -385,8 +368,6 @@ class App extends React.PureComponent<Props, State> {
         />
       );
     }
-    // TODO: issue with moving currentModal out of stacking context...
-    // TODO: we need to pass setModal/clearModal in to Splash
     return (
       <React.Fragment>
         {content}
@@ -523,7 +504,7 @@ class App extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     let currentModal = null;
-    if (!this.props.currentNavID && this.props.navInfo.home) {
+    if (!this.props.currentNavID && !this.props.activeFilterThreadID) {
       currentModal = <IntroModal />;
     } else if (!this.props.currentNavID) {
       currentModal = <div className={css['modal-overlay']} />;
@@ -575,6 +556,7 @@ App.propTypes = {
   sessionTimeLeft: PropTypes.func.isRequired,
   nextSessionID: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
+  activeFilterThreadID: PropTypes.string,
   cookie: PropTypes.string,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -603,6 +585,7 @@ export default connect(
       sessionTimeLeft: sessionTimeLeft(state),
       nextSessionID: nextSessionID(state),
       loggedIn,
+      activeFilterThreadID: activeFilterThreadID(state),
       cookie: state.cookie,
     };
   },

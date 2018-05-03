@@ -4,6 +4,7 @@ import type { $Response, $Request } from 'express';
 import type { AppState, Action } from 'web/redux-setup';
 import type { Store } from 'redux';
 import { defaultPingTimestamps } from 'lib/types/ping-types';
+import { defaultCalendarFilters } from 'lib/types/filter-types';
 
 import html from 'common-tags/lib/html';
 import { createStore } from 'redux';
@@ -25,10 +26,9 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
-import { simpleNavID } from 'lib/selectors/nav-selectors';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
-import { navInfoFromURL, ensureNavInfoValid } from 'web/url-utils';
+import { navInfoFromURL } from 'web/url-utils';
 
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
@@ -48,7 +48,7 @@ const { reducer } = ReduxSetup;
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   let navInfo;
   try {
-    navInfo = ensureNavInfoValid(navInfoFromURL(url));
+    navInfo = navInfoFromURL(url);
   } catch (e) {
     throw new ServerError(e.message);
   }
@@ -56,7 +56,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   const calendarQuery = {
     startDate: navInfo.startDate,
     endDate: navInfo.endDate,
-    navID: simpleNavID(navInfo),
+    filters: defaultCalendarFilters,
   };
   const threadSelectionCriteria = { joinedThreads: true };
   const initialTime = Date.now();
@@ -127,6 +127,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       loadingStatuses: {},
       pingTimestamps: defaultPingTimestamps,
       activeServerRequests: [],
+      calendarFilters: defaultCalendarFilters,
       cookie: undefined,
       deviceToken: null,
       // We can use paths local to the <base href> on web

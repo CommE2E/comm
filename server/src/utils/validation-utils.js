@@ -11,7 +11,11 @@ function validateInput(inputValidator: *, input: *) {
 }
 
 function tBool(value: bool) {
-  return t.irreducible('true', x => x === value);
+  return t.irreducible('literal bool', x => x === value);
+}
+
+function tString(value: string) {
+  return t.irreducible('literal string', x => x === value);
 }
 
 function tShape(spec: *) {
@@ -44,6 +48,7 @@ const tDeviceType = t.maybe(t.enums.of(['ios', 'android']));
 export {
   validateInput,
   tBool,
+  tString,
   tShape,
   tRegex,
   tNumEnum,

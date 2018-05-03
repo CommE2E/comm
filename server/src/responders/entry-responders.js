@@ -16,14 +16,21 @@ import type {
   FetchEntryRevisionInfosResult,
   FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types';
+import { threadPermissions } from 'lib/types/thread-types';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
-import { threadPermissions } from 'lib/types/thread-types';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 
-import { validateInput, tShape, tDate } from '../utils/validation-utils';
-import { verifyThreadID } from '../fetchers/thread-fetchers';
+import {
+  validateInput,
+  tString,
+  tShape,
+  tDate,
+} from '../utils/validation-utils';
+import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
   fetchEntryRevisionInfo,
@@ -33,26 +40,68 @@ import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
 
 const entryQueryInputValidator = tShape({
-  navID: t.String,
+  navID: t.maybe(t.String),
   startDate: tDate,
   endDate: tDate,
   includeDeleted: t.maybe(t.Boolean),
+  filters: t.maybe(t.list(t.union([
+    tShape({
+      type: tString(calendarThreadFilterTypes.NOT_DELETED),
+    }),
+    tShape({
+      type: tString(calendarThreadFilterTypes.THREAD_LIST),
+      threadIDs: t.list(t.String),
+    }),
+  ]))),
 });
+
+function normalizeCalendarQuery(
+  input: any,
+): CalendarQuery {
+  if (input.filters) {
+    return {
+      startDate: input.startDate,
+      endDate: input.endDate,
+      filters: input.filters,
+    };
+  }
+  const filters = [];
+  if (!input.includeDeleted) {
+    filters.push({ type: calendarThreadFilterTypes.NOT_DELETED });
+  }
+  if (input.navID !== "home") {
+    filters.push({
+      type: calendarThreadFilterTypes.THREAD_LIST,
+      threadIDs: [input.navID],
+    });
+  }
+  return {
+    startDate: input.startDate,
+    endDate: input.endDate,
+    filters,
+  };
+}
+
+async function verifyCalendarQueryThreadIDs(
+  request: CalendarQuery,
+): Promise<void> {
+  const threadIDsToFilterTo = filteredThreadIDs(request.filters);
+  if (threadIDsToFilterTo && threadIDsToFilterTo.size > 0) {
+    const verifiedThreadIDs = await verifyThreadIDs([...threadIDsToFilterTo ]);
+    if (verifiedThreadIDs.length !== threadIDsToFilterTo.size) {
+      throw new ServerError('invalid_parameters');
+    }
+  }
+}
 
 async function entryFetchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<FetchEntryInfosResponse> {
-  const request: CalendarQuery = input;
-  validateInput(entryQueryInputValidator, request);
+  validateInput(entryQueryInputValidator, input);
+  const request = normalizeCalendarQuery(input);
 
-  let validNav = request.navID === "home";
-  if (!validNav) {
-    validNav = await verifyThreadID(request.navID);
-  }
-  if (!validNav) {
-    throw new ServerError('invalid_parameters');
-  }
+  await verifyCalendarQueryThreadIDs(request);
 
   return await fetchEntryInfos(viewer, request);
 }
@@ -138,6 +187,8 @@ async function entryRestorationResponder(
 
 export {
   entryQueryInputValidator,
+  normalizeCalendarQuery,
+  verifyCalendarQueryThreadIDs,
   entryFetchResponder,
   entryRevisionFetchResponder,
   entryCreationResponder,

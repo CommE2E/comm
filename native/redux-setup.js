@@ -18,6 +18,10 @@ import {
   defaultPingTimestamps,
 } from 'lib/types/ping-types';
 import type { ServerRequest } from 'lib/types/request-types';
+import {
+  type CalendarFilter,
+  defaultCalendarFilters,
+} from 'lib/types/filter-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -79,6 +83,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   pingTimestamps: PingTimestamps,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
+  calendarFilters: $ReadOnlyArray<CalendarFilter>,
   cookie: ?string,
   deviceToken: ?string,
   urlPrefix: string,
@@ -111,6 +116,7 @@ const defaultState = ({
   loadingStatuses: {},
   pingTimestamps: defaultPingTimestamps,
   activeServerRequests: [],
+  calendarFilters: defaultCalendarFilters,
   cookie: null,
   deviceToken: null,
   urlPrefix: defaultURLPrefix(),
@@ -167,8 +173,6 @@ function reducer(state: AppState = defaultState, action: *) {
         navInfo = {
           startDate: navInfo.startDate,
           endDate: navInfo.endDate,
-          home: navInfo.home,
-          threadID: navInfo.threadID,
           navigationState: {
             ...navInfo.navigationState,
             routes: newRootSubRoutes,
@@ -191,6 +195,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -219,6 +224,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -246,6 +252,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -270,6 +277,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -317,6 +325,7 @@ function reducer(state: AppState = defaultState, action: *) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -358,6 +367,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -398,6 +408,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -429,6 +440,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,

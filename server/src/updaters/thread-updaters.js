@@ -22,6 +22,7 @@ import _find from 'lodash/fp/find';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -529,8 +530,15 @@ async function joinThread(
   }
 
   const calendarQuery = request.calendarQuery;
-  if (calendarQuery && calendarQuery.navID !== request.threadID) {
-    throw new ServerError('invalid_parameters');
+  if (calendarQuery) {
+    const threadFilterIDs = filteredThreadIDs(calendarQuery.filters);
+    if (
+      !threadFilterIDs ||
+      threadFilterIDs.size !== 1 ||
+      threadFilterIDs.values().next().value !== request.threadID
+    ) {
+      throw new ServerError('invalid_parameters');
+    }
   }
 
   const changeset = await changeRole(

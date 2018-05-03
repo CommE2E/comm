@@ -247,8 +247,6 @@ const defaultNavigationState = {
 const defaultNavInfo: NavInfo = {
   startDate: fifteenDaysEarlier().valueOf(),
   endDate: fifteenDaysLater().valueOf(),
-  home: true,
-  threadID: null,
   navigationState: defaultNavigationState,
 };
 
@@ -264,8 +262,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState,
     };
   }
@@ -289,8 +285,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       navInfoState = {
         startDate: navInfoState.startDate,
         endDate: navInfoState.endDate,
-        home: navInfoState.home,
-        threadID: navInfoState.threadID,
         navigationState: filteredNavigationState,
       };
     }
@@ -300,8 +294,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
   } else if (
@@ -312,8 +304,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: removeModals(
         navInfoState.navigationState,
         accountModals,
@@ -330,8 +320,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: removeModalsIfPingIndicatesLoggedIn(
         navInfoState.navigationState,
         action.payload,
@@ -341,8 +329,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: popChatScreensForThreadID(
         navInfoState.navigationState,
         action.payload,
@@ -352,8 +338,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: handleNewThread(
         navInfoState.navigationState,
         action.payload.newThreadInfo,
@@ -365,8 +349,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      home: navInfoState.home,
-      threadID: navInfoState.threadID,
       navigationState: handleNotificationPress(
         navInfoState.navigationState,
         action.payload,
@@ -485,16 +467,12 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
     return {
       startDate: defaultNavInfo.startDate,
       endDate: defaultNavInfo.endDate,
-      home: defaultNavInfo.home,
-      threadID: defaultNavInfo.threadID,
       navigationState,
     };
   } else if (currentModalIndex >= 0) {
     return {
       startDate: defaultNavInfo.startDate,
       endDate: defaultNavInfo.endDate,
-      home: defaultNavInfo.home,
-      threadID: defaultNavInfo.threadID,
       navigationState: {
         ...navigationState,
         index: currentModalIndex,
@@ -504,8 +482,6 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
   return {
     startDate: defaultNavInfo.startDate,
     endDate: defaultNavInfo.endDate,
-    home: defaultNavInfo.home,
-    threadID: defaultNavInfo.threadID,
     navigationState: {
       index: navigationState.routes.length,
       routes: [

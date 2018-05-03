@@ -4,9 +4,9 @@ import {
   type AppState,
   type NavInfo,
   navInfoPropType,
-  reflectRouteChangeActionType,
 } from '../redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { clearCalendarThreadFilter } from 'lib/types/filter-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -96,12 +96,7 @@ class TypeaheadActionOption extends React.PureComponent<Props> {
       }
     } else if (this.props.navID == 'home') {
       this.props.dispatchActionPayload(
-        reflectRouteChangeActionType,
-        {
-          ...this.props.navInfo,
-          home: true,
-          threadID: null,
-        },
+        clearCalendarThreadFilter,
       );
       this.props.onTransition();
     } 

@@ -2,6 +2,7 @@
 
 import type { AppState } from './redux-setup';
 import { defaultPingTimestamps } from 'lib/types/ping-types';
+import { defaultCalendarFilters } from 'lib/types/filter-types';
 
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
@@ -56,6 +57,10 @@ const migrations = {
     pingTimestamps: defaultPingTimestamps,
     activeServerRequests: [],
   }),
+  [5]: (state: AppState) => ({
+    ...state,
+    calendarFilters: defaultCalendarFilters,
+  }),
 };
 
 const persistConfig = {
@@ -63,7 +68,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 4,
+  version: 5,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

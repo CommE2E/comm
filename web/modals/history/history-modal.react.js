@@ -6,6 +6,10 @@ import { entryInfoPropType } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../../redux-setup';
+import {
+  type CalendarFilter,
+  calendarFilterPropType,
+} from 'lib/types/filter-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -28,13 +32,16 @@ import {
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import { allDaysToEntries } from '../../selectors/entry-selectors';
+import {
+  includeDeletedCalendarFilters,
+} from 'lib/selectors/calendar-filter-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
+import { allDaysToEntries } from '../../selectors/entry-selectors';
 
 type Props = {
   mode: HistoryMode,
@@ -46,6 +53,7 @@ type Props = {
   entryInfos: ?EntryInfo[],
   dayLoadingStatus: LoadingStatus,
   entryLoadingStatus: LoadingStatus,
+  calendarFilters: $ReadOnlyArray<CalendarFilter>,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -197,10 +205,9 @@ class HistoryModal extends React.PureComponent<Props, State> {
     this.props.dispatchActionPromise(
       fetchEntriesActionTypes,
       this.props.fetchEntries({
-        navID: currentNavID,
         startDate: this.props.dayString,
         endDate: this.props.dayString,
-        includeDeleted: true,
+        filters: this.props.calendarFilters,
       }),
     );
   }
@@ -256,6 +263,7 @@ HistoryModal.propTypes = {
   entryInfos: PropTypes.arrayOf(entryInfoPropType),
   dayLoadingStatus: PropTypes.string.isRequired,
   entryLoadingStatus: PropTypes.string.isRequired,
+  calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
   fetchRevisionsForEntry: PropTypes.func.isRequired,
@@ -273,6 +281,7 @@ export default connect(
     entryInfos: allDaysToEntries(state)[ownProps.dayString],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
+    calendarFilters: includeDeletedCalendarFilters(state),
   }),
   { fetchEntries, fetchRevisionsForEntry },
 )(HistoryModal);

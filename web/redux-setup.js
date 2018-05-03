@@ -10,6 +10,7 @@ import type { VerifyField } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { PingTimestamps } from 'lib/types/ping-types';
 import type { ServerRequest } from 'lib/types/request-types';
+import type { CalendarFilter } from 'lib/types/filter-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -29,8 +30,6 @@ export type NavInfo = {|
 export const navInfoPropType = PropTypes.shape({
   startDate: PropTypes.string.isRequired,
   endDate: PropTypes.string.isRequired,
-  home: PropTypes.bool.isRequired,
-  threadID: PropTypes.string,
   tab: PropTypes.oneOf(["calendar", "chat"]).isRequired,
   verify: PropTypes.string,
 });
@@ -52,6 +51,7 @@ export type AppState = {|
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   pingTimestamps: PingTimestamps,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
+  calendarFilters: $ReadOnlyArray<CalendarFilter>,
   cookie: ?string,
   deviceToken: ?string,
   urlPrefix: string,
@@ -89,6 +89,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
@@ -111,72 +112,11 @@ export function reducer(inputState: AppState | void, action: Action) {
       loadingStatuses: state.loadingStatuses,
       pingTimestamps: state.pingTimestamps,
       activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
       cookie: state.cookie,
       deviceToken: state.deviceToken,
       urlPrefix: state.urlPrefix,
       windowDimensions: action.payload,
-    };
-  }
-  if (action.type === newThreadActionTypes.success) {
-    state = {
-      navInfo: {
-        startDate: state.navInfo.startDate,
-        endDate: state.navInfo.endDate,
-        home: false,
-        threadID: action.payload.newThreadInfo.id,
-        tab: state.navInfo.tab,
-        verify: state.navInfo.verify,
-      },
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      verifyField: state.verifyField,
-      resetPasswordUsername: state.resetPasswordUsername,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      windowDimensions: state.windowDimensions,
-    };
-  } else if (
-    action.type === deleteThreadActionTypes.success &&
-    action.payload.threadID === state.navInfo.threadID
-  ) {
-    state = {
-      navInfo: {
-        startDate: state.navInfo.startDate,
-        endDate: state.navInfo.endDate,
-        home: true,
-        threadID: null,
-        tab: state.navInfo.tab,
-        verify: state.navInfo.verify,
-      },
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      verifyField: state.verifyField,
-      resetPasswordUsername: state.resetPasswordUsername,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      windowDimensions: state.windowDimensions,
     };
   }
   return baseReducer(state, action);

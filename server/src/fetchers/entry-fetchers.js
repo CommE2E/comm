@@ -10,9 +10,14 @@ import {
   threadPermissions,
   type ThreadPermission,
 } from 'lib/types/thread-types';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
+import {
+  filteredThreadIDs,
+  filterExists,
+} from 'lib/selectors/calendar-filter-selectors';
 
 import { dbQuery, SQL } from '../database';
 
@@ -20,12 +25,22 @@ async function fetchEntryInfos(
   viewer: Viewer,
   entryQuery: CalendarQuery,
 ): Promise<FetchEntryInfosResponse> {
-  const navCondition = entryQuery.navID === "home"
-    ? SQL`AND m.role != 0 `
-    : SQL`AND d.thread = ${entryQuery.navID} `;
-  const deletedCondition = entryQuery.includeDeleted
-    ? SQL`AND e.deleted = 0 `
-    : null;
+  let navCondition;
+  const filterToThreadIDs = filteredThreadIDs(entryQuery.filters);
+  if (filterToThreadIDs && filterToThreadIDs.size > 0) {
+    navCondition = SQL`AND d.thread IN (${[...filterToThreadIDs]}) `;
+  } else if (filterToThreadIDs) {
+    // Filter to empty set means the result is empty
+    return { rawEntryInfos: [], userInfos: {} };
+  } else {
+    navCondition = SQL`AND m.role != 0 `;
+  }
+
+  const deletedCondition =
+    filterExists(entryQuery.filters, calendarThreadFilterTypes.NOT_DELETED)
+      ? SQL`AND e.deleted = 0 `
+      : null;
+
   const viewerID = viewer.id;
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`

@@ -18,19 +18,10 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 
-function urlForHomeAndThreadID(home: bool, threadID: ?string) {
-  if (home) {
-    return "home/";
-  }
-  invariant(threadID, "either home or threadID should be set");
-  return `thread/${threadID}/`;
-}
-
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);
   const today = new Date();
   let newURL = `/${navInfo.tab}/`;
-  newURL += urlForHomeAndThreadID(navInfo.home, navInfo.threadID);
 
   const year = yearExtractor(navInfo.startDate, navInfo.endDate);
   if (urlInfo.year !== undefined) {
@@ -75,45 +66,12 @@ function navInfoFromURL(url: string): NavInfo {
   return {
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
-    home: !!urlInfo.home,
-    threadID: urlInfo.threadID ? urlInfo.threadID : null,
     tab: urlInfo.chat ? "chat" : "calendar",
     verify: urlInfo.verify ? urlInfo.verify : null,
   };
 }
 
-function ensureNavInfoValid(
-  newNavInfo: NavInfo,
-  oldNavInfo?: NavInfo,
-): NavInfo {
-  let result = newNavInfo;
-
-  if (result.home || result.threadID) {
-  } else if (oldNavInfo && !oldNavInfo.home && oldNavInfo.threadID) {
-    result = {
-      startDate: result.startDate,
-      endDate: result.endDate,
-      home: false,
-      threadID: oldNavInfo.threadID,
-      tab: result.tab,
-      verify: result.verify,
-    };
-  } else {
-    result = {
-      startDate: result.startDate,
-      endDate: result.endDate,
-      home: true,
-      threadID: null,
-      tab: result.tab,
-      verify: result.verify,
-    };
-  }
-
-  return result;
-}
-
 export {
   canonicalURLFromReduxState,
   navInfoFromURL,
-  ensureNavInfoValid,
 };
