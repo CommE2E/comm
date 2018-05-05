@@ -182,9 +182,10 @@ async function logInResponder(
 ): Promise<LogInResponse> {
   validateInput(logInRequestInputValidator, input);
   const request: LogInRequest = input;
-  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
-  const calendarQuery = request.calendarQuery;
+  const calendarQuery = request.calendarQuery
+    ? normalizeCalendarQuery(request.calendarQuery)
+    : null;
   const promises = {};
   if (calendarQuery) {
     promises.verifyCalendarQueryThreadIDs =
@@ -273,7 +274,9 @@ async function passwordUpdateResponder(
 ): Promise<LogInResponse> {
   validateInput(updatePasswordRequestInputValidator, input);
   const request: UpdatePasswordRequest = input;
-  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
+  if (request.calendarQuery) {
+    request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
+  }
   const response = await updatePassword(viewer, request);
 
   if (request.deviceTokenUpdateRequest) {
