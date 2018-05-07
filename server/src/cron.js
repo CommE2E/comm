@@ -21,24 +21,40 @@ if (cluster.isMaster) {
   schedule.scheduleJob(
     '30 3 * * *',
     async () => {
-      // Do everything one at a time to reduce load since we're in no hurry,
-      // and since some queries depend on previous ones.
-      await deleteExpiredCookies();
-      await deleteExpiredVerifications();
-      await deleteInaccessibleThreads();
-      await deleteOrphanedMemberships();
-      await deleteOrphanedDays();
-      await deleteOrphanedEntries();
-      await deleteOrphanedRevisions();
-      await deleteOrphanedRoles();
-      await deleteOrphanedMessages();
-      await deleteOrphanedFocused();
-      await deleteOrphanedNotifs();
-      await deleteExpiredUpdates();
+      try {
+        // Do everything one at a time to reduce load since we're in no hurry,
+        // and since some queries depend on previous ones.
+        await deleteExpiredCookies();
+        await deleteExpiredVerifications();
+        await deleteInaccessibleThreads();
+        await deleteOrphanedMemberships();
+        await deleteOrphanedDays();
+        await deleteOrphanedEntries();
+        await deleteOrphanedRevisions();
+        await deleteOrphanedRoles();
+        await deleteOrphanedMessages();
+        await deleteOrphanedFocused();
+        await deleteOrphanedNotifs();
+        await deleteExpiredUpdates();
+      } catch (e) {
+        console.warn(
+          "encountered error while trying to clean database",
+          e,
+        );
+      }
     },
   );
   schedule.scheduleJob(
     "* * * * * ",
-    backupDB,
+    async () => {
+      try {
+        await backupDB();
+      } catch (e) {
+        console.warn(
+          "encountered error while trying to backup database",
+          e,
+        );
+      }
+    },
   );
 }
