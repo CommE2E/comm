@@ -25,6 +25,7 @@
     "apn": "^2.2.0",
     "common-tags": "^1.7.2",
     "cookie-parser": "^1.4.3",
+    "dateformat": "^3.0.3",
     "express": "^4.16.2",
     "firebase-admin": "^5.7.0",
     "invariant": "^2.2.2",
