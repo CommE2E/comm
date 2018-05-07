@@ -45,7 +45,7 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    "* * * * * ",
+    '0 */4 * * *',
     async () => {
       try {
         await backupDB();
