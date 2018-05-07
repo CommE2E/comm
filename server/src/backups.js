@@ -4,16 +4,14 @@ import fs from 'fs';
 import childProcess from 'child_process';
 import zlib from 'zlib';
 import dateFormat from 'dateformat';
+import denodeify from 'denodeify';
 
 import dbConfig from '../secrets/db_config';
 import backupConfig from '../facts/backups';
 
-// $FlowFixMe
-const readdir = Promise.denodeify(fs.readdir);
-// $FlowFixMe
-const lstat = Promise.denodeify(fs.lstat);
-// $FlowFixMe
-const unlink = Promise.denodeify(fs.unlink);
+const readdir = denodeify(fs.readdir);
+const lstat = denodeify(fs.lstat);
+const unlink = denodeify(fs.unlink);
 
 async function backupDB(retries: number = 2) {
   if (!backupConfig || !backupConfig.enabled) {
