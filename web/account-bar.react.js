@@ -58,7 +58,7 @@ class AccountBar extends React.PureComponent<Props, State> {
 
   render() {
     const classes = classNames({
-      [css['lower-left']]: true,
+      [css['account-bar']]: true,
       [css['lower-left-null-state']]: this.props.nullState &&
         !this.props.modalExists,
     });
@@ -93,12 +93,12 @@ class AccountBar extends React.PureComponent<Props, State> {
         : <UpCaret className={css['account-caret']} />;
       return (
         <div className={classes} onMouseDown={this.onMouseDown}>
-          {menu}
           <div className={css['account-button']}>
             <span>{"logged in as "}</span>
             <span className={css['username']}>{this.props.username}</span>
             {caret}
           </div>
+          {menu}
         </div>
       );
     } else {

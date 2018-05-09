@@ -511,17 +511,13 @@ div.calendar-content {
   padding-top: 10px;
 }
 
-div.lower-left {
-  position: fixed;
-  left: -1px;
-  bottom: -1px;
-  padding: 0 6px;
-  z-index: 3;
-  border-radius: 0 5px 0 0;
-  border: 1px solid #C8C8C8;
+div.account-bar {
   background-color: #F8F8F8;
+  border: 1px solid #C8C8C8;
+  border-radius: 5px;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
+  padding: 0 6px;
 }
 div.lower-left-null-state {
   z-index: 4;
@@ -537,7 +533,7 @@ div.account-menu {
   outline: none;
 }
 div.account-menu > div {
-  border-bottom: 1px solid #C8C8C8;
+  border-top: 1px solid #C8C8C8;
   padding: 3px 4px 3px 8px;
 }
 span.username {

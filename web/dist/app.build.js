@@ -321,7 +321,7 @@ module.exports = {
 	"calendar-header": "style__calendar-header--2njaF",
 	"calendar-filters-button": "style__calendar-filters-button--3xHZ5",
 	"calendar-content": "style__calendar-content--34CGQ",
-	"lower-left": "style__lower-left--k_T4L",
+	"account-bar": "style__account-bar--3EQJI",
 	"lower-left-null-state": "style__lower-left-null-state--2b-9l",
 	"account-button": "style__account-button--2WABg",
 	"account-menu": "style__account-menu--24Dmp",
@@ -29843,14 +29843,14 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
               size: 'large',
               loadingClassName: __WEBPACK_IMPORTED_MODULE_26__style_css___default.a['page-loading'],
               errorClassName: __WEBPACK_IMPORTED_MODULE_26__style_css___default.a['page-error']
+            }),
+            __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_27__account_bar_react__["a" /* default */], {
+              setModal: this.setModal,
+              clearModal: this.clearModal,
+              modalExists: this.state.modalExists
             })
           )
-        ),
-        __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_27__account_bar_react__["a" /* default */], {
-          setModal: this.setModal,
-          clearModal: this.clearModal,
-          modalExists: this.state.modalExists
-        })
+        )
       ),
       __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'div',
@@ -43708,7 +43708,7 @@ class AccountBar extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
 
   render() {
     const classes = __WEBPACK_IMPORTED_MODULE_1_classnames___default()({
-      [__WEBPACK_IMPORTED_MODULE_7__style_css___default.a['lower-left']]: true,
+      [__WEBPACK_IMPORTED_MODULE_7__style_css___default.a['account-bar']]: true,
       [__WEBPACK_IMPORTED_MODULE_7__style_css___default.a['lower-left-null-state']]: this.props.nullState && !this.props.modalExists
     });
     if (this.props.loggedIn) {
@@ -43753,7 +43753,6 @@ class AccountBar extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
       return __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
         'div',
         { className: classes, onMouseDown: this.onMouseDown },
-        menu,
         __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
           'div',
           { className: __WEBPACK_IMPORTED_MODULE_7__style_css___default.a['account-button'] },
@@ -43768,7 +43767,8 @@ class AccountBar extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
             this.props.username
           ),
           caret
-        )
+        ),
+        menu
       );
     } else {
       return __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](

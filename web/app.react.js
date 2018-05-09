@@ -434,13 +434,13 @@ class App extends React.PureComponent<Props, State> {
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />
+              <AccountBar
+                setModal={this.setModal}
+                clearModal={this.clearModal}
+                modalExists={this.state.modalExists}
+              />
             </div>
           </div>
-          <AccountBar
-            setModal={this.setModal}
-            clearModal={this.clearModal}
-            modalExists={this.state.modalExists}
-          />
         </header>
         <div className={css['main-content-container']}>
           <div className={css['main-content']}>
