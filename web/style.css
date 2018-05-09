@@ -672,6 +672,22 @@ h2.calendar-nav > div.calendar-month-name {
 
 div.calendar-header {
 }
+a.calendar-filters-button {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  float: left;
+  color: white;
+  background-color: #444455AA;
+  padding: 8px 18px;
+  border-radius: 18px;
+  margin: 5px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+a.calendar-filters-button > svg {
+  padding-right: 5px;
+}
 div.calendar-content {
   min-height: calc(100% - 72px);
   padding-top: 10px;

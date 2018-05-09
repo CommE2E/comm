@@ -10,6 +10,8 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import { Link } from 'react-router-dom';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faFilter from '@fortawesome/fontawesome-free-solid/faFilter';
 
 import {
   getDate,
@@ -145,6 +147,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
     let filterPanel = null;
     let calendarContentStyle = null;
+    let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
       filterPanel = (
         <FilterPanel
@@ -153,6 +156,7 @@ class Calendar extends React.PureComponent<Props, State> {
         />
       );
       calendarContentStyle = { marginLeft: "300px" };
+      filterButtonStyle = { backgroundColor: "#000000AA" };
     }
 
     return (
@@ -160,6 +164,14 @@ class Calendar extends React.PureComponent<Props, State> {
         {filterPanel}
         <div className={css['calendar-content']} style={calendarContentStyle}>
           <div className={css['calendar-header']}>
+            <a
+              className={css['calendar-filters-button']}
+              onClick={this.toggleFilters}
+              style={filterButtonStyle}
+            >
+              <FontAwesomeIcon icon={faFilter} />
+              Filters
+            </a>
             <h2 className={css['calendar-nav']}>
               <Link to={prevURL} className={css['previous-month-link']}>
                 &lt;
@@ -193,6 +205,11 @@ class Calendar extends React.PureComponent<Props, State> {
         </div>
       </div>
     );
+  }
+
+  toggleFilters = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.setState({ filterPanelOpen: !this.state.filterPanelOpen });
   }
 
 }
