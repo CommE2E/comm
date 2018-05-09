@@ -51,6 +51,7 @@ import {
 } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 import { activeFilterThreadID } from 'lib/selectors/calendar-filter-selectors';
+import { registerConfig } from 'lib/utils/config';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
@@ -72,7 +73,18 @@ import Chat from './chat/chat.react';
 fontawesome.config = { autoAddCss: false };
 import '@fortawesome/fontawesome/styles.css';
 
-const isset = x => x !== undefined && x !== null;
+registerConfig({
+  // We can't securely cache credentials on web, so we have no way to recover
+  // from a cookie invalidation
+  resolveInvalidatedCookie: null,
+  // We use httponly cookies on web to protect against XSS attacks, so we have
+  // no access to the cookies from JavaScript
+  getNewCookie: null,
+  setCookieOnRequest: false,
+  // Never reset the calendar range
+  calendarRangeInactivityLimit: null,
+  platform: "web",
+});
 
 type Props = {
   location: {

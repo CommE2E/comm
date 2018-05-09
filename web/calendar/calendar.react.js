@@ -3,7 +3,6 @@
 import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import _filter from 'lodash/fp/filter';
@@ -18,10 +17,7 @@ import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
-import {
-  memberThreadInfos,
-  currentDaysToEntries,
-} from 'lib/selectors/thread-selectors';
+import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
 import Day from './day.react';
@@ -31,6 +27,7 @@ import {
 } from '../selectors/nav-selectors';
 import css from '../style.css';
 import { canonicalURLFromReduxState } from '../url-utils';
+import FilterPanel from './filter-panel.react';
 
 type Props = {
   setModal: (modal: React.Node) => void,
@@ -41,10 +38,11 @@ type Props = {
   month: number, // 1-indexed
   daysToEntries: {[dayString: string]: EntryInfo[]},
   navInfo: NavInfo,
-  threadInfos: $ReadOnlyArray<ThreadInfo>,
 };
-
-class Calendar extends React.PureComponent<Props> {
+type State = {|
+  filterPanelOpen: bool,
+|};
+class Calendar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     setModal: PropTypes.func.isRequired,
@@ -56,7 +54,9 @@ class Calendar extends React.PureComponent<Props> {
       PropTypes.arrayOf(entryInfoPropType),
     ).isRequired,
     navInfo: navInfoPropType.isRequired,
-    threadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
+  };
+  state = {
+    filterPanelOpen: false,
   };
 
   getDate(
@@ -143,40 +143,39 @@ class Calendar extends React.PureComponent<Props> {
       }
     }
 
-    const filters = this.props.threadInfos.map(
-      threadInfo => (
-        <div className={css['calendar-filter-option']}>
-          <input type="checkbox" />
-          <span>{threadInfo.uiName}</span>
-        </div>
-      ),
-    );
-    const filterPanel = (
-      <div className={css['calendar-filters-container']}>
-        <div className={css['calendar-filters']}>
-          {filters}
-        </div>
-      </div>
-    );
+    let filterPanel = null;
+    let calendarContentStyle = null;
+    if (this.state.filterPanelOpen) {
+      filterPanel = (
+        <FilterPanel
+          setModal={this.props.setModal}
+          clearModal={this.props.clearModal}
+        />
+      );
+      calendarContentStyle = { marginLeft: "300px" };
+    }
 
     return (
       <div className={css['calendar-container']}>
-        <div className={css['calendar-content']}>
-          <h2 className={css['calendar-nav']}>
-            <Link to={prevURL} className={css['previous-month-link']}>
-              &lt;
-            </Link>
-            <div className={css['calendar-month-name']}>
-              {" "}
-              {monthName}
-              {" "}
-              {year}
-              {" "}
-            </div>
-            <Link to={nextURL} className={css['next-month-link']}>
-              &gt;
-            </Link>
-          </h2>
+        {filterPanel}
+        <div className={css['calendar-content']} style={calendarContentStyle}>
+          <div className={css['calendar-header']}>
+            <h2 className={css['calendar-nav']}>
+              <Link to={prevURL} className={css['previous-month-link']}>
+                &lt;
+              </Link>
+              <div className={css['calendar-month-name']}>
+                {" "}
+                {monthName}
+                {" "}
+                {year}
+                {" "}
+              </div>
+              <Link to={nextURL} className={css['next-month-link']}>
+                &gt;
+              </Link>
+            </h2>
+          </div>
           <table className={css['calendar']}>
             <thead>
               <tr>
@@ -198,10 +197,9 @@ class Calendar extends React.PureComponent<Props> {
 
 }
 
-export default connect((state: AppState): * => ({
+export default connect((state: AppState) => ({
   year: yearAssertingSelector(state),
   month: monthAssertingSelector(state),
   daysToEntries: currentDaysToEntries(state),
   navInfo: state.navInfo,
-  threadInfos: memberThreadInfos(state),
 }))(Calendar);

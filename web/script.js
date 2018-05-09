@@ -18,25 +18,10 @@ import {
 } from 'redux-devtools-extension/logOnlyInProduction';
 import invariant from 'invariant';
 
-import { registerConfig } from 'lib/utils/config';
-
 import { reducer } from './redux-setup';
 
 import App from './app.react';
 import history from './router-history';
-
-registerConfig({
-  // We can't securely cache credentials on web, so we have no way to recover
-  // from a cookie invalidation
-  resolveInvalidatedCookie: null,
-  // We use httponly cookies on web to protect against XSS attacks, so we have
-  // no access to the cookies from JavaScript
-  getNewCookie: null,
-  setCookieOnRequest: false,
-  // Never reset the calendar range
-  calendarRangeInactivityLimit: null,
-  platform: "web",
-});
 
 declare var preloadedState: AppState;
 const store: Store<AppState, Action> = createStore(

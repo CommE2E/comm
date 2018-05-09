@@ -4,7 +4,6 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { NavID } from './typeahead-action-option.react';
 import type { AppState } from '../redux-setup';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import PropTypes from 'prop-types';
 

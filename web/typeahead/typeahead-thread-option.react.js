@@ -12,7 +12,10 @@ import {
   navInfoPropType,
 } from '../redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { updateCalendarThreadFilter } from 'lib/types/filter-types';
+import {
+  calendarThreadFilterTypes,
+  updateCalendarThreadFilter,
+} from 'lib/types/filter-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -111,7 +114,7 @@ class TypeaheadThreadOption extends React.PureComponent<Props> {
     this.props.dispatchActionPayload(
       updateCalendarThreadFilter,
       {
-        type: "threads",
+        type: calendarThreadFilterTypes.THREAD_LIST,
         threadIDs: [this.props.threadInfo.id],
       },
     );
