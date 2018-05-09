@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { currentNavID } from 'lib/selectors/nav-selectors';
+import { nullState } from 'lib/selectors/nav-selectors';
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
 
@@ -28,7 +28,7 @@ type Props = {
   // Redux state
   loggedIn: bool,
   username: ?string,
-  currentNavID: ?string,
+  nullState: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -59,7 +59,7 @@ class AccountBar extends React.PureComponent<Props, State> {
   render() {
     const classes = classNames({
       [css['lower-left']]: true,
-      [css['lower-left-null-state']]: !this.props.currentNavID &&
+      [css['lower-left-null-state']]: this.props.nullState &&
         !this.props.modalExists,
     });
     if (this.props.loggedIn) {
@@ -193,7 +193,7 @@ AccountBar.propTypes = {
   modalExists: PropTypes.bool.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   username: PropTypes.string,
-  currentNavID: PropTypes.string,
+  nullState: PropTypes.bool.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
 };
 
@@ -204,7 +204,7 @@ export default connect(
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
       : undefined,
-    currentNavID: currentNavID(state),
+    nullState: nullState(state),
   }),
   { logOut },
 )(AccountBar);

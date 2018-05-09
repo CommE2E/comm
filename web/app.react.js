@@ -29,7 +29,7 @@ import fontawesome from '@fortawesome/fontawesome';
 
 import { getDate } from 'lib/utils/date-utils';
 import {
-  currentNavID,
+  nullState,
   currentCalendarQuery,
 } from 'lib/selectors/nav-selectors';
 import {
@@ -50,13 +50,14 @@ import {
   nextSessionID,
 } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
-import { activeFilterThreadID } from 'lib/selectors/calendar-filter-selectors';
+import {
+  filteredThreadIDsSelector,
+} from 'lib/selectors/calendar-filter-selectors';
 import { registerConfig } from 'lib/utils/config';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
 import AccountBar from './account-bar.react';
-import Typeahead from './typeahead/typeahead.react';
 import Calendar from './calendar/calendar.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
 import VerificationSuccessModal
@@ -94,7 +95,7 @@ type Props = {
   navInfo: NavInfo,
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
-  currentNavID: ?string,
+  nullState: bool,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
@@ -102,7 +103,7 @@ type Props = {
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
   loggedIn: bool,
-  activeFilterThreadID: ?string,
+  activeThreadFilter: bool,
   cookie: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -128,8 +129,8 @@ class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     let currentModal = null;
-    if (!props.currentNavID) {
-      if (!props.activeFilterThreadID) {
+    if (props.nullState) {
+      if (!props.activeThreadFilter) {
         currentModal = <IntroModal />;
       } else {
         currentModal = <div className={css['modal-overlay']} />;
@@ -299,16 +300,16 @@ class App extends React.PureComponent<Props, State> {
     if (!this.state.modalExists) {
       let newModal = undefined;
       if (
-        (!nextProps.activeFilterThreadID && !nextProps.currentNavID) &&
-        (this.props.activeFilterThreadID || this.props.currentNavID)
+        (!nextProps.activeThreadFilter && nextProps.nullState) &&
+        (this.props.activeThreadFilter || !this.props.nullState)
       ) {
         newModal = <IntroModal />;
       } else if (
-        (nextProps.activeFilterThreadID && !nextProps.currentNavID) &&
-        (!this.props.activeFilterThreadID || this.props.currentNavID)
+        (nextProps.activeThreadFilter && nextProps.nullState) &&
+        (!this.props.activeThreadFilter || !this.props.nullState)
       ) {
         newModal = <div className={css['modal-overlay']} />;
-      } else if (nextProps.currentNavID && !this.props.currentNavID) {
+      } else if (!nextProps.nullState && this.props.nullState) {
         newModal = null;
       }
       if (newModal !== undefined) {
@@ -317,9 +318,9 @@ class App extends React.PureComponent<Props, State> {
     }
 
     if (
-      nextProps.currentNavID &&
-      nextProps.currentNavID !== "splash" &&
-      (nextProps.currentNavID !== this.props.currentNavID ||
+      !nextProps.nullState &&
+      nextProps.loggedIn &&
+      (nextProps.nullState !== this.props.nullState ||
         nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
         nextProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
@@ -433,11 +434,6 @@ class App extends React.PureComponent<Props, State> {
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />
-              <Typeahead
-                setModal={this.setModal}
-                clearModal={this.clearModal}
-                modalExists={this.state.modalExists}
-              />
             </div>
           </div>
           <AccountBar
@@ -464,9 +460,9 @@ class App extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     let currentModal = null;
-    if (!this.props.currentNavID && !this.props.activeFilterThreadID) {
+    if (this.props.nullState && !this.props.activeThreadFilter) {
       currentModal = <IntroModal />;
-    } else if (!this.props.currentNavID) {
+    } else if (this.props.nullState) {
       currentModal = <div className={css['modal-overlay']} />;
     }
     this.setState({
@@ -506,7 +502,7 @@ App.propTypes = {
   navInfo: navInfoPropType.isRequired,
   verifyField: PropTypes.number,
   entriesLoadingStatus: PropTypes.string.isRequired,
-  currentNavID: PropTypes.string,
+  nullState: PropTypes.bool.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
   pingActionInput: PropTypes.func.isRequired,
@@ -514,7 +510,7 @@ App.propTypes = {
   sessionTimeLeft: PropTypes.func.isRequired,
   nextSessionID: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  activeFilterThreadID: PropTypes.string,
+  activeThreadFilter: PropTypes.bool.isRequired,
   cookie: PropTypes.string,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -533,7 +529,7 @@ export default connect(
       navInfo: state.navInfo,
       verifyField: state.verifyField,
       entriesLoadingStatus: loadingStatusSelector(state),
-      currentNavID: loggedIn ? currentNavID(state) : "splash",
+      nullState: loggedIn && nullState(state),
       currentCalendarQuery: currentCalendarQuery(state),
       pingStartingPayload: pingStartingPayload(state),
       pingActionInput: pingActionInput(state),
@@ -541,7 +537,7 @@ export default connect(
       sessionTimeLeft: sessionTimeLeft(state),
       nextSessionID: nextSessionID(state),
       loggedIn,
-      activeFilterThreadID: activeFilterThreadID(state),
+      activeThreadFilter: !!filteredThreadIDsSelector(state),
       cookie: state.cookie,
     };
   },

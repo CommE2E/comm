@@ -22,7 +22,6 @@ import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 
 import { dateFromString } from 'lib/utils/date-utils';
-import { currentNavID } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesActionTypes,
   fetchEntries,
@@ -49,7 +48,6 @@ type Props = {
   onClose: () => void,
   currentEntryID?: ?string,
   // Redux state
-  currentNavID: ?string,
   entryInfos: ?EntryInfo[],
   dayLoadingStatus: LoadingStatus,
   entryLoadingStatus: LoadingStatus,
@@ -73,10 +71,6 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    invariant(
-      props.currentNavID,
-      "currentNavID should be set before history-modal opened",
-    );
     this.state = {
       mode: props.mode,
       animateModeChange: false,
@@ -90,12 +84,6 @@ class HistoryModal extends React.PureComponent<Props, State> {
     if (this.state.mode === "entry") {
       invariant(this.state.currentEntryID, "entry ID should be set");
       this.loadEntry(this.state.currentEntryID);
-    }
-  }
-
-  componentWillReceiveProps(newProps: Props) {
-    if (!newProps.currentNavID) {
-      newProps.onClose();
     }
   }
 
@@ -197,11 +185,6 @@ class HistoryModal extends React.PureComponent<Props, State> {
   }
 
   loadDay() {
-    const currentNavID = this.props.currentNavID;
-    invariant(
-      currentNavID,
-      "currentNavID should be set before history-modal opened",
-    );
     this.props.dispatchActionPromise(
       fetchEntriesActionTypes,
       this.props.fetchEntries({
@@ -259,7 +242,6 @@ HistoryModal.propTypes = {
   dayString: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   currentEntryID: PropTypes.string,
-  currentNavID: PropTypes.string,
   entryInfos: PropTypes.arrayOf(entryInfoPropType),
   dayLoadingStatus: PropTypes.string.isRequired,
   entryLoadingStatus: PropTypes.string.isRequired,
@@ -277,7 +259,6 @@ const entryLoadingStatusSelector
 type OwnProps = { dayString: string };
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
-    currentNavID: currentNavID(state),
     entryInfos: allDaysToEntries(state)[ownProps.dayString],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
