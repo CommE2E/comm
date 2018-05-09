@@ -38,8 +38,7 @@ import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { MagnifyingGlass } from '../vectors.react';
 
 type Props = {|
-  setModal: (modal: React.Node) => void,
-  clearModal: () => void,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   filterThreadSearchIndex: () => SearchIndex,
@@ -56,7 +55,6 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   static propTypes = {
     setModal: PropTypes.func.isRequired,
-    clearModal: PropTypes.func.isRequired,
     filterThreadInfos: PropTypes.func.isRequired,
     filterThreadSearchIndex: PropTypes.func.isRequired,
     filteredThreadIDs: PropTypes.instanceOf(Set),
@@ -206,7 +204,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     this.props.setModal(
       <ThreadSettingsModal
         threadInfo={threadInfo}
-        onClose={this.props.clearModal}
+        onClose={this.clearModal}
       />
     );
   }
@@ -228,6 +226,10 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   onCollapse = (value: bool) => {
     this.setState({ collapsed: value });
+  }
+
+  clearModal = () => {
+    this.props.setModal(null);
   }
 
 }

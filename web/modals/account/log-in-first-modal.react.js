@@ -10,15 +10,14 @@ import RegisterModal from './register-modal.react';
 
 type Props = {
   inOrderTo: string,
-  onClose: () => void,
-  setModal: (modal: React.Node) => void,
+  setModal: (modal: ?React.Node) => void,
 };
 
 class LogInFirstModal extends React.PureComponent<Props> {
 
   render() {
     return (
-      <Modal name="Log in or register" onClose={this.props.onClose}>
+      <Modal name="Log in or register" onClose={this.clearModal}>
         <div className={css['modal-body']}>
           <p>
             {`In order to ${this.props.inOrderTo}, you'll first need to `}
@@ -40,31 +39,24 @@ class LogInFirstModal extends React.PureComponent<Props> {
     );
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(
-      <LogInModal
-        onClose={this.props.onClose}
-        setModal={this.props.setModal}
-      />
-    );
+    this.props.setModal(<LogInModal setModal={this.props.setModal} />);
   }
 
   onClickRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(
-      <RegisterModal
-        onClose={this.props.onClose}
-        setModal={this.props.setModal}
-      />
-    );
+    this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
   }
 
 }
 
 LogInFirstModal.propTypes = {
   inOrderTo: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
 };
 

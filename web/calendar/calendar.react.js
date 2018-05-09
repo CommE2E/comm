@@ -32,8 +32,7 @@ import { canonicalURLFromReduxState } from '../url-utils';
 import FilterPanel from './filter-panel.react';
 
 type Props = {
-  setModal: (modal: React.Node) => void,
-  clearModal: () => void,
+  setModal: (modal: ?React.Node) => void,
   url: string,
   // Redux state
   year: number,
@@ -48,7 +47,6 @@ class Calendar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     setModal: PropTypes.func.isRequired,
-    clearModal: PropTypes.func.isRequired,
     url: PropTypes.string.isRequired,
     year: PropTypes.number.isRequired,
     month: PropTypes.number.isRequired,
@@ -132,7 +130,6 @@ class Calendar extends React.PureComponent<Props, State> {
             dayString={dayString}
             entryInfos={entries}
             setModal={this.props.setModal}
-            clearModal={this.props.clearModal}
             key={curDayOfMonth}
             startingTabIndex={tabIndex}
           />
@@ -149,12 +146,7 @@ class Calendar extends React.PureComponent<Props, State> {
     let calendarContentStyle = null;
     let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
-      filterPanel = (
-        <FilterPanel
-          setModal={this.props.setModal}
-          clearModal={this.props.clearModal}
-        />
-      );
+      filterPanel = <FilterPanel setModal={this.props.setModal} />;
       calendarContentStyle = { marginLeft: "300px" };
       filterButtonStyle = { backgroundColor: "#000000AA" };
     }

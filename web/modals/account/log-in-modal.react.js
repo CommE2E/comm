@@ -21,8 +21,7 @@ import Modal from '../modal.react';
 import ForgotPasswordModal from './forgot-password-modal.react';
 
 type Props = {
-  onClose: () => void,
-  setModal: (modal: React.Node) => void,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -57,7 +56,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal name="Log in" onClose={this.props.onClose}>
+      <Modal name="Log in" onClose={this.clearModal}>
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
@@ -132,12 +131,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   onClickForgotPassword = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(
-      <ForgotPasswordModal
-        onClose={this.props.onClose}
-        setModal={this.props.setModal}
-      />
-    );
+    this.props.setModal(<ForgotPasswordModal setModal={this.props.setModal} />);
   }
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -172,7 +166,7 @@ class LogInModal extends React.PureComponent<Props, State> {
         usernameOrEmail: this.state.usernameOrEmail,
         password: this.state.password,
       });
-      this.props.onClose();
+      this.clearModal();
       return result;
     } catch (e) {
       if (e.message === 'invalid_parameters') {
@@ -220,10 +214,13 @@ class LogInModal extends React.PureComponent<Props, State> {
     }
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
 }
 
 LogInModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,

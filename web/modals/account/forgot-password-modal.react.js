@@ -23,8 +23,7 @@ import Modal from '../modal.react';
 import PasswordResetEmailModal from './password-reset-email-modal.react';
 
 type Props = {
-  onClose: () => void,
-  setModal: (modal: React.Node) => void,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -58,7 +57,7 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal name="Reset password" onClose={this.props.onClose}>
+      <Modal name="Reset password" onClose={this.clearModal}>
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
@@ -136,7 +135,7 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
     try {
       await this.props.forgotPassword(this.state.usernameOrEmail);
       this.props.setModal(
-        <PasswordResetEmailModal onClose={this.props.onClose} />
+        <PasswordResetEmailModal onClose={this.clearModal} />
       );
     } catch (e) {
       this.setState(
@@ -158,10 +157,13 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
     }
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
 }
 
 ForgotPasswordModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,

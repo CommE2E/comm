@@ -28,10 +28,7 @@ import classNames from 'classnames';
 import fontawesome from '@fortawesome/fontawesome';
 
 import { getDate } from 'lib/utils/date-utils';
-import {
-  nullState,
-  currentCalendarQuery,
-} from 'lib/selectors/nav-selectors';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesActionTypes,
   fetchEntries,
@@ -50,9 +47,6 @@ import {
   nextSessionID,
 } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
-import {
-  filteredThreadIDsSelector,
-} from 'lib/selectors/calendar-filter-selectors';
 import { registerConfig } from 'lib/utils/config';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -64,7 +58,6 @@ import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
-import IntroModal from './modals/intro-modal.react';
 import { reflectRouteChangeActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
@@ -95,7 +88,6 @@ type Props = {
   navInfo: NavInfo,
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
-  nullState: bool,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
@@ -103,7 +95,6 @@ type Props = {
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
   loggedIn: bool,
-  activeThreadFilter: bool,
   cookie: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -115,32 +106,15 @@ type Props = {
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
 };
 type State = {
-  // In null state cases, currentModal can be set to something, but modalExists
-  // will be false. This is because we need to know if a modal is overlaid over
-  // the null state
-  modalExists: bool,
   currentModal: ?React.Node,
 };
 
 class App extends React.PureComponent<Props, State> {
 
   pingCounter = 0;
-
-  constructor(props: Props) {
-    super(props);
-    let currentModal = null;
-    if (props.nullState) {
-      if (!props.activeThreadFilter) {
-        currentModal = <IntroModal />;
-      } else {
-        currentModal = <div className={css['modal-overlay']} />;
-      }
-    }
-    this.state = {
-      modalExists: false,
-      currentModal: currentModal,
-    };
-  }
+  state = {
+    currentModal: null,
+  };
 
   componentDidMount() {
     if (this.props.navInfo.verify) {
@@ -297,31 +271,9 @@ class App extends React.PureComponent<Props, State> {
       }
     }
 
-    if (!this.state.modalExists) {
-      let newModal = undefined;
-      if (
-        (!nextProps.activeThreadFilter && nextProps.nullState) &&
-        (this.props.activeThreadFilter || !this.props.nullState)
-      ) {
-        newModal = <IntroModal />;
-      } else if (
-        (nextProps.activeThreadFilter && nextProps.nullState) &&
-        (!this.props.activeThreadFilter || !this.props.nullState)
-      ) {
-        newModal = <div className={css['modal-overlay']} />;
-      } else if (!nextProps.nullState && this.props.nullState) {
-        newModal = null;
-      }
-      if (newModal !== undefined) {
-        this.setState({ currentModal: newModal });
-      }
-    }
-
     if (
-      !nextProps.nullState &&
       nextProps.loggedIn &&
-      (nextProps.nullState !== this.props.nullState ||
-        nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
+      (nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
         nextProps.navInfo.endDate !== this.props.navInfo.endDate)
     ) {
       nextProps.dispatchActionPromise(
@@ -366,7 +318,6 @@ class App extends React.PureComponent<Props, State> {
       content = (
         <Splash
           setModal={this.setModal}
-          clearModal={this.clearModal}
           currentModal={this.state.currentModal}
         />
       );
@@ -392,7 +343,6 @@ class App extends React.PureComponent<Props, State> {
       mainContent = (
         <Calendar
           setModal={this.setModal}
-          clearModal={this.clearModal}
           url={this.props.location.pathname}
         />
       );
@@ -434,11 +384,7 @@ class App extends React.PureComponent<Props, State> {
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />
-              <AccountBar
-                setModal={this.setModal}
-                clearModal={this.clearModal}
-                modalExists={this.state.modalExists}
-              />
+              <AccountBar setModal={this.setModal} />
             </div>
           </div>
         </header>
@@ -451,24 +397,12 @@ class App extends React.PureComponent<Props, State> {
     );
   }
 
-  setModal = (modal: React.Node) => {
-    this.setState({
-      currentModal: modal,
-      modalExists: true,
-    });
+  setModal = (modal: ?React.Node) => {
+    this.setState({ currentModal: modal });
   }
 
   clearModal = () => {
-    let currentModal = null;
-    if (this.props.nullState && !this.props.activeThreadFilter) {
-      currentModal = <IntroModal />;
-    } else if (this.props.nullState) {
-      currentModal = <div className={css['modal-overlay']} />;
-    }
-    this.setState({
-      currentModal,
-      modalExists: false,
-    });
+    this.setModal(null);
   }
 
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
@@ -502,7 +436,6 @@ App.propTypes = {
   navInfo: navInfoPropType.isRequired,
   verifyField: PropTypes.number,
   entriesLoadingStatus: PropTypes.string.isRequired,
-  nullState: PropTypes.bool.isRequired,
   currentCalendarQuery: PropTypes.func.isRequired,
   pingStartingPayload: PropTypes.func.isRequired,
   pingActionInput: PropTypes.func.isRequired,
@@ -510,7 +443,6 @@ App.propTypes = {
   sessionTimeLeft: PropTypes.func.isRequired,
   nextSessionID: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  activeThreadFilter: PropTypes.bool.isRequired,
   cookie: PropTypes.string,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
@@ -522,24 +454,19 @@ const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesActionTypes);
 
 export default connect(
-  (state: AppState) => {
-    const loggedIn = !!(state.currentUserInfo &&
-        !state.currentUserInfo.anonymous && true);
-    return {
-      navInfo: state.navInfo,
-      verifyField: state.verifyField,
-      entriesLoadingStatus: loadingStatusSelector(state),
-      nullState: loggedIn && nullState(state),
-      currentCalendarQuery: currentCalendarQuery(state),
-      pingStartingPayload: pingStartingPayload(state),
-      pingActionInput: pingActionInput(state),
-      pingTimestamps: state.pingTimestamps,
-      sessionTimeLeft: sessionTimeLeft(state),
-      nextSessionID: nextSessionID(state),
-      loggedIn,
-      activeThreadFilter: !!filteredThreadIDsSelector(state),
-      cookie: state.cookie,
-    };
-  },
+  (state: AppState) => ({
+    navInfo: state.navInfo,
+    verifyField: state.verifyField,
+    entriesLoadingStatus: loadingStatusSelector(state),
+    currentCalendarQuery: currentCalendarQuery(state),
+    pingStartingPayload: pingStartingPayload(state),
+    pingActionInput: pingActionInput(state),
+    pingTimestamps: state.pingTimestamps,
+    sessionTimeLeft: sessionTimeLeft(state),
+    nextSessionID: nextSessionID(state),
+    loggedIn: !!(state.currentUserInfo &&
+      !state.currentUserInfo.anonymous && true),
+    cookie: state.cookie,
+  }),
   { fetchEntries, ping },
 )(App);

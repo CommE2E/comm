@@ -33,8 +33,7 @@ import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 type Props = {
   dayString: string,
   entryInfos: EntryInfo[],
-  setModal: (modal: React.Node) => void,
-  clearModal: () => void,
+  setModal: (modal: ?React.Node) => void,
   startingTabIndex: number,
   // Redux state
   onScreenThreadInfos: ThreadInfo[],
@@ -126,7 +125,6 @@ class Day extends React.PureComponent<Props, State> {
         entryInfo={entryInfo}
         focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
         setModal={this.props.setModal}
-        clearModal={this.props.clearModal}
         tabIndex={this.props.startingTabIndex + i}
         key={key}
         innerRef={this.entryRef}
@@ -238,7 +236,6 @@ class Day extends React.PureComponent<Props, State> {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
-          onClose={this.props.clearModal}
           setModal={this.props.setModal}
         />
       );
@@ -262,7 +259,7 @@ class Day extends React.PureComponent<Props, State> {
       <HistoryModal
         mode="day"
         dayString={this.props.dayString}
-        onClose={this.props.clearModal}
+        onClose={this.clearModal}
       />
     );
   }
@@ -278,13 +275,16 @@ class Day extends React.PureComponent<Props, State> {
     }
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
 }
 
 Day.propTypes = {
   dayString: PropTypes.string.isRequired,
   entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
   setModal: PropTypes.func.isRequired,
-  clearModal: PropTypes.func.isRequired,
   startingTabIndex: PropTypes.number.isRequired,
   onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
   viewerID: PropTypes.string,

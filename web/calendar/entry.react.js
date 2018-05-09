@@ -55,8 +55,7 @@ type Props = {
   innerRef: (key: string, me: Entry) => void,
   entryInfo: EntryInfo,
   focusOnFirstEntryNewerThan: (time: number) => void,
-  setModal: (modal: React.Node) => void,
-  clearModal: () => void,
+  setModal: (modal: ?React.Node) => void,
   tabIndex: number,
   // Redux state
   threadInfo: ThreadInfo,
@@ -249,7 +248,6 @@ class Entry extends React.PureComponent<Props, State> {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
-          onClose={this.props.clearModal}
           setModal={this.props.setModal}
         />
       );
@@ -376,11 +374,11 @@ class Entry extends React.PureComponent<Props, State> {
             concurrentModificationResetActionType,
             { id: entryID, dbText: e.payload.db },
           );
-          this.props.clearModal();
+          this.clearModal();
         };
         this.props.setModal(
           <ConcurrentModificationModal
-            onClose={this.props.clearModal}
+            onClose={this.clearModal}
             onRefresh={onRefresh}
           />
         );
@@ -395,7 +393,6 @@ class Entry extends React.PureComponent<Props, State> {
       this.props.setModal(
         <LogInFirstModal
           inOrderTo="edit this calendar"
-          onClose={this.props.clearModal}
           setModal={this.props.setModal}
         />
       );
@@ -451,10 +448,14 @@ class Entry extends React.PureComponent<Props, State> {
           this.props.entryInfo.month,
           this.props.entryInfo.day,
         )}
-        onClose={this.props.clearModal}
+        onClose={this.clearModal}
         currentEntryID={this.props.entryInfo.id}
       />
     );
+  }
+
+  clearModal = () => {
+    this.props.setModal(null);
   }
 
 }
@@ -466,7 +467,6 @@ Entry.propTypes = {
   entryInfo: entryInfoPropType.isRequired,
   focusOnFirstEntryNewerThan: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
-  clearModal: PropTypes.func.isRequired,
   tabIndex: PropTypes.number.isRequired,
   threadInfo: threadInfoPropType.isRequired,
   sessionID: PropTypes.func.isRequired,

@@ -26,8 +26,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
 
 type Props = {
-  setModal: (modal: React.Node) => void,
-  clearModal: () => void,
+  setModal: (modal: ?React.Node) => void,
   currentModal: ?React.Node,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -46,7 +45,6 @@ class Splash extends React.PureComponent<Props, State> {
 
   static propTypes = {
     setModal: PropTypes.func.isRequired,
-    clearModal: PropTypes.func.isRequired,
     currentModal: PropTypes.node,
     loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -213,12 +211,7 @@ class Splash extends React.PureComponent<Props, State> {
 
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(
-      <LogInModal 
-        onClose={this.props.clearModal}
-        setModal={this.props.setModal}
-      />
-    );
+    this.props.setModal(<LogInModal setModal={this.props.setModal} />);
   }
 
   onClickRequestAccess = (event: SyntheticEvent<HTMLAnchorElement>) => {

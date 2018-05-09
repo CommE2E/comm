@@ -59,8 +59,7 @@ class Tab extends React.PureComponent<TabProps> {
 }
 
 type Props = {
-  onClose: () => void,
-  setModal: (modal: React.Node) => void,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   username: string,
   email: string,
@@ -211,7 +210,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Edit account" onClose={this.props.onClose} size="large">
+      <Modal name="Edit account" onClose={this.clearModal} size="large">
         <ul className={css['tab-panel']}>
           <Tab
             name="General"
@@ -316,7 +315,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   async resendVerificationEmailAction() {
     await this.props.resendVerificationEmail();
-    this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+    this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
   }
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -370,9 +369,9 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         currentPassword: this.state.currentPassword,
       });
       if (email !== this.props.email) {
-        this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+        this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
       } else {
-        this.props.onClose();
+        this.clearModal();
       }
       return result;
     } catch (e) {
@@ -437,7 +436,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       const response = await this.props.deleteAccount(
         this.state.currentPassword,
       );
-      this.props.onClose();
+      this.clearModal();
       return response;
     } catch(e) {
       const errorMessage = e.message === "invalid_credentials"
@@ -460,10 +459,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
 }
 
 UserSettingsModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
   username: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,

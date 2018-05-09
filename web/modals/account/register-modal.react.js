@@ -21,8 +21,7 @@ import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
 type Props = {
-  onClose: () => void,
-  setModal: (modal: React.Node) => void,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   inputDisabled: bool,
   // Redux dispatch functions
@@ -62,7 +61,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal name="Register" onClose={this.props.onClose}>
+      <Modal name="Register" onClose={this.clearModal}>
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
@@ -234,7 +233,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
         email: this.state.email,
         password: this.state.password,
       });
-      this.props.setModal(<VerifyEmailModal onClose={this.props.onClose} />);
+      this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
       return result;
     } catch (e) {
       if (e.message === 'username_taken') {
@@ -278,10 +277,13 @@ class RegisterModal extends React.PureComponent<Props, State> {
     }
   }
 
+  clearModal = () => {
+    this.props.setModal(null);
+  }
+
 }
 
 RegisterModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
   setModal: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,

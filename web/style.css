@@ -518,9 +518,7 @@ div.account-bar {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   padding: 0 6px;
-}
-div.lower-left-null-state {
-  z-index: 4;
+  cursor: pointer;
 }
 div.account-button {
   padding: 3px 4px 3px 8px;
