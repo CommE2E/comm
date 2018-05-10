@@ -278,7 +278,7 @@ class App extends React.PureComponent<Props, State> {
       nextProps.loggedIn &&
       (nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
         nextProps.navInfo.endDate !== this.props.navInfo.endDate ||
-        nextProps.includeDeleted !== this.props.includeDeleted)
+        (nextProps.includeDeleted && !this.props.includeDeleted))
     ) {
       nextProps.dispatchActionPromise(
         fetchEntriesActionTypes,

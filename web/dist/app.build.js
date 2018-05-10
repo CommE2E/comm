@@ -29759,7 +29759,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       }
     }
 
-    if (nextProps.loggedIn && (nextProps.navInfo.startDate !== this.props.navInfo.startDate || nextProps.navInfo.endDate !== this.props.navInfo.endDate || nextProps.includeDeleted !== this.props.includeDeleted)) {
+    if (nextProps.loggedIn && (nextProps.navInfo.startDate !== this.props.navInfo.startDate || nextProps.navInfo.endDate !== this.props.navInfo.endDate || nextProps.includeDeleted && !this.props.includeDeleted)) {
       nextProps.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_15_lib_actions_entry_actions__["i" /* fetchEntriesActionTypes */], nextProps.fetchEntries(nextProps.currentCalendarQuery()));
     }
 
