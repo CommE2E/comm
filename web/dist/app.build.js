@@ -43711,7 +43711,7 @@ class AccountBar extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
       );
     }
 
-    const caret = this.state.expanded ? __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](__WEBPACK_IMPORTED_MODULE_9__vectors_react__["c" /* DownCaret */], { className: __WEBPACK_IMPORTED_MODULE_5__style_css___default.a['account-caret'] }) : __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](__WEBPACK_IMPORTED_MODULE_9__vectors_react__["h" /* UpCaret */], { className: __WEBPACK_IMPORTED_MODULE_5__style_css___default.a['account-caret'] });
+    const caret = this.state.expanded ? __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](__WEBPACK_IMPORTED_MODULE_9__vectors_react__["h" /* UpCaret */], { className: __WEBPACK_IMPORTED_MODULE_5__style_css___default.a['account-caret'] }) : __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](__WEBPACK_IMPORTED_MODULE_9__vectors_react__["c" /* DownCaret */], { className: __WEBPACK_IMPORTED_MODULE_5__style_css___default.a['account-caret'] });
     return __WEBPACK_IMPORTED_MODULE_0_react__["createElement"](
       'div',
       { className: __WEBPACK_IMPORTED_MODULE_5__style_css___default.a['account-bar'], onMouseDown: this.onMouseDown },

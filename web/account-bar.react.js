@@ -93,8 +93,8 @@ class AccountBar extends React.PureComponent<Props, State> {
     }
 
     const caret = this.state.expanded
-      ? <DownCaret className={css['account-caret']} />
-      : <UpCaret className={css['account-caret']} />;
+      ? <UpCaret className={css['account-caret']} />
+      : <DownCaret className={css['account-caret']} />;
     return (
       <div className={css['account-bar']} onMouseDown={this.onMouseDown}>
         <div className={css['account-button']}>
