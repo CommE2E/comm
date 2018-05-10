@@ -3,11 +3,11 @@
 import type { AppState } from '../redux-setup';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type {
-  ChatMessageItem,
-  ChatMessageInfoItem,
-} from '../selectors/chat-selectors';
-import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import {
+  type ChatMessageItem,
+  type ChatMessageInfoItem,
+  chatMessageItemPropType,
+} from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import {
   type TextMessageInfo,
@@ -47,8 +47,8 @@ import { viewerIsMember } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
+import { messageListData } from 'lib/selectors/chat-selectors';
 
-import { messageListData } from '../selectors/chat-selectors';
 import { Message, messageItemHeight } from './message.react';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';

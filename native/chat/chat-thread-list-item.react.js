@@ -1,7 +1,9 @@
 // @flow
 
-import type { ChatThreadItem } from '../selectors/chat-selectors';
-import { chatThreadItemPropType } from '../selectors/chat-selectors';
+import {
+  type ChatThreadItem,
+  chatThreadItemPropType,
+} from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';

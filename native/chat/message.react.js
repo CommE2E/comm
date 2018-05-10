@@ -1,7 +1,7 @@
 // @flow
 
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
-import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 
 import React from 'react';

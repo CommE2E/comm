@@ -2,8 +2,10 @@
 
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { ChatThreadItem } from '../selectors/chat-selectors';
-import { chatThreadItemPropType } from '../selectors/chat-selectors';
+import {
+  type ChatThreadItem,
+  chatThreadItemPropType,
+} from 'lib/selectors/chat-selectors';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 
 import * as React from 'react';
@@ -25,8 +27,8 @@ import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
+import { chatListData } from 'lib/selectors/chat-selectors';
 
-import { chatListData } from '../selectors/chat-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';

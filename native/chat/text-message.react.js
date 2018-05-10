@@ -2,7 +2,7 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
-import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
 import { messageTypes } from 'lib/types/message-types';
 

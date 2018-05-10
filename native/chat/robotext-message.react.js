@@ -2,7 +2,7 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
-import { chatMessageItemPropType } from '../selectors/chat-selectors';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 import { messageTypes } from 'lib/types/message-types';
