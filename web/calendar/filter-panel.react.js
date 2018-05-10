@@ -36,7 +36,7 @@ import {
 } from 'lib/selectors/calendar-selectors';
 import SearchIndex from 'lib/shared/search-index';
 
-import css from '../style.css';
+import css from './filter-panel.css';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { MagnifyingGlass } from '../vectors.react';
 
@@ -97,7 +97,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       );
     } else {
       filters.push(
-        <div className={css['calendar-filters-no-result']} key="noResults">
+        <div className={css.noResults} key="noResults">
           No results
         </div>
       );
@@ -124,17 +124,19 @@ class FilterPanel extends React.PureComponent<Props, State> {
         <a href="#" onClick={this.clearQuery}>
           <FontAwesomeIcon
             icon={faTimesCircle}
-            className={css['calendar-filters-clear-query']}
+            className={css.clearQuery}
           />
         </a>
       );
     }
 
     return (
-      <div className={css['calendar-filters-container']}>
-        <div className={css['calendar-filters-search-container']}>
-          <div className={css['calendar-filters-search']}>
-            <MagnifyingGlass className={css['calendar-filters-search-vector']} />
+      <div className={css.container}>
+        <div className={css.searchContainer}>
+          <div className={css.search}>
+            <MagnifyingGlass
+              className={css.searchVector}
+            />
             <input
               type="text"
               placeholder="Search"
@@ -144,10 +146,10 @@ class FilterPanel extends React.PureComponent<Props, State> {
             {clearQueryButton}
           </div>
         </div>
-        <div className={css['calendar-filters']}>
+        <div className={css.filters}>
           {filters}
         </div>
-        <div className={css['calendar-filter-extras']}>
+        <div className={css.extras}>
           <label htmlFor="include-deleted-switch">
             <Switch
               checked={this.props.includeDeleted}
@@ -285,10 +287,7 @@ class Item extends React.PureComponent<ItemProps> {
       const afterCheckStyles = { backgroundColor: `#${threadInfo.color}` };
       afterCheck = (
         <div
-          className={classNames(
-            css['calendar-filter-option-checkbox'],
-            css['calendar-filter-option-after'],
-          )}
+          className={classNames(css.optionCheckbox, css.checkboxAfterOption)}
           style={afterCheckStyles}
         />
       );
@@ -297,8 +296,8 @@ class Item extends React.PureComponent<ItemProps> {
       ? "1 entry"
       : `${this.props.filterThreadInfo.numVisibleEntries} entries`;
     return (
-      <div className={css['calendar-filter-option']}>
-        <div className={css['calendar-filter-option-thread']}>
+      <div className={css.option}>
+        <div className={css.optionThread}>
           <input
             type="checkbox"
             checked={this.props.selected}
@@ -306,26 +305,23 @@ class Item extends React.PureComponent<ItemProps> {
           />
           <label>
             <div
-              className={css['calendar-filter-option-checkbox']}
+              className={css.optionCheckbox}
               style={beforeCheckStyles}
             />
             {threadInfo.uiName}
             {afterCheck}
           </label>
-          <a
-            onClick={this.onClickOnly}
-            className={css['calendar-filter-option-only']}
-          >
+          <a onClick={this.onClickOnly} className={css.only}>
             only
           </a>
           <a
             onClick={this.onClickSettings}
-            className={css['calendar-filter-option-cog']}
+            className={css.settingsCog}
           >
             <FontAwesomeIcon icon={faCog} />
           </a>
         </div>
-        <div className={css['calendar-filter-option-details']}>
+        <div className={css.optionDetails}>
           {details}
         </div>
       </div>
@@ -375,10 +371,7 @@ class Category extends React.PureComponent<CategoryProps> {
       const afterCheckStyles = { backgroundColor: "white" };
       afterCheck = (
         <div
-          className={classNames(
-            css['calendar-filter-option-checkbox'],
-            css['calendar-filter-option-after'],
-          )}
+          className={classNames(css.optionCheckbox, css.checkboxAfterOption)}
           style={afterCheckStyles}
         />
       );
@@ -388,8 +381,8 @@ class Category extends React.PureComponent<CategoryProps> {
       ? "1 thread"
       : `${this.props.numThreads} threads`;
     return (
-      <div className={css['calendar-filter-category']}>
-        <div className={css['calendar-filter-option-thread']}>
+      <div className={css.category}>
+        <div className={css.optionThread}>
           <input
             type="checkbox"
             checked={this.props.selected}
@@ -397,20 +390,17 @@ class Category extends React.PureComponent<CategoryProps> {
           />
           <label>
             <div
-              className={css['calendar-filter-option-checkbox']}
+              className={css.optionCheckbox}
               style={beforeCheckStyles}
             />
             Your threads
             {afterCheck}
           </label>
-          <a
-            onClick={this.onCollapse}
-            className={css['calendar-filter-collapse']}
-          >
+          <a onClick={this.onCollapse} className={css.collapse}>
             <FontAwesomeIcon icon={icon} />
           </a>
         </div>
-        <div className={css['calendar-filter-option-details']}>
+        <div className={css.optionDetails}>
           {details}
         </div>
       </div>

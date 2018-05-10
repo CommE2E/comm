@@ -183,27 +183,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ReactCSS = exports.loop = exports.handleActive = exports.handleHover = exports.hover = undefined;
 
-var _flattenNames = __webpack_require__(535);
+var _flattenNames = __webpack_require__(536);
 
 var _flattenNames2 = _interopRequireDefault(_flattenNames);
 
-var _mergeClasses = __webpack_require__(536);
+var _mergeClasses = __webpack_require__(537);
 
 var _mergeClasses2 = _interopRequireDefault(_mergeClasses);
 
-var _autoprefix = __webpack_require__(538);
+var _autoprefix = __webpack_require__(539);
 
 var _autoprefix2 = _interopRequireDefault(_autoprefix);
 
-var _hover2 = __webpack_require__(539);
+var _hover2 = __webpack_require__(540);
 
 var _hover3 = _interopRequireDefault(_hover2);
 
-var _active = __webpack_require__(540);
+var _active = __webpack_require__(541);
 
 var _active2 = _interopRequireDefault(_active);
 
-var _loop2 = __webpack_require__(541);
+var _loop2 = __webpack_require__(542);
 
 var _loop3 = _interopRequireDefault(_loop2);
 
@@ -298,23 +298,6 @@ module.exports = {
 	"loading-indicator-error": "style__loading-indicator-error--3rllh",
 	"loading-indicator-error-black": "style__loading-indicator-error-black--n2358",
 	"calendar-container": "style__calendar-container--11okF",
-	"calendar-filters-container": "style__calendar-filters-container--1V9Gv",
-	"calendar-filters": "style__calendar-filters--tgsxg",
-	"calendar-filter-option": "style__calendar-filter-option--1XQkx",
-	"calendar-filter-option-thread": "style__calendar-filter-option-thread--1wM-3",
-	"calendar-filter-option-checkbox": "style__calendar-filter-option-checkbox--1bAcF",
-	"calendar-filter-option-after": "style__calendar-filter-option-after--2P73R",
-	"calendar-filter-option-only": "style__calendar-filter-option-only--2HegI",
-	"calendar-filter-option-cog": "style__calendar-filter-option-cog--1KJ1E",
-	"calendar-filter-option-details": "style__calendar-filter-option-details--2IqkF",
-	"calendar-filters-search-container": "style__calendar-filters-search-container--kk7RB",
-	"calendar-filters-search": "style__calendar-filters-search--2CHLF",
-	"calendar-filters-search-vector": "style__calendar-filters-search-vector--1-Cfd",
-	"calendar-filters-clear-query": "style__calendar-filters-clear-query--1Zm1D",
-	"calendar-filters-no-result": "style__calendar-filters-no-result--fj77h",
-	"calendar-filter-collapse": "style__calendar-filter-collapse--3leYT",
-	"calendar-filter-category": "style__calendar-filter-category--21D19",
-	"calendar-filter-extras": "style__calendar-filter-extras--1fn1_",
 	"calendar-nav": "style__calendar-nav--1iTHF",
 	"previous-month-link": "style__previous-month-link--1-H8z",
 	"next-month-link": "style__next-month-link--1VbTv",
@@ -443,7 +426,8 @@ module.exports = {
 	"splash-android-warning": "style__splash-android-warning--14QOI",
 	"splash-request-access-error": "style__splash-request-access-error--2yOOQ",
 	"splash-request-access-success": "style__splash-request-access-success--1u1KE",
-	"custom-select": "style__custom-select--2sOOX"
+	"custom-select": "style__custom-select--2sOOX",
+	"calendar-filters-container": "style__calendar-filters-container--1V9Gv"
 };
 
 /***/ }),
@@ -457,7 +441,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Alpha = __webpack_require__(542);
+var _Alpha = __webpack_require__(543);
 
 Object.defineProperty(exports, 'Alpha', {
   enumerable: true,
@@ -475,7 +459,7 @@ Object.defineProperty(exports, 'Checkboard', {
   }
 });
 
-var _EditableInput = __webpack_require__(545);
+var _EditableInput = __webpack_require__(546);
 
 Object.defineProperty(exports, 'EditableInput', {
   enumerable: true,
@@ -484,7 +468,7 @@ Object.defineProperty(exports, 'EditableInput', {
   }
 });
 
-var _Hue = __webpack_require__(546);
+var _Hue = __webpack_require__(547);
 
 Object.defineProperty(exports, 'Hue', {
   enumerable: true,
@@ -493,7 +477,7 @@ Object.defineProperty(exports, 'Hue', {
   }
 });
 
-var _Raised = __webpack_require__(548);
+var _Raised = __webpack_require__(549);
 
 Object.defineProperty(exports, 'Raised', {
   enumerable: true,
@@ -502,7 +486,7 @@ Object.defineProperty(exports, 'Raised', {
   }
 });
 
-var _Saturation = __webpack_require__(549);
+var _Saturation = __webpack_require__(550);
 
 Object.defineProperty(exports, 'Saturation', {
   enumerable: true,
@@ -520,7 +504,7 @@ Object.defineProperty(exports, 'ColorWrap', {
   }
 });
 
-var _Swatch = __webpack_require__(556);
+var _Swatch = __webpack_require__(557);
 
 Object.defineProperty(exports, 'Swatch', {
   enumerable: true,
@@ -1863,11 +1847,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.red = undefined;
 
-var _each = __webpack_require__(553);
+var _each = __webpack_require__(554);
 
 var _each2 = _interopRequireDefault(_each);
 
-var _tinycolor = __webpack_require__(555);
+var _tinycolor = __webpack_require__(556);
 
 var _tinycolor2 = _interopRequireDefault(_tinycolor);
 
@@ -29014,7 +28998,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _checkboard = __webpack_require__(544);
+var _checkboard = __webpack_require__(545);
 
 var checkboard = _interopRequireWildcard(_checkboard);
 
@@ -29058,7 +29042,7 @@ exports.default = Checkboard;
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(19),
-    now = __webpack_require__(551),
+    now = __webpack_require__(552),
     toNumber = __webpack_require__(167);
 
 /** Error message constants. */
@@ -29509,13 +29493,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_26__style_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__account_bar_react__ = __webpack_require__(468);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__calendar_calendar_react__ = __webpack_require__(472);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__modals_account_reset_password_modal_react__ = __webpack_require__(592);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__modals_account_verification_success_modal_react__ = __webpack_require__(593);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__modals_account_reset_password_modal_react__ = __webpack_require__(593);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__modals_account_verification_success_modal_react__ = __webpack_require__(594);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__loading_indicator_react__ = __webpack_require__(68);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__router_history__ = __webpack_require__(594);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_33__splash_splash_react__ = __webpack_require__(595);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__chat_chat_react__ = __webpack_require__(598);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_35__fortawesome_fontawesome_styles_css__ = __webpack_require__(599);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__router_history__ = __webpack_require__(595);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_33__splash_splash_react__ = __webpack_require__(596);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__chat_chat_react__ = __webpack_require__(599);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_35__fortawesome_fontawesome_styles_css__ = __webpack_require__(600);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_35__fortawesome_fontawesome_styles_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_35__fortawesome_fontawesome_styles_css__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -49470,9 +49454,9 @@ ThreadPicker.propTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lib_selectors_calendar_filter_selectors__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_lib_selectors_calendar_selectors__ = __webpack_require__(530);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lib_shared_search_index__ = __webpack_require__(93);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__style_css__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15__style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__modals_threads_thread_settings_modal_react__ = __webpack_require__(531);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__filter_panel_css__ = __webpack_require__(531);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15__filter_panel_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__modals_threads_thread_settings_modal_react__ = __webpack_require__(532);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__vectors_react__ = __webpack_require__(64);
 
 
@@ -49621,7 +49605,7 @@ class FilterPanel extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
     } else {
       filters.push(__WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-no-result'], key: 'noResults' },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.noResults, key: 'noResults' },
         'No results'
       ));
     }
@@ -49644,21 +49628,23 @@ class FilterPanel extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
         { href: '#', onClick: this.clearQuery },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_5__fortawesome_react_fontawesome__["a" /* default */], {
           icon: __WEBPACK_IMPORTED_MODULE_7__fortawesome_fontawesome_free_solid_faTimesCircle___default.a,
-          className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-clear-query']
+          className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.clearQuery
         })
       );
     }
 
     return __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
       'div',
-      { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-container'] },
+      { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.container },
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-search-container'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.searchContainer },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'div',
-          { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-search'] },
-          __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_17__vectors_react__["f" /* MagnifyingGlass */], { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters-search-vector'] }),
+          { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.search },
+          __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_17__vectors_react__["f" /* MagnifyingGlass */], {
+            className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.searchVector
+          }),
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
             type: 'text',
             placeholder: 'Search',
@@ -49670,12 +49656,12 @@ class FilterPanel extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filters'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.filters },
         filters
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-extras'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.extras },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'label',
           { htmlFor: 'include-deleted-switch' },
@@ -49758,17 +49744,17 @@ class Item extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
     if (this.props.selected) {
       const afterCheckStyles = { backgroundColor: `#${threadInfo.color}` };
       afterCheck = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('div', {
-        className: __WEBPACK_IMPORTED_MODULE_3_classnames___default()(__WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-checkbox'], __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-after']),
+        className: __WEBPACK_IMPORTED_MODULE_3_classnames___default()(__WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionCheckbox, __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.checkboxAfterOption),
         style: afterCheckStyles
       });
     }
     const details = this.props.filterThreadInfo.numVisibleEntries === 1 ? "1 entry" : `${this.props.filterThreadInfo.numVisibleEntries} entries`;
     return __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
       'div',
-      { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option'] },
+      { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.option },
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-thread'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionThread },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
           type: 'checkbox',
           checked: this.props.selected,
@@ -49778,7 +49764,7 @@ class Item extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
           'label',
           null,
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('div', {
-            className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-checkbox'],
+            className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionCheckbox,
             style: beforeCheckStyles
           }),
           threadInfo.uiName,
@@ -49786,24 +49772,21 @@ class Item extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'a',
-          {
-            onClick: this.onClickOnly,
-            className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-only']
-          },
+          { onClick: this.onClickOnly, className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.only },
           'only'
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'a',
           {
             onClick: this.onClickSettings,
-            className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-cog']
+            className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.settingsCog
           },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_5__fortawesome_react_fontawesome__["a" /* default */], { icon: __WEBPACK_IMPORTED_MODULE_6__fortawesome_fontawesome_free_solid_faCog___default.a })
         )
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-details'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionDetails },
         details
       )
     );
@@ -49849,7 +49832,7 @@ class Category extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
     if (this.props.selected) {
       const afterCheckStyles = { backgroundColor: "white" };
       afterCheck = __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('div', {
-        className: __WEBPACK_IMPORTED_MODULE_3_classnames___default()(__WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-checkbox'], __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-after']),
+        className: __WEBPACK_IMPORTED_MODULE_3_classnames___default()(__WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionCheckbox, __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.checkboxAfterOption),
         style: afterCheckStyles
       });
     }
@@ -49857,10 +49840,10 @@ class Category extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
     const details = this.props.numThreads === 1 ? "1 thread" : `${this.props.numThreads} threads`;
     return __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
       'div',
-      { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-category'] },
+      { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.category },
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-thread'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionThread },
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('input', {
           type: 'checkbox',
           checked: this.props.selected,
@@ -49870,7 +49853,7 @@ class Category extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
           'label',
           null,
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"]('div', {
-            className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-checkbox'],
+            className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionCheckbox,
             style: beforeCheckStyles
           }),
           'Your threads',
@@ -49878,16 +49861,13 @@ class Category extends __WEBPACK_IMPORTED_MODULE_1_react__["PureComponent"] {
         ),
         __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
           'a',
-          {
-            onClick: this.onCollapse,
-            className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-collapse']
-          },
+          { onClick: this.onCollapse, className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.collapse },
           __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](__WEBPACK_IMPORTED_MODULE_5__fortawesome_react_fontawesome__["a" /* default */], { icon: icon })
         )
       ),
       __WEBPACK_IMPORTED_MODULE_1_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_15__style_css___default.a['calendar-filter-option-details'] },
+        { className: __WEBPACK_IMPORTED_MODULE_15__filter_panel_css___default.a.optionDetails },
         details
       )
     );
@@ -50544,6 +50524,30 @@ const filterThreadSearchIndex = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["c
 
 /***/ }),
 /* 531 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	"container": "calendar-filter-panel__container--IbFjs",
+	"filters": "calendar-filter-panel__filters--1LtH5",
+	"option": "calendar-filter-panel__option--16n0h",
+	"optionThread": "calendar-filter-panel__optionThread--3G3uI",
+	"optionCheckbox": "calendar-filter-panel__optionCheckbox--yBRzS",
+	"checkboxAfterOption": "calendar-filter-panel__checkboxAfterOption--3bSe2",
+	"only": "calendar-filter-panel__only--1GpY_",
+	"settingsCog": "calendar-filter-panel__settingsCog--SjGaS",
+	"optionDetails": "calendar-filter-panel__optionDetails--3dE-A",
+	"searchContainer": "calendar-filter-panel__searchContainer--14n_C",
+	"search": "calendar-filter-panel__search--uJlZ-",
+	"searchVector": "calendar-filter-panel__searchVector--27q7m",
+	"clearQuery": "calendar-filter-panel__clearQuery--35z4_",
+	"noResults": "calendar-filter-panel__noResults--vHe0A",
+	"collapse": "calendar-filter-panel__collapse--2wGx1",
+	"category": "calendar-filter-panel__category--YsxeZ",
+	"extras": "calendar-filter-panel__extras--3YWXi"
+};
+
+/***/ }),
+/* 532 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -50566,7 +50570,7 @@ const filterThreadSearchIndex = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["c
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__style_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modal_react__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__color_picker_react__ = __webpack_require__(532);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__color_picker_react__ = __webpack_require__(533);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 
@@ -51090,13 +51094,13 @@ const changeThreadSettingsLoadingStatusSelector = Object(__WEBPACK_IMPORTED_MODU
 }), { deleteThread: __WEBPACK_IMPORTED_MODULE_8_lib_actions_thread_actions__["d" /* deleteThread */], changeThreadSettings: __WEBPACK_IMPORTED_MODULE_8_lib_actions_thread_actions__["b" /* changeThreadSettings */] })(ThreadSettingsModal));
 
 /***/ }),
-/* 532 */
+/* 533 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_color__ = __webpack_require__(533);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_color__ = __webpack_require__(534);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_color___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react_color__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_prop_types__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_prop_types__);
@@ -51197,7 +51201,7 @@ ColorPicker.propTypes = {
 /* harmony default export */ __webpack_exports__["a"] = (ColorPicker);
 
 /***/ }),
-/* 533 */
+/* 534 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51208,7 +51212,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CustomPicker = exports.TwitterPicker = exports.SwatchesPicker = exports.SliderPicker = exports.SketchPicker = exports.PhotoshopPicker = exports.MaterialPicker = exports.HuePicker = exports.GithubPicker = exports.CompactPicker = exports.ChromePicker = exports.default = exports.CirclePicker = exports.BlockPicker = exports.AlphaPicker = undefined;
 
-var _Alpha = __webpack_require__(534);
+var _Alpha = __webpack_require__(535);
 
 Object.defineProperty(exports, 'AlphaPicker', {
   enumerable: true,
@@ -51217,7 +51221,7 @@ Object.defineProperty(exports, 'AlphaPicker', {
   }
 });
 
-var _Block = __webpack_require__(559);
+var _Block = __webpack_require__(560);
 
 Object.defineProperty(exports, 'BlockPicker', {
   enumerable: true,
@@ -51226,7 +51230,7 @@ Object.defineProperty(exports, 'BlockPicker', {
   }
 });
 
-var _Circle = __webpack_require__(561);
+var _Circle = __webpack_require__(562);
 
 Object.defineProperty(exports, 'CirclePicker', {
   enumerable: true,
@@ -51235,7 +51239,7 @@ Object.defineProperty(exports, 'CirclePicker', {
   }
 });
 
-var _Chrome = __webpack_require__(563);
+var _Chrome = __webpack_require__(564);
 
 Object.defineProperty(exports, 'ChromePicker', {
   enumerable: true,
@@ -51244,7 +51248,7 @@ Object.defineProperty(exports, 'ChromePicker', {
   }
 });
 
-var _Compact = __webpack_require__(567);
+var _Compact = __webpack_require__(568);
 
 Object.defineProperty(exports, 'CompactPicker', {
   enumerable: true,
@@ -51253,7 +51257,7 @@ Object.defineProperty(exports, 'CompactPicker', {
   }
 });
 
-var _Github = __webpack_require__(570);
+var _Github = __webpack_require__(571);
 
 Object.defineProperty(exports, 'GithubPicker', {
   enumerable: true,
@@ -51262,7 +51266,7 @@ Object.defineProperty(exports, 'GithubPicker', {
   }
 });
 
-var _Hue = __webpack_require__(572);
+var _Hue = __webpack_require__(573);
 
 Object.defineProperty(exports, 'HuePicker', {
   enumerable: true,
@@ -51271,7 +51275,7 @@ Object.defineProperty(exports, 'HuePicker', {
   }
 });
 
-var _Material = __webpack_require__(574);
+var _Material = __webpack_require__(575);
 
 Object.defineProperty(exports, 'MaterialPicker', {
   enumerable: true,
@@ -51280,7 +51284,7 @@ Object.defineProperty(exports, 'MaterialPicker', {
   }
 });
 
-var _Photoshop = __webpack_require__(575);
+var _Photoshop = __webpack_require__(576);
 
 Object.defineProperty(exports, 'PhotoshopPicker', {
   enumerable: true,
@@ -51289,7 +51293,7 @@ Object.defineProperty(exports, 'PhotoshopPicker', {
   }
 });
 
-var _Sketch = __webpack_require__(581);
+var _Sketch = __webpack_require__(582);
 
 Object.defineProperty(exports, 'SketchPicker', {
   enumerable: true,
@@ -51298,7 +51302,7 @@ Object.defineProperty(exports, 'SketchPicker', {
   }
 });
 
-var _Slider = __webpack_require__(584);
+var _Slider = __webpack_require__(585);
 
 Object.defineProperty(exports, 'SliderPicker', {
   enumerable: true,
@@ -51307,7 +51311,7 @@ Object.defineProperty(exports, 'SliderPicker', {
   }
 });
 
-var _Swatches = __webpack_require__(588);
+var _Swatches = __webpack_require__(589);
 
 Object.defineProperty(exports, 'SwatchesPicker', {
   enumerable: true,
@@ -51316,7 +51320,7 @@ Object.defineProperty(exports, 'SwatchesPicker', {
   }
 });
 
-var _Twitter = __webpack_require__(591);
+var _Twitter = __webpack_require__(592);
 
 Object.defineProperty(exports, 'TwitterPicker', {
   enumerable: true,
@@ -51341,7 +51345,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = _Chrome2.default;
 
 /***/ }),
-/* 534 */
+/* 535 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51364,7 +51368,7 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _AlphaPointer = __webpack_require__(558);
+var _AlphaPointer = __webpack_require__(559);
 
 var _AlphaPointer2 = _interopRequireDefault(_AlphaPointer);
 
@@ -51421,7 +51425,7 @@ AlphaPicker.defaultProps = {
 exports.default = (0, _common.ColorWrap)(AlphaPicker);
 
 /***/ }),
-/* 535 */
+/* 536 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51476,7 +51480,7 @@ var flattenNames = exports.flattenNames = function flattenNames() {
 exports.default = flattenNames;
 
 /***/ }),
-/* 536 */
+/* 537 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51491,7 +51495,7 @@ var _forOwn2 = __webpack_require__(144);
 
 var _forOwn3 = _interopRequireDefault(_forOwn2);
 
-var _cloneDeep2 = __webpack_require__(537);
+var _cloneDeep2 = __webpack_require__(538);
 
 var _cloneDeep3 = _interopRequireDefault(_cloneDeep2);
 
@@ -51523,7 +51527,7 @@ var mergeClasses = exports.mergeClasses = function mergeClasses(classes) {
 exports.default = mergeClasses;
 
 /***/ }),
-/* 537 */
+/* 538 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseClone = __webpack_require__(81);
@@ -51558,7 +51562,7 @@ module.exports = cloneDeep;
 
 
 /***/ }),
-/* 538 */
+/* 539 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51689,7 +51693,7 @@ var autoprefix = exports.autoprefix = function autoprefix(elements) {
 exports.default = autoprefix;
 
 /***/ }),
-/* 539 */
+/* 540 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51751,7 +51755,7 @@ var hover = exports.hover = function hover(Component) {
 exports.default = hover;
 
 /***/ }),
-/* 540 */
+/* 541 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51813,7 +51817,7 @@ var active = exports.active = function active(Component) {
 exports.default = active;
 
 /***/ }),
-/* 541 */
+/* 542 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51842,7 +51846,7 @@ var loopable = function loopable(i, length) {
 exports.default = loopable;
 
 /***/ }),
-/* 542 */
+/* 543 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51865,7 +51869,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _alpha = __webpack_require__(543);
+var _alpha = __webpack_require__(544);
 
 var alpha = _interopRequireWildcard(_alpha);
 
@@ -52010,7 +52014,7 @@ var Alpha = exports.Alpha = function (_ref) {
 exports.default = Alpha;
 
 /***/ }),
-/* 543 */
+/* 544 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52071,7 +52075,7 @@ var calculateChange = exports.calculateChange = function calculateChange(e, skip
 };
 
 /***/ }),
-/* 544 */
+/* 545 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52114,7 +52118,7 @@ var get = exports.get = function get(c1, c2, size, serverCanvas) {
 };
 
 /***/ }),
-/* 545 */
+/* 546 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52317,7 +52321,7 @@ var EditableInput = exports.EditableInput = function (_ref) {
 exports.default = EditableInput;
 
 /***/ }),
-/* 546 */
+/* 547 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52338,7 +52342,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _hue = __webpack_require__(547);
+var _hue = __webpack_require__(548);
 
 var hue = _interopRequireWildcard(_hue);
 
@@ -52469,7 +52473,7 @@ var Hue = exports.Hue = function (_ref) {
 exports.default = Hue;
 
 /***/ }),
-/* 547 */
+/* 548 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52532,7 +52536,7 @@ var calculateChange = exports.calculateChange = function calculateChange(e, skip
 };
 
 /***/ }),
-/* 548 */
+/* 549 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52649,7 +52653,7 @@ Raised.defaultProps = {
 exports.default = Raised;
 
 /***/ }),
-/* 549 */
+/* 550 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52670,11 +52674,11 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _throttle = __webpack_require__(550);
+var _throttle = __webpack_require__(551);
 
 var _throttle2 = _interopRequireDefault(_throttle);
 
-var _saturation = __webpack_require__(552);
+var _saturation = __webpack_require__(553);
 
 var saturation = _interopRequireWildcard(_saturation);
 
@@ -52815,7 +52819,7 @@ var Saturation = exports.Saturation = function (_ref) {
 exports.default = Saturation;
 
 /***/ }),
-/* 550 */
+/* 551 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var debounce = __webpack_require__(244),
@@ -52890,7 +52894,7 @@ module.exports = throttle;
 
 
 /***/ }),
-/* 551 */
+/* 552 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var root = __webpack_require__(12);
@@ -52919,7 +52923,7 @@ module.exports = now;
 
 
 /***/ }),
-/* 552 */
+/* 553 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52963,14 +52967,14 @@ var calculateChange = exports.calculateChange = function calculateChange(e, skip
 };
 
 /***/ }),
-/* 553 */
+/* 554 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(554);
+module.exports = __webpack_require__(555);
 
 
 /***/ }),
-/* 554 */
+/* 555 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var arrayEach = __webpack_require__(73),
@@ -53017,7 +53021,7 @@ module.exports = forEach;
 
 
 /***/ }),
-/* 555 */
+/* 556 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;// TinyColor v1.4.1
@@ -54219,7 +54223,7 @@ else {
 
 
 /***/ }),
-/* 556 */
+/* 557 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54240,7 +54244,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _interaction = __webpack_require__(557);
+var _interaction = __webpack_require__(558);
 
 var _ = __webpack_require__(7);
 
@@ -54310,7 +54314,7 @@ var Swatch = exports.Swatch = function Swatch(_ref) {
 exports.default = (0, _interaction.handleFocus)(Swatch);
 
 /***/ }),
-/* 557 */
+/* 558 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54377,7 +54381,7 @@ var handleFocus = exports.handleFocus = function handleFocus(Component) {
 };
 
 /***/ }),
-/* 558 */
+/* 559 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54425,7 +54429,7 @@ var AlphaPointer = exports.AlphaPointer = function AlphaPointer(_ref) {
 exports.default = AlphaPointer;
 
 /***/ }),
-/* 559 */
+/* 560 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54454,7 +54458,7 @@ var _color2 = _interopRequireDefault(_color);
 
 var _common = __webpack_require__(7);
 
-var _BlockSwatches = __webpack_require__(560);
+var _BlockSwatches = __webpack_require__(561);
 
 var _BlockSwatches2 = _interopRequireDefault(_BlockSwatches);
 
@@ -54577,7 +54581,7 @@ Block.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Block);
 
 /***/ }),
-/* 560 */
+/* 561 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54650,7 +54654,7 @@ var BlockSwatches = exports.BlockSwatches = function BlockSwatches(_ref) {
 exports.default = BlockSwatches;
 
 /***/ }),
-/* 561 */
+/* 562 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54683,7 +54687,7 @@ var material = _interopRequireWildcard(_materialColors);
 
 var _common = __webpack_require__(7);
 
-var _CircleSwatch = __webpack_require__(562);
+var _CircleSwatch = __webpack_require__(563);
 
 var _CircleSwatch2 = _interopRequireDefault(_CircleSwatch);
 
@@ -54751,7 +54755,7 @@ Circle.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Circle);
 
 /***/ }),
-/* 562 */
+/* 563 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54833,7 +54837,7 @@ CircleSwatch.defaultProps = {
 exports.default = (0, _reactcss.handleHover)(CircleSwatch);
 
 /***/ }),
-/* 563 */
+/* 564 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54858,15 +54862,15 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _ChromeFields = __webpack_require__(564);
+var _ChromeFields = __webpack_require__(565);
 
 var _ChromeFields2 = _interopRequireDefault(_ChromeFields);
 
-var _ChromePointer = __webpack_require__(565);
+var _ChromePointer = __webpack_require__(566);
 
 var _ChromePointer2 = _interopRequireDefault(_ChromePointer);
 
-var _ChromePointerCircle = __webpack_require__(566);
+var _ChromePointerCircle = __webpack_require__(567);
 
 var _ChromePointerCircle2 = _interopRequireDefault(_ChromePointerCircle);
 
@@ -55043,7 +55047,7 @@ Chrome.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Chrome);
 
 /***/ }),
-/* 564 */
+/* 565 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55399,7 +55403,7 @@ var ChromeFields = exports.ChromeFields = function (_React$Component) {
 exports.default = ChromeFields;
 
 /***/ }),
-/* 565 */
+/* 566 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55440,7 +55444,7 @@ var ChromePointer = exports.ChromePointer = function ChromePointer() {
 exports.default = ChromePointer;
 
 /***/ }),
-/* 566 */
+/* 567 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55480,7 +55484,7 @@ var ChromePointerCircle = exports.ChromePointerCircle = function ChromePointerCi
 exports.default = ChromePointerCircle;
 
 /***/ }),
-/* 567 */
+/* 568 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55513,11 +55517,11 @@ var _color2 = _interopRequireDefault(_color);
 
 var _common = __webpack_require__(7);
 
-var _CompactColor = __webpack_require__(568);
+var _CompactColor = __webpack_require__(569);
 
 var _CompactColor2 = _interopRequireDefault(_CompactColor);
 
-var _CompactFields = __webpack_require__(569);
+var _CompactFields = __webpack_require__(570);
 
 var _CompactFields2 = _interopRequireDefault(_CompactFields);
 
@@ -55597,7 +55601,7 @@ Compact.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Compact);
 
 /***/ }),
-/* 568 */
+/* 569 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55686,7 +55690,7 @@ var CompactColor = exports.CompactColor = function CompactColor(_ref) {
 exports.default = CompactColor;
 
 /***/ }),
-/* 569 */
+/* 570 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55825,7 +55829,7 @@ var CompactFields = exports.CompactFields = function CompactFields(_ref) {
 exports.default = CompactFields;
 
 /***/ }),
-/* 570 */
+/* 571 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55854,7 +55858,7 @@ var _map2 = _interopRequireDefault(_map);
 
 var _common = __webpack_require__(7);
 
-var _GithubSwatch = __webpack_require__(571);
+var _GithubSwatch = __webpack_require__(572);
 
 var _GithubSwatch2 = _interopRequireDefault(_GithubSwatch);
 
@@ -55988,7 +55992,7 @@ Github.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Github);
 
 /***/ }),
-/* 571 */
+/* 572 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56052,7 +56056,7 @@ var GithubSwatch = exports.GithubSwatch = function GithubSwatch(_ref) {
 exports.default = (0, _reactcss.handleHover)(GithubSwatch);
 
 /***/ }),
-/* 572 */
+/* 573 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56075,7 +56079,7 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _HuePointer = __webpack_require__(573);
+var _HuePointer = __webpack_require__(574);
 
 var _HuePointer2 = _interopRequireDefault(_HuePointer);
 
@@ -56131,7 +56135,7 @@ HuePicker.defaultProps = {
 exports.default = (0, _common.ColorWrap)(HuePicker);
 
 /***/ }),
-/* 573 */
+/* 574 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56179,7 +56183,7 @@ var SliderPointer = exports.SliderPointer = function SliderPointer(_ref) {
 exports.default = SliderPointer;
 
 /***/ }),
-/* 574 */
+/* 575 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56348,7 +56352,7 @@ var Material = exports.Material = function Material(_ref) {
 exports.default = (0, _common.ColorWrap)(Material);
 
 /***/ }),
-/* 575 */
+/* 576 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56375,23 +56379,23 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _PhotoshopFields = __webpack_require__(576);
+var _PhotoshopFields = __webpack_require__(577);
 
 var _PhotoshopFields2 = _interopRequireDefault(_PhotoshopFields);
 
-var _PhotoshopPointerCircle = __webpack_require__(577);
+var _PhotoshopPointerCircle = __webpack_require__(578);
 
 var _PhotoshopPointerCircle2 = _interopRequireDefault(_PhotoshopPointerCircle);
 
-var _PhotoshopPointer = __webpack_require__(578);
+var _PhotoshopPointer = __webpack_require__(579);
 
 var _PhotoshopPointer2 = _interopRequireDefault(_PhotoshopPointer);
 
-var _PhotoshopButton = __webpack_require__(579);
+var _PhotoshopButton = __webpack_require__(580);
 
 var _PhotoshopButton2 = _interopRequireDefault(_PhotoshopButton);
 
-var _PhotoshopPreviews = __webpack_require__(580);
+var _PhotoshopPreviews = __webpack_require__(581);
 
 var _PhotoshopPreviews2 = _interopRequireDefault(_PhotoshopPreviews);
 
@@ -56558,7 +56562,7 @@ Photoshop.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Photoshop);
 
 /***/ }),
-/* 576 */
+/* 577 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56757,7 +56761,7 @@ var PhotoshopPicker = exports.PhotoshopPicker = function PhotoshopPicker(_ref) {
 exports.default = PhotoshopPicker;
 
 /***/ }),
-/* 577 */
+/* 578 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56804,7 +56808,7 @@ var PhotoshopPointerCircle = exports.PhotoshopPointerCircle = function Photoshop
 exports.default = PhotoshopPointerCircle;
 
 /***/ }),
-/* 578 */
+/* 579 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56885,7 +56889,7 @@ var PhotoshopPointerCircle = exports.PhotoshopPointerCircle = function Photoshop
 exports.default = PhotoshopPointerCircle;
 
 /***/ }),
-/* 579 */
+/* 580 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56945,7 +56949,7 @@ var PhotoshopBotton = exports.PhotoshopBotton = function PhotoshopBotton(_ref) {
 exports.default = PhotoshopBotton;
 
 /***/ }),
-/* 580 */
+/* 581 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57021,7 +57025,7 @@ var PhotoshopPreviews = exports.PhotoshopPreviews = function PhotoshopPreviews(_
 exports.default = PhotoshopPreviews;
 
 /***/ }),
-/* 581 */
+/* 582 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57046,11 +57050,11 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _SketchFields = __webpack_require__(582);
+var _SketchFields = __webpack_require__(583);
 
 var _SketchFields2 = _interopRequireDefault(_SketchFields);
 
-var _SketchPresetColors = __webpack_require__(583);
+var _SketchPresetColors = __webpack_require__(584);
 
 var _SketchPresetColors2 = _interopRequireDefault(_SketchPresetColors);
 
@@ -57221,7 +57225,7 @@ Sketch.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Sketch);
 
 /***/ }),
-/* 582 */
+/* 583 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57397,7 +57401,7 @@ var SketchFields = exports.SketchFields = function SketchFields(_ref) {
 exports.default = SketchFields;
 
 /***/ }),
-/* 583 */
+/* 584 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57500,7 +57504,7 @@ SketchPresetColors.propTypes = {
 exports.default = SketchPresetColors;
 
 /***/ }),
-/* 584 */
+/* 585 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57521,11 +57525,11 @@ var _reactcss2 = _interopRequireDefault(_reactcss);
 
 var _common = __webpack_require__(7);
 
-var _SliderSwatches = __webpack_require__(585);
+var _SliderSwatches = __webpack_require__(586);
 
 var _SliderSwatches2 = _interopRequireDefault(_SliderSwatches);
 
-var _SliderPointer = __webpack_require__(587);
+var _SliderPointer = __webpack_require__(588);
 
 var _SliderPointer2 = _interopRequireDefault(_SliderPointer);
 
@@ -57578,7 +57582,7 @@ Slider.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Slider);
 
 /***/ }),
-/* 585 */
+/* 586 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57597,7 +57601,7 @@ var _reactcss = __webpack_require__(3);
 
 var _reactcss2 = _interopRequireDefault(_reactcss);
 
-var _SliderSwatch = __webpack_require__(586);
+var _SliderSwatch = __webpack_require__(587);
 
 var _SliderSwatch2 = _interopRequireDefault(_SliderSwatch);
 
@@ -57686,7 +57690,7 @@ var SliderSwatches = exports.SliderSwatches = function SliderSwatches(_ref) {
 exports.default = SliderSwatches;
 
 /***/ }),
-/* 586 */
+/* 587 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57757,7 +57761,7 @@ var SliderSwatch = exports.SliderSwatch = function SliderSwatch(_ref) {
 exports.default = SliderSwatch;
 
 /***/ }),
-/* 587 */
+/* 588 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57798,7 +57802,7 @@ var SliderPointer = exports.SliderPointer = function SliderPointer() {
 exports.default = SliderPointer;
 
 /***/ }),
-/* 588 */
+/* 589 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57835,7 +57839,7 @@ var material = _interopRequireWildcard(_materialColors);
 
 var _common = __webpack_require__(7);
 
-var _SwatchesGroup = __webpack_require__(589);
+var _SwatchesGroup = __webpack_require__(590);
 
 var _SwatchesGroup2 = _interopRequireDefault(_SwatchesGroup);
 
@@ -57922,7 +57926,7 @@ Swatches.propTypes = {
 exports.default = (0, _common.ColorWrap)(Swatches);
 
 /***/ }),
-/* 589 */
+/* 590 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57945,7 +57949,7 @@ var _map = __webpack_require__(28);
 
 var _map2 = _interopRequireDefault(_map);
 
-var _SwatchesColor = __webpack_require__(590);
+var _SwatchesColor = __webpack_require__(591);
 
 var _SwatchesColor2 = _interopRequireDefault(_SwatchesColor);
 
@@ -57988,7 +57992,7 @@ var SwatchesGroup = exports.SwatchesGroup = function SwatchesGroup(_ref) {
 exports.default = SwatchesGroup;
 
 /***/ }),
-/* 590 */
+/* 591 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -58101,7 +58105,7 @@ var SwatchesColor = exports.SwatchesColor = function SwatchesColor(_ref) {
 exports.default = SwatchesColor;
 
 /***/ }),
-/* 591 */
+/* 592 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -58306,7 +58310,7 @@ Twitter.defaultProps = {
 exports.default = (0, _common.ColorWrap)(Twitter);
 
 /***/ }),
-/* 592 */
+/* 593 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -58535,7 +58539,7 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_l
 }), { resetPassword: __WEBPACK_IMPORTED_MODULE_4_lib_actions_user_actions__["r" /* resetPassword */] })(ResetPasswordModal));
 
 /***/ }),
-/* 593 */
+/* 594 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -58567,7 +58571,7 @@ function VerificationSuccessModal(props) {
 }
 
 /***/ }),
-/* 594 */
+/* 595 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -58597,12 +58601,12 @@ const history = process.env.BROWSER ? __WEBPACK_IMPORTED_MODULE_0_history_create
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(9)))
 
 /***/ }),
-/* 595 */
+/* 596 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lib_types_device_types__ = __webpack_require__(596);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lib_types_loading_types__ = __webpack_require__(597);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lib_types_device_types__ = __webpack_require__(597);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lib_types_loading_types__ = __webpack_require__(598);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_prop_types__ = __webpack_require__(2);
@@ -58946,7 +58950,7 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_l
 }), { requestAccess: __WEBPACK_IMPORTED_MODULE_7_lib_actions_user_actions__["n" /* requestAccess */] })(Splash));
 
 /***/ }),
-/* 596 */
+/* 597 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -58966,7 +58970,7 @@ function assertDeviceType(deviceType) {
 }
 
 /***/ }),
-/* 597 */
+/* 598 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -58979,7 +58983,7 @@ const loadingStatusPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a
 
 
 /***/ }),
-/* 598 */
+/* 599 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -59006,7 +59010,7 @@ class Chat extends __WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"] {
 /* harmony default export */ __webpack_exports__["a"] = (Chat);
 
 /***/ }),
-/* 599 */
+/* 600 */
 /***/ (function(module, exports) {
 
 module.exports = {
