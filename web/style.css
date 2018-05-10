@@ -317,6 +317,8 @@ div.calendar-filters-container {
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
 }
 div.calendar-filters {
   color: #DDDDDD;
@@ -471,7 +473,7 @@ div.calendar-filter-category {
 h2.calendar-nav {
   font-family: 'Anaheim', sans-serif;
   text-align: center;
-  margin: 0 auto 15px auto;
+  margin: 8px auto 0px auto;
   width: 200px;
   color: #333333;
 }
@@ -498,7 +500,7 @@ a.calendar-filters-button {
   background-color: #444455AA;
   padding: 8px 18px;
   border-radius: 18px;
-  margin: 5px 15px;
+  margin: 0 15px 5px 15px;
   font-size: 16px;
   cursor: pointer;
   text-transform: uppercase;
