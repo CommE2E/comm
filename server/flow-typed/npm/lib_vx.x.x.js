@@ -1,4 +1,4 @@
-// flow-typed signature: 5d7a7a79bbbee5c961f518d9cc4d656b
+// flow-typed signature: 9ac7223eaefc14df2b4a5c0c349a1434
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.64.0
 
 /**
@@ -186,6 +186,10 @@ declare module 'lib/selectors/calendar-filter-selectors' {
   declare module.exports: any;
 }
 
+declare module 'lib/selectors/calendar-selectors' {
+  declare module.exports: any;
+}
+
 declare module 'lib/selectors/loading-selectors' {
   declare module.exports: any;
 }
@@ -251,10 +255,6 @@ declare module 'lib/shared/thread-utils' {
 }
 
 declare module 'lib/shared/thread-watcher' {
-  declare module.exports: any;
-}
-
-declare module 'lib/shared/typeahead-text' {
   declare module.exports: any;
 }
 
@@ -514,6 +514,9 @@ declare module 'lib/reducers/user-reducer.js' {
 declare module 'lib/selectors/calendar-filter-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/calendar-filter-selectors'>;
 }
+declare module 'lib/selectors/calendar-selectors.js' {
+  declare module.exports: $Exports<'lib/selectors/calendar-selectors'>;
+}
 declare module 'lib/selectors/loading-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/loading-selectors'>;
 }
@@ -564,9 +567,6 @@ declare module 'lib/shared/thread-utils.js' {
 }
 declare module 'lib/shared/thread-watcher.js' {
   declare module.exports: $Exports<'lib/shared/thread-watcher'>;
-}
-declare module 'lib/shared/typeahead-text.js' {
-  declare module.exports: $Exports<'lib/shared/typeahead-text'>;
 }
 declare module 'lib/shared/update-utils.js' {
   declare module.exports: $Exports<'lib/shared/update-utils'>;

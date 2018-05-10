@@ -32,7 +32,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import {
-  includeDeletedCalendarFilters,
+  nonExcludeDeletedCalendarFiltersSelector,
 } from 'lib/selectors/calendar-filter-selectors';
 
 import css from '../../style.css';
@@ -262,7 +262,7 @@ export default connect(
     entryInfos: allDaysToEntries(state)[ownProps.dayString],
     dayLoadingStatus: dayLoadingStatusSelector(state),
     entryLoadingStatus: entryLoadingStatusSelector(state),
-    calendarFilters: includeDeletedCalendarFilters(state),
+    calendarFilters: nonExcludeDeletedCalendarFiltersSelector(state),
   }),
   { fetchEntries, fetchRevisionsForEntry },
 )(HistoryModal);

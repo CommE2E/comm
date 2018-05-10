@@ -10,6 +10,7 @@ import {
   filterThreadInfoPropType,
   updateCalendarThreadFilter,
   clearCalendarThreadFilter,
+  setCalendarDeletedFilter,
 } from 'lib/types/filter-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
@@ -22,10 +23,12 @@ import faCog from '@fortawesome/fontawesome-free-solid/faCog';
 import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle';
 import faChevronUp from '@fortawesome/fontawesome-free-solid/faChevronUp';
 import faChevronDown from '@fortawesome/fontawesome-free-solid/faChevronDown';
+import Switch from "react-switch";
 
 import { connect } from 'lib/utils/redux-utils';
 import {
   filteredThreadIDsSelector,
+  includeDeletedSelector,
 } from 'lib/selectors/calendar-filter-selectors';
 import {
   filterThreadInfos,
@@ -43,6 +46,7 @@ type Props = {|
   filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   filterThreadSearchIndex: () => SearchIndex,
   filteredThreadIDs: ?Set<string>,
+  includeDeleted: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -58,6 +62,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     filterThreadInfos: PropTypes.func.isRequired,
     filterThreadSearchIndex: PropTypes.func.isRequired,
     filteredThreadIDs: PropTypes.instanceOf(Set),
+    includeDeleted: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   state = {
@@ -141,6 +146,20 @@ class FilterPanel extends React.PureComponent<Props, State> {
         </div>
         <div className={css['calendar-filters']}>
           {filters}
+        </div>
+        <div className={css['calendar-filter-extras']}>
+          <label htmlFor="include-deleted-switch">
+            <Switch
+              checked={this.props.includeDeleted}
+              onChange={this.onChangeIncludeDeleted}
+              checkedIcon={false}
+              uncheckedIcon={false}
+              height={20}
+              width={40}
+              id="include-deleted-switch"
+            />
+            <span>Include deleted entries</span>
+          </label>
         </div>
       </div>
     );
@@ -226,6 +245,13 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   onCollapse = (value: bool) => {
     this.setState({ collapsed: value });
+  }
+
+  onChangeIncludeDeleted = (includeDeleted: bool) => {
+    this.props.dispatchActionPayload(
+      setCalendarDeletedFilter,
+      { includeDeleted },
+    );
   }
 
   clearModal = () => {
@@ -407,6 +433,7 @@ export default connect(
     filteredThreadIDs: filteredThreadIDsSelector(state),
     filterThreadInfos: filterThreadInfos(state),
     filterThreadSearchIndex: filterThreadSearchIndex(state),
+    includeDeleted: includeDeletedSelector(state),
   }),
   null,
   true,

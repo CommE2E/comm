@@ -254,10 +254,8 @@ div.chat-container {
 }
 
 div.upper-right {
-  position: absolute;
+  float: right;
   padding: 15px 16px;
-  top: 0;
-  right: 0;
 }
 span.loading-indicator-loading {
   display: inline-block;
@@ -469,6 +467,20 @@ a.calendar-filter-collapse {
 div.calendar-filter-category {
   margin: 5px 18px 8px 18px;
 }
+div.calendar-filter-extras {
+  background-color: #000000E4;
+  color: #DDDDDD;
+  padding: 8px 20px;
+  font-size: 14px;
+  display: flex;
+}
+div.calendar-filter-extras > label {
+  display: flex;
+  align-items: center;
+}
+div.calendar-filter-extras > label > span {
+  margin-left: 8px;
+}
 
 h2.calendar-nav {
   font-family: 'Anaheim', sans-serif;
@@ -521,6 +533,7 @@ div.account-bar {
   font-weight: 600;
   padding: 0 6px;
   cursor: pointer;
+  float: right;
 }
 div.account-button {
   padding: 3px 4px 3px 8px;
@@ -1122,15 +1135,15 @@ div.new-thread-privacy-container {
 }
 
 span.page-loading {
-  margin-top: 6px;
-  margin-right: 10px;
+  margin-top: 5px;
+  margin-right: 12px;
   float: left;
 }
 span.page-error {
-  margin-top: 16px;
-  margin-right: 10px;
-  font-size: 28px;
+  margin: 15px;
+  font-size: 42px;
   float: left;
+  color: red;
 }
 
 div.color-picker-container {

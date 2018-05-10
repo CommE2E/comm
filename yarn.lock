@@ -7702,6 +7702,12 @@ react-router@^4.1.1, react-router@^4.2.0:
     prop-types "^15.5.4"
     warning "^3.0.0"
 
+react-switch@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/react-switch/-/react-switch-2.3.2.tgz#4fc5ce48578a8ea2e0a1433f32eb9af0d1be3c0e"
+  dependencies:
+    prop-types "^15.6.0"
+
 react-test-renderer@^15.6.1:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-15.6.2.tgz#d0333434fc2c438092696ca770da5ed48037efa8"

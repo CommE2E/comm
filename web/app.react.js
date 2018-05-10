@@ -48,6 +48,9 @@ import {
 } from 'lib/selectors/session-selectors';
 import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 import { registerConfig } from 'lib/utils/config';
+import {
+  includeDeletedSelector,
+} from 'lib/selectors/calendar-filter-selectors';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
@@ -95,7 +98,7 @@ type Props = {
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
   loggedIn: bool,
-  cookie: ?string,
+  includeDeleted: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -274,7 +277,8 @@ class App extends React.PureComponent<Props, State> {
     if (
       nextProps.loggedIn &&
       (nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
-        nextProps.navInfo.endDate !== this.props.navInfo.endDate)
+        nextProps.navInfo.endDate !== this.props.navInfo.endDate ||
+        nextProps.includeDeleted !== this.props.includeDeleted)
     ) {
       nextProps.dispatchActionPromise(
         fetchEntriesActionTypes,
@@ -443,7 +447,7 @@ App.propTypes = {
   sessionTimeLeft: PropTypes.func.isRequired,
   nextSessionID: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  cookie: PropTypes.string,
+  includeDeleted: PropTypes.bool.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   fetchEntries: PropTypes.func.isRequired,
@@ -466,7 +470,7 @@ export default connect(
     nextSessionID: nextSessionID(state),
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
-    cookie: state.cookie,
+    includeDeleted: includeDeletedSelector(state),
   }),
   { fetchEntries, ping },
 )(App);

@@ -1,4 +1,4 @@
-// flow-typed signature: 7246e2d17248caa0cc26cf7a85e85688
+// flow-typed signature: 9ac7223eaefc14df2b4a5c0c349a1434
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.64.0
 
 /**
@@ -118,6 +118,10 @@ declare module 'lib/permissions/thread-permissions' {
   declare module.exports: any;
 }
 
+declare module 'lib/reducers/calendar-filters-reducer' {
+  declare module.exports: any;
+}
+
 declare module 'lib/reducers/cookie-reducer' {
   declare module.exports: any;
 }
@@ -175,6 +179,14 @@ declare module 'lib/reducers/url-prefix-reducer' {
 }
 
 declare module 'lib/reducers/user-reducer' {
+  declare module.exports: any;
+}
+
+declare module 'lib/selectors/calendar-filter-selectors' {
+  declare module.exports: any;
+}
+
+declare module 'lib/selectors/calendar-selectors' {
   declare module.exports: any;
 }
 
@@ -246,10 +258,6 @@ declare module 'lib/shared/thread-watcher' {
   declare module.exports: any;
 }
 
-declare module 'lib/shared/typeahead-text' {
-  declare module.exports: any;
-}
-
 declare module 'lib/shared/update-utils' {
   declare module.exports: any;
 }
@@ -275,6 +283,10 @@ declare module 'lib/types/endpoints' {
 }
 
 declare module 'lib/types/entry-types' {
+  declare module.exports: any;
+}
+
+declare module 'lib/types/filter-types' {
   declare module.exports: any;
 }
 
@@ -451,6 +463,9 @@ declare module 'lib/flow-typed/npm/whatwg-fetch_vx.x.x.js' {
 declare module 'lib/permissions/thread-permissions.js' {
   declare module.exports: $Exports<'lib/permissions/thread-permissions'>;
 }
+declare module 'lib/reducers/calendar-filters-reducer.js' {
+  declare module.exports: $Exports<'lib/reducers/calendar-filters-reducer'>;
+}
 declare module 'lib/reducers/cookie-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/cookie-reducer'>;
 }
@@ -495,6 +510,12 @@ declare module 'lib/reducers/url-prefix-reducer.js' {
 }
 declare module 'lib/reducers/user-reducer.js' {
   declare module.exports: $Exports<'lib/reducers/user-reducer'>;
+}
+declare module 'lib/selectors/calendar-filter-selectors.js' {
+  declare module.exports: $Exports<'lib/selectors/calendar-filter-selectors'>;
+}
+declare module 'lib/selectors/calendar-selectors.js' {
+  declare module.exports: $Exports<'lib/selectors/calendar-selectors'>;
 }
 declare module 'lib/selectors/loading-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/loading-selectors'>;
@@ -547,9 +568,6 @@ declare module 'lib/shared/thread-utils.js' {
 declare module 'lib/shared/thread-watcher.js' {
   declare module.exports: $Exports<'lib/shared/thread-watcher'>;
 }
-declare module 'lib/shared/typeahead-text.js' {
-  declare module.exports: $Exports<'lib/shared/typeahead-text'>;
-}
 declare module 'lib/shared/update-utils.js' {
   declare module.exports: $Exports<'lib/shared/update-utils'>;
 }
@@ -570,6 +588,9 @@ declare module 'lib/types/endpoints.js' {
 }
 declare module 'lib/types/entry-types.js' {
   declare module.exports: $Exports<'lib/types/entry-types'>;
+}
+declare module 'lib/types/filter-types.js' {
+  declare module.exports: $Exports<'lib/types/filter-types'>;
 }
 declare module 'lib/types/history-types.js' {
   declare module.exports: $Exports<'lib/types/history-types'>;
