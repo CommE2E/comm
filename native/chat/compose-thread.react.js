@@ -45,14 +45,12 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
-  threadHasPermission,
-  viewerIsMember,
+  viewerCanSeeThread,
   userIsMember,
 } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { threadPermissions } from 'lib/types/thread-types';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
@@ -255,8 +253,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     return _flow(
       _filter(
         (threadInfo: ThreadInfo) =>
-          viewerIsMember(threadInfo) &&
-          threadHasPermission(threadInfo, threadPermissions.VISIBLE) &&
+          viewerCanSeeThread(threadInfo) &&
           (!props.parentThreadInfo ||
             threadInfo.parentThreadID === props.parentThreadInfo.id) &&
           userIDs.every(userID => userIsMember(threadInfo, userID)),

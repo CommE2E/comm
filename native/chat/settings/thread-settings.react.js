@@ -37,7 +37,11 @@ import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
-import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  viewerIsMember,
+  viewerCanSeeThread,
+} from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 
 import {
@@ -235,7 +239,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
     const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
-    if (!viewerIsMember(threadInfo)) {
+    if (!viewerCanSeeThread(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
   }
@@ -243,7 +247,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
     const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
-    if (!viewerIsMember(threadInfo)) {
+    if (!viewerCanSeeThread(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
   }
@@ -253,13 +257,13 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     const newThreadInfo = nextProps.threadInfo;
 
     if (
-      viewerIsMember(oldThreadInfo) &&
-      !viewerIsMember(newThreadInfo)
+      viewerCanSeeThread(oldThreadInfo) &&
+      !viewerCanSeeThread(newThreadInfo)
     ) {
       threadWatcher.watchID(oldThreadInfo.id);
     } else if (
-      !viewerIsMember(oldThreadInfo) &&
-      viewerIsMember(newThreadInfo)
+      !viewerCanSeeThread(oldThreadInfo) &&
+      viewerCanSeeThread(newThreadInfo)
     ) {
       threadWatcher.removeID(oldThreadInfo.id);
     }
