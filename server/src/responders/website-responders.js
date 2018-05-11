@@ -34,7 +34,7 @@ import { navInfoFromURL } from 'web/url-utils';
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
@@ -86,6 +86,12 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     mostRecentMessageTimestamp(rawMessageInfos, initialTime),
     threadInfos,
   );
+  if (navInfo.activeChatThreadID) {
+    const validThreadID = await verifyThreadID(navInfo.activeChatThreadID);
+    if (!validThreadID) {
+      navInfo.activeChatThreadID = null;
+    }
+  }
   if (!navInfo.activeChatThreadID) {
     const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);
     if (mostRecentThread) {
