@@ -1,10 +1,11 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
 import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -18,17 +19,25 @@ import ChatThreadListItem from './chat-thread-list-item.react';
 type Props = {|
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
+  navInfo: NavInfo,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
 |};
 class ChatThreadList extends React.PureComponent<Props> {
 
   static propTypes = {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
+    navInfo: navInfoPropType.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   render() {
     const threads = this.props.chatListData.map(item => (
       <ChatThreadListItem
         item={item}
+        active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
+        navInfo={this.props.navInfo}
+        dispatchActionPayload={this.props.dispatchActionPayload}
         key={item.threadInfo.id}
       />
     ));
@@ -41,6 +50,11 @@ class ChatThreadList extends React.PureComponent<Props> {
 
 }
 
-export default connect((state: AppState) => ({
-  chatListData: chatListData(state),
-}))(ChatThreadList);
+export default connect(
+  (state: AppState) => ({
+    chatListData: chatListData(state),
+    navInfo: state.navInfo,
+  }),
+  null,
+  true,
+)(ChatThreadList);

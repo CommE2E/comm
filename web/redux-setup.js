@@ -20,6 +20,7 @@ import {
   newThreadActionTypes,
   deleteThreadActionTypes,
 } from 'lib/actions/thread-actions';
+import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -121,5 +122,15 @@ export function reducer(inputState: AppState | void, action: Action) {
       windowDimensions: action.payload,
     };
   }
-  return baseReducer(state, action);
+  const result = baseReducer(state, action);
+  if (
+    result.navInfo.activeChatThreadID &&
+    !result.threadInfos[result.navInfo.activeChatThreadID]
+  ) {
+    result.navInfo.activeChatThreadID = mostRecentReadThread(
+      result.messageStore,
+      result.threadInfos,
+    );
+  }
+  return result;
 }

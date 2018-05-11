@@ -26,6 +26,7 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
+import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 import { navInfoFromURL } from 'web/url-utils';
@@ -86,28 +87,9 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     threadInfos,
   );
   if (!navInfo.activeChatThreadID) {
-    let mostRecentReadThread = null;
-    for (let threadID in threadInfos) {
-      const threadInfo = threadInfos[threadID];
-      if (threadInfo.currentUser.unread) {
-        continue;
-      }
-      const threadMessageInfo = messageStore.threads[threadID];
-      if (!threadMessageInfo) {
-        continue;
-      }
-      const mostRecentMessageTime = threadMessageInfo.messageIDs.length === 0
-        ? threadInfo.creationTime
-        : messageStore.messages[threadMessageInfo.messageIDs[0]].time;
-      if (
-        !mostRecentReadThread ||
-        mostRecentReadThread.time < mostRecentMessageTime
-      ) {
-        mostRecentReadThread = { threadID, time: mostRecentMessageTime };
-      }
-    }
-    if (mostRecentReadThread) {
-      navInfo.activeChatThreadID = mostRecentReadThread.threadID;
+    const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);
+    if (mostRecentThread) {
+      navInfo.activeChatThreadID = mostRecentThread;
     }
   }
 

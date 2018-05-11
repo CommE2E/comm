@@ -4,9 +4,16 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
+import {
+  type NavInfo,
+  navInfoPropType,
+  updateNavInfoActionType,
+} from '../redux-setup';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -15,11 +22,17 @@ import MessagePreview from './message-preview.react';
 
 type Props = {|
   item: ChatThreadItem,
+  active: bool,
+  navInfo: NavInfo,
+  dispatchActionPayload: DispatchActionPayload,
 |};
 class ChatThreadListItem extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatThreadItemPropType.isRequired,
+    active: PropTypes.bool.isRequired,
+    navInfo: navInfoPropType.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   render() {
@@ -27,8 +40,9 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     const lastActivity = shortAbsoluteDate(item.lastUpdatedTime);
     const colorSplotchStyle = { backgroundColor: `#${item.threadInfo.color}` };
     const unread = item.threadInfo.currentUser.unread;
+    const activeStyle = this.props.active ? css.activeThread : null;
     return (
-      <div className={css.thread}>
+      <a className={classNames(css.thread, activeStyle)} onClick={this.onClick}>
         <div className={css.threadRow}>
           <div className={css.title}>
             {item.threadInfo.uiName}
@@ -47,7 +61,18 @@ class ChatThreadListItem extends React.PureComponent<Props> {
             {lastActivity}
           </div>
         </div>
-      </div>
+      </a>
+    );
+  }
+
+  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.props.dispatchActionPayload(
+      updateNavInfoActionType,
+      {
+        ...this.props.navInfo,
+        activeChatThreadID: this.props.item.threadInfo.id,
+      },
     );
   }
 

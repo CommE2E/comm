@@ -51,6 +51,7 @@ import { registerConfig } from 'lib/utils/config';
 import {
   includeDeletedSelector,
 } from 'lib/selectors/calendar-filter-selectors';
+import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
@@ -99,6 +100,8 @@ type Props = {
   nextSessionID: () => ?string,
   loggedIn: bool,
   includeDeleted: bool,
+  mostRecentReadThread: ?string,
+  activeThreadCurrentlyUnread: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -114,6 +117,28 @@ type State = {
 
 class App extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    location: PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+    }).isRequired,
+    navInfo: navInfoPropType.isRequired,
+    verifyField: PropTypes.number,
+    entriesLoadingStatus: PropTypes.string.isRequired,
+    currentCalendarQuery: PropTypes.func.isRequired,
+    pingStartingPayload: PropTypes.func.isRequired,
+    pingActionInput: PropTypes.func.isRequired,
+    pingTimestamps: pingTimestampsPropType.isRequired,
+    sessionTimeLeft: PropTypes.func.isRequired,
+    nextSessionID: PropTypes.func.isRequired,
+    loggedIn: PropTypes.bool.isRequired,
+    includeDeleted: PropTypes.bool.isRequired,
+    mostRecentReadThread: PropTypes.string,
+    activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    fetchEntries: PropTypes.func.isRequired,
+    ping: PropTypes.func.isRequired,
+  };
   pingCounter = 0;
   state = {
     currentModal: null,
@@ -420,32 +445,15 @@ class App extends React.PureComponent<Props, State> {
       {
         ...this.props.navInfo,
         tab: "chat",
+        activeChatThreadID: this.props.activeThreadCurrentlyUnread
+          ? this.props.mostRecentReadThread
+          : this.props.navInfo.activeChatThreadID,
       },
     );
+    this.props.navInfo.activeChatThreadID
   }
 
 }
-
-App.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
-  }).isRequired,
-  navInfo: navInfoPropType.isRequired,
-  verifyField: PropTypes.number,
-  entriesLoadingStatus: PropTypes.string.isRequired,
-  currentCalendarQuery: PropTypes.func.isRequired,
-  pingStartingPayload: PropTypes.func.isRequired,
-  pingActionInput: PropTypes.func.isRequired,
-  pingTimestamps: pingTimestampsPropType.isRequired,
-  sessionTimeLeft: PropTypes.func.isRequired,
-  nextSessionID: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  includeDeleted: PropTypes.bool.isRequired,
-  dispatchActionPayload: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  fetchEntries: PropTypes.func.isRequired,
-  ping: PropTypes.func.isRequired,
-};
 
 const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesActionTypes);
@@ -464,6 +472,9 @@ export default connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     includeDeleted: includeDeletedSelector(state),
+    mostRecentReadThread: mostRecentReadThreadSelector(state),
+    activeThreadCurrentlyUnread: !state.navInfo.activeChatThreadID ||
+      state.threadInfos[state.navInfo.activeChatThreadID].currentUser.unread,
   }),
   { fetchEntries, ping },
 )(App);

@@ -7,15 +7,24 @@ div.container {
   background-color: white;
 }
 
-div.thread {
+a.thread {
+  display: block;
   padding: 5px 15px;
+  cursor: pointer;
 }
-div.thread > div.title {
+a.thread:hover {
+  background-color: #EEEEEE;
+}
+a.activeThread {
+  background-color: #EEEEEE;
+}
+a.thread div.title {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: black;
 }
 div.threadRow {
   display: flex;
