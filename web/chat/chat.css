@@ -1,0 +1,11 @@
+div.chat-container {
+}
+div.chat-content {
+  margin-left: 400px;
+}
+div.chat-coming-soon {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 10px;
+}

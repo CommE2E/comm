@@ -7,8 +7,8 @@ import {
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
-import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import * as React from 'react';
+import classNames from 'classnames';
 
 import {
   robotextForMessageInfo,
@@ -20,22 +20,29 @@ import {
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 
+import css from './chat-thread-list.css';
+
 type Props = {|
-  messageInfo: MessageInfo,
+  messageInfo: ?MessageInfo,
   threadInfo: ThreadInfo,
 |};
 class MessagePreview extends React.PureComponent<Props> {
 
   static propTypes = {
-    messageInfo: messageInfoPropType.isRequired,
+    messageInfo: messageInfoPropType,
     threadInfo: threadInfoPropType.isRequired,
   };
 
   render() {
-    const messageInfo: MessageInfo = this.props.messageInfo;
-    const unreadStyle = this.props.threadInfo.currentUser.unread
-      ? styles.unread
-      : null;
+    const messageInfo = this.props.messageInfo;
+    if (!messageInfo) {
+      return (
+        <div className={classNames(css.lastMessage, css.dark, css.italic)}>
+          No messages
+        </div>
+      );
+    }
+    const unread = this.props.threadInfo.currentUser.unread;
     if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
       if (
@@ -44,50 +51,32 @@ class MessagePreview extends React.PureComponent<Props> {
       ) {
         const userString = stringForUser(messageInfo.creator);
         const username = `${userString}: `;
-        usernameText = (
-          <Text style={[styles.username, unreadStyle]}>{username}</Text>
-        );
+        const usernameStyle = unread ? css.black : css.light;
+        usernameText = <span className={usernameStyle}>{username}</span>;
       }
+      const colorStyle = unread ? css.black : css.dark;
       return (
-        <Text style={[styles.lastMessage, unreadStyle]} numberOfLines={1}>
+        <div className={classNames(css.lastMessage, colorStyle)}>
           {usernameText}
           {messageInfo.text}
-        </Text>
+        </div>
       );
     } else {
       const robotext = robotextToRawString(robotextForMessageInfo(
         messageInfo,
         this.props.threadInfo,
       ));
+      const colorStyle = unread ? css.black : css.light;
       return (
-        <Text
-          style={[styles.lastMessage, styles.robotext, unreadStyle]}
-          numberOfLines={1}
+        <div
+          className={classNames([css.lastMessage, colorStyle])}
         >
           {robotext}
-        </Text>
+        </div>
       );
     }
   }
 
 }
-
-const styles = StyleSheet.create({
-  lastMessage: {
-    flex: 1,
-    paddingLeft: 10,
-    fontSize: 16,
-    color: '#666666',
-  },
-  username: {
-    color: '#AAAAAA',
-  },
-  robotext: {
-    color: '#AAAAAA',
-  },
-  unread: {
-    color: 'black',
-  },
-});
 
 export default MessagePreview;

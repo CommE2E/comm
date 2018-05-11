@@ -1,0 +1,50 @@
+div.container {
+  position: fixed;
+  width: 400px;
+  top: 62px;
+  bottom: 0;
+  overflow-y: auto;
+  background-color: white;
+}
+
+div.thread {
+  padding: 5px 15px;
+}
+div.thread > div.title {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+div.threadRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+div.colorSplotch {
+  height: 20px;
+  width: 20px;
+}
+div.lastActivity {
+  white-space: nowrap;
+}
+
+div.lastMessage {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.black {
+  color: black;
+}
+div.dark {
+  color: #666666;
+}
+.light {
+  color: #AAAAAA;
+}
+div.italic {
+  font-style: italic;
+}
