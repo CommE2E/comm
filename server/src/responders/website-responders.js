@@ -33,7 +33,7 @@ import { navInfoFromURL } from 'web/url-utils';
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
@@ -78,10 +78,36 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     ),
     navInfo.verify ? handleCodeVerificationRequest(navInfo.verify) : null,
   ]);
-  if (navInfo.threadID && !threadInfos[navInfo.threadID]) {
-    const validThreadID = await verifyThreadID(navInfo.threadID);
-    if (!validThreadID) {
-      throw new ServerError("invalid_thread_id");
+
+  const messageStore = freshMessageStore(
+    rawMessageInfos,
+    truncationStatuses,
+    mostRecentMessageTimestamp(rawMessageInfos, initialTime),
+    threadInfos,
+  );
+  if (!navInfo.activeChatThreadID) {
+    let mostRecentReadThread = null;
+    for (let threadID in threadInfos) {
+      const threadInfo = threadInfos[threadID];
+      if (threadInfo.currentUser.unread) {
+        continue;
+      }
+      const threadMessageInfo = messageStore.threads[threadID];
+      if (!threadMessageInfo) {
+        continue;
+      }
+      const mostRecentMessageTime = threadMessageInfo.messageIDs.length === 0
+        ? threadInfo.creationTime
+        : messageStore.messages[threadMessageInfo.messageIDs[0]].time;
+      if (
+        !mostRecentReadThread ||
+        mostRecentReadThread.time < mostRecentMessageTime
+      ) {
+        mostRecentReadThread = { threadID, time: mostRecentMessageTime };
+      }
+    }
+    if (mostRecentReadThread) {
+      navInfo.activeChatThreadID = mostRecentReadThread.threadID;
     }
   }
 
@@ -89,10 +115,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   await updateActivityTime(viewer);
 
   const time = Date.now();
-  const messagesCurrentAsOf = mostRecentMessageTimestamp(
-    rawMessageInfos,
-    initialTime,
-  );
   const store: Store<AppState, Action> = createStore(
     reducer,
     ({
@@ -116,12 +138,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         ...entryUserInfos,
         ...threadUserInfos,
       },
-      messageStore: freshMessageStore(
-        rawMessageInfos,
-        truncationStatuses,
-        messagesCurrentAsOf,
-        threadInfos,
-      ),
+      messageStore,
       drafts: {},
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},

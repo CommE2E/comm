@@ -5918,13 +5918,14 @@ const navInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.shape
   startDate: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   endDate: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string.isRequired,
   tab: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.oneOf(["calendar", "chat"]).isRequired,
-  verify: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string
+  verify: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string,
+  activeChatThreadID: __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.string
 });
 /* harmony export (immutable) */ __webpack_exports__["a"] = navInfoPropType;
 
 
-const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
-/* harmony export (immutable) */ __webpack_exports__["b"] = reflectRouteChangeActionType;
+const updateNavInfoActionType = "UPDATE_NAV_INFO";
+/* harmony export (immutable) */ __webpack_exports__["b"] = updateNavInfoActionType;
 
 const updateWindowDimensions = "UPDATE_WINDOW_DIMENSIONS";
 /* unused harmony export updateWindowDimensions */
@@ -5933,7 +5934,7 @@ const updateWindowDimensions = "UPDATE_WINDOW_DIMENSIONS";
 function reducer(inputState, action) {
   let state = inputState;
   __WEBPACK_IMPORTED_MODULE_1_invariant___default()(state, "should be set");
-  if (action.type === reflectRouteChangeActionType) {
+  if (action.type === updateNavInfoActionType) {
     return {
       navInfo: action.payload,
       currentUserInfo: state.currentUserInfo,
@@ -25167,6 +25168,7 @@ convert.rgb.gray = function (rgb) {
 const yearRegex = new RegExp('(/|^)year/([0-9]+)(/|$)', 'i');
 
 const monthRegex = new RegExp('(/|^)month/([0-9]+)(/|$)', 'i');
+const threadRegex = new RegExp('(/|^)thread/([0-9]+)(/|$)', 'i');
 const verifyRegex = new RegExp('(/|^)verify/([a-f0-9]+)(/|$)', 'i');
 const calendarRegex = new RegExp('(/|^)calendar(/|$)', 'i');
 const chatRegex = new RegExp('(/|^)chat(/|$)', 'i');
@@ -25174,6 +25176,7 @@ const chatRegex = new RegExp('(/|^)chat(/|$)', 'i');
 function infoFromURL(url) {
   const yearMatches = yearRegex.exec(url);
   const monthMatches = monthRegex.exec(url);
+  const threadMatches = threadRegex.exec(url);
   const verifyMatches = verifyRegex.exec(url);
   const calendarTest = calendarRegex.test(url);
   const chatTest = chatRegex.test(url);
@@ -25187,6 +25190,9 @@ function infoFromURL(url) {
       throw new Error("invalid_month");
     }
     returnObj.month = month;
+  }
+  if (threadMatches) {
+    returnObj.thread = threadMatches[2];
   }
   if (verifyMatches) {
     returnObj.verify = verifyMatches[2];
@@ -27968,6 +27974,11 @@ function canonicalURLFromReduxState(navInfo, currentURL) {
     } else if (month !== null && month !== undefined && month !== today.getMonth() + 1) {
       newURL += `month/${month}/`;
     }
+  } else if (navInfo.tab === "chat") {
+    const activeChatThreadID = navInfo.activeChatThreadID;
+    if (activeChatThreadID) {
+      newURL += `thread/${activeChatThreadID}/`;
+    }
   }
 
   if (navInfo.verify) {
@@ -27998,10 +28009,18 @@ function navInfoFromURL(url, navInfo) {
     month = new Date().getMonth() + 1;
   }
 
+  let activeChatThreadID = null;
+  if (urlInfo.thread) {
+    activeChatThreadID = urlInfo.thread.toString();
+  } else if (navInfo) {
+    activeChatThreadID = navInfo.activeChatThreadID;
+  }
+
   return {
+    tab: urlInfo.chat ? "chat" : "calendar",
     startDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["i" /* startDateForYearAndMonth */])(year, month),
     endDate: Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["c" /* endDateForYearAndMonth */])(year, month),
-    tab: urlInfo.chat ? "chat" : "calendar",
+    activeChatThreadID,
     verify: urlInfo.verify ? urlInfo.verify : null
   };
 }
@@ -30325,7 +30344,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       writable: true,
       value: event => {
         event.preventDefault();
-        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], _extends({}, this.props.navInfo, {
+        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* updateNavInfoActionType */], _extends({}, this.props.navInfo, {
           tab: "calendar"
         }));
       }
@@ -30334,7 +30353,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       writable: true,
       value: event => {
         event.preventDefault();
-        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], _extends({}, this.props.navInfo, {
+        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* updateNavInfoActionType */], _extends({}, this.props.navInfo, {
           tab: "chat"
         }));
       }
@@ -30346,12 +30365,9 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       if (this.props.verifyField === __WEBPACK_IMPORTED_MODULE_1_lib_types_verify_types__["a" /* verifyField */].RESET_PASSWORD) {
         this.showResetPasswordModal();
       } else if (this.props.verifyField === __WEBPACK_IMPORTED_MODULE_1_lib_types_verify_types__["a" /* verifyField */].EMAIL) {
-        const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])({
-          startDate: this.props.navInfo.startDate,
-          endDate: this.props.navInfo.endDate,
-          tab: this.props.navInfo.tab,
+        const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(_extends({}, this.props.navInfo, {
           verify: null
-        }, this.props.location.pathname);
+        }), this.props.location.pathname);
         __WEBPACK_IMPORTED_MODULE_32__router_history__["a" /* default */].replace(newURL);
         this.setModal(__WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_30__modals_account_verification_success_modal_react__["a" /* default */], { onClose: this.clearModal }));
       }
@@ -30416,12 +30432,9 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
   }
 
   showResetPasswordModal() {
-    const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])({
-      startDate: this.props.navInfo.startDate,
-      endDate: this.props.navInfo.endDate,
-      tab: this.props.navInfo.tab,
+    const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(_extends({}, this.props.navInfo, {
       verify: null
-    }, this.props.location.pathname);
+    }), this.props.location.pathname);
     const onClose = () => __WEBPACK_IMPORTED_MODULE_32__router_history__["a" /* default */].push(newURL);
     const onSuccess = () => __WEBPACK_IMPORTED_MODULE_32__router_history__["a" /* default */].replace(newURL);
     this.setModal(__WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_29__modals_account_reset_password_modal_react__["a" /* default */], { onClose: onClose, onSuccess: onSuccess }));
@@ -30431,7 +30444,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
     if (nextProps.location.pathname !== this.props.location.pathname) {
       const newNavInfo = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["b" /* navInfoFromURL */])(nextProps.location.pathname, nextProps.navInfo);
       if (!__WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual___default()(newNavInfo)(nextProps.navInfo)) {
-        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* reflectRouteChangeActionType */], newNavInfo);
+        this.props.dispatchActionPayload(__WEBPACK_IMPORTED_MODULE_0__redux_setup__["b" /* updateNavInfoActionType */], newNavInfo);
       }
     } else if (!__WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual___default()(nextProps.navInfo)(this.props.navInfo)) {
       const newURL = Object(__WEBPACK_IMPORTED_MODULE_25__url_utils__["a" /* canonicalURLFromReduxState */])(nextProps.navInfo, nextProps.location.pathname);

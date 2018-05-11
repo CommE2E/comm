@@ -25,6 +25,7 @@ export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
   tab: "calendar" | "chat",
   verify: ?string,
+  activeChatThreadID: ?string,
 |};
 
 export const navInfoPropType = PropTypes.shape({
@@ -32,6 +33,7 @@ export const navInfoPropType = PropTypes.shape({
   endDate: PropTypes.string.isRequired,
   tab: PropTypes.oneOf(["calendar", "chat"]).isRequired,
   verify: PropTypes.string,
+  activeChatThreadID: PropTypes.string,
 });
 
 export type WindowDimensions = {| width: number, height: number |};
@@ -58,12 +60,12 @@ export type AppState = {|
   windowDimensions: WindowDimensions,
 |};
 
-export const reflectRouteChangeActionType = "REFLECT_ROUTE_CHANGE";
+export const updateNavInfoActionType = "UPDATE_NAV_INFO";
 export const updateWindowDimensions = "UPDATE_WINDOW_DIMENSIONS";
 
 export type Action =
   | BaseAction
-  | {| type: "REFLECT_ROUTE_CHANGE", payload: NavInfo |}
+  | {| type: "UPDATE_NAV_INFO", payload: NavInfo |}
   | {|
       type: "UPDATE_WINDOW_DIMENSIONS",
       payload: WindowDimensions,
@@ -72,7 +74,7 @@ export type Action =
 export function reducer(inputState: AppState | void, action: Action) {
   let state = inputState;
   invariant(state, "should be set");
-  if (action.type === reflectRouteChangeActionType) {
+  if (action.type === updateNavInfoActionType) {
     return {
       navInfo: action.payload,
       currentUserInfo: state.currentUserInfo,

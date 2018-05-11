@@ -49,6 +49,11 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
     ) {
       newURL += `month/${month}/`;
     }
+  } else if (navInfo.tab === "chat") {
+    const activeChatThreadID = navInfo.activeChatThreadID;
+    if (activeChatThreadID) {
+      newURL += `thread/${activeChatThreadID}/`;
+    }
   }
 
   if (navInfo.verify) {
@@ -82,10 +87,18 @@ function navInfoFromURL(
     month = (new Date()).getMonth() + 1;
   }
 
+  let activeChatThreadID = null;
+  if (urlInfo.thread) {
+    activeChatThreadID = urlInfo.thread.toString();
+  } else if (navInfo) {
+    activeChatThreadID = navInfo.activeChatThreadID;
+  }
+
   return {
+    tab: urlInfo.chat ? "chat" : "calendar",
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
-    tab: urlInfo.chat ? "chat" : "calendar",
+    activeChatThreadID,
     verify: urlInfo.verify ? urlInfo.verify : null,
   };
 }

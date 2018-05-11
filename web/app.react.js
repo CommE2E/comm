@@ -61,7 +61,7 @@ import VerificationSuccessModal
   from './modals/account/verification-success-modal.react';
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
-import { reflectRouteChangeActionType } from './redux-setup';
+import { updateNavInfoActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
 
@@ -126,9 +126,7 @@ class App extends React.PureComponent<Props, State> {
       } else if (this.props.verifyField === verifyField.EMAIL) {
         const newURL = canonicalURLFromReduxState(
           {
-            startDate: this.props.navInfo.startDate,
-            endDate: this.props.navInfo.endDate,
-            tab: this.props.navInfo.tab,
+            ...this.props.navInfo,
             verify: null,
           },
           this.props.location.pathname,
@@ -238,9 +236,7 @@ class App extends React.PureComponent<Props, State> {
   showResetPasswordModal() {
     const newURL = canonicalURLFromReduxState(
       {
-        startDate: this.props.navInfo.startDate,
-        endDate: this.props.navInfo.endDate,
-        tab: this.props.navInfo.tab,
+        ...this.props.navInfo,
         verify: null,
       },
       this.props.location.pathname,
@@ -259,10 +255,7 @@ class App extends React.PureComponent<Props, State> {
         nextProps.navInfo,
       );
       if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
-        this.props.dispatchActionPayload(
-          reflectRouteChangeActionType,
-          newNavInfo,
-        );
+        this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
       }
     } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
       const newURL = canonicalURLFromReduxState(
@@ -412,7 +405,7 @@ class App extends React.PureComponent<Props, State> {
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatchActionPayload(
-      reflectRouteChangeActionType,
+      updateNavInfoActionType,
       {
         ...this.props.navInfo,
         tab: "calendar",
@@ -423,7 +416,7 @@ class App extends React.PureComponent<Props, State> {
   onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatchActionPayload(
-      reflectRouteChangeActionType,
+      updateNavInfoActionType,
       {
         ...this.props.navInfo,
         tab: "chat",
