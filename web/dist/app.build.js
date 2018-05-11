@@ -9369,6 +9369,7 @@ module.exports = forOwn;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return createChatThreadItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return chatThreadItemPropType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return chatListData; });
 /* unused harmony export chatMessageItemPropType */
@@ -9419,10 +9420,8 @@ const chatThreadItemPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.
   mostRecentMessageInfo: __WEBPACK_IMPORTED_MODULE_1__types_message_types__["b" /* messageInfoPropType */],
   lastUpdatedTime: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.number.isRequired
 });
-const chatListData = Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_11__thread_selectors__["f" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, (threadInfos, messageStore, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_5_lodash_fp_flow___default()(
-// TODO change this to viewerIsMember once I figure out how to include
-// non-visible threads in the ChatThreadList
-__WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_12__shared_thread_utils__["i" /* viewerCanSeeThread */]), __WEBPACK_IMPORTED_MODULE_7_lodash_fp_map___default()(threadInfo => {
+
+function createChatThreadItem(threadInfo, threadInfos, messageStore, viewerID, userInfos) {
   const thread = messageStore.threads[threadInfo.id];
   if (!thread || thread.messageIDs.length === 0) {
     return {
@@ -9452,7 +9451,12 @@ __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODU
     mostRecentMessageInfo,
     lastUpdatedTime: mostRecentMessageInfo.time
   };
-}), __WEBPACK_IMPORTED_MODULE_8_lodash_fp_orderBy___default()("lastUpdatedTime")("desc"))(threadInfos));
+}
+
+const chatListData = Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_11__thread_selectors__["f" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, (threadInfos, messageStore, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_5_lodash_fp_flow___default()(
+// TODO change this to viewerIsMember once I figure out how to include
+// non-visible threads in the ChatThreadList
+__WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_12__shared_thread_utils__["i" /* viewerCanSeeThread */]), __WEBPACK_IMPORTED_MODULE_7_lodash_fp_map___default()(threadInfo => createChatThreadItem(threadInfo, threadInfos, messageStore, viewerID, userInfos)), __WEBPACK_IMPORTED_MODULE_8_lodash_fp_orderBy___default()("lastUpdatedTime")("desc"))(threadInfos));
 
 const chatMessageItemPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOfType([__WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.shape({
   itemType: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.oneOf(["loader"]).isRequired
@@ -59346,9 +59350,10 @@ module.exports = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_prop_types__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_utils_redux_utils__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__chat_thread_list_css__ = __webpack_require__(148);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__chat_thread_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__chat_thread_list_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__chat_thread_list_item_react__ = __webpack_require__(606);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__selectors_chat_selectors__ = __webpack_require__(609);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__chat_thread_list_css__ = __webpack_require__(148);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__chat_thread_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__chat_thread_list_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__chat_thread_list_item_react__ = __webpack_require__(606);
 
 
 
@@ -59365,7 +59370,7 @@ module.exports = {
 class ChatThreadList extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"] {
 
   render() {
-    const threads = this.props.chatListData.map(item => __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_6__chat_thread_list_item_react__["a" /* default */], {
+    const threads = this.props.chatListData.map(item => __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_7__chat_thread_list_item_react__["a" /* default */], {
       item: item,
       active: item.threadInfo.id === this.props.navInfo.activeChatThreadID,
       navInfo: this.props.navInfo,
@@ -59374,7 +59379,7 @@ class ChatThreadList extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent"
     }));
     return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](
       'div',
-      { className: __WEBPACK_IMPORTED_MODULE_5__chat_thread_list_css___default.a.container },
+      { className: __WEBPACK_IMPORTED_MODULE_6__chat_thread_list_css___default.a.container },
       threads
     );
   }
@@ -59391,7 +59396,7 @@ Object.defineProperty(ChatThreadList, 'propTypes', {
   }
 });
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_redux_utils__["a" /* connect */])(state => ({
-  chatListData: Object(__WEBPACK_IMPORTED_MODULE_1_lib_selectors_chat_selectors__["a" /* chatListData */])(state),
+  chatListData: Object(__WEBPACK_IMPORTED_MODULE_5__selectors_chat_selectors__["a" /* webChatListData */])(state),
   navInfo: state.navInfo
 }), null, true)(ChatThreadList));
 
@@ -59647,6 +59652,46 @@ module.exports = {
 	"sr-only": "_-node_modules--fortawesome-fontawesome-styles__sr-only--_4acb",
 	"sr-only-focusable": "_-node_modules--fortawesome-fontawesome-styles__sr-only-focusable--1CAEA"
 };
+
+/***/ }),
+/* 609 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return webChatListData; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lib_selectors_thread_selectors__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lib_selectors_chat_selectors__ = __webpack_require__(147);
+
+
+
+
+
+const activeChatThreadItem = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_1_lib_selectors_thread_selectors__["f" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, state => state.navInfo.activeChatThreadID, (threadInfos, messageStore, viewerID, userInfos, activeChatThreadID) => {
+  if (!activeChatThreadID) {
+    return null;
+  }
+  const threadInfo = threadInfos[activeChatThreadID];
+  if (!threadInfo) {
+    return null;
+  }
+  return Object(__WEBPACK_IMPORTED_MODULE_2_lib_selectors_chat_selectors__["c" /* createChatThreadItem */])(threadInfo, threadInfos, messageStore, viewerID, userInfos);
+});
+
+const webChatListData = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_2_lib_selectors_chat_selectors__["a" /* chatListData */], activeChatThreadItem, (data, activeItem) => {
+  if (!activeItem) {
+    return data;
+  }
+  for (let item of data) {
+    if (item.threadInfo.id === activeItem.threadInfo.id) {
+      return data;
+    }
+  }
+  return [activeItem, ...data];
+});
+
+
 
 /***/ })
 /******/ ]);

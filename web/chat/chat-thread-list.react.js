@@ -11,7 +11,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import { chatListData } from 'lib/selectors/chat-selectors';
+import { webChatListData } from '../selectors/chat-selectors';
 
 import css from './chat-thread-list.css';
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -52,7 +52,7 @@ class ChatThreadList extends React.PureComponent<Props> {
 
 export default connect(
   (state: AppState) => ({
-    chatListData: chatListData(state),
+    chatListData: webChatListData(state),
     navInfo: state.navInfo,
   }),
   null,
