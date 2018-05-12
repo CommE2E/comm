@@ -2082,16 +2082,16 @@ async function updateActivity(fetchJSON, activityUpdates) {
 
 "use strict";
 /* unused harmony export rawThreadInfosToThreadInfos */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return threadInfoSelector; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return threadInfoSelector; });
 /* unused harmony export memberThreadInfos */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return onScreenThreadInfos; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return onScreenEntryEditableThreadInfos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return onScreenThreadInfos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return onScreenEntryEditableThreadInfos; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return currentDaysToEntries; });
 /* unused harmony export childThreadInfos */
 /* unused harmony export unreadCount */
 /* unused harmony export otherUsersButNoOtherAdmins */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return mostRecentReadThread; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return mostRecentReadThreadSelector; });
+/* unused harmony export mostRecentReadThread */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return mostRecentReadThreadSelector; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_thread_types__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_reselect__);
@@ -3946,7 +3946,7 @@ function reducer(inputState, action) {
   }
   const result = Object(__WEBPACK_IMPORTED_MODULE_2_lib_reducers_master_reducer__["a" /* default */])(state, action);
   if (result.navInfo.activeChatThreadID && !result.threadInfos[result.navInfo.activeChatThreadID]) {
-    result.navInfo.activeChatThreadID = Object(__WEBPACK_IMPORTED_MODULE_4_lib_selectors_thread_selectors__["b" /* mostRecentReadThread */])(result.messageStore, result.threadInfos);
+    result.navInfo.activeChatThreadID = Object(__WEBPACK_IMPORTED_MODULE_4_lib_selectors_thread_selectors__["b" /* mostRecentReadThreadSelector */])(result);
   }
   return result;
 }
@@ -9453,7 +9453,7 @@ function createChatThreadItem(threadInfo, threadInfos, messageStore, viewerID, u
   };
 }
 
-const chatListData = Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_11__thread_selectors__["f" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, (threadInfos, messageStore, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_5_lodash_fp_flow___default()(
+const chatListData = Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_11__thread_selectors__["e" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, (threadInfos, messageStore, viewerID, userInfos) => __WEBPACK_IMPORTED_MODULE_5_lodash_fp_flow___default()(
 // TODO change this to viewerIsMember once I figure out how to include
 // non-visible threads in the ChatThreadList
 __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default()(__WEBPACK_IMPORTED_MODULE_12__shared_thread_utils__["i" /* viewerCanSeeThread */]), __WEBPACK_IMPORTED_MODULE_7_lodash_fp_map___default()(threadInfo => createChatThreadItem(threadInfo, threadInfos, messageStore, viewerID, userInfos)), __WEBPACK_IMPORTED_MODULE_8_lodash_fp_orderBy___default()("lastUpdatedTime")("desc"))(threadInfos));
@@ -9469,7 +9469,7 @@ const chatMessageItemPropType = __WEBPACK_IMPORTED_MODULE_3_prop_types___default
   robotext: __WEBPACK_IMPORTED_MODULE_3_prop_types___default.a.string
 })]);
 const msInFiveMinutes = 5 * 60 * 1000;
-const baseMessageListData = threadID => Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, __WEBPACK_IMPORTED_MODULE_11__thread_selectors__["f" /* threadInfoSelector */], (messageStore, viewerID, userInfos, threadInfos) => {
+const baseMessageListData = threadID => Object(__WEBPACK_IMPORTED_MODULE_2_reselect__["createSelector"])(state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, __WEBPACK_IMPORTED_MODULE_11__thread_selectors__["e" /* threadInfoSelector */], (messageStore, viewerID, userInfos, threadInfos) => {
   const thread = messageStore.threads[threadID];
   if (!thread) {
     return [];
@@ -30712,7 +30712,7 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_
   nextSessionID: Object(__WEBPACK_IMPORTED_MODULE_21_lib_selectors_session_selectors__["c" /* nextSessionID */])(state),
   loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
   includeDeleted: Object(__WEBPACK_IMPORTED_MODULE_24_lib_selectors_calendar_filter_selectors__["d" /* includeDeletedSelector */])(state),
-  mostRecentReadThread: Object(__WEBPACK_IMPORTED_MODULE_25_lib_selectors_thread_selectors__["c" /* mostRecentReadThreadSelector */])(state),
+  mostRecentReadThread: Object(__WEBPACK_IMPORTED_MODULE_25_lib_selectors_thread_selectors__["b" /* mostRecentReadThreadSelector */])(state),
   activeThreadCurrentlyUnread: !state.navInfo.activeChatThreadID || state.threadInfos[state.navInfo.activeChatThreadID].currentUser.unread
 }), { fetchEntries: __WEBPACK_IMPORTED_MODULE_15_lib_actions_entry_actions__["h" /* fetchEntries */], ping: __WEBPACK_IMPORTED_MODULE_19_lib_actions_ping_actions__["a" /* ping */] })(App));
 
@@ -48318,7 +48318,7 @@ Day.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_11_lib_utils_redux_utils__["a" /* connect */])(state => ({
-  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__["e" /* onScreenThreadInfos */])(state),
+  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_thread_selectors__["d" /* onScreenThreadInfos */])(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true)
 }), null, true)(Day));
@@ -48753,7 +48753,7 @@ Entry.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_8_lib_utils_redux_utils__["a" /* connect */])((state, ownProps) => ({
-  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_13_lib_selectors_thread_selectors__["f" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
+  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_13_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
   sessionID: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["a" /* currentSessionID */])(state),
   nextSessionID: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["c" /* nextSessionID */])(state),
   sessionStartingPayload: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_session_selectors__["e" /* sessionStartingPayload */])(state),
@@ -49047,7 +49047,7 @@ HistoryEntry.propTypes = {
   const entryID = ownProps.entryInfo.id;
   __WEBPACK_IMPORTED_MODULE_4_invariant___default()(entryID, "entryInfo.id (serverID) should be set");
   return {
-    threadInfo: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_thread_selectors__["f" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
+    threadInfo: Object(__WEBPACK_IMPORTED_MODULE_11_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.entryInfo.threadID],
     sessionID: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_session_selectors__["a" /* currentSessionID */])(state),
     loggedIn: !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     restoreLoadingStatus: Object(__WEBPACK_IMPORTED_MODULE_8_lib_selectors_loading_selectors__["a" /* createLoadingStatusSelector */])(__WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__["o" /* restoreEntryActionTypes */], `${__WEBPACK_IMPORTED_MODULE_7_lib_actions_entry_actions__["o" /* restoreEntryActionTypes */].started}:${entryID}`)(state),
@@ -49164,7 +49164,7 @@ HistoryRevision.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_6_react_redux__["a" /* connect */])((state, ownProps) => ({
-  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__["f" /* threadInfoSelector */])(state)[ownProps.revisionInfo.threadID]
+  threadInfo: Object(__WEBPACK_IMPORTED_MODULE_10_lib_selectors_thread_selectors__["e" /* threadInfoSelector */])(state)[ownProps.revisionInfo.threadID]
 }))(HistoryRevision));
 
 /***/ }),
@@ -49693,7 +49693,7 @@ ThreadPicker.propTypes = {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_2_react_redux__["a" /* connect */])(state => ({
-  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_thread_selectors__["d" /* onScreenEntryEditableThreadInfos */])(state)
+  onScreenThreadInfos: Object(__WEBPACK_IMPORTED_MODULE_5_lib_selectors_thread_selectors__["c" /* onScreenEntryEditableThreadInfos */])(state)
 }))(ThreadPicker));
 
 /***/ }),
@@ -50746,7 +50746,7 @@ exports.default = hexColorPropType;
 
 
 
-const filterThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_2__thread_selectors__["f" /* threadInfoSelector */], __WEBPACK_IMPORTED_MODULE_3__nav_selectors__["a" /* currentCalendarQuery */], state => state.entryStore.entryInfos, (threadInfos, calendarQueryFunc, rawEntryInfos) => () => {
+const filterThreadInfos = Object(__WEBPACK_IMPORTED_MODULE_1_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_2__thread_selectors__["e" /* threadInfoSelector */], __WEBPACK_IMPORTED_MODULE_3__nav_selectors__["a" /* currentCalendarQuery */], state => state.entryStore.entryInfos, (threadInfos, calendarQueryFunc, rawEntryInfos) => () => {
   const calendarQuery = calendarQueryFunc();
   const result = {};
   for (let entryID in rawEntryInfos) {
@@ -59415,7 +59415,7 @@ Object.defineProperty(ChatThreadList, 'propTypes', {
 
 
 
-const activeChatThreadItem = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_1_lib_selectors_thread_selectors__["f" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, state => state.navInfo.activeChatThreadID, (threadInfos, messageStore, viewerID, userInfos, activeChatThreadID) => {
+const activeChatThreadItem = Object(__WEBPACK_IMPORTED_MODULE_0_reselect__["createSelector"])(__WEBPACK_IMPORTED_MODULE_1_lib_selectors_thread_selectors__["e" /* threadInfoSelector */], state => state.messageStore, state => state.currentUserInfo && state.currentUserInfo.id, state => state.userInfos, state => state.navInfo.activeChatThreadID, (threadInfos, messageStore, viewerID, userInfos, activeChatThreadID) => {
   if (!activeChatThreadID) {
     return null;
   }
