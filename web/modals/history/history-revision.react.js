@@ -10,12 +10,12 @@ import * as React from 'react';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 import css from '../../style.css';
 
@@ -81,6 +81,6 @@ HistoryRevision.propTypes = {
 };
 
 type OwnProps = { revisionInfo: HistoryRevisionInfo };
-export default connect((state: AppState, ownProps: OwnProps): * => ({
+export default connect((state: AppState, ownProps: OwnProps) => ({
   threadInfo: threadInfoSelector(state)[ownProps.revisionInfo.threadID],
 }))(HistoryRevision);

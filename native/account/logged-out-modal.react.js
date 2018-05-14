@@ -35,13 +35,11 @@ import {
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import _isEqual from 'lodash/fp/isEqual';
 
 import {
-  includeDispatchActionProps,
   fetchNewCookieFromNativeCredentials,
   createBoundServerCallsSelector,
 } from 'lib/utils/action-utils';
@@ -52,6 +50,7 @@ import {
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
 import { dispatchPing } from 'lib/shared/ping-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import {
   windowHeight,
@@ -848,7 +847,8 @@ const LoggedOutModal = connect(
     pingActionInput: pingActionInput(state),
     deviceToken: state.deviceToken,
   }),
-  includeDispatchActionProps,
+  null,
+  true,
 )(InnerLoggedOutModal);
 
 export {

@@ -4,11 +4,11 @@ import type { AppState } from './redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 
 import React from 'react';
-import { connect } from 'react-redux';
 import { StatusBar } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 type InjectedProps = {
   globalLoadingStatus: LoadingStatus,

@@ -16,7 +16,6 @@ import type { AppState } from '../../redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
@@ -43,6 +42,7 @@ import {
   viewerCanSeeThread,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
+import { connect } from 'lib/utils/redux-utils';
 
 import {
   ThreadSettingsCategoryHeader,
@@ -790,7 +790,7 @@ const somethingIsSaving = (
 
 const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
-  (state: AppState, ownProps: { navigation: NavProp }): * => {
+  (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     const threadMembers =
       relativeMemberInfoSelectorForMembersOfThread(threadID)(state);

@@ -31,7 +31,6 @@ import _includes from 'lodash/fp/includes';
 import { Alert, BackHandler, Platform } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -52,6 +51,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import {
   Calendar,
@@ -186,7 +186,7 @@ class WrappedAppNavigator
 }
 const AppRouteName = 'App';
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
-const ReduxWrappedAppNavigator = connect((state: AppState): * => {
+const ReduxWrappedAppNavigator = connect((state: AppState) => {
   const appNavState = state.navInfo.navigationState.routes[0];
   invariant(
     appNavState.index !== undefined &&

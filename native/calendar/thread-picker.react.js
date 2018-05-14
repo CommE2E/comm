@@ -8,7 +8,6 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
 
 import {
@@ -18,9 +17,9 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
+import { connect } from 'lib/utils/redux-utils';
 
 import ThreadList from '../components/thread-list.react';
 import KeyboardAvoidingModal from '../components/keyboard-avoiding-modal.react';
@@ -104,5 +103,6 @@ export default connect(
       threadSearchIndex: threadSearchIndex(state),
     };
   },
-  includeDispatchActionProps,
+  null,
+  true,
 )(ThreadPicker);

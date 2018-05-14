@@ -15,12 +15,11 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Hyperlink from 'react-native-hyperlink';
 
 import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
-import { includeDispatchActionProps } from 'lib/utils/action-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from './message-list.react';
 
@@ -144,7 +143,8 @@ const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.id],
   }),
-  includeDispatchActionProps,
+  null,
+  true,
 )(InnerThreadEntity);
 
 function ColorEntity(props: {| color: string |}) {
