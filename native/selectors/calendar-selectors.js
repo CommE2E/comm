@@ -11,20 +11,26 @@ import invariant from 'invariant';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
 
+export type SectionHeaderItem = {|
+  itemType: "header",
+  dateString: string,
+|};
+export type SectionFooterItem = {|
+  itemType: "footer",
+  dateString: string,
+|};
+export type LoaderItem = {|
+  itemType: "loader",
+  key: string,
+|};
 export type CalendarItem =
-  {
-    itemType: "loader",
-    key: string,
-  } | {
-    itemType: "header",
-    dateString: string,
-  } | {
-    itemType: "entryInfo",
-    entryInfo: EntryInfo,
-  } | {
-    itemType: "footer",
-    dateString: string,
-  };
+  | LoaderItem
+  | SectionHeaderItem
+  | SectionFooterItem
+  | {|
+      itemType: "entryInfo",
+      entryInfo: EntryInfo,
+    |};
 
 const calendarListData = createSelector(
   (state: AppState) => !!(state.currentUserInfo &&

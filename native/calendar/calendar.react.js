@@ -7,7 +7,12 @@ import {
   type CalendarResult,
 } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
-import type { CalendarItem } from '../selectors/calendar-selectors';
+import type {
+  CalendarItem,
+  SectionHeaderItem,
+  SectionFooterItem,
+  LoaderItem,
+} from '../selectors/calendar-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard';
@@ -72,23 +77,18 @@ import {
 } from '../keyboard';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
-export type EntryInfoWithHeight = EntryInfo & { textHeight: number };
-type SectionHeaderItem = {|
-  itemType: "header",
-  dateString: string,
-|};
-type SectionFooterItem = {|
-  itemType: "footer",
-  dateString: string,
+export type EntryInfoWithHeight = {|
+  ...EntryInfo,
+  textHeight: number,
 |};
 type CalendarItemWithHeight =
-  {|
-    itemType: "loader",
-    key: string,
-  |} | SectionHeaderItem | {|
-    itemType: "entryInfo",
-    entryInfo: EntryInfoWithHeight,
-  |} | SectionFooterItem;
+  | LoaderItem
+  | SectionHeaderItem
+  | SectionFooterItem
+  | {|
+      itemType: "entryInfo",
+      entryInfo: EntryInfoWithHeight,
+    |};
 type ExtraData = {
   activeEntries: {[key: string]: bool},
   visibleEntries: {[key: string]: bool},
@@ -516,6 +516,54 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
   }
 
+  static entryInfoWithHeight(
+    entryInfo: EntryInfo,
+    textHeight: number,
+  ): EntryInfoWithHeight {
+    // Blame Flow for not accepting object spread on exact types
+    if (entryInfo.id && entryInfo.localID) {
+      return {
+        id: entryInfo.id,
+        localID: entryInfo.localID,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    } else if (entryInfo.id) {
+      return {
+        id: entryInfo.id,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    } else {
+      return {
+        localID: entryInfo.localID,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    }
+  }
+
   mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
     const textHeights = this.textHeights;
     invariant(textHeights, "textHeights should be set");
@@ -530,11 +578,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         `height for ${entryKey(entryInfo)} should be set`,
       );
       return {
-        ...item,
-        entryInfo: {
-          ...item.entryInfo,
-          textHeight: Math.ceil(textHeight),
-        },
+        itemType: "entryInfo",
+        entryInfo: InnerCalendar.entryInfoWithHeight(
+          item.entryInfo,
+          textHeight,
+        ),
       };
     })(listData);
     if (
