@@ -38,8 +38,9 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import Button from '../../components/button.react';
 import OnePasswordButton from '../../components/one-password-button.react';
 
-type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { threadInfo: ThreadInfo } } };
+type NavProp =
+  & { state: { params: { threadInfo: ThreadInfo } } }
+  & NavigationScreenProp<NavigationRoute>;
 
 type Props = {|
   navigation: NavProp,

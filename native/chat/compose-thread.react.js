@@ -69,12 +69,17 @@ const tagInputProps = {
 };
 
 type NavProp =
-  & NavigationScreenProp<NavigationRoute>
-  & { state: { params: {
-      threadType?: ThreadType,
-      parentThreadID?: string,
-      createButtonDisabled?: bool,
-    } } };
+  & {
+      state: {
+        params: {
+          threadType?: ThreadType,
+          parentThreadID?: string,
+          createButtonDisabled?: bool,
+        },
+        key: string,
+      },
+    }
+  & NavigationScreenProp<NavigationRoute>;
 
 let queuedPress = false;
 function setQueuedPress() {

@@ -58,8 +58,14 @@ import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
-type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { threadInfo: ThreadInfo } } };
+type NavProp =
+  & {
+      state: {
+        params: { threadInfo: ThreadInfo },
+        key: string,
+      },
+    }
+  & NavigationScreenProp<NavigationRoute>;
 
 export type RobotextChatMessageInfoItemWithHeight = {|
   itemType: "message",

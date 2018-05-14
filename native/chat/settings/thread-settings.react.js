@@ -69,8 +69,14 @@ import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 
 const itemPageLength = 5;
 
-type NavProp = NavigationScreenProp<NavigationRoute>
-  & { state: { params: { threadInfo: ThreadInfo } } };
+type NavProp =
+  & {
+      state: {
+        params: { threadInfo: ThreadInfo },
+        key: string,
+      },
+    }
+  & NavigationScreenProp<NavigationRoute>;
 type ChatSettingsItem =
   | {|
       itemType: "header",

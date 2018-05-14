@@ -62,8 +62,9 @@ const forceInset = { top: 'always', bottom: 'always' };
 
 type VerificationModalMode = "simple-text" | "reset-password";
 type Props = {
-  navigation: NavigationScreenProp<NavigationLeafRoute>
-    & { state: { params: { verifyCode: string } } },
+  navigation:
+    & { state: { params: { verifyCode: string } } }
+    & NavigationScreenProp<NavigationLeafRoute>,
   // Redux state
   isForeground: bool,
   // Redux dispatch functions
