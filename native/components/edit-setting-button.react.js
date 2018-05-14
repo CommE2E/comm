@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 type Props = {|
   onPress: () => void,
   canChangeSettings: bool,
-  style?: StyleObj,
+  style?: TextStyle,
 |};
 function EditSettingButton(props: Props) {
   if (!props.canChangeSettings) {

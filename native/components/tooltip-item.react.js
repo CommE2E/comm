@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -24,8 +25,8 @@ type Props = {
   onPress: (userCallback: () => void) => void,
   onPressUserCallback: () => void,
   label: Label,
-  containerStyle: ?StyleObj,
-  labelStyle: ?StyleObj,
+  containerStyle: ?ViewStyle,
+  labelStyle: ?TextStyle,
 };
 class TooltipItem extends React.PureComponent<Props> {
 

@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
@@ -14,7 +14,7 @@ type Props = {
   text: string,
   onPress: () => void,
   disabled?: bool,
-  style?: StyleObj,
+  style?: ViewStyle,
 };
 class LinkButton extends React.PureComponent<Props> {
 

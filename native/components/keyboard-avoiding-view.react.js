@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import type { EmitterSubscription } from '../keyboard';
 
@@ -42,7 +42,7 @@ const viewRef = 'VIEW';
 
 type Props = {|
   children?: React.Node,
-  style?: StyleObj,
+  style?: ViewStyle,
   keyboardVerticalOffset: number,
 |};
 type State = {|

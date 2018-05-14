@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -20,8 +21,8 @@ import ColorSplotch from './color-splotch.react';
 type Props = {
   threadInfo: ThreadInfo,
   onSelect: (threadID: string) => void,
-  style?: StyleObj,
-  textStyle?: StyleObj,
+  style?: ViewStyle,
+  textStyle?: TextStyle,
 };
 class ThreadListThread extends React.PureComponent<Props> {
 

@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
@@ -18,7 +18,7 @@ const measureBatchSize = 50;
 export type TextToMeasure = {
   id: string,
   text: string,
-  style?: StyleObj,
+  style?: TextStyle,
 };
 type TextToHeight = Map<string, number>;
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
     heights: TextToHeight,
   ) => void,
   minHeight?: number,
-  style?: StyleObj,
+  style?: TextStyle,
 };
 type State = {
   currentlyMeasuring: ?Set<TextToMeasure>,

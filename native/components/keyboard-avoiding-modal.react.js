@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -12,8 +12,8 @@ import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = {|
   children?: React.Node,
-  style?: StyleObj,
-  containerStyle?: StyleObj,
+  style?: ViewStyle,
+  containerStyle?: ViewStyle,
 |};
 class KeyboardAvoidingModal extends React.PureComponent<Props> {
 

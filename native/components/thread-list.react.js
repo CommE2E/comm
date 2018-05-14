@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -27,8 +28,8 @@ import ThreadListThread from './thread-list-thread.react';
 type Props = {|
   threadInfos: $ReadOnlyArray<ThreadInfo>,
   onSelect: (threadID: string) => void,
-  itemStyle?: StyleObj,
-  itemTextStyle?: StyleObj,
+  itemStyle?: ViewStyle,
+  itemTextStyle?: TextStyle,
   searchIndex?: SearchIndex,
 |};
 type State = {|

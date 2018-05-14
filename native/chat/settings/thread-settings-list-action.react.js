@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import React from 'react';
@@ -16,8 +17,8 @@ type ListActionProps = {|
   iconName: string,
   iconColor: string,
   iconSize: number,
-  iconStyle?: StyleObj,
-  buttonStyle?: StyleObj,
+  iconStyle?: TextStyle,
+  buttonStyle?: ViewStyle,
 |};
 function ThreadSettingsListAction(props: ListActionProps) {
   return (

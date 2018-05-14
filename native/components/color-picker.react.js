@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import type {
   NativeMethodsMixinType,
@@ -40,7 +40,7 @@ type Props = {
   onColorChange?: (color: HSVColor) => void,
   onColorSelected?: (color: string) => void,
   onOldColorSelected?: (color: string) => void,
-  style?: StyleObj,
+  style?: ViewStyle,
   buttonText: string,
   oldButtonText: string,
 };

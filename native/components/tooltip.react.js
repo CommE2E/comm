@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -30,12 +31,12 @@ type Props = {
   buttonComponent: React.Node,
   buttonComponentExpandRatio: number,
   items: $ReadOnlyArray<{ +label: Label, onPress: () => void }>,
-  componentWrapperStyle?: StyleObj,
-  overlayStyle?: StyleObj,
-  tooltipContainerStyle?: StyleObj,
-  labelContainerStyle?: StyleObj,
+  componentWrapperStyle?: ViewStyle,
+  overlayStyle?: ViewStyle,
+  tooltipContainerStyle?: ViewStyle,
+  labelContainerStyle?: ViewStyle,
   labelSeparatorColor: string,
-  labelStyle?: StyleObj,
+  labelStyle?: TextStyle,
   setBelow: bool,
   animationType?: "timing" | "spring",
   onRequestClose: () => void,
@@ -43,7 +44,7 @@ type Props = {
   delayLongPress: number,
   onOpenTooltipMenu?: () => void,
   onCloseTooltipMenu?: () => void,
-  componentContainerStyle?: StyleObj,
+  componentContainerStyle?: ViewStyle,
   timingConfig?: { duration?: number },
   springConfig?: { tension?: number, friction?: number },
   opacityChangeDuration?: number,

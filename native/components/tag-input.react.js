@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -57,11 +58,11 @@ type Props<T> = {
   /**
    * Styling override for container surrounding tag text
    */
-  tagContainerStyle?: StyleObj,
+  tagContainerStyle?: ViewStyle,
   /**
    * Styling override for tag's text component
    */
-  tagTextStyle?: StyleObj,
+  tagTextStyle?: TextStyle,
   /**
    * Color of text input
    */
@@ -361,8 +362,8 @@ type TagProps = {
   removeIndex: (index: number) => void,
   tagColor: string,
   tagTextColor: string,
-  tagContainerStyle?: StyleObj,
-  tagTextStyle?: StyleObj,
+  tagContainerStyle?: ViewStyle,
+  tagTextStyle?: TextStyle,
 };
 class Tag extends React.PureComponent<TagProps> {
 

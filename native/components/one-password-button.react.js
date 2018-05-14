@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ImageStyleProp_Internal as ImageStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -9,7 +9,7 @@ import { TouchableWithoutFeedback, Image, StyleSheet } from 'react-native';
 
 type Props = {|
   onPress: () => Promise<void>,
-  style?: StyleObj,
+  style?: ImageStyle,
 |};
 function OnePasswordButton(props: Props) {
   return (

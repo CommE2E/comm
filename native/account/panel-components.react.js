@@ -3,7 +3,7 @@
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 
@@ -87,7 +87,7 @@ function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
 type PanelProps = {|
   opacityValue: Animated.Value,
   children: React.Node,
-  style?: StyleObj,
+  style?: ViewStyle,
 |};
 type PanelState = {|
   keyboardHeight: number,

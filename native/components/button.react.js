@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____ViewStyleProp_Internal as ViewStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
@@ -20,12 +20,12 @@ const ANDROID_VERSION_LOLLIPOP = 21;
 type Props = {
   onPress: () => *,
   disabled?: bool,
-  style?: StyleObj,
+  style?: ViewStyle,
   // style and topStyle just get merged in most cases. The separation only
   // matters in the case of iOS and iosFormat = "highlight", where the
   // topStyle is necessary for layout, and the bottom style is necessary for
   // colors etc.
-  topStyle?: StyleObj,
+  topStyle?: ViewStyle,
   children?: React.Node,
   androidBorderlessRipple: bool,
   iosFormat: "highlight" | "opacity",

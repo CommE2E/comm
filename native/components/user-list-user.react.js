@@ -1,7 +1,7 @@
 // @flow
 
 import type {
-  StyleObj,
+  ____TextStyleProp_Internal as TextStyle,
 } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 
@@ -18,7 +18,7 @@ const getUserListItemHeight = (item: UserListItem) => {
 type Props = {
   userInfo: UserListItem,
   onSelect: (userID: string) => void,
-  textStyle?: StyleObj,
+  textStyle?: TextStyle,
 };
 class UserListUser extends React.PureComponent<Props> {
 
