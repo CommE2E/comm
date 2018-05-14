@@ -1646,14 +1646,18 @@ declare module "lodash/fp" {
       array: $ReadOnlyArray<T>
     ): T[];
     differenceWith<T>(
-      values: $ReadOnlyArray<T>
-    ): ((comparator: Comparator<T>) => (array: $ReadOnlyArray<T>) => T[]) &
-      ((comparator: Comparator<T>, array: $ReadOnlyArray<T>) => T[]);
+      comparator: Comparator<T>,
+    ): ((first: $ReadOnly<T>) => (second: $ReadOnly<T>) => T[]) &
+      ((first: $ReadOnly<T>, second: $ReadOnly<T>) => T[]);
     differenceWith<T>(
-      values: $ReadOnlyArray<T>,
-      comparator: Comparator<T>
-    ): (array: $ReadOnlyArray<T>) => T[];
-    differenceWith<T>(values: $ReadOnlyArray<T>, comparator: Comparator<T>, array: $ReadOnlyArray<T>): T[];
+      comparator: Comparator<T>,
+      first: $ReadOnly<T>,
+    ): (second: $ReadOnly<T>) => T[];
+    differenceWith<T>(
+      comparator: Comparator<T>,
+      first: $ReadOnly<T>,
+      second: $ReadOnly<T>
+    ): T[];
     drop<T>(n: number): (array: Array<T>) => Array<T>;
     drop<T>(n: number, array: Array<T>): Array<T>;
     dropLast<T>(n: number): (array: Array<T>) => Array<T>;
@@ -2023,10 +2027,10 @@ declare module "lodash/fp" {
     ): boolean;
     filter<T>(
       predicate: Predicate<T> | OPredicate<T>
-    ): (collection: Array<T> | { [id: any]: T }) => Array<T>;
+    ): (collection: $ReadOnlyArray<T> | { [id: any]: T }) => Array<T>;
     filter<T>(
       predicate: Predicate<T> | OPredicate<T>,
-      collection: Array<T> | { [id: any]: T }
+      collection: $ReadOnlyArray<T> | { [id: any]: T }
     ): Array<T>;
     find<T>(
       predicate: Predicate<T> | OPredicate<T>
@@ -2194,10 +2198,10 @@ declare module "lodash/fp" {
     ): { [key: V]: T };
     map<T, U>(
       iteratee: MapIterator<T, U> | OMapIterator<T, U>
-    ): (collection: Array<T> | { [id: any]: T }) => Array<U>;
+    ): (collection: $ReadOnlyArray<T> | { [id: any]: T }) => Array<U>;
     map<T, U>(
       iteratee: MapIterator<T, U> | OMapIterator<T, U>,
-      collection: Array<T> | { [id: any]: T }
+      collection: $ReadOnlyArray<T> | { [id: any]: T }
     ): Array<U>;
     map(iteratee: (char: string) => any): (str: string) => string;
     map(iteratee: (char: string) => any, str: string): string;

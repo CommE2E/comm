@@ -555,9 +555,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (animated === undefined) {
       animated = this.props.tabActive;
     }
-    invariant(this.state.listDataWithHeights, "should be set");
-    const todayIndex = _findIndex(['dateString', dateString(new Date())])
-      (this.state.listDataWithHeights);
+    const ldwh = this.state.listDataWithHeights;
+    invariant(ldwh, "should be set");
+    const todayIndex = _findIndex(['dateString', dateString(new Date())])(ldwh);
     invariant(this.flatList, "flatList should be set");
     this.flatList.scrollToIndex({
       index: todayIndex,
@@ -921,6 +921,14 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     viewableItems: ViewToken[],
     changed: ViewToken[],
   }) => {
+    const ldwh = this.state.listDataWithHeights;
+    if (!ldwh) {
+      // This indicates the listData was cleared (set to null) right before this
+      // callback was called. Since this leads to the FlatList getting cleared,
+      // we'll just ignore this callback.
+      return;
+    }
+
     const visibleEntries = {};
     for (let token of info.viewableItems) {
       if (token.item.itemType === "entryInfo") {
@@ -930,10 +938,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.latestExtraData = {
       activeEntries: _pickBy(
         (_, key: string) => {
+          if (visibleEntries[key]) {
+            return true;
+          }
           const item = _find
             (item => item.entryInfo && entryKey(item.entryInfo) === key)
-            (this.state.listDataWithHeights);
-          return visibleEntries[key] || (item && !item.id);
+            (ldwh);
+          return item && !item.id && true;
         },
       )(this.latestExtraData.activeEntries),
       visibleEntries,
