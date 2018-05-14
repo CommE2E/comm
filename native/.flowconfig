@@ -7,7 +7,6 @@
 
 ; Ignore unexpected extra "@providesModule"
 .*/node_modules/.*/node_modules/fbjs/.*
-.*/lib/node_modules/fbjs/.*
 
 ; Ignore duplicate module providers
 ; For RN Apps installed via npm, "Libraries" folder is inside
@@ -18,6 +17,9 @@
 .*/Libraries/polyfills/.*
 
 .*/node_modules/redux-persist/lib/index.js
+
+; Ignore metro
+.*/node_modules/metro/.*
 
 [include]
 ../lib
@@ -53,7 +55,5 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
-unsafe.enable_getters_and_setters=true
-
 [version]
-^0.61.0
+^0.67.0

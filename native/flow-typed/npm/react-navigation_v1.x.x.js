@@ -1,3 +1,6 @@
+// flow-typed signature: 8aaf473557d9b3d2de31fd2ff6d81795
+// flow-typed version: e00672bfc0/react-navigation_v1.x.x/flow_>=v0.60.x
+
 // @flow
 
 declare module 'react-navigation' {
@@ -379,6 +382,20 @@ declare module 'react-navigation' {
   |};
 
   /**
+   * Switch Navigator
+   */
+
+  declare export type NavigationSwitchRouterConfig = {|
+    initialRouteName?: string,
+    initialRouteParams?: NavigationParams,
+    paths?: NavigationPathsConfig,
+    navigationOptions?: NavigationScreenConfig<*>,
+    order?: Array<string>,
+    backBehavior?: 'none' | 'initialRoute', // defaults to `'none'`
+    resetOnBlur?: boolean, // defaults to `true`
+  |};
+
+  /**
    * Tab Navigator
    */
 
@@ -389,7 +406,6 @@ declare module 'react-navigation' {
     navigationOptions?: NavigationScreenConfig<*>,
     // todo: type these as the real route names rather than 'string'
     order?: Array<string>,
-
     // Does the back button cause the router to switch to the initial tab
     backBehavior?: 'none' | 'initialRoute', // defaults `initialRoute`
   |};
@@ -478,6 +494,7 @@ declare module 'react-navigation' {
       action?: NavigationNavigateAction
     ) => boolean,
     setParams: (newParams: NavigationParams) => boolean,
+    getParam: (paramName: string, fallback?: any) => any,
     addListener: (
       eventName: string,
       callback: NavigationEventCallback
@@ -501,6 +518,29 @@ declare module 'react-navigation' {
     screenProps?: {},
     navigationOptions?: O,
   }>;
+
+  //declare export type NavigationNavigatorProps<O: {}, S: {}> =
+  //  | {}
+  //  | { navigation: NavigationScreenProp<S> }
+  //  | { screenProps: {} }
+  //  | { navigationOptions: O }
+  //  | {
+  //      navigation: NavigationScreenProp<S>,
+  //      screenProps: {},
+  //    }
+  //  | {
+  //      navigation: NavigationScreenProp<S>,
+  //      navigationOptions: O,
+  //    }
+  //  | {
+  //      screenProps: {},
+  //      navigationOptions: O,
+  //    }
+  //  | {
+  //      navigation: NavigationScreenProp<S>,
+  //      screenProps: {},
+  //      navigationOptions: O,
+  //    };
 
   /**
    * Navigation container
@@ -773,11 +813,21 @@ declare module 'react-navigation' {
     routeConfigs: NavigationRouteConfigMap,
     config?: _TabNavigatorConfig
   ): NavigationContainer<*, *, *>;
+  declare type _SwitchNavigatorConfig = {|
+    ...NavigationSwitchRouterConfig,
+  |};
+  declare export function SwitchNavigator(
+    routeConfigs: NavigationRouteConfigMap,
+    config?: _SwitchNavigatorConfig
+  ): NavigationContainer<*, *, *>;
 
   declare type _DrawerViewConfig = {|
     drawerLockMode?: 'unlocked' | 'locked-closed' | 'locked-open',
     drawerWidth?: number | (() => number),
     drawerPosition?: 'left' | 'right',
+    drawerOpenRoute?: string,
+    drawerCloseRoute?: string,
+    drawerToggleRoute?: string,
     contentComponent?: React$ElementType,
     contentOptions?: {},
     style?: ViewStyleProp,
@@ -912,6 +962,9 @@ declare module 'react-navigation' {
     drawerLockMode?: 'unlocked' | 'locked-closed' | 'locked-open',
     drawerWidth: number | (() => number),
     drawerPosition: 'left' | 'right',
+    drawerOpenRoute: string,
+    drawerCloseRoute: string,
+    drawerToggleRoute: string,
     contentComponent: React$ElementType,
     contentOptions?: {},
     style?: ViewStyleProp,
@@ -1029,13 +1082,17 @@ declare module 'react-navigation' {
   };
   declare export var TabBarBottom: React$ComponentType<_TabBarBottomProps>;
 
-  declare type _NavigationInjectedProps = {
-    navigation: NavigationScreenProp<NavigationStateRoute>,
-  };
-  declare export function withNavigation<T: {}>(
-    Component: React$ComponentType<T & _NavigationInjectedProps>
-  ): React$ComponentType<T>;
-  declare export function withNavigationFocus<T: {}>(
-    Component: React$ComponentType<T & _NavigationInjectedProps>
-  ): React$ComponentType<T>;
+  declare export function withNavigation<Props: {}>(
+    Component: React$ComponentType<Props>
+  ): React$ComponentType<
+    $Diff<
+      Props,
+      {
+        navigation: NavigationScreenProp<NavigationStateRoute> | void,
+      }
+      >
+    >;
+  declare export function withNavigationFocus<Props: {}>(
+    Component: React$ComponentType<Props>
+  ): React$ComponentType<$Diff<Props, { isFocused: boolean | void }>>;
 }
