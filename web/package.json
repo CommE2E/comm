@@ -22,7 +22,6 @@
     "webpack-dev-server": "^2.5.0"
   },
   "scripts": {
-    "postinstall": "cd ../; npx flow-mono create-symlinks web/.flowconfig",
     "dev": "concurrently \"webpack --env dev --progress --watch\" \"webpack-dev-server\"",
     "prod": "webpack --env prod --progress",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"

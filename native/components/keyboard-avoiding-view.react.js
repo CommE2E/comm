@@ -38,8 +38,6 @@ type KeyboardChangeEvent = {
   easing?: string,
 };
 
-const viewRef = 'VIEW';
-
 type Props = {|
   children?: React.Node,
   style?: ViewStyle,
@@ -150,7 +148,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     const paddingStyle = { paddingBottom: this.state.bottom };
     return (
       <View
-        ref={viewRef}
         style={[style, paddingStyle]}
         onLayout={this.onLayout}
         {...props}

@@ -5,7 +5,6 @@
     "flow-bin": "^0.64.0"
   },
   "scripts": {
-    "postinstall": "cd ../; npx flow-mono create-symlinks lib/.flowconfig",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
   "dependencies": {

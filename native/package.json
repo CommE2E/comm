@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "cd ../; npx flow-mono create-symlinks native/.flowconfig",
+    "postinstall": "node link-workspaces.js && cd ../; npx flow-mono create-symlinks native/.flowconfig",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
     "devtools": "react-devtools",
@@ -45,8 +45,10 @@
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "babel-preset-react-native": "^4.0.0",
+    "crna-make-symlinks-for-yarn-workspaces": "^1.0.1",
     "flow-bin": "^0.67.1",
     "jest": "^20.0.4",
+    "metro-bundler-config-yarn-workspaces": "^1.0.3",
     "react-devtools": "^3.0.0",
     "react-test-renderer": "^15.6.1"
   },

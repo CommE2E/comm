@@ -2707,6 +2707,13 @@ create-react-class@^15.6.3:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
 
+crna-make-symlinks-for-yarn-workspaces@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/crna-make-symlinks-for-yarn-workspaces/-/crna-make-symlinks-for-yarn-workspaces-1.0.1.tgz#5ad86caac2389daceec22978a0e30c969d55e3c6"
+  dependencies:
+    find-root "^1.1.0"
+    fs-extra "^5.0.0"
+
 cron-parser@^2.4.0:
   version "2.4.5"
   resolved "https://registry.yarnpkg.com/cron-parser/-/cron-parser-2.4.5.tgz#33629810a4b491004c363f4b6996133bbc22e16f"
@@ -3806,6 +3813,10 @@ find-config-up@1.1.0:
     find-up "^2.1.0"
     lodash "^4.17.4"
 
+find-root@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/find-root/-/find-root-1.1.0.tgz#abcfc8ba76f708c42a97b3d685b7e9450bfb9ce4"
+
 find-up@2.1.0, find-up@^2.0.0, find-up@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/find-up/-/find-up-2.1.0.tgz#45d1b7e506c717ddd482775a2b77920a3c0c57a7"
@@ -4066,6 +4077,14 @@ get-stream@^3.0.0:
 get-value@^2.0.3, get-value@^2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/get-value/-/get-value-2.0.6.tgz#dc15ca1c672387ca76bd37ac0a395ba2042a2c28"
+
+get-yarn-workspaces@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/get-yarn-workspaces/-/get-yarn-workspaces-1.0.2.tgz#81591bdb392f1c6bac09cdc8491a6d275781aa44"
+  dependencies:
+    find-root "^1.1.0"
+    flatten "^1.0.2"
+    glob "^7.1.2"
 
 getpass@^0.1.1:
   version "0.1.7"
@@ -6077,6 +6096,12 @@ metro-babylon7@0.30.2:
   resolved "https://registry.yarnpkg.com/metro-babylon7/-/metro-babylon7-0.30.2.tgz#73784a958916bf5541b6a930598b62460fc376f5"
   dependencies:
     babylon "^7.0.0-beta"
+
+metro-bundler-config-yarn-workspaces@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/metro-bundler-config-yarn-workspaces/-/metro-bundler-config-yarn-workspaces-1.0.3.tgz#160ba7db8856fe218b866e5e4d2b2c9ac51203bd"
+  dependencies:
+    get-yarn-workspaces "^1.0.0"
 
 metro-cache@0.30.2:
   version "0.30.2"
