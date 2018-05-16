@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "color": "^2.0.0",
+    "find-root": "^1.1.0",
+    "fs-extra": "^6.0.1",
     "invariant": "^2.2.2",
     "lib": "0.0.1",
     "lodash": "^4.17.5",
@@ -45,7 +47,6 @@
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "babel-preset-react-native": "^4.0.0",
-    "crna-make-symlinks-for-yarn-workspaces": "^1.0.1",
     "flow-bin": "^0.67.1",
     "jest": "^20.0.4",
     "metro-bundler-config-yarn-workspaces": "^1.0.3",

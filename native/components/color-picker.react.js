@@ -33,7 +33,8 @@ type PanEvent = {
   },
 };
 type HSVColor = {| h: number, s: number, v: number |};
-type Props = {
+type PickerContainer = React.ElementRef<typeof View> & NativeMethodsMixinType;
+type Props = {|
   color?: string | HSVColor,
   defaultColor?: string,
   oldColor?: ?string,
@@ -43,12 +44,11 @@ type Props = {
   style?: ViewStyle,
   buttonText: string,
   oldButtonText: string,
-};
-type State = {
+|};
+type State = {|
   color: HSVColor,
   pickerSize: ?number,
-};
-
+|};
 class ColorPicker extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -76,8 +76,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
   _layout = { width: 0, height: 0 };
   _pageX = 0;
   _pageY = 0;
-  _pickerContainer: ?(React.ElementRef<typeof View> & NativeMethodsMixinType)
-    = null;
+  _pickerContainer: ?PickerContainer = null;
   _pickerResponder: ?PanResponder = null;
   _changingHColor = false;
 
@@ -433,8 +432,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     )
   }
 
-  pickerContainerRef = (pickerContainer: any) => {
-    // TODO fix pickerContainer type, should be better in RN 0.50
+  pickerContainerRef = (pickerContainer: ?PickerContainer) => {
     this._pickerContainer = pickerContainer;
   }
 

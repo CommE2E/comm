@@ -107,7 +107,6 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     tagContainerStyle: ViewPropTypes.style,
     tagTextStyle: Text.propTypes.style,
     inputColor: PropTypes.string,
-    // $FlowFixMe(>=0.49.0): https://github.com/facebook/react-native/pull/16437
     inputProps: PropTypes.shape(TextInput.propTypes),
     minHeight: PropTypes.number,
     maxHeight: PropTypes.number,
