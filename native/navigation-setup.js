@@ -21,8 +21,9 @@ import type { AndroidNotificationActions } from './push/android';
 import type { UserInfo } from 'lib/types/user-types';
 
 import {
-  TabNavigator,
-  StackNavigator,
+  createBottomTabNavigator,
+  createMaterialTopTabNavigator,
+  createStackNavigator,
   NavigationActions,
 } from 'react-navigation';
 import invariant from 'invariant';
@@ -121,7 +122,10 @@ if (Platform.OS === "android") {
 } else {
   tabBarOptions = {};
 }
-const AppNavigator = TabNavigator(
+const createTabNavigator = Platform.OS === "android"
+  ? createMaterialTopTabNavigator
+  : createBottomTabNavigator;
+const AppNavigator = createTabNavigator(
   {
     [CalendarRouteName]: { screen: Calendar },
     [ChatRouteName]: { screen: Chat },
@@ -201,7 +205,7 @@ const ReduxWrappedAppNavigator = connect((state: AppState) => {
 })(WrappedAppNavigator);
 (ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
 
-const RootNavigator = StackNavigator(
+const RootNavigator = createStackNavigator(
   {
     [LoggedOutModalRouteName]: { screen: LoggedOutModal },
     [VerificationModalRouteName]: { screen: VerificationModal },

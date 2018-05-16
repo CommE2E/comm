@@ -51,7 +51,6 @@ import {
   Alert,
   DeviceInfo,
 } from 'react-native';
-import { addNavigationHelpers } from 'react-navigation';
 import { createReduxBoundAddListener } from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
@@ -59,6 +58,8 @@ import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import SplashScreen from 'react-native-splash-screen';
+import getNavigationActionCreators
+  from 'react-navigation/src/routers/getNavigationActionCreators';
 
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
@@ -836,11 +837,18 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   render() {
-    const navigation: NavigationScreenProp<any> = addNavigationHelpers({
+    const state = this.props.navigationState;
+    const navigation: NavigationScreenProp<any> = {
       dispatch: this.props.dispatch,
-      state: this.props.navigationState,
+      state,
       addListener: reactNavigationAddListener,
+    };
+    const actionCreators = getNavigationActionCreators(state);
+    Object.keys(actionCreators).forEach(actionName => {
+      navigation[actionName] = (...args) =>
+        this.props.dispatch(actionCreators[actionName](...args));
     });
+
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>

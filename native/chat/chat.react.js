@@ -1,10 +1,13 @@
 // @flow
 
-import type { NavigationStateRoute } from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationStateRoute,
+} from 'react-navigation';
 
 import React from 'react';
 import { Platform } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import {
   ChatThreadList,
@@ -24,45 +27,40 @@ import {
 import ChatIcon from './chat-icon.react';
 import ChatLabel from './chat-label.react';
 
-const Chat = StackNavigator(
-  {
-    [ChatThreadListRouteName]: { screen: ChatThreadList },
-    [MessageListRouteName]: { screen: MessageList },
-    [ComposeThreadRouteName]: { screen: ComposeThread },
-    [ThreadSettingsRouteName]: { screen: ThreadSettings },
-    [DeleteThreadRouteName]: { screen: DeleteThread },
+const Chat = createStackNavigator({
+  [ChatThreadListRouteName]: { screen: ChatThreadList },
+  [MessageListRouteName]: { screen: MessageList },
+  [ComposeThreadRouteName]: { screen: ComposeThread },
+  [ThreadSettingsRouteName]: { screen: ThreadSettings },
+  [DeleteThreadRouteName]: { screen: DeleteThread },
+});
+Chat.navigationOptions = ({ navigation }) => ({
+  tabBarLabel: Platform.OS === "android"
+    ? ({ tintColor }) => <ChatLabel color={tintColor} />
+    : "Chat",
+  tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
+  tabBarOnPress: ({ navigation }: {
+    navigation: NavigationScreenProp<NavigationStateRoute>,
+  }) => {
+    if (!navigation.isFocused()) {
+      return;
+    }
+    const state = navigation.state;
+    if (state.index === 0) {
+      return;
+    }
+    const currentRoute = state.routes[state.index];
+    const chatScreen = getChatScreen(currentRoute.key);
+    if (!chatScreen) {
+      return;
+    }
+    if (chatScreen.canReset()) {
+      navigation.goBack(state.routes[1].key);
+    }
   },
-  {
-    navigationOptions: ({ navigation }) => ({
-      tabBarLabel: Platform.OS === "android"
-        ? ({ tintColor }) => <ChatLabel color={tintColor} />
-        : 'Chat',
-      tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
-      tabBarOnPress: ({ scene, jumpToIndex}: {
-        scene: { index: number, focused: bool, route: NavigationStateRoute },
-        jumpToIndex: (index: number) => void,
-      }) => {
-        if (!scene.focused) {
-          jumpToIndex(scene.index);
-          return;
-        }
-        if (scene.route.index === 0) {
-          return;
-        }
-        const currentRoute = scene.route.routes[scene.route.index];
-        const chatScreen = getChatScreen(currentRoute.key);
-        if (!chatScreen) {
-          return;
-        }
-        if (chatScreen.canReset()) {
-          navigation.goBack(scene.route.routes[1].key);
-        }
-      },
-    }),
-  },
-);
+});
 
-const ChatRouteName = 'Chat';
+const ChatRouteName = "Chat";
 export {
   Chat,
   ChatRouteName,

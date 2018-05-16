@@ -1,5 +1,5 @@
-// flow-typed signature: 9b30c25bfb40dd9968c9c9f32b43ce75
-// flow-typed version: 6aad05d35e/lodash_v4.x.x/flow_>=v0.63.x
+// flow-typed signature: a40823cc5da9c510d4c9de2d4e569a40
+// flow-typed version: 10553704de/lodash_v4.x.x/flow_>=v0.63.x
 
 declare module "lodash" {
   declare type __CurriedFunction1<A, R, AA: A> = (...r: [AA]) => R;
