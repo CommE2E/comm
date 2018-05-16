@@ -16,7 +16,10 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { NavigationParams, NavigationAction } from 'react-navigation';
+import type {
+  NavigationParams,
+  NavigationNavigateAction,
+} from 'react-navigation';
 
 import * as React from 'react';
 import {
@@ -65,10 +68,6 @@ import { dateString } from 'lib/utils/date-utils';
 import Button from '../components/button.react';
 import { ChatRouteName } from '../chat/chat.react';
 import { MessageListRouteName } from '../chat/message-list.react';
-import {
-  assertNavigationRouteNotLeafNode,
-  getThreadIDFromParams,
-} from '../utils/navigation-utils';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,
@@ -76,11 +75,12 @@ type Props = {
   active: bool,
   makeActive: (entryKey: string, active: bool) => void,
   onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
-  navigate: (
+  navigate: ({
     routeName: string,
     params?: NavigationParams,
-    action?: NavigationAction,
-  ) => bool,
+    action?: NavigationNavigateAction,
+    key?: string,
+  }) => bool,
   onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
@@ -88,7 +88,6 @@ type Props = {
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
   nextSessionID: () => ?string,
-  currentChatThreadID: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -123,7 +122,6 @@ class InternalEntry extends React.Component<Props, State> {
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
-    currentChatThreadID: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -594,20 +592,16 @@ class InternalEntry extends React.Component<Props, State> {
 
   onPressThreadName = () => {
     Keyboard.dismiss();
-    if (this.props.currentChatThreadID === this.props.threadInfo.id) {
-      this.props.navigate(ChatRouteName);
-      return;
-    }
-    this.props.navigate(
-      ChatRouteName,
-      {},
-      NavigationActions.navigate({
+    const threadInfo = this.props.threadInfo;
+    this.props.navigate({
+      routeName: ChatRouteName,
+      params: {},
+      action: NavigationActions.navigate({
         routeName: MessageListRouteName,
-        params: {
-          threadInfo: this.props.threadInfo,
-        },
-      })
-    );
+        params: { threadInfo },
+        key: `${MessageListRouteName}${threadInfo.id}`,
+      }),
+    });
   }
 
 }
@@ -693,23 +687,12 @@ registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
 
 const Entry = connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => {
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const currentChatSubroute = chatRoute.routes[chatRoute.index];
-    const currentChatThreadID =
-      currentChatSubroute.routeName === MessageListRouteName
-        ? getThreadIDFromParams(currentChatSubroute)
-        : null;
-    return {
-      threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-      sessionStartingPayload: sessionStartingPayload(state),
-      sessionID: currentSessionID(state),
-      nextSessionID: nextSessionID(state),
-      currentChatThreadID,
-    };
-  },
+  (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
+    threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
+    sessionStartingPayload: sessionStartingPayload(state),
+    sessionID: currentSessionID(state),
+    nextSessionID: nextSessionID(state),
+  }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);
 

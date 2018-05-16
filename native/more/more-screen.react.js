@@ -44,7 +44,6 @@ import { EditPasswordRouteName } from './edit-password.react';
 import { DeleteAccountRouteName } from './delete-account.react';
 import { BuildInfoRouteName} from './build-info.react';
 import { DevToolsRouteName} from './dev-tools.react';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -53,7 +52,6 @@ type Props = {
   email: ?string,
   emailVerified: ?bool,
   resendVerificationLoadingStatus: LoadingStatus,
-  active: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -70,7 +68,6 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
-    active: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     resendVerificationEmail: PropTypes.func.isRequired,
@@ -273,9 +270,7 @@ class InnerMoreScreen extends React.PureComponent<Props> {
   }
 
   navigateIfActive(routeName: string) {
-    if (this.props.active) {
-      this.props.navigation.navigate(routeName);
-    }
+    this.props.navigation.navigate({ routeName });
   }
 
   onPressEditEmail = () => {
@@ -425,25 +420,19 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
 
 const MoreScreenRouteName = 'MoreScreen';
 const MoreScreen = connect(
-  (state: AppState) => {
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const moreRoute = assertNavigationRouteNotLeafNode(appRoute.routes[2]);
-    return {
-      username: state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.username
-        : undefined,
-      email: state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.email
-        : undefined,
-      emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.emailVerified
-        : undefined,
-      resendVerificationLoadingStatus:
-        resendVerificationLoadingStatusSelector(state),
-      active: moreRoute.index === 0,
-    };
-  },
+  (state: AppState) => ({
+    username: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.username
+      : undefined,
+    email: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.email
+      : undefined,
+    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.emailVerified
+      : undefined,
+    resendVerificationLoadingStatus:
+      resendVerificationLoadingStatusSelector(state),
+  }),
   { logOut, resendVerificationEmail },
 )(InnerMoreScreen);
 

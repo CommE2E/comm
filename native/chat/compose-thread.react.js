@@ -60,7 +60,6 @@ import { MessageListRouteName } from './message-list.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 const tagInputProps = {
   placeholder: "username",
@@ -109,7 +108,6 @@ type Props = {
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
-  active: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -142,7 +140,6 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
-    active: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -488,13 +485,12 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onSelectExistingThread = (threadID: string) => {
-    if (!this.props.active) {
-      return;
-    }
-    this.props.navigation.navigate(
-      MessageListRouteName,
-      { threadInfo: this.props.threadInfos[threadID] },
-    );
+    const threadInfo = this.props.threadInfos[threadID];
+    this.props.navigation.navigate({
+      routeName: MessageListRouteName,
+      params: { threadInfo },
+      key: `${MessageListRouteName}${threadInfo.id}`,
+    });
   }
 
 }
@@ -581,17 +577,12 @@ const ComposeThread = connect(
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
     }
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const currentChatSubroute = chatRoute.routes[chatRoute.index];
     return {
       parentThreadInfo,
       loadingStatus: loadingStatusSelector(state),
       otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
-      active: currentChatSubroute.routeName === ComposeThreadRouteName,
     };
   },
   { newThread, searchUsers },

@@ -8,6 +8,7 @@ import type { NavigationParams } from 'react-navigation';
 import React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
@@ -15,20 +16,16 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../message-list.react';
 import { ThreadSettingsRouteName } from './thread-settings.react';
-import {
-  assertNavigationRouteNotLeafNode,
-  getThreadIDFromParams,
-} from '../../utils/navigation-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: (
+  navigate: ({
     routeName: string,
     params?: NavigationParams,
-  ) => bool,
+    key?: string,
+  }) => bool,
   // Redux state
   parentThreadInfo?: ?ThreadInfo,
-  threadSettingsActive: bool,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
 
@@ -36,7 +33,6 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     parentThreadInfo: threadInfoPropType,
-    threadSettingsActive: PropTypes.bool.isRequired,
   };
 
   render() {
@@ -84,13 +80,13 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
   }
 
   onPressParentThread = () => {
-    if (!this.props.threadSettingsActive) {
-      return;
-    }
-    this.props.navigate(
-      MessageListRouteName,
-      { threadInfo: this.props.parentThreadInfo },
-    );
+    const threadInfo = this.props.parentThreadInfo;
+    invariant(threadInfo, "should be set");
+    this.props.navigate({
+      routeName: MessageListRouteName,
+      params: { threadInfo },
+      key: `${MessageListRouteName}${threadInfo.id}`,
+    });
   }
 
 }
@@ -134,15 +130,8 @@ export default connect(
     const parentThreadInfo: ?ThreadInfo = ownProps.threadInfo.parentThreadID
       ? parsedThreadInfos[ownProps.threadInfo.parentThreadID]
       : null;
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const currentChatSubroute = chatRoute.routes[chatRoute.index];
     return {
       parentThreadInfo,
-      threadSettingsActive:
-        currentChatSubroute.routeName === ThreadSettingsRouteName &&
-        getThreadIDFromParams(currentChatSubroute) === ownProps.threadInfo.id,
     };
   },
 )(ThreadSettingsParent);

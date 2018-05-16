@@ -35,7 +35,6 @@ import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import { ComposeThreadRouteName } from './compose-thread.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 
 const floatingActions = [{
   text: 'Compose',
@@ -52,7 +51,6 @@ type Props = {|
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
-  active: bool,
 |};
 type State = {|
   listData: $ReadOnlyArray<Item>,
@@ -71,7 +69,6 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    active: PropTypes.bool.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
@@ -269,23 +266,22 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   }
 
   onPressItem = (threadInfo: ThreadInfo) => {
-    if (!this.props.active) {
-      return;
-    }
     this.clearSearch();
     if (this.searchInput) {
       this.searchInput.blur();
     }
-    this.props.navigation.navigate(
-      MessageListRouteName,
-      { threadInfo },
-    );
+    this.props.navigation.navigate({
+      routeName: MessageListRouteName,
+      params: { threadInfo },
+      key: `${MessageListRouteName}${threadInfo.id}`,
+    });
   }
 
   composeThread = () => {
-    if (this.props.active) {
-      this.props.navigation.navigate(ComposeThreadRouteName, {});
-    }
+    this.props.navigation.navigate({
+      routeName: ComposeThreadRouteName,
+      params: {},
+    });
   }
 
 }
@@ -333,18 +329,11 @@ const styles = StyleSheet.create({
 });
 
 const ChatThreadListRouteName = 'ChatThreadList';
-const ChatThreadList = connect((state: AppState) => {
-  const appRoute =
-    assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-  const currentChatSubroute = chatRoute.routes[chatRoute.index];
-  return {
-    chatListData: chatListData(state),
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    threadSearchIndex: threadSearchIndex(state),
-    active: currentChatSubroute.routeName === ChatThreadListRouteName,
-  };
-})(InnerChatThreadList);
+const ChatThreadList = connect((state: AppState) => ({
+  chatListData: chatListData(state),
+  viewerID: state.currentUserInfo && state.currentUserInfo.id,
+  threadSearchIndex: threadSearchIndex(state),
+}))(InnerChatThreadList);
 
 export {
   ChatThreadList,

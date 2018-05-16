@@ -5,8 +5,10 @@ import {
   threadInfoPropType,
   threadTypes,
 } from 'lib/types/thread-types';
-import type { NavigationParams } from 'react-navigation';
-import type { AppState } from '../../redux-setup';
+import type {
+  NavigationParams,
+  NavigationNavigateAction,
+} from 'react-navigation';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -15,27 +17,21 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import { ComposeThreadRouteName } from '../compose-thread.react';
 import KeyboardAvoidingView
   from '../../components/keyboard-avoiding-view.react';
-import { ThreadSettingsRouteName } from './thread-settings.react';
-import {
-  assertNavigationRouteNotLeafNode,
-  getThreadIDFromParams,
-} from '../../utils/navigation-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: (
+  navigate: ({
     routeName: string,
-    params?: NavigationParams
-  ) => bool,
+    params?: NavigationParams,
+    action?: NavigationNavigateAction,
+    key?: string,
+  }) => bool,
   closeModal: () => void,
-  // Redux state
-  threadSettingsActive: bool,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
 
@@ -43,7 +39,6 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
-    threadSettingsActive: PropTypes.bool.isRequired,
   };
   waitingToNavigate = false;
 
@@ -87,36 +82,40 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   }
 
   onPressOpen = () => {
-    if (!this.props.threadSettingsActive || this.waitingToNavigate) {
+    if (this.waitingToNavigate) {
       return;
     }
     this.waitingToNavigate = true;
     InteractionManager.runAfterInteractions(() => {
-      this.props.navigate(
-        ComposeThreadRouteName,
-        {
+      this.props.navigate({
+        routeName: ComposeThreadRouteName,
+        params: {
           threadType: threadTypes.CHAT_NESTED_OPEN,
           parentThreadID: this.props.threadInfo.id,
         },
-      );
+        key: ComposeThreadRouteName +
+          `${this.props.threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
+      });
       this.waitingToNavigate = false;
     });
     this.props.closeModal();
   }
 
   onPressSecret = () => {
-    if (!this.props.threadSettingsActive || this.waitingToNavigate) {
+    if (this.waitingToNavigate) {
       return;
     }
     this.waitingToNavigate = true;
     InteractionManager.runAfterInteractions(() => {
-      this.props.navigate(
-        ComposeThreadRouteName,
-        {
+      this.props.navigate({
+        routeName: ComposeThreadRouteName,
+        params: {
           threadType: threadTypes.CHAT_SECRET,
           parentThreadID: this.props.threadInfo.id,
         },
-      );
+        key: ComposeThreadRouteName +
+          `${this.props.threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
+      });
       this.waitingToNavigate = false;
     });
     this.props.closeModal();
@@ -161,16 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
-    const appRoute =
-      assertNavigationRouteNotLeafNode(state.navInfo.navigationState.routes[0]);
-    const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-    const currentChatSubroute = chatRoute.routes[chatRoute.index];
-    return {
-      threadSettingsActive:
-        currentChatSubroute.routeName === ThreadSettingsRouteName &&
-        getThreadIDFromParams(currentChatSubroute) === ownProps.threadInfo.id,
-    };
-  },
-)(ComposeSubthreadModal);
+export default ComposeSubthreadModal;

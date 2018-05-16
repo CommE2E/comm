@@ -4,6 +4,7 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
   NavigationParams,
+  NavigationNavigateAction,
 } from 'react-navigation';
 import {
   type ThreadInfo,
@@ -117,7 +118,12 @@ type ChatSettingsItem =
       itemType: "parent",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: (routeName: string, params?: NavigationParams) => bool,
+      navigate: ({
+        routeName: string,
+        params?: NavigationParams,
+        action?: NavigationNavigateAction,
+        key?: string,
+      }) => bool,
     |}
   | {|
       itemType: "visibility",
@@ -138,7 +144,12 @@ type ChatSettingsItem =
       itemType: "childThread",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: (routeName: string, params?: NavigationParams) => bool,
+      navigate: ({
+        routeName: string,
+        params?: NavigationParams,
+        action?: NavigationNavigateAction,
+        key?: string,
+      }) => bool,
       lastListItem: bool,
     |}
   | {|
@@ -167,7 +178,12 @@ type ChatSettingsItem =
       itemType: "deleteThread",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: (routeName: string, params?: NavigationParams) => bool,
+      navigate: ({
+        routeName: string,
+        params?: NavigationParams,
+        action?: NavigationNavigateAction,
+        key?: string,
+      }) => bool,
       canLeaveThread: bool,
     |};
 
