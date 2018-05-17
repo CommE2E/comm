@@ -3,7 +3,6 @@
 import type {
   NavigationState,
   NavigationAction,
-  NavigationScreenProp,
 } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
@@ -51,15 +50,16 @@ import {
   Alert,
   DeviceInfo,
 } from 'react-native';
-import { createReduxBoundAddListener } from 'react-navigation-redux-helpers';
+import {
+  createNavigationPropConstructor,
+  initializeListeners,
+} from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import SplashScreen from 'react-native-splash-screen';
-import getNavigationActionCreators
-  from 'react-navigation/src/routers/getNavigationActionCreators';
 
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
@@ -122,7 +122,7 @@ registerConfig({
   platform: Platform.OS,
 });
 
-const reactNavigationAddListener = createReduxBoundAddListener("root");
+const reactNavigationPropConstructor = createNavigationPropConstructor("root");
 const msInDay = 24 * 60 * 60 * 1000;
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
@@ -203,6 +203,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
+    initializeListeners("root", this.props.navigationState);
     if (this.props.loggedIn) {
       this.startTimeouts(this.props, "active");
     }
@@ -837,18 +838,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   render() {
-    const state = this.props.navigationState;
-    const navigation: NavigationScreenProp<any> = {
-      dispatch: this.props.dispatch,
-      state,
-      addListener: reactNavigationAddListener,
-    };
-    const actionCreators = getNavigationActionCreators(state);
-    Object.keys(actionCreators).forEach(actionName => {
-      navigation[actionName] = (...args) =>
-        this.props.dispatch(actionCreators[actionName](...args));
-    });
-
+    const navigation = reactNavigationPropConstructor(
+      this.props.dispatch,
+      this.props.navigationState,
+    );
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>

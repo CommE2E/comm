@@ -1,6 +1,3 @@
-// flow-typed signature: 202ef1dbc567dacdc6871e8e6910e7cc
-// flow-typed version: 85a49fd1e5/react-navigation_v2.x.x/flow_>=v0.60.x
-
 // @flow
 
 declare module 'react-navigation' {
@@ -272,26 +269,21 @@ declare module 'react-navigation' {
 
   declare export type NavigationComponent =
     | NavigationScreenComponent<NavigationRoute, *, *>
-    | NavigationContainer<*, *, *>;
+    | NavigationContainer<*, *, *>
+    | any;
 
   declare export type NavigationScreenComponent<
     Route: NavigationRoute,
     Options: {},
     Props: {}
-  > = React$ComponentType<{
-    ...Props,
-    ...NavigationNavigatorProps<Options, Route>,
-  }> &
+  > = React$ComponentType<NavigationNavigatorProps<Options, Route> & Props> &
     ({} | { navigationOptions: NavigationScreenConfig<Options> });
 
   declare export type NavigationNavigator<
     State: NavigationState,
     Options: {},
     Props: {}
-  > = React$ComponentType<{
-    ...Props,
-    ...NavigationNavigatorProps<Options, State>,
-  }> & {
+  > = React$ComponentType<NavigationNavigatorProps<Options, State> & Props> & {
     router: NavigationRouter<State, Options>,
     navigationOptions?: ?NavigationScreenConfig<Options>,
   };
@@ -491,23 +483,13 @@ declare module 'react-navigation' {
   };
 
   declare export type NavigationScreenProp<+S> = {
+    ...$ObjMap<
+      _DefaultActionCreators,
+      <Args>((...args: Args) => *) => (...args: Args) => boolean,
+    >,
     +state: S,
     dispatch: NavigationDispatch,
-    goBack: (routeKey?: ?string) => boolean,
     dismiss: () => boolean,
-    navigate: (
-      routeName:
-        | string
-        | {
-            routeName: string,
-            params?: NavigationParams,
-            action?: NavigationNavigateAction,
-            key?: string,
-          },
-      params?: NavigationParams,
-      action?: NavigationNavigateAction
-    ) => boolean,
-    setParams: (newParams: NavigationParams) => boolean,
     getParam: (paramName: string, fallback?: any) => any,
     addListener: (
       eventName: string,
@@ -542,10 +524,7 @@ declare module 'react-navigation' {
     State: NavigationState,
     Options: {},
     Props: {}
-  > = React$ComponentType<{
-    ...Props,
-    ...NavigationContainerProps<State, Options>,
-  }> & {
+  > = React$ComponentType<NavigationContainerProps<State, Options> & Props> & {
     router: NavigationRouter<State, Options>,
     navigationOptions?: ?NavigationScreenConfig<Options>,
   };
@@ -757,6 +736,26 @@ declare module 'react-navigation' {
     },
   };
 
+  declare type _DefaultActionCreators = {|
+    goBack: (routeKey?: ?string) => NavigationBackAction,
+    navigate: (
+      routeName:
+        | string
+        | {
+            routeName: string,
+            params?: NavigationParams,
+            action?: NavigationNavigateAction,
+            key?: string,
+          },
+      params?: NavigationParams,
+      action?: NavigationNavigateAction
+    ) => NavigationNavigateAction,
+    setParams: (newParams: NavigationParams) => NavigationSetParamsAction,
+  |};
+  declare export function getNavigationActionCreators(
+    route: NavigationRoute | NavigationState
+  ): _DefaultActionCreators;
+
   declare type _RouterProp<S: NavigationState, O: {}> = {
     router: NavigationRouter<S, O>,
   };
@@ -777,7 +776,7 @@ declare module 'react-navigation' {
     view: NavigationView<O, S>,
     router: NavigationRouter<S, O>,
     navigatorConfig?: NavigatorConfig
-  ): NavigationNavigator<S, O, *>;
+  ): any;
 
   declare export function StackNavigator(
     routeConfigMap: NavigationRouteConfigMap,
