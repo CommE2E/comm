@@ -10,6 +10,7 @@ import { isStaff } from 'lib/shared/user-utils';
 
 import css from './chat.css';
 import ChatThreadList from './chat-thread-list.react';
+import ChatMessageList from './chat-message-list.react';
 
 type Props = {|
   // Redux state
@@ -24,22 +25,16 @@ class Chat extends React.PureComponent<Props> {
   render() {
     if (!this.props.viewerID || !isStaff(this.props.viewerID)) {
       return (
-        <div className={css['chat-container']}>
-          <div className={css['chat-coming-soon']}>
-            Chat coming soon!
-          </div>
+        <div className={css.chatComingSoon}>
+          Chat coming soon!
         </div>
       );
     }
     return (
-      <div className={css['chat-container']}>
+      <React.Fragment>
         <ChatThreadList />
-        <div className={css['chat-content']}>
-          <div className={css['chat-coming-soon']}>
-            Chat coming soon!
-          </div>
-        </div>
-      </div>
+        <ChatMessageList />
+      </React.Fragment>
     );
   }
 

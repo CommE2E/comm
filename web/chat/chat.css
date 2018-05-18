@@ -1,9 +1,4 @@
-div.chat-container {
-}
-div.chat-content {
-  margin-left: 400px;
-}
-div.chat-coming-soon {
+div.chatComingSoon {
   display: flex;
   align-items: center;
   flex-direction: column;

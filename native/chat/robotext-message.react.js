@@ -17,7 +17,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
 
-import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
