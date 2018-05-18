@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server",
   "scripts": {
-    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','web/flow-typed','web/node_modules','web/package.json','web/dist/hot','web/dist/dev.build.js','web/dist/prod.build.js','web/dist/prod.build.css','web/webpack.config.js' --copy-files",
+    "babel": "babel src/ --out-dir dist/ --ignore 'lib/flow-typed','lib/node_modules','lib/package.json','web/flow-typed','web/node_modules','web/package.json','web/dist/hot','web/dist/dev.build.js','web/dist/prod.build.js','web/dist/prod.build.css','web/webpack.config.js','web/account-bar.react.js','web/app.react.js','web/calendar','web/chat','web/flow','web/loading-indicator.react.js','web/modals','web/router-history.js','web/script.js','web/selectors','web/server-rendering.js','web/splash','web/style.css','web/vector-utils.js','web/vectors.react.js' --copy-files",
     "prod": "node --experimental-modules --loader ./loader.mjs dist/server",
     "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs dist/server\""
   },
@@ -47,5 +47,8 @@
     "twin-bcrypt": "^2.1.1",
     "uuid": "^3.1.0",
     "web": "0.0.1"
+  },
+  "nodemonConfig": {
+    "delay": "5500"
   }
 }

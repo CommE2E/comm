@@ -22,7 +22,7 @@
     "webpack-dev-server": "^2.5.0"
   },
   "scripts": {
-    "dev": "concurrently \"webpack --env dev --progress --watch\" \"webpack-dev-server\"",
+    "dev": "concurrently \"webpack --env dev --progress --watch\" \"webpack-dev-server --hot --config-name=browser\"",
     "prod": "webpack --env prod --progress",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
@@ -42,7 +42,7 @@
     "react": "^16.2.0",
     "react-color": "^2.13.0",
     "react-dom": "^16.2.0",
-    "react-hot-loader": "^3.0.0-beta.6",
+    "react-hot-loader": "^4.2.0",
     "react-redux": "^5.0.5",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",

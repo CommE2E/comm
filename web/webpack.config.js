@@ -26,6 +26,7 @@ const babelConfig = {
 };
 
 const baseBrowserConfig = {
+  name: "browser",
   entry: ['./script.js'],
   module: {
     rules: [
@@ -94,7 +95,7 @@ module.exports = function(env) {
       output: {
         ...browserConfig.output,
         pathinfo: true,
-        publicPath: 'http://localhost/squadcal/',
+        publicPath: 'http://localhost:8080/',
         hotUpdateChunkFilename: 'hot/hot-update.js',
         hotUpdateMainFilename: 'hot/hot-update.json',
       },
@@ -159,8 +160,8 @@ module.exports = function(env) {
       devtool: 'eval-cheap-module-source-map',
       devServer: {
         hot: true,
+        port: 8080,
         contentBase: __dirname,
-        publicPath: 'http://localhost:8080/',
         headers: { 'Access-Control-Allow-Origin': '*' },
       },
     };
@@ -224,6 +225,7 @@ module.exports = function(env) {
     };
   }
   const nodeServerRenderingConfig = {
+    name: "server",
     entry: ['./server-rendering.js', './app.react.js'],
     output: {
       filename: 'app.build.js',
