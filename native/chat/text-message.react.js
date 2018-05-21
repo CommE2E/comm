@@ -76,15 +76,15 @@ class TextMessage extends React.PureComponent<Props> {
     const isViewer = this.props.item.messageInfo.creator.isViewer;
     let containerStyle = null,
       messageStyle = {},
-      textCustomStyle = {};
-    let darkColor = false;
+      textCustomStyle = {},
+      darkColor = false;
     if (isViewer) {
-      containerStyle = { alignSelf: 'flex-end' };
+      containerStyle = styles.rightChatBubble;
       messageStyle.backgroundColor = `#${this.props.item.threadInfo.color}`;
       darkColor = colorIsDark(this.props.item.threadInfo.color);
       textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
-      containerStyle = { alignSelf: 'flex-start' };
+      containerStyle = styles.leftChatBubble;
       messageStyle.backgroundColor = "#DDDDDDBB";
       textCustomStyle.color = 'black';
     }
@@ -218,6 +218,12 @@ const styles = StyleSheet.create({
   popoverLabelStyle: {
     textAlign: 'center',
     color: '#444',
+  },
+  leftChatBubble: {
+    alignSelf: 'flex-start',
+  },
+  rightChatBubble: {
+    alignSelf: 'flex-end',
   },
 });
 

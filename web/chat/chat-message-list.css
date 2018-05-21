@@ -7,7 +7,7 @@ div.container {
 }
 div.messageContainer {
   flex-grow: 1;
-  min-height: calc(100% - 106px);
+  flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
@@ -15,15 +15,18 @@ div.messageContainer {
 
 div.inputBar {
   display: flex;
+  flex-direction: column;
+}
+div.inputBarTextInput {
+  display: flex;
   padding: 10px;
   align-items: center;
   flex-shrink: 0;
 }
-div.inputBar > textarea {
+div.inputBarTextInput > textarea {
   flex-grow: 1;
   border: none;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 600;
+  font-family: sans-serif;
   font-size: 15px;
   line-height: 15px;
   width: 100%;
@@ -31,21 +34,42 @@ div.inputBar > textarea {
   padding-right: 20px;
   min-height: 17px;
 }
-div.inputBar > textarea:focus {
+div.inputBarTextInput > textarea:focus {
   outline: none;
 }
-span.send {
+a.send {
   display: flex;
   align-items: center;
   text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   color: #555555;
+  cursor: pointer;
 }
 svg.sendButton {
   padding-left: 8px;
   font-size: 24px;
   color: #88BB88;
+}
+div.joinButtonContainer > a {
+  margin: 3px 12px;
+  padding: 3px 0 5px 0;
+  display: flex;
+  background-color: #44CC99;
+  border-radius: 5px;
+  justify-content: center;
+  cursor: pointer;
+}
+span.joinButtonText {
+  font-size: 18px;
+  color: white;
+  text-align: center;
+}
+span.explanation {
+  color: #777777;
+  text-align: center;
+  padding-top: 4px;
+  padding-bottom: 8px;
 }
 
 div.loading {
@@ -70,4 +94,28 @@ div.robotext {
 }
 div.robotext a {
   cursor: pointer;
+}
+
+div.textMessage {
+  padding: 6px 12px;
+  margin: 0 12px;
+}
+div.normalTextMessage {
+  font-size: 16px;
+  font-family: sans-serif;
+}
+div.emojiOnlyTextMessage {
+  font-size: 32px;
+  font-family: sans-serif;
+}
+div.leftChatBubble {
+  align-self: flex-start;
+}
+div.rightChatBubble {
+  align-self: flex-end;
+}
+span.authorName {
+  color: #777777;
+  font-size: 14px;
+  padding: 4px 24px;
 }

@@ -112,7 +112,7 @@ class ChatMessageList extends React.PureComponent<Props> {
     return messageKey(item.messageInfo);
   }
 
-  static renderItem(item) {
+  renderItem = (item) => {
     if (item.itemType === "loader") {
       return (
         <div key="loader" className={css.loading}>
@@ -120,22 +120,30 @@ class ChatMessageList extends React.PureComponent<Props> {
         </div>
       );
     }
-    return <Message item={item} key={ChatMessageList.keyExtractor(item)} />;
+    const threadInfo = this.props.threadInfo;
+    invariant(threadInfo, "ThreadInfo should be set if messageListData is");
+    return (
+      <Message
+        item={item}
+        threadInfo={threadInfo}
+        key={ChatMessageList.keyExtractor(item)}
+      />
+    );
   }
 
   render() {
     if (!this.props.messageListData) {
       return <div className={css.container} />;
     }
-    const messages = this.props.messageListData.map(
-      ChatMessageList.renderItem,
-    );
+    const messages = this.props.messageListData.map(this.renderItem);
+    const threadInfo = this.props.threadInfo;
+    invariant(threadInfo, "ThreadInfo should be set if messageListData is");
     return (
       <div className={css.container}>
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
         </div>
-        <ChatInputBar />
+        <ChatInputBar threadInfo={threadInfo} />
       </div>
     );
   }

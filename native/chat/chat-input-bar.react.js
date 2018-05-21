@@ -59,7 +59,6 @@ const draftKeyFromThreadID =
 type Props = {
   threadInfo: ThreadInfo,
   // Redux state
-  username: ?string,
   viewerID: ?string,
   draft: string,
   joinThreadLoadingStatus: LoadingStatus,
@@ -68,7 +67,10 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendMessage: (threadID: string, text: string) => Promise<SendTextMessageResult>,
+  sendMessage: (
+    threadID: string,
+    text: string,
+  ) => Promise<SendTextMessageResult>,
   joinThread: (request: ThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
 type State = {
@@ -79,7 +81,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
-    username: PropTypes.string,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
@@ -377,9 +378,6 @@ export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
     const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
     return {
-      username: state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.username
-        : undefined,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : "",
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
