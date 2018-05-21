@@ -67,9 +67,16 @@ const monthAssertingSelector = createSelector(
   monthAssertingExtractor,
 );
 
+function activeThreadSelector(state: AppState): ?string {
+  return state.navInfo.tab === "chat"
+    ? state.navInfo.activeChatThreadID
+    : null;
+}
+
 export {
   yearExtractor,
   yearAssertingSelector,
   monthExtractor,
   monthAssertingSelector,
+  activeThreadSelector,
 };

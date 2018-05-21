@@ -214,10 +214,9 @@ async function checkThreadsFocused(
 
 // The `focused` table tracks which chat threads are currently in view for a
 // given cookie. We track this so that if a user is currently viewing a thread's
-// messages, then notification on that thread are not sent. This function does
+// messages, then notifications on that thread are not sent. This function does
 // not add new rows to the `focused` table, but instead extends currently active
-// rows for the current cookie. This is a no-op for clients that don't have any
-// rows in the focused table (such as web, currently).
+// rows for the current cookie.
 async function updateActivityTime(viewer: Viewer): Promise<void> {
   if (!viewer.loggedIn) {
     return;

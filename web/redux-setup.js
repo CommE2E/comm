@@ -22,6 +22,8 @@ import {
 } from 'lib/actions/thread-actions';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 
+import { activeThreadSelector } from './selectors/nav-selectors';
+
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
   tab: "calendar" | "chat",
@@ -73,10 +75,11 @@ export type Action =
     |};
 
 export function reducer(inputState: AppState | void, action: Action) {
-  let state = inputState;
-  invariant(state, "should be set");
+  const oldState = inputState;
+  invariant(oldState, "should be set");
+  let state = oldState;
   if (action.type === updateNavInfoActionType) {
-    return {
+    state = {
       navInfo: action.payload,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
@@ -99,7 +102,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       windowDimensions: state.windowDimensions,
     };
   } else if (action.type === updateWindowDimensions) {
-    return {
+    state = {
       navInfo: state.navInfo,
       currentUserInfo: state.currentUserInfo,
       sessionID: state.sessionID,
@@ -121,13 +124,123 @@ export function reducer(inputState: AppState | void, action: Action) {
       urlPrefix: state.urlPrefix,
       windowDimensions: action.payload,
     };
+  } else {
+    state = baseReducer(state, action);
   }
-  const result = baseReducer(state, action);
+  return validateState(oldState, state);
+}
+
+function validateState(oldState: AppState, state: AppState): AppState {
+  const oldActiveThread = activeThreadSelector(oldState);
+  const activeThread = activeThreadSelector(state);
+  if (activeThread && state.threadInfos[activeThread].currentUser.unread) {
+    // Makes sure a currently focused thread is never unread
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: {
+        ...state.threadInfos,
+        [activeThread]: {
+          ...state.threadInfos[activeThread],
+          currentUser: {
+            ...state.threadInfos[activeThread].currentUser,
+            unread: false,
+          },
+        },
+      },
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
+      activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      windowDimensions: state.windowDimensions,
+    };
+  }
   if (
-    result.navInfo.activeChatThreadID &&
-    !result.threadInfos[result.navInfo.activeChatThreadID]
+    activeThread &&
+    oldActiveThread !== activeThread &&
+    state.messageStore.threads[activeThread]
   ) {
-    result.navInfo.activeChatThreadID = mostRecentReadThreadSelector(result);
+    // Update messageStore.threads[activeThread].lastNavigatedTo
+    state = {
+      navInfo: state.navInfo,
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: {
+        messages: state.messageStore.messages,
+        threads: {
+          ...state.messageStore.threads,
+          [activeThread]: {
+            ...state.messageStore.threads[activeThread],
+            lastNavigatedTo: Date.now(),
+          },
+        },
+        currentAsOf: state.messageStore.currentAsOf,
+      },
+      drafts: state.drafts,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
+      activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      windowDimensions: state.windowDimensions,
+    };
   }
-  return result;
+
+  if (
+    state.navInfo.activeChatThreadID &&
+    !state.threadInfos[state.navInfo.activeChatThreadID]
+  ) {
+    // Makes sure the active thread always exists
+    state = {
+      navInfo: {
+        startDate: state.navInfo.startDate,
+        endDate: state.navInfo.endDate,
+        tab: state.navInfo.tab,
+        verify: state.navInfo.verify,
+        activeChatThreadID: mostRecentReadThreadSelector(state),
+      },
+      currentUserInfo: state.currentUserInfo,
+      sessionID: state.sessionID,
+      verifyField: state.verifyField,
+      resetPasswordUsername: state.resetPasswordUsername,
+      entryStore: state.entryStore,
+      lastUserInteraction: state.lastUserInteraction,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: state.messageStore,
+      drafts: state.drafts,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
+      loadingStatuses: state.loadingStatuses,
+      pingTimestamps: state.pingTimestamps,
+      activeServerRequests: state.activeServerRequests,
+      calendarFilters: state.calendarFilters,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      windowDimensions: state.windowDimensions,
+    };
+  }
+
+  return state;
 }

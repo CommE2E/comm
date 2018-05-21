@@ -15,6 +15,10 @@ import {
   type PingTimestamps,
   pingTimestampsPropType,
 } from 'lib/types/ping-types';
+import type {
+  ActivityUpdate,
+  UpdateActivityResult,
+} from 'lib/types/activity-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -52,7 +56,12 @@ import {
   includeDeletedSelector,
 } from 'lib/selectors/calendar-filter-selectors';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import {
+  updateActivityActionTypes,
+  updateActivity,
+} from 'lib/actions/ping-actions';
 
+import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
 import AccountBar from './account-bar.react';
@@ -101,7 +110,9 @@ type Props = {
   loggedIn: bool,
   includeDeleted: bool,
   mostRecentReadThread: ?string,
+  activeThread: ?string,
   activeThreadCurrentlyUnread: bool,
+  activeThreadLatestMessage: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -110,6 +121,9 @@ type Props = {
     calendarQuery: CalendarQuery,
   ) => Promise<CalendarResult>,
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
+  updateActivity: (
+    activityUpdates: $ReadOnlyArray<ActivityUpdate>,
+  ) => Promise<UpdateActivityResult>,
 };
 type State = {
   currentModal: ?React.Node,
@@ -133,11 +147,14 @@ class App extends React.PureComponent<Props, State> {
     loggedIn: PropTypes.bool.isRequired,
     includeDeleted: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
+    activeThread: PropTypes.string,
     activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
+    activeThreadLatestMessage: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchEntries: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
+    updateActivity: PropTypes.func.isRequired,
   };
   pingCounter = 0;
   state = {
@@ -174,13 +191,68 @@ class App extends React.PureComponent<Props, State> {
       this.startTimeouts(this.props);
     }
 
+    App.updateFocusedThreads(this.props, null, null);
+
     Visibility.change(this.onVisibilityChange);
+  }
+
+  componentWillUnmount() {
+    this.closingApp();
   }
 
   onVisibilityChange = (e, state: string) => {
     if (state === "visible") {
       this.startTimeouts(this.props);
+      App.updateFocusedThreads(this.props, null, null);
+    } else {
+      this.closingApp();
     }
+  }
+
+  static updateFocusedThreads(
+    props: Props,
+    oldActiveThread: ?string,
+    oldActiveThreadLatestMessage: ?string,
+  ) {
+    if (!props.loggedIn) {
+      return;
+    }
+    const updates = [];
+    if (props.activeThread) {
+      updates.push({
+        focus: true,
+        threadID: props.activeThread,
+      });
+    }
+    if (oldActiveThread && oldActiveThread !== props.activeThread) {
+      updates.push({
+        focus: false,
+        threadID: oldActiveThread,
+        latestMessage: oldActiveThreadLatestMessage,
+      });
+    }
+    if (updates.length === 0) {
+      return;
+    }
+    props.dispatchActionPromise(
+      updateActivityActionTypes,
+      props.updateActivity(updates),
+    );
+  }
+
+  closingApp() {
+    if (!this.props.loggedIn || !this.props.activeThread) {
+      return;
+    }
+    const updates = [{
+      focus: false,
+      threadID: this.props.activeThread,
+      latestMessage: this.props.activeThreadLatestMessage,
+    }];
+    this.props.dispatchActionPromise(
+      updateActivityActionTypes,
+      this.props.updateActivity(updates),
+    );
   }
 
   shouldDispatchPing(props: Props) {
@@ -320,7 +392,8 @@ class App extends React.PureComponent<Props, State> {
       this.pingCounter++;
     }
 
-    if (nextProps.loggedIn && !this.props.loggedIn) {
+    const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
+    if (justLoggedIn) {
       const newURL = canonicalURLFromReduxState(
         nextProps.navInfo,
         nextProps.location.pathname,
@@ -329,6 +402,14 @@ class App extends React.PureComponent<Props, State> {
         history.replace(newURL);
       }
       this.startTimeouts(nextProps);
+    }
+
+    if (justLoggedIn || nextProps.activeThread !== this.props.activeThread) {
+      App.updateFocusedThreads(
+        nextProps,
+        this.props.activeThread,
+        this.props.activeThreadLatestMessage,
+      );
     }
   }
 
@@ -450,7 +531,6 @@ class App extends React.PureComponent<Props, State> {
           : this.props.navInfo.activeChatThreadID,
       },
     );
-    this.props.navInfo.activeChatThreadID
   }
 
 }
@@ -459,22 +539,30 @@ const loadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesActionTypes);
 
 export default connect(
-  (state: AppState) => ({
-    navInfo: state.navInfo,
-    verifyField: state.verifyField,
-    entriesLoadingStatus: loadingStatusSelector(state),
-    currentCalendarQuery: currentCalendarQuery(state),
-    pingStartingPayload: pingStartingPayload(state),
-    pingActionInput: pingActionInput(state),
-    pingTimestamps: state.pingTimestamps,
-    sessionTimeLeft: sessionTimeLeft(state),
-    nextSessionID: nextSessionID(state),
-    loggedIn: !!(state.currentUserInfo &&
-      !state.currentUserInfo.anonymous && true),
-    includeDeleted: includeDeletedSelector(state),
-    mostRecentReadThread: mostRecentReadThreadSelector(state),
-    activeThreadCurrentlyUnread: !state.navInfo.activeChatThreadID ||
-      state.threadInfos[state.navInfo.activeChatThreadID].currentUser.unread,
-  }),
-  { fetchEntries, ping },
+  (state: AppState) => {
+    const activeChatThreadID = state.navInfo.activeChatThreadID;
+    return {
+      navInfo: state.navInfo,
+      verifyField: state.verifyField,
+      entriesLoadingStatus: loadingStatusSelector(state),
+      currentCalendarQuery: currentCalendarQuery(state),
+      pingStartingPayload: pingStartingPayload(state),
+      pingActionInput: pingActionInput(state),
+      pingTimestamps: state.pingTimestamps,
+      sessionTimeLeft: sessionTimeLeft(state),
+      nextSessionID: nextSessionID(state),
+      loggedIn: !!(state.currentUserInfo &&
+        !state.currentUserInfo.anonymous && true),
+      includeDeleted: includeDeletedSelector(state),
+      mostRecentReadThread: mostRecentReadThreadSelector(state),
+      activeThread: activeThreadSelector(state),
+      activeThreadCurrentlyUnread: !activeChatThreadID ||
+        state.threadInfos[activeChatThreadID].currentUser.unread,
+      activeThreadLatestMessage:
+        activeChatThreadID && state.messageStore.threads[activeChatThreadID]
+          ? state.messageStore.threads[activeChatThreadID].messageIDs[0]
+          : null,
+    };
+  },
+  { fetchEntries, ping, updateActivity },
 )(App);

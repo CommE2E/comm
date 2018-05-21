@@ -207,12 +207,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       this.startTimeouts(this.props, "active");
     }
-    AppWithNavigationState.updateFocusedThreads(
-      this.props,
-      this.props.activeThread,
-      null,
-      null,
-    );
+    AppWithNavigationState.updateFocusedThreads(this.props, null, null);
     if (Platform.OS === "ios") {
       NotificationsIOS.addEventListener(
         "remoteNotificationsRegistered",
@@ -418,12 +413,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.currentState === "active"
     ) {
       this.startTimeouts();
-      AppWithNavigationState.updateFocusedThreads(
-        this.props,
-        this.props.activeThread,
-        null,
-        null,
-      );
+      AppWithNavigationState.updateFocusedThreads(this.props, null, null);
       if (this.props.appLoggedIn) {
         this.ensurePushNotifsEnabled();
       }
@@ -442,13 +432,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   componentWillReceiveProps(nextProps: Props) {
     const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
-    if (
-      justLoggedIn ||
-      nextProps.activeThread !== this.props.activeThread
-    ) {
+    if (justLoggedIn || nextProps.activeThread !== this.props.activeThread) {
       AppWithNavigationState.updateFocusedThreads(
         nextProps,
-        nextProps.activeThread,
         this.props.activeThread,
         this.props.activeThreadLatestMessage,
       );
@@ -792,7 +778,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   static updateFocusedThreads(
     props: Props,
-    activeThread: ?string,
     oldActiveThread: ?string,
     oldActiveThreadLatestMessage: ?string,
   ) {
@@ -800,13 +785,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return;
     }
     const updates = [];
-    if (activeThread) {
+    if (props.activeThread) {
       updates.push({
         focus: true,
-        threadID: activeThread,
+        threadID: props.activeThread,
       });
     }
-    if (oldActiveThread && oldActiveThread !== activeThread) {
+    if (oldActiveThread && oldActiveThread !== props.activeThread) {
       updates.push({
         focus: false,
         threadID: oldActiveThread,
