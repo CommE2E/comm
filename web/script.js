@@ -12,8 +12,4 @@ import Root from './root';
 const root = document.getElementById('react-root');
 invariant(root, "cannot find id='react-root' element!");
 
-// $FlowFixMe https://github.com/facebook/flow/issues/5035
-ReactDOM.hydrate(
-  <Root />,
-  root,
-);
+ReactDOM.hydrate(<Root />, root);
