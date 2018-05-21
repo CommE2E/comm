@@ -265,6 +265,19 @@ span.loading-indicator-loading:after {
   border-color: #fff transparent #fff transparent;
   animation: loading-indicator-loading 1.2s linear infinite;
 }
+span.loading-indicator-loading-large {
+  display: inline-block;
+}
+span.loading-indicator-loading-large:after {
+  content: " ";
+  display: block;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: loading-indicator-loading 1.2s linear infinite;
+}
 span.loading-indicator-loading-small {
   display: inline-block;
 }

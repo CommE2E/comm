@@ -288,7 +288,7 @@ class App extends React.PureComponent<Props, State> {
         nextProps.location.pathname,
       );
       if (newURL !== nextProps.location.pathname) {
-        history.replace(newURL);
+        history.push(newURL);
       }
     }
 
@@ -402,7 +402,7 @@ class App extends React.PureComponent<Props, State> {
             <div className={css['upper-right']}>
               <LoadingIndicator
                 status={this.props.entriesLoadingStatus}
-                size="large"
+                size="medium"
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />

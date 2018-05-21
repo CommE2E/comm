@@ -1,48 +1,37 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { ChatMessageInfoItemWithHeight } from './message-list.react';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState } from '../redux-setup';
+import {
+  type ChatMessageInfoItem,
+  chatMessageItemPropType,
+} from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-
-import React from 'react';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import {
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-} from 'react-native';
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+  updateNavInfoActionType,
+} from '../redux-setup';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+
+import * as React from 'react';
 import invariant from 'invariant';
+import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
-import Hyperlink from 'react-native-hyperlink';
 
-import {
-  messageKey,
-  splitRobotext,
-  parseRobotextEntity,
-} from 'lib/shared/message-utils';
+import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
-import { MessageListRouteName } from './message-list.react';
+import css from './chat-message-list.css';
 
-function robotextMessageItemHeight(
-  item: ChatMessageInfoItemWithHeight,
-  viewerID: ?string,
-) {
-  return 17 + item.textHeight; // for padding, margin, and text
-}
-
-type Props = {
-  item: ChatMessageInfoItemWithHeight,
-  toggleFocus: (messageKey: string) => void,
-};
+type Props = {|
+  item: ChatMessageInfoItem,
+|};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -62,9 +51,9 @@ class RobotextMessage extends React.PureComponent<Props> {
 
   render() {
     return (
-      <TouchableWithoutFeedback onPress={this.onPress}>
+      <div className={css.robotext}>
         {this.linkedRobotext()}
-      </TouchableWithoutFeedback>
+      </div>
     );
   }
 
@@ -96,15 +85,12 @@ class RobotextMessage extends React.PureComponent<Props> {
         textParts.push(rawText);
       }
     }
-    return (
-      <Hyperlink linkDefault={true} linkStyle={styles.link}>
-        <Text style={styles.robotext}>{textParts}</Text>
-      </Hyperlink>
-    );
-  }
 
-  onPress = () => {
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    return (
+      <Linkify>
+        {textParts}
+      </Linkify>
+    );
   }
 
 }
@@ -114,8 +100,9 @@ type InnerThreadEntityProps = {
   name: string,
   // Redux state
   threadInfo: ThreadInfo,
+  navInfo: NavInfo,
   // Redux dispatch functions
-  dispatch: Dispatch,
+  dispatchActionPayload: DispatchActionPayload,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 
@@ -123,30 +110,35 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    dispatch: PropTypes.func.isRequired,
+    navInfo: navInfoPropType.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   render() {
     return (
-      <Text style={styles.link} onPress={this.onPressThread}>
+      <a onClick={this.onClickThread}>
         {this.props.name}
-      </Text>
+      </a>
     );
   }
 
-  onPressThread = () => {
+  onClickThread = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     const id = this.props.id;
-    this.props.dispatch({
-      type: "Navigation/NAVIGATE",
-      routeName: MessageListRouteName,
-      params: { threadInfo: this.props.threadInfo },
-    });
+    this.props.dispatchActionPayload(
+      updateNavInfoActionType,
+      {
+        ...this.props.navInfo,
+        activeChatThreadID: id,
+      },
+    );
   }
 
 }
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.id],
+    navInfo: state.navInfo,
   }),
   null,
   true,
@@ -154,25 +146,7 @@ const ThreadEntity = connect(
 
 function ColorEntity(props: {| color: string |}) {
   const colorStyle = { color: props.color };
-  return <Text style={colorStyle}>{props.color}</Text>;
+  return <span style={colorStyle}>{props.color}</span>;
 }
 
-const styles = StyleSheet.create({
-  robotext: {
-    textAlign: 'center',
-    color: '#333333',
-    paddingVertical: 6,
-    marginBottom: 5,
-    marginHorizontal: 24,
-    fontSize: 15,
-    fontFamily: 'Arial',
-  },
-  link: {
-    color: '#3333FF',
-  },
-});
-
-export {
-  RobotextMessage,
-  robotextMessageItemHeight,
-};
+export default RobotextMessage;

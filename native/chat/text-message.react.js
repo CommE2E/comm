@@ -1,6 +1,5 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
@@ -44,7 +43,6 @@ type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  threadInfo: ThreadInfo,
 };
 class TextMessage extends React.PureComponent<Props> {
 
@@ -52,7 +50,6 @@ class TextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
   };
   tooltipConfig: $ReadOnlyArray<TooltipItemData>;
   tooltip: ?Tooltip;
@@ -83,8 +80,8 @@ class TextMessage extends React.PureComponent<Props> {
     let darkColor = false;
     if (isViewer) {
       containerStyle = { alignSelf: 'flex-end' };
-      messageStyle.backgroundColor = `#${this.props.threadInfo.color}`;
-      darkColor = colorIsDark(this.props.threadInfo.color);
+      messageStyle.backgroundColor = `#${this.props.item.threadInfo.color}`;
+      darkColor = colorIsDark(this.props.item.threadInfo.color);
       textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
       containerStyle = { alignSelf: 'flex-start' };

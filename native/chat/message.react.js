@@ -73,7 +73,6 @@ class Message extends React.PureComponent<Props> {
           item={this.props.item}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
-          threadInfo={this.props.item.threadInfo}
         />
       );
     } else {
@@ -81,7 +80,6 @@ class Message extends React.PureComponent<Props> {
         <RobotextMessage
           item={this.props.item}
           toggleFocus={this.props.toggleFocus}
-          threadInfo={this.props.item.threadInfo}
         />
       );
     }

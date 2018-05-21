@@ -1,4 +1,4 @@
-// flow-typed signature: c312b98c7e2ca0542b1364b4c0af3ec2
+// flow-typed signature: df4c3716273a56c85698ef1262c1af97
 // flow-typed version: <<STUB>>/@fortawesome/fontawesome-free-solid_v^5.0.10/flow_v0.64.0
 
 /**
@@ -262,6 +262,10 @@ declare module '@fortawesome/fontawesome-free-solid/faBirthdayCake' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faBlender' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faBlind' {
   declare module.exports: any;
 }
@@ -283,6 +287,10 @@ declare module '@fortawesome/fontawesome-free-solid/faBook' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faBookmark' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faBookOpen' {
   declare module.exports: any;
 }
 
@@ -311,6 +319,14 @@ declare module '@fortawesome/fontawesome-free-solid/faBriefcase' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faBriefcaseMedical' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faBroadcastTower' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faBroom' {
   declare module.exports: any;
 }
 
@@ -426,6 +442,14 @@ declare module '@fortawesome/fontawesome-free-solid/faCertificate' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faChalkboard' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faChalkboardTeacher' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faChartArea' {
   declare module.exports: any;
 }
@@ -522,6 +546,10 @@ declare module '@fortawesome/fontawesome-free-solid/faChild' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faChurch' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faCircle' {
   declare module.exports: any;
 }
@@ -586,6 +614,10 @@ declare module '@fortawesome/fontawesome-free-solid/faCogs' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faCoins' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faColumns' {
   declare module.exports: any;
 }
@@ -607,6 +639,10 @@ declare module '@fortawesome/fontawesome-free-solid/faComments' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faCommentSlash' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faCompactDisc' {
   declare module.exports: any;
 }
 
@@ -642,6 +678,14 @@ declare module '@fortawesome/fontawesome-free-solid/faCrosshairs' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faCrow' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faCrown' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faCube' {
   declare module.exports: any;
 }
@@ -670,6 +714,38 @@ declare module '@fortawesome/fontawesome-free-solid/faDiagnoses' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faDice' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceFive' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceFour' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceOne' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceSix' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceThree' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDiceTwo' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDivide' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faDna' {
   declare module.exports: any;
 }
@@ -690,6 +766,14 @@ declare module '@fortawesome/fontawesome-free-solid/faDonate' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faDoorClosed' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDoorOpen' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faDotCircle' {
   declare module.exports: any;
 }
@@ -699,6 +783,10 @@ declare module '@fortawesome/fontawesome-free-solid/faDove' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faDownload' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faDumbbell' {
   declare module.exports: any;
 }
 
@@ -727,6 +815,10 @@ declare module '@fortawesome/fontawesome-free-solid/faEnvelopeOpen' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faEnvelopeSquare' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faEquals' {
   declare module.exports: any;
 }
 
@@ -791,6 +883,10 @@ declare module '@fortawesome/fontawesome-free-solid/faFastForward' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faFax' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faFeather' {
   declare module.exports: any;
 }
 
@@ -898,11 +994,19 @@ declare module '@fortawesome/fontawesome-free-solid/faFont' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faFontAwesomeLogoFull' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faFootballBall' {
   declare module.exports: any;
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faForward' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faFrog' {
   declare module.exports: any;
 }
 
@@ -915,6 +1019,10 @@ declare module '@fortawesome/fontawesome-free-solid/faFutbol' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faGamepad' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faGasPump' {
   declare module.exports: any;
 }
 
@@ -934,6 +1042,10 @@ declare module '@fortawesome/fontawesome-free-solid/faGift' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faGlasses' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faGlassMartini' {
   declare module.exports: any;
 }
@@ -947,6 +1059,14 @@ declare module '@fortawesome/fontawesome-free-solid/faGolfBall' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faGraduationCap' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faGreaterThan' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faGreaterThanEqual' {
   declare module.exports: any;
 }
 
@@ -1042,6 +1162,10 @@ declare module '@fortawesome/fontawesome-free-solid/faHeartbeat' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faHelicopter' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faHistory' {
   declare module.exports: any;
 }
@@ -1122,6 +1246,10 @@ declare module '@fortawesome/fontawesome-free-solid/faIndustry' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faInfinity' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faInfo' {
   declare module.exports: any;
 }
@@ -1142,6 +1270,10 @@ declare module '@fortawesome/fontawesome-free-solid/faKeyboard' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faKiwiBird' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faLanguage' {
   declare module.exports: any;
 }
@@ -1155,6 +1287,14 @@ declare module '@fortawesome/fontawesome-free-solid/faLeaf' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faLemon' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faLessThan' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faLessThanEqual' {
   declare module.exports: any;
 }
 
@@ -1290,6 +1430,10 @@ declare module '@fortawesome/fontawesome-free-solid/faMeh' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faMemory' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faMercury' {
   declare module.exports: any;
 }
@@ -1299,6 +1443,14 @@ declare module '@fortawesome/fontawesome-free-solid/faMicrochip' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faMicrophone' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMicrophoneAlt' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMicrophoneAltSlash' {
   declare module.exports: any;
 }
 
@@ -1326,7 +1478,27 @@ declare module '@fortawesome/fontawesome-free-solid/faMobileAlt' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBill' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faMoneyBillAlt' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBillWave' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBillWaveAlt' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMoneyCheck' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faMoneyCheckAlt' {
   declare module.exports: any;
 }
 
@@ -1354,6 +1526,10 @@ declare module '@fortawesome/fontawesome-free-solid/faNewspaper' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faNotEqual' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faNotesMedical' {
   declare module.exports: any;
 }
@@ -1374,6 +1550,10 @@ declare module '@fortawesome/fontawesome-free-solid/faPaintBrush' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faPalette' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faPallet' {
   declare module.exports: any;
 }
@@ -1391,6 +1571,10 @@ declare module '@fortawesome/fontawesome-free-solid/faParachuteBox' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faParagraph' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faParking' {
   declare module.exports: any;
 }
 
@@ -1423,6 +1607,10 @@ declare module '@fortawesome/fontawesome-free-solid/faPeopleCarry' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faPercent' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faPercentage' {
   declare module.exports: any;
 }
 
@@ -1486,6 +1674,10 @@ declare module '@fortawesome/fontawesome-free-solid/faPoo' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faPortrait' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faPoundSign' {
   declare module.exports: any;
 }
@@ -1507,6 +1699,10 @@ declare module '@fortawesome/fontawesome-free-solid/faPrint' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faProcedures' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faProjectDiagram' {
   declare module.exports: any;
 }
 
@@ -1539,6 +1735,10 @@ declare module '@fortawesome/fontawesome-free-solid/faQuoteRight' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faRandom' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faReceipt' {
   declare module.exports: any;
 }
 
@@ -1578,6 +1778,10 @@ declare module '@fortawesome/fontawesome-free-solid/faRoad' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faRobot' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faRocket' {
   declare module.exports: any;
 }
@@ -1594,11 +1798,35 @@ declare module '@fortawesome/fontawesome-free-solid/faRubleSign' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faRuler' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faRulerCombined' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faRulerHorizontal' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faRulerVertical' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faRupeeSign' {
   declare module.exports: any;
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faSave' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faSchool' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faScrewdriver' {
   declare module.exports: any;
 }
 
@@ -1654,6 +1882,10 @@ declare module '@fortawesome/fontawesome-free-solid/faShippingFast' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faShoePrints' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faShoppingBag' {
   declare module.exports: any;
 }
@@ -1694,6 +1926,10 @@ declare module '@fortawesome/fontawesome-free-solid/faSitemap' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faSkull' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faSlidersH' {
   declare module.exports: any;
 }
@@ -1703,6 +1939,10 @@ declare module '@fortawesome/fontawesome-free-solid/faSmile' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faSmoking' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faSmokingBan' {
   declare module.exports: any;
 }
 
@@ -1798,11 +2038,27 @@ declare module '@fortawesome/fontawesome-free-solid/faStopwatch' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faStore' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faStoreAlt' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faStream' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faStreetView' {
   declare module.exports: any;
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faStrikethrough' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faStroopwafel' {
   declare module.exports: any;
 }
 
@@ -1966,6 +2222,10 @@ declare module '@fortawesome/fontawesome-free-solid/faToggleOn' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faToolbox' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faTrademark' {
   declare module.exports: any;
 }
@@ -2007,6 +2267,10 @@ declare module '@fortawesome/fontawesome-free-solid/faTruckLoading' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faTruckMoving' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faTshirt' {
   declare module.exports: any;
 }
 
@@ -2062,11 +2326,59 @@ declare module '@fortawesome/fontawesome-free-solid/faUser' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faUserAlt' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserAltSlash' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserAstronaut' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserCheck' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faUserCircle' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faUserClock' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserCog' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserEdit' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserFriends' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserGraduate' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserLock' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faUserMd' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserMinus' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserNinja' {
   declare module.exports: any;
 }
 
@@ -2078,7 +2390,27 @@ declare module '@fortawesome/fontawesome-free-solid/faUsers' {
   declare module.exports: any;
 }
 
+declare module '@fortawesome/fontawesome-free-solid/faUsersCog' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-solid/faUserSecret' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserShield' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserSlash' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserTag' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faUserTie' {
   declare module.exports: any;
 }
 
@@ -2135,6 +2467,14 @@ declare module '@fortawesome/fontawesome-free-solid/faVolumeOff' {
 }
 
 declare module '@fortawesome/fontawesome-free-solid/faVolumeUp' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faWalking' {
+  declare module.exports: any;
+}
+
+declare module '@fortawesome/fontawesome-free-solid/faWallet' {
   declare module.exports: any;
 }
 
@@ -2383,6 +2723,9 @@ declare module '@fortawesome/fontawesome-free-solid/faBinoculars.js' {
 declare module '@fortawesome/fontawesome-free-solid/faBirthdayCake.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBirthdayCake'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faBlender.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBlender'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faBlind.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBlind'>;
 }
@@ -2400,6 +2743,9 @@ declare module '@fortawesome/fontawesome-free-solid/faBook.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faBookmark.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBookmark'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faBookOpen.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBookOpen'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faBowlingBall.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBowlingBall'>;
@@ -2421,6 +2767,12 @@ declare module '@fortawesome/fontawesome-free-solid/faBriefcase.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faBriefcaseMedical.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBriefcaseMedical'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faBroadcastTower.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBroadcastTower'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faBroom.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBroom'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faBug.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faBug'>;
@@ -2506,6 +2858,12 @@ declare module '@fortawesome/fontawesome-free-solid/faCartPlus.js' {
 declare module '@fortawesome/fontawesome-free-solid/faCertificate.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCertificate'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faChalkboard.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faChalkboard'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faChalkboardTeacher.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faChalkboardTeacher'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faChartArea.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faChartArea'>;
 }
@@ -2578,6 +2936,9 @@ declare module '@fortawesome/fontawesome-free-solid/faChevronUp.js' {
 declare module '@fortawesome/fontawesome-free-solid/faChild.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faChild'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faChurch.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faChurch'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faCircle.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCircle'>;
 }
@@ -2626,6 +2987,9 @@ declare module '@fortawesome/fontawesome-free-solid/faCog.js' {
 declare module '@fortawesome/fontawesome-free-solid/faCogs.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCogs'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faCoins.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCoins'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faColumns.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faColumns'>;
 }
@@ -2643,6 +3007,9 @@ declare module '@fortawesome/fontawesome-free-solid/faComments.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faCommentSlash.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCommentSlash'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faCompactDisc.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCompactDisc'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faCompass.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCompass'>;
@@ -2668,6 +3035,12 @@ declare module '@fortawesome/fontawesome-free-solid/faCrop.js' {
 declare module '@fortawesome/fontawesome-free-solid/faCrosshairs.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCrosshairs'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faCrow.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCrow'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faCrown.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCrown'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faCube.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faCube'>;
 }
@@ -2689,6 +3062,30 @@ declare module '@fortawesome/fontawesome-free-solid/faDesktop.js' {
 declare module '@fortawesome/fontawesome-free-solid/faDiagnoses.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiagnoses'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faDice.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDice'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceFive.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceFive'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceFour.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceFour'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceOne.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceOne'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceSix.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceSix'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceThree.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceThree'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDiceTwo.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDiceTwo'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDivide.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDivide'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faDna.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDna'>;
 }
@@ -2704,6 +3101,12 @@ declare module '@fortawesome/fontawesome-free-solid/faDollyFlatbed.js' {
 declare module '@fortawesome/fontawesome-free-solid/faDonate.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDonate'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faDoorClosed.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDoorClosed'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDoorOpen.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDoorOpen'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faDotCircle.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDotCircle'>;
 }
@@ -2712,6 +3115,9 @@ declare module '@fortawesome/fontawesome-free-solid/faDove.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faDownload.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDownload'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faDumbbell.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faDumbbell'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faEdit.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faEdit'>;
@@ -2733,6 +3139,9 @@ declare module '@fortawesome/fontawesome-free-solid/faEnvelopeOpen.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faEnvelopeSquare.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faEnvelopeSquare'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faEquals.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faEquals'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faEraser.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faEraser'>;
@@ -2781,6 +3190,9 @@ declare module '@fortawesome/fontawesome-free-solid/faFastForward.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faFax.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFax'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faFeather.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFeather'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faFemale.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFemale'>;
@@ -2860,11 +3272,17 @@ declare module '@fortawesome/fontawesome-free-solid/faFolderOpen.js' {
 declare module '@fortawesome/fontawesome-free-solid/faFont.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFont'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faFontAwesomeLogoFull.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFontAwesomeLogoFull'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faFootballBall.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFootballBall'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faForward.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faForward'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faFrog.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFrog'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faFrown.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faFrown'>;
@@ -2874,6 +3292,9 @@ declare module '@fortawesome/fontawesome-free-solid/faFutbol.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faGamepad.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGamepad'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faGasPump.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGasPump'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faGavel.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGavel'>;
@@ -2887,6 +3308,9 @@ declare module '@fortawesome/fontawesome-free-solid/faGenderless.js' {
 declare module '@fortawesome/fontawesome-free-solid/faGift.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGift'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faGlasses.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGlasses'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faGlassMartini.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGlassMartini'>;
 }
@@ -2898,6 +3322,12 @@ declare module '@fortawesome/fontawesome-free-solid/faGolfBall.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faGraduationCap.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGraduationCap'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faGreaterThan.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGreaterThan'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faGreaterThanEqual.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faGreaterThanEqual'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faHandHolding.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faHandHolding'>;
@@ -2968,6 +3398,9 @@ declare module '@fortawesome/fontawesome-free-solid/faHeart.js' {
 declare module '@fortawesome/fontawesome-free-solid/faHeartbeat.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faHeartbeat'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faHelicopter.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faHelicopter'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faHistory.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faHistory'>;
 }
@@ -3028,6 +3461,9 @@ declare module '@fortawesome/fontawesome-free-solid/faIndent.js' {
 declare module '@fortawesome/fontawesome-free-solid/faIndustry.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faIndustry'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faInfinity.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faInfinity'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faInfo.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faInfo'>;
 }
@@ -3043,6 +3479,9 @@ declare module '@fortawesome/fontawesome-free-solid/faKey.js' {
 declare module '@fortawesome/fontawesome-free-solid/faKeyboard.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faKeyboard'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faKiwiBird.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faKiwiBird'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faLanguage.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faLanguage'>;
 }
@@ -3054,6 +3493,12 @@ declare module '@fortawesome/fontawesome-free-solid/faLeaf.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faLemon.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faLemon'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faLessThan.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faLessThan'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faLessThanEqual.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faLessThanEqual'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faLevelDownAlt.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faLevelDownAlt'>;
@@ -3154,6 +3599,9 @@ declare module '@fortawesome/fontawesome-free-solid/faMedkit.js' {
 declare module '@fortawesome/fontawesome-free-solid/faMeh.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMeh'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faMemory.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMemory'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faMercury.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMercury'>;
 }
@@ -3162,6 +3610,12 @@ declare module '@fortawesome/fontawesome-free-solid/faMicrochip.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faMicrophone.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMicrophone'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMicrophoneAlt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMicrophoneAlt'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMicrophoneAltSlash.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMicrophoneAltSlash'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faMicrophoneSlash.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMicrophoneSlash'>;
@@ -3181,8 +3635,23 @@ declare module '@fortawesome/fontawesome-free-solid/faMobile.js' {
 declare module '@fortawesome/fontawesome-free-solid/faMobileAlt.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMobileAlt'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBill.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyBill'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faMoneyBillAlt.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyBillAlt'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBillWave.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyBillWave'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMoneyBillWaveAlt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyBillWaveAlt'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMoneyCheck.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyCheck'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faMoneyCheckAlt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoneyCheckAlt'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faMoon.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faMoon'>;
@@ -3202,6 +3671,9 @@ declare module '@fortawesome/fontawesome-free-solid/faNeuter.js' {
 declare module '@fortawesome/fontawesome-free-solid/faNewspaper.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faNewspaper'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faNotEqual.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faNotEqual'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faNotesMedical.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faNotesMedical'>;
 }
@@ -3217,6 +3689,9 @@ declare module '@fortawesome/fontawesome-free-solid/faOutdent.js' {
 declare module '@fortawesome/fontawesome-free-solid/faPaintBrush.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPaintBrush'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faPalette.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPalette'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faPallet.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPallet'>;
 }
@@ -3231,6 +3706,9 @@ declare module '@fortawesome/fontawesome-free-solid/faParachuteBox.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faParagraph.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faParagraph'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faParking.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faParking'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faPaste.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPaste'>;
@@ -3255,6 +3733,9 @@ declare module '@fortawesome/fontawesome-free-solid/faPeopleCarry.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faPercent.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPercent'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faPercentage.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPercentage'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faPhone.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPhone'>;
@@ -3301,6 +3782,9 @@ declare module '@fortawesome/fontawesome-free-solid/faPodcast.js' {
 declare module '@fortawesome/fontawesome-free-solid/faPoo.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPoo'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faPortrait.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPortrait'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faPoundSign.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPoundSign'>;
 }
@@ -3318,6 +3802,9 @@ declare module '@fortawesome/fontawesome-free-solid/faPrint.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faProcedures.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faProcedures'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faProjectDiagram.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faProjectDiagram'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faPuzzlePiece.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faPuzzlePiece'>;
@@ -3342,6 +3829,9 @@ declare module '@fortawesome/fontawesome-free-solid/faQuoteRight.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faRandom.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRandom'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faReceipt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faReceipt'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faRecycle.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRecycle'>;
@@ -3370,6 +3860,9 @@ declare module '@fortawesome/fontawesome-free-solid/faRibbon.js' {
 declare module '@fortawesome/fontawesome-free-solid/faRoad.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRoad'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faRobot.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRobot'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faRocket.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRocket'>;
 }
@@ -3382,11 +3875,29 @@ declare module '@fortawesome/fontawesome-free-solid/faRssSquare.js' {
 declare module '@fortawesome/fontawesome-free-solid/faRubleSign.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRubleSign'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faRuler.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRuler'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faRulerCombined.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRulerCombined'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faRulerHorizontal.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRulerHorizontal'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faRulerVertical.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRulerVertical'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faRupeeSign.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faRupeeSign'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faSave.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSave'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faSchool.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSchool'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faScrewdriver.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faScrewdriver'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faSearch.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSearch'>;
@@ -3427,6 +3938,9 @@ declare module '@fortawesome/fontawesome-free-solid/faShip.js' {
 declare module '@fortawesome/fontawesome-free-solid/faShippingFast.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faShippingFast'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faShoePrints.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faShoePrints'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faShoppingBag.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faShoppingBag'>;
 }
@@ -3457,6 +3971,9 @@ declare module '@fortawesome/fontawesome-free-solid/faSignOutAlt.js' {
 declare module '@fortawesome/fontawesome-free-solid/faSitemap.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSitemap'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faSkull.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSkull'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faSlidersH.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSlidersH'>;
 }
@@ -3465,6 +3982,9 @@ declare module '@fortawesome/fontawesome-free-solid/faSmile.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faSmoking.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSmoking'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faSmokingBan.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSmokingBan'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faSnowflake.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSnowflake'>;
@@ -3535,11 +4055,23 @@ declare module '@fortawesome/fontawesome-free-solid/faStopCircle.js' {
 declare module '@fortawesome/fontawesome-free-solid/faStopwatch.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStopwatch'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faStore.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStore'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faStoreAlt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStoreAlt'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faStream.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStream'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faStreetView.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStreetView'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faStrikethrough.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStrikethrough'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faStroopwafel.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faStroopwafel'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faSubscript.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faSubscript'>;
@@ -3661,6 +4193,9 @@ declare module '@fortawesome/fontawesome-free-solid/faToggleOff.js' {
 declare module '@fortawesome/fontawesome-free-solid/faToggleOn.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faToggleOn'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faToolbox.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faToolbox'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faTrademark.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faTrademark'>;
 }
@@ -3693,6 +4228,9 @@ declare module '@fortawesome/fontawesome-free-solid/faTruckLoading.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faTruckMoving.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faTruckMoving'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faTshirt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faTshirt'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faTty.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faTty'>;
@@ -3733,11 +4271,47 @@ declare module '@fortawesome/fontawesome-free-solid/faUpload.js' {
 declare module '@fortawesome/fontawesome-free-solid/faUser.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUser'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faUserAlt.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserAlt'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserAltSlash.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserAltSlash'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserAstronaut.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserAstronaut'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserCheck.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserCheck'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faUserCircle.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserCircle'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faUserClock.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserClock'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserCog.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserCog'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserEdit.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserEdit'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserFriends.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserFriends'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserGraduate.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserGraduate'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserLock.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserLock'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faUserMd.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserMd'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserMinus.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserMinus'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserNinja.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserNinja'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faUserPlus.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserPlus'>;
@@ -3745,8 +4319,23 @@ declare module '@fortawesome/fontawesome-free-solid/faUserPlus.js' {
 declare module '@fortawesome/fontawesome-free-solid/faUsers.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUsers'>;
 }
+declare module '@fortawesome/fontawesome-free-solid/faUsersCog.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUsersCog'>;
+}
 declare module '@fortawesome/fontawesome-free-solid/faUserSecret.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserSecret'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserShield.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserShield'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserSlash.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserSlash'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserTag.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserTag'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faUserTie.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserTie'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faUserTimes.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faUserTimes'>;
@@ -3789,6 +4378,12 @@ declare module '@fortawesome/fontawesome-free-solid/faVolumeOff.js' {
 }
 declare module '@fortawesome/fontawesome-free-solid/faVolumeUp.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faVolumeUp'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faWalking.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faWalking'>;
+}
+declare module '@fortawesome/fontawesome-free-solid/faWallet.js' {
+  declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faWallet'>;
 }
 declare module '@fortawesome/fontawesome-free-solid/faWarehouse.js' {
   declare module.exports: $Exports<'@fortawesome/fontawesome-free-solid/faWarehouse'>;

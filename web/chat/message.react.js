@@ -1,17 +1,21 @@
 // @flow
 
 import {
-  type ChatMessageItem,
+  type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 
-import { robotextToRawString } from 'lib/shared/message-utils';
-
 import * as React from 'react';
 
+import { longAbsoluteDate } from 'lib/utils/date-utils';
+
+import TextMessage from './text-message.react';
+import RobotextMessage from './robotext-message.react';
+import css from './chat-message-list.css';
+
 type Props = {|
-  item: ChatMessageItem,
+  item: ChatMessageInfoItem,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -20,25 +24,23 @@ class Message extends React.PureComponent<Props> {
   };
 
   render() {
-    if (this.props.item.itemType === "loader") {
-      return (
-        <div>
-          Spin spin
-        </div>
-      );
-    } else if (this.props.item.messageInfo.type === messageTypes.TEXT) {
-      return (
-        <div>
-          {this.props.item.messageInfo.text}
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          {this.props.item.robotext}
+    let conversationHeader = null;
+    if (this.props.item.startsConversation) {
+      conversationHeader = (
+        <div className={css.conversationHeader}>
+          {longAbsoluteDate(this.props.item.messageInfo.time)}
         </div>
       );
     }
+    const message = this.props.item.messageInfo.type === messageTypes.TEXT
+      ? <TextMessage item={this.props.item} />
+      : <RobotextMessage item={this.props.item} />;
+    return (
+      <React.Fragment>
+        {message}
+        {conversationHeader}
+      </React.Fragment>
+    );
   }
 
 }

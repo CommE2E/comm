@@ -7,11 +7,17 @@ div.container {
 }
 div.messageContainer {
   flex-grow: 1;
+  min-height: calc(100% - 106px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
 }
+
 div.inputBar {
   display: flex;
   padding: 10px;
   align-items: center;
+  flex-shrink: 0;
 }
 div.inputBar > textarea {
   flex-grow: 1;
@@ -23,6 +29,7 @@ div.inputBar > textarea {
   width: 100%;
   resize: none;
   padding-right: 20px;
+  min-height: 17px;
 }
 div.inputBar > textarea:focus {
   outline: none;
@@ -39,4 +46,28 @@ svg.sendButton {
   padding-left: 8px;
   font-size: 24px;
   color: #88BB88;
+}
+
+div.loading {
+  text-align: center;
+  padding: 12px;
+}
+
+div.conversationHeader {
+  text-transform: uppercase;
+  color: #777777;
+  font-size: 14px;
+  padding-bottom: 7px;
+  text-align: center;
+}
+
+div.robotext {
+  text-align: center;
+  color: #333333;
+  padding: 6px 0;
+  margin: 0 24px 5px 24px;
+  font-Size: 15px;
+}
+div.robotext a {
+  cursor: pointer;
 }

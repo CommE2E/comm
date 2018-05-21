@@ -1,5 +1,5 @@
-// flow-typed signature: cf916fca23433d4bbcb7a75f2604407d
-// flow-typed version: f821d89401/react-router-dom_v4.x.x/flow_>=v0.53.x
+// flow-typed signature: a2389d94821a287e40b26a1b70836d92
+// flow-typed version: 83f1c5c51e/react-router-dom_v4.x.x/flow_>=v0.63.x
 
 declare module "react-router-dom" {
   declare export class BrowserRouter extends React$Component<{
@@ -87,15 +87,22 @@ declare module "react-router-dom" {
     history: RouterHistory,
     location: Location,
     match: Match,
-    staticContext?: StaticRouterContext,
-|};
+    staticContext?: StaticRouterContext
+  |};
+
+  declare type ContextRouterVoid = {
+    history: RouterHistory | void,
+    location: Location | void,
+    match: Match | void,
+    staticContext?: StaticRouterContext | void
+  };
 
   declare export type GetUserConfirmation = (
     message: string,
     callback: (confirmed: boolean) => void
   ) => void;
 
-  declare type StaticRouterContext = {
+  declare export type StaticRouterContext = {
     url?: string
   };
 
@@ -142,9 +149,11 @@ declare module "react-router-dom" {
     children?: React$Node
   }> {}
 
-  declare export function withRouter<P>(
-    Component: React$ComponentType<{| ...ContextRouter, ...P |}>
-  ): React$ComponentType<P>;
+  declare export function withRouter<P: {}, Component: React$ComponentType<P>>(
+    WrappedComponent: Component
+  ): React$ComponentType<
+    $Diff<React$ElementConfig<Component>, ContextRouterVoid>
+  >;
 
   declare type MatchPathOptions = {
     path?: string,
