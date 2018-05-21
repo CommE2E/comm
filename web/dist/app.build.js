@@ -985,7 +985,7 @@ const threadInfoPropType = __WEBPACK_IMPORTED_MODULE_0_prop_types___default.a.sh
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return requestAccessActionTypes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return requestAccess; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__types_verify_types__ = __webpack_require__(207);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shared_thread_watcher__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shared_thread_watcher__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_config__ = __webpack_require__(41);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -1881,7 +1881,7 @@ module.exports = isObjectLike;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_some__ = __webpack_require__(137);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_some___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_some__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_map__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_map__);
@@ -2186,7 +2186,7 @@ Modal.propTypes = {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return updateActivityActionTypes; });
 /* unused harmony export updateActivity */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shared_thread_watcher__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shared_thread_watcher__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_config__ = __webpack_require__(41);
 
 
@@ -2787,7 +2787,7 @@ module.exports = arrayMap;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return bindServerCalls; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reselect__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_reselect__);
@@ -3756,7 +3756,7 @@ function LoadingIndicator(props) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lodash_fp_orderBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_lodash_fp_orderBy__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_memoize__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_memoize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash_memoize__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shared_message_utils__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shared_message_utils__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__thread_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__shared_thread_utils__ = __webpack_require__(16);
 
@@ -4351,385 +4351,6 @@ const filterThreadInfoPropType = __WEBPACK_IMPORTED_MODULE_1_prop_types___defaul
 
 /***/ }),
 /* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-function makeEmptyFunction(arg) {
-  return function () {
-    return arg;
-  };
-}
-
-/**
- * This function accepts and discards inputs; it has no side effects. This is
- * primarily useful idiomatically for overridable function endpoints which
- * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
- */
-var emptyFunction = function emptyFunction() {};
-
-emptyFunction.thatReturns = makeEmptyFunction;
-emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
-emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
-emptyFunction.thatReturnsNull = makeEmptyFunction(null);
-emptyFunction.thatReturnsThis = function () {
-  return this;
-};
-emptyFunction.thatReturnsArgument = function (arg) {
-  return arg;
-};
-
-module.exports = emptyFunction;
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var validateFormat = function validateFormat(format) {};
-
-if (process.env.NODE_ENV !== 'production') {
-  validateFormat = function validateFormat(format) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  };
-}
-
-function invariant(condition, format, a, b, c, d, e, f) {
-  validateFormat(format);
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(format.replace(/%s/g, function () {
-        return args[argIndex++];
-      }));
-      error.name = 'Invariant Violation';
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-}
-
-module.exports = invariant;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
-
-/***/ }),
-/* 59 */
-/***/ (function(module, exports) {
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-
-/** Used to detect unsigned integer values. */
-var reIsUint = /^(?:0|[1-9]\d*)$/;
-
-/**
- * Checks if `value` is a valid array-like index.
- *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
- */
-function isIndex(value, length) {
-  var type = typeof value;
-  length = length == null ? MAX_SAFE_INTEGER : length;
-
-  return !!length &&
-    (type == 'number' ||
-      (type != 'symbol' && reIsUint.test(value))) &&
-        (value > -1 && value % 1 == 0 && value < length);
-}
-
-module.exports = isIndex;
-
-
-/***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var assignValue = __webpack_require__(118),
-    baseAssignValue = __webpack_require__(51);
-
-/**
- * Copies properties of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy properties from.
- * @param {Array} props The property identifiers to copy.
- * @param {Object} [object={}] The object to copy properties to.
- * @param {Function} [customizer] The function to customize copied values.
- * @returns {Object} Returns `object`.
- */
-function copyObject(source, props, object, customizer) {
-  var isNew = !object;
-  object || (object = {});
-
-  var index = -1,
-      length = props.length;
-
-  while (++index < length) {
-    var key = props[index];
-
-    var newValue = customizer
-      ? customizer(object[key], source[key], key, object, source)
-      : undefined;
-
-    if (newValue === undefined) {
-      newValue = source[key];
-    }
-    if (isNew) {
-      baseAssignValue(object, key, newValue);
-    } else {
-      assignValue(object, key, newValue);
-    }
-  }
-  return object;
-}
-
-module.exports = copyObject;
-
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports) {
-
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */
-function baseUnary(func) {
-  return function(value) {
-    return func(value);
-  };
-}
-
-module.exports = baseUnary;
-
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var arrayPush = __webpack_require__(126),
-    isFlattenable = __webpack_require__(358);
-
-/**
- * The base implementation of `_.flatten` with support for restricting flattening.
- *
- * @private
- * @param {Array} array The array to flatten.
- * @param {number} depth The maximum recursion depth.
- * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
- * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
- * @param {Array} [result=[]] The initial result value.
- * @returns {Array} Returns the new flattened array.
- */
-function baseFlatten(array, depth, predicate, isStrict, result) {
-  var index = -1,
-      length = array.length;
-
-  predicate || (predicate = isFlattenable);
-  result || (result = []);
-
-  while (++index < length) {
-    var value = array[index];
-    if (depth > 0 && predicate(value)) {
-      if (depth > 1) {
-        // Recursively flatten arrays (susceptible to call stack limits).
-        baseFlatten(value, depth - 1, predicate, isStrict, result);
-      } else {
-        arrayPush(result, value);
-      }
-    } else if (!isStrict) {
-      result[result.length] = value;
-    }
-  }
-  return result;
-}
-
-module.exports = baseFlatten;
-
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var baseForOwn = __webpack_require__(94),
-    createBaseEach = __webpack_require__(370);
-
-/**
- * The base implementation of `_.forEach` without support for iteratee shorthands.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array|Object} Returns `collection`.
- */
-var baseEach = createBaseEach(baseForOwn);
-
-module.exports = baseEach;
-
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var convert = __webpack_require__(5),
-    func = convert('mapValues', __webpack_require__(374));
-
-func.placeholder = __webpack_require__(4);
-module.exports = func;
-
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var identity = __webpack_require__(49),
-    overRest = __webpack_require__(193),
-    setToString = __webpack_require__(115);
-
-/**
- * The base implementation of `_.rest` which doesn't validate or coerce arguments.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @returns {Function} Returns the new function.
- */
-function baseRest(func, start) {
-  return setToString(overRest(func, start, identity), func + '');
-}
-
-module.exports = baseRest;
-
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var convert = __webpack_require__(5),
-    func = convert('isEqual', __webpack_require__(387));
-
-func.placeholder = __webpack_require__(4);
-module.exports = func;
-
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  'cap': false,
-  'curry': false,
-  'fixed': false,
-  'immutable': false,
-  'rearg': false
-};
-
-
-/***/ }),
-/* 68 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const removalDelay = 10000;
-
-class ThreadWatcher {
-  constructor() {
-    Object.defineProperty(this, "watchedIDs", {
-      enumerable: true,
-      writable: true,
-      value: new Map()
-    });
-    Object.defineProperty(this, "pendingRemovals", {
-      enumerable: true,
-      writable: true,
-      value: new Map()
-    });
-  }
-
-  watchID(id) {
-    this.pendingRemovals.delete(id);
-    const currentCount = this.watchedIDs.get(id);
-    const nextCount = currentCount ? currentCount + 1 : 1;
-    this.watchedIDs.set(id, nextCount);
-  }
-
-  removeID(id) {
-    const currentCount = this.watchedIDs.get(id);
-    if (!currentCount) {
-      return;
-    }
-    const nextCount = currentCount - 1;
-    this.watchedIDs.set(id, nextCount);
-    if (nextCount === 0) {
-      this.pendingRemovals.set(id, Date.now());
-    }
-  }
-
-  getWatchedIDs() {
-    const now = Date.now();
-    for (let tuple of this.pendingRemovals) {
-      if (tuple[1] + removalDelay > now) {
-        continue;
-      }
-      this.pendingRemovals.delete(tuple[0]);
-      this.watchedIDs.delete(tuple[0]);
-    }
-    return [...this.watchedIDs.keys()];
-  }
-
-}
-
-const threadWatcher = new ThreadWatcher();
-
-/* harmony default export */ __webpack_exports__["a"] = (threadWatcher);
-
-/***/ }),
-/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5253,6 +4874,385 @@ function parseRobotextEntity(robotextPart) {
 }
 
 
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+function makeEmptyFunction(arg) {
+  return function () {
+    return arg;
+  };
+}
+
+/**
+ * This function accepts and discards inputs; it has no side effects. This is
+ * primarily useful idiomatically for overridable function endpoints which
+ * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
+ */
+var emptyFunction = function emptyFunction() {};
+
+emptyFunction.thatReturns = makeEmptyFunction;
+emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
+emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
+emptyFunction.thatReturnsNull = makeEmptyFunction(null);
+emptyFunction.thatReturnsThis = function () {
+  return this;
+};
+emptyFunction.thatReturnsArgument = function (arg) {
+  return arg;
+};
+
+module.exports = emptyFunction;
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+
+
+/**
+ * Use invariant() to assert state which your program assumes to be true.
+ *
+ * Provide sprintf-style format (only %s is supported) and arguments
+ * to provide information about what broke and what you were
+ * expecting.
+ *
+ * The invariant message will be stripped in production, but the invariant
+ * will remain to ensure logic does not differ in production.
+ */
+
+var validateFormat = function validateFormat(format) {};
+
+if (process.env.NODE_ENV !== 'production') {
+  validateFormat = function validateFormat(format) {
+    if (format === undefined) {
+      throw new Error('invariant requires an error message argument');
+    }
+  };
+}
+
+function invariant(condition, format, a, b, c, d, e, f) {
+  validateFormat(format);
+
+  if (!condition) {
+    var error;
+    if (format === undefined) {
+      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
+    } else {
+      var args = [a, b, c, d, e, f];
+      var argIndex = 0;
+      error = new Error(format.replace(/%s/g, function () {
+        return args[argIndex++];
+      }));
+      error.name = 'Invariant Violation';
+    }
+
+    error.framesToPop = 1; // we don't care about invariant's own frame
+    throw error;
+  }
+}
+
+module.exports = invariant;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports) {
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+
+  return !!length &&
+    (type == 'number' ||
+      (type != 'symbol' && reIsUint.test(value))) &&
+        (value > -1 && value % 1 == 0 && value < length);
+}
+
+module.exports = isIndex;
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var assignValue = __webpack_require__(118),
+    baseAssignValue = __webpack_require__(51);
+
+/**
+ * Copies properties of `source` to `object`.
+ *
+ * @private
+ * @param {Object} source The object to copy properties from.
+ * @param {Array} props The property identifiers to copy.
+ * @param {Object} [object={}] The object to copy properties to.
+ * @param {Function} [customizer] The function to customize copied values.
+ * @returns {Object} Returns `object`.
+ */
+function copyObject(source, props, object, customizer) {
+  var isNew = !object;
+  object || (object = {});
+
+  var index = -1,
+      length = props.length;
+
+  while (++index < length) {
+    var key = props[index];
+
+    var newValue = customizer
+      ? customizer(object[key], source[key], key, object, source)
+      : undefined;
+
+    if (newValue === undefined) {
+      newValue = source[key];
+    }
+    if (isNew) {
+      baseAssignValue(object, key, newValue);
+    } else {
+      assignValue(object, key, newValue);
+    }
+  }
+  return object;
+}
+
+module.exports = copyObject;
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports) {
+
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function(value) {
+    return func(value);
+  };
+}
+
+module.exports = baseUnary;
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayPush = __webpack_require__(126),
+    isFlattenable = __webpack_require__(358);
+
+/**
+ * The base implementation of `_.flatten` with support for restricting flattening.
+ *
+ * @private
+ * @param {Array} array The array to flatten.
+ * @param {number} depth The maximum recursion depth.
+ * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
+ * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
+ * @param {Array} [result=[]] The initial result value.
+ * @returns {Array} Returns the new flattened array.
+ */
+function baseFlatten(array, depth, predicate, isStrict, result) {
+  var index = -1,
+      length = array.length;
+
+  predicate || (predicate = isFlattenable);
+  result || (result = []);
+
+  while (++index < length) {
+    var value = array[index];
+    if (depth > 0 && predicate(value)) {
+      if (depth > 1) {
+        // Recursively flatten arrays (susceptible to call stack limits).
+        baseFlatten(value, depth - 1, predicate, isStrict, result);
+      } else {
+        arrayPush(result, value);
+      }
+    } else if (!isStrict) {
+      result[result.length] = value;
+    }
+  }
+  return result;
+}
+
+module.exports = baseFlatten;
+
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseForOwn = __webpack_require__(94),
+    createBaseEach = __webpack_require__(370);
+
+/**
+ * The base implementation of `_.forEach` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array|Object} Returns `collection`.
+ */
+var baseEach = createBaseEach(baseForOwn);
+
+module.exports = baseEach;
+
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var convert = __webpack_require__(5),
+    func = convert('mapValues', __webpack_require__(374));
+
+func.placeholder = __webpack_require__(4);
+module.exports = func;
+
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var identity = __webpack_require__(49),
+    overRest = __webpack_require__(193),
+    setToString = __webpack_require__(115);
+
+/**
+ * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ */
+function baseRest(func, start) {
+  return setToString(overRest(func, start, identity), func + '');
+}
+
+module.exports = baseRest;
+
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var convert = __webpack_require__(5),
+    func = convert('isEqual', __webpack_require__(387));
+
+func.placeholder = __webpack_require__(4);
+module.exports = func;
+
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  'cap': false,
+  'curry': false,
+  'fixed': false,
+  'immutable': false,
+  'rearg': false
+};
+
+
+/***/ }),
+/* 69 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const removalDelay = 10000;
+
+class ThreadWatcher {
+  constructor() {
+    Object.defineProperty(this, "watchedIDs", {
+      enumerable: true,
+      writable: true,
+      value: new Map()
+    });
+    Object.defineProperty(this, "pendingRemovals", {
+      enumerable: true,
+      writable: true,
+      value: new Map()
+    });
+  }
+
+  watchID(id) {
+    this.pendingRemovals.delete(id);
+    const currentCount = this.watchedIDs.get(id);
+    const nextCount = currentCount ? currentCount + 1 : 1;
+    this.watchedIDs.set(id, nextCount);
+  }
+
+  removeID(id) {
+    const currentCount = this.watchedIDs.get(id);
+    if (!currentCount) {
+      return;
+    }
+    const nextCount = currentCount - 1;
+    this.watchedIDs.set(id, nextCount);
+    if (nextCount === 0) {
+      this.pendingRemovals.set(id, Date.now());
+    }
+  }
+
+  getWatchedIDs() {
+    const now = Date.now();
+    for (let tuple of this.pendingRemovals) {
+      if (tuple[1] + removalDelay > now) {
+        continue;
+      }
+      this.pendingRemovals.delete(tuple[0]);
+      this.watchedIDs.delete(tuple[0]);
+    }
+    return [...this.watchedIDs.keys()];
+  }
+
+}
+
+const threadWatcher = new ThreadWatcher();
+
+/* harmony default export */ __webpack_exports__["a"] = (threadWatcher);
 
 /***/ }),
 /* 70 */
@@ -7544,7 +7544,7 @@ var locationsAreEqual = function locationsAreEqual(a, b) {
 
 
 
-var emptyFunction = __webpack_require__(57);
+var emptyFunction = __webpack_require__(58);
 
 /**
  * Similar to invariant but only logs a warning if the condition is not met.
@@ -8188,7 +8188,7 @@ module.exports = assignValue;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsTypedArray = __webpack_require__(291),
-    baseUnary = __webpack_require__(61),
+    baseUnary = __webpack_require__(62),
     nodeUtil = __webpack_require__(121);
 
 /* Node.js helper references. */
@@ -9783,7 +9783,7 @@ module.exports = {
 
 
 if (process.env.NODE_ENV !== 'production') {
-  var invariant = __webpack_require__(58);
+  var invariant = __webpack_require__(59);
   var warning = __webpack_require__(104);
   var ReactPropTypesSecret = __webpack_require__(106);
   var loggedTypeFailures = {};
@@ -10547,7 +10547,7 @@ module.exports = toNumber;
 /* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var copyObject = __webpack_require__(60),
+var copyObject = __webpack_require__(61),
     keys = __webpack_require__(31);
 
 /**
@@ -10574,7 +10574,7 @@ var baseTimes = __webpack_require__(288),
     isArguments = __webpack_require__(82),
     isArray = __webpack_require__(8),
     isBuffer = __webpack_require__(83),
-    isIndex = __webpack_require__(59),
+    isIndex = __webpack_require__(60),
     isTypedArray = __webpack_require__(119);
 
 /** Used for built-in method references. */
@@ -11208,7 +11208,7 @@ module.exports = last;
 /* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseEach = __webpack_require__(63),
+var baseEach = __webpack_require__(64),
     isArrayLike = __webpack_require__(27);
 
 /**
@@ -11398,7 +11398,7 @@ var SetCache = __webpack_require__(132),
     arrayIncludes = __webpack_require__(116),
     arrayIncludesWith = __webpack_require__(199),
     arrayMap = __webpack_require__(32),
-    baseUnary = __webpack_require__(61),
+    baseUnary = __webpack_require__(62),
     cacheHas = __webpack_require__(133);
 
 /** Used as the size to enable large array optimizations. */
@@ -11468,7 +11468,7 @@ module.exports = baseDifference;
 /***/ (function(module, exports, __webpack_require__) {
 
 var convert = __webpack_require__(5),
-    func = convert('isEmpty', __webpack_require__(388), __webpack_require__(67));
+    func = convert('isEmpty', __webpack_require__(388), __webpack_require__(68));
 
 func.placeholder = __webpack_require__(4);
 module.exports = func;
@@ -11729,7 +11729,7 @@ var arrayMap = __webpack_require__(32),
     baseIteratee = __webpack_require__(18),
     baseMap = __webpack_require__(195),
     baseSortBy = __webpack_require__(404),
-    baseUnary = __webpack_require__(61),
+    baseUnary = __webpack_require__(62),
     compareMultiple = __webpack_require__(405),
     identity = __webpack_require__(49);
 
@@ -25326,7 +25326,7 @@ const setURLPrefix = "SET_URL_PREFIX";
 
 var eq = __webpack_require__(81),
     isArrayLike = __webpack_require__(27),
-    isIndex = __webpack_require__(59),
+    isIndex = __webpack_require__(60),
     isObject = __webpack_require__(22);
 
 /**
@@ -25361,7 +25361,7 @@ module.exports = isIterateeCall;
 /***/ (function(module, exports, __webpack_require__) {
 
 var convert = __webpack_require__(5),
-    func = convert('compact', __webpack_require__(437), __webpack_require__(67));
+    func = convert('compact', __webpack_require__(437), __webpack_require__(68));
 
 func.placeholder = __webpack_require__(4);
 module.exports = func;
@@ -30506,7 +30506,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_invariant__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_prop_types__);
@@ -30987,8 +30987,8 @@ const loadingStatusSelector = Object(__WEBPACK_IMPORTED_MODULE_16_lib_selectors_
 
 
 
-var emptyFunction = __webpack_require__(57);
-var invariant = __webpack_require__(58);
+var emptyFunction = __webpack_require__(58);
+var invariant = __webpack_require__(59);
 var warning = __webpack_require__(104);
 var assign = __webpack_require__(105);
 
@@ -31537,8 +31537,8 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
 
 
-var emptyFunction = __webpack_require__(57);
-var invariant = __webpack_require__(58);
+var emptyFunction = __webpack_require__(58);
+var invariant = __webpack_require__(59);
 var ReactPropTypesSecret = __webpack_require__(106);
 
 module.exports = function() {
@@ -33397,7 +33397,7 @@ module.exports = strictIndexOf;
 /***/ (function(module, exports, __webpack_require__) {
 
 var copyArray = __webpack_require__(78),
-    isIndex = __webpack_require__(59);
+    isIndex = __webpack_require__(60);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMin = Math.min;
@@ -34402,7 +34402,7 @@ module.exports = mapCacheSet;
 /* 316 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var copyObject = __webpack_require__(60),
+var copyObject = __webpack_require__(61),
     keysIn = __webpack_require__(177);
 
 /**
@@ -34532,7 +34532,7 @@ module.exports = cloneBuffer;
 /* 320 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var copyObject = __webpack_require__(60),
+var copyObject = __webpack_require__(61),
     getSymbols = __webpack_require__(125);
 
 /**
@@ -34554,7 +34554,7 @@ module.exports = copySymbols;
 /* 321 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var copyObject = __webpack_require__(60),
+var copyObject = __webpack_require__(61),
     getSymbolsIn = __webpack_require__(180);
 
 /**
@@ -34833,7 +34833,7 @@ module.exports = initCloneObject;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsMap = __webpack_require__(332),
-    baseUnary = __webpack_require__(61),
+    baseUnary = __webpack_require__(62),
     nodeUtil = __webpack_require__(121);
 
 /* Node.js helper references. */
@@ -34890,7 +34890,7 @@ module.exports = baseIsMap;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsSet = __webpack_require__(334),
-    baseUnary = __webpack_require__(61),
+    baseUnary = __webpack_require__(62),
     nodeUtil = __webpack_require__(121);
 
 /* Node.js helper references. */
@@ -35816,7 +35816,7 @@ module.exports = baseHasIn;
 var castPath = __webpack_require__(52),
     isArguments = __webpack_require__(82),
     isArray = __webpack_require__(8),
-    isIndex = __webpack_require__(59),
+    isIndex = __webpack_require__(60),
     isLength = __webpack_require__(120),
     toKey = __webpack_require__(39);
 
@@ -35957,7 +35957,7 @@ module.exports = rearg;
 /* 357 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseFlatten = __webpack_require__(62);
+var baseFlatten = __webpack_require__(63);
 
 /**
  * Flattens `array` a single level deep.
@@ -36054,7 +36054,7 @@ var arrayMap = __webpack_require__(32),
     baseClone = __webpack_require__(87),
     baseUnset = __webpack_require__(361),
     castPath = __webpack_require__(52),
-    copyObject = __webpack_require__(60),
+    copyObject = __webpack_require__(61),
     customOmitClone = __webpack_require__(364),
     flatRest = __webpack_require__(93),
     getAllKeysIn = __webpack_require__(128);
@@ -36232,7 +36232,7 @@ module.exports = customOmitClone;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_pickBy__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_omitBy__ = __webpack_require__(198);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_omitBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_omitBy__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_mapValues__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_mapValues__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_mapValues__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash_fp_filter__);
@@ -36244,7 +36244,7 @@ module.exports = customOmitClone;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash_fp_groupBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash_fp_groupBy__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_fp_without__ = __webpack_require__(385);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lodash_fp_without___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_lodash_fp_without__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash_fp_isEqual__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash_fp_isEqual__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lodash_fp_isEmpty__ = __webpack_require__(203);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lodash_fp_isEmpty___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_lodash_fp_isEmpty__);
@@ -36803,7 +36803,7 @@ module.exports = createBaseEach;
 
 var assignValue = __webpack_require__(118),
     castPath = __webpack_require__(52),
-    isIndex = __webpack_require__(59),
+    isIndex = __webpack_require__(60),
     isObject = __webpack_require__(22),
     toKey = __webpack_require__(39);
 
@@ -37038,7 +37038,7 @@ module.exports = filter;
 /* 376 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseEach = __webpack_require__(63);
+var baseEach = __webpack_require__(64);
 
 /**
  * The base implementation of `_.filter` without support for iteratee shorthands.
@@ -37076,8 +37076,8 @@ module.exports = func;
 /* 378 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseFlatten = __webpack_require__(62),
-    baseRest = __webpack_require__(65),
+var baseFlatten = __webpack_require__(63),
+    baseRest = __webpack_require__(66),
     baseUniq = __webpack_require__(136),
     isArrayLikeObject = __webpack_require__(96);
 
@@ -37261,7 +37261,7 @@ module.exports = arrayAggregator;
 /* 384 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseEach = __webpack_require__(63);
+var baseEach = __webpack_require__(64);
 
 /**
  * Aggregates elements of `collection` on `accumulator` with keys transformed
@@ -37300,7 +37300,7 @@ module.exports = func;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseDifference = __webpack_require__(202),
-    baseRest = __webpack_require__(65),
+    baseRest = __webpack_require__(66),
     isArrayLikeObject = __webpack_require__(96);
 
 /**
@@ -37461,7 +37461,7 @@ module.exports = isEmpty;
 /***/ (function(module, exports, __webpack_require__) {
 
 var convert = __webpack_require__(5),
-    func = convert('values', __webpack_require__(204), __webpack_require__(67));
+    func = convert('values', __webpack_require__(204), __webpack_require__(68));
 
 func.placeholder = __webpack_require__(4);
 module.exports = func;
@@ -37753,7 +37753,7 @@ function sleep(ms) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_keyBy__ = __webpack_require__(209);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_keyBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_keyBy__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_action_utils__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__actions_entry_actions__ = __webpack_require__(28);
@@ -37920,7 +37920,7 @@ module.exports = keyBy;
 /* harmony export (immutable) */ __webpack_exports__["a"] = reduceThreadInfos;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_invariant__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_action_utils__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__actions_user_actions__ = __webpack_require__(12);
@@ -38121,9 +38121,9 @@ function reduceCookie(state, action) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_map__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash_fp_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash_fp_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash_fp_mapValues__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash_fp_isEqual__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_keyBy__ = __webpack_require__(209);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash_fp_keyBy___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash_fp_keyBy__);
@@ -38143,7 +38143,7 @@ function reduceCookie(state, action) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_lodash_fp_mapKeys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_lodash_fp_mapKeys__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq__ = __webpack_require__(411);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_lodash_fp_uniq__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_message_utils__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_message_utils__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__utils_local_ids__ = __webpack_require__(98);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__shared_thread_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__utils_action_utils__ = __webpack_require__(33);
@@ -38153,7 +38153,7 @@ function reduceCookie(state, action) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__actions_ping_actions__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__types_redux_types__ = __webpack_require__(208);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__actions_message_actions__ = __webpack_require__(99);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__shared_thread_watcher__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__shared_thread_watcher__ = __webpack_require__(69);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 
@@ -38711,8 +38711,8 @@ module.exports = compareAscending;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseDifference = __webpack_require__(202),
-    baseFlatten = __webpack_require__(62),
-    baseRest = __webpack_require__(65),
+    baseFlatten = __webpack_require__(63),
+    baseRest = __webpack_require__(66),
     isArrayLikeObject = __webpack_require__(96);
 
 /**
@@ -38817,7 +38817,7 @@ module.exports = basePick;
 /***/ (function(module, exports, __webpack_require__) {
 
 var convert = __webpack_require__(5),
-    func = convert('uniq', __webpack_require__(412), __webpack_require__(67));
+    func = convert('uniq', __webpack_require__(412), __webpack_require__(68));
 
 func.placeholder = __webpack_require__(4);
 module.exports = func;
@@ -40476,7 +40476,7 @@ function makePermissionsForChildrenBlob(permissions) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash_fp_difference___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash_fp_difference__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shared_thread_watcher__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shared_thread_watcher__ = __webpack_require__(69);
 
 
 
@@ -40766,7 +40766,7 @@ module.exports = some;
 /* 436 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseEach = __webpack_require__(63);
+var baseEach = __webpack_require__(64);
 
 /**
  * The base implementation of `_.some` without support for iteratee shorthands.
@@ -40842,9 +40842,9 @@ module.exports = func;
 /* 439 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseFlatten = __webpack_require__(62),
+var baseFlatten = __webpack_require__(63),
     baseOrderBy = __webpack_require__(213),
-    baseRest = __webpack_require__(65),
+    baseRest = __webpack_require__(66),
     isIterateeCall = __webpack_require__(220);
 
 /**
@@ -40897,7 +40897,7 @@ module.exports = sortBy;
 /***/ (function(module, exports, __webpack_require__) {
 
 var convert = __webpack_require__(5),
-    func = convert('size', __webpack_require__(441), __webpack_require__(67));
+    func = convert('size', __webpack_require__(441), __webpack_require__(68));
 
 func.placeholder = __webpack_require__(4);
 module.exports = func;
@@ -41120,7 +41120,7 @@ const defaultPingTimestamps = {
  * LICENSE file in the root directory of this source tree.
  */
 
-var m=__webpack_require__(105),n=__webpack_require__(58),p=__webpack_require__(222),q=__webpack_require__(57),r="function"===typeof Symbol&&Symbol["for"],t=r?Symbol["for"]("react.element"):60103,u=r?Symbol["for"]("react.portal"):60106,v=r?Symbol["for"]("react.fragment"):60107,w=r?Symbol["for"]("react.strict_mode"):60108,x=r?Symbol["for"]("react.provider"):60109,y=r?Symbol["for"]("react.context"):60110,z=r?Symbol["for"]("react.async_mode"):60111,A=r?Symbol["for"]("react.forward_ref"):
+var m=__webpack_require__(105),n=__webpack_require__(59),p=__webpack_require__(222),q=__webpack_require__(58),r="function"===typeof Symbol&&Symbol["for"],t=r?Symbol["for"]("react.element"):60103,u=r?Symbol["for"]("react.portal"):60106,v=r?Symbol["for"]("react.fragment"):60107,w=r?Symbol["for"]("react.strict_mode"):60108,x=r?Symbol["for"]("react.provider"):60109,y=r?Symbol["for"]("react.context"):60110,z=r?Symbol["for"]("react.async_mode"):60111,A=r?Symbol["for"]("react.forward_ref"):
 60112,B="function"===typeof Symbol&&Symbol.iterator;function C(a){for(var b=arguments.length-1,e="http://reactjs.org/docs/error-decoder.html?invariant\x3d"+a,c=0;c<b;c++)e+="\x26args[]\x3d"+encodeURIComponent(arguments[c+1]);n(!1,"Minified React error #"+a+"; visit %s for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ",e)}var D={isMounted:function(){return!1},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}};
 function E(a,b,e){this.props=a;this.context=b;this.refs=p;this.updater=e||D}E.prototype.isReactComponent={};E.prototype.setState=function(a,b){"object"!==typeof a&&"function"!==typeof a&&null!=a?C("85"):void 0;this.updater.enqueueSetState(this,a,b,"setState")};E.prototype.forceUpdate=function(a){this.updater.enqueueForceUpdate(this,a,"forceUpdate")};function F(){}F.prototype=E.prototype;function G(a,b,e){this.props=a;this.context=b;this.refs=p;this.updater=e||D}var H=G.prototype=new F;
 H.constructor=G;m(H,E.prototype);H.isPureReactComponent=!0;var I={current:null},J=Object.prototype.hasOwnProperty,K={key:!0,ref:!0,__self:!0,__source:!0};
@@ -41158,10 +41158,10 @@ if (process.env.NODE_ENV !== "production") {
 'use strict';
 
 var _assign = __webpack_require__(105);
-var invariant = __webpack_require__(58);
+var invariant = __webpack_require__(59);
 var emptyObject = __webpack_require__(222);
 var warning = __webpack_require__(104);
-var emptyFunction = __webpack_require__(57);
+var emptyFunction = __webpack_require__(58);
 var checkPropTypes = __webpack_require__(152);
 
 // TODO: this is special because it gets imported during build.
@@ -49100,9 +49100,9 @@ module.exports = func;
 /* 519 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseFlatten = __webpack_require__(62),
+var baseFlatten = __webpack_require__(63),
     baseIteratee = __webpack_require__(18),
-    baseRest = __webpack_require__(65),
+    baseRest = __webpack_require__(66),
     baseUniq = __webpack_require__(136),
     isArrayLikeObject = __webpack_require__(96),
     last = __webpack_require__(194);
@@ -49723,7 +49723,7 @@ function dateParser(date) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return allDaysToEntries; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_reselect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_reselect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash_fp_mapValues__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_fp_flow__);
@@ -53529,7 +53529,7 @@ module.exports = __webpack_require__(562);
 /***/ (function(module, exports, __webpack_require__) {
 
 var arrayEach = __webpack_require__(79),
-    baseEach = __webpack_require__(63),
+    baseEach = __webpack_require__(64),
     castFunction = __webpack_require__(247),
     isArray = __webpack_require__(8);
 
@@ -59763,7 +59763,7 @@ Object.defineProperty(ChatThreadListItem, 'propTypes', {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_classnames__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_classnames___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_classnames__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_shared_message_utils__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_shared_message_utils__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_shared_thread_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_user_utils__ = __webpack_require__(150);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__chat_thread_list_css__ = __webpack_require__(151);
@@ -59850,9 +59850,9 @@ Object.defineProperty(MessagePreview, 'propTypes', {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_invariant___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_invariant__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_utils_redux_utils__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_message_utils__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lib_shared_message_utils__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_watcher__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_watcher__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_actions_message_actions__ = __webpack_require__(99);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_reducers_loading_reducer__ = __webpack_require__(107);
@@ -59890,7 +59890,13 @@ class ChatMessageList extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent
   constructor(...args) {
     var _temp;
 
-    return _temp = super(...args), Object.defineProperty(this, 'messageContainer', {
+    return _temp = super(...args), Object.defineProperty(this, 'state', {
+      enumerable: true,
+      writable: true,
+      value: {
+        focusedMessageKey: null
+      }
+    }), Object.defineProperty(this, 'messageContainer', {
       enumerable: true,
       writable: true,
       value: null
@@ -59911,11 +59917,24 @@ class ChatMessageList extends __WEBPACK_IMPORTED_MODULE_2_react__["PureComponent
         }
         const threadInfo = this.props.threadInfo;
         __WEBPACK_IMPORTED_MODULE_4_invariant___default()(threadInfo, "ThreadInfo should be set if messageListData is");
+        const focused = Object(__WEBPACK_IMPORTED_MODULE_6_lib_shared_message_utils__["c" /* messageKey */])(item.messageInfo) === this.state.focusedMessageKey;
         return __WEBPACK_IMPORTED_MODULE_2_react__["createElement"](__WEBPACK_IMPORTED_MODULE_14__message_react__["a" /* default */], {
           item: item,
           threadInfo: threadInfo,
+          focused: focused,
+          toggleFocus: this.toggleMessageFocus,
           key: ChatMessageList.keyExtractor(item)
         });
+      }
+    }), Object.defineProperty(this, 'toggleMessageFocus', {
+      enumerable: true,
+      writable: true,
+      value: key => {
+        if (this.state.focusedMessageKey === key) {
+          this.setState({ focusedMessageKey: null });
+        } else {
+          this.setState({ focusedMessageKey: key });
+        }
       }
     }), Object.defineProperty(this, 'messageContainerRef', {
       enumerable: true,
@@ -60130,25 +60149,21 @@ class ChatInputBar extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] 
         const messageText = event.currentTarget.value;
         this.updateText(messageText);
       }
+    }), Object.defineProperty(this, 'onKeyDown', {
+      enumerable: true,
+      writable: true,
+      value: event => {
+        if (event.keyCode === 13 && !event.shiftKey) {
+          event.preventDefault();
+          this.send();
+        }
+      }
     }), Object.defineProperty(this, 'onSend', {
       enumerable: true,
       writable: true,
       value: event => {
         event.preventDefault();
-        const text = this.state.messageText.trim();
-        this.updateText("");
-        const localID = `local${Object(__WEBPACK_IMPORTED_MODULE_13_lib_utils_local_ids__["a" /* getNewLocalID */])()}`;
-        const creatorID = this.props.viewerID;
-        __WEBPACK_IMPORTED_MODULE_4_invariant___default()(creatorID, "should have viewer ID in order to send a message");
-        const messageInfo = {
-          type: __WEBPACK_IMPORTED_MODULE_2_lib_types_message_types__["d" /* messageTypes */].TEXT,
-          localID,
-          threadID: this.props.threadInfo.id,
-          text,
-          creatorID,
-          time: Date.now()
-        };
-        this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_9_lib_actions_message_actions__["g" /* sendMessageActionTypes */], this.sendMessageAction(messageInfo), undefined, messageInfo);
+        this.send();
       }
     }), Object.defineProperty(this, 'onClickJoin', {
       enumerable: true,
@@ -60203,6 +60218,7 @@ class ChatInputBar extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] 
           placeholder: 'Send a message...',
           value: this.state.messageText,
           onChange: this.onChangeMessageText,
+          onKeyDown: this.onKeyDown,
           ref: this.textareaRef
         }),
         __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
@@ -60251,6 +60267,23 @@ class ChatInputBar extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] 
 
   updateText(messageText) {
     this.setState({ messageText }, this.updateHeight);
+  }
+
+  send() {
+    const text = this.state.messageText.trim();
+    this.updateText("");
+    const localID = `local${Object(__WEBPACK_IMPORTED_MODULE_13_lib_utils_local_ids__["a" /* getNewLocalID */])()}`;
+    const creatorID = this.props.viewerID;
+    __WEBPACK_IMPORTED_MODULE_4_invariant___default()(creatorID, "should have viewer ID in order to send a message");
+    const messageInfo = {
+      type: __WEBPACK_IMPORTED_MODULE_2_lib_types_message_types__["d" /* messageTypes */].TEXT,
+      localID,
+      threadID: this.props.threadInfo.id,
+      text,
+      creatorID,
+      time: Date.now()
+    };
+    this.props.dispatchActionPromise(__WEBPACK_IMPORTED_MODULE_9_lib_actions_message_actions__["g" /* sendMessageActionTypes */], this.sendMessageAction(messageInfo), undefined, messageInfo);
   }
 
   async sendMessageAction(messageInfo) {
@@ -60320,11 +60353,14 @@ module.exports = { prefix: 'fas', iconName: 'chevron-right', icon: [320, 512, []
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lib_types_thread_types__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__text_message_react__ = __webpack_require__(615);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__robotext_message_react__ = __webpack_require__(624);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__chat_message_list_css__ = __webpack_require__(75);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__chat_message_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__chat_message_list_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_prop_types__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_prop_types__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lib_utils_date_utils__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__text_message_react__ = __webpack_require__(615);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__robotext_message_react__ = __webpack_require__(624);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__chat_message_list_css__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__chat_message_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__chat_message_list_css__);
+
 
 
 
@@ -60341,15 +60377,26 @@ class Message extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
 
   render() {
     let conversationHeader = null;
-    if (this.props.item.startsConversation) {
+    if (this.props.focused || this.props.item.startsConversation) {
       conversationHeader = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'div',
-        { className: __WEBPACK_IMPORTED_MODULE_7__chat_message_list_css___default.a.conversationHeader },
-        Object(__WEBPACK_IMPORTED_MODULE_4_lib_utils_date_utils__["g" /* longAbsoluteDate */])(this.props.item.messageInfo.time)
+        { className: __WEBPACK_IMPORTED_MODULE_8__chat_message_list_css___default.a.conversationHeader },
+        Object(__WEBPACK_IMPORTED_MODULE_5_lib_utils_date_utils__["g" /* longAbsoluteDate */])(this.props.item.messageInfo.time)
       );
     }
-    const threadInfo = this.props.threadInfo;
-    const message = this.props.item.messageInfo.type === __WEBPACK_IMPORTED_MODULE_1_lib_types_message_types__["d" /* messageTypes */].TEXT ? __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_5__text_message_react__["a" /* default */], { item: this.props.item, threadInfo: threadInfo }) : __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_6__robotext_message_react__["a" /* default */], { item: this.props.item });
+    let message;
+    if (this.props.item.messageInfo.type === __WEBPACK_IMPORTED_MODULE_1_lib_types_message_types__["d" /* messageTypes */].TEXT) {
+      message = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_6__text_message_react__["a" /* default */], {
+        item: this.props.item,
+        threadInfo: this.props.threadInfo,
+        toggleFocus: this.props.toggleFocus
+      });
+    } else {
+      message = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](__WEBPACK_IMPORTED_MODULE_7__robotext_message_react__["a" /* default */], {
+        item: this.props.item,
+        toggleFocus: this.props.toggleFocus
+      });
+    }
     return __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
       __WEBPACK_IMPORTED_MODULE_3_react__["Fragment"],
       null,
@@ -60365,7 +60412,9 @@ Object.defineProperty(Message, 'propTypes', {
   writable: true,
   value: {
     item: __WEBPACK_IMPORTED_MODULE_0_lib_selectors_chat_selectors__["b" /* chatMessageItemPropType */].isRequired,
-    threadInfo: __WEBPACK_IMPORTED_MODULE_2_lib_types_thread_types__["c" /* threadInfoPropType */].isRequired
+    threadInfo: __WEBPACK_IMPORTED_MODULE_2_lib_types_thread_types__["c" /* threadInfoPropType */].isRequired,
+    focused: __WEBPACK_IMPORTED_MODULE_4_prop_types___default.a.bool.isRequired,
+    toggleFocus: __WEBPACK_IMPORTED_MODULE_4_prop_types___default.a.func.isRequired
   }
 });
 /* harmony default export */ __webpack_exports__["a"] = (Message);
@@ -60386,11 +60435,16 @@ Object.defineProperty(Message, 'propTypes', {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_classnames___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_classnames__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_react_linkify__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_react_linkify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_react_linkify__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_emojis__ = __webpack_require__(623);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_user_utils__ = __webpack_require__(150);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__chat_message_list_css__ = __webpack_require__(75);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_prop_types__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_shared_emojis__ = __webpack_require__(623);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_shared_user_utils__ = __webpack_require__(150);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lib_shared_message_utils__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__chat_message_list_css__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css__);
+
+
 
 
 
@@ -60410,6 +60464,14 @@ class TextMessage extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
 
   constructor(props) {
     super(props);
+    Object.defineProperty(this, 'onClick', {
+      enumerable: true,
+      writable: true,
+      value: event => {
+        event.stopPropagation();
+        this.props.toggleFocus(Object(__WEBPACK_IMPORTED_MODULE_11_lib_shared_message_utils__["c" /* messageKey */])(this.props.item.messageInfo));
+      }
+    });
     __WEBPACK_IMPORTED_MODULE_4_invariant___default()(props.item.messageInfo.type === __WEBPACK_IMPORTED_MODULE_1_lib_types_message_types__["d" /* messageTypes */].TEXT, "TextMessage should only be used for messageTypes.TEXT");
   }
 
@@ -60422,18 +60484,18 @@ class TextMessage extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
     const text = this.props.item.messageInfo.text;
 
     const isViewer = this.props.item.messageInfo.creator.isViewer;
-    const onlyEmoji = __WEBPACK_IMPORTED_MODULE_8_lib_shared_emojis__["a" /* onlyEmojiRegex */].test(text);
+    const onlyEmoji = __WEBPACK_IMPORTED_MODULE_9_lib_shared_emojis__["a" /* onlyEmojiRegex */].test(text);
     const containerClassName = __WEBPACK_IMPORTED_MODULE_5_classnames___default()({
-      [__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.textMessage]: true,
-      [__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.normalTextMessage]: !onlyEmoji,
-      [__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.emojiOnlyTextMessage]: onlyEmoji,
-      [__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.rightChatBubble]: isViewer,
-      [__WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.leftChatBubble]: !isViewer
+      [__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.textMessage]: true,
+      [__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.normalTextMessage]: !onlyEmoji,
+      [__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.emojiOnlyTextMessage]: onlyEmoji,
+      [__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.rightChatBubble]: isViewer,
+      [__WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.leftChatBubble]: !isViewer
     });
     let darkColor = false;
     const messageStyle = {};
     if (isViewer) {
-      darkColor = Object(__WEBPACK_IMPORTED_MODULE_7_lib_shared_thread_utils__["a" /* colorIsDark */])(this.props.threadInfo.color);
+      darkColor = Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_thread_utils__["a" /* colorIsDark */])(this.props.threadInfo.color);
       messageStyle.backgroundColor = `#${this.props.threadInfo.color}`;
       messageStyle.color = darkColor ? 'white' : 'black';
     } else {
@@ -60444,8 +60506,8 @@ class TextMessage extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
     if (!isViewer && this.props.item.startsCluster) {
       authorName = __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'span',
-        { className: __WEBPACK_IMPORTED_MODULE_10__chat_message_list_css___default.a.authorName },
-        Object(__WEBPACK_IMPORTED_MODULE_9_lib_shared_user_utils__["b" /* stringForUser */])(this.props.item.messageInfo.creator)
+        { className: __WEBPACK_IMPORTED_MODULE_12__chat_message_list_css___default.a.authorName },
+        Object(__WEBPACK_IMPORTED_MODULE_10_lib_shared_user_utils__["b" /* stringForUser */])(this.props.item.messageInfo.creator)
       );
     }
     messageStyle.borderTopRightRadius = isViewer && !this.props.item.startsCluster ? 0 : 8;
@@ -60459,7 +60521,11 @@ class TextMessage extends __WEBPACK_IMPORTED_MODULE_3_react__["PureComponent"] {
       null,
       __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
         'div',
-        { className: containerClassName, style: messageStyle },
+        {
+          className: containerClassName,
+          onClick: this.onClick,
+          style: messageStyle
+        },
         __WEBPACK_IMPORTED_MODULE_3_react__["createElement"](
           __WEBPACK_IMPORTED_MODULE_6_react_linkify___default.a,
           null,
@@ -60477,7 +60543,8 @@ Object.defineProperty(TextMessage, 'propTypes', {
   writable: true,
   value: {
     item: __WEBPACK_IMPORTED_MODULE_0_lib_selectors_chat_selectors__["b" /* chatMessageItemPropType */].isRequired,
-    threadInfo: __WEBPACK_IMPORTED_MODULE_2_lib_types_thread_types__["c" /* threadInfoPropType */].isRequired
+    threadInfo: __WEBPACK_IMPORTED_MODULE_2_lib_types_thread_types__["c" /* threadInfoPropType */].isRequired,
+    toggleFocus: __WEBPACK_IMPORTED_MODULE_7_prop_types___default.a.func.isRequired
   }
 });
 /* harmony default export */ __webpack_exports__["a"] = (TextMessage);
@@ -62912,7 +62979,7 @@ const onlyEmojiRegex = /^(\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62(?:\uDB40\uDC65\uD
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_react_linkify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_react_linkify__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_prop_types___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_prop_types__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_message_utils__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_lib_shared_message_utils__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lib_selectors_thread_selectors__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_lib_utils_redux_utils__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__chat_message_list_css__ = __webpack_require__(75);
@@ -62940,6 +63007,14 @@ class RobotextMessage extends __WEBPACK_IMPORTED_MODULE_4_react__["PureComponent
 
   constructor(props) {
     super(props);
+    Object.defineProperty(this, 'onClick', {
+      enumerable: true,
+      writable: true,
+      value: event => {
+        event.stopPropagation();
+        this.props.toggleFocus(Object(__WEBPACK_IMPORTED_MODULE_8_lib_shared_message_utils__["c" /* messageKey */])(this.props.item.messageInfo));
+      }
+    });
     __WEBPACK_IMPORTED_MODULE_5_invariant___default()(props.item.messageInfo.type !== __WEBPACK_IMPORTED_MODULE_1_lib_types_message_types__["d" /* messageTypes */].TEXT, "TextMessage cannot be used for messageTypes.TEXT");
   }
 
@@ -62950,7 +63025,7 @@ class RobotextMessage extends __WEBPACK_IMPORTED_MODULE_4_react__["PureComponent
   render() {
     return __WEBPACK_IMPORTED_MODULE_4_react__["createElement"](
       'div',
-      { className: __WEBPACK_IMPORTED_MODULE_11__chat_message_list_css___default.a.robotext },
+      { className: __WEBPACK_IMPORTED_MODULE_11__chat_message_list_css___default.a.robotext, onClick: this.onClick },
       this.linkedRobotext()
     );
   }
@@ -62994,7 +63069,8 @@ Object.defineProperty(RobotextMessage, 'propTypes', {
   enumerable: true,
   writable: true,
   value: {
-    item: __WEBPACK_IMPORTED_MODULE_0_lib_selectors_chat_selectors__["b" /* chatMessageItemPropType */].isRequired
+    item: __WEBPACK_IMPORTED_MODULE_0_lib_selectors_chat_selectors__["b" /* chatMessageItemPropType */].isRequired,
+    toggleFocus: __WEBPACK_IMPORTED_MODULE_7_prop_types___default.a.func.isRequired
   }
 });
 

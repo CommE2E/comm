@@ -49,7 +49,10 @@ type Props = {|
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
 |};
-class ChatMessageList extends React.PureComponent<Props> {
+type State = {|
+  focusedMessageKey: ?string,
+|};
+class ChatMessageList extends React.PureComponent<Props, State> {
 
   static propTypes = {
     activeChatThreadID: PropTypes.string,
@@ -59,6 +62,9 @@ class ChatMessageList extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
+  };
+  state = {
+    focusedMessageKey: null,
   };
   messageContainer: ?HTMLDivElement = null;
   loadingFromScroll = false;
@@ -122,13 +128,25 @@ class ChatMessageList extends React.PureComponent<Props> {
     }
     const threadInfo = this.props.threadInfo;
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
+    const focused =
+      messageKey(item.messageInfo) === this.state.focusedMessageKey;
     return (
       <Message
         item={item}
         threadInfo={threadInfo}
+        focused={focused}
+        toggleFocus={this.toggleMessageFocus}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
+  }
+
+  toggleMessageFocus = (key: string) => {
+    if (this.state.focusedMessageKey === key) {
+      this.setState({ focusedMessageKey: null });
+    } else {
+      this.setState({ focusedMessageKey: key });
+    }
   }
 
   render() {

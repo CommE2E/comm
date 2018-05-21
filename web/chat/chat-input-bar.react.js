@@ -127,6 +127,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             placeholder="Send a message..."
             value={this.state.messageText}
             onChange={this.onChangeMessageText}
+            onKeyDown={this.onKeyDown}
             ref={this.textareaRef}
           />
           <a className={css.send} onClick={this.onSend}>
@@ -186,12 +187,23 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.updateText(messageText);
   }
 
+  onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
   updateText(messageText: string) {
     this.setState({ messageText }, this.updateHeight);
   }
 
   onSend = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    this.send();
+  }
+
+  send() {
     const text = this.state.messageText.trim();
     this.updateText("");
     const localID = `local${getNewLocalID()}`;

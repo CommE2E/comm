@@ -84,6 +84,9 @@ div.conversationHeader {
   padding-bottom: 7px;
   text-align: center;
 }
+div.conversationHeader:last-child {
+  padding-top: 6px;
+}
 
 div.robotext {
   text-align: center;
@@ -91,14 +94,13 @@ div.robotext {
   padding: 6px 0;
   margin: 0 24px 5px 24px;
   font-Size: 15px;
-}
-div.robotext a {
   cursor: pointer;
 }
 
 div.textMessage {
   padding: 6px 12px;
   margin: 0 12px;
+  cursor: pointer;
 }
 div.normalTextMessage {
   font-size: 16px;

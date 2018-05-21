@@ -11,22 +11,26 @@ import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
 import Linkify from 'react-linkify';
+import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { stringForUser } from 'lib/shared/user-utils';
+import { messageKey } from 'lib/shared/message-utils';
 
 import css from './chat-message-list.css';
 
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
+  toggleFocus: (messageKey: string) => void,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
+    toggleFocus: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -90,7 +94,11 @@ class TextMessage extends React.PureComponent<Props> {
 
     return (
       <React.Fragment>
-        <div className={containerClassName} style={messageStyle}>
+        <div
+          className={containerClassName}
+          onClick={this.onClick}
+          style={messageStyle}
+        >
           <Linkify>
             {text}
           </Linkify>
@@ -98,6 +106,11 @@ class TextMessage extends React.PureComponent<Props> {
         {authorName}
       </React.Fragment>
     );
+  }
+
+  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
 
 }

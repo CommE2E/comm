@@ -19,7 +19,11 @@ import invariant from 'invariant';
 import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
 
-import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
+import {
+  messageKey,
+  splitRobotext,
+  parseRobotextEntity,
+} from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
@@ -27,11 +31,13 @@ import css from './chat-message-list.css';
 
 type Props = {|
   item: ChatMessageInfoItem,
+  toggleFocus: (messageKey: string) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    toggleFocus: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -51,7 +57,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className={css.robotext}>
+      <div className={css.robotext} onClick={this.onClick}>
         {this.linkedRobotext()}
       </div>
     );
@@ -91,6 +97,11 @@ class RobotextMessage extends React.PureComponent<Props> {
         {textParts}
       </Linkify>
     );
+  }
+
+  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
 
 }
