@@ -55,11 +55,15 @@ import { registerConfig } from 'lib/utils/config';
 import {
   includeDeletedSelector,
 } from 'lib/selectors/calendar-filter-selectors';
-import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import {
+  mostRecentReadThreadSelector,
+  unreadCount,
+} from 'lib/selectors/thread-selectors';
 import {
   updateActivityActionTypes,
   updateActivity,
 } from 'lib/actions/ping-actions';
+import { isStaff } from 'lib/shared/user-utils';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -113,6 +117,8 @@ type Props = {
   activeThread: ?string,
   activeThreadCurrentlyUnread: bool,
   activeThreadLatestMessage: ?string,
+  viewerID: ?string,
+  unreadCount: number,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -150,6 +156,8 @@ class App extends React.PureComponent<Props, State> {
     activeThread: PropTypes.string,
     activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
     activeThreadLatestMessage: PropTypes.string,
+    viewerID: PropTypes.string,
+    unreadCount: PropTypes.number.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchEntries: PropTypes.func.isRequired,
@@ -455,6 +463,17 @@ class App extends React.PureComponent<Props, State> {
       );
     }
 
+    const { viewerID, unreadCount } = this.props;
+    invariant(viewerID, "should be set");
+    let chatBadge = null;
+    if (isStaff(viewerID) && unreadCount > 0) {
+      chatBadge = (
+        <div className={css.chatBadge}>
+          {unreadCount}
+        </div>
+      );
+    }
+
     return (
       <React.Fragment>
         <header className={css['header']}>
@@ -477,6 +496,7 @@ class App extends React.PureComponent<Props, State> {
                     className={css['nav-bar-icon']}
                   />
                   Chat
+                  {chatBadge}
                 </a></div>
               </li>
             </ul>
@@ -562,6 +582,8 @@ export default connect(
         activeChatThreadID && state.messageStore.threads[activeChatThreadID]
           ? state.messageStore.threads[activeChatThreadID].messageIDs[0]
           : null,
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
+      unreadCount: unreadCount(state),
     };
   },
   { fetchEntries, ping, updateActivity },

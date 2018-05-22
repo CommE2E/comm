@@ -92,6 +92,18 @@ svg.nav-bar-icon {
   padding-right: 8px;
   font-size: 20px;
 }
+div.chatBadge {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 25px;
+  height: 25px;
+  padding-left: 7px;
+  margin-left: 8px;
+  color: white;
+  background-color: red;
+  border-radius: 13px;
+  font-size: 18px;
+}
 
 div.main-content-container {
   margin-top: 62px;

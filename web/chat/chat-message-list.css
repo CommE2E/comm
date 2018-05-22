@@ -12,6 +12,9 @@ div.messageContainer {
   display: flex;
   flex-direction: column-reverse;
 }
+div.messageContainer > div {
+  transform: translateZ(0);
+}
 
 div.inputBar {
   display: flex;
