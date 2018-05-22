@@ -6,7 +6,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import { isStaff } from 'lib/shared/user-utils';
+import { hasWebChat } from 'lib/shared/user-utils';
 
 import css from './chat.css';
 import ChatThreadList from './chat-thread-list.react';
@@ -23,7 +23,7 @@ class Chat extends React.PureComponent<Props> {
   };
 
   render() {
-    if (!this.props.viewerID || !isStaff(this.props.viewerID)) {
+    if (!this.props.viewerID || !hasWebChat(this.props.viewerID)) {
       return (
         <div className={css.chatComingSoon}>
           Chat coming soon!
