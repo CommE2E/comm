@@ -410,8 +410,8 @@ async function updateThread(
 
   // If the thread is being switched to nested, a parent must be specified
   if (
-    oldThreadType !== threadTypes.NESTED_OPEN &&
-    threadType === threadTypes.NESTED_OPEN &&
+    oldThreadType !== threadTypes.CHAT_NESTED_OPEN &&
+    threadType === threadTypes.CHAT_NESTED_OPEN &&
     oldParentThreadID === null &&
     parentThreadID === null
   ) {

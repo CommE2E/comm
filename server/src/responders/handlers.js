@@ -48,8 +48,8 @@ function downloadHandler(responder: DownloadResponder) {
   };
 }
 
-function getMessageForException(error: Error) {
-  return error.sqlMessage ? "database error" : error.message;
+function getMessageForException(error: Error & { sqlMessage?: string }) {
+  return error.sqlMessage !== null ? "database error" : error.message;
 }
 
 function handleException(error: Error, res: $Response) {

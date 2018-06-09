@@ -1,4 +1,4 @@
-// flow-typed signature: 9ac7223eaefc14df2b4a5c0c349a1434
+// flow-typed signature: 66ca233bbd897ba07ebd9fd0fdfe88f9
 // flow-typed version: <<STUB>>/lib_v0.0.1/flow_v0.64.0
 
 /**
@@ -187,6 +187,10 @@ declare module 'lib/selectors/calendar-filter-selectors' {
 }
 
 declare module 'lib/selectors/calendar-selectors' {
+  declare module.exports: any;
+}
+
+declare module 'lib/selectors/chat-selectors' {
   declare module.exports: any;
 }
 
@@ -516,6 +520,9 @@ declare module 'lib/selectors/calendar-filter-selectors.js' {
 }
 declare module 'lib/selectors/calendar-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/calendar-selectors'>;
+}
+declare module 'lib/selectors/chat-selectors.js' {
+  declare module.exports: $Exports<'lib/selectors/chat-selectors'>;
 }
 declare module 'lib/selectors/loading-selectors.js' {
   declare module.exports: $Exports<'lib/selectors/loading-selectors'>;
