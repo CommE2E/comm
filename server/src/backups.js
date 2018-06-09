@@ -5,6 +5,7 @@ import childProcess from 'child_process';
 import zlib from 'zlib';
 import dateFormat from 'dateformat';
 import denodeify from 'denodeify';
+import StreamCache from 'stream-cache';
 
 import dbConfig from '../secrets/db_config';
 import backupConfig from '../facts/backups';
@@ -17,24 +18,7 @@ async function backupDB(retries: number = 2) {
   if (!backupConfig || !backupConfig.enabled) {
     return;
   }
-  const dateString = dateFormat("yyyy-mm-dd-HH:MM");
-  const filename = `${backupConfig.directory}/squadcal.${dateString}.sql.gz`;
-  try {
-    await backupDBToFile(filename);
-  } catch (e) {
-    if (e.code !== "ENOSPC") {
-      throw e;
-    }
-    if (!retries) {
-      throw e;
-    }
-    await deleteOldestBackup();
-    await backupDB(retries - 1);
-  }
-}
 
-function backupDBToFile(filePath: string): Promise<void> {
-  const writeStream = fs.createWriteStream(filePath);
   const mysqlDump = childProcess.spawn(
     'mysqldump',
     [
@@ -43,11 +27,45 @@ function backupDBToFile(filePath: string): Promise<void> {
       `-p${dbConfig.password}`,
       dbConfig.database,
     ],
+    {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    },
   );
+  const cache = new StreamCache();
+  mysqlDump
+    .stdout
+    .pipe(zlib.createGzip())
+    .pipe(cache);
+
+  const dateString = dateFormat("yyyy-mm-dd-HH:MM");
+  const filename = `${backupConfig.directory}/squadcal.${dateString}.sql.gz`;
+
+  await saveBackup(filename, cache);
+}
+
+async function saveBackup(
+  filePath: string,
+  cache: StreamCache,
+  retries: number = 2,
+): Promise<void> {
+  try {
+    await trySaveBackup(filePath, cache);
+  } catch (e) {
+    if (e.code !== "ENOSPC") {
+      throw e;
+    }
+    if (!retries) {
+      throw e;
+    }
+    await deleteOldestBackup();
+    await saveBackup(filePath, cache, retries - 1);
+  }
+}
+
+function trySaveBackup(filePath: string, cache: StreamCache): Promise<void> {
+  const writeStream = fs.createWriteStream(filePath);
   return new Promise((resolve, reject) => {
-    mysqlDump
-      .stdout
-      .pipe(zlib.createGzip())
+    cache
       .pipe(writeStream)
       .on('finish', resolve)
       .on('error', reject);
@@ -69,8 +87,16 @@ async function deleteOldestBackup() {
       oldestFile = { file, mtime: stat.mtime };
     }
   }
-  if (oldestFile) {
+  if (!oldestFile) {
+    return;
+  }
+  try {
     await unlink(`${backupConfig.directory}/${oldestFile.file}`);
+  } catch (e) {
+    // Check if it's already been deleted
+    if (e.code !== "ENOENT") {
+      throw e;
+    }
   }
 }
 
