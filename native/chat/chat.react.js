@@ -39,10 +39,12 @@ Chat.navigationOptions = ({ navigation }) => ({
     ? ({ tintColor }) => <ChatLabel color={tintColor} />
     : "Chat",
   tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
-  tabBarOnPress: ({ navigation }: {
+  tabBarOnPress: ({ navigation, defaultHandler }: {
     navigation: NavigationScreenProp<NavigationStateRoute>,
+    defaultHandler: () => void,
   }) => {
     if (!navigation.isFocused()) {
+      defaultHandler();
       return;
     }
     const state = navigation.state;

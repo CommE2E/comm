@@ -30,7 +30,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer } from 'redux-persist';
 import PropTypes from 'prop-types';
-import { NavigationActions } from 'react-navigation';
+import { NavigationActions, StackActions } from 'react-navigation';
 import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
@@ -300,7 +300,12 @@ function reducer(state: AppState = defaultState, action: *) {
       action.type === NavigationActions.NAVIGATE ||
       action.type === NavigationActions.BACK ||
       action.type === NavigationActions.SET_PARAMS ||
-      action.type === NavigationActions.RESET
+      action.type === StackActions.POP ||
+      action.type === StackActions.POP_TO_TOP ||
+      action.type === StackActions.PUSH ||
+      action.type === StackActions.RESET ||
+      action.type === StackActions.REPLACE ||
+      action.type === StackActions.COMPLETE_TRANSITION
   ) {
     return validateState(oldState, state);
   }

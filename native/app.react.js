@@ -50,10 +50,7 @@ import {
   Alert,
   DeviceInfo,
 } from 'react-native';
-import {
-  createNavigationPropConstructor,
-  initializeListeners,
-} from 'react-navigation-redux-helpers';
+import { reduxifyNavigator } from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
@@ -122,8 +119,8 @@ registerConfig({
   platform: Platform.OS,
 });
 
-const reactNavigationPropConstructor = createNavigationPropConstructor("root");
 const msInDay = 24 * 60 * 60 * 1000;
+const ReduxifiedRootNavigator = reduxifyNavigator(RootNavigator, "root");
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
@@ -203,7 +200,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
-    initializeListeners("root", this.props.navigationState);
     if (this.props.loggedIn) {
       this.startTimeouts(this.props, "active");
     }
@@ -823,14 +819,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   render() {
-    const navigation = reactNavigationPropConstructor(
-      this.props.dispatch,
-      this.props.navigationState,
-    );
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>
-        <RootNavigator navigation={navigation} />
+        <ReduxifiedRootNavigator
+          state={this.props.navigationState}
+          dispatch={this.props.dispatch}
+        />
         <ConnectedStatusBar />
         <InAppNotification
           height={inAppNotificationHeight}

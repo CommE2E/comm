@@ -14,7 +14,7 @@ const readdir = denodeify(fs.readdir);
 const lstat = denodeify(fs.lstat);
 const unlink = denodeify(fs.unlink);
 
-async function backupDB(retries: number = 2) {
+async function backupDB() {
   if (!backupConfig || !backupConfig.enabled) {
     return;
   }
