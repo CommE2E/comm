@@ -150,7 +150,7 @@ async function createThreadUpdates(
       threadInfo,
     });
   }
-  await createUpdates(viewer.cookieID, updateDatas);
+  await createUpdates(updateDatas, viewer.cookieID);
 }
 
 async function removeMembers(

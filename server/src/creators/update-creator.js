@@ -12,8 +12,8 @@ import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 async function createUpdates(
-  cookieID: string,
   updateDatas: $ReadOnlyArray<UpdateData>,
+  cookieID?: ?string,
 ): Promise<UpdateInfo[]> {
   if (updateDatas.length === 0) {
     return [];
@@ -32,20 +32,23 @@ async function createUpdates(
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       content = JSON.stringify(updateData.threadInfo);
     }
-    insertRows.push([
+    const insertRow = [
       ids[i],
       updateData.userID,
       updateData.type,
-      cookieID,
       content,
       updateData.time,
-    ]);
+    ];
+    if (cookieID) {
+      insertRow.push(cookieID);
+    }
+    insertRows.push(insertRow);
   }
 
-  const insertQuery = SQL`
-    INSERT INTO updates(id, user, type, updater_cookie, content, time)
-    VALUES ${insertRows}
-  `;
+  const insertQuery = cookieID
+    ? SQL`INSERT INTO updates(id, user, type, content, time, updater_cookie) `
+    : SQL`INSERT INTO updates(id, user, type, content, time) `;
+  insertQuery.append(SQL`VALUES ${insertRows}`);
   await dbQuery(insertQuery);
 
   return updateInfos;

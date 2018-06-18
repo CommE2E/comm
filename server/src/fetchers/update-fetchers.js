@@ -42,7 +42,7 @@ async function fetchUpdateInfos(
     SELECT id, type, content, time
     FROM updates
     WHERE user = ${viewer.id} AND time > ${currentAsOf}
-      AND updater_cookie != ${viewer.cookieID}
+      AND (updater_cookie IS NULL OR updater_cookie != ${viewer.cookieID})
     ORDER BY time ASC
   `;
   const [ result ] = await dbQuery(query);

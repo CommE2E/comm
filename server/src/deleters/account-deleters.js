@@ -57,7 +57,7 @@ async function deleteAccount(
   const oldCookieID = viewer.cookieID;
   viewer.setNewCookie(anonymousViewerData);
 
-  createAccountDeletionUpdates(oldCookieID, deletedUserID);
+  createAccountDeletionUpdates(deletedUserID, oldCookieID);
 
   return {
     currentUserInfo: {
@@ -68,8 +68,8 @@ async function deleteAccount(
 }
 
 async function createAccountDeletionUpdates(
-  oldCookieID: string,
   deletedUserID: string,
+  oldCookieID: string,
 ): Promise<void> {
   const allUserIDs = await fetchAllUserIDs();
   const time = Date.now();
@@ -79,7 +79,7 @@ async function createAccountDeletionUpdates(
     time,
     deletedUserID,
   }));
-  await createUpdates(oldCookieID, updateDatas);
+  await createUpdates(updateDatas, oldCookieID);
 }
 
 export {
