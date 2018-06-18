@@ -50,14 +50,13 @@ async function deleteAccount(
     LEFT JOIN ids ino ON ino.id = n.id
     WHERE u.id = ${deletedUserID}
   `;
-  const [ anonymousViewerData, allUserIDs ] = await Promise.all([
+  const [ anonymousViewerData ] = await Promise.all([
     createNewAnonymousCookie(viewer.platform),
-    fetchAllUserIDs(),
     dbQuery(deletionQuery),
   ]);
   viewer.setNewCookie(anonymousViewerData);
 
-  sendAccountDeletionUpdates(deletedUserID, allUserIDs);
+  createAccountDeletionUpdates(deletedUserID);
 
   return {
     currentUserInfo: {
@@ -67,10 +66,10 @@ async function deleteAccount(
   };
 }
 
-async function sendAccountDeletionUpdates(
+async function createAccountDeletionUpdates(
   deletedUserID: string,
-  allUserIDs: $ReadOnlyArray<string>,
 ): Promise<void> {
+  const allUserIDs = await fetchAllUserIDs();
   const time = Date.now();
   const updateDatas = allUserIDs.map(userID => ({
     type: updateTypes.DELETE_ACCOUNT,

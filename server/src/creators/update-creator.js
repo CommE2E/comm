@@ -28,6 +28,8 @@ async function createUpdates(
     let content;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
+    } else if (updateData.type === updateTypes.UPDATE_THREAD) {
+      content = JSON.stringify(updateData.threadInfo);
     }
     insertRows.push([
       ids[i],

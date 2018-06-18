@@ -9,12 +9,14 @@ import {
   type UpdateThreadRequest,
   type ThreadJoinRequest,
   type ThreadJoinResult,
+  type ServerThreadInfo,
   threadPermissions,
   threadTypes,
   assertThreadType,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
@@ -23,6 +25,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -45,6 +48,7 @@ import {
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { createUpdates } from '../creators/update-creator';
 
 async function updateRole(
   viewer: Viewer,
@@ -107,15 +111,45 @@ async function updateRole(
     saveMemberships(changeset.toSave),
     deleteMemberships(changeset.toDelete),
   ]);
-  const { threadInfos } = await fetchThreadInfos(
-    viewer,
-    SQL`t.id = ${request.threadID}`,
-  );
 
-  return {
-    threadInfo: threadInfos[request.threadID],
-    newMessageInfos,
-  };
+  const { threadInfos: serverThreadInfos } =
+    await fetchServerThreadInfos(SQL`t.id = ${request.threadID}`);
+  const serverThreadInfo = serverThreadInfos[request.threadID];
+
+  createThreadUpdates(serverThreadInfo);
+
+  const threadInfo = rawThreadInfoFromServerThreadInfo(
+    serverThreadInfo,
+    viewer.id,
+  );
+  if (!threadInfo) {
+    throw new ServerError('unknown_error');
+  }
+
+  return { threadInfo, newMessageInfos };
+}
+
+async function createThreadUpdates(
+  serverThreadInfo: ServerThreadInfo,
+): Promise<void> {
+  const time = Date.now();
+  const updateDatas = [];
+  for (let memberInfo of serverThreadInfo.members) {
+    const threadInfo = rawThreadInfoFromServerThreadInfo(
+      serverThreadInfo,
+      memberInfo.id,
+    );
+    if (!threadInfo) {
+      continue;
+    }
+    updateDatas.push({
+      type: updateTypes.UPDATE_THREAD,
+      userID: memberInfo.id,
+      time,
+      threadInfo,
+    });
+  }
+  await createUpdates(updateDatas);
 }
 
 async function removeMembers(

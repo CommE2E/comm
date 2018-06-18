@@ -21,6 +21,14 @@ function updateInfoFromRow(row: Object): UpdateInfo {
       time: row.time,
       deletedUserID: content.deletedUserID,
     };
+  } else if (type === updateTypes.UPDATE_THREAD) {
+    const rawThreadInfo = JSON.parse(row.content);
+    return {
+      type: updateTypes.UPDATE_THREAD,
+      id: row.id,
+      time: row.time,
+      threadInfo: rawThreadInfo,
+    };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
   }
