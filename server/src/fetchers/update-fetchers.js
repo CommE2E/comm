@@ -29,6 +29,15 @@ function updateInfoFromRow(row: Object): UpdateInfo {
       time: row.time,
       threadInfo: rawThreadInfo,
     };
+  } else if (type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+    const { threadID, unread } = JSON.parse(row.content);
+    return {
+      type: updateTypes.UPDATE_THREAD_READ_STATUS,
+      id: row.id,
+      time: row.time,
+      threadID,
+      unread,
+    };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
   }

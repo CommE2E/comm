@@ -7,6 +7,7 @@ import type {
 } from 'lib/types/activity-types';
 import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
@@ -17,6 +18,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
+import { createUpdates } from '../creators/update-creator';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -65,16 +67,44 @@ async function activityUpdater(
     }
   }
 
+  const membershipQuery = SQL`
+    SELECT thread
+    FROM memberships
+    WHERE role != 0
+      AND thread IN (${[...focusedThreadIDs, ...unfocusedThreadIDs]})
+      AND user = ${localViewer.userID}
+  `;
+  const [ membershipResult ] = await dbQuery(membershipQuery);
+
+  const viewerMemberThreads = new Set();
+  for (let row of membershipResult) {
+    const threadID = row.thread.toString();
+    viewerMemberThreads.add(threadID);
+  }
+  const filterFunc = threadID => viewerMemberThreads.has(threadID);
+  const memberFocusedThreadIDs = focusedThreadIDs.filter(filterFunc);
+  const memberUnfocusedThreadIDs = unfocusedThreadIDs.filter(filterFunc);
+
   const promises = [];
+  const time = Date.now();
   if (focusedThreadIDs.length > 0) {
     promises.push(insertFocusedRows(localViewer, focusedThreadIDs));
     promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
-      WHERE role != 0
-        AND thread IN (${focusedThreadIDs})
+      WHERE thread IN (${memberFocusedThreadIDs})
         AND user = ${localViewer.userID}
     `));
+    promises.push(createUpdates(
+      memberFocusedThreadIDs.map(threadID => ({
+        type: updateTypes.UPDATE_THREAD_READ_STATUS,
+        userID: localViewer.userID,
+        time,
+        threadID,
+        unread: false,
+      })),
+      localViewer.cookieID,
+    ));
     const rescindCondition = SQL`
       n.user = ${localViewer.userID} AND n.thread IN (${focusedThreadIDs})
     `;
@@ -84,7 +114,7 @@ async function activityUpdater(
   const [ resetToUnread ] = await Promise.all([
     possiblyResetThreadsToUnread(
       localViewer,
-      unfocusedThreadIDs,
+      memberUnfocusedThreadIDs,
       unfocusedThreadLatestMessages,
     ),
     Promise.all(promises),
@@ -176,14 +206,26 @@ async function possiblyResetThreadsToUnread(
     return resetToUnread;
   }
 
+  const time = Date.now();
+  const promises = [];
   const unreadQuery = SQL`
     UPDATE memberships
     SET unread = 1
-    WHERE role != 0
-      AND thread IN (${resetToUnread})
+    WHERE thread IN (${resetToUnread})
       AND user = ${viewer.userID}
   `;
-  await dbQuery(unreadQuery);
+  promises.push(dbQuery(unreadQuery));
+  promises.push(createUpdates(
+    resetToUnread.map(threadID => ({
+      type: updateTypes.UPDATE_THREAD_READ_STATUS,
+      userID: viewer.userID,
+      time,
+      threadID,
+      unread: true,
+    })),
+    viewer.cookieID,
+  ));
+  await Promise.all(promises);
 
   return resetToUnread;
 }

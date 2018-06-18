@@ -6,6 +6,7 @@ import {
   type RawMessageInfo,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 
@@ -26,6 +27,7 @@ import {
 } from '../database';
 import createIDs from './id-creator';
 import { sendPushNotifs } from '../push/send';
+import { createUpdates } from './update-creator';
 
 type ThreadRestriction = {|
   creatorID?: ?string,
@@ -149,29 +151,29 @@ async function createMessages(
     messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
   }
 
-  const messageInsertQuery = SQL`
-    INSERT INTO messages(id, thread, user, type, content, time)
-    VALUES ${messageInsertRows}
-  `;
-  // This returns a Promise but we don't want to wait on it
+  // These return Promises but we don't want to wait on them
   sendPushNotifsForNewMessages(
     threadRestrictions,
     subthreadPermissionsToCheck,
     threadsToNotifMessageIndices,
     messageInfos,
   );
-  await Promise.all([
-    dbQuery(messageInsertQuery),
-    updateUnreadStatus(threadRestrictions),
-  ]);
+  updateUnreadStatus(threadRestrictions);
+
+  const messageInsertQuery = SQL`
+    INSERT INTO messages(id, thread, user, type, content, time)
+    VALUES ${messageInsertRows}
+  `;
+  await dbQuery(messageInsertQuery);
 
   return messageInfos;
 }
 
+const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
+
 async function updateUnreadStatus(
   threadRestrictions: Map<string, ThreadRestriction>,
 ) {
-  const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
   let joinIndex = 0;
   const joinSubthreads: Map<string, number> = new Map();
   const threadConditionClauses = [];
@@ -206,18 +208,44 @@ async function updateUnreadStatus(
   const time = earliestTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    UPDATE memberships m
+    SELECT m.user, m.thread
+    FROM memberships m
     LEFT JOIN focused f ON f.user = m.user AND f.thread = m.thread
       AND f.time > ${time}
   `;
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
-    SET m.unread = 1
     WHERE m.role != 0 AND f.user IS NULL AND
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
   `);
   query.append(conditionClause);
-  await dbQuery(query);
+  const [ result ] = await dbQuery(query);
+
+  const setUnreadPairs = result.map(row => ({
+    userID: row.user.toString,
+    threadID: row.thread.toString,
+  }));
+  const updateConditions = setUnreadPairs.map(
+    pair => SQL`(user = ${pair.userID} AND thread = ${pair.threadID})`,
+  );
+  const updateQuery = SQL`
+    UPDATE memberships
+    SET unread = 1
+    WHERE
+  `;
+  updateQuery.append(mergeOrConditions(threadConditionClauses));
+
+  const now = Date.now();
+  await Promise.all([
+    dbQuery(query),
+    createUpdates(setUnreadPairs.map(pair => ({
+      type: updateTypes.UPDATE_THREAD_READ_STATUS,
+      userID: pair.userID,
+      time: now,
+      threadID: pair.threadID,
+      unread: true,
+    }))),
+  ]);
 }
 
 async function sendPushNotifsForNewMessages(
