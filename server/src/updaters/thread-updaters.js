@@ -116,7 +116,7 @@ async function updateRole(
     await fetchServerThreadInfos(SQL`t.id = ${request.threadID}`);
   const serverThreadInfo = serverThreadInfos[request.threadID];
 
-  createThreadUpdates(serverThreadInfo);
+  createThreadUpdates(viewer, serverThreadInfo);
 
   const threadInfo = rawThreadInfoFromServerThreadInfo(
     serverThreadInfo,
@@ -130,6 +130,7 @@ async function updateRole(
 }
 
 async function createThreadUpdates(
+  viewer: Viewer,
   serverThreadInfo: ServerThreadInfo,
 ): Promise<void> {
   const time = Date.now();
@@ -149,7 +150,7 @@ async function createThreadUpdates(
       threadInfo,
     });
   }
-  await createUpdates(updateDatas);
+  await createUpdates(viewer.cookieID, updateDatas);
 }
 
 async function removeMembers(

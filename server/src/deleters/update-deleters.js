@@ -14,7 +14,7 @@ async function deleteExpiredUpdates(): Promise<void> {
       RIGHT JOIN users u ON u.id = c.user
       GROUP BY u.id
     ) o ON o.user = u.user
-    WHERE u.time < o.oldest_last_update
+    WHERE o.user IS NULL OR u.time < o.oldest_last_update
   `);
 }
 

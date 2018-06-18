@@ -12,6 +12,7 @@ import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 
 async function createUpdates(
+  cookieID: string,
   updateDatas: $ReadOnlyArray<UpdateData>,
 ): Promise<UpdateInfo[]> {
   if (updateDatas.length === 0) {
@@ -35,13 +36,14 @@ async function createUpdates(
       ids[i],
       updateData.userID,
       updateData.type,
+      cookieID,
       content,
       updateData.time,
     ]);
   }
 
   const insertQuery = SQL`
-    INSERT INTO updates(id, user, type, content, time)
+    INSERT INTO updates(id, user, type, updater_cookie, content, time)
     VALUES ${insertRows}
   `;
   await dbQuery(insertQuery);
