@@ -20,17 +20,20 @@ async function createEntry(
   viewer: Viewer,
   request: CreateEntryRequest,
 ): Promise<SaveEntryResult> {
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    request.threadID,
+    threadPermissions.EDIT_ENTRIES,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
   const [
-    hasPermission,
     dayID,
     [ entryID ],
     [ revisionID ],
   ] = await Promise.all([
-    checkThreadPermission(
-      viewer,
-      request.threadID,
-      threadPermissions.EDIT_ENTRIES,
-    ),
     fetchOrCreateDayID(
       request.threadID,
       request.date,
@@ -38,9 +41,6 @@ async function createEntry(
     createIDs("entries", 1),
     createIDs("revisions", 1),
   ]);
-  if (!hasPermission) {
-    throw new ServerError('invalid_credentials');
-  }
 
   const viewerID = viewer.id;
   const entryRow = [
