@@ -1,6 +1,23 @@
 // @flow
 
-import { dbQuery, SQL } from '../database';
+import invariant from 'invariant';
+
+import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
+
+async function deleteUpdatesByConditions(
+  conditions: $ReadOnlyArray<SQLStatement>,
+) {
+  invariant(conditions.length > 0, "no conditions specified");
+  const conditionClause = mergeOrConditions(conditions);
+  const query = SQL`
+    DELETE u, i
+    FROM updates u
+    LEFT JOIN ids i ON i.id = u.id
+    WHERE
+  `;
+  query.append(conditionClause);
+  await dbQuery(query);
+}
 
 async function deleteExpiredUpdates(): Promise<void> {
   await dbQuery(SQL`
@@ -20,4 +37,5 @@ async function deleteExpiredUpdates(): Promise<void> {
 
 export {
   deleteExpiredUpdates,
+  deleteUpdatesByConditions,
 };

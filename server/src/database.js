@@ -21,7 +21,7 @@ const pool = mysqlPromise.createPool({
 type SQLOrString = SQLStatement | string;
 function appendSQLArray(
   sql: SQLStatement,
-  sqlArray: SQLStatement[],
+  sqlArray: $ReadOnlyArray<SQLStatement>,
   delimeter: SQLOrString,
 ) {
   if (sqlArray.length === 0) {
@@ -39,18 +39,21 @@ function appendSQLArray(
   );
 }
 
-function mergeConditions(conditions: SQLStatement[], delimiter: SQLStatement) {
+function mergeConditions(
+  conditions: $ReadOnlyArray<SQLStatement>,
+  delimiter: SQLStatement,
+) {
   const sql = SQL` (`;
   appendSQLArray(sql, conditions, delimiter);
   sql.append(SQL`) `);
   return sql;
 }
 
-function mergeAndConditions(andConditions: SQLStatement[]) {
+function mergeAndConditions(andConditions: $ReadOnlyArray<SQLStatement>) {
   return mergeConditions(andConditions, SQL` AND `);
 }
 
-function mergeOrConditions(andConditions: SQLStatement[]) {
+function mergeOrConditions(andConditions: $ReadOnlyArray<SQLStatement>) {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
