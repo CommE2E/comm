@@ -8,6 +8,8 @@ import {
   assertThreadType,
 } from 'lib/types/thread-types';
 import type { ThreadSubscription } from 'lib/types/subscription-types';
+import type { Viewer } from '../session/viewer';
+import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
@@ -16,10 +18,18 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
+import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
+
+import {
+  fetchServerThreadInfos,
+  rawThreadInfosFromServerThreadInfos,
+  type FetchThreadInfosResult,
+} from '../fetchers/thread-fetchers';
+import { createUpdates } from '../creators/update-creator';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
-type RowToSave = {|
+export type RowToSave = {|
   userID: string,
   threadID: string,
   permissions: ThreadPermissionsBlob,
@@ -29,7 +39,7 @@ type RowToSave = {|
   subscription?: ThreadSubscription,
   unread?: bool,
 |};
-type RowToDelete = {|
+export type RowToDelete = {|
   userID: string,
   threadID: string,
 |};
@@ -457,9 +467,69 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
   await dbQuery(query);
 }
 
+async function commitMembershipChangeset(
+  viewer: Viewer,
+  changeset: MembershipChangeset,
+  changedThreadIDs?: Set<string> = new Set(),
+): Promise<FetchThreadInfosResult> {
+  await Promise.all([
+    saveMemberships(changeset.toSave),
+    deleteMemberships(changeset.toDelete),
+  ]);
+
+  const threadInfoFetchResult = await fetchServerThreadInfos();
+  const { threadInfos: serverThreadInfos } = threadInfoFetchResult;
+
+  const threadMembershipDeletionPairs = [];
+  for (let rowToSave of changeset.toSave) {
+    const { threadID } = rowToSave;
+    changedThreadIDs.add(threadID);
+  }
+  for (let rowToDelete of changeset.toDelete) {
+    const { userID, threadID } = rowToDelete;
+    changedThreadIDs.add(threadID);
+    threadMembershipDeletionPairs.push({ userID, threadID });
+  }
+
+  const time = Date.now();
+  const updateDatas = [];
+  for (let changedThreadID of changedThreadIDs) {
+    const serverThreadInfo = serverThreadInfos[changedThreadID];
+    for (let memberInfo of serverThreadInfo.members) {
+      const threadInfo = rawThreadInfoFromServerThreadInfo(
+        serverThreadInfo,
+        memberInfo.id,
+      );
+      if (!threadInfo) {
+        continue;
+      }
+      updateDatas.push({
+        type: updateTypes.UPDATE_THREAD,
+        userID: memberInfo.id,
+        time,
+        threadInfo,
+      });
+    }
+  }
+  for (let pair of threadMembershipDeletionPairs) {
+    //updateDatas.push({
+    //  type: updateTypes.DELETE_THREAD,
+    //  userID: pair.userID,
+    //  time,
+    //  threadID: pair.threadID,
+    //});
+  }
+
+  createUpdates(updateDatas, viewer.cookieID);
+
+  return rawThreadInfosFromServerThreadInfos(
+    viewer,
+    threadInfoFetchResult,
+  );
+}
+
 export {
   changeRole,
   recalculateAllPermissions,
-  saveMemberships,
-  deleteMemberships,
+  commitMembershipChangeset,
 };

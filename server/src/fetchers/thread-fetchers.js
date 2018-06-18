@@ -95,7 +95,7 @@ async function fetchServerThreadInfos(
   return { threadInfos, userInfos };
 }
 
-type FetchThreadInfosResult = {|
+export type FetchThreadInfosResult = {|
   threadInfos: {[id: string]: RawThreadInfo},
   userInfos: {[id: string]: AccountUserInfo},
 |};
@@ -105,6 +105,13 @@ async function fetchThreadInfos(
   condition?: SQLStatement,
 ): Promise<FetchThreadInfosResult> {
   const serverResult = await fetchServerThreadInfos(condition);
+  return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
+}
+
+function rawThreadInfosFromServerThreadInfos(
+  viewer: Viewer,
+  serverResult: FetchServerThreadInfosResult,
+): FetchThreadInfosResult {
   const viewerID = viewer.id;
   const threadInfos = {};
   const userInfos = {};
@@ -198,6 +205,7 @@ async function viewerIsMember(
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
+  rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
   fetchThreadPermissionsBlob,

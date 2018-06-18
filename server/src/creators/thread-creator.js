@@ -21,8 +21,7 @@ import { verifyUserIDs } from '../fetchers/user-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
-  saveMemberships,
-  deleteMemberships,
+  commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
@@ -181,8 +180,7 @@ async function createThread(
 
   const [ newMessageInfos ] = await Promise.all([
     createMessages(messageDatas),
-    saveMemberships(toSave),
-    deleteMemberships(toDelete),
+    commitMembershipChangeset(viewer, { toSave, toDelete }),
   ]);
 
   const roles = { [newRoles.default.id]: newRoles.default };

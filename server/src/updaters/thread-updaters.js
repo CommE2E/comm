@@ -16,7 +16,6 @@ import {
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
-import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
@@ -25,7 +24,6 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
-import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -35,20 +33,17 @@ import {
 import {
   checkThreadPermission,
   fetchServerThreadInfos,
-  fetchThreadInfos,
   viewerIsMember,
   fetchThreadPermissionsBlob,
 } from '../fetchers/thread-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
-  saveMemberships,
-  deleteMemberships,
+  commitMembershipChangeset,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { createUpdates } from '../creators/update-creator';
 
 async function updateRole(
   viewer: Viewer,
@@ -106,51 +101,15 @@ async function updateRole(
     userIDs: memberIDs,
     newRole: request.role,
   };
-  const [ newMessageInfos ] = await Promise.all([
+  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
     createMessages([messageData]),
-    saveMemberships(changeset.toSave),
-    deleteMemberships(changeset.toDelete),
+    commitMembershipChangeset(viewer, changeset),
   ]);
 
-  const { threadInfos: serverThreadInfos } =
-    await fetchServerThreadInfos(SQL`t.id = ${request.threadID}`);
-  const serverThreadInfo = serverThreadInfos[request.threadID];
-
-  createThreadUpdates(viewer, serverThreadInfo);
-
-  const threadInfo = rawThreadInfoFromServerThreadInfo(
-    serverThreadInfo,
-    viewer.id,
-  );
-  if (!threadInfo) {
-    throw new ServerError('unknown_error');
-  }
-
-  return { threadInfo, newMessageInfos };
-}
-
-async function createThreadUpdates(
-  viewer: Viewer,
-  serverThreadInfo: ServerThreadInfo,
-): Promise<void> {
-  const time = Date.now();
-  const updateDatas = [];
-  for (let memberInfo of serverThreadInfo.members) {
-    const threadInfo = rawThreadInfoFromServerThreadInfo(
-      serverThreadInfo,
-      memberInfo.id,
-    );
-    if (!threadInfo) {
-      continue;
-    }
-    updateDatas.push({
-      type: updateTypes.UPDATE_THREAD,
-      userID: memberInfo.id,
-      time,
-      threadInfo,
-    });
-  }
-  await createUpdates(updateDatas, viewer.cookieID);
+  return {
+    threadInfo: threadInfos[request.threadID],
+    newMessageInfos,
+  };
 }
 
 async function removeMembers(
@@ -224,15 +183,10 @@ async function removeMembers(
     time: Date.now(),
     removedUserIDs: actualMemberIDs,
   };
-  const [ newMessageInfos ] = await Promise.all([
+  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
     createMessages([messageData]),
-    saveMemberships(changeset.toSave),
-    deleteMemberships(changeset.toDelete),
+    commitMembershipChangeset(viewer, changeset),
   ]);
-  const { threadInfos } = await fetchThreadInfos(
-    viewer,
-    SQL`t.id = ${request.threadID}`,
-  );
 
   return {
     threadInfo: threadInfos[request.threadID],
@@ -292,13 +246,11 @@ async function leaveThread(
     creatorID: viewerID,
     time: Date.now(),
   };
-  await Promise.all([
+  const [ { threadInfos } ] = await Promise.all([
+    commitMembershipChangeset(viewer, changeset),
     createMessages([messageData]),
-    saveMemberships(toSave),
-    deleteMemberships(changeset.toDelete),
   ]);
 
-  const { threadInfos } = await fetchThreadInfos(viewer);
   return { threadInfos };
 }
 
@@ -531,16 +483,18 @@ async function updateThread(
     });
   }
 
-  const [ newMessageInfos ] = await Promise.all([
+  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
     createMessages(messageDatas),
-    saveMemberships(toSave),
-    deleteMemberships(toDelete),
+    commitMembershipChangeset(
+      viewer,
+      { toSave, toDelete },
+      // This forces an update for this thread,
+      // regardless of whether any membership rows are changed
+      Object.keys(sqlUpdate).length > 0
+        ? new Set(request.threadID)
+        : new Set(),
+    ),
   ]);
-
-  const { threadInfos } = await fetchThreadInfos(
-    viewer,
-    SQL`t.id = ${request.threadID}`,
-  );
 
   return {
     threadInfo: threadInfos[request.threadID],
@@ -595,10 +549,9 @@ async function joinThread(
     creatorID: viewer.id,
     time: Date.now(),
   };
-  await Promise.all([
+  const [ fetchThreadsResult ] = await Promise.all([
+    commitMembershipChangeset(viewer, { toSave, toDelete: changeset.toDelete }),
     createMessages([messageData]),
-    saveMemberships(toSave),
-    deleteMemberships(changeset.toDelete),
   ]);
 
   const threadSelectionCriteria = {
@@ -606,7 +559,6 @@ async function joinThread(
   };
   const [
     fetchMessagesResult,
-    fetchThreadsResult,
     fetchEntriesResult,
   ] = await Promise.all([
     fetchMessageInfos(
@@ -614,7 +566,6 @@ async function joinThread(
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    fetchThreadInfos(viewer),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
   ]);
 
