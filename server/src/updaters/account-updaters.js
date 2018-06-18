@@ -23,7 +23,6 @@ import { verifyCode, clearVerifyCodes } from '../models/verification';
 import { createNewUserCookie } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 
 async function accountUpdater(
@@ -187,14 +186,13 @@ async function updatePassword(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult, newUpdates ] = await Promise.all([
+  const [ messagesResult, entriesResult ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
-    fetchUpdateInfos(viewer, newPingTime),
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -213,7 +211,6 @@ async function updatePassword(
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
     userInfos: userInfosArray,
-    newUpdates,
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

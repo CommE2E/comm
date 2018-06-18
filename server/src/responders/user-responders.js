@@ -60,7 +60,6 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { deviceTokenUpdateRequestInputValidator } from './device-responders';
-import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 
 const subscriptionUpdateRequestInputValidator = tShape({
@@ -222,14 +221,13 @@ async function logInResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult, newUpdates ] = await Promise.all([
+  const [ messagesResult, entriesResult ] = await Promise.all([
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
-    fetchUpdateInfos(viewer, newPingTime),
     request.deviceTokenUpdateRequest
       ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
       : undefined,
@@ -251,7 +249,6 @@ async function logInResponder(
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
     userInfos: userInfosArray,
-    newUpdates,
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

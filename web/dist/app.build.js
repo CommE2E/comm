@@ -1094,10 +1094,7 @@ async function logIn(fetchJSON, logInInfo) {
       currentAsOf: response.serverTime
     },
     userInfos,
-    updatesResult: {
-      currentAsOf: response.serverTime,
-      newUpdates: response.newUpdates
-    }
+    updatesCurrentAsOf: response.serverTime
   };
 }
 
@@ -1134,10 +1131,7 @@ async function resetPassword(fetchJSON, updatePasswordInfo) {
       currentAsOf: response.serverTime
     },
     userInfos,
-    updatesResult: {
-      currentAsOf: response.serverTime,
-      newUpdates: response.newUpdates
-    }
+    updatesCurrentAsOf: response.serverTime
   };
 }
 
@@ -40722,13 +40716,12 @@ function makePermissionsForChildrenBlob(permissions) {
 
 
 function reduceUpdatesCurrentAsOf(currentAsOf, action) {
-  if (action.type !== __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["i" /* logInActionTypes */].success && action.type !== __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["s" /* resetPasswordActionTypes */].success && action.type !== __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__["b" /* pingActionTypes */].success) {
-    return currentAsOf;
+  if (action.type === __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["i" /* logInActionTypes */].success || action.type === __WEBPACK_IMPORTED_MODULE_1__actions_user_actions__["s" /* resetPasswordActionTypes */].success) {
+    return action.payload.updatesCurrentAsOf;
+  } else if (action.type === __WEBPACK_IMPORTED_MODULE_2__actions_ping_actions__["b" /* pingActionTypes */].success && action.payload.updatesResult) {
+    return action.payload.updatesResult.currentAsOf;
   }
-  if (!action.payload.updatesResult) {
-    return currentAsOf;
-  }
-  return action.payload.updatesResult.currentAsOf;
+  return currentAsOf;
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (reduceUpdatesCurrentAsOf);
