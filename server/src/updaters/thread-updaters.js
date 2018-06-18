@@ -211,7 +211,7 @@ async function leaveThread(
 ): Promise<LeaveThreadResult> {
   const [ isMember, { threadInfos: serverThreadInfos } ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
-    fetchServerThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
+    fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
   ]);
   if (!isMember) {
     throw new ServerError('invalid_parameters');

@@ -24,7 +24,6 @@ type FetchServerThreadInfosResult = {|
 |};
 
 async function fetchServerThreadInfos(
-  viewer: Viewer,
   condition?: SQLStatement,
 ): Promise<FetchServerThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : "";
@@ -78,29 +77,18 @@ async function fetchServerThreadInfos(
     if (row.user) {
       const userID = row.user.toString();
       const allPermissions = getAllThreadPermissions(row.permissions, threadID);
-      const member = {
+      threadInfos[threadID].members.push({
         id: userID,
         permissions: allPermissions,
         role: row.role ? role : null,
         subscription: row.subscription,
         unread: row.role ? !!row.unread : null,
-      };
-      // This is a hack, similar to what we have in ThreadSettingsMember.
-      // Basically we only want to return users that are either a member of this
-      // thread, or are a "parent admin". We approximate "parent admin" by
-      // looking for the PERMISSION_CHANGE_ROLE permission.
-      if (
-        userID === viewer.id ||
-        row.role ||
-        allPermissions[threadPermissions.CHANGE_ROLE].value
-      ) {
-        threadInfos[threadID].members.push(member);
-        if (row.username) {
-          userInfos[userID] = {
-            id: userID,
-            username: row.username,
-          };
-        }
+      });
+      if (row.username) {
+        userInfos[userID] = {
+          id: userID,
+          username: row.username,
+        };
       }
     }
   }
@@ -116,7 +104,7 @@ async function fetchThreadInfos(
   viewer: Viewer,
   condition?: SQLStatement,
 ): Promise<FetchThreadInfosResult> {
-  const serverResult = await fetchServerThreadInfos(viewer, condition);
+  const serverResult = await fetchServerThreadInfos(condition);
   const viewerID = viewer.id;
   const threadInfos = {};
   const userInfos = {};

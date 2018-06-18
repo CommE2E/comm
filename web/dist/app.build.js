@@ -1498,6 +1498,13 @@ function rawThreadInfoFromServerThreadInfo(serverThreadInfo, viewerID) {
   const members = [];
   let currentUser;
   for (let serverMember of serverThreadInfo.members) {
+    // This is a hack, similar to what we have in ThreadSettingsMember.
+    // Basically we only want to return users that are either a member of this
+    // thread, or are a "parent admin". We approximate "parent admin" by
+    // looking for the PERMISSION_CHANGE_ROLE permission.
+    if (serverMember.id !== viewerID && !serverMember.role && !serverMember.permissions[__WEBPACK_IMPORTED_MODULE_0__types_thread_types__["e" /* threadPermissions */].CHANGE_ROLE].value) {
+      continue;
+    }
     members.push({
       id: serverMember.id,
       role: serverMember.role,
