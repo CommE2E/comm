@@ -480,7 +480,7 @@ async function commitMembershipChangeset(
   const threadInfoFetchResult = await fetchServerThreadInfos();
   const { threadInfos: serverThreadInfos } = threadInfoFetchResult;
 
-  const threadMembershipDeletionPairs = [];
+  const threadMembershipDeletionPairs = new Set();
   for (let rowToSave of changeset.toSave) {
     const { threadID } = rowToSave;
     changedThreadIDs.add(threadID);
@@ -488,7 +488,7 @@ async function commitMembershipChangeset(
   for (let rowToDelete of changeset.toDelete) {
     const { userID, threadID } = rowToDelete;
     changedThreadIDs.add(threadID);
-    threadMembershipDeletionPairs.push({ userID, threadID });
+    threadMembershipDeletionPairs.add(`${userID}|${threadID}`);
   }
 
   const time = Date.now();
@@ -496,6 +496,10 @@ async function commitMembershipChangeset(
   for (let changedThreadID of changedThreadIDs) {
     const serverThreadInfo = serverThreadInfos[changedThreadID];
     for (let memberInfo of serverThreadInfo.members) {
+      const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
+      if (threadMembershipDeletionPairs.has(pairString)) {
+        continue;
+      }
       const threadInfo = rawThreadInfoFromServerThreadInfo(
         serverThreadInfo,
         memberInfo.id,
@@ -512,12 +516,13 @@ async function commitMembershipChangeset(
     }
   }
   for (let pair of threadMembershipDeletionPairs) {
-    //updateDatas.push({
-    //  type: updateTypes.DELETE_THREAD,
-    //  userID: pair.userID,
-    //  time,
-    //  threadID: pair.threadID,
-    //});
+    const [ userID, threadID ] = pair.split('|');
+    updateDatas.push({
+      type: updateTypes.DELETE_THREAD,
+      userID,
+      time,
+      threadID,
+    });
   }
 
   createUpdates(updateDatas, viewer.cookieID);

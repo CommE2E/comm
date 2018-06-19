@@ -38,6 +38,14 @@ function updateInfoFromRow(row: Object): UpdateInfo {
       threadID,
       unread,
     };
+  } else if (type === updateTypes.DELETE_THREAD) {
+    const { threadID } = JSON.parse(row.content);
+    return {
+      type: updateTypes.DELETE_THREAD,
+      id: row.id,
+      time: row.time,
+      threadID,
+    };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
   }

@@ -5,6 +5,7 @@ import type {
   LeaveThreadResult,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
+import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -15,8 +16,10 @@ import { dbQuery, SQL } from '../database';
 import {
   checkThreadPermission,
   fetchThreadInfos,
+  fetchServerThreadInfos,
 } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
+import { createUpdates } from '../creators/update-creator';
 
 async function deleteThread(
   viewer: Viewer,
@@ -26,21 +29,26 @@ async function deleteThread(
     throw new ServerError('not_logged_in');
   }
 
-  const hasPermission = await checkThreadPermission(
-    viewer,
-    threadDeletionRequest.threadID,
-    threadPermissions.DELETE_THREAD,
-  );
+  const [
+    hasPermission,
+    [ hashResult ],
+    { threadInfos: serverThreadInfos },
+  ] = await Promise.all([
+    checkThreadPermission(
+      viewer,
+      threadDeletionRequest.threadID,
+      threadPermissions.DELETE_THREAD,
+    ),
+    dbQuery(SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`),
+    fetchServerThreadInfos(SQL`t.id = ${threadDeletionRequest.threadID}`),
+  ]);
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
   }
-
-  const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-  const [ result ] = await dbQuery(hashQuery);
-  if (result.length === 0) {
+  if (hashResult.length === 0) {
     throw new ServerError('invalid_parameters');
   }
-  const row = result[0];
+  const row = hashResult[0];
   if (!bcrypt.compareSync(threadDeletionRequest.accountPassword, row.hash)) {
     throw new ServerError('invalid_credentials');
   }
@@ -51,6 +59,8 @@ async function deleteThread(
   );
 
   // TODO: if org, delete all descendant threads as well. make sure to warn user
+  // TODO: handle descendant thread permission update correctly.
+  //       thread-permission-updaters should be used for descendant threads.
   const query = SQL`
     DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, f, n, ino
     FROM threads t
@@ -72,6 +82,19 @@ async function deleteThread(
     WHERE t.id = ${threadDeletionRequest.threadID}
   `;
   await dbQuery(query);
+
+  const serverThreadInfo = serverThreadInfos[threadDeletionRequest.threadID];
+  const time = Date.now();
+  const updateDatas = [];
+  for (let memberInfo of serverThreadInfo.members) {
+    updateDatas.push({
+      type: updateTypes.DELETE_THREAD,
+      userID: memberInfo.id,
+      time,
+      threadID: threadDeletionRequest.threadID,
+    });
+  }
+  createUpdates(updateDatas, viewer.cookieID);
 
   const { threadInfos } = await fetchThreadInfos(viewer);
   return { threadInfos };

@@ -57,6 +57,13 @@ async function createUpdates(
           u.type = ${updateData.type}
         )`
       );
+    } else if (updateData.type === updateTypes.DELETE_THREAD) {
+      const { threadID } = updateData;
+      content = JSON.stringify({ threadID });
+      key = threadID;
+      deleteConditions.push(
+        SQL`(u.user = ${updateData.userID} AND u.key = ${key})`
+      );
     }
     const insertRow = [
       ids[i],
