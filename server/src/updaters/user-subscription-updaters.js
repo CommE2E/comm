@@ -5,28 +5,32 @@ import type {
   SubscriptionUpdateRequest,
 } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
+import { updateTypes } from 'lib/types/update-types';
 
 import { ServerError } from 'lib/utils/errors';
+import { viewerIsMember } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database';
+import { createUpdates } from '../creators/update-creator';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 async function userSubscriptionUpdater(
   viewer: Viewer,
   update: SubscriptionUpdateRequest,
 ): Promise<ThreadSubscription> {
-  const query = SQL`
-    SELECT subscription
-    FROM memberships
-    WHERE user = ${viewer.id} AND thread = ${update.threadID} AND role != 0
-  `;
-  const [ result ] = await dbQuery(query);
-  if (result.length === 0) {
+  const threadInfos = await fetchThreadInfos(
+    viewer,
+    SQL`t.id = ${update.threadID}`,
+  );
+  const threadInfo = threadInfos[update.threadID];
+  if (!viewerIsMember(threadInfo)) {
     throw new ServerError('not_member');
   }
-  const row = result[0];
+
+  const promises = [];
 
   const newSubscription = {
-    ...row.subscription,
+    ...threadInfo.currentUser.subscription,
     ...update.updatedFields,
   };
   const saveQuery = SQL`
@@ -34,8 +38,24 @@ async function userSubscriptionUpdater(
     SET subscription = ${JSON.stringify(newSubscription)}
     WHERE user = ${viewer.id} AND thread = ${update.threadID}
   `;
-  await dbQuery(saveQuery);
+  promises.push(dbQuery(saveQuery));
 
+  const time = Date.now();
+  const updateDatas = [{
+    type: updateTypes.UPDATE_THREAD,
+    userID: viewer.id,
+    time,
+    threadInfo: {
+      ...threadInfo,
+      currentUser: {
+        ...threadInfo.currentUser,
+        subscription: newSubscription,
+      },
+    },
+  }];
+  promises.push(createUpdates(updateDatas, viewer.cookieID));
+
+  await Promise.all(promises);
   return newSubscription;
 }
 
