@@ -100,36 +100,28 @@ async function createThread(
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
     : [viewer.userID];
-  let toSave = [
-    ...creatorChangeset.toSave,
-    ...recalculatePermissionsChangeset.toSave.filter(
+  const changeset = [
+    ...creatorChangeset,
+    ...recalculatePermissionsChangeset.filter(
       rowToSave => !initialMemberAndCreatorIDs.includes(rowToSave.userID),
     ),
   ];
-  let toDelete = [
-    ...creatorChangeset.toDelete,
-    ...recalculatePermissionsChangeset.toDelete.filter(
-      rowToSave => !initialMemberAndCreatorIDs.includes(rowToSave.userID),
-    ),
-  ];
-  if (initialMemberIDs) {
+  if (initialMemberIDs && initialMemberIDs.length > 0) {
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');
     }
-    toSave = [...toSave, ...initialMembersChangeset.toSave];
-    toDelete = [...toDelete, ...initialMembersChangeset.toDelete];
+    changeset.push(...initialMembersChangeset);
   }
-  for (let rowToSave of toSave) {
+  for (let rowToSave of changeset) {
+    if (rowToSave.operation === "delete") {
+      continue;
+    }
     if (
-      rowToSave.role !== "0" &&
+      rowToSave.operation === "join" &&
       (rowToSave.userID !== viewer.userID ||
         rowToSave.threadID !== id)
     ) {
       rowToSave.unread = true;
-    }
-    if (rowToSave.threadID === id && rowToSave.role !== "0") {
-      const subscription = { home: true, pushNotifs: true };
-      rowToSave.subscription = subscription;
     }
   }
 
@@ -158,7 +150,7 @@ async function createThread(
 
   const [ newMessageInfos, commitResult ] = await Promise.all([
     createMessages(messageDatas),
-    commitMembershipChangeset(viewer, { toSave, toDelete }),
+    commitMembershipChangeset(viewer, changeset),
   ]);
   const { threadInfos, viewerUpdates } = commitResult;
 

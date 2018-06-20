@@ -249,10 +249,6 @@ async function leaveThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-  const toSave = changeset.toSave.map(rowToSave => ({
-    ...rowToSave,
-    subscription: { home: false, pushNotifs: false },
-  }));
 
   const messageData = {
     type: messageTypes.LEAVE_THREAD,
@@ -353,7 +349,7 @@ async function updateThread(
     throw new ServerError('invalid_credentials');
   }
 
-  const newMemberIDs = verifiedNewMemberIDs
+  const newMemberIDs = verifiedNewMemberIDs && verifiedNewMemberIDs.length > 0
     ? verifiedNewMemberIDs
     : null;
   if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
@@ -459,23 +455,28 @@ async function updateThread(
     recalculatePermissionsChangeset,
   } = await promiseAll(savePromises);
 
-  let toSave = [];
-  let toDelete = [];
-  if (recalculatePermissionsChangeset) {
-    toSave = [...toSave, ...recalculatePermissionsChangeset.toSave];
-    toDelete = [...toDelete, ...recalculatePermissionsChangeset.toDelete];
+  const changeset = [];
+  if (recalculatePermissionsChangeset && newMemberIDs) {
+    changeset.push(...recalculatePermissionsChangeset.filter(
+      rowToSave => !newMemberIDs.includes(rowToSave.userID),
+    ));
+  } else if (recalculatePermissionsChangeset) {
+    changeset.push(...recalculatePermissionsChangeset);
   }
   if (addMembersChangeset) {
-    toDelete = [...toDelete, ...addMembersChangeset.toDelete];
-    for (let rowToSave of addMembersChangeset.toSave) {
-      let newRowToSave = {...rowToSave};
-      if (rowToSave.role !== "0") {
-        newRowToSave.unread = true;
+    for (let rowToSave of addMembersChangeset) {
+      if (rowToSave.operation === "delete") {
+        changeset.push(rowToSave);
+        continue;
       }
-      if (rowToSave.threadID === request.threadID) {
-        newRowToSave.subscription = { home: true, pushNotifs: true };
+      if (
+        rowToSave.operation === "join" &&
+        (rowToSave.userID !== viewer.userID ||
+          rowToSave.threadID !== request.threadID)
+      ) {
+        rowToSave.unread = true;
       }
-      toSave.push(newRowToSave);
+      changeset.push(rowToSave);
     }
   }
 
@@ -509,7 +510,7 @@ async function updateThread(
     createMessages(messageDatas),
     commitMembershipChangeset(
       viewer,
-      { toSave, toDelete },
+      changeset,
       // This forces an update for this thread,
       // regardless of whether any membership rows are changed
       Object.keys(sqlUpdate).length > 0
@@ -564,10 +565,18 @@ async function joinThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-  const toSave = changeset.toSave.map(rowToSave => ({
-    ...rowToSave,
-    subscription: { home: true, pushNotifs: true },
-  }));
+  for (let rowToSave of changeset) {
+    if (rowToSave.operation === "delete") {
+      continue;
+    }
+    if (
+      rowToSave.operation === "join" &&
+      (rowToSave.userID !== viewer.userID ||
+        rowToSave.threadID !== request.threadID)
+    ) {
+      rowToSave.unread = true;
+    }
+  }
 
   const messageData = {
     type: messageTypes.JOIN_THREAD,
@@ -576,7 +585,7 @@ async function joinThread(
     time: Date.now(),
   };
   const [ fetchThreadsResult ] = await Promise.all([
-    commitMembershipChangeset(viewer, { toSave, toDelete: changeset.toDelete }),
+    commitMembershipChangeset(viewer, changeset),
     createMessages([messageData]),
   ]);
 

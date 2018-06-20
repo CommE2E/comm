@@ -29,7 +29,8 @@ import { createUpdates } from '../creators/update-creator';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
-export type RowToSave = {|
+type RowToSave = {|
+  operation: "update" | "join",
   userID: string,
   threadID: string,
   permissions: ThreadPermissionsBlob,
@@ -39,14 +40,13 @@ export type RowToSave = {|
   subscription?: ThreadSubscription,
   unread?: bool,
 |};
-export type RowToDelete = {|
+type RowToDelete = {|
+  operation: "delete",
   userID: string,
   threadID: string,
 |};
-type MembershipChangeset = {|
-  toSave: $ReadOnlyArray<RowToSave>,
-  toDelete: $ReadOnlyArray<RowToDelete>,
-|};
+type Row = RowToSave | RowToDelete;
+type Changeset = Row[];
 
 // 0 role means to remove the user from the thread
 // null role means to set the user to the default role
@@ -55,7 +55,7 @@ async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
   role: string | 0 | null,
-): Promise<?MembershipChangeset> {
+): Promise<?Changeset> {
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent
@@ -88,8 +88,7 @@ async function changeRole(
     );
   }
 
-  const toSave = [];
-  const toDelete = [];
+  const changeset = [];
   const toUpdateDescendants = new Map();
   for (let userID of userIDs) {
     let oldPermissionsForChildren = null;
@@ -121,7 +120,12 @@ async function changeRole(
     );
 
     if (permissions) {
-      toSave.push({
+      changeset.push({
+        operation:
+          roleThreadResult.roleColumnValue !== "0" &&
+          (!userRoleInfo || userRoleInfo.oldRole === "0")
+            ? "join"
+            : "update",
         userID,
         threadID,
         permissions,
@@ -129,7 +133,11 @@ async function changeRole(
         role: roleThreadResult.roleColumnValue,
       });
     } else {
-      toDelete.push({ userID, threadID });
+      changeset.push({
+        operation: "delete",
+        userID,
+        threadID,
+      });
     }
 
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
@@ -142,13 +150,10 @@ async function changeRole(
       threadID,
       toUpdateDescendants,
     );
-    return {
-      toSave: [...toSave, ...descendantResults.toSave],
-      toDelete: [...toDelete, ...descendantResults.toDelete],
-    };
+    changeset.push(...descendantResults);
   }
 
-  return { toSave, toDelete };
+  return changeset;
 }
 
 type RoleThreadResult = {|
@@ -212,13 +217,12 @@ async function changeRoleThreadQuery(
 async function updateDescendantPermissions(
   initialParentThreadID: string,
   initialUsersToPermissionsFromParent: Map<string, ?ThreadPermissionsBlob>,
-): Promise<MembershipChangeset> {
+): Promise<Changeset> {
   const stack = [[
     initialParentThreadID,
     initialUsersToPermissionsFromParent,
   ]];
-  const toSave = [];
-  const toDelete = [];
+  const changeset = [];
   while (stack.length > 0) {
     const [ parentThreadID, usersToPermissionsFromParent ] = stack.shift();
 
@@ -289,7 +293,8 @@ async function updateDescendantPermissions(
           permissions,
         );
         if (permissions) {
-          toSave.push({
+          changeset.push({
+            operation: "update",
             userID,
             threadID,
             permissions,
@@ -297,7 +302,11 @@ async function updateDescendantPermissions(
             role,
           });
         } else {
-          toDelete.push({ userID, threadID });
+          changeset.push({
+            operation: "delete",
+            userID,
+            threadID,
+          });
         }
         if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
           usersForNextLayer.set(userID, permissionsForChildren);
@@ -308,16 +317,16 @@ async function updateDescendantPermissions(
       }
     }
   }
-  return { toSave, toDelete };
+  return changeset;
 }
 
-// Unlike changeRole and others, this doesn't just create a MembershipChangeset.
+// Unlike changeRole and others, this doesn't just create a Changeset.
 // It mutates the threads table by setting the type column.
-// Caller still needs to save the resultant MembershipChangeset.
+// Caller still needs to save the resultant Changeset.
 async function recalculateAllPermissions(
   threadID: string,
   newThreadType: ThreadType,
-): Promise<MembershipChangeset> {
+): Promise<Changeset> {
   const updateQuery = SQL`
     UPDATE threads SET type = ${newThreadType} WHERE id = ${threadID}
   `;
@@ -344,8 +353,7 @@ async function recalculateAllPermissions(
     dbQuery(updateQuery),
   ]);
 
-  const toSave = [];
-  const toDelete = [];
+  const changeset = [];
   const toUpdateDescendants = new Map();
   for (let row of selectResult) {
     if (!row.user) {
@@ -372,7 +380,8 @@ async function recalculateAllPermissions(
       permissions,
     );
     if (permissions) {
-      toSave.push({
+      changeset.push({
+        operation: "update",
         userID,
         threadID,
         permissions,
@@ -380,7 +389,11 @@ async function recalculateAllPermissions(
         role,
       });
     } else {
-      toDelete.push({ userID, threadID });
+      changeset.push({
+        operation: "delete",
+        userID,
+        threadID,
+      });
     }
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
       toUpdateDescendants.set(userID, permissionsForChildren);
@@ -392,17 +405,16 @@ async function recalculateAllPermissions(
       threadID,
       toUpdateDescendants,
     );
-    return {
-      toSave: [...toSave, ...descendantResults.toSave],
-      toDelete: [...toDelete, ...descendantResults.toDelete],
-    };
+    changeset.push(...descendantResults);
   }
 
-  return { toSave, toDelete };
+  return changeset;
 }
 
 const defaultSubscriptionString =
   JSON.stringify({ home: false, pushNotifs: false });
+const joinSubscriptionString =
+  JSON.stringify({ home: true, pushNotifs: true });
 
 async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
   if (toSave.length === 0) {
@@ -410,8 +422,17 @@ async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
   }
 
   const time = Date.now();
-  const insertRows = toSave.map(
-    rowToSave => [
+  const insertRows = [];
+  for (let rowToSave of toSave) {
+    let subscription;
+    if (rowToSave.subscription) {
+      subscription = JSON.stringify(rowToSave.subscription);
+    } else if (rowToSave.operation === "join") {
+      subscription = joinSubscriptionString;
+    } else {
+      subscription = defaultSubscriptionString;
+    }
+    insertRows.push([
       rowToSave.userID,
       rowToSave.threadID,
       rowToSave.role,
@@ -424,8 +445,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
       rowToSave.unread ? "1" : "0",
-    ],
-  );
+    ]);
+  }
 
   // Logic below will only update an existing membership row's `subscription`
   // column if the user is either joining or leaving the thread. That means
@@ -467,29 +488,46 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
   await dbQuery(query);
 }
 
-type MembershipChangesetCommitResult = {|
+type ChangesetCommitResult = {|
   ...FetchThreadInfosResult,
   viewerUpdates: $ReadOnlyArray<UpdateInfo>,
 |};
 async function commitMembershipChangeset(
   viewer: Viewer,
-  changeset: MembershipChangeset,
+  changeset: Changeset,
   changedThreadIDs?: Set<string> = new Set(),
-): Promise<MembershipChangesetCommitResult> {
+): Promise<ChangesetCommitResult> {
+  const toJoin = [], toUpdate = [], toDelete = [];
+  for (let row of changeset) {
+    if (row.operation === "join") {
+      toJoin.push(row);
+    } else if (row.operation === "update") {
+      toUpdate.push(row);
+    } else if (row.operation === "delete") {
+      toDelete.push(row);
+    }
+  }
+
   await Promise.all([
-    saveMemberships(changeset.toSave),
-    deleteMemberships(changeset.toDelete),
+    saveMemberships([...toJoin, ...toUpdate]),
+    deleteMemberships(toDelete),
   ]);
 
   const threadInfoFetchResult = await fetchServerThreadInfos();
   const { threadInfos: serverThreadInfos } = threadInfoFetchResult;
 
+  const threadMembershipCreationPairs = new Set();
   const threadMembershipDeletionPairs = new Set();
-  for (let rowToSave of changeset.toSave) {
-    const { threadID } = rowToSave;
+  for (let rowToJoin of toJoin) {
+    const { userID, threadID } = rowToJoin;
+    changedThreadIDs.add(threadID);
+    threadMembershipCreationPairs.add(`${userID}|${threadID}`);
+  }
+  for (let rowToUpdate of toUpdate) {
+    const { threadID } = rowToUpdate;
     changedThreadIDs.add(threadID);
   }
-  for (let rowToDelete of changeset.toDelete) {
+  for (let rowToDelete of toDelete) {
     const { userID, threadID } = rowToDelete;
     changedThreadIDs.add(threadID);
     threadMembershipDeletionPairs.add(`${userID}|${threadID}`);
