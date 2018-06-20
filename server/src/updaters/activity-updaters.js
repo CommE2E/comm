@@ -103,7 +103,7 @@ async function activityUpdater(
         threadID,
         unread: false,
       })),
-      localViewer,
+      { viewer: localViewer },
     ));
     const rescindCondition = SQL`
       n.user = ${localViewer.userID} AND n.thread IN (${focusedThreadIDs})
@@ -223,7 +223,7 @@ async function possiblyResetThreadsToUnread(
       threadID,
       unread: true,
     })),
-    viewer,
+    { viewer },
   ));
   await Promise.all(promises);
 

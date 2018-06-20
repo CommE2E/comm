@@ -513,8 +513,8 @@ async function commitMembershipChangeset(
     deleteMemberships(toDelete),
   ]);
 
-  const threadInfoFetchResult = await fetchServerThreadInfos();
-  const { threadInfos: serverThreadInfos } = threadInfoFetchResult;
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
+  const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const threadMembershipCreationPairs = new Set();
   const threadMembershipDeletionPairs = new Set();
@@ -542,18 +542,11 @@ async function commitMembershipChangeset(
       if (threadMembershipDeletionPairs.has(pairString)) {
         continue;
       }
-      const threadInfo = rawThreadInfoFromServerThreadInfo(
-        serverThreadInfo,
-        memberInfo.id,
-      );
-      if (!threadInfo) {
-        continue;
-      }
       updateDatas.push({
         type: updateTypes.UPDATE_THREAD,
         userID: memberInfo.id,
         time,
-        threadInfo,
+        threadID: changedThreadID,
       });
     }
   }
@@ -567,13 +560,17 @@ async function commitMembershipChangeset(
     });
   }
 
-  const viewerUpdates = await createUpdates(updateDatas, viewer);
+  const threadInfoFetchResult = rawThreadInfosFromServerThreadInfos(
+    viewer,
+    serverThreadInfoFetchResult,
+  );
+  const { viewerUpdates } = await createUpdates(
+    updateDatas,
+    { viewer, ...threadInfoFetchResult },
+  );
 
   return {
-    ...rawThreadInfosFromServerThreadInfos(
-      viewer,
-      threadInfoFetchResult,
-    ),
+    ...threadInfoFetchResult,
     viewerUpdates,
   };
 }

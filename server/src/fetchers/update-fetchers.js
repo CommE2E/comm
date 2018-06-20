@@ -6,55 +6,22 @@ import {
   assertUpdateType,
 } from 'lib/types/update-types';
 import type { Viewer } from '../session/viewer';
+import type { FetchThreadInfosResult } from '../fetchers/thread-fetchers';
 
 import invariant from 'invariant';
 
 import { dbQuery, SQL } from '../database';
-
-function updateInfoFromRow(row: Object): UpdateInfo {
-  const type = assertUpdateType(row.type);
-  if (type === updateTypes.DELETE_ACCOUNT) {
-    const content = JSON.parse(row.content);
-    return {
-      type: updateTypes.DELETE_ACCOUNT,
-      id: row.id,
-      time: row.time,
-      deletedUserID: content.deletedUserID,
-    };
-  } else if (type === updateTypes.UPDATE_THREAD) {
-    const rawThreadInfo = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_THREAD,
-      id: row.id,
-      time: row.time,
-      threadInfo: rawThreadInfo,
-    };
-  } else if (type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-    const { threadID, unread } = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_THREAD_READ_STATUS,
-      id: row.id,
-      time: row.time,
-      threadID,
-      unread,
-    };
-  } else if (type === updateTypes.DELETE_THREAD) {
-    const { threadID } = JSON.parse(row.content);
-    return {
-      type: updateTypes.DELETE_THREAD,
-      id: row.id,
-      time: row.time,
-      threadID,
-    };
-  } else {
-    invariant(false, `unrecognized updateType ${type}`);
-  }
-}
+import {
+  type ViewerUpdateData,
+  type FetchUpdatesResult,
+  updateInfosFromUpdateDatas,
+} from '../creators/update-creator';
 
 async function fetchUpdateInfos(
   viewer: Viewer,
   currentAsOf: number,
-): Promise<UpdateInfo[]> {
+  threadInfosResult: FetchThreadInfosResult,
+): Promise<FetchUpdatesResult> {
   const query = SQL`
     SELECT id, type, content, time
     FROM updates
@@ -64,11 +31,58 @@ async function fetchUpdateInfos(
   `;
   const [ result ] = await dbQuery(query);
 
-  const updateInfos = [];
+  const viewerUpdateDatas = [];
   for (let row of result) {
-    updateInfos.push(updateInfoFromRow(row));
+    viewerUpdateDatas.push(viewerUpdateDataFromRow(viewer, row));
   }
-  return updateInfos;
+
+  return updateInfosFromUpdateDatas(viewerUpdateDatas, threadInfosResult);
+}
+
+function viewerUpdateDataFromRow(
+  viewer: Viewer,
+  row: Object,
+): ViewerUpdateData {
+  const type = assertUpdateType(row.type);
+  let data;
+  const id = row.id;
+  if (type === updateTypes.DELETE_ACCOUNT) {
+    const content = JSON.parse(row.content);
+    data = {
+      type: updateTypes.DELETE_ACCOUNT,
+      userID: viewer.id,
+      time: row.time,
+      deletedUserID: content.deletedUserID,
+    };
+  } else if (type === updateTypes.UPDATE_THREAD) {
+    const { threadID } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.UPDATE_THREAD,
+      userID: viewer.id,
+      time: row.time,
+      threadID,
+    };
+  } else if (type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+    const { threadID, unread } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.UPDATE_THREAD_READ_STATUS,
+      userID: viewer.id,
+      time: row.time,
+      threadID,
+      unread,
+    };
+  } else if (type === updateTypes.DELETE_THREAD) {
+    const { threadID } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.DELETE_THREAD,
+      userID: viewer.id,
+      time: row.time,
+      threadID,
+    };
+  } else {
+    invariant(false, `unrecognized updateType ${type}`);
+  }
+  return { data, id };
 }
 
 export {

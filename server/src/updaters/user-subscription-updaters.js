@@ -45,15 +45,9 @@ async function userSubscriptionUpdater(
     type: updateTypes.UPDATE_THREAD,
     userID: viewer.id,
     time,
-    threadInfo: {
-      ...threadInfo,
-      currentUser: {
-        ...threadInfo.currentUser,
-        subscription: newSubscription,
-      },
-    },
+    threadID: update.threadID,
   }];
-  promises.push(createUpdates(updateDatas, viewer));
+  promises.push(createUpdates(updateDatas, { viewer }));
 
   await Promise.all(promises);
   return newSubscription;

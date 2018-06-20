@@ -115,7 +115,6 @@ async function pingResponder(
     threadsResult,
     entriesResult,
     currentUserInfo,
-    newUpdates,
   ] = await Promise.all([
     fetchMessageInfosSince(
       viewer,
@@ -126,34 +125,33 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, request.calendarQuery),
     fetchCurrentUserInfo(viewer),
-    oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined
-      ? fetchUpdateInfos(viewer, oldUpdatesCurrentAsOf)
-      : null,
     clientResponsePromises.length > 0
       ? Promise.all(clientResponsePromises)
       : null,
   ]);
 
   let updatesResult = null;
-  const timestampUpdatePromises = [ updateActivityTime(viewer) ];
-  if (newUpdates) {
-    invariant(
-      oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
-      "should be set",
+  if (oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined) {
+    const { updateInfos } = await fetchUpdateInfos(
+      viewer,
+      oldUpdatesCurrentAsOf,
+      threadsResult,
     );
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
-      newUpdates,
+      [...updateInfos],
       oldUpdatesCurrentAsOf,
     );
-    if (newUpdates.length > 0) {
-      timestampUpdatePromises.push(
-        recordDeliveredUpdate(viewer.cookieID, newUpdatesCurrentAsOf),
-      );
-    }
     updatesResult = {
-      newUpdates,
+      newUpdates: updateInfos,
       currentAsOf: newUpdatesCurrentAsOf,
     };
+  }
+
+  const timestampUpdatePromises = [ updateActivityTime(viewer) ];
+  if (updatesResult && updatesResult.newUpdates.length > 0) {
+    timestampUpdatePromises.push(
+      recordDeliveredUpdate(viewer.cookieID, updatesResult.currentAsOf),
+    );
   }
   await Promise.all(timestampUpdatePromises);
 
