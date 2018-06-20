@@ -39,6 +39,7 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
+import assets from '../../compiled/assets';
 
 const { basePath } = urlFacts;
 const { renderToString } = ReactDOMServer;
@@ -167,13 +168,13 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     : "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
   const jsURL = process.env.NODE_ENV === "dev"
     ? "compiled/dev.build.js"
-    : "compiled/prod.build.js";
+    : `compiled/${assets.browser.js}`;
   const cssInclude = process.env.NODE_ENV === "dev"
     ? ""
     : html`<link
         rel="stylesheet"
         type="text/css"
-        href="compiled/prod.build.css"
+        href="compiled/${assets.browser.css}"
       />`;
   let result = html`
     <html lang="en">

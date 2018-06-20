@@ -31,6 +31,17 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     };
   }
 
+  // Hitting web/dist/app.build from server
+  if (specifier === 'web/dist/app.build') {
+    const [ rootURL ] = parentModuleURL.split("/squadcal/");
+    const resultURL = `${rootURL}/squadcal/server/dist/web/dist/app.build`;
+    //console.log(`${specifier} -> ${resultURL} is server -> web`);
+    return {
+      url: resultURL,
+      format: "cjs",
+    };
+  }
+
   // Hitting web from server
   if (specifier.startsWith('web')) {
     const result = defaultResolve(specifier, parentModuleURL);
@@ -38,7 +49,7 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
     //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
-      format: specifier === 'web/dist/app.build' ? 'cjs' : 'esm',
+      format: 'esm',
     };
   }
 

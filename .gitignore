@@ -2,8 +2,7 @@
 node_modules
 lib/node_modules
 web/node_modules/*
-web/dist/dev.build.js
-web/dist/hot
+web/dist
 server/dist
 server/node_modules/*
 server/secrets

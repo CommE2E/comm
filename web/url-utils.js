@@ -8,15 +8,16 @@ import { createSelector } from 'reselect';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import {
+  startDateForYearAndMonth,
+  endDateForYearAndMonth,
+} from 'lib/utils/date-utils';
+
+import {
   yearExtractor,
   yearAssertingSelector,
   monthExtractor,
   monthAssertingSelector,
 } from './selectors/nav-selectors';
-import {
-  startDateForYearAndMonth,
-  endDateForYearAndMonth,
-} from 'lib/utils/date-utils';
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);

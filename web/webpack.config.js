@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const AssetsPlugin = require('assets-webpack-plugin');
 
 const cssLoader = {
   loader: 'css-loader',
@@ -27,7 +28,9 @@ const babelConfig = {
 
 const baseBrowserConfig = {
   name: "browser",
-  entry: ['./script.js'],
+  entry: {
+    browser: ['./script.js'],
+  },
   module: {
     rules: [
       {
@@ -73,7 +76,7 @@ module.exports = function(env) {
   let browserConfig = {
     ...baseBrowserConfig,
     output: {
-      filename: env + '.build.js',
+      filename: 'prod.[hash:12].build.js',
       path: path.join(__dirname, 'dist'),
     },
     plugins: [
@@ -86,14 +89,17 @@ module.exports = function(env) {
   if (env === "dev") {
     browserConfig = {
       ...browserConfig,
-      entry: [
-        'react-hot-loader/patch',
-        'webpack-dev-server/client?http://localhost:8080',
-        'webpack/hot/only-dev-server',
-        ...browserConfig.entry,
-      ],
+      entry: {
+        browser: [
+          'react-hot-loader/patch',
+          'webpack-dev-server/client?http://localhost:8080',
+          'webpack/hot/only-dev-server',
+          ...browserConfig.entry.browser,
+        ],
+      },
       output: {
         ...browserConfig.output,
+        filename: 'dev.build.js',
         pathinfo: true,
         publicPath: 'http://localhost:8080/',
         hotUpdateChunkFilename: 'hot/hot-update.js',
@@ -177,7 +183,11 @@ module.exports = function(env) {
             BROWSER: true,
           },
         }),
-        new ExtractTextPlugin('prod.build.css'),
+        new ExtractTextPlugin('prod.[contenthash:12].build.css'),
+        new AssetsPlugin({
+          filename: 'assets.json',
+          path: path.join(__dirname, 'dist'),
+        }),
       ],
       module: {
         ...browserConfig.module,
@@ -226,9 +236,11 @@ module.exports = function(env) {
   }
   const nodeServerRenderingConfig = {
     name: "server",
-    entry: ['./server-rendering.js', './app.react.js'],
+    entry: {
+      server: ['./server-rendering.js', './app.react.js'],
+    },
     output: {
-      filename: 'app.build.js',
+      filename: 'app.build',
       library: 'app',
       libraryTarget: 'commonjs2',
       path: path.join(__dirname, 'dist'),
@@ -245,7 +257,7 @@ module.exports = function(env) {
         },
         browserConfig.module.rules[1],
       ],
-    }
+    },
   };
   return [browserConfig, nodeServerRenderingConfig];
 };

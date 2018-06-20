@@ -121,7 +121,10 @@ if (cluster.isMaster) {
       { setHeaders: res => res.setHeader("Content-Type", "application/json") },
     ),
   );
-  router.use('/compiled', express.static('compiled'));
+  const compiledFolderOptions = process.env.NODE_ENV === "dev"
+    ? undefined
+    : { maxAge: "1y", immutable: true };
+  router.use('/compiled', express.static('compiled', compiledFolderOptions));
   router.use('/', express.static('icons'));
 
   for (let endpoint in jsonEndpoints) {
