@@ -101,13 +101,20 @@ async function updateRole(
     userIDs: memberIDs,
     newRole: request.role,
   };
-  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
+  const [
+    newMessageInfos,
+    { threadInfos, viewerUpdates },
+  ] = await Promise.all([
     createMessages([messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
 
   return {
     threadInfo: threadInfos[request.threadID],
+    threadInfos,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
     newMessageInfos,
   };
 }
@@ -183,13 +190,20 @@ async function removeMembers(
     time: Date.now(),
     removedUserIDs: actualMemberIDs,
   };
-  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
+  const [
+    newMessageInfos,
+    { threadInfos, viewerUpdates },
+  ] = await Promise.all([
     createMessages([messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
 
   return {
     threadInfo: threadInfos[request.threadID],
+    threadInfos,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
     newMessageInfos,
   };
 }
@@ -246,12 +260,17 @@ async function leaveThread(
     creatorID: viewerID,
     time: Date.now(),
   };
-  const [ { threadInfos } ] = await Promise.all([
+  const [ { threadInfos, viewerUpdates } ] = await Promise.all([
     commitMembershipChangeset(viewer, changeset),
     createMessages([messageData]),
   ]);
 
-  return { threadInfos };
+  return {
+    threadInfos,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
+  };
 }
 
 async function updateThread(
@@ -483,7 +502,10 @@ async function updateThread(
     });
   }
 
-  const [ newMessageInfos, { threadInfos } ] = await Promise.all([
+  const [
+    newMessageInfos,
+    { threadInfos, viewerUpdates },
+  ] = await Promise.all([
     createMessages(messageDatas),
     commitMembershipChangeset(
       viewer,
@@ -498,6 +520,10 @@ async function updateThread(
 
   return {
     threadInfo: threadInfos[request.threadID],
+    threadInfos,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
     newMessageInfos,
   };
 }
@@ -587,6 +613,9 @@ async function joinThread(
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
     userInfos,
+    updatesResult: {
+      newUpdates: fetchThreadsResult.viewerUpdates,
+    },
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

@@ -9,7 +9,7 @@ import {
 } from 'lib/types/thread-types';
 import type { ThreadSubscription } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
-import { updateTypes } from 'lib/types/update-types';
+import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
@@ -467,11 +467,15 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
   await dbQuery(query);
 }
 
+type MembershipChangesetCommitResult = {|
+  ...FetchThreadInfosResult,
+  viewerUpdates: $ReadOnlyArray<UpdateInfo>,
+|};
 async function commitMembershipChangeset(
   viewer: Viewer,
   changeset: MembershipChangeset,
   changedThreadIDs?: Set<string> = new Set(),
-): Promise<FetchThreadInfosResult> {
+): Promise<MembershipChangesetCommitResult> {
   await Promise.all([
     saveMemberships(changeset.toSave),
     deleteMemberships(changeset.toDelete),
@@ -525,12 +529,15 @@ async function commitMembershipChangeset(
     });
   }
 
-  createUpdates(updateDatas, viewer.cookieID);
+  const viewerUpdates = await createUpdates(updateDatas, viewer);
 
-  return rawThreadInfosFromServerThreadInfos(
-    viewer,
-    threadInfoFetchResult,
-  );
+  return {
+    ...rawThreadInfosFromServerThreadInfos(
+      viewer,
+      threadInfoFetchResult,
+    ),
+    viewerUpdates,
+  };
 }
 
 export {

@@ -81,7 +81,6 @@ async function deleteThread(
     LEFT JOIN ids ino ON ino.id = n.id
     WHERE t.id = ${threadDeletionRequest.threadID}
   `;
-  await dbQuery(query);
 
   const serverThreadInfo = serverThreadInfos[threadDeletionRequest.threadID];
   const time = Date.now();
@@ -94,10 +93,19 @@ async function deleteThread(
       threadID: threadDeletionRequest.threadID,
     });
   }
-  createUpdates(updateDatas, viewer.cookieID);
+
+  const [ viewerUpdates ] = await Promise.all([
+    createUpdates(updateDatas, viewer),
+    dbQuery(query),
+  ]);
 
   const { threadInfos } = await fetchThreadInfos(viewer);
-  return { threadInfos };
+  return {
+    threadInfos,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
+  };
 }
 
 async function deleteInaccessibleThreads(): Promise<void> {

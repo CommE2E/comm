@@ -53,7 +53,7 @@ async function userSubscriptionUpdater(
       },
     },
   }];
-  promises.push(createUpdates(updateDatas, viewer.cookieID));
+  promises.push(createUpdates(updateDatas, viewer));
 
   await Promise.all(promises);
   return newSubscription;

@@ -119,9 +119,6 @@ async function createThread(
     toSave = [...toSave, ...initialMembersChangeset.toSave];
     toDelete = [...toDelete, ...initialMembersChangeset.toDelete];
   }
-
-  const members = [];
-  let currentUserInfo = null;
   for (let rowToSave of toSave) {
     if (
       rowToSave.role !== "0" &&
@@ -133,26 +130,7 @@ async function createThread(
     if (rowToSave.threadID === id && rowToSave.role !== "0") {
       const subscription = { home: true, pushNotifs: true };
       rowToSave.subscription = subscription;
-      const member = {
-        id: rowToSave.userID,
-        permissions: getAllThreadPermissions(rowToSave.permissions, id),
-        role: rowToSave.role && rowToSave.role !== "0"
-          ? rowToSave.role
-          : null,
-      };
-      members.unshift(member);
-      if (rowToSave.userID === viewer.userID) {
-        currentUserInfo = {
-          role: member.role,
-          permissions: member.permissions,
-          subscription,
-          unread: false,
-        };
-      }
     }
-  }
-  if (!currentUserInfo) {
-    throw new ServerError('unknown_error');
   }
 
   const messageDatas = [{
@@ -178,28 +156,16 @@ async function createThread(
     });
   }
 
-  const [ newMessageInfos ] = await Promise.all([
+  const [ newMessageInfos, commitResult ] = await Promise.all([
     createMessages(messageDatas),
     commitMembershipChangeset(viewer, { toSave, toDelete }),
   ]);
+  const { threadInfos, viewerUpdates } = commitResult;
 
-  const roles = { [newRoles.default.id]: newRoles.default };
-  if (newRoles.creator.id !== newRoles.default.id) {
-    roles[newRoles.creator.id] = newRoles.creator;
-  }
   return {
-    newThreadInfo: {
-      id,
-      type: threadType,
-      visibilityRules: threadType,
-      name,
-      description,
-      color,
-      creationTime: time,
-      parentThreadID,
-      members,
-      roles,
-      currentUser: currentUserInfo,
+    newThreadInfo: threadInfos[id],
+    updatesResult: {
+      newUpdates: viewerUpdates,
     },
     newMessageInfos,
   };
