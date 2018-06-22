@@ -281,10 +281,7 @@ async function fetchMessageInfos(
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
   const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
-  const truncationStatuses = threadSelectionCriteriaToInitialTruncationStatuses(
-    criteria,
-    messageTruncationStatus.EXHAUSTIVE,
-  );
+  const truncationStatuses = {};
 
   const viewerID = viewer.id;
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
@@ -335,9 +332,38 @@ async function fetchMessageInfos(
   }
 
   for (let [ threadID, messageCount ] of threadToMessageCount) {
+    // If there are fewer messages returned than the max for a given thread,
+    // then our result set includes all messages in the query range for that
+    // thread
     truncationStatuses[threadID] = messageCount < numberPerThread
       ? messageTruncationStatus.EXHAUSTIVE
       : messageTruncationStatus.TRUNCATED;
+  }
+
+  for (let rawMessageInfo of rawMessageInfos) {
+    if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
+      // If a CREATE_THREAD message for a given thread is in the result set,
+      // then our result set includes all messages in the query range for that
+      // thread
+      truncationStatuses[rawMessageInfo.threadID] =
+        messageTruncationStatus.EXHAUSTIVE;
+    }
+  }
+
+  for (let threadID in criteria.threadCursors) {
+    const cursor = criteria.threadCursors[threadID];
+    const truncationStatus = truncationStatuses[threadID];
+    if (truncationStatus === null || truncationStatus === undefined) {
+      // If nothing was returned for a thread that was explicitly queried for,
+      // then our result set includes all messages in the query range for that
+      // thread
+      truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+    } else if (truncationStatus === messageTruncationStatus.TRUNCATED) {
+      // If a cursor was specified for a given thread, then the result is
+      // guaranteed to be contiguous with what the client has, and as such the
+      // result should never be TRUNCATED
+      truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
+    }
   }
 
   const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
