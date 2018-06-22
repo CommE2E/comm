@@ -35,6 +35,10 @@ import {
   joinThread,
 } from '../updaters/thread-updaters';
 import createThread from '../creators/thread-creator';
+import {
+  entryQueryInputValidator,
+  verifyCalendarQueryThreadIDs,
+} from './entry-responders';
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,
@@ -194,6 +198,7 @@ async function threadCreationResponder(
 
 const joinThreadRequestInputValidator = tShape({
   threadID: t.String,
+  calendarQuery: t.maybe(entryQueryInputValidator),
 });
 async function threadJoinResponder(
   viewer: Viewer,
@@ -201,6 +206,11 @@ async function threadJoinResponder(
 ): Promise<ThreadJoinResult> {
   const request: ThreadJoinRequest = input;
   validateInput(joinThreadRequestInputValidator, request);
+
+  if (request.calendarQuery) {
+    await verifyCalendarQueryThreadIDs(request.calendarQuery);
+  }
+
   return await joinThread(viewer, request);
 }
 
