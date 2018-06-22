@@ -10,6 +10,7 @@ import {
 import type { ThreadSubscription } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
 import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
@@ -488,6 +489,10 @@ async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
   await dbQuery(query);
 }
 
+// Specify non-empty changedThreadIDs to force updates to be generated for those
+// threads, presumably for reasons not covered in the changeset. calendarQuery
+// only needs to be specified if a JOIN_THREAD update will be generated for the
+// viewer, in which case it's necessary for knowing the set of entries to fetch.
 type ChangesetCommitResult = {|
   ...FetchThreadInfosResult,
   viewerUpdates: $ReadOnlyArray<UpdateInfo>,
@@ -496,6 +501,7 @@ async function commitMembershipChangeset(
   viewer: Viewer,
   changeset: Changeset,
   changedThreadIDs?: Set<string> = new Set(),
+  calendarQuery?: ?CalendarQuery,
 ): Promise<ChangesetCommitResult> {
   const toJoin = [], toUpdate = [], toDelete = [];
   for (let row of changeset) {
@@ -513,9 +519,6 @@ async function commitMembershipChangeset(
     deleteMemberships(toDelete),
   ]);
 
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
-  const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
-
   const threadMembershipCreationPairs = new Set();
   const threadMembershipDeletionPairs = new Set();
   for (let rowToJoin of toJoin) {
@@ -532,6 +535,9 @@ async function commitMembershipChangeset(
     changedThreadIDs.add(threadID);
     threadMembershipDeletionPairs.add(`${userID}|${threadID}`);
   }
+
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
+  const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
   const updateDatas = [];
@@ -578,7 +584,7 @@ async function commitMembershipChangeset(
   );
   const { viewerUpdates } = await createUpdates(
     updateDatas,
-    { viewer, ...threadInfoFetchResult },
+    { viewer, calendarQuery, ...threadInfoFetchResult },
   );
 
   return {

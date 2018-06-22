@@ -5,6 +5,7 @@ import {
   updateTypes,
   assertUpdateType,
 } from 'lib/types/update-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
 import type { FetchThreadInfosResult } from '../fetchers/thread-fetchers';
 
@@ -17,10 +18,14 @@ import {
   fetchUpdateInfosWithUpdateDatas,
 } from '../creators/update-creator';
 
+type UpdateInfoQueryInput = {|
+  ...FetchThreadInfosResult,
+  calendarQuery: CalendarQuery,
+|};
 async function fetchUpdateInfos(
   viewer: Viewer,
   currentAsOf: number,
-  threadInfosResult: FetchThreadInfosResult,
+  queryInput: UpdateInfoQueryInput,
 ): Promise<FetchUpdatesResult> {
   const query = SQL`
     SELECT id, type, content, time
@@ -38,7 +43,7 @@ async function fetchUpdateInfos(
 
   return await fetchUpdateInfosWithUpdateDatas(
     viewerUpdateDatas,
-    { viewer, ...threadInfosResult },
+    { viewer, ...queryInput },
   );
 }
 

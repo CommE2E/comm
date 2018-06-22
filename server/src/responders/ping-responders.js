@@ -135,7 +135,7 @@ async function pingResponder(
     const { updateInfos } = await fetchUpdateInfos(
       viewer,
       oldUpdatesCurrentAsOf,
-      threadsResult,
+      { ...threadsResult, calendarQuery: request.calendarQuery },
     );
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       [...updateInfos],

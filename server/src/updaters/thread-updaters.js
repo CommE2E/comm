@@ -585,7 +585,7 @@ async function joinThread(
     time: Date.now(),
   };
   const [ fetchThreadsResult ] = await Promise.all([
-    commitMembershipChangeset(viewer, changeset),
+    commitMembershipChangeset(viewer, changeset, new Set(), calendarQuery),
     createMessages([messageData]),
   ]);
 

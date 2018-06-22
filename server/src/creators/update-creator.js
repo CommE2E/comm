@@ -49,6 +49,7 @@ export type ViewerInfo =
       viewer: Viewer,
       threadInfos: {[id: string]: RawThreadInfo},
       userInfos: {[id: string]: AccountUserInfo},
+      calendarQuery: ?CalendarQuery,
     |};
 type UpdatesResult = {|
   viewerUpdates: $ReadOnlyArray<UpdateInfo>,
@@ -203,7 +204,13 @@ async function fetchUpdateInfosWithUpdateDatas(
       threadSelectionCriteria,
       defaultNumberPerThread,
     );
-    calendarQuery = defaultCalendarQuery();
+    // defaultCalendarQuery will only ever get used in the case of a legacy
+    // client calling join_thread without specifying a CalendarQuery. Those
+    // legacy clients will be discarding the UpdateInfos anyways, so we don't
+    // need to worry about the CalendarQuery correctness.
+    calendarQuery = viewerInfo.calendarQuery
+      ? viewerInfo.calendarQuery
+      : defaultCalendarQuery();
     calendarQuery.filters = [
       ...nonThreadCalendarFilters(calendarQuery.filters),
       { type: "threads", threadIDs: [...threadIDsNeedingDetailedFetch] },
