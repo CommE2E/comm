@@ -40,7 +40,7 @@ import {
 import {
   threadHasPermission,
   viewerIsMember,
-  viewerCanSeeThread,
+  threadInChatList,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 import { connect } from 'lib/utils/redux-utils';
@@ -261,7 +261,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
     const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
-    if (!viewerCanSeeThread(threadInfo)) {
+    if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
   }
@@ -269,7 +269,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
     const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
-    if (!viewerCanSeeThread(threadInfo)) {
+    if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
   }
@@ -279,13 +279,13 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     const newThreadInfo = nextProps.threadInfo;
 
     if (
-      viewerCanSeeThread(oldThreadInfo) &&
-      !viewerCanSeeThread(newThreadInfo)
+      threadInChatList(oldThreadInfo) &&
+      !threadInChatList(newThreadInfo)
     ) {
       threadWatcher.watchID(oldThreadInfo.id);
     } else if (
-      !viewerCanSeeThread(oldThreadInfo) &&
-      viewerCanSeeThread(newThreadInfo)
+      !threadInChatList(oldThreadInfo) &&
+      threadInChatList(newThreadInfo)
     ) {
       threadWatcher.removeID(oldThreadInfo.id);
     }

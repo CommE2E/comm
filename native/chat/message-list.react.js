@@ -43,7 +43,7 @@ import {
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import threadWatcher from 'lib/shared/thread-watcher';
-import { viewerCanSeeThread } from 'lib/shared/thread-utils';
+import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
@@ -176,7 +176,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   componentDidMount() {
     const threadInfo = InnerMessageList.getThreadInfo(this.props);
     registerChatScreen(this.props.navigation.state.key, this);
-    if (!viewerCanSeeThread(threadInfo)) {
+    if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
       this.props.dispatchActionPromise(
         fetchMostRecentMessagesActionTypes,
@@ -188,7 +188,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     const threadInfo = InnerMessageList.getThreadInfo(this.props);
     registerChatScreen(this.props.navigation.state.key, null);
-    if (!viewerCanSeeThread(threadInfo)) {
+    if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
   }
@@ -237,13 +237,13 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     }
 
     if (
-      viewerCanSeeThread(oldThreadInfo) &&
-      !viewerCanSeeThread(newThreadInfo)
+      threadInChatList(oldThreadInfo) &&
+      !threadInChatList(newThreadInfo)
     ) {
       threadWatcher.watchID(oldThreadInfo.id);
     } else if (
-      !viewerCanSeeThread(oldThreadInfo) &&
-      viewerCanSeeThread(newThreadInfo)
+      !threadInChatList(oldThreadInfo) &&
+      threadInChatList(newThreadInfo)
     ) {
       threadWatcher.removeID(oldThreadInfo.id);
     }

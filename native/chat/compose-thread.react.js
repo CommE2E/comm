@@ -45,7 +45,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
-  viewerCanSeeThread,
+  threadInChatList,
   userIsMember,
 } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
@@ -255,7 +255,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     return _flow(
       _filter(
         (threadInfo: ThreadInfo) =>
-          viewerCanSeeThread(threadInfo) &&
+          threadInChatList(threadInfo) &&
           (!props.parentThreadInfo ||
             threadInfo.parentThreadID === props.parentThreadInfo.id) &&
           userIDs.every(userID => userIsMember(threadInfo, userID)),

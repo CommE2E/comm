@@ -15,7 +15,7 @@ import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 import { messageKey } from 'lib/shared/message-utils';
-import { viewerCanSeeThread } from 'lib/shared/thread-utils';
+import { threadInChatList } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -71,7 +71,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     const { threadInfo } = this.props;
-    if (!threadInfo || viewerCanSeeThread(threadInfo)) {
+    if (!threadInfo || threadInChatList(threadInfo)) {
       return;
     }
     threadWatcher.watchID(threadInfo.id);
@@ -83,7 +83,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     const { threadInfo } = this.props;
-    if (!threadInfo || viewerCanSeeThread(threadInfo)) {
+    if (!threadInfo || threadInChatList(threadInfo)) {
       return;
     }
     threadWatcher.removeID(threadInfo.id);
