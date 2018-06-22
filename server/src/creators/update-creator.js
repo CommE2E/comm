@@ -8,10 +8,27 @@ import {
 import type { Viewer } from '../session/viewer';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
+import {
+  defaultNumberPerThread,
+  type FetchMessageInfosResult,
+} from 'lib/types/message-types';
+import type {
+  FetchEntryInfosResponse,
+  CalendarQuery,
+} from 'lib/types/entry-types';
 
 import invariant from 'invariant';
 
 import { promiseAll } from 'lib/utils/promises';
+import {
+  defaultCalendarQuery,
+  usersInRawEntryInfos,
+} from 'lib/shared/entry-utils';
+import { usersInThreadInfo } from 'lib/shared/thread-utils';
+import { usersInMessageInfos } from 'lib/shared/message-utils';
+import {
+  nonThreadCalendarFilters,
+} from 'lib/selectors/calendar-filter-selectors';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -20,6 +37,8 @@ import {
   fetchThreadInfos,
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 
 // If the viewer is not passed in, the returned array will be empty, and the
 // update won't have an updater_cookie. This should only be done when we are
@@ -83,7 +102,10 @@ async function createUpdates(
           u.type = ${updateData.type}
         )`
       );
-    } else if (updateData.type === updateTypes.DELETE_THREAD) {
+    } else if (
+      updateData.type === updateTypes.DELETE_THREAD ||
+      updateData.type === updateTypes.JOIN_THREAD
+    ) {
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
       key = threadID;
@@ -145,42 +167,93 @@ async function fetchUpdateInfosWithUpdateDatas(
   viewerInfo: ViewerInfo,
 ): Promise<FetchUpdatesResult> {
   const threadIDsNeedingFetch = new Set();
+  const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
   if (!viewerInfo.threadInfos) {
     for (let viewerUpdateData of updateDatas) {
       const updateData = viewerUpdateData.data;
-      if (updateData.type === updateTypes.UPDATE_THREAD) {
+      if (
+        updateData.type === updateTypes.UPDATE_THREAD ||
+        updateData.type === updateTypes.JOIN_THREAD
+      ) {
         threadIDsNeedingFetch.add(updateData.threadID);
+      }
+      if (updateData.type === updateTypes.JOIN_THREAD) {
+        threadIDsNeedingDetailedFetch.add(updateData.threadID);
       }
     }
   }
 
-  let threadResult = undefined;
+  const promises = {};
+
   if (threadIDsNeedingFetch.size > 0) {
-    threadResult = await fetchThreadInfos(
+    promises.threadResult = fetchThreadInfos(
       viewerInfo.viewer,
       SQL`t.id IN (${[...threadIDsNeedingFetch]})`,
     );
   }
 
-  if (viewerInfo.threadInfos) {
-    const { threadInfos, userInfos } = viewerInfo;
-    return updateInfosFromUpdateDatas(updateDatas, { threadInfos, userInfos });
-  } else if (threadResult) {
-    return updateInfosFromUpdateDatas(updateDatas, threadResult);
-  } else {
-    return updateInfosFromUpdateDatas(
-      updateDatas,
-      { threadInfos: {}, userInfos: {} },
+  let calendarQuery;
+  if (threadIDsNeedingDetailedFetch.size > 0) {
+    const threadSelectionCriteria = {};
+    for (let threadID of threadIDsNeedingDetailedFetch) {
+      threadSelectionCriteria[threadID] = false;
+    }
+    promises.messageInfosResult = fetchMessageInfos(
+      viewerInfo.viewer,
+      threadSelectionCriteria,
+      defaultNumberPerThread,
+    );
+    calendarQuery = defaultCalendarQuery();
+    calendarQuery.filters = [
+      ...nonThreadCalendarFilters(calendarQuery.filters),
+      { type: "threads", threadIDs: [...threadIDsNeedingDetailedFetch] },
+    ];
+    promises.entryInfosResult = fetchEntryInfos(
+      viewerInfo.viewer,
+      calendarQuery,
     );
   }
+
+  const {
+    threadResult,
+    messageInfosResult,
+    entryInfosResult,
+  } = await promiseAll(promises);
+
+  let threadInfosResult;
+  if (viewerInfo.threadInfos) {
+    const { threadInfos, userInfos } = viewerInfo;
+    threadInfosResult = { threadInfos, userInfos };
+  } else if (threadResult) {
+    threadInfosResult = threadResult;
+  } else {
+    threadInfosResult = { threadInfos: {}, userInfos: {} };
+  }
+
+  return updateInfosFromUpdateDatas(
+    updateDatas,
+    { threadInfosResult, messageInfosResult, calendarQuery, entryInfosResult },
+  );
 }
 
+export type UpdateInfosRawData = {|
+  threadInfosResult: FetchThreadInfosResult,
+  messageInfosResult: ?FetchMessageInfosResult,
+  calendarQuery?: CalendarQuery,
+  entryInfosResult: ?FetchEntryInfosResponse,
+|};
 function updateInfosFromUpdateDatas(
   updateDatas: $ReadOnlyArray<ViewerUpdateData>,
-  threadInfosResult: FetchThreadInfosResult,
+  rawData: UpdateInfosRawData,
 ): FetchUpdatesResult {
+  const {
+    threadInfosResult,
+    messageInfosResult,
+    calendarQuery,
+    entryInfosResult,
+  } = rawData;
   const updateInfos = [];
-  const userIDs = new Set();
+  let userIDs = new Set();
   for (let viewerUpdateData of updateDatas) {
     const { data: updateData, id } = viewerUpdateData;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
@@ -216,6 +289,40 @@ function updateInfosFromUpdateDatas(
         time: updateData.time,
         threadID: updateData.threadID,
       });
+    } else if (updateData.type === updateTypes.JOIN_THREAD) {
+      const threadInfo = threadInfosResult.threadInfos[updateData.threadID];
+      const rawEntryInfos = [];
+      invariant(entryInfosResult, "should be set");
+      for (let entryInfo of entryInfosResult.rawEntryInfos) {
+        if (entryInfo.threadID === updateData.threadID) {
+          rawEntryInfos.push(entryInfo);
+        }
+      }
+      const rawMessageInfos = [];
+      invariant(messageInfosResult, "should be set");
+      for (let messageInfo of messageInfosResult.rawMessageInfos) {
+        if (messageInfo.threadID === updateData.threadID) {
+          rawMessageInfos.push(messageInfo);
+        }
+      }
+      userIDs = new Set([
+        ...userIDs,
+        ...usersInThreadInfo(threadInfo),
+        ...usersInRawEntryInfos(rawEntryInfos),
+        ...usersInMessageInfos(rawMessageInfos),
+      ]);
+      invariant(calendarQuery, "should be set");
+      updateInfos.push({
+        type: updateTypes.JOIN_THREAD,
+        id,
+        time: updateData.time,
+        threadInfo,
+        rawMessageInfos,
+        truncationStatus:
+          messageInfosResult.truncationStatuses[updateData.threadID],
+        calendarQuery,
+        rawEntryInfos,
+      });
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -234,5 +341,5 @@ function updateInfosFromUpdateDatas(
 
 export {
   createUpdates,
-  updateInfosFromUpdateDatas,
+  fetchUpdateInfosWithUpdateDatas,
 };

@@ -539,7 +539,10 @@ async function commitMembershipChangeset(
     const serverThreadInfo = serverThreadInfos[changedThreadID];
     for (let memberInfo of serverThreadInfo.members) {
       const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
-      if (threadMembershipDeletionPairs.has(pairString)) {
+      if (
+        threadMembershipCreationPairs.has(pairString) ||
+        threadMembershipDeletionPairs.has(pairString)
+      ) {
         continue;
       }
       updateDatas.push({
@@ -549,6 +552,15 @@ async function commitMembershipChangeset(
         threadID: changedThreadID,
       });
     }
+  }
+  for (let pair of threadMembershipCreationPairs) {
+    const [ userID, threadID ] = pair.split('|');
+    updateDatas.push({
+      type: updateTypes.JOIN_THREAD,
+      userID,
+      time,
+      threadID,
+    });
   }
   for (let pair of threadMembershipDeletionPairs) {
     const [ userID, threadID ] = pair.split('|');

@@ -14,7 +14,7 @@ import { dbQuery, SQL } from '../database';
 import {
   type ViewerUpdateData,
   type FetchUpdatesResult,
-  updateInfosFromUpdateDatas,
+  fetchUpdateInfosWithUpdateDatas,
 } from '../creators/update-creator';
 
 async function fetchUpdateInfos(
@@ -36,7 +36,10 @@ async function fetchUpdateInfos(
     viewerUpdateDatas.push(viewerUpdateDataFromRow(viewer, row));
   }
 
-  return updateInfosFromUpdateDatas(viewerUpdateDatas, threadInfosResult);
+  return await fetchUpdateInfosWithUpdateDatas(
+    viewerUpdateDatas,
+    { viewer, ...threadInfosResult },
+  );
 }
 
 function viewerUpdateDataFromRow(
@@ -75,6 +78,14 @@ function viewerUpdateDataFromRow(
     const { threadID } = JSON.parse(row.content);
     data = {
       type: updateTypes.DELETE_THREAD,
+      userID: viewer.id,
+      time: row.time,
+      threadID,
+    };
+  } else if (type === updateTypes.JOIN_THREAD) {
+    const { threadID } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.JOIN_THREAD,
       userID: viewer.id,
       time: row.time,
       threadID,
