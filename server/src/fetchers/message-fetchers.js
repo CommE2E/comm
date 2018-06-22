@@ -421,7 +421,7 @@ async function fetchMessageInfosSince(
   const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
   const truncationStatuses = threadSelectionCriteriaToInitialTruncationStatuses(
     criteria,
-    messageTruncationStatus.EXHAUSTIVE,
+    messageTruncationStatus.UNCHANGED,
   );
 
   const viewerID = viewer.id;
