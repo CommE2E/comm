@@ -7,7 +7,7 @@ import {
   type LeaveThreadRequest,
   type LeaveThreadResult,
   type UpdateThreadRequest,
-  type ThreadJoinRequest,
+  type ServerThreadJoinRequest,
   type ThreadJoinResult,
   type ServerThreadInfo,
   threadPermissions,
@@ -531,7 +531,7 @@ async function updateThread(
 
 async function joinThread(
   viewer: Viewer,
-  request: ThreadJoinRequest,
+  request: ServerThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
   const [ isMember, hasPermission ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),

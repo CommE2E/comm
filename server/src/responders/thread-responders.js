@@ -10,7 +10,7 @@ import {
   type UpdateThreadRequest,
   type NewThreadRequest,
   type NewThreadResult,
-  type ThreadJoinRequest,
+  type ServerThreadJoinRequest,
   type ThreadJoinResult,
   assertThreadType,
 } from 'lib/types/thread-types';
@@ -204,7 +204,7 @@ async function threadJoinResponder(
   viewer: Viewer,
   input: any,
 ): Promise<ThreadJoinResult> {
-  const request: ThreadJoinRequest = input;
+  const request: ServerThreadJoinRequest = input;
   validateInput(joinThreadRequestInputValidator, request);
 
   if (request.calendarQuery) {

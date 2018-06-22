@@ -14,7 +14,7 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   threadPermissions,
-  type ThreadJoinRequest,
+  type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -71,7 +71,7 @@ type Props = {
     threadID: string,
     text: string,
   ) => Promise<SendTextMessageResult>,
-  joinThread: (request: ThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
 type State = {
   text: string,
