@@ -1,5 +1,7 @@
 // @flow
 
+import { threadPermissions } from 'lib/types/thread-types';
+
 import apn from 'apn';
 import fcmAdmin from 'firebase-admin';
 
@@ -134,10 +136,12 @@ async function fcmSinglePush(
 async function getUnreadCounts(
   userIDs: string[],
 ): Promise<{ [userID: string]: number }> {
+  const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT user, COUNT(thread) AS unread_count
     FROM memberships
     WHERE user IN (${userIDs}) AND unread = 1 AND role != 0
+      AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
     GROUP BY user
   `;
   const [ result ] = await dbQuery(query);
