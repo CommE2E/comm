@@ -134,7 +134,7 @@ async function updateFocusedRows(
   }
   await dbQuery(SQL`
     DELETE FROM focused
-    WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
+    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
       AND time < ${time}
   `);
 }
