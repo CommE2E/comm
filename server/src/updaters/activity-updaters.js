@@ -41,14 +41,7 @@ async function activityUpdater(
     focusUpdatesByThreadID.set(threadID, activityUpdate);
   }
 
-  const deleteQuery = SQL`
-    DELETE FROM focused
-    WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
-  `;
-  const [ verifiedThreadIDs ] = await Promise.all([
-    verifyThreadIDs([...unverifiedThreadIDs]),
-    dbQuery(deleteQuery),
-  ]);
+  const verifiedThreadIDs = await verifyThreadIDs([...unverifiedThreadIDs]);
 
   const focusedThreadIDs = [];
   const unfocusedThreadIDs = [];
@@ -86,15 +79,15 @@ async function activityUpdater(
   const memberUnfocusedThreadIDs = unfocusedThreadIDs.filter(filterFunc);
 
   const promises = [];
-  const time = Date.now();
+  promises.push(updateFocusedRows(localViewer, focusedThreadIDs));
   if (focusedThreadIDs.length > 0) {
-    promises.push(insertFocusedRows(localViewer, focusedThreadIDs));
     promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
       WHERE thread IN (${memberFocusedThreadIDs})
         AND user = ${localViewer.userID}
     `));
+    const time = Date.now();
     promises.push(createUpdates(
       memberFocusedThreadIDs.map(threadID => ({
         type: updateTypes.UPDATE_THREAD_READ_STATUS,
@@ -110,40 +103,40 @@ async function activityUpdater(
     `;
     promises.push(rescindPushNotifs(rescindCondition));
   }
+  await Promise.all(promises);
 
-  const [ resetToUnread ] = await Promise.all([
-    possiblyResetThreadsToUnread(
-      localViewer,
-      memberUnfocusedThreadIDs,
-      unfocusedThreadLatestMessages,
-    ),
-    Promise.all(promises),
-  ]);
+  const unfocusedToUnread = await possiblyResetThreadsToUnread(
+    localViewer,
+    memberUnfocusedThreadIDs,
+    unfocusedThreadLatestMessages,
+  );
 
-  return { unfocusedToUnread: resetToUnread };
+  return { unfocusedToUnread };
 }
 
-async function insertFocusedRows(
+async function updateFocusedRows(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,
 ): Promise<void> {
   const time = Date.now();
-  const focusedInsertRows = threadIDs.map(threadID => [
-    viewer.userID,
-    viewer.cookieID,
-    threadID,
-    time,
-  ]);
-  try {
+  if (threadIDs.length > 0) {
+    const focusedInsertRows = threadIDs.map(threadID => [
+      viewer.userID,
+      viewer.cookieID,
+      threadID,
+      time,
+    ]);
     await dbQuery(SQL`
       INSERT INTO focused (user, cookie, thread, time)
       VALUES ${focusedInsertRows}
+      ON DUPLICATE KEY UPDATE time = VALUES(time)
     `);
-  } catch (e) {
-    if (e.code !== "ER_DUP_ENTRY") {
-      throw e;
-    }
   }
+  await dbQuery(SQL`
+    DELETE FROM focused
+    WHERE user = ${localViewer.userID} AND cookie = ${localViewer.cookieID}
+      AND time < ${time}
+  `);
 }
 
 // To protect against a possible race condition, we reset the thread to unread
