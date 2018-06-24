@@ -32,7 +32,7 @@ import {
   nonThreadCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
 import createIDs from './id-creator';
 import { deleteUpdatesByConditions } from '../deleters/update-deleters';
 import {
@@ -58,7 +58,7 @@ type UpdatesResult = {|
   userInfos: {[id: string]: AccountUserInfo},
 |};
 const emptyArray = [];
-const defaultResult = { viewerUpdates: emptyArray, userInfos: {} };
+const defaultResult = { viewerUpdates: [], userInfos: {} };
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
   viewerInfo?: ViewerInfo,
@@ -74,26 +74,27 @@ async function createUpdates(
   const keyedUpdateDatas: Map<string, UpdateData[]> = new Map();
   const deleteConditions: Map<string, number[]> = new Map();
   for (let updateData of sortedUpdateDatas) {
-    let types;
+    let conditionKey, types;
     if (updateData.type === updateTypes.UPDATE_THREAD) {
+      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [
         updateTypes.UPDATE_THREAD,
         updateTypes.UPDATE_THREAD_READ_STATUS,
       ];
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [ updateTypes.UPDATE_THREAD_READ_STATUS ];
     } else if (
       updateData.type === updateTypes.DELETE_THREAD ||
       updateData.type === updateTypes.JOIN_THREAD
     ) {
+      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [];
     } else {
       filteredUpdateDatas.push(updateData);
       continue;
     }
-
-    const key = updateData.threadID;
-    const conditionKey = `${updateData.userID}|${key}`;
+    invariant(conditionKey && types, "should be set");
 
     // Possibly filter any existing UpdateDatas based on this one
     let keyUpdateDatas = keyedUpdateDatas.get(conditionKey);
@@ -104,13 +105,13 @@ async function createUpdates(
       keyUpdateDatas = [];
       keyUpdateDatasChanged = true;
     } else {
-      const filteredKeyUpdateDatas = existingUpdateDatas.filter(
+      const filteredKeyUpdateDatas = keyUpdateDatas.filter(
         updateData => types.indexOf(updateData.type) === -1,
       );
       if (filteredKeyUpdateDatas.length === 0) {
         keyUpdateDatas = [];
         keyUpdateDatasChanged = true;
-      } else if (filteredKeyUpdateDatas.length !== existingUpdateDatas.length) {
+      } else if (filteredKeyUpdateDatas.length !== keyUpdateDatas.length) {
         keyUpdateDatas = filteredKeyUpdateDatas;
         keyUpdateDatasChanged = true;
       }
@@ -164,8 +165,9 @@ async function createUpdates(
   }
   const ids = await createIDs("updates", filteredUpdateDatas.length);
 
-  const viewerUpdateDatas: Map<string, ViewerUpdateData[]> = [];
-  const insertRows: Map<string, (number | string)[][]> = [];
+  const viewerUpdateDatas: ViewerUpdateData[] = [];
+  const insertRows: (number | string | null)[][] = [];
+  const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
     if (viewerInfo && updateData.userID === viewerInfo.viewer.id) {
@@ -194,6 +196,14 @@ async function createUpdates(
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
 
+    if (key) {
+      const conditionKey = `${updateData.userID}|${key}`;
+      const currentEarliestTime = earliestTime.get(conditionKey);
+      if (!currentEarliestTime || updateData.time < currentEarliestTime) {
+        earliestTime.set(conditionKey, updateData.time);
+      }
+    }
+
     const insertRow = [
       ids[i],
       updateData.userID,
@@ -208,21 +218,18 @@ async function createUpdates(
     insertRows.push(insertRow);
   }
 
-  const deleteSQLConditions: SQLStatement[] = deleteConditions.map(
-    ([ conditionKey, types ]) => {
+  const deleteSQLConditions: SQLStatement[] = [...deleteConditions].map(
+    ([ conditionKey: string, types: number[] ]) => {
       const [ userID, key ] = conditionKey.split('|');
-      if (types.length === 0) {
-        return SQL`(
-          u.user = ${userID} AND
-          u.key = ${key}
-        )`;
-      } else {
-        return SQL`(
-          u.user = ${userID} AND
-          u.key = ${key} AND
-          u.type IN (${types})
-        )`;
+      const conditions = [ SQL`u.user = ${userID}`, SQL`u.key = ${key}` ];
+      if (types.length > 0) {
+        conditions.push(SQL`u.type IN (${types})`);
       }
+      const earliestTimeForCondition = earliestTime.get(conditionKey);
+      if (earliestTimeForCondition) {
+        conditions.push(SQL`u.time < ${earliestTimeForCondition}`);
+      }
+      return mergeAndConditions(conditions);
     },
   );
 
@@ -442,6 +449,8 @@ function updateInfosFromUpdateDatas(
       userInfos[userID] = userInfo;
     }
   }
+
+  updateInfos.sort((a: UpdateInfo, b: UpdateInfo) => a.time - b.time);
 
   return { updateInfos, userInfos };
 }
