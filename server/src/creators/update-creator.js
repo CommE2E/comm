@@ -18,6 +18,8 @@ import type {
 } from 'lib/types/entry-types';
 
 import invariant from 'invariant';
+import _uniq from 'lodash/fp/uniq';
+import _intersection from 'lodash/fp/intersection';
 
 import { promiseAll } from 'lib/utils/promises';
 import {
@@ -55,7 +57,8 @@ type UpdatesResult = {|
   viewerUpdates: $ReadOnlyArray<UpdateInfo>,
   userInfos: {[id: string]: AccountUserInfo},
 |};
-const defaultResult = { viewerUpdates: [], userInfos: {} };
+const emptyArray = [];
+const defaultResult = { viewerUpdates: emptyArray, userInfos: {} };
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
   viewerInfo?: ViewerInfo,
@@ -63,13 +66,108 @@ async function createUpdates(
   if (updateDatas.length === 0) {
     return defaultResult;
   }
-  const ids = await createIDs("updates", updateDatas.length);
+  const sortedUpdateDatas = [...updateDatas].sort(
+    (a: UpdateData, b: UpdateData) => a.time - b.time,
+  );
 
-  const viewerUpdateDatas: ViewerUpdateData[] = [];
-  const insertRows = [];
-  const deleteConditions = [];
-  for (let i = 0; i < updateDatas.length; i++) {
-    const updateData = updateDatas[i];
+  const filteredUpdateDatas: UpdateData[] = [];
+  const keyedUpdateDatas: Map<string, UpdateData[]> = new Map();
+  const deleteConditions: Map<string, number[]> = new Map();
+  for (let updateData of sortedUpdateDatas) {
+    let types;
+    if (updateData.type === updateTypes.UPDATE_THREAD) {
+      types = [
+        updateTypes.UPDATE_THREAD,
+        updateTypes.UPDATE_THREAD_READ_STATUS,
+      ];
+    } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+      types = [ updateTypes.UPDATE_THREAD_READ_STATUS ];
+    } else if (
+      updateData.type === updateTypes.DELETE_THREAD ||
+      updateData.type === updateTypes.JOIN_THREAD
+    ) {
+      types = [];
+    } else {
+      filteredUpdateDatas.push(updateData);
+      continue;
+    }
+
+    const key = updateData.threadID;
+    const conditionKey = `${updateData.userID}|${key}`;
+
+    // Possibly filter any existing UpdateDatas based on this one
+    let keyUpdateDatas = keyedUpdateDatas.get(conditionKey);
+    let keyUpdateDatasChanged = false;
+    if (!keyUpdateDatas) {
+      keyUpdateDatas = [];
+    } else if (types.length === 0) {
+      keyUpdateDatas = [];
+      keyUpdateDatasChanged = true;
+    } else {
+      const filteredKeyUpdateDatas = existingUpdateDatas.filter(
+        updateData => types.indexOf(updateData.type) === -1,
+      );
+      if (filteredKeyUpdateDatas.length === 0) {
+        keyUpdateDatas = [];
+        keyUpdateDatasChanged = true;
+      } else if (filteredKeyUpdateDatas.length !== existingUpdateDatas.length) {
+        keyUpdateDatas = filteredKeyUpdateDatas;
+        keyUpdateDatasChanged = true;
+      }
+    }
+
+    // Update the deleteConditions and add our UpdateData to keyedUpdateDatas
+    const existingTypes = deleteConditions.get(conditionKey);
+    if (types.length === 0) {
+      // If this UpdateData says to delete all the others, then include it, and
+      // update the deleteConditions (if they don't already say to delete)
+      if (!existingTypes || existingTypes.length !== 0) {
+        deleteConditions.set(conditionKey, emptyArray);
+      }
+      keyUpdateDatas.push(updateData);
+      keyUpdateDatasChanged = true;
+    } else if (!existingTypes) {
+      // If there were no existing conditions, then set the deleteConditions and
+      // include this UpdateData
+      deleteConditions.set(conditionKey, types);
+      keyUpdateDatas.push(updateData);
+      keyUpdateDatasChanged = true;
+    } else {
+      // Finally, if we have a list of types to delete, both existing and new,
+      // then merge the list for the deleteConditions, and include this
+      // UpdateData as long as its list of types isn't a strict subset of the
+      // existing one.
+      const newTypes = _uniq([...existingTypes, ...types]);
+      deleteConditions.set(conditionKey, newTypes);
+      const intersection = _intersection(existingTypes)(types);
+      if (
+        intersection.length !== types.length ||
+        intersection.length === existingTypes.length
+      ) {
+        keyUpdateDatas.push(updateData);
+        keyUpdateDatasChanged = true;
+      }
+    }
+
+    if (!keyUpdateDatasChanged) {
+      continue;
+    }
+    if (keyUpdateDatas.length === 0) {
+      keyedUpdateDatas.delete(conditionKey);
+    } else {
+      keyedUpdateDatas.set(conditionKey, keyUpdateDatas);
+    }
+  }
+
+  for (let [ conditionKey, updateDatas ] of keyedUpdateDatas) {
+    filteredUpdateDatas.push(...updateDatas);
+  }
+  const ids = await createIDs("updates", filteredUpdateDatas.length);
+
+  const viewerUpdateDatas: Map<string, ViewerUpdateData[]> = [];
+  const insertRows: Map<string, (number | string)[][]> = [];
+  for (let i = 0; i < filteredUpdateDatas.length; i++) {
+    const updateData = filteredUpdateDatas[i];
     if (viewerInfo && updateData.userID === viewerInfo.viewer.id) {
       viewerUpdateDatas.push({ data: updateData, id: ids[i] });
     }
@@ -81,28 +179,10 @@ async function createUpdates(
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       content = JSON.stringify({ threadID: updateData.threadID });
       key = updateData.threadID;
-      const deleteTypes = [
-        updateTypes.UPDATE_THREAD,
-        updateTypes.UPDATE_THREAD_READ_STATUS,
-      ];
-      deleteConditions.push(
-        SQL`(
-          u.user = ${updateData.userID} AND
-          u.key = ${key} AND
-          u.type IN (${deleteTypes})
-        )`
-      );
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
       const { threadID, unread } = updateData;
       content = JSON.stringify({ threadID, unread });
       key = threadID;
-      deleteConditions.push(
-        SQL`(
-          u.user = ${updateData.userID} AND
-          u.key = ${key} AND
-          u.type = ${updateData.type}
-        )`
-      );
     } else if (
       updateData.type === updateTypes.DELETE_THREAD ||
       updateData.type === updateTypes.JOIN_THREAD
@@ -110,10 +190,10 @@ async function createUpdates(
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
       key = threadID;
-      deleteConditions.push(
-        SQL`(u.user = ${updateData.userID} AND u.key = ${key})`
-      );
+    } else {
+      invariant(false, `unrecognized updateType ${updateData.type}`);
     }
+
     const insertRow = [
       ids[i],
       updateData.userID,
@@ -128,18 +208,38 @@ async function createUpdates(
     insertRows.push(insertRow);
   }
 
+  const deleteSQLConditions: SQLStatement[] = deleteConditions.map(
+    ([ conditionKey, types ]) => {
+      const [ userID, key ] = conditionKey.split('|');
+      if (types.length === 0) {
+        return SQL`(
+          u.user = ${userID} AND
+          u.key = ${key}
+        )`;
+      } else {
+        return SQL`(
+          u.user = ${userID} AND
+          u.key = ${key} AND
+          u.type IN (${types})
+        )`;
+      }
+    },
+  );
+
   const promises = {};
 
-  const insertQuery = viewerInfo
-    ? SQL`
-        INSERT INTO updates(id, user, type, key, content, time, updater_cookie)
-      `
-    : SQL`INSERT INTO updates(id, user, type, key, content, time) `;
-  insertQuery.append(SQL`VALUES ${insertRows}`);
-  promises.insert = dbQuery(insertQuery);
+  if (insertRows.length > 0) {
+    const insertQuery = viewerInfo
+      ? SQL`
+          INSERT INTO updates(id, user, type, key, content, time, updater_cookie)
+        `
+      : SQL`INSERT INTO updates(id, user, type, key, content, time) `;
+    insertQuery.append(SQL`VALUES ${insertRows}`);
+    promises.insert = dbQuery(insertQuery);
+  }
 
-  if (deleteConditions.length > 0) {
-    promises.delete = deleteUpdatesByConditions(deleteConditions);
+  if (deleteSQLConditions.length > 0) {
+    promises.delete = deleteUpdatesByConditions(deleteSQLConditions);
   }
 
   if (viewerUpdateDatas.length > 0) {
