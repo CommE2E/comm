@@ -31,6 +31,11 @@ import { usersInMessageInfos } from 'lib/shared/message-utils';
 import {
   nonThreadCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
+import {
+  keyForUpdateData,
+  keyForUpdateInfo,
+  conditionKeyForUpdateData,
+} from 'lib/shared/update-utils';
 
 import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
 import createIDs from './id-creator';
@@ -59,6 +64,11 @@ type UpdatesResult = {|
 |};
 const emptyArray = [];
 const defaultResult = { viewerUpdates: [], userInfos: {} };
+const sortFunction = (
+  a: UpdateData | UpdateInfo,
+  b: UpdateData | UpdateInfo,
+) => a.time - b.time;
+
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
   viewerInfo?: ViewerInfo,
@@ -66,34 +76,30 @@ async function createUpdates(
   if (updateDatas.length === 0) {
     return defaultResult;
   }
-  const sortedUpdateDatas = [...updateDatas].sort(
-    (a: UpdateData, b: UpdateData) => a.time - b.time,
-  );
+  const sortedUpdateDatas = [...updateDatas].sort(sortFunction);
 
   const filteredUpdateDatas: UpdateData[] = [];
   const keyedUpdateDatas: Map<string, UpdateData[]> = new Map();
   const deleteConditions: Map<string, number[]> = new Map();
   for (let updateData of sortedUpdateDatas) {
-    let conditionKey, types;
+    let types;
     if (updateData.type === updateTypes.UPDATE_THREAD) {
-      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [
         updateTypes.UPDATE_THREAD,
         updateTypes.UPDATE_THREAD_READ_STATUS,
       ];
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [ updateTypes.UPDATE_THREAD_READ_STATUS ];
     } else if (
       updateData.type === updateTypes.DELETE_THREAD ||
       updateData.type === updateTypes.JOIN_THREAD
     ) {
-      conditionKey = `${updateData.userID}|${updateData.threadID}`;
       types = [];
     } else {
       filteredUpdateDatas.push(updateData);
       continue;
     }
+    const conditionKey = conditionKeyForUpdateData(updateData);
     invariant(conditionKey && types, "should be set");
 
     // Possibly filter any existing UpdateDatas based on this one
@@ -166,7 +172,7 @@ async function createUpdates(
   const ids = await createIDs("updates", filteredUpdateDatas.length);
 
   const viewerUpdateDatas: ViewerUpdateData[] = [];
-  const insertRows: (number | string | null)[][] = [];
+  const insertRows: (?(number | string))[][] = [];
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
@@ -174,28 +180,25 @@ async function createUpdates(
       viewerUpdateDatas.push({ data: updateData, id: ids[i] });
     }
 
-    let content, key;
+    let content;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
-      key = null;
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       content = JSON.stringify({ threadID: updateData.threadID });
-      key = updateData.threadID;
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
       const { threadID, unread } = updateData;
       content = JSON.stringify({ threadID, unread });
-      key = threadID;
     } else if (
       updateData.type === updateTypes.DELETE_THREAD ||
       updateData.type === updateTypes.JOIN_THREAD
     ) {
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
-      key = threadID;
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
 
+    const key = keyForUpdateData(updateData);
     if (key) {
       const conditionKey = `${updateData.userID}|${key}`;
       const currentEarliestTime = earliestTime.get(conditionKey);
@@ -450,9 +453,47 @@ function updateInfosFromUpdateDatas(
     }
   }
 
-  updateInfos.sort((a: UpdateInfo, b: UpdateInfo) => a.time - b.time);
+  updateInfos.sort(sortFunction);
 
-  return { updateInfos, userInfos };
+  // Now we'll attempt to merge UpdateInfos so that we only have one per key
+  const updateForKey: Map<string, UpdateInfo> = new Map();
+  const mergedUpdates: UpdateInfo[] = [];
+  for (let updateInfo of updateInfos) {
+    const key = keyForUpdateInfo(updateInfo);
+    if (!key) {
+      mergedUpdates.push(updateInfo);
+      continue;
+    } else if (
+      updateInfo.type === updateTypes.DELETE_THREAD ||
+      updateInfo.type === updateTypes.JOIN_THREAD
+    ) {
+      updateForKey.set(key, updateInfo);
+      continue;
+    }
+    const currentUpdateInfo = updateForKey.get(key);
+    if (!currentUpdateInfo) {
+      updateForKey.set(key, updateInfo);
+    } else if (
+      updateInfo.type === updateTypes.UPDATE_THREAD &&
+      currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS
+    ) {
+      // UPDATE_THREAD trumps UPDATE_THREAD_READ_STATUS
+      // Note that we keep the oldest UPDATE_THREAD
+      updateForKey.set(key, updateInfo);
+    } else if (
+      updateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS &&
+      currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS
+    ) {
+      // If we only have UPDATE_THREAD_READ_STATUS, keep the most recent
+      updateForKey.set(key, updateInfo);
+    }
+  }
+  for (let [key, updateInfo] of updateForKey) {
+    mergedUpdates.push(updateInfo);
+  }
+  mergedUpdates.sort(sortFunction);
+
+  return { updateInfos: mergedUpdates, userInfos };
 }
 
 export {
