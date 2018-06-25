@@ -94,7 +94,7 @@ registerConfig({
   setCookieOnRequest: false,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
-  platform: "web",
+  platformDetails: { platform: "web" },
 });
 
 type Props = {

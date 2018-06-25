@@ -105,6 +105,7 @@ import {
 } from './push/android';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
+import { persistConfig, codeVersion } from './persist';
 
 registerConfig({
   resolveInvalidatedCookie,
@@ -116,7 +117,11 @@ registerConfig({
   },
   setCookieOnRequest: true,
   calendarRangeInactivityLimit: sessionInactivityLimit,
-  platform: Platform.OS,
+  platformDetails: {
+    platform: Platform.OS,
+    codeVersion,
+    stateVersion: persistConfig.version,
+  },
 });
 
 const msInDay = 24 * 60 * 60 * 1000;

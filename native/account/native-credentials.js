@@ -14,7 +14,6 @@ import {
 import URL from 'url-parse';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import { getConfig } from 'lib/utils/config';
 
 import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
 
