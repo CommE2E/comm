@@ -105,6 +105,11 @@ async function pingResponder(
           },
         ));
         viewerMissingDeviceToken = false;
+      } else if (
+        clientResponse.type ===
+          serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
+      ) {
+        // TODO record here
       }
     }
   }
@@ -161,6 +166,14 @@ async function pingResponder(
     ...threadsResult.userInfos,
   });
 
+  const serverRequests = [];
+  if (viewerMissingPlatform) {
+    serverRequests.push({ type: serverRequestTypes.PLATFORM });
+  }
+  if (viewerMissingDeviceToken) {
+    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
+  }
+
   const messagesCurrentAsOf = mostRecentMessageTimestamp(
     messagesResult.rawMessageInfos,
     clientMessagesCurrentAsOf,
@@ -174,20 +187,10 @@ async function pingResponder(
     serverTime: messagesCurrentAsOf,
     rawEntryInfos: entriesResult.rawEntryInfos,
     userInfos,
+    serverRequests,
   };
   if (updatesResult) {
     response.updatesResult = updatesResult;
-  }
-
-  const serverRequests = [];
-  if (viewerMissingPlatform) {
-    serverRequests.push({ type: serverRequestTypes.PLATFORM });
-  }
-  if (viewerMissingDeviceToken) {
-    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
-  }
-  if (serverRequests.length > 0) {
-    response.serverRequests = serverRequests;
   }
 
   return response;
