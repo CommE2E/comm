@@ -32,7 +32,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: (state: Object) => ({
+  [3]: (state) => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
@@ -61,6 +61,14 @@ const migrations = {
     ...state,
     calendarFilters: defaultCalendarFilters,
   }),
+  [6]: (state) => ({
+    ...state,
+    threadInfos: undefined,
+    threadStore: {
+      threadInfos: state.threadInfos,
+      inconsistencyResponses: [],
+    },
+  }),
 };
 
 const persistConfig = {
@@ -68,7 +76,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 5,
+  version: 6,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

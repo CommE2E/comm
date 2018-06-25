@@ -1,6 +1,6 @@
 // @flow
 
-import type { RawThreadInfo } from 'lib/types/thread-types';
+import type { ThreadStore } from 'lib/types/thread-types';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
@@ -75,7 +75,7 @@ export type AppState = {|
   sessionID: string,
   entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
-  threadInfos: {[id: string]: RawThreadInfo},
+  threadStore: ThreadStore,
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   drafts: {[key: string]: string},
@@ -104,7 +104,10 @@ const defaultState = ({
     lastUserInteractionCalendar: 0,
   },
   lastUserInteraction: { sessionReset: Date.now() },
-  threadInfos: {},
+  threadStore: {
+    threadInfos: {},
+    inconsistencyResponses: [],
+  },
   userInfos: {},
   messageStore: {
     messages: {},
@@ -187,7 +190,7 @@ function reducer(state: AppState = defaultState, action: *) {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -216,7 +219,7 @@ function reducer(state: AppState = defaultState, action: *) {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -244,7 +247,7 @@ function reducer(state: AppState = defaultState, action: *) {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -269,7 +272,7 @@ function reducer(state: AppState = defaultState, action: *) {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -322,7 +325,7 @@ function reducer(state: AppState = defaultState, action: *) {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -347,7 +350,10 @@ function reducer(state: AppState = defaultState, action: *) {
 function validateState(oldState: AppState, state: AppState): AppState {
   const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
-  if (activeThread && state.threadInfos[activeThread].currentUser.unread) {
+  if (
+    activeThread &&
+    state.threadStore.threadInfos[activeThread].currentUser.unread
+  ) {
     // Makes sure a currently focused thread is never unread
     state = {
       navInfo: state.navInfo,
@@ -355,15 +361,18 @@ function validateState(oldState: AppState, state: AppState): AppState {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: {
-        ...state.threadInfos,
-        [activeThread]: {
-          ...state.threadInfos[activeThread],
-          currentUser: {
-            ...state.threadInfos[activeThread].currentUser,
-            unread: false,
+      threadStore: {
+        threadInfos: {
+          ...state.threadStore.threadInfos,
+          [activeThread]: {
+            ...state.threadStore.threadInfos[activeThread],
+            currentUser: {
+              ...state.threadStore.threadInfos[activeThread].currentUser,
+              unread: false,
+            },
           },
         },
+        inconsistencyResponses: state.threadStore.inconsistencyResponses,
       },
       userInfos: state.userInfos,
       messageStore: state.messageStore,
@@ -395,7 +404,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: {
         messages: state.messageStore.messages,
@@ -437,7 +446,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       sessionID: state.sessionID,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,

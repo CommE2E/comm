@@ -121,7 +121,10 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         lastUserInteractionCalendar: time,
       },
       lastUserInteraction: { sessionReset: time },
-      threadInfos,
+      threadStore: {
+        threadInfos,
+        inconsistencyResponses: [],
+      },
       userInfos: {
         ...messageUserInfos,
         ...entryUserInfos,

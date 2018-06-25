@@ -867,7 +867,7 @@ const ConnectedAppWithNavigationState = connect(
           : null,
       deviceToken: state.deviceToken,
       unreadCount: unreadCount(state),
-      rawThreadInfos: state.threadInfos,
+      rawThreadInfos: state.threadStore.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       pingTimestamps: state.pingTimestamps,
       sessionTimeLeft: sessionTimeLeft(state),

@@ -577,7 +577,7 @@ export default connect(
       mostRecentReadThread: mostRecentReadThreadSelector(state),
       activeThread: activeThreadSelector(state),
       activeThreadCurrentlyUnread: !activeChatThreadID ||
-        state.threadInfos[activeChatThreadID].currentUser.unread,
+        state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
       activeThreadLatestMessage:
         activeChatThreadID && state.messageStore.threads[activeChatThreadID]
           ? state.messageStore.threads[activeChatThreadID].messageIDs[0]

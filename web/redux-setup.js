@@ -1,7 +1,7 @@
 // @flow
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { RawThreadInfo } from 'lib/types/thread-types';
+import type { ThreadStore } from 'lib/types/thread-types';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -48,7 +48,7 @@ export type AppState = {|
   resetPasswordUsername: string,
   entryStore: EntryStore,
   lastUserInteraction: {[section: string]: number},
-  threadInfos: {[id: string]: RawThreadInfo},
+  threadStore: ThreadStore,
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
   drafts: {[key: string]: string},
@@ -87,7 +87,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       resetPasswordUsername: state.resetPasswordUsername,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -110,7 +110,7 @@ export function reducer(inputState: AppState | void, action: Action) {
       resetPasswordUsername: state.resetPasswordUsername,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
@@ -133,7 +133,10 @@ export function reducer(inputState: AppState | void, action: Action) {
 function validateState(oldState: AppState, state: AppState): AppState {
   const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
-  if (activeThread && state.threadInfos[activeThread].currentUser.unread) {
+  if (
+    activeThread &&
+    state.threadStore.threadInfos[activeThread].currentUser.unread
+  ) {
     // Makes sure a currently focused thread is never unread
     state = {
       navInfo: state.navInfo,
@@ -143,13 +146,16 @@ function validateState(oldState: AppState, state: AppState): AppState {
       resetPasswordUsername: state.resetPasswordUsername,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: {
-        ...state.threadInfos,
-        [activeThread]: {
-          ...state.threadInfos[activeThread],
-          currentUser: {
-            ...state.threadInfos[activeThread].currentUser,
-            unread: false,
+      threadStore: {
+        ...state.threadStore,
+        threadInfos: {
+          ...state.threadStore.threadInfos,
+          [activeThread]: {
+            ...state.threadStore.threadInfos[activeThread],
+            currentUser: {
+              ...state.threadStore.threadInfos[activeThread].currentUser,
+              unread: false,
+            },
           },
         },
       },
@@ -181,7 +187,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       resetPasswordUsername: state.resetPasswordUsername,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: {
         messages: state.messageStore.messages,
@@ -209,7 +215,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
 
   if (
     state.navInfo.activeChatThreadID &&
-    !state.threadInfos[state.navInfo.activeChatThreadID]
+    !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]
   ) {
     // Makes sure the active thread always exists
     state = {
@@ -226,7 +232,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       resetPasswordUsername: state.resetPasswordUsername,
       entryStore: state.entryStore,
       lastUserInteraction: state.lastUserInteraction,
-      threadInfos: state.threadInfos,
+      threadStore: state.threadStore,
       userInfos: state.userInfos,
       messageStore: state.messageStore,
       drafts: state.drafts,
