@@ -95,10 +95,21 @@ async function fetchAllUserIDs(): Promise<string[]> {
   return result.map(row => row.id.toString());
 }
 
+async function fetchUsername(id: string): Promise<?string> {
+  const query = SQL`SELECT username FROM users WHERE id = ${id}`;
+  const [ result ] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  const row = result[0];
+  return row.username;
+}
+
 export {
   fetchUserInfos,
   verifyUserIDs,
   verifyUserOrCookieIDs,
   fetchCurrentUserInfo,
   fetchAllUserIDs,
+  fetchUsername,
 };
