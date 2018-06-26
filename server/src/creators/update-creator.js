@@ -241,9 +241,9 @@ async function createUpdates(
   if (insertRows.length > 0) {
     const insertQuery = viewerInfo
       ? SQL`
-          INSERT INTO updates(id, user, type, key, content, time, updater_cookie)
+          INSERT INTO updates(id, user, type, \`key\`, content, time, updater_cookie)
         `
-      : SQL`INSERT INTO updates(id, user, type, key, content, time) `;
+      : SQL`INSERT INTO updates(id, user, type, \`key\`, content, time) `;
     insertQuery.append(SQL`VALUES ${insertRows}`);
     promises.insert = dbQuery(insertQuery);
   }
@@ -279,18 +279,17 @@ async function fetchUpdateInfosWithUpdateDatas(
 ): Promise<FetchUpdatesResult> {
   const threadIDsNeedingFetch = new Set();
   const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
-  if (!viewerInfo.threadInfos) {
-    for (let viewerUpdateData of updateDatas) {
-      const updateData = viewerUpdateData.data;
-      if (
-        updateData.type === updateTypes.UPDATE_THREAD ||
-        updateData.type === updateTypes.JOIN_THREAD
-      ) {
-        threadIDsNeedingFetch.add(updateData.threadID);
-      }
-      if (updateData.type === updateTypes.JOIN_THREAD) {
-        threadIDsNeedingDetailedFetch.add(updateData.threadID);
-      }
+  for (let viewerUpdateData of updateDatas) {
+    const updateData = viewerUpdateData.data;
+    if (
+      !viewerInfo.threadInfos &&
+      (updateData.type === updateTypes.UPDATE_THREAD ||
+        updateData.type === updateTypes.JOIN_THREAD)
+    ) {
+      threadIDsNeedingFetch.add(updateData.threadID);
+    }
+    if (updateData.type === updateTypes.JOIN_THREAD) {
+      threadIDsNeedingDetailedFetch.add(updateData.threadID);
     }
   }
 
@@ -305,9 +304,9 @@ async function fetchUpdateInfosWithUpdateDatas(
 
   let calendarQuery;
   if (threadIDsNeedingDetailedFetch.size > 0) {
-    const threadSelectionCriteria = {};
+    const threadSelectionCriteria = { threadCursors: {} };
     for (let threadID of threadIDsNeedingDetailedFetch) {
-      threadSelectionCriteria[threadID] = false;
+      threadSelectionCriteria.threadCursors[threadID] = false;
     }
     promises.messageInfosResult = fetchMessageInfos(
       viewerInfo.viewer,

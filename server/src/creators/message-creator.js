@@ -222,8 +222,8 @@ async function updateUnreadStatus(
   const [ result ] = await dbQuery(query);
 
   const setUnreadPairs = result.map(row => ({
-    userID: row.user.toString,
-    threadID: row.thread.toString,
+    userID: row.user.toString(),
+    threadID: row.thread.toString(),
   }));
   const updateConditions = setUnreadPairs.map(
     pair => SQL`(user = ${pair.userID} AND thread = ${pair.threadID})`,
@@ -233,7 +233,7 @@ async function updateUnreadStatus(
     SET unread = 1
     WHERE
   `;
-  updateQuery.append(mergeOrConditions(threadConditionClauses));
+  updateQuery.append(mergeOrConditions(updateConditions));
 
   const now = Date.now();
   await Promise.all([
