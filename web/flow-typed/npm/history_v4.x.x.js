@@ -1,5 +1,5 @@
-// flow-typed signature: 984f6785a321187ac15c3434bbd7f25d
-// flow-typed version: 568ec63cee/history_v4.x.x/flow_>=v0.25.x
+// flow-typed signature: eb8bd974b677b08dfca89de9ac05b60b
+// flow-typed version: 43b30482ac/history_v4.x.x/flow_>=v0.25.x
 
 declare module "history/createBrowserHistory" {
   declare function Unblock(): void;
@@ -28,6 +28,7 @@ declare module "history/createBrowserHistory" {
     block: (message: string) => Unblock,
     block: ((location: BrowserLocation, action: Action) => string) => Unblock,
     push: (path: string) => void,
+    replace: (path: string) => void,
   };
 
   declare type HistoryOpts = {

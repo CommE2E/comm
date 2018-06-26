@@ -1,5 +1,5 @@
-// flow-typed signature: 377c73166b75ba211a2289a41436c193
-// flow-typed version: 2132a22c83/react-color_v2.x.x/flow_>=v0.56.x
+// flow-typed signature: ad7630ebca7749193fedebd877d186a5
+// flow-typed version: 9bf16da660/react-color_v2.x.x/flow_>=v0.56.x
 
 declare module "react-color" {
   declare export type HexColor = string;
@@ -11,6 +11,13 @@ declare module "react-color" {
     a?: number
   |};
 
+  declare export type HSVColor = {|
+    h: number,
+    s: number,
+    v: number,
+    a?: number
+  |};
+
   declare export type RGBColor = {|
     r: number,
     g: number,
@@ -18,11 +25,12 @@ declare module "react-color" {
     a?: number
   |};
 
-  declare export type Color = HexColor | HSLColor | RGBColor;
+  declare export type Color = HexColor | HSLColor | HSVColor | RGBColor;
 
   declare export type ColorResult = {|
     hex: HexColor,
     hsl: HSLColor,
+    hsv: HSVColor,
     rgb: RGBColor
   |};
 
@@ -134,16 +142,13 @@ declare module "react-color" {
   ) => void;
 
   declare export type InjectedColorProps = {
-    hex?: string,
-    hsl?: HSLColor,
-    rgb?: RGBColor,
-    onChange?: ColorWrapChangeHandler
-  };
-
-  declare export type ExportedColorProps = {
-    color?: Color,
-    onChange?: ColorChangeHandler,
-    onChangeComplete?: ColorChangeHandler
+    hex: string,
+    hsl: HSLColor,
+    hsv: HSVColor,
+    rgb: RGBColor,
+    oldHue: number,
+    onChange?: ColorWrapChangeHandler,
+    source: string
   };
 
   declare export class AlphaPicker extends React$Component<AlphaPickerProps> {}
@@ -160,9 +165,9 @@ declare module "react-color" {
   declare export class SwatchesPicker extends React$Component<SwatchesPickerProps> {}
   declare export class TwitterPicker extends React$Component<TwitterPickerProps> {}
 
-  declare export function CustomPicker<A>(
-    component: React$ComponentType<A & InjectedColorProps>
-  ): Class<A & ExportedColorProps>;
+  declare export function CustomPicker<Props: {}>(
+    Component: React$ComponentType<InjectedColorProps & $Supertype<Props>>
+  ): React$ComponentType<Props>;
 }
 
 declare module "react-color/lib/components/common" {
@@ -170,12 +175,14 @@ declare module "react-color/lib/components/common" {
     HexColor,
     RGBColor,
     HSLColor,
+    HSVColor,
     ColorChangeHandler
   } from "react-color";
 
   declare type PartialColorResult = {|
     hex?: HexColor,
     hsl?: HSLColor,
+    hsv?: HSVColor,
     rgb?: RGBColor
   |};
 
