@@ -154,7 +154,7 @@ const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.String,
   password: t.String,
-  platform: tPlatform,
+  platform: t.maybe(tPlatform),
 });
 
 async function accountCreationResponder(
@@ -172,7 +172,7 @@ const logInRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platform: tPlatform,
+  platform: t.maybe(tPlatform),
 });
 
 async function logInResponder(
@@ -262,7 +262,7 @@ const updatePasswordRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platform: tPlatform,
+  platform: t.maybe(tPlatform),
 });
 
 async function passwordUpdateResponder(

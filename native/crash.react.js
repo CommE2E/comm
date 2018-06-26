@@ -1,8 +1,9 @@
 // @flow
 
-import type {
-  ErrorReportCreationRequest,
-  ErrorReportCreationResponse,
+import {
+  type ReportCreationRequest,
+  type ReportCreationResponse,
+  reportTypes,
 } from 'lib/types/report-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from './redux-setup';
@@ -25,10 +26,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  sendErrorReportActionTypes,
-  sendErrorReport,
-} from 'lib/actions/report-actions';
+import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import sleep from 'lib/utils/sleep';
 
 import Button from './components/button.react';
@@ -46,9 +44,9 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendErrorReport: (
-    request: ErrorReportCreationRequest,
-  ) => Promise<ErrorReportCreationResponse>,
+  sendReport: (
+    request: ReportCreationRequest,
+  ) => Promise<ReportCreationResponse>,
 };
 type State = {|
   errorReportID: ?string,
@@ -64,7 +62,7 @@ class Crash extends React.PureComponent<Props, State> {
       }),
     })).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    sendErrorReport: PropTypes.func.isRequired,
+    sendReport: PropTypes.func.isRequired,
   };
   errorTitle = _shuffle(errorTitles)[0];
   state = {
@@ -74,7 +72,7 @@ class Crash extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.props.dispatchActionPromise(
-      sendErrorReportActionTypes,
+      sendReportActionTypes,
       this.sendReport(),
     );
     this.timeOut();
@@ -144,8 +142,13 @@ class Crash extends React.PureComponent<Props, State> {
   }
 
   async sendReport() {
-    const result = await this.props.sendErrorReport({
-      deviceType: Platform.OS,
+    const result = await this.props.sendReport({
+      type: reportTypes.ERROR,
+      platformDetails: {
+        platform: Platform.OS,
+        codeVersion,
+        stateVersion: persistConfig.version,
+      },
       errors: this.props.errorData.map(data => ({
         errorMessage: data.error.message,
         componentStack: data.info && data.info.componentStack,
@@ -153,8 +156,6 @@ class Crash extends React.PureComponent<Props, State> {
       preloadedState: reduxLogger.preloadedState,
       currentState: store.getState(),
       actions: reduxLogger.actions,
-      codeVersion,
-      stateVersion: persistConfig.version,
     });
     this.setState({
       errorReportID: result.id,
@@ -252,5 +253,5 @@ const styles = StyleSheet.create({
 
 export default connect(
   undefined,
-  { sendErrorReport },
+  { sendReport },
 )(Crash);

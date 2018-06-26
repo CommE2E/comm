@@ -55,7 +55,7 @@ import {
 import { pingResponder } from './responders/ping-responders';
 import { websiteResponder } from './responders/website-responders';
 import {
-  errorReportCreationResponder,
+  reportCreationResponder,
   errorReportFetchInfosResponder,
   errorReportDownloadHandler,
 } from './responders/report-responders';
@@ -94,7 +94,8 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'create_account': accountCreationResponder,
   'log_in': logInResponder,
   'update_password': passwordUpdateResponder,
-  'create_error_report': errorReportCreationResponder,
+  'create_error_report': reportCreationResponder,
+  'create_report': reportCreationResponder,
   'fetch_error_report_infos': errorReportFetchInfosResponder,
   'request_access': requestAccessResponder,
 };

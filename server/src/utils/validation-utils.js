@@ -18,7 +18,7 @@ function tString(value: string) {
   return t.irreducible('literal string', x => x === value);
 }
 
-function tShape(spec: *) {
+function tShape(spec: {[key: string]: *}) {
   return t.interface(spec, { strict: true });
 }
 
@@ -42,8 +42,13 @@ function tNumEnum(assertFunc: (input: number) => *) {
 
 const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
 const tColor = tRegex(/^[a-fA-F0-9]{6}$/); // we don't include # char
-const tPlatform = t.maybe(t.enums.of(['ios', 'android', 'web']));
-const tDeviceType = t.maybe(t.enums.of(['ios', 'android']));
+const tPlatform = t.enums.of(['ios', 'android', 'web']);
+const tDeviceType = t.enums.of(['ios', 'android']);
+const tPlatformDetails = tShape({
+  platform: tPlatform,
+  codeVersion: t.maybe(t.Number),
+  stateVersion: t.maybe(t.Number),
+});
 
 export {
   validateInput,
@@ -56,4 +61,5 @@ export {
   tColor,
   tPlatform,
   tDeviceType,
+  tPlatformDetails,
 };

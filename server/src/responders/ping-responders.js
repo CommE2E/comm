@@ -3,8 +3,12 @@
 import type { PingRequest, PingResponse } from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
-import { serverRequestTypes } from 'lib/types/request-types';
+import {
+  serverRequestTypes,
+  type ThreadPollPushInconsistencyClientResponse,
+} from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
+import { reportTypes } from 'lib/types/report-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -27,6 +31,7 @@ import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { recordDeliveredUpdate, setCookiePlatform } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
+import createReport from '../creators/report-creator';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -109,7 +114,10 @@ async function pingResponder(
         clientResponse.type ===
           serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
       ) {
-        // TODO record here
+        clientResponsePromises.push(recordThreadPollPushInconsistency(
+          viewer,
+          clientResponse,
+        ));
       }
     }
   }
@@ -194,6 +202,18 @@ async function pingResponder(
   }
 
   return response;
+}
+
+async function recordThreadPollPushInconsistency(
+  viewer: Viewer,
+  response: ThreadPollPushInconsistencyClientResponse,
+): Promise<void> {
+  const { type, ...rest } = response;
+  const reportCreationRequest = {
+    ...rest,
+    type: reportTypes.THREAD_POLL_PUSH_INCONSISTENCY,
+  };
+  await createReport(viewer, reportCreationRequest);
 }
 
 export {

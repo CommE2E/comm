@@ -38,10 +38,12 @@ async function fetchErrorReportInfos(
     reports.push({
       id: row.id.toString(),
       viewerID,
-      deviceType: row.platform,
+      platformDetails: {
+        platform: row.platform,
+        codeVersion: row.report.codeVersion,
+        stateVersion: row.report.stateVersion,
+      },
       creationTime: row.creation_time,
-      codeVersion: row.report.codeVersion,
-      stateVersion: row.report.stateVersion,
     });
     if (row.username) {
       userInfos[viewerID] = {
