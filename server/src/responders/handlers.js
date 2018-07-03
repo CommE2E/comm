@@ -66,6 +66,14 @@ function handleException(error: Error, res: $Response) {
   }
 }
 
+async function handleAsyncPromise(promise: Promise<any>) {
+  try {
+    await promise;
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
 function htmlHandler(responder: HTMLResponder) {
   return async (req: $Request, res: $Response) => {
     try {
@@ -86,4 +94,5 @@ export {
   jsonHandler,
   downloadHandler,
   htmlHandler,
+  handleAsyncPromise,
 };

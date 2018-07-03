@@ -16,6 +16,7 @@ import createIDs from './id-creator';
 import { fetchUsername } from '../fetchers/user-fetchers';
 import urlFacts from '../../facts/url';
 import createMessages from './message-creator';
+import { handleAsyncPromise } from '../responders/handlers';
 
 const { baseDomain, basePath, https } = urlFacts;
 const { squadbot } = bots;
@@ -39,7 +40,7 @@ async function createReport(
     VALUES ${[row]}
   `;
   await dbQuery(query);
-  sendSquadbotMessage(viewer, request, id);
+  handleAsyncPromise(sendSquadbotMessage(viewer, request, id));
   return { id };
 }
 

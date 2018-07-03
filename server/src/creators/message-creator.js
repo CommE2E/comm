@@ -28,6 +28,7 @@ import {
 import createIDs from './id-creator';
 import { sendPushNotifs } from '../push/send';
 import { createUpdates } from './update-creator';
+import { handleAsyncPromise } from '../responders/handlers';
 
 type ThreadRestriction = {|
   creatorID?: ?string,
@@ -152,13 +153,13 @@ async function createMessages(
   }
 
   // These return Promises but we don't want to wait on them
-  sendPushNotifsForNewMessages(
+  handleAsyncPromise(sendPushNotifsForNewMessages(
     threadRestrictions,
     subthreadPermissionsToCheck,
     threadsToNotifMessageIndices,
     messageInfos,
-  );
-  updateUnreadStatus(threadRestrictions);
+  ));
+  handleAsyncPromise(updateUnreadStatus(threadRestrictions));
 
   const messageInsertQuery = SQL`
     INSERT INTO messages(id, thread, user, type, content, time)

@@ -15,6 +15,7 @@ import { dbQuery, SQL } from '../database';
 import { createNewAnonymousCookie } from '../session/cookies';
 import { fetchAllUserIDs } from '../fetchers/user-fetchers';
 import { createUpdates } from '../creators/update-creator';
+import { handleAsyncPromise } from '../responders/handlers';
 
 async function deleteAccount(
   viewer: Viewer,
@@ -56,7 +57,7 @@ async function deleteAccount(
   ]);
   viewer.setNewCookie(anonymousViewerData);
 
-  createAccountDeletionUpdates(deletedUserID);
+  handleAsyncPromise(createAccountDeletionUpdates(deletedUserID));
 
   return {
     currentUserInfo: {

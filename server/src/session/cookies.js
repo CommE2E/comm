@@ -19,6 +19,7 @@ import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
 import { deleteCookie } from '../deleters/cookie-deleters';
+import { handleAsyncPromise } from '../responders/handlers';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -361,7 +362,7 @@ async function addCookieToJSONResponse(
     return;
   }
   if (!viewer.getData().insertionTime) {
-    extendCookieLifespan(viewer.cookieID);
+    handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
   if (viewer.initializationSource !== cookieSource.BODY) {
     res.cookie(
@@ -377,7 +378,7 @@ async function addCookieToJSONResponse(
 
 function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
   if (!viewer.getData().insertionTime) {
-    extendCookieLifespan(viewer.cookieID);
+    handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
   res.cookie(
     viewer.cookieName,

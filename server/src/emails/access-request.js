@@ -41,7 +41,7 @@ async function sendAccessRequestEmailToAshoat(
   );
   const html = renderEmail(email);
 
-  sendmail.sendMail({
+  await sendmail.sendMail({
     from: "no-reply@squadcal.org",
     to: ashoat.email,
     subject: title,

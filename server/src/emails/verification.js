@@ -49,7 +49,7 @@ async function sendEmailAddressVerificationEmail(
   );
   const html = renderEmail(email);
 
-  sendmail.sendMail({
+  await sendmail.sendMail({
     from: "no-reply@squadcal.org",
     to: emailAddress,
     subject: title,
