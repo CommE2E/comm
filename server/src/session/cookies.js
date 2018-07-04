@@ -4,7 +4,7 @@ import type { $Response, $Request } from 'express';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
-import type { Platform } from 'lib/types/device-types';
+import type { Platform, PlatformDetails } from 'lib/types/device-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
@@ -48,7 +48,7 @@ type FetchViewerResult =
       cookieName: string,
       cookieID: string,
       source: CookieSource,
-      platform: ?Platform,
+      platformDetails: ?PlatformDetails,
     |};
 
 async function fetchUserViewer(
@@ -60,7 +60,7 @@ async function fetchUserViewer(
     return { type: "nonexistant", cookieName: cookieType.USER, source };
   }
   const query = SQL`
-    SELECT hash, user, last_used, platform, device_token
+    SELECT hash, user, last_used, platform, device_token, versions
     FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
@@ -68,7 +68,19 @@ async function fetchUserViewer(
   if (result.length === 0) {
     return { type: "nonexistant", cookieName: cookieType.USER, source };
   }
+
   const cookieRow = result[0];
+  let platformDetails = null;
+  if (cookieRow.platform && cookieRow.versions) {
+    platformDetails = {
+      platform: cookieRow.platform,
+      codeVersion: cookieRow.versions.codeVersion,
+      stateVersion: cookieRow.versions.stateVersion,
+    };
+  } else if (cookieRow.platform) {
+    platformDetails = { platform: cookieRow.platform };
+  }
+
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
     cookieIsExpired(cookieRow.last_used)
@@ -78,7 +90,7 @@ async function fetchUserViewer(
       cookieName: cookieType.USER,
       cookieID,
       source,
-      platform: cookieRow.platform,
+      platformDetails,
     };
   }
   const userID = cookieRow.user.toString();
@@ -86,7 +98,7 @@ async function fetchUserViewer(
     {
       loggedIn: true,
       id: userID,
-      platform: cookieRow.platform,
+      platformDetails,
       deviceToken: cookieRow.device_token,
       userID,
       cookieID,
@@ -106,7 +118,7 @@ async function fetchAnonymousViewer(
     return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
   }
   const query = SQL`
-    SELECT last_used, hash, platform, device_token
+    SELECT last_used, hash, platform, device_token, versions
     FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
@@ -114,7 +126,19 @@ async function fetchAnonymousViewer(
   if (result.length === 0) {
     return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
   }
+
   const cookieRow = result[0];
+  let platformDetails = null;
+  if (cookieRow.platform && cookieRow.versions) {
+    platformDetails = {
+      platform: cookieRow.platform,
+      codeVersion: cookieRow.versions.codeVersion,
+      stateVersion: cookieRow.versions.stateVersion,
+    };
+  } else if (cookieRow.platform) {
+    platformDetails = { platform: cookieRow.platform };
+  }
+
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
     cookieIsExpired(cookieRow.last_used)
@@ -124,14 +148,14 @@ async function fetchAnonymousViewer(
       cookieName: cookieType.ANONYMOUS,
       cookieID,
       source,
-      platform: cookieRow.platform,
+      platformDetails,
     };
   }
   const viewer = new Viewer(
     {
       loggedIn: false,
       id: cookieID,
-      platform: cookieRow.platform,
+      platformDetails,
       deviceToken: cookieRow.device_token,
       cookieID,
       cookiePassword,
@@ -184,27 +208,28 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   return await handleFetchViewerResult(result);
 }
 
+const webPlatformDetails = { platform: "web" };
 async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   const result = await fetchViewerFromCookieData(req.cookies);
-  return await handleFetchViewerResult(result, "web");
+  return await handleFetchViewerResult(result, webPlatformDetails);
 }
 
 async function handleFetchViewerResult(
   result: ?FetchViewerResult,
-  inputPlatform?: Platform,
+  inputPlatformDetails?: PlatformDetails,
 ) {
   if (result && result.type === "valid") {
     return result.viewer;
   }
 
-  let platform = inputPlatform;
-  if (!platform && result && result.type === "invalidated") {
-    platform = result.platform;
+  let platformDetails = inputPlatformDetails;
+  if (!platformDetails && result && result.type === "invalidated") {
+    platformDetails = result.platformDetails;
   }
 
   const [ anonymousViewerData ] = await Promise.all([
-    createNewAnonymousCookie(platform),
+    createNewAnonymousCookie(platformDetails),
     result && result.type === "invalidated"
       ? deleteCookie(result.cookieID)
       : null,
@@ -278,24 +303,26 @@ async function addCookieChangeInfoToResult(
   result.cookieChange = cookieChange;
 }
 
+const defaultPlatformDetails = {};
 async function createNewAnonymousCookie(
-  platform: ?Platform,
+  platformDetails: ?PlatformDetails,
 ): Promise<AnonymousViewerData> {
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
   const cookieHash = bcrypt.hashSync(cookiePassword);
   const [ id ] = await createIDs("cookies", 1);
-  const cookieRow = [id, cookieHash, null, platform, time, time, 0];
+  const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
+  const cookieRow = [id, cookieHash, null, platform, time, time, 0, versions];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      last_update)
+      last_update, versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
   return {
     loggedIn: false,
     id,
-    platform,
+    platformDetails,
     deviceToken: null,
     cookieID: id,
     cookiePassword,
@@ -306,24 +333,33 @@ async function createNewAnonymousCookie(
 async function createNewUserCookie(
   userID: string,
   initialLastUpdate: number,
-  platform: ?Platform,
+  platformDetails: ?PlatformDetails,
 ): Promise<UserViewerData> {
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
   const cookieHash = bcrypt.hashSync(cookiePassword);
   const [ cookieID ] = await createIDs("cookies", 1);
-  const cookieRow =
-    [cookieID, cookieHash, userID, platform, time, time, initialLastUpdate];
+  const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
+  const cookieRow = [
+    cookieID,
+    cookieHash,
+    userID,
+    platform,
+    time,
+    time,
+    initialLastUpdate,
+    versions,
+  ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      last_update)
+      last_update, versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
   return {
     loggedIn: true,
     id: userID,
-    platform,
+    platformDetails,
     deviceToken: null,
     userID,
     cookieID,
@@ -405,6 +441,19 @@ async function setCookiePlatform(
   await dbQuery(query);
 }
 
+async function setCookiePlatformDetails(
+  cookieID: string,
+  platformDetails: PlatformDetails,
+): Promise<void> {
+  const { platform, ...versions } = platformDetails;
+  const query = SQL`
+    UPDATE cookies
+    SET platform = ${platform}, versions = ${versions}
+    WHERE id = ${cookieID}
+  `;
+  await dbQuery(query);
+}
+
 export {
   cookieLifetime,
   cookieType,
@@ -416,4 +465,5 @@ export {
   addCookieToJSONResponse,
   addCookieToHomeResponse,
   setCookiePlatform,
+  setCookiePlatformDetails,
 };

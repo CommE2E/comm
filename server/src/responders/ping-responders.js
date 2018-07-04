@@ -17,7 +17,12 @@ import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 
-import { validateInput, tShape, tPlatform } from '../utils/validation-utils';
+import {
+  validateInput,
+  tShape,
+  tPlatform,
+  tPlatformDetails,
+} from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   normalizeCalendarQuery,
@@ -29,7 +34,11 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
-import { recordDeliveredUpdate, setCookiePlatform } from '../session/cookies';
+import {
+  recordDeliveredUpdate,
+  setCookiePlatform,
+  setCookiePlatformDetails,
+} from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 
@@ -53,6 +62,24 @@ const pingRequestInputValidator = tShape({
         x => x === serverRequestTypes.DEVICE_TOKEN,
       ),
       deviceToken: t.String,
+    }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY',
+        x => x === serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY,
+      ),
+      platformDetails: tPlatformDetails,
+      beforeAction: t.Object,
+      action: t.Object,
+      pollResult: t.Object,
+      pushResult: t.Object,
+    }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.PLATFORM_DETAILS',
+        x => x === serverRequestTypes.PLATFORM_DETAILS,
+      ),
+      platformDetails: tPlatformDetails,
     }),
   ]))),
 });
@@ -91,6 +118,13 @@ async function pingResponder(
 
   const clientResponsePromises = [];
   let viewerMissingPlatform = !viewer.platform;
+  const platformDetails = viewer.platformDetails;
+  let viewerMissingPlatformDetails = !platformDetails ||
+    (isDeviceType(viewer.platform) &&
+      (platformDetails.codeVersion === null ||
+        platformDetails.codeVersion === undefined ||
+        platformDetails.stateVersion === null ||
+        platformDetails.stateVersion === undefined));
   let viewerMissingDeviceToken =
     isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
   if (request.clientResponses) {
@@ -101,6 +135,9 @@ async function pingResponder(
           clientResponse.platform,
         ));
         viewerMissingPlatform = false;
+        if (!isDeviceType(clientResponse.platform)) {
+          viewerMissingPlatformDetails = false;
+        }
       } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
         clientResponsePromises.push(deviceTokenUpdater(
           viewer,
@@ -118,6 +155,13 @@ async function pingResponder(
           viewer,
           clientResponse,
         ));
+      } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
+        clientResponsePromises.push(setCookiePlatformDetails(
+          viewer.cookieID,
+          clientResponse.platformDetails,
+        ));
+        viewerMissingPlatform = false;
+        viewerMissingPlatformDetails = false;
       }
     }
   }
@@ -177,6 +221,9 @@ async function pingResponder(
   const serverRequests = [];
   if (viewerMissingPlatform) {
     serverRequests.push({ type: serverRequestTypes.PLATFORM });
+  }
+  if (viewerMissingPlatformDetails) {
+    serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
   }
   if (viewerMissingDeviceToken) {
     serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });

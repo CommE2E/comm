@@ -38,6 +38,7 @@ import {
   validateInput,
   tShape,
   tPlatform,
+  tPlatformDetails,
   tDeviceType,
 } from '../utils/validation-utils';
 import {
@@ -124,7 +125,7 @@ async function logOutResponder(
   const cookieID = viewer.getData().cookieID;
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
-      createNewAnonymousCookie(viewer.platform),
+      createNewAnonymousCookie(viewer.platformDetails),
       deleteCookiesOnLogOut(viewer.userID, cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
@@ -155,12 +156,17 @@ const registerRequestInputValidator = tShape({
   email: t.String,
   password: t.String,
   platform: t.maybe(tPlatform),
+  platformDetails: t.maybe(tPlatformDetails),
 });
 
 async function accountCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<RegisterResponse> {
+  if (!input.platformDetails && input.platform) {
+    input.platformDetails = { platform: input.platform };
+    delete input.platform;
+  }
   const request: RegisterRequest = input;
   validateInput(registerRequestInputValidator, request);
   return await createAccount(viewer, request);
@@ -173,6 +179,7 @@ const logInRequestInputValidator = tShape({
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platform: t.maybe(tPlatform),
+  platformDetails: t.maybe(tPlatformDetails),
 });
 
 async function logInResponder(
@@ -180,6 +187,10 @@ async function logInResponder(
   input: any,
 ): Promise<LogInResponse> {
   validateInput(logInRequestInputValidator, input);
+  if (!input.platformDetails && input.platform) {
+    input.platformDetails = { platform: input.platform };
+    delete input.platform;
+  }
   const request: LogInRequest = input;
 
   const calendarQuery = request.calendarQuery
@@ -210,7 +221,7 @@ async function logInResponder(
 
   const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, newPingTime, request.platform),
+    createNewUserCookie(id, newPingTime, request.platformDetails),
     deleteCookie(viewer.getData().cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
@@ -263,6 +274,7 @@ const updatePasswordRequestInputValidator = tShape({
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platform: t.maybe(tPlatform),
+  platformDetails: t.maybe(tPlatformDetails),
 });
 
 async function passwordUpdateResponder(
@@ -270,6 +282,10 @@ async function passwordUpdateResponder(
   input: any,
 ): Promise<LogInResponse> {
   validateInput(updatePasswordRequestInputValidator, input);
+  if (!input.platformDetails && input.platform) {
+    input.platformDetails = { platform: input.platform };
+    delete input.platform;
+  }
   const request: UpdatePasswordRequest = input;
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);

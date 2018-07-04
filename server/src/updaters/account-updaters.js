@@ -175,7 +175,7 @@ async function updatePassword(
 
   const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(userID, newPingTime, request.platform),
+    createNewUserCookie(userID, newPingTime, request.platformDetails),
     clearVerifyCodes(verificationResult),
   ]);
   viewer.setNewCookie(userViewerData);
