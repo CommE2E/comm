@@ -116,7 +116,6 @@ async function pingResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const clientResponsePromises = [];
   let viewerMissingPlatform = !viewer.platform;
   const platformDetails = viewer.platformDetails;
   let viewerMissingPlatformDetails = !platformDetails ||
@@ -127,9 +126,18 @@ async function pingResponder(
         platformDetails.stateVersion === undefined));
   let viewerMissingDeviceToken =
     isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
-  if (request.clientResponses) {
-    for (let clientResponse of request.clientResponses) {
-      if (clientResponse.type === serverRequestTypes.PLATFORM) {
+
+  const { clientResponses } = request;
+  const clientResponsePromises = [];
+  if (clientResponses) {
+    const clientSentPlatformDetails = clientResponses.some(
+      response => response.type === serverRequestTypes.PLATFORM_DETAILS,
+    );
+    for (let clientResponse of clientResponses) {
+      if (
+        clientResponse.type === serverRequestTypes.PLATFORM &&
+        !clientSentPlatformDetails
+      ) {
         clientResponsePromises.push(setCookiePlatform(
           viewer.cookieID,
           clientResponse.platform,

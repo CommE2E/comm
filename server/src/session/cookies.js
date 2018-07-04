@@ -312,7 +312,19 @@ async function createNewAnonymousCookie(
   const cookieHash = bcrypt.hashSync(cookiePassword);
   const [ id ] = await createIDs("cookies", 1);
   const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
-  const cookieRow = [id, cookieHash, null, platform, time, time, 0, versions];
+  const versionsString = Object.keys(versions).length > 0
+    ? JSON.stringify(versions)
+    : null;
+  const cookieRow = [
+    id,
+    cookieHash,
+    null,
+    platform,
+    time,
+    time,
+    0,
+    versionsString,
+  ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
       last_update, versions)
@@ -340,6 +352,9 @@ async function createNewUserCookie(
   const cookieHash = bcrypt.hashSync(cookiePassword);
   const [ cookieID ] = await createIDs("cookies", 1);
   const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
+  const versionsString = Object.keys(versions).length > 0
+    ? JSON.stringify(versions)
+    : null;
   const cookieRow = [
     cookieID,
     cookieHash,
@@ -348,7 +363,7 @@ async function createNewUserCookie(
     time,
     time,
     initialLastUpdate,
-    versions,
+    versionsString,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
@@ -446,9 +461,12 @@ async function setCookiePlatformDetails(
   platformDetails: PlatformDetails,
 ): Promise<void> {
   const { platform, ...versions } = platformDetails;
+  const versionsString = Object.keys(versions).length > 0
+    ? JSON.stringify(versions)
+    : null;
   const query = SQL`
     UPDATE cookies
-    SET platform = ${platform}, versions = ${versions}
+    SET platform = ${platform}, versions = ${versionsString}
     WHERE id = ${cookieID}
   `;
   await dbQuery(query);
