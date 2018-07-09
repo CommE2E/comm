@@ -66,6 +66,10 @@ async function dbQuery(statement: SQLStatement) {
   }
 }
 
+function rawSQL(statement: SQLStatement) {
+  return mysql.format(statement.sql, statement.values);
+}
+
 export {
   SQL,
   SQLStatement,
@@ -73,4 +77,5 @@ export {
   mergeAndConditions,
   mergeOrConditions,
   dbQuery,
+  rawSQL,
 };

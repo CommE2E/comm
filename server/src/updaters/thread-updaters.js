@@ -514,7 +514,7 @@ async function updateThread(
       // This forces an update for this thread,
       // regardless of whether any membership rows are changed
       Object.keys(sqlUpdate).length > 0
-        ? new Set(request.threadID)
+        ? new Set([ request.threadID ])
         : new Set(),
     ),
   ]);

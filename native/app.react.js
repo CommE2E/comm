@@ -577,10 +577,14 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (deviceType === "ios") {
       iosPushPermissionResponseReceived();
     }
-    this.props.dispatchActionPromise(
-      setDeviceTokenActionTypes,
-      this.props.setDeviceToken(deviceToken, deviceType),
-    );
+    if (deviceToken !== this.props.deviceToken) {
+      this.props.dispatchActionPromise(
+        setDeviceTokenActionTypes,
+        this.props.setDeviceToken(deviceToken, deviceType),
+        undefined,
+        deviceToken,
+      );
+    }
   }
 
   failedToRegisterPushPermissions = (error) => {

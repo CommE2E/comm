@@ -53,7 +53,7 @@ function viewerUpdateDataFromRow(
 ): ViewerUpdateData {
   const type = assertUpdateType(row.type);
   let data;
-  const id = row.id;
+  const id = row.id.toString();
   if (type === updateTypes.DELETE_ACCOUNT) {
     const content = JSON.parse(row.content);
     data = {
