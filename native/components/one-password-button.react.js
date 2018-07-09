@@ -1,8 +1,6 @@
 // @flow
 
-import type {
-  ____ImageStyleProp_Internal as ImageStyle,
-} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
 import { TouchableWithoutFeedback, Image, StyleSheet } from 'react-native';

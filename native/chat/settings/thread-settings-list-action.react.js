@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  ____ViewStyleProp_Internal as ViewStyle,
-  ____TextStyleProp_Internal as TextStyle,
-} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { ViewStyle, TextStyle } from '../../types/styles';
 
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';

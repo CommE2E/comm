@@ -1,8 +1,6 @@
 // @flow
 
-import type {
-  ____TextStyleProp_Internal as TextStyle,
-} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { TextStyle } from '../types/styles';
 
 import React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';

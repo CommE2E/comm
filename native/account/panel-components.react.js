@@ -2,9 +2,7 @@
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type {
-  ____ViewStyleProp_Internal as ViewStyle,
-} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { ViewStyle } from '../types/styles';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 
 import * as React from 'react';
