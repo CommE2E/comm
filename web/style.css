@@ -1055,7 +1055,6 @@ div.splash-header-container {
   top: 0;
   left: 0;
   right: 0;
-  height: 790px;
   height: 61px;
   z-index: 3;
   background-image: url(../images/background.png);
@@ -1065,14 +1064,14 @@ div.splash-header-container {
 }
 div.splash-top-container {
   position: fixed;
-  top: 61px;
+  top: 0;
   left: 0;
   right: 0;
   height: 100%;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
-  background-attachment: fixed;
   background-repeat-y: repeat;
+  padding-top: 61px;
 }
 div.splash-top {
   max-width: 1024px;
@@ -1301,8 +1300,5 @@ div.custom-select select:focus {
 @media (hover: none) {
   div.splash-header-container, div.splash-top-container, div.splash-bottom {
     background-attachment: initial;
-  }
-  div.splash-top-container {
-    background-position-y: -61px;
   }
 }
