@@ -2,17 +2,18 @@
 
 import { AppState, Keyboard, Platform } from 'react-native';
 
-type Coordinates = {
-  width: number,
-  height: number,
+type ScreenRect = $ReadOnly<{|
   screenX: number,
   screenY: number,
-};
-export type KeyboardEvent = {
-  duration: number,
-  startCoordinates: Coordinates,
-  endCoordinates: Coordinates,
-};
+  width: number,
+  height: number,
+|}>;
+export type KeyboardEvent = $ReadOnly<{|
+  duration?: number,
+  easing?: string,
+  endCoordinates: ScreenRect,
+  startCoordinates?: ScreenRect,
+|}>;
 type KeyboardCallback = (event: KeyboardEvent) => void;
 type IgnoredKeyboardEvent = {|
   callback: KeyboardCallback,

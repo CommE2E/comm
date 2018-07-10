@@ -17,7 +17,7 @@
     "lib": "0.0.1",
     "lodash": "^4.17.5",
     "react": "16.4.1",
-    "react-native": "0.56.0",
+    "react-native": "^0.56.0",
     "react-native-exit-app": "^1.0.0",
     "react-native-fcm": "git+https://git@github.com/ashoat/react-native-fcm.git",
     "react-native-floating-action": "^1.9.0",

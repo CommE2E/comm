@@ -520,7 +520,7 @@ function removeModalsIfPingIndicatesLoggedIn(
   state: NavigationState,
   payload: PingResult,
 ): NavigationState {
-  if (!payload.userInfo || payload.loggedIn) {
+  if (payload.currentUserInfo.anonymous) {
     // The SET_COOKIE action should handle logging somebody out as a result of a
     // cookie invalidation triggered by a ping server call. PING_SUCCESS is only
     // handling specific log ins that occur from LoggedOutModal.
@@ -693,7 +693,10 @@ function handleNotificationPress(
       viewerID,
       userInfos,
     );
-    newState.routes[0] = { ...newState.routes[0], index: 1 };
+    newState.routes[0] = {
+      ...assertNavigationRouteNotLeafNode(newState.routes[0]),
+      index: 1,
+    };
     return newState;
   }
 

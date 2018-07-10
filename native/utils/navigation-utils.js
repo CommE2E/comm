@@ -80,7 +80,7 @@ function getThreadIDFromParams(object: { params?: NavigationParams }): string {
 }
 
 function currentRouteRecurse(state: NavigationRoute): NavigationLeafRoute {
-  if (state.index) {
+  if (state.index || state.routes) {
     const stateRoute = assertNavigationRouteNotLeafNode(state);
     return currentRouteRecurse(stateRoute.routes[stateRoute.index]);
   } else {

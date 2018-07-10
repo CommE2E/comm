@@ -993,7 +993,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           const item = _find
             (item => item.entryInfo && entryKey(item.entryInfo) === key)
             (ldwh);
-          return item && !item.id && true;
+          return !!item;
         },
       )(this.latestExtraData.activeEntries),
       visibleEntries,
