@@ -5,9 +5,42 @@ import t from 'tcomb';
 import { ServerError } from 'lib/utils/errors';
 
 function validateInput(inputValidator: *, input: *) {
-  if (!inputValidator.is(input)) {
-    throw new ServerError('invalid_parameters', { input });
+  if (inputValidator.is(input)) {
+    return;
   }
+  const sanitizedInput = sanitizeInput(inputValidator, input);
+  throw new ServerError('invalid_parameters', { input: sanitizedInput });
+}
+
+const fakePassword = "********";
+function sanitizeInput(inputValidator: *, input: *) {
+  if (!inputValidator) {
+    return input;
+  }
+  if (inputValidator === tPassword && typeof input === "string") {
+    return fakePassword;
+  }
+  if (
+    inputValidator.meta.kind === "maybe" &&
+    inputValidator.meta.type === tPassword &&
+    typeof input === "string"
+  ) {
+    return fakePassword;
+  }
+  if (
+    inputValidator.meta.kind !== "interface" ||
+    typeof input !== "object" ||
+    !input
+  ) {
+    return input;
+  }
+  const result = {};
+  for (let key in input) {
+    const value = input[key];
+    const validator = inputValidator.meta.props[key];
+    result[key] = sanitizeInput(validator, value);
+  }
+  return result;
 }
 
 function tBool(value: bool) {
@@ -49,6 +82,7 @@ const tPlatformDetails = tShape({
   codeVersion: t.maybe(t.Number),
   stateVersion: t.maybe(t.Number),
 });
+const tPassword = t.refinement(t.String, (password: string) => password);
 
 export {
   validateInput,
@@ -62,4 +96,5 @@ export {
   tPlatform,
   tDeviceType,
   tPlatformDetails,
+  tPassword,
 };

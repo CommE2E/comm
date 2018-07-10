@@ -25,6 +25,7 @@ import {
   tShape,
   tNumEnum,
   tColor,
+  tPassword,
 } from '../utils/validation-utils';
 import { deleteThread } from '../deleters/thread-deleters';
 import {
@@ -42,7 +43,7 @@ import {
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,
-  accountPassword: t.String,
+  accountPassword: tPassword,
 });
 
 async function threadDeletionResponder(
@@ -113,7 +114,7 @@ const updateThreadRequestInputValidator = tShape({
     parentThreadID: t.maybe(t.String),
     newMemberIDs: t.maybe(t.list(t.String)),
   }),
-  accountPassword: t.maybe(t.String),
+  accountPassword: t.maybe(tPassword),
 });
 
 async function threadUpdateResponder(

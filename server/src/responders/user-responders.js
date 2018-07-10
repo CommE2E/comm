@@ -40,6 +40,7 @@ import {
   tPlatform,
   tPlatformDetails,
   tDeviceType,
+  tPassword,
 } from '../utils/validation-utils';
 import {
   createNewAnonymousCookie,
@@ -84,9 +85,9 @@ async function userSubscriptionUpdateResponder(
 const accountUpdateInputValidator = tShape({
   updatedFields: tShape({
     email: t.maybe(t.String),
-    password: t.maybe(t.String),
+    password: t.maybe(tPassword),
   }),
-  currentPassword: t.String,
+  currentPassword: tPassword,
 });
 
 async function accountUpdateResponder(
@@ -139,7 +140,7 @@ async function logOutResponder(
 }
 
 const deleteAccountRequestInputValidator = tShape({
-  password: t.String,
+  password: tPassword,
 });
 
 async function accountDeletionResponder(
@@ -154,7 +155,7 @@ async function accountDeletionResponder(
 const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.String,
-  password: t.String,
+  password: tPassword,
   platform: t.maybe(tPlatform),
   platformDetails: t.maybe(tPlatformDetails),
 });
@@ -174,7 +175,7 @@ async function accountCreationResponder(
 
 const logInRequestInputValidator = tShape({
   usernameOrEmail: t.String,
-  password: t.String,
+  password: tPassword,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
@@ -269,7 +270,7 @@ async function logInResponder(
 
 const updatePasswordRequestInputValidator = tShape({
   code: t.String,
-  password: t.String,
+  password: tPassword,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
