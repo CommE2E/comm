@@ -446,6 +446,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (newStartDate < lastStartDate || newEndDate > lastEndDate) {
       this.loadingFromScroll = false;
     }
+
+    const { keyboardShownHeight, lastEntryKeyActive } = this;
+    if (newLDWH && keyboardShownHeight && lastEntryKeyActive) {
+      this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
+      this.lastEntryKeyActive = null;
+    }
   }
 
   static datesFromListData(
@@ -887,7 +893,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   onEnterEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
     const key = entryKey(entryInfo);
     const keyboardShownHeight = this.keyboardShownHeight;
-    if (keyboardShownHeight) {
+    if (keyboardShownHeight && this.state.listDataWithHeights) {
       this.scrollToKey(key, keyboardShownHeight);
     } else {
       this.lastEntryKeyActive = key;
@@ -899,7 +905,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
     this.keyboardShownHeight = keyboardShownHeight;
     const lastEntryKeyActive = this.lastEntryKeyActive;
-    if (lastEntryKeyActive) {
+    if (lastEntryKeyActive && this.state.listDataWithHeights) {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
     }
@@ -928,12 +934,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (Platform.OS === "ios") {
       visibleHeight += tabBarSize;
     }
-    invariant(
-      this.currentScrollPosition !== undefined &&
-        this.currentScrollPosition !== null,
-      "should be set",
-    );
     if (
+      this.currentScrollPosition !== undefined &&
+      this.currentScrollPosition !== null &&
       itemStart > this.currentScrollPosition &&
       itemEnd < this.currentScrollPosition + visibleHeight
     ) {
