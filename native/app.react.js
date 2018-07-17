@@ -60,7 +60,7 @@ import SplashScreen from 'react-native-splash-screen';
 
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
-import { pingActionTypes, ping } from 'lib/actions/ping-actions';
+import { ping } from 'lib/actions/ping-actions';
 import {
   sessionInactivityLimit,
   sessionTimeLeft,
