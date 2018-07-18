@@ -344,7 +344,10 @@ class InternalEntry extends React.Component<Props, State> {
     }
     const textStyle = { color: textColor };
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
-    const textContainerStyle = { height: this.state.height };
+    // We use an empty View to set the height of the entry, and then position
+    // the Text and TextInput absolutely. This allows to measure height changes
+    // to the Text while controlling the actual height of the entry.
+    const heightStyle = { height: this.state.height };
     const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
     const opacity = editing ? 1.0 : 0.6;
     return (
@@ -356,8 +359,13 @@ class InternalEntry extends React.Component<Props, State> {
             androidFormat="opacity"
             iosActiveOpacity={opacity}
           >
-            <View style={textContainerStyle}>
-              <Hyperlink linkDefault={true} linkStyle={linkStyle}>
+            <View>
+              <View style={heightStyle} />
+              <Hyperlink
+                linkDefault={true}
+                linkStyle={linkStyle}
+                style={styles.textContainer}
+              >
                 <Text
                   style={[styles.text, textStyle]}
                   onLayout={this.onTextLayout}
@@ -624,16 +632,20 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontFamily: 'Arial',
   },
+  textContainer: {
+    position: 'absolute',
+    top: 0,
+    padding: 0,
+    margin: 0,
+  },
   textInput: {
     position: 'absolute',
     top: Platform.OS === "android" ? 5 : 0,
-    bottom: Platform.OS === "android" ? 6 : 0,
     left: 10,
     right: 10,
     padding: 0,
     margin: 0,
     fontSize: 16,
-    color: '#333333',
     fontFamily: 'Arial',
   },
   actionLinks: {
