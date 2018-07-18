@@ -238,9 +238,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     if (this.props.isForeground) {
       this.onForeground();
     }
-    if (this.props.rehydrateConcluded) {
-      this.onInitialAppLoad(this.props);
-    }
   }
 
   componentWillUnmount() {
