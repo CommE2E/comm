@@ -7,8 +7,13 @@ const builtins = Module.builtinModules;
 const extensions = { js: 'esm', json: "json" };
 const access = Promise.denodeify(fs.access);
 const readFile = Promise.denodeify(fs.readFile);
+const baseURL = new URL('file://');
 
-export async function resolve(specifier, parentModuleURL, defaultResolve) {
+export async function resolve(
+  specifier,
+  parentModuleURL = baseURL,
+  defaultResolve,
+) {
   // Hitting node.js builtins from server
   if (builtins.includes(specifier)) {
     //console.log(`${specifier} is builtin`);
@@ -45,7 +50,10 @@ export async function resolve(specifier, parentModuleURL, defaultResolve) {
   // Hitting web from server
   if (specifier.startsWith('web')) {
     const result = defaultResolve(specifier, parentModuleURL);
-    const resultURL = result.url.replace("squadcal/web", "squadcal/server/dist/web");
+    const resultURL = result.url.replace(
+      "squadcal/web",
+      "squadcal/server/dist/web",
+    );
     //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
