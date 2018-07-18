@@ -7789,9 +7789,9 @@ react-native-in-app-notification@^2.1.0:
   dependencies:
     react-native-swipe-gestures "^1.0.2"
 
-react-native-keychain@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-1.2.1.tgz#6b2bed32ca0460d641974193715d18c808b0f12f"
+react-native-keychain@^3.0.0-rc.3:
+  version "3.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-3.0.0-rc.3.tgz#891ea07a564d1bf46b644bc615af21f15a04b12b"
 
 react-native-modal@^6.2.0:
   version "6.4.0"

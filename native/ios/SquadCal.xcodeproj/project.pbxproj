@@ -58,6 +58,7 @@
 		AFA44E75249D4766A4ED74C7 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2D04F3CCBAFF4A8184206FAC /* Octicons.ttf */; };
 		BBC287C467984DA6BF85800E /* libSplashScreen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6A1FF570694BFCB0D65D0E /* libSplashScreen.a */; };
 		FA7F2215AD7646E2BE985BF3 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AE31AFFF88FB4112A29ADE33 /* SimpleLineIcons.ttf */; };
+		09369EAAB869410E9C0208B4 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A06F10E4481746D2B76CA60E /* Feather.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -412,6 +413,7 @@
 		E7D7D614C3184B1BB95EE661 /* OnePassword.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = OnePassword.xcodeproj; path = "../node_modules/react-native-onepassword/OnePassword.xcodeproj"; sourceTree = "<group>"; };
 		EA40FBBA484449FAA8915A48 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		EBD8879422144B0188A8336F /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		A06F10E4481746D2B76CA60E /* Feather.ttf */ = {isa = PBXFileReference; name = "Feather.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -622,6 +624,7 @@
 				7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */,
 				7FB58ABC1E7F6BC600B4C1B1 /* OpenSans-Regular.ttf */,
 				7FB58ABD1E7F6BC600B4C1B1 /* OpenSans-Semibold.ttf */,
+				A06F10E4481746D2B76CA60E /* Feather.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1293,6 +1296,7 @@
 				AFA44E75249D4766A4ED74C7 /* Octicons.ttf in Resources */,
 				FA7F2215AD7646E2BE985BF3 /* SimpleLineIcons.ttf in Resources */,
 				2E5ADC2BAEA24F1AAD81E147 /* Zocial.ttf in Resources */,
+				09369EAAB869410E9C0208B4 /* Feather.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
