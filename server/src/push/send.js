@@ -12,6 +12,7 @@ import type {
   CollapsableNotifInfo,
   FetchCollapsableNotifsResult,
 } from '../fetchers/message-fetchers';
+import { updateTypes } from 'lib/types/update-types';
 
 import apn from 'apn';
 import invariant from 'invariant';
@@ -37,6 +38,7 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import createIDs from '../creators/id-creator';
+import { createUpdates } from '../creators/update-creator';
 
 type Device = { deviceType: DeviceType, deviceToken: string };
 type PushUserInfo = {
@@ -198,16 +200,10 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       notifications[deliveryResult.dbID][5].androidID =
         deliveryResult.fcmIDs[0];
     }
-    if (deliveryResult.invalidFCMTokens) {
+    if (deliveryResult.invalidTokens) {
       invalidTokens.push({
         userID: notifications[deliveryResult.dbID][1],
-        fcmTokens: deliveryResult.invalidFCMTokens,
-      });
-    }
-    if (deliveryResult.invalidAPNTokens) {
-      invalidTokens.push({
-        userID: notifications[deliveryResult.dbID][1],
-        apnTokens: deliveryResult.invalidAPNTokens,
+        tokens: deliveryResult.invalidTokens,
       });
     }
   }
@@ -470,38 +466,66 @@ function prepareAndroidNotification(
   };
 }
 
-type InvalidToken = {
+type InvalidToken = {|
   userID: string,
-  fcmTokens?: string[],
-  apnTokens?: string[],
-};
-async function removeInvalidTokens(invalidTokens: InvalidToken[]) {
-  const query = SQL`
+  tokens: string[],
+|};
+async function removeInvalidTokens(
+  invalidTokens: $ReadOnlyArray<InvalidToken>,
+): Promise<void> {
+  const sqlTuples = invalidTokens.map(invalidTokenUser =>
+    SQL`(
+      user = ${invalidTokenUser.userID} AND
+      device_token IN (${invalidTokenUser.tokens})
+    )`
+  );
+  const sqlCondition = mergeOrConditions(sqlTuples);
+
+  const selectQuery = SQL`
+    SELECT id, user, device_token
+    FROM cookies
+    WHERE
+  `;
+  selectQuery.append(sqlCondition);
+  const [ result ] = await dbQuery(selectQuery);
+
+  const userCookiePairsToInvalidDeviceTokens = new Map();
+  for (let row of result) {
+    const userCookiePair = `${row.user}|${row.id}`;
+    const existing = userCookiePairsToInvalidDeviceTokens.get(userCookiePair);
+    if (existing) {
+      existing.add(row.device_token);
+    } else {
+      userCookiePairsToInvalidDeviceTokens.set(
+        userCookiePair,
+        new Set([row.device_token]),
+      );
+    }
+  }
+
+  const time = Date.now();
+  const promises = [];
+  for (let entry of userCookiePairsToInvalidDeviceTokens) {
+    const [ userCookiePair, deviceTokens ] = entry;
+    const [ userID, cookieID ] = userCookiePair.split('|');
+    const updateDatas = [...deviceTokens].map(deviceToken => ({
+      type: updateTypes.BAD_DEVICE_TOKEN,
+      userID,
+      time,
+      deviceToken,
+    }));
+    promises.push(createUpdates(updateDatas, null, cookieID));
+  }
+
+  const updateQuery = SQL`
     UPDATE cookies
     SET device_token = NULL
     WHERE
   `;
+  updateQuery.append(sqlCondition);
+  promises.push(dbQuery(updateQuery));
 
-  const sqlTuples = [];
-  for (let invalidTokenUser of invalidTokens) {
-    const deviceConditions = [];
-    if (invalidTokenUser.fcmTokens && invalidTokenUser.fcmTokens.length > 0) {
-      deviceConditions.push(
-        SQL`device_token IN (${invalidTokenUser.fcmTokens})`,
-      );
-    }
-    if (invalidTokenUser.apnTokens && invalidTokenUser.apnTokens.length > 0) {
-      deviceConditions.push(
-        SQL`device_token IN (${invalidTokenUser.apnTokens})`,
-      );
-    }
-    const statement = SQL`(user = ${invalidTokenUser.userID} AND `;
-    statement.append(mergeOrConditions(deviceConditions)).append(SQL`)`);
-    sqlTuples.push(statement);
-  }
-  query.append(mergeOrConditions(sqlTuples));
-
-  await dbQuery(query);
+  await Promise.all(promises);
 }
 
 export {

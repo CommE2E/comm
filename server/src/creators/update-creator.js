@@ -47,9 +47,6 @@ import {
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 
-// If the viewer is not passed in, the returned array will be empty, and the
-// update won't have an updater_cookie. This should only be done when we are
-// sure none of the updates are destined for the viewer.
 export type ViewerInfo =
   | {| viewer: Viewer |}
   | {|
@@ -69,9 +66,18 @@ const sortFunction = (
   b: UpdateData | UpdateInfo,
 ) => a.time - b.time;
 
+// Creates rows in the updates table based on the inputed updateDatas. Returns
+// UpdateInfos pertaining to the provided viewerInfo, as well as related
+// UserInfos.
+// - If no viewerInfo is provided, no UpdateInfos will be returned. and the
+//   update row won't have an updater_cookie, meaning no cookie will be excluded
+//   from the update.
+// - Most updates go to all a user's cookies, but if you want to target one in
+//   particular, you can use targetCookie.
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
-  viewerInfo?: ViewerInfo,
+  viewerInfo?: ?ViewerInfo,
+  targetCookie?: string,
 ): Promise<UpdatesResult> {
   if (updateDatas.length === 0) {
     return defaultResult;
@@ -194,6 +200,9 @@ async function createUpdates(
     ) {
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
+    } else if (updateData.type == updateTypes.BAD_DEVICE_TOKEN) {
+      const { deviceToken } = updateData;
+      content = JSON.stringify({ deviceToken });
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -214,10 +223,9 @@ async function createUpdates(
       key,
       content,
       updateData.time,
+      viewerInfo ? viewerInfo.viewer.cookieID : null,
+      targetCookie ? targetCookie : null,
     ];
-    if (viewerInfo) {
-      insertRow.push(viewerInfo.viewer.cookieID);
-    }
     insertRows.push(insertRow);
   }
 
@@ -239,11 +247,10 @@ async function createUpdates(
   const promises = {};
 
   if (insertRows.length > 0) {
-    const insertQuery = viewerInfo
-      ? SQL`
-          INSERT INTO updates(id, user, type, \`key\`, content, time, updater_cookie)
-        `
-      : SQL`INSERT INTO updates(id, user, type, \`key\`, content, time) `;
+    const insertQuery = SQL`
+      INSERT INTO updates(id, user, type, \`key\`,
+        content, time, updater_cookie, target_cookie)
+    `;
     insertQuery.append(SQL`VALUES ${insertRows}`);
     promises.insert = dbQuery(insertQuery);
   }
@@ -438,6 +445,13 @@ function updateInfosFromUpdateDatas(
           messageInfosResult.truncationStatuses[updateData.threadID],
         calendarQuery,
         rawEntryInfos,
+      });
+    } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
+      updateInfos.push({
+        type: updateTypes.BAD_DEVICE_TOKEN,
+        id,
+        time: updateData.time,
+        deviceToken: updateData.deviceToken,
       });
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);

@@ -32,6 +32,7 @@ async function fetchUpdateInfos(
     FROM updates
     WHERE user = ${viewer.id} AND time > ${currentAsOf}
       AND (updater_cookie IS NULL OR updater_cookie != ${viewer.cookieID})
+      AND (target_cookie IS NULL OR target_cookie = ${viewer.cookieID})
     ORDER BY time ASC
   `;
   const [ result ] = await dbQuery(query);
@@ -94,6 +95,14 @@ function viewerUpdateDataFromRow(
       userID: viewer.id,
       time: row.time,
       threadID,
+    };
+  } else if (type === updateTypes.BAD_DEVICE_TOKEN) {
+    const { deviceToken } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.BAD_DEVICE_TOKEN,
+      userID: viewer.id,
+      time: row.time,
+      deviceToken,
     };
   } else {
     invariant(false, `unrecognized updateType ${type}`);

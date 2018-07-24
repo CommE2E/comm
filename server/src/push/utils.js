@@ -41,7 +41,7 @@ async function apnPush(
     }
   }
   if (invalidTokens.length > 0) {
-    return { errors, invalidAPNTokens: invalidTokens, dbID };
+    return { errors, invalidTokens, dbID };
   } else if (errors.length > 0) {
     return { errors, dbID };
   } else {
@@ -102,7 +102,7 @@ async function fcmPush(
     result.success = true;
   }
   if (invalidTokens.length > 0) {
-    result.invalidFCMTokens = invalidTokens;
+    result.invalidTokens = invalidTokens;
   }
   return result;
 }

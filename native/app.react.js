@@ -441,7 +441,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       );
     }
     if (justLoggedIn) {
-      this.ensurePushNotifsEnabled();
       this.startTimeouts(nextProps, "active");
     }
 
@@ -489,13 +488,19 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         break;
       }
     }
+  }
 
+  componentDidUpdate(prevProps: Props) {
     if (
-      AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
-        nextProps.activeServerRequests,
-      ) &&
-      !AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
-        this.props.activeServerRequests,
+      (this.props.loggedIn && !prevProps.loggedIn) ||
+      (!this.props.deviceToken && prevProps.deviceToken) ||
+      (
+        AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
+          this.props.activeServerRequests,
+        ) &&
+        !AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
+          prevProps.activeServerRequests,
+        )
       )
     ) {
       this.ensurePushNotifsEnabled();
