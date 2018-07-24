@@ -7,7 +7,7 @@ const builtins = Module.builtinModules;
 const extensions = { js: 'esm', json: "json" };
 const access = Promise.denodeify(fs.access);
 const readFile = Promise.denodeify(fs.readFile);
-const baseURL = new URL('file://');
+const baseURL = new url.URL('file://');
 
 export async function resolve(
   specifier,
