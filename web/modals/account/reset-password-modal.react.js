@@ -2,7 +2,11 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { UpdatePasswordInfo, LogInResult } from 'lib/types/account-types';
+import type {
+  UpdatePasswordInfo,
+  LogInExtraInfo,
+  LogInResult,
+} from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -14,6 +18,7 @@ import {
   resetPassword,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -25,6 +30,7 @@ type Props = {
   resetPasswordUsername: string,
   verifyCode: string,
   inputDisabled: bool,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -156,17 +162,21 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
       return;
     }
 
+    const extraInfo = this.props.logInExtraInfo();
     this.props.dispatchActionPromise(
       resetPasswordActionTypes,
-      this.resetPasswordAction(),
+      this.resetPasswordAction(extraInfo),
+      undefined,
+      { calendarQuery: extraInfo.calendarQuery },
     );
   }
 
-  async resetPasswordAction() {
+  async resetPasswordAction(extraInfo: LogInExtraInfo) {
     try {
       const response = await this.props.resetPassword({
         code: this.props.verifyCode,
         password: this.state.password,
+        ...extraInfo,
       });
       this.props.onSuccess();
       return response;
@@ -194,6 +204,7 @@ ResetPasswordModal.propTypes = {
   resetPasswordUsername: PropTypes.string.isRequired,
   verifyCode: PropTypes.string.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
+  logInExtraInfo: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   resetPassword: PropTypes.func.isRequired,
 };
@@ -206,6 +217,7 @@ export default connect(
     resetPasswordUsername: state.resetPasswordUsername,
     verifyCode: state.navInfo.verify,
     inputDisabled: loadingStatusSelector(state) === "loading",
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { resetPassword },
 )(ResetPasswordModal);

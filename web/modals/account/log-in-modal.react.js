@@ -2,7 +2,11 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LogInInfo, LogInResult } from 'lib/types/account-types';
+import type {
+  LogInInfo,
+  LogInExtraInfo,
+  LogInResult,
+} from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -15,6 +19,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -24,6 +29,7 @@ type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
   inputDisabled: bool,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -157,14 +163,21 @@ class LogInModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.props.dispatchActionPromise(logInActionTypes, this.logInAction());
+    const extraInfo = this.props.logInExtraInfo();
+    this.props.dispatchActionPromise(
+      logInActionTypes,
+      this.logInAction(extraInfo),
+      undefined,
+      { calendarQuery: extraInfo.calendarQuery },
+    );
   }
 
-  async logInAction() {
+  async logInAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.logIn({
         usernameOrEmail: this.state.usernameOrEmail,
         password: this.state.password,
+        ...extraInfo,
       });
       this.clearModal();
       return result;
@@ -223,6 +236,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 LogInModal.propTypes = {
   setModal: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
+  logInExtraInfo: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   logIn: PropTypes.func.isRequired,
 };
@@ -232,6 +246,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { logIn },
 )(LogInModal);

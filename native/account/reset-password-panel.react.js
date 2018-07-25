@@ -3,8 +3,11 @@
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { UpdatePasswordInfo, LogInResult } from 'lib/types/account-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type {
+  UpdatePasswordInfo,
+  LogInExtraInfo,
+  LogInResult,
+} from 'lib/types/account-types';
 
 import React from 'react';
 import {
@@ -26,7 +29,7 @@ import {
   resetPassword,
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput } from './modal-components.react';
 import {
@@ -34,7 +37,6 @@ import {
   PanelOnePasswordButton,
   Panel,
 } from './panel-components.react';
-import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
 
 type Props = {
   verifyCode: string,
@@ -45,8 +47,7 @@ type Props = {
   opacityValue: Animated.Value,
   // Redux state
   loadingStatus: LoadingStatus,
-  currentCalendarQuery: () => CalendarQuery,
-  deviceToken: ?string,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -66,8 +67,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     loadingStatus: PropTypes.string.isRequired,
-    currentCalendarQuery: PropTypes.func.isRequired,
-    deviceToken: PropTypes.string,
+    logInExtraInfo: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     resetPassword: PropTypes.func.isRequired,
   };
@@ -182,12 +182,12 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       return;
     }
     Keyboard.dismiss();
-    const calendarQuery = this.props.currentCalendarQuery();
+    const extraInfo = this.props.logInExtraInfo();
     this.props.dispatchActionPromise(
       resetPasswordActionTypes,
-      this.resetPasswordAction(calendarQuery),
+      this.resetPasswordAction(extraInfo),
       undefined,
-      { calendarQuery },
+      { calendarQuery: extraInfo.calendarQuery },
     );
   }
 
@@ -205,15 +205,12 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
     );
   }
 
-  async resetPasswordAction(calendarQuery: CalendarQuery) {
-    const deviceTokenUpdateRequest =
-      getDeviceTokenUpdateRequest(this.props.deviceToken);
+  async resetPasswordAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.resetPassword({
+        ...extraInfo,
         code: this.props.verifyCode,
         password: this.state.passwordInputText,
-        calendarQuery,
-        deviceTokenUpdateRequest,
       });
       this.props.setActiveAlert(false);
       this.props.onSuccess();
@@ -275,8 +272,7 @@ const loadingStatusSelector
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    currentCalendarQuery: currentCalendarQuery(state),
-    deviceToken: state.deviceToken,
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { resetPassword },
 )(ResetPasswordPanel);

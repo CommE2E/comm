@@ -16,6 +16,7 @@ import type {
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
+import type { LogInExtraInfo } from 'lib/types/account-types';
 
 import * as React from 'react';
 import {
@@ -51,6 +52,7 @@ import {
 import sleep from 'lib/utils/sleep';
 import { dispatchPing } from 'lib/shared/ping-utils';
 import { connect } from 'lib/utils/redux-utils';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import {
   windowHeight,
@@ -93,7 +95,7 @@ type Props = {
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
-  deviceToken: ?string,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -125,7 +127,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
     pingActionInput: PropTypes.func.isRequired,
-    deviceToken: PropTypes.string,
+    logInExtraInfo: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -305,9 +307,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       const newCookie = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
-        appStartNativeCredentialsAutoLogIn,
         urlPrefix,
-        nextProps.deviceToken,
+        appStartNativeCredentialsAutoLogIn,
+        nextProps.logInExtraInfo,
       );
       if (!newCookie || !newCookie.startsWith("user=")) {
         showPrompt();
@@ -325,9 +327,9 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       const newCookie = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
-        appStartReduxLoggedInButInvalidCookie,
         urlPrefix,
-        nextProps.deviceToken,
+        appStartReduxLoggedInButInvalidCookie,
+        nextProps.logInExtraInfo,
       );
       if (newCookie && newCookie.startsWith("user=")) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
@@ -351,7 +353,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       dispatch: props.dispatch,
       cookie,
       urlPrefix,
-      deviceToken: props.deviceToken,
+      logInExtraInfo: props.logInExtraInfo,
     });
     dispatchPing({ ...props, ping: boundPing });
   }
@@ -842,7 +844,7 @@ const LoggedOutModal = connect(
     isForeground: isForegroundSelector(state),
     pingStartingPayload: pingNativeStartingPayload(state),
     pingActionInput: pingActionInput(state),
-    deviceToken: state.deviceToken,
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   null,
   true,

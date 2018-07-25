@@ -2,6 +2,7 @@
 
 import type { FetchJSON } from 'lib/utils/fetch-json';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
+import type { LogInExtraInfo } from 'lib/types/account-types';
 
 import { Platform } from 'react-native';
 import {
@@ -14,8 +15,6 @@ import {
 import URL from 'url-parse';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-
-import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
 
 type Credentials = {|
   username: string,
@@ -219,11 +218,11 @@ async function deleteNativeCredentialsFor(username: string) {
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  deviceToken: ?string,
+  logInExtraInfo: () => LogInExtraInfo,
 ) {
-  const deviceTokenUpdateRequest = getDeviceTokenUpdateRequest(deviceToken);
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
+    const extraInfo = logInExtraInfo();
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(
@@ -231,7 +230,7 @@ async function resolveInvalidatedCookie(
         {
           usernameOrEmail: keychainCredentials.username,
           password: keychainCredentials.password,
-          deviceTokenUpdateRequest,
+          ...extraInfo,
         },
       ),
     );
@@ -241,6 +240,7 @@ async function resolveInvalidatedCookie(
   }
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
+    const extraInfo = logInExtraInfo();
     await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(
@@ -248,7 +248,7 @@ async function resolveInvalidatedCookie(
         {
           usernameOrEmail: sharedWebCredentials.username,
           password: sharedWebCredentials.password,
-          deviceTokenUpdateRequest,
+          ...extraInfo,
         },
       ),
     );

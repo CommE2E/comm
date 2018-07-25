@@ -3,8 +3,11 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { LogInInfo, LogInResult } from 'lib/types/account-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type {
+  LogInInfo,
+  LogInExtraInfo,
+  LogInResult,
+} from 'lib/types/account-types';
 import {
   type StateContainer,
   stateContainerPropType,
@@ -33,7 +36,7 @@ import {
   logIn,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput, usernamePlaceholder } from './modal-components.react';
 import {
@@ -45,7 +48,6 @@ import {
   fetchNativeCredentials,
   setNativeCredentials,
 } from './native-credentials';
-import { getDeviceTokenUpdateRequest } from '../utils/device-token-utils';
 
 export type LogInState = {
   usernameOrEmailInputText: string,
@@ -59,8 +61,7 @@ type Props = {
   state: StateContainer<LogInState>,
   // Redux state
   loadingStatus: LoadingStatus,
-  currentCalendarQuery: () => CalendarQuery,
-  deviceToken: ?string,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -75,8 +76,7 @@ class LogInPanel extends React.PureComponent<Props> {
     innerRef: PropTypes.func.isRequired,
     state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
-    currentCalendarQuery: PropTypes.func.isRequired,
-    deviceToken: PropTypes.string,
+    logInExtraInfo: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logIn: PropTypes.func.isRequired,
   };
@@ -200,12 +200,12 @@ class LogInPanel extends React.PureComponent<Props> {
     }
 
     Keyboard.dismiss();
-    const calendarQuery = this.props.currentCalendarQuery();
+    const extraInfo = this.props.logInExtraInfo();
     this.props.dispatchActionPromise(
       logInActionTypes,
-      this.logInAction(calendarQuery),
+      this.logInAction(extraInfo),
       undefined,
-      { calendarQuery },
+      { calendarQuery: extraInfo.calendarQuery },
     );
   }
 
@@ -222,15 +222,12 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   }
 
-  async logInAction(calendarQuery: CalendarQuery) {
-    const deviceTokenUpdateRequest =
-      getDeviceTokenUpdateRequest(this.props.deviceToken);
+  async logInAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.logIn({
         usernameOrEmail: this.props.state.state.usernameOrEmailInputText,
         password: this.props.state.state.passwordInputText,
-        calendarQuery,
-        deviceTokenUpdateRequest,
+        ...extraInfo,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -329,8 +326,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    currentCalendarQuery: currentCalendarQuery(state),
-    deviceToken: state.deviceToken,
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { logIn },
 )(LogInPanel);
