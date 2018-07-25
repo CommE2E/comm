@@ -2,7 +2,11 @@
 
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { RegisterInfo, RegisterResult } from 'lib/types/account-types';
+import type {
+  RegisterInfo,
+  LogInExtraInfo,
+  RegisterResult,
+} from 'lib/types/account-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -15,6 +19,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -24,6 +29,7 @@ type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
   inputDisabled: bool,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -219,19 +225,23 @@ class RegisterModal extends React.PureComponent<Props, State> {
         },
       );
     } else {
+      const extraInfo = this.props.logInExtraInfo();
       this.props.dispatchActionPromise(
         registerActionTypes,
-        this.registerAction(),
+        this.registerAction(extraInfo),
+        undefined,
+        { calendarQuery: extraInfo.calendarQuery },
       );
     }
   }
 
-  async registerAction() {
+  async registerAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.register({
         username: this.state.username,
         email: this.state.email,
         password: this.state.password,
+        ...extraInfo,
       });
       this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
       return result;
@@ -286,6 +296,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
 RegisterModal.propTypes = {
   setModal: PropTypes.func.isRequired,
   inputDisabled: PropTypes.bool.isRequired,
+  logInExtraInfo: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
 };
@@ -295,6 +306,7 @@ const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { register },
 )(RegisterModal);

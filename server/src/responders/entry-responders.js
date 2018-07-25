@@ -54,6 +54,19 @@ const entryQueryInputValidator = tShape({
     }),
   ]))),
 });
+const newEntryQueryInputValidator = tShape({
+  startDate: tDate,
+  endDate: tDate,
+  filters: t.list(t.union([
+    tShape({
+      type: tString(calendarThreadFilterTypes.NOT_DELETED),
+    }),
+    tShape({
+      type: tString(calendarThreadFilterTypes.THREAD_LIST),
+      threadIDs: t.list(t.String),
+    }),
+  ])),
+});
 
 function normalizeCalendarQuery(
   input: any,
@@ -187,6 +200,7 @@ async function entryRestorationResponder(
 
 export {
   entryQueryInputValidator,
+  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
   entryFetchResponder,

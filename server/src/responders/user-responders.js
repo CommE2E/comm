@@ -54,6 +54,7 @@ import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
 import {
   entryQueryInputValidator,
+  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
@@ -156,6 +157,8 @@ const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.String,
   password: tPassword,
+  calendarQuery: t.maybe(newEntryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platform: t.maybe(tPlatform),
   platformDetails: t.maybe(tPlatformDetails),
 });

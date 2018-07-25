@@ -24,6 +24,7 @@ import { deleteCookie } from '../deleters/cookie-deleters';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import createMessages from './message-creator';
 import createThread from './thread-creator';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 
 const ashoatMessages = [
   "welcome to SquadCal! thanks for helping to test the alpha.",
@@ -55,10 +56,14 @@ async function createAccount(
     FROM users
     WHERE LCASE(email) = LCASE(${request.email})
   `;
-  const [ [ usernameResult ], [ emailResult ] ] = await Promise.all([
+  const promises = [
     dbQuery(usernameQuery),
     dbQuery(emailQuery),
-  ]);
+  ];
+  if (request.calendarQuery) {
+    promises.push(verifyCalendarQueryThreadIDs(request.calendarQuery));
+  }
+  const [ [ usernameResult ], [ emailResult ] ] = await Promise.all(promises);
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
   }

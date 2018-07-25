@@ -3,7 +3,11 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { RegisterInfo, RegisterResult } from 'lib/types/account-types';
+import type {
+  RegisterInfo,
+  LogInExtraInfo,
+  RegisterResult,
+} from 'lib/types/account-types';
 import {
   type StateContainer,
   stateContainerPropType,
@@ -30,6 +34,7 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput } from './modal-components.react';
 import {
@@ -52,6 +57,7 @@ type Props = {
   state: StateContainer<RegisterState>,
   // Redux state
   loadingStatus: LoadingStatus,
+  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -65,6 +71,7 @@ class RegisterPanel extends React.PureComponent<Props> {
     onePasswordSupported: PropTypes.bool.isRequired,
     state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
+    logInExtraInfo: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     register: PropTypes.func.isRequired,
   };
@@ -257,9 +264,12 @@ class RegisterPanel extends React.PureComponent<Props> {
       );
     } else {
       Keyboard.dismiss();
+      const extraInfo = this.props.logInExtraInfo();
       this.props.dispatchActionPromise(
         registerActionTypes,
-        this.registerAction(),
+        this.registerAction(extraInfo),
+        undefined,
+        { calendarQuery: extraInfo.calendarQuery },
       );
     }
   }
@@ -304,12 +314,13 @@ class RegisterPanel extends React.PureComponent<Props> {
     );
   }
 
-  async registerAction() {
+  async registerAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.register({
         username: this.props.state.state.usernameInputText,
         email: this.props.state.state.emailInputText,
         password: this.props.state.state.passwordInputText,
+        ...extraInfo,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -409,6 +420,7 @@ const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   { register },
 )(RegisterPanel);
