@@ -12,6 +12,7 @@ import { reportTypes } from 'lib/types/report-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
@@ -42,6 +43,7 @@ import {
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 import { createFilter } from '../creators/filter-creator';
+import { fetchCurrentFilter } from '../fetchers/filter-fetchers';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -182,6 +184,7 @@ async function pingResponder(
     threadsResult,
     entriesResult,
     currentUserInfo,
+    currentCalendarQuery,
   ] = await Promise.all([
     fetchMessageInfosSince(
       viewer,
@@ -192,10 +195,10 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
+    calendarQuery ? fetchCurrentFilter(viewer) : undefined,
     clientResponsePromises.length > 0
       ? Promise.all(clientResponsePromises)
       : null,
-    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
   ]);
 
   let updatesResult = null;
@@ -215,13 +218,20 @@ async function pingResponder(
     };
   }
 
-  const timestampUpdatePromises = [ updateActivityTime(viewer) ];
+  const updatePromises = [ updateActivityTime(viewer) ];
   if (updatesResult && updatesResult.newUpdates.length > 0) {
-    timestampUpdatePromises.push(
+    updatePromises.push(
       recordDeliveredUpdate(viewer.cookieID, updatesResult.currentAsOf),
     );
   }
-  await Promise.all(timestampUpdatePromises);
+  if (
+    calendarQuery &&
+    (!currentCalendarQuery ||
+      !_isEqual(currentCalendarQuery)(calendarQuery))
+  ) {
+    updatePromises.push(createFilter(viewer, calendarQuery));
+  }
+  await Promise.all(updatePromises);
 
   const userInfos: any = Object.values({
     ...messagesResult.userInfos,

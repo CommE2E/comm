@@ -64,7 +64,7 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { deviceTokenUpdateRequestInputValidator } from './device-responders';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
-import { createFilter } from '../creators/filter-creator';
+import { updateFilterIfChanged } from '../updaters/filter-updaters';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -247,7 +247,7 @@ async function logInResponder(
     request.deviceTokenUpdateRequest
       ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
       : undefined,
-    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
+    calendarQuery ? updateFilterIfChanged(viewer, calendarQuery) : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
