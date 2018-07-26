@@ -526,6 +526,13 @@ function removeModalsIfPingIndicatesLoggedIn(
     // handling specific log ins that occur from LoggedOutModal.
     return state;
   }
+  if (payload.loggedIn) {
+    // If the user was logged in at the time the ping was started, then the only
+    // reason they would logged out now is either a cookie invalidation or a
+    // user-initiated log out. We only want to allow a ping to log somebody in
+    // when the app is started and the user is logged out.
+    return state;
+  }
   return removeModals(state, justLoggedOutModal);
 }
 
