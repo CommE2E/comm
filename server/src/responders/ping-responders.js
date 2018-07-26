@@ -41,6 +41,7 @@ import {
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
+import { createFilter } from '../creators/filter-creator';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -108,7 +109,8 @@ async function pingResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  await verifyCalendarQueryThreadIDs(request.calendarQuery);
+  const { calendarQuery } = request;
+  await verifyCalendarQueryThreadIDs(calendarQuery);
 
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
@@ -188,11 +190,12 @@ async function pingResponder(
       defaultNumberPerThread,
     ),
     fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, request.calendarQuery),
+    fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
     clientResponsePromises.length > 0
       ? Promise.all(clientResponsePromises)
       : null,
+    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
   ]);
 
   let updatesResult = null;
@@ -200,7 +203,7 @@ async function pingResponder(
     const { updateInfos } = await fetchUpdateInfos(
       viewer,
       oldUpdatesCurrentAsOf,
-      { ...threadsResult, calendarQuery: request.calendarQuery },
+      { ...threadsResult, calendarQuery },
     );
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       [...updateInfos],

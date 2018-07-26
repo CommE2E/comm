@@ -24,6 +24,7 @@ import { createNewUserCookie } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { createFilter } from '../creators/filter-creator';
 
 async function accountUpdater(
   viewer: Viewer,
@@ -193,6 +194,7 @@ async function updatePassword(
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;

@@ -25,6 +25,7 @@ import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import createMessages from './message-creator';
 import createThread from './thread-creator';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { createFilter } from './filter-creator';
 
 const ashoatMessages = [
   "welcome to SquadCal! thanks for helping to test the alpha.",
@@ -60,8 +61,9 @@ async function createAccount(
     dbQuery(usernameQuery),
     dbQuery(emailQuery),
   ];
-  if (request.calendarQuery) {
-    promises.push(verifyCalendarQueryThreadIDs(request.calendarQuery));
+  const { calendarQuery } = request;
+  if (calendarQuery) {
+    promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
   const [ [ usernameResult ], [ emailResult ] ] = await Promise.all(promises);
   if (usernameResult[0].count !== 0) {
@@ -111,6 +113,7 @@ async function createAccount(
         initialMemberIDs: [ashoat.id],
       },
     ),
+    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
   ]);
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
