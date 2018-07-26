@@ -438,9 +438,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
       rowToSave.threadID,
       rowToSave.role,
       time,
-      rowToSave.subscription
-        ? JSON.stringify(rowToSave.subscription)
-        : defaultSubscriptionString,
+      subscription,
       JSON.stringify(rowToSave.permissions),
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)

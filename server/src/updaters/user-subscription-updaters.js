@@ -18,7 +18,7 @@ async function userSubscriptionUpdater(
   viewer: Viewer,
   update: SubscriptionUpdateRequest,
 ): Promise<ThreadSubscription> {
-  const threadInfos = await fetchThreadInfos(
+  const { threadInfos } = await fetchThreadInfos(
     viewer,
     SQL`t.id = ${update.threadID}`,
   );
