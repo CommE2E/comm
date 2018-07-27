@@ -286,8 +286,8 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     }
     initialAppLoad = false;
 
-    let cookie = nextProps.cookie;
-    const urlPrefix = nextProps.urlPrefix;
+    let { cookie } = nextProps;
+    const { urlPrefix } = nextProps;
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.guardedSetState({ mode: "prompt" });
@@ -348,11 +348,11 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     InnerLoggedOutModal.dispatchPing(nextProps, cookie, urlPrefix);
   }
 
-  static dispatchPing(props: Props, cookie: ?string, urlPrefix: string) {
+  static dispatchPing(props: Props, cookie: ?string) {
     const boundPing = boundPingSelector({
       dispatch: props.dispatch,
       cookie,
-      urlPrefix,
+      urlPrefix: props.urlPrefix,
       logInExtraInfo: props.logInExtraInfo,
     });
     dispatchPing({ ...props, ping: boundPing });

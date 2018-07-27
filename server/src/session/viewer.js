@@ -55,11 +55,12 @@ class Viewer {
   setNewCookie(data: ViewerData) {
     this.data = data;
     this.cookieChanged = true;
-  }
-
-  invalidateCookie(data: ViewerData) {
-    this.setNewCookie(data);
-    this.cookieInvalidated = true;
+    if (this.cookieName !== cookieType.ANONYMOUS) {
+      // A cookie invalidation is treated similarly to a log-out by the client.
+      // If we're passing them a valid user cookie, it shouldn't be treated as
+      // an invalidation.
+      this.cookieInvalidated = false;
+    }
   }
 
   get id(): string {
