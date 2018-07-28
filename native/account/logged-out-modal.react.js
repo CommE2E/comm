@@ -345,7 +345,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
-    InnerLoggedOutModal.dispatchPing(nextProps, cookie, urlPrefix);
+    InnerLoggedOutModal.dispatchPing(nextProps, cookie);
   }
 
   static dispatchPing(props: Props, cookie: ?string) {
@@ -354,6 +354,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       cookie,
       urlPrefix: props.urlPrefix,
       logInExtraInfo: props.logInExtraInfo,
+      loggedIn: props.loggedIn,
     });
     dispatchPing({ ...props, ping: boundPing });
   }

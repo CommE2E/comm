@@ -204,11 +204,11 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     );
   }
 
-  onPressLogOut = async () => {
+  onPressLogOut = () => {
     const alertTitle = Platform.OS === "ios"
       ? "Keep Login Info in Keychain"
       : "Keep Login Info";
-    const sharedWebCredentials = await getNativeSharedWebCredentials();
+    const sharedWebCredentials = getNativeSharedWebCredentials();
     const alertDescription = sharedWebCredentials
       ? "We will automatically fill out log-in forms with your credentials " +
         "in the app and keep them available on squadcal.org in Safari."
@@ -246,11 +246,8 @@ class InnerMoreScreen extends React.PureComponent<Props> {
   async logOutAndDeleteNativeCredentials() {
     const username = this.props.username;
     invariant(username, "can't log out if not logged in");
-    const [ result ] = await Promise.all([
-      this.props.logOut(),
-      deleteNativeCredentialsFor(username),
-    ]);
-    return result;
+    await deleteNativeCredentialsFor(username);
+    return await this.props.logOut();
   }
 
   onPressResendVerificationEmail = () => {

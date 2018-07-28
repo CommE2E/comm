@@ -172,10 +172,10 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
 
   async deleteAccount() {
     try {
-      const result = await this.props.deleteAccount(this.state.password);
       if (this.props.username) {
         await deleteNativeCredentialsFor(this.props.username);
       }
+      const result = await this.props.deleteAccount(this.state.password);
       return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
