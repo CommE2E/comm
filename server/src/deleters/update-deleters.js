@@ -1,5 +1,7 @@
 // @flow
 
+import type { Viewer } from '../session/viewer';
+
 import invariant from 'invariant';
 
 import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
@@ -35,7 +37,17 @@ async function deleteExpiredUpdates(): Promise<void> {
   `);
 }
 
+async function deleteUpdatesBeforeTimeTargettingCookie(
+  viewer: Viewer,
+  beforeTime: number,
+): Promise<void> {
+  const condition =
+    SQL`u.target_cookie = ${viewer.cookieID} AND u.time <= ${beforeTime}`;
+  await deleteUpdatesByConditions([condition]);
+}
+
 export {
   deleteExpiredUpdates,
   deleteUpdatesByConditions,
+  deleteUpdatesBeforeTimeTargettingCookie,
 };

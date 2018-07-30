@@ -44,6 +44,9 @@ import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 import { createFilter } from '../creators/filter-creator';
 import { fetchCurrentFilter } from '../fetchers/filter-fetchers';
+import {
+  deleteUpdatesBeforeTimeTargettingCookie,
+} from '../deleters/update-deleters';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -203,11 +206,17 @@ async function pingResponder(
 
   let updatesResult = null;
   if (oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined) {
-    const { updateInfos } = await fetchUpdateInfos(
-      viewer,
-      oldUpdatesCurrentAsOf,
-      { ...threadsResult, calendarQuery },
-    );
+    const [{ updateInfos }] = await Promise.all([
+      fetchUpdateInfos(
+        viewer,
+        oldUpdatesCurrentAsOf,
+        { ...threadsResult, calendarQuery },
+      ),
+      deleteUpdatesBeforeTimeTargettingCookie(
+        viewer,
+        oldUpdatesCurrentAsOf,
+      ),
+    ]);
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       [...updateInfos],
       oldUpdatesCurrentAsOf,
