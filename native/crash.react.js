@@ -28,11 +28,11 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import sleep from 'lib/utils/sleep';
+import { reduxLogger } from 'lib/utils/redux-logger';
 
 import Button from './components/button.react';
 import { store } from './redux-setup';
 import { persistConfig, codeVersion, getPersistor } from './persist';
-import reduxLogger from './redux-logger';
 
 const errorTitles = [
   "Oh no!!",

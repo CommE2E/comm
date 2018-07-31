@@ -79,6 +79,7 @@ const pingRequestInputValidator = tShape({
       action: t.Object,
       pollResult: t.Object,
       pushResult: t.Object,
+      lastActionTypes: t.maybe(t.list(t.String)),
     }),
     tShape({
       type: t.irreducible(

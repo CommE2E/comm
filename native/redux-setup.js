@@ -40,6 +40,7 @@ import { newSessionID } from 'lib/selectors/session-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { sendMessageActionTypes } from 'lib/actions/message-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
+import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 
 import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
@@ -56,7 +57,6 @@ import {
   reduceThreadIDsToNotifIDs,
 } from './push/android';
 import { persistConfig, setPersistor } from './persist';
-import reduxLogger from './redux-logger';
 import {
   defaultURLPrefix,
   natServer,
@@ -468,13 +468,6 @@ function validateState(oldState: AppState, state: AppState): AppState {
 
   return state;
 }
-
-const reduxLoggerMiddleware = store => next => action => {
-  // We want the state before the action
-  const state = store.getState();
-  reduxLogger.addAction(action, state);
-  return next(action);
-};
 
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   "root",

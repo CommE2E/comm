@@ -13,6 +13,8 @@ import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
 
+import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
+
 import App from './app.react';
 import history from './router-history';
 import { reducer } from './redux-setup';
@@ -21,7 +23,9 @@ declare var preloadedState: AppState;
 const store: Store<AppState, Action> = createStore(
   reducer,
   preloadedState,
-  composeWithDevTools({})(applyMiddleware(thunk)),
+  composeWithDevTools({})(
+    applyMiddleware(thunk, reduxLoggerMiddleware),
+  ),
 );
 
 const RootRouter = () => (
