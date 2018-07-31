@@ -131,6 +131,20 @@ export function reducer(inputState: AppState | void, action: Action) {
 }
 
 function validateState(oldState: AppState, state: AppState): AppState {
+  if (
+    state.navInfo.activeChatThreadID &&
+    !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]
+  ) {
+    // Makes sure the active thread always exists
+    state = {
+      ...state,
+      navInfo: {
+        ...state.navInfo,
+        activeChatThreadID: mostRecentReadThreadSelector(state),
+      },
+    };
+  }
+
   const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
   if (
@@ -139,13 +153,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
   ) {
     // Makes sure a currently focused thread is never unread
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      verifyField: state.verifyField,
-      resetPasswordUsername: state.resetPasswordUsername,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
+      ...state,
       threadStore: {
         ...state.threadStore,
         threadInfos: {
@@ -159,20 +167,9 @@ function validateState(oldState: AppState, state: AppState): AppState {
           },
         },
       },
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      windowDimensions: state.windowDimensions,
     };
   }
+
   if (
     activeThread &&
     oldActiveThread !== activeThread &&
@@ -180,17 +177,9 @@ function validateState(oldState: AppState, state: AppState): AppState {
   ) {
     // Update messageStore.threads[activeThread].lastNavigatedTo
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      verifyField: state.verifyField,
-      resetPasswordUsername: state.resetPasswordUsername,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
+      ...state,
       messageStore: {
-        messages: state.messageStore.messages,
+        ...state.messageStore,
         threads: {
           ...state.messageStore.threads,
           [activeThread]: {
@@ -198,53 +187,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
             lastNavigatedTo: Date.now(),
           },
         },
-        currentAsOf: state.messageStore.currentAsOf,
       },
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      windowDimensions: state.windowDimensions,
-    };
-  }
-
-  if (
-    state.navInfo.activeChatThreadID &&
-    !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]
-  ) {
-    // Makes sure the active thread always exists
-    state = {
-      navInfo: {
-        startDate: state.navInfo.startDate,
-        endDate: state.navInfo.endDate,
-        tab: state.navInfo.tab,
-        verify: state.navInfo.verify,
-        activeChatThreadID: mostRecentReadThreadSelector(state),
-      },
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      verifyField: state.verifyField,
-      resetPasswordUsername: state.resetPasswordUsername,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      windowDimensions: state.windowDimensions,
     };
   }
 

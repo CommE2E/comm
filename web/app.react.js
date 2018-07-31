@@ -197,6 +197,8 @@ class App extends React.PureComponent<Props, State> {
         history.replace(newURL);
       }
       this.startTimeouts(this.props);
+    } else if (this.props.location.pathname !== '/') {
+      history.replace('/');
     }
 
     App.updateFocusedThreads(this.props, null, null);
@@ -354,34 +356,35 @@ class App extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.location.pathname !== this.props.location.pathname) {
-      const newNavInfo = navInfoFromURL(
-        nextProps.location.pathname,
-        nextProps.navInfo,
-      );
-      if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
-        this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
+    if (nextProps.loggedIn) {
+      if (nextProps.location.pathname !== this.props.location.pathname) {
+        const newNavInfo = navInfoFromURL(
+          nextProps.location.pathname,
+          nextProps.navInfo,
+        );
+        if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
+          this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
+        }
+      } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
+        const newURL = canonicalURLFromReduxState(
+          nextProps.navInfo,
+          nextProps.location.pathname,
+        );
+        if (newURL !== nextProps.location.pathname) {
+          history.push(newURL);
+        }
       }
-    } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
-      const newURL = canonicalURLFromReduxState(
-        nextProps.navInfo,
-        nextProps.location.pathname,
-      );
-      if (newURL !== nextProps.location.pathname) {
-        history.push(newURL);
-      }
-    }
 
-    if (
-      nextProps.loggedIn &&
-      (nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
+      if (
+        nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
         nextProps.navInfo.endDate !== this.props.navInfo.endDate ||
-        (nextProps.includeDeleted && !this.props.includeDeleted))
-    ) {
-      nextProps.dispatchActionPromise(
-        fetchEntriesActionTypes,
-        nextProps.fetchEntries(nextProps.currentCalendarQuery()),
-      );
+        (nextProps.includeDeleted && !this.props.includeDeleted)
+      ) {
+        nextProps.dispatchActionPromise(
+          fetchEntriesActionTypes,
+          nextProps.fetchEntries(nextProps.currentCalendarQuery()),
+        );
+      }
     }
 
     const prevLastPingSuccess = this.props.pingTimestamps.lastSuccess;
@@ -418,6 +421,11 @@ class App extends React.PureComponent<Props, State> {
         this.props.activeThread,
         this.props.activeThreadLatestMessage,
       );
+    }
+
+    const justLoggedOut = !nextProps.loggedIn && this.props.loggedIn;
+    if (justLoggedOut && nextProps.location.pathname !== '/') {
+      history.replace('/');
     }
   }
 
