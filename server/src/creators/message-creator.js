@@ -94,7 +94,7 @@ async function createMessages(
           subthread: undefined,
         };
       }
-      if (newThreadRestriction !== newThreadRestriction) {
+      if (newThreadRestriction !== threadRestriction) {
         threadRestrictions.set(threadID, newThreadRestriction);
       }
     }

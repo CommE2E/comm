@@ -5,6 +5,7 @@ import type { AppState, Action } from 'web/redux-setup';
 import type { Store } from 'redux';
 import { defaultPingTimestamps } from 'lib/types/ping-types';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import html from 'common-tags/lib/html';
 import { createStore } from 'redux';
@@ -27,6 +28,7 @@ import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 import { navInfoFromURL } from 'web/url-utils';
@@ -34,7 +36,7 @@ import { navInfoFromURL } from 'web/url-utils';
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { verifyThreadID, fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
@@ -87,11 +89,12 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     mostRecentMessageTimestamp(rawMessageInfos, initialTime),
     threadInfos,
   );
-  if (navInfo.activeChatThreadID) {
-    const validThreadID = await verifyThreadID(navInfo.activeChatThreadID);
-    if (!validThreadID) {
-      navInfo.activeChatThreadID = null;
-    }
+  const threadID = navInfo.activeChatThreadID;
+  if (
+    threadID &&
+    !threadHasPermission(threadInfos[threadID], threadPermissions.VISIBLE)
+  ) {
+    navInfo.activeChatThreadID = null;
   }
   if (!navInfo.activeChatThreadID) {
     const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);

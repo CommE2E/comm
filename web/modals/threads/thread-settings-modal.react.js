@@ -436,7 +436,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       const response = await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
         changes: this.state.queuedChanges,
-        accountPassword: this.state.accountPassword,
+        accountPassword: this.state.accountPassword
+          ? this.state.accountPassword
+          : null,
       });
       this.props.onClose();
       return response;
