@@ -17,6 +17,7 @@ import _isEqual from 'lodash/fp/isEqual';
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
+import { promiseAll } from 'lib/utils/promises';
 
 import {
   validateInput,
@@ -205,19 +206,40 @@ async function pingResponder(
       : null,
   ]);
 
-  let updatesResult = null;
+  const promises = {};
+  promises.activityUpdate = updateActivityTime(viewer);
+  if (
+    calendarQuery &&
+    (!currentCalendarQuery ||
+      !_isEqual(currentCalendarQuery)(calendarQuery))
+  ) {
+    promises.filterCreation = createFilter(viewer, calendarQuery);
+  }
   if (oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined) {
-    const [{ updateInfos }] = await Promise.all([
-      fetchUpdateInfos(
-        viewer,
-        oldUpdatesCurrentAsOf,
-        { ...threadsResult, calendarQuery },
-      ),
-      deleteUpdatesBeforeTimeTargettingCookie(
-        viewer,
-        oldUpdatesCurrentAsOf,
-      ),
-    ]);
+    promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingCookie(
+      viewer,
+      oldUpdatesCurrentAsOf,
+    );
+    promises.fetchUpdateResult = fetchUpdateInfos(
+      viewer,
+      oldUpdatesCurrentAsOf,
+      { ...threadsResult, calendarQuery },
+    );
+    promises.recordDelivery = recordDeliveredUpdate(
+      viewer.cookieID,
+      oldUpdatesCurrentAsOf,
+    );
+  }
+
+  const { fetchUpdateResult } = await promiseAll(promises);
+
+  let updatesResult = null;
+  if (fetchUpdateResult) {
+    invariant(
+      oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
+      "should be set",
+    );
+    const { updateInfos } = fetchUpdateResult;
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       [...updateInfos],
       oldUpdatesCurrentAsOf,
@@ -227,21 +249,6 @@ async function pingResponder(
       currentAsOf: newUpdatesCurrentAsOf,
     };
   }
-
-  const updatePromises = [ updateActivityTime(viewer) ];
-  if (updatesResult && updatesResult.newUpdates.length > 0) {
-    updatePromises.push(
-      recordDeliveredUpdate(viewer.cookieID, updatesResult.currentAsOf),
-    );
-  }
-  if (
-    calendarQuery &&
-    (!currentCalendarQuery ||
-      !_isEqual(currentCalendarQuery)(calendarQuery))
-  ) {
-    updatePromises.push(createFilter(viewer, calendarQuery));
-  }
-  await Promise.all(updatePromises);
 
   const userInfos: any = Object.values({
     ...messagesResult.userInfos,
