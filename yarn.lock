@@ -7831,9 +7831,9 @@ react-native-segmented-control-tab@^3.2.1:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-splash-screen@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-splash-screen/-/react-native-splash-screen-3.1.0.tgz#9636f83d711dadded27167cdc3dc6aa98ec222ee"
+react-native-splash-screen@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-splash-screen/-/react-native-splash-screen-3.1.1.tgz#1a4e46c9fdce53ff52af2a2cb4181788c4e30b30"
 
 react-native-swipe-gestures@^1.0.2:
   version "1.0.2"
