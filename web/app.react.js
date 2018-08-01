@@ -41,7 +41,6 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import {
   pingStartingPayload,
-  pingActionInput,
 } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
@@ -78,6 +77,7 @@ import history from './router-history';
 import { updateNavInfoActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
+import { pingWebActionInput } from './selectors/ping-selectors';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file.
@@ -107,7 +107,10 @@ type Props = {
   entriesLoadingStatus: LoadingStatus,
   currentCalendarQuery: () => CalendarQuery,
   pingStartingPayload: () => PingStartingPayload,
-  pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
+  pingActionInput: (
+    startingPayload: PingStartingPayload,
+    justForegrounded: bool,
+  ) => PingActionInput,
   pingTimestamps: PingTimestamps,
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
@@ -201,8 +204,6 @@ class App extends React.PureComponent<Props, State> {
       history.replace('/');
     }
 
-    App.updateFocusedThreads(this.props, null, null);
-
     Visibility.change(this.onVisibilityChange);
   }
 
@@ -213,7 +214,6 @@ class App extends React.PureComponent<Props, State> {
   onVisibilityChange = (e, state: string) => {
     if (state === "visible") {
       this.startTimeouts(this.props);
-      App.updateFocusedThreads(this.props, null, null);
     } else {
       this.closingApp();
     }
@@ -281,14 +281,14 @@ class App extends React.PureComponent<Props, State> {
     return false;
   }
 
-  possiblePing = (inputProps?: Props) => {
+  possiblePing = (inputProps?: Props, justForegrounded?: ?bool) => {
     const props = inputProps ? inputProps : this.props;
     if (this.shouldDispatchPing(props)) {
-      this.pingNow(inputProps);
+      this.pingNow(inputProps, justForegrounded);
     }
   }
 
-  pingNow(inputProps?: Props) {
+  pingNow(inputProps?: Props, justForegrounded?: ?bool) {
     const props = inputProps ? inputProps : this.props;
     // This will only trigger if the ping is complete by then. If the ping isn't
     // complete by the time this timeout fires, componentWillReceiveProps takes
@@ -297,7 +297,7 @@ class App extends React.PureComponent<Props, State> {
     // This one runs in case something is wrong with pingCounter state or timing
     // and the first one gets swallowed without triggering another ping.
     setTimeout(this.possiblePing, pingFrequency * 10);
-    dispatchPing(props);
+    dispatchPing(props, !!justForegrounded);
   }
 
   possiblyNewSessionID = (inputProps?: Props) => {
@@ -324,7 +324,7 @@ class App extends React.PureComponent<Props, State> {
   startTimeouts(inputProps?: Props) {
     const props = inputProps ? inputProps : this.props;
     if (props.loggedIn) {
-      this.possiblePing(props);
+      this.possiblePing(props, true);
     } else {
       this.possiblyNewSessionID(props);
     }
@@ -413,9 +413,7 @@ class App extends React.PureComponent<Props, State> {
         history.replace(newURL);
       }
       this.startTimeouts(nextProps);
-    }
-
-    if (justLoggedIn || nextProps.activeThread !== this.props.activeThread) {
+    } else if (nextProps.activeThread !== this.props.activeThread) {
       App.updateFocusedThreads(
         nextProps,
         this.props.activeThread,
@@ -575,7 +573,7 @@ export default connect(
       entriesLoadingStatus: loadingStatusSelector(state),
       currentCalendarQuery: currentCalendarQuery(state),
       pingStartingPayload: pingStartingPayload(state),
-      pingActionInput: pingActionInput(state),
+      pingActionInput: pingWebActionInput(state),
       pingTimestamps: state.pingTimestamps,
       sessionTimeLeft: sessionTimeLeft(state),
       nextSessionID: nextSessionID(state),

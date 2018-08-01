@@ -356,7 +356,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       logInExtraInfo: props.logInExtraInfo,
       loggedIn: props.loggedIn,
     });
-    dispatchPing({ ...props, ping: boundPing });
+    dispatchPing({ ...props, ping: boundPing }, true);
   }
 
   hardwareBack = () => {

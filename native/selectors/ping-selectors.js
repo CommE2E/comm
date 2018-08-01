@@ -6,7 +6,11 @@ import type { ThreadMessageInfo } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
 
-import { pingStartingPayload } from 'lib/selectors/ping-selectors';
+import {
+  pingStartingPayload,
+  pingActionInput,
+} from 'lib/selectors/ping-selectors';
+import { pingActionInputSelector } from 'lib/shared/ping-utils';
 
 import { activeThreadSelector } from './nav-selectors';
 
@@ -50,6 +54,13 @@ const pingNativeStartingPayload = createSelector(
   },
 );
 
+const pingNativeActionInput = createSelector(
+  activeThreadSelector,
+  pingActionInput,
+  pingActionInputSelector,
+);
+
 export {
   pingNativeStartingPayload,
+  pingNativeActionInput,
 };

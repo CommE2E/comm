@@ -33,7 +33,10 @@ import {
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { updateActivityTime } from '../updaters/activity-updaters';
+import {
+  updateActivityTime,
+  activityUpdater,
+} from '../updaters/activity-updaters';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
@@ -88,6 +91,13 @@ const pingRequestInputValidator = tShape({
         x => x === serverRequestTypes.PLATFORM_DETAILS,
       ),
       platformDetails: tPlatformDetails,
+    }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.INITIAL_ACTIVITY_UPDATE',
+        x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATE,
+      ),
+      threadID: t.String,
     }),
   ]))),
 });
@@ -179,8 +189,18 @@ async function pingResponder(
         ));
         viewerMissingPlatform = false;
         viewerMissingPlatformDetails = false;
+      } else if (
+        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
+      ) {
+        clientResponsePromises.push(activityUpdater(
+          viewer,
+          { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
+        ));
       }
     }
+  }
+  if (clientResponsePromises.length > 0) {
+    await Promise.all(clientResponsePromises);
   }
 
   const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
@@ -201,9 +221,6 @@ async function pingResponder(
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
     calendarQuery ? fetchCurrentFilter(viewer) : undefined,
-    clientResponsePromises.length > 0
-      ? Promise.all(clientResponsePromises)
-      : null,
   ]);
 
   const promises = {};
