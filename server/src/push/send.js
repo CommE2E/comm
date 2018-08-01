@@ -452,6 +452,7 @@ function prepareAndroidNotification(
     data: {
       badge: unreadCount.toString(),
       custom_notification: JSON.stringify({
+        channel: "default",
         body: notifTextForMessageInfo(allMessageInfos, threadInfo),
         badgeCount: unreadCount, // TODO: remove this
         id: notifID,

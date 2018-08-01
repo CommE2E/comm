@@ -231,6 +231,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.iosNotificationOpened,
       );
     } else if (Platform.OS === "android") {
+      FCM.createNotificationChannel({
+        id: "default",
+        name: "Default",
+        description: "SquadCal notifications channel",
+        priority: "high",
+      });
       this.androidNotifListener = FCM.on(
         FCMEvent.Notification,
         this.androidNotificationReceived,
