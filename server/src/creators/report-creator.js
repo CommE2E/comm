@@ -4,12 +4,15 @@ import type { Viewer } from '../session/viewer';
 import {
   type ReportCreationRequest,
   type ReportCreationResponse,
+  type ThreadPollPushInconsistencyReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
 
 import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
+
+import { pingActionTypes } from 'lib/actions/ping-actions';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -24,7 +27,10 @@ const { squadbot } = bots;
 async function createReport(
   viewer: Viewer,
   request: ReportCreationRequest,
-): Promise<ReportCreationResponse> {
+): Promise<?ReportCreationResponse> {
+  if (ignoreReport(request)) {
+    return null;
+  }
   const [ id ] = await createIDs("reports", 1);
   const { type, platformDetails, ...report } = request;
   const row = [
@@ -68,6 +74,38 @@ async function sendSquadbotMessage(
   }]);
 }
 
+function ignoreReport(request: ReportCreationRequest): bool {
+  if (request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+    return false;
+  }
+  if (request.action.type !== pingActionTypes.success) {
+    return false;
+  }
+  const { beforeAction, pollResult, pushResult } = request;
+  const payloadThreadInfos = request.action.payload.threadInfos;
+  const prevStateThreadInfos = request.action.payload.prevState.threadInfos;
+  const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
+  for (let threadID of nonMatchingThreadIDs) {
+    const newThreadInfo = payloadThreadInfos[threadID];
+    const prevThreadInfo = prevStateThreadInfos[threadID];
+    if (!_isEqual(prevThreadInfo)(newThreadInfo)) {
+      return false;
+    }
+    const currentThreadInfo = beforeAction[threadID];
+    const pollThreadInfo = pollResult[threadID];
+    if (!_isEqual(currentThreadInfo)(pollThreadInfo)) {
+      return false;
+    }
+    const pushThreadInfo = pushResult[threadID];
+    if (!_isEqual(pushThreadInfo)(newThreadInfo)) {
+      return false;
+    }
+  }
+  // Currently we only ignore cases that are the result of the thread-reducer
+  // conditional with the comment above that starts with "If the thread at the"
+  return true;
+}
+
 function getSquadbotMessage(
   request: ReportCreationRequest,
   reportID: string,
@@ -83,26 +121,33 @@ function getSquadbotMessage(
       `using ${platformString}\n` +
       `${baseDomain}${basePath}download_error_report/${reportID}`;
   } else if (request.type === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
-    const { pushResult, pollResult, action } = request;
-    const nonMatchingThreadIDs = new Set();
-    for (let threadID in pollResult) {
-      if (!_isEqual(pushResult[threadID])(pollResult[threadID])) {
-        nonMatchingThreadIDs.add(threadID);
-      }
-    }
-    for (let threadID in pushResult) {
-      if (!pollResult[threadID]) {
-        nonMatchingThreadIDs.add(threadID);
-      }
-    }
+    const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
     const nonMatchingString = [...nonMatchingThreadIDs].join(", ");
     return `system detected poll/push inconsistency for ${name}!\n` +
       `using ${platformString}\n` +
-      `occurred during ${action.type}\n` +
+      `occurred during ${request.action.type}\n` +
       `thread IDs that are inconsistent: ${nonMatchingString}`;
   } else {
     return null;
   }
+}
+
+function getInconsistentThreadIDsFromReport(
+  request: ThreadPollPushInconsistencyReportCreationRequest,
+): Set<string> {
+  const { pushResult, pollResult, action } = request;
+  const nonMatchingThreadIDs = new Set();
+  for (let threadID in pollResult) {
+    if (!_isEqual(pushResult[threadID])(pollResult[threadID])) {
+      nonMatchingThreadIDs.add(threadID);
+    }
+  }
+  for (let threadID in pushResult) {
+    if (!pollResult[threadID]) {
+      nonMatchingThreadIDs.add(threadID);
+    }
+  }
+  return nonMatchingThreadIDs;
 }
 
 export default createReport;

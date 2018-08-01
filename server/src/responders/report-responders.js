@@ -73,7 +73,11 @@ async function reportCreationResponder(
     };
   }
   const request: ReportCreationRequest = input;
-  return await createReport(viewer, request);
+  const response = await createReport(viewer, request);
+  if (!response) {
+    throw new ServerError('ignored_report');
+  }
+  return response;
 }
 
 const fetchErrorReportInfosRequestInputValidator = tShape({
