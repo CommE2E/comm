@@ -34,6 +34,7 @@ import { NavigationActions, StackActions } from 'react-navigation';
 import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
+import { AppState as NativeAppState } from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { newSessionID } from 'lib/selectors/session-selectors';
@@ -348,10 +349,10 @@ function reducer(state: AppState = defaultState, action: *) {
 }
 
 function validateState(oldState: AppState, state: AppState): AppState {
-  const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
+    NativeAppState.currentState === "active" &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread
@@ -392,6 +393,8 @@ function validateState(oldState: AppState, state: AppState): AppState {
       _persist: state._persist,
     };
   }
+
+  const oldActiveThread = activeThreadSelector(oldState);
   if (
     activeThread &&
     oldActiveThread !== activeThread &&

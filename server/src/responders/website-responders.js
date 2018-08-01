@@ -29,6 +29,8 @@ import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
+
+import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 import { navInfoFromURL } from 'web/url-utils';

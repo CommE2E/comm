@@ -14,6 +14,7 @@ import type { CalendarFilter } from 'lib/types/filter-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import Visibility from 'visibilityjs';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import {
@@ -145,10 +146,10 @@ function validateState(oldState: AppState, state: AppState): AppState {
     };
   }
 
-  const oldActiveThread = activeThreadSelector(oldState);
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
+    !Visibility.hidden() &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread
@@ -170,6 +171,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     };
   }
 
+  const oldActiveThread = activeThreadSelector(oldState);
   if (
     activeThread &&
     oldActiveThread !== activeThread &&
