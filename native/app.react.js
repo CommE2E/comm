@@ -200,6 +200,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   updateBadgeCountAfterNextPing = true;
+  queuedDeviceToken: ?string = null;
 
   componentDidMount() {
     if (Platform.OS === "android") {
@@ -517,6 +518,16 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     ) {
       this.ensurePushNotifsEnabled();
     }
+
+    if (
+      this.props.appLoggedIn &&
+      !prevProps.appLoggedIn &&
+      this.queuedDeviceToken !== null &&
+      this.queuedDeviceToken !== undefined
+    ) {
+      this.setDeviceToken(this.queuedDeviceToken);
+      this.queuedDeviceToken = null;
+    }
   }
 
   static serverRequestsHasDeviceTokenRequest(
@@ -595,13 +606,21 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       iosPushPermissionResponseReceived();
     }
     if (deviceToken !== this.props.deviceToken) {
-      this.props.dispatchActionPromise(
-        setDeviceTokenActionTypes,
-        this.props.setDeviceToken(deviceToken, deviceType),
-        undefined,
-        deviceToken,
-      );
+      if (this.props.appLoggedIn) {
+        this.setDeviceToken(deviceToken);
+      } else {
+        this.queuedDeviceToken = deviceToken;
+      }
     }
+  }
+
+  setDeviceToken(deviceToken: string) {
+    this.props.dispatchActionPromise(
+      setDeviceTokenActionTypes,
+      this.props.setDeviceToken(deviceToken, Platform.OS),
+      undefined,
+      deviceToken,
+    );
   }
 
   failedToRegisterPushPermissions = (error) => {
