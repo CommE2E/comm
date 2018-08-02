@@ -514,8 +514,9 @@ async function removeInvalidTokens(
       userID,
       time,
       deviceToken,
+      targetCookie: cookieID,
     }));
-    promises.push(createUpdates(updateDatas, null, cookieID));
+    promises.push(createUpdates(updateDatas));
   }
 
   const updateQuery = SQL`

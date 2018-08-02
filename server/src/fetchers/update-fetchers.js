@@ -103,6 +103,9 @@ function viewerUpdateDataFromRow(
       userID: viewer.id,
       time: row.time,
       deviceToken,
+      // This UpdateData is only used to generate a UpdateInfo,
+      // and UpdateInfo doesn't care about the targetCookie field
+      targetCookie: "",
     };
   } else {
     invariant(false, `unrecognized updateType ${type}`);

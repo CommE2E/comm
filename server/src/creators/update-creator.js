@@ -68,16 +68,12 @@ const sortFunction = (
 
 // Creates rows in the updates table based on the inputed updateDatas. Returns
 // UpdateInfos pertaining to the provided viewerInfo, as well as related
-// UserInfos.
-// - If no viewerInfo is provided, no UpdateInfos will be returned. and the
-//   update row won't have an updater_cookie, meaning no cookie will be excluded
-//   from the update.
-// - Most updates go to all a user's cookies, but if you want to target one in
-//   particular, you can use targetCookie.
+// UserInfos. If no viewerInfo is provided, no UpdateInfos will be returned. And
+// the update row won't have an updater_cookie, meaning no cookie will be
+// excluded from the update.
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
   viewerInfo?: ?ViewerInfo,
-  targetCookie?: string,
 ): Promise<UpdatesResult> {
   if (updateDatas.length === 0) {
     return defaultResult;
@@ -186,7 +182,7 @@ async function createUpdates(
       viewerUpdateDatas.push({ data: updateData, id: ids[i] });
     }
 
-    let content;
+    let content, targetCookie = null;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
@@ -200,9 +196,10 @@ async function createUpdates(
     ) {
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
-    } else if (updateData.type == updateTypes.BAD_DEVICE_TOKEN) {
-      const { deviceToken } = updateData;
+    } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
+      const { deviceToken, targetCookie: cookieFromData } = updateData;
       content = JSON.stringify({ deviceToken });
+      targetCookie = cookieFromData;
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -224,7 +221,7 @@ async function createUpdates(
       content,
       updateData.time,
       viewerInfo ? viewerInfo.viewer.cookieID : null,
-      targetCookie ? targetCookie : null,
+      targetCookie,
     ];
     insertRows.push(insertRow);
   }
