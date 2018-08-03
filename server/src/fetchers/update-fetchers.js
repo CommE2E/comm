@@ -107,6 +107,17 @@ function viewerUpdateDataFromRow(
       // and UpdateInfo doesn't care about the targetCookie field
       targetCookie: "",
     };
+  } else if (type === updateTypes.UPDATE_ENTRY) {
+    const { entryID } = JSON.parse(row.content);
+    data = {
+      type: updateTypes.UPDATE_ENTRY,
+      userID: viewer.id,
+      time: row.time,
+      entryID,
+      // This UpdateData is only used to generate a UpdateInfo,
+      // and UpdateInfo doesn't care about the targetCookie field
+      targetCookie: "",
+    };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
   }

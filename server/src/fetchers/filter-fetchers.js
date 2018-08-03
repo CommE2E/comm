@@ -23,6 +23,34 @@ async function fetchCurrentFilter(
   return row.query;
 }
 
+type CalendarFilterResult = {|
+  userID: string,
+  cookieID: string,
+  calendarQuery: CalendarQuery,
+|};
+async function fetchFiltersForThread(
+  threadID: string,
+): Promise<CalendarFilterResult[]> {
+  const query = SQL`
+    SELECT m.user, c.id AS cookie, f.query
+    FROM memberships m
+    LEFT JOIN cookies c ON c.user = m.user
+    LEFT JOIN filters f ON f.cookie = c.id
+    WHERE m.thread = ${threadID} AND f.query IS NOT NULL
+  `;
+  const [ result ] = await dbQuery(query);
+  const filters = [];
+  for (let row of result) {
+    filters.push({
+      userID: row.user.toString(),
+      cookieID: row.cookie.toString(),
+      calendarQuery: row.query,
+    });
+  }
+  return filters;
+}
+
 export {
   fetchCurrentFilter,
+  fetchFiltersForThread,
 };

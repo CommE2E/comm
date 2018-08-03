@@ -3,6 +3,7 @@
 import type {
   CalendarQuery,
   FetchEntryInfosResponse,
+  RawEntryInfo,
 } from 'lib/types/entry-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import type { Viewer } from '../session/viewer';
@@ -12,6 +13,8 @@ import {
 } from 'lib/types/thread-types';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 
+import invariant from 'invariant';
+
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 import {
@@ -20,6 +23,50 @@ import {
 } from 'lib/selectors/calendar-filter-selectors';
 
 import { dbQuery, SQL } from '../database';
+
+async function fetchEntryInfo(
+  viewer: Viewer,
+  entryID: string,
+): Promise<?RawEntryInfo> {
+  const results = await fetchEntryInfosByID(viewer, [ entryID ]);
+  if (results.length === 0) {
+    return null;
+  }
+  return results[0];
+}
+
+const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
+async function fetchEntryInfosByID(
+  viewer: Viewer,
+  entryIDs: $ReadOnlyArray<string>,
+): Promise<RawEntryInfo[]> {
+  if (entryIDs.length === 0) {
+    return [];
+  }
+  const viewerID = viewer.id;
+  const query = SQL`
+    SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
+      e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
+      e.deleted, e.creator AS creatorID
+    FROM entries e
+    LEFT JOIN days d ON d.id = e.day
+    LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
+    WHERE e.id IN (${entryIDs}) AND
+      JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
+  `;
+  const [ result ] = await dbQuery(query);
+  return result.map(row => ({
+    id: row.id.toString(),
+    threadID: row.threadID.toString(),
+    text: row.text,
+    year: row.year,
+    month: row.month,
+    day: row.day,
+    creationTime: row.creationTime,
+    creatorID: row.creatorID.toString(),
+    deleted: !!row.deleted,
+  }));
+}
 
 async function fetchEntryInfos(
   viewer: Viewer,
@@ -42,7 +89,6 @@ async function fetchEntryInfos(
       : null;
 
   const viewerID = viewer.id;
-  const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
       e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
@@ -153,6 +199,8 @@ async function fetchEntryRevisionInfo(
 }
 
 export {
+  fetchEntryInfo,
+  fetchEntryInfosByID,
   fetchEntryInfos,
   checkThreadPermissionForEntry,
   fetchEntryRevisionInfo,

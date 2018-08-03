@@ -1,28 +1,34 @@
 // @flow
 
-import type { SaveEntryRequest, SaveEntryResult } from 'lib/types/entry-types';
+import type {
+  SaveEntryRequest,
+  SaveEntryResult,
+  RawEntryInfo,
+} from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
+import { updateTypes, type UpdateData } from 'lib/types/update-types';
+
+import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
 import { dateString } from 'lib/utils/date-utils';
+import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
 
 import { dbQuery, SQL } from '../database';
-import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
+import {
+  fetchEntryInfo,
+  checkThreadPermissionForEntry,
+} from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
+import { fetchFiltersForThread } from '../fetchers/filter-fetchers';
 
 async function updateEntry(
   viewer: Viewer,
   request: SaveEntryRequest,
 ): Promise<SaveEntryResult> {
-  const entryQuery = SQL`
-    SELECT e.deleted, d.thread, d.date
-    FROM entries e
-    LEFT JOIN days d ON d.id = e.day
-    WHERE e.id = ${request.entryID}
-  `;
   const lastRevisionQuery = SQL`
     SELECT r.id, r.author, r.text, r.session_id,
       r.last_update, r.deleted, e.text AS entryText
@@ -34,7 +40,7 @@ async function updateEntry(
   `;
   const [
     hasPermission,
-    [ entryResult ],
+    entryInfo,
     [ lastRevisionResult ],
   ] = await Promise.all([
     checkThreadPermissionForEntry(
@@ -42,18 +48,17 @@ async function updateEntry(
       request.entryID,
       threadPermissions.EDIT_ENTRIES,
     ),
-    dbQuery(entryQuery),
+    fetchEntryInfo(viewer, request.entryID),
     dbQuery(lastRevisionQuery),
   ]);
 
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
   }
-  if (entryResult.length === 0) {
+  if (!entryInfo) {
     throw new ServerError('invalid_parameters');
   }
-  const entryRow = entryResult[0];
-  if (entryRow.deleted) {
+  if (entryInfo.deleted) {
     throw new ServerError('entry_deleted');
   }
   if (lastRevisionResult.length === 0) {
@@ -134,11 +139,11 @@ async function updateEntry(
   }
   const messageData = {
     type: messageTypes.EDIT_ENTRY,
-    threadID: entryRow.thread.toString(),
+    threadID: entryInfo.threadID,
     creatorID: viewerID,
     time: Date.now(),
     entryID: request.entryID,
-    date: dateString(entryRow.date),
+    date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
     text: request.text,
   };
   promises.unshift(createMessages([messageData]));
@@ -147,6 +152,25 @@ async function updateEntry(
   return { entryID: request.entryID, newMessageInfos };
 }
 
+async function createUpdateDatasForChangedEntryInfo(
+  entryInfo: RawEntryInfo,
+): Promise<void> {
+  const entryID = entryInfo.id;
+  invariant(entryID, "should be set");
+  const filters = await fetchFiltersForThread(entryInfo.threadID);
+  const time = Date.now();
+  const updateDatas = filters.filter(
+    filter => rawEntryInfoWithinCalendarQuery(entryInfo, filter.calendarQuery),
+  ).map(filter => ({
+    type: updateTypes.UPDATE_ENTRY,
+    userID: filter.userID,
+    time,
+    entryID,
+    targetCookie: filter.cookieID,
+  }));
+}
+
 export {
   updateEntry,
+  createUpdateDatasForChangedEntryInfo,
 };
