@@ -18,6 +18,9 @@ import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
+import {
+  createUpdateDatasForChangedEntryInfo
+} from '../updaters/entry-updaters';
 
 const lastRevisionQuery = (entryID: string) =>
   (SQL`
@@ -72,8 +75,8 @@ async function deleteEntry(
     );
   }
 
-  const promises = [];
-  promises.push(dbQuery(SQL`
+  const dbPromises = [];
+  dbPromises.push(dbQuery(SQL`
     UPDATE entries SET deleted = 1 WHERE id = ${request.entryID}
   `));
   const [ revisionID ] = await createIDs("revisions", 1);
@@ -87,25 +90,46 @@ async function deleteEntry(
     request.timestamp,
     1,
   ];
-  promises.push(dbQuery(SQL`
+  dbPromises.push(dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}
   `));
+
   const threadID = lastRevisionRow.thread.toString();
   const messageData = {
     type: messageTypes.DELETE_ENTRY,
-    threadID: threadID,
+    threadID,
     creatorID: viewerID,
     time: Date.now(),
     entryID: request.entryID.toString(),
     date: dateString(lastRevisionRow.date),
     text,
   };
-  promises.unshift(createMessages([messageData]));
 
-  const [ newMessageInfos ] = await Promise.all(promises);
-  return { threadID, newMessageInfos };
+  const rawEntryInfo = {
+    id: request.entryID,
+    threadID,
+    text,
+    year: lastRevisionRow.year,
+    month: lastRevisionRow.month,
+    day: lastRevisionRow.day,
+    creationTime: lastRevisionRow.creation_time,
+    creatorID: lastRevisionRow.creator.toString(),
+    deleted: true,
+  }
+
+  const [ newMessageInfos, updatesResult ] = await Promise.all([
+    createMessages([messageData]),
+    createUpdateDatasForChangedEntryInfo(
+      viewer,
+      rawEntryInfo,
+      request.calendarQuery,
+    ),
+    Promise.all(dbPromises),
+  ]);
+
+  return { threadID, newMessageInfos, updatesResult };
 }
 
 async function restoreEntry(
@@ -133,8 +157,8 @@ async function restoreEntry(
 
   const text = lastRevisionRow.text;
   const viewerID = viewer.id;
-  const promises = [];
-  promises.push(dbQuery(SQL`
+  const dbPromises = [];
+  dbPromises.push(dbQuery(SQL`
     UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}
   `));
   const [ revisionID ] = await createIDs("revisions", 1);
@@ -148,11 +172,12 @@ async function restoreEntry(
     request.timestamp,
     0,
   ];
-  promises.push(dbQuery(SQL`
+  dbPromises.push(dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
       last_update, deleted)
     VALUES ${[revisionRow]}
   `));
+
   const threadID = lastRevisionRow.thread.toString();
   const messageData = {
     type: messageTypes.RESTORE_ENTRY,
@@ -163,9 +188,7 @@ async function restoreEntry(
     date: dateString(lastRevisionRow.date),
     text,
   };
-  promises.unshift(createMessages([messageData]));
 
-  const [ newMessageInfos ] = await Promise.all(promises);
   const entryInfo = {
     id: request.entryID,
     threadID,
@@ -176,9 +199,19 @@ async function restoreEntry(
     creationTime: lastRevisionRow.creation_time,
     creatorID: lastRevisionRow.creator.toString(),
     deleted: false,
-  }
+  };
 
-  return { entryInfo, newMessageInfos };
+  const [ newMessageInfos, updatesResult ] = await Promise.all([
+    createMessages([messageData]),
+    createUpdateDatasForChangedEntryInfo(
+      viewer,
+      entryInfo,
+      request.calendarQuery,
+    ),
+    Promise.all(dbPromises),
+  ]);
+
+  return { entryInfo, newMessageInfos, updatesResult };
 }
 
 async function deleteOrphanedEntries(): Promise<void> {

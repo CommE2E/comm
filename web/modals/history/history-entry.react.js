@@ -5,7 +5,9 @@ import { threadInfoPropType } from 'lib/types/thread-types';
 import {
   type EntryInfo,
   entryInfoPropType,
+  type RestoreEntryInfo,
   type RestoreEntryResponse,
+  type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -29,6 +31,7 @@ import {
   sessionStartingPayload,
 } from 'lib/selectors/session-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
@@ -43,13 +46,11 @@ type Props = {
   loggedIn: bool,
   restoreLoadingStatus: LoadingStatus,
   sessionStartingPayload: () => { newSessionID?: string },
+  calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  restoreEntry: (
-    entryID: string,
-    sessionID: string,
-  ) => Promise<RestoreEntryResponse>,
+  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResponse>,
 };
 
 class HistoryEntry extends React.PureComponent<Props> {
@@ -143,10 +144,11 @@ class HistoryEntry extends React.PureComponent<Props> {
   async restoreEntryAction() {
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entry should have ID");
-    const result = await this.props.restoreEntry(
+    const result = await this.props.restoreEntry({
       entryID,
-      this.props.sessionID(),
-    );
+      sessionID: this.props.sessionID(),
+      calendarQuery: this.props.calendarQuery(),
+    });
     this.props.animateAndLoadEntry(entryID);
     return result;
   }
@@ -162,6 +164,7 @@ HistoryEntry.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   restoreLoadingStatus: PropTypes.string.isRequired,
   sessionStartingPayload: PropTypes.func.isRequired,
+  calendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   restoreEntry: PropTypes.func.isRequired,
 }
@@ -180,6 +183,7 @@ export default connect(
         `${restoreEntryActionTypes.started}:${entryID}`,
       )(state),
       sessionStartingPayload: sessionStartingPayload(state),
+      calendarQuery: nonThreadCalendarQuery(state),
     };
   },
   { restoreEntry },

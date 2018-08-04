@@ -139,6 +139,7 @@ const createEntryRequestInputValidator = tShape({
   timestamp: t.Number,
   date: tDate,
   threadID: t.String,
+  calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
 
 async function entryCreationResponder(
@@ -156,6 +157,7 @@ const saveEntryRequestInputValidator = tShape({
   prevText: t.String,
   sessionID: t.String,
   timestamp: t.Number,
+  calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
 
 async function entryUpdateResponder(
@@ -172,6 +174,7 @@ const deleteEntryRequestInputValidator = tShape({
   prevText: t.String,
   sessionID: t.String,
   timestamp: t.Number,
+  calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
 
 async function entryDeletionResponder(
@@ -187,6 +190,7 @@ const restoreEntryRequestInputValidator = tShape({
   entryID: t.String,
   sessionID: t.String,
   timestamp: t.Number,
+  calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
 
 async function entryRestorationResponder(

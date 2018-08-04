@@ -3,6 +3,7 @@
 import {
   type UpdateInfo,
   type UpdateData,
+  type CreateUpdatesResult,
   updateTypes,
 } from 'lib/types/update-types';
 import type { Viewer } from '../session/viewer';
@@ -51,21 +52,23 @@ import {
   fetchEntryInfos,
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
+import { fetchCurrentFilter } from '../fetchers/filter-fetchers';
+import { fetchUserInfos } from '../fetchers/user-fetchers';
 
 export type ViewerInfo =
   | {| viewer: Viewer |}
   | {|
       viewer: Viewer,
+      calendarQuery: ?CalendarQuery,
+    |}
+  | {|
+      viewer: Viewer,
+      calendarQuery: ?CalendarQuery,
       threadInfos: {[id: string]: RawThreadInfo},
       userInfos: {[id: string]: AccountUserInfo},
-      calendarQuery: ?CalendarQuery,
     |};
-type UpdatesResult = {|
-  viewerUpdates: $ReadOnlyArray<UpdateInfo>,
-  userInfos: {[id: string]: AccountUserInfo},
-|};
 const emptyArray = [];
-const defaultResult = { viewerUpdates: [], userInfos: {} };
+const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (
   a: UpdateData | UpdateInfo,
   b: UpdateData | UpdateInfo,
@@ -79,9 +82,9 @@ const sortFunction = (
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
   viewerInfo?: ?ViewerInfo,
-): Promise<UpdatesResult> {
+): Promise<CreateUpdatesResult> {
   if (updateDatas.length === 0) {
-    return defaultResult;
+    return defaultUpdateCreationResult;
   }
   const sortedUpdateDatas = [...updateDatas].sort(sortFunction);
 
@@ -279,7 +282,7 @@ async function createUpdates(
 
   const { updatesResult } = await promiseAll(promises);
   if (!updatesResult) {
-    return defaultResult;
+    return defaultUpdateCreationResult;
   }
   const { updateInfos, userInfos } = updatesResult;
   return { viewerUpdates: updateInfos, userInfos };
@@ -315,20 +318,25 @@ async function fetchUpdateInfosWithUpdateDatas(
 
   const promises = {};
 
-  if (threadIDsNeedingFetch.size > 0) {
+  if (!viewerInfo.threadInfos && threadIDsNeedingFetch.size > 0) {
     promises.threadResult = fetchThreadInfos(
       viewerInfo.viewer,
       SQL`t.id IN (${[...threadIDsNeedingFetch]})`,
     );
   }
 
-  // defaultCalendarQuery will only ever get used in the case of a legacy
-  // client calling join_thread without specifying a CalendarQuery. Those
-  // legacy clients will be discarding the UpdateInfos anyways, so we don't
-  // need to worry about the CalendarQuery correctness.
-  const calendarQuery = viewerInfo.calendarQuery
+  let calendarQuery: ?CalendarQuery = viewerInfo.calendarQuery
     ? viewerInfo.calendarQuery
-    : defaultCalendarQuery();
+    : null;
+  if (!calendarQuery) {
+    // This should only ever happen for "legacy" clients who call in without
+    // providing this information. These clients wouldn't know how to deal with
+    // the corresponding UpdateInfos anyways, so no reason to be worried.
+    calendarQuery = await fetchCurrentFilter(viewerInfo.viewer);
+  }
+  if (!calendarQuery) {
+    calendarQuery = defaultCalendarQuery();
+  }
   if (threadIDsNeedingDetailedFetch.size > 0) {
     const threadSelectionCriteria = { threadCursors: {} };
     for (let threadID of threadIDsNeedingDetailedFetch) {
@@ -376,7 +384,7 @@ async function fetchUpdateInfosWithUpdateDatas(
     threadInfosResult = { threadInfos: {}, userInfos: {} };
   }
 
-  return updateInfosFromUpdateDatas(
+  return await updateInfosFromUpdateDatas(
     updateDatas,
     {
       threadInfosResult,
@@ -395,10 +403,10 @@ export type UpdateInfosRawData = {|
   calendarResult: ?FetchEntryInfosResponse,
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
 |};
-function updateInfosFromUpdateDatas(
+async function updateInfosFromUpdateDatas(
   updateDatas: $ReadOnlyArray<ViewerUpdateData>,
   rawData: UpdateInfosRawData,
-): FetchUpdatesResult {
+): Promise<FetchUpdatesResult> {
   const {
     threadInfosResult,
     messageInfosResult,
@@ -493,6 +501,10 @@ function updateInfosFromUpdateDatas(
       if (!rawEntryInfoWithinCalendarQuery(entryInfo, calendarQuery)) {
         continue;
       }
+      userIDs = new Set([
+        ...userIDs,
+        ...usersInRawEntryInfos([entryInfo]),
+      ]);
       updateInfos.push({
         type: updateTypes.UPDATE_ENTRY,
         id,
@@ -505,10 +517,23 @@ function updateInfosFromUpdateDatas(
   }
 
   const userInfos = {};
+  const userIDsToFetch = [];
   for (let userID of userIDs) {
     const userInfo = threadInfosResult.userInfos[userID];
     if (userInfo) {
       userInfos[userID] = userInfo;
+    } else {
+      userIDsToFetch.push(userID);
+    }
+  }
+  if (userIDsToFetch.length > 0) {
+    const fetchedUserInfos = await fetchUserInfos(userIDsToFetch);
+    for (let userID in fetchedUserInfos) {
+      const userInfo = fetchedUserInfos[userID];
+      if (userInfo && userInfo.username) {
+        const { id, username } = userInfo;
+        userInfos[userID] = { id, username };
+      }
     }
   }
 
@@ -559,5 +584,6 @@ function updateInfosFromUpdateDatas(
 
 export {
   createUpdates,
+  defaultUpdateCreationResult,
   fetchUpdateInfosWithUpdateDatas,
 };

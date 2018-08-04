@@ -545,7 +545,7 @@ async function joinThread(
     throw new ServerError('invalid_parameters');
   }
 
-  const calendarQuery = request.calendarQuery;
+  const { calendarQuery } = request;
   if (calendarQuery) {
     const threadFilterIDs = filteredThreadIDs(calendarQuery.filters);
     if (
@@ -584,7 +584,7 @@ async function joinThread(
     creatorID: viewer.id,
     time: Date.now(),
   };
-  const [ fetchThreadsResult ] = await Promise.all([
+  const [ membershipResult ] = await Promise.all([
     commitMembershipChangeset(viewer, changeset, new Set(), calendarQuery),
     createMessages([messageData]),
   ]);
@@ -606,7 +606,7 @@ async function joinThread(
 
   let userInfos = {
     ...fetchMessagesResult.userInfos,
-    ...fetchThreadsResult.userInfos,
+    ...membershipResult.userInfos,
   };
   let rawEntryInfos;
   if (fetchEntriesResult) {
@@ -618,12 +618,12 @@ async function joinThread(
   }
 
   const response: ThreadJoinResult = {
-    threadInfos: fetchThreadsResult.threadInfos,
+    threadInfos: membershipResult.threadInfos,
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
     userInfos,
     updatesResult: {
-      newUpdates: fetchThreadsResult.viewerUpdates,
+      newUpdates: membershipResult.viewerUpdates,
     },
   };
   if (rawEntryInfos) {

@@ -9,12 +9,16 @@ import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { ServerError } from 'lib/utils/errors';
+import { dateFromString } from 'lib/utils/date-utils'
 
 import { dbQuery, SQL } from '../database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import {
+  createUpdateDatasForChangedEntryInfo
+} from '../updaters/entry-updaters';
 
 async function createEntry(
   viewer: Viewer,
@@ -72,6 +76,7 @@ async function createEntry(
       last_update, deleted)
     VALUES ${[revisionRow]}
   `;
+
   const messageData = {
     type: messageTypes.CREATE_ENTRY,
     threadID: request.threadID,
@@ -81,13 +86,32 @@ async function createEntry(
     date: request.date,
     text: request.text,
   };
-  const [ newMessageInfos ] = await Promise.all([
+
+  const date = dateFromString(request.date);
+  const rawEntryInfo = {
+    id: entryID,
+    threadID: request.threadID,
+    text: request.text,
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    creationTime: request.timestamp,
+    creatorID: viewerID,
+    deleted: false,
+  };
+
+  const [ newMessageInfos, updatesResult ] = await Promise.all([
     createMessages([messageData]),
+    createUpdateDatasForChangedEntryInfo(
+      viewer,
+      rawEntryInfo,
+      request.calendarQuery,
+    ),
     dbQuery(entryInsertQuery),
     dbQuery(revisionInsertQuery),
   ]);
 
-  return { entryID, newMessageInfos };
+  return { entryID, newMessageInfos, updatesResult };
 }
 
 export default createEntry;

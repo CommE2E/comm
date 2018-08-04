@@ -4,9 +4,10 @@ import type {
   SaveEntryRequest,
   SaveEntryResult,
   RawEntryInfo,
+  CalendarQuery,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
-import { updateTypes, type UpdateData } from 'lib/types/update-types';
+import { updateTypes, type CreateUpdatesResult } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 
@@ -14,7 +15,10 @@ import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
 import { dateString } from 'lib/utils/date-utils';
-import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+import {
+  rawEntryInfoWithinCalendarQuery,
+  defaultCalendarQuery,
+} from 'lib/shared/entry-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -23,7 +27,14 @@ import {
 } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import { fetchFiltersForThread } from '../fetchers/filter-fetchers';
+import {
+  fetchCurrentFilter,
+  fetchFiltersForThread,
+} from '../fetchers/filter-fetchers';
+import {
+  defaultUpdateCreationResult,
+  createUpdates,
+} from '../creators/update-creator';
 
 async function updateEntry(
   viewer: Viewer,
@@ -73,7 +84,7 @@ async function updateEntry(
   }
 
   const viewerID = viewer.id;
-  const promises = [];
+  const dbPromises = [];
   let insertNewRevision = false;
   let updateEntry = false;
   if (
@@ -83,11 +94,15 @@ async function updateEntry(
     if (lastRevisionRow.last_update >= request.timestamp) {
       // Updates got sent out of order and as a result an update newer than us
       // has already been committed, so there's nothing to do
-      return { entryID: request.entryID, newMessageInfos: [] };
+      return {
+        entryID: request.entryID,
+        newMessageInfos: [],
+        updatesResult: defaultUpdateCreationResult,
+      };
     }
     updateEntry = true;
     if (lastRevisionRow.last_update + 120000 > request.timestamp) {
-      promises.push(dbQuery(SQL`
+      dbPromises.push(dbQuery(SQL`
         UPDATE revisions
         SET last_update = ${request.timestamp}, text = ${request.text}
         WHERE id = ${lastRevisionRow.id}
@@ -113,7 +128,7 @@ async function updateEntry(
     insertNewRevision = true;
   }
   if (updateEntry) {
-    promises.push(dbQuery(SQL`
+    dbPromises.push(dbQuery(SQL`
       UPDATE entries
       SET last_update = ${request.timestamp}, text = ${request.text}
       WHERE id = ${request.entryID}
@@ -131,33 +146,74 @@ async function updateEntry(
       request.timestamp,
       0,
     ];
-    promises.push(dbQuery(SQL`
+    dbPromises.push(dbQuery(SQL`
       INSERT INTO revisions(id, entry, author, text, creation_time,
         session_id, last_update, deleted)
       VALUES ${[revisionRow]}
     `));
   }
-  const messageData = {
-    type: messageTypes.EDIT_ENTRY,
-    threadID: entryInfo.threadID,
-    creatorID: viewerID,
-    time: Date.now(),
-    entryID: request.entryID,
-    date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
-    text: request.text,
-  };
-  promises.unshift(createMessages([messageData]));
 
-  const [ newMessageInfos ] = await Promise.all(promises);
-  return { entryID: request.entryID, newMessageInfos };
+  const [ newMessageInfos, updatesResult ] = await Promise.all([
+    createMessages([{
+      type: messageTypes.EDIT_ENTRY,
+      threadID: entryInfo.threadID,
+      creatorID: viewerID,
+      time: Date.now(),
+      entryID: request.entryID,
+      date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
+      text: request.text,
+    }]),
+    createUpdateDatasForChangedEntryInfo(
+      viewer,
+      entryInfo,
+      request.calendarQuery,
+    ),
+    Promise.all(dbPromises),
+  ]);
+  return { entryID: request.entryID, newMessageInfos, updatesResult };
 }
 
+// The passed-in RawEntryInfo doesn't need to be the version with updated text,
+// as the returned UpdateInfos will have newly fetched RawEntryInfos. However,
+// the passed-in RawEntryInfo's date is used for determining which clients need
+// the update. Right now it's impossible to change an entry's date, but when it
+// becomes possible, we will need to update both clients with the old date and
+// clients with the new date.
 async function createUpdateDatasForChangedEntryInfo(
+  viewer: Viewer,
   entryInfo: RawEntryInfo,
-): Promise<void> {
+  inputCalendarQuery: ?CalendarQuery,
+): Promise<CreateUpdatesResult> {
   const entryID = entryInfo.id;
   invariant(entryID, "should be set");
-  const filters = await fetchFiltersForThread(entryInfo.threadID);
+  const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
+    fetchFiltersForThread(entryInfo.threadID),
+    inputCalendarQuery ? undefined : fetchCurrentFilter(viewer),
+  ]);
+
+  let calendarQuery;
+  if (inputCalendarQuery) {
+    calendarQuery = inputCalendarQuery;
+  } else if (fetchedCalendarQuery) {
+    // This should only ever happen for "legacy" clients who call in without
+    // providing this information. These clients wouldn't know how to deal with
+    // the corresponding UpdateInfos anyways, so no reason to be worried.
+    calendarQuery = fetchedCalendarQuery;
+  } else {
+    calendarQuery = defaultCalendarQuery();
+  }
+
+  let replaced = false;
+  const filters = fetchedFilters.map(
+    filter => filter.cookieID === viewer.cookieID && filter.userID === viewer.id
+      ? (replaced = true && { ...filter, calendarQuery })
+      : filter,
+  );
+  if (!replaced) {
+    const { id: userID, cookieID } = viewer;
+    filters.push({ userID, cookieID, calendarQuery });
+  }
+
   const time = Date.now();
   const updateDatas = filters.filter(
     filter => rawEntryInfoWithinCalendarQuery(entryInfo, filter.calendarQuery),
@@ -168,6 +224,10 @@ async function createUpdateDatasForChangedEntryInfo(
     entryID,
     targetCookie: filter.cookieID,
   }));
+  return await createUpdates(
+    updateDatas,
+    { viewer, calendarQuery },
+  );
 }
 
 export {

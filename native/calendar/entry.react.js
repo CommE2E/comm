@@ -3,10 +3,12 @@
 import type { EntryInfoWithHeight } from './calendar.react';
 import {
   entryInfoPropType,
-  type CreateEntryRequest,
-  type SaveEntryRequest,
+  type CreateEntryInfo,
+  type SaveEntryInfo,
   type SaveEntryResponse,
+  type DeleteEntryInfo,
   type DeleteEntryResponse,
+  type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
@@ -64,6 +66,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
+import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
 import { ChatRouteName } from '../chat/chat.react';
@@ -88,17 +91,14 @@ type Props = {
   sessionStartingPayload: () => { newSessionID?: string },
   sessionID: () => string,
   nextSessionID: () => ?string,
+  calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  createEntry: (request: CreateEntryRequest) => Promise<SaveEntryResponse>,
-  saveEntry: (request: SaveEntryRequest) => Promise<SaveEntryResponse>,
-  deleteEntry: (
-    entryID: string,
-    prevText: string,
-    sessionID: string,
-  ) => Promise<DeleteEntryResponse>,
+  createEntry: (info: CreateEntryInfo) => Promise<SaveEntryResponse>,
+  saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
+  deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
 };
 type State = {|
   editing: bool,
@@ -122,6 +122,7 @@ class InternalEntry extends React.Component<Props, State> {
     sessionStartingPayload: PropTypes.func.isRequired,
     sessionID: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
+    calendarQuery: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -488,6 +489,7 @@ class InternalEntry extends React.Component<Props, State> {
           this.props.entryInfo.day,
         ),
         threadID: this.props.entryInfo.threadID,
+        calendarQuery: this.props.calendarQuery(),
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "inactive" });
@@ -520,6 +522,7 @@ class InternalEntry extends React.Component<Props, State> {
         prevText: this.props.entryInfo.text,
         sessionID: this.props.sessionID(),
         timestamp: Date.now(),
+        calendarQuery: this.props.calendarQuery(),
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "inactive" });
@@ -587,11 +590,12 @@ class InternalEntry extends React.Component<Props, State> {
 
   async deleteAction(serverID: ?string) {
     if (serverID) {
-      return await this.props.deleteEntry(
-        serverID,
-        this.props.entryInfo.text,
-        this.props.sessionID(),
-      );
+      return await this.props.deleteEntry({
+        entryID: serverID,
+        prevText: this.props.entryInfo.text,
+        sessionID: this.props.sessionID(),
+        calendarQuery: this.props.calendarQuery(),
+      });
     } else if (this.creating) {
       this.needsDeleteAfterCreation = true;
     }
@@ -704,6 +708,7 @@ const Entry = connect(
     sessionStartingPayload: sessionStartingPayload(state),
     sessionID: currentSessionID(state),
     nextSessionID: nextSessionID(state),
+    calendarQuery: nonThreadCalendarQuery(state),
   }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);
