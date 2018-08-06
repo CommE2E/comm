@@ -133,7 +133,6 @@ type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
 type Props = {
   // Redux state
-  cookie: ?string,
   navigationState: NavigationState,
   pingStartingPayload: () => PingStartingPayload,
   pingActionInput: (
@@ -152,6 +151,7 @@ type Props = {
   sessionTimeLeft: () => number,
   nextSessionID: () => ?string,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
+  updatesCurrentAsOf: number,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -169,7 +169,6 @@ type Props = {
 class AppWithNavigationState extends React.PureComponent<Props> {
 
   static propTypes = {
-    cookie: PropTypes.string,
     navigationState: PropTypes.object.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
     pingActionInput: PropTypes.func.isRequired,
@@ -185,6 +184,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     sessionTimeLeft: PropTypes.func.isRequired,
     nextSessionID: PropTypes.func.isRequired,
     activeServerRequests: PropTypes.arrayOf(serverRequestPropType).isRequired,
+    updatesCurrentAsOf: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -691,9 +691,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   saveMessageInfos(messageInfosString: string) {
     const messageInfos: $ReadOnlyArray<RawMessageInfo> =
       JSON.parse(messageInfosString);
+    const { updatesCurrentAsOf } = this.props;
     this.props.dispatchActionPayload(
       saveMessagesActionType,
-      { rawMessageInfos: messageInfos },
+      { rawMessageInfos: messageInfos, updatesCurrentAsOf },
     );
   }
 
@@ -918,7 +919,7 @@ const ConnectedAppWithNavigationState = connect(
       sessionTimeLeft: sessionTimeLeft(state),
       nextSessionID: nextSessionID(state),
       activeServerRequests: state.activeServerRequests,
-      cookie: state.cookie,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
     };
   },
   { ping, updateActivity, setDeviceToken },
