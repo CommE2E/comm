@@ -104,6 +104,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     ) {
       this.loadingFromScroll = false;
     }
+    if (prevProps.messageListData !== this.props.messageListData) {
+      this.onScroll();
+    }
   }
 
   scrollToBottom() {
