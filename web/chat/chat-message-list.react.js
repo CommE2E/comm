@@ -70,6 +70,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   loadingFromScroll = false;
 
   componentDidMount() {
+    // In case we already have all the most recent messages,
+    // but they're not enough
+    this.onScroll();
+
     const { threadInfo } = this.props;
     if (!threadInfo || threadInChatList(threadInfo)) {
       return;
