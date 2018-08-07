@@ -362,12 +362,9 @@ function validateState(oldState: AppState, state: AppState): AppState {
   ) {
     // Makes sure a currently focused thread is never unread
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
+      ...state,
       threadStore: {
+        ...state.threadStore,
         threadInfos: {
           ...state.threadStore.threadInfos,
           [activeThread]: {
@@ -378,24 +375,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
             },
           },
         },
-        inconsistencyResponses: state.threadStore.inconsistencyResponses,
       },
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
     };
   }
 
@@ -407,15 +387,9 @@ function validateState(oldState: AppState, state: AppState): AppState {
   ) {
     // Update messageStore.threads[activeThread].lastNavigatedTo
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
+      ...state,
       messageStore: {
-        messages: state.messageStore.messages,
+        ...state.messageStore,
         threads: {
           ...state.messageStore.threads,
           [activeThread]: {
@@ -423,22 +397,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
             lastNavigatedTo: Date.now(),
           },
         },
-        currentAsOf: state.messageStore.currentAsOf,
       },
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
     };
   }
 
@@ -449,28 +408,8 @@ function validateState(oldState: AppState, state: AppState): AppState {
   );
   if (messageSentFromRoute.length !== state.messageSentFromRoute.length) {
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      ...state,
       messageSentFromRoute,
-      _persist: state._persist,
     };
   }
 
