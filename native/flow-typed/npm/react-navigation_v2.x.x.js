@@ -1,5 +1,5 @@
-// flow-typed signature: f11177b9fec0950067d1c26bb2d3e44c
-// flow-typed version: cd88cfb433/react-navigation_v2.x.x/flow_>=v0.60.x
+// flow-typed signature: 15c46eb6cf1a947bc98c3883621daab1
+// flow-typed version: c5a5cbd1f4/react-navigation_v2.x.x/flow_>=v0.60.x
 
 // @flow
 
@@ -561,6 +561,21 @@ declare module 'react-navigation' {
     screenProps?: {},
     navigationOptions?: O,
   }>;
+
+  /**
+   * NavigationEvents component
+   */
+
+  declare type _NavigationEventsProps = {
+    navigation?: NavigationScreenProp<NavigationState>,
+    onWillFocus?: NavigationEventCallback,
+    onDidFocus?: NavigationEventCallback,
+    onWillBlur?: NavigationEventCallback,
+    onDidBlur?: NavigationEventCallback,
+  };
+  declare export var NavigationEvents: React$ComponentType<
+    _NavigationEventsProps
+  >;
 
   /**
    * Navigation container

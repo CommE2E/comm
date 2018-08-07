@@ -40,7 +40,9 @@
     "reselect": "^3.0.1",
     "shallowequal": "^1.0.2",
     "tinycolor2": "^1.4.1",
-    "url-parse": "^1.1.9"
+    "url-parse": "^1.1.9",
+    "reactotron-react-native": "^2.0.0",
+    "reactotron-redux": "^2.0.0"
   },
   "devDependencies": {
     "babel-jest": "^23.2.0",

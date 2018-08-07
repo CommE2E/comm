@@ -26,7 +26,7 @@ import {
 import React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore as defaultCreateStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer } from 'redux-persist';
 import PropTypes from 'prop-types';
@@ -69,6 +69,11 @@ import {
   findRouteIndexWithKey,
 } from './utils/navigation-utils';
 import { ComposeThreadRouteName } from './chat/compose-thread.react';
+import reactotron from './reactotron';
+
+const createStore = reactotron
+  ? reactotron.createStore
+  : defaultCreateStore;
 
 export type AppState = {|
   navInfo: NavInfo,
