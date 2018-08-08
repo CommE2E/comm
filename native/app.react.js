@@ -718,11 +718,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.saveMessageInfos(messageInfos);
     }
     this.pingNow();
-    invariant(this.inAppNotification, "should be set");
-    this.inAppNotification.show({
-      message: notification.getMessage(),
-      onPress: () => this.onPressNotificationForThread(threadID, false),
-    });
+    this.showInAppNotification(threadID, notification.getMessage());
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
@@ -740,6 +736,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     this.pingNow();
     this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
+  }
+
+  showInAppNotification(threadID: string, message: string) {
+    if (threadID === this.props.activeThread) {
+      return;
+    }
+    invariant(this.inAppNotification, "should be set");
+    this.inAppNotification.show({
+      message,
+      onPress: () => this.onPressNotificationForThread(threadID, false),
+    });
   }
 
   // This function gets called when:
@@ -797,11 +804,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       if (this.currentState === "active") {
         // In the case where the app is in the foreground, we will show an
         // in-app notif
-        invariant(this.inAppNotification, "should be set");
-        this.inAppNotification.show({
-          message: customNotification.body,
-          onPress: () => this.onPressNotificationForThread(threadID, false),
-        });
+        this.showInAppNotification(threadID, customNotification.body);
       } else {
         // We keep track of what notifs have been rendered for a given thread so
         // that we can clear them immediately (without waiting for the rescind)
