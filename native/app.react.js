@@ -84,6 +84,8 @@ import {
   handleURLActionType,
   RootNavigator,
   AppRouteName,
+  backgroundActionType,
+  foregroundActionType,
 } from './navigation-setup';
 import { store } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
@@ -428,6 +430,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       lastState.match(/inactive|background/) &&
       this.currentState === "active"
     ) {
+      this.props.dispatchActionPayload(foregroundActionType, null);
       this.startTimeouts();
       if (this.props.appLoggedIn) {
         this.ensurePushNotifsEnabled();
@@ -441,6 +444,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       this.currentState &&
       this.currentState.match(/inactive|background/)
     ) {
+      this.props.dispatchActionPayload(backgroundActionType, null);
       this.closingApp();
     }
   }

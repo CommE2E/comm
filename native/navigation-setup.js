@@ -90,6 +90,8 @@ export type NavInfo = {|
 
 const handleURLActionType = "HANDLE_URL";
 const navigateToAppActionType = "NAVIGATE_TO_APP";
+const backgroundActionType = "BACKGROUND";
+const foregroundActionType = "FOREGROUND";
 
 const uniqueBaseId = `id-${Date.now()}`;
 let uuidCount = 0;
@@ -107,7 +109,9 @@ export type Action =
       payload: NotificationPressPayload,
     |}
   | AndroidNotificationActions
-  | {| type: "RECORD_NOTIF_PERMISSION_ALERT", time: number |};
+  | {| type: "RECORD_NOTIF_PERMISSION_ALERT", time: number |}
+  | {| type: "BACKGROUND" |}
+  | {| type: "FOREGROUND" |};
 
 let tabBarOptions;
 if (Platform.OS === "android") {
@@ -739,4 +743,6 @@ export {
   reduceNavInfo,
   AppRouteName,
   removeScreensFromStack,
+  backgroundActionType,
+  foregroundActionType,
 };
