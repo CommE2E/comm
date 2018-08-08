@@ -28,18 +28,26 @@ async function createReport(
   viewer: Viewer,
   request: ReportCreationRequest,
 ): Promise<?ReportCreationResponse> {
-  if (ignoreReport(request)) {
+  const shouldIgnore = await ignoreReport(viewer, request);
+  if (shouldIgnore) {
     return null;
   }
   const [ id ] = await createIDs("reports", 1);
-  const { type, platformDetails, ...report } = request;
+  let type, platformDetails, report, time;
+  if (request.type === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+    ({ type, platformDetails, time, ...report } = request);
+    time = time ? time : Date.now();
+  } else {
+    ({ type, platformDetails, ...report } = request);
+    time = Date.now();
+  }
   const row = [
     id,
     viewer.id,
     type,
     platformDetails.platform,
     JSON.stringify(report),
-    Date.now(),
+    time,
   ];
   const query = SQL`
     INSERT INTO reports (id, user, type, platform, report, creation_time)
@@ -74,7 +82,35 @@ async function sendSquadbotMessage(
   }]);
 }
 
-function ignoreReport(request: ReportCreationRequest): bool {
+async function ignoreReport(
+  viewer: Viewer,
+  request: ReportCreationRequest,
+): Promise<bool> {
+  if (ignoreKnownInconsistencyReport(request)) {
+    return true;
+  }
+  // The below logic is to avoid duplicate inconsistency reports
+  if (request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+    return false;
+  }
+  const { type, platformDetails, time } = request;
+  if (!time) {
+    return false;
+  }
+  const { platform } = platformDetails;
+  const query = SQL`
+    SELECT id
+    FROM reports
+    WHERE user = ${viewer.id} AND type = ${type}
+      AND platform = ${platform} AND creation_time = ${time}
+  `;
+  const [ result ] = await dbQuery(query);
+  return result.length !== 0;
+}
+
+// Currently this only ignores cases that are the result of the thread-reducer
+// conditional with the comment above that starts with "If the thread at the"
+function ignoreKnownInconsistencyReport(request: ReportCreationRequest): bool {
   if (request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
     return false;
   }
@@ -101,8 +137,6 @@ function ignoreReport(request: ReportCreationRequest): bool {
       return false;
     }
   }
-  // Currently we only ignore cases that are the result of the thread-reducer
-  // conditional with the comment above that starts with "If the thread at the"
   return true;
 }
 
