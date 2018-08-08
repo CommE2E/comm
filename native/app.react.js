@@ -87,7 +87,7 @@ import {
   backgroundActionType,
   foregroundActionType,
 } from './navigation-setup';
-import { store } from './redux-setup';
+import { store, appBecameInactive } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import {
   pingNativeStartingPayload,
@@ -857,6 +857,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   closingApp() {
+    appBecameInactive();
     if (!this.props.appLoggedIn || !this.props.activeThread) {
       return;
     }

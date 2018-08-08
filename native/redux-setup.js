@@ -357,10 +357,16 @@ function validateState(oldState: AppState, state: AppState): AppState {
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
-    NativeAppState.currentState === "active" &&
+    (NativeAppState.currentState === "active" ||
+      appLastBecameInactive + 10000 < Date.now()) &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
-    // Makes sure a currently focused thread is never unread
+    // Makes sure a currently focused thread is never unread. Note that we
+    // consider a backgrounded NativeAppState to actually be active if it last
+    // changed to inactive more than 10 seconds ago. This is because there is a
+    // delay when NativeAppState is updating in response to a foreground, and
+    // actions don't get processed more than 10 seconds after a backgrounding
+    // anyways.
     state = {
       ...state,
       threadStore: {
@@ -416,6 +422,11 @@ function validateState(oldState: AppState, state: AppState): AppState {
   return state;
 }
 
+let appLastBecameInactive = 0;
+function appBecameInactive() {
+  appLastBecameInactive = Date.now();
+}
+
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   "root",
   (state: AppState) => state.navInfo.navigationState,
@@ -432,4 +443,5 @@ setPersistor(persistor);
 
 export {
   store,
+  appBecameInactive,
 };
