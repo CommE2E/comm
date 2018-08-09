@@ -197,6 +197,16 @@ class LogInPanel extends React.PureComponent<Props> {
         { cancelable: false },
       );
       return;
+    } else if (this.props.state.state.passwordInputText === "") {
+      Alert.alert(
+        "Empty password",
+        "Password cannot be empty",
+        [
+          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
+        ],
+        { cancelable: false },
+      );
+      return;
     }
 
     Keyboard.dismiss();

@@ -840,7 +840,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     oldActiveThread: ?string,
     oldActiveThreadLatestMessage: ?string,
   ) {
-    if (!props.appLoggedIn) {
+    if (!props.appLoggedIn || this.currentState !== "active") {
+      // If the app isn't logged in, the server isn't tracking our activity
+      // anyways. If the currentState isn't active, we can expect that when it
+      // becomes active, the corresponding startTimeouts call will include any
+      // activity update that it needs to update the server. We want to avoid
+      // any races between update_activity and ping, so we return here.
       return;
     }
     const updates = [];
