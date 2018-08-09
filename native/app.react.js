@@ -203,8 +203,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   openThreadOnceReceived: Set<string> = new Set();
   updateBadgeCountAfterNextPing = true;
   queuedDeviceToken: ?string = null;
+  appStarted = 0;
 
   componentDidMount() {
+    this.appStarted = Date.now();
     if (Platform.OS === "android") {
       setTimeout(SplashScreen.hide, 350);
     } else {
@@ -708,6 +710,15 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       notification.getData().managedAps &&
       notification.getData().managedAps.action === "CLEAR"
     ) {
+      notification.finish(NotificationsIOS.FetchResult.NoData);
+      return;
+    }
+    if (Date.now() < this.appStarted + 1500) {
+      // On iOS, when the app is opened from a notif press, for some reason this
+      // callback gets triggered before iosNotificationOpened. In fact this
+      // callback shouldn't be triggered at all. To avoid weirdness we are
+      // ignoring any foreground notification received within the first second
+      // of the app being started, since they are most likely to be erroneous.
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
