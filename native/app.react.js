@@ -748,7 +748,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (messageInfos) {
       this.saveMessageInfos(messageInfos);
     }
-    this.pingNow();
     this.onPressNotificationForThread(threadID, true),
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
