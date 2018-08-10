@@ -571,7 +571,7 @@ async function joinThread(
     }
     if (
       rowToSave.operation === "join" &&
-      (rowToSave.userID !== viewer.userID ||
+      (rowToSave.userID !== viewer.id ||
         rowToSave.threadID !== request.threadID)
     ) {
       rowToSave.unread = true;

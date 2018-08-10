@@ -38,7 +38,7 @@ async function deleteAccount(
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletedUserID = viewer.userID;
   const deletionQuery = SQL`
-    DELETE u, iu, v, iv, c, ic, m, f, n, ino
+    DELETE u, iu, v, iv, c, ic, m, f, n, ino, up, iup, fi
     FROM users u
     LEFT JOIN ids iu ON iu.id = u.id
     LEFT JOIN verifications v ON v.user = u.id
@@ -49,6 +49,9 @@ async function deleteAccount(
     LEFT JOIN focused f ON f.user = u.id
     LEFT JOIN notifications n ON n.user = u.id
     LEFT JOIN ids ino ON ino.id = n.id
+    LEFT JOIN updates up ON up.user = u.id
+    LEFT JOIN ids iup ON iup.id = up.id
+    LEFT JOIN filters fi ON fi.user = u.id
     WHERE u.id = ${deletedUserID}
   `;
   const [ anonymousViewerData ] = await Promise.all([

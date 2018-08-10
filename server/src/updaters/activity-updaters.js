@@ -24,8 +24,7 @@ async function activityUpdater(
   viewer: Viewer,
   request: UpdateActivityRequest,
 ): Promise<UpdateActivityResult> {
-  const localViewer = viewer;
-  if (!localViewer.loggedIn) {
+  if (!viewer.loggedIn) {
     throw new ServerError('invalid_credentials');
   }
 
@@ -65,7 +64,7 @@ async function activityUpdater(
     FROM memberships
     WHERE role != 0
       AND thread IN (${[...focusedThreadIDs, ...unfocusedThreadIDs]})
-      AND user = ${localViewer.userID}
+      AND user = ${viewer.userID}
   `;
   const [ membershipResult ] = await dbQuery(membershipQuery);
 
@@ -79,34 +78,34 @@ async function activityUpdater(
   const memberUnfocusedThreadIDs = unfocusedThreadIDs.filter(filterFunc);
 
   const promises = [];
-  promises.push(updateFocusedRows(localViewer, focusedThreadIDs));
+  promises.push(updateFocusedRows(viewer, focusedThreadIDs));
   if (focusedThreadIDs.length > 0) {
     promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
       WHERE thread IN (${memberFocusedThreadIDs})
-        AND user = ${localViewer.userID}
+        AND user = ${viewer.userID}
     `));
     const time = Date.now();
     promises.push(createUpdates(
       memberFocusedThreadIDs.map(threadID => ({
         type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        userID: localViewer.userID,
+        userID: viewer.userID,
         time,
         threadID,
         unread: false,
       })),
-      { viewer: localViewer },
+      { viewer },
     ));
     const rescindCondition = SQL`
-      n.user = ${localViewer.userID} AND n.thread IN (${focusedThreadIDs})
+      n.user = ${viewer.userID} AND n.thread IN (${focusedThreadIDs})
     `;
     promises.push(rescindPushNotifs(rescindCondition));
   }
   await Promise.all(promises);
 
   const unfocusedToUnread = await possiblyResetThreadsToUnread(
-    localViewer,
+    viewer,
     memberUnfocusedThreadIDs,
     unfocusedThreadLatestMessages,
   );
