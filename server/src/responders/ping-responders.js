@@ -46,8 +46,7 @@ import {
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
-import { createFilter } from '../creators/filter-creator';
-import { fetchCurrentFilter } from '../fetchers/filter-fetchers';
+import { updateFilterIfChanged } from '../updaters/filter-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingCookie,
 } from '../deleters/update-deleters';
@@ -221,18 +220,11 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
-    calendarQuery ? fetchCurrentFilter(viewer) : undefined,
+    calendarQuery ? updateFilterIfChanged(viewer, calendarQuery) : undefined,
   ]);
 
   const promises = {};
   promises.activityUpdate = updateActivityTime(viewer);
-  if (
-    calendarQuery &&
-    (!currentCalendarQuery ||
-      !_isEqual(currentCalendarQuery)(calendarQuery))
-  ) {
-    promises.filterCreation = createFilter(viewer, calendarQuery);
-  }
   if (oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined) {
     promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingCookie(
       viewer,
