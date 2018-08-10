@@ -7,7 +7,10 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
-import type { CalendarQuery, CalendarResult } from 'lib/types/entry-types';
+import type {
+  CalendarQuery,
+  FetchEntryInfosResult,
+} from 'lib/types/entry-types';
 import {
   type PingStartingPayload,
   type PingActionInput,
@@ -128,7 +131,7 @@ type Props = {
   // async functions that hit server APIs
   fetchEntries: (
     calendarQuery: CalendarQuery,
-  ) => Promise<CalendarResult>,
+  ) => Promise<FetchEntryInfosResult>,
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,

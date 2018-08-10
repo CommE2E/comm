@@ -223,6 +223,7 @@ async function resolveInvalidatedCookie(
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
     const extraInfo = logInExtraInfo();
+    const { calendarQuery } = extraInfo;
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(
@@ -233,6 +234,7 @@ async function resolveInvalidatedCookie(
           ...extraInfo,
         },
       ),
+      { calendarQuery },
     );
     if (newCookie) {
       return;
@@ -241,6 +243,7 @@ async function resolveInvalidatedCookie(
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
     const extraInfo = logInExtraInfo();
+    const { calendarQuery } = extraInfo;
     await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(
@@ -251,6 +254,7 @@ async function resolveInvalidatedCookie(
           ...extraInfo,
         },
       ),
+      { calendarQuery },
     );
   }
 }

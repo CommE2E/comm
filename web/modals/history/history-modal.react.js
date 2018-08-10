@@ -1,7 +1,11 @@
 // @flow
 
 import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
-import type { EntryInfo, CalendarQuery } from 'lib/types/entry-types';
+import type {
+  EntryInfo,
+  CalendarQuery,
+  FetchEntryInfosResult,
+} from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -55,7 +59,9 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchEntries: (calendarQuery: CalendarQuery) => Promise<EntryInfo[]>,
+  fetchEntries: (
+    calendarQuery: CalendarQuery,
+  ) => Promise<FetchEntryInfosResult>,
   fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
 };
 type State = {
