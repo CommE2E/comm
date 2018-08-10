@@ -33,9 +33,15 @@ async function textMessageCreationResponder(
   const request: SendTextMessageRequest = input;
   validateInput(sendTextMessageRequestInputValidator, request);
 
+  const { threadID, text: rawText } = request;
+  const text = rawText.trim();
+  if (!text) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const hasPermission = await checkThreadPermission(
     viewer,
-    request.threadID,
+    threadID,
     threadPermissions.VOICED,
   );
   if (!hasPermission) {
@@ -44,10 +50,10 @@ async function textMessageCreationResponder(
 
   const messageData = {
     type: messageTypes.TEXT,
-    threadID: request.threadID,
+    threadID,
     creatorID: viewer.id,
     time: Date.now(),
-    text: request.text,
+    text,
   };
   const rawMessageInfos = await createMessages([messageData]);
 

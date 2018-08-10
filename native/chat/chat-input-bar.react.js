@@ -101,9 +101,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
+    const currentText = this.state.text.trim();
+    const nextText = nextState.text.trim();
     if (
-      this.state.text === "" && nextState.text !== "" ||
-      this.state.text !== "" && nextState.text === ""
+      currentText === "" && nextText !== "" ||
+      currentText !== "" && nextText === ""
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -162,7 +164,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         />
       );
       let button = null;
-      if (this.state.text) {
+      if (this.state.text.trim()) {
         button = (
           <TouchableOpacity
             onPress={this.onSend}
@@ -246,6 +248,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   onSend = () => {
     const text = this.state.text.trim();
+    if (!text) {
+      return;
+    }
     this.updateText("");
     const localID = `local${getNewLocalID()}`;
     const creatorID = this.props.viewerID;

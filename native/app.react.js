@@ -456,7 +456,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (justLoggedIn) {
       this.startTimeouts(nextProps, "active");
     } else if (nextProps.activeThread !== this.props.activeThread) {
-      AppWithNavigationState.updateFocusedThreads(
+      this.updateFocusedThreads(
         nextProps,
         this.props.activeThread,
         this.props.activeThreadLatestMessage,
@@ -835,7 +835,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
-  static updateFocusedThreads(
+  updateFocusedThreads(
     props: Props,
     oldActiveThread: ?string,
     oldActiveThreadLatestMessage: ?string,

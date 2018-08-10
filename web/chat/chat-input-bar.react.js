@@ -205,6 +205,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   send() {
     const text = this.state.messageText.trim();
+    if (!text) {
+      // TODO we should make the send button appear dynamically
+      // iff trimmed text is nonempty, just like native
+      return;
+    }
     this.updateText("");
     const localID = `local${getNewLocalID()}`;
     const creatorID = this.props.viewerID;
