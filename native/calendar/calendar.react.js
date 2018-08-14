@@ -4,7 +4,7 @@ import {
   type EntryInfo,
   entryInfoPropType,
   type CalendarQuery,
-  type CalendarResult,
+  type CalendarQueryUpdateResult,
 } from 'lib/types/entry-types';
 import type { AppState } from '../redux-setup';
 import type {
@@ -54,8 +54,8 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
 import { sessionExpired } from 'lib/selectors/session-selectors';
 import {
-  fetchEntriesAndAppendRangeActionTypes,
-  fetchEntriesWithRange,
+  updateCalendarQueryActionTypes,
+  updateCalendarQuery,
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -118,9 +118,10 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchEntriesWithRange: (
+  updateCalendarQuery: (
     calendarQuery: CalendarQuery,
-  ) => Promise<CalendarResult>,
+    reduxAlreadyUpdated?: bool,
+  ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {
   textToMeasure: TextToMeasure[],
@@ -162,7 +163,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    fetchEntriesWithRange: PropTypes.func.isRequired,
+    updateCalendarQuery: PropTypes.func.isRequired,
   };
   static navigationOptions = {
     tabBarLabel: 'Calendar',
@@ -1044,8 +1045,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
     this.loadingFromScroll = true;
     this.props.dispatchActionPromise(
-      fetchEntriesAndAppendRangeActionTypes,
-      this.props.fetchEntriesWithRange({
+      updateCalendarQueryActionTypes,
+      this.props.updateCalendarQuery({
         startDate: dateString(start),
         endDate: dateString(end),
         filters: this.props.calendarFilters,
@@ -1138,7 +1139,7 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(fetchEntriesAndAppendRangeActionTypes);
+registerFetchKey(updateCalendarQueryActionTypes);
 
 const CalendarRouteName = 'Calendar';
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
@@ -1152,7 +1153,7 @@ const Calendar = connect(
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,
   }),
-  { fetchEntriesWithRange },
+  { updateCalendarQuery },
 )(InnerCalendar);
 
 export {
