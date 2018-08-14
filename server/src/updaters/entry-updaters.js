@@ -7,7 +7,7 @@ import type {
   CalendarQuery,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
-import { updateTypes, type CreateUpdatesResult } from 'lib/types/update-types';
+import { updateTypes, type CreateUpdatesResponse } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 
@@ -31,11 +31,9 @@ import {
   fetchCurrentFilter,
   fetchFiltersForThread,
 } from '../fetchers/filter-fetchers';
-import {
-  defaultUpdateCreationResult,
-  createUpdates,
-} from '../creators/update-creator';
+import { createUpdates } from '../creators/update-creator';
 
+const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
 async function updateEntry(
   viewer: Viewer,
   request: SaveEntryRequest,
@@ -97,7 +95,7 @@ async function updateEntry(
       return {
         entryID: request.entryID,
         newMessageInfos: [],
-        updatesResult: defaultUpdateCreationResult,
+        updatesResult: defaultUpdateCreationResponse,
       };
     }
     updateEntry = true;
@@ -183,7 +181,7 @@ async function createUpdateDatasForChangedEntryInfo(
   viewer: Viewer,
   entryInfo: RawEntryInfo,
   inputCalendarQuery: ?CalendarQuery,
-): Promise<CreateUpdatesResult> {
+): Promise<CreateUpdatesResponse> {
   const entryID = entryInfo.id;
   invariant(entryID, "should be set");
   const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
@@ -224,10 +222,14 @@ async function createUpdateDatasForChangedEntryInfo(
     entryID,
     targetCookie: filter.cookieID,
   }));
-  return await createUpdates(
+  const { userInfos, ...updatesResult } = await createUpdates(
     updateDatas,
     { viewer, calendarQuery },
   );
+  return {
+    ...updatesResult,
+    userInfos: (Object.values(userInfos): any),
+  };
 }
 
 export {

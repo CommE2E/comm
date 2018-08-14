@@ -584,6 +584,5 @@ async function updateInfosFromUpdateDatas(
 
 export {
   createUpdates,
-  defaultUpdateCreationResult,
   fetchUpdateInfosWithUpdateDatas,
 };
