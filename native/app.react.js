@@ -62,12 +62,6 @@ import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
 import { ping } from 'lib/actions/ping-actions';
 import {
-  sessionInactivityLimit,
-  sessionTimeLeft,
-  nextSessionID,
-} from 'lib/selectors/session-selectors';
-import { newSessionIDActionType } from 'lib/reducers/session-reducer';
-import {
   updateActivityActionTypes,
   updateActivity,
 } from 'lib/actions/ping-actions';
@@ -120,7 +114,7 @@ registerConfig({
     return null;
   },
   setCookieOnRequest: true,
-  calendarRangeInactivityLimit: sessionInactivityLimit,
+  calendarRangeInactivityLimit: 15 * 60 * 1000,
   platformDetails: {
     platform: Platform.OS,
     codeVersion,
@@ -150,8 +144,6 @@ type Props = {
   rawThreadInfos: {[id: string]: RawThreadInfo},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   pingTimestamps: PingTimestamps,
-  sessionTimeLeft: () => number,
-  nextSessionID: () => ?string,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
   updatesCurrentAsOf: number,
   // Redux dispatch functions
@@ -183,8 +175,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     pingTimestamps: pingTimestampsPropType.isRequired,
-    sessionTimeLeft: PropTypes.func.isRequired,
-    nextSessionID: PropTypes.func.isRequired,
     activeServerRequests: PropTypes.arrayOf(serverRequestPropType).isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
@@ -392,36 +382,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     dispatchPing(props, !!justForegrounded);
   }
 
-  possiblyNewSessionID = (inputProps?: Props, inputAppState?: ?string) => {
-    const props = inputProps ? inputProps : this.props;
-    const appState = inputAppState ? inputAppState : this.currentState;
-    if (appState !== "active" || props.loggedIn) {
-      return;
-    }
-    const sessionID = props.nextSessionID();
-    if (sessionID) {
-      props.dispatchActionPayload(newSessionIDActionType, sessionID);
-      setTimeout(
-        this.possiblyNewSessionID,
-        sessionInactivityLimit,
-      );
-    } else {
-      const timeLeft = props.sessionTimeLeft();
-      setTimeout(
-        this.possiblyNewSessionID,
-        timeLeft + 10,
-      );
-    }
-  }
-
   startTimeouts(inputProps?: Props, inputAppState?: ?string) {
     const props = inputProps ? inputProps : this.props;
-    const appState = inputAppState ? inputAppState : this.currentState;
-    if (props.loggedIn) {
-      this.possiblePing(props, appState, true);
-    } else {
-      this.possiblyNewSessionID(props, appState);
+    if (!props.loggedIn) {
+      return;
     }
+    const appState = inputAppState ? inputAppState : this.currentState;
+    this.possiblePing(props, appState, true);
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
@@ -939,8 +906,6 @@ const ConnectedAppWithNavigationState = connect(
       rawThreadInfos: state.threadStore.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       pingTimestamps: state.pingTimestamps,
-      sessionTimeLeft: sessionTimeLeft(state),
-      nextSessionID: nextSessionID(state),
       activeServerRequests: state.activeServerRequests,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
     };

@@ -13,17 +13,8 @@ import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
 const blacklist = __DEV__
-  ? [
-      'sessionID',
-      'lastUserInteraction',
-      'loadingStatuses',
-    ]
-  : [
-      'sessionID',
-      'lastUserInteraction',
-      'loadingStatuses',
-      'navInfo',
-    ];
+  ? [ 'loadingStatuses' ]
+  : [ 'loadingStatuses', 'navInfo' ];
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -73,6 +64,7 @@ const migrations = {
   }),
   [7]: (state) => ({
     ...state,
+    lastUserInteraction: undefined,
     entryStore: {
       ...state.entryStore,
       inconsistencyResponses: [],

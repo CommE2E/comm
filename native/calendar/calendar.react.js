@@ -52,7 +52,6 @@ import _size from 'lodash/fp/size';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
-import { sessionExpired } from 'lib/selectors/session-selectors';
 import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
@@ -111,7 +110,6 @@ type Props = {
   listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
   sessionID: string,
-  sessionExpired: () => bool,
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -158,7 +156,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     ])),
     tabActive: PropTypes.bool.isRequired,
     sessionID: PropTypes.string.isRequired,
-    sessionExpired: PropTypes.func.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
@@ -1148,7 +1145,6 @@ const Calendar = connect(
     listData: calendarListData(state),
     tabActive: activeTabSelector(state),
     sessionID: state.sessionID,
-    sessionExpired: sessionExpired(state),
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,

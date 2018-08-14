@@ -26,10 +26,6 @@ import {
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  currentSessionID,
-  sessionStartingPayload,
-} from 'lib/selectors/session-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
@@ -42,10 +38,9 @@ type Props = {
   animateAndLoadEntry: (entryID: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionID: () => string,
+  sessionID: string,
   loggedIn: bool,
   restoreLoadingStatus: LoadingStatus,
-  sessionStartingPayload: () => { newSessionID?: string },
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -125,12 +120,10 @@ class HistoryEntry extends React.PureComponent<Props> {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
     invariant(entryID, "entryInfo.id (serverID) should be set");
-    const startingPayload = this.props.sessionStartingPayload();
     this.props.dispatchActionPromise(
       restoreEntryActionTypes,
       this.restoreEntryAction(),
       { customKeyName: `${restoreEntryActionTypes.started}:${entryID}` },
-      startingPayload,
     );
   }
 
@@ -146,7 +139,7 @@ class HistoryEntry extends React.PureComponent<Props> {
     invariant(entryID, "entry should have ID");
     const result = await this.props.restoreEntry({
       entryID,
-      sessionID: this.props.sessionID(),
+      sessionID: this.props.sessionID,
       calendarQuery: this.props.calendarQuery(),
     });
     this.props.animateAndLoadEntry(entryID);
@@ -160,10 +153,9 @@ HistoryEntry.propTypes = {
   onClick: PropTypes.func.isRequired,
   animateAndLoadEntry: PropTypes.func.isRequired,
   threadInfo: threadInfoPropType,
-  sessionID: PropTypes.func.isRequired,
+  sessionID: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   restoreLoadingStatus: PropTypes.string.isRequired,
-  sessionStartingPayload: PropTypes.func.isRequired,
   calendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   restoreEntry: PropTypes.func.isRequired,
@@ -175,14 +167,13 @@ export default connect(
     invariant(entryID, "entryInfo.id (serverID) should be set");
     return {
       threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-      sessionID: currentSessionID(state),
+      sessionID: state.sessionID,
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),
       restoreLoadingStatus: createLoadingStatusSelector(
         restoreEntryActionTypes,
         `${restoreEntryActionTypes.started}:${entryID}`,
       )(state),
-      sessionStartingPayload: sessionStartingPayload(state),
       calendarQuery: nonThreadCalendarQuery(state),
     };
   },

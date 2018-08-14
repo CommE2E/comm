@@ -37,11 +37,6 @@ import {
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
 import { ServerError } from 'lib/utils/errors';
-import {
-  currentSessionID,
-  nextSessionID,
-  sessionStartingPayload,
-} from 'lib/selectors/session-selectors';
 import { dateString } from 'lib/utils/date-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
@@ -62,9 +57,7 @@ type Props = {
   tabIndex: number,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionID: () => string,
-  nextSessionID: () => ?string,
-  sessionStartingPayload: () => { newSessionID?: string },
+  sessionID: string,
   loggedIn: bool,
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
@@ -289,20 +282,15 @@ class Entry extends React.PureComponent<Props, State> {
       }
     }
 
-    const startingPayload = this.props.sessionStartingPayload();
     if (!serverID) {
       this.props.dispatchActionPromise(
         createEntryActionTypes,
         this.createAction(newText),
-        undefined,
-        startingPayload,
       );
     } else {
       this.props.dispatchActionPromise(
         saveEntryActionTypes,
         this.saveAction(serverID, newText),
-        undefined,
-        startingPayload,
       );
     }
   }
@@ -315,7 +303,7 @@ class Entry extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.createEntry({
         text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
           this.props.entryInfo.year,
@@ -354,7 +342,7 @@ class Entry extends React.PureComponent<Props, State> {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
       });
@@ -404,19 +392,12 @@ class Entry extends React.PureComponent<Props, State> {
   }
 
   delete(serverID: ?string, focusOnNextEntry: bool) {
-    const startingPayload: {[key: string]: ?string} = {
-      localID: this.props.entryInfo.localID,
-      serverID: serverID,
-    };
-    const nextSessionID = this.props.nextSessionID();
-    if (nextSessionID) {
-      startingPayload.newSessionID = nextSessionID;
-    }
+    const { localID } = this.props.entryInfo;
     this.props.dispatchActionPromise(
       deleteEntryActionTypes,
       this.deleteAction(serverID, focusOnNextEntry),
       undefined,
-      startingPayload,
+      { localID, serverID },
     );
   }
 
@@ -432,7 +413,7 @@ class Entry extends React.PureComponent<Props, State> {
       return await this.props.deleteEntry({
         entryID: serverID,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         calendarQuery: this.props.calendarQuery(),
       });
     } else if (this.creating) {
@@ -472,9 +453,7 @@ Entry.propTypes = {
   setModal: PropTypes.func.isRequired,
   tabIndex: PropTypes.number.isRequired,
   threadInfo: threadInfoPropType.isRequired,
-  sessionID: PropTypes.func.isRequired,
-  nextSessionID: PropTypes.func.isRequired,
-  sessionStartingPayload: PropTypes.func.isRequired,
+  sessionID: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   calendarQuery: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
@@ -490,9 +469,7 @@ type OwnProps = {
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-    sessionID: currentSessionID(state),
-    nextSessionID: nextSessionID(state),
-    sessionStartingPayload: sessionStartingPayload(state),
+    sessionID: state.sessionID,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     calendarQuery: nonThreadCalendarQuery(state),

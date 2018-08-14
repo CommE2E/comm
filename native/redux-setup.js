@@ -37,7 +37,7 @@ import {
 import { AppState as NativeAppState } from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { newSessionID } from 'lib/selectors/session-selectors';
+import { newSessionID } from 'lib/reducers/session-reducer';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { sendMessageActionTypes } from 'lib/actions/message-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
@@ -81,7 +81,6 @@ export type AppState = {|
   currentUserInfo: ?CurrentUserInfo,
   sessionID: string,
   entryStore: EntryStore,
-  lastUserInteraction: {[section: string]: number},
   threadStore: ThreadStore,
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
@@ -112,7 +111,6 @@ const defaultState = ({
     lastUserInteractionCalendar: 0,
     inconsistencyResponses: [],
   },
-  lastUserInteraction: { sessionReset: Date.now() },
   threadStore: {
     threadInfos: {},
     inconsistencyResponses: [],
@@ -193,114 +191,31 @@ function reducer(state: AppState = defaultState, action: *) {
       }
     }
 
-    state = {
-      navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
-    };
+    state = { ...state, navInfo };
   }
   if (
     action.type === recordAndroidNotificationActionType ||
     action.type === clearAndroidNotificationActionType
   ) {
     return {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
+      ...state,
       threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
         state.threadIDsToNotifIDs,
         action,
       ),
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
     };
   } else if (action.type === setCustomServer) {
     return {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
+      ...state,
       customServer: action.payload,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
     };
   } else if (action.type === recordNotifPermissionAlertActionType) {
     return {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
+      ...state,
       notifPermissionAlertInfo: {
         totalAlerts: state.notifPermissionAlertInfo.totalAlerts + 1,
         lastAlertTime: action.payload.time,
       },
-      messageSentFromRoute: state.messageSentFromRoute,
-      _persist: state._persist,
     };
   }
   // These action type are handled by reduceNavInfo above
@@ -329,28 +244,8 @@ function reducer(state: AppState = defaultState, action: *) {
         ? state.messageSentFromRoute
         : [ ...state.messageSentFromRoute, currentChatSubroute.key];
     state = {
-      navInfo: state.navInfo,
-      currentUserInfo: state.currentUserInfo,
-      sessionID: state.sessionID,
-      entryStore: state.entryStore,
-      lastUserInteraction: state.lastUserInteraction,
-      threadStore: state.threadStore,
-      userInfos: state.userInfos,
-      messageStore: state.messageStore,
-      drafts: state.drafts,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      loadingStatuses: state.loadingStatuses,
-      pingTimestamps: state.pingTimestamps,
-      activeServerRequests: state.activeServerRequests,
-      calendarFilters: state.calendarFilters,
-      cookie: state.cookie,
-      deviceToken: state.deviceToken,
-      urlPrefix: state.urlPrefix,
-      customServer: state.customServer,
-      threadIDsToNotifIDs: state.threadIDsToNotifIDs,
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      ...state,
       messageSentFromRoute,
-      _persist: state._persist,
     };
   }
   return validateState(oldState, baseReducer(state, action));

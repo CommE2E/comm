@@ -47,11 +47,6 @@ import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
-  currentSessionID,
-  nextSessionID,
-  sessionStartingPayload,
-} from 'lib/selectors/session-selectors';
-import {
   createEntryActionTypes,
   createEntry,
   saveEntryActionTypes,
@@ -88,9 +83,7 @@ type Props = {
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionStartingPayload: () => { newSessionID?: string },
-  sessionID: () => string,
-  nextSessionID: () => ?string,
+  sessionID: string,
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -119,9 +112,7 @@ class InternalEntry extends React.Component<Props, State> {
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    sessionStartingPayload: PropTypes.func.isRequired,
-    sessionID: PropTypes.func.isRequired,
-    nextSessionID: PropTypes.func.isRequired,
+    sessionID: PropTypes.string.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -455,20 +446,15 @@ class InternalEntry extends React.Component<Props, State> {
       }
     }
 
-    const startingPayload = this.props.sessionStartingPayload();
     if (!serverID) {
       this.props.dispatchActionPromise(
         createEntryActionTypes,
         this.createAction(newText),
-        undefined,
-        startingPayload,
       );
     } else {
       this.props.dispatchActionPromise(
         saveEntryActionTypes,
         this.saveAction(serverID, newText),
-        undefined,
-        startingPayload,
       );
     }
   }
@@ -481,7 +467,7 @@ class InternalEntry extends React.Component<Props, State> {
     try {
       const response = await this.props.createEntry({
         text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
           this.props.entryInfo.year,
@@ -520,7 +506,7 @@ class InternalEntry extends React.Component<Props, State> {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
       });
@@ -572,19 +558,12 @@ class InternalEntry extends React.Component<Props, State> {
     }
     this.deleted = true;
     LayoutAnimation.easeInEaseOut();
-    const startingPayload: {[key: string]: ?string} = {
-      localID: this.props.entryInfo.localID,
-      serverID: serverID,
-    };
-    const nextSessionID = this.props.nextSessionID();
-    if (nextSessionID) {
-      startingPayload.newSessionID = nextSessionID;
-    }
+    const { localID } = this.props.entryInfo;
     this.props.dispatchActionPromise(
       deleteEntryActionTypes,
       this.deleteAction(serverID),
       undefined,
-      startingPayload,
+      { localID, serverID },
     );
   }
 
@@ -593,7 +572,7 @@ class InternalEntry extends React.Component<Props, State> {
       return await this.props.deleteEntry({
         entryID: serverID,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID(),
+        sessionID: this.props.sessionID,
         calendarQuery: this.props.calendarQuery(),
       });
     } else if (this.creating) {
@@ -705,9 +684,7 @@ registerFetchKey(deleteEntryActionTypes);
 const Entry = connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-    sessionStartingPayload: sessionStartingPayload(state),
-    sessionID: currentSessionID(state),
-    nextSessionID: nextSessionID(state),
+    sessionID: state.sessionID,
     calendarQuery: nonThreadCalendarQuery(state),
   }),
   { createEntry, saveEntry, deleteEntry },

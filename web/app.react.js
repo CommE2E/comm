@@ -52,12 +52,6 @@ import {
 } from 'lib/selectors/ping-selectors';
 import { pingActionTypes, ping } from 'lib/actions/ping-actions';
 import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
-import {
-  sessionInactivityLimit,
-  sessionTimeLeft,
-  nextSessionID,
-} from 'lib/selectors/session-selectors';
-import { newSessionIDActionType } from 'lib/reducers/session-reducer';
 import { registerConfig } from 'lib/utils/config';
 import {
   includeDeletedSelector,
@@ -120,8 +114,6 @@ type Props = {
     justForegrounded: bool,
   ) => PingActionInput,
   pingTimestamps: PingTimestamps,
-  sessionTimeLeft: () => number,
-  nextSessionID: () => ?string,
   loggedIn: bool,
   includeDeleted: bool,
   mostRecentReadThread: ?string,
@@ -161,8 +153,6 @@ class App extends React.PureComponent<Props, State> {
     pingStartingPayload: PropTypes.func.isRequired,
     pingActionInput: PropTypes.func.isRequired,
     pingTimestamps: pingTimestampsPropType.isRequired,
-    sessionTimeLeft: PropTypes.func.isRequired,
-    nextSessionID: PropTypes.func.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     includeDeleted: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
@@ -317,33 +307,10 @@ class App extends React.PureComponent<Props, State> {
     dispatchPing(props, !!justForegrounded);
   }
 
-  possiblyNewSessionID = (inputProps?: Props) => {
-    const props = inputProps ? inputProps : this.props;
-    if (!Visibility.hidden() || props.loggedIn) {
-      return;
-    }
-    const sessionID = props.nextSessionID();
-    if (sessionID) {
-      props.dispatchActionPayload(newSessionIDActionType, sessionID);
-      setTimeout(
-        this.possiblyNewSessionID,
-        sessionInactivityLimit,
-      );
-    } else {
-      const timeLeft = props.sessionTimeLeft();
-      setTimeout(
-        this.possiblyNewSessionID,
-        timeLeft + 10,
-      );
-    }
-  }
-
   startTimeouts(inputProps?: Props) {
     const props = inputProps ? inputProps : this.props;
     if (props.loggedIn) {
       this.possiblePing(props, true);
-    } else {
-      this.possiblyNewSessionID(props);
     }
   }
 
@@ -606,8 +573,6 @@ export default connect(
       pingStartingPayload: pingStartingPayload(state),
       pingActionInput: pingWebActionInput(state),
       pingTimestamps: state.pingTimestamps,
-      sessionTimeLeft: sessionTimeLeft(state),
-      nextSessionID: nextSessionID(state),
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),
       includeDeleted: includeDeletedSelector(state),

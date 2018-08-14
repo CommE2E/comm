@@ -22,7 +22,7 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 import { defaultNumberPerThread } from 'lib/types/message-types';
-import { newSessionID } from 'lib/selectors/session-selectors';
+import { newSessionID } from 'lib/reducers/session-reducer';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
@@ -127,7 +127,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         lastUserInteractionCalendar: time,
         inconsistencyResponses: [],
       },
-      lastUserInteraction: { sessionReset: time },
       threadStore: {
         threadInfos,
         inconsistencyResponses: [],
