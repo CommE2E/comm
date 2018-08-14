@@ -10,6 +10,7 @@ import type {
   RestoreEntryRequest,
   RestoreEntryResponse,
   FetchEntryInfosResponse,
+  FetchEntryInfosResult,
   SaveEntryResult,
 } from 'lib/types/entry-types';
 import type {
@@ -38,6 +39,7 @@ import {
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
+import { updateFilterIfChanged } from '../updaters/filter-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),
@@ -202,6 +204,25 @@ async function entryRestorationResponder(
   return await restoreEntry(viewer, request);
 }
 
+async function calendarQueryUpdateResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<FetchEntryInfosResult> {
+  const request: CalendarQuery = input;
+  validateInput(newEntryQueryInputValidator, input);
+
+  await verifyCalendarQueryThreadIDs(request);
+
+  const [ response ] = await Promise.all([
+    fetchEntryInfos(viewer, request),
+    updateFilterIfChanged(viewer, request),
+  ]);
+  return {
+    rawEntryInfos: response.rawEntryInfos,
+    userInfos: (Object.values(response.userInfos): any),
+  };
+}
+
 export {
   entryQueryInputValidator,
   newEntryQueryInputValidator,
@@ -213,4 +234,5 @@ export {
   entryUpdateResponder,
   entryDeletionResponder,
   entryRestorationResponder,
+  calendarQueryUpdateResponder,
 };

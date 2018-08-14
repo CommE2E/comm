@@ -39,6 +39,7 @@ import {
   entryUpdateResponder,
   entryDeletionResponder,
   entryRestorationResponder,
+  calendarQueryUpdateResponder,
 } from './responders/entry-responders';
 import {
   codeVerificationResponder,
@@ -98,6 +99,7 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'create_report': reportCreationResponder,
   'fetch_error_report_infos': errorReportFetchInfosResponder,
   'request_access': requestAccessResponder,
+  'update_calendar_query': calendarQueryUpdateResponder,
 };
 
 if (cluster.isMaster) {
