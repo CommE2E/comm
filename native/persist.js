@@ -8,6 +8,8 @@ import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
 const blacklist = __DEV__
@@ -69,6 +71,14 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
+  [7]: (state) => ({
+    ...state,
+    entryStore: {
+      ...state.entryStore,
+      inconsistencyResponses: [],
+      actualizedCalendarQuery: currentCalendarQuery(state)(),
+    },
+  }),
 };
 
 const persistConfig = {
@@ -76,7 +86,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 6,
+  version: 7,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

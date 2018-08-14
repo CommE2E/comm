@@ -1,15 +1,19 @@
 // @flow
 
-import type { EntryInfo } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
+import {
+  entryInfoPropType,
+  type EntryInfo,
+  type CalendarQuery,
+  type CalendarQueryUpdateResult,
+} from 'lib/types/entry-types';
 import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
-import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faFilter from '@fortawesome/fontawesome-free-solid/faFilter';
 
@@ -21,6 +25,11 @@ import {
 } from 'lib/utils/date-utils';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
+import {
+  updateCalendarQueryActionTypes,
+  updateCalendarQuery,
+} from 'lib/actions/entry-actions';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Day from './day.react';
 import {
@@ -39,6 +48,14 @@ type Props = {
   month: number, // 1-indexed
   daysToEntries: {[dayString: string]: EntryInfo[]},
   navInfo: NavInfo,
+  currentCalendarQuery: () => CalendarQuery,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  updateCalendarQuery: (
+    calendarQuery: CalendarQuery,
+    reduxAlreadyUpdated?: bool,
+  ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
   filterPanelOpen: bool,
@@ -54,6 +71,9 @@ class Calendar extends React.PureComponent<Props, State> {
       PropTypes.arrayOf(entryInfoPropType),
     ).isRequired,
     navInfo: navInfoPropType.isRequired,
+    currentCalendarQuery: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    updateCalendarQuery: PropTypes.func.isRequired,
   };
   state = {
     filterPanelOpen: false,
@@ -71,32 +91,37 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  render() {
-    const year = this.props.year;
-    const month = this.props.month;
-    const monthName = dateFormat(getDate(year, month, 1), "mmmm");
-
+  prevMonthDates() {
+    const { year, month } = this.props;
     const lastMonthDate = getDate(year, month - 1, 1);
     const prevYear = lastMonthDate.getFullYear();
     const prevMonth = lastMonthDate.getMonth() + 1;
-    const prevURL = canonicalURLFromReduxState(
-      {
-        ...this.props.navInfo,
-        startDate: startDateForYearAndMonth(prevYear, prevMonth),
-        endDate: endDateForYearAndMonth(prevYear, prevMonth),
-      },
-      this.props.url,
-    );
+    return {
+      startDate: startDateForYearAndMonth(prevYear, prevMonth),
+      endDate: endDateForYearAndMonth(prevYear, prevMonth),
+    };
+  }
 
+  nextMonthDates() {
+    const { year, month } = this.props;
     const nextMonthDate = getDate(year, month + 1, 1);
     const nextYear = nextMonthDate.getFullYear();
     const nextMonth = nextMonthDate.getMonth() + 1;
+    return {
+      startDate: startDateForYearAndMonth(nextYear, nextMonth),
+      endDate: endDateForYearAndMonth(nextYear, nextMonth),
+    };
+  }
+
+  render() {
+    const { year, month } = this.props;
+    const monthName = dateFormat(getDate(year, month, 1), "mmmm");
+    const prevURL = canonicalURLFromReduxState(
+      { ...this.props.navInfo, ...this.prevMonthDates() },
+      this.props.url,
+    );
     const nextURL = canonicalURLFromReduxState(
-      {
-        ...this.props.navInfo,
-        startDate: startDateForYearAndMonth(nextYear, nextMonth),
-        endDate: endDateForYearAndMonth(nextYear, nextMonth),
-      },
+      { ...this.props.navInfo, ...this.nextMonthDates() },
       this.props.url,
     );
 
@@ -165,9 +190,13 @@ class Calendar extends React.PureComponent<Props, State> {
               Filters
             </a>
             <h2 className={css['calendar-nav']}>
-              <Link to={prevURL} className={css['previous-month-link']}>
+              <a
+                className={css['previous-month-link']}
+                href={prevURL}
+                onClick={this.onClickPrevURL}
+              >
                 &lt;
-              </Link>
+              </a>
               <div className={css['calendar-month-name']}>
                 {" "}
                 {monthName}
@@ -175,9 +204,13 @@ class Calendar extends React.PureComponent<Props, State> {
                 {year}
                 {" "}
               </div>
-              <Link to={nextURL} className={css['next-month-link']}>
+              <a
+                className={css['next-month-link']}
+                href={nextURL}
+                onClick={this.onClickNextURL}
+              >
                 &gt;
-              </Link>
+              </a>
             </h2>
           </div>
           <table className={css['calendar']}>
@@ -204,11 +237,45 @@ class Calendar extends React.PureComponent<Props, State> {
     this.setState({ filterPanelOpen: !this.state.filterPanelOpen });
   }
 
+  onClickPrevURL = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const currentCalendarQuery = this.props.currentCalendarQuery();
+    const newCalendarQuery = {
+      ...currentCalendarQuery,
+      ...this.prevMonthDates(),
+    };
+    this.props.dispatchActionPromise(
+      updateCalendarQueryActionTypes,
+      this.props.updateCalendarQuery(newCalendarQuery, true),
+      undefined,
+      { calendarQuery: newCalendarQuery },
+    );
+  }
+
+  onClickNextURL = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const currentCalendarQuery = this.props.currentCalendarQuery();
+    const newCalendarQuery = {
+      ...currentCalendarQuery,
+      ...this.nextMonthDates(),
+    };
+    this.props.dispatchActionPromise(
+      updateCalendarQueryActionTypes,
+      this.props.updateCalendarQuery(newCalendarQuery, true),
+      undefined,
+      { calendarQuery: newCalendarQuery },
+    );
+  }
+
 }
 
-export default connect((state: AppState) => ({
-  year: yearAssertingSelector(state),
-  month: monthAssertingSelector(state),
-  daysToEntries: currentDaysToEntries(state),
-  navInfo: state.navInfo,
-}))(Calendar);
+export default connect(
+  (state: AppState) => ({
+    year: yearAssertingSelector(state),
+    month: monthAssertingSelector(state),
+    daysToEntries: currentDaysToEntries(state),
+    navInfo: state.navInfo,
+    currentCalendarQuery: currentCalendarQuery(state),
+  }),
+  { updateCalendarQuery },
+)(Calendar);

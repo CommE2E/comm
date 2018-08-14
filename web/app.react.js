@@ -7,9 +7,10 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
-import type {
-  CalendarQuery,
-  FetchEntryInfosResult,
+import {
+  type CalendarQuery,
+  type CalendarQueryUpdateResult,
+  calendarQueryPropType,
 } from 'lib/types/entry-types';
 import {
   type PingStartingPayload,
@@ -38,9 +39,13 @@ import { getDate } from 'lib/utils/date-utils';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesActionTypes,
-  fetchEntries,
+  updateCalendarQueryActionTypes,
+  updateCalendarQuery,
 } from 'lib/actions/entry-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import {
   pingStartingPayload,
@@ -125,13 +130,15 @@ type Props = {
   activeThreadLatestMessage: ?string,
   viewerID: ?string,
   unreadCount: number,
+  actualizedCalendarQuery: CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchEntries: (
+  updateCalendarQuery: (
     calendarQuery: CalendarQuery,
-  ) => Promise<FetchEntryInfosResult>,
+    reduxAlreadyUpdated?: bool,
+  ) => Promise<CalendarQueryUpdateResult>,
   ping: (actionInput: PingActionInput) => Promise<PingResult>,
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,
@@ -164,16 +171,23 @@ class App extends React.PureComponent<Props, State> {
     activeThreadLatestMessage: PropTypes.string,
     viewerID: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
+    actualizedCalendarQuery: calendarQueryPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    fetchEntries: PropTypes.func.isRequired,
+    updateCalendarQuery: PropTypes.func.isRequired,
     ping: PropTypes.func.isRequired,
     updateActivity: PropTypes.func.isRequired,
   };
   pingCounter = 0;
+  actualizedCalendarQuery: CalendarQuery;
   state = {
     currentModal: null,
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.actualizedCalendarQuery = props.actualizedCalendarQuery;
+  }
 
   componentDidMount() {
     if (this.props.navInfo.verify) {
@@ -359,6 +373,12 @@ class App extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    if (
+      nextProps.actualizedCalendarQuery !== this.props.actualizedCalendarQuery
+    ) {
+      this.actualizedCalendarQuery = nextProps.actualizedCalendarQuery;
+    }
+
     if (nextProps.loggedIn) {
       if (nextProps.location.pathname !== this.props.location.pathname) {
         const newNavInfo = navInfoFromURL(
@@ -378,14 +398,17 @@ class App extends React.PureComponent<Props, State> {
         }
       }
 
+      const calendarQuery = nextProps.currentCalendarQuery();
       if (
-        nextProps.navInfo.startDate !== this.props.navInfo.startDate ||
-        nextProps.navInfo.endDate !== this.props.navInfo.endDate ||
-        (nextProps.includeDeleted && !this.props.includeDeleted)
+        !_isEqual(calendarQuery)(this.actualizedCalendarQuery) &&
+        !_isEqual(calendarQuery)(nextProps.actualizedCalendarQuery)
       ) {
+        this.actualizedCalendarQuery = calendarQuery;
         nextProps.dispatchActionPromise(
-          fetchEntriesActionTypes,
-          nextProps.fetchEntries(nextProps.currentCalendarQuery()),
+          updateCalendarQueryActionTypes,
+          nextProps.updateCalendarQuery(calendarQuery, true),
+          undefined,
+          { calendarQuery },
         );
       }
     }
@@ -564,8 +587,10 @@ class App extends React.PureComponent<Props, State> {
 
 }
 
-const loadingStatusSelector
+const fetchEntriesLoadingStatusSelector
   = createLoadingStatusSelector(fetchEntriesActionTypes);
+const updateCalendarQueryLoadingStatusSelector
+  = createLoadingStatusSelector(updateCalendarQueryActionTypes);
 
 export default connect(
   (state: AppState) => {
@@ -573,7 +598,10 @@ export default connect(
     return {
       navInfo: state.navInfo,
       verifyField: state.verifyField,
-      entriesLoadingStatus: loadingStatusSelector(state),
+      entriesLoadingStatus: combineLoadingStatuses(
+        fetchEntriesLoadingStatusSelector(state),
+        updateCalendarQueryLoadingStatusSelector(state),
+      ),
       currentCalendarQuery: currentCalendarQuery(state),
       pingStartingPayload: pingStartingPayload(state),
       pingActionInput: pingWebActionInput(state),
@@ -593,7 +621,8 @@ export default connect(
           : null,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       unreadCount: unreadCount(state),
+      actualizedCalendarQuery: state.entryStore.actualizedCalendarQuery,
     };
   },
-  { fetchEntries, ping, updateActivity },
+  { updateCalendarQuery, ping, updateActivity },
 )(App);

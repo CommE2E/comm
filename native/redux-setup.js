@@ -42,6 +42,7 @@ import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { sendMessageActionTypes } from 'lib/actions/message-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
+import { defaultCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
@@ -107,7 +108,9 @@ const defaultState = ({
   entryStore: {
     entryInfos: {},
     daysToEntries: {},
+    actualizedCalendarQuery: defaultCalendarQuery(),
     lastUserInteractionCalendar: 0,
+    inconsistencyResponses: [],
   },
   lastUserInteraction: { sessionReset: Date.now() },
   threadStore: {

@@ -123,7 +123,9 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       entryStore: {
         entryInfos: _keyBy('id')(rawEntryInfos),
         daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
+        actualizedCalendarQuery: calendarQuery,
         lastUserInteractionCalendar: time,
+        inconsistencyResponses: [],
       },
       lastUserInteraction: { sessionReset: time },
       threadStore: {
