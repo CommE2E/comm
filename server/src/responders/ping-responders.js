@@ -243,12 +243,13 @@ async function pingResponder(
 
   const { fetchUpdateResult } = await promiseAll(promises);
 
-  let updatesResult = null;
+  let updateUserInfos = {}, updatesResult = null;
   if (fetchUpdateResult) {
     invariant(
       oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
       "should be set",
     );
+    updateUserInfos = fetchUpdateResult.userInfos;
     const { updateInfos } = fetchUpdateResult;
     const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
       [...updateInfos],
@@ -264,6 +265,7 @@ async function pingResponder(
     ...messagesResult.userInfos,
     ...entriesResult.userInfos,
     ...threadsResult.userInfos,
+    ...updateUserInfos,
   });
 
   const serverRequests = [];
