@@ -13,6 +13,7 @@ export type UserViewerData = {|
   +userID: string,
   +cookieID: string,
   +cookiePassword: string,
+  +sessionID: ?string,
   +insertionTime?: ?number,
 |};
 
@@ -23,6 +24,7 @@ export type AnonymousViewerData = {|
   +deviceToken: ?string,
   +cookieID: string,
   +cookiePassword: string,
+  +sessionID: ?string,
   +insertionTime?: ?number,
 |};
 
@@ -53,7 +55,14 @@ class Viewer {
   }
 
   setNewCookie(data: ViewerData) {
-    this.data = data;
+    if (!data.sessionID && this.sessionID && data.loggedIn) {
+      this.data = { ...data, sessionID: this.sessionID };
+    } else if (!data.sessionID && this.sessionID && !data.loggedIn) {
+      // This is a separate condition because of Flow
+      this.data = { ...data, sessionID: this.sessionID };
+    } else {
+      this.data = data;
+    }
     this.cookieChanged = true;
     // If the request explicitly sets a new cookie, there's no point in telling
     // the client that their old cookie is invalid. Note that clients treat
@@ -75,6 +84,18 @@ class Viewer {
 
   get cookiePassword(): string {
     return this.data.cookiePassword;
+  }
+
+  get sessionID(): ?string {
+    return this.data.sessionID;
+  }
+
+  get session(): string {
+    if (this.sessionID) {
+      return `${this.cookieID}|${this.sessionID}`;
+    } else {
+      return this.cookieID;
+    }
   }
 
   get userID(): string {

@@ -42,22 +42,35 @@ function cookieIsExpired(lastUpdate: number) {
 
 type FetchViewerResult =
   | {| type: "valid", viewer: Viewer |}
-  | {| type: "nonexistant", cookieName: ?string, source: CookieSource |}
+  | {|
+      type: "nonexistant",
+      cookieName: ?string,
+      source: CookieSource,
+      sessionID: ?string,
+    |}
   | {|
       type: "invalidated",
       cookieName: string,
       cookieID: string,
       source: CookieSource,
       platformDetails: ?PlatformDetails,
+      sessionID: ?string,
     |};
 
 async function fetchUserViewer(
   cookie: string,
   source: CookieSource,
+  req: $Request,
 ): Promise<FetchViewerResult> {
   const [ cookieID, cookiePassword ] = cookie.split(':');
+  const sessionID = getSessionIDFromRequestBody(req);
   if (!cookieID || !cookiePassword) {
-    return { type: "nonexistant", cookieName: cookieType.USER, source };
+    return {
+      type: "nonexistant",
+      cookieName: cookieType.USER,
+      source,
+      sessionID,
+    };
   }
   const query = SQL`
     SELECT hash, user, last_used, platform, device_token, versions
@@ -66,7 +79,12 @@ async function fetchUserViewer(
   `;
   const [ result ] = await dbQuery(query);
   if (result.length === 0) {
-    return { type: "nonexistant", cookieName: cookieType.USER, source };
+    return {
+      type: "nonexistant",
+      cookieName: cookieType.USER,
+      source,
+      sessionID,
+    };
   }
 
   const cookieRow = result[0];
@@ -91,6 +109,7 @@ async function fetchUserViewer(
       cookieID,
       source,
       platformDetails,
+      sessionID,
     };
   }
   const userID = cookieRow.user.toString();
@@ -103,6 +122,7 @@ async function fetchUserViewer(
       userID,
       cookieID,
       cookiePassword,
+      sessionID,
     },
     source,
   );
@@ -112,10 +132,17 @@ async function fetchUserViewer(
 async function fetchAnonymousViewer(
   cookie: string,
   source: CookieSource,
+  req: $Request,
 ): Promise<FetchViewerResult> {
   const [ cookieID, cookiePassword ] = cookie.split(':');
+  const sessionID = getSessionIDFromRequestBody(req);
   if (!cookieID || !cookiePassword) {
-    return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
+    return {
+      type: "nonexistant",
+      cookieName: cookieType.ANONYMOUS,
+      source,
+      sessionID,
+    };
   }
   const query = SQL`
     SELECT last_used, hash, platform, device_token, versions
@@ -124,7 +151,12 @@ async function fetchAnonymousViewer(
   `;
   const [ result ] = await dbQuery(query);
   if (result.length === 0) {
-    return { type: "nonexistant", cookieName: cookieType.ANONYMOUS, source };
+    return {
+      type: "nonexistant",
+      cookieName: cookieType.ANONYMOUS,
+      source,
+      sessionID,
+    };
   }
 
   const cookieRow = result[0];
@@ -149,6 +181,7 @@ async function fetchAnonymousViewer(
       cookieID,
       source,
       platformDetails,
+      sessionID,
     };
   }
   const viewer = new Viewer(
@@ -159,22 +192,29 @@ async function fetchAnonymousViewer(
       deviceToken: cookieRow.device_token,
       cookieID,
       cookiePassword,
+      sessionID,
     },
     source,
   );
   return { type: "valid", viewer };
 }
 
+function getSessionIDFromRequestBody(req: $Request): ?string {
+  const body = (req.body: any);
+  return body.sessionID;
+}
+
 // This function is meant to consume a cookie that has already been processed.
 // That means it doesn't have any logic to handle an invalid cookie, and it
 // doesn't update the cookie's last_used timestamp.
 async function fetchViewerFromCookieData(
-  cookieData: {[cookieName: string]: string},
+  req: $Request,
 ): Promise<?FetchViewerResult> {
-  if (cookieData.user) {
-    return await fetchUserViewer(cookieData.user, cookieSource.HEADER);
-  } else if (cookieData.anonymous) {
-    return await fetchAnonymousViewer(cookieData.anonymous, cookieSource.HEADER);
+  const { user, anonymous } = req.cookies;
+  if (user) {
+    return await fetchUserViewer(user, cookieSource.HEADER, req);
+  } else if (anonymous) {
+    return await fetchAnonymousViewer(anonymous, cookieSource.HEADER, req);
   }
   return null;
 }
@@ -185,16 +225,22 @@ async function fetchViewerFromRequestBody(
   const body = (req.body: any);
   const cookiePair = body.cookie;
   if (cookiePair === null) {
-    return { type: "nonexistant", cookieName: null, source: cookieSource.BODY };
+    const sessionID = getSessionIDFromRequestBody(req);
+    return {
+      type: "nonexistant",
+      cookieName: null,
+      source: cookieSource.BODY,
+      sessionID,
+    };
   }
   if (!cookiePair || !(typeof cookiePair === "string")) {
     return null;
   }
   const [ type, cookie ] = cookiePair.split("=");
   if (type === cookieType.USER && cookie) {
-    return await fetchUserViewer(cookie, cookieSource.BODY);
+    return await fetchUserViewer(cookie, cookieSource.BODY, req);
   } else if (type === cookieType.ANONYMOUS && cookie) {
-    return await fetchAnonymousViewer(cookie, cookieSource.BODY);
+    return await fetchAnonymousViewer(cookie, cookieSource.BODY, req);
   }
   return null;
 }
@@ -203,7 +249,7 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   let result = await fetchViewerFromRequestBody(req);
   if (!result) {
-    result = await fetchViewerFromCookieData(req.cookies);
+    result = await fetchViewerFromCookieData(req);
   }
   return await handleFetchViewerResult(result);
 }
@@ -211,7 +257,7 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
 const webPlatformDetails = { platform: "web" };
 async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
-  const result = await fetchViewerFromCookieData(req.cookies);
+  const result = await fetchViewerFromCookieData(req);
   return await handleFetchViewerResult(result, webPlatformDetails);
 }
 
@@ -228,14 +274,16 @@ async function handleFetchViewerResult(
     platformDetails = result.platformDetails;
   }
 
+  const sessionID = result ? result.sessionID : null;
   const [ anonymousViewerData ] = await Promise.all([
     createNewAnonymousCookie(platformDetails),
     result && result.type === "invalidated"
       ? deleteCookie(result.cookieID)
       : null,
   ]);
+  const newViewerData = { ...anonymousViewerData, sessionID };
   const source = result ? result.source : cookieSource.GENERATED;
-  const viewer = new Viewer(anonymousViewerData, source);
+  const viewer = new Viewer(newViewerData, source);
 
   if (result) {
     viewer.cookieChanged = true;
@@ -338,6 +386,7 @@ async function createNewAnonymousCookie(
     deviceToken: null,
     cookieID: id,
     cookiePassword,
+    sessionID: null,
     insertionTime: time,
   };
 }
@@ -378,6 +427,7 @@ async function createNewUserCookie(
     deviceToken: null,
     userID,
     cookieID,
+    sessionID: null,
     cookiePassword,
     insertionTime: time,
   };

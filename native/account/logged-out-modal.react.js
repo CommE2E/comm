@@ -91,6 +91,7 @@ type Props = {
   rehydrateConcluded: bool,
   cookie: ?string,
   urlPrefix: string,
+  sessionID: string,
   loggedIn: bool,
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
@@ -123,6 +124,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     rehydrateConcluded: PropTypes.bool.isRequired,
     cookie: PropTypes.string,
     urlPrefix: PropTypes.string.isRequired,
+    sessionID: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
@@ -287,7 +289,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     initialAppLoad = false;
 
     let { cookie } = nextProps;
-    const { urlPrefix } = nextProps;
+    const { urlPrefix, sessionID } = nextProps;
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.guardedSetState({ mode: "prompt" });
@@ -308,6 +310,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         nextProps.dispatch,
         cookie,
         urlPrefix,
+        sessionID,
         appStartNativeCredentialsAutoLogIn,
         nextProps.logInExtraInfo,
       );
@@ -328,6 +331,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         nextProps.dispatch,
         cookie,
         urlPrefix,
+        sessionID,
         appStartReduxLoggedInButInvalidCookie,
         nextProps.logInExtraInfo,
       );
@@ -353,6 +357,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       dispatch: props.dispatch,
       cookie,
       urlPrefix: props.urlPrefix,
+      sessionID: props.sessionID,
       logInExtraInfo: props.logInExtraInfo,
       loggedIn: props.loggedIn,
     });
@@ -840,6 +845,7 @@ const LoggedOutModal = connect(
     rehydrateConcluded: state._persist && state._persist.rehydrated,
     cookie: state.cookie,
     urlPrefix: state.urlPrefix,
+    sessionID: state.sessionID,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),

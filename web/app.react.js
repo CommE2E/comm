@@ -94,6 +94,7 @@ registerConfig({
   // no access to the cookies from JavaScript
   getNewCookie: null,
   setCookieOnRequest: false,
+  setSessionIDOnRequest: true,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
   platformDetails: { platform: "web" },

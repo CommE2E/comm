@@ -114,6 +114,7 @@ registerConfig({
     return null;
   },
   setCookieOnRequest: true,
+  setSessionIDOnRequest: false,
   calendarRangeInactivityLimit: 15 * 60 * 1000,
   platformDetails: {
     platform: Platform.OS,
