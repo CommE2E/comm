@@ -42,6 +42,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
+import { createFilter } from '../creators/filter-creator';
 import urlFacts from '../../facts/url';
 import assets from '../../compiled/assets';
 
@@ -105,8 +106,15 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     }
   }
 
-  // Do this one separately in case any of the above throw an exception
-  await updateActivityTime(viewer);
+  // Do these ones separately in case any of the above throw an exception
+  const sessionID = newSessionID();
+  viewer.setSessionID(sessionID);
+  await Promise.all([
+    updateActivityTime(viewer),
+    // We know we have to create a new filter since we just generated
+    // the sessionID and web always passes up the sessionID
+    createFilter(viewer, calendarQuery),
+  ]);
 
   const time = Date.now();
   const store: Store<AppState, Action> = createStore(
@@ -114,7 +122,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     ({
       navInfo,
       currentUserInfo,
-      sessionID: newSessionID(),
+      sessionID,
       verifyField: verificationResult && verificationResult.field,
       resetPasswordUsername:
         verificationResult && verificationResult.resetPasswordUsername

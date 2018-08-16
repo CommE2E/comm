@@ -70,6 +70,15 @@ class Viewer {
     this.cookieInvalidated = false;
   }
 
+  setSessionID(sessionID: string) {
+    if (this.data.loggedIn) {
+      this.data = { ...this.data, sessionID };
+    } else {
+      // This is a separate condition because of Flow
+      this.data = { ...this.data, sessionID };
+    }
+  }
+
   get id(): string {
     return this.data.id;
   }
