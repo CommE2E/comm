@@ -77,7 +77,7 @@ const sortFunction = (
 // Creates rows in the updates table based on the inputed updateDatas. Returns
 // UpdateInfos pertaining to the provided viewerInfo, as well as related
 // UserInfos. If no viewerInfo is provided, no UpdateInfos will be returned. And
-// the update row won't have an updater_cookie, meaning no cookie will be
+// the update row won't have an updater column, meaning no session will be
 // excluded from the update.
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
@@ -194,7 +194,7 @@ async function createUpdates(
       viewerUpdateDatas.push({ data: updateData, id: ids[i] });
     }
 
-    let content, targetCookie = null;
+    let content, target = null;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
@@ -209,13 +209,13 @@ async function createUpdates(
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
     } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
-      const { deviceToken, targetCookie: cookieFromData } = updateData;
+      const { deviceToken, targetCookie } = updateData;
       content = JSON.stringify({ deviceToken });
-      targetCookie = cookieFromData;
+      target = targetCookie;
     } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-      const { entryID, targetCookie: cookieFromData } = updateData;
+      const { entryID, targetSession } = updateData;
       content = JSON.stringify({ entryID });
-      targetCookie = cookieFromData;
+      target = targetSession;
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -236,8 +236,8 @@ async function createUpdates(
       key,
       content,
       updateData.time,
-      viewerInfo ? viewerInfo.viewer.cookieID : null,
-      targetCookie,
+      viewerInfo ? viewerInfo.viewer.session : null,
+      target,
     ];
     insertRows.push(insertRow);
   }
@@ -262,7 +262,7 @@ async function createUpdates(
   if (insertRows.length > 0) {
     const insertQuery = SQL`
       INSERT INTO updates(id, user, type, \`key\`,
-        content, time, updater_cookie, target_cookie)
+        content, time, updater, target)
     `;
     insertQuery.append(SQL`VALUES ${insertRows}`);
     promises.insert = dbQuery(insertQuery);

@@ -203,13 +203,13 @@ async function createUpdateDatasForChangedEntryInfo(
 
   let replaced = false;
   const filters = fetchedFilters.map(
-    filter => filter.cookieID === viewer.cookieID && filter.userID === viewer.id
+    filter => filter.session === viewer.session && filter.userID === viewer.id
       ? (replaced = true && { ...filter, calendarQuery })
       : filter,
   );
   if (!replaced) {
-    const { id: userID, cookieID } = viewer;
-    filters.push({ userID, cookieID, calendarQuery });
+    const { id: userID, session } = viewer;
+    filters.push({ userID, session, calendarQuery });
   }
 
   const time = Date.now();
@@ -220,7 +220,7 @@ async function createUpdateDatasForChangedEntryInfo(
     userID: filter.userID,
     time,
     entryID,
-    targetCookie: filter.cookieID,
+    targetSession: filter.session,
   }));
   const { userInfos, ...updatesResult } = await createUpdates(
     updateDatas,

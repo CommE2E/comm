@@ -42,7 +42,7 @@ async function deleteUpdatesBeforeTimeTargettingCookie(
   beforeTime: number,
 ): Promise<void> {
   const condition =
-    SQL`u.target_cookie = ${viewer.cookieID} AND u.time <= ${beforeTime}`;
+    SQL`u.target = ${viewer.session} AND u.time <= ${beforeTime}`;
   await deleteUpdatesByConditions([condition]);
 }
 

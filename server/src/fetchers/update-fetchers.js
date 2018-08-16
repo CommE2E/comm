@@ -31,8 +31,8 @@ async function fetchUpdateInfos(
     SELECT id, type, content, time
     FROM updates
     WHERE user = ${viewer.id} AND time > ${currentAsOf}
-      AND (updater_cookie IS NULL OR updater_cookie != ${viewer.cookieID})
-      AND (target_cookie IS NULL OR target_cookie = ${viewer.cookieID})
+      AND (updater IS NULL OR updater != ${viewer.session})
+      AND (target IS NULL OR target = ${viewer.session})
     ORDER BY time ASC
   `;
   const [ result ] = await dbQuery(query);
@@ -115,8 +115,8 @@ function viewerUpdateDataFromRow(
       time: row.time,
       entryID,
       // This UpdateData is only used to generate a UpdateInfo,
-      // and UpdateInfo doesn't care about the targetCookie field
-      targetCookie: "",
+      // and UpdateInfo doesn't care about the targetSession field
+      targetSession: "",
     };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
