@@ -36,8 +36,8 @@ const cookieType = Object.freeze({
 });
 type CookieType = $Values<typeof cookieType>;
 
-function cookieIsExpired(lastUpdate: number) {
-  return lastUpdate + cookieLifetime <= Date.now();
+function cookieIsExpired(lastUsed: number) {
+  return lastUsed + cookieLifetime <= Date.now();
 }
 
 type FetchViewerResult =

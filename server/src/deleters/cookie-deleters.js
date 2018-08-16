@@ -65,7 +65,7 @@ async function deleteExpiredCookies(): Promise<void> {
     LEFT JOIN filters fi ON fi.session = c.id
     LEFT JOIN updates u ON u.target = c.id
     LEFT JOIN ids iu ON iu.id = u.id
-    WHERE c.last_update <= ${earliestInvalidLastUpdate}
+    WHERE c.last_used <= ${earliestInvalidLastUpdate}
   `;
   await dbQuery(query);
 }
