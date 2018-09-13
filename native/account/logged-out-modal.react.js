@@ -91,7 +91,6 @@ type Props = {
   rehydrateConcluded: bool,
   cookie: ?string,
   urlPrefix: string,
-  sessionID: string,
   loggedIn: bool,
   isForeground: bool,
   pingStartingPayload: () => PingStartingPayload,
@@ -124,7 +123,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     rehydrateConcluded: PropTypes.bool.isRequired,
     cookie: PropTypes.string,
     urlPrefix: PropTypes.string.isRequired,
-    sessionID: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
     pingStartingPayload: PropTypes.func.isRequired,
@@ -289,7 +287,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     initialAppLoad = false;
 
     let { cookie } = nextProps;
-    const { urlPrefix, sessionID } = nextProps;
+    const { urlPrefix } = nextProps;
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.guardedSetState({ mode: "prompt" });
@@ -306,14 +304,18 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     // If we're not logged in, try native credentials
     if (!nextProps.loggedIn && (!cookie || !cookie.startsWith("user="))) {
       // If this succeeds it will dispatch LOG_IN_SUCCESS
-      const newCookie = await fetchNewCookieFromNativeCredentials(
+      const sessionChange = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
         urlPrefix,
-        sessionID,
         appStartNativeCredentialsAutoLogIn,
         nextProps.logInExtraInfo,
       );
+      if (!sessionChange) {
+        showPrompt();
+        return;
+      }
+      const newCookie = sessionChange.cookie;
       if (!newCookie || !newCookie.startsWith("user=")) {
         showPrompt();
       }
@@ -327,14 +329,14 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         return;
       }
       // This is an unusual error state that should never happen
-      const newCookie = await fetchNewCookieFromNativeCredentials(
+      const sessionChange = await fetchNewCookieFromNativeCredentials(
         nextProps.dispatch,
         cookie,
         urlPrefix,
-        sessionID,
         appStartReduxLoggedInButInvalidCookie,
         nextProps.logInExtraInfo,
       );
+      const newCookie = sessionChange ? sessionChange.cookie : null;
       if (newCookie && newCookie.startsWith("user=")) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
         return;
@@ -357,7 +359,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       dispatch: props.dispatch,
       cookie,
       urlPrefix: props.urlPrefix,
-      sessionID: props.sessionID,
+      sessionID: null,
       logInExtraInfo: props.logInExtraInfo,
       loggedIn: props.loggedIn,
     });
@@ -845,7 +847,6 @@ const LoggedOutModal = connect(
     rehydrateConcluded: state._persist && state._persist.rehydrated,
     cookie: state.cookie,
     urlPrefix: state.urlPrefix,
-    sessionID: state.sessionID,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),

@@ -107,12 +107,6 @@ import { persistConfig, codeVersion } from './persist';
 
 registerConfig({
   resolveInvalidatedCookie,
-  getNewCookie: async (response: Object) => {
-    if (response.cookieChange && response.cookieChange.cookie) {
-      return response.cookieChange.cookie;
-    }
-    return null;
-  },
   setCookieOnRequest: true,
   setSessionIDOnRequest: false,
   calendarRangeInactivityLimit: 15 * 60 * 1000,

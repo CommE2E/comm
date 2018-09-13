@@ -22,7 +22,6 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 import { defaultNumberPerThread } from 'lib/types/message-types';
-import { newSessionID } from 'lib/reducers/session-reducer';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { verifyField } from 'lib/types/verify-types';
@@ -107,12 +106,14 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   }
 
   // Do these ones separately in case any of the above throw an exception
-  const sessionID = newSessionID();
-  viewer.setSessionID(sessionID);
+  let sessionID = null;
+  // TODO we need to generate a new sessionID at this time iff the user is logged in
+  if (sessionID) {
+    viewer.setSessionID(sessionID);
+  }
   await Promise.all([
     updateActivityTime(viewer),
-    // We know we have to create a new filter since we just generated
-    // the sessionID and web always passes up the sessionID
+    // TODO we should only be doing this if the client is logged in
     createFilter(viewer, calendarQuery),
   ]);
 
@@ -151,8 +152,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       pingTimestamps: defaultPingTimestamps,
       activeServerRequests: [],
       calendarFilters: defaultCalendarFilters,
-      cookie: undefined,
-      deviceToken: null,
       // We can use paths local to the <base href> on web
       urlPrefix: "",
       windowDimensions: { width: 0, height: 0 },

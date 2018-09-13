@@ -92,7 +92,6 @@ registerConfig({
   resolveInvalidatedCookie: null,
   // We use httponly cookies on web to protect against XSS attacks, so we have
   // no access to the cookies from JavaScript
-  getNewCookie: null,
   setCookieOnRequest: false,
   setSessionIDOnRequest: true,
   // Never reset the calendar range

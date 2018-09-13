@@ -22,6 +22,9 @@ import {
   type CalendarFilter,
   defaultCalendarFilters,
 } from 'lib/types/filter-types';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
+import { updateTypes } from 'lib/types/update-types';
+import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -37,7 +40,6 @@ import {
 import { AppState as NativeAppState } from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { newSessionID } from 'lib/reducers/session-reducer';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { sendMessageActionTypes } from 'lib/actions/message-actions';
 import { pingActionTypes } from 'lib/actions/ping-actions';
@@ -79,7 +81,6 @@ const createStore = reactotron
 export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
-  sessionID: string,
   entryStore: EntryStore,
   threadStore: ThreadStore,
   userInfos: {[id: string]: UserInfo},
@@ -98,12 +99,12 @@ export type AppState = {|
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   messageSentFromRoute: $ReadOnlyArray<string>,
   _persist: ?PersistState,
+  sessionID?: void,
 |};
 
 const defaultState = ({
   navInfo: defaultNavInfo,
   currentUserInfo: null,
-  sessionID: newSessionID(),
   entryStore: {
     entryInfos: {},
     daysToEntries: {},
@@ -193,6 +194,7 @@ function reducer(state: AppState = defaultState, action: *) {
 
     state = { ...state, navInfo };
   }
+
   if (
     action.type === recordAndroidNotificationActionType ||
     action.type === clearAndroidNotificationActionType
@@ -218,6 +220,7 @@ function reducer(state: AppState = defaultState, action: *) {
       },
     };
   }
+
   // These action type are handled by reduceNavInfo above
   if (
     action.type === handleURLActionType ||
@@ -236,6 +239,7 @@ function reducer(state: AppState = defaultState, action: *) {
   ) {
     return validateState(oldState, state);
   }
+
   if (action.type === sendMessageActionTypes.started) {
     const chatRoute = chatRouteFromNavInfo(state.navInfo);
     const currentChatSubroute = currentLeafRoute(chatRoute);
@@ -248,6 +252,36 @@ function reducer(state: AppState = defaultState, action: *) {
       messageSentFromRoute,
     };
   }
+
+  if (action.type === setNewSessionActionType) {
+    state = {
+      ...state,
+      cookie: action.payload.cookie,
+    };
+  } else if (action.type === setDeviceTokenActionTypes.started) {
+    state = {
+      ...state,
+      deviceToken: action.payload,
+    };
+  } else if (action.type === pingActionTypes.success) {
+    let wipeDeviceToken = false;
+    for (let update of action.payload.updatesResult.newUpdates) {
+      if (
+        update.type === updateTypes.BAD_DEVICE_TOKEN &&
+        update.deviceToken === state.deviceToken
+      ) {
+        wipeDeviceToken = true;
+        break;
+      }
+    }
+    if (wipeDeviceToken) {
+      state = {
+        ...state,
+        deviceToken: null,
+      };
+    }
+  }
+
   return validateState(oldState, baseReducer(state, action));
 }
 

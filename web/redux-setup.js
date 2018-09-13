@@ -11,6 +11,7 @@ import type { MessageStore } from 'lib/types/message-types';
 import type { PingTimestamps } from 'lib/types/ping-types';
 import type { ServerRequest } from 'lib/types/request-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -44,7 +45,7 @@ export type WindowDimensions = {| width: number, height: number |};
 export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
-  sessionID: string,
+  sessionID: ?string,
   verifyField: ?VerifyField,
   resetPasswordUsername: string,
   entryStore: EntryStore,
@@ -57,10 +58,10 @@ export type AppState = {|
   pingTimestamps: PingTimestamps,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  cookie: ?string,
-  deviceToken: ?string,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
+  cookie?: void,
+  deviceToken?: void,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";
@@ -74,24 +75,36 @@ export type Action =
       payload: WindowDimensions,
     |};
 
-export function reducer(inputState: AppState | void, action: Action) {
-  const oldState = inputState;
+export function reducer(oldState: AppState | void, action: Action) {
   invariant(oldState, "should be set");
   let state = oldState;
+
   if (action.type === updateNavInfoActionType) {
-    state = {
-      ...state,
-      navInfo: action.payload,
-    };
+    return validateState(
+      oldState,
+      {
+        ...state,
+        navInfo: action.payload,
+      },
+    );
   } else if (action.type === updateWindowDimensions) {
+    return validateState(
+      oldState,
+      {
+        ...state,
+        windowDimensions: action.payload,
+      },
+    );
+  }
+
+  if (action.type === setNewSessionActionType) {
     state = {
       ...state,
-      windowDimensions: action.payload,
+      sessionID: action.payload.sessionID,
     };
-  } else {
-    state = baseReducer(state, action);
   }
-  return validateState(oldState, state);
+
+  return validateState(oldState, baseReducer(state, action));
 }
 
 function validateState(oldState: AppState, state: AppState): AppState {

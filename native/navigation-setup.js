@@ -15,7 +15,7 @@ import type {
 } from 'react-navigation';
 import type { PingResult } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
-import type { SetCookiePayload } from 'lib/utils/action-utils';
+import type { SessionChange } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from './push/android';
 import type { UserInfo } from 'lib/types/user-types';
@@ -35,7 +35,7 @@ import PropTypes from 'prop-types';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
-import { setCookieActionType } from 'lib/utils/action-utils';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -283,7 +283,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === joinThreadActionTypes.success ||
       action.type === leaveThreadActionTypes.success ||
       action.type === deleteThreadActionTypes.success ||
-      action.type === setCookieActionType
+      action.type === setNewSessionActionType
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
       navInfoState.navigationState,
@@ -322,7 +322,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === deleteAccountActionTypes.success
   ) {
     return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
-  } else if (action.type === setCookieActionType) {
+  } else if (action.type === setNewSessionActionType) {
     return logOutIfCookieInvalidated(navInfoState, action.payload);
   } else if (action.type === pingActionTypes.success) {
     return {
@@ -502,7 +502,7 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
 
 function logOutIfCookieInvalidated(
   state: NavInfo,
-  payload: SetCookiePayload,
+  payload: SessionChange,
 ): NavInfo {
   if (payload.cookieInvalidated) {
     const newState = resetNavInfoAndEnsureLoggedOutModalPresence(state);
