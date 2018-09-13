@@ -121,19 +121,19 @@ async function updateFocusedRows(
   if (threadIDs.length > 0) {
     const focusedInsertRows = threadIDs.map(threadID => [
       viewer.userID,
-      viewer.cookieID,
+      viewer.session,
       threadID,
       time,
     ]);
     await dbQuery(SQL`
-      INSERT INTO focused (user, cookie, thread, time)
+      INSERT INTO focused (user, session, thread, time)
       VALUES ${focusedInsertRows}
       ON DUPLICATE KEY UPDATE time = VALUES(time)
     `);
   }
   await dbQuery(SQL`
     DELETE FROM focused
-    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
+    WHERE user = ${viewer.userID} AND session = ${viewer.session}
       AND time < ${time}
   `);
 }
@@ -259,7 +259,7 @@ async function updateActivityTime(viewer: Viewer): Promise<void> {
   const focusedQuery = SQL`
     UPDATE focused
     SET time = ${time}
-    WHERE user = ${viewer.userID} AND cookie = ${viewer.cookieID}
+    WHERE user = ${viewer.userID} AND session = ${viewer.session}
   `;
   await dbQuery(focusedQuery);
 }
