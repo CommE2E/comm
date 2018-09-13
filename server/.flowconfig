@@ -11,8 +11,6 @@
 [libs]
 
 [options]
-module.name_mapper='^lib/(.*)$' -> '<PROJECT_ROOT>/../lib/\1'
-
 module.file_ext=.js
 module.file_ext=.json
 module.file_ext=.build
