@@ -15,7 +15,7 @@ import { deleteOrphanedMessages } from './deleters/message-deleters';
 import { deleteOrphanedFocused } from './deleters/activity-deleters';
 import { deleteOrphanedNotifs } from './deleters/notif-deleters';
 import { deleteExpiredUpdates } from './deleters/update-deleters';
-import { deleteOrphanedFilters } from './deleters/filter-deleters';
+import { deleteOrphanedSessions } from './deleters/session-deleters';
 import { backupDB } from './backups';
 
 if (cluster.isMaster) {
@@ -37,7 +37,7 @@ if (cluster.isMaster) {
         await deleteOrphanedFocused();
         await deleteOrphanedNotifs();
         await deleteExpiredUpdates();
-        await deleteOrphanedFilters();
+        await deleteOrphanedSessions();
       } catch (e) {
         console.warn(
           "encountered error while trying to clean database",

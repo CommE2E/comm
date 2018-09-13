@@ -47,7 +47,7 @@ import {
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
-import { updateFilterIfChanged } from '../updaters/filter-updaters';
+import { updateSessionCalendarQuery } from '../updaters/session-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingCookie,
 } from '../deleters/update-deleters';
@@ -221,7 +221,7 @@ async function pingResponder(
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
     viewer.loggedIn && calendarQuery
-      ? updateFilterIfChanged(viewer, calendarQuery)
+      ? updateSessionCalendarQuery(viewer, calendarQuery)
       : undefined,
   ]);
 

@@ -29,9 +29,9 @@ import {
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 import {
-  fetchCurrentFilter,
-  fetchFiltersForThread,
-} from '../fetchers/filter-fetchers';
+  fetchSessionCalendarQuery,
+  fetchActiveSessionsForThread,
+} from '../fetchers/session-fetchers';
 import { createUpdates } from '../creators/update-creator';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
@@ -194,8 +194,8 @@ async function createUpdateDatasForChangedEntryInfo(
   const entryID = entryInfo.id;
   invariant(entryID, "should be set");
   const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
-    fetchFiltersForThread(entryInfo.threadID),
-    inputCalendarQuery ? undefined : fetchCurrentFilter(viewer),
+    fetchActiveSessionsForThread(entryInfo.threadID),
+    inputCalendarQuery ? undefined : fetchSessionCalendarQuery(viewer),
   ]);
 
   let calendarQuery;

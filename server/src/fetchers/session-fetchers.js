@@ -7,13 +7,13 @@ import { dbQuery, SQL } from '../database';
 
 // "Filter" here refers to the "filters" table in MySQL, which stores
 // CalendarQueries on a per-session basis
-async function fetchCurrentFilter(
+async function fetchSessionCalendarQuery(
   viewer: Viewer,
 ): Promise<?CalendarQuery> {
   const query = SQL`
     SELECT query
-    FROM filters
-    WHERE user = ${viewer.id} AND session = ${viewer.session}
+    FROM sessions
+    WHERE user = ${viewer.userID} AND id = ${viewer.session}
   `;
   const [ result ] = await dbQuery(query);
   if (result.length === 0) {
@@ -23,26 +23,26 @@ async function fetchCurrentFilter(
   return row.query;
 }
 
-type CalendarFilterResult = {|
+type CalendarSessionResult = {|
   userID: string,
   session: string,
   calendarQuery: CalendarQuery,
 |};
-async function fetchFiltersForThread(
+async function fetchActiveSessionsForThread(
   threadID: string,
-): Promise<CalendarFilterResult[]> {
+): Promise<CalendarSessionResult[]> {
   const query = SQL`
-    SELECT f.user, f.session, f.query
+    SELECT s.id, s.user, s.query
     FROM memberships m
-    LEFT JOIN filters f ON f.user = m.user
-    WHERE m.thread = ${threadID} AND f.query IS NOT NULL
+    LEFT JOIN sessions s ON s.user = m.user
+    WHERE m.thread = ${threadID} AND s.query IS NOT NULL
   `;
   const [ result ] = await dbQuery(query);
   const filters = [];
   for (let row of result) {
     filters.push({
       userID: row.user.toString(),
-      session: row.session,
+      session: row.id,
       calendarQuery: row.query,
     });
   }
@@ -50,6 +50,6 @@ async function fetchFiltersForThread(
 }
 
 export {
-  fetchCurrentFilter,
-  fetchFiltersForThread,
+  fetchSessionCalendarQuery,
+  fetchActiveSessionsForThread,
 };

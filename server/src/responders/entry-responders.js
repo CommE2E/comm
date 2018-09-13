@@ -40,7 +40,7 @@ import {
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
-import { updateFilterIfChanged } from '../updaters/filter-updaters';
+import { updateSessionCalendarQuery } from '../updaters/session-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),
@@ -217,11 +217,12 @@ async function calendarQueryUpdateResponder(
     throw new ServerError('not_logged_in');
   }
 
-  // TODO: updateFilterIfChanged should actually return the EntryInfos directly,
-  // and should only include the diff between the previous and the new filter.
+  // TODO: updateSessionCalendarQuery should actually return the EntryInfos
+  // directly, and should only include the diff between the previous and the new
+  // filter.
   const [ response ] = await Promise.all([
     fetchEntryInfos(viewer, request),
-    updateFilterIfChanged(viewer, request),
+    updateSessionCalendarQuery(viewer, request),
   ]);
   return {
     rawEntryInfos: response.rawEntryInfos,

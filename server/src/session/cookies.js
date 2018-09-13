@@ -33,7 +33,7 @@ import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
-import { createFilter } from '../creators/filter-creator';
+import { createSession } from '../creators/session-creator';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -476,7 +476,7 @@ async function setNewSession(viewer: Viewer, calendarQuery: CalendarQuery) {
     [ sessionID ] = await createIDs("sessions", 1);
   }
   viewer.setSessionID(sessionID);
-  await createFilter(viewer, calendarQuery);
+  await createSession(viewer, calendarQuery);
 }
 
 async function extendCookieLifespan(cookieID: string) {

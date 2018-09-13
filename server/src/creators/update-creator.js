@@ -53,7 +53,7 @@ import {
   fetchEntryInfos,
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
-import { fetchCurrentFilter } from '../fetchers/filter-fetchers';
+import { fetchSessionCalendarQuery } from '../fetchers/session-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 
 export type ViewerInfo =
@@ -337,7 +337,7 @@ async function fetchUpdateInfosWithUpdateDatas(
     // This should only ever happen for "legacy" clients who call in without
     // providing this information. These clients wouldn't know how to deal with
     // the corresponding UpdateInfos anyways, so no reason to be worried.
-    calendarQuery = await fetchCurrentFilter(viewerInfo.viewer);
+    calendarQuery = await fetchSessionCalendarQuery(viewerInfo.viewer);
   }
   if (!calendarQuery) {
     calendarQuery = defaultCalendarQuery();
