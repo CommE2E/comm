@@ -28,9 +28,9 @@ async function deleteExpiredUpdates(): Promise<void> {
     LEFT JOIN ids i ON i.id = u.id
     LEFT JOIN (
       SELECT u.id AS user,
-        COALESCE(MIN(c.last_update), 99999999999999) AS oldest_last_update
-      FROM cookies c
-      RIGHT JOIN users u ON u.id = c.user
+        COALESCE(MIN(s.last_update), 99999999999999) AS oldest_last_update
+      FROM sessions s
+      RIGHT JOIN users u ON u.id = s.user
       GROUP BY u.id
     ) o ON o.user = u.user
     WHERE o.user IS NULL OR u.time < o.oldest_last_update

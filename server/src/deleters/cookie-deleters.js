@@ -6,18 +6,15 @@ import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 
 async function deleteCookie(cookieID: string): Promise<void> {
-  // Note that since the fi.session = c.id and u.target = c.id comparisons
-  // compare a VARCHAR with an INT type, MySQL will caste the former to an INT.
-  // This means it will parse off any prefixed numeral characters, and ignore
-  // anything after the first non-numeral, which is exactly what we want.
   await dbQuery(SQL`
-    DELETE c, i, fo, fi, u, iu
+    DELETE c, i, u, iu, s, is, fo
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN focused fo ON fo.cookie = c.id
-    LEFT JOIN filters fi ON fi.session = c.id
     LEFT JOIN updates u ON u.target = c.id
     LEFT JOIN ids iu ON iu.id = u.id
+    LEFT JOIN sessions s ON s.cookie = c.id
+    LEFT JOIN ids is ON is.id = s.id
+    LEFT JOIN focused fo ON fo.session = s.id
     WHERE c.id = ${cookieID}
   `);
 }
@@ -33,18 +30,15 @@ async function deleteCookiesOnLogOut(
     conditions.push(SQL`c.device_token = ${deviceToken}`);
   }
 
-  // Note that since the fi.session = c.id and u.target = c.id comparisons
-  // compare a VARCHAR with an INT type, MySQL will caste the former to an INT.
-  // This means it will parse off any prefixed numeral characters, and ignore
-  // anything after the first non-numeral, which is exactly what we want.
   const query = SQL`
-    DELETE c, i, fo, fi, u, iu
+    DELETE c, i, u, iu, s, is, fo
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN focused fo ON fo.cookie = c.id
-    LEFT JOIN filters fi ON fi.session = c.id
     LEFT JOIN updates u ON u.target = c.id
     LEFT JOIN ids iu ON iu.id = u.id
+    LEFT JOIN sessions s ON s.cookie = c.id
+    LEFT JOIN ids is ON is.id = s.id
+    LEFT JOIN focused fo ON fo.session = s.id
     WHERE c.user = ${userID} AND
   `;
   query.append(mergeOrConditions(conditions));
@@ -54,18 +48,15 @@ async function deleteCookiesOnLogOut(
 
 async function deleteExpiredCookies(): Promise<void> {
   const earliestInvalidLastUpdate = Date.now() - cookieLifetime;
-  // Note that since the fi.session = c.id and u.target = c.id comparisons
-  // compare a VARCHAR with an INT type, MySQL will caste the former to an INT.
-  // This means it will parse off any prefixed numeral characters, and ignore
-  // anything after the first non-numeral, which is exactly what we want.
   const query = SQL`
-    DELETE c, i, fo, fi, u, iu
+    DELETE c, i, u, iu, s, is, fo
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN focused fo ON fo.cookie = c.id
-    LEFT JOIN filters fi ON fi.session = c.id
     LEFT JOIN updates u ON u.target = c.id
     LEFT JOIN ids iu ON iu.id = u.id
+    LEFT JOIN sessions s ON s.cookie = c.id
+    LEFT JOIN ids is ON is.id = s.id
+    LEFT JOIN focused fo ON fo.session = s.id
     WHERE c.last_used <= ${earliestInvalidLastUpdate}
   `;
   await dbQuery(query);
