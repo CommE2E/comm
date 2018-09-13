@@ -40,8 +40,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
-import { updateActivityTime } from '../updaters/activity-updaters';
-import { createFilter } from '../creators/filter-creator';
+import { setNewSession } from '../session/cookies';
 import urlFacts from '../../facts/url';
 import assets from '../../compiled/assets';
 
@@ -104,18 +103,11 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       navInfo.activeChatThreadID = mostRecentThread;
     }
   }
+  // TODO if thread currently in view, call activityUpdater with that thread
 
-  // Do these ones separately in case any of the above throw an exception
-  let sessionID = null;
-  // TODO we need to generate a new sessionID at this time iff the user is logged in
-  if (sessionID) {
-    viewer.setSessionID(sessionID);
+  if (viewer.loggedIn) {
+    await setNewSession(viewer, calendarQuery);
   }
-  await Promise.all([
-    updateActivityTime(viewer),
-    // TODO we should only be doing this if the client is logged in
-    createFilter(viewer, calendarQuery),
-  ]);
 
   const time = Date.now();
   const store: Store<AppState, Action> = createStore(
@@ -123,7 +115,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     ({
       navInfo,
       currentUserInfo,
-      sessionID,
+      sessionID: viewer.sessionID,
       verifyField: verificationResult && verificationResult.field,
       resetPasswordUsername:
         verificationResult && verificationResult.resetPasswordUsername

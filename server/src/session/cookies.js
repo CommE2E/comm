@@ -16,6 +16,7 @@ import {
   type PlatformDetails,
   isDeviceType,
 } from 'lib/types/device-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
@@ -32,6 +33,7 @@ import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
+import { createFilter } from '../creators/filter-creator';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -463,6 +465,20 @@ async function createNewUserCookie(
   };
 }
 
+// This gets called after createNewUserCookie and from websiteResponder. If the
+// Viewer's sessionIdentifierType is COOKIE_ID then the cookieID is used as the
+// session identifier; otherwise, a new ID is create for the session.
+async function setNewSession(viewer: Viewer, calendarQuery: CalendarQuery) {
+  let sessionID;
+  if (viewer.sessionIdentifierType === sessionIdentifierTypes.COOKIE_ID) {
+    sessionID = viewer.cookieID;
+  } else {
+    [ sessionID ] = await createIDs("sessions", 1);
+  }
+  viewer.setSessionID(sessionID);
+  await createFilter(viewer, calendarQuery);
+}
+
 async function extendCookieLifespan(cookieID: string) {
   const time = Date.now();
   const query = SQL`
@@ -556,6 +572,7 @@ export {
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,
   createNewUserCookie,
+  setNewSession,
   recordDeliveredUpdate,
   addCookieToJSONResponse,
   addCookieToHomeResponse,

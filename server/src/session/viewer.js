@@ -147,6 +147,9 @@ class Viewer {
     return sessionIdentifierType;
   }
 
+  // This is used in the case of sessionIdentifierTypes.BODY_SESSION_ID only.
+  // It will be falsey otherwise. Use session below if you want the actual
+  // session identifier in all cases.
   get sessionID(): ?string {
     return this.data.sessionID;
   }

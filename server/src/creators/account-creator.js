@@ -25,7 +25,7 @@ import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import createMessages from './message-creator';
 import createThread from './thread-creator';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
-import { createFilter } from './filter-creator';
+import { setNewSession } from '../session/cookies';
 
 const ashoatMessages = [
   "welcome to SquadCal! thanks for helping to test the alpha.",
@@ -93,6 +93,9 @@ async function createAccount(
     ),
   ]);
   viewer.setNewCookie(userViewerData);
+  if (calendarQuery) {
+    await setNewSession(viewer, calendarQuery);
+  }
 
   const [
     personalThreadResult,
@@ -113,7 +116,6 @@ async function createAccount(
         initialMemberIDs: [ashoat.id],
       },
     ),
-    calendarQuery ? createFilter(viewer, calendarQuery) : undefined,
   ]);
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
