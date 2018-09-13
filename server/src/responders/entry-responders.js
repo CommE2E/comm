@@ -24,6 +24,7 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import { values } from 'lib/utils/objects';
 
 import {
   validateInput,
@@ -224,7 +225,7 @@ async function calendarQueryUpdateResponder(
   ]);
   return {
     rawEntryInfos: response.rawEntryInfos,
-    userInfos: (Object.values(response.userInfos): any),
+    userInfos: values(response.userInfos),
   };
 }
 

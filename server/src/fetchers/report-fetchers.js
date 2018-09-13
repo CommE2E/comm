@@ -9,6 +9,7 @@ import type {
 
 import { ServerError } from 'lib/utils/errors';
 import { isStaff } from 'lib/shared/user-utils';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 
@@ -52,9 +53,8 @@ async function fetchErrorReportInfos(
       };
     }
   }
-  const userInfoArray: any = Object.values(userInfos);
 
-  return { reports, userInfos: userInfoArray };
+  return { reports, userInfos: values(userInfos) };
 }
 
 async function fetchReduxToolsImport(

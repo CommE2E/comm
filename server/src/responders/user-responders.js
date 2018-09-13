@@ -24,6 +24,7 @@ import bcrypt from 'twin-bcrypt';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import { values } from 'lib/utils/objects';
 
 import {
   userSubscriptionUpdater,
@@ -254,7 +255,6 @@ async function logInResponder(
   const userInfos = entriesResult
     ? { ...messagesResult.userInfos, ...entriesResult.userInfos }
     : messagesResult.userInfos;
-  const userInfosArray: any = Object.values(userInfos);
   const response: LogInResponse = {
     currentUserInfo: {
       id,
@@ -265,7 +265,7 @@ async function logInResponder(
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
-    userInfos: userInfosArray,
+    userInfos: values(userInfos),
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

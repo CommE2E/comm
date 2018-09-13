@@ -15,6 +15,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { ServerError } from 'lib/utils/errors';
 import { verifyField } from 'lib/types/verify-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
@@ -201,7 +202,6 @@ async function updatePassword(
   const userInfos = entriesResult
     ? { ...messagesResult.userInfos, ...entriesResult.userInfos }
     : messagesResult.userInfos;
-  const userInfosArray: any = Object.values(userInfos);
   const response: LogInResponse = {
     currentUserInfo: {
       id: userID,
@@ -212,7 +212,7 @@ async function updatePassword(
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
-    userInfos: userInfosArray,
+    userInfos: values(userInfos),
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

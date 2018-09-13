@@ -22,6 +22,7 @@ import url from 'url';
 import crypto from 'crypto';
 
 import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import { Viewer } from './viewer';
@@ -334,13 +335,12 @@ async function addSessionChangeInfoToResult(
   result: Object,
 ) {
   const { threadInfos, userInfos } = await fetchThreadInfos(viewer);
-  const userInfosArray: any = Object.values(userInfos);
   let sessionChange;
   if (viewer.cookieInvalidated) {
     sessionChange = ({
       cookieInvalidated: true,
       threadInfos,
-      userInfos: userInfosArray,
+      userInfos: values(userInfos),
       currentUserInfo: {
         id: viewer.cookieID,
         anonymous: true,
@@ -350,7 +350,7 @@ async function addSessionChangeInfoToResult(
     sessionChange = ({
       cookieInvalidated: false,
       threadInfos,
-      userInfos: userInfosArray,
+      userInfos: values(userInfos),
     }: SessionChange);
   }
   if (viewer.cookieSource === cookieSources.BODY) {

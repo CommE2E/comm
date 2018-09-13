@@ -19,6 +19,7 @@ import {
   rawEntryInfoWithinCalendarQuery,
   defaultCalendarQuery,
 } from 'lib/shared/entry-utils';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -237,7 +238,7 @@ async function createUpdateDatasForChangedEntryInfo(
   );
   return {
     ...updatesResult,
-    userInfos: (Object.values(userInfos): any),
+    userInfos: values(userInfos),
   };
 }
 

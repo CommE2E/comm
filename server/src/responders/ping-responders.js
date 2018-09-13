@@ -18,6 +18,7 @@ import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
+import { values } from 'lib/utils/objects';
 
 import {
   validateInput,
@@ -266,7 +267,7 @@ async function pingResponder(
     };
   }
 
-  const userInfos: any = Object.values({
+  const userInfos = values({
     ...messagesResult.userInfos,
     ...entriesResult.userInfos,
     ...threadsResult.userInfos,
