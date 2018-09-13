@@ -212,7 +212,12 @@ async function calendarQueryUpdateResponder(
   validateInput(newEntryQueryInputValidator, input);
 
   await verifyCalendarQueryThreadIDs(request);
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
 
+  // TODO: updateFilterIfChanged should actually return the EntryInfos directly,
+  // and should only include the diff between the previous and the new filter.
   const [ response ] = await Promise.all([
     fetchEntryInfos(viewer, request),
     updateFilterIfChanged(viewer, request),

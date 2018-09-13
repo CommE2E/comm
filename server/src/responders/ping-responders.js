@@ -209,7 +209,6 @@ async function pingResponder(
     threadsResult,
     entriesResult,
     currentUserInfo,
-    currentCalendarQuery,
   ] = await Promise.all([
     fetchMessageInfosSince(
       viewer,
@@ -220,12 +219,18 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
-    calendarQuery ? updateFilterIfChanged(viewer, calendarQuery) : undefined,
+    viewer.loggedIn && calendarQuery
+      ? updateFilterIfChanged(viewer, calendarQuery)
+      : undefined,
   ]);
 
   const promises = {};
   promises.activityUpdate = updateActivityTime(viewer);
-  if (oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined) {
+  if (
+    viewer.loggedIn &&
+    oldUpdatesCurrentAsOf !== null &&
+    oldUpdatesCurrentAsOf !== undefined
+  ) {
     promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingCookie(
       viewer,
       oldUpdatesCurrentAsOf,

@@ -38,6 +38,10 @@ async function updateEntry(
   viewer: Viewer,
   request: SaveEntryRequest,
 ): Promise<SaveEntryResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const lastRevisionQuery = SQL`
     SELECT r.id, r.author, r.text, r.session_id,
       r.last_update, r.deleted, e.text AS entryText
@@ -81,13 +85,13 @@ async function updateEntry(
     throw new ServerError('database_corruption');
   }
 
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   const dbPromises = [];
   let insertNewRevision = false;
   let updateEntry = false;
   if (
     viewerID === lastRevisionRow.author &&
-    request.sessionID === lastRevisionRow.sessionID
+    request.sessionID === lastRevisionRow.session_id
   ) {
     if (lastRevisionRow.last_update >= request.timestamp) {
       // Updates got sent out of order and as a result an update newer than us
@@ -109,7 +113,7 @@ async function updateEntry(
       insertNewRevision = true;
     }
   } else if (
-    request.sessionID !== lastRevisionRow.sessionID &&
+    request.sessionID !== lastRevisionRow.session_id &&
     request.prevText !== lastRevisionRow.text
   ) {
     throw new ServerError(
@@ -182,6 +186,10 @@ async function createUpdateDatasForChangedEntryInfo(
   entryInfo: RawEntryInfo,
   inputCalendarQuery: ?CalendarQuery,
 ): Promise<CreateUpdatesResponse> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const entryID = entryInfo.id;
   invariant(entryID, "should be set");
   const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
@@ -202,13 +210,14 @@ async function createUpdateDatasForChangedEntryInfo(
   }
 
   let replaced = false;
+  const { userID } = viewer;
   const filters = fetchedFilters.map(
-    filter => filter.session === viewer.session && filter.userID === viewer.id
+    filter => filter.session === viewer.session && filter.userID === userID
       ? (replaced = true && { ...filter, calendarQuery })
       : filter,
   );
   if (!replaced) {
-    const { id: userID, session } = viewer;
+    const { session } = viewer;
     filters.push({ userID, session, calendarQuery });
   }
 

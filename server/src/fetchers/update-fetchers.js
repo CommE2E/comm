@@ -11,6 +11,8 @@ import type { FetchThreadInfosResult } from '../fetchers/thread-fetchers';
 
 import invariant from 'invariant';
 
+import { ServerError } from 'lib/utils/errors';
+
 import { dbQuery, SQL } from '../database';
 import {
   type ViewerUpdateData,
@@ -27,6 +29,10 @@ async function fetchUpdateInfos(
   currentAsOf: number,
   queryInput: UpdateInfoQueryInput,
 ): Promise<FetchUpdatesResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const query = SQL`
     SELECT id, type, content, time
     FROM updates

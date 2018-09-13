@@ -24,6 +24,9 @@ async function createEntry(
   viewer: Viewer,
   request: CreateEntryRequest,
 ): Promise<SaveEntryResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
   const hasPermission = await checkThreadPermission(
     viewer,
     request.threadID,
@@ -46,7 +49,7 @@ async function createEntry(
     createIDs("revisions", 1),
   ]);
 
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   const entryRow = [
     entryID,
     dayID,

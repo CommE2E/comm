@@ -1,8 +1,9 @@
 // @flow
 
+import { cookieLifetime } from 'lib/types/session-types';
+
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
-import { cookieLifetime } from '../session/cookies';
 
 async function deleteCookie(cookieID: string): Promise<void> {
   // Note that since the fi.session = c.id and u.target = c.id comparisons

@@ -20,6 +20,7 @@ import {
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
+import { ServerError } from 'lib/utils/errors';
 
 import {
   fetchServerThreadInfos,
@@ -501,6 +502,10 @@ async function commitMembershipChangeset(
   changedThreadIDs?: Set<string> = new Set(),
   calendarQuery?: ?CalendarQuery,
 ): Promise<ChangesetCommitResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const toJoin = [], toUpdate = [], toDelete = [];
   for (let row of changeset) {
     if (row.operation === "join") {

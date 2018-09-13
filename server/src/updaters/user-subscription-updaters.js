@@ -18,6 +18,10 @@ async function userSubscriptionUpdater(
   viewer: Viewer,
   update: SubscriptionUpdateRequest,
 ): Promise<ThreadSubscription> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const { threadInfos } = await fetchThreadInfos(
     viewer,
     SQL`t.id = ${update.threadID}`,
@@ -36,14 +40,14 @@ async function userSubscriptionUpdater(
   const saveQuery = SQL`
     UPDATE memberships
     SET subscription = ${JSON.stringify(newSubscription)}
-    WHERE user = ${viewer.id} AND thread = ${update.threadID}
+    WHERE user = ${viewer.userID} AND thread = ${update.threadID}
   `;
   promises.push(dbQuery(saveQuery));
 
   const time = Date.now();
   const updateDatas = [{
     type: updateTypes.UPDATE_THREAD,
-    userID: viewer.id,
+    userID: viewer.userID,
     time,
     threadID: update.threadID,
   }];

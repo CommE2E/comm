@@ -39,6 +39,9 @@ async function deleteEntry(
   viewer: Viewer,
   request: DeleteEntryRequest,
 ): Promise<DeleteEntryResponse> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
       viewer,
@@ -59,7 +62,7 @@ async function deleteEntry(
   }
 
   const text = lastRevisionRow.text;
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   if (
     request.sessionID !== lastRevisionRow.session_id &&
     request.prevText !== text
@@ -136,6 +139,9 @@ async function restoreEntry(
   viewer: Viewer,
   request: RestoreEntryRequest,
 ): Promise<RestoreEntryResponse> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
   const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
     checkThreadPermissionForEntry(
       viewer,
@@ -156,7 +162,7 @@ async function restoreEntry(
   }
 
   const text = lastRevisionRow.text;
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   const dbPromises = [];
   dbPromises.push(dbQuery(SQL`
     UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}

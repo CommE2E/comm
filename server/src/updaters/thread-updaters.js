@@ -49,6 +49,10 @@ async function updateRole(
   viewer: Viewer,
   request: RoleChangeRequest,
 ): Promise<ChangeThreadSettingsResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const [ memberIDs, hasPermission ] = await Promise.all([
     verifyUserIDs(request.memberIDs),
     checkThreadPermission(
@@ -96,7 +100,7 @@ async function updateRole(
   const messageData = {
     type: messageTypes.CHANGE_ROLE,
     threadID: request.threadID,
-    creatorID: viewer.id,
+    creatorID: viewer.userID,
     time: Date.now(),
     userIDs: memberIDs,
     newRole: request.role,
@@ -123,7 +127,7 @@ async function removeMembers(
   viewer: Viewer,
   request: RemoveMembersRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   if (request.memberIDs.includes(viewerID)) {
     throw new ServerError('invalid_parameters');
   }
@@ -212,6 +216,10 @@ async function leaveThread(
   viewer: Viewer,
   request: LeaveThreadRequest,
 ): Promise<LeaveThreadResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const [ isMember, { threadInfos: serverThreadInfos } ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
     fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
@@ -221,7 +229,7 @@ async function leaveThread(
   }
   const serverThreadInfo = serverThreadInfos[request.threadID];
 
-  const viewerID = viewer.id;
+  const viewerID = viewer.userID;
   if (_find({ name: "Admins" })(serverThreadInfo.roles)) {
     let otherUsersExist = false;
     let otherAdminsExist = false;
@@ -533,6 +541,10 @@ async function joinThread(
   viewer: Viewer,
   request: ServerThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const [ isMember, hasPermission ] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
     checkThreadPermission(
@@ -559,7 +571,7 @@ async function joinThread(
 
   const changeset = await changeRole(
     request.threadID,
-    [viewer.id],
+    [viewer.userID],
     null,
   );
   if (!changeset) {
@@ -571,7 +583,7 @@ async function joinThread(
     }
     if (
       rowToSave.operation === "join" &&
-      (rowToSave.userID !== viewer.id ||
+      (rowToSave.userID !== viewer.userID ||
         rowToSave.threadID !== request.threadID)
     ) {
       rowToSave.unread = true;
@@ -581,7 +593,7 @@ async function joinThread(
   const messageData = {
     type: messageTypes.JOIN_THREAD,
     threadID: request.threadID,
-    creatorID: viewer.id,
+    creatorID: viewer.userID,
     time: Date.now(),
   };
   const [ membershipResult ] = await Promise.all([

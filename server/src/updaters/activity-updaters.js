@@ -25,7 +25,7 @@ async function activityUpdater(
   request: UpdateActivityRequest,
 ): Promise<UpdateActivityResult> {
   if (!viewer.loggedIn) {
-    throw new ServerError('invalid_credentials');
+    throw new ServerError('not_logged_in');
   }
 
   const unverifiedThreadIDs = new Set();

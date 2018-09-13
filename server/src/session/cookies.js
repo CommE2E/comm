@@ -1,10 +1,21 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types';
-import type { RawThreadInfo } from 'lib/types/thread-types';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
-import type { Platform, PlatformDetails } from 'lib/types/device-types';
+import {
+  type SessionChange,
+  cookieLifetime,
+  cookieSources,
+  type CookieSource,
+  cookieTypes,
+  sessionIdentifierTypes,
+  type SessionIdentifierType,
+} from 'lib/types/session-types';
+import {
+  type Platform,
+  type PlatformDetails,
+  isDeviceType,
+} from 'lib/types/device-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
@@ -23,19 +34,6 @@ import { handleAsyncPromise } from '../responders/handlers';
 
 const { baseDomain, basePath, https } = urlFacts;
 
-const cookieLifetime = 30*24*60*60*1000; // in milliseconds
-const cookieSource = Object.freeze({
-  BODY: 0,
-  HEADER: 1,
-  GENERATED: 2,
-});
-export type CookieSource = $Values<typeof cookieSource>;
-const cookieType = Object.freeze({
-  USER: "user",
-  ANONYMOUS: "anonymous",
-});
-type CookieType = $Values<typeof cookieType>;
-
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();
 }
@@ -45,33 +43,34 @@ type FetchViewerResult =
   | {|
       type: "nonexistant",
       cookieName: ?string,
-      source: CookieSource,
-      sessionID: ?string,
+      cookieSource: ?CookieSource,
+      sessionIdentifierType: SessionIdentifierType,
     |}
   | {|
       type: "invalidated",
       cookieName: string,
       cookieID: string,
-      source: CookieSource,
+      cookieSource: CookieSource,
+      sessionIdentifierType: SessionIdentifierType,
       platformDetails: ?PlatformDetails,
-      sessionID: ?string,
     |};
 
 async function fetchUserViewer(
   cookie: string,
-  source: CookieSource,
+  cookieSource: CookieSource,
   req: $Request,
 ): Promise<FetchViewerResult> {
+  const sessionIdentifierType = getSessionIdentifierTypeFromRequestBody(req);
   const [ cookieID, cookiePassword ] = cookie.split(':');
-  const sessionID = getSessionIDFromRequestBody(req);
   if (!cookieID || !cookiePassword) {
     return {
       type: "nonexistant",
-      cookieName: cookieType.USER,
-      source,
-      sessionID,
+      cookieName: cookieTypes.USER,
+      cookieSource,
+      sessionIdentifierType,
     };
   }
+
   const query = SQL`
     SELECT hash, user, last_used, platform, device_token, versions
     FROM cookies
@@ -81,9 +80,9 @@ async function fetchUserViewer(
   if (result.length === 0) {
     return {
       type: "nonexistant",
-      cookieName: cookieType.USER,
-      source,
-      sessionID,
+      cookieName: cookieTypes.USER,
+      cookieSource,
+      sessionIdentifierType,
     };
   }
 
@@ -105,45 +104,45 @@ async function fetchUserViewer(
   ) {
     return {
       type: "invalidated",
-      cookieName: cookieType.USER,
+      cookieName: cookieTypes.USER,
       cookieID,
-      source,
+      cookieSource,
+      sessionIdentifierType,
       platformDetails,
-      sessionID,
     };
   }
   const userID = cookieRow.user.toString();
-  const viewer = new Viewer(
-    {
-      loggedIn: true,
-      id: userID,
-      platformDetails,
-      deviceToken: cookieRow.device_token,
-      userID,
-      cookieID,
-      cookiePassword,
-      sessionID,
-    },
-    source,
-  );
+  const viewer = new Viewer({
+    loggedIn: true,
+    id: userID,
+    platformDetails,
+    deviceToken: cookieRow.device_token,
+    userID,
+    cookieSource,
+    cookieID,
+    cookiePassword,
+    sessionIdentifierType,
+    sessionID: getSessionIDFromRequestBody(req),
+  });
   return { type: "valid", viewer };
 }
 
 async function fetchAnonymousViewer(
   cookie: string,
-  source: CookieSource,
+  cookieSource: CookieSource,
   req: $Request,
 ): Promise<FetchViewerResult> {
+  const sessionIdentifierType = getSessionIdentifierTypeFromRequestBody(req);
   const [ cookieID, cookiePassword ] = cookie.split(':');
-  const sessionID = getSessionIDFromRequestBody(req);
   if (!cookieID || !cookiePassword) {
     return {
       type: "nonexistant",
-      cookieName: cookieType.ANONYMOUS,
-      source,
-      sessionID,
+      cookieName: cookieTypes.ANONYMOUS,
+      cookieSource,
+      sessionIdentifierType,
     };
   }
+
   const query = SQL`
     SELECT last_used, hash, platform, device_token, versions
     FROM cookies
@@ -153,9 +152,9 @@ async function fetchAnonymousViewer(
   if (result.length === 0) {
     return {
       type: "nonexistant",
-      cookieName: cookieType.ANONYMOUS,
-      source,
-      sessionID,
+      cookieName: cookieTypes.ANONYMOUS,
+      cookieSource,
+      sessionIdentifierType,
     };
   }
 
@@ -177,25 +176,24 @@ async function fetchAnonymousViewer(
   ) {
     return {
       type: "invalidated",
-      cookieName: cookieType.ANONYMOUS,
+      cookieName: cookieTypes.ANONYMOUS,
       cookieID,
-      source,
+      cookieSource,
+      sessionIdentifierType,
       platformDetails,
-      sessionID,
     };
   }
-  const viewer = new Viewer(
-    {
-      loggedIn: false,
-      id: cookieID,
-      platformDetails,
-      deviceToken: cookieRow.device_token,
-      cookieID,
-      cookiePassword,
-      sessionID,
-    },
-    source,
-  );
+  const viewer = new Viewer({
+    loggedIn: false,
+    id: cookieID,
+    platformDetails,
+    deviceToken: cookieRow.device_token,
+    cookieSource,
+    cookieID,
+    cookiePassword,
+    sessionIdentifierType,
+    sessionID: getSessionIDFromRequestBody(req),
+  });
   return { type: "valid", viewer };
 }
 
@@ -204,51 +202,74 @@ function getSessionIDFromRequestBody(req: $Request): ?string {
   return body.sessionID;
 }
 
+function getSessionIdentifierTypeFromRequestBody(
+  req: $Request,
+): SessionIdentifierType {
+  const sessionID = getSessionIDFromRequestBody(req);
+  return sessionID === undefined
+    ? sessionIdentifierTypes.COOKIE_ID
+    : sessionIdentifierTypes.BODY_SESSION_ID;
+}
+
 // This function is meant to consume a cookie that has already been processed.
 // That means it doesn't have any logic to handle an invalid cookie, and it
 // doesn't update the cookie's last_used timestamp.
 async function fetchViewerFromCookieData(
   req: $Request,
-): Promise<?FetchViewerResult> {
+): Promise<FetchViewerResult> {
   const { user, anonymous } = req.cookies;
   if (user) {
-    return await fetchUserViewer(user, cookieSource.HEADER, req);
+    return await fetchUserViewer(user, cookieSources.HEADER, req);
   } else if (anonymous) {
-    return await fetchAnonymousViewer(anonymous, cookieSource.HEADER, req);
+    return await fetchAnonymousViewer(anonymous, cookieSources.HEADER, req);
   }
-  return null;
+  return {
+    type: "nonexistant",
+    cookieName: null,
+    cookieSource: null,
+    sessionIdentifierType: getSessionIdentifierTypeFromRequestBody(req),
+  };
 }
 
 async function fetchViewerFromRequestBody(
   req: $Request,
-): Promise<?FetchViewerResult> {
+): Promise<FetchViewerResult> {
   const body = (req.body: any);
   const cookiePair = body.cookie;
   if (cookiePair === null) {
-    const sessionID = getSessionIDFromRequestBody(req);
     return {
       type: "nonexistant",
       cookieName: null,
-      source: cookieSource.BODY,
-      sessionID,
+      cookieSource: cookieSources.BODY,
+      sessionIdentifierType: getSessionIdentifierTypeFromRequestBody(req),
     };
   }
   if (!cookiePair || !(typeof cookiePair === "string")) {
-    return null;
+    return {
+      type: "nonexistant",
+      cookieName: null,
+      cookieSource: null,
+      sessionIdentifierType: getSessionIdentifierTypeFromRequestBody(req),
+    };
   }
   const [ type, cookie ] = cookiePair.split("=");
-  if (type === cookieType.USER && cookie) {
-    return await fetchUserViewer(cookie, cookieSource.BODY, req);
-  } else if (type === cookieType.ANONYMOUS && cookie) {
-    return await fetchAnonymousViewer(cookie, cookieSource.BODY, req);
+  if (type === cookieTypes.USER && cookie) {
+    return await fetchUserViewer(cookie, cookieSources.BODY, req);
+  } else if (type === cookieTypes.ANONYMOUS && cookie) {
+    return await fetchAnonymousViewer(cookie, cookieSources.BODY, req);
   }
-  return null;
+  return {
+    type: "nonexistant",
+    cookieName: null,
+    cookieSource: null,
+    sessionIdentifierType: getSessionIdentifierTypeFromRequestBody(req),
+  };
 }
 
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   let result = await fetchViewerFromRequestBody(req);
-  if (!result) {
+  if (result.cookieSource === null || result.cookieSource === undefined) {
     result = await fetchViewerFromCookieData(req);
   }
   return await handleFetchViewerResult(result);
@@ -262,95 +283,94 @@ async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
 }
 
 async function handleFetchViewerResult(
-  result: ?FetchViewerResult,
+  result: FetchViewerResult,
   inputPlatformDetails?: PlatformDetails,
 ) {
-  if (result && result.type === "valid") {
+  if (result.type === "valid") {
     return result.viewer;
   }
 
   let platformDetails = inputPlatformDetails;
-  if (!platformDetails && result && result.type === "invalidated") {
+  if (!platformDetails && result.type === "invalidated") {
     platformDetails = result.platformDetails;
   }
 
-  const sessionID = result ? result.sessionID : null;
   const [ anonymousViewerData ] = await Promise.all([
     createNewAnonymousCookie(platformDetails),
-    result && result.type === "invalidated"
+    result.type === "invalidated"
       ? deleteCookie(result.cookieID)
       : null,
   ]);
-  const newViewerData = { ...anonymousViewerData, sessionID };
-  const source = result ? result.source : cookieSource.GENERATED;
-  const viewer = new Viewer(newViewerData, source);
 
-  if (result) {
-    viewer.cookieChanged = true;
-    // If cookieName is falsey, that means it's not an actual invalidation. It
-    // means there was a null cookie specified in the request body, which tells
-    // us that the client wants the new cookie specified in the result body.
-    if (result.cookieName) {
-      viewer.cookieInvalidated = true;
-      viewer.initialCookieName = result.cookieName;
-    }
+  // If a null cookie was specified in the request body, result.cookieSource
+  // will still be BODY here. The only way it would be null or undefined here
+  // is if there was no cookie specified in either the body or the header, in
+  // which case we default to returning the new cookie in the response header.
+  const cookieSource =
+    result.cookieSource !== null && result.cookieSource !== undefined
+      ? result.cookieSource
+      : cookieSources.HEADER;
+  const viewer = new Viewer({
+    ...anonymousViewerData,
+    cookieSource,
+    sessionIdentifierType: result.sessionIdentifierType,
+  });
+  viewer.sessionChanged = true;
+
+  // If cookieName is falsey, that tells us that there was no cookie specified
+  // in the request, which means we can't be invalidating anything.
+  if (result.cookieName) {
+    viewer.cookieInvalidated = true;
+    viewer.initialCookieName = result.cookieName;
   }
 
   return viewer;
 }
 
-type CookieChange = {|
-  threadInfos: {[id: string]: RawThreadInfo},
-  userInfos: $ReadOnlyArray<UserInfo>,
-  cookieInvalidated: bool,
-  currentUserInfo?: CurrentUserInfo,
-  cookie?: string,
-|};
-
 const domainAsURL = new url.URL(baseDomain);
-const cookieOptions = {
-  domain: domainAsURL.hostname,
-  path: basePath,
-  httpOnly: true,
-  secure: https,
-};
-
-async function addCookieChangeInfoToResult(
+async function addSessionChangeInfoToResult(
   viewer: Viewer,
   res: $Response,
   result: Object,
 ) {
   const { threadInfos, userInfos } = await fetchThreadInfos(viewer);
   const userInfosArray: any = Object.values(userInfos);
-  const cookieChange: CookieChange = {
-    threadInfos,
-    userInfos: userInfosArray,
-    cookieInvalidated: viewer.cookieInvalidated,
-  };
+  let sessionChange;
   if (viewer.cookieInvalidated) {
-    cookieChange.currentUserInfo = {
-      id: viewer.cookieID,
-      anonymous: true,
-    };
-  }
-  if (viewer.initializationSource === cookieSource.BODY) {
-    cookieChange.cookie = viewer.cookiePairString;
-  } else {
-    res.cookie(
-      viewer.cookieName,
-      viewer.cookieString,
-      {
-        ...cookieOptions,
-        maxAge: cookieLifetime,
+    sessionChange = ({
+      cookieInvalidated: true,
+      threadInfos,
+      userInfos: userInfosArray,
+      currentUserInfo: {
+        id: viewer.cookieID,
+        anonymous: true,
       },
-    );
-    if (viewer.cookieName !== viewer.initialCookieName) {
-      res.clearCookie(viewer.initialCookieName, cookieOptions);
-    }
+    }: SessionChange);
+  } else {
+    sessionChange = ({
+      cookieInvalidated: false,
+      threadInfos,
+      userInfos: userInfosArray,
+    }: SessionChange);
   }
-  result.cookieChange = cookieChange;
+  if (viewer.cookieSource === cookieSources.BODY) {
+    sessionChange.cookie = viewer.cookiePairString;
+  } else {
+    addActualHTTPCookie(viewer, res);
+  }
+  if (viewer.sessionIdentifierType === sessionIdentifierTypes.BODY_SESSION_ID) {
+    sessionChange.sessionID = viewer.sessionID ? viewer.sessionID : null;
+  }
+  result.cookieChange = sessionChange;
 }
 
+// The AnonymousViewerData returned by this function...
+// (1) Does not specify a sessionIdentifierType. This will cause an exception
+//     if passed directly to the Viewer constructor, so the caller should set it
+//     before doing so.
+// (2) Does not specify a cookieSource. This will cause an exception if passed
+//     directly to the Viewer constructor, so the caller should set it before
+//     doing so.
 const defaultPlatformDetails = {};
 async function createNewAnonymousCookie(
   platformDetails: ?PlatformDetails,
@@ -386,11 +406,21 @@ async function createNewAnonymousCookie(
     deviceToken: null,
     cookieID: id,
     cookiePassword,
-    sessionID: null,
-    insertionTime: time,
+    sessionID: undefined,
+    cookieInsertedThisRequest: true,
   };
 }
 
+// The UserViewerData returned by this function...
+// (1) Will always have an undefined sessionID. If the caller wants the response
+//     body to specify a sessionID, they need to call setSessionID on Viewer.
+// (2) Does not specify a sessionIdentifierType. Currently this function is only
+//     ever called with the intent of passing its return value to setNewCookie,
+//     which means it will inherit the earlier value of sessionIdentifierType
+//     and won't throw an exception, as it would if passed directly to the
+//     Viewer constructor.
+// (3) Does not specify a cookieSource. Same as (2), this only works because the
+//     result is never passed directly to the Viewer constructor.
 async function createNewUserCookie(
   userID: string,
   initialLastUpdate: number,
@@ -427,9 +457,9 @@ async function createNewUserCookie(
     deviceToken: null,
     userID,
     cookieID,
-    sessionID: null,
+    sessionID: undefined,
     cookiePassword,
-    insertionTime: time,
+    cookieInsertedThisRequest: true,
   };
 }
 
@@ -458,36 +488,35 @@ async function addCookieToJSONResponse(
   res: $Response,
   result: Object,
 ) {
-  if (viewer.cookieChanged) {
-    await addCookieChangeInfoToResult(viewer, res, result);
-    return;
-  }
-  if (!viewer.getData().insertionTime) {
+  if (!viewer.getData().cookieInsertedThisRequest) {
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
-  if (viewer.initializationSource !== cookieSource.BODY) {
-    res.cookie(
-      viewer.cookieName,
-      viewer.cookieString,
-      {
-        ...cookieOptions,
-        maxAge: cookieLifetime,
-      },
-    );
+  if (viewer.sessionChanged) {
+    await addSessionChangeInfoToResult(viewer, res, result);
+  } else if (viewer.cookieSource !== cookieSources.BODY) {
+    addActualHTTPCookie(viewer, res);
   }
 }
 
 function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
-  if (!viewer.getData().insertionTime) {
+  if (!viewer.getData().cookieInsertedThisRequest) {
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
+  addActualHTTPCookie(viewer, res);
+}
+
+const cookieOptions = {
+  domain: domainAsURL.hostname,
+  path: basePath,
+  httpOnly: true,
+  secure: https,
+  maxAge: cookieLifetime,
+};
+function addActualHTTPCookie(viewer: Viewer, res: $Response) {
   res.cookie(
     viewer.cookieName,
     viewer.cookieString,
-    {
-      ...cookieOptions,
-      maxAge: cookieLifetime,
-    },
+    cookieOptions,
   );
   if (viewer.cookieName !== viewer.initialCookieName) {
     res.clearCookie(viewer.initialCookieName, cookieOptions);
@@ -523,8 +552,6 @@ async function setCookiePlatformDetails(
 }
 
 export {
-  cookieLifetime,
-  cookieType,
   fetchViewerForJSONRequest,
   fetchViewerForHomeRequest,
   createNewAnonymousCookie,

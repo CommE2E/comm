@@ -39,6 +39,7 @@ import {
   conditionKeyForUpdateData,
 } from 'lib/shared/update-utils';
 import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
 import createIDs from './id-creator';
@@ -86,6 +87,10 @@ async function createUpdates(
   if (updateDatas.length === 0) {
     return defaultUpdateCreationResult;
   }
+  if (viewerInfo && !viewerInfo.viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
   const sortedUpdateDatas = [...updateDatas].sort(sortFunction);
 
   const filteredUpdateDatas: UpdateData[] = [];
