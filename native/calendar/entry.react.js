@@ -83,7 +83,6 @@ type Props = {
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionID: string,
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -112,7 +111,6 @@ class InternalEntry extends React.Component<Props, State> {
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    sessionID: PropTypes.string.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -467,7 +465,6 @@ class InternalEntry extends React.Component<Props, State> {
     try {
       const response = await this.props.createEntry({
         text,
-        sessionID: this.props.sessionID,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
           this.props.entryInfo.year,
@@ -506,7 +503,6 @@ class InternalEntry extends React.Component<Props, State> {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
       });
@@ -572,7 +568,6 @@ class InternalEntry extends React.Component<Props, State> {
       return await this.props.deleteEntry({
         entryID: serverID,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID,
         calendarQuery: this.props.calendarQuery(),
       });
     } else if (this.creating) {
@@ -684,7 +679,6 @@ registerFetchKey(deleteEntryActionTypes);
 const Entry = connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-    sessionID: state.sessionID,
     calendarQuery: nonThreadCalendarQuery(state),
   }),
   { createEntry, saveEntry, deleteEntry },

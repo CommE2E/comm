@@ -24,7 +24,7 @@ import {
 
 const lastRevisionQuery = (entryID: string) =>
   (SQL`
-    SELECT r.id, r.author, r.text, r.session_id, r.last_update, r.deleted,
+    SELECT r.id, r.author, r.text, r.session, r.last_update, r.deleted,
       DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
       d.thread, d.date, e.creation_time, e.creator
     FROM revisions r
@@ -63,10 +63,7 @@ async function deleteEntry(
 
   const text = lastRevisionRow.text;
   const viewerID = viewer.userID;
-  if (
-    request.sessionID !== lastRevisionRow.session_id &&
-    request.prevText !== text
-  ) {
+  if (viewer.session !== lastRevisionRow.session && request.prevText !== text) {
     throw new ServerError(
       'concurrent_modification',
       { db: text, ui: request.prevText },
@@ -89,12 +86,12 @@ async function deleteEntry(
     viewerID,
     text,
     request.timestamp,
-    request.sessionID,
+    viewer.session,
     request.timestamp,
     1,
   ];
   dbPromises.push(dbQuery(SQL`
-    INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
+    INSERT INTO revisions(id, entry, author, text, creation_time, session,
       last_update, deleted)
     VALUES ${[revisionRow]}
   `));
@@ -174,12 +171,12 @@ async function restoreEntry(
     viewerID,
     text,
     request.timestamp,
-    request.sessionID,
+    viewer.session,
     request.timestamp,
     0,
   ];
   dbPromises.push(dbQuery(SQL`
-    INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
+    INSERT INTO revisions(id, entry, author, text, creation_time, session,
       last_update, deleted)
     VALUES ${[revisionRow]}
   `));

@@ -57,7 +57,6 @@ type Props = {
   tabIndex: number,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionID: string,
   loggedIn: bool,
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
@@ -303,7 +302,6 @@ class Entry extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.createEntry({
         text,
-        sessionID: this.props.sessionID,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
           this.props.entryInfo.year,
@@ -342,7 +340,6 @@ class Entry extends React.PureComponent<Props, State> {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
       });
@@ -413,7 +410,6 @@ class Entry extends React.PureComponent<Props, State> {
       return await this.props.deleteEntry({
         entryID: serverID,
         prevText: this.props.entryInfo.text,
-        sessionID: this.props.sessionID,
         calendarQuery: this.props.calendarQuery(),
       });
     } else if (this.creating) {
@@ -453,7 +449,6 @@ Entry.propTypes = {
   setModal: PropTypes.func.isRequired,
   tabIndex: PropTypes.number.isRequired,
   threadInfo: threadInfoPropType.isRequired,
-  sessionID: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   calendarQuery: PropTypes.func.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
@@ -469,7 +464,6 @@ type OwnProps = {
 export default connect(
   (state: AppState, ownProps: OwnProps) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-    sessionID: state.sessionID,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     calendarQuery: nonThreadCalendarQuery(state),

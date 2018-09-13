@@ -65,7 +65,7 @@ async function createEntry(
     viewerID,
     request.text,
     request.timestamp,
-    request.sessionID,
+    viewer.session,
     request.timestamp,
     0,
   ];
@@ -75,7 +75,7 @@ async function createEntry(
     VALUES ${[entryRow]}
   `;
   const revisionInsertQuery = SQL`
-    INSERT INTO revisions(id, entry, author, text, creation_time, session_id,
+    INSERT INTO revisions(id, entry, author, text, creation_time, session,
       last_update, deleted)
     VALUES ${[revisionRow]}
   `;

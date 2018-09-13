@@ -38,7 +38,6 @@ type Props = {
   animateAndLoadEntry: (entryID: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  sessionID: string,
   loggedIn: bool,
   restoreLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
@@ -139,7 +138,6 @@ class HistoryEntry extends React.PureComponent<Props> {
     invariant(entryID, "entry should have ID");
     const result = await this.props.restoreEntry({
       entryID,
-      sessionID: this.props.sessionID,
       calendarQuery: this.props.calendarQuery(),
     });
     this.props.animateAndLoadEntry(entryID);
@@ -153,7 +151,6 @@ HistoryEntry.propTypes = {
   onClick: PropTypes.func.isRequired,
   animateAndLoadEntry: PropTypes.func.isRequired,
   threadInfo: threadInfoPropType,
-  sessionID: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   restoreLoadingStatus: PropTypes.string.isRequired,
   calendarQuery: PropTypes.func.isRequired,
@@ -167,7 +164,6 @@ export default connect(
     invariant(entryID, "entryInfo.id (serverID) should be set");
     return {
       threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-      sessionID: state.sessionID,
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),
       restoreLoadingStatus: createLoadingStatusSelector(

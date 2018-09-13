@@ -44,7 +44,7 @@ async function updateEntry(
   }
 
   const lastRevisionQuery = SQL`
-    SELECT r.id, r.author, r.text, r.session_id,
+    SELECT r.id, r.author, r.text, r.session,
       r.last_update, r.deleted, e.text AS entryText
     FROM revisions r
     LEFT JOIN entries e ON r.entry = e.id
@@ -92,7 +92,7 @@ async function updateEntry(
   let updateEntry = false;
   if (
     viewerID === lastRevisionRow.author &&
-    request.sessionID === lastRevisionRow.session_id
+    viewer.session === lastRevisionRow.session
   ) {
     if (lastRevisionRow.last_update >= request.timestamp) {
       // Updates got sent out of order and as a result an update newer than us
@@ -114,7 +114,7 @@ async function updateEntry(
       insertNewRevision = true;
     }
   } else if (
-    request.sessionID !== lastRevisionRow.session_id &&
+    viewer.session !== lastRevisionRow.session &&
     request.prevText !== lastRevisionRow.text
   ) {
     throw new ServerError(
@@ -145,13 +145,13 @@ async function updateEntry(
       viewerID,
       request.text,
       request.timestamp,
-      request.sessionID,
+      viewer.session,
       request.timestamp,
       0,
     ];
     dbPromises.push(dbQuery(SQL`
       INSERT INTO revisions(id, entry, author, text, creation_time,
-        session_id, last_update, deleted)
+        session, last_update, deleted)
       VALUES ${[revisionRow]}
     `));
   }
