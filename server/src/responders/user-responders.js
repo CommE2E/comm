@@ -227,12 +227,12 @@ async function logInResponder(
 
   const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, newPingTime, request.platformDetails),
+    createNewUserCookie(id, request.platformDetails),
     deleteCookie(viewer.getData().cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery);
+    await setNewSession(viewer, calendarQuery, newPingTime);
   }
 
   const threadCursors = {};

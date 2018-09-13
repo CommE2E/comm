@@ -242,7 +242,7 @@ async function pingResponder(
       { ...threadsResult, calendarQuery },
     );
     promises.recordDelivery = recordDeliveredUpdate(
-      viewer.cookieID,
+      viewer.session,
       oldUpdatesCurrentAsOf,
     );
   }

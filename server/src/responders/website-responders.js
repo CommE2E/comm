@@ -106,10 +106,9 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   // TODO if thread currently in view, call activityUpdater with that thread
 
   if (viewer.loggedIn) {
-    await setNewSession(viewer, calendarQuery);
+    await setNewSession(viewer, calendarQuery, initialTime);
   }
 
-  const time = Date.now();
   const store: Store<AppState, Action> = createStore(
     reducer,
     ({
@@ -125,7 +124,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         entryInfos: _keyBy('id')(rawEntryInfos),
         daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
         actualizedCalendarQuery: calendarQuery,
-        lastUserInteractionCalendar: time,
+        lastUserInteractionCalendar: initialTime,
         inconsistencyResponses: [],
       },
       threadStore: {

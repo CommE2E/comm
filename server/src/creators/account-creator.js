@@ -82,7 +82,7 @@ async function createAccount(
     VALUES ${[newUserRow]}
   `;
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, 0, request.platformDetails),
+    createNewUserCookie(id, request.platformDetails),
     deleteCookie(viewer.getData().cookieID),
     dbQuery(newUserQuery),
     sendEmailAddressVerificationEmail(
@@ -94,7 +94,7 @@ async function createAccount(
   ]);
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery);
+    await setNewSession(viewer, calendarQuery, 0);
   }
 
   const [

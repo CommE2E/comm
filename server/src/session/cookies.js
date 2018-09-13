@@ -392,12 +392,11 @@ async function createNewAnonymousCookie(
     platform,
     time,
     time,
-    0,
     versionsString,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      last_update, versions)
+      versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -425,7 +424,6 @@ async function createNewAnonymousCookie(
 //     result is never passed directly to the Viewer constructor.
 async function createNewUserCookie(
   userID: string,
-  initialLastUpdate: number,
   platformDetails: ?PlatformDetails,
 ): Promise<UserViewerData> {
   const time = Date.now();
@@ -443,12 +441,11 @@ async function createNewUserCookie(
     platform,
     time,
     time,
-    initialLastUpdate,
     versionsString,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      last_update, versions)
+      versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -468,7 +465,11 @@ async function createNewUserCookie(
 // This gets called after createNewUserCookie and from websiteResponder. If the
 // Viewer's sessionIdentifierType is COOKIE_ID then the cookieID is used as the
 // session identifier; otherwise, a new ID is create for the session.
-async function setNewSession(viewer: Viewer, calendarQuery: CalendarQuery) {
+async function setNewSession(
+  viewer: Viewer,
+  calendarQuery: CalendarQuery,
+  initialLastUpdate: number,
+): Promise<void> {
   let sessionID;
   if (viewer.sessionIdentifierType === sessionIdentifierTypes.COOKIE_ID) {
     sessionID = viewer.cookieID;
@@ -476,7 +477,7 @@ async function setNewSession(viewer: Viewer, calendarQuery: CalendarQuery) {
     [ sessionID ] = await createIDs("sessions", 1);
   }
   viewer.setSessionID(sessionID);
-  await createSession(viewer, calendarQuery);
+  await createSession(viewer, calendarQuery, initialLastUpdate);
 }
 
 async function extendCookieLifespan(cookieID: string) {
@@ -488,13 +489,13 @@ async function extendCookieLifespan(cookieID: string) {
 }
 
 async function recordDeliveredUpdate(
-  cookieID: string,
+  sessionID: string,
   mostRecentUpdateTimestamp: number,
 ) {
   const query = SQL`
-    UPDATE cookies
+    UPDATE sessions
     SET last_update = ${mostRecentUpdateTimestamp}
-    WHERE id = ${cookieID}
+    WHERE id = ${sessionID}
   `;
   await dbQuery(query);
 }

@@ -8,6 +8,7 @@ import { dbQuery, SQL } from '../database';
 async function createSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,
+  initialLastUpdate: number,
 ): Promise<void> {
   const row = [
     viewer.session,
@@ -15,9 +16,10 @@ async function createSession(
     viewer.cookieID,
     JSON.stringify(calendarQuery),
     Date.now(),
+    initialLastUpdate,
   ];
   const query = SQL`
-    INSERT INTO sessions (id, user, cookie, query, time)
+    INSERT INTO sessions (id, user, cookie, query, time, last_update)
     VALUES ${[row]}
     ON DUPLICATE KEY UPDATE query = VALUES(query), time = VALUES(time)
   `;
