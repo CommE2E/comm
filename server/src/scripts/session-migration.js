@@ -5,7 +5,10 @@ import createIDs from '../creators/id-creator';
 
 async function main() {
   try {
-    await migrateFiltersToSessions();
+    await migrateFiltersTableToSessions();
+    await migrateSessionsRelatedColumns();
+    await migrateUpdatesTable();
+    //await cleanup();
     pool.end();
   } catch (e) {
     pool.end();
@@ -13,7 +16,7 @@ async function main() {
   }
 }
 
-async function migrateFiltersToSessions() {
+async function migrateFiltersTableToSessions() {
   await dbQuery(SQL`RENAME TABLE filters TO sessions`);
   await dbQuery(SQL`ALTER TABLE sessions ADD id BIGINT(20) NOT NULL FIRST`);
   await dbQuery(
@@ -74,10 +77,46 @@ async function migrateFiltersToSessions() {
         last_update = VALUES(last_update)
     `);
   }
+}
 
+async function migrateSessionsRelatedColumns() {
+  await dbQuery(
+    SQL`ALTER TABLE focused CHANGE cookie session BIGINT(20) NOT NULL`
+  );
+  await dbQuery(SQL`ALTER TABLE revisions DROP session_id`);
+  await dbQuery(SQL`
+    ALTER TABLE revisions ADD session BIGINT(20) NOT NULL AFTER creation_time
+  `);
+}
+
+async function migrateUpdatesTable() {
+  await dbQuery(SQL`
+    ALTER TABLE updates CHANGE updater old_updater VARCHAR(255)
+    CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL
+  `);
+  await dbQuery(SQL`
+    ALTER TABLE updates CHANGE target old_target VARCHAR(255)
+    CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL
+  `);
+  await dbQuery(SQL`
+    ALTER TABLE updates
+    ADD updater BIGINT(20) NULL DEFAULT NULL AFTER \`key\`,
+    ADD target BIGINT(20) NULL DEFAULT NULL AFTER updater
+  `);
+  await dbQuery(SQL`
+    UPDATE updates u
+    LEFT JOIN sessions s1 ON s1.session = u.old_updater
+    LEFT JOIN sessions s2 ON s2.session = u.old_target
+    SET u.updater = s1.id, u.target = s2.id
+  `);
+}
+
+async function cleanup() {
   await dbQuery(SQL`ALTER TABLE sessions DROP PRIMARY KEY`);
   await dbQuery(SQL`ALTER TABLE sessions ADD PRIMARY KEY(id)`);
   await dbQuery(SQL`ALTER TABLE sessions DROP session`);
+  await dbQuery(SQL`ALTER TABLE cookies DROP last_update`);
+  await dbQuery(SQL`ALTER TABLE updates DROP old_updater, DROP old_target`);
 }
 
 main();
