@@ -8,7 +8,7 @@ async function main() {
     await migrateFiltersTableToSessions();
     await migrateSessionsRelatedColumns();
     await migrateUpdatesTable();
-    //await cleanup();
+    await cleanup();
     pool.end();
   } catch (e) {
     pool.end();
@@ -41,6 +41,9 @@ async function migrateFiltersTableToSessions() {
   `);
   const newColumns = [], needID = [];
   for (let row of result) {
+    if (!row.last_update) {
+      continue;
+    }
     if (!row.old_session_id) {
       newColumns.push([
         row.cookie,
