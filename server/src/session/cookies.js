@@ -209,6 +209,9 @@ function getSessionIDFromRequestBody(req: $Request): ?string {
 function getSessionIdentifierTypeFromRequestBody(
   req: $Request,
 ): SessionIdentifierType {
+  if (req.method === "GET") {
+    return sessionIdentifierTypes.BODY_SESSION_ID;
+  }
   const sessionID = getSessionIDFromRequestBody(req);
   return sessionID === undefined
     ? sessionIdentifierTypes.COOKIE_ID
