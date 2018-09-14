@@ -317,26 +317,32 @@ async function recordThreadPollPushInconsistency(
   await createReport(viewer, reportCreationRequest);
 }
 
+type SessionInitializationResult = {|
+  // If this request is part of an already initialized session, then the
+  // session is being continued, and we don't have to return as much stuff
+  // TODO actually consume this info
+  sessionContinued: bool,
+|};
 async function initializeSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,
   oldLastUpdate: ?number,
-): Promise<void> {
+): Promise<SessionInitializationResult> {
   if (!viewer.loggedIn) {
-    return;
+    return { sessionContinued: false };
   }
 
-  let sessionInitialized = true, sessionUpdate = {};
+  let sessionAlreadyInitialized = true, sessionUpdate = {};
   try {
     sessionUpdate = await compareNewCalendarQuery(viewer, calendarQuery);
   } catch (e) {
     if (e.message !== "unknown_error") {
       throw e;
     }
-    sessionInitialized = false;
+    sessionAlreadyInitialized = false;
   }
 
-  if (sessionInitialized) {
+  if (sessionAlreadyInitialized) {
     if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
       sessionUpdate.lastUpdate = oldLastUpdate;
     }
@@ -345,6 +351,8 @@ async function initializeSession(
     // We're only able to create the session if we have oldLastUpdate
     await setNewSession(viewer, calendarQuery, oldLastUpdate);
   }
+
+  return { sessionContinued: sessionAlreadyInitialized };
 }
 
 export {
