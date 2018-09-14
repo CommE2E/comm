@@ -17,6 +17,7 @@ import {
   isDeviceType,
 } from 'lib/types/device-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
@@ -342,7 +343,7 @@ async function addSessionChangeInfoToResult(
     sessionChange = ({
       cookieInvalidated: true,
       threadInfos,
-      userInfos: values(userInfos),
+      userInfos: (values(userInfos).map(a => a): UserInfo[]),
       currentUserInfo: {
         id: viewer.cookieID,
         anonymous: true,
@@ -352,7 +353,7 @@ async function addSessionChangeInfoToResult(
     sessionChange = ({
       cookieInvalidated: false,
       threadInfos,
-      userInfos: values(userInfos),
+      userInfos: (values(userInfos).map(a => a): UserInfo[]),
     }: SessionChange);
   }
   if (viewer.cookieSource === cookieSources.BODY) {
