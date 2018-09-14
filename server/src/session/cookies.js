@@ -80,7 +80,10 @@ async function fetchUserViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
-  const [ result ] = await dbQuery(query);
+  const [ [ result ], sessionID ] = await Promise.all([
+    dbQuery(query),
+    getValidatedSessionIDFromRequestBody(req, cookieID),
+  ]);
   if (result.length === 0) {
     return {
       type: "nonexistant",
@@ -126,7 +129,7 @@ async function fetchUserViewer(
     cookieID,
     cookiePassword,
     sessionIdentifierType,
-    sessionID: getSessionIDFromRequestBody(req),
+    sessionID,
   });
   return { type: "valid", viewer };
 }
@@ -152,7 +155,10 @@ async function fetchAnonymousViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
-  const [ result ] = await dbQuery(query);
+  const [ [ result ], sessionID ] = await Promise.all([
+    dbQuery(query),
+    getValidatedSessionIDFromRequestBody(req, cookieID),
+  ]);
   if (result.length === 0) {
     return {
       type: "nonexistant",
@@ -196,7 +202,7 @@ async function fetchAnonymousViewer(
     cookieID,
     cookiePassword,
     sessionIdentifierType,
-    sessionID: getSessionIDFromRequestBody(req),
+    sessionID,
   });
   return { type: "valid", viewer };
 }
@@ -216,6 +222,23 @@ function getSessionIdentifierTypeFromRequestBody(
   return sessionID === undefined
     ? sessionIdentifierTypes.COOKIE_ID
     : sessionIdentifierTypes.BODY_SESSION_ID;
+}
+
+async function getValidatedSessionIDFromRequestBody(
+  req: $Request,
+  cookieID: string,
+): Promise<?string> {
+  const sessionID = getSessionIDFromRequestBody(req);
+  if (!sessionID) {
+    return sessionID;
+  }
+  const query = SQL`
+    SELECT id
+    FROM sessions
+    WHERE id = ${sessionID} AND cookie = ${cookieID}
+  `;
+  const [ result ] = await dbQuery(query);
+  return result.length > 0 ? sessionID : null;
 }
 
 // This function is meant to consume a cookie that has already been processed.
