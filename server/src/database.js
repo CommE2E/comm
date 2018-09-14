@@ -71,6 +71,7 @@ function rawSQL(statement: SQLStatement) {
 }
 
 export {
+  pool,
   SQL,
   SQLStatement,
   appendSQLArray,
