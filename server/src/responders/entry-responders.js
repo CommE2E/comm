@@ -40,7 +40,10 @@ import {
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
-import { updateSessionCalendarQuery } from '../updaters/session-updaters';
+import {
+  compareNewCalendarQuery,
+  commitSessionUpdate,
+} from '../updaters/session-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),
@@ -217,13 +220,12 @@ async function calendarQueryUpdateResponder(
     throw new ServerError('not_logged_in');
   }
 
-  // TODO: updateSessionCalendarQuery should actually return the EntryInfos
-  // directly, and should only include the diff between the previous and the new
-  // filter.
-  const [ response ] = await Promise.all([
+  const [ response, sessionUpdate ] = await Promise.all([
     fetchEntryInfos(viewer, request),
-    updateSessionCalendarQuery(viewer, request),
+    compareNewCalendarQuery(viewer, request),
   ]);
+  await commitSessionUpdate(viewer, sessionUpdate);
+
   return {
     rawEntryInfos: response.rawEntryInfos,
     userInfos: values(response.userInfos),

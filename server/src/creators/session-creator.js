@@ -21,7 +21,10 @@ async function createSession(
   const query = SQL`
     INSERT INTO sessions (id, user, cookie, query, time, last_update)
     VALUES ${[row]}
-    ON DUPLICATE KEY UPDATE query = VALUES(query), time = VALUES(time)
+    ON DUPLICATE KEY UPDATE
+      query = VALUES(query),
+      time = VALUES(time),
+      last_update = VALUES(last_update)
   `;
   await dbQuery(query);
 }

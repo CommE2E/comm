@@ -515,18 +515,6 @@ async function extendCookieLifespan(cookieID: string) {
   await dbQuery(query);
 }
 
-async function recordDeliveredUpdate(
-  sessionID: string,
-  mostRecentUpdateTimestamp: number,
-) {
-  const query = SQL`
-    UPDATE sessions
-    SET last_update = ${mostRecentUpdateTimestamp}
-    WHERE id = ${sessionID}
-  `;
-  await dbQuery(query);
-}
-
 async function addCookieToJSONResponse(
   viewer: Viewer,
   res: $Response,
@@ -601,7 +589,6 @@ export {
   createNewAnonymousCookie,
   createNewUserCookie,
   setNewSession,
-  recordDeliveredUpdate,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
   setCookiePlatform,

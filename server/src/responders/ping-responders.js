@@ -42,13 +42,15 @@ import {
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
-  recordDeliveredUpdate,
   setCookiePlatform,
   setCookiePlatformDetails,
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
-import { updateSessionCalendarQuery } from '../updaters/session-updaters';
+import {
+  compareNewCalendarQuery,
+  commitSessionUpdate,
+} from '../updaters/session-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingCookie,
 } from '../deleters/update-deleters';
@@ -241,10 +243,6 @@ async function pingResponder(
       oldUpdatesCurrentAsOf,
       { ...threadsResult, calendarQuery },
     );
-    promises.recordDelivery = recordDeliveredUpdate(
-      viewer.session,
-      oldUpdatesCurrentAsOf,
-    );
   }
 
   const { fetchUpdateResult } = await promiseAll(promises);
@@ -321,25 +319,31 @@ async function recordThreadPollPushInconsistency(
 
 async function initializeSession(
   viewer: Viewer,
-  calendarQuery: ?CalendarQuery,
-  initialLastUpdate: ?number,
+  calendarQuery: CalendarQuery,
+  oldLastUpdate: ?number,
 ): Promise<void> {
-  if (!viewer.loggedIn || !calendarQuery) {
+  if (!viewer.loggedIn) {
     return;
   }
 
+  let sessionInitialized = true, sessionUpdate = {};
   try {
-    await updateSessionCalendarQuery(viewer, calendarQuery);
-    return;
+    sessionUpdate = await compareNewCalendarQuery(viewer, calendarQuery);
   } catch (e) {
     if (e.message !== "unknown_error") {
       throw e;
     }
+    sessionInitialized = false;
   }
 
-  // If we're still here, that's because the session doesn't exist
-  if (initialLastUpdate !== null && initialLastUpdate !== undefined) {
-    await createSession(viewer, calendarQuery, initialLastUpdate);
+  if (sessionInitialized) {
+    if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
+      sessionUpdate.lastUpdate = oldLastUpdate;
+    }
+    await commitSessionUpdate(viewer, sessionUpdate);
+  } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
+    // We're only able to create the session if we have oldLastUpdate
+    await createSession(viewer, calendarQuery, oldLastUpdate);
   }
 }
 
