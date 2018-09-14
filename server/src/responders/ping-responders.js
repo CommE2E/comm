@@ -9,6 +9,7 @@ import {
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 import { reportTypes } from 'lib/types/report-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -51,6 +52,7 @@ import { updateSessionCalendarQuery } from '../updaters/session-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingCookie,
 } from '../deleters/update-deleters';
+import { createSession } from '../creators/session-creator';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -220,9 +222,7 @@ async function pingResponder(
     fetchThreadInfos(viewer),
     fetchEntryInfos(viewer, calendarQuery),
     fetchCurrentUserInfo(viewer),
-    viewer.loggedIn && calendarQuery
-      ? updateSessionCalendarQuery(viewer, calendarQuery)
-      : undefined,
+    initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
   ]);
 
   const promises = {};
@@ -317,6 +317,30 @@ async function recordThreadPollPushInconsistency(
     type: reportTypes.THREAD_POLL_PUSH_INCONSISTENCY,
   };
   await createReport(viewer, reportCreationRequest);
+}
+
+async function initializeSession(
+  viewer: Viewer,
+  calendarQuery: ?CalendarQuery,
+  initialLastUpdate: ?number,
+): Promise<void> {
+  if (!viewer.loggedIn || !calendarQuery) {
+    return;
+  }
+
+  try {
+    await updateSessionCalendarQuery(viewer, calendarQuery);
+    return;
+  } catch (e) {
+    if (e.message !== "unknown_error") {
+      throw e;
+    }
+  }
+
+  // If we're still here, that's because the session doesn't exist
+  if (initialLastUpdate !== null && initialLastUpdate !== undefined) {
+    await createSession(viewer, calendarQuery, initialLastUpdate);
+  }
 }
 
 export {
