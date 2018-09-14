@@ -209,6 +209,11 @@ async function fetchAnonymousViewer(
 
 function getSessionIDFromRequestBody(req: $Request): ?string {
   const body = (req.body: any);
+  if (req.method === "GET" && body.sessionID === undefined) {
+    // GET requests are only done from web, and web requests should always
+    // specify a sessionID since the cookieID can't be guaranteed unique
+    return null;
+  }
   return body.sessionID;
 }
 
@@ -216,6 +221,8 @@ function getSessionIdentifierTypeFromRequestBody(
   req: $Request,
 ): SessionIdentifierType {
   if (req.method === "GET") {
+    // GET requests are only done from web, and web requests should always
+    // specify a sessionID since the cookieID can't be guaranteed unique
     return sessionIdentifierTypes.BODY_SESSION_ID;
   }
   const sessionID = getSessionIDFromRequestBody(req);
@@ -497,13 +504,10 @@ async function setNewSession(
   calendarQuery: CalendarQuery,
   initialLastUpdate: number,
 ): Promise<void> {
-  let sessionID;
-  if (viewer.sessionIdentifierType === sessionIdentifierTypes.COOKIE_ID) {
-    sessionID = viewer.cookieID;
-  } else {
-    [ sessionID ] = await createIDs("sessions", 1);
+  if (viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID) {
+    const [ sessionID ] = await createIDs("sessions", 1);
+    viewer.setSessionID(sessionID);
   }
-  viewer.setSessionID(sessionID);
   await createSession(viewer, calendarQuery, initialLastUpdate);
 }
 

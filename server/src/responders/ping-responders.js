@@ -42,6 +42,7 @@ import {
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
+  setNewSession,
   setCookiePlatform,
   setCookiePlatformDetails,
 } from '../session/cookies';
@@ -54,7 +55,6 @@ import {
 import {
   deleteUpdatesBeforeTimeTargettingCookie,
 } from '../deleters/update-deleters';
-import { createSession } from '../creators/session-creator';
 
 const pingRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
@@ -343,7 +343,7 @@ async function initializeSession(
     await commitSessionUpdate(viewer, sessionUpdate);
   } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
     // We're only able to create the session if we have oldLastUpdate
-    await createSession(viewer, calendarQuery, oldLastUpdate);
+    await setNewSession(viewer, calendarQuery, oldLastUpdate);
   }
 }
 

@@ -4,6 +4,7 @@ import {
   type CookieSource,
   type SessionIdentifierType,
   cookieTypes,
+  sessionIdentifierTypes,
 } from 'lib/types/session-types';
 import type { Platform, PlatformDetails } from 'lib/types/device-types';
 
@@ -155,10 +156,10 @@ class Viewer {
   }
 
   get session(): string {
-    if (this.sessionID) {
-      return this.sessionID;
-    } else if (this.sessionID === undefined) {
+    if (this.sessionIdentifierType === sessionIdentifierTypes.COOKIE_ID) {
       return this.cookieID;
+    } else if (this.sessionID) {
+      return this.sessionID;
     } else if (!this.loggedIn) {
       // If the sessionID was explicitly set to null, that means that the
       // cookieID can't be used as a unique session identifier, but for some
