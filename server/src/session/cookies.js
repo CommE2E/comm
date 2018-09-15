@@ -306,7 +306,10 @@ async function fetchViewerFromRequestBody(
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   let result = await fetchViewerFromRequestBody(req);
-  if (result.cookieSource === null || result.cookieSource === undefined) {
+  if (
+    result.type === "nonexistant" &&
+    (result.cookieSource === null || result.cookieSource === undefined)
+  ) {
     result = await fetchViewerFromCookieData(req);
   }
   return await handleFetchViewerResult(result);
