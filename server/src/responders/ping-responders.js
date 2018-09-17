@@ -53,7 +53,7 @@ import {
   commitSessionUpdate,
 } from '../updaters/session-updaters';
 import {
-  deleteUpdatesBeforeTimeTargettingCookie,
+  deleteUpdatesBeforeTimeTargettingSession,
 } from '../deleters/update-deleters';
 
 const pingRequestInputValidator = tShape({
@@ -234,7 +234,7 @@ async function pingResponder(
     oldUpdatesCurrentAsOf !== null &&
     oldUpdatesCurrentAsOf !== undefined
   ) {
-    promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingCookie(
+    promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
       viewer,
       oldUpdatesCurrentAsOf,
     );
@@ -317,12 +317,12 @@ async function recordThreadPollPushInconsistency(
   await createReport(viewer, reportCreationRequest);
 }
 
-type SessionInitializationResult = {|
-  // If this request is part of an already initialized session, then the
-  // session is being continued, and we don't have to return as much stuff
-  // TODO actually consume this info
-  sessionContinued: bool,
-|};
+type SessionInitializationResult =
+  | {| sessionContinued: false |}
+  | {|
+      sessionContinued: true,
+      calendarQueryDifference: $ReadOnlyArray<CalendarQuery>,
+    |};
 async function initializeSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,
@@ -332,27 +332,31 @@ async function initializeSession(
     return { sessionContinued: false };
   }
 
-  let sessionAlreadyInitialized = true, sessionUpdate = {};
+  let comparisonResult = null;
   try {
-    sessionUpdate = await compareNewCalendarQuery(viewer, calendarQuery);
+    comparisonResult = await compareNewCalendarQuery(viewer, calendarQuery);
   } catch (e) {
     if (e.message !== "unknown_error") {
       throw e;
     }
-    sessionAlreadyInitialized = false;
   }
 
-  if (sessionAlreadyInitialized) {
+  if (comparisonResult) {
+    const { difference, sessionUpdate } = comparisonResult;
     if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
       sessionUpdate.lastUpdate = oldLastUpdate;
     }
     await commitSessionUpdate(viewer, sessionUpdate);
+    return { sessionContinued: true, calendarQueryDifference: difference };
   } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
-    // We're only able to create the session if we have oldLastUpdate
     await setNewSession(viewer, calendarQuery, oldLastUpdate);
+    return { sessionContinued: false };
+  } else {
+    // We're only able to create the session if we have oldLastUpdate. At this
+    // time the only code in pingResponder that uses viewer.session should be
+    // gated on oldLastUpdate anyways, so we should be okay just returning.
+    return { sessionContinued: false };
   }
-
-  return { sessionContinued: sessionAlreadyInitialized };
 }
 
 export {

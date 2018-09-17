@@ -220,7 +220,7 @@ async function calendarQueryUpdateResponder(
     throw new ServerError('not_logged_in');
   }
 
-  const [ response, sessionUpdate ] = await Promise.all([
+  const [ response, { difference, sessionUpdate } ] = await Promise.all([
     fetchEntryInfos(viewer, request),
     compareNewCalendarQuery(viewer, request),
   ]);

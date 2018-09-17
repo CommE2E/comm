@@ -161,13 +161,10 @@ class Viewer {
     } else if (this.sessionID) {
       return this.sessionID;
     } else if (!this.loggedIn) {
-      // If the sessionID was explicitly set to null, that means that the
-      // cookieID can't be used as a unique session identifier, but for some
-      // reason the client doesn't have a sessionID. This should only happen
-      // when the user is logged out.
       throw new ServerError('not_logged_in');
     } else {
-      // That's weird...
+      // If the session identifier is sessionIdentifierTypes.BODY_SESSION_ID and
+      // the user is logged in, then the sessionID should be set.
       throw new ServerError('unknown_error');
     }
   }
