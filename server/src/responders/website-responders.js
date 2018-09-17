@@ -33,6 +33,7 @@ import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux-setup';
 import App from 'web/dist/app.build';
 import { navInfoFromURL } from 'web/url-utils';
+import { activeThreadFromNavInfo } from 'web/selectors/nav-selectors';
 
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
@@ -41,6 +42,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
+import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
 import assets from '../../compiled/assets';
 
@@ -82,6 +84,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       defaultNumberPerThread,
     ),
     navInfo.verify ? handleCodeVerificationRequest(navInfo.verify) : null,
+    viewer.loggedIn ? setNewSession(viewer, calendarQuery, initialTime) : null,
   ]);
 
   const messageStore = freshMessageStore(
@@ -90,6 +93,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     mostRecentMessageTimestamp(rawMessageInfos, initialTime),
     threadInfos,
   );
+
   const threadID = navInfo.activeChatThreadID;
   if (
     threadID &&
@@ -103,10 +107,12 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       navInfo.activeChatThreadID = mostRecentThread;
     }
   }
-  // TODO if thread currently in view, call activityUpdater with that thread
-
-  if (viewer.loggedIn) {
-    await setNewSession(viewer, calendarQuery, initialTime);
+  const activeThread = activeThreadFromNavInfo(navInfo);
+  if (activeThread) {
+    await activityUpdater(
+      viewer,
+      { updates: [ { focus: true, threadID: activeThread } ] },
+    );
   }
 
   const store: Store<AppState, Action> = createStore(

@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState, NavInfo } from '../redux-setup';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
@@ -67,10 +67,12 @@ const monthAssertingSelector = createSelector(
   monthAssertingExtractor,
 );
 
+function activeThreadFromNavInfo(navInfo: NavInfo): ?string {
+  return navInfo.tab === "chat" ? navInfo.activeChatThreadID : null;
+}
+
 function activeThreadSelector(state: AppState): ?string {
-  return state.navInfo.tab === "chat"
-    ? state.navInfo.activeChatThreadID
-    : null;
+  return activeThreadFromNavInfo(state.navInfo);
 }
 
 export {
@@ -78,5 +80,6 @@ export {
   yearAssertingSelector,
   monthExtractor,
   monthAssertingSelector,
+  activeThreadFromNavInfo,
   activeThreadSelector,
 };
