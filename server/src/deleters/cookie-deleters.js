@@ -7,14 +7,14 @@ import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 
 async function deleteCookie(cookieID: string): Promise<void> {
   await dbQuery(SQL`
-    DELETE c, i, u, iu, s, si, fo
+    DELETE c, i, s, si, u, iu, fo
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN updates u ON u.target = c.id
-    LEFT JOIN ids iu ON iu.id = u.id
     LEFT JOIN sessions s ON s.cookie = c.id
     LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN focused fo ON fo.session = s.id
+    LEFT JOIN updates u ON u.target = c.id OR u.target = s.id
+    LEFT JOIN ids iu ON iu.id = u.id
+    LEFT JOIN focused fo ON fo.session = c.id OR fo.session = s.id
     WHERE c.id = ${cookieID}
   `);
 }
@@ -31,14 +31,14 @@ async function deleteCookiesOnLogOut(
   }
 
   const query = SQL`
-    DELETE c, i, u, iu, s, si, fo
+    DELETE c, i, s, si, u, iu, fo
     FROM cookies c
     LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN updates u ON u.target = c.id
-    LEFT JOIN ids iu ON iu.id = u.id
     LEFT JOIN sessions s ON s.cookie = c.id
     LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN focused fo ON fo.session = s.id
+    LEFT JOIN updates u ON u.target = c.id OR u.target = s.id
+    LEFT JOIN ids iu ON iu.id = u.id
+    LEFT JOIN focused fo ON fo.session = c.id OR fo.session = s.id
     WHERE c.user = ${userID} AND
   `;
   query.append(mergeOrConditions(conditions));
