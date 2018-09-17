@@ -64,7 +64,6 @@ import {
   updateActivityActionTypes,
   updateActivity,
 } from 'lib/actions/ping-actions';
-import { hasWebChat } from 'lib/shared/user-utils';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -465,7 +464,7 @@ class App extends React.PureComponent<Props, State> {
     const { viewerID, unreadCount } = this.props;
     invariant(viewerID, "should be set");
     let chatBadge = null;
-    if (hasWebChat(viewerID) && unreadCount > 0) {
+    if (unreadCount > 0) {
       chatBadge = (
         <div className={css.chatBadge}>
           {unreadCount}
