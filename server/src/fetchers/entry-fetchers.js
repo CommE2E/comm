@@ -21,6 +21,7 @@ import {
   filteredThreadIDs,
   filterExists,
 } from 'lib/selectors/calendar-filter-selectors';
+import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
 
 import {
   dbQuery,
@@ -217,10 +218,44 @@ async function fetchEntryRevisionInfo(
   return revisions;
 }
 
+// calendarQueries are the "difference" queries we get from subtracting the old
+// CalendarQuery from the new one. See calendarQueryDifference.
+// oldCalendarQuery is the old CalendarQuery. We make sure none of the returned
+// RawEntryInfos match the old CalendarQuery, so that only the difference is
+// returned.
+async function fetchEntriesForSession(
+  viewer: Viewer,
+  calendarQueries: $ReadOnlyArray<CalendarQuery>,
+  oldCalendarQuery: CalendarQuery,
+): Promise<FetchEntryInfosResponse> {
+  const { rawEntryInfos, userInfos } = await fetchEntryInfos(
+    viewer,
+    calendarQueries,
+  );
+  const filteredRawEntryInfos = rawEntryInfos.filter(
+    rawEntryInfo => !rawEntryInfoWithinCalendarQuery(
+      rawEntryInfo,
+      oldCalendarQuery,
+    ),
+  );
+  const userIDs = new Set(filteredRawEntryInfos.map(
+    rawEntryInfo => rawEntryInfo.creatorID,
+  ));
+  const filteredUserInfos = {};
+  for (let userID in userInfos) {
+    if (!userIDs.has(userID)) {
+      continue;
+    }
+    filteredUserInfos[userID] = userInfos[userID];
+  }
+  return { rawEntryInfos: filteredRawEntryInfos, userInfos: filteredUserInfos };
+}
+
 export {
   fetchEntryInfo,
   fetchEntryInfosByID,
   fetchEntryInfos,
   checkThreadPermissionForEntry,
   fetchEntryRevisionInfo,
+  fetchEntriesForSession,
 };

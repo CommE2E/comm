@@ -36,6 +36,7 @@ import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
   fetchEntryRevisionInfo,
+  fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updaters';
@@ -220,11 +221,16 @@ async function calendarQueryUpdateResponder(
     throw new ServerError('not_logged_in');
   }
 
-  const [ response, { difference, sessionUpdate } ] = await Promise.all([
-    fetchEntryInfos(viewer, [ request ]),
-    compareNewCalendarQuery(viewer, request),
+  const {
+    difference,
+    oldCalendarQuery,
+    sessionUpdate,
+  } = await compareNewCalendarQuery(viewer, request);
+
+  const [ response ] = await Promise.all([
+    fetchEntriesForSession(viewer, difference, oldCalendarQuery),
+    commitSessionUpdate(viewer, sessionUpdate),
   ]);
-  await commitSessionUpdate(viewer, sessionUpdate);
 
   return {
     rawEntryInfos: response.rawEntryInfos,

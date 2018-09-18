@@ -9,7 +9,10 @@ import {
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 import { reportTypes } from 'lib/types/report-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type {
+  CalendarQuery,
+  FetchEntryInfosResponse,
+} from 'lib/types/entry-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -34,7 +37,10 @@ import {
 } from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import {
+  fetchEntryInfos,
+  fetchEntriesForSession,
+} from '../fetchers/entry-fetchers';
 import {
   updateActivityTime,
   activityUpdater,
@@ -214,6 +220,7 @@ async function pingResponder(
     threadsResult,
     entriesResult,
     currentUserInfo,
+    sessionInitializationResult,
   ] = await Promise.all([
     fetchMessageInfosSince(
       viewer,
@@ -244,7 +251,6 @@ async function pingResponder(
       { ...threadsResult, calendarQuery },
     );
   }
-
   const { fetchUpdateResult } = await promiseAll(promises);
 
   let updateUserInfos = {}, updatesResult = null;
@@ -265,11 +271,15 @@ async function pingResponder(
     };
   }
 
+  const deltaEntriesUserInfos = sessionInitializationResult.sessionContinued
+    ? sessionInitializationResult.deltaEntryInfoResult.userInfos
+    : undefined;
   const userInfos = values({
     ...messagesResult.userInfos,
     ...entriesResult.userInfos,
     ...threadsResult.userInfos,
     ...updateUserInfos,
+    ...deltaEntriesUserInfos,
   });
 
   const serverRequests = [];
@@ -301,6 +311,10 @@ async function pingResponder(
   if (updatesResult) {
     response.updatesResult = updatesResult;
   }
+  if (sessionInitializationResult.sessionContinued) {
+    response.deltaEntryInfos =
+      sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos;
+  }
 
   return response;
 }
@@ -321,7 +335,7 @@ type SessionInitializationResult =
   | {| sessionContinued: false |}
   | {|
       sessionContinued: true,
-      calendarQueryDifference: $ReadOnlyArray<CalendarQuery>,
+      deltaEntryInfoResult: FetchEntryInfosResponse,
     |};
 async function initializeSession(
   viewer: Viewer,
@@ -342,12 +356,15 @@ async function initializeSession(
   }
 
   if (comparisonResult) {
-    const { difference, sessionUpdate } = comparisonResult;
+    const { difference, sessionUpdate, oldCalendarQuery } = comparisonResult;
     if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
       sessionUpdate.lastUpdate = oldLastUpdate;
     }
-    await commitSessionUpdate(viewer, sessionUpdate);
-    return { sessionContinued: true, calendarQueryDifference: difference };
+    const [ deltaEntryInfoResult ] = await Promise.all([
+      fetchEntriesForSession(viewer, difference, oldCalendarQuery),
+      commitSessionUpdate(viewer, sessionUpdate),
+    ]);
+    return { sessionContinued: true, deltaEntryInfoResult };
   } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
     await setNewSession(viewer, calendarQuery, oldLastUpdate);
     return { sessionContinued: false };

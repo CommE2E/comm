@@ -15,6 +15,7 @@ type SessionUpdate = $Shape<{|
 |}>;
 type CalendarQueryComparisonResult = {|
   difference: $ReadOnlyArray<CalendarQuery>,
+  oldCalendarQuery: CalendarQuery,
   sessionUpdate: SessionUpdate,
 |};
 
@@ -33,7 +34,7 @@ async function compareNewCalendarQuery(
   const sessionUpdate = difference.length > 0
     ? { query: newCalendarQuery }
     : {};
-  return { difference, sessionUpdate };
+  return { difference, oldCalendarQuery, sessionUpdate };
 }
 
 async function commitSessionUpdate(
