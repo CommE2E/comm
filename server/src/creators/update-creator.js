@@ -361,7 +361,7 @@ async function fetchUpdateInfosWithUpdateDatas(
     };
     promises.calendarResult = fetchEntryInfos(
       viewerInfo.viewer,
-      threadCalendarQuery,
+      [ threadCalendarQuery ],
     );
   }
 

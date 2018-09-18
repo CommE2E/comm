@@ -122,7 +122,7 @@ async function entryFetchResponder(
 
   await verifyCalendarQueryThreadIDs(request);
 
-  return await fetchEntryInfos(viewer, request);
+  return await fetchEntryInfos(viewer, [ request ]);
 }
 
 const entryRevisionHistoryFetchInputValidator = tShape({
@@ -221,7 +221,7 @@ async function calendarQueryUpdateResponder(
   }
 
   const [ response, { difference, sessionUpdate } ] = await Promise.all([
-    fetchEntryInfos(viewer, request),
+    fetchEntryInfos(viewer, [ request ]),
     compareNewCalendarQuery(viewer, request),
   ]);
   await commitSessionUpdate(viewer, sessionUpdate);

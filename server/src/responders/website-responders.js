@@ -77,7 +77,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   ] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchCurrentUserInfo(viewer),
-    fetchEntryInfos(viewer, calendarQuery),
+    fetchEntryInfos(viewer, [ calendarQuery ]),
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,

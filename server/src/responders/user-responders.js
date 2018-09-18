@@ -247,7 +247,7 @@ async function logInResponder(
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
     request.deviceTokenUpdateRequest
       ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
       : undefined,

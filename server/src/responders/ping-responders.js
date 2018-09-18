@@ -222,7 +222,7 @@ async function pingResponder(
       defaultNumberPerThread,
     ),
     fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, calendarQuery),
+    fetchEntryInfos(viewer, [ calendarQuery ]),
     fetchCurrentUserInfo(viewer),
     initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
   ]);

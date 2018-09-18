@@ -197,7 +197,7 @@ async function updatePassword(
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;

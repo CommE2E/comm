@@ -22,7 +22,13 @@ import {
   filterExists,
 } from 'lib/selectors/calendar-filter-selectors';
 
-import { dbQuery, SQL } from '../database';
+import {
+  dbQuery,
+  SQL,
+  SQLStatement,
+  mergeAndConditions,
+  mergeOrConditions,
+} from '../database';
 
 async function fetchEntryInfo(
   viewer: Viewer,
@@ -68,25 +74,42 @@ async function fetchEntryInfosByID(
   }));
 }
 
-async function fetchEntryInfos(
-  viewer: Viewer,
-  entryQuery: CalendarQuery,
-): Promise<FetchEntryInfosResponse> {
-  let navCondition;
-  const filterToThreadIDs = filteredThreadIDs(entryQuery.filters);
+function sqlConditionForCalendarQuery(
+  calendarQuery: CalendarQuery,
+): ?SQLStatement {
+  const { filters, startDate, endDate } = calendarQuery;
+  const conditions = [];
+
+  conditions.push(SQL`d.date BETWEEN ${startDate} AND ${endDate}`);
+
+  const filterToThreadIDs = filteredThreadIDs(filters);
   if (filterToThreadIDs && filterToThreadIDs.size > 0) {
-    navCondition = SQL`AND d.thread IN (${[...filterToThreadIDs]}) `;
+    conditions.push(SQL`d.thread IN (${[...filterToThreadIDs]})`);
   } else if (filterToThreadIDs) {
     // Filter to empty set means the result is empty
-    return { rawEntryInfos: [], userInfos: {} };
+    return null;
   } else {
-    navCondition = SQL`AND m.role != 0 `;
+    conditions.push(SQL`m.role != 0`);
   }
 
-  const deletedCondition =
-    filterExists(entryQuery.filters, calendarThreadFilterTypes.NOT_DELETED)
-      ? SQL`AND e.deleted = 0 `
-      : null;
+  if (filterExists(filters, calendarThreadFilterTypes.NOT_DELETED)) {
+    conditions.push(SQL`e.deleted = 0`);
+  }
+
+  return mergeAndConditions(conditions);
+}
+
+async function fetchEntryInfos(
+  viewer: Viewer,
+  calendarQueries: $ReadOnlyArray<CalendarQuery>,
+): Promise<FetchEntryInfosResponse> {
+  const queryConditions = calendarQueries
+    .map(sqlConditionForCalendarQuery)
+    .filter(condition => condition);
+  if (queryConditions.length === 0) {
+    return { rawEntryInfos: [], userInfos: {} };
+  }
+  const queryCondition = mergeOrConditions(queryConditions);
 
   const viewerID = viewer.id;
   const query = SQL`
@@ -98,12 +121,8 @@ async function fetchEntryInfos(
     LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
     LEFT JOIN users u ON u.id = e.creator
     WHERE JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE AND
-      d.date BETWEEN ${entryQuery.startDate} AND ${entryQuery.endDate}
   `;
-  query.append(navCondition);
-  if (deletedCondition) {
-    query.append(deletedCondition);
-  }
+  query.append(queryCondition);
   query.append(SQL`ORDER BY e.creation_time DESC`);
   const [ result ] = await dbQuery(query);
 

@@ -613,7 +613,7 @@ async function joinThread(
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    calendarQuery ? fetchEntryInfos(viewer, calendarQuery) : undefined,
+    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
   ]);
 
   let userInfos = {
