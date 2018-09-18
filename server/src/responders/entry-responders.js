@@ -11,7 +11,7 @@ import type {
   RestoreEntryResponse,
   FetchEntryInfosResponse,
   FetchEntryInfosResult,
-  SaveEntryResult,
+  SaveEntryResponse,
 } from 'lib/types/entry-types';
 import type {
   FetchEntryRevisionInfosResult,
@@ -152,7 +152,7 @@ const createEntryRequestInputValidator = tShape({
 async function entryCreationResponder(
   viewer: Viewer,
   input: any,
-): Promise<SaveEntryResult> {
+): Promise<SaveEntryResponse> {
   const request: CreateEntryRequest = input;
   validateInput(createEntryRequestInputValidator, request);
   return await createEntry(viewer, request);
@@ -170,7 +170,7 @@ const saveEntryRequestInputValidator = tShape({
 async function entryUpdateResponder(
   viewer: Viewer,
   input: any,
-): Promise<SaveEntryResult> {
+): Promise<SaveEntryResponse> {
   const request: SaveEntryRequest = input;
   validateInput(saveEntryRequestInputValidator, request);
   return await updateEntry(viewer, request);

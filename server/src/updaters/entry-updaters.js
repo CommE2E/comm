@@ -2,7 +2,7 @@
 
 import type {
   SaveEntryRequest,
-  SaveEntryResult,
+  SaveEntryResponse,
   RawEntryInfo,
   CalendarQuery,
 } from 'lib/types/entry-types';
@@ -38,7 +38,7 @@ const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
 async function updateEntry(
   viewer: Viewer,
   request: SaveEntryRequest,
-): Promise<SaveEntryResult> {
+): Promise<SaveEntryResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }

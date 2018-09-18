@@ -2,7 +2,7 @@
 
 import type {
   CreateEntryRequest,
-  SaveEntryResult,
+  SaveEntryResponse,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes } from 'lib/types/message-types';
@@ -23,7 +23,7 @@ import {
 async function createEntry(
   viewer: Viewer,
   request: CreateEntryRequest,
-): Promise<SaveEntryResult> {
+): Promise<SaveEntryResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
