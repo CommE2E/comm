@@ -15,7 +15,10 @@ import { deleteOrphanedMessages } from './deleters/message-deleters';
 import { deleteOrphanedFocused } from './deleters/activity-deleters';
 import { deleteOrphanedNotifs } from './deleters/notif-deleters';
 import { deleteExpiredUpdates } from './deleters/update-deleters';
-import { deleteOrphanedSessions } from './deleters/session-deleters';
+import {
+  deleteOrphanedSessions,
+  deleteOldWebSessions,
+} from './deleters/session-deleters';
 import { backupDB } from './backups';
 
 if (cluster.isMaster) {
