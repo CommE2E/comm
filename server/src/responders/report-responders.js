@@ -25,6 +25,7 @@ import {
   fetchErrorReportInfos,
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers';
+import { newEntryQueryInputValidator } from './entry-responders';
 
 const reportCreationRequestInputValidator = t.union([
   tShape({
@@ -56,6 +57,20 @@ const reportCreationRequestInputValidator = t.union([
     pushResult: t.Object,
     lastActionTypes: t.maybe(t.list(t.String)),
     time: t.maybe(t.Number),
+  }),
+  tShape({
+    type: t.irreducible(
+      'reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY',
+      x => x === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
+    ),
+    platformDetails: tPlatformDetails,
+    beforeAction: t.Object,
+    action: t.Object,
+    calendarQuery: newEntryQueryInputValidator,
+    pollResult: t.Object,
+    pushResult: t.Object,
+    lastActionTypes: t.list(t.String),
+    time: t.Number,
   }),
 ]);
 

@@ -5,6 +5,7 @@ import {
   type ReportCreationRequest,
   type ReportCreationResponse,
   type ThreadPollPushInconsistencyReportCreationRequest,
+  type EntryPollPushInconsistencyReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
@@ -13,6 +14,7 @@ import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
 
 import { pingActionTypes } from 'lib/actions/ping-actions';
+import { filterRawEntryInfosByCalendarQuery } from 'lib/shared/entry-utils';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -37,6 +39,8 @@ async function createReport(
   if (request.type === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
     ({ type, platformDetails, time, ...report } = request);
     time = time ? time : Date.now();
+  } else if (request.type === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY) {
+    ({ type, platformDetails, time, ...report } = request);
   } else {
     ({ type, platformDetails, ...report } = request);
     time = Date.now();
@@ -90,7 +94,10 @@ async function ignoreReport(
     return true;
   }
   // The below logic is to avoid duplicate inconsistency reports
-  if (request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+  if (
+    request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY &&
+    request.type !== reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY
+  ) {
     return false;
   }
   const { type, platformDetails, time } = request;
@@ -161,27 +168,56 @@ function getSquadbotMessage(
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
       `thread IDs that are inconsistent: ${nonMatchingString}`;
+  } else if (request.type === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY) {
+    const nonMatchingEntryIDs = getInconsistentEntryIDsFromReport(request);
+    const nonMatchingString = [...nonMatchingEntryIDs].join(", ");
+    return `system detected poll/push inconsistency for ${name}!\n` +
+      `using ${platformString}\n` +
+      `occurred during ${request.action.type}\n` +
+      `entry IDs that are inconsistent: ${nonMatchingString}`;
   } else {
     return null;
   }
+}
+
+function findInconsistentObjectKeys(
+  first: {[id: string]: Object},
+  second: {[id: string]: Object},
+): Set<string> {
+  const nonMatchingIDs = new Set();
+  for (let id in first) {
+    if (!_isEqual(first[id])(second[id])) {
+      nonMatchingIDs.add(id);
+    }
+  }
+  for (let id in second) {
+    if (!first[id]) {
+      nonMatchingIDs.add(id);
+    }
+  }
+  return nonMatchingIDs;
 }
 
 function getInconsistentThreadIDsFromReport(
   request: ThreadPollPushInconsistencyReportCreationRequest,
 ): Set<string> {
   const { pushResult, pollResult, action } = request;
-  const nonMatchingThreadIDs = new Set();
-  for (let threadID in pollResult) {
-    if (!_isEqual(pushResult[threadID])(pollResult[threadID])) {
-      nonMatchingThreadIDs.add(threadID);
-    }
-  }
-  for (let threadID in pushResult) {
-    if (!pollResult[threadID]) {
-      nonMatchingThreadIDs.add(threadID);
-    }
-  }
-  return nonMatchingThreadIDs;
+  return findInconsistentObjectKeys(pollResult, pushResult);
+}
+
+function getInconsistentEntryIDsFromReport(
+  request: EntryPollPushInconsistencyReportCreationRequest,
+): Set<string> {
+  const { pushResult, pollResult, action, calendarQuery } = request;
+  const filteredPollResult = filterRawEntryInfosByCalendarQuery(
+    pollResult,
+    calendarQuery,
+  );
+  const filteredPushResult = filterRawEntryInfosByCalendarQuery(
+    pushResult,
+    calendarQuery,
+  );
+  return findInconsistentObjectKeys(filteredPollResult, filteredPushResult);
 }
 
 export default createReport;

@@ -6,9 +6,14 @@ import type { Viewer } from '../session/viewer';
 import {
   serverRequestTypes,
   type ThreadPollPushInconsistencyClientResponse,
+  type EntryPollPushInconsistencyClientResponse,
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
-import { reportTypes } from 'lib/types/report-types';
+import {
+  reportTypes,
+  type ThreadPollPushInconsistencyReportCreationRequest,
+  type EntryPollPushInconsistencyReportCreationRequest,
+} from 'lib/types/report-types';
 import type {
   CalendarQuery,
   FetchEntryInfosResponse,
@@ -32,6 +37,7 @@ import {
 } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
+  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
@@ -95,6 +101,20 @@ const pingRequestInputValidator = tShape({
       pushResult: t.Object,
       lastActionTypes: t.maybe(t.list(t.String)),
       time: t.maybe(t.Number),
+    }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY',
+        x => x === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
+      ),
+      platformDetails: tPlatformDetails,
+      beforeAction: t.Object,
+      action: t.Object,
+      calendarQuery: newEntryQueryInputValidator,
+      pollResult: t.Object,
+      pushResult: t.Object,
+      lastActionTypes: t.list(t.String),
+      time: t.Number,
     }),
     tShape({
       type: t.irreducible(
@@ -190,6 +210,13 @@ async function pingResponder(
           serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
       ) {
         clientResponsePromises.push(recordThreadPollPushInconsistency(
+          viewer,
+          clientResponse,
+        ));
+      } else if (
+        clientResponse.type === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY
+      ) {
+        clientResponsePromises.push(recordEntryPollPushInconsistency(
           viewer,
           clientResponse,
         ));
@@ -324,10 +351,22 @@ async function recordThreadPollPushInconsistency(
   response: ThreadPollPushInconsistencyClientResponse,
 ): Promise<void> {
   const { type, ...rest } = response;
-  const reportCreationRequest = {
+  const reportCreationRequest = ({
     ...rest,
     type: reportTypes.THREAD_POLL_PUSH_INCONSISTENCY,
-  };
+  }: ThreadPollPushInconsistencyReportCreationRequest);
+  await createReport(viewer, reportCreationRequest);
+}
+
+async function recordEntryPollPushInconsistency(
+  viewer: Viewer,
+  response: EntryPollPushInconsistencyClientResponse,
+): Promise<void> {
+  const { type, ...rest } = response;
+  const reportCreationRequest = ({
+    ...rest,
+    type: reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
+  }: EntryPollPushInconsistencyReportCreationRequest);
   await createReport(viewer, reportCreationRequest);
 }
 
