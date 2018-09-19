@@ -155,6 +155,10 @@ async function updateEntry(
       VALUES ${[revisionRow]}
     `));
   }
+  const updatedEntryInfo = {
+    ...entryInfo,
+    text: request.text,
+  };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
     createMessages([{
@@ -169,6 +173,7 @@ async function updateEntry(
     createUpdateDatasForChangedEntryInfo(
       viewer,
       entryInfo,
+      updatedEntryInfo,
       request.calendarQuery,
     ),
     Promise.all(dbPromises),
@@ -176,25 +181,22 @@ async function updateEntry(
   return { entryID: request.entryID, newMessageInfos, updatesResult };
 }
 
-// The passed-in RawEntryInfo doesn't need to be the version with updated text,
-// as the returned UpdateInfos will have newly fetched RawEntryInfos. However,
-// the passed-in RawEntryInfo's date is used for determining which clients need
-// the update. Right now it's impossible to change an entry's date, but when it
-// becomes possible, we will need to update both clients with the old date and
-// clients with the new date.
 async function createUpdateDatasForChangedEntryInfo(
   viewer: Viewer,
-  entryInfo: RawEntryInfo,
+  oldEntryInfo: ?RawEntryInfo,
+  newEntryInfo: RawEntryInfo,
   inputCalendarQuery: ?CalendarQuery,
 ): Promise<CreateUpdatesResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
 
-  const entryID = entryInfo.id;
+  const entryID = newEntryInfo.id;
   invariant(entryID, "should be set");
   const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
-    fetchActiveSessionsForThread(entryInfo.threadID),
+    // If we ever make it possible to move entries from one thread to another,
+    // we should update this code rto look at oldEntryInfo.threadID as well
+    fetchActiveSessionsForThread(newEntryInfo.threadID),
     inputCalendarQuery ? undefined : fetchSessionCalendarQuery(viewer),
   ]);
 
@@ -224,7 +226,10 @@ async function createUpdateDatasForChangedEntryInfo(
 
   const time = Date.now();
   const updateDatas = filters.filter(
-    filter => rawEntryInfoWithinCalendarQuery(entryInfo, filter.calendarQuery),
+    filter =>
+      rawEntryInfoWithinCalendarQuery(newEntryInfo, filter.calendarQuery) ||
+      (oldEntryInfo &&
+        rawEntryInfoWithinCalendarQuery(oldEntryInfo, filter.calendarQuery)),
   ).map(filter => ({
     type: updateTypes.UPDATE_ENTRY,
     userID: filter.userID,

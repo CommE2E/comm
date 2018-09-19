@@ -42,7 +42,7 @@ async function fetchActiveSessionsForThread(
   for (let row of result) {
     filters.push({
       userID: row.user.toString(),
-      session: row.id,
+      session: row.id.toString(),
       calendarQuery: row.query,
     });
   }

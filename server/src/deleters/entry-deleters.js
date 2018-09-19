@@ -19,7 +19,7 @@ import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 import {
-  createUpdateDatasForChangedEntryInfo
+  createUpdateDatasForChangedEntryInfo,
 } from '../updaters/entry-updaters';
 
 const lastRevisionQuery = (entryID: string) =>
@@ -107,7 +107,7 @@ async function deleteEntry(
     text,
   };
 
-  const rawEntryInfo = {
+  const oldEntryInfo = {
     id: request.entryID,
     threadID,
     text,
@@ -116,14 +116,19 @@ async function deleteEntry(
     day: lastRevisionRow.day,
     creationTime: lastRevisionRow.creation_time,
     creatorID: lastRevisionRow.creator.toString(),
+    deleted: false,
+  };
+  const newEntryInfo = {
+    ...oldEntryInfo,
     deleted: true,
-  }
+  };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
     createMessages([messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
-      rawEntryInfo,
+      oldEntryInfo,
+      newEntryInfo,
       request.calendarQuery,
     ),
     Promise.all(dbPromises),
@@ -192,7 +197,7 @@ async function restoreEntry(
     text,
   };
 
-  const entryInfo = {
+  const oldEntryInfo = {
     id: request.entryID,
     threadID,
     text,
@@ -201,6 +206,10 @@ async function restoreEntry(
     day: lastRevisionRow.day,
     creationTime: lastRevisionRow.creation_time,
     creatorID: lastRevisionRow.creator.toString(),
+    deleted: true,
+  };
+  const newEntryInfo = {
+    ...oldEntryInfo,
     deleted: false,
   };
 
@@ -208,13 +217,14 @@ async function restoreEntry(
     createMessages([messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
-      entryInfo,
+      oldEntryInfo,
+      newEntryInfo,
       request.calendarQuery,
     ),
     Promise.all(dbPromises),
   ]);
 
-  return { entryInfo, newMessageInfos, updatesResult };
+  return { entryInfo: newEntryInfo, newMessageInfos, updatesResult };
 }
 
 async function deleteOrphanedEntries(): Promise<void> {

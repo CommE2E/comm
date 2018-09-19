@@ -17,7 +17,7 @@ import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import {
-  createUpdateDatasForChangedEntryInfo
+  createUpdateDatasForChangedEntryInfo,
 } from '../updaters/entry-updaters';
 
 async function createEntry(
@@ -107,6 +107,7 @@ async function createEntry(
     createMessages([messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
+      null,
       rawEntryInfo,
       request.calendarQuery,
     ),

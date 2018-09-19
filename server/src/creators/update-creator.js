@@ -38,7 +38,6 @@ import {
   keyForUpdateInfo,
   conditionKeyForUpdateData,
 } from 'lib/shared/update-utils';
-import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
@@ -195,10 +194,6 @@ async function createUpdates(
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
-    if (viewerInfo && updateData.userID === viewerInfo.viewer.id) {
-      viewerUpdateDatas.push({ data: updateData, id: ids[i] });
-    }
-
     let content, target = null;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
@@ -223,6 +218,20 @@ async function createUpdates(
       target = targetSession;
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
+    }
+
+    if (
+      viewerInfo &&
+      updateData.userID === viewerInfo.viewer.id &&
+      (!target || target === viewerInfo.viewer.session)
+    ) {
+      viewerUpdateDatas.push({ data: updateData, id: ids[i] });
+    }
+
+    if (viewerInfo && target && viewerInfo.viewer.session === target) {
+      // In the case where this update is being created only for the current
+      // session, there's no reason to insert a row into the updates table
+      continue;
     }
 
     const key = keyForUpdateData(updateData);
@@ -394,7 +403,6 @@ async function fetchUpdateInfosWithUpdateDatas(
     {
       threadInfosResult,
       messageInfosResult,
-      calendarQuery,
       calendarResult,
       entryInfosResult,
     },
@@ -404,7 +412,6 @@ async function fetchUpdateInfosWithUpdateDatas(
 export type UpdateInfosRawData = {|
   threadInfosResult: FetchThreadInfosResult,
   messageInfosResult: ?FetchMessageInfosResult,
-  calendarQuery: CalendarQuery,
   calendarResult: ?FetchEntryInfosResponse,
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
 |};
@@ -415,7 +422,6 @@ async function updateInfosFromUpdateDatas(
   const {
     threadInfosResult,
     messageInfosResult,
-    calendarQuery,
     calendarResult,
     entryInfosResult,
   } = rawData;
@@ -503,9 +509,6 @@ async function updateInfosFromUpdateDatas(
         candidate => candidate.id === updateData.entryID,
       );
       invariant(entryInfo, "should be set");
-      if (!rawEntryInfoWithinCalendarQuery(entryInfo, calendarQuery)) {
-        continue;
-      }
       userIDs = new Set([
         ...userIDs,
         ...usersInRawEntryInfos([entryInfo]),
