@@ -1023,20 +1023,19 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       });
     }
 
-    let start: ?Date = null;
-    let end: ?Date = null;
+    let startDate = null, endDate = null;
     if (topLoader && !this.topLoaderWaitingToLeaveView) {
       this.topLoaderWaitingToLeaveView = true;
-      start = dateFromString(this.props.startDate);
+      const start = dateFromString(this.props.startDate);
       start.setDate(start.getDate() - 31);
-      end = dateFromString(this.props.startDate);
-      end.setDate(end.getDate() - 1);
+      startDate = dateString(start);
+      endDate = this.props.endDate;
     } else if (bottomLoader && !this.bottomLoaderWaitingToLeaveView) {
       this.bottomLoaderWaitingToLeaveView = true;
-      start = dateFromString(this.props.endDate);
-      start.setDate(start.getDate() + 1);
-      end = dateFromString(this.props.endDate);
+      const end = dateFromString(this.props.endDate);
       end.setDate(end.getDate() + 31);
+      endDate = dateString(end);
+      startDate = this.props.startDate;
     } else {
       return;
     }
@@ -1044,8 +1043,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery({
-        startDate: dateString(start),
-        endDate: dateString(end),
+        startDate,
+        endDate,
         filters: this.props.calendarFilters,
       }),
     );
