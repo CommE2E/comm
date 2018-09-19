@@ -109,7 +109,6 @@ type Props = {
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
-  sessionID: string,
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -155,7 +154,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       }),
     ])),
     tabActive: PropTypes.bool.isRequired,
-    sessionID: PropTypes.string.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
@@ -186,7 +184,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   textHeights: ?Map<string, number> = null;
   currentState: ?string = NativeAppState.currentState;
   lastForegrounded = 0;
-  lastSessionReset = 0;
+  lastCalendarReset = 0;
   loadingFromScroll = false;
   currentScrollPosition: ?number = null;
   // We don't always want an extraData update to trigger a state update, so we
@@ -275,13 +273,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       // We're only handling foregrounding here
       return;
     }
-    if (Date.now() - this.lastSessionReset < 500) {
-      // If the session got reset right before this callback triggered, that
+    if (Date.now() - this.lastCalendarReset < 500) {
+      // If the calendar got reset right before this callback triggered, that
       // indicates we should reset the scroll position
-      this.lastSessionReset = 0;
+      this.lastCalendarReset = 0;
       this.scrollToToday(false);
     } else {
-      // Otherwise, it's possible that the session is about to get reset. We
+      // Otherwise, it's possible that the calendar is about to get reset. We
       // record a timestamp here so we can scrollToToday there.
       this.lastForegrounded = Date.now();
     }
@@ -367,21 +365,23 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
 
     if (
-      nextProps.sessionID !== this.props.sessionID &&
+      nextProps.listData &&
+      this.props.listData &&
+      nextProps.listData.length < this.props.listData.length &&
       this.flatList
     ) {
       if (!nextProps.tabActive) {
-        // If the sessionID gets reset and the user isn't looking we reset
+        // If the currentCalendarQuery gets reset we scroll to the center
         this.scrollToToday();
       } else if (Date.now() - this.lastForegrounded < 500) {
-        // If the app got foregrounded right before the session got reset, that
+        // If the app got foregrounded right before the calendar got reset, that
         // indicates we should reset the scroll position
         this.lastForegrounded = 0;
         this.scrollToToday(false);
       } else {
         // Otherwise, it's possible that the foreground callback is about to get
         // triggered. We record a timestamp here so we can scrollToToday there.
-        this.lastSessionReset = Date.now();
+        this.lastCalendarReset = Date.now();
       }
     }
 
@@ -1144,7 +1144,6 @@ const Calendar = connect(
   (state: AppState) => ({
     listData: calendarListData(state),
     tabActive: activeTabSelector(state),
-    sessionID: state.sessionID,
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,

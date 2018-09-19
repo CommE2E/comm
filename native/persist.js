@@ -65,6 +65,7 @@ const migrations = {
   [7]: (state) => ({
     ...state,
     lastUserInteraction: undefined,
+    sessionID: undefined,
     entryStore: {
       ...state.entryStore,
       inconsistencyResponses: [],
