@@ -70,10 +70,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   loadingFromScroll = false;
 
   componentDidMount() {
-    // In case we already have all the most recent messages,
-    // but they're not enough
-    this.onScroll();
-
     const { threadInfo } = this.props;
     if (!threadInfo || threadInChatList(threadInfo)) {
       return;
@@ -108,14 +104,18 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     ) {
       this.loadingFromScroll = false;
     }
-    if (prevProps.messageListData !== this.props.messageListData) {
+    if (
+      this.messageContainer &&
+      prevProps.messageListData !== this.props.messageListData
+    ) {
       this.onScroll();
     }
   }
 
   scrollToBottom() {
-    invariant(this.messageContainer, "should be set");
-    this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+    if (this.messageContainer) {
+      this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+    }
   }
 
   static keyExtractor(item: ChatMessageItem) {
@@ -175,13 +175,18 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
   messageContainerRef = (messageContainer: ?HTMLDivElement) => {
     this.messageContainer = messageContainer;
+    // In case we already have all the most recent messages,
+    // but they're not enough
+    this.onScroll();
     if (messageContainer) {
       messageContainer.addEventListener("scroll", this.onScroll);
     }
   }
 
   onScroll = () => {
-    invariant(this.messageContainer, "should be set");
+    if (!this.messageContainer) {
+      return;
+    }
     if (this.messageContainer.scrollTop > 55 || this.props.startReached) {
       return;
     }
