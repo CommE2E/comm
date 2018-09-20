@@ -9,6 +9,7 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
+import { pingResponseTypes } from 'lib/types/ping-types';
 
 import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
@@ -124,9 +125,13 @@ function ignoreKnownInconsistencyReport(request: ReportCreationRequest): bool {
   if (request.action.type !== pingActionTypes.success) {
     return false;
   }
+  const { payload } = request.action;
+  if (payload.type !== pingResponseTypes.FULL) {
+    return false;
+  }
   const { beforeAction, pollResult, pushResult } = request;
-  const payloadThreadInfos = request.action.payload.threadInfos;
-  const prevStateThreadInfos = request.action.payload.prevState.threadInfos;
+  const payloadThreadInfos = payload.threadInfos;
+  const prevStateThreadInfos = payload.prevState.threadInfos;
   const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
   for (let threadID of nonMatchingThreadIDs) {
     const newThreadInfo = payloadThreadInfos[threadID];
