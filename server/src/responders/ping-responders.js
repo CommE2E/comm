@@ -75,6 +75,7 @@ import {
 } from '../deleters/update-deleters';
 
 const pingRequestInputValidator = tShape({
+  type: t.maybe(t.Number),
   calendarQuery: entryQueryInputValidator,
   lastPing: t.maybe(t.Number), // deprecated
   messagesCurrentAsOf: t.maybe(t.Number),
