@@ -8,11 +8,6 @@ import type {
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
 import type { Action } from '../navigation-setup';
-import type {
-  PingStartingPayload,
-  PingActionInput,
-  PingResult,
-} from 'lib/types/ping-types';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -40,17 +35,12 @@ import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import _isEqual from 'lodash/fp/isEqual';
 
-import {
-  fetchNewCookieFromNativeCredentials,
-  createBoundServerCallsSelector,
-} from 'lib/utils/action-utils';
-import { ping } from 'lib/actions/ping-actions';
+import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import {
   appStartNativeCredentialsAutoLogIn,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
-import { dispatchPing } from 'lib/shared/ping-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
@@ -63,9 +53,8 @@ import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
-import { pingNativeStartingPayload } from '../selectors/ping-selectors';
-import { pingActionInput } from 'lib/selectors/ping-selectors';
 import { navigateToAppActionType } from '../navigation-setup';
+import { resetUserStateActionType } from '../redux-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {
@@ -82,7 +71,6 @@ import {
 
 const forceInset = { top: 'always', bottom: 'always' };
 let initialAppLoad = true;
-const boundPingSelector = createBoundServerCallsSelector(ping);
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
 type Props = {
@@ -93,8 +81,6 @@ type Props = {
   urlPrefix: string,
   loggedIn: bool,
   isForeground: bool,
-  pingStartingPayload: () => PingStartingPayload,
-  pingActionInput: (startingPayload: PingStartingPayload) => PingActionInput,
   logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -125,8 +111,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
-    pingStartingPayload: PropTypes.func.isRequired,
-    pingActionInput: PropTypes.func.isRequired,
     logInExtraInfo: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -351,19 +335,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
-    InnerLoggedOutModal.dispatchPing(nextProps, cookie);
-  }
-
-  static dispatchPing(props: Props, cookie: ?string) {
-    const boundPing = boundPingSelector({
-      dispatch: props.dispatch,
-      cookie,
-      urlPrefix: props.urlPrefix,
-      sessionID: null,
-      logInExtraInfo: props.logInExtraInfo,
-      loggedIn: props.loggedIn,
-    });
-    dispatchPing({ ...props, ping: boundPing }, true);
+    nextProps.dispatchActionPayload(resetUserStateActionType, null);
   }
 
   hardwareBack = () => {
@@ -850,8 +822,6 @@ const LoggedOutModal = connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
-    pingStartingPayload: pingNativeStartingPayload(state),
-    pingActionInput: pingActionInput(state),
     logInExtraInfo: logInExtraInfoSelector(state),
   }),
   null,

@@ -74,6 +74,8 @@ import {
 import { ComposeThreadRouteName } from './chat/compose-thread.react';
 import reactotron from './reactotron';
 
+const resetUserStateActionType = "RESET_USER_STATE";
+
 const createStore = reactotron
   ? reactotron.createStore
   : defaultCreateStore;
@@ -218,6 +220,19 @@ function reducer(state: AppState = defaultState, action: *) {
         totalAlerts: state.notifPermissionAlertInfo.totalAlerts + 1,
         lastAlertTime: action.payload.time,
       },
+    };
+  } else if (action.type === resetUserStateActionType) {
+    const cookie = state.cookie && state.cookie.startsWith("anonymous=")
+      ? state.cookie
+      : null;
+    const currentUserInfo =
+      state.currentUserInfo && state.currentUserInfo.anonymous
+        ? state.currentUserInfo
+        : null;
+    return {
+      ...state,
+      currentUserInfo,
+      cookie,
     };
   }
 
@@ -374,6 +389,7 @@ const persistor = persistStore(store);
 setPersistor(persistor);
 
 export {
+  resetUserStateActionType,
   store,
   appBecameInactive,
 };

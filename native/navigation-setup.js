@@ -13,7 +13,6 @@ import type {
   NavigationRouter,
   NavigationRoute,
 } from 'react-navigation';
-import type { PingResult } from 'lib/types/ping-types';
 import type { AppState } from './redux-setup';
 import type { SessionChange } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
@@ -324,15 +323,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setNewSessionActionType) {
     return logOutIfCookieInvalidated(navInfoState, action.payload);
-  } else if (action.type === pingActionTypes.success) {
-    return {
-      startDate: navInfoState.startDate,
-      endDate: navInfoState.endDate,
-      navigationState: removeModalsIfPingIndicatesLoggedIn(
-        navInfoState.navigationState,
-        action.payload,
-      ),
-    };
   } else if (action.type === leaveThreadActionTypes.success) {
     return {
       startDate: navInfoState.startDate,
@@ -517,27 +507,6 @@ function logOutIfCookieInvalidated(
     return newState;
   }
   return state;
-}
-
-const justLoggedOutModal = [ LoggedOutModalRouteName ];
-function removeModalsIfPingIndicatesLoggedIn(
-  state: NavigationState,
-  payload: PingResult,
-): NavigationState {
-  if (payload.currentUserInfo.anonymous) {
-    // The SET_COOKIE action should handle logging somebody out as a result of a
-    // cookie invalidation triggered by a ping server call. PING_SUCCESS is only
-    // handling specific log ins that occur from LoggedOutModal.
-    return state;
-  }
-  if (payload.loggedIn) {
-    // If the user was logged in at the time the ping was started, then the only
-    // reason they would logged out now is either a cookie invalidation or a
-    // user-initiated log out. We only want to allow a ping to log somebody in
-    // when the app is started and the user is logged out.
-    return state;
-  }
-  return removeModals(state, justLoggedOutModal);
 }
 
 function popChatScreensForThreadID(
@@ -738,11 +707,11 @@ function handleNotificationPress(
 export {
   handleURLActionType,
   navigateToAppActionType,
+  backgroundActionType,
+  foregroundActionType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
   AppRouteName,
   removeScreensFromStack,
-  backgroundActionType,
-  foregroundActionType,
 };
