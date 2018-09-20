@@ -39,8 +39,9 @@ if (cluster.isMaster) {
         await deleteOrphanedMessages();
         await deleteOrphanedFocused();
         await deleteOrphanedNotifs();
-        await deleteExpiredUpdates();
         await deleteOrphanedSessions();
+        await deleteOldWebSessions();
+        await deleteExpiredUpdates();
       } catch (e) {
         console.warn(
           "encountered error while trying to clean database",
