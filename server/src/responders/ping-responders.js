@@ -1,6 +1,10 @@
 // @flow
 
-import type { PingRequest, PingResponse } from 'lib/types/ping-types';
+import {
+  type PingRequest,
+  type PingResponse,
+  pingResponseTypes,
+} from 'lib/types/ping-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 import {
@@ -161,38 +165,35 @@ async function pingResponder(
   const { calendarQuery } = request;
   await verifyCalendarQueryThreadIDs(calendarQuery);
 
-  // We do this before the following promises because INITIAL_ACTIVITY_UPDATE
-  // can affect the unread status of the threadsResult
-  const serverRequests = await processClientResponses(
-    viewer,
-    request.clientResponses,
-  );
-
+  const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
-
-  const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
   const [
-    messagesResult,
-    threadsResult,
-    entriesResult,
-    currentUserInfo,
     sessionInitializationResult,
+    messagesResult,
+    serverRequests,
   ] = await Promise.all([
+    initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
     fetchMessageInfosSince(
       viewer,
       threadSelectionCriteria,
       clientMessagesCurrentAsOf,
       defaultNumberPerThread,
     ),
-    fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, [ calendarQuery ]),
-    fetchCurrentUserInfo(viewer),
-    initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
+    processClientResponses(
+      viewer,
+      request.clientResponses,
+    ),
   ]);
+  const incrementalUpdate = request.type === pingResponseTypes.INCREMENTAL
+    && sessionInitializationResult.sessionContinued;
+  const messagesCurrentAsOf = mostRecentMessageTimestamp(
+    messagesResult.rawMessageInfos,
+    clientMessagesCurrentAsOf,
+  );
 
   const promises = {};
   promises.activityUpdate = updateActivityTime(viewer);
@@ -208,7 +209,7 @@ async function pingResponder(
     promises.fetchUpdateResult = fetchUpdateInfos(
       viewer,
       oldUpdatesCurrentAsOf,
-      { ...threadsResult, calendarQuery },
+      calendarQuery,
     );
   }
   const { fetchUpdateResult } = await promiseAll(promises);
@@ -231,6 +232,41 @@ async function pingResponder(
     };
   }
 
+  if (incrementalUpdate) {
+    invariant(sessionInitializationResult.sessionContinued, "should be set");
+    const userInfos = values({
+      ...messagesResult.userInfos,
+      ...updateUserInfos,
+      ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+    });
+    const response: PingResponse = {
+      type: pingResponseTypes.INCREMENTAL,
+      messagesResult: {
+        rawMessageInfos: messagesResult.rawMessageInfos,
+        truncationStatuses: messagesResult.truncationStatuses,
+        currentAsOf: messagesCurrentAsOf,
+      },
+      deltaEntryInfos:
+        sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
+      userInfos,
+      serverRequests,
+    };
+    if (updatesResult) {
+      response.updatesResult = updatesResult;
+    }
+    return response;
+  }
+
+  const [
+    threadsResult,
+    entriesResult,
+    currentUserInfo,
+  ] = await Promise.all([
+    fetchThreadInfos(viewer),
+    fetchEntryInfos(viewer, [ calendarQuery ]),
+    fetchCurrentUserInfo(viewer),
+  ]);
+
   const deltaEntriesUserInfos = sessionInitializationResult.sessionContinued
     ? sessionInitializationResult.deltaEntryInfoResult.userInfos
     : undefined;
@@ -242,11 +278,8 @@ async function pingResponder(
     ...deltaEntriesUserInfos,
   });
 
-  const messagesCurrentAsOf = mostRecentMessageTimestamp(
-    messagesResult.rawMessageInfos,
-    clientMessagesCurrentAsOf,
-  );
   const response: PingResponse = {
+    type: pingResponseTypes.FULL,
     threadInfos: threadsResult.threadInfos,
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,

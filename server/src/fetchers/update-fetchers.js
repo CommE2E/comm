@@ -7,7 +7,6 @@ import {
 } from 'lib/types/update-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
-import type { FetchThreadInfosResult } from '../fetchers/thread-fetchers';
 
 import invariant from 'invariant';
 
@@ -20,14 +19,10 @@ import {
   fetchUpdateInfosWithUpdateDatas,
 } from '../creators/update-creator';
 
-type UpdateInfoQueryInput = {|
-  ...FetchThreadInfosResult,
-  calendarQuery: CalendarQuery,
-|};
 async function fetchUpdateInfos(
   viewer: Viewer,
   currentAsOf: number,
-  queryInput: UpdateInfoQueryInput,
+  calendarQuery: CalendarQuery,
 ): Promise<FetchUpdatesResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -50,7 +45,7 @@ async function fetchUpdateInfos(
 
   return await fetchUpdateInfosWithUpdateDatas(
     viewerUpdateDatas,
-    { viewer, ...queryInput },
+    { viewer, calendarQuery },
   );
 }
 
