@@ -51,6 +51,7 @@ import { activeThreadSelector } from './selectors/nav-selectors';
 import {
   handleURLActionType,
   navigateToAppActionType,
+  resetUserStateActionType,
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
@@ -73,8 +74,6 @@ import {
 } from './utils/navigation-utils';
 import { ComposeThreadRouteName } from './chat/compose-thread.react';
 import reactotron from './reactotron';
-
-const resetUserStateActionType = "RESET_USER_STATE";
 
 const createStore = reactotron
   ? reactotron.createStore
@@ -389,7 +388,6 @@ const persistor = persistStore(store);
 setPersistor(persistor);
 
 export {
-  resetUserStateActionType,
   store,
   appBecameInactive,
 };

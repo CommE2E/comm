@@ -91,6 +91,7 @@ const handleURLActionType = "HANDLE_URL";
 const navigateToAppActionType = "NAVIGATE_TO_APP";
 const backgroundActionType = "BACKGROUND";
 const foregroundActionType = "FOREGROUND";
+const resetUserStateActionType = "RESET_USER_STATE";
 
 const uniqueBaseId = `id-${Date.now()}`;
 let uuidCount = 0;
@@ -709,6 +710,7 @@ export {
   navigateToAppActionType,
   backgroundActionType,
   foregroundActionType,
+  resetUserStateActionType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,

@@ -53,8 +53,10 @@ import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
-import { navigateToAppActionType } from '../navigation-setup';
-import { resetUserStateActionType } from '../redux-setup';
+import {
+  navigateToAppActionType,
+  resetUserStateActionType,
+} from '../navigation-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {
