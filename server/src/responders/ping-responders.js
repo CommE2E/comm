@@ -7,6 +7,8 @@ import {
   serverRequestTypes,
   type ThreadPollPushInconsistencyClientResponse,
   type EntryPollPushInconsistencyClientResponse,
+  type ClientResponse,
+  type ServerRequest,
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 import {
@@ -156,90 +158,21 @@ async function pingResponder(
   ) {
     throw new ServerError('invalid_parameters');
   }
-
   const { calendarQuery } = request;
   await verifyCalendarQueryThreadIDs(calendarQuery);
+
+  // We do this before the following promises because INITIAL_ACTIVITY_UPDATE
+  // can affect the unread status of the threadsResult
+  const serverRequests = await processClientResponses(
+    viewer,
+    request.clientResponses,
+  );
 
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
-
-  let viewerMissingPlatform = !viewer.platform;
-  const platformDetails = viewer.platformDetails;
-  let viewerMissingPlatformDetails = !platformDetails ||
-    (isDeviceType(viewer.platform) &&
-      (platformDetails.codeVersion === null ||
-        platformDetails.codeVersion === undefined ||
-        platformDetails.stateVersion === null ||
-        platformDetails.stateVersion === undefined));
-  let viewerMissingDeviceToken =
-    isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
-
-  const { clientResponses } = request;
-  const clientResponsePromises = [];
-  if (clientResponses) {
-    const clientSentPlatformDetails = clientResponses.some(
-      response => response.type === serverRequestTypes.PLATFORM_DETAILS,
-    );
-    for (let clientResponse of clientResponses) {
-      if (
-        clientResponse.type === serverRequestTypes.PLATFORM &&
-        !clientSentPlatformDetails
-      ) {
-        clientResponsePromises.push(setCookiePlatform(
-          viewer.cookieID,
-          clientResponse.platform,
-        ));
-        viewerMissingPlatform = false;
-        if (!isDeviceType(clientResponse.platform)) {
-          viewerMissingPlatformDetails = false;
-        }
-      } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
-        clientResponsePromises.push(deviceTokenUpdater(
-          viewer,
-          {
-            deviceToken: clientResponse.deviceToken,
-            deviceType: assertDeviceType(viewer.platform),
-          },
-        ));
-        viewerMissingDeviceToken = false;
-      } else if (
-        clientResponse.type ===
-          serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
-      ) {
-        clientResponsePromises.push(recordThreadPollPushInconsistency(
-          viewer,
-          clientResponse,
-        ));
-      } else if (
-        clientResponse.type === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY
-      ) {
-        clientResponsePromises.push(recordEntryPollPushInconsistency(
-          viewer,
-          clientResponse,
-        ));
-      } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
-        clientResponsePromises.push(setCookiePlatformDetails(
-          viewer.cookieID,
-          clientResponse.platformDetails,
-        ));
-        viewerMissingPlatform = false;
-        viewerMissingPlatformDetails = false;
-      } else if (
-        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
-      ) {
-        clientResponsePromises.push(activityUpdater(
-          viewer,
-          { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
-        ));
-      }
-    }
-  }
-  if (clientResponsePromises.length > 0) {
-    await Promise.all(clientResponsePromises);
-  }
 
   const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
   const [
@@ -309,17 +242,6 @@ async function pingResponder(
     ...deltaEntriesUserInfos,
   });
 
-  const serverRequests = [];
-  if (viewerMissingPlatform) {
-    serverRequests.push({ type: serverRequestTypes.PLATFORM });
-  }
-  if (viewerMissingPlatformDetails) {
-    serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
-  }
-  if (viewerMissingDeviceToken) {
-    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
-  }
-
   const messagesCurrentAsOf = mostRecentMessageTimestamp(
     messagesResult.rawMessageInfos,
     clientMessagesCurrentAsOf,
@@ -344,6 +266,98 @@ async function pingResponder(
   }
 
   return response;
+}
+
+async function processClientResponses(
+  viewer: Viewer,
+  clientResponses: ?$ReadOnlyArray<ClientResponse>,
+): Promise<ServerRequest[]> {
+  let viewerMissingPlatform = !viewer.platform;
+  const { platformDetails } = viewer;
+  let viewerMissingPlatformDetails = !platformDetails ||
+    (isDeviceType(viewer.platform) &&
+      (platformDetails.codeVersion === null ||
+        platformDetails.codeVersion === undefined ||
+        platformDetails.stateVersion === null ||
+        platformDetails.stateVersion === undefined));
+  let viewerMissingDeviceToken =
+    isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
+
+  const promises = [];
+  if (clientResponses) {
+    const clientSentPlatformDetails = clientResponses.some(
+      response => response.type === serverRequestTypes.PLATFORM_DETAILS,
+    );
+    for (let clientResponse of clientResponses) {
+      if (
+        clientResponse.type === serverRequestTypes.PLATFORM &&
+        !clientSentPlatformDetails
+      ) {
+        promises.push(setCookiePlatform(
+          viewer.cookieID,
+          clientResponse.platform,
+        ));
+        viewerMissingPlatform = false;
+        if (!isDeviceType(clientResponse.platform)) {
+          viewerMissingPlatformDetails = false;
+        }
+      } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
+        promises.push(deviceTokenUpdater(
+          viewer,
+          {
+            deviceToken: clientResponse.deviceToken,
+            deviceType: assertDeviceType(viewer.platform),
+          },
+        ));
+        viewerMissingDeviceToken = false;
+      } else if (
+        clientResponse.type ===
+          serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
+      ) {
+        promises.push(recordThreadPollPushInconsistency(
+          viewer,
+          clientResponse,
+        ));
+      } else if (
+        clientResponse.type === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY
+      ) {
+        promises.push(recordEntryPollPushInconsistency(
+          viewer,
+          clientResponse,
+        ));
+      } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
+        promises.push(setCookiePlatformDetails(
+          viewer.cookieID,
+          clientResponse.platformDetails,
+        ));
+        viewerMissingPlatform = false;
+        viewerMissingPlatformDetails = false;
+      } else if (
+        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
+      ) {
+        promises.push(activityUpdater(
+          viewer,
+          { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
+        ));
+      }
+    }
+  }
+
+  if (promises.length > 0) {
+    await Promise.all(promises);
+  }
+
+  const serverRequests = [];
+  if (viewerMissingPlatform) {
+    serverRequests.push({ type: serverRequestTypes.PLATFORM });
+  }
+  if (viewerMissingPlatformDetails) {
+    serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
+  }
+  if (viewerMissingDeviceToken) {
+    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
+  }
+  return serverRequests;
 }
 
 async function recordThreadPollPushInconsistency(
