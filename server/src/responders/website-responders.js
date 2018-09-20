@@ -83,7 +83,9 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    navInfo.verify ? handleCodeVerificationRequest(navInfo.verify) : null,
+    navInfo.verify
+      ? handleCodeVerificationRequest(viewer, navInfo.verify)
+      : null,
     viewer.loggedIn ? setNewSession(viewer, calendarQuery, initialTime) : null,
   ]);
 

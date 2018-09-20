@@ -8,7 +8,7 @@ import {
 } from 'lib/types/update-types';
 import type { Viewer } from '../session/viewer';
 import type { RawThreadInfo } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import type { AccountUserInfo, LoggedInUserInfo } from 'lib/types/user-types';
 import {
   defaultNumberPerThread,
   type FetchMessageInfosResult,
@@ -53,7 +53,10 @@ import {
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
 import { fetchSessionCalendarQuery } from '../fetchers/session-fetchers';
-import { fetchUserInfos } from '../fetchers/user-fetchers';
+import {
+  fetchUserInfos,
+  fetchLoggedInUserInfos,
+} from '../fetchers/user-fetchers';
 
 export type ViewerInfo =
   | {| viewer: Viewer |}
@@ -113,6 +116,8 @@ async function createUpdates(
       types = [];
     } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
       types = [];
+    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+      types = [ updateTypes.UPDATE_CURRENT_USER ];
     } else {
       filteredUpdateDatas.push(updateData);
       continue;
@@ -216,6 +221,9 @@ async function createUpdates(
       const { entryID, targetSession } = updateData;
       content = JSON.stringify({ entryID });
       target = targetSession;
+    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+      // user column contains all the info we need to construct the UpdateInfo
+      content = null;
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -313,6 +321,7 @@ async function fetchUpdateInfosWithUpdateDatas(
 ): Promise<FetchUpdatesResult> {
   const threadIDsNeedingFetch = new Set();
   const entryIDsNeedingFetch = new Set();
+  const currentUserIDsNeedingFetch = new Set();
   const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
   for (let viewerUpdateData of updateDatas) {
     const updateData = viewerUpdateData.data;
@@ -327,6 +336,8 @@ async function fetchUpdateInfosWithUpdateDatas(
       threadIDsNeedingDetailedFetch.add(updateData.threadID);
     } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
       entryIDsNeedingFetch.add(updateData.entryID);
+    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+      currentUserIDsNeedingFetch.add(updateData.userID);
     }
   }
 
@@ -381,11 +392,18 @@ async function fetchUpdateInfosWithUpdateDatas(
     );
   }
 
+  if (currentUserIDsNeedingFetch.size > 0) {
+    promises.currentUserInfosResult = fetchLoggedInUserInfos(
+      [...currentUserIDsNeedingFetch],
+    );
+  }
+
   const {
     threadResult,
     messageInfosResult,
     calendarResult,
     entryInfosResult,
+    currentUserInfosResult,
   } = await promiseAll(promises);
 
   let threadInfosResult;
@@ -405,6 +423,7 @@ async function fetchUpdateInfosWithUpdateDatas(
       messageInfosResult,
       calendarResult,
       entryInfosResult,
+      currentUserInfosResult,
     },
   );
 }
@@ -414,6 +433,7 @@ export type UpdateInfosRawData = {|
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosResponse,
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
+  currentUserInfosResult: ?$ReadOnlyArray<LoggedInUserInfo>,
 |};
 async function updateInfosFromUpdateDatas(
   updateDatas: $ReadOnlyArray<ViewerUpdateData>,
@@ -424,6 +444,7 @@ async function updateInfosFromUpdateDatas(
     messageInfosResult,
     calendarResult,
     entryInfosResult,
+    currentUserInfosResult,
   } = rawData;
   const updateInfos = [];
   let userIDs = new Set();
@@ -519,6 +540,18 @@ async function updateInfosFromUpdateDatas(
         time: updateData.time,
         entryInfo,
       });
+    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+      invariant(currentUserInfosResult, "should be set");
+      const currentUserInfo = currentUserInfosResult.find(
+        candidate => candidate.id === updateData.userID,
+      );
+      invariant(currentUserInfo, "should be set");
+      updateInfos.push({
+        type: updateTypes.UPDATE_CURRENT_USER,
+        id,
+        time: updateData.time,
+        currentUserInfo,
+      });
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -579,6 +612,8 @@ async function updateInfosFromUpdateDatas(
       // If we only have UPDATE_THREAD_READ_STATUS, keep the most recent
       updateForKey.set(key, updateInfo);
     } else if (updateInfo.type === updateTypes.UPDATE_ENTRY) {
+      updateForKey.set(key, updateInfo);
+    } else if (updateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
       updateForKey.set(key, updateInfo);
     }
   }

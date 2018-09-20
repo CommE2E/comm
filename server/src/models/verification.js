@@ -6,6 +6,8 @@ import {
   assertVerifyField,
   type VerificationResult,
 } from 'lib/types/verify-types';
+import { updateTypes } from 'lib/types/update-types';
+import type { Viewer } from '../session/viewer';
 
 import crypto from 'crypto';
 import bcrypt from 'twin-bcrypt';
@@ -14,6 +16,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from '../creators/id-creator';
+import { createUpdates } from '../creators/update-creator';
 
 const verifyCodeLifetime = 24 * 60 * 60 * 1000; // in ms
 
@@ -86,6 +89,7 @@ async function clearVerifyCodes(result: CodeVerification) {
 }
 
 async function handleCodeVerificationRequest(
+  viewer: Viewer,
   code: string,
 ): Promise<?VerificationResult> {
   const result = await verifyCode(code);
@@ -93,6 +97,12 @@ async function handleCodeVerificationRequest(
   if (field === verifyField.EMAIL) {
     const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
     await dbQuery(query);
+    const updateDatas = [{
+      type: updateTypes.UPDATE_CURRENT_USER,
+      userID,
+      time: Date.now(),
+    }];
+    await createUpdates(updateDatas, { viewer });
     return { field: verifyField.EMAIL, userID };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;

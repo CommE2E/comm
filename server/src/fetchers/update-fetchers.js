@@ -124,6 +124,12 @@ function viewerUpdateDataFromRow(
       // and UpdateInfo doesn't care about the targetSession field
       targetSession: "",
     };
+  } else if (type === updateTypes.UPDATE_CURRENT_USER) {
+    data = {
+      type: updateTypes.UPDATE_CURRENT_USER,
+      userID: viewer.id,
+      time: row.time,
+    };
   } else {
     invariant(false, `unrecognized updateType ${type}`);
   }

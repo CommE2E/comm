@@ -7,6 +7,7 @@ import type {
   LogInResponse,
   UpdatePasswordRequest,
 } from 'lib/types/account-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
@@ -24,8 +25,10 @@ import { verifyCode, clearVerifyCodes } from '../models/verification';
 import { createNewUserCookie } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchLoggedInUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { setNewSession } from '../session/cookies';
+import { createUpdates } from '../creators/update-creator';
 
 async function accountUpdater(
   viewer: Viewer,
@@ -39,6 +42,7 @@ async function accountUpdater(
   const newPassword = update.updatedFields.password;
 
   const fetchPromises = {};
+  fetchPromises.currentUserInfos = fetchLoggedInUserInfos([ viewer.userID ]);
   if (email) {
     if (email.search(validEmailRegex) === -1) {
       throw new ServerError('invalid_email');
@@ -50,7 +54,9 @@ async function accountUpdater(
   fetchPromises.verifyQuery = dbQuery(SQL`
     SELECT username, email, hash FROM users WHERE id = ${viewer.userID}
   `);
-  const { verifyQuery, emailQuery } = await promiseAll(fetchPromises);
+  const { verifyQuery, emailQuery, currentUserInfos } = await promiseAll(
+    fetchPromises,
+  );
 
   const [ verifyResult ] = verifyQuery;
   if (verifyResult.length === 0) {
@@ -60,17 +66,28 @@ async function accountUpdater(
   if (!bcrypt.compareSync(update.currentPassword, verifyRow.hash)) {
     throw new ServerError('invalid_credentials');
   }
+  if (currentUserInfos.length === 0) {
+    throw new ServerError('internal_error');
+  }
+  const currentUserInfo = currentUserInfos[0];
 
   const savePromises = [];
   const changedFields = {};
+  let currentUserInfoChanged = false;
   if (email && email !== verifyRow.email) {
     const [ emailResult ] = emailQuery;
     const emailRow = emailResult[0];
     if (emailRow.count !== 0) {
       throw new ServerError('email_taken');
     }
+
     changedFields.email = email;
     changedFields.email_verified = 0;
+
+    currentUserInfoChanged = true;
+    currentUserInfo.email = email;
+    currentUserInfo.emailVerified = false;
+
     savePromises.push(
       sendEmailAddressVerificationEmail(
         viewer.userID,
@@ -88,7 +105,17 @@ async function accountUpdater(
       UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
     `));
   }
+
   await Promise.all(savePromises);
+
+  if (currentUserInfoChanged) {
+    const updateDatas = [{
+      type: updateTypes.UPDATE_CURRENT_USER,
+      userID: viewer.userID,
+      time: Date.now(),
+    }];
+    await createUpdates(updateDatas, { viewer });
+  }
 }
 
 async function checkAndSendVerificationEmail(

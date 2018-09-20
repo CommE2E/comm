@@ -26,7 +26,7 @@ async function codeVerificationResponder(
   const request: CodeVerificationRequest = input;
   validateInput(codeVerificationRequestInputValidator, request);
 
-  const result = await handleCodeVerificationRequest(request.code);
+  const result = await handleCodeVerificationRequest(viewer, request.code);
   if (!result) {
     throw new ServerError('unhandled_field');
   }

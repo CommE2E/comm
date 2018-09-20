@@ -1,6 +1,10 @@
 // @flow
 
-import type { UserInfos, CurrentUserInfo } from 'lib/types/user-types';
+import type {
+  UserInfos,
+  CurrentUserInfo,
+  LoggedInUserInfo,
+} from 'lib/types/user-types';
 import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/errors';
@@ -70,23 +74,28 @@ async function fetchCurrentUserInfo(
   if (!viewer.loggedIn) {
     return { id: viewer.cookieID, anonymous: true };
   }
-
-  const query = SQL`
-    SELECT username, email, email_verified
-    FROM users
-    WHERE id = ${viewer.userID}
-  `;
-  const [ result ] = await dbQuery(query);
-  if (result.length === 0) {
+  const currentUserInfos = await fetchLoggedInUserInfos([ viewer.userID ]);
+  if (currentUserInfos.length === 0) {
     throw new ServerError('unknown_error');
   }
-  const row = result[0];
-  return {
-    id: viewer.userID,
+  return currentUserInfos[0];
+}
+
+async function fetchLoggedInUserInfos(
+  userIDs: $ReadOnlyArray<string>,
+): Promise<LoggedInUserInfo[]> {
+  const query = SQL`
+    SELECT id, username, email, email_verified
+    FROM users
+    WHERE id IN (${userIDs})
+  `;
+  const [ result ] = await dbQuery(query);
+  return result.map(row => ({
+    id: row.id.toString(),
     username: row.username,
     email: row.email,
     emailVerified: !!row.email_verified,
-  };
+  }));
 }
 
 async function fetchAllUserIDs(): Promise<string[]> {
@@ -110,6 +119,7 @@ export {
   verifyUserIDs,
   verifyUserOrCookieIDs,
   fetchCurrentUserInfo,
+  fetchLoggedInUserInfos,
   fetchAllUserIDs,
   fetchUsername,
 };
