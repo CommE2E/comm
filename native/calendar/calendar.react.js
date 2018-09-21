@@ -174,8 +174,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }) => {
       if (!navigation.isFocused()) {
         defaultHandler();
-      }
-      if (currentCalendarRef) {
+      } else if (currentCalendarRef) {
         currentCalendarRef.scrollToToday();
       }
     },
