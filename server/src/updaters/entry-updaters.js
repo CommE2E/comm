@@ -212,11 +212,11 @@ async function createUpdateDatasForChangedEntryInfo(
     calendarQuery = defaultCalendarQuery();
   }
 
-  let replaced = false;
+  let replaced = null;
   const { userID } = viewer;
   const filters = fetchedFilters.map(
     filter => filter.session === viewer.session && filter.userID === userID
-      ? (replaced = true && { ...filter, calendarQuery })
+      ? (replaced = { ...filter, calendarQuery })
       : filter,
   );
   if (!replaced) {

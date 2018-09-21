@@ -244,7 +244,7 @@ async function createUpdates(
 
     const key = keyForUpdateData(updateData);
     if (key) {
-      const conditionKey = `${updateData.userID}|${key}`;
+      const conditionKey = conditionKeyForUpdateData(updateData);
       const currentEarliestTime = earliestTime.get(conditionKey);
       if (!currentEarliestTime || updateData.time < currentEarliestTime) {
         earliestTime.set(conditionKey, updateData.time);
@@ -266,8 +266,11 @@ async function createUpdates(
 
   const deleteSQLConditions: SQLStatement[] = [...deleteConditions].map(
     ([ conditionKey: string, types: number[] ]) => {
-      const [ userID, key ] = conditionKey.split('|');
+      const [ userID, key, target ] = conditionKey.split('|');
       const conditions = [ SQL`u.user = ${userID}`, SQL`u.key = ${key}` ];
+      if (target) {
+        conditions.push(SQL`u.target = ${target}`);
+      }
       if (types.length > 0) {
         conditions.push(SQL`u.type IN (${types})`);
       }
