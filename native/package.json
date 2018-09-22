@@ -16,8 +16,8 @@
     "invariant": "^2.2.2",
     "lib": "0.0.1",
     "lodash": "^4.17.5",
-    "react": "16.4.1",
-    "react-native": "^0.56.0",
+    "react": "16.5.1",
+    "react-native": "^0.57.1",
     "react-native-exit-app": "^1.0.0",
     "react-native-fcm": "git+https://git@github.com/ashoat/react-native-fcm.git",
     "react-native-floating-action": "^1.9.0",
@@ -33,6 +33,8 @@
     "react-navigation": "^2.8.0",
     "react-navigation-redux-helpers": "^2.0.1",
     "react-redux": "^5.0.6",
+    "reactotron-react-native": "^2.0.0",
+    "reactotron-redux": "^2.0.0",
     "redux": "^3.7.2",
     "redux-devtools-extension": "^2.13.2",
     "redux-persist": "^5.4.0",
@@ -40,20 +42,19 @@
     "reselect": "^3.0.1",
     "shallowequal": "^1.0.2",
     "tinycolor2": "^1.4.1",
-    "url-parse": "^1.1.9",
-    "reactotron-react-native": "^2.0.0",
-    "reactotron-redux": "^2.0.0"
+    "url-parse": "^1.1.9"
   },
   "devDependencies": {
-    "babel-jest": "^23.2.0",
+    "babel-jest": "^23.6.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
-    "babel-preset-react-native": "^5.0.2",
-    "flow-bin": "^0.75.0",
-    "jest": "^23.3.0",
-    "metro-bundler-config-yarn-workspaces": "^1.0.3",
+    "flow-bin": "^0.78.0",
+    "get-yarn-workspaces": "^1.0.2",
+    "jest": "^23.6.0",
+    "metro-react-native-babel-preset": "^0.45.0",
     "react-devtools": "^3.0.0",
-    "react-test-renderer": "^15.6.1"
+    "react-test-renderer": "^15.6.1",
+    "schedule": "0.4.0"
   },
   "jest": {
     "preset": "react-native"
