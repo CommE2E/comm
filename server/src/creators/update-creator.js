@@ -37,6 +37,7 @@ import {
   keyForUpdateData,
   keyForUpdateInfo,
   conditionKeyForUpdateData,
+  conditionKeyForUpdateDataFromKey,
 } from 'lib/shared/update-utils';
 import { ServerError } from 'lib/utils/errors';
 
@@ -244,7 +245,7 @@ async function createUpdates(
 
     const key = keyForUpdateData(updateData);
     if (key) {
-      const conditionKey = conditionKeyForUpdateData(updateData);
+      const conditionKey = conditionKeyForUpdateDataFromKey(updateData, key);
       const currentEarliestTime = earliestTime.get(conditionKey);
       if (!currentEarliestTime || updateData.time < currentEarliestTime) {
         earliestTime.set(conditionKey, updateData.time);
