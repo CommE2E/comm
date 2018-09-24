@@ -137,6 +137,13 @@ const pingRequestInputValidator = tShape({
       ),
       threadID: t.String,
     }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.CHECK_STATE',
+        x => x === serverRequestTypes.CHECK_STATE,
+      ),
+      hashResults: t.dict(t.String, t.Boolean),
+    }),
   ]))),
 });
 
