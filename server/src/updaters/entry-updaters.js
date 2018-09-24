@@ -8,6 +8,7 @@ import type {
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
 import { updateTypes, type CreateUpdatesResponse } from 'lib/types/update-types';
+import type { SessionUpdate } from './session-updaters';
 
 import invariant from 'invariant';
 
@@ -18,6 +19,7 @@ import { dateString } from 'lib/utils/date-utils';
 import {
   rawEntryInfoWithinCalendarQuery,
   defaultCalendarQuery,
+  calendarQueryDifference,
 } from 'lib/shared/entry-utils';
 import { values } from 'lib/utils/objects';
 
@@ -28,10 +30,7 @@ import {
 } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import {
-  fetchSessionCalendarQuery,
-  fetchActiveSessionsForThread,
-} from '../fetchers/session-fetchers';
+import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers';
 import { createUpdates } from '../creators/update-creator';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
@@ -190,24 +189,23 @@ async function createUpdateDatasForChangedEntryInfo(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-
   const entryID = newEntryInfo.id;
   invariant(entryID, "should be set");
-  const [ fetchedFilters, fetchedCalendarQuery ] = await Promise.all([
-    // If we ever make it possible to move entries from one thread to another,
-    // we should update this code rto look at oldEntryInfo.threadID as well
-    fetchActiveSessionsForThread(newEntryInfo.threadID),
-    inputCalendarQuery ? undefined : fetchSessionCalendarQuery(viewer),
-  ]);
+
+  // If we ever make it possible to move entries from one thread to another,
+  // we should update this code rto look at oldEntryInfo.threadID as well
+  const fetchedFilters = await fetchActiveSessionsForThread(
+    newEntryInfo.threadID,
+  );
 
   let calendarQuery;
   if (inputCalendarQuery) {
     calendarQuery = inputCalendarQuery;
-  } else if (fetchedCalendarQuery) {
+  } else if (viewer.hasSessionInfo) {
     // This should only ever happen for "legacy" clients who call in without
     // providing this information. These clients wouldn't know how to deal with
     // the corresponding UpdateInfos anyways, so no reason to be worried.
-    calendarQuery = fetchedCalendarQuery;
+    calendarQuery = viewer.calendarQuery;
   } else {
     calendarQuery = defaultCalendarQuery();
   }
@@ -247,7 +245,31 @@ async function createUpdateDatasForChangedEntryInfo(
   };
 }
 
+type CalendarQueryComparisonResult = {|
+  difference: $ReadOnlyArray<CalendarQuery>,
+  oldCalendarQuery: CalendarQuery,
+  sessionUpdate: SessionUpdate,
+|};
+function compareNewCalendarQuery(
+  viewer: Viewer,
+  newCalendarQuery: CalendarQuery,
+): CalendarQueryComparisonResult {
+  if (!viewer.hasSessionInfo) {
+    throw new ServerError('unknown_error');
+  }
+  const oldCalendarQuery = viewer.calendarQuery;
+  const difference = calendarQueryDifference(
+    oldCalendarQuery,
+    newCalendarQuery,
+  );
+  const sessionUpdate = difference.length > 0
+    ? { query: newCalendarQuery }
+    : {};
+  return { difference, oldCalendarQuery, sessionUpdate };
+}
+
 export {
   updateEntry,
   createUpdateDatasForChangedEntryInfo,
+  compareNewCalendarQuery,
 };

@@ -7,6 +7,7 @@ import {
   sessionIdentifierTypes,
 } from 'lib/types/session-types';
 import type { Platform, PlatformDetails } from 'lib/types/device-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import invariant from 'invariant';
 
@@ -24,6 +25,7 @@ export type UserViewerData = {|
   +cookieInsertedThisRequest?: bool,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
+  +sessionInfo: ?SessionInfo,
 |};
 
 export type AnonymousViewerData = {|
@@ -37,6 +39,12 @@ export type AnonymousViewerData = {|
   +cookieInsertedThisRequest?: bool,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
+  +sessionInfo: ?SessionInfo,
+|};
+
+type SessionInfo = {|
+  lastValidated: number,
+  calendarQuery: CalendarQuery,
 |};
 
 export type ViewerData = UserViewerData | AnonymousViewerData;
@@ -114,6 +122,15 @@ class Viewer {
     }
   }
 
+  setSessionInfo(sessionInfo: SessionInfo) {
+    if (this.data.loggedIn) {
+      this.data = { ...this.data, sessionInfo };
+    } else {
+      // This is a separate condition because of Flow
+      this.data = { ...this.data, sessionInfo };
+    }
+  }
+
   get id(): string {
     return this.data.id;
   }
@@ -167,6 +184,29 @@ class Viewer {
       // the user is logged in, then the sessionID should be set.
       throw new ServerError('unknown_error');
     }
+  }
+
+  get hasSessionInfo(): bool {
+    const { sessionInfo } = this.data;
+    return !!sessionInfo;
+  }
+
+  get sessionLastValidated(): number {
+    const { sessionInfo } = this.data;
+    invariant(
+      sessionInfo !== null && sessionInfo !== undefined,
+      "Viewer.sessionInfo should be set",
+    );
+    return sessionInfo.lastValidated;
+  }
+
+  get calendarQuery(): CalendarQuery {
+    const { sessionInfo } = this.data;
+    invariant(
+      sessionInfo !== null && sessionInfo !== undefined,
+      "Viewer.sessionInfo should be set",
+    );
+    return sessionInfo.calendarQuery;
   }
 
   get userID(): string {

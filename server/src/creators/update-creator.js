@@ -53,7 +53,6 @@ import {
   fetchEntryInfos,
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
-import { fetchSessionCalendarQuery } from '../fetchers/session-fetchers';
 import {
   fetchUserInfos,
   fetchLoggedInUserInfos,
@@ -357,13 +356,12 @@ async function fetchUpdateInfosWithUpdateDatas(
   let calendarQuery: ?CalendarQuery = viewerInfo.calendarQuery
     ? viewerInfo.calendarQuery
     : null;
-  if (!calendarQuery) {
+  if (!calendarQuery && viewerInfo.viewer.hasSessionInfo) {
     // This should only ever happen for "legacy" clients who call in without
     // providing this information. These clients wouldn't know how to deal with
     // the corresponding UpdateInfos anyways, so no reason to be worried.
-    calendarQuery = await fetchSessionCalendarQuery(viewerInfo.viewer);
-  }
-  if (!calendarQuery) {
+    calendarQuery = viewerInfo.viewer.calendarQuery;
+  } else if (!calendarQuery) {
     calendarQuery = defaultCalendarQuery();
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {

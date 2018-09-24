@@ -30,6 +30,10 @@ async function createSession(
       last_validated = VALUES(last_validated)
   `;
   await dbQuery(query);
+  viewer.setSessionInfo({
+    lastValidated: time,
+    calendarQuery,
+  });
 }
 
 export {

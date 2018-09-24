@@ -5,24 +5,6 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 
 import { dbQuery, SQL } from '../database';
 
-// "Filter" here refers to the "filters" table in MySQL, which stores
-// CalendarQueries on a per-session basis
-async function fetchSessionCalendarQuery(
-  viewer: Viewer,
-): Promise<?CalendarQuery> {
-  const query = SQL`
-    SELECT query
-    FROM sessions
-    WHERE user = ${viewer.userID} AND id = ${viewer.session}
-  `;
-  const [ result ] = await dbQuery(query);
-  if (result.length === 0) {
-    return null;
-  }
-  const row = result[0];
-  return row.query;
-}
-
 type CalendarSessionResult = {|
   userID: string,
   session: string,
@@ -50,6 +32,5 @@ async function fetchActiveSessionsForThread(
 }
 
 export {
-  fetchSessionCalendarQuery,
   fetchActiveSessionsForThread,
 };

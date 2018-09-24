@@ -66,10 +66,8 @@ import {
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
-import {
-  compareNewCalendarQuery,
-  commitSessionUpdate,
-} from '../updaters/session-updaters';
+import { commitSessionUpdate } from '../updaters/session-updaters';
+import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
 } from '../deleters/update-deleters';
@@ -442,7 +440,7 @@ async function initializeSession(
 
   let comparisonResult = null;
   try {
-    comparisonResult = await compareNewCalendarQuery(viewer, calendarQuery);
+    comparisonResult = compareNewCalendarQuery(viewer, calendarQuery);
   } catch (e) {
     if (e.message !== "unknown_error") {
       throw e;

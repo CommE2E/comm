@@ -41,10 +41,8 @@ import {
 import createEntry from '../creators/entry-creator';
 import { updateEntry } from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
-import {
-  compareNewCalendarQuery,
-  commitSessionUpdate,
-} from '../updaters/session-updaters';
+import { commitSessionUpdate } from '../updaters/session-updaters';
+import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),
@@ -225,7 +223,7 @@ async function calendarQueryUpdateResponder(
     difference,
     oldCalendarQuery,
     sessionUpdate,
-  } = await compareNewCalendarQuery(viewer, request);
+  } = compareNewCalendarQuery(viewer, request);
 
   const [ response ] = await Promise.all([
     fetchEntriesForSession(viewer, difference, oldCalendarQuery),
