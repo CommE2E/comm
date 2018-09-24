@@ -10,21 +10,24 @@ async function createSession(
   calendarQuery: CalendarQuery,
   initialLastUpdate: number,
 ): Promise<void> {
+  const time = Date.now();
   const row = [
     viewer.session,
     viewer.userID,
     viewer.cookieID,
     JSON.stringify(calendarQuery),
-    Date.now(),
+    time,
     initialLastUpdate,
+    time,
   ];
   const query = SQL`
-    INSERT INTO sessions (id, user, cookie, query, time, last_update)
+    INSERT INTO sessions (id, user, cookie, query,
+      creation_time, last_update, last_validated)
     VALUES ${[row]}
     ON DUPLICATE KEY UPDATE
       query = VALUES(query),
-      time = VALUES(time),
-      last_update = VALUES(last_update)
+      last_update = VALUES(last_update),
+      last_validated = VALUES(last_validated)
   `;
   await dbQuery(query);
 }

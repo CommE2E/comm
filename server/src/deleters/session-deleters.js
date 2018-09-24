@@ -26,7 +26,9 @@ async function deleteOldWebSessions(): Promise<void> {
     LEFT JOIN focused f ON f.session = s.id
     LEFT JOIN updates up ON up.target = s.id
     LEFT JOIN ids iup ON iup.id = up.id
-    WHERE s.id != s.cookie AND s.last_update < ${oldestWebSessionToKeep}
+    WHERE s.id != s.cookie
+      AND s.last_update < ${oldestWebSessionToKeep}
+      AND s.last_verified < ${oldestWebSessionToKeep}
   `);
 }
 

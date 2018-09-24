@@ -12,6 +12,7 @@ import { fetchSessionCalendarQuery } from '../fetchers/session-fetchers';
 type SessionUpdate = $Shape<{|
   query: CalendarQuery,
   lastUpdate: number,
+  lastValidated: number,
 |}>;
 type CalendarQueryComparisonResult = {|
   difference: $ReadOnlyArray<CalendarQuery>,
@@ -45,13 +46,17 @@ async function commitSessionUpdate(
   if (sessionUpdate.query) {
     sqlUpdate.query = JSON.stringify(sessionUpdate.query);
   }
-  const { lastUpdate } = sessionUpdate;
+  const { lastUpdate, lastValidated } = sessionUpdate;
   if (lastUpdate !== null && lastUpdate !== undefined) {
     sqlUpdate.last_update = lastUpdate;
+  }
+  if (lastValidated !== null && lastValidated !== undefined) {
+    sqlUpdate.last_validated = lastValidated;
   }
   if (Object.keys(sqlUpdate).length === 0) {
     return;
   }
+
   const query = SQL`
     UPDATE sessions
     SET ${sqlUpdate}
