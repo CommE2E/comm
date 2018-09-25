@@ -462,9 +462,10 @@ async function updateInfosFromUpdateDatas(
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[updateData.threadID];
       invariant(threadInfo, "should be set");
-      for (let member of threadInfo.members) {
-        userIDs.add(member.id);
-      }
+      userIDs = new Set([
+        ...userIDs,
+        ...usersInThreadInfo(threadInfo),
+      ]);
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD,
         id,

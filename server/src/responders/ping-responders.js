@@ -13,6 +13,7 @@ import {
   type EntryInconsistencyClientResponse,
   type ClientResponse,
   type ServerRequest,
+  type CheckStateServerRequest,
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 import {
@@ -21,19 +22,30 @@ import {
   type EntryInconsistencyReportCreationRequest,
 } from 'lib/types/report-types';
 import type {
+  RawEntryInfo,
   CalendarQuery,
   FetchEntryInfosResponse,
 } from 'lib/types/entry-types';
+import { sessionCheckFrequency } from 'lib/types/session-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { SessionUpdate } from '../updaters/session-updaters';
 
 import t from 'tcomb';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
+import hash from 'object-hash';
 
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
+import {
+  usersInRawEntryInfos,
+  serverEntryInfo,
+  serverEntryInfosObject,
+} from 'lib/shared/entry-utils';
+import { usersInThreadInfo } from 'lib/shared/thread-utils';
 
 import {
   validateInput,
@@ -48,16 +60,23 @@ import {
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import {
+  fetchThreadInfos,
+  type FetchThreadInfosResult,
+} from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
+  fetchEntryInfosByID,
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
 import {
   updateActivityTime,
   activityUpdater,
 } from '../updaters/activity-updaters';
-import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
+import {
+  fetchCurrentUserInfo,
+  fetchUserInfos,
+} from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
   setNewSession,
@@ -71,6 +90,7 @@ import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
 } from '../deleters/update-deleters';
+import { SQL } from '../database';
 
 const pingRequestInputValidator = tShape({
   type: t.maybe(t.Number),
@@ -180,7 +200,7 @@ async function pingResponder(
   const [
     sessionInitializationResult,
     messagesResult,
-    serverRequests,
+    { serverRequests, stateCheckStatus },
   ] = await Promise.all([
     initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
     fetchMessageInfosSince(
@@ -218,7 +238,10 @@ async function pingResponder(
       calendarQuery,
     );
   }
-  const { fetchUpdateResult } = await promiseAll(promises);
+  if (incrementalUpdate && stateCheckStatus) {
+    promises.stateCheck = checkState(viewer, stateCheckStatus, calendarQuery);
+  }
+  const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
 
   let updateUserInfos = {}, updatesResult = null;
   if (fetchUpdateResult) {
@@ -240,11 +263,17 @@ async function pingResponder(
 
   if (incrementalUpdate) {
     invariant(sessionInitializationResult.sessionContinued, "should be set");
-    const userInfos = values({
-      ...messagesResult.userInfos,
-      ...updateUserInfos,
-      ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
-    });
+
+    let sessionUpdate = sessionInitializationResult.sessionUpdate;
+    if (stateCheck && stateCheck.sessionUpdate) {
+      sessionUpdate = { ...sessionUpdate, ...stateCheck.sessionUpdate };
+    }
+    await commitSessionUpdate(viewer, sessionUpdate);
+
+    if (stateCheck && stateCheck.checkStateRequest) {
+      serverRequests.push(stateCheck.checkStateRequest);
+    }
+
     const response: PingResponse = {
       type: pingResponseTypes.INCREMENTAL,
       messagesResult: {
@@ -254,7 +283,11 @@ async function pingResponder(
       },
       deltaEntryInfos:
         sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
-      userInfos,
+      userInfos: values({
+        ...messagesResult.userInfos,
+        ...updateUserInfos,
+        ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+      }),
       serverRequests,
     };
     if (updatesResult) {
@@ -307,10 +340,18 @@ async function pingResponder(
   return response;
 }
 
+type StateCheckStatus =
+  | {| status: "state_validated" |}
+  | {| status: "state_invalid", invalidKeys: $ReadOnlyArray<string> |}
+  | {| status: "state_check" |};
+type ProcessClientResponsesResult = {|
+  serverRequests: ServerRequest[],
+  stateCheckStatus: ?StateCheckStatus,
+|};
 async function processClientResponses(
   viewer: Viewer,
   clientResponses: ?$ReadOnlyArray<ClientResponse>,
-): Promise<ServerRequest[]> {
+): Promise<ProcessClientResponsesResult> {
   let viewerMissingPlatform = !viewer.platform;
   const { platformDetails } = viewer;
   let viewerMissingPlatformDetails = !platformDetails ||
@@ -323,6 +364,7 @@ async function processClientResponses(
     isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
 
   const promises = [];
+  let stateCheckStatus = null;
   if (clientResponses) {
     const clientSentPlatformDetails = clientResponses.some(
       response => response.type === serverRequestTypes.PLATFORM_DETAILS,
@@ -377,12 +419,30 @@ async function processClientResponses(
           viewer,
           { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
         ));
+      } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
+        const invalidKeys = [];
+        for (let key in clientResponse.hashResults) {
+          const result = clientResponse.hashResults[key];
+          if (!result) {
+            invalidKeys.push(key);
+          }
+        }
+        stateCheckStatus = invalidKeys.length > 0
+          ? { status: "state_invalid", invalidKeys }
+          : { status: "state_validated" };
       }
     }
   }
 
   if (promises.length > 0) {
     await Promise.all(promises);
+  }
+
+  if (
+    !stateCheckStatus &&
+    viewer.sessionLastValidated + sessionCheckFrequency < Date.now()
+  ) {
+    stateCheckStatus = { status: "state_check" };
   }
 
   const serverRequests = [];
@@ -395,7 +455,7 @@ async function processClientResponses(
   if (viewerMissingDeviceToken) {
     serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
   }
-  return serverRequests;
+  return { serverRequests, stateCheckStatus };
 }
 
 async function recordThreadInconsistency(
@@ -427,6 +487,7 @@ type SessionInitializationResult =
   | {|
       sessionContinued: true,
       deltaEntryInfoResult: FetchEntryInfosResponse,
+      sessionUpdate: SessionUpdate,
     |};
 async function initializeSession(
   viewer: Viewer,
@@ -451,11 +512,12 @@ async function initializeSession(
     if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
       sessionUpdate.lastUpdate = oldLastUpdate;
     }
-    const [ deltaEntryInfoResult ] = await Promise.all([
-      fetchEntriesForSession(viewer, difference, oldCalendarQuery),
-      commitSessionUpdate(viewer, sessionUpdate),
-    ]);
-    return { sessionContinued: true, deltaEntryInfoResult };
+    const deltaEntryInfoResult = await fetchEntriesForSession(
+      viewer,
+      difference,
+      oldCalendarQuery,
+    );
+    return { sessionContinued: true, deltaEntryInfoResult, sessionUpdate };
   } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
     await setNewSession(viewer, calendarQuery, oldLastUpdate);
     return { sessionContinued: false };
@@ -464,6 +526,185 @@ async function initializeSession(
     // time the only code in pingResponder that uses viewer.session should be
     // gated on oldLastUpdate anyways, so we should be okay just returning.
     return { sessionContinued: false };
+  }
+}
+
+type StateCheckResult = {|
+  sessionUpdate?: SessionUpdate,
+  checkStateRequest?: CheckStateServerRequest,
+|};
+async function checkState(
+  viewer: Viewer,
+  status: StateCheckStatus,
+  calendarQuery: CalendarQuery,
+): Promise<StateCheckResult> {
+  if (status.status === "state_validated") {
+    return { sessionUpdate: { lastValidated: Date.now() } };
+  } else if (status.status === "state_check") {
+    const fetchedData = await promiseAll({
+      threadsResult: fetchThreadInfos(viewer),
+      entriesResult: fetchEntryInfos(viewer, [ calendarQuery ]),
+      currentUserInfo: fetchCurrentUserInfo(viewer),
+    });
+    const hashesToCheck = {
+      threadInfos: hash(fetchedData.threadsResult.threadInfos),
+      entryInfos: hash(
+        serverEntryInfosObject(fetchedData.entriesResult.rawEntryInfos),
+      ),
+      currentUserInfo: hash(fetchedData.currentUserInfo),
+    };
+    const checkStateRequest = {
+      type: serverRequestTypes.CHECK_STATE,
+      hashesToCheck,
+    };
+    return { checkStateRequest };
+  }
+
+  const { invalidKeys } = status;
+
+  let fetchAllThreads = false, fetchAllEntries = false, fetchUserInfo = false;
+  const threadIDsToFetch = [], entryIDsToFetch = [];
+  for (let key of invalidKeys) {
+    if (key === "threadInfos") {
+      fetchAllThreads = true;
+    } else if (key === "entryInfos") {
+      fetchAllEntries = true;
+    } else if (key === "currentUserInfo") {
+      fetchUserInfo = true;
+    } else if (key.startsWith("threadInfo|")) {
+      const [ ignore, threadID ] = key.split('|');
+      threadIDsToFetch.push(threadID);
+    } else if (key.startsWith("entryInfo|")) {
+      const [ ignore, entryID ] = key.split('|');
+      entryIDsToFetch.push(entryID);
+    }
+  }
+
+  const fetchPromises = {};
+  if (fetchAllThreads) {
+    fetchPromises.threadsResult = fetchThreadInfos(viewer);
+  } else if (threadIDsToFetch.length > 0) {
+    fetchPromises.threadsResult = fetchThreadInfos(
+      viewer,
+      SQL`t.id IN (${threadIDsToFetch})`,
+    );
+  }
+  if (fetchAllEntries) {
+    fetchPromises.entriesResult = fetchEntryInfos(viewer, [ calendarQuery ]);
+  } else if (entryIDsToFetch.length > 0) {
+    fetchPromises.entryInfos = fetchEntryInfosByID(viewer, entryIDsToFetch);
+  }
+  if (fetchUserInfo) {
+    fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
+  }
+  const fetchedData = await promiseAll(fetchPromises);
+
+  const hashesToCheck = {}, stateChanges = {};
+  for (let key of invalidKeys) {
+    if (key === "threadInfos") {
+      // Instead of returning all threadInfos, we want to narrow down and figure
+      // out which threadInfos don't match first
+      const { threadInfos } = fetchedData.threadsResult;
+      for (let threadID in threadInfos) {
+        hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
+      }
+    } else if (key === "entryInfos") {
+      // Instead of returning all entryInfos, we want to narrow down and figure
+      // out which entryInfos don't match first
+      const { rawEntryInfos } = fetchedData.entriesResult;
+      for (let rawEntryInfo of rawEntryInfos) {
+        const entryInfo = serverEntryInfo(rawEntryInfo);
+        invariant(entryInfo, "should be set");
+        const { id: entryID } = entryInfo;
+        invariant(entryID, "should be set");
+        hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
+      }
+    } else if (key === "currentUserInfo") {
+      stateChanges.currentUserInfo = fetchedData.currentUserInfo;
+    } else if (key.startsWith("threadInfo|")) {
+      if (!stateChanges.rawThreadInfos) {
+        stateChanges.rawThreadInfos = [];
+      }
+      const [ ignore, threadID ] = key.split('|');
+      const { threadInfos } = fetchedData.threadsResult;
+      const threadInfo = threadInfos[threadID];
+      if (!threadInfo) {
+        continue;
+      }
+      stateChanges.rawThreadInfos.push(threadInfo);
+    } else if (key.startsWith("entryInfo|")) {
+      if (!stateChanges.rawEntryInfos) {
+        stateChanges.rawEntryInfos = [];
+      }
+      const [ ignore, entryID ] = key.split('|');
+      const rawEntryInfos = fetchedData.entriesResult
+        ? fetchedData.entriesResult.rawEntryInfos
+        : fetchedData.entryInfos;
+      const entryInfo = rawEntryInfos.find(
+        candidate => candidate.id === entryID,
+      );
+      if (!entryInfo) {
+        continue;
+      }
+      stateChanges.rawEntryInfos.push(entryInfo);
+    }
+  }
+
+  const userIDs = new Set()
+  if (stateChanges.rawThreadInfos) {
+    for (let threadInfo of stateChanges.rawThreadInfos) {
+      for (let userID of usersInThreadInfo(threadInfo)) {
+        userIDs.add(userID);
+      }
+    }
+  }
+  if (stateChanges.rawEntryInfos) {
+    for (let userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
+      userIDs.add(userID);
+    }
+  }
+
+  const threadUserInfos = fetchedData.threadsResult
+    ? fetchedData.threadsResult.userInfos
+    : null;
+  const entryUserInfos = fetchedData.entriesResult
+    ? fetchedData.entriesResult.userInfos
+    : null;
+  const allUserInfos = { ...threadUserInfos, ...entryUserInfos };
+
+  const userInfos = [];
+  const userIDsToFetch = [];
+  for (let userID of userIDs) {
+    const userInfo = allUserInfos[userID];
+    if (userInfo) {
+      userInfos.push(userInfo);
+    } else {
+      userIDsToFetch.push(userID);
+    }
+  }
+  if (userIDsToFetch.length > 0) {
+    const fetchedUserInfos = await fetchUserInfos(userIDsToFetch);
+    for (let userID in fetchedUserInfos) {
+      const userInfo = fetchedUserInfos[userID];
+      if (userInfo && userInfo.username) {
+        const { id, username } = userInfo;
+        userInfos.push({ id, username });
+      }
+    }
+  }
+  if (userInfos.length > 0) {
+    stateChanges.userInfos = userInfos;
+  }
+
+  const checkStateRequest = {
+    type: serverRequestTypes.CHECK_STATE,
+    hashesToCheck,
+    stateChanges,
+  };
+  if (Object.keys(hashesToCheck).length === 0) {
+    return { checkStateRequest, sessionUpdate: { lastValidated: Date.now() } };
+  } else {
+    return { checkStateRequest };
   }
 }
 
