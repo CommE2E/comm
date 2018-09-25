@@ -47,8 +47,8 @@ const reportCreationRequestInputValidator = t.union([
   }),
   tShape({
     type: t.irreducible(
-      'reportTypes.THREAD_POLL_PUSH_INCONSISTENCY',
-      x => x === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY,
+      'reportTypes.THREAD_INCONSISTENCY',
+      x => x === reportTypes.THREAD_INCONSISTENCY,
     ),
     platformDetails: tPlatformDetails,
     beforeAction: t.Object,
@@ -60,8 +60,8 @@ const reportCreationRequestInputValidator = t.union([
   }),
   tShape({
     type: t.irreducible(
-      'reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY',
-      x => x === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
+      'reportTypes.ENTRY_INCONSISTENCY',
+      x => x === reportTypes.ENTRY_INCONSISTENCY,
     ),
     platformDetails: tPlatformDetails,
     beforeAction: t.Object,

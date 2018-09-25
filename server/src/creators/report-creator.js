@@ -4,8 +4,8 @@ import type { Viewer } from '../session/viewer';
 import {
   type ReportCreationRequest,
   type ReportCreationResponse,
-  type ThreadPollPushInconsistencyReportCreationRequest,
-  type EntryPollPushInconsistencyReportCreationRequest,
+  type ThreadInconsistencyReportCreationRequest,
+  type EntryInconsistencyReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
@@ -37,10 +37,10 @@ async function createReport(
   }
   const [ id ] = await createIDs("reports", 1);
   let type, platformDetails, report, time;
-  if (request.type === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+  if (request.type === reportTypes.THREAD_INCONSISTENCY) {
     ({ type, platformDetails, time, ...report } = request);
     time = time ? time : Date.now();
-  } else if (request.type === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY) {
+  } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
     ({ type, platformDetails, time, ...report } = request);
   } else {
     ({ type, platformDetails, ...report } = request);
@@ -96,8 +96,8 @@ async function ignoreReport(
   }
   // The below logic is to avoid duplicate inconsistency reports
   if (
-    request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY &&
-    request.type !== reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY
+    request.type !== reportTypes.THREAD_INCONSISTENCY &&
+    request.type !== reportTypes.ENTRY_INCONSISTENCY
   ) {
     return false;
   }
@@ -119,7 +119,7 @@ async function ignoreReport(
 // Currently this only ignores cases that are the result of the thread-reducer
 // conditional with the comment above that starts with "If the thread at the"
 function ignoreKnownInconsistencyReport(request: ReportCreationRequest): bool {
-  if (request.type !== reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+  if (request.type !== reportTypes.THREAD_INCONSISTENCY) {
     return false;
   }
   if (request.action.type !== pingActionTypes.success) {
@@ -166,17 +166,17 @@ function getSquadbotMessage(
     return `${name} got an error :(\n` +
       `using ${platformString}\n` +
       `${baseDomain}${basePath}download_error_report/${reportID}`;
-  } else if (request.type === reportTypes.THREAD_POLL_PUSH_INCONSISTENCY) {
+  } else if (request.type === reportTypes.THREAD_INCONSISTENCY) {
     const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
     const nonMatchingString = [...nonMatchingThreadIDs].join(", ");
-    return `system detected poll/push inconsistency for ${name}!\n` +
+    return `system detected inconsistency for ${name}!\n` +
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
       `thread IDs that are inconsistent: ${nonMatchingString}`;
-  } else if (request.type === reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY) {
+  } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
     const nonMatchingEntryIDs = getInconsistentEntryIDsFromReport(request);
     const nonMatchingString = [...nonMatchingEntryIDs].join(", ");
-    return `system detected poll/push inconsistency for ${name}!\n` +
+    return `system detected inconsistency for ${name}!\n` +
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
       `entry IDs that are inconsistent: ${nonMatchingString}`;
@@ -204,14 +204,14 @@ function findInconsistentObjectKeys(
 }
 
 function getInconsistentThreadIDsFromReport(
-  request: ThreadPollPushInconsistencyReportCreationRequest,
+  request: ThreadInconsistencyReportCreationRequest,
 ): Set<string> {
   const { pushResult, pollResult, action } = request;
   return findInconsistentObjectKeys(pollResult, pushResult);
 }
 
 function getInconsistentEntryIDsFromReport(
-  request: EntryPollPushInconsistencyReportCreationRequest,
+  request: EntryInconsistencyReportCreationRequest,
 ): Set<string> {
   const { pushResult, pollResult, action, calendarQuery } = request;
   const filteredPollResult = filterRawEntryInfosByCalendarQuery(

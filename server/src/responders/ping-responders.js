@@ -9,16 +9,16 @@ import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 import {
   serverRequestTypes,
-  type ThreadPollPushInconsistencyClientResponse,
-  type EntryPollPushInconsistencyClientResponse,
+  type ThreadInconsistencyClientResponse,
+  type EntryInconsistencyClientResponse,
   type ClientResponse,
   type ServerRequest,
 } from 'lib/types/request-types';
 import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
 import {
   reportTypes,
-  type ThreadPollPushInconsistencyReportCreationRequest,
-  type EntryPollPushInconsistencyReportCreationRequest,
+  type ThreadInconsistencyReportCreationRequest,
+  type EntryInconsistencyReportCreationRequest,
 } from 'lib/types/report-types';
 import type {
   CalendarQuery,
@@ -96,8 +96,8 @@ const pingRequestInputValidator = tShape({
     }),
     tShape({
       type: t.irreducible(
-        'serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY',
-        x => x === serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY,
+        'serverRequestTypes.THREAD_INCONSISTENCY',
+        x => x === serverRequestTypes.THREAD_INCONSISTENCY,
       ),
       platformDetails: tPlatformDetails,
       beforeAction: t.Object,
@@ -109,8 +109,8 @@ const pingRequestInputValidator = tShape({
     }),
     tShape({
       type: t.irreducible(
-        'serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY',
-        x => x === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
+        'serverRequestTypes.ENTRY_INCONSISTENCY',
+        x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
       ),
       platformDetails: tPlatformDetails,
       beforeAction: t.Object,
@@ -350,17 +350,16 @@ async function processClientResponses(
         ));
         viewerMissingDeviceToken = false;
       } else if (
-        clientResponse.type ===
-          serverRequestTypes.THREAD_POLL_PUSH_INCONSISTENCY
+        clientResponse.type === serverRequestTypes.THREAD_INCONSISTENCY
       ) {
-        promises.push(recordThreadPollPushInconsistency(
+        promises.push(recordThreadInconsistency(
           viewer,
           clientResponse,
         ));
       } else if (
-        clientResponse.type === serverRequestTypes.ENTRY_POLL_PUSH_INCONSISTENCY
+        clientResponse.type === serverRequestTypes.ENTRY_INCONSISTENCY
       ) {
-        promises.push(recordEntryPollPushInconsistency(
+        promises.push(recordEntryInconsistency(
           viewer,
           clientResponse,
         ));
@@ -399,27 +398,27 @@ async function processClientResponses(
   return serverRequests;
 }
 
-async function recordThreadPollPushInconsistency(
+async function recordThreadInconsistency(
   viewer: Viewer,
-  response: ThreadPollPushInconsistencyClientResponse,
+  response: ThreadInconsistencyClientResponse,
 ): Promise<void> {
   const { type, ...rest } = response;
   const reportCreationRequest = ({
     ...rest,
-    type: reportTypes.THREAD_POLL_PUSH_INCONSISTENCY,
-  }: ThreadPollPushInconsistencyReportCreationRequest);
+    type: reportTypes.THREAD_INCONSISTENCY,
+  }: ThreadInconsistencyReportCreationRequest);
   await createReport(viewer, reportCreationRequest);
 }
 
-async function recordEntryPollPushInconsistency(
+async function recordEntryInconsistency(
   viewer: Viewer,
-  response: EntryPollPushInconsistencyClientResponse,
+  response: EntryInconsistencyClientResponse,
 ): Promise<void> {
   const { type, ...rest } = response;
   const reportCreationRequest = ({
     ...rest,
-    type: reportTypes.ENTRY_POLL_PUSH_INCONSISTENCY,
-  }: EntryPollPushInconsistencyReportCreationRequest);
+    type: reportTypes.ENTRY_INCONSISTENCY,
+  }: EntryInconsistencyReportCreationRequest);
   await createReport(viewer, reportCreationRequest);
 }
 
