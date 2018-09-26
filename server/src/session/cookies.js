@@ -244,7 +244,7 @@ function getSessionIdentifierTypeFromRequestBody(
 }
 
 type SessionInfo = {|
-  sessionID: string,
+  sessionID: ?string,
   lastValidated: number,
   calendarQuery: CalendarQuery,
 |};
@@ -253,13 +253,14 @@ async function fetchSessionInfo(
   cookieID: string,
 ): Promise<?SessionInfo> {
   const sessionID = getSessionIDFromRequestBody(req);
-  if (!sessionID) {
+  const session = sessionID !== undefined ? sessionID : cookieID;
+  if (!session) {
     return null;
   }
   const query = SQL`
     SELECT query, last_validated
     FROM sessions
-    WHERE id = ${sessionID} AND cookie = ${cookieID}
+    WHERE id = ${session} AND cookie = ${cookieID}
   `;
   const [ result ] = await dbQuery(query);
   if (result.length === 0) {
