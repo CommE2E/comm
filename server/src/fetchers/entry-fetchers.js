@@ -21,7 +21,10 @@ import {
   filteredThreadIDs,
   filterExists,
 } from 'lib/selectors/calendar-filter-selectors';
-import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+import {
+  rawEntryInfoWithinCalendarQuery,
+  usersInRawEntryInfos,
+} from 'lib/shared/entry-utils';
 
 import {
   dbQuery,
@@ -238,9 +241,7 @@ async function fetchEntriesForSession(
       oldCalendarQuery,
     ),
   );
-  const userIDs = new Set(filteredRawEntryInfos.map(
-    rawEntryInfo => rawEntryInfo.creatorID,
-  ));
+  const userIDs = new Set(usersInRawEntryInfos(filteredRawEntryInfos));
   const filteredUserInfos = {};
   for (let userID in userInfos) {
     if (!userIDs.has(userID)) {
