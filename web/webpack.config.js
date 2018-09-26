@@ -62,7 +62,6 @@ const baseBrowserConfig = {
     alias: {
       'react': path.resolve('./node_modules/react'),
       'lodash': path.resolve('./node_modules/lodash'),
-      'jquery': path.resolve('./node_modules/jquery'),
       'isomorphic-fetch': path.resolve('./node_modules/isomorphic-fetch'),
       '../images': path.resolve('../server/images'),
     },
