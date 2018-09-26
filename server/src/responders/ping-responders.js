@@ -192,17 +192,21 @@ async function pingResponder(
   await verifyCalendarQueryThreadIDs(calendarQuery);
 
   const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
+  const sessionInitializationResult = await initializeSession(
+    viewer,
+    calendarQuery,
+    oldUpdatesCurrentAsOf,
+  );
+
   const threadCursors = {};
   for (let watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
   const [
-    sessionInitializationResult,
     messagesResult,
     { serverRequests, stateCheckStatus },
   ] = await Promise.all([
-    initializeSession(viewer, calendarQuery, oldUpdatesCurrentAsOf),
     fetchMessageInfosSince(
       viewer,
       threadSelectionCriteria,
@@ -440,6 +444,7 @@ async function processClientResponses(
 
   if (
     !stateCheckStatus &&
+    viewer.loggedIn &&
     viewer.sessionLastValidated + sessionCheckFrequency < Date.now()
   ) {
     stateCheckStatus = { status: "state_check" };
