@@ -337,6 +337,9 @@ async function pingResponder(
     response.updatesResult = updatesResult;
   }
   if (sessionInitializationResult.sessionContinued) {
+    // This will only happen when the client requests a FULL response, which
+    // doesn't occur in recent client versions. The client will use the result
+    // to identify entry inconsistencies.
     response.deltaEntryInfos =
       sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos;
   }
