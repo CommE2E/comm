@@ -7,6 +7,7 @@ import {
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
+import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
@@ -37,6 +38,7 @@ type ThreadRestriction = {|
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
+  viewer: Viewer,
   messageDatas: $ReadOnlyArray<MessageData>,
 ): Promise<RawMessageInfo[]> {
   if (messageDatas.length === 0) {

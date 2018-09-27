@@ -149,7 +149,7 @@ async function createThread(
   }
 
   const [ newMessageInfos, commitResult ] = await Promise.all([
-    createMessages(messageDatas),
+    createMessages(viewer, messageDatas),
     commitMembershipChangeset(viewer, changeset),
   ]);
   const { threadInfos, viewerUpdates } = commitResult;

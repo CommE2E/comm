@@ -125,7 +125,7 @@ async function createAccount(
     time: messageTime++,
     text: message,
   }));
-  const ashoatMessageInfos = await createMessages(ashoatMessageDatas);
+  const ashoatMessageInfos = await createMessages(viewer, ashoatMessageDatas);
   const rawMessageInfos = [
     ...personalThreadResult.newMessageInfos,
     ...ashoatThreadResult.newMessageInfos,

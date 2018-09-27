@@ -104,7 +104,7 @@ async function createEntry(
   };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
       null,

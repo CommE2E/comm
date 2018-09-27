@@ -78,13 +78,16 @@ async function sendSquadbotMessage(
     return;
   }
   const time = Date.now();
-  await createMessages([{
-    type: messageTypes.TEXT,
-    threadID: squadbot.ashoatThreadID,
-    creatorID: squadbot.userID,
-    time,
-    text: message,
-  }]);
+  await createMessages(
+    viewer,
+    [{
+      type: messageTypes.TEXT,
+      threadID: squadbot.ashoatThreadID,
+      creatorID: squadbot.userID,
+      time,
+      text: message,
+    }],
+  );
 }
 
 async function ignoreReport(

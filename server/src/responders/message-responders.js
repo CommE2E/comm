@@ -55,7 +55,7 @@ async function textMessageCreationResponder(
     time: Date.now(),
     text,
   };
-  const rawMessageInfos = await createMessages([messageData]);
+  const rawMessageInfos = await createMessages(viewer, [messageData]);
 
   return { newMessageInfo: rawMessageInfos[0] };
 }

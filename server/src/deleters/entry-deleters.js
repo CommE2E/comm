@@ -124,7 +124,7 @@ async function deleteEntry(
   };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
       oldEntryInfo,
@@ -214,7 +214,7 @@ async function restoreEntry(
   };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
       oldEntryInfo,

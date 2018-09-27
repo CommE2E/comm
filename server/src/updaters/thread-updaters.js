@@ -109,7 +109,7 @@ async function updateRole(
     newMessageInfos,
     { threadInfos, viewerUpdates },
   ] = await Promise.all([
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
 
@@ -198,7 +198,7 @@ async function removeMembers(
     newMessageInfos,
     { threadInfos, viewerUpdates },
   ] = await Promise.all([
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
 
@@ -266,7 +266,7 @@ async function leaveThread(
   };
   const [ { threadInfos, viewerUpdates } ] = await Promise.all([
     commitMembershipChangeset(viewer, changeset),
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
   ]);
 
   return {
@@ -515,7 +515,7 @@ async function updateThread(
     newMessageInfos,
     { threadInfos, viewerUpdates },
   ] = await Promise.all([
-    createMessages(messageDatas),
+    createMessages(viewer, messageDatas),
     commitMembershipChangeset(
       viewer,
       changeset,
@@ -598,7 +598,7 @@ async function joinThread(
   };
   const [ membershipResult ] = await Promise.all([
     commitMembershipChangeset(viewer, changeset, new Set(), calendarQuery),
-    createMessages([messageData]),
+    createMessages(viewer, [messageData]),
   ]);
 
   const threadSelectionCriteria = {

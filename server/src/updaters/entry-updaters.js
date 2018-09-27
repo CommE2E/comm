@@ -160,15 +160,18 @@ async function updateEntry(
   };
 
   const [ newMessageInfos, updatesResult ] = await Promise.all([
-    createMessages([{
-      type: messageTypes.EDIT_ENTRY,
-      threadID: entryInfo.threadID,
-      creatorID: viewerID,
-      time: Date.now(),
-      entryID: request.entryID,
-      date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
-      text: request.text,
-    }]),
+    createMessages(
+      viewer,
+      [{
+        type: messageTypes.EDIT_ENTRY,
+        threadID: entryInfo.threadID,
+        creatorID: viewerID,
+        time: Date.now(),
+        entryID: request.entryID,
+        date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
+        text: request.text,
+      }],
+    ),
     createUpdateDatasForChangedEntryInfo(
       viewer,
       entryInfo,
