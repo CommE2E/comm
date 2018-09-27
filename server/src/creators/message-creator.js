@@ -292,7 +292,7 @@ async function sendPushNotifsForNewMessages(
   const time = earliestTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    SELECT m.user, m.thread, c.platform, c.device_token
+    SELECT m.user, m.thread, c.platform, c.device_token, c.versions
   `;
   query.append(subthreadSelects);
   query.append(SQL`
@@ -314,7 +314,7 @@ async function sendPushNotifsForNewMessages(
     const userID = row.user.toString();
     const threadID = row.thread.toString();
     const deviceToken = row.device_token;
-    const platform = row.platform;
+    const { platform, versions } = row;
     let preUserPushInfo = prePushInfo.get(userID);
     if (!preUserPushInfo) {
       preUserPushInfo = {
@@ -336,12 +336,11 @@ async function sendPushNotifsForNewMessages(
         }
       }
     }
-    if (deviceToken) {
-      preUserPushInfo.devices.set(deviceToken, {
-        deviceType: platform,
-        deviceToken,
-      });
-    }
+    preUserPushInfo.devices.set(deviceToken, {
+      deviceType: platform,
+      deviceToken,
+      codeVersion: versions ? versions.codeVersion : null,
+    });
     preUserPushInfo.threadIDs.add(threadID);
     prePushInfo.set(userID, preUserPushInfo);
   }

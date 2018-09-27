@@ -24,8 +24,7 @@ const apnBadTokenErrorString = "BadDeviceToken";
 
 async function apnPush(
   notification: apn.Notification,
-  deviceTokens: string[],
-  dbID: string,
+  deviceTokens: $ReadOnlyArray<string>,
 ) {
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
@@ -41,19 +40,18 @@ async function apnPush(
     }
   }
   if (invalidTokens.length > 0) {
-    return { errors, invalidTokens, dbID };
+    return { errors, invalidTokens };
   } else if (errors.length > 0) {
-    return { errors, dbID };
+    return { errors };
   } else {
-    return { success: true, dbID };
+    return { success: true };
   }
 }
 
 async function fcmPush(
   notification: Object,
-  deviceTokens: string[],
+  deviceTokens: $ReadOnlyArray<string>,
   collapseKey: ?string,
-  dbID: string,
 ) {
   const options: Object = {
     priority: 'high',
@@ -92,7 +90,7 @@ async function fcmPush(
     }
   }
 
-  const result: Object = { dbID };
+  const result = {};
   if (ids.length > 0) {
     result.fcmIDs = ids;
   }

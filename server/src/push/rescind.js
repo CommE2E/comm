@@ -27,38 +27,51 @@ async function rescindPushNotifs(
   const rescindedIDs = [];
   for (let row of fetchResult) {
     if (row.delivery.iosID) {
-      const notification = new apn.Notification();
-      notification.contentAvailable = true;
-      notification.badge = row.unread_count;
-      notification.topic = "org.squadcal.app";
-      notification.payload = {
-        managedAps: {
-          action: "CLEAR",
-          notificationId: row.delivery.iosID,
-        },
-      };
+      const notification = prepareIOSNotification(
+        row.delivery.iosID,
+        row.unread_count,
+      );
       promises.push(apnPush(
         notification,
         row.delivery.iosDeviceTokens,
-        row.id,
       ));
     }
     if (row.delivery.androidID) {
-      const notification = {
-        data: {
-          badge: row.unread_count.toString(),
-          custom_notification: JSON.stringify({
-            rescind: "true",
-            notifID: row.collapse_key ? row.collapse_key : row.id.toString(),
-          }),
-        },
-      };
+      const notification = prepareAndroidNotification(
+        row.collapse_key ? row.collapse_key : row.id.toString(),
+        row.unread_count,
+      );
       promises.push(fcmPush(
         notification,
         row.delivery.androidDeviceTokens,
         null,
-        row.id,
       ));
+    }
+    if (Array.isArray(row.delivery)) {
+      for (let delivery of row.delivery) {
+        if (delivery.deviceType === "ios") {
+          const { iosID, deviceTokens } = delivery;
+          const notification = prepareIOSNotification(
+            iosID,
+            row.unread_count,
+          );
+          promises.push(apnPush(
+            notification,
+            deviceTokens,
+          ));
+        } else if (delivery.deviceType === "android") {
+          const { deviceTokens } = delivery;
+          const notification = prepareAndroidNotification(
+            row.collapse_key ? row.collapse_key : row.id.toString(),
+            row.unread_count,
+          );
+          promises.push(fcmPush(
+            notification,
+            deviceTokens,
+            null,
+          ));
+        }
+      }
     }
     rescindedIDs.push(row.id);
   }
@@ -70,6 +83,38 @@ async function rescindPushNotifs(
   }
 
   await Promise.all(promises);
+}
+
+function prepareIOSNotification(
+  iosID: string,
+  unreadCount: number,
+): apn.Notification {
+  const notification = new apn.Notification();
+  notification.contentAvailable = true;
+  notification.badge = unreadCount;
+  notification.topic = "org.squadcal.app";
+  notification.payload = {
+    managedAps: {
+      action: "CLEAR",
+      notificationId: iosID,
+    },
+  };
+  return notification;
+}
+
+function prepareAndroidNotification(
+  notifID: string,
+  unreadCount: number,
+): Object {
+  return {
+    data: {
+      badge: unreadCount.toString(),
+      custom_notification: JSON.stringify({
+        rescind: "true",
+        notifID,
+      }),
+    },
+  };
 }
 
 export {

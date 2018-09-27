@@ -40,11 +40,15 @@ import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
 
-type Device = { deviceType: DeviceType, deviceToken: string };
-type PushUserInfo = {
+type Device = {|
+  deviceType: DeviceType,
+  deviceToken: string,
+  codeVersion: ?number,
+|};
+type PushUserInfo = {|
   devices: Device[],
   messageInfos: RawMessageInfo[],
-};
+|};
 export type PushInfo = { [userID: string]: PushUserInfo };
 
 async function sendPushNotifs(pushInfo: PushInfo) {
@@ -63,7 +67,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   ]);
 
   const deliveryPromises = [];
-  const notifications = {};
+  const notifications = [];
   for (let userID in usersToCollapsableNotifInfo) {
     const threadInfos = _flow(
       _mapValues(
@@ -123,60 +127,66 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const dbID = dbIDs.shift();
       invariant(dbID, "should have sufficient DB IDs");
       const byDeviceType = getDevicesByDeviceType(pushInfo[userID].devices);
-      const delivery = {};
-      if (byDeviceType.ios) {
-        const notification = prepareIOSNotification(
-          allMessageInfos,
-          newRawMessageInfos,
-          threadInfo,
-          notifInfo.collapseKey,
-          badgeOnly,
-          unreadCounts[userID],
-        );
-        deliveryPromises.push(apnPush(notification, byDeviceType.ios, dbID));
-        delivery.iosDeviceTokens = byDeviceType.ios;
-        delivery.iosID = notification.id;
-      }
-      if (byDeviceType.android) {
-        const notification = prepareAndroidNotification(
-          allMessageInfos,
-          newRawMessageInfos,
-          threadInfo,
-          notifInfo.collapseKey,
-          badgeOnly,
-          unreadCounts[userID],
-          dbID,
-        );
-        deliveryPromises.push(fcmPush(
-          notification,
-          byDeviceType.android,
-          notifInfo.collapseKey,
-          dbID,
-        ));
-        delivery.androidDeviceTokens = byDeviceType.android;
-      }
-
-      notifications[dbID] = [
+      const notificationInfo = {
         dbID,
         userID,
         threadID,
-        firstNewMessageInfo.id,
-        notifInfo.collapseKey,
-        delivery,
-        0,
-      ];
+        messageID: firstNewMessageInfo.id,
+        collapseKey: notifInfo.collapseKey,
+      };
+
+      const iosVersionsToTokens = byDeviceType.get("ios");
+      if (iosVersionsToTokens) {
+        for (let [ codeVer, deviceTokens ] in iosVersionsToTokens) {
+          const codeVersion = parseInt(codeVer); // only for Flow
+          const notification = prepareIOSNotification(
+            allMessageInfos,
+            newRawMessageInfos,
+            threadInfo,
+            notifInfo.collapseKey,
+            badgeOnly,
+            unreadCounts[userID],
+          );
+          deliveryPromises.push(sendIOSNotification(
+            notification,
+            [ ...deviceTokens ],
+            { ...notificationInfo, codeVersion },
+          ));
+        }
+      }
+      const androidVersionsToTokens = byDeviceType.get("android");
+      if (androidVersionsToTokens) {
+        for (let [ codeVer, deviceTokens ] in androidVersionsToTokens) {
+          const codeVersion = parseInt(codeVer); // only for Flow
+          const notification = prepareAndroidNotification(
+            allMessageInfos,
+            newRawMessageInfos,
+            threadInfo,
+            notifInfo.collapseKey,
+            badgeOnly,
+            unreadCounts[userID],
+            dbID,
+          );
+          deliveryPromises.push(sendAndroidNotification(
+            notification,
+            [ ...deviceTokens ],
+            { ...notificationInfo, codeVersion },
+          ));
+        }
+      }
+
       for (let newMessageInfo of remainingNewMessageInfos) {
         const newDBID = dbIDs.shift();
         invariant(newDBID, "should have sufficient DB IDs");
-        notifications[newDBID] = [
+        notifications.push([
           newDBID,
           userID,
           newMessageInfo.threadID,
           newMessageInfo.id,
           notifInfo.collapseKey,
-          { collapsedInto: dbID },
+          JSON.stringify({ collapsedInto: dbID }),
           0,
-        ];
+        ]);
       }
     }
   }
@@ -191,40 +201,36 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     Promise.all(cleanUpPromises),
   ]);
 
-  const invalidTokens = [];
+  const allInvalidTokens = [];
   for (let deliveryResult of deliveryResults) {
-    if (deliveryResult.errors) {
-      notifications[deliveryResult.dbID][5].errors = deliveryResult.errors;
-    }
-    if (deliveryResult.fcmIDs) {
-      notifications[deliveryResult.dbID][5].androidID =
-        deliveryResult.fcmIDs[0];
-    }
-    if (deliveryResult.invalidTokens) {
-      invalidTokens.push({
-        userID: notifications[deliveryResult.dbID][1],
-        tokens: deliveryResult.invalidTokens,
+    const { info, delivery, invalidTokens } = deliveryResult;
+    const { dbID, userID, threadID, messageID, collapseKey } = info;
+    notifications.push([
+      dbID,
+      userID,
+      threadID,
+      messageID,
+      collapseKey,
+      JSON.stringify(delivery),
+      0,
+    ]);
+    if (invalidTokens) {
+      allInvalidTokens.push({
+        userID,
+        tokens: invalidTokens,
       });
     }
   }
 
   const dbPromises = [];
-  if (invalidTokens.length > 0) {
-    dbPromises.push(removeInvalidTokens(invalidTokens));
+  if (allInvalidTokens.length > 0) {
+    dbPromises.push(removeInvalidTokens(allInvalidTokens));
   }
-
-  const flattenedNotifications = [];
-  for (let dbID in notifications) {
-    const notification = notifications[dbID];
-    const jsonConverted = [...notification];
-    jsonConverted[5] = JSON.stringify(jsonConverted[5]);
-    flattenedNotifications.push(jsonConverted);
-  }
-  if (flattenedNotifications.length > 0) {
+  if (notifications.length > 0) {
     const query = SQL`
       INSERT INTO notifications
         (id, user, thread, message, collapse_key, delivery, rescinded)
-      VALUES ${flattenedNotifications}
+      VALUES ${notifications}
     `;
     dbPromises.push(dbQuery(query));
   }
@@ -390,13 +396,24 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
 
 function getDevicesByDeviceType(
   devices: Device[],
-): { [deviceType: DeviceType]: string[] } {
-  const byDeviceType = {};
+): Map<DeviceType, Map<number, Set<string>>> {
+  const byDeviceType = new Map();
   for (let device of devices) {
-    if (!byDeviceType[device.deviceType]) {
-      byDeviceType[device.deviceType] = [];
+    let innerMap = byDeviceType.get(device.deviceType);
+    if (!innerMap) {
+      innerMap = new Map();
+      byDeviceType.set(device.deviceType, innerMap);
     }
-    byDeviceType[device.deviceType].push(device.deviceToken);
+    const codeVersion: number =
+      device.codeVersion !== null && device.codeVersion !== undefined
+        ? device.codeVersion
+        : -1;
+    let innerMostSet = innerMap.get(codeVersion);
+    if (!innerMostSet) {
+      innerMostSet = new Set();
+      innerMap.set(codeVersion, innerMostSet);
+    }
+    innerMostSet.add(device.deviceToken);
   }
   return byDeviceType;
 }
@@ -465,6 +482,96 @@ function prepareAndroidNotification(
       }),
     }
   };
+}
+
+type NotificationInfo = {|
+  dbID: string,
+  userID: string,
+  threadID: string,
+  messageID: string,
+  collapseKey: ?string,
+  codeVersion: number,
+|};
+
+type IOSDelivery = {|
+  deviceType: "ios",
+  iosID: string,
+  deviceTokens: $ReadOnlyArray<string>,
+  codeVersion: number,
+  errors?: $ReadOnlyArray<Object>,
+|};
+type IOSResult = {|
+  info: NotificationInfo,
+  delivery: IOSDelivery,
+  invalidTokens?: $ReadOnlyArray<string>,
+|};
+async function sendIOSNotification(
+  notification: apn.Notification,
+  deviceTokens: $ReadOnlyArray<string>,
+  notificationInfo: NotificationInfo,
+): Promise<IOSResult> {
+  const response = await apnPush(notification, deviceTokens);
+  const delivery: IOSDelivery = {
+    deviceType: "ios",
+    iosID: notification.id,
+    deviceTokens,
+    codeVersion: notificationInfo.codeVersion,
+  };
+  if (response.errors) {
+    delivery.errors = response.errors;
+  }
+  const result: IOSResult = {
+    info: notificationInfo,
+    delivery,
+  };
+  if (response.invalidTokens) {
+    result.invalidTokens = response.invalidTokens;
+  }
+  return result;
+}
+
+type AndroidDelivery = {|
+  deviceType: "android",
+  androidIDs: $ReadOnlyArray<string>,
+  deviceTokens: $ReadOnlyArray<string>,
+  codeVersion: number,
+  errors?: $ReadOnlyArray<Object>,
+|};
+type AndroidResult = {|
+  info: NotificationInfo,
+  delivery: AndroidDelivery,
+  invalidTokens?: $ReadOnlyArray<string>,
+|};
+async function sendAndroidNotification(
+  notification: Object,
+  deviceTokens: $ReadOnlyArray<string>,
+  notificationInfo: NotificationInfo,
+): Promise<AndroidResult> {
+  const response = await fcmPush(
+    notification,
+    deviceTokens,
+    notificationInfo.collapseKey,
+  );
+  const androidIDs = response.fcmIDs
+    ? response.fcmIDs
+    : [];
+  const delivery: AndroidDelivery = {
+    deviceType: "android",
+    androidIDs,
+    deviceTokens,
+    codeVersion: notificationInfo.codeVersion,
+  };
+  if (response.errors) {
+    delivery.errors = response.errors;
+  }
+  const result: AndroidResult = {
+    info: notificationInfo,
+    delivery,
+  };
+  if (response.invalidTokens) {
+    result.invalidTokens = response.invalidTokens;
+  }
+  return result;
 }
 
 type InvalidToken = {|
