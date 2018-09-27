@@ -2,6 +2,11 @@
 
 import FCM from 'react-native-fcm';
 
+import {
+  recordAndroidNotificationActionType,
+  clearAndroidNotificationActionType,
+} from '../navigation/action-types';
+
 async function requestAndroidPushPermissions(): Promise<?string> {
   const requestResult = await FCM.requestPermissions();
   if (!requestResult) {
@@ -10,13 +15,11 @@ async function requestAndroidPushPermissions(): Promise<?string> {
   return await FCM.getFCMToken();
 }
 
-const recordAndroidNotificationActionType = "RECORD_ANDROID_NOTIFICATION";
 type RecordAndroidNotificationPayload = {|
   threadID: string,
   notifID: string,
 |};
 
-const clearAndroidNotificationActionType = "CLEAR_ANDROID_NOTIFICATION";
 type ClearAndroidNotificationPayload = {|
   threadID: string,
 |};
@@ -64,7 +67,5 @@ function reduceThreadIDsToNotifIDs(
 
 export {
   requestAndroidPushPermissions,
-  recordAndroidNotificationActionType,
-  clearAndroidNotificationActionType,
   reduceThreadIDsToNotifIDs,
 };

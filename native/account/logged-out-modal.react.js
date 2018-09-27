@@ -56,7 +56,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import {
   navigateToAppActionType,
   resetUserStateActionType,
-} from '../navigation/navigation-setup';
+} from '../navigation/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {

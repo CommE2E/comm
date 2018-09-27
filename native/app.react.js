@@ -28,7 +28,6 @@ import type { DeviceType } from 'lib/types/device-types';
 import {
   type NotifPermissionAlertInfo,
   notifPermissionAlertInfoPropType,
-  recordNotifPermissionAlertActionType,
 } from './push/alerts';
 import type { RawMessageInfo } from 'lib/types/message-types';
 import {
@@ -75,11 +74,16 @@ import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
 import { saveMessagesActionType } from 'lib/actions/message-actions';
 
 import {
-  handleURLActionType,
   RootNavigator,
+} from './navigation/navigation-setup';
+import {
+  handleURLActionType,
   backgroundActionType,
   foregroundActionType,
-} from './navigation/navigation-setup';
+  recordNotifPermissionAlertActionType,
+  recordAndroidNotificationActionType,
+  clearAndroidNotificationActionType,
+} from './navigation/action-types';
 import { store, appBecameInactive } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import {
@@ -97,8 +101,6 @@ import {
 } from './push/ios';
 import {
   requestAndroidPushPermissions,
-  recordAndroidNotificationActionType,
-  clearAndroidNotificationActionType,
 } from './push/android';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';

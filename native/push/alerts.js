@@ -17,10 +17,7 @@ const defaultNotifPermissionAlertInfo: NotifPermissionAlertInfo = {
   lastAlertTime: 0,
 };
 
-const recordNotifPermissionAlertActionType = "RECORD_NOTIF_PERMISSION_ALERT";
-
 export {
   defaultNotifPermissionAlertInfo,
   notifPermissionAlertInfoPropType,
-  recordNotifPermissionAlertActionType,
 };

@@ -10,7 +10,6 @@ import type { PersistState } from 'redux-persist/src/types';
 import {
   type NotifPermissionAlertInfo,
   defaultNotifPermissionAlertInfo,
-  recordNotifPermissionAlertActionType,
 } from './push/alerts';
 import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
 import {
@@ -51,13 +50,16 @@ import {
   handleURLActionType,
   navigateToAppActionType,
   resetUserStateActionType,
+  recordNotifPermissionAlertActionType,
+  recordAndroidNotificationActionType,
+  clearAndroidNotificationActionType,
+} from './navigation/action-types';
+import {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
 } from './navigation/navigation-setup';
 import {
-  recordAndroidNotificationActionType,
-  clearAndroidNotificationActionType,
   reduceThreadIDsToNotifIDs,
 } from './push/android';
 import { persistConfig, setPersistor } from './persist';

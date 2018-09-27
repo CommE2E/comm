@@ -49,7 +49,7 @@ import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
-import { navigateToAppActionType } from '../navigation/navigation-setup';
+import { navigateToAppActionType } from '../navigation/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {

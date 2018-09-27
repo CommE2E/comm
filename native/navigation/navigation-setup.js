@@ -77,17 +77,15 @@ import {
   ChatThreadListRouteName,
   CalendarRouteName,
 } from './route-names';
+import {
+  handleURLActionType,
+  navigateToAppActionType,
+} from './action-types';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
   navigationState: NavigationState,
 |};
-
-const handleURLActionType = "HANDLE_URL";
-const navigateToAppActionType = "NAVIGATE_TO_APP";
-const backgroundActionType = "BACKGROUND";
-const foregroundActionType = "FOREGROUND";
-const resetUserStateActionType = "RESET_USER_STATE";
 
 const uniqueBaseId = `id-${Date.now()}`;
 let uuidCount = 0;
@@ -702,11 +700,6 @@ function handleNotificationPress(
 }
 
 export {
-  handleURLActionType,
-  navigateToAppActionType,
-  backgroundActionType,
-  foregroundActionType,
-  resetUserStateActionType,
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
