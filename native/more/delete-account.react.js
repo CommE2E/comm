@@ -272,7 +272,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 
-const DeleteAccountRouteName = 'DeleteAccount';
 const DeleteAccount = connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
@@ -283,7 +282,4 @@ const DeleteAccount = connect(
   { deleteAccount },
 )(InnerDeleteAccount);
 
-export {
-  DeleteAccount,
-  DeleteAccountRouteName,
-};
+export default DeleteAccount;

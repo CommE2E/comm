@@ -5,7 +5,7 @@ import type { EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { NavInfo } from './navigation-setup';
+import type { NavInfo } from './navigation/navigation-setup';
 import type { PersistState } from 'redux-persist/src/types';
 import {
   type NotifPermissionAlertInfo,
@@ -46,7 +46,6 @@ import { pingActionTypes } from 'lib/actions/ping-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { defaultCalendarQuery } from 'lib/selectors/nav-selectors';
 
-import { MessageListRouteName } from './chat/message-list.react';
 import { activeThreadSelector } from './selectors/nav-selectors';
 import {
   handleURLActionType,
@@ -55,7 +54,7 @@ import {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
-} from './navigation-setup';
+} from './navigation/navigation-setup';
 import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
@@ -72,7 +71,10 @@ import {
   currentLeafRoute,
   findRouteIndexWithKey,
 } from './utils/navigation-utils';
-import { ComposeThreadRouteName } from './chat/compose-thread.react';
+import {
+  ComposeThreadRouteName,
+  MessageListRouteName,
+} from './navigation/route-names';
 import reactotron from './reactotron';
 
 const createStore = reactotron

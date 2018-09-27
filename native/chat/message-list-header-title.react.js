@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { HeaderTitle } from 'react-navigation';
 
 import Button from '../components/button.react';
-import { ThreadSettingsRouteName } from './settings/thread-settings.react';
+import { ThreadSettingsRouteName } from '../navigation/route-names';
 
 type Props = {
   threadInfo: ThreadInfo,

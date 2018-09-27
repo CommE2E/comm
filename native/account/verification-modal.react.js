@@ -49,7 +49,7 @@ import { windowHeight } from '../dimensions';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
-import { navigateToAppActionType } from '../navigation-setup';
+import { navigateToAppActionType } from '../navigation/navigation-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {
@@ -57,6 +57,7 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
+import { VerificationModalRouteName } from '../navigation/route-names';
 
 const forceInset = { top: 'always', bottom: 'always' };
 
@@ -523,7 +524,6 @@ const styles = StyleSheet.create({
 
 registerFetchKey(handleVerificationCodeActionTypes);
 
-const VerificationModalRouteName = 'VerificationModal';
 const isForegroundSelector =
   createIsForegroundSelector(VerificationModalRouteName);
 const VerificationModal = connect(
@@ -533,7 +533,4 @@ const VerificationModal = connect(
   { handleVerificationCode },
 )(InnerVerificationModal);
 
-export {
-  VerificationModal,
-  VerificationModalRouteName,
-};
+export default VerificationModal;

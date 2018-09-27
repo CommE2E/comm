@@ -10,7 +10,7 @@ import React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { MessageListRouteName } from '../message-list.react';
+import { MessageListRouteName } from '../../navigation/route-names';
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import ThreadVisibility from '../../components/thread-visibility.react';

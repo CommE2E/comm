@@ -407,7 +407,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const EditPasswordRouteName = 'EditPassword';
 const EditPassword = connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
@@ -415,7 +414,4 @@ const EditPassword = connect(
   { changeUserSettings },
 )(InnerEditPassword);
 
-export {
-  EditPassword,
-  EditPasswordRouteName,
-};
+export default EditPassword;

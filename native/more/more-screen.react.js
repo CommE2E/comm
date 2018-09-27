@@ -39,11 +39,13 @@ import {
 } from '../account/native-credentials';
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
-import { EditEmailRouteName } from './edit-email.react';
-import { EditPasswordRouteName } from './edit-password.react';
-import { DeleteAccountRouteName } from './delete-account.react';
-import { BuildInfoRouteName} from './build-info.react';
-import { DevToolsRouteName} from './dev-tools.react';
+import {
+  EditEmailRouteName,
+  EditPasswordRouteName,
+  DeleteAccountRouteName,
+  BuildInfoRouteName,
+  DevToolsRouteName,
+} from '../navigation/route-names';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -415,7 +417,6 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );
 
-const MoreScreenRouteName = 'MoreScreen';
 const MoreScreen = connect(
   (state: AppState) => ({
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
@@ -433,7 +434,4 @@ const MoreScreen = connect(
   { logOut, resendVerificationEmail },
 )(InnerMoreScreen);
 
-export {
-  MoreScreen,
-  MoreScreenRouteName,
-};
+export default MoreScreen;

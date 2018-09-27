@@ -14,7 +14,7 @@ import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
 import Button from '../../components/button.react';
-import { DeleteThreadRouteName } from './delete-thread.react';
+import { DeleteThreadRouteName } from '../../navigation/route-names';
 
 type Props = {|
   threadInfo: ThreadInfo,

@@ -7,7 +7,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
-import type { Action } from '../navigation-setup';
+import type { Action } from '../navigation/navigation-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -56,7 +56,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import {
   navigateToAppActionType,
   resetUserStateActionType,
-} from '../navigation-setup';
+} from '../navigation/navigation-setup';
 import { splashBackgroundURI } from './background-info';
 import { splashStyle } from '../splash';
 import {
@@ -70,6 +70,7 @@ import {
   type StateChange,
   setStateForContainer,
 } from '../utils/state-container';
+import { LoggedOutModalRouteName } from '../navigation/route-names';
 
 const forceInset = { top: 'always', bottom: 'always' };
 let initialAppLoad = true;
@@ -813,7 +814,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const LoggedOutModalRouteName = 'LoggedOutModal';
 const isForegroundSelector =
   createIsForegroundSelector(LoggedOutModalRouteName);
 const LoggedOutModal = connect(
@@ -830,7 +830,4 @@ const LoggedOutModal = connect(
   true,
 )(InnerLoggedOutModal);
 
-export {
-  LoggedOutModal,
-  LoggedOutModalRouteName,
-};
+export default LoggedOutModal;

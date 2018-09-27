@@ -75,6 +75,7 @@ import {
   removeKeyboardListener,
 } from '../keyboard';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import { CalendarRouteName } from '../navigation/route-names';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -1136,7 +1137,6 @@ const styles = StyleSheet.create({
 
 registerFetchKey(updateCalendarQueryActionTypes);
 
-const CalendarRouteName = 'Calendar';
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const Calendar = connect(
   (state: AppState) => ({
@@ -1149,7 +1149,4 @@ const Calendar = connect(
   { updateCalendarQuery },
 )(InnerCalendar);
 
-export {
-  Calendar,
-  CalendarRouteName,
-};
+export default Calendar;

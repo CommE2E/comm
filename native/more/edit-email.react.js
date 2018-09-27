@@ -340,7 +340,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const EditEmailRouteName = 'EditEmail';
 const EditEmail = connect(
   (state: AppState) => ({
     email: state.currentUserInfo && !state.currentUserInfo.anonymous
@@ -351,7 +350,4 @@ const EditEmail = connect(
   { changeUserSettings },
 )(InnerEditEmail);
 
-export {
-  EditEmail,
-  EditEmailRouteName,
-};
+export default EditEmail;

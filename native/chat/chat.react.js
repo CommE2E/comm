@@ -9,23 +9,21 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 
-import {
-  ChatThreadList,
-  ChatThreadListRouteName,
-} from './chat-thread-list.react';
-import { MessageList, MessageListRouteName } from './message-list.react';
-import { ComposeThread, ComposeThreadRouteName } from './compose-thread.react';
-import {
-  ThreadSettings,
-  ThreadSettingsRouteName,
-} from './settings/thread-settings.react';
+import ChatThreadList from './chat-thread-list.react';
+import MessageList from './message-list.react';
+import ComposeThread from './compose-thread.react';
+import ThreadSettings from './settings/thread-settings.react';
 import { getChatScreen } from './chat-screen-registry';
-import {
-  DeleteThread,
-  DeleteThreadRouteName,
-} from './settings/delete-thread.react';
+import DeleteThread from './settings/delete-thread.react';
 import ChatIcon from './chat-icon.react';
 import ChatLabel from './chat-label.react';
+import {
+  ComposeThreadRouteName,
+  DeleteThreadRouteName,
+  ThreadSettingsRouteName,
+  MessageListRouteName,
+  ChatThreadListRouteName,
+} from '../navigation/route-names';
 
 const Chat = createStackNavigator({
   [ChatThreadListRouteName]: { screen: ChatThreadList },
@@ -62,8 +60,4 @@ Chat.navigationOptions = ({ navigation }) => ({
   },
 });
 
-const ChatRouteName = "Chat";
-export {
-  Chat,
-  ChatRouteName,
-};
+export default Chat;

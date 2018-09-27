@@ -810,7 +810,6 @@ const somethingIsSaving = (
   return false;
 };
 
-const ThreadSettingsRouteName = 'ThreadSettings';
 const ThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
@@ -825,7 +824,4 @@ const ThreadSettings = connect(
   },
 )(InnerThreadSettings);
 
-export {
-  ThreadSettings,
-  ThreadSettingsRouteName,
-};
+export default ThreadSettings;

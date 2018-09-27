@@ -19,7 +19,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 
 import Button from '../../components/button.react';
-import { ComposeThreadRouteName } from '../compose-thread.react';
+import { ComposeThreadRouteName } from '../../navigation/route-names';
 import KeyboardAvoidingView
   from '../../components/keyboard-avoiding-view.react';
 

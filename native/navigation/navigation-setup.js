@@ -13,10 +13,10 @@ import type {
   NavigationRouter,
   NavigationRoute,
 } from 'react-navigation';
-import type { AppState } from './redux-setup';
+import type { AppState } from '../redux-setup';
 import type { SessionChange } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
-import type { AndroidNotificationActions } from './push/android';
+import type { AndroidNotificationActions } from '../push/android';
 import type { UserInfo } from 'lib/types/user-types';
 
 import {
@@ -53,34 +53,30 @@ import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
 
-import {
-  Calendar,
-  CalendarRouteName,
-} from './calendar/calendar.react';
-import {
-  Chat,
-  ChatRouteName,
-} from './chat/chat.react';
-import { ChatThreadListRouteName } from './chat/chat-thread-list.react';
-import { MoreRouteName, More } from './more/more.react';
-import { MoreScreenRouteName } from './more/more-screen.react';
-import {
-  LoggedOutModal,
-  LoggedOutModalRouteName,
-} from './account/logged-out-modal.react';
-import {
-  VerificationModal,
-  VerificationModalRouteName,
-} from './account/verification-modal.react';
-import { createIsForegroundSelector } from './selectors/nav-selectors';
-import { MessageListRouteName } from './chat/message-list.react';
-import { ThreadSettingsRouteName } from './chat/settings/thread-settings.react';
+import Calendar from '../calendar/calendar.react';
+import Chat from '../chat/chat.react';
+import More from '../more/more.react';
+import LoggedOutModal from '../account/logged-out-modal.react';
+import VerificationModal from '../account/verification-modal.react';
+import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
-} from './utils/navigation-utils';
-import { DeleteThreadRouteName } from './chat/settings/delete-thread.react';
-import { ComposeThreadRouteName } from './chat/compose-thread.react';
+} from '../utils/navigation-utils';
+import {
+  AppRouteName,
+  ComposeThreadRouteName,
+  DeleteThreadRouteName,
+  ThreadSettingsRouteName,
+  MessageListRouteName,
+  VerificationModalRouteName,
+  LoggedOutModalRouteName,
+  MoreRouteName,
+  MoreScreenRouteName,
+  ChatRouteName,
+  ChatThreadListRouteName,
+  CalendarRouteName,
+} from './route-names';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -192,7 +188,7 @@ class WrappedAppNavigator
   }
 
 }
-const AppRouteName = 'App';
+
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ReduxWrappedAppNavigator = connect((state: AppState) => {
   const appNavState = state.navInfo.navigationState.routes[0];
@@ -714,6 +710,5 @@ export {
   RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
-  AppRouteName,
   removeScreensFromStack,
 };

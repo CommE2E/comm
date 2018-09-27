@@ -82,9 +82,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const BuildInfoRouteName = 'BuildInfo';
-
-export {
-  BuildInfo,
-  BuildInfoRouteName,
-};
+export default BuildInfo;

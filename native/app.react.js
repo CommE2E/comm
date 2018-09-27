@@ -6,7 +6,7 @@ import type {
 } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux-setup';
-import type { Action } from './navigation-setup';
+import type { Action } from './navigation/navigation-setup';
 import {
   type PingStartingPayload,
   type PingActionInput,
@@ -77,10 +77,9 @@ import { saveMessagesActionType } from 'lib/actions/message-actions';
 import {
   handleURLActionType,
   RootNavigator,
-  AppRouteName,
   backgroundActionType,
   foregroundActionType,
-} from './navigation-setup';
+} from './navigation/navigation-setup';
 import { store, appBecameInactive } from './redux-setup';
 import { resolveInvalidatedCookie } from './account/native-credentials';
 import {
@@ -104,6 +103,7 @@ import {
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import { persistConfig, codeVersion } from './persist';
+import { AppRouteName } from './navigation/route-names';
 
 registerConfig({
   resolveInvalidatedCookie,

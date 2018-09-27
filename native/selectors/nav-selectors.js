@@ -7,12 +7,12 @@ import { createSelector } from 'reselect';
 import invariant from 'invariant';
 import _memoize from 'lodash/memoize';
 
-import { AppRouteName } from '../navigation-setup';
-import { ChatRouteName } from '../chat/chat.react';
-import { MessageListRouteName } from '../chat/message-list.react';
 import {
+  AppRouteName,
   ThreadSettingsRouteName,
-} from '../chat/settings/thread-settings.react';
+  MessageListRouteName,
+  ChatRouteName,
+} from '../navigation/route-names';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,

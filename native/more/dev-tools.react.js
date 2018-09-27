@@ -245,7 +245,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const DevToolsRouteName = 'DevTools';
 const DevTools = connect(
   (state: AppState) => ({
     urlPrefix: state.urlPrefix,
@@ -255,7 +254,4 @@ const DevTools = connect(
   true,
 )(InnerDevTools);
 
-export {
-  DevTools,
-  DevToolsRouteName,
-};
+export default DevTools;

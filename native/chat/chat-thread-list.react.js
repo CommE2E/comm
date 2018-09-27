@@ -30,10 +30,12 @@ import { connect } from 'lib/utils/redux-utils';
 import { chatListData } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
-import { MessageListRouteName } from './message-list.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
-import { ComposeThreadRouteName } from './compose-thread.react';
+import {
+  ComposeThreadRouteName,
+  MessageListRouteName,
+} from '../navigation/route-names';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const floatingActions = [{
@@ -328,14 +330,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const ChatThreadListRouteName = 'ChatThreadList';
 const ChatThreadList = connect((state: AppState) => ({
   chatListData: chatListData(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
 }))(InnerChatThreadList);
 
-export {
-  ChatThreadList,
-  ChatThreadListRouteName,
-};
+export default ChatThreadList;

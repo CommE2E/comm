@@ -56,7 +56,7 @@ import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
-import { MessageListRouteName } from './message-list.react';
+import { MessageListRouteName } from '../navigation/route-names';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
@@ -568,7 +568,6 @@ const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
-const ComposeThreadRouteName = 'ComposeThread';
 const ComposeThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
@@ -588,7 +587,4 @@ const ComposeThread = connect(
   { newThread, searchUsers },
 )(InnerComposeThread);
 
-export {
-  ComposeThread,
-  ComposeThreadRouteName,
-};
+export default ComposeThread;

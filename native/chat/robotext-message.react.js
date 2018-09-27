@@ -25,7 +25,7 @@ import {
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
-import { MessageListRouteName } from './message-list.react';
+import { MessageListRouteName } from '../navigation/route-names';
 
 function robotextMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,

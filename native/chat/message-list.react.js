@@ -572,7 +572,6 @@ const styles = StyleSheet.create({
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-const MessageListRouteName = 'MessageList';
 const MessageList = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
@@ -587,7 +586,4 @@ const MessageList = connect(
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
 )(InnerMessageList);
 
-export {
-  MessageList,
-  MessageListRouteName,
-};
+export default MessageList;

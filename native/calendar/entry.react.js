@@ -65,8 +65,7 @@ import { dateString } from 'lib/utils/date-utils';
 import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
-import { ChatRouteName } from '../chat/chat.react';
-import { MessageListRouteName } from '../chat/message-list.react';
+import { MessageListRouteName, ChatRouteName } from '../navigation/route-names';
 
 type Props = {
   entryInfo: EntryInfoWithHeight,

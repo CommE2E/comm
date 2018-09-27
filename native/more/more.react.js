@@ -5,12 +5,20 @@ import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from 'react-navigation';
 
-import { MoreScreen, MoreScreenRouteName } from './more-screen.react';
-import { EditEmail, EditEmailRouteName } from './edit-email.react';
-import { EditPassword, EditPasswordRouteName } from './edit-password.react';
-import { DeleteAccount, DeleteAccountRouteName } from './delete-account.react';
-import { BuildInfo, BuildInfoRouteName } from './build-info.react';
-import { DevTools, DevToolsRouteName } from './dev-tools.react';
+import MoreScreen from './more-screen.react';
+import EditEmail from './edit-email.react';
+import EditPassword from './edit-password.react';
+import DeleteAccount from './delete-account.react';
+import BuildInfo from './build-info.react';
+import DevTools from './dev-tools.react';
+import {
+  MoreScreenRouteName,
+  EditEmailRouteName,
+  EditPasswordRouteName,
+  DeleteAccountRouteName,
+  BuildInfoRouteName,
+  DevToolsRouteName,
+} from '../navigation/route-names';
 
 const More = createStackNavigator({
   [MoreScreenRouteName]: { screen: MoreScreen },
@@ -36,8 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const MoreRouteName = 'More';
-export {
-  More,
-  MoreRouteName,
-};
+export default More;

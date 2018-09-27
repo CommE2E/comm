@@ -299,7 +299,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-const DeleteThreadRouteName = 'DeleteThread';
 const DeleteThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }): * => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
@@ -311,7 +310,4 @@ const DeleteThread = connect(
   { deleteThread },
 )(InnerDeleteThread);
 
-export {
-  DeleteThread,
-  DeleteThreadRouteName,
-};
+export default DeleteThread;
