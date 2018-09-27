@@ -33,13 +33,12 @@ import type { SessionUpdate } from '../updaters/session-updaters';
 import t from 'tcomb';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
-import hash from 'object-hash';
 
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
-import { values } from 'lib/utils/objects';
+import { values, hash } from 'lib/utils/objects';
 import {
   usersInRawEntryInfos,
   serverEntryInfo,
