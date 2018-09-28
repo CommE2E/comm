@@ -9,6 +9,7 @@ import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import version from 'lib/facts/version';
 
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
@@ -83,7 +84,7 @@ const persistConfig = {
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
-const codeVersion = 18;
+const codeVersion = version.currentCodeVersion;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to

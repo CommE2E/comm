@@ -126,11 +126,10 @@ async function logOutResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogOutResponse> {
-  const cookieID = viewer.getData().cookieID;
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
       createNewAnonymousCookie(viewer.platformDetails),
-      deleteCookiesOnLogOut(viewer.userID, cookieID),
+      deleteCookiesOnLogOut(viewer.userID, viewer.cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
@@ -228,7 +227,7 @@ async function logInResponder(
   const newPingTime = Date.now();
   const [ userViewerData ] = await Promise.all([
     createNewUserCookie(id, request.platformDetails),
-    deleteCookie(viewer.getData().cookieID),
+    deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {

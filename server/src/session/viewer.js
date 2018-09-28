@@ -19,13 +19,14 @@ export type UserViewerData = {|
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
   +userID: string,
-  +cookieID: string,
+  +cookieID: ?string,
   +cookieSource?: CookieSource,
-  +cookiePassword: string,
+  +cookiePassword: ?string,
   +cookieInsertedThisRequest?: bool,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
+  +isBotViewer: bool,
 |};
 
 export type AnonymousViewerData = {|
@@ -34,12 +35,13 @@ export type AnonymousViewerData = {|
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
   +cookieSource?: CookieSource,
-  +cookieID: string,
-  +cookiePassword: string,
+  +cookieID: ?string,
+  +cookiePassword: ?string,
   +cookieInsertedThisRequest?: bool,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
+  +isBotViewer: bool,
 |};
 
 type SessionInfo = {|
@@ -149,11 +151,21 @@ class Viewer {
   }
 
   get cookieID(): string {
-    return this.data.cookieID;
+    const { cookieID } = this.data;
+    invariant(
+      cookieID !== null && cookieID !== undefined,
+      "Viewer.cookieID should be set",
+    );
+    return cookieID;
   }
 
   get cookiePassword(): string {
-    return this.data.cookiePassword;
+    const { cookiePassword } = this.data;
+    invariant(
+      cookiePassword !== null && cookiePassword !== undefined,
+      "Viewer.cookieID should be set",
+    );
+    return cookiePassword;
   }
 
   get sessionIdentifierType(): SessionIdentifierType {
@@ -240,6 +252,10 @@ class Viewer {
 
   get deviceToken(): ?string {
     return this.data.deviceToken;
+  }
+
+  get isBotViewer(): bool {
+    return this.data.isBotViewer;
   }
 
 }

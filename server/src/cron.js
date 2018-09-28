@@ -20,10 +20,13 @@ import {
   deleteOldWebSessions,
 } from './deleters/session-deleters';
 import { backupDB } from './backups';
+import {
+  botherMonthlyActivesToUpdateAppVersion,
+} from './bots/app-version-update';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
-    '30 3 * * *',
+    '30 3 * * *', // every day at 3:30 AM Pacific Time
     async () => {
       try {
         // Do everything one at a time to reduce load since we're in no hurry,
@@ -51,13 +54,26 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    '0 */4 * * *',
+    '0 */4 * * *', // every four hours
     async () => {
       try {
         await backupDB();
       } catch (e) {
         console.warn(
           "encountered error while trying to backup database",
+          e,
+        );
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '30 11 ? * 6', // every Saturday at 11:30 AM Pacific Time
+    async () => {
+      try {
+        await botherMonthlyActivesToUpdateAppVersion();
+      } catch (e) {
+        console.warn(
+          "encountered error while trying to bother monthly actives to update",
           e,
         );
       }
