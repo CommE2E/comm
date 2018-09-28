@@ -276,12 +276,23 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       action.type === pingActionTypes.success ||
       action.type === joinThreadActionTypes.success ||
       action.type === leaveThreadActionTypes.success ||
-      action.type === deleteThreadActionTypes.success ||
-      action.type === setNewSessionActionType
+      action.type === deleteThreadActionTypes.success
   ) {
     const filteredNavigationState = filterChatScreensForThreadInfos(
       navInfoState.navigationState,
       action.payload.threadInfos,
+    );
+    if (navInfoState.navigationState !== filteredNavigationState) {
+      navInfoState = {
+        startDate: navInfoState.startDate,
+        endDate: navInfoState.endDate,
+        navigationState: filteredNavigationState,
+      };
+    }
+  } else if (action.type === setNewSessionActionType) {
+    const filteredNavigationState = filterChatScreensForThreadInfos(
+      navInfoState.navigationState,
+      action.payload.sessionChange.threadInfos,
     );
     if (navInfoState.navigationState !== filteredNavigationState) {
       navInfoState = {
@@ -317,7 +328,10 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
   ) {
     return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setNewSessionActionType) {
-    return logOutIfCookieInvalidated(navInfoState, action.payload);
+    return logOutIfCookieInvalidated(
+      navInfoState,
+      action.payload.sessionChange,
+    );
   } else if (action.type === leaveThreadActionTypes.success) {
     return {
       startDate: navInfoState.startDate,

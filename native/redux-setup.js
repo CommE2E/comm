@@ -274,7 +274,7 @@ function reducer(state: AppState = defaultState, action: *) {
   if (action.type === setNewSessionActionType) {
     state = {
       ...state,
-      cookie: action.payload.cookie,
+      cookie: action.payload.sessionChange.cookie,
     };
   } else if (action.type === setDeviceTokenActionTypes.started) {
     state = {

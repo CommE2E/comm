@@ -100,7 +100,7 @@ export function reducer(oldState: AppState | void, action: Action) {
   if (action.type === setNewSessionActionType) {
     state = {
       ...state,
-      sessionID: action.payload.sessionID,
+      sessionID: action.payload.sessionChange.sessionID,
     };
   }
 
