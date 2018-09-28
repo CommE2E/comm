@@ -18,7 +18,10 @@ import type { Viewer } from '../session/viewer';
 import invariant from 'invariant';
 
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
-import { sortMessageInfoList } from 'lib/shared/message-utils';
+import {
+  sortMessageInfoList,
+  shimUnsupportedRawMessageInfos,
+} from 'lib/shared/message-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
@@ -35,6 +38,9 @@ export type FetchCollapsableNotifsResult = {|
   userInfos: UserInfos,
 |};
 
+// This function doesn't filter RawMessageInfos based on what messageTypes the
+// client supports, since each user can have multiple clients. The caller must
+// handle this filtering.
 async function fetchCollapsableNotifs(
   pushInfo: PushInfo,
 ): Promise<FetchCollapsableNotifsResult> {
@@ -367,9 +373,13 @@ async function fetchMessageInfos(
   }
 
   const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
+  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+    rawMessageInfos,
+    viewer.platformDetails,
+  );
 
   return {
-    rawMessageInfos,
+    rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
     userInfos: allUserInfos,
   };
@@ -503,9 +513,13 @@ async function fetchMessageInfosSince(
   }
 
   const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
+  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+    rawMessageInfos,
+    viewer.platformDetails,
+  );
 
   return {
-    rawMessageInfos,
+    rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
     userInfos: allUserInfos,
   };

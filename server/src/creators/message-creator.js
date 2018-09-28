@@ -14,6 +14,7 @@ import invariant from 'invariant';
 import {
   rawMessageInfoFromMessageData,
   messageTypeGeneratesNotifs,
+  shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils';
 import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
@@ -169,7 +170,10 @@ async function createMessages(
   `;
   await dbQuery(messageInsertQuery);
 
-  return messageInfos;
+  return shimUnsupportedRawMessageInfos(
+    messageInfos,
+    viewer.platformDetails,
+  );
 }
 
 const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;

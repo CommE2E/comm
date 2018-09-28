@@ -25,6 +25,7 @@ import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
 import {
   createMessageInfo,
   sortMessageInfoList,
+  shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils';
 import {
   rawThreadInfoFromServerThreadInfo,
@@ -139,9 +140,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       if (iosVersionsToTokens) {
         for (let [ codeVer, deviceTokens ] in iosVersionsToTokens) {
           const codeVersion = parseInt(codeVer); // only for Flow
+          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+            newRawMessageInfos,
+            { platform: "ios", codeVersion },
+          );
           const notification = prepareIOSNotification(
             allMessageInfos,
-            newRawMessageInfos,
+            shimmedNewRawMessageInfos,
             threadInfo,
             notifInfo.collapseKey,
             badgeOnly,
@@ -158,9 +163,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       if (androidVersionsToTokens) {
         for (let [ codeVer, deviceTokens ] in androidVersionsToTokens) {
           const codeVersion = parseInt(codeVer); // only for Flow
+          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+            newRawMessageInfos,
+            { platform: "android", codeVersion },
+          );
           const notification = prepareAndroidNotification(
             allMessageInfos,
-            newRawMessageInfos,
+            shimmedNewRawMessageInfos,
             threadInfo,
             notifInfo.collapseKey,
             badgeOnly,
