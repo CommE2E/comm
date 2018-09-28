@@ -19,8 +19,9 @@ export type HTMLResponder = (viewer: Viewer, url: string) => Promise<string>;
 
 function jsonHandler(responder: JSONResponder) {
   return async (req: $Request, res: $Response) => {
+    let viewer;
     try {
-      const viewer = await fetchViewerForJSONRequest(req);
+      viewer = await fetchViewerForJSONRequest(req);
       if (!req.body || typeof req.body !== "object") {
         throw new ServerError('invalid_parameters');
       }
@@ -32,7 +33,7 @@ function jsonHandler(responder: JSONResponder) {
       await addCookieToJSONResponse(viewer, res, result);
       res.json({ success: true, ...result });
     } catch (e) {
-      handleException(e, res);
+      await handleException(e, res, viewer);
     }
   };
 }
@@ -43,7 +44,9 @@ function downloadHandler(responder: DownloadResponder) {
       const viewer = await fetchViewerForJSONRequest(req);
       await responder(viewer, req, res);
     } catch (e) {
-      handleException(e, res);
+      // Passing viewer in only makes sense if we want to handle failures as
+      // JSON. We don't, and presume all download handlers avoid ServerError.
+      await handleException(e, res);
     }
   };
 }
@@ -52,18 +55,27 @@ function getMessageForException(error: Error & { sqlMessage?: string }) {
   return error.sqlMessage !== null ? "database error" : error.message;
 }
 
-function handleException(error: Error, res: $Response) {
+async function handleException(
+  error: Error,
+  res: $Response,
+  viewer: ?Viewer,
+) {
   console.warn(error);
   if (res.headersSent) {
     return;
   }
-  if (error instanceof ServerError && error.payload) {
-    res.json({ error: error.message, payload: error.payload });
-  } else if (error instanceof ServerError) {
-    res.json({ error: error.message });
-  } else {
+  if (!(error instanceof ServerError)) {
     res.status(500).send(getMessageForException(error));
+    return;
   }
+  const result: Object = error.payload
+    ? { error: error.message, payload: error.payload }
+    : { error: error.message };
+  if (viewer) {
+    // This can mutate the result object
+    await addCookieToJSONResponse(viewer, res, result);
+  }
+  res.json(result);
 }
 
 async function handleAsyncPromise(promise: Promise<any>) {
