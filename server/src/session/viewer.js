@@ -59,15 +59,6 @@ class Viewer {
   initialCookieName: string;
 
   constructor(data: ViewerData) {
-    invariant(
-      data.cookieSource !== null && data.cookieSource !== undefined,
-      "data.cookieSource passed to Viewer constructor should be set",
-    );
-    invariant(
-      data.sessionIdentifierType !== null &&
-        data.sessionIdentifierType !== undefined,
-      "data.sessionIdentifierType passed to Viewer constructor should be set",
-    );
     this.data = data;
     this.initialCookieName = Viewer.cookieNameFromViewerData(data);
   }
