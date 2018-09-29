@@ -33,7 +33,7 @@ async function updateActivityResponder(
   input: any,
 ): Promise<UpdateActivityResult> {
   const request: UpdateActivityRequest = input;
-  validateInput(inputValidator, request);
+  await validateInput(viewer, inputValidator, request);
   return await activityUpdater(viewer, request);
 }
 

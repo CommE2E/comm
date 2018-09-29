@@ -116,7 +116,7 @@ async function entryFetchResponder(
   viewer: Viewer,
   input: any,
 ): Promise<FetchEntryInfosResponse> {
-  validateInput(entryQueryInputValidator, input);
+  await validateInput(viewer, entryQueryInputValidator, input);
   const request = normalizeCalendarQuery(input);
 
   await verifyCalendarQueryThreadIDs(request);
@@ -133,7 +133,7 @@ async function entryRevisionFetchResponder(
   input: any,
 ): Promise<FetchEntryRevisionInfosResult> {
   const request: FetchEntryRevisionInfosRequest = input;
-  validateInput(entryRevisionHistoryFetchInputValidator, request);
+  await validateInput(viewer, entryRevisionHistoryFetchInputValidator, request);
   const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
   return { result: entryHistory };
 }
@@ -152,7 +152,7 @@ async function entryCreationResponder(
   input: any,
 ): Promise<SaveEntryResponse> {
   const request: CreateEntryRequest = input;
-  validateInput(createEntryRequestInputValidator, request);
+  await validateInput(viewer, createEntryRequestInputValidator, request);
   return await createEntry(viewer, request);
 }
 
@@ -170,7 +170,7 @@ async function entryUpdateResponder(
   input: any,
 ): Promise<SaveEntryResponse> {
   const request: SaveEntryRequest = input;
-  validateInput(saveEntryRequestInputValidator, request);
+  await validateInput(viewer, saveEntryRequestInputValidator, request);
   return await updateEntry(viewer, request);
 }
 
@@ -187,7 +187,7 @@ async function entryDeletionResponder(
   input: any,
 ): Promise<DeleteEntryResponse> {
   const request: DeleteEntryRequest = input;
-  validateInput(deleteEntryRequestInputValidator, request);
+  await validateInput(viewer, deleteEntryRequestInputValidator, request);
   return await deleteEntry(viewer, request);
 }
 
@@ -203,7 +203,7 @@ async function entryRestorationResponder(
   input: any,
 ): Promise<RestoreEntryResponse> {
   const request: RestoreEntryRequest = input;
-  validateInput(restoreEntryRequestInputValidator, request);
+  await validateInput(viewer, restoreEntryRequestInputValidator, request);
   return await restoreEntry(viewer, request);
 }
 
@@ -212,7 +212,7 @@ async function calendarQueryUpdateResponder(
   input: any,
 ): Promise<FetchEntryInfosResult> {
   const request: CalendarQuery = input;
-  validateInput(newEntryQueryInputValidator, input);
+  await validateInput(viewer, newEntryQueryInputValidator, input);
 
   await verifyCalendarQueryThreadIDs(request);
   if (!viewer.loggedIn) {

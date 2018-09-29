@@ -1,15 +1,24 @@
 // @flow
 
+import type { Viewer } from '../session/viewer';
+
 import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
 
-function validateInput(inputValidator: *, input: *) {
-  if (inputValidator.is(input)) {
+function validateInput(viewer: Viewer, inputValidator: *, input: *) {
+  if (inputValid(viewer, inputValidator, input)) {
     return;
   }
-  const sanitizedInput = sanitizeInput(inputValidator, input);
+  const sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
   throw new ServerError('invalid_parameters', { input: sanitizedInput });
+}
+
+function inputValid(viewer: Viewer, inputValidator: *, input: *) {
+  if (inputValidator && !inputValidator.is(input)) {
+    return false;
+  }
+  return true;
 }
 
 const fakePassword = "********";

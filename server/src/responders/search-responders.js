@@ -20,7 +20,7 @@ async function userSearchResponder(
   input: any,
 ): Promise<UserSearchResult> {
   const request: UserSearchRequest = input;
-  validateInput(userSearchRequestInputValidator, request);
+  await validateInput(viewer, userSearchRequestInputValidator, request);
   const searchResults = await searchForUsers(request);
   return { userInfos: searchResults };
 }

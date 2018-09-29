@@ -31,7 +31,7 @@ async function textMessageCreationResponder(
   input: any,
 ): Promise<SendTextMessageResponse> {
   const request: SendTextMessageRequest = input;
-  validateInput(sendTextMessageRequestInputValidator, request);
+  await validateInput(viewer, sendTextMessageRequestInputValidator, request);
 
   const { threadID, text: rawText } = request;
   const text = rawText.trim();
@@ -70,7 +70,7 @@ async function messageFetchResponder(
   input: any,
 ): Promise<FetchMessageInfosResult> {
   const request: FetchMessageInfosRequest = input;
-  validateInput(fetchMessageInfosRequestInputValidator, request);
+  await validateInput(viewer, fetchMessageInfosRequestInputValidator, request);
   return await fetchMessageInfos(
     viewer,
     { threadCursors: request.cursors },

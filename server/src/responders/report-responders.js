@@ -78,7 +78,7 @@ async function reportCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<ReportCreationResponse> {
-  validateInput(reportCreationRequestInputValidator, input);
+  await validateInput(viewer, reportCreationRequestInputValidator, input);
   if (input.type === null || input.type === undefined) {
     input.type = reportTypes.ERROR;
   }
@@ -106,7 +106,11 @@ async function errorReportFetchInfosResponder(
   input: any,
 ): Promise<FetchErrorReportInfosResponse> {
   const request: FetchErrorReportInfosRequest = input;
-  validateInput(fetchErrorReportInfosRequestInputValidator, request);
+  await validateInput(
+    viewer,
+    fetchErrorReportInfosRequestInputValidator,
+    request,
+  );
   return await fetchErrorReportInfos(viewer, request);
 }
 

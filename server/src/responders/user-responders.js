@@ -80,7 +80,7 @@ async function userSubscriptionUpdateResponder(
   input: any,
 ): Promise<SubscriptionUpdateResponse> {
   const request: SubscriptionUpdateRequest = input;
-  validateInput(subscriptionUpdateRequestInputValidator, request);
+  await validateInput(viewer, subscriptionUpdateRequestInputValidator, request);
   const threadSubscription = await userSubscriptionUpdater(viewer, request);
   return { threadSubscription };
 }
@@ -98,7 +98,7 @@ async function accountUpdateResponder(
   input: any,
 ): Promise<void> {
   const request: AccountUpdate = input;
-  validateInput(accountUpdateInputValidator, request);
+  await validateInput(viewer, accountUpdateInputValidator, request);
   await accountUpdater(viewer, request);
 }
 
@@ -106,6 +106,7 @@ async function sendVerificationEmailResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
+  await validateInput(viewer, null, null);
   await checkAndSendVerificationEmail(viewer);
 }
 
@@ -118,7 +119,7 @@ async function sendPasswordResetEmailResponder(
   input: any,
 ): Promise<void> {
   const request: ResetPasswordRequest = input;
-  validateInput(resetPasswordRequestInputValidator, request);
+  await validateInput(viewer, resetPasswordRequestInputValidator, request);
   await checkAndSendPasswordResetEmail(request);
 }
 
@@ -126,6 +127,7 @@ async function logOutResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogOutResponse> {
+  await validateInput(viewer, null, null);
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
       createNewAnonymousCookie(viewer.platformDetails),
@@ -150,7 +152,7 @@ async function accountDeletionResponder(
   input: any,
 ): Promise<LogOutResponse> {
   const request: DeleteAccountRequest = input;
-  validateInput(deleteAccountRequestInputValidator, request);
+  await validateInput(viewer, deleteAccountRequestInputValidator, request);
   return await deleteAccount(viewer, request);
 }
 
@@ -173,7 +175,7 @@ async function accountCreationResponder(
     delete input.platform;
   }
   const request: RegisterRequest = input;
-  validateInput(registerRequestInputValidator, request);
+  await validateInput(viewer, registerRequestInputValidator, request);
   return await createAccount(viewer, request);
 }
 
@@ -191,7 +193,7 @@ async function logInResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
-  validateInput(logInRequestInputValidator, input);
+  await validateInput(viewer, logInRequestInputValidator, input);
   if (!input.platformDetails && input.platform) {
     input.platformDetails = { platform: input.platform };
     delete input.platform;
@@ -288,7 +290,7 @@ async function passwordUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
-  validateInput(updatePasswordRequestInputValidator, input);
+  await validateInput(viewer, updatePasswordRequestInputValidator, input);
   if (!input.platformDetails && input.platform) {
     input.platformDetails = { platform: input.platform };
     delete input.platform;
@@ -316,7 +318,7 @@ async function requestAccessResponder(
   input: any,
 ): Promise<void> {
   const request: AccessRequest = input;
-  validateInput(accessRequestInputValidator, request);
+  await validateInput(viewer, accessRequestInputValidator, request);
 
   await sendAccessRequestEmailToAshoat(request);
 }

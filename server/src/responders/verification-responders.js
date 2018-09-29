@@ -24,7 +24,7 @@ async function codeVerificationResponder(
   input: any,
 ): Promise<HandleVerificationCodeResult> {
   const request: CodeVerificationRequest = input;
-  validateInput(codeVerificationRequestInputValidator, request);
+  await validateInput(viewer, codeVerificationRequestInputValidator, request);
 
   const result = await handleCodeVerificationRequest(viewer, request.code);
   if (!result) {

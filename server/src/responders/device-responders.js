@@ -18,7 +18,7 @@ async function deviceTokenUpdateResponder(
   input: any,
 ): Promise<void> {
   const request: DeviceTokenUpdateRequest = input;
-  validateInput(deviceTokenUpdateRequestInputValidator, request);
+  await validateInput(viewer, deviceTokenUpdateRequestInputValidator, request);
   await deviceTokenUpdater(viewer, request);
 }
 

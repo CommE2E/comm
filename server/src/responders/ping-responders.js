@@ -170,7 +170,7 @@ async function pingResponder(
 ): Promise<PingResponse> {
   const request: PingRequest = input;
   request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
-  validateInput(pingRequestInputValidator, request);
+  await validateInput(viewer, pingRequestInputValidator, request);
 
   let clientMessagesCurrentAsOf;
   if (

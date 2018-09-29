@@ -51,7 +51,7 @@ async function threadDeletionResponder(
   input: any,
 ): Promise<LeaveThreadResult> {
   const request: ThreadDeletionRequest = input;
-  validateInput(threadDeletionRequestInputValidator, request);
+  await validateInput(viewer, threadDeletionRequestInputValidator, request);
   return await deleteThread(viewer, request);
 }
 
@@ -72,7 +72,7 @@ async function roleUpdateResponder(
   input: any,
 ): Promise<ChangeThreadSettingsResult> {
   const request: RoleChangeRequest = input;
-  validateInput(roleChangeRequestInputValidator, request);
+  await validateInput(viewer, roleChangeRequestInputValidator, request);
   return await updateRole(viewer, request);
 }
 
@@ -86,7 +86,7 @@ async function memberRemovalResponder(
   input: any,
 ): Promise<ChangeThreadSettingsResult> {
   const request: RemoveMembersRequest = input;
-  validateInput(removeMembersRequestInputValidator, request);
+  await validateInput(viewer, removeMembersRequestInputValidator, request);
   return await removeMembers(viewer, request);
 }
 
@@ -99,7 +99,7 @@ async function threadLeaveResponder(
   input: any,
 ): Promise<LeaveThreadResult> {
   const request: LeaveThreadRequest = input;
-  validateInput(leaveThreadRequestInputValidator, request);
+  await validateInput(viewer, leaveThreadRequestInputValidator, request);
   return await leaveThread(viewer, request);
 }
 
@@ -121,7 +121,7 @@ async function threadUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<ChangeThreadSettingsResult> {
-  validateInput(updateThreadRequestInputValidator, input);
+  await validateInput(viewer, updateThreadRequestInputValidator, input);
   let request;
   if (
     input.changes.visibilityRules !== null &&
@@ -174,7 +174,7 @@ async function threadCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<NewThreadResult> {
-  validateInput(newThreadRequestInputValidator, input);
+  await validateInput(viewer, newThreadRequestInputValidator, input);
   let request;
   if (
     (input.visibilityRules === null ||
@@ -206,7 +206,7 @@ async function threadJoinResponder(
   input: any,
 ): Promise<ThreadJoinResult> {
   const request: ServerThreadJoinRequest = input;
-  validateInput(joinThreadRequestInputValidator, request);
+  await validateInput(viewer, joinThreadRequestInputValidator, request);
 
   if (request.calendarQuery) {
     await verifyCalendarQueryThreadIDs(request.calendarQuery);
