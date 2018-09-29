@@ -6,19 +6,38 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
 
-function validateInput(viewer: Viewer, inputValidator: *, input: *) {
-  if (inputValid(viewer, inputValidator, input)) {
+import { verifyClientSupported } from '../session/version';
+
+async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
+  let platformDetails;
+  if (inputValidator) {
+    platformDetails = findFirstInputMatchingValidator(
+      inputValidator,
+      tPlatformDetails,
+      input,
+    );
+  }
+  if (!platformDetails && inputValidator) {
+    const platform = findFirstInputMatchingValidator(
+      inputValidator,
+      tPlatform,
+      input,
+    );
+    if (platform) {
+      platformDetails = { platform };
+    }
+  }
+  if (!platformDetails) {
+    ({ platformDetails } = viewer);
+  }
+  await verifyClientSupported(viewer, platformDetails);
+
+  if (!inputValidator || inputValidator.is(input)) {
     return;
   }
+
   const sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
   throw new ServerError('invalid_parameters', { input: sanitizedInput });
-}
-
-function inputValid(viewer: Viewer, inputValidator: *, input: *) {
-  if (inputValidator && !inputValidator.is(input)) {
-    return false;
-  }
-  return true;
 }
 
 const fakePassword = "********";
@@ -50,6 +69,74 @@ function sanitizeInput(inputValidator: *, input: *) {
     result[key] = sanitizeInput(validator, value);
   }
   return result;
+}
+
+function findFirstInputMatchingValidator(
+  wholeInputValidator: *,
+  inputValidatorToMatch: *,
+  input: *,
+): any {
+  if (!wholeInputValidator || input === null || input === undefined) {
+    return null;
+  }
+  if (
+    wholeInputValidator === inputValidatorToMatch &&
+    wholeInputValidator.is(input)
+  ) {
+    return input;
+  }
+  if (wholeInputValidator.meta.kind === "maybe") {
+    return findFirstInputMatchingValidator(
+      wholeInputValidator.meta.type,
+      inputValidatorToMatch,
+      input,
+    );
+  }
+  if (
+    wholeInputValidator.meta.kind === "interface" &&
+    typeof input === "object"
+  ) {
+    for (let key in input) {
+      const value = input[key];
+      const validator = wholeInputValidator.meta.props[key];
+      const innerResult = findFirstInputMatchingValidator(
+        validator,
+        inputValidatorToMatch,
+        value,
+      );
+      if (innerResult) {
+        return innerResult;
+      }
+    }
+  }
+  if (wholeInputValidator.meta.kind === "union") {
+    for (let validator of wholeInputValidator.meta.types) {
+      if (validator.is(input)) {
+        return findFirstInputMatchingValidator(
+          validator,
+          inputValidatorToMatch,
+          input,
+        );
+      }
+    }
+  }
+  if (
+    wholeInputValidator.meta.kind === "list" &&
+    Array.isArray(input)
+  ) {
+    const validator = wholeInputValidator.meta.type;
+    for (let value of input) {
+      const innerResult = findFirstInputMatchingValidator(
+        validator,
+        inputValidatorToMatch,
+        value,
+      );
+      if (innerResult) {
+        return innerResult;
+      }
+    }
+  }
+  return null;
 }
 
 function tBool(value: bool) {

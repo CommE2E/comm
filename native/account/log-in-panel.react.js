@@ -20,6 +20,7 @@ import {
   Alert,
   Keyboard,
   Animated,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
@@ -264,6 +265,20 @@ class LogInPanel extends React.PureComponent<Props> {
           ],
           { cancelable: false },
         );
+      } else if (e.message === 'client_version_unsupported') {
+        const app = Platform.select({
+          ios: "Testflight",
+          android: "Play Store",
+        });
+        Alert.alert(
+          "App out of date",
+          "Your app version is pretty old, and the server doesn't know how " +
+            `to speak to it anymore. Please use the ${app} app to update!`,
+          [
+            { text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
       } else {
         Alert.alert(
           "Unknown error",
@@ -303,6 +318,10 @@ class LogInPanel extends React.PureComponent<Props> {
         this.usernameOrEmailInput.focus();
       },
     );
+  }
+
+  onAppOutOfDateAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
   }
 
   onPressOnePassword = async () => {

@@ -14,7 +14,7 @@ import type {
   NavigationRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
-import type { SessionChange } from 'lib/types/session-types';
+import type { SetSessionPayload } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from '../push/android';
 import type { UserInfo } from 'lib/types/user-types';
@@ -330,7 +330,7 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
   } else if (action.type === setNewSessionActionType) {
     return logOutIfCookieInvalidated(
       navInfoState,
-      action.payload.sessionChange,
+      action.payload,
     );
   } else if (action.type === leaveThreadActionTypes.success) {
     return {
@@ -501,21 +501,35 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
 
 function logOutIfCookieInvalidated(
   state: NavInfo,
-  payload: SessionChange,
+  payload: SetSessionPayload,
 ): NavInfo {
-  if (payload.cookieInvalidated) {
-    const newState = resetNavInfoAndEnsureLoggedOutModalPresence(state);
-    if (state !== newState) {
-      Alert.alert(
-        "Session invalidated",
-        "We're sorry, but your session was invalidated by the server. " +
-          "Please log in again.",
-        [ { text: 'OK' } ],
-      );
-    }
+  if (!payload.sessionChange.cookieInvalidated) {
+    return state;
+  }
+  const newState = resetNavInfoAndEnsureLoggedOutModalPresence(state);
+  if (state.navigationState === newState.navigationState) {
     return newState;
   }
-  return state;
+  if (payload.error === "client_version_unsupported") {
+    const app = Platform.select({
+      ios: "Testflight",
+      android: "Play Store",
+    });
+    Alert.alert(
+      "App out of date",
+      "Your app version is pretty old, and the server doesn't know how to " +
+        `speak to it anymore. Please use the ${app} app to update!`,
+      [ { text: 'OK' } ],
+    );
+  } else {
+    Alert.alert(
+      "Session invalidated",
+      "We're sorry, but your session was invalidated by the server. " +
+        "Please log in again.",
+      [ { text: 'OK' } ],
+    );
+  }
+  return newState;
 }
 
 function popChatScreensForThreadID(

@@ -17,6 +17,7 @@ import {
   Keyboard,
   View,
   Text,
+  Platform,
 } from 'react-native';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
@@ -216,16 +217,36 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       this.props.onSuccess();
       return result;
     } catch (e) {
-      Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      throw e;
+      if (e.message === 'client_version_unsupported') {
+        const app = Platform.select({
+          ios: "Testflight",
+          android: "Play Store",
+        });
+        Alert.alert(
+          "App out of date",
+          "Your app version is pretty old, and the server doesn't know how " +
+            `to speak to it anymore. Please use the ${app} app to update!`,
+          [
+            { text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
+      } else {
+        Alert.alert(
+          "Unknown error",
+          "Uhh... try again?",
+          [
+            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
+          ],
+          { cancelable: false },
+        );
+        throw e;
+      }
     }
+  }
+
+  onAppOutOfDateAlertAcknowledged = () => {
+    this.props.setActiveAlert(false);
   }
 
   onPressOnePassword = async () => {
