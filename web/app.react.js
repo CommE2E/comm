@@ -12,13 +12,6 @@ import {
   type CalendarQueryUpdateResult,
   calendarQueryPropType,
 } from 'lib/types/entry-types';
-import {
-  type PingStartingPayload,
-  type PingActionInput,
-  type PingResult,
-  type PingTimestamps,
-  pingTimestampsPropType,
-} from 'lib/types/ping-types';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
@@ -47,11 +40,6 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  pingStartingPayload,
-} from 'lib/selectors/ping-selectors';
-import { pingActionTypes, ping } from 'lib/actions/ping-actions';
-import { pingFrequency, dispatchPing } from 'lib/shared/ping-utils';
 import { registerConfig } from 'lib/utils/config';
 import {
   includeDeletedSelector,
@@ -78,7 +66,7 @@ import history from './router-history';
 import { updateNavInfoActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
-import { pingWebActionInput } from './selectors/ping-selectors';
+import Socket from './socket.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file.
@@ -107,12 +95,6 @@ type Props = {
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
   currentCalendarQuery: () => CalendarQuery,
-  pingStartingPayload: () => PingStartingPayload,
-  pingActionInput: (
-    startingPayload: PingStartingPayload,
-    justForegrounded: bool,
-  ) => PingActionInput,
-  pingTimestamps: PingTimestamps,
   loggedIn: bool,
   includeDeleted: bool,
   mostRecentReadThread: ?string,
@@ -130,15 +112,14 @@ type Props = {
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: bool,
   ) => Promise<CalendarQueryUpdateResult>,
-  ping: (actionInput: PingActionInput) => Promise<PingResult>,
   updateActivity: (
     activityUpdates: $ReadOnlyArray<ActivityUpdate>,
   ) => Promise<UpdateActivityResult>,
 };
-type State = {
+type State = {|
   currentModal: ?React.Node,
-};
-
+  visible: bool,
+|};
 class App extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -149,9 +130,6 @@ class App extends React.PureComponent<Props, State> {
     verifyField: PropTypes.number,
     entriesLoadingStatus: PropTypes.string.isRequired,
     currentCalendarQuery: PropTypes.func.isRequired,
-    pingStartingPayload: PropTypes.func.isRequired,
-    pingActionInput: PropTypes.func.isRequired,
-    pingTimestamps: pingTimestampsPropType.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     includeDeleted: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
@@ -164,14 +142,13 @@ class App extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
-    ping: PropTypes.func.isRequired,
     updateActivity: PropTypes.func.isRequired,
   };
-  pingCounter = 0;
-  actualizedCalendarQuery: CalendarQuery;
   state = {
     currentModal: null,
+    visible: true,
   };
+  actualizedCalendarQuery: CalendarQuery;
 
   constructor(props: Props) {
     super(props);
@@ -205,7 +182,6 @@ class App extends React.PureComponent<Props, State> {
       if (this.props.location.pathname !== newURL) {
         history.replace(newURL);
       }
-      this.startTimeouts(this.props);
     } else if (this.props.location.pathname !== '/') {
       history.replace('/');
     }
@@ -213,14 +189,9 @@ class App extends React.PureComponent<Props, State> {
     Visibility.change(this.onVisibilityChange);
   }
 
-  componentWillUnmount() {
-    this.closingApp();
-  }
-
   onVisibilityChange = (e, state: string) => {
-    if (state === "visible") {
-      this.startTimeouts(this.props);
-    } else {
+    this.setState({ visible: state === "visible" });
+    if (state !== "visible") {
       this.closingApp();
     }
   }
@@ -269,48 +240,6 @@ class App extends React.PureComponent<Props, State> {
       updateActivityActionTypes,
       this.props.updateActivity(updates),
     );
-  }
-
-  shouldDispatchPing(props: Props) {
-    if (Visibility.hidden() || !props.loggedIn) {
-      return false;
-    }
-    const lastPingStart = props.pingTimestamps.lastStarted;
-    const timeUntilNextPing = lastPingStart + pingFrequency - Date.now();
-    if (this.pingCounter === 0 && timeUntilNextPing < 500) {
-      return true;
-    } else if (lastPingStart < Date.now() - pingFrequency * 10) {
-      // It seems we have encountered some error start where ping isn't firing
-      this.pingCounter = 0;
-      return true;
-    }
-    return false;
-  }
-
-  possiblePing = (inputProps?: Props, justForegrounded?: ?bool) => {
-    const props = inputProps ? inputProps : this.props;
-    if (this.shouldDispatchPing(props)) {
-      this.pingNow(inputProps, justForegrounded);
-    }
-  }
-
-  pingNow(inputProps?: Props, justForegrounded?: ?bool) {
-    const props = inputProps ? inputProps : this.props;
-    // This will only trigger if the ping is complete by then. If the ping isn't
-    // complete by the time this timeout fires, componentWillReceiveProps takes
-    // responsibility for starting the next ping.
-    setTimeout(this.possiblePing, pingFrequency);
-    // This one runs in case something is wrong with pingCounter state or timing
-    // and the first one gets swallowed without triggering another ping.
-    setTimeout(this.possiblePing, pingFrequency * 10);
-    dispatchPing(props, !!justForegrounded);
-  }
-
-  startTimeouts(inputProps?: Props) {
-    const props = inputProps ? inputProps : this.props;
-    if (props.loggedIn) {
-      this.possiblePing(props, true);
-    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -379,22 +308,6 @@ class App extends React.PureComponent<Props, State> {
       }
     }
 
-    const prevLastPingSuccess = this.props.pingTimestamps.lastSuccess;
-    const nextLastPingSuccess = nextProps.pingTimestamps.lastSuccess;
-    const prevLastPingStart = this.props.pingTimestamps.lastStarted;
-    const nextLastPingStart = nextProps.pingTimestamps.lastStarted;
-    const prevLastPingComplete = this.props.pingTimestamps.lastCompletion;
-    const nextLastPingComplete = nextProps.pingTimestamps.lastCompletion;
-    if (prevLastPingComplete !== nextLastPingComplete) {
-      if (this.pingCounter > 0) {
-        this.pingCounter--;
-      }
-      this.possiblePing(nextProps);
-    }
-    if (prevLastPingStart !== nextLastPingStart) {
-      this.pingCounter++;
-    }
-
     const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
     if (justLoggedIn) {
       const newURL = canonicalURLFromReduxState(
@@ -404,7 +317,6 @@ class App extends React.PureComponent<Props, State> {
       if (nextProps.location.pathname !== newURL) {
         history.replace(newURL);
       }
-      this.startTimeouts(nextProps);
     } else if (nextProps.activeThread !== this.props.activeThread) {
       App.updateFocusedThreads(
         nextProps,
@@ -433,6 +345,7 @@ class App extends React.PureComponent<Props, State> {
     }
     return (
       <React.Fragment>
+        <Socket active={this.props.loggedIn && this.state.visible} />
         {content}
         {this.state.currentModal}
       </React.Fragment>
@@ -569,9 +482,6 @@ export default connect(
         updateCalendarQueryLoadingStatusSelector(state),
       ),
       currentCalendarQuery: currentCalendarQuery(state),
-      pingStartingPayload: pingStartingPayload(state),
-      pingActionInput: pingWebActionInput(state),
-      pingTimestamps: state.pingTimestamps,
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),
       includeDeleted: includeDeletedSelector(state),
@@ -588,5 +498,5 @@ export default connect(
       actualizedCalendarQuery: state.entryStore.actualizedCalendarQuery,
     };
   },
-  { updateCalendarQuery, ping, updateActivity },
+  { updateCalendarQuery, updateActivity },
 )(App);

@@ -8,10 +8,10 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { VerifyField } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { PingTimestamps } from 'lib/types/ping-types';
 import type { ServerRequest } from 'lib/types/request-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
+import type { ConnectionInfo } from 'lib/types/socket-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -55,13 +55,15 @@ export type AppState = {|
   drafts: {[key: string]: string},
   updatesCurrentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
-  pingTimestamps: PingTimestamps,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
   deviceToken?: void,
+  baseHref: string,
+  connection: ConnectionInfo,
+  watchedThreadIDs: $ReadOnlyArray<string>,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";

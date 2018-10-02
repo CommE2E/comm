@@ -3,9 +3,9 @@
 import type { $Response, $Request } from 'express';
 import type { AppState, Action } from 'web/redux-setup';
 import type { Store } from 'redux';
-import { defaultPingTimestamps } from 'lib/types/ping-types';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import { defaultConnectionInfo } from 'lib/types/socket-types';
 
 import html from 'common-tags/lib/html';
 import { createStore } from 'redux';
@@ -46,7 +46,7 @@ import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
 import assets from '../../compiled/assets';
 
-const { basePath } = urlFacts;
+const { basePath, baseDomain } = urlFacts;
 const { renderToString } = ReactDOMServer;
 const { AppContainer } = ReactHotLoader;
 const { Provider } = ReactRedux;
@@ -117,6 +117,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     );
   }
 
+  const baseURL = basePath.replace(/\/$/, '');
   const store: Store<AppState, Action> = createStore(
     reducer,
     ({
@@ -148,16 +149,17 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       drafts: {},
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
-      pingTimestamps: defaultPingTimestamps,
       activeServerRequests: [],
       calendarFilters: defaultCalendarFilters,
       // We can use paths local to the <base href> on web
       urlPrefix: "",
       windowDimensions: { width: 0, height: 0 },
+      baseHref: baseDomain + baseURL,
+      connection: defaultConnectionInfo,
+      watchedThreadIDs: [],
     }: AppState),
   );
   const routerContext = {};
-  const baseURL = basePath.replace(/\/$/, '');
   const rendered = renderToString(
     <AppContainer>
       <Provider store={store}>

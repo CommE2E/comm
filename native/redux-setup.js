@@ -12,10 +12,6 @@ import {
   defaultNotifPermissionAlertInfo,
 } from './push/alerts';
 import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
-import {
-  type PingTimestamps,
-  defaultPingTimestamps,
-} from 'lib/types/ping-types';
 import type { ServerRequest } from 'lib/types/request-types';
 import {
   type CalendarFilter,
@@ -24,6 +20,10 @@ import {
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 import { updateTypes } from 'lib/types/update-types';
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
+import {
+  type ConnectionInfo,
+  defaultConnectionInfo,
+} from 'lib/types/socket-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -96,7 +96,6 @@ export type AppState = {|
   drafts: {[key: string]: string},
   updatesCurrentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
-  pingTimestamps: PingTimestamps,
   activeServerRequests: $ReadOnlyArray<ServerRequest>,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   cookie: ?string,
@@ -106,6 +105,8 @@ export type AppState = {|
   threadIDsToNotifIDs: {[threadID: string]: string[]},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   messageSentFromRoute: $ReadOnlyArray<string>,
+  connection: ConnectionInfo,
+  watchedThreadIDs: $ReadOnlyArray<string>,
   _persist: ?PersistState,
   sessionID?: void,
 |};
@@ -133,7 +134,6 @@ const defaultState = ({
   drafts: {},
   updatesCurrentAsOf: 0,
   loadingStatuses: {},
-  pingTimestamps: defaultPingTimestamps,
   activeServerRequests: [],
   calendarFilters: defaultCalendarFilters,
   cookie: null,
@@ -143,6 +143,8 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   messageSentFromRoute: [],
+  connection: defaultConnectionInfo,
+  watchedThreadIDs: [],
   _persist: null,
 }: AppState);
 

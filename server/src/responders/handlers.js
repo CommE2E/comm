@@ -21,11 +21,12 @@ function jsonHandler(responder: JSONResponder) {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
-      viewer = await fetchViewerForJSONRequest(req);
       if (!req.body || typeof req.body !== "object") {
         throw new ServerError('invalid_parameters');
       }
-      const responderResult = await responder(viewer, req.body.input);
+      const { input } = req.body;
+      viewer = await fetchViewerForJSONRequest(req);
+      const responderResult = await responder(viewer, input);
       if (res.headersSent) {
         return;
       }

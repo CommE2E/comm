@@ -1,8 +1,8 @@
 // @flow
 
 import type { AppState } from './redux-setup';
-import { defaultPingTimestamps } from 'lib/types/ping-types';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
+import { defaultConnectionInfo } from 'lib/types/socket-types';
 
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
@@ -48,7 +48,7 @@ const migrations = {
   }),
   [4]: (state: AppState) => ({
     ...state,
-    pingTimestamps: defaultPingTimestamps,
+    pingTimestamps: undefined,
     activeServerRequests: [],
   }),
   [5]: (state: AppState) => ({
@@ -73,6 +73,12 @@ const migrations = {
       actualizedCalendarQuery: currentCalendarQuery(state)(),
     },
   }),
+  [8]: (state: AppState) => ({
+    ...state,
+    pingTimestamps: undefined,
+    connection: defaultConnectionInfo,
+    watchedThreadIDs: [],
+  }),
 };
 
 const persistConfig = {
@@ -80,7 +86,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 7,
+  version: 8,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

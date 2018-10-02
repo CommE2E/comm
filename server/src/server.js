@@ -7,6 +7,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cluster from 'cluster';
 import os from 'os';
+import expressWs from 'express-ws';
 
 import {
   jsonHandler,
@@ -60,6 +61,7 @@ import {
   errorReportFetchInfosResponder,
   errorReportDownloadHandler,
 } from './responders/report-responders';
+import { onConnection } from './socket';
 import urlFacts from '../facts/url';
 import './cron';
 
@@ -110,6 +112,7 @@ if (cluster.isMaster) {
   cluster.on('exit', worker => cluster.fork());
 } else {
   const server = express();
+  expressWs(server);
   server.use(express.json({ limit: "50mb" }));
   server.use(cookieParser());
 
@@ -140,6 +143,8 @@ if (cluster.isMaster) {
     '/download_error_report/:reportID',
     downloadHandler(errorReportDownloadHandler),
   );
+  // $FlowFixMe express-ws has side effects that can't be typed
+  router.ws('/ws', onConnection);
   router.get('*', htmlHandler(websiteResponder));
 
   server.use(baseRoutePath, router);

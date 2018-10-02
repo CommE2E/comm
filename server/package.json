@@ -28,6 +28,7 @@
     "dateformat": "^3.0.3",
     "denodeify": "^1.2.1",
     "express": "^4.16.2",
+    "express-ws": "^4.0.0",
     "firebase-admin": "^5.7.0",
     "invariant": "^2.2.2",
     "lib": "0.0.1",
@@ -52,5 +53,9 @@
   },
   "nodemonConfig": {
     "delay": "200"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.0",
+    "utf-8-validate": "^5.0.1"
   }
 }
