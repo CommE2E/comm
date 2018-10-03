@@ -46,7 +46,6 @@ import { pingActionTypes } from 'lib/actions/ping-actions';
 import {
   leaveThreadActionTypes,
   deleteThreadActionTypes,
-  joinThreadActionTypes,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
@@ -307,7 +306,7 @@ function reduceNavInfo(
     };
   } else if (
     action.type === logOutActionTypes.started ||
-      action.type === deleteAccountActionTypes.success
+    action.type === deleteAccountActionTypes.success
   ) {
     return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setNewSessionActionType) {
@@ -315,7 +314,10 @@ function reduceNavInfo(
       navInfoState,
       action.payload,
     );
-  } else if (action.type === leaveThreadActionTypes.success) {
+  } else if (
+    action.type === leaveThreadActionTypes.success ||
+    action.type === deleteThreadActionTypes.success
+  ) {
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
@@ -389,6 +391,7 @@ function handleURL(
         },
       },
     ],
+    isTransitioning: true,
   };
 }
 
@@ -440,12 +443,19 @@ function removeModals(
   state: NavigationState,
   modalRouteNames: string[],
 ): NavigationState {
-  return removeScreensFromStack(
+  const newState = removeScreensFromStack(
     state,
     (route: NavigationRoute) => _includes(route.routeName)(modalRouteNames)
       ? "remove"
       : "keep",
   );
+  if (newState === state) {
+    return state;
+  }
+  return {
+    ...newState,
+    isTransitioning: true,
+  };
 }
 
 function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
@@ -466,6 +476,7 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
       navigationState: {
         ...navigationState,
         index: currentModalIndex,
+        isTransitioning: true,
       },
     };
   }
@@ -478,6 +489,7 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
         ...navigationState.routes,
         { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
       ],
+      isTransitioning: true,
     },
   };
 }
@@ -548,7 +560,11 @@ function popChatScreensForThreadID(
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return { ...state, routes: newRootSubRoutes };
+  return {
+    ...state,
+    routes: newRootSubRoutes,
+    isTransitioning: true,
+  };
 }
 
 function filterChatScreensForThreadInfos(
@@ -583,7 +599,11 @@ function filterChatScreensForThreadInfos(
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return { ...state, routes: newRootSubRoutes };
+  return {
+    ...state,
+    routes: newRootSubRoutes,
+    isTransitioning: true,
+  };
 }
 
 function handleNewThread(
@@ -617,7 +637,11 @@ function handleNewThread(
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return { ...state, routes: newRootSubRoutes };
+  return {
+    ...state,
+    routes: newRootSubRoutes,
+    isTransitioning: true,
+  };
 }
 
 function replaceChatStackWithThread(
@@ -651,7 +675,11 @@ function replaceChatStackWithThread(
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return { ...state, routes: newRootSubRoutes };
+  return {
+    ...state,
+    routes: newRootSubRoutes,
+    isTransitioning: true,
+  };
 }
 
 function handleNotificationPress(
@@ -707,7 +735,11 @@ function handleNotificationPress(
   newAppSubRoutes[1] = newChatRoute;
   const newRootSubRoutes = [ ...state.routes ];
   newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes, index: 1 };
-  return { ...state, routes: newRootSubRoutes };
+  return {
+    ...state,
+    routes: newRootSubRoutes,
+    isTransitioning: true,
+  };
 }
 
 export {
