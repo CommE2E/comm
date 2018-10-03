@@ -253,7 +253,11 @@ const defaultNavInfo: NavInfo = {
 };
 
 const accountModals = [ LoggedOutModalRouteName, VerificationModalRouteName ];
-function reduceNavInfo(state: AppState, action: *): NavInfo {
+function reduceNavInfo(
+  state: AppState,
+  action: *,
+  newThreadInfos: {[id: string]: RawThreadInfo},
+): NavInfo {
   let navInfoState = state.navInfo;
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
@@ -267,41 +271,20 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       navigationState,
     };
   }
+
   // Filtering out screens corresponding to deauthorized threads
-  if (
-    action.type === logOutActionTypes.success ||
-      action.type === deleteAccountActionTypes.success ||
-      action.type === logInActionTypes.success ||
-      action.type === resetPasswordActionTypes.success ||
-      action.type === pingActionTypes.success ||
-      action.type === joinThreadActionTypes.success ||
-      action.type === leaveThreadActionTypes.success ||
-      action.type === deleteThreadActionTypes.success
-  ) {
-    const filteredNavigationState = filterChatScreensForThreadInfos(
-      navInfoState.navigationState,
-      action.payload.threadInfos,
-    );
-    if (navInfoState.navigationState !== filteredNavigationState) {
-      navInfoState = {
-        startDate: navInfoState.startDate,
-        endDate: navInfoState.endDate,
-        navigationState: filteredNavigationState,
-      };
-    }
-  } else if (action.type === setNewSessionActionType) {
-    const filteredNavigationState = filterChatScreensForThreadInfos(
-      navInfoState.navigationState,
-      action.payload.sessionChange.threadInfos,
-    );
-    if (navInfoState.navigationState !== filteredNavigationState) {
-      navInfoState = {
-        startDate: navInfoState.startDate,
-        endDate: navInfoState.endDate,
-        navigationState: filteredNavigationState,
-      };
-    }
+  const filteredNavigationState = filterChatScreensForThreadInfos(
+    navInfoState.navigationState,
+    newThreadInfos,
+  );
+  if (navInfoState.navigationState !== filteredNavigationState) {
+    navInfoState = {
+      startDate: navInfoState.startDate,
+      endDate: navInfoState.endDate,
+      navigationState: filteredNavigationState,
+    };
   }
+
   // Deep linking
   if (action.type === handleURLActionType) {
     return {
