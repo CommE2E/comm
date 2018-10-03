@@ -13,7 +13,9 @@ import Button from '../components/button.react';
 import KeyboardAvoidingModal from '../components/keyboard-avoiding-modal.react';
 
 type Props = {|
+  isVisible: bool,
   currentCustomServer: ?string,
+  onClose: () => void,
   onCompleteInput: (customServer: string) => void,
 |};
 type State = {|
@@ -22,7 +24,9 @@ type State = {|
 class CustomServerSelector extends React.PureComponent<Props, State> {
 
   static propTypes = {
+    isVisible: PropTypes.bool.isRequired,
     currentCustomServer: PropTypes.string,
+    onClose: PropTypes.func.isRequired,
     onCompleteInput: PropTypes.func.isRequired,
   };
 
@@ -38,6 +42,8 @@ class CustomServerSelector extends React.PureComponent<Props, State> {
   render() {
     return (
       <KeyboardAvoidingModal
+        isVisible={this.props.isVisible}
+        onClose={this.props.onClose}
         containerStyle={styles.container}
         style={styles.modal}
       >
@@ -64,6 +70,7 @@ class CustomServerSelector extends React.PureComponent<Props, State> {
 
   onPressGo = () => {
     this.props.onCompleteInput(this.state.customServer);
+    this.props.onClose();
   }
 
 }

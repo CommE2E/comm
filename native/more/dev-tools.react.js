@@ -8,7 +8,6 @@ import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import Modal from 'react-native-modal';
 
 import { connect } from 'lib/utils/redux-utils';
 import { setURLPrefix } from 'lib/utils/url-utils';
@@ -137,16 +136,12 @@ class InnerDevTools extends React.PureComponent<Props, State> {
             {serverButtons}
           </View>
         </ScrollView>
-        <Modal
+        <CustomServerSelector
           isVisible={this.state.customServerModalOpen}
-          onBackButtonPress={this.closeCustomServerModal}
-          onBackdropPress={this.closeCustomServerModal}
-        >
-          <CustomServerSelector
-            currentCustomServer={this.props.customServer}
-            onCompleteInput={this.onCompleteCustomServerInput}
-          />
-        </Modal>
+          currentCustomServer={this.props.customServer}
+          onClose={this.closeCustomServerModal}
+          onCompleteInput={this.onCompleteCustomServerInput}
+        />
       </View>
     );
   }
@@ -186,7 +181,6 @@ class InnerDevTools extends React.PureComponent<Props, State> {
     if (customServer && customServer != this.props.customServer) {
       this.props.dispatchActionPayload(setCustomServer, customServer);
     }
-    this.setState({ customServerModalOpen: false });
   }
 
 }

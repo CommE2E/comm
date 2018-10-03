@@ -58,7 +58,6 @@ import {
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import Modal from 'react-native-modal';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
 import { contentVerticalOffset, windowHeight, tabBarSize } from '../dimensions';
@@ -791,16 +790,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
             disabled={this.state.threadPickerOpen}
           />
         </KeyboardAvoidingView>
-        <Modal
+        <ThreadPicker
           isVisible={this.state.threadPickerOpen}
-          onBackButtonPress={this.closePicker}
-          onBackdropPress={this.closePicker}
-        >
-          <ThreadPicker
-            dateString={this.state.pendingNewEntryDateString}
-            close={this.closePicker}
-          />
-        </Modal>
+          dateString={this.state.pendingNewEntryDateString}
+          close={this.closePicker}
+        />
       </SafeAreaView>
     );
   }

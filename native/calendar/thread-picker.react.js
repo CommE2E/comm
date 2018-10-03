@@ -25,11 +25,12 @@ import ThreadList from '../components/thread-list.react';
 import KeyboardAvoidingModal from '../components/keyboard-avoiding-modal.react';
 
 type Props = {
+  isVisible: bool,
   dateString: ?string,
   close: () => void,
   // Redux state
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-  viewerID: string,
+  viewerID: ?string,
   threadSearchIndex: SearchIndex,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -37,10 +38,11 @@ type Props = {
 class ThreadPicker extends React.PureComponent<Props> {
 
   static propTypes = {
+    isVisible: PropTypes.bool.isRequired,
     dateString: PropTypes.string,
     close: PropTypes.func.isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    viewerID: PropTypes.string.isRequired,
+    viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -48,6 +50,8 @@ class ThreadPicker extends React.PureComponent<Props> {
   render() {
     return (
       <KeyboardAvoidingModal
+        isVisible={this.props.isVisible}
+        onClose={this.props.close}
         containerStyle={styles.container}
         style={styles.container}
       >
@@ -63,12 +67,12 @@ class ThreadPicker extends React.PureComponent<Props> {
 
   threadPicked = (threadID: string) => {
     this.props.close();
-    const dateString = this.props.dateString;
-    invariant(dateString, "should be set");
+    const { dateString, viewerID } = this.props;
+    invariant(dateString && viewerID, "should be set");
     setTimeout(
       () => this.props.dispatchActionPayload(
         createLocalEntryActionType,
-        createLocalEntry(threadID, dateString, this.props.viewerID),
+        createLocalEntry(threadID, dateString, viewerID),
       ),
       Platform.OS === "android" ? 500 : 100,
     );
@@ -94,15 +98,11 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState) => {
-    const viewerID = state.currentUserInfo && state.currentUserInfo.id;
-    invariant(viewerID, "should have viewer ID in to use ThreadPicker");
-    return {
-      onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
-      viewerID,
-      threadSearchIndex: threadSearchIndex(state),
-    };
-  },
+  (state: AppState) => ({
+    onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
+    threadSearchIndex: threadSearchIndex(state),
+  }),
   null,
   true,
 )(ThreadPicker);

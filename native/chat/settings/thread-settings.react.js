@@ -581,16 +581,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           contentContainerStyle={styles.flatList}
           renderItem={this.renderItem}
         />
-        <Modal
+        <AddUsersModal
           isVisible={this.state.showAddUsersModal}
-          onBackButtonPress={this.closeAddUsersModal}
-          onBackdropPress={this.closeAddUsersModal}
-        >
-          <AddUsersModal
-            threadInfo={threadInfo}
-            close={this.closeAddUsersModal}
-          />
-        </Modal>
+          threadInfo={threadInfo}
+          close={this.closeAddUsersModal}
+        />
         <Modal
           isVisible={this.state.showComposeSubthreadModal}
           onBackButtonPress={this.closeComposeSubthreadModal}

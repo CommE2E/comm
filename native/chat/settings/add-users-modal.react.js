@@ -60,6 +60,7 @@ const tagInputProps = {
 };
 
 type Props = {
+  isVisible: bool,
   threadInfo: ThreadInfo,
   close: () => void,
   // Redux state
@@ -83,6 +84,7 @@ type State = {|
 class AddUsersModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
+    isVisible: PropTypes.bool.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     close: PropTypes.func.isRequired,
     parentThreadInfo: threadInfoPropType,
@@ -210,6 +212,8 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 
     return (
       <KeyboardAvoidingModal
+        isVisible={this.props.isVisible}
+        onClose={this.props.close}
         containerStyle={styles.container}
         style={styles.modal}
       >
