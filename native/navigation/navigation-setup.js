@@ -211,6 +211,10 @@ const RootNavigator = createStackNavigator(
   {
     headerMode: 'none',
     mode: 'modal',
+    transparentCard: true,
+    cardStyle: {
+      opacity: 1,
+    },
   },
 );
 

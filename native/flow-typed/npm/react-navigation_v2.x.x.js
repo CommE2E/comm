@@ -401,6 +401,7 @@ declare module 'react-navigation' {
     transitionConfig?: () => TransitionConfig,
     onTransitionStart?: () => void,
     onTransitionEnd?: () => void,
+    transparentCard?: bool,
   |};
 
   declare export type StackNavigatorConfig = {|

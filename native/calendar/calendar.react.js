@@ -1095,6 +1095,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: '#E9E9EF',
   },
   flatList: {
     flex: 1,
