@@ -75,11 +75,13 @@ import {
   ChatRouteName,
   ChatThreadListRouteName,
   CalendarRouteName,
+  ThreadPickerModalRouteName,
 } from './route-names';
 import {
   handleURLActionType,
   navigateToAppActionType,
 } from './action-types';
+import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -207,6 +209,7 @@ const RootNavigator = createStackNavigator(
     [LoggedOutModalRouteName]: { screen: LoggedOutModal },
     [VerificationModalRouteName]: { screen: VerificationModal },
     [AppRouteName]: { screen: ReduxWrappedAppNavigator },
+    [ThreadPickerModalRouteName]: { screen: ThreadPickerModal },
   },
   {
     headerMode: 'none',

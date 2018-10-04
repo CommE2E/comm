@@ -62,11 +62,13 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { Entry, InternalEntry, entryStyles } from './entry.react';
 import { contentVerticalOffset, windowHeight, tabBarSize } from '../dimensions';
 import { calendarListData } from '../selectors/calendar-selectors';
-import { createActiveTabSelector } from '../selectors/nav-selectors';
+import {
+  createIsForegroundSelector,
+  createActiveTabSelector,
+} from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
-import ThreadPicker from './thread-picker.react';
 import CalendarInputBar from './calendar-input-bar.react';
 import {
   addKeyboardShowListener,
@@ -74,7 +76,10 @@ import {
   removeKeyboardListener,
 } from '../keyboard';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import { CalendarRouteName } from '../navigation/route-names';
+import {
+  CalendarRouteName,
+  ThreadPickerModalRouteName,
+} from '../navigation/route-names';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -109,6 +114,7 @@ type Props = {
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   tabActive: bool,
+  threadPickerOpen: bool,
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -124,10 +130,7 @@ type State = {
   textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
-  threadPickerOpen: bool,
-  pendingNewEntryDateString: ?string,
   extraData: ExtraData,
-  scrollToOffsetAfterSuppressingKeyboardDismissal: ?number,
 };
 class InnerCalendar extends React.PureComponent<Props, State> {
 
@@ -154,6 +157,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       }),
     ])),
     tabActive: PropTypes.bool.isRequired,
+    threadPickerOpen: PropTypes.bool.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
@@ -217,10 +221,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       textToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
-      threadPickerOpen: false,
-      pendingNewEntryDateString: null,
       extraData: this.latestExtraData,
-      scrollToOffsetAfterSuppressingKeyboardDismissal: null,
     };
     currentCalendarRef = this;
   }
@@ -410,29 +411,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    // On Android, if the keyboardDismissMode is set to "on-drag", our attempt
-    // to scroll the FlatList to avoid the keyboard when the keyboard is being
-    // shown can cause the keyboard to immediately get dismissed. To avoid this,
-    // we make sure to temporarily set the keyboardDismissMode to "none" when
-    // doing this scroll. Only after that do we execute the scroll, and we make
-    // sure to reset keyboardDismissMode 0.5s after the scroll starts.
-    const newOffset =
-      this.state.scrollToOffsetAfterSuppressingKeyboardDismissal;
-    const oldOffset = prevState.scrollToOffsetAfterSuppressingKeyboardDismissal;
-    if (
-      (newOffset !== undefined && newOffset !== null) &&
-      (oldOffset === undefined || oldOffset === null)
-    ) {
-      invariant(this.flatList, "flatList should be set");
-      this.flatList.scrollToOffset({ offset: newOffset, animated: true });
-      setTimeout(
-        () => this.setState({
-          scrollToOffsetAfterSuppressingKeyboardDismissal: null,
-        }),
-        500,
-      );
-    }
-
     const lastLDWH = prevState.listDataWithHeights;
     const newLDWH = this.state.listDataWithHeights;
     if (!lastLDWH || !newLDWH) {
@@ -628,12 +606,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       const key = entryKey(item.entryInfo);
       return (
         <Entry
+          navigation={this.props.navigation}
           entryInfo={item.entryInfo}
           active={!!this.state.extraData.activeEntries[key]}
           visible={!!this.state.extraData.visibleEntries[key]}
           makeActive={this.makeActive}
           onEnterEditMode={this.onEnterEntryEditMode}
-          navigate={this.props.navigation.navigate}
           onPressWhitespace={this.makeAllEntriesInactive}
           entryRef={this.entryRef}
         />
@@ -675,11 +653,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   onAdd = (dayString: string) => {
-    Keyboard.dismiss();
-    this.setState({
-      threadPickerOpen: true,
-      pendingNewEntryDateString: dayString,
-    });
+    this.props.navigation.navigate(
+      ThreadPickerModalRouteName,
+      { dateString: dayString },
+    );
   }
 
   static keyExtractor = (item: CalendarItemWithHeight) => {
@@ -734,12 +711,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       const flatListStyle = { opacity: this.state.readyToShowList ? 1 : 0 };
       const initialScrollIndex =
         InnerCalendar.initialScrollIndex(listDataWithHeights);
-      const pendingScrollOffset =
-        this.state.scrollToOffsetAfterSuppressingKeyboardDismissal;
-      const keyboardDismissMode =
-        pendingScrollOffset !== null && pendingScrollOffset !== undefined
-          ? "none"
-          : "on-drag";
       flatList = (
         <FlatList
           data={listDataWithHeights}
@@ -750,7 +721,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           onScroll={this.onScroll}
           initialScrollIndex={initialScrollIndex}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={keyboardDismissMode}
+          keyboardDismissMode="on-drag"
           onMomentumScrollEnd={this.onMomentumScrollEnd}
           onScrollEndDrag={this.onScrollEndDrag}
           scrollsToTop={false}
@@ -787,14 +758,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           {flatList}
           <CalendarInputBar
             onSave={this.onSaveEntry}
-            disabled={this.state.threadPickerOpen}
+            disabled={this.props.threadPickerOpen}
           />
         </KeyboardAvoidingView>
-        <ThreadPicker
-          isVisible={this.state.threadPickerOpen}
-          dateString={this.state.pendingNewEntryDateString}
-          close={this.closePicker}
-        />
       </SafeAreaView>
     );
   }
@@ -914,6 +880,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       (item: CalendarItemWithHeight) =>
         InnerCalendar.keyExtractor(item) === lastEntryKeyActive,
     )(data);
+    if (index === null || index === undefined) {
+      return;
+    }
     const itemStart = InnerCalendar.heightOfItems(
       data.filter((_, i) => i < index),
     );
@@ -935,15 +904,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       return;
     }
     const offset = itemStart - (visibleHeight - itemHeight) / 2;
-    if (Platform.OS === "android") {
-      // On Android, we need to wait for the keyboardDismissMode to be updated
-      // before executing this scroll. See the comment in componentDidUpdate for
-      // more details
-      this.setState({
-        scrollToOffsetAfterSuppressingKeyboardDismissal: offset,
-      });
-      return;
-    }
     invariant(this.flatList, "flatList should be set");
     this.flatList.scrollToOffset({ offset, animated: true });
   }
@@ -1070,11 +1030,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     );
   }
 
-  closePicker = () => {
-    LayoutAnimation.easeInEaseOut();
-    this.setState({ threadPickerOpen: false });
-  }
-
   onSaveEntry = () => {
     const entryKeys = Object.keys(this.latestExtraData.activeEntries);
     if (entryKeys.length === 0) {
@@ -1133,10 +1088,13 @@ const styles = StyleSheet.create({
 registerFetchKey(updateCalendarQueryActionTypes);
 
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
+const activeThreadPickerSelector =
+  createIsForegroundSelector(ThreadPickerModalRouteName);
 const Calendar = connect(
   (state: AppState) => ({
     listData: calendarListData(state),
-    tabActive: activeTabSelector(state),
+    tabActive: activeTabSelector(state) || activeThreadPickerSelector(state),
+    threadPickerOpen: activeThreadPickerSelector(state),
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,

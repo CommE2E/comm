@@ -4,10 +4,14 @@ import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
 import {
@@ -21,13 +25,13 @@ import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 
+import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
-import KeyboardAvoidingModal from '../components/keyboard-avoiding-modal.react';
 
 type Props = {
-  isVisible: bool,
-  dateString: ?string,
-  close: () => void,
+  navigation:
+    & { state: { params: { dateString: string } } }
+    & NavigationScreenProp<NavigationLeafRoute>,
   // Redux state
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   viewerID: ?string,
@@ -35,12 +39,16 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
-class ThreadPicker extends React.PureComponent<Props> {
+class ThreadPickerModal extends React.PureComponent<Props> {
 
   static propTypes = {
-    isVisible: PropTypes.bool.isRequired,
-    dateString: PropTypes.string,
-    close: PropTypes.func.isRequired,
+    navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          dateString: PropTypes.string.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }).isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -49,41 +57,30 @@ class ThreadPicker extends React.PureComponent<Props> {
 
   render() {
     return (
-      <KeyboardAvoidingModal
-        isVisible={this.props.isVisible}
-        onClose={this.props.close}
-        containerStyle={styles.container}
-        style={styles.container}
-      >
+      <Modal navigation={this.props.navigation}>
         <ThreadList
           threadInfos={this.props.onScreenThreadInfos}
           onSelect={this.threadPicked}
           itemStyle={styles.threadListItem}
           searchIndex={this.props.threadSearchIndex}
         />
-      </KeyboardAvoidingModal>
+      </Modal>
     );
   }
 
   threadPicked = (threadID: string) => {
-    this.props.close();
-    const { dateString, viewerID } = this.props;
+    const { viewerID } = this.props;
+    const { dateString } = this.props.navigation.state.params;
     invariant(dateString && viewerID, "should be set");
-    setTimeout(
-      () => this.props.dispatchActionPayload(
-        createLocalEntryActionType,
-        createLocalEntry(threadID, dateString, viewerID),
-      ),
-      Platform.OS === "android" ? 500 : 100,
+    this.props.dispatchActionPayload(
+      createLocalEntryActionType,
+      createLocalEntry(threadID, dateString, viewerID),
     );
   }
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   headerText: {
     fontSize: 24,
     textAlign: 'center',
@@ -105,4 +102,4 @@ export default connect(
   }),
   null,
   true,
-)(ThreadPicker);
+)(ThreadPickerModal);

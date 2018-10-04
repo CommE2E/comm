@@ -20,8 +20,8 @@ import type {
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type {
-  NavigationParams,
-  NavigationNavigateAction,
+  NavigationScreenProp,
+  NavigationRoute,
 } from 'react-navigation';
 
 import * as React from 'react';
@@ -65,25 +65,30 @@ import { dateString } from 'lib/utils/date-utils';
 import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
-import { MessageListRouteName, ChatRouteName } from '../navigation/route-names';
+import {
+  MessageListRouteName,
+  ChatRouteName,
+  ThreadPickerModalRouteName,
+} from '../navigation/route-names';
+import {
+  createIsForegroundSelector,
+  foregroundKeySelector,
+} from '../selectors/nav-selectors';
 
 type Props = {
+  navigation: NavigationScreenProp<NavigationRoute>,
   entryInfo: EntryInfoWithHeight,
   visible: bool,
   active: bool,
   makeActive: (entryKey: string, active: bool) => void,
   onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    action?: NavigationNavigateAction,
-    key?: string,
-  }) => bool,
   onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   threadInfo: ThreadInfo,
   calendarQuery: () => CalendarQuery,
+  threadPickerActive: bool,
+  foregroundKey: string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -102,16 +107,21 @@ type State = {|
 class InternalEntry extends React.Component<Props, State> {
   
   static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+      goBack: PropTypes.func.isRequired,
+    }).isRequired,
     entryInfo: entryInfoPropType.isRequired,
     visible: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
     makeActive: PropTypes.func.isRequired,
     onEnterEditMode: PropTypes.func.isRequired,
-    navigate: PropTypes.func.isRequired,
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
+    threadPickerActive: PropTypes.bool.isRequired,
+    foregroundKey: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -375,18 +385,30 @@ class InternalEntry extends React.Component<Props, State> {
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
     if (textInput && InternalEntry.isEditing(this.props, this.state)) {
-      this.enterEditMode(textInput);
+      this.enterEditMode();
     }
   }
 
-  enterEditMode = (textInput: TextInput) => {
+  enterEditMode = () => {
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
-    // For some reason if we don't do this the keyboard immediately dismisses
-    // after focus
-    InteractionManager.runAfterInteractions(() => {
-      setTimeout(textInput.focus);
-    });
+    if (Platform.OS !== "android") {
+      this.focus();
+    } else {
+      // For some reason if we don't do this the scroll stops halfway through
+      InteractionManager.runAfterInteractions(() => setTimeout(this.focus));
+    }
+  }
+
+  focus = () => {
+    const { textInput } = this;
+    if (!textInput) {
+      return;
+    }
+    textInput.focus();
+    if (this.props.threadPickerActive) {
+      this.props.navigation.goBack(this.props.foregroundKey);
+    }
   }
 
   setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
@@ -579,7 +601,7 @@ class InternalEntry extends React.Component<Props, State> {
   onPressThreadName = () => {
     Keyboard.dismiss();
     const threadInfo = this.props.threadInfo;
-    this.props.navigate({
+    this.props.navigation.navigate({
       routeName: ChatRouteName,
       params: {},
       action: NavigationActions.navigate({
@@ -675,11 +697,15 @@ const styles = StyleSheet.create({
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
+const activeThreadPickerSelector =
+  createIsForegroundSelector(ThreadPickerModalRouteName);
 
 const Entry = connect(
   (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
     calendarQuery: nonThreadCalendarQuery(state),
+    threadPickerActive: activeThreadPickerSelector(state),
+    foregroundKey: foregroundKeySelector(state),
   }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);

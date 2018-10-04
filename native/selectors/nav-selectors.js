@@ -25,6 +25,12 @@ const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
 );
 const createIsForegroundSelector = _memoize(baseCreateIsForegroundSelector);
 
+const foregroundKeySelector = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) =>
+    navigationState.routes[navigationState.index].key,
+);
+
 const baseCreateActiveTabSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
@@ -64,6 +70,7 @@ const activeThreadSelector = createSelector(
 
 export {
   createIsForegroundSelector,
+  foregroundKeySelector,
   createActiveTabSelector,
   activeThreadSelector,
 };
