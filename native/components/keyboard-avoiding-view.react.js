@@ -15,8 +15,6 @@ import {
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { iosKeyboardOffset } from '../dimensions';
-
 type ViewLayout = {
   y: number,
   height: number,
@@ -52,7 +50,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     keyboardVerticalOffset: PropTypes.number.isRequired,
   };
   static defaultProps = {
-    keyboardVerticalOffset: iosKeyboardOffset,
+    keyboardVerticalOffset: 0,
   };
   state = {
     bottom: 0,
@@ -62,7 +60,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   currentState = AppState.currentState;
 
   relativeKeyboardHeight(keyboardFrame: ScreenRect): number {
-    const frame = this.frame;
+    const { frame } = this;
     if (!frame || !keyboardFrame) {
       return 0;
     }

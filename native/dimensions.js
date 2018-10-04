@@ -18,14 +18,11 @@ if (Platform.OS === "ios") {
   contentVerticalOffset = DeviceInfo.isIPhoneX_deprecated ? 44 : 20;
 }
 
-const iosKeyboardOffset = DeviceInfo.isIPhoneX_deprecated ? 89 : 65;
-
 const tabBarSize = Platform.OS === "android" ? 50 : 49;
 
 export {
   windowHeight,
   windowWidth,
   contentVerticalOffset,
-  iosKeyboardOffset,
   tabBarSize,
 };
