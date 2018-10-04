@@ -32,6 +32,7 @@
     "react-native-vector-icons": "^4.5.0",
     "react-navigation": "^2.17.0",
     "react-navigation-redux-helpers": "^2.0.1",
+    "react-navigation-stack": "0.7.0",
     "react-redux": "^5.0.6",
     "reactotron-react-native": "^2.0.0",
     "reactotron-redux": "^2.0.0",

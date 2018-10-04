@@ -91,14 +91,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+    overflow: 'visible',
   },
   backdrop: {
     position: "absolute",
-    top: 0,
+    top: -1000,
     bottom: 0,
     left: 0,
     right: 0,
-    opacity: 0,
+    opacity: 0.7,
+    backgroundColor: "black",
+    overflow: 'visible',
   },
   modal: {
     flex: 1,

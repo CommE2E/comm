@@ -398,7 +398,11 @@ declare module 'react-navigation' {
     headerMode?: HeaderMode,
     headerTransitionPreset?: 'fade-in-place' | 'uikit',
     cardStyle?: ViewStyleProp,
-    transitionConfig?: () => TransitionConfig,
+    transitionConfig?: (
+      transitionProps: NavigationTransitionProps,
+      prevTransitionProps: ?NavigationTransitionProps,
+      isModal: bool,
+    ) => TransitionConfig,
     onTransitionStart?: () => void,
     onTransitionEnd?: () => void,
     transparentCard?: bool,

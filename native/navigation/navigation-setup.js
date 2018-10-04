@@ -12,6 +12,7 @@ import type {
   NavigationAction,
   NavigationRouter,
   NavigationRoute,
+  NavigationTransitionProps,
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
@@ -31,6 +32,7 @@ import _includes from 'lodash/fp/includes';
 import { Alert, BackHandler, Platform } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { StackViewTransitionConfigs } from 'react-navigation-stack';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -215,8 +217,33 @@ const RootNavigator = createStackNavigator(
     headerMode: 'none',
     mode: 'modal',
     transparentCard: true,
-    cardStyle: {
-      opacity: 1,
+    transitionConfig: (
+      transitionProps: NavigationTransitionProps,
+      prevTransitionProps: ?NavigationTransitionProps,
+      isModal: bool,
+    ) => {
+      const defaultConfig = StackViewTransitionConfigs.defaultTransitionConfig(
+        transitionProps,
+        prevTransitionProps,
+        isModal,
+      );
+      return {
+        ...defaultConfig,
+        screenInterpolator: sceneProps => {
+          const { opacity: defaultOpacity, ...defaultInterpolation } =
+            defaultConfig.screenInterpolator(sceneProps);
+          const { position, scene } = sceneProps;
+          const { index, route } = scene;
+          if (route.routeName !== ThreadPickerModalRouteName) {
+            return defaultInterpolation;
+          }
+          const opacity = position.interpolate({
+            inputRange: [index - 1, index],
+            outputRange: [0, 1],
+          });
+          return { ...defaultInterpolation, opacity };
+        },
+      };
     },
   },
 );
