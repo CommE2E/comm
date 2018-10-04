@@ -57,7 +57,10 @@ import Chat from '../chat/chat.react';
 import More from '../more/more.react';
 import LoggedOutModal from '../account/logged-out-modal.react';
 import VerificationModal from '../account/verification-modal.react';
-import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import {
+  createIsForegroundSelector,
+  appCanRespondToBackButtonSelector,
+} from '../selectors/nav-selectors';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
@@ -139,7 +142,7 @@ const AppNavigator = createTabNavigator(
 type WrappedAppNavigatorProps = {|
   navigation: NavigationScreenProp<*>,
   isForeground: bool,
-  atInitialRoute: bool,
+  appCanRespondToBackButton: bool,
 |};
 class WrappedAppNavigator
   extends React.PureComponent<WrappedAppNavigatorProps> {
@@ -149,12 +152,18 @@ class WrappedAppNavigator
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
-    atInitialRoute: PropTypes.bool.isRequired,
+    appCanRespondToBackButton: PropTypes.bool.isRequired,
   };
 
   componentDidMount() {
     if (this.props.isForeground) {
       this.onForeground();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.isForeground) {
+      this.onBackground();
     }
   }
 
@@ -175,7 +184,7 @@ class WrappedAppNavigator
   }
 
   hardwareBack = () => {
-    if (this.props.atInitialRoute) {
+    if (!this.props.appCanRespondToBackButton) {
       return false;
     }
     this.props.navigation.goBack(null);
@@ -189,19 +198,10 @@ class WrappedAppNavigator
 }
 
 const isForegroundSelector = createIsForegroundSelector(AppRouteName);
-const ReduxWrappedAppNavigator = connect((state: AppState) => {
-  const appNavState = state.navInfo.navigationState.routes[0];
-  invariant(
-    appNavState.index !== undefined &&
-      appNavState.index !== null &&
-      typeof appNavState.index === "number",
-    "appNavState should have member index that is a number",
-  );
-  return {
-    atInitialRoute: appNavState.index === 0,
-    isForeground: isForegroundSelector(state),
-  };
-})(WrappedAppNavigator);
+const ReduxWrappedAppNavigator = connect((state: AppState) => ({
+  appCanRespondToBackButton: appCanRespondToBackButtonSelector(state),
+  isForeground: isForegroundSelector(state),
+}))(WrappedAppNavigator);
 (ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
 
 const RootNavigator = createStackNavigator(

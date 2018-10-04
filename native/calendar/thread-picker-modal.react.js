@@ -25,8 +25,9 @@ import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 
-import Modal from '../components/modal.react';
+import { createModal } from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
+import { ThreadPickerModalRouteName } from '../navigation/route-names';
 
 type Props = {
   navigation:
@@ -39,6 +40,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
+const Modal = createModal(ThreadPickerModalRouteName);
 class ThreadPickerModal extends React.PureComponent<Props> {
 
   static propTypes = {

@@ -34,11 +34,11 @@ const foregroundKeySelector = createSelector(
 const baseCreateActiveTabSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
-    const innerState = navigationState.routes[navigationState.index];
-    if (innerState.routeName !== AppRouteName) {
+    const currentRoute = navigationState.routes[navigationState.index];
+    if (currentRoute.routeName !== AppRouteName) {
       return false;
     }
-    const appRoute = assertNavigationRouteNotLeafNode(innerState);
+    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
     return appRoute.routes[appRoute.index].routeName === routeName;
   },
 );
@@ -47,11 +47,11 @@ const createActiveTabSelector = _memoize(baseCreateActiveTabSelector);
 const activeThreadSelector = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): ?string => {
-    const innerState = navigationState.routes[navigationState.index];
-    if (innerState.routeName !== AppRouteName) {
+    const currentRoute = navigationState.routes[navigationState.index];
+    if (currentRoute.routeName !== AppRouteName) {
       return null;
     }
-    const appRoute = assertNavigationRouteNotLeafNode(innerState);
+    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
     const innerInnerState = appRoute.routes[appRoute.index];
     if (innerInnerState.routeName !== ChatRouteName) {
       return null;
@@ -68,9 +68,25 @@ const activeThreadSelector = createSelector(
   },
 );
 
+const appCanRespondToBackButtonSelector = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState): bool => {
+    const currentRoute = navigationState.routes[navigationState.index];
+    if (currentRoute.routeName !== AppRouteName) {
+      return false;
+    }
+    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
+    const currentTabRoute = appRoute.routes[appRoute.index];
+    return currentTabRoute.index !== null
+      && currentTabRoute.index !== undefined
+      && currentTabRoute.index > 0;
+  },
+);
+
 export {
   createIsForegroundSelector,
   foregroundKeySelector,
   createActiveTabSelector,
   activeThreadSelector,
+  appCanRespondToBackButtonSelector,
 };
