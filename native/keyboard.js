@@ -87,6 +87,13 @@ function addKeyboardDismissListener(callback: KeyboardCallback) {
     callCallbackIfAppActive(callback),
   );
 }
+function addKeyboardDidDismissListener(callback: KeyboardCallback) {
+  incrementAppStateListeners();
+  return Keyboard.addListener(
+    "keyboardDidHide",
+    callCallbackIfAppActive(callback),
+  );
+}
 function removeKeyboardListener(listener: EmitterSubscription) {
   decrementAppStateListeners();
   listener.remove();
@@ -95,5 +102,6 @@ function removeKeyboardListener(listener: EmitterSubscription) {
 export {
   addKeyboardShowListener,
   addKeyboardDismissListener,
+  addKeyboardDidDismissListener,
   removeKeyboardListener,
 };

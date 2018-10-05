@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   },
   inactiveContainer: {
     height: 0,
+    opacity: 0,
   },
   saveButtonText: {
     color: "#036AFF",

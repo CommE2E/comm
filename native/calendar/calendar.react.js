@@ -73,6 +73,7 @@ import CalendarInputBar from './calendar-input-bar.react';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
+  addKeyboardDidDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
@@ -93,10 +94,10 @@ type CalendarItemWithHeight =
       itemType: "entryInfo",
       entryInfo: EntryInfoWithHeight,
     |};
-type ExtraData = {
+type ExtraData = $ReadOnly<{|
   activeEntries: {[key: string]: bool},
   visibleEntries: {[key: string]: bool},
-};
+|}>;
 
 // This is v sad :(
 // Overall, I have to say, this component is probably filled with more sadness
@@ -126,12 +127,13 @@ type Props = {
     reduxAlreadyUpdated?: bool,
   ) => Promise<CalendarQueryUpdateResult>,
 };
-type State = {
+type State = {|
   textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: bool,
   extraData: ExtraData,
-};
+  disableInputBar: bool,
+|};
 class InnerCalendar extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -201,7 +203,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   lastEntryKeyActive: ?string = null;
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
+  keyboardDidDismissListener: ?Object;
   keyboardShownHeight: ?number = null;
+  keyboardPartiallyVisible = false;
   // We wait until the loaders leave view before letting them be triggered again
   topLoaderWaitingToLeaveView = true;
   bottomLoaderWaitingToLeaveView = true;
@@ -222,6 +226,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       listDataWithHeights: null,
       readyToShowList: false,
       extraData: this.latestExtraData,
+      disableInputBar: false,
     };
     currentCalendarRef = this;
   }
@@ -242,12 +247,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
-    if (this.props.tabActive) {
-      this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
-      this.keyboardDismissListener = addKeyboardDismissListener(
-        this.keyboardDismiss,
-      );
-    }
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
+    this.keyboardDismissListener = addKeyboardDismissListener(
+      this.keyboardDismiss,
+    );
+    this.keyboardDidDismissListener = addKeyboardDidDismissListener(
+      this.keyboardDidDismiss,
+    );
   }
 
   componentWillUnmount() {
@@ -259,6 +265,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (this.keyboardDismissListener) {
       removeKeyboardListener(this.keyboardDismissListener);
       this.keyboardDismissListener = null;
+    }
+    if (this.keyboardDidDismissListener) {
+      removeKeyboardListener(this.keyboardDidDismissListener);
+      this.keyboardDidDismissListener = null;
     }
   }
 
@@ -344,26 +354,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (nextProps.tabActive && !this.props.tabActive) {
-      if (!this.keyboardShowListener) {
-        this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
-      }
-      if (!this.keyboardDismissListener) {
-        this.keyboardDismissListener = addKeyboardDismissListener(
-          this.keyboardDismiss,
-        );
-      }
-    } else if (!nextProps.tabActive && this.props.tabActive) {
-      if (this.keyboardShowListener) {
-        removeKeyboardListener(this.keyboardShowListener);
-        this.keyboardShowListener = null;
-      }
-      if (this.keyboardDismissListener) {
-        removeKeyboardListener(this.keyboardDismissListener);
-        this.keyboardDismissListener = null;
-      }
-    }
-
     if (
       nextProps.listData &&
       this.props.listData &&
@@ -426,6 +416,17 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (newLDWH && keyboardShownHeight && lastEntryKeyActive) {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
+    }
+
+    if (this.props.threadPickerOpen && !this.state.disableInputBar) {
+      this.setState({ disableInputBar: true });
+    }
+    if (
+      !this.props.threadPickerOpen &&
+      prevProps.threadPickerOpen &&
+      !this.keyboardPartiallyVisible
+    ) {
+      this.setState({ disableInputBar: false });
     }
   }
 
@@ -758,7 +759,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           {flatList}
           <CalendarInputBar
             onSave={this.onSaveEntry}
-            disabled={this.props.threadPickerOpen}
+            disabled={this.state.disableInputBar}
           />
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -856,6 +857,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     } else {
       this.lastEntryKeyActive = key;
     }
+    this.setState({ disableInputBar: false })
   }
 
   keyboardShow = (event: KeyboardEvent) => {
@@ -867,10 +869,18 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
     }
+    this.keyboardPartiallyVisible = true;
   }
 
   keyboardDismiss = (event: KeyboardEvent) => {
     this.keyboardShownHeight = null;
+  }
+
+  keyboardDidDismiss = (event: KeyboardEvent) => {
+    this.keyboardPartiallyVisible = false;
+    if (!this.props.threadPickerOpen) {
+      this.setState({ disableInputBar: false });
+    }
   }
 
   scrollToKey(lastEntryKeyActive: string, keyboardHeight: number) {
@@ -1094,7 +1104,8 @@ const Calendar = connect(
   (state: AppState) => ({
     listData: calendarListData(state),
     tabActive: activeTabSelector(state) || activeThreadPickerSelector(state),
-    threadPickerOpen: activeThreadPickerSelector(state),
+    threadPickerOpen: activeThreadPickerSelector(state)
+      || !!state.navInfo.navigationState.isTransitioning,
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,
