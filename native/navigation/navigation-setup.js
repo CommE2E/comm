@@ -217,6 +217,7 @@ const RootNavigator = createStackNavigator(
     headerMode: 'none',
     mode: 'modal',
     transparentCard: true,
+    disableKeyboardHandling: true,
     transitionConfig: (
       transitionProps: NavigationTransitionProps,
       prevTransitionProps: ?NavigationTransitionProps,
