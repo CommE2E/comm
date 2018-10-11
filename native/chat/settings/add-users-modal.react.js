@@ -16,6 +16,10 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation';
 
 import React from 'react';
 import {
@@ -51,18 +55,24 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
-import KeyboardAvoidingModal
-  from '../../components/keyboard-avoiding-modal.react';
+import { createModal } from '../../components/modal.react';
+import { AddUsersModalRouteName } from '../../navigation/route-names';
 
 const tagInputProps = {
   placeholder: "Select users to add",
   autoFocus: true,
 };
 
+const Modal = createModal(AddUsersModalRouteName);
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    threadInfo: ThreadInfo,
+  |},
+|}>;
+
 type Props = {
-  isVisible: bool,
-  threadInfo: ThreadInfo,
-  close: () => void,
+  navigation: NavProp,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: {[id: string]: AccountUserInfo},
@@ -84,9 +94,13 @@ type State = {|
 class AddUsersModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    isVisible: PropTypes.bool.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    close: PropTypes.func.isRequired,
+    navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          threadInfo: threadInfoPropType.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }).isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -105,7 +119,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       props.otherUserInfos,
       props.userSearchIndex,
       [],
-      props.threadInfo,
+      props.navigation.state.params.threadInfo,
       props.parentThreadInfo,
     );
     this.state = {
@@ -158,14 +172,15 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     if (
       this.props.otherUserInfos !== nextProps.otherUserInfos ||
       this.props.userSearchIndex !== nextProps.userSearchIndex ||
-      this.props.threadInfo !== nextProps.threadInfo
+      this.props.navigation.state.params.threadInfo
+        !== nextProps.navigation.state.params.threadInfo
     ) {
       const userSearchResults = AddUsersModal.getSearchResults(
         this.state.usernameInputText,
         nextProps.otherUserInfos,
         nextProps.userSearchIndex,
         this.state.userInfoInputArray,
-        nextProps.threadInfo,
+        nextProps.navigation.state.params.threadInfo,
         nextProps.parentThreadInfo,
       );
       this.setState({ userSearchResults });
@@ -200,7 +215,10 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     let cancelButton;
     if (this.props.changeThreadSettingsLoadingStatus !== "loading") {
       cancelButton = (
-        <Button onPress={this.props.close} style={styles.cancelButton}>
+        <Button
+          onPress={this.close}
+          style={styles.cancelButton}
+        >
           <Text style={styles.cancelText}>Cancel</Text>
         </Button>
       );
@@ -211,12 +229,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <KeyboardAvoidingModal
-        isVisible={this.props.isVisible}
-        onClose={this.props.close}
-        containerStyle={styles.container}
-        style={styles.modal}
-      >
+      <Modal navigation={this.props.navigation}>
         <TagInput
           value={this.state.userInfoInputArray}
           onChange={this.onChangeTagInput}
@@ -236,8 +249,12 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           {cancelButton}
           {addButton}
         </View>
-      </KeyboardAvoidingModal>
+      </Modal>
     );
+  }
+
+  close = () => {
+    this.props.navigation.goBack();
   }
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
@@ -253,7 +270,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.otherUserInfos,
       this.props.userSearchIndex,
       userInfoInputArray,
-      this.props.threadInfo,
+      this.props.navigation.state.params.threadInfo,
       this.props.parentThreadInfo,
     );
     this.setState({ userInfoInputArray, userSearchResults });
@@ -270,7 +287,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.otherUserInfos,
       this.props.userSearchIndex,
       this.state.userInfoInputArray,
-      this.props.threadInfo,
+      this.props.navigation.state.params.threadInfo,
       this.props.parentThreadInfo,
     );
     this.searchUsers(text);
@@ -295,7 +312,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.otherUserInfos,
       this.props.userSearchIndex,
       userInfoInputArray,
-      this.props.threadInfo,
+      this.props.navigation.state.params.threadInfo,
       this.props.parentThreadInfo,
     );
     this.setState({
@@ -317,10 +334,10 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       const newMemberIDs =
         this.state.userInfoInputArray.map((userInfo) => userInfo.id);
       const result = await this.props.changeThreadSettings({
-        threadID: this.props.threadInfo.id,
+        threadID: this.props.navigation.state.params.threadInfo.id,
         changes: { newMemberIDs },
       });
-      this.props.close();
+      this.close();
       return result;
     } catch (e) {
       Alert.alert(
@@ -348,7 +365,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       this.props.otherUserInfos,
       this.props.userSearchIndex,
       userInfoInputArray,
-      this.props.threadInfo,
+      this.props.navigation.state.params.threadInfo,
       this.props.parentThreadInfo,
     );
     this.setState(
@@ -364,12 +381,6 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  modal: {
-    flex: 1,
-  },
   buttons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -406,9 +417,9 @@ const changeThreadSettingsLoadingStatusSelector
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+  (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
-    const parentThreadID = ownProps.threadInfo.parentThreadID;
+    const { parentThreadID } = ownProps.navigation.state.params.threadInfo;
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
     }

@@ -81,12 +81,14 @@ import {
   ChatThreadListRouteName,
   CalendarRouteName,
   ThreadPickerModalRouteName,
+  AddUsersModalRouteName,
 } from './route-names';
 import {
   handleURLActionType,
   navigateToAppActionType,
 } from './action-types';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
+import AddUsersModal from '../chat/settings/add-users-modal.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -212,6 +214,7 @@ const RootNavigator = createStackNavigator(
     [VerificationModalRouteName]: { screen: VerificationModal },
     [AppRouteName]: { screen: ReduxWrappedAppNavigator },
     [ThreadPickerModalRouteName]: { screen: ThreadPickerModal },
+    [AddUsersModalRouteName]: { screen: AddUsersModal },
   },
   {
     headerMode: 'none',

@@ -29,10 +29,16 @@ import { createModal } from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
 import { ThreadPickerModalRouteName } from '../navigation/route-names';
 
+const Modal = createModal(ThreadPickerModalRouteName);
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    dateString: string,
+  |},
+|}>;
+
 type Props = {
-  navigation:
-    & { state: { params: { dateString: string } } }
-    & NavigationScreenProp<NavigationLeafRoute>,
+  navigation: NavProp,
   // Redux state
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   viewerID: ?string,
@@ -40,7 +46,6 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
-const Modal = createModal(ThreadPickerModalRouteName);
 class ThreadPickerModal extends React.PureComponent<Props> {
 
   static propTypes = {

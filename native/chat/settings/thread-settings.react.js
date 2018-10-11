@@ -2,7 +2,7 @@
 
 import type {
   NavigationScreenProp,
-  NavigationRoute,
+  NavigationLeafRoute,
   NavigationParams,
   NavigationNavigateAction,
 } from 'react-navigation';
@@ -55,7 +55,6 @@ import {
   ThreadSettingsAddMember,
   ThreadSettingsAddChildThread,
 } from './thread-settings-list-action.react';
-import AddUsersModal from './add-users-modal.react';
 import ComposeSubthreadModal from './compose-subthread-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
@@ -67,17 +66,21 @@ import ThreadSettingsVisibility from './thread-settings-visibility.react';
 import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
+import {
+  AddUsersModalRouteName,
+  ChatRouteName,
+} from '../../navigation/route-names';
+import { createActiveTabSelector } from '../../selectors/nav-selectors';
 
 const itemPageLength = 5;
 
-type NavProp =
-  & {
-      state: {
-        params: { threadInfo: ThreadInfo },
-        key: string,
-      },
-    }
-  & NavigationScreenProp<NavigationRoute>;
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    threadInfo: ThreadInfo,
+  |},
+|}>;
+
 type ChatSettingsItem =
   | {|
       itemType: "header",
@@ -187,19 +190,16 @@ type ChatSettingsItem =
       canLeaveThread: bool,
     |};
 
-type StateProps = {|
+type Props = {|
+  navigation: NavProp,
+  // Redux state
   threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?ThreadInfo[],
   somethingIsSaving: bool,
-|};
-type Props = {|
-  navigation: NavProp,
-  // Redux state
-  ...StateProps,
+  tabActive: bool,
 |};
 type State = {|
-  showAddUsersModal: bool,
   showComposeSubthreadModal: bool,
   showMaxMembers: number,
   showMaxChildThreads: number,
@@ -227,6 +227,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
+    tabActive: PropTypes.bool.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
@@ -241,7 +242,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       "ThreadInfo should exist when ThreadSettings opened",
     );
     this.state = {
-      showAddUsersModal: false,
       showComposeSubthreadModal: false,
       showMaxMembers: itemPageLength,
       showMaxChildThreads: itemPageLength,
@@ -306,7 +306,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   canReset = () => {
-    return !this.state.showAddUsersModal &&
+    return this.props.tabActive &&
       !this.state.showComposeSubthreadModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
@@ -581,11 +581,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           contentContainerStyle={styles.flatList}
           renderItem={this.renderItem}
         />
-        <AddUsersModal
-          isVisible={this.state.showAddUsersModal}
-          threadInfo={threadInfo}
-          close={this.closeAddUsersModal}
-        />
         <Modal
           isVisible={this.state.showComposeSubthreadModal}
           onBackButtonPress={this.closeComposeSubthreadModal}
@@ -732,11 +727,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   onPressAddMember = () => {
-    this.setState({ showAddUsersModal: true });
-  }
-
-  closeAddUsersModal = () => {
-    this.setState({ showAddUsersModal: false });
+    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    this.props.navigation.navigate(
+      AddUsersModalRouteName,
+      { threadInfo },
+    );
   }
 
   onPressSeeMoreMembers = () => {
@@ -805,6 +800,7 @@ const somethingIsSaving = (
   return false;
 };
 
+const activeTabSelector = createActiveTabSelector(ChatRouteName);
 const ThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
@@ -815,6 +811,7 @@ const ThreadSettings = connect(
       threadMembers,
       childThreadInfos: childThreadInfos(state)[threadID],
       somethingIsSaving: somethingIsSaving(state, threadMembers),
+      tabActive: activeTabSelector(state),
     };
   },
 )(InnerThreadSettings);

@@ -18,3 +18,4 @@ export const DevToolsRouteName = 'DevTools';
 export const EditEmailRouteName = 'EditEmail';
 export const EditPasswordRouteName = 'EditPassword';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
+export const AddUsersModalRouteName = 'AddUsersModal';
