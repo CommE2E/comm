@@ -1,6 +1,9 @@
 // @flow
 
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -67,18 +70,14 @@ const tagInputProps = {
   returnKeyType: "go",
 };
 
-type NavProp =
-  & {
-      state: {
-        params: {
-          threadType?: ThreadType,
-          parentThreadID?: string,
-          createButtonDisabled?: bool,
-        },
-        key: string,
-      },
-    }
-  & NavigationScreenProp<NavigationRoute>;
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {
+    threadType?: ThreadType,
+    parentThreadID?: string,
+    createButtonDisabled?: bool,
+  },
+|}>;
 
 let queuedPress = false;
 function setQueuedPress() {
@@ -150,7 +149,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       <LinkButton
         text="Create"
         onPress={pressCreateThread}
-        disabled={!!navigation.state.params.createButtonDisabled}
+        disabled={!!navigation.getParam('createButtonDisabled')}
       />
     ),
     headerBackTitle: "Back",
@@ -289,14 +288,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       );
     }
     let parentThreadRow = null;
-    const parentThreadID = this.props.navigation.state.params.parentThreadID;
+    const parentThreadID = this.props.navigation.getParam('parentThreadID');
     if (parentThreadID) {
       const parentThreadInfo = this.props.parentThreadInfo;
       invariant(
         parentThreadInfo,
         `can't find ThreadInfo for parent ${parentThreadID}`,
       );
-      const threadType = this.props.navigation.state.params.threadType;
+      const threadType = this.props.navigation.getParam('threadType');
       invariant(
         threadType !== undefined && threadType !== null,
         `no threadType provided for ${parentThreadID}`,
@@ -438,9 +437,8 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   async newChatThreadAction() {
     this.props.navigation.setParams({ createButtonDisabled: true });
     try {
-      const threadType = this.props.navigation.state.params.threadType
-        ? this.props.navigation.state.params.threadType
-        : threadTypes.CHAT_SECRET;
+      const threadTypeParam = this.props.navigation.getParam('threadType');
+      const threadType = threadTypeParam ? threadTypeParam : threadTypes.CHAT_SECRET;
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
@@ -571,7 +569,7 @@ registerFetchKey(searchUsersActionTypes);
 const ComposeThread = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
-    const parentThreadID = ownProps.navigation.state.params.parentThreadID;
+    const parentThreadID = ownProps.navigation.getParam('parentThreadID');
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
       invariant(parentThreadInfo, "parent thread should exist");
