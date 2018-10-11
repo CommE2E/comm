@@ -177,7 +177,9 @@ class ColorPicker extends React.PureComponent<Props, State> {
     // is double broken (#12591, #15290). Unfortunately, the only way to get
     // absolute positioning for a View is via measure() after onLayout (#10556).
     InteractionManager.runAfterInteractions(() => {
-      invariant(this._pickerContainer, "should be set");
+      if (!this._pickerContainer) {
+        return;
+      }
       this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
         this._pageX = pageX;
         this._pageY = pageY;
