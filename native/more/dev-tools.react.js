@@ -2,6 +2,10 @@
 
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation';
 
 import * as React from 'react';
 import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
@@ -15,8 +19,8 @@ import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
 import { getPersistor } from '../persist';
-import { serverOptions, setCustomServer } from '../utils/url-utils';
-import CustomServerSelector from './custom-server-selector.react';
+import { serverOptions } from '../utils/url-utils';
+import { CustomServerModalRouteName } from '../navigation/route-names';
 
 const ServerIcon = (props: {||}) => (
   <Icon
@@ -28,27 +32,25 @@ const ServerIcon = (props: {||}) => (
 );
 
 type Props = {|
+  navigation: NavigationScreenProp<NavigationLeafRoute>,
   // Redux state
   urlPrefix: string,
   customServer: ?string,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
-type State = {|
-  customServerModalOpen: bool,
-|};
-class InnerDevTools extends React.PureComponent<Props, State> {
+class InnerDevTools extends React.PureComponent<Props> {
 
   static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
     headerTitle: "Developer tools",
-  };
-  state = {
-    customServerModalOpen: false,
   };
 
   render() {
@@ -136,12 +138,6 @@ class InnerDevTools extends React.PureComponent<Props, State> {
             {serverButtons}
           </View>
         </ScrollView>
-        <CustomServerSelector
-          isVisible={this.state.customServerModalOpen}
-          currentCustomServer={this.props.customServer}
-          onClose={this.closeCustomServerModal}
-          onCompleteInput={this.onCompleteCustomServerInput}
-        />
       </View>
     );
   }
@@ -167,20 +163,7 @@ class InnerDevTools extends React.PureComponent<Props, State> {
   }
 
   onSelectCustomServer = () => {
-    this.setState({ customServerModalOpen: true });
-  }
-
-  closeCustomServerModal = () => {
-    this.setState({ customServerModalOpen: false });
-  }
-
-  onCompleteCustomServerInput = (customServer: string) => {
-    if (customServer !== this.props.urlPrefix) {
-      this.props.dispatchActionPayload(setURLPrefix, customServer);
-    }
-    if (customServer && customServer != this.props.customServer) {
-      this.props.dispatchActionPayload(setCustomServer, customServer);
-    }
+    this.props.navigation.navigate(CustomServerModalRouteName);
   }
 
 }
@@ -239,7 +222,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const DevTools = connect(
+export default connect(
   (state: AppState) => ({
     urlPrefix: state.urlPrefix,
     customServer: state.customServer,
@@ -247,5 +230,3 @@ const DevTools = connect(
   null,
   true,
 )(InnerDevTools);
-
-export default DevTools;

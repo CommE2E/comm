@@ -82,6 +82,7 @@ import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
   AddUsersModalRouteName,
+  CustomServerModalRouteName,
 } from './route-names';
 import {
   handleURLActionType,
@@ -89,6 +90,7 @@ import {
 } from './action-types';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
+import CustomServerModal from '../more/custom-server-modal.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -215,6 +217,7 @@ const RootNavigator = createStackNavigator(
     [AppRouteName]: { screen: ReduxWrappedAppNavigator },
     [ThreadPickerModalRouteName]: { screen: ThreadPickerModal },
     [AddUsersModalRouteName]: { screen: AddUsersModal },
+    [CustomServerModalRouteName]: { screen: CustomServerModal },
   },
   {
     headerMode: 'none',

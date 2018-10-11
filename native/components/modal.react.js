@@ -5,6 +5,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -12,6 +13,7 @@ import {
   View,
   TouchableWithoutFeedback,
   BackHandler,
+  ViewPropTypes,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
@@ -22,6 +24,8 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 type Props = $ReadOnly<{|
   navigation: NavigationScreenProp<NavigationLeafRoute>,
   children: React.Node,
+  containerStyle?: ViewStyle,
+  modalStyle?: ViewStyle,
   // Redux state
   isForeground: bool,
 |}>;
@@ -33,6 +37,8 @@ class Modal extends React.PureComponent<Props> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
+    containerStyle: ViewPropTypes.style,
+    modalStyle: ViewPropTypes.style,
   };
 
   componentDidMount() {
@@ -73,13 +79,14 @@ class Modal extends React.PureComponent<Props> {
   }
 
   render() {
+    const { containerStyle, modalStyle, children } = this.props;
     return (
-      <KeyboardAvoidingView style={styles.container}>
+      <KeyboardAvoidingView style={[styles.container, containerStyle]}>
         <TouchableWithoutFeedback onPress={this.close}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
-        <View style={styles.modal}>
-          {this.props.children}
+        <View style={[styles.modal, modalStyle]}>
+          {children}
         </View>
       </KeyboardAvoidingView>
     );

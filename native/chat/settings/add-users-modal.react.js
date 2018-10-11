@@ -100,6 +100,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           threadInfo: threadInfoPropType.isRequired,
         }).isRequired,
       }).isRequired,
+      goBack: PropTypes.func.isRequired,
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,

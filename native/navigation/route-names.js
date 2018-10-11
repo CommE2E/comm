@@ -19,3 +19,4 @@ export const EditEmailRouteName = 'EditEmail';
 export const EditPasswordRouteName = 'EditPassword';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const AddUsersModalRouteName = 'AddUsersModal';
+export const CustomServerModalRouteName = 'CustomServerModal';
