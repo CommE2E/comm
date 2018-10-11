@@ -81,6 +81,13 @@ type NavProp = NavigationScreenProp<{|
   |},
 |}>;
 
+type Navigate = ({
+  routeName: string,
+  params?: NavigationParams,
+  action?: NavigationNavigateAction,
+  key?: string,
+}) => bool;
+
 type ChatSettingsItem =
   | {|
       itemType: "header",
@@ -106,8 +113,8 @@ type ChatSettingsItem =
       key: string,
       threadInfo: ThreadInfo,
       colorEditValue: string,
-      showEditColorModal: bool,
       canChangeSettings: bool,
+      navigate: Navigate,
     |}
   | {|
       itemType: "description",
@@ -121,12 +128,7 @@ type ChatSettingsItem =
       itemType: "parent",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: ({
-        routeName: string,
-        params?: NavigationParams,
-        action?: NavigationNavigateAction,
-        key?: string,
-      }) => bool,
+      navigate: Navigate,
     |}
   | {|
       itemType: "visibility",
@@ -147,12 +149,7 @@ type ChatSettingsItem =
       itemType: "childThread",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: ({
-        routeName: string,
-        params?: NavigationParams,
-        action?: NavigationNavigateAction,
-        key?: string,
-      }) => bool,
+      navigate: Navigate,
       lastListItem: bool,
     |}
   | {|
@@ -181,12 +178,7 @@ type ChatSettingsItem =
       itemType: "deleteThread",
       key: string,
       threadInfo: ThreadInfo,
-      navigate: ({
-        routeName: string,
-        params?: NavigationParams,
-        action?: NavigationNavigateAction,
-        key?: string,
-      }) => bool,
+      navigate: Navigate,
       canLeaveThread: bool,
     |};
 
@@ -207,7 +199,6 @@ type State = {|
   descriptionEditValue: ?string,
   nameTextHeight: ?number,
   descriptionTextHeight: ?number,
-  showEditColorModal: bool,
   colorEditValue: string,
 |};
 class InnerThreadSettings extends React.PureComponent<Props, State> {
@@ -249,7 +240,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       descriptionEditValue: null,
       nameTextHeight: null,
       descriptionTextHeight: null,
-      showEditColorModal: false,
       colorEditValue: threadInfo.color,
     };
   }
@@ -310,7 +300,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       !this.state.showComposeSubthreadModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
-      !this.state.showEditColorModal &&
       !this.props.somethingIsSaving;
   }
 
@@ -344,8 +333,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       key: "color",
       threadInfo,
       colorEditValue: this.state.colorEditValue,
-      showEditColorModal: this.state.showEditColorModal,
       canChangeSettings,
+      navigate: this.props.navigation.navigate,
     });
     listData.push({
       itemType: "footer",
@@ -624,9 +613,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           threadInfo={item.threadInfo}
           colorEditValue={item.colorEditValue}
           setColorEditValue={this.setColorEditValue}
-          showEditColorModal={item.showEditColorModal}
-          setEditColorModalVisibility={this.setEditColorModalVisibility}
           canChangeSettings={item.canChangeSettings}
+          navigate={item.navigate}
         />
       );
     } else if (item.itemType === "description") {
@@ -702,12 +690,8 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ nameTextHeight: height });
   }
 
-  setEditColorModalVisibility = (visible: bool) => {
-    this.setState({ showEditColorModal: visible });
-  }
-
   setColorEditValue = (color: string) => {
-    this.setState({ showEditColorModal: false, colorEditValue: color });
+    this.setState({ colorEditValue: color });
   }
 
   setDescriptionEditValue = (value: ?string, callback?: () => void) => {

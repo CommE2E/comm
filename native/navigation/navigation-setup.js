@@ -83,6 +83,7 @@ import {
   ThreadPickerModalRouteName,
   AddUsersModalRouteName,
   CustomServerModalRouteName,
+  ColorPickerModalRouteName,
 } from './route-names';
 import {
   handleURLActionType,
@@ -91,6 +92,7 @@ import {
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
+import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -218,6 +220,7 @@ const RootNavigator = createStackNavigator(
     [ThreadPickerModalRouteName]: { screen: ThreadPickerModal },
     [AddUsersModalRouteName]: { screen: AddUsersModal },
     [CustomServerModalRouteName]: { screen: CustomServerModal },
+    [ColorPickerModalRouteName]: { screen: ColorPickerModal },
   },
   {
     headerMode: 'none',

@@ -3,19 +3,16 @@
 import {
   type ThreadInfo,
   threadInfoPropType,
-  type ChangeThreadSettingsResult,
-  type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux-setup';
+import type { NavigationParams } from 'react-navigation';
 
 import React from 'react';
 import {
   Text,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   View,
   Platform,
@@ -23,31 +20,25 @@ import {
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
 import ColorSplotch from '../../components/color-splotch.react';
-import ColorPickerModal from '../color-picker-modal.react';
+import { ColorPickerModalRouteName } from '../../navigation/route-names';
 
 type Props = {|
   threadInfo: ThreadInfo,
   colorEditValue: string,
   setColorEditValue: (color: string) => void,
-  showEditColorModal: bool,
-  setEditColorModalVisibility: (visible: bool) => void,
   canChangeSettings: bool,
+  navigate: ({
+    routeName: string,
+    params?: NavigationParams,
+    key?: string,
+  }) => bool,
   // Redux state
   loadingStatus: LoadingStatus,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  changeThreadSettings: (
-    request: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
 
@@ -55,12 +46,9 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     colorEditValue: PropTypes.string.isRequired,
     setColorEditValue: PropTypes.func.isRequired,
-    showEditColorModal: PropTypes.bool.isRequired,
-    setEditColorModalVisibility: PropTypes.func.isRequired,
     canChangeSettings: PropTypes.bool.isRequired,
+    navigate: PropTypes.func.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
   };
 
   render() {
@@ -84,56 +72,19 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
           <ColorSplotch color={this.props.threadInfo.color} />
         </View>
         {colorButton}
-        <ColorPickerModal
-          isVisible={this.props.showEditColorModal}
-          closeModal={this.closeColorPicker}
-          color={this.props.colorEditValue}
-          oldColor={this.props.threadInfo.color}
-          onColorSelected={this.onColorSelected}
-        />
       </View>
     );
   }
 
   onPressEditColor = () => {
-    this.props.setEditColorModalVisibility(true);
-  }
-
-  closeColorPicker = () => {
-    this.props.setEditColorModalVisibility(false);
-  }
-
-  onColorSelected = (color: string) => {
-    const colorEditValue = color.substr(1);
-    this.props.setColorEditValue(colorEditValue);
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.editColor(colorEditValue),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
-    );
-  }
-
-  async editColor(newColor: string) {
-    try {
-      return await this.props.changeThreadSettings({
-        threadID: this.props.threadInfo.id,
-        changes: { color: newColor },
-      });
-    } catch (e) {
-      Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onErrorAcknowledged },
-        ],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onErrorAcknowledged = () => {
-    this.props.setColorEditValue(this.props.threadInfo.color);
+    this.props.navigate({
+      routeName: ColorPickerModalRouteName,
+      params: {
+        color: this.props.colorEditValue,
+        threadInfo: this.props.threadInfo,
+        setColor: this.props.setColorEditValue,
+      },
+    });
   }
 
 }
@@ -165,9 +116,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
   `${changeThreadSettingsActionTypes.started}:color`,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-  }),
-  { changeThreadSettings },
-)(ThreadSettingsColor);
+export default connect((state: AppState) => ({
+  loadingStatus: loadingStatusSelector(state),
+}))(ThreadSettingsColor);
