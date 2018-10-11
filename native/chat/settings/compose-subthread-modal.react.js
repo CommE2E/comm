@@ -6,45 +6,55 @@ import {
   threadTypes,
 } from 'lib/types/thread-types';
 import type {
-  NavigationParams,
-  NavigationNavigateAction,
+  NavigationScreenProp,
+  NavigationLeafRoute,
 } from 'react-navigation';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, InteractionManager } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 
 import Button from '../../components/button.react';
-import { ComposeThreadRouteName } from '../../navigation/route-names';
-import KeyboardAvoidingView
-  from '../../components/keyboard-avoiding-view.react';
+import {
+  ComposeSubthreadModalRouteName,
+  ComposeThreadRouteName,
+} from '../../navigation/route-names';
+import { createModal } from '../../components/modal.react';
+
+const Modal = createModal(ComposeSubthreadModalRouteName);
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    threadInfo: ThreadInfo,
+  |},
+|}>;
 
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    action?: NavigationNavigateAction,
-    key?: string,
-  }) => bool,
-  closeModal: () => void,
+  navigation: NavProp,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
 
   static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    closeModal: PropTypes.func.isRequired,
+    navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          threadInfo: threadInfoPropType.isRequired,
+        }).isRequired,
+      }).isRequired,
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
   };
-  waitingToNavigate = false;
 
   render() {
-    const content = (
-      <View style={styles.modal}>
+    return (
+      <Modal
+        navigation={this.props.navigation}
+        modalStyle={styles.modal}
+      >
         <Text style={styles.visibility}>Thread type</Text>
         <Button style={styles.option} onPress={this.onPressOpen}>
           <Icon name="public" size={32} color="black" />
@@ -72,65 +82,40 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
             style={styles.forwardIcon}
           />
         </Button>
-      </View>
-    );
-    return (
-      <KeyboardAvoidingView style={styles.container}>
-        {content}
-      </KeyboardAvoidingView>
+      </Modal>
     );
   }
 
   onPressOpen = () => {
-    if (this.waitingToNavigate) {
-      return;
-    }
-    this.waitingToNavigate = true;
-    InteractionManager.runAfterInteractions(() => {
-      this.props.navigate({
-        routeName: ComposeThreadRouteName,
-        params: {
-          threadType: threadTypes.CHAT_NESTED_OPEN,
-          parentThreadID: this.props.threadInfo.id,
-        },
-        key: ComposeThreadRouteName +
-          `${this.props.threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
-      });
-      this.waitingToNavigate = false;
+    const threadID = this.props.navigation.state.params.threadInfo.id;
+    this.props.navigation.navigate({
+      routeName: ComposeThreadRouteName,
+      params: {
+        threadType: threadTypes.CHAT_NESTED_OPEN,
+        parentThreadID: threadID,
+      },
+      key:
+        `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_NESTED_OPEN}`,
     });
-    this.props.closeModal();
   }
 
   onPressSecret = () => {
-    if (this.waitingToNavigate) {
-      return;
-    }
-    this.waitingToNavigate = true;
-    InteractionManager.runAfterInteractions(() => {
-      this.props.navigate({
-        routeName: ComposeThreadRouteName,
-        params: {
-          threadType: threadTypes.CHAT_SECRET,
-          parentThreadID: this.props.threadInfo.id,
-        },
-        key: ComposeThreadRouteName +
-          `${this.props.threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
-      });
-      this.waitingToNavigate = false;
+    const threadID = this.props.navigation.state.params.threadInfo.id;
+    this.props.navigation.navigate({
+      routeName: ComposeThreadRouteName,
+      params: {
+        threadType: threadTypes.CHAT_SECRET,
+        parentThreadID: threadID,
+      },
+      key: `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_SECRET}`,
     });
-    this.props.closeModal();
   }
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 10,
-  },
   modal: {
-    padding: 12,
-    borderRadius: 5,
-    backgroundColor: '#EEEEEE',
+    flex: 0,
   },
   visibility: {
     fontSize: 24,

@@ -21,3 +21,4 @@ export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const AddUsersModalRouteName = 'AddUsersModal';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
+export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';

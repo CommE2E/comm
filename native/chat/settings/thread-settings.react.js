@@ -18,8 +18,7 @@ import type { CategoryType } from './thread-settings-category.react';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FlatList, StyleSheet, View } from 'react-native';
-import Modal from 'react-native-modal';
+import { FlatList, StyleSheet } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 
@@ -55,7 +54,6 @@ import {
   ThreadSettingsAddMember,
   ThreadSettingsAddChildThread,
 } from './thread-settings-list-action.react';
-import ComposeSubthreadModal from './compose-subthread-modal.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import { registerChatScreen } from '../chat-screen-registry';
 import ThreadSettingsName from './thread-settings-name.react';
@@ -68,6 +66,7 @@ import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 import {
   AddUsersModalRouteName,
+  ComposeSubthreadModalRouteName,
   ChatRouteName,
 } from '../../navigation/route-names';
 import { createActiveTabSelector } from '../../selectors/nav-selectors';
@@ -192,7 +191,6 @@ type Props = {|
   tabActive: bool,
 |};
 type State = {|
-  showComposeSubthreadModal: bool,
   showMaxMembers: number,
   showMaxChildThreads: number,
   nameEditValue: ?string,
@@ -233,7 +231,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       "ThreadInfo should exist when ThreadSettings opened",
     );
     this.state = {
-      showComposeSubthreadModal: false,
       showMaxMembers: itemPageLength,
       showMaxChildThreads: itemPageLength,
       nameEditValue: null,
@@ -297,7 +294,6 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   canReset = () => {
     return this.props.tabActive &&
-      !this.state.showComposeSubthreadModal &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
       !this.props.somethingIsSaving;
@@ -564,24 +560,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
 
     return (
-      <View>
-        <FlatList
-          data={listData}
-          contentContainerStyle={styles.flatList}
-          renderItem={this.renderItem}
-        />
-        <Modal
-          isVisible={this.state.showComposeSubthreadModal}
-          onBackButtonPress={this.closeComposeSubthreadModal}
-          onBackdropPress={this.closeComposeSubthreadModal}
-        >
-          <ComposeSubthreadModal
-            threadInfo={threadInfo}
-            navigate={this.props.navigation.navigate}
-            closeModal={this.closeComposeSubthreadModal}
-          />
-        </Modal>
-      </View>
+      <FlatList
+        data={listData}
+        contentContainerStyle={styles.flatList}
+        renderItem={this.renderItem}
+      />
     );
   }
 
@@ -703,11 +686,11 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   onPressComposeSubthread = () => {
-    this.setState({ showComposeSubthreadModal: true });
-  }
-
-  closeComposeSubthreadModal = () => {
-    this.setState({ showComposeSubthreadModal: false });
+    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    this.props.navigation.navigate(
+      ComposeSubthreadModalRouteName,
+      { threadInfo },
+    );
   }
 
   onPressAddMember = () => {
