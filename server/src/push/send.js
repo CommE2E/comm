@@ -138,7 +138,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
       const iosVersionsToTokens = byDeviceType.get("ios");
       if (iosVersionsToTokens) {
-        for (let [ codeVer, deviceTokens ] in iosVersionsToTokens) {
+        for (let [ codeVer, deviceTokens ] of iosVersionsToTokens) {
           const codeVersion = parseInt(codeVer); // only for Flow
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
@@ -161,7 +161,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const androidVersionsToTokens = byDeviceType.get("android");
       if (androidVersionsToTokens) {
-        for (let [ codeVer, deviceTokens ] in androidVersionsToTokens) {
+        for (let [ codeVer, deviceTokens ] of androidVersionsToTokens) {
           const codeVersion = parseInt(codeVer); // only for Flow
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
