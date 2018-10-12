@@ -418,7 +418,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       this.lastEntryKeyActive = null;
     }
 
-    if (this.props.threadPickerOpen && !this.state.disableInputBar) {
+    if (
+      this.props.threadPickerOpen &&
+      !prevProps.threadPickerOpen &&
+      !this.state.disableInputBar
+    ) {
       this.setState({ disableInputBar: true });
     }
     if (
