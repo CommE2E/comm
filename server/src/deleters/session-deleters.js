@@ -28,7 +28,7 @@ async function deleteOldWebSessions(): Promise<void> {
     LEFT JOIN ids iup ON iup.id = up.id
     WHERE s.id != s.cookie
       AND s.last_update < ${oldestWebSessionToKeep}
-      AND s.last_verified < ${oldestWebSessionToKeep}
+      AND s.last_validated < ${oldestWebSessionToKeep}
   `);
 }
 
