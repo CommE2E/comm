@@ -247,7 +247,10 @@ const RootNavigator = createStackNavigator(
             defaultConfig.screenInterpolator(sceneProps);
           const { position, scene } = sceneProps;
           const { index, route } = scene;
-          if (route.routeName !== ThreadPickerModalRouteName) {
+          if (
+            accountModals.includes(route.routeName) ||
+            route.routeName === AppRouteName
+          ) {
             return defaultInterpolation;
           }
           const opacity = position.interpolate({
