@@ -29,7 +29,7 @@ import {
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _includes from 'lodash/fp/includes';
-import { Alert, BackHandler, Platform } from 'react-native';
+import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { StackViewTransitionConfigs } from 'react-navigation-stack';
@@ -230,6 +230,16 @@ const RootNavigator = createStackNavigator(
     mode: 'modal',
     transparentCard: true,
     disableKeyboardHandling: true,
+    onTransitionStart: (
+      transitionProps: NavigationTransitionProps,
+      prevTransitionProps: ?NavigationTransitionProps,
+    ) => {
+      const { scene } = transitionProps;
+      const { route } = scene;
+      if (route.routeName !== ThreadPickerModalRouteName) {
+        Keyboard.dismiss();
+      }
+    },
     transitionConfig: (
       transitionProps: NavigationTransitionProps,
       prevTransitionProps: ?NavigationTransitionProps,
