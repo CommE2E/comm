@@ -4,7 +4,7 @@ import type { TextStyle } from './types/styles';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, View, StyleSheet, Platform } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 import _isEmpty from 'lodash/fp/isEmpty';
 import _intersectionWith from 'lodash/fp/intersectionWith';
@@ -152,10 +152,7 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
       const style = textToMeasure.style ? textToMeasure.style : this.props.style;
       invariant(style, "style should exist for every text being measured!");
       let text = textToMeasure.text;
-      if (
-        Platform.OS === "android" &&
-        (text === "" || text.slice(-1) === "\n")
-      ) {
+      if (text === "" || text.slice(-1) === "\n") {
         text += " ";
       }
       return (

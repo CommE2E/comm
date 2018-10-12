@@ -753,7 +753,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={entryStyles.text}
+          style={[entryStyles.entry, entryStyles.text]}
         />
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}

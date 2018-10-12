@@ -164,9 +164,9 @@ class InternalEntry extends React.Component<Props, State> {
     const willBeActive = InternalEntry.isActive(nextProps);
     if (
       !willBeActive &&
-      (nextProps.entryInfo.text !== this.props.entryInfo.text &&
-        nextProps.entryInfo.text !== this.state.text) ||
-      (nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight &&
+      (nextProps.entryInfo.text !== this.props.entryInfo.text ||
+        nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight) &&
+      (nextProps.entryInfo.text !== this.state.text ||
         nextProps.entryInfo.textHeight !== this.state.height)
     ) {
       this.guardedSetState({
