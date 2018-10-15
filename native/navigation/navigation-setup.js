@@ -236,7 +236,12 @@ const RootNavigator = createStackNavigator(
     ) => {
       const { scene } = transitionProps;
       const { route } = scene;
-      if (route.routeName !== ThreadPickerModalRouteName) {
+      const { scene: prevScene } = prevTransitionProps;
+      const { route: prevRoute } = prevScene;
+      if (
+        route.routeName !== AppRouteName ||
+        prevRoute.routeName !== ThreadPickerModalRouteName
+      ) {
         Keyboard.dismiss();
       }
     },
