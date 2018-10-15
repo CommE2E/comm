@@ -11,6 +11,8 @@ import {
   fetchViewerForHomeRequest,
   addCookieToHomeResponse,
 } from '../session/cookies';
+import { createNewAnonymousCookie } from '../session/cookies';
+import { deleteCookie } from '../deleters/cookie-deleters';
 
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 export type DownloadResponder
@@ -73,6 +75,19 @@ async function handleException(
     ? { error: error.message, payload: error.payload }
     : { error: error.message };
   if (viewer) {
+    if (error.message === "client_version_unsupported" && viewer.loggedIn) {
+      // If the client version is unsupported, log the user out
+      const { platformDetails } = error;
+      const [ data ] = await Promise.all([
+        createNewAnonymousCookie({
+          platformDetails,
+          deviceToken: viewer.deviceToken,
+        }),
+        deleteCookie(viewer.cookieID),
+      ]);
+      viewer.setNewCookie(data);
+      viewer.cookieInvalidated = true;
+    }
     // This can mutate the result object
     await addCookieToJSONResponse(viewer, res, result);
   }

@@ -5,9 +5,6 @@ import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { createNewAnonymousCookie } from './cookies';
-import { deleteCookie } from '../deleters/cookie-deleters';
-
 async function verifyClientSupported(
   viewer: Viewer,
   platformDetails: ?PlatformDetails,
@@ -15,18 +12,9 @@ async function verifyClientSupported(
   if (clientSupported(platformDetails)) {
     return;
   }
-  if (viewer.loggedIn) {
-    const [ data ] = await Promise.all([
-      createNewAnonymousCookie({
-        platformDetails,
-        deviceToken: viewer.deviceToken,
-      }),
-      deleteCookie(viewer.cookieID),
-    ]);
-    viewer.setNewCookie(data);
-    viewer.cookieInvalidated = true;
-  }
-  throw new ServerError("client_version_unsupported");
+  const error = new ServerError("client_version_unsupported");
+  error.platformDetails = platformDetails;
+  throw error;
 }
 
 function clientSupported(platformDetails: ?PlatformDetails): bool {
