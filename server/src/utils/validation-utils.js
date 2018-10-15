@@ -36,8 +36,9 @@ async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
     return;
   }
 
-  const sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
-  throw new ServerError('invalid_parameters', { input: sanitizedInput });
+  const error = new ServerError('invalid_parameters');
+  error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
+  throw error;
 }
 
 const fakePassword = "********";
