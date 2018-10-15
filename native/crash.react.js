@@ -151,6 +151,7 @@ class Crash extends React.PureComponent<Props, State> {
       },
       errors: this.props.errorData.map(data => ({
         errorMessage: data.error.message,
+        stack: data.error.stack,
         componentStack: data.info && data.info.componentStack,
       })),
       preloadedState: reduxLogger.preloadedState,
