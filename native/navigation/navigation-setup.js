@@ -234,6 +234,9 @@ const RootNavigator = createStackNavigator(
       transitionProps: NavigationTransitionProps,
       prevTransitionProps: ?NavigationTransitionProps,
     ) => {
+      if (!prevTransitionProps) {
+        return;
+      }
       const { scene } = transitionProps;
       const { route } = scene;
       const { scene: prevScene } = prevTransitionProps;
