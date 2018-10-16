@@ -35,7 +35,7 @@ export type AnonymousViewerData = {|
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
   +cookieSource?: CookieSource,
-  +cookieID: ?string,
+  +cookieID: string,
   +cookiePassword: ?string,
   +cookieInsertedThisRequest?: bool,
   +sessionIdentifierType?: SessionIdentifierType,

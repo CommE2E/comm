@@ -9,6 +9,20 @@ import { ServerError } from 'lib/utils/errors';
 import { verifyClientSupported } from '../session/version';
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
+  await checkClientSupported(viewer, inputValidator, input);
+  checkInputValidator(inputValidator, input);
+}
+
+async function checkInputValidator(inputValidator: *, input: *) {
+  if (!inputValidator || inputValidator.is(input)) {
+    return;
+  }
+  const error = new ServerError('invalid_parameters');
+  error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
+  throw error;
+}
+
+async function checkClientSupported(viewer: Viewer, inputValidator: *, input: *) {
   let platformDetails;
   if (inputValidator) {
     platformDetails = findFirstInputMatchingValidator(
@@ -31,14 +45,6 @@ async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
     ({ platformDetails } = viewer);
   }
   await verifyClientSupported(viewer, platformDetails);
-
-  if (!inputValidator || inputValidator.is(input)) {
-    return;
-  }
-
-  const error = new ServerError('invalid_parameters');
-  error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
-  throw error;
 }
 
 const fakePassword = "********";
@@ -183,6 +189,8 @@ const tPassword = t.refinement(t.String, (password: string) => password);
 
 export {
   validateInput,
+  checkInputValidator,
+  checkClientSupported,
   tBool,
   tString,
   tShape,

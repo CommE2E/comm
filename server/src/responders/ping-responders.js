@@ -92,6 +92,78 @@ import {
 import { activityUpdatesInputValidator } from './activity-responders';
 import { SQL } from '../database';
 
+const clientResponseInputValidator = t.union([
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.PLATFORM',
+      x => x === serverRequestTypes.PLATFORM,
+    ),
+    platform: tPlatform,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.DEVICE_TOKEN',
+      x => x === serverRequestTypes.DEVICE_TOKEN,
+    ),
+    deviceToken: t.String,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.THREAD_INCONSISTENCY',
+      x => x === serverRequestTypes.THREAD_INCONSISTENCY,
+    ),
+    platformDetails: tPlatformDetails,
+    beforeAction: t.Object,
+    action: t.Object,
+    pollResult: t.Object,
+    pushResult: t.Object,
+    lastActionTypes: t.maybe(t.list(t.String)),
+    time: t.maybe(t.Number),
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.ENTRY_INCONSISTENCY',
+      x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
+    ),
+    platformDetails: tPlatformDetails,
+    beforeAction: t.Object,
+    action: t.Object,
+    calendarQuery: newEntryQueryInputValidator,
+    pollResult: t.Object,
+    pushResult: t.Object,
+    lastActionTypes: t.list(t.String),
+    time: t.Number,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.PLATFORM_DETAILS',
+      x => x === serverRequestTypes.PLATFORM_DETAILS,
+    ),
+    platformDetails: tPlatformDetails,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.INITIAL_ACTIVITY_UPDATE',
+      x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATE,
+    ),
+    threadID: t.String,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.CHECK_STATE',
+      x => x === serverRequestTypes.CHECK_STATE,
+    ),
+    hashResults: t.dict(t.String, t.Boolean),
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.INITIAL_ACTIVITY_UPDATES',
+      x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
+    ),
+    activityUpdates: activityUpdatesInputValidator,
+  }),
+]);
+
 const pingRequestInputValidator = tShape({
   type: t.maybe(t.Number),
   calendarQuery: entryQueryInputValidator,
@@ -99,77 +171,7 @@ const pingRequestInputValidator = tShape({
   messagesCurrentAsOf: t.maybe(t.Number),
   updatesCurrentAsOf: t.maybe(t.Number),
   watchedIDs: t.list(t.String),
-  clientResponses: t.maybe(t.list(t.union([
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.PLATFORM',
-        x => x === serverRequestTypes.PLATFORM,
-      ),
-      platform: tPlatform,
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.DEVICE_TOKEN',
-        x => x === serverRequestTypes.DEVICE_TOKEN,
-      ),
-      deviceToken: t.String,
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.THREAD_INCONSISTENCY',
-        x => x === serverRequestTypes.THREAD_INCONSISTENCY,
-      ),
-      platformDetails: tPlatformDetails,
-      beforeAction: t.Object,
-      action: t.Object,
-      pollResult: t.Object,
-      pushResult: t.Object,
-      lastActionTypes: t.maybe(t.list(t.String)),
-      time: t.maybe(t.Number),
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.ENTRY_INCONSISTENCY',
-        x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
-      ),
-      platformDetails: tPlatformDetails,
-      beforeAction: t.Object,
-      action: t.Object,
-      calendarQuery: newEntryQueryInputValidator,
-      pollResult: t.Object,
-      pushResult: t.Object,
-      lastActionTypes: t.list(t.String),
-      time: t.Number,
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.PLATFORM_DETAILS',
-        x => x === serverRequestTypes.PLATFORM_DETAILS,
-      ),
-      platformDetails: tPlatformDetails,
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.INITIAL_ACTIVITY_UPDATE',
-        x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATE,
-      ),
-      threadID: t.String,
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.CHECK_STATE',
-        x => x === serverRequestTypes.CHECK_STATE,
-      ),
-      hashResults: t.dict(t.String, t.Boolean),
-    }),
-    tShape({
-      type: t.irreducible(
-        'serverRequestTypes.INITIAL_ACTIVITY_UPDATES',
-        x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
-      ),
-      activityUpdates: activityUpdatesInputValidator,
-    }),
-  ]))),
+  clientResponses: t.maybe(t.list(clientResponseInputValidator)),
 });
 
 async function pingResponder(
@@ -731,5 +733,9 @@ async function checkState(
 }
 
 export {
+  clientResponseInputValidator,
   pingResponder,
+  processClientResponses,
+  initializeSession,
+  checkState,
 };
