@@ -5,7 +5,7 @@ import type { $Request } from 'express';
 import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
-  type StateSyncFullPayload,
+  type StateSyncFullSocketPayload,
   type ServerSocketMessage,
   type ErrorServerSocketMessage,
   type AuthErrorServerSocketMessage,
@@ -14,7 +14,6 @@ import {
   serverSocketMessageTypes,
 } from 'lib/types/socket-types';
 import { cookieSources } from 'lib/types/session-types';
-import type { Viewer } from './session/viewer';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 
 import t from 'tcomb';
@@ -26,6 +25,7 @@ import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
 
+import { Viewer } from './session/viewer';
 import {
   checkInputValidator,
   checkClientSupported,
@@ -165,9 +165,12 @@ function onConnection(ws: WebSocket, req: $Request) {
           // clients. Usually if the cookie is invalid we construct a new
           // anonymous Viewer with a new cookie, and then pass the cookie down
           // in the error. But we can't pass HTTP cookies in WebSocket messages.
-          authErrorMessage.currentUserInfo = {
-            id: viewer.cookieID,
-            anonymous: true,
+          authErrorMessage.sessionChange = {
+            cookie: viewer.cookiePairString,
+            currentUserInfo: {
+              id: viewer.cookieID,
+              anonymous: true,
+            },
           };
         }
         sendMessage(authErrorMessage);
@@ -190,9 +193,13 @@ function onConnection(ws: WebSocket, req: $Request) {
           message: error.message,
         }
         if (anonymousViewerData) {
-          authErrorMessage.currentUserInfo = {
-            id: anonymousViewerData.cookieID,
-            anonymous: true,
+          const anonViewer = new Viewer(anonymousViewerData);
+          authErrorMessage.sessionChange = {
+            cookie: anonViewer.cookiePairString,
+            currentUserInfo: {
+              id: anonViewer.cookieID,
+              anonymous: true,
+            },
           };
         }
         sendMessage(authErrorMessage);
@@ -286,7 +293,7 @@ async function handleInitialClientSocketMessage(
       fetchEntryInfos(viewer, [ calendarQuery ]),
       fetchCurrentUserInfo(viewer),
     ]);
-    const payload: StateSyncFullPayload = {
+    const payload: StateSyncFullSocketPayload = {
       type: stateSyncPayloadTypes.FULL,
       messagesResult,
       threadInfos: threadsResult.threadInfos,
