@@ -15,6 +15,7 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
 import ashoat from 'lib/facts/ashoat';
 
 import { dbQuery, SQL } from '../database';
@@ -26,6 +27,7 @@ import createMessages from './message-creator';
 import createThread from './thread-creator';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { setNewSession } from '../session/cookies';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 const ashoatMessages = [
   "welcome to SquadCal! thanks for helping to test the alpha.",
@@ -141,7 +143,14 @@ async function createAccount(
     ...ashoatMessageInfos,
   ];
 
-  return { id, rawMessageInfos };
+  const threadsResult = await fetchThreadInfos(viewer);
+  const userInfos = values({ ...threadsResult.userInfos });
+
+  return {
+    id,
+    rawMessageInfos,
+    cookieChange: { threadInfos: threadsResult.threadInfos, userInfos },
+  };
 }
 
 export default createAccount;

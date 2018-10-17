@@ -61,6 +61,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 import { setNewSession } from '../session/cookies';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -257,7 +258,8 @@ async function logInResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult ] = await Promise.all([
+  const [ threadsResult, messagesResult, entriesResult ] = await Promise.all([
+    fetchThreadInfos(viewer),
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
@@ -267,9 +269,12 @@ async function logInResponder(
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const userInfos = entriesResult
-    ? { ...messagesResult.userInfos, ...entriesResult.userInfos }
-    : messagesResult.userInfos;
+  const entryUserInfos = entriesResult ? entriesResult.userInfos : {};
+  const userInfos = values({
+    ...threadsResult.userInfos,
+    ...messagesResult.userInfos,
+    ...entryUserInfos,
+  });
   const response: LogInResponse = {
     currentUserInfo: {
       id,
@@ -280,7 +285,11 @@ async function logInResponder(
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
-    userInfos: values(userInfos),
+    userInfos,
+    cookieChange: {
+      threadInfos: threadsResult.threadInfos,
+      userInfos: [],
+    },
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

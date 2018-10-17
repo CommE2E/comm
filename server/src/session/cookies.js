@@ -3,7 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
 import {
-  type SessionChange,
+  type ServerSessionChange,
   cookieLifetime,
   cookieSources,
   type CookieSource,
@@ -30,7 +30,6 @@ import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL } from '../database';
 import { Viewer } from './viewer';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 import { assertSecureRequest } from '../utils/security-utils';
@@ -493,12 +492,15 @@ function createViewerForInvalidFetchViewerResult(
 }
 
 const domainAsURL = new url.URL(baseDomain);
-async function addSessionChangeInfoToResult(
+function addSessionChangeInfoToResult(
   viewer: Viewer,
   res: $Response,
   result: Object,
 ) {
-  const { threadInfos, userInfos } = await fetchThreadInfos(viewer);
+  let threadInfos = {}, userInfos = {};
+  if (result.cookieChange) {
+    ({ threadInfos, userInfos } = result.cookieChange);
+  }
   let sessionChange;
   if (viewer.cookieInvalidated) {
     sessionChange = ({
@@ -509,13 +511,13 @@ async function addSessionChangeInfoToResult(
         id: viewer.cookieID,
         anonymous: true,
       },
-    }: SessionChange);
+    }: ServerSessionChange);
   } else {
     sessionChange = ({
       cookieInvalidated: false,
       threadInfos,
       userInfos: (values(userInfos).map(a => a): UserInfo[]),
-    }: SessionChange);
+    }: ServerSessionChange);
   }
   if (viewer.cookieSource === cookieSources.BODY) {
     sessionChange.cookie = viewer.cookiePairString;
@@ -670,7 +672,7 @@ async function extendCookieLifespan(cookieID: string) {
   await dbQuery(query);
 }
 
-async function addCookieToJSONResponse(
+function addCookieToJSONResponse(
   viewer: Viewer,
   res: $Response,
   result: Object,
@@ -679,7 +681,7 @@ async function addCookieToJSONResponse(
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
   if (viewer.sessionChanged) {
-    await addSessionChangeInfoToResult(viewer, res, result);
+    addSessionChangeInfoToResult(viewer, res, result);
   } else if (viewer.cookieSource !== cookieSources.BODY) {
     addActualHTTPCookie(viewer, res);
   }

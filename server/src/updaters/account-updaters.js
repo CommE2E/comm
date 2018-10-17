@@ -29,6 +29,7 @@ import { fetchLoggedInUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { setNewSession } from '../session/cookies';
 import { createUpdates } from '../creators/update-creator';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 async function accountUpdater(
   viewer: Viewer,
@@ -224,7 +225,8 @@ async function updatePassword(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ messagesResult, entriesResult ] = await Promise.all([
+  const [ threadsResult, messagesResult, entriesResult ] = await Promise.all([
+    fetchThreadInfos(viewer),
     fetchMessageInfos(
       viewer,
       threadSelectionCriteria,
@@ -234,9 +236,12 @@ async function updatePassword(
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const userInfos = entriesResult
-    ? { ...messagesResult.userInfos, ...entriesResult.userInfos }
-    : messagesResult.userInfos;
+  const entryUserInfos = entriesResult ? entriesResult.userInfos : {};
+  const userInfos = values({
+    ...threadsResult.userInfos,
+    ...messagesResult.userInfos,
+    ...entryUserInfos,
+  });
   const response: LogInResponse = {
     currentUserInfo: {
       id: userID,
@@ -247,7 +252,11 @@ async function updatePassword(
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newPingTime,
-    userInfos: values(userInfos),
+    userInfos,
+    cookieChange: {
+      threadInfos: threadsResult.threadInfos,
+      userInfos: [],
+    },
   };
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;

@@ -33,7 +33,7 @@ function jsonHandler(responder: JSONResponder) {
         return;
       }
       const result = { ...responderResult };
-      await addCookieToJSONResponse(viewer, res, result);
+      addCookieToJSONResponse(viewer, res, result);
       res.json({ success: true, ...result });
     } catch (e) {
       await handleException(e, res, viewer);
@@ -89,7 +89,7 @@ async function handleException(
       viewer.cookieInvalidated = true;
     }
     // This can mutate the result object
-    await addCookieToJSONResponse(viewer, res, result);
+    addCookieToJSONResponse(viewer, res, result);
   }
   res.json(result);
 }
