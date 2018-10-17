@@ -22,3 +22,8 @@ export const AddUsersModalRouteName = 'AddUsersModal';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
+
+export const accountModals = [
+  LoggedOutModalRouteName,
+  VerificationModalRouteName,
+];

@@ -93,7 +93,7 @@ import {
 import ConnectedStatusBar from './connected-status-bar.react';
 import {
   activeThreadSelector,
-  createIsForegroundSelector,
+  appLoggedInSelector,
 } from './selectors/nav-selectors';
 import {
   requestIOSPushPermissions,
@@ -881,11 +881,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => {
     const activeThread = activeThreadSelector(state);
-    const appLoggedIn = isForegroundSelector(state);
+    const appLoggedIn = appLoggedInSelector(state);
     return {
       navigationState: state.navInfo.navigationState,
       pingStartingPayload: pingNativeStartingPayload(state),

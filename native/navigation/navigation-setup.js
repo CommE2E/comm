@@ -60,7 +60,7 @@ import More from '../more/more.react';
 import LoggedOutModal from '../account/logged-out-modal.react';
 import VerificationModal from '../account/verification-modal.react';
 import {
-  createIsForegroundSelector,
+  appLoggedInSelector,
   appCanRespondToBackButtonSelector,
 } from '../selectors/nav-selectors';
 import {
@@ -85,6 +85,7 @@ import {
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
+  accountModals,
 } from './route-names';
 import {
   handleURLActionType,
@@ -207,10 +208,9 @@ class WrappedAppNavigator
 
 }
 
-const isForegroundSelector = createIsForegroundSelector(AppRouteName);
 const ReduxWrappedAppNavigator = connect((state: AppState) => ({
   appCanRespondToBackButton: appCanRespondToBackButtonSelector(state),
-  isForeground: isForegroundSelector(state),
+  isForeground: appLoggedInSelector(state),
 }))(WrappedAppNavigator);
 (ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
 
@@ -319,7 +319,6 @@ const defaultNavInfo: NavInfo = {
   navigationState: defaultNavigationState,
 };
 
-const accountModals = [ LoggedOutModalRouteName, VerificationModalRouteName ];
 function reduceNavInfo(
   state: AppState,
   action: *,

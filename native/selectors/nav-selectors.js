@@ -12,6 +12,7 @@ import {
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatRouteName,
+  accountModals,
 } from '../navigation/route-names';
 import {
   assertNavigationRouteNotLeafNode,
@@ -24,6 +25,13 @@ const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
     navigationState.routes[navigationState.index].routeName === routeName,
 );
 const createIsForegroundSelector = _memoize(baseCreateIsForegroundSelector);
+
+const appLoggedInSelector = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) => !accountModals.includes(
+    navigationState.routes[navigationState.index].routeName,
+  ),
+);
 
 const foregroundKeySelector = createSelector(
   (state: AppState) => state.navInfo.navigationState,
@@ -85,6 +93,7 @@ const appCanRespondToBackButtonSelector = createSelector(
 
 export {
   createIsForegroundSelector,
+  appLoggedInSelector,
   foregroundKeySelector,
   createActiveTabSelector,
   activeThreadSelector,
