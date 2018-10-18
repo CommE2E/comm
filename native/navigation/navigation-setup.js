@@ -44,7 +44,6 @@ import {
   registerActionTypes,
   resetPasswordActionTypes,
 } from 'lib/actions/user-actions';
-import { pingActionTypes } from 'lib/actions/ping-actions';
 import {
   leaveThreadActionTypes,
   deleteThreadActionTypes,

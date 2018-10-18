@@ -22,6 +22,7 @@ import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
 import {
   type ConnectionInfo,
   defaultConnectionInfo,
+  incrementalStateSyncActionPayload,
 } from 'lib/types/socket-types';
 
 import React from 'react';
@@ -43,7 +44,6 @@ import {
   sendMessageActionTypes,
   saveMessagesActionType,
 } from 'lib/actions/message-actions';
-import { pingActionTypes } from 'lib/actions/ping-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { defaultCalendarQuery } from 'lib/selectors/nav-selectors';
 
@@ -216,7 +216,7 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       deviceToken: action.payload,
     };
-  } else if (action.type === pingActionTypes.success) {
+  } else if (action.type === incrementalStateSyncActionPayload) {
     let wipeDeviceToken = false;
     for (let update of action.payload.updatesResult.newUpdates) {
       if (

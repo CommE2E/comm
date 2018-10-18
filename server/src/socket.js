@@ -320,6 +320,7 @@ async function handleInitialClientSocketMessage(
         ...entriesResult.userInfos,
         ...threadsResult.userInfos,
       }),
+      updatesCurrentAsOf: oldUpdatesCurrentAsOf,
     };
     if (viewer.sessionChanged) {
       // If initializeSession encounters sessionIdentifierTypes.BODY_SESSION_ID,
