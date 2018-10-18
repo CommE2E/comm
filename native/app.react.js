@@ -189,7 +189,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   updateBadgeCountAfterNextPing = true;
-  queuedDeviceToken: ?string = null;
   appStarted = 0;
 
   componentDidMount() {
@@ -238,8 +237,16 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.registerPushPermissionsAndHandleInitialNotif,
       );
     }
+    this.onForeground();
+  }
+
+  onForeground() {
     if (this.props.appLoggedIn) {
       this.ensurePushNotifsEnabled();
+    } else if (this.props.deviceToken) {
+      // We do this in case there was a crash, so we can clear deviceToken from
+      // any other cookies it might be set for
+      this.setDeviceToken(this.props.deviceToken);
     }
   }
 
@@ -398,9 +405,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     ) {
       this.props.dispatchActionPayload(foregroundActionType, null);
       this.startTimeouts();
-      if (this.props.appLoggedIn) {
-        this.ensurePushNotifsEnabled();
-      }
+      this.onForeground();
       if (this.props.activeThread) {
         AppWithNavigationState.clearNotifsOfThread(this.props);
       }
@@ -488,16 +493,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     ) {
       this.ensurePushNotifsEnabled();
     }
-
-    if (
-      this.props.appLoggedIn &&
-      !prevProps.appLoggedIn &&
-      this.queuedDeviceToken !== null &&
-      this.queuedDeviceToken !== undefined
-    ) {
-      this.setDeviceToken(this.queuedDeviceToken);
-      this.queuedDeviceToken = null;
-    }
   }
 
   static serverRequestsHasDeviceTokenRequest(
@@ -509,6 +504,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   async ensurePushNotifsEnabled() {
+    if (!this.props.appLoggedIn) {
+      return;
+    }
     if (Platform.OS === "ios") {
       const missingDeviceToken = this.props.deviceToken === null
         || this.props.deviceToken === undefined;
@@ -576,11 +574,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       iosPushPermissionResponseReceived();
     }
     if (deviceToken !== this.props.deviceToken) {
-      if (this.props.appLoggedIn) {
-        this.setDeviceToken(deviceToken);
-      } else {
-        this.queuedDeviceToken = deviceToken;
-      }
+      this.setDeviceToken(deviceToken);
     }
   }
 

@@ -8,6 +8,7 @@ import {
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from './redux-setup';
 import type { ErrorData } from 'lib/types/report-types';
+import type { LogOutResult } from 'lib/types/account-types';
 
 import * as React from 'react';
 import {
@@ -29,6 +30,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import sleep from 'lib/utils/sleep';
 import { reduxLogger } from 'lib/utils/redux-logger';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 
 import Button from './components/button.react';
 import { store } from './redux-setup';
@@ -47,6 +49,7 @@ type Props = {
   sendReport: (
     request: ReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
+  logOut: () => Promise<LogOutResult>,
 };
 type State = {|
   errorReportID: ?string,
@@ -63,6 +66,7 @@ class Crash extends React.PureComponent<Props, State> {
     })).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendReport: PropTypes.func.isRequired,
+    logOut: PropTypes.func.isRequired,
   };
   errorTitle = _shuffle(errorTitles)[0];
   state = {
@@ -171,10 +175,20 @@ class Crash extends React.PureComponent<Props, State> {
     ExitApp.exitApp();
   }
 
-  onPressWipe = () => {
+  onPressWipe = async () => {
     if (!this.state.doneWaiting) {
       return;
     }
+    this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.logOutAndExit(),
+    );
+  }
+
+  async logOutAndExit() {
+    try {
+      await this.props.logOut();
+    } catch (e) { }
     getPersistor().purge();
     ExitApp.exitApp();
   }
@@ -254,5 +268,5 @@ const styles = StyleSheet.create({
 
 export default connect(
   undefined,
-  { sendReport },
+  { sendReport, logOut },
 )(Crash);
