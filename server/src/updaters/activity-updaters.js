@@ -12,7 +12,7 @@ import { updateTypes } from 'lib/types/update-types';
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 
-import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
+import { earliestTimeConsideredCurrent } from 'lib/shared/activity-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';

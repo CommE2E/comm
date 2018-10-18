@@ -1,6 +1,6 @@
 // @flow
 
-import { earliestTimeConsideredExpired } from 'lib/shared/ping-utils';
+import { earliestTimeConsideredExpired } from 'lib/shared/activity-utils';
 
 import { dbQuery, SQL } from '../database';
 

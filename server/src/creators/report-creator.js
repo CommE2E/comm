@@ -9,12 +9,10 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
-import { pingResponseTypes } from 'lib/types/ping-types';
 
 import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { pingActionTypes } from 'lib/actions/ping-actions';
 import { filterRawEntryInfosByCalendarQuery } from 'lib/shared/entry-utils';
 
 import { dbQuery, SQL } from '../database';
@@ -94,9 +92,6 @@ async function ignoreReport(
   viewer: Viewer,
   request: ReportCreationRequest,
 ): Promise<bool> {
-  if (ignoreKnownInconsistencyReport(request)) {
-    return true;
-  }
   // The below logic is to avoid duplicate inconsistency reports
   if (
     request.type !== reportTypes.THREAD_INCONSISTENCY &&
@@ -117,42 +112,6 @@ async function ignoreReport(
   `;
   const [ result ] = await dbQuery(query);
   return result.length !== 0;
-}
-
-// Currently this only ignores cases that are the result of the thread-reducer
-// conditional with the comment above that starts with "If the thread at the"
-function ignoreKnownInconsistencyReport(request: ReportCreationRequest): bool {
-  if (request.type !== reportTypes.THREAD_INCONSISTENCY) {
-    return false;
-  }
-  if (request.action.type !== pingActionTypes.success) {
-    return false;
-  }
-  const { payload } = request.action;
-  if (payload.type !== pingResponseTypes.FULL) {
-    return false;
-  }
-  const { beforeAction, pollResult, pushResult } = request;
-  const payloadThreadInfos = payload.threadInfos;
-  const prevStateThreadInfos = payload.prevState.threadInfos;
-  const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
-  for (let threadID of nonMatchingThreadIDs) {
-    const newThreadInfo = payloadThreadInfos[threadID];
-    const prevThreadInfo = prevStateThreadInfos[threadID];
-    if (!_isEqual(prevThreadInfo)(newThreadInfo)) {
-      return false;
-    }
-    const currentThreadInfo = beforeAction[threadID];
-    const pollThreadInfo = pollResult[threadID];
-    if (!_isEqual(currentThreadInfo)(pollThreadInfo)) {
-      return false;
-    }
-    const pushThreadInfo = pushResult[threadID];
-    if (!_isEqual(pushThreadInfo)(newThreadInfo)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function getSquadbotMessage(

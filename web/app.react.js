@@ -51,7 +51,7 @@ import {
 import {
   updateActivityActionTypes,
   updateActivity,
-} from 'lib/actions/ping-actions';
+} from 'lib/actions/activity-actions';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';

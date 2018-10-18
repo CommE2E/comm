@@ -50,7 +50,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   updateActivityActionTypes,
   updateActivity,
-} from 'lib/actions/ping-actions';
+} from 'lib/actions/activity-actions';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,

@@ -16,7 +16,7 @@ import {
   messageTypeGeneratesNotifs,
   shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils';
-import { earliestTimeConsideredCurrent } from 'lib/shared/ping-utils';
+import { earliestTimeConsideredCurrent } from 'lib/shared/activity-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import {
