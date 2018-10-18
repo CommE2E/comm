@@ -9,6 +9,7 @@ async function deviceTokenUpdater(
   viewer: Viewer,
   update: DeviceTokenUpdateRequest,
 ): Promise<void> {
+  viewer.setDeviceToken(update.deviceToken);
   await clearDeviceToken(update.deviceToken);
   const query = SQL`
     UPDATE cookies

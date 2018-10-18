@@ -713,21 +713,24 @@ function addActualHTTPCookie(viewer: Viewer, res: $Response) {
 }
 
 async function setCookiePlatform(
-  cookieID: string,
+  viewer: Viewer,
   platform: Platform,
 ): Promise<void> {
+  const newPlatformDetails = { ...viewer.platformDetails, platform };
+  viewer.setPlatformDetails(newPlatformDetails);
   const query = SQL`
     UPDATE cookies
     SET platform = ${platform}
-    WHERE id = ${cookieID}
+    WHERE id = ${viewer.cookieID}
   `;
   await dbQuery(query);
 }
 
 async function setCookiePlatformDetails(
-  cookieID: string,
+  viewer: Viewer,
   platformDetails: PlatformDetails,
 ): Promise<void> {
+  viewer.setPlatformDetails(platformDetails);
   const { platform, ...versions } = platformDetails;
   const versionsString = Object.keys(versions).length > 0
     ? JSON.stringify(versions)
@@ -735,7 +738,7 @@ async function setCookiePlatformDetails(
   const query = SQL`
     UPDATE cookies
     SET platform = ${platform}, versions = ${versionsString}
-    WHERE id = ${cookieID}
+    WHERE id = ${viewer.cookieID}
   `;
   await dbQuery(query);
 }

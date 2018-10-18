@@ -391,7 +391,7 @@ async function processClientResponses(
         !clientSentPlatformDetails
       ) {
         promises.push(setCookiePlatform(
-          viewer.cookieID,
+          viewer,
           clientResponse.platform,
         ));
         viewerMissingPlatform = false;
@@ -423,7 +423,7 @@ async function processClientResponses(
         ));
       } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
         promises.push(setCookiePlatformDetails(
-          viewer.cookieID,
+          viewer,
           clientResponse.platformDetails,
         ));
         viewerMissingPlatform = false;

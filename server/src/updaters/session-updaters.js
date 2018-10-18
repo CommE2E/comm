@@ -29,6 +29,15 @@ async function commitSessionUpdate(
     return;
   }
 
+  viewer.setSessionInfo({
+    lastValidated: sessionUpdate.lastValidated
+      ? sessionUpdate.lastValidated
+      : viewer.sessionLastValidated,
+    calendarQuery: sessionUpdate.query
+      ? sessionUpdate.query
+      : viewer.calendarQuery,
+  });
+
   const query = SQL`
     UPDATE sessions
     SET ${sqlUpdate}

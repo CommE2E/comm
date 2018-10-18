@@ -124,6 +124,24 @@ class Viewer {
     }
   }
 
+  setDeviceToken(deviceToken: string) {
+    if (this.data.loggedIn) {
+      this.data = { ...this.data, deviceToken };
+    } else {
+      // This is a separate condition because of Flow
+      this.data = { ...this.data, deviceToken };
+    }
+  }
+
+  setPlatformDetails(platformDetails: PlatformDetails) {
+    if (this.data.loggedIn) {
+      this.data = { ...this.data, platformDetails };
+    } else {
+      // This is a separate condition because of Flow
+      this.data = { ...this.data, platformDetails };
+    }
+  }
+
   get id(): string {
     return this.data.id;
   }
