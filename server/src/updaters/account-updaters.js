@@ -203,8 +203,14 @@ async function updatePassword(
   const userRow = userResult[0];
 
   const newPingTime = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(userID, request.platformDetails),
+    createNewUserCookie(
+      userID,
+      { platformDetails: request.platformDetails, deviceToken },
+    ),
     clearVerifyCodes(verificationResult),
   ]);
   viewer.setNewCookie(userViewerData);

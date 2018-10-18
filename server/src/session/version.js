@@ -6,7 +6,7 @@ import type { Viewer } from '../session/viewer';
 import { ServerError } from 'lib/utils/errors';
 
 import { createNewAnonymousCookie } from './cookies';
-import { deleteCookiesOnLogOut } from '../deleters/cookie-deleters';
+import { deleteCookie } from '../deleters/cookie-deleters';
 
 async function verifyClientSupported(
   viewer: Viewer,
@@ -17,8 +17,11 @@ async function verifyClientSupported(
   }
   if (viewer.loggedIn) {
     const [ data ] = await Promise.all([
-      createNewAnonymousCookie(platformDetails),
-      deleteCookiesOnLogOut(viewer.userID, viewer.cookieID),
+      createNewAnonymousCookie({
+        platformDetails,
+        deviceToken: viewer.deviceToken,
+      }),
+      deleteCookie(viewer.cookieID),
     ]);
     viewer.setNewCookie(data);
     viewer.cookieInvalidated = true;

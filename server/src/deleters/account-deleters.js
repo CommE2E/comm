@@ -56,7 +56,10 @@ async function deleteAccount(
     WHERE u.id = ${deletedUserID}
   `;
   const [ anonymousViewerData ] = await Promise.all([
-    createNewAnonymousCookie(viewer.platformDetails),
+    createNewAnonymousCookie({
+      platformDetails: viewer.platformDetails,
+      deviceToken: viewer.deviceToken,
+    }),
     dbQuery(deletionQuery),
   ]);
   viewer.setNewCookie(anonymousViewerData);

@@ -2,32 +2,15 @@
 
 import { cookieLifetime } from 'lib/types/session-types';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import invariant from 'invariant';
 
-async function deleteCookie(cookieID: string): Promise<void> {
-  await dbQuery(SQL`
-    DELETE c, i, s, si, u, iu, fo
-    FROM cookies c
-    LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN sessions s ON s.cookie = c.id
-    LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN updates u ON u.target = c.id OR u.target = s.id
-    LEFT JOIN ids iu ON iu.id = u.id
-    LEFT JOIN focused fo ON fo.session = c.id OR fo.session = s.id
-    WHERE c.id = ${cookieID}
-  `);
-}
+import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
 
-async function deleteCookiesOnLogOut(
-  userID: string,
-  cookieID: string,
-  deviceToken: ?string,
-): Promise<void> {
-  const conditions = [ SQL`c.id = ${cookieID}` ];
-  if (deviceToken) {
-    conditions.push(SQL`c.device_token = ${deviceToken}`);
-  }
-
+async function deleteCookiesByConditions(
+  conditions: $ReadOnlyArray<SQLStatement>,
+) {
+  invariant(conditions.length > 0, "no conditions specified");
+  const conditionClause = mergeOrConditions(conditions);
   const query = SQL`
     DELETE c, i, s, si, u, iu, fo
     FROM cookies c
@@ -37,31 +20,24 @@ async function deleteCookiesOnLogOut(
     LEFT JOIN updates u ON u.target = c.id OR u.target = s.id
     LEFT JOIN ids iu ON iu.id = u.id
     LEFT JOIN focused fo ON fo.session = c.id OR fo.session = s.id
-    WHERE c.user = ${userID} AND
+    WHERE
   `;
-  query.append(mergeOrConditions(conditions));
-
+  query.append(conditionClause);
   await dbQuery(query);
+}
+
+async function deleteCookie(cookieID: string): Promise<void> {
+  const condition = SQL`c.id = ${cookieID}`;
+  await deleteCookiesByConditions([ condition ]);
 }
 
 async function deleteExpiredCookies(): Promise<void> {
   const earliestInvalidLastUpdate = Date.now() - cookieLifetime;
-  const query = SQL`
-    DELETE c, i, u, iu, s, si, fo
-    FROM cookies c
-    LEFT JOIN ids i ON i.id = c.id
-    LEFT JOIN updates u ON u.target = c.id
-    LEFT JOIN ids iu ON iu.id = u.id
-    LEFT JOIN sessions s ON s.cookie = c.id
-    LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN focused fo ON fo.session = s.id
-    WHERE c.last_used <= ${earliestInvalidLastUpdate}
-  `;
-  await dbQuery(query);
+  const condition = SQL`c.last_used <= ${earliestInvalidLastUpdate}`;
+  await deleteCookiesByConditions([ condition ]);
 }
 
 export {
   deleteCookie,
-  deleteCookiesOnLogOut,
   deleteExpiredCookies,
 };

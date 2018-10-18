@@ -75,6 +75,9 @@ async function createAccount(
 
   const hash = bcrypt.hashSync(request.password);
   const time = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
   const [ id ] = await createIDs("users", 1);
   const newUserRow = [id, request.username, hash, request.email, time];
   const newUserQuery = SQL`
@@ -82,7 +85,13 @@ async function createAccount(
     VALUES ${[newUserRow]}
   `;
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, request.platformDetails),
+    createNewUserCookie(
+      id,
+      {
+        platformDetails: request.platformDetails,
+        deviceToken,
+      },
+    ),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
     sendEmailAddressVerificationEmail(

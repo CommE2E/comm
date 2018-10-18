@@ -47,10 +47,7 @@ import {
   createNewAnonymousCookie,
   createNewUserCookie,
 } from '../session/cookies';
-import {
-  deleteCookie,
-  deleteCookiesOnLogOut,
-} from '../deleters/cookie-deleters';
+import { deleteCookie } from '../deleters/cookie-deleters';
 import { deleteAccount } from '../deleters/account-deleters';
 import createAccount from '../creators/account-creator';
 import {
@@ -62,8 +59,6 @@ import {
 import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { deviceTokenUpdater } from '../updaters/device-token-updaters';
-import { deviceTokenUpdateRequestInputValidator } from './device-responders';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 import { setNewSession } from '../session/cookies';
 
@@ -130,8 +125,11 @@ async function logOutResponder(
   await validateInput(viewer, null, null);
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
-      createNewAnonymousCookie(viewer.platformDetails),
-      deleteCookiesOnLogOut(viewer.userID, viewer.cookieID, viewer.deviceToken),
+      createNewAnonymousCookie({
+        platformDetails: viewer.platformDetails,
+        deviceToken: viewer.deviceToken,
+      }),
+      deleteCookie(viewer.cookieID),
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
@@ -156,6 +154,11 @@ async function accountDeletionResponder(
   return await deleteAccount(viewer, request);
 }
 
+const deviceTokenUpdateRequestInputValidator = tShape({
+  deviceType: t.maybe(t.enums.of(['ios', 'android'])),
+  deviceToken: t.String,
+});
+
 const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.String,
@@ -171,7 +174,10 @@ async function accountCreationResponder(
   input: any,
 ): Promise<RegisterResponse> {
   if (!input.platformDetails && input.platform) {
-    input.platformDetails = { platform: input.platform };
+    input.platformDetails = {
+      ...viewer.platformDetails,
+      platform: input.platform,
+    };
     delete input.platform;
   }
   const request: RegisterRequest = input;
@@ -195,7 +201,10 @@ async function logInResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, logInRequestInputValidator, input);
   if (!input.platformDetails && input.platform) {
-    input.platformDetails = { platform: input.platform };
+    input.platformDetails = {
+      ...viewer.platformDetails,
+      platform: input.platform,
+    };
     delete input.platform;
   }
   const request: LogInRequest = input;
@@ -227,8 +236,14 @@ async function logInResponder(
   const id = userRow.id.toString();
 
   const newPingTime = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
   const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(id, request.platformDetails),
+    createNewUserCookie(
+      id,
+      { platformDetails: request.platformDetails, deviceToken },
+    ),
     deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
@@ -249,9 +264,6 @@ async function logInResponder(
       defaultNumberPerThread,
     ),
     calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
-    request.deviceTokenUpdateRequest
-      ? deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest)
-      : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -292,20 +304,17 @@ async function passwordUpdateResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, updatePasswordRequestInputValidator, input);
   if (!input.platformDetails && input.platform) {
-    input.platformDetails = { platform: input.platform };
+    input.platformDetails = {
+      ...viewer.platformDetails,
+      platform: input.platform,
+    };
     delete input.platform;
   }
   const request: UpdatePasswordRequest = input;
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   }
-  const response = await updatePassword(viewer, request);
-
-  if (request.deviceTokenUpdateRequest) {
-    await deviceTokenUpdater(viewer, request.deviceTokenUpdateRequest);
-  }
-
-  return response;
+  return await updatePassword(viewer, request);
 }
 
 const accessRequestInputValidator = tShape({

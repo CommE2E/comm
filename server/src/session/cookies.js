@@ -35,6 +35,7 @@ import { assertSecureRequest } from '../utils/security-utils';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createSession } from '../creators/session-creator';
+import { clearDeviceToken } from '../updaters/device-token-updaters';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -57,6 +58,7 @@ type FetchViewerResult =
       cookieSource: CookieSource,
       sessionIdentifierType: SessionIdentifierType,
       platformDetails: ?PlatformDetails,
+      deviceToken: ?string,
     |};
 
 async function fetchUserViewer(
@@ -109,6 +111,7 @@ async function fetchUserViewer(
   } else if (cookieRow.platform) {
     platformDetails = { platform: cookieRow.platform };
   }
+  const deviceToken = cookieRow.device_token;
 
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
@@ -121,6 +124,7 @@ async function fetchUserViewer(
       cookieSource,
       sessionIdentifierType,
       platformDetails,
+      deviceToken,
     };
   }
   const userID = cookieRow.user.toString();
@@ -128,7 +132,7 @@ async function fetchUserViewer(
     loggedIn: true,
     id: userID,
     platformDetails,
-    deviceToken: cookieRow.device_token,
+    deviceToken,
     userID,
     cookieSource,
     cookieID,
@@ -191,6 +195,7 @@ async function fetchAnonymousViewer(
   } else if (cookieRow.platform) {
     platformDetails = { platform: cookieRow.platform };
   }
+  const deviceToken = cookieRow.device_token;
 
   if (
     !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
@@ -203,13 +208,14 @@ async function fetchAnonymousViewer(
       cookieSource,
       sessionIdentifierType,
       platformDetails,
+      deviceToken,
     };
   }
   const viewer = new Viewer({
     loggedIn: false,
     id: cookieID,
     platformDetails,
-    deviceToken: cookieRow.device_token,
+    deviceToken,
     cookieSource,
     cookieID,
     cookiePassword,
@@ -361,9 +367,10 @@ async function handleFetchViewerResult(
   if (!platformDetails && result.type === "invalidated") {
     platformDetails = result.platformDetails;
   }
+  const deviceToken = result.type === "invalidated" ? result.deviceToken : null;
 
   const [ anonymousViewerData ] = await Promise.all([
-    createNewAnonymousCookie(platformDetails),
+    createNewAnonymousCookie({ platformDetails, deviceToken }),
     result.type === "invalidated"
       ? deleteCookie(result.cookieID)
       : null,
@@ -430,6 +437,12 @@ async function addSessionChangeInfoToResult(
   result.cookieChange = sessionChange;
 }
 
+type CookieCreationParams = $Shape<{|
+  platformDetails: ?PlatformDetails,
+  deviceToken: ?string,
+|}>;
+const defaultPlatformDetails = {};
+
 // The AnonymousViewerData returned by this function...
 // (1) Does not specify a sessionIdentifierType. This will cause an exception
 //     if passed directly to the Viewer constructor, so the caller should set it
@@ -437,18 +450,23 @@ async function addSessionChangeInfoToResult(
 // (2) Does not specify a cookieSource. This will cause an exception if passed
 //     directly to the Viewer constructor, so the caller should set it before
 //     doing so.
-const defaultPlatformDetails = {};
 async function createNewAnonymousCookie(
-  platformDetails: ?PlatformDetails,
+  params: CookieCreationParams,
 ): Promise<AnonymousViewerData> {
-  const time = Date.now();
-  const cookiePassword = crypto.randomBytes(32).toString('hex');
-  const cookieHash = bcrypt.hashSync(cookiePassword);
-  const [ id ] = await createIDs("cookies", 1);
+  const { platformDetails, deviceToken } = params;
   const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
   const versionsString = Object.keys(versions).length > 0
     ? JSON.stringify(versions)
     : null;
+
+  const time = Date.now();
+  const cookiePassword = crypto.randomBytes(32).toString('hex');
+  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const [ [ id ] ] = await Promise.all([
+    createIDs("cookies", 1),
+    deviceToken ? clearDeviceToken(deviceToken) : undefined,
+  ]);
+
   const cookieRow = [
     id,
     cookieHash,
@@ -456,11 +474,12 @@ async function createNewAnonymousCookie(
     platform,
     time,
     time,
+    deviceToken,
     versionsString,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      versions)
+      device_token, versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -468,7 +487,7 @@ async function createNewAnonymousCookie(
     loggedIn: false,
     id,
     platformDetails,
-    deviceToken: null,
+    deviceToken,
     cookieID: id,
     cookiePassword,
     sessionID: undefined,
@@ -490,16 +509,22 @@ async function createNewAnonymousCookie(
 //     result is never passed directly to the Viewer constructor.
 async function createNewUserCookie(
   userID: string,
-  platformDetails: ?PlatformDetails,
+  params: CookieCreationParams,
 ): Promise<UserViewerData> {
-  const time = Date.now();
-  const cookiePassword = crypto.randomBytes(32).toString('hex');
-  const cookieHash = bcrypt.hashSync(cookiePassword);
-  const [ cookieID ] = await createIDs("cookies", 1);
+  const { platformDetails, deviceToken } = params;
   const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
   const versionsString = Object.keys(versions).length > 0
     ? JSON.stringify(versions)
     : null;
+
+  const time = Date.now();
+  const cookiePassword = crypto.randomBytes(32).toString('hex');
+  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const [ [ cookieID ] ] = await Promise.all([
+    createIDs("cookies", 1),
+    deviceToken ? clearDeviceToken(deviceToken) : undefined,
+  ]);
+
   const cookieRow = [
     cookieID,
     cookieHash,
@@ -507,11 +532,12 @@ async function createNewUserCookie(
     platform,
     time,
     time,
+    deviceToken,
     versionsString,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      versions)
+      device_token, versions)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
@@ -519,7 +545,7 @@ async function createNewUserCookie(
     loggedIn: true,
     id: userID,
     platformDetails,
-    deviceToken: null,
+    deviceToken,
     userID,
     cookieID,
     sessionID: undefined,
