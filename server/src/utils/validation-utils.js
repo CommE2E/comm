@@ -13,7 +13,7 @@ async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   checkInputValidator(inputValidator, input);
 }
 
-async function checkInputValidator(inputValidator: *, input: *) {
+function checkInputValidator(inputValidator: *, input: *) {
   if (!inputValidator || inputValidator.is(input)) {
     return;
   }

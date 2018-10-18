@@ -149,7 +149,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       drafts: {},
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
-      activeServerRequests: [],
       calendarFilters: defaultCalendarFilters,
       // We can use paths local to the <base href> on web
       urlPrefix: "",

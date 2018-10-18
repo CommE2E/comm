@@ -49,7 +49,7 @@ const migrations = {
   [4]: (state: AppState) => ({
     ...state,
     pingTimestamps: undefined,
-    activeServerRequests: [],
+    activeServerRequests: undefined,
   }),
   [5]: (state: AppState) => ({
     ...state,
@@ -76,6 +76,7 @@ const migrations = {
   [8]: (state: AppState) => ({
     ...state,
     pingTimestamps: undefined,
+    activeServerRequests: undefined,
     connection: defaultConnectionInfo,
     watchedThreadIDs: [],
   }),

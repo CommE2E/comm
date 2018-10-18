@@ -23,11 +23,6 @@ import {
   notifPermissionAlertInfoPropType,
 } from './push/alerts';
 import type { RawMessageInfo } from 'lib/types/message-types';
-import {
-  type ServerRequest,
-  serverRequestPropType,
-  serverRequestTypes,
-} from 'lib/types/request-types';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -123,7 +118,6 @@ type Props = {
   unreadCount: number,
   rawThreadInfos: {[id: string]: RawThreadInfo},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  activeServerRequests: $ReadOnlyArray<ServerRequest>,
   updatesCurrentAsOf: number,
   // Redux dispatch functions
   dispatch: NativeDispatch,
@@ -153,7 +147,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     unreadCount: PropTypes.number.isRequired,
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
-    activeServerRequests: PropTypes.arrayOf(serverRequestPropType).isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -378,27 +371,11 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (
-      (this.props.loggedIn && !prevProps.loggedIn) ||
-      (!this.props.deviceToken && prevProps.deviceToken) ||
-      (
-        AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
-          this.props.activeServerRequests,
-        ) &&
-        !AppWithNavigationState.serverRequestsHasDeviceTokenRequest(
-          prevProps.activeServerRequests,
-        )
-      )
+      (this.props.appLoggedIn && !prevProps.appLoggedIn) ||
+      (!this.props.deviceToken && prevProps.deviceToken)
     ) {
       this.ensurePushNotifsEnabled();
     }
-  }
-
-  static serverRequestsHasDeviceTokenRequest(
-    requests: $ReadOnlyArray<ServerRequest>,
-  ) {
-    return requests.some(
-      request => request.type === serverRequestTypes.DEVICE_TOKEN,
-    );
   }
 
   async ensurePushNotifsEnabled() {
@@ -788,7 +765,6 @@ const ConnectedAppWithNavigationState = connect(
       unreadCount: unreadCount(state),
       rawThreadInfos: state.threadStore.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      activeServerRequests: state.activeServerRequests,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
     };
   },

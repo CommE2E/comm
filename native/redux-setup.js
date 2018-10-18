@@ -12,7 +12,6 @@ import {
   defaultNotifPermissionAlertInfo,
 } from './push/alerts';
 import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
-import type { ServerRequest } from 'lib/types/request-types';
 import {
   type CalendarFilter,
   defaultCalendarFilters,
@@ -96,7 +95,6 @@ export type AppState = {|
   drafts: {[key: string]: string},
   updatesCurrentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
-  activeServerRequests: $ReadOnlyArray<ServerRequest>,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   cookie: ?string,
   deviceToken: ?string,
@@ -134,7 +132,6 @@ const defaultState = ({
   drafts: {},
   updatesCurrentAsOf: 0,
   loadingStatuses: {},
-  activeServerRequests: [],
   calendarFilters: defaultCalendarFilters,
   cookie: null,
   deviceToken: null,

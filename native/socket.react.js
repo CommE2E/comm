@@ -19,7 +19,7 @@ import { activeThreadSelector } from './selectors/nav-selectors';
 export default connect(
   (state: AppState) => ({
     openSocket: openSocketSelector(state),
-    clientResponses: clientResponsesSelector(state),
+    getClientResponses: clientResponsesSelector(state),
     activeThread: activeThreadSelector(state),
     sessionStateFunc: sessionStateFuncSelector(state),
     sessionIdentification: sessionIdentificationSelector(state),

@@ -5,6 +5,7 @@ import type { $Request } from 'express';
 import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
+  type ResponsesClientSocketMessage,
   type StateSyncFullSocketPayload,
   type ServerSocketMessage,
   type ErrorServerSocketMessage,
@@ -15,6 +16,7 @@ import {
 } from 'lib/types/socket-types';
 import { cookieSources } from 'lib/types/session-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import { serverRequestTypes } from 'lib/types/request-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -57,26 +59,38 @@ import { handleAsyncPromise } from './responders/handlers';
 import { deleteCookie } from './deleters/cookie-deleters';
 import { createNewAnonymousCookie } from './session/cookies';
 
-const clientSocketMessageInputValidator = tShape({
-  type: t.irreducible(
-    'clientSocketMessageTypes.INITIAL',
-    x => x === clientSocketMessageTypes.INITIAL,
-  ),
-  id: t.Number,
-  payload: tShape({
-    sessionIdentification: tShape({
-      cookie: t.maybe(t.String),
-      sessionID: t.maybe(t.String),
+const clientSocketMessageInputValidator = t.union([
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.INITIAL',
+      x => x === clientSocketMessageTypes.INITIAL,
+    ),
+    id: t.Number,
+    payload: tShape({
+      sessionIdentification: tShape({
+        cookie: t.maybe(t.String),
+        sessionID: t.maybe(t.String),
+      }),
+      sessionState: tShape({
+        calendarQuery: newEntryQueryInputValidator,
+        messagesCurrentAsOf: t.Number,
+        updatesCurrentAsOf: t.Number,
+        watchedIDs: t.list(t.String),
+      }),
+      clientResponses: t.list(clientResponseInputValidator),
     }),
-    sessionState: tShape({
-      calendarQuery: newEntryQueryInputValidator,
-      messagesCurrentAsOf: t.Number,
-      updatesCurrentAsOf: t.Number,
-      watchedIDs: t.list(t.String),
-    }),
-    clientResponses: t.list(clientResponseInputValidator),
   }),
-});
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.RESPONSES',
+      x => x === clientSocketMessageTypes.RESPONSES,
+    ),
+    id: t.Number,
+    payload: tShape({
+      clientResponses: t.list(clientResponseInputValidator),
+    }),
+  }),
+]);
 
 type SendMessageFunc = (message: ServerSocketMessage) => void;
 
@@ -229,6 +243,8 @@ async function handleClientSocketMessage(
 ): Promise<ServerSocketMessage[]> {
   if (message.type === clientSocketMessageTypes.INITIAL) {
     return await handleInitialClientSocketMessage(viewer, message);
+  } else if (message.type === clientSocketMessageTypes.RESPONSES) {
+    return await handleResponsesClientSocketMessage(viewer, message);
   }
   return [];
 }
@@ -375,16 +391,54 @@ async function handleInitialClientSocketMessage(
     });
   }
 
-  if (serverRequests.length > 0) {
+  // Clients that support sockets always keep their server aware of their
+  // device token, without needing any requests
+  const filteredServerRequests = serverRequests.filter(
+    request => request.type !== serverRequestTypes.DEVICE_TOKEN,
+  );
+  if (filteredServerRequests.length > 0) {
     responses.push({
       type: serverSocketMessageTypes.REQUESTS,
-      payload: {
-        serverRequests,
-      },
+      responseTo: message.id,
+      payload: { serverRequests: filteredServerRequests },
     });
   }
 
   return responses;
+}
+
+async function handleResponsesClientSocketMessage(
+  viewer: Viewer,
+  message: ResponsesClientSocketMessage,
+): Promise<ServerSocketMessage[]> {
+  const { clientResponses } = message.payload;
+  const { stateCheckStatus } = await processClientResponses(
+    viewer,
+    clientResponses,
+  );
+
+  const serverRequests = [];
+  if (stateCheckStatus && stateCheckStatus.status !== "state_check") {
+    const { sessionUpdate, checkStateRequest } = await checkState(
+      viewer,
+      stateCheckStatus,
+      viewer.calendarQuery,
+    );
+    if (sessionUpdate) {
+      await commitSessionUpdate(viewer, sessionUpdate);
+    }
+    if (checkStateRequest) {
+      serverRequests.push(checkStateRequest);
+    }
+  }
+
+  // We send a response message regardless of whether we have any requests,
+  // since we need to ack the client's responses
+  return [{
+    type: serverSocketMessageTypes.REQUESTS,
+    responseTo: message.id,
+    payload: { serverRequests },
+  }];
 }
 
 export {
