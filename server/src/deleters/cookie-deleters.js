@@ -3,7 +3,6 @@
 import { cookieLifetime } from 'lib/types/session-types';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
-import { fetchDeviceTokensForCookie } from '../fetchers/device-token-fetchers';
 
 async function deleteCookie(cookieID: string): Promise<void> {
   await dbQuery(SQL`
@@ -22,9 +21,8 @@ async function deleteCookie(cookieID: string): Promise<void> {
 async function deleteCookiesOnLogOut(
   userID: string,
   cookieID: string,
+  deviceToken: ?string,
 ): Promise<void> {
-  const deviceToken = await fetchDeviceTokensForCookie(cookieID);
-
   const conditions = [ SQL`c.id = ${cookieID}` ];
   if (deviceToken) {
     conditions.push(SQL`c.device_token = ${deviceToken}`);

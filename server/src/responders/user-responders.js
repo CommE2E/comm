@@ -131,7 +131,7 @@ async function logOutResponder(
   if (viewer.loggedIn) {
     const [ anonymousViewerData ] = await Promise.all([
       createNewAnonymousCookie(viewer.platformDetails),
-      deleteCookiesOnLogOut(viewer.userID, viewer.cookieID),
+      deleteCookiesOnLogOut(viewer.userID, viewer.cookieID, viewer.deviceToken),
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
