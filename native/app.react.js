@@ -770,8 +770,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       // We are here because notif was received, but hasn't been pressed yet. We
       // will preemptively dispatch a ping to fetch any missing info, and
       // integrate whatever MessageInfos were delivered into our Redux state.
-      this.pingNow();
       this.saveMessageInfos(customNotification.messageInfos);
+      this.pingNow();
 
       if (this.currentState === "active") {
         // In the case where the app is in the foreground, we will show an
