@@ -1,8 +1,24 @@
 // @flow
 
+import type { Viewer } from '../session/viewer';
+
 import { earliestTimeConsideredExpired } from 'lib/shared/activity-utils';
 
 import { dbQuery, SQL } from '../database';
+
+async function deleteForViewerSession(
+  viewer: Viewer,
+  beforeTime?: number,
+): Promise<void> {
+  const query = SQL`
+    DELETE FROM focused
+    WHERE user = ${viewer.userID} AND session = ${viewer.session}
+  `;
+  if (beforeTime !== undefined) {
+    query.append(SQL`AND time < ${beforeTime}`);
+  }
+  await dbQuery(query);
+}
 
 async function deleteOrphanedFocused(): Promise<void> {
   const time = earliestTimeConsideredExpired();
@@ -17,5 +33,6 @@ async function deleteOrphanedFocused(): Promise<void> {
 }
 
 export {
+  deleteForViewerSession,
   deleteOrphanedFocused,
 };

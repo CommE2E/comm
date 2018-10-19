@@ -19,6 +19,7 @@ import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
+import { deleteForViewerSession } from '../deleters/activity-deleters';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -138,11 +139,7 @@ async function updateFocusedRows(
       ON DUPLICATE KEY UPDATE time = VALUES(time)
     `);
   }
-  await dbQuery(SQL`
-    DELETE FROM focused
-    WHERE user = ${viewer.userID} AND session = ${viewer.session}
-      AND time < ${time}
-  `);
+  await deleteForViewerSession(viewer, time);
 }
 
 // To protect against a possible race condition, we reset the thread to unread

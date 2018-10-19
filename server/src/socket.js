@@ -59,6 +59,7 @@ import { commitSessionUpdate } from './updaters/session-updaters';
 import { handleAsyncPromise } from './responders/handlers';
 import { deleteCookie } from './deleters/cookie-deleters';
 import { createNewAnonymousCookie } from './session/cookies';
+import { deleteForViewerSession } from './deleters/activity-deleters';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -233,8 +234,10 @@ function onConnection(ws: WebSocket, req: $Request) {
       }
     }
   });
-  ws.on('close', () => {
-    console.log('connection closed');
+  ws.on('close', async () => {
+    if (viewer && viewer.hasSessionInfo) {
+      await deleteForViewerSession(viewer);
+    }
   });
 }
 
