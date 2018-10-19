@@ -8,6 +8,48 @@ import { ServerError } from 'lib/utils/errors';
 
 import { verifyClientSupported } from '../session/version';
 
+function tBool(value: bool) {
+  return t.irreducible('literal bool', x => x === value);
+}
+
+function tString(value: string) {
+  return t.irreducible('literal string', x => x === value);
+}
+
+function tShape(spec: {[key: string]: *}) {
+  return t.interface(spec, { strict: true });
+}
+
+function tRegex(regex: RegExp) {
+  return t.refinement(t.String, val => regex.test(val));
+}
+
+function tNumEnum(assertFunc: (input: number) => *) {
+  return t.refinement(
+    t.Number,
+    (input: number) => {
+      try {
+        assertFunc(input);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+  );
+}
+
+const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
+const tColor = tRegex(/^[a-fA-F0-9]{6}$/); // we don't include # char
+const tPlatform = t.enums.of(['ios', 'android', 'web']);
+const tDeviceType = t.enums.of(['ios', 'android']);
+const tPlatformDetails = tShape({
+  platform: tPlatform,
+  codeVersion: t.maybe(t.Number),
+  stateVersion: t.maybe(t.Number),
+});
+const tPassword = t.refinement(t.String, (password: string) => password);
+const tCookie = tRegex(/^(user|anonymous)=[0-9]+:[0-9a-f]+$/);
+
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   await checkClientSupported(viewer, inputValidator, input);
   checkInputValidator(inputValidator, input);
@@ -47,20 +89,21 @@ async function checkClientSupported(viewer: Viewer, inputValidator: *, input: *)
   await verifyClientSupported(viewer, platformDetails);
 }
 
-const fakePassword = "********";
+const redactedString = "********";
+const redactedTypes = [ tPassword, tCookie ];
 function sanitizeInput(inputValidator: *, input: *) {
   if (!inputValidator) {
     return input;
   }
-  if (inputValidator === tPassword && typeof input === "string") {
-    return fakePassword;
+  if (redactedTypes.includes(inputValidator) && typeof input === "string") {
+    return redactedString;
   }
   if (
     inputValidator.meta.kind === "maybe" &&
-    inputValidator.meta.type === tPassword &&
+    redactedTypes.includes(inputValidator.meta.type) &&
     typeof input === "string"
   ) {
-    return fakePassword;
+    return redactedString;
   }
   if (
     inputValidator.meta.kind !== "interface" ||
@@ -146,51 +189,7 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
-function tBool(value: bool) {
-  return t.irreducible('literal bool', x => x === value);
-}
-
-function tString(value: string) {
-  return t.irreducible('literal string', x => x === value);
-}
-
-function tShape(spec: {[key: string]: *}) {
-  return t.interface(spec, { strict: true });
-}
-
-function tRegex(regex: RegExp) {
-  return t.refinement(t.String, val => regex.test(val));
-}
-
-function tNumEnum(assertFunc: (input: number) => *) {
-  return t.refinement(
-    t.Number,
-    (input: number) => {
-      try {
-        assertFunc(input);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    },
-  );
-}
-
-const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
-const tColor = tRegex(/^[a-fA-F0-9]{6}$/); // we don't include # char
-const tPlatform = t.enums.of(['ios', 'android', 'web']);
-const tDeviceType = t.enums.of(['ios', 'android']);
-const tPlatformDetails = tShape({
-  platform: tPlatform,
-  codeVersion: t.maybe(t.Number),
-  stateVersion: t.maybe(t.Number),
-});
-const tPassword = t.refinement(t.String, (password: string) => password);
-
 export {
-  validateInput,
-  checkInputValidator,
-  checkClientSupported,
   tBool,
   tString,
   tShape,
@@ -202,4 +201,8 @@ export {
   tDeviceType,
   tPlatformDetails,
   tPassword,
+  tCookie,
+  validateInput,
+  checkInputValidator,
+  checkClientSupported,
 };

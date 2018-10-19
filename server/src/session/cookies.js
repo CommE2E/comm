@@ -316,7 +316,7 @@ async function fetchViewerFromRequestBody(
       sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     };
   }
-  if (!cookiePair || !(typeof cookiePair === "string")) {
+  if (!cookiePair || typeof cookiePair !== "string") {
     return {
       type: "nonexistant",
       cookieName: null,

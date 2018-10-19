@@ -32,6 +32,7 @@ import {
   checkInputValidator,
   checkClientSupported,
   tShape,
+  tCookie,
 } from './utils/validation-utils';
 import {
   newEntryQueryInputValidator,
@@ -68,7 +69,7 @@ const clientSocketMessageInputValidator = t.union([
     id: t.Number,
     payload: tShape({
       sessionIdentification: tShape({
-        cookie: t.maybe(t.String),
+        cookie: t.maybe(tCookie),
         sessionID: t.maybe(t.String),
       }),
       sessionState: tShape({
