@@ -39,6 +39,7 @@ const reportCreationRequestInputValidator = t.union([
     stateVersion: t.maybe(t.Number),
     errors: t.list(tShape({
       errorMessage: t.String,
+      stack: t.maybe(t.String),
       componentStack: t.maybe(t.String),
     })),
     preloadedState: t.Object,
