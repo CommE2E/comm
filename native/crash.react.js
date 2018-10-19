@@ -31,6 +31,7 @@ import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import sleep from 'lib/utils/sleep';
 import { reduxLogger } from 'lib/utils/redux-logger';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
+import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 
 import Button from './components/button.react';
 import { store } from './redux-setup';
@@ -158,9 +159,9 @@ class Crash extends React.PureComponent<Props, State> {
         stack: data.error.stack,
         componentStack: data.info && data.info.componentStack,
       })),
-      preloadedState: reduxLogger.preloadedState,
-      currentState: store.getState(),
-      actions: reduxLogger.actions,
+      preloadedState: sanitizeState(reduxLogger.preloadedState),
+      currentState: sanitizeState(store.getState()),
+      actions: reduxLogger.actions.map(sanitizeAction),
     });
     this.setState({
       errorReportID: result.id,
