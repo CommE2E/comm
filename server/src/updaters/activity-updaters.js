@@ -37,25 +37,32 @@ async function activityUpdater(
     }
     const threadID = activityUpdate.threadID;
     unverifiedThreadIDs.add(threadID);
-    focusUpdatesByThreadID.set(threadID, activityUpdate);
+    let updatesForThreadID = focusUpdatesByThreadID.get(threadID);
+    if (!updatesForThreadID) {
+      updatesForThreadID = [];
+      focusUpdatesByThreadID.set(updatesForThreadID);
+    }
+    updatesForThreadID.push(activityUpdate);
   }
 
   const verifiedThreadIDs = await verifyThreadIDs([...unverifiedThreadIDs]);
 
-  const focusedThreadIDs = [];
-  const unfocusedThreadIDs = [];
+  const focusedThreadIDs = new Set();
+  const unfocusedThreadIDs = new Set();
   const unfocusedThreadLatestMessages = new Map();
   for (let threadID of verifiedThreadIDs) {
-    const focusUpdate = focusUpdatesByThreadID.get(threadID);
-    invariant(focusUpdate, `no focusUpdate for thread ID ${threadID}`);
-    if (focusUpdate.focus) {
-      focusedThreadIDs.push(threadID);
-    } else if (focusUpdate.focus === false) {
-      unfocusedThreadIDs.push(threadID);
-      unfocusedThreadLatestMessages.set(
-        threadID,
-        focusUpdate.latestMessage ? focusUpdate.latestMessage : "0",
-      );
+    const focusUpdates = focusUpdatesByThreadID.get(threadID);
+    invariant(focusUpdates, `n  focusUpdate for thread ID ${threadID}`);
+    for (let focusUpdate of focusUpdates) {
+      if (focusUpdate.focus) {
+        focusedThreadIDs.add(threadID);
+      } else if (focusUpdate.focus === false) {
+        unfocusedThreadIDs.add(threadID);
+        unfocusedThreadLatestMessages.set(
+          threadID,
+          focusUpdate.latestMessage ? focusUpdate.latestMessage : "0",
+        );
+      }
     }
   }
 
@@ -74,12 +81,12 @@ async function activityUpdater(
     viewerMemberThreads.add(threadID);
   }
   const filterFunc = threadID => viewerMemberThreads.has(threadID);
-  const memberFocusedThreadIDs = focusedThreadIDs.filter(filterFunc);
-  const memberUnfocusedThreadIDs = unfocusedThreadIDs.filter(filterFunc);
+  const memberFocusedThreadIDs = [...focusedThreadIDs].filter(filterFunc);
+  const memberUnfocusedThreadIDs = [...unfocusedThreadIDs].filter(filterFunc);
 
   const promises = [];
-  promises.push(updateFocusedRows(viewer, focusedThreadIDs));
-  if (focusedThreadIDs.length > 0) {
+  promises.push(updateFocusedRows(viewer, memberFocusedThreadIDs));
+  if (memberFocusedThreadIDs.length > 0) {
     promises.push(dbQuery(SQL`
       UPDATE memberships
       SET unread = 0
@@ -98,7 +105,7 @@ async function activityUpdater(
       { viewer },
     ));
     const rescindCondition = SQL`
-      n.user = ${viewer.userID} AND n.thread IN (${focusedThreadIDs})
+      n.user = ${viewer.userID} AND n.thread IN (${memberFocusedThreadIDs})
     `;
     promises.push(rescindPushNotifs(rescindCondition));
   }
