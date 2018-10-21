@@ -22,7 +22,7 @@ import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
 import {
   type ConnectionInfo,
   defaultConnectionInfo,
-  incrementalStateSyncActionPayload,
+  incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
 
 import React from 'react';
@@ -216,7 +216,7 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       deviceToken: action.payload,
     };
-  } else if (action.type === incrementalStateSyncActionPayload) {
+  } else if (action.type === incrementalStateSyncActionType) {
     let wipeDeviceToken = false;
     for (let update of action.payload.updatesResult.newUpdates) {
       if (
