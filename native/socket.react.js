@@ -26,6 +26,7 @@ export default connect(
     cookie: state.cookie,
     urlPrefix: state.urlPrefix,
     logInExtraInfo: logInExtraInfoSelector(state),
+    connection: state.connection,
   }),
   null,
   true,
