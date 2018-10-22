@@ -17,17 +17,24 @@ import {
 import { activeThreadSelector } from './selectors/nav-selectors';
 
 export default connect(
-  (state: AppState) => ({
-    openSocket: openSocketSelector(state),
-    getClientResponses: clientResponsesSelector(state),
-    activeThread: activeThreadSelector(state),
-    sessionStateFunc: sessionStateFuncSelector(state),
-    sessionIdentification: sessionIdentificationSelector(state),
-    cookie: state.cookie,
-    urlPrefix: state.urlPrefix,
-    logInExtraInfo: logInExtraInfoSelector(state),
-    connection: state.connection,
-  }),
+  (state: AppState) => {
+    const activeThread = activeThreadSelector(state);
+    return {
+      openSocket: openSocketSelector(state),
+      getClientResponses: clientResponsesSelector(state),
+      activeThread,
+      activeThreadLatestMessage:
+        activeThread && state.messageStore.threads[activeThread]
+          ? state.messageStore.threads[activeThread].messageIDs[0]
+          : null,
+      sessionStateFunc: sessionStateFuncSelector(state),
+      sessionIdentification: sessionIdentificationSelector(state),
+      cookie: state.cookie,
+      urlPrefix: state.urlPrefix,
+      logInExtraInfo: logInExtraInfoSelector(state),
+      connection: state.connection,
+    };
+  },
   null,
   true,
 )(Socket);
