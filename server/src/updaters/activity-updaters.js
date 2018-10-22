@@ -40,7 +40,7 @@ async function activityUpdater(
     let updatesForThreadID = focusUpdatesByThreadID.get(threadID);
     if (!updatesForThreadID) {
       updatesForThreadID = [];
-      focusUpdatesByThreadID.set(updatesForThreadID);
+      focusUpdatesByThreadID.set(threadID, updatesForThreadID);
     }
     updatesForThreadID.push(activityUpdate);
   }
@@ -52,7 +52,7 @@ async function activityUpdater(
   const unfocusedThreadLatestMessages = new Map();
   for (let threadID of verifiedThreadIDs) {
     const focusUpdates = focusUpdatesByThreadID.get(threadID);
-    invariant(focusUpdates, `n  focusUpdate for thread ID ${threadID}`);
+    invariant(focusUpdates, `no focusUpdate for thread ID ${threadID}`);
     for (let focusUpdate of focusUpdates) {
       if (focusUpdate.focus) {
         focusedThreadIDs.add(threadID);
