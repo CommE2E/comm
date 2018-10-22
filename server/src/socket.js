@@ -6,6 +6,7 @@ import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
   type ResponsesClientSocketMessage,
+  type ActivityUpdatesClientSocketMessage,
   type StateSyncFullSocketPayload,
   type ServerSocketMessage,
   type ErrorServerSocketMessage,
@@ -50,7 +51,10 @@ import { fetchMessageInfosSince } from './fetchers/message-fetchers';
 import { fetchThreadInfos } from './fetchers/thread-fetchers';
 import { fetchEntryInfos } from './fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from './fetchers/user-fetchers';
-import { updateActivityTime } from './updaters/activity-updaters';
+import {
+  updateActivityTime,
+  activityUpdater,
+} from './updaters/activity-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
 } from './deleters/update-deleters';
@@ -60,6 +64,9 @@ import { handleAsyncPromise } from './responders/handlers';
 import { deleteCookie } from './deleters/cookie-deleters';
 import { createNewAnonymousCookie } from './session/cookies';
 import { deleteForViewerSession } from './deleters/activity-deleters';
+import {
+  activityUpdatesInputValidator,
+} from './responders/activity-responders';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -90,6 +97,16 @@ const clientSocketMessageInputValidator = t.union([
     id: t.Number,
     payload: tShape({
       clientResponses: t.list(clientResponseInputValidator),
+    }),
+  }),
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.ACTIVITY_UPDATES',
+      x => x === clientSocketMessageTypes.ACTIVITY_UPDATES,
+    ),
+    id: t.Number,
+    payload: tShape({
+      activityUpdates: activityUpdatesInputValidator,
     }),
   }),
 ]);
@@ -249,6 +266,8 @@ async function handleClientSocketMessage(
     return await handleInitialClientSocketMessage(viewer, message);
   } else if (message.type === clientSocketMessageTypes.RESPONSES) {
     return await handleResponsesClientSocketMessage(viewer, message);
+  } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
+    return await handleActivityUpdatesClientSocketMessage(viewer, message);
   }
   return [];
 }
@@ -281,7 +300,7 @@ async function handleInitialClientSocketMessage(
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
   const [
     fetchMessagesResult,
-    { serverRequests, stateCheckStatus },
+    { serverRequests, stateCheckStatus, activityUpdateResult },
   ] = await Promise.all([
     fetchMessageInfosSince(
       viewer,
@@ -409,6 +428,14 @@ async function handleInitialClientSocketMessage(
     });
   }
 
+  if (activityUpdateResult) {
+    responses.push({
+      type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
+      responseTo: message.id,
+      payload: activityUpdateResult,
+    });
+  }
+
   return responses;
 }
 
@@ -443,6 +470,21 @@ async function handleResponsesClientSocketMessage(
     type: serverSocketMessageTypes.REQUESTS,
     responseTo: message.id,
     payload: { serverRequests },
+  }];
+}
+
+async function handleActivityUpdatesClientSocketMessage(
+  viewer: Viewer,
+  message: ActivityUpdatesClientSocketMessage,
+): Promise<ServerSocketMessage[]> {
+  const result = await activityUpdater(
+    viewer,
+    { updates: message.payload.activityUpdates },
+  );
+  return [{
+    type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
+    responseTo: message.id,
+    payload: result,
   }];
 }
 

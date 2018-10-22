@@ -28,6 +28,7 @@ import type {
 } from 'lib/types/entry-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
 import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { UpdateActivityResult } from 'lib/types/activity-types';
 import type { SessionUpdate } from '../updaters/session-updaters';
 
 import t from 'tcomb';
@@ -363,6 +364,7 @@ type StateCheckStatus =
 type ProcessClientResponsesResult = {|
   serverRequests: ServerRequest[],
   stateCheckStatus: ?StateCheckStatus,
+  activityUpdateResult: ?UpdateActivityResult,
 |};
 async function processClientResponses(
   viewer: Viewer,
@@ -380,6 +382,7 @@ async function processClientResponses(
     isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
 
   const promises = [];
+  let activityUpdates = [];
   let stateCheckStatus = null;
   if (clientResponses) {
     const clientSentPlatformDetails = clientResponses.some(
@@ -438,10 +441,7 @@ async function processClientResponses(
       } else if (
         clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
       ) {
-        promises.push(activityUpdater(
-          viewer,
-          { updates: clientResponse.activityUpdates },
-        ));
+        activityUpdates = [...activityUpdates, ...clientResponse.activityUpdates];
       } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
         const invalidKeys = [];
         for (let key in clientResponse.hashResults) {
@@ -457,8 +457,21 @@ async function processClientResponses(
     }
   }
 
-  if (promises.length > 0) {
-    await Promise.all(promises);
+  if (activityUpdates.length > 0) {
+    promises.push(activityUpdater(
+      viewer,
+      { updates: activityUpdates },
+    ));
+  }
+
+  let activityUpdateResult;
+  if (activityUpdates.length > 0 || promises.length > 0) {
+    [ activityUpdateResult ] = await Promise.all([
+      activityUpdates.length > 0
+        ? activityUpdater(viewer, { updates: activityUpdates })
+        : undefined,
+      promises.length > 0 ? Promise.all(promises) : undefined,
+    ]);
   }
 
   if (
@@ -479,7 +492,7 @@ async function processClientResponses(
   if (viewerMissingDeviceToken) {
     serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
   }
-  return { serverRequests, stateCheckStatus };
+  return { serverRequests, stateCheckStatus, activityUpdateResult };
 }
 
 async function recordThreadInconsistency(
