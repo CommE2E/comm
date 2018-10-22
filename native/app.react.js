@@ -11,10 +11,6 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type {
-  ActivityUpdate,
-  UpdateActivityResult,
-} from 'lib/types/activity-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import { rawThreadInfoPropType } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
@@ -47,10 +43,6 @@ import SplashScreen from 'react-native-splash-screen';
 
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  updateActivityActionTypes,
-  updateActivity,
-} from 'lib/actions/activity-actions';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
@@ -113,7 +105,6 @@ type Props = {
   activeThread: ?string,
   appLoggedIn: bool,
   loggedIn: bool,
-  activeThreadLatestMessage: ?string,
   deviceToken: ?string,
   unreadCount: number,
   rawThreadInfos: {[id: string]: RawThreadInfo},
@@ -124,9 +115,6 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  updateActivity: (
-    activityUpdates: $ReadOnlyArray<ActivityUpdate>,
-  ) => Promise<UpdateActivityResult>,
   setDeviceToken: (
     deviceToken: string,
     deviceType: DeviceType,
@@ -142,7 +130,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
     loggedIn: PropTypes.bool.isRequired,
-    activeThreadLatestMessage: PropTypes.string,
     deviceToken: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
@@ -151,7 +138,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    updateActivity: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
   };
   state = {
@@ -333,23 +319,11 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
       this.currentState.match(/inactive|background/)
     ) {
       this.props.dispatchActionPayload(backgroundActionType, null);
-      this.closingApp();
+      appBecameInactive();
     }
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
-    if (
-      !justLoggedIn &&
-      nextProps.activeThread !== this.props.activeThread
-    ) {
-      this.updateFocusedThreads(
-        nextProps,
-        this.props.activeThread,
-        this.props.activeThreadLatestMessage,
-      );
-    }
-
     const nextActiveThread = nextProps.activeThread;
     if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
       AppWithNavigationState.clearNotifsOfThread(nextProps);
@@ -664,58 +638,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     }
   }
 
-  updateFocusedThreads(
-    props: Props,
-    oldActiveThread: ?string,
-    oldActiveThreadLatestMessage: ?string,
-  ) {
-    if (!props.appLoggedIn || this.currentState !== "active") {
-      // If the app isn't logged in, the server isn't tracking our activity
-      // anyways. If the currentState isn't active, we can expect that when it
-      // becomes active, the socket initialization will include any activity
-      // update that it needs to update the server. We want to avoid any races
-      // between update_activity and socket initialization, so we return here.
-      return;
-    }
-    const updates = [];
-    if (props.activeThread) {
-      updates.push({
-        focus: true,
-        threadID: props.activeThread,
-      });
-    }
-    if (oldActiveThread && oldActiveThread !== props.activeThread) {
-      updates.push({
-        focus: false,
-        threadID: oldActiveThread,
-        latestMessage: oldActiveThreadLatestMessage,
-      });
-    }
-    if (updates.length === 0) {
-      return;
-    }
-    props.dispatchActionPromise(
-      updateActivityActionTypes,
-      props.updateActivity(updates),
-    );
-  }
-
-  closingApp() {
-    appBecameInactive();
-    if (!this.props.appLoggedIn || !this.props.activeThread) {
-      return;
-    }
-    const updates = [{
-      focus: false,
-      threadID: this.props.activeThread,
-      latestMessage: this.props.activeThreadLatestMessage,
-    }];
-    this.props.dispatchActionPromise(
-      updateActivityActionTypes,
-      this.props.updateActivity(updates),
-    );
-  }
-
   render() {
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
@@ -749,18 +671,13 @@ const styles = StyleSheet.create({
 
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => {
-    const activeThread = activeThreadSelector(state);
     const appLoggedIn = appLoggedInSelector(state);
     return {
       navigationState: state.navInfo.navigationState,
-      activeThread,
+      activeThread: activeThreadSelector(state),
       appLoggedIn,
       loggedIn: appLoggedIn &&
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-      activeThreadLatestMessage:
-        activeThread && state.messageStore.threads[activeThread]
-          ? state.messageStore.threads[activeThread].messageIDs[0]
-          : null,
       deviceToken: state.deviceToken,
       unreadCount: unreadCount(state),
       rawThreadInfos: state.threadStore.threadInfos,
@@ -768,7 +685,7 @@ const ConnectedAppWithNavigationState = connect(
       updatesCurrentAsOf: state.updatesCurrentAsOf,
     };
   },
-  { updateActivity, setDeviceToken },
+  { setDeviceToken },
 )(AppWithNavigationState);
 
 const App = (props: {}) =>

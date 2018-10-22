@@ -13,10 +13,6 @@ import {
   calendarQueryPropType,
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
-import type {
-  ActivityUpdate,
-  UpdateActivityResult,
-} from 'lib/types/activity-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -49,10 +45,6 @@ import {
   mostRecentReadThreadSelector,
   unreadCount,
 } from 'lib/selectors/thread-selectors';
-import {
-  updateActivityActionTypes,
-  updateActivity,
-} from 'lib/actions/activity-actions';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -99,9 +91,7 @@ type Props = {
   loggedIn: bool,
   includeDeleted: bool,
   mostRecentReadThread: ?string,
-  activeThread: ?string,
   activeThreadCurrentlyUnread: bool,
-  activeThreadLatestMessage: ?string,
   viewerID: ?string,
   unreadCount: number,
   actualizedCalendarQuery: CalendarQuery,
@@ -113,9 +103,6 @@ type Props = {
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: bool,
   ) => Promise<CalendarQueryUpdateResult>,
-  updateActivity: (
-    activityUpdates: $ReadOnlyArray<ActivityUpdate>,
-  ) => Promise<UpdateActivityResult>,
 };
 type State = {|
   currentModal: ?React.Node,
@@ -134,16 +121,13 @@ class App extends React.PureComponent<Props, State> {
     loggedIn: PropTypes.bool.isRequired,
     includeDeleted: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
-    activeThread: PropTypes.string,
     activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
-    activeThreadLatestMessage: PropTypes.string,
     viewerID: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
     actualizedCalendarQuery: calendarQueryPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
-    updateActivity: PropTypes.func.isRequired,
   };
   state = {
     currentModal: null,
@@ -192,55 +176,6 @@ class App extends React.PureComponent<Props, State> {
 
   onVisibilityChange = (e, state: string) => {
     this.setState({ visible: state === "visible" });
-    if (state !== "visible") {
-      this.closingApp();
-    }
-  }
-
-  static updateFocusedThreads(
-    props: Props,
-    oldActiveThread: ?string,
-    oldActiveThreadLatestMessage: ?string,
-  ) {
-    if (!props.loggedIn) {
-      return;
-    }
-    const updates = [];
-    if (props.activeThread) {
-      updates.push({
-        focus: true,
-        threadID: props.activeThread,
-      });
-    }
-    if (oldActiveThread && oldActiveThread !== props.activeThread) {
-      updates.push({
-        focus: false,
-        threadID: oldActiveThread,
-        latestMessage: oldActiveThreadLatestMessage,
-      });
-    }
-    if (updates.length === 0) {
-      return;
-    }
-    props.dispatchActionPromise(
-      updateActivityActionTypes,
-      props.updateActivity(updates),
-    );
-  }
-
-  closingApp() {
-    if (!this.props.loggedIn || !this.props.activeThread) {
-      return;
-    }
-    const updates = [{
-      focus: false,
-      threadID: this.props.activeThread,
-      latestMessage: this.props.activeThreadLatestMessage,
-    }];
-    this.props.dispatchActionPromise(
-      updateActivityActionTypes,
-      this.props.updateActivity(updates),
-    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -318,12 +253,6 @@ class App extends React.PureComponent<Props, State> {
       if (nextProps.location.pathname !== newURL) {
         history.replace(newURL);
       }
-    } else if (nextProps.activeThread !== this.props.activeThread) {
-      App.updateFocusedThreads(
-        nextProps,
-        this.props.activeThread,
-        this.props.activeThreadLatestMessage,
-      );
     }
 
     const justLoggedOut = !nextProps.loggedIn && this.props.loggedIn;
@@ -487,17 +416,12 @@ export default connect(
         !state.currentUserInfo.anonymous && true),
       includeDeleted: includeDeletedSelector(state),
       mostRecentReadThread: mostRecentReadThreadSelector(state),
-      activeThread: activeThreadSelector(state),
       activeThreadCurrentlyUnread: !activeChatThreadID ||
         state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
-      activeThreadLatestMessage:
-        activeChatThreadID && state.messageStore.threads[activeChatThreadID]
-          ? state.messageStore.threads[activeChatThreadID].messageIDs[0]
-          : null,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       unreadCount: unreadCount(state),
       actualizedCalendarQuery: state.entryStore.actualizedCalendarQuery,
     };
   },
-  { updateCalendarQuery, updateActivity },
+  { updateCalendarQuery },
 )(App);
