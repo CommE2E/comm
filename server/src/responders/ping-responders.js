@@ -89,6 +89,7 @@ import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
 } from '../deleters/update-deleters';
+import { activityUpdatesInputValidator } from './activity-responders';
 import { SQL } from '../database';
 
 const pingRequestInputValidator = tShape({
@@ -160,6 +161,13 @@ const pingRequestInputValidator = tShape({
         x => x === serverRequestTypes.CHECK_STATE,
       ),
       hashResults: t.dict(t.String, t.Boolean),
+    }),
+    tShape({
+      type: t.irreducible(
+        'serverRequestTypes.INITIAL_ACTIVITY_UPDATES',
+        x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
+      ),
+      activityUpdates: activityUpdatesInputValidator,
     }),
   ]))),
 });
@@ -424,6 +432,13 @@ async function processClientResponses(
         promises.push(activityUpdater(
           viewer,
           { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
+        ));
+      } else if (
+        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
+      ) {
+        promises.push(activityUpdater(
+          viewer,
+          { updates: clientResponse.activityUpdates },
         ));
       } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
         const invalidKeys = [];
