@@ -7,6 +7,7 @@ import type {
   UpdatePasswordInfo,
   LogInExtraInfo,
   LogInResult,
+  LogInStartingPayload,
 } from 'lib/types/account-types';
 
 import React from 'react';
@@ -188,7 +189,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       resetPasswordActionTypes,
       this.resetPasswordAction(extraInfo),
       undefined,
-      { calendarQuery: extraInfo.calendarQuery },
+      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
   }
 

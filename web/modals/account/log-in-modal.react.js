@@ -6,6 +6,7 @@ import type {
   LogInInfo,
   LogInExtraInfo,
   LogInResult,
+  LogInStartingPayload,
 } from 'lib/types/account-types';
 
 import * as React from 'react';
@@ -168,7 +169,7 @@ class LogInModal extends React.PureComponent<Props, State> {
       logInActionTypes,
       this.logInAction(extraInfo),
       undefined,
-      { calendarQuery: extraInfo.calendarQuery },
+      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
   }
 

@@ -277,8 +277,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         messageInfo.threadID,
         messageInfo.text,
       );
+      const { localID } = messageInfo;
+      invariant(
+        localID !== null && localID !== undefined,
+        "localID should be set",
+      );
       return {
-        localID: messageInfo.localID,
+        localID,
         serverID: result.id,
         threadID: messageInfo.threadID,
         time: result.time,

@@ -5,6 +5,7 @@ import {
   type EntryInfo,
   type CalendarQuery,
   type CalendarQueryUpdateResult,
+  type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
 import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -248,7 +249,7 @@ class Calendar extends React.PureComponent<Props, State> {
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery(newCalendarQuery, true),
       undefined,
-      { calendarQuery: newCalendarQuery },
+      ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
   }
 
@@ -263,7 +264,7 @@ class Calendar extends React.PureComponent<Props, State> {
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery(newCalendarQuery, true),
       undefined,
-      { calendarQuery: newCalendarQuery },
+      ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
   }
 

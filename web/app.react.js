@@ -11,6 +11,7 @@ import {
   type CalendarQuery,
   type CalendarQueryUpdateResult,
   calendarQueryPropType,
+  type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
 import type {
   ActivityUpdate,
@@ -303,7 +304,7 @@ class App extends React.PureComponent<Props, State> {
           updateCalendarQueryActionTypes,
           nextProps.updateCalendarQuery(calendarQuery, true),
           undefined,
-          { calendarQuery },
+          ({ calendarQuery }: CalendarQueryUpdateStartingPayload),
         );
       }
     }

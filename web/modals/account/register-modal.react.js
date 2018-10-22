@@ -6,6 +6,7 @@ import type {
   RegisterInfo,
   LogInExtraInfo,
   RegisterResult,
+  LogInStartingPayload,
 } from 'lib/types/account-types';
 
 import * as React from 'react';
@@ -230,7 +231,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
         registerActionTypes,
         this.registerAction(extraInfo),
         undefined,
-        { calendarQuery: extraInfo.calendarQuery },
+        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     }
   }

@@ -5,7 +5,7 @@ import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type {
   SubscriptionUpdateRequest,
-  ThreadSubscription,
+  SubscriptionUpdateResult,
 } from 'lib/types/subscription-types';
 
 import React from 'react';
@@ -25,7 +25,7 @@ type Props = {|
   // async functions that hit server APIs
   updateSubscription: (
     subscriptionUpdate: SubscriptionUpdateRequest,
-  ) => Promise<ThreadSubscription>,
+  ) => Promise<SubscriptionUpdateResult>,
 |};
 type State = {|
   currentValue: bool,

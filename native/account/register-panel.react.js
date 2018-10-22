@@ -7,6 +7,7 @@ import type {
   RegisterInfo,
   LogInExtraInfo,
   RegisterResult,
+  LogInStartingPayload,
 } from 'lib/types/account-types';
 import {
   type StateContainer,
@@ -269,7 +270,7 @@ class RegisterPanel extends React.PureComponent<Props> {
         registerActionTypes,
         this.registerAction(extraInfo),
         undefined,
-        { calendarQuery: extraInfo.calendarQuery },
+        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     }
   }

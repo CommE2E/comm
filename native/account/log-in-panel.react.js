@@ -7,6 +7,7 @@ import type {
   LogInInfo,
   LogInExtraInfo,
   LogInResult,
+  LogInStartingPayload,
 } from 'lib/types/account-types';
 import {
   type StateContainer,
@@ -216,7 +217,7 @@ class LogInPanel extends React.PureComponent<Props> {
       logInActionTypes,
       this.logInAction(extraInfo),
       undefined,
-      { calendarQuery: extraInfo.calendarQuery },
+      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
   }
 
