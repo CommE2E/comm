@@ -329,7 +329,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         return;
       }
       // Looks like we failed to recover. We'll handle resetting Redux state to
-      // match our cookie in the ping call below
+      // match our cookie in the reset call below
       if (newCookie) {
         cookie = newCookie;
       }

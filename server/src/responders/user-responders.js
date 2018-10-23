@@ -236,7 +236,7 @@ async function logInResponder(
   }
   const id = userRow.id.toString();
 
-  const newPingTime = Date.now();
+  const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
@@ -249,7 +249,7 @@ async function logInResponder(
   ]);
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery, newPingTime);
+    await setNewSession(viewer, calendarQuery, newServerTime);
   }
 
   const threadCursors = {};
@@ -284,7 +284,7 @@ async function logInResponder(
     },
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
-    serverTime: newPingTime,
+    serverTime: newServerTime,
     userInfos,
     cookieChange: {
       threadInfos: threadsResult.threadInfos,
