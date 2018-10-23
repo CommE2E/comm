@@ -302,7 +302,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   handleAppStateChange = (nextAppState: ?string) => {
     const lastState = this.currentState;
     this.currentState = nextAppState;
-    this.setState({ foreground: this.currentState === "active" });
     if (
       lastState &&
       lastState.match(/inactive|background/) &&
@@ -321,6 +320,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
       this.props.dispatchActionPayload(backgroundActionType, null);
       appBecameInactive();
     }
+    this.setState({ foreground: this.currentState === "active" });
   }
 
   componentWillReceiveProps(nextProps: Props) {
