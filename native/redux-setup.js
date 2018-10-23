@@ -105,6 +105,7 @@ export type AppState = {|
   messageSentFromRoute: $ReadOnlyArray<string>,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
+  foreground: bool,
   _persist: ?PersistState,
   sessionID?: void,
 |};
@@ -142,6 +143,7 @@ const defaultState = ({
   messageSentFromRoute: [],
   connection: defaultConnectionInfo,
   watchedThreadIDs: [],
+  foreground: true,
   _persist: null,
 }: AppState);
 

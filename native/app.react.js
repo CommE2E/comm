@@ -50,14 +50,16 @@ import {
 import { unreadCount } from 'lib/selectors/thread-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { saveMessagesActionType } from 'lib/actions/message-actions';
+import {
+  backgroundActionType,
+  foregroundActionType,
+} from 'lib/reducers/foreground-reducer';
 
 import {
   RootNavigator,
 } from './navigation/navigation-setup';
 import {
   handleURLActionType,
-  backgroundActionType,
-  foregroundActionType,
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
@@ -120,10 +122,7 @@ type Props = {
     deviceType: DeviceType,
   ) => Promise<string>,
 };
-type State = {|
-  foreground: bool,
-|};
-class AppWithNavigationState extends React.PureComponent<Props, State> {
+class AppWithNavigationState extends React.PureComponent<Props> {
 
   static propTypes = {
     navigationState: PropTypes.object.isRequired,
@@ -139,9 +138,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
-  };
-  state = {
-    foreground: true,
   };
   currentState: ?string = NativeAppState.currentState;
   inAppNotification: ?InAppNotification = null;
@@ -299,28 +295,22 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     this.props.dispatchActionPayload(handleURLActionType, url);
   }
 
-  handleAppStateChange = (nextAppState: ?string) => {
+  handleAppStateChange = (nextState: ?string) => {
+    if (!nextState || nextState === "unknown") {
+      return;
+    }
     const lastState = this.currentState;
-    this.currentState = nextAppState;
-    if (
-      lastState &&
-      lastState.match(/inactive|background/) &&
-      this.currentState === "active"
-    ) {
+    this.currentState = nextState;
+    if (lastState === "background" && nextState === "active") {
       this.props.dispatchActionPayload(foregroundActionType, null);
       this.onForeground();
       if (this.props.activeThread) {
         AppWithNavigationState.clearNotifsOfThread(this.props);
       }
-    } else if (
-      lastState === "active" &&
-      this.currentState &&
-      this.currentState.match(/inactive|background/)
-    ) {
+    } else if (lastState !== "background" && nextState === "background") {
       this.props.dispatchActionPayload(backgroundActionType, null);
       appBecameInactive();
     }
-    this.setState({ foreground: this.currentState === "active" });
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -642,7 +632,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>
-        <Socket active={this.props.appLoggedIn && this.state.foreground} />
         <ReduxifiedRootNavigator
           state={this.props.navigationState}
           dispatch={this.props.dispatch}
@@ -692,6 +681,7 @@ const App = (props: {}) =>
   <Provider store={store}>
     <ErrorBoundary>
       <ConnectedAppWithNavigationState />
+      <Socket />
     </ErrorBoundary>
   </Provider>;
 AppRegistry.registerComponent('SquadCal', () => App);

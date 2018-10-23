@@ -45,6 +45,10 @@ import {
   mostRecentReadThreadSelector,
   unreadCount,
 } from 'lib/selectors/thread-selectors';
+import {
+  backgroundActionType,
+  foregroundActionType,
+} from 'lib/reducers/foreground-reducer';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -59,7 +63,6 @@ import history from './router-history';
 import { updateNavInfoActionType } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
-import Socket from './socket.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file.
@@ -106,7 +109,6 @@ type Props = {
 };
 type State = {|
   currentModal: ?React.Node,
-  visible: bool,
 |};
 class App extends React.PureComponent<Props, State> {
 
@@ -131,7 +133,6 @@ class App extends React.PureComponent<Props, State> {
   };
   state = {
     currentModal: null,
-    visible: true,
   };
   actualizedCalendarQuery: CalendarQuery;
 
@@ -175,7 +176,11 @@ class App extends React.PureComponent<Props, State> {
   }
 
   onVisibilityChange = (e, state: string) => {
-    this.setState({ visible: state === "visible" });
+    if (state === "visible") {
+      this.props.dispatchActionPayload(foregroundActionType, null);
+    } else {
+      this.props.dispatchActionPayload(backgroundActionType, null);
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -275,7 +280,6 @@ class App extends React.PureComponent<Props, State> {
     }
     return (
       <React.Fragment>
-        <Socket active={this.props.loggedIn && this.state.visible} />
         {content}
         {this.state.currentModal}
       </React.Fragment>

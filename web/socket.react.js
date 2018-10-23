@@ -20,6 +20,9 @@ export default connect(
   (state: AppState) => {
     const activeThread = activeThreadSelector(state);
     return {
+      active: state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        state.foreground,
       openSocket: openSocketSelector(state),
       getClientResponses: clientResponsesSelector(state),
       activeThread,

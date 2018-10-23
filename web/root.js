@@ -16,6 +16,7 @@ import {
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 
 import App from './app.react';
+import Socket from './socket.react';
 import history from './router-history';
 import { reducer } from './redux-setup';
 
@@ -29,9 +30,12 @@ const store: Store<AppState, Action> = createStore(
 );
 
 const RootRouter = () => (
-  <Router history={history.getHistoryObject()}>
-    <Route path="*" component={App} />
-  </Router>
+  <React.Fragment>
+    <Router history={history.getHistoryObject()}>
+      <Route path="*" component={App} />
+    </Router>
+    <Socket />
+  </React.Fragment>
 );
 const RootHMR = hot(module)(RootRouter);
 

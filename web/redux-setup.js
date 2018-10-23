@@ -62,6 +62,7 @@ export type AppState = {|
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
+  foreground: bool,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";

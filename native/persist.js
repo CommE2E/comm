@@ -79,6 +79,7 @@ const migrations = {
     activeServerRequests: undefined,
     connection: defaultConnectionInfo,
     watchedThreadIDs: [],
+    foreground: true,
   }),
 };
 

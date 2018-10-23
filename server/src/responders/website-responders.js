@@ -156,6 +156,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       baseHref: baseDomain + baseURL,
       connection: defaultConnectionInfo,
       watchedThreadIDs: [],
+      foreground: true,
     }: AppState),
   );
   const routerContext = {};
