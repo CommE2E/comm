@@ -429,7 +429,10 @@ async function handleInitialClientSocketMessage(
   }
 
   if (activityUpdateResult) {
-    responses.push({
+    // We send this message first since the STATE_SYNC triggers the client's
+    // connection status to shift to "connected", and we want to make sure the
+    // queued activity updates are cleared from Redux before that happens
+    responses.unshift({
       type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
       responseTo: message.id,
       payload: activityUpdateResult,

@@ -18,11 +18,12 @@ import { activeThreadSelector } from './selectors/nav-selectors';
 
 export default connect(
   (state: AppState) => {
-    const activeThread = activeThreadSelector(state);
+    const active = state.currentUserInfo &&
+      !state.currentUserInfo.anonymous &&
+      state.foreground;
+    const activeThread = active ? activeThreadSelector(state) : null;
     return {
-      active: state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        state.foreground,
+      active,
       openSocket: openSocketSelector(state),
       getClientResponses: clientResponsesSelector(state),
       activeThread,

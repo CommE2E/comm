@@ -20,6 +20,7 @@ declare module 'ws' {
     on: (name: string, func: Function) => void,
     send: (value: string) => void,
     close: (code?: number, reason?: string) => void,
+    ping: () => void,
   };
 }
 
