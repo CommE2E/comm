@@ -420,8 +420,11 @@ async function handleInitialClientSocketMessage(
   const filteredServerRequests = serverRequests.filter(
     request => request.type !== serverRequestTypes.DEVICE_TOKEN,
   );
-  if (filteredServerRequests.length > 0) {
-    responses.push({
+  if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
+    // We send this message first since the STATE_SYNC triggers the client's
+    // connection status to shift to "connected", and we want to make sure the
+    // client responses are cleared from Redux before that happens
+    responses.unshift({
       type: serverSocketMessageTypes.REQUESTS,
       responseTo: message.id,
       payload: { serverRequests: filteredServerRequests },
@@ -429,9 +432,7 @@ async function handleInitialClientSocketMessage(
   }
 
   if (activityUpdateResult) {
-    // We send this message first since the STATE_SYNC triggers the client's
-    // connection status to shift to "connected", and we want to make sure the
-    // queued activity updates are cleared from Redux before that happens
+    // Same reason for unshifting as above
     responses.unshift({
       type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
       responseTo: message.id,
