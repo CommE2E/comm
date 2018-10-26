@@ -15,7 +15,7 @@
     "concurrently": "^3.5.1",
     "css-loader": "^0.28.4",
     "extract-text-webpack-plugin": "^2.1.2",
-    "flow-bin": "^0.75.0",
+    "flow-bin": "^0.78.0",
     "style-loader": "^0.20.3",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^1.0.1",
