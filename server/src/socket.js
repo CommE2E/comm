@@ -11,6 +11,7 @@ import {
   type ServerSocketMessage,
   type ErrorServerSocketMessage,
   type AuthErrorServerSocketMessage,
+  type PingClientSocketMessage,
   clientSocketMessageTypes,
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
@@ -108,6 +109,13 @@ const clientSocketMessageInputValidator = t.union([
     payload: tShape({
       activityUpdates: activityUpdatesInputValidator,
     }),
+  }),
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.PING',
+      x => x === clientSocketMessageTypes.PING,
+    ),
+    id: t.Number,
   }),
 ]);
 
@@ -268,6 +276,8 @@ async function handleClientSocketMessage(
     return await handleResponsesClientSocketMessage(viewer, message);
   } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
     return await handleActivityUpdatesClientSocketMessage(viewer, message);
+  } else if (message.type === clientSocketMessageTypes.PING) {
+    return await handlePingClientSocketMessage(viewer, message);
   }
   return [];
 }
@@ -489,6 +499,16 @@ async function handleActivityUpdatesClientSocketMessage(
     type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
     responseTo: message.id,
     payload: result,
+  }];
+}
+
+async function handlePingClientSocketMessage(
+  viewer: Viewer,
+  message: PingClientSocketMessage,
+): Promise<ServerSocketMessage[]> {
+  return [{
+    type: serverSocketMessageTypes.PONG,
+    responseTo: message.id,
   }];
 }
 
