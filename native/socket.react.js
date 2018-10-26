@@ -9,7 +9,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
-import Socket from 'lib/components/socket.react';
+import Socket from 'lib/socket/socket.react';
 
 import {
   openSocketSelector,
