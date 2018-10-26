@@ -12,7 +12,6 @@ import { updateTypes } from 'lib/types/update-types';
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 
-import { earliestTimeConsideredCurrent } from 'lib/shared/activity-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
@@ -20,6 +19,7 @@ import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteForViewerSession } from '../deleters/activity-deleters';
+import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -232,7 +232,7 @@ async function checkThreadsFocused(
   const conditions = threadUserPairs.map(
     pair => SQL`(user = ${pair[0]} AND thread = ${pair[1]})`,
   );
-  const time = earliestTimeConsideredCurrent();
+  const time = earliestFocusedTimeConsideredCurrent();
 
   const query = SQL`
     SELECT user, thread

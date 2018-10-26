@@ -16,7 +16,6 @@ import {
   messageTypeGeneratesNotifs,
   shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils';
-import { earliestTimeConsideredCurrent } from 'lib/shared/activity-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import {
@@ -31,6 +30,7 @@ import createIDs from './id-creator';
 import { sendPushNotifs } from '../push/send';
 import { createUpdates } from './update-creator';
 import { handleAsyncPromise } from '../responders/handlers';
+import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 
 type ThreadRestriction = {|
   creatorID?: ?string,
@@ -212,7 +212,7 @@ async function updateUnreadStatus(
     subthreadJoins.push(subthreadJoin(index, subthread));
   }
 
-  const time = earliestTimeConsideredCurrent();
+  const time = earliestFocusedTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT m.user, m.thread
@@ -295,7 +295,7 @@ async function sendPushNotifsForNewMessages(
     subthreadJoins.push(subthreadJoin(index, subthread));
   }
 
-  const time = earliestTimeConsideredCurrent();
+  const time = earliestFocusedTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT m.user, m.thread, c.platform, c.device_token, c.versions
