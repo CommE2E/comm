@@ -64,7 +64,7 @@ import { commitSessionUpdate } from './updaters/session-updaters';
 import { handleAsyncPromise } from './responders/handlers';
 import { deleteCookie } from './deleters/cookie-deleters';
 import { createNewAnonymousCookie } from './session/cookies';
-import { deleteForViewerSession } from './deleters/activity-deleters';
+import { deleteActivityForViewerSession } from './deleters/activity-deleters';
 import {
   activityUpdatesInputValidator,
 } from './responders/activity-responders';
@@ -276,7 +276,7 @@ class Socket {
 
   onClose = async () => {
     if (this.viewer && this.viewer.hasSessionInfo) {
-      await deleteForViewerSession(this.viewer);
+      await deleteActivityForViewerSession(this.viewer);
     }
   }
 

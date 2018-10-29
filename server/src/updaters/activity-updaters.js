@@ -18,7 +18,7 @@ import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
-import { deleteForViewerSession } from '../deleters/activity-deleters';
+import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 
 async function activityUpdater(
@@ -139,7 +139,7 @@ async function updateFocusedRows(
       ON DUPLICATE KEY UPDATE time = VALUES(time)
     `);
   }
-  await deleteForViewerSession(viewer, time);
+  await deleteActivityForViewerSession(viewer, time);
 }
 
 // To protect against a possible race condition, we reset the thread to unread

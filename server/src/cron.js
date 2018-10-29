@@ -12,7 +12,7 @@ import { deleteOrphanedEntries } from './deleters/entry-deleters';
 import { deleteOrphanedRevisions } from './deleters/revision-deleters';
 import { deleteOrphanedRoles } from './deleters/role-deleters';
 import { deleteOrphanedMessages } from './deleters/message-deleters';
-import { deleteOrphanedFocused } from './deleters/activity-deleters';
+import { deleteOrphanedActivity } from './deleters/activity-deleters';
 import { deleteOrphanedNotifs } from './deleters/notif-deleters';
 import { deleteExpiredUpdates } from './deleters/update-deleters';
 import {
@@ -40,7 +40,7 @@ if (cluster.isMaster) {
         await deleteOrphanedRevisions();
         await deleteOrphanedRoles();
         await deleteOrphanedMessages();
-        await deleteOrphanedFocused();
+        await deleteOrphanedActivity();
         await deleteOrphanedNotifs();
         await deleteOrphanedSessions();
         await deleteOldWebSessions();

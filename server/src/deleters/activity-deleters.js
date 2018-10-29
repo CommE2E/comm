@@ -5,7 +5,7 @@ import type { Viewer } from '../session/viewer';
 import { dbQuery, SQL } from '../database';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
 
-async function deleteForViewerSession(
+async function deleteActivityForViewerSession(
   viewer: Viewer,
   beforeTime?: number,
 ): Promise<void> {
@@ -19,7 +19,7 @@ async function deleteForViewerSession(
   await dbQuery(query);
 }
 
-async function deleteOrphanedFocused(): Promise<void> {
+async function deleteOrphanedActivity(): Promise<void> {
   const time = earliestFocusedTimeConsideredExpired();
   await dbQuery(SQL`
     DELETE f
@@ -32,6 +32,6 @@ async function deleteOrphanedFocused(): Promise<void> {
 }
 
 export {
-  deleteForViewerSession,
-  deleteOrphanedFocused,
+  deleteActivityForViewerSession,
+  deleteOrphanedActivity,
 };
