@@ -28,6 +28,7 @@ import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
+import { serverRequestSocketTimeout } from 'lib/shared/timeouts';
 
 import { Viewer } from './session/viewer';
 import {
@@ -69,6 +70,8 @@ import {
   activityUpdatesInputValidator,
 } from './responders/activity-responders';
 import { focusedTableRefreshFrequency } from './shared/focused-times';
+
+const timeoutSeconds = serverRequestSocketTimeout / 1000;
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -131,17 +134,20 @@ class Socket {
   httpRequest: $Request;
   viewer: ?Viewer;
   updateActivityTimeIntervalID: ?IntervalID;
+  pingTimeoutID: ?TimeoutID;
 
   constructor(ws: WebSocket, httpRequest: $Request) {
     this.ws = ws;
     this.httpRequest = httpRequest;
     ws.on('message', this.onMessage);
     ws.on('close', this.onClose);
+    this.resetTimeout();
   }
 
   onMessage = async (messageString: string) => {
     let clientSocketMessage: ?ClientSocketMessage;
     try {
+      this.resetTimeout();
       const message = JSON.parse(messageString);
       checkInputValidator(clientSocketMessageInputValidator, message);
       clientSocketMessage = message;
@@ -272,9 +278,9 @@ class Socket {
         message: error.message,
       });
       if (error.message === "not_logged_in") {
-        this.ws.close(4101, error.message);
-      } else if (error.message === "session_mutated_from_socket") {
         this.ws.close(4102, error.message);
+      } else if (error.message === "session_mutated_from_socket") {
+        this.ws.close(4103, error.message);
       }
     }
   }
@@ -284,6 +290,7 @@ class Socket {
       clearInterval(this.updateActivityTimeIntervalID);
       this.updateActivityTimeIntervalID = null;
     }
+    this.clearTimeout();
     if (this.viewer && this.viewer.hasSessionInfo) {
       await deleteActivityForViewerSession(this.viewer);
     }
@@ -553,6 +560,25 @@ class Socket {
     const { viewer } = this;
     invariant(viewer, "should be set");
     handleAsyncPromise(updateActivityTime(viewer));
+  }
+
+  clearTimeout() {
+    if (this.pingTimeoutID) {
+      clearTimeout(this.pingTimeoutID);
+      this.pingTimeoutID = null;
+    }
+  }
+
+  resetTimeout() {
+    this.clearTimeout();
+    this.pingTimeoutID = setTimeout(this.timeout, serverRequestSocketTimeout);
+  }
+
+  timeout = () => {
+    this.ws.close(
+      4103,
+      `no contact from client within ${timeoutSeconds}s span`,
+    );
   }
 
 }
