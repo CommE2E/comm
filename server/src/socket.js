@@ -119,33 +119,47 @@ const clientSocketMessageInputValidator = t.union([
   }),
 ]);
 
-type SendMessageFunc = (message: ServerSocketMessage) => void;
-
 function onConnection(ws: WebSocket, req: $Request) {
   assertSecureRequest(req);
-  let viewer;
-  const sendMessage = (message: ServerSocketMessage) => {
-    ws.send(JSON.stringify(message));
-  };
-  ws.on('message', async messageString => {
+  new Socket(ws, req);
+}
+
+class Socket {
+
+  ws: WebSocket;
+  httpRequest: $Request;
+  viewer: ?Viewer;
+
+  constructor(ws: WebSocket, httpRequest: $Request) {
+    this.ws = ws;
+    this.httpRequest = httpRequest;
+    ws.on('message', this.onMessage);
+    ws.on('close', this.onClose);
+  }
+
+  onMessage = async (messageString: string) => {
     let clientSocketMessage: ?ClientSocketMessage;
     try {
       const message = JSON.parse(messageString);
       checkInputValidator(clientSocketMessageInputValidator, message);
       clientSocketMessage = message;
       if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
-        if (viewer) {
+        if (this.viewer) {
           // This indicates that the user sent multiple INITIAL messages.
           throw new ServerError('socket_already_initialized');
         }
-        viewer = await fetchViewerForSocket(req, clientSocketMessage);
-        if (!viewer) {
+        this.viewer = await fetchViewerForSocket(
+          this.httpRequest,
+          clientSocketMessage,
+        );
+        if (!this.viewer) {
           // This indicates that the cookie was invalid, but the client is using
           // cookieSources.HEADER and thus can't accept a new cookie over
           // WebSockets. See comment under catch block for socket_deauthorized.
           throw new ServerError('socket_deauthorized');
         }
       }
+      const { viewer } = this;
       if (!viewer) {
         // This indicates a non-INITIAL message was sent by the client before
         // the INITIAL message.
@@ -165,8 +179,7 @@ function onConnection(ws: WebSocket, req: $Request) {
         clientSocketMessageInputValidator,
         clientSocketMessage,
       );
-      const serverResponses = await handleClientSocketMessage(
-        viewer,
+      const serverResponses = await this.handleClientSocketMessage(
         clientSocketMessage,
       );
       if (viewer.sessionChanged) {
@@ -177,7 +190,7 @@ function onConnection(ws: WebSocket, req: $Request) {
       }
       handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
       for (let response of serverResponses) {
-        sendMessage(response);
+        this.sendMessage(response);
       }
     } catch (error) {
       console.warn(error);
@@ -190,7 +203,7 @@ function onConnection(ws: WebSocket, req: $Request) {
         if (responseTo !== null) {
           errorMessage.responseTo = responseTo;
         }
-        sendMessage(errorMessage);
+        this.sendMessage(errorMessage);
         return;
       }
       invariant(clientSocketMessage, "should be set");
@@ -201,23 +214,24 @@ function onConnection(ws: WebSocket, req: $Request) {
           responseTo,
           message: error.message,
         }
-        if (viewer) {
+        if (this.viewer) {
           // viewer should only be falsey for cookieSources.HEADER (web)
           // clients. Usually if the cookie is invalid we construct a new
           // anonymous Viewer with a new cookie, and then pass the cookie down
           // in the error. But we can't pass HTTP cookies in WebSocket messages.
           authErrorMessage.sessionChange = {
-            cookie: viewer.cookiePairString,
+            cookie: this.viewer.cookiePairString,
             currentUserInfo: {
-              id: viewer.cookieID,
+              id: this.viewer.cookieID,
               anonymous: true,
             },
           };
         }
-        sendMessage(authErrorMessage);
-        ws.close(4100, error.message);
+        this.sendMessage(authErrorMessage);
+        this.ws.close(4100, error.message);
         return;
       } else if (error.message === "client_version_unsupported") {
+        const { viewer } = this;
         invariant(viewer, "should be set");
         const promises = {};
         promises.deleteCookie = deleteCookie(viewer.cookieID);
@@ -243,273 +257,282 @@ function onConnection(ws: WebSocket, req: $Request) {
             },
           };
         }
-        sendMessage(authErrorMessage);
-        ws.close(4101, error.message);
+        this.sendMessage(authErrorMessage);
+        this.ws.close(4101, error.message);
         return;
       }
-      sendMessage({
+      this.sendMessage({
         type: serverSocketMessageTypes.ERROR,
         responseTo,
         message: error.message,
       });
       if (error.message === "not_logged_in") {
-        ws.close(4101, error.message);
+        this.ws.close(4101, error.message);
       } else if (error.message === "session_mutated_from_socket") {
-        ws.close(4102, error.message);
+        this.ws.close(4102, error.message);
       }
     }
-  });
-  ws.on('close', async () => {
-    if (viewer && viewer.hasSessionInfo) {
-      await deleteForViewerSession(viewer);
-    }
-  });
-}
-
-async function handleClientSocketMessage(
-  viewer: Viewer,
-  message: ClientSocketMessage,
-): Promise<ServerSocketMessage[]> {
-  if (message.type === clientSocketMessageTypes.INITIAL) {
-    return await handleInitialClientSocketMessage(viewer, message);
-  } else if (message.type === clientSocketMessageTypes.RESPONSES) {
-    return await handleResponsesClientSocketMessage(viewer, message);
-  } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
-    return await handleActivityUpdatesClientSocketMessage(viewer, message);
-  } else if (message.type === clientSocketMessageTypes.PING) {
-    return await handlePingClientSocketMessage(viewer, message);
   }
-  return [];
-}
 
-async function handleInitialClientSocketMessage(
-  viewer: Viewer,
-  message: InitialClientSocketMessage,
-): Promise<ServerSocketMessage[]> {
-  const responses = [];
-
-  const { sessionState, clientResponses } = message.payload;
-  const {
-    calendarQuery,
-    updatesCurrentAsOf: oldUpdatesCurrentAsOf,
-    messagesCurrentAsOf: oldMessagesCurrentAsOf,
-    watchedIDs,
-  } = sessionState;
-  await verifyCalendarQueryThreadIDs(calendarQuery);
-
-  const sessionInitializationResult = await initializeSession(
-    viewer,
-    calendarQuery,
-    oldUpdatesCurrentAsOf,
-  );
-
-  const threadCursors = {};
-  for (let watchedThreadID of watchedIDs) {
-    threadCursors[watchedThreadID] = null;
-  }
-  const threadSelectionCriteria = { threadCursors, joinedThreads: true };
-  const [
-    fetchMessagesResult,
-    { serverRequests, stateCheckStatus, activityUpdateResult },
-  ] = await Promise.all([
-    fetchMessageInfosSince(
-      viewer,
-      threadSelectionCriteria,
-      oldMessagesCurrentAsOf,
-      defaultNumberPerThread,
-    ),
-    processClientResponses(
-      viewer,
-      clientResponses,
-    ),
-  ]);
-  const messagesResult = {
-    rawMessageInfos: fetchMessagesResult.rawMessageInfos,
-    truncationStatuses: fetchMessagesResult.truncationStatuses,
-    currentAsOf: mostRecentMessageTimestamp(
-      fetchMessagesResult.rawMessageInfos,
-      oldMessagesCurrentAsOf,
-    ),
-  };
-
-  if (!sessionInitializationResult.sessionContinued) {
-    const [
-      threadsResult,
-      entriesResult,
-      currentUserInfo,
-    ] = await Promise.all([
-      fetchThreadInfos(viewer),
-      fetchEntryInfos(viewer, [ calendarQuery ]),
-      fetchCurrentUserInfo(viewer),
-    ]);
-    const payload: StateSyncFullSocketPayload = {
-      type: stateSyncPayloadTypes.FULL,
-      messagesResult,
-      threadInfos: threadsResult.threadInfos,
-      currentUserInfo,
-      rawEntryInfos: entriesResult.rawEntryInfos,
-      userInfos: values({
-        ...fetchMessagesResult.userInfos,
-        ...entriesResult.userInfos,
-        ...threadsResult.userInfos,
-      }),
-      updatesCurrentAsOf: oldUpdatesCurrentAsOf,
-    };
-    if (viewer.sessionChanged) {
-      // If initializeSession encounters sessionIdentifierTypes.BODY_SESSION_ID,
-      // but the session is unspecified or expired, it will set a new sessionID
-      // and specify viewer.sessionChanged
-      const { sessionID } = viewer;
-      invariant(sessionID !== null && sessionID !== undefined, "should be set");
-      payload.sessionID = sessionID;
-      viewer.sessionChanged = false;
+  onClose = async () => {
+    if (this.viewer && this.viewer.hasSessionInfo) {
+      await deleteForViewerSession(this.viewer);
     }
-    responses.push({
-      type: serverSocketMessageTypes.STATE_SYNC,
-      responseTo: message.id,
-      payload,
-    });
-  } else {
-    const promises = {};
-    promises.activityUpdate = updateActivityTime(viewer);
-    promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
-      viewer,
-      oldUpdatesCurrentAsOf,
-    );
-    promises.fetchUpdateResult = fetchUpdateInfos(
-      viewer,
-      oldUpdatesCurrentAsOf,
+  }
+
+  sendMessage(message: ServerSocketMessage) {
+    this.ws.send(JSON.stringify(message));
+  }
+
+  async handleClientSocketMessage(
+    message: ClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    if (message.type === clientSocketMessageTypes.INITIAL) {
+      return await this.handleInitialClientSocketMessage(message);
+    } else if (message.type === clientSocketMessageTypes.RESPONSES) {
+      return await this.handleResponsesClientSocketMessage(message);
+    } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
+      return await this.handleActivityUpdatesClientSocketMessage(message);
+    } else if (message.type === clientSocketMessageTypes.PING) {
+      return await this.handlePingClientSocketMessage(message);
+    }
+    return [];
+  }
+
+  async handleInitialClientSocketMessage(
+    message: InitialClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+
+    const responses = [];
+
+    const { sessionState, clientResponses } = message.payload;
+    const {
       calendarQuery,
-    );
-    if (stateCheckStatus) {
-      promises.stateCheck = checkState(viewer, stateCheckStatus, calendarQuery);
-    }
-    const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
+      updatesCurrentAsOf: oldUpdatesCurrentAsOf,
+      messagesCurrentAsOf: oldMessagesCurrentAsOf,
+      watchedIDs,
+    } = sessionState;
+    await verifyCalendarQueryThreadIDs(calendarQuery);
 
-    const updateUserInfos = fetchUpdateResult.userInfos;
-    const { updateInfos } = fetchUpdateResult;
-    const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
-      [...updateInfos],
+    const sessionInitializationResult = await initializeSession(
+      viewer,
+      calendarQuery,
       oldUpdatesCurrentAsOf,
     );
-    const updatesResult = {
-      newUpdates: updateInfos,
-      currentAsOf: newUpdatesCurrentAsOf,
+
+    const threadCursors = {};
+    for (let watchedThreadID of watchedIDs) {
+      threadCursors[watchedThreadID] = null;
+    }
+    const threadSelectionCriteria = { threadCursors, joinedThreads: true };
+    const [
+      fetchMessagesResult,
+      { serverRequests, stateCheckStatus, activityUpdateResult },
+    ] = await Promise.all([
+      fetchMessageInfosSince(
+        viewer,
+        threadSelectionCriteria,
+        oldMessagesCurrentAsOf,
+        defaultNumberPerThread,
+      ),
+      processClientResponses(
+        viewer,
+        clientResponses,
+      ),
+    ]);
+    const messagesResult = {
+      rawMessageInfos: fetchMessagesResult.rawMessageInfos,
+      truncationStatuses: fetchMessagesResult.truncationStatuses,
+      currentAsOf: mostRecentMessageTimestamp(
+        fetchMessagesResult.rawMessageInfos,
+        oldMessagesCurrentAsOf,
+      ),
     };
 
-    let sessionUpdate = sessionInitializationResult.sessionUpdate;
-    if (stateCheck && stateCheck.sessionUpdate) {
-      sessionUpdate = { ...sessionUpdate, ...stateCheck.sessionUpdate };
-    }
-    await commitSessionUpdate(viewer, sessionUpdate);
-
-    if (stateCheck && stateCheck.checkStateRequest) {
-      serverRequests.push(stateCheck.checkStateRequest);
-    }
-
-    responses.push({
-      type: serverSocketMessageTypes.STATE_SYNC,
-      responseTo: message.id,
-      payload: {
-        type: stateSyncPayloadTypes.INCREMENTAL,
+    if (!sessionInitializationResult.sessionContinued) {
+      const [
+        threadsResult,
+        entriesResult,
+        currentUserInfo,
+      ] = await Promise.all([
+        fetchThreadInfos(viewer),
+        fetchEntryInfos(viewer, [ calendarQuery ]),
+        fetchCurrentUserInfo(viewer),
+      ]);
+      const payload: StateSyncFullSocketPayload = {
+        type: stateSyncPayloadTypes.FULL,
         messagesResult,
-        updatesResult,
-        deltaEntryInfos:
-          sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
+        threadInfos: threadsResult.threadInfos,
+        currentUserInfo,
+        rawEntryInfos: entriesResult.rawEntryInfos,
         userInfos: values({
           ...fetchMessagesResult.userInfos,
-          ...updateUserInfos,
-          ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+          ...entriesResult.userInfos,
+          ...threadsResult.userInfos,
         }),
-      },
-    });
+        updatesCurrentAsOf: oldUpdatesCurrentAsOf,
+      };
+      if (viewer.sessionChanged) {
+        // If initializeSession encounters sessionIdentifierTypes.BODY_SESSION_ID,
+        // but the session is unspecified or expired, it will set a new sessionID
+        // and specify viewer.sessionChanged
+        const { sessionID } = viewer;
+        invariant(sessionID !== null && sessionID !== undefined, "should be set");
+        payload.sessionID = sessionID;
+        viewer.sessionChanged = false;
+      }
+      responses.push({
+        type: serverSocketMessageTypes.STATE_SYNC,
+        responseTo: message.id,
+        payload,
+      });
+    } else {
+      const promises = {};
+      promises.activityUpdate = updateActivityTime(viewer);
+      promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
+        viewer,
+        oldUpdatesCurrentAsOf,
+      );
+      promises.fetchUpdateResult = fetchUpdateInfos(
+        viewer,
+        oldUpdatesCurrentAsOf,
+        calendarQuery,
+      );
+      if (stateCheckStatus) {
+        promises.stateCheck = checkState(viewer, stateCheckStatus, calendarQuery);
+      }
+      const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
+
+      const updateUserInfos = fetchUpdateResult.userInfos;
+      const { updateInfos } = fetchUpdateResult;
+      const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
+        [...updateInfos],
+        oldUpdatesCurrentAsOf,
+      );
+      const updatesResult = {
+        newUpdates: updateInfos,
+        currentAsOf: newUpdatesCurrentAsOf,
+      };
+
+      let sessionUpdate = sessionInitializationResult.sessionUpdate;
+      if (stateCheck && stateCheck.sessionUpdate) {
+        sessionUpdate = { ...sessionUpdate, ...stateCheck.sessionUpdate };
+      }
+      await commitSessionUpdate(viewer, sessionUpdate);
+
+      if (stateCheck && stateCheck.checkStateRequest) {
+        serverRequests.push(stateCheck.checkStateRequest);
+      }
+
+      responses.push({
+        type: serverSocketMessageTypes.STATE_SYNC,
+        responseTo: message.id,
+        payload: {
+          type: stateSyncPayloadTypes.INCREMENTAL,
+          messagesResult,
+          updatesResult,
+          deltaEntryInfos:
+            sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
+          userInfos: values({
+            ...fetchMessagesResult.userInfos,
+            ...updateUserInfos,
+            ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+          }),
+        },
+      });
+    }
+
+    // Clients that support sockets always keep their server aware of their
+    // device token, without needing any requests
+    const filteredServerRequests = serverRequests.filter(
+      request => request.type !== serverRequestTypes.DEVICE_TOKEN,
+    );
+    if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
+      // We send this message first since the STATE_SYNC triggers the client's
+      // connection status to shift to "connected", and we want to make sure the
+      // client responses are cleared from Redux before that happens
+      responses.unshift({
+        type: serverSocketMessageTypes.REQUESTS,
+        responseTo: message.id,
+        payload: { serverRequests: filteredServerRequests },
+      });
+    }
+
+    if (activityUpdateResult) {
+      // Same reason for unshifting as above
+      responses.unshift({
+        type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
+        responseTo: message.id,
+        payload: activityUpdateResult,
+      });
+    }
+
+    return responses;
   }
 
-  // Clients that support sockets always keep their server aware of their
-  // device token, without needing any requests
-  const filteredServerRequests = serverRequests.filter(
-    request => request.type !== serverRequestTypes.DEVICE_TOKEN,
-  );
-  if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
-    // We send this message first since the STATE_SYNC triggers the client's
-    // connection status to shift to "connected", and we want to make sure the
-    // client responses are cleared from Redux before that happens
-    responses.unshift({
+  async handleResponsesClientSocketMessage(
+    message: ResponsesClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+
+    const { clientResponses } = message.payload;
+    const { stateCheckStatus } = await processClientResponses(
+      viewer,
+      clientResponses,
+    );
+
+    const serverRequests = [];
+    if (stateCheckStatus && stateCheckStatus.status !== "state_check") {
+      const { sessionUpdate, checkStateRequest } = await checkState(
+        viewer,
+        stateCheckStatus,
+        viewer.calendarQuery,
+      );
+      if (sessionUpdate) {
+        await commitSessionUpdate(viewer, sessionUpdate);
+      }
+      if (checkStateRequest) {
+        serverRequests.push(checkStateRequest);
+      }
+    }
+
+    // We send a response message regardless of whether we have any requests,
+    // since we need to ack the client's responses
+    return [{
       type: serverSocketMessageTypes.REQUESTS,
       responseTo: message.id,
-      payload: { serverRequests: filteredServerRequests },
-    });
+      payload: { serverRequests },
+    }];
   }
 
-  if (activityUpdateResult) {
-    // Same reason for unshifting as above
-    responses.unshift({
+  async handleActivityUpdatesClientSocketMessage(
+    message: ActivityUpdatesClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+    const result = await activityUpdater(
+      viewer,
+      { updates: message.payload.activityUpdates },
+    );
+    return [{
       type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
       responseTo: message.id,
-      payload: activityUpdateResult,
-    });
+      payload: result,
+    }];
   }
 
-  return responses;
-}
-
-async function handleResponsesClientSocketMessage(
-  viewer: Viewer,
-  message: ResponsesClientSocketMessage,
-): Promise<ServerSocketMessage[]> {
-  const { clientResponses } = message.payload;
-  const { stateCheckStatus } = await processClientResponses(
-    viewer,
-    clientResponses,
-  );
-
-  const serverRequests = [];
-  if (stateCheckStatus && stateCheckStatus.status !== "state_check") {
-    const { sessionUpdate, checkStateRequest } = await checkState(
-      viewer,
-      stateCheckStatus,
-      viewer.calendarQuery,
-    );
-    if (sessionUpdate) {
-      await commitSessionUpdate(viewer, sessionUpdate);
-    }
-    if (checkStateRequest) {
-      serverRequests.push(checkStateRequest);
-    }
+  async handlePingClientSocketMessage(
+    message: PingClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    return [{
+      type: serverSocketMessageTypes.PONG,
+      responseTo: message.id,
+    }];
   }
 
-  // We send a response message regardless of whether we have any requests,
-  // since we need to ack the client's responses
-  return [{
-    type: serverSocketMessageTypes.REQUESTS,
-    responseTo: message.id,
-    payload: { serverRequests },
-  }];
-}
-
-async function handleActivityUpdatesClientSocketMessage(
-  viewer: Viewer,
-  message: ActivityUpdatesClientSocketMessage,
-): Promise<ServerSocketMessage[]> {
-  const result = await activityUpdater(
-    viewer,
-    { updates: message.payload.activityUpdates },
-  );
-  return [{
-    type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
-    responseTo: message.id,
-    payload: result,
-  }];
-}
-
-async function handlePingClientSocketMessage(
-  viewer: Viewer,
-  message: PingClientSocketMessage,
-): Promise<ServerSocketMessage[]> {
-  return [{
-    type: serverSocketMessageTypes.PONG,
-    responseTo: message.id,
-  }];
 }
 
 export {
