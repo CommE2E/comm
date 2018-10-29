@@ -68,6 +68,7 @@ import { deleteActivityForViewerSession } from './deleters/activity-deleters';
 import {
   activityUpdatesInputValidator,
 } from './responders/activity-responders';
+import { focusedTableRefreshFrequency } from './shared/focused-times';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -129,6 +130,7 @@ class Socket {
   ws: WebSocket;
   httpRequest: $Request;
   viewer: ?Viewer;
+  updateActivityTimeIntervalID: ?IntervalID;
 
   constructor(ws: WebSocket, httpRequest: $Request) {
     this.ws = ws;
@@ -191,6 +193,9 @@ class Socket {
       handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
       for (let response of serverResponses) {
         this.sendMessage(response);
+      }
+      if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
+        this.onSuccessfulConnection();
       }
     } catch (error) {
       console.warn(error);
@@ -275,6 +280,10 @@ class Socket {
   }
 
   onClose = async () => {
+    if (this.updateActivityTimeIntervalID) {
+      clearInterval(this.updateActivityTimeIntervalID);
+      this.updateActivityTimeIntervalID = null;
+    }
     if (this.viewer && this.viewer.hasSessionInfo) {
       await deleteActivityForViewerSession(this.viewer);
     }
@@ -531,6 +540,19 @@ class Socket {
       type: serverSocketMessageTypes.PONG,
       responseTo: message.id,
     }];
+  }
+
+  onSuccessfulConnection() {
+    this.updateActivityTimeIntervalID = setInterval(
+      this.updateActivityTime,
+      focusedTableRefreshFrequency,
+    );
+  }
+
+  updateActivityTime = () => {
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+    handleAsyncPromise(updateActivityTime(viewer));
   }
 
 }

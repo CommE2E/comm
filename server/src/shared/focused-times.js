@@ -20,6 +20,7 @@ function earliestFocusedTimeConsideredExpired() {
 }
 
 export {
+  focusedTableRefreshFrequency,
   earliestFocusedTimeConsideredCurrent,
   earliestFocusedTimeConsideredExpired,
 };
