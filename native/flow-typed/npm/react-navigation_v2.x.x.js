@@ -1,5 +1,5 @@
-// flow-typed signature: 15c46eb6cf1a947bc98c3883621daab1
-// flow-typed version: c5a5cbd1f4/react-navigation_v2.x.x/flow_>=v0.60.x
+// flow-typed signature: 5d7fecbdc3f50450fb6a171350f15910
+// flow-typed version: 40e6366386/react-navigation_v2.x.x/flow_>=v0.60.x
 
 // @flow
 
@@ -146,6 +146,14 @@ declare module 'react-navigation' {
     +type: 'Navigation/TOGGLE_DRAWER',
     +key?: string,
   |};
+  declare export type NavigationDrawerOpenedAction = {|
+    +type: 'Navigation/DRAWER_OPENED',
+    +key?: string,
+  |};
+  declare export type NavigationDrawerClosedAction = {|
+    +type: 'Navigation/DRAWER_CLOSED',
+    +key?: string,
+  |};
 
   declare export type NavigationAction =
     | NavigationBackAction
@@ -160,7 +168,9 @@ declare module 'react-navigation' {
     | NavigationCompleteTransitionAction
     | NavigationOpenDrawerAction
     | NavigationCloseDrawerAction
-    | NavigationToggleDrawerAction;
+    | NavigationToggleDrawerAction
+    | NavigationDrawerOpenedAction
+    | NavigationDrawerClosedAction;
 
   /**
    * NavigationState is a tree of routes for a single navigator, where each
@@ -397,16 +407,18 @@ declare module 'react-navigation' {
     mode?: 'card' | 'modal',
     headerMode?: HeaderMode,
     headerTransitionPreset?: 'fade-in-place' | 'uikit',
+    headerLayoutPreset?: 'left' | 'center',
+    headerBackTitleVisible?: boolean,
     cardStyle?: ViewStyleProp,
     transitionConfig?: (
       transitionProps: NavigationTransitionProps,
       prevTransitionProps: ?NavigationTransitionProps,
-      isModal: bool,
+      isModal: boolean
     ) => TransitionConfig,
     onTransitionStart?: () => void,
     onTransitionEnd?: () => void,
-    transparentCard?: bool,
-    disableKeyboardHandling?: bool,
+    transparentCard?: boolean,
+    disableKeyboardHandling?: boolean,
   |};
 
   declare export type StackNavigatorConfig = {|
@@ -524,7 +536,29 @@ declare module 'react-navigation' {
       eventName: string,
       callback: NavigationEventCallback
     ) => NavigationEventSubscription,
-    getParam: (paramName: string, fallback?: any) => any,
+    getParam: <ParamName>(
+      paramName: ParamName,
+      fallback?: $ElementType<
+        $PropertyType<
+          {|
+            ...{| params: {| [ParamName]: void |} |},
+            ...$Exact<S>,
+          |},
+          'params'
+        >,
+        ParamName
+      >
+    ) => $ElementType<
+      $PropertyType<
+        {|
+          ...{| params: {| [ParamName]: void |} |},
+          ...$Exact<S>,
+        |},
+        'params'
+      >,
+      ParamName
+    >,
+    dangerouslyGetParent: () => NavigationScreenProp<*>,
     isFocused: () => boolean,
     // Shared action creators that exist for all routers
     goBack: (routeKey?: ?string) => boolean,
@@ -808,7 +842,7 @@ declare module 'react-navigation' {
       actions: Array<NavigationNavigateAction>,
     }) => NavigationResetAction,
     replace: (payload: {
-      key: string,
+      key?: string,
       routeName: string,
       params?: NavigationParams,
       action?: NavigationNavigateAction,
@@ -822,6 +856,8 @@ declare module 'react-navigation' {
     OPEN_DRAWER: 'Navigation/OPEN_DRAWER',
     CLOSE_DRAWER: 'Navigation/CLOSE_DRAWER',
     TOGGLE_DRAWER: 'Navigation/TOGGLE_DRAWER',
+    DRAWER_OPENED: 'Navigation/DRAWER_OPENED',
+    DRAWER_CLOSED: 'Navigation/DRAWER_CLOSED',
 
     openDrawer: (payload: {
       key?: string,
