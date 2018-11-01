@@ -28,11 +28,7 @@ export default connect(
       openSocket: openSocketSelector(state),
       queuedClientResponses: queuedClientResponsesSelector(state),
       getClientResponses: getClientResponsesSelector(state),
-      activeThread,
-      activeThreadLatestMessage:
-        activeThread && state.messageStore.threads[activeThread]
-          ? state.messageStore.threads[activeThread].messageIDs[0]
-          : null,
+      activeThread: active ? activeThreadSelector(state) : null,
       sessionStateFunc: sessionStateFuncSelector(state),
       sessionIdentification: sessionIdentificationSelector(state),
       cookie: state.cookie,
