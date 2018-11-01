@@ -5,7 +5,6 @@ import type { AppState } from './redux-setup';
 import { connect } from 'lib/utils/redux-utils';
 import {
   queuedClientResponsesSelector,
-  getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
@@ -30,7 +29,6 @@ export default connect(
       active,
       openSocket: openSocketSelector(state),
       queuedClientResponses: queuedClientResponsesSelector(state),
-      getClientResponses: getClientResponsesSelector(state),
       activeThread: active ? activeThreadSelector(state) : null,
       sessionStateFunc: sessionStateFuncSelector(state),
       sessionIdentification: sessionIdentificationSelector(state),
