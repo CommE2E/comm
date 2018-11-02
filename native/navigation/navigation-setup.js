@@ -816,4 +816,5 @@ export {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
+  resetNavInfoAndEnsureLoggedOutModalPresence,
 };

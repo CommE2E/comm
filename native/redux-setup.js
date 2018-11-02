@@ -60,6 +60,7 @@ import {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
+  resetNavInfoAndEnsureLoggedOutModalPresence,
 } from './navigation/navigation-setup';
 import {
   reduceThreadIDsToNotifIDs,
@@ -360,6 +361,13 @@ function validateState(
       ...state,
       messageSentFromRoute,
     };
+  }
+
+  if (!state.currentUserInfo || state.currentUserInfo.anonymous) {
+    const navInfo = resetNavInfoAndEnsureLoggedOutModalPresence(state.navInfo);
+    if (navInfo.navigationState !== state.navInfo.navigationState) {
+      state = { ...state, navInfo };
+    }
   }
 
   return state;
