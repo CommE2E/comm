@@ -1,11 +1,11 @@
 package org.squadcal;
 
-import com.facebook.react.ReactActivity;
+import com.facebook.react.ReactFragmentActivity;
 import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
 import android.content.Intent;
 
-public class MainActivity extends ReactActivity {
+public class MainActivity extends ReactFragmentActivity {
 
   /**
    * Returns the name of the main component registered from JavaScript.
@@ -19,7 +19,7 @@ public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     SplashScreen.show(this);
-    super.onCreate(savedInstanceState);
+    super.onCreate(null);
   }
 
   @Override

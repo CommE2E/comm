@@ -33,6 +33,7 @@ import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { StackViewTransitionConfigs } from 'react-navigation-stack';
+import { useScreens } from 'react-native-screens';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -95,6 +96,8 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+
+useScreens();
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,

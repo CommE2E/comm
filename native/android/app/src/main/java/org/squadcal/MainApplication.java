@@ -3,6 +3,8 @@ package org.squadcal;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.swmansion.rnscreens.RNScreensPackage;
+import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.github.wumke.RNExitApp.RNExitAppPackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
@@ -28,6 +30,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNScreensPackage(),
+            new RNGestureHandlerPackage(),
             new SplashScreenReactPackage(),
             new RNExitAppPackage(),
             new FIRMessagingPackage(),
