@@ -8,6 +8,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
+import { logOut } from 'lib/actions/user-actions';
 import Socket from 'lib/socket/socket.react';
 
 import {
@@ -38,6 +39,5 @@ export default connect(
       connection: state.connection,
     };
   },
-  null,
-  true,
+  { logOut },
 )(Socket);
