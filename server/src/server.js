@@ -61,7 +61,7 @@ import {
   errorReportFetchInfosResponder,
   errorReportDownloadHandler,
 } from './responders/report-responders';
-import { onConnection } from './socket';
+import { onConnection } from './socket/socket';
 import urlFacts from '../facts/url';
 import './cron';
 

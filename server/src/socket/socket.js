@@ -30,46 +30,46 @@ import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
 import { serverRequestSocketTimeout } from 'lib/shared/timeouts';
 
-import { Viewer } from './session/viewer';
+import { Viewer } from '../session/viewer';
 import {
   checkInputValidator,
   checkClientSupported,
   tShape,
   tCookie,
-} from './utils/validation-utils';
+} from '../utils/validation-utils';
 import {
   newEntryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
-} from './responders/entry-responders';
+} from '../responders/entry-responders';
 import {
   clientResponseInputValidator,
   processClientResponses,
   initializeSession,
   checkState,
-} from './responders/ping-responders';
-import { assertSecureRequest } from './utils/security-utils';
-import { fetchViewerForSocket, extendCookieLifespan } from './session/cookies';
-import { fetchMessageInfosSince } from './fetchers/message-fetchers';
-import { fetchThreadInfos } from './fetchers/thread-fetchers';
-import { fetchEntryInfos } from './fetchers/entry-fetchers';
-import { fetchCurrentUserInfo } from './fetchers/user-fetchers';
+} from '../responders/ping-responders';
+import { assertSecureRequest } from '../utils/security-utils';
+import { fetchViewerForSocket, extendCookieLifespan } from '../session/cookies';
+import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import {
   updateActivityTime,
   activityUpdater,
-} from './updaters/activity-updaters';
+} from '../updaters/activity-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
-} from './deleters/update-deleters';
-import { fetchUpdateInfos } from './fetchers/update-fetchers';
-import { commitSessionUpdate } from './updaters/session-updaters';
-import { handleAsyncPromise } from './responders/handlers';
-import { deleteCookie } from './deleters/cookie-deleters';
-import { createNewAnonymousCookie } from './session/cookies';
-import { deleteActivityForViewerSession } from './deleters/activity-deleters';
+} from '../deleters/update-deleters';
+import { fetchUpdateInfos } from '../fetchers/update-fetchers';
+import { commitSessionUpdate } from '../updaters/session-updaters';
+import { handleAsyncPromise } from '../responders/handlers';
+import { deleteCookie } from '../deleters/cookie-deleters';
+import { createNewAnonymousCookie } from '../session/cookies';
+import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import {
   activityUpdatesInputValidator,
-} from './responders/activity-responders';
-import { focusedTableRefreshFrequency } from './shared/focused-times';
+} from '../responders/activity-responders';
+import { focusedTableRefreshFrequency } from '../shared/focused-times';
 
 const timeoutSeconds = serverRequestSocketTimeout / 1000;
 
