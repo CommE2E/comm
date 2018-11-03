@@ -22,6 +22,7 @@ declare module 'ws' {
     close: (code?: number, reason?: string) => void,
     ping: () => void,
     terminate: () => void,
+    readyState: 0 | 1 | 2 | 3,
   };
 }
 

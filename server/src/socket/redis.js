@@ -37,7 +37,7 @@ class RedisPublisher {
 }
 const publisher = new RedisPublisher();
 
-type OnMessage = (message: RedisMessage) => void;
+type OnMessage = (message: RedisMessage) => (void | Promise<void>);
 class RedisSubscriber {
 
   sub: RedisClient;

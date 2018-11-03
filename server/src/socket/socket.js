@@ -72,6 +72,7 @@ import {
 } from '../responders/activity-responders';
 import { focusedTableRefreshFrequency } from '../shared/focused-times';
 import { RedisSubscriber } from './redis';
+import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -309,7 +310,13 @@ class Socket {
   }
 
   sendMessage(message: ServerSocketMessage) {
-    this.ws.send(JSON.stringify(message));
+    invariant(
+      this.ws.readyState > 0,
+      "shouldn't send message until connection established",
+    );
+    if (this.ws.readyState === 1) {
+      this.ws.send(JSON.stringify(message));
+    }
   }
 
   async handleClientSocketMessage(
@@ -561,9 +568,44 @@ class Socket {
     }];
   }
 
-  onRedisMessage = (message: RedisMessage) => {
+  onRedisMessage = async (message: RedisMessage) => {
+    try {
+      await this.processRedisMessage(message);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  async processRedisMessage(message: RedisMessage) {
     if (message.type === redisMessageTypes.START_SUBSCRIPTION) {
       this.ws.terminate();
+    } else if (message.type === redisMessageTypes.NEW_UPDATES) {
+      const { viewer } = this;
+      invariant(viewer, "should be set");
+      const rawUpdateInfos = message.updates;
+      const {
+        updateInfos,
+        userInfos,
+      } = await fetchUpdateInfosWithRawUpdateInfos(
+        rawUpdateInfos,
+        { viewer },
+      );
+      if (updateInfos.length === 0) {
+        console.warn(
+          "could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES",
+        );
+        return;
+      }
+      this.sendMessage({
+        type: serverSocketMessageTypes.UPDATES,
+        payload: {
+          updatesResult: {
+            currentAsOf: mostRecentUpdateTimestamp([...updateInfos], 0),
+            newUpdates: updateInfos,
+          },
+          userInfos: values(userInfos),
+        },
+      });
     }
   }
 
