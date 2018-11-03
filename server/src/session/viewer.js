@@ -27,6 +27,7 @@ export type UserViewerData = {|
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
   +isBotViewer: bool,
+  +isSocket?: bool,
 |};
 
 export type AnonymousViewerData = {|
@@ -42,6 +43,7 @@ export type AnonymousViewerData = {|
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
   +isBotViewer: bool,
+  +isSocket?: bool,
 |};
 
 type SessionInfo = {|
@@ -91,6 +93,14 @@ class Viewer {
       } else {
         // This is a separate condition because of Flow
         data = { ...data, sessionIdentifierType: this.sessionIdentifierType };
+      }
+    }
+    if (data.isSocket === null || data.isSocket === undefined) {
+      if (data.loggedIn) {
+        data = { ...data, isSocket: this.isSocket };
+      } else {
+        // This is a separate condition because of Flow
+        data = { ...data, isSocket: this.isSocket };
       }
     }
 
@@ -265,6 +275,14 @@ class Viewer {
 
   get isBotViewer(): bool {
     return this.data.isBotViewer;
+  }
+
+  get isSocket(): bool {
+    invariant(
+      this.data.isSocket !== null && this.data.isSocket !== undefined,
+      "isSocket should be set",
+    );
+    return this.data.isSocket;
   }
 
 }

@@ -44,6 +44,12 @@ function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();
 }
 
+type SessionParameterInfo = {|
+  isSocket: bool,
+  sessionID: ?string,
+  sessionIdentifierType: SessionIdentifierType,
+|};
+
 type FetchViewerResult =
   | {| type: "valid", viewer: Viewer |}
   | InvalidFetchViewerResult;
@@ -53,14 +59,14 @@ type InvalidFetchViewerResult =
       type: "nonexistant",
       cookieName: ?string,
       cookieSource: ?CookieSource,
-      sessionIdentifierType: SessionIdentifierType,
+      sessionParameterInfo: SessionParameterInfo,
     |}
   | {|
       type: "invalidated",
       cookieName: string,
       cookieID: string,
       cookieSource: CookieSource,
-      sessionIdentifierType: SessionIdentifierType,
+      sessionParameterInfo: SessionParameterInfo,
       platformDetails: ?PlatformDetails,
       deviceToken: ?string,
     |};
@@ -70,14 +76,13 @@ async function fetchUserViewer(
   cookieSource: CookieSource,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
-  const { sessionIdentifierType } = sessionParameterInfo;
   const [ cookieID, cookiePassword ] = cookie.split(':');
   if (!cookieID || !cookiePassword) {
     return {
       type: "nonexistant",
       cookieName: cookieTypes.USER,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
 
@@ -95,7 +100,7 @@ async function fetchUserViewer(
       type: "nonexistant",
       cookieName: cookieTypes.USER,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
 
@@ -126,13 +131,14 @@ async function fetchUserViewer(
       cookieName: cookieTypes.USER,
       cookieID,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
       platformDetails,
       deviceToken,
     };
   }
   const userID = cookieRow.user.toString();
   const viewer = new Viewer({
+    isSocket: sessionParameterInfo.isSocket,
     loggedIn: true,
     id: userID,
     platformDetails,
@@ -141,7 +147,7 @@ async function fetchUserViewer(
     cookieSource,
     cookieID,
     cookiePassword,
-    sessionIdentifierType,
+    sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
     isBotViewer: false,
@@ -154,14 +160,13 @@ async function fetchAnonymousViewer(
   cookieSource: CookieSource,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
-  const { sessionIdentifierType } = sessionParameterInfo;
   const [ cookieID, cookiePassword ] = cookie.split(':');
   if (!cookieID || !cookiePassword) {
     return {
       type: "nonexistant",
       cookieName: cookieTypes.ANONYMOUS,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
 
@@ -179,7 +184,7 @@ async function fetchAnonymousViewer(
       type: "nonexistant",
       cookieName: cookieTypes.ANONYMOUS,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
 
@@ -210,12 +215,13 @@ async function fetchAnonymousViewer(
       cookieName: cookieTypes.ANONYMOUS,
       cookieID,
       cookieSource,
-      sessionIdentifierType,
+      sessionParameterInfo,
       platformDetails,
       deviceToken,
     };
   }
   const viewer = new Viewer({
+    isSocket: sessionParameterInfo.isSocket,
     loggedIn: false,
     id: cookieID,
     platformDetails,
@@ -223,18 +229,13 @@ async function fetchAnonymousViewer(
     cookieSource,
     cookieID,
     cookiePassword,
-    sessionIdentifierType,
+    sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
     isBotViewer: false,
   });
   return { type: "valid", viewer };
 }
-
-type SessionParameterInfo = {|
-  sessionID: ?string,
-  sessionIdentifierType: SessionIdentifierType,
-|};
 
 type SessionInfo = {|
   sessionID: ?string,
@@ -291,7 +292,7 @@ async function fetchViewerFromCookieData(
     type: "nonexistant",
     cookieName: null,
     cookieSource: null,
-    sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
+    sessionParameterInfo,
   };
 }
 
@@ -304,7 +305,7 @@ async function fetchViewerFromRequestBody(
       type: "nonexistant",
       cookieName: null,
       cookieSource: null,
-      sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
   const cookiePair = body.cookie;
@@ -313,7 +314,7 @@ async function fetchViewerFromRequestBody(
       type: "nonexistant",
       cookieName: null,
       cookieSource: cookieSources.BODY,
-      sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
   if (!cookiePair || typeof cookiePair !== "string") {
@@ -321,7 +322,7 @@ async function fetchViewerFromRequestBody(
       type: "nonexistant",
       cookieName: null,
       cookieSource: null,
-      sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
+      sessionParameterInfo,
     };
   }
   const [ type, cookie ] = cookiePair.split("=");
@@ -342,7 +343,7 @@ async function fetchViewerFromRequestBody(
     type: "nonexistant",
     cookieName: null,
     cookieSource: null,
-    sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
+    sessionParameterInfo,
   };
 }
 
@@ -356,7 +357,7 @@ function getSessionParameterInfoFromRequestBody(
   const sessionIdentifierType = req.method === "GET" || sessionID !== undefined
     ? sessionIdentifierTypes.BODY_SESSION_ID
     : sessionIdentifierTypes.COOKIE_ID;
-  return { sessionID, sessionIdentifierType };
+  return { isSocket: false, sessionID, sessionIdentifierType };
 }
 
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
@@ -388,6 +389,7 @@ async function fetchViewerForSocket(
   const { sessionIdentification } = clientMessage.payload;
   const { sessionID } = sessionIdentification;
   const sessionParameterInfo = {
+    isSocket: true,
     sessionID,
     sessionIdentifierType: sessionID !== undefined
       ? sessionIdentifierTypes.BODY_SESSION_ID
@@ -477,7 +479,8 @@ function createViewerForInvalidFetchViewerResult(
   const viewer = new Viewer({
     ...anonymousViewerData,
     cookieSource,
-    sessionIdentifierType: result.sessionIdentifierType,
+    sessionIdentifierType: result.sessionParameterInfo.sessionIdentifierType,
+    isSocket: result.sessionParameterInfo.isSocket,
   });
   viewer.sessionChanged = true;
 

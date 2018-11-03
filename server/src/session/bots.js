@@ -20,6 +20,7 @@ function createBotViewer(userID: string): Viewer {
     throw new ServerError('invalid_bot_id');
   }
   return new Viewer({
+    isSocket: true,
     loggedIn: true,
     id: userID,
     platformDetails: null,
