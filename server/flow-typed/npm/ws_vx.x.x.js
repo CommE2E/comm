@@ -21,6 +21,7 @@ declare module 'ws' {
     send: (value: string) => void,
     close: (code?: number, reason?: string) => void,
     ping: () => void,
+    terminate: () => void,
   };
 }
 

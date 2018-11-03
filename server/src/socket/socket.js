@@ -19,6 +19,7 @@ import {
 import { cookieSources } from 'lib/types/session-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { serverRequestTypes } from 'lib/types/request-types';
+import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -70,8 +71,7 @@ import {
   activityUpdatesInputValidator,
 } from '../responders/activity-responders';
 import { focusedTableRefreshFrequency } from '../shared/focused-times';
-
-const timeoutSeconds = serverRequestSocketTimeout / 1000;
+import { RedisSubscriber } from './redis';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -133,6 +133,8 @@ class Socket {
   ws: WebSocket;
   httpRequest: $Request;
   viewer: ?Viewer;
+  redis: ?RedisSubscriber;
+
   updateActivityTimeIntervalID: ?IntervalID;
   pingTimeoutID: ?TimeoutID;
 
@@ -187,6 +189,12 @@ class Socket {
         clientSocketMessageInputValidator,
         clientSocketMessage,
       );
+      if (!this.redis) {
+        this.redis = new RedisSubscriber(
+          { userID: viewer.userID, sessionID: viewer.session },
+          this.onRedisMessage,
+        );
+      }
       const serverResponses = await this.handleClientSocketMessage(
         clientSocketMessage,
       );
@@ -293,6 +301,10 @@ class Socket {
     this.clearTimeout();
     if (this.viewer && this.viewer.hasSessionInfo) {
       await deleteActivityForViewerSession(this.viewer);
+    }
+    if (this.redis) {
+      this.redis.quit();
+      this.redis = null;
     }
   }
 
@@ -549,6 +561,12 @@ class Socket {
     }];
   }
 
+  onRedisMessage = (message: RedisMessage) => {
+    if (message.type === redisMessageTypes.START_SUBSCRIPTION) {
+      this.ws.terminate();
+    }
+  }
+
   onSuccessfulConnection() {
     this.updateActivityTimeIntervalID = setInterval(
       this.updateActivityTime,
@@ -575,10 +593,7 @@ class Socket {
   }
 
   timeout = () => {
-    this.ws.close(
-      4103,
-      `no contact from client within ${timeoutSeconds}s span`,
-    );
+    this.ws.terminate();
   }
 
 }
