@@ -96,6 +96,7 @@ class RedisSubscriber {
 }
 
 export {
+  channelNameForUpdateTarget,
   publisher,
   RedisSubscriber,
 };

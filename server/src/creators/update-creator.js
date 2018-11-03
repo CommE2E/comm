@@ -19,6 +19,7 @@ import type {
   FetchEntryInfosResponse,
   CalendarQuery,
 } from 'lib/types/entry-types';
+import { type UpdateTarget, redisMessageTypes } from 'lib/types/redis-types';
 
 import invariant from 'invariant';
 import _uniq from 'lodash/fp/uniq';
@@ -59,6 +60,7 @@ import {
   fetchUserInfos,
   fetchLoggedInUserInfos,
 } from '../fetchers/user-fetchers';
+import { channelNameForUpdateTarget, publisher } from '../socket/redis';
 
 export type ViewerInfo =
   | {| viewer: Viewer |}
@@ -196,6 +198,7 @@ async function createUpdates(
   }
   const ids = await createIDs("updates", filteredUpdateDatas.length);
 
+  const publishInfos: Map<string, PublishInfo> = new Map();
   const viewerRawUpdateInfos: RawUpdateInfo[] = [];
   const insertRows: (?(number | string))[][] = [];
   const earliestTime: Map<string, number> = new Map();
@@ -230,12 +233,24 @@ async function createUpdates(
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
 
+    const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
+    const updateTarget = target
+      ? { userID: updateData.userID, sessionID: target }
+      : { userID: updateData.userID };
+    const channelName = channelNameForUpdateTarget(updateTarget);
+    let publishInfo = publishInfos.get(channelName);
+    if (!publishInfo) {
+      publishInfo = { updateTarget, rawUpdateInfos: [] };
+      publishInfos.set(channelName, publishInfo);
+    }
+    publishInfo.rawUpdateInfos.push(rawUpdateInfo);
+
     if (
       viewerInfo &&
       updateData.userID === viewerInfo.viewer.id &&
-      (!target || target === viewerInfo.viewer.session)
+      (!target || target === viewerInfo.viewer.session) &&
+      !viewerInfo.viewer.isSocket
     ) {
-      const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
       viewerRawUpdateInfos.push(rawUpdateInfo);
     }
 
@@ -294,6 +309,10 @@ async function createUpdates(
     `;
     insertQuery.append(SQL`VALUES ${insertRows}`);
     promises.insert = dbQuery(insertQuery);
+  }
+
+  if (publishInfos.size > 0) {
+    promises.redis = redisPublish(publishInfos.values());
   }
 
   if (deleteSQLConditions.length > 0) {
@@ -628,6 +647,23 @@ async function updateInfosFromRawUpdateInfos(
   mergedUpdates.sort(sortFunction);
 
   return { updateInfos: mergedUpdates, userInfos };
+}
+
+type PublishInfo = {|
+  updateTarget: UpdateTarget,
+  rawUpdateInfos: RawUpdateInfo[],
+|};
+async function redisPublish(publishInfos: Iterator<PublishInfo>) {
+  for (let publishInfo of publishInfos) {
+    const { updateTarget, rawUpdateInfos } = publishInfo;
+    publisher.sendMessage(
+      updateTarget,
+      {
+        type: redisMessageTypes.NEW_UPDATES,
+        updates: rawUpdateInfos,
+      },
+    );
+  }
 }
 
 export {
