@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  type UpdateInfo,
+  type RawUpdateInfo,
   updateTypes,
   assertUpdateType,
 } from 'lib/types/update-types';
@@ -14,9 +14,8 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 import {
-  type ViewerUpdateData,
   type FetchUpdatesResult,
-  fetchUpdateInfosWithUpdateDatas,
+  fetchUpdateInfosWithRawUpdateInfos,
 } from '../creators/update-creator';
 
 async function fetchUpdateInfos(
@@ -38,97 +37,84 @@ async function fetchUpdateInfos(
   `;
   const [ result ] = await dbQuery(query);
 
-  const viewerUpdateDatas = [];
+  const rawUpdateInfos = [];
   for (let row of result) {
-    viewerUpdateDatas.push(viewerUpdateDataFromRow(viewer, row));
+    rawUpdateInfos.push(rawUpdateInfoFromRow(row));
   }
 
-  return await fetchUpdateInfosWithUpdateDatas(
-    viewerUpdateDatas,
+  return await fetchUpdateInfosWithRawUpdateInfos(
+    rawUpdateInfos,
     { viewer, calendarQuery },
   );
 }
 
-function viewerUpdateDataFromRow(
-  viewer: Viewer,
-  row: Object,
-): ViewerUpdateData {
+function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
   const type = assertUpdateType(row.type);
-  let data;
-  const id = row.id.toString();
   if (type === updateTypes.DELETE_ACCOUNT) {
     const content = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.DELETE_ACCOUNT,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       deletedUserID: content.deletedUserID,
     };
   } else if (type === updateTypes.UPDATE_THREAD) {
     const { threadID } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.UPDATE_THREAD,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       threadID,
     };
   } else if (type === updateTypes.UPDATE_THREAD_READ_STATUS) {
     const { threadID, unread } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.UPDATE_THREAD_READ_STATUS,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       threadID,
       unread,
     };
   } else if (type === updateTypes.DELETE_THREAD) {
     const { threadID } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.DELETE_THREAD,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       threadID,
     };
   } else if (type === updateTypes.JOIN_THREAD) {
     const { threadID } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.JOIN_THREAD,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       threadID,
     };
   } else if (type === updateTypes.BAD_DEVICE_TOKEN) {
     const { deviceToken } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.BAD_DEVICE_TOKEN,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       deviceToken,
-      // This UpdateData is only used to generate a UpdateInfo,
-      // and UpdateInfo doesn't care about the targetCookie field
-      targetCookie: "",
     };
   } else if (type === updateTypes.UPDATE_ENTRY) {
     const { entryID } = JSON.parse(row.content);
-    data = {
+    return {
       type: updateTypes.UPDATE_ENTRY,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
       entryID,
-      // This UpdateData is only used to generate a UpdateInfo,
-      // and UpdateInfo doesn't care about the targetSession field
-      targetSession: "",
     };
   } else if (type === updateTypes.UPDATE_CURRENT_USER) {
-    data = {
+    return {
       type: updateTypes.UPDATE_CURRENT_USER,
-      userID: viewer.id,
+      id: row.id.toString(),
       time: row.time,
     };
-  } else {
-    invariant(false, `unrecognized updateType ${type}`);
   }
-  return { data, id };
+  invariant(false, `unrecognized updateType ${type}`);
 }
 
 export {

@@ -3,6 +3,7 @@
 import {
   type UpdateInfo,
   type UpdateData,
+  type RawUpdateInfo,
   type CreateUpdatesResult,
   updateTypes,
 } from 'lib/types/update-types';
@@ -38,6 +39,7 @@ import {
   keyForUpdateInfo,
   conditionKeyForUpdateData,
   conditionKeyForUpdateDataFromKey,
+  rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils';
 import { ServerError } from 'lib/utils/errors';
 
@@ -194,7 +196,7 @@ async function createUpdates(
   }
   const ids = await createIDs("updates", filteredUpdateDatas.length);
 
-  const viewerUpdateDatas: ViewerUpdateData[] = [];
+  const viewerRawUpdateInfos: RawUpdateInfo[] = [];
   const insertRows: (?(number | string))[][] = [];
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
@@ -233,7 +235,8 @@ async function createUpdates(
       updateData.userID === viewerInfo.viewer.id &&
       (!target || target === viewerInfo.viewer.session)
     ) {
-      viewerUpdateDatas.push({ data: updateData, id: ids[i] });
+      const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
+      viewerRawUpdateInfos.push(rawUpdateInfo);
     }
 
     if (viewerInfo && target && viewerInfo.viewer.session === target) {
@@ -297,10 +300,10 @@ async function createUpdates(
     promises.delete = deleteUpdatesByConditions(deleteSQLConditions);
   }
 
-  if (viewerUpdateDatas.length > 0) {
+  if (viewerRawUpdateInfos.length > 0) {
     invariant(viewerInfo, "should be set");
-    promises.updatesResult = fetchUpdateInfosWithUpdateDatas(
-      viewerUpdateDatas,
+    promises.updatesResult = fetchUpdateInfosWithRawUpdateInfos(
+      viewerRawUpdateInfos,
       viewerInfo,
     );
   }
@@ -313,34 +316,32 @@ async function createUpdates(
   return { viewerUpdates: updateInfos, userInfos };
 }
 
-export type ViewerUpdateData = {| data: UpdateData, id: string |};
 export type FetchUpdatesResult = {|
   updateInfos: $ReadOnlyArray<UpdateInfo>,
   userInfos: {[id: string]: AccountUserInfo},
 |};
-async function fetchUpdateInfosWithUpdateDatas(
-  updateDatas: $ReadOnlyArray<ViewerUpdateData>,
+async function fetchUpdateInfosWithRawUpdateInfos(
+  rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   viewerInfo: ViewerInfo,
 ): Promise<FetchUpdatesResult> {
   const threadIDsNeedingFetch = new Set();
   const entryIDsNeedingFetch = new Set();
   const currentUserIDsNeedingFetch = new Set();
   const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
-  for (let viewerUpdateData of updateDatas) {
-    const updateData = viewerUpdateData.data;
+  for (let rawUpdateInfo of rawUpdateInfos) {
     if (
       !viewerInfo.threadInfos &&
-      (updateData.type === updateTypes.UPDATE_THREAD ||
-        updateData.type === updateTypes.JOIN_THREAD)
+      (rawUpdateInfo.type === updateTypes.UPDATE_THREAD ||
+        rawUpdateInfo.type === updateTypes.JOIN_THREAD)
     ) {
-      threadIDsNeedingFetch.add(updateData.threadID);
+      threadIDsNeedingFetch.add(rawUpdateInfo.threadID);
     }
-    if (updateData.type === updateTypes.JOIN_THREAD) {
-      threadIDsNeedingDetailedFetch.add(updateData.threadID);
-    } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-      entryIDsNeedingFetch.add(updateData.entryID);
-    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-      currentUserIDsNeedingFetch.add(updateData.userID);
+    if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
+      threadIDsNeedingDetailedFetch.add(rawUpdateInfo.threadID);
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
+      entryIDsNeedingFetch.add(rawUpdateInfo.entryID);
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
+      currentUserIDsNeedingFetch.add(viewerInfo.viewer.userID);
     }
   }
 
@@ -418,8 +419,9 @@ async function fetchUpdateInfosWithUpdateDatas(
     threadInfosResult = { threadInfos: {}, userInfos: {} };
   }
 
-  return await updateInfosFromUpdateDatas(
-    updateDatas,
+  return await updateInfosFromRawUpdateInfos(
+    viewerInfo.viewer,
+    rawUpdateInfos,
     {
       threadInfosResult,
       messageInfosResult,
@@ -437,8 +439,9 @@ export type UpdateInfosRawData = {|
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
   currentUserInfosResult: ?$ReadOnlyArray<LoggedInUserInfo>,
 |};
-async function updateInfosFromUpdateDatas(
-  updateDatas: $ReadOnlyArray<ViewerUpdateData>,
+async function updateInfosFromRawUpdateInfos(
+  viewer: Viewer,
+  rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   rawData: UpdateInfosRawData,
 ): Promise<FetchUpdatesResult> {
   const {
@@ -450,17 +453,16 @@ async function updateInfosFromUpdateDatas(
   } = rawData;
   const updateInfos = [];
   let userIDs = new Set();
-  for (let viewerUpdateData of updateDatas) {
-    const { data: updateData, id } = viewerUpdateData;
-    if (updateData.type === updateTypes.DELETE_ACCOUNT) {
+  for (let rawUpdateInfo of rawUpdateInfos) {
+    if (rawUpdateInfo.type === updateTypes.DELETE_ACCOUNT) {
       updateInfos.push({
         type: updateTypes.DELETE_ACCOUNT,
-        id,
-        time: updateData.time,
-        deletedUserID: updateData.deletedUserID,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
+        deletedUserID: rawUpdateInfo.deletedUserID,
       });
-    } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-      const threadInfo = threadInfosResult.threadInfos[updateData.threadID];
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
+      const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
       invariant(threadInfo, "should be set");
       userIDs = new Set([
         ...userIDs,
@@ -468,39 +470,39 @@ async function updateInfosFromUpdateDatas(
       ]);
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD,
-        id,
-        time: updateData.time,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
         threadInfo,
       });
-    } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        id,
-        time: updateData.time,
-        threadID: updateData.threadID,
-        unread: updateData.unread,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
+        threadID: rawUpdateInfo.threadID,
+        unread: rawUpdateInfo.unread,
       });
-    } else if (updateData.type === updateTypes.DELETE_THREAD) {
+    } else if (rawUpdateInfo.type === updateTypes.DELETE_THREAD) {
       updateInfos.push({
         type: updateTypes.DELETE_THREAD,
-        id,
-        time: updateData.time,
-        threadID: updateData.threadID,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
+        threadID: rawUpdateInfo.threadID,
       });
-    } else if (updateData.type === updateTypes.JOIN_THREAD) {
-      const threadInfo = threadInfosResult.threadInfos[updateData.threadID];
+    } else if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
+      const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
       invariant(threadInfo, "should be set");
       const rawEntryInfos = [];
       invariant(calendarResult, "should be set");
       for (let entryInfo of calendarResult.rawEntryInfos) {
-        if (entryInfo.threadID === updateData.threadID) {
+        if (entryInfo.threadID === rawUpdateInfo.threadID) {
           rawEntryInfos.push(entryInfo);
         }
       }
       const rawMessageInfos = [];
       invariant(messageInfosResult, "should be set");
       for (let messageInfo of messageInfosResult.rawMessageInfos) {
-        if (messageInfo.threadID === updateData.threadID) {
+        if (messageInfo.threadID === rawUpdateInfo.threadID) {
           rawMessageInfos.push(messageInfo);
         }
       }
@@ -512,25 +514,25 @@ async function updateInfosFromUpdateDatas(
       ]);
       updateInfos.push({
         type: updateTypes.JOIN_THREAD,
-        id,
-        time: updateData.time,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
         threadInfo,
         rawMessageInfos,
         truncationStatus:
-          messageInfosResult.truncationStatuses[updateData.threadID],
+          messageInfosResult.truncationStatuses[rawUpdateInfo.threadID],
         rawEntryInfos,
       });
-    } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
+    } else if (rawUpdateInfo.type === updateTypes.BAD_DEVICE_TOKEN) {
       updateInfos.push({
         type: updateTypes.BAD_DEVICE_TOKEN,
-        id,
-        time: updateData.time,
-        deviceToken: updateData.deviceToken,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
+        deviceToken: rawUpdateInfo.deviceToken,
       });
-    } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
       invariant(entryInfosResult, "should be set");
       const entryInfo = entryInfosResult.find(
-        candidate => candidate.id === updateData.entryID,
+        candidate => candidate.id === rawUpdateInfo.entryID,
       );
       invariant(entryInfo, "should be set");
       userIDs = new Set([
@@ -539,24 +541,24 @@ async function updateInfosFromUpdateDatas(
       ]);
       updateInfos.push({
         type: updateTypes.UPDATE_ENTRY,
-        id,
-        time: updateData.time,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
         entryInfo,
       });
-    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
       invariant(currentUserInfosResult, "should be set");
       const currentUserInfo = currentUserInfosResult.find(
-        candidate => candidate.id === updateData.userID,
+        candidate => candidate.id === viewer.userID,
       );
       invariant(currentUserInfo, "should be set");
       updateInfos.push({
         type: updateTypes.UPDATE_CURRENT_USER,
-        id,
-        time: updateData.time,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
         currentUserInfo,
       });
     } else {
-      invariant(false, `unrecognized updateType ${updateData.type}`);
+      invariant(false, `unrecognized updateType ${rawUpdateInfo.type}`);
     }
   }
 
@@ -630,5 +632,5 @@ async function updateInfosFromUpdateDatas(
 
 export {
   createUpdates,
-  fetchUpdateInfosWithUpdateDatas,
+  fetchUpdateInfosWithRawUpdateInfos,
 };
