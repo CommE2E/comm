@@ -50,7 +50,10 @@ import {
 } from '../responders/ping-responders';
 import { assertSecureRequest } from '../utils/security-utils';
 import { fetchViewerForSocket, extendCookieLifespan } from '../session/cookies';
-import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
+import {
+  fetchMessageInfosSince,
+  getMessageFetchResultFromRedisMessages,
+} from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
@@ -604,6 +607,35 @@ class Socket {
             newUpdates: updateInfos,
           },
           userInfos: values(userInfos),
+        },
+      });
+    } else if (message.type === redisMessageTypes.NEW_MESSAGES) {
+      const { viewer } = this;
+      invariant(viewer, "should be set");
+      const rawMessageInfos = message.messages;
+      const messageFetchResult = await getMessageFetchResultFromRedisMessages(
+        viewer,
+        rawMessageInfos,
+      );
+      if (messageFetchResult.rawMessageInfos.length === 0) {
+        console.warn(
+          "could not get any rawMessageInfos from " +
+            "redisMessageTypes.NEW_MESSAGES",
+        );
+        return;
+      }
+      this.sendMessage({
+        type: serverSocketMessageTypes.MESSAGES,
+        payload: {
+          messagesResult: {
+            rawMessageInfos: messageFetchResult.rawMessageInfos,
+            truncationStatuses: messageFetchResult.truncationStatuses,
+            currentAsOf: mostRecentMessageTimestamp(
+              messageFetchResult.rawMessageInfos,
+              0,
+            ),
+          },
+          userInfos: values(messageFetchResult.userInfos),
         },
       });
     }

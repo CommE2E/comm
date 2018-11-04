@@ -420,7 +420,7 @@ function threadSelectionCriteriaToInitialTruncationStatuses(
 }
 
 async function fetchAllUsers(
-  rawMessageInfos: RawMessageInfo[],
+  rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
   userInfos: UserInfos,
 ): Promise<UserInfos> {
   const allAddedUserIDs = [];
@@ -525,8 +525,30 @@ async function fetchMessageInfosSince(
   };
 }
 
+async function getMessageFetchResultFromRedisMessages(
+  viewer: Viewer,
+  rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
+): Promise<FetchMessageInfosResult> {
+  const truncationStatuses = {};
+  for (let rawMessageInfo of rawMessageInfos) {
+    truncationStatuses[rawMessageInfo.threadID] =
+      messageTruncationStatus.UNCHANGED;
+  }
+  const userInfos = await fetchAllUsers(rawMessageInfos, {});
+  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+    rawMessageInfos,
+    viewer.platformDetails,
+  );
+  return {
+    rawMessageInfos: shimmedRawMessageInfos,
+    truncationStatuses,
+    userInfos,
+  };
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
   fetchMessageInfosSince,
+  getMessageFetchResultFromRedisMessages,
 };
