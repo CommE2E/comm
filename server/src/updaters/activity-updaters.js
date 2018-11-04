@@ -13,13 +13,14 @@ import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 
 import { ServerError } from 'lib/utils/errors';
+import { promiseFilter } from 'lib/utils/promises';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
-import { verifyThreadIDs } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
+import { checkThreadPermission } from '../fetchers/thread-fetchers';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -46,7 +47,10 @@ async function activityUpdater(
     updatesForThreadID.push(activityUpdate);
   }
 
-  const verifiedThreadIDs = await verifyThreadIDs([...unverifiedThreadIDs]);
+  const verifiedThreadIDs = await checkThreadPermissions(
+    viewer,
+    unverifiedThreadIDs,
+  );
 
   const focusedThreadIDs = new Set();
   const unfocusedThreadIDs = new Set();
@@ -119,6 +123,20 @@ async function activityUpdater(
   );
 
   return { unfocusedToUnread };
+}
+
+async function checkThreadPermissions(
+  viewer: Viewer,
+  unverifiedThreadIDs: Set<string>,
+): Promise<string[]> {
+  return await promiseFilter(
+    [...unverifiedThreadIDs],
+    (threadID: string) => checkThreadPermission(
+      viewer,
+      threadID,
+      threadPermissions.VISIBLE,
+    ),
+  );
 }
 
 async function updateFocusedRows(
