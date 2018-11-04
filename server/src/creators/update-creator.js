@@ -61,6 +61,7 @@ import {
   fetchLoggedInUserInfos,
 } from '../fetchers/user-fetchers';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
+import { handleAsyncPromise } from '../responders/handlers';
 
 export type ViewerInfo =
   | {| viewer: Viewer |}
@@ -312,7 +313,7 @@ async function createUpdates(
   }
 
   if (publishInfos.size > 0) {
-    promises.redis = redisPublish(publishInfos.values());
+    handleAsyncPromise(redisPublish(publishInfos.values()));
   }
 
   if (deleteSQLConditions.length > 0) {
