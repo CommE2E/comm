@@ -31,6 +31,19 @@ async function fetchActiveSessionsForThread(
   return filters;
 }
 
+async function fetchOtherSessionsForViewer(
+  viewer: Viewer,
+): Promise<string[]> {
+  const query = SQL`
+    SELECT id
+    FROM sessions
+    WHERE user = ${viewer.userID} AND id != ${viewer.session}
+  `;
+  const [ result ] = await dbQuery(query);
+  return result.map(row => row.id.toString());
+}
+
 export {
   fetchActiveSessionsForThread,
+  fetchOtherSessionsForViewer,
 };

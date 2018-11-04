@@ -7,6 +7,7 @@ import {
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
+import { redisMessageTypes } from 'lib/types/redis-types';
 import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
@@ -31,6 +32,8 @@ import { sendPushNotifs } from '../push/send';
 import { createUpdates } from './update-creator';
 import { handleAsyncPromise } from '../responders/handlers';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
+import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
+import { publisher } from '../socket/redis';
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
@@ -108,6 +111,7 @@ async function createMessages(
   }
 
   handleAsyncPromise(postMessageSend(
+    viewer,
     threadsToMessageIndices,
     subthreadPermissionsToCheck,
     messageInfos,
@@ -130,6 +134,7 @@ async function createMessages(
 // (2) Setting threads to unread and generating corresponding UpdateInfos
 // (3) Publishing to Redis so that active sockets pass on new messages
 async function postMessageSend(
+  viewer: Viewer,
   threadsToMessageIndices: Map<string, number[]>,
   subthreadPermissionsToCheck: Set<string>,
   messageInfos: RawMessageInfo[],
@@ -154,7 +159,8 @@ async function postMessageSend(
   const time = earliestFocusedTimeConsideredCurrent();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    SELECT m.user, m.thread, c.platform, c.device_token, c.versions
+    SELECT m.user, m.thread, c.platform, c.device_token, c.versions,
+      f.user AS focused_user
   `;
   query.append(subthreadSelects);
   query.append(SQL`
@@ -165,7 +171,7 @@ async function postMessageSend(
   `);
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
-    WHERE m.role != 0 AND f.user IS NULL AND
+    WHERE (m.role != 0 OR f.user IS NOT NULL) AND
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
       m.thread IN (${[...threadsToMessageIndices.keys()]})
   `);
@@ -176,12 +182,14 @@ async function postMessageSend(
     const userID = row.user.toString();
     const threadID = row.thread.toString();
     const deviceToken = row.device_token;
+    const focusedUser = !!row.focused_user;
     const { platform, versions } = row;
     let thisUserInfo = perUserInfo.get(userID);
     if (!thisUserInfo) {
       thisUserInfo = {
         devices: new Map(),
         threadIDs: new Set(),
+        notFocusedThreadIDs: new Set(),
         subthreadsCanNotify: new Set(),
         subthreadsCanSetToUnread: new Set(),
       };
@@ -215,9 +223,12 @@ async function postMessageSend(
       });
     }
     thisUserInfo.threadIDs.add(threadID);
+    if (!focusedUser) {
+      thisUserInfo.notFocusedThreadIDs.add(threadID);
+    }
   }
 
-  const pushInfo = {}, setUnreadPairs = [];
+  const pushInfo = {}, setUnreadPairs = [], messageInfosPerUser = {};
   for (let pair of perUserInfo) {
     const [ userID, preUserPushInfo ] = pair;
     const { subthreadsCanSetToUnread, subthreadsCanNotify } = preUserPushInfo;
@@ -226,7 +237,7 @@ async function postMessageSend(
       messageInfos: [],
     };
     const threadIDsToSetToUnread = new Set();
-    for (let threadID of preUserPushInfo.threadIDs) {
+    for (let threadID of preUserPushInfo.notFocusedThreadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
       for (let messageIndex of messageIndices) {
@@ -260,11 +271,24 @@ async function postMessageSend(
     for (let threadID of threadIDsToSetToUnread) {
       setUnreadPairs.push({ userID, threadID });
     }
+    const userMessageInfos = [];
+    for (let threadID of preUserPushInfo.threadIDs) {
+      const messageIndices = threadsToMessageIndices.get(threadID);
+      invariant(messageIndices, `indices should exist for thread ${threadID}`);
+      for (let messageIndex of messageIndices) {
+        const messageInfo = messageInfos[messageIndex];
+        userMessageInfos.push(messageInfo);
+      }
+    }
+    if (userMessageInfos.length > 0) {
+      messageInfosPerUser[userID] = userMessageInfos;
+    }
   }
 
   await Promise.all([
     sendPushNotifs(pushInfo),
     updateUnreadStatus(setUnreadPairs),
+    redisPublish(viewer, messageInfosPerUser),
   ]);
 }
 
@@ -292,6 +316,39 @@ async function updateUnreadStatus(
       unread: true,
     }))),
   ]);
+}
+
+async function redisPublish(
+  viewer: Viewer,
+  messageInfosPerUser: {[userID: string]: $ReadOnlyArray<RawMessageInfo>},
+) {
+  for (let userID in messageInfosPerUser) {
+    if (userID === viewer.userID) {
+      continue;
+    }
+    const messageInfos = messageInfosPerUser[userID];
+    publisher.sendMessage(
+      { userID },
+      {
+        type: redisMessageTypes.NEW_MESSAGES,
+        messages: messageInfos,
+      },
+    );
+  }
+  const viewerMessageInfos = messageInfosPerUser[viewer.userID];
+  if (!viewerMessageInfos) {
+    return;
+  }
+  const sessionIDs = await fetchOtherSessionsForViewer(viewer);
+  for (let sessionID of sessionIDs) {
+    publisher.sendMessage(
+      { userID: viewer.userID, sessionID },
+      {
+        type: redisMessageTypes.NEW_MESSAGES,
+        messages: viewerMessageInfos,
+      },
+    );
+  }
 }
 
 export default createMessages;
