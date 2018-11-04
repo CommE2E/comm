@@ -12,6 +12,7 @@ import {
   type ErrorServerSocketMessage,
   type AuthErrorServerSocketMessage,
   type PingClientSocketMessage,
+  type AckUpdatesClientSocketMessage,
   clientSocketMessageTypes,
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
@@ -124,6 +125,16 @@ const clientSocketMessageInputValidator = t.union([
       x => x === clientSocketMessageTypes.PING,
     ),
     id: t.Number,
+  }),
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.ACK_UPDATES',
+      x => x === clientSocketMessageTypes.ACK_UPDATES,
+    ),
+    id: t.Number,
+    payload: tShape({
+      currentAsOf: t.Number,
+    }),
   }),
 ]);
 
@@ -333,6 +344,8 @@ class Socket {
       return await this.handleActivityUpdatesClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.PING) {
       return await this.handlePingClientSocketMessage(message);
+    } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
+      return await this.handleAckUpdatesClientSocketMessage(message);
     }
     return [];
   }
@@ -569,6 +582,19 @@ class Socket {
       type: serverSocketMessageTypes.PONG,
       responseTo: message.id,
     }];
+  }
+
+  async handleAckUpdatesClientSocketMessage(
+    message: AckUpdatesClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+    const { currentAsOf } = message.payload;
+    await Promise.all([
+      deleteUpdatesBeforeTimeTargettingSession(viewer, currentAsOf),
+      commitSessionUpdate(viewer, { lastUpdate: currentAsOf }),
+    ]);
+    return [];
   }
 
   onRedisMessage = async (message: RedisMessage) => {
