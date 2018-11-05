@@ -498,7 +498,8 @@ class Socket {
     // Clients that support sockets always keep their server aware of their
     // device token, without needing any requests
     const filteredServerRequests = serverRequests.filter(
-      request => request.type !== serverRequestTypes.DEVICE_TOKEN,
+      request => request.type !== serverRequestTypes.DEVICE_TOKEN &&
+        request.type !== serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
     );
     if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
       // We send this message first since the STATE_SYNC triggers the client's

@@ -78,13 +78,12 @@ class RedisSubscriber {
     if (!message) {
       return;
     }
-    if (
-      message.type === redisMessageTypes.START_SUBSCRIPTION &&
-      message.instanceID === this.instanceID
-    ) {
-      return;
-    } else {
-      this.quit();
+    if (message.type === redisMessageTypes.START_SUBSCRIPTION) {
+      if (message.instanceID === this.instanceID) {
+        return;
+      } else {
+        this.quit();
+      }
     }
     this.onMessageCallback(message);
   }
