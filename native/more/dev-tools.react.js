@@ -171,6 +171,7 @@ class InnerDevTools extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#E9E9EF",
   },
   scrollView: {
     paddingTop: 24,

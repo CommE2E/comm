@@ -143,7 +143,10 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
       : <Text style={styles.saveText}>Delete thread</Text>;
     const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        style={styles.container}
+      >
         <View>
           <Text style={styles.warningText}>
             {`The thread "${threadInfo.uiName}" will be permanently deleted. `}
@@ -239,6 +242,9 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#E9E9EF",
+  },
   scrollView: {
     paddingTop: 24,
   },

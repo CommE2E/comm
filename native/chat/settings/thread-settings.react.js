@@ -562,6 +562,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     return (
       <FlatList
         data={listData}
+        style={styles.container}
         contentContainerStyle={styles.flatList}
         renderItem={this.renderItem}
       />
@@ -716,6 +717,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#E9E9EF",
+  },
   flatList: {
     paddingVertical: 16,
   },

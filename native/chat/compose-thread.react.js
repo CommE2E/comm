@@ -496,6 +496,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#E9E9EF",
   },
   parentThreadRow: {
     flexDirection: 'row',

@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: "#E9E9EF",
   },
   searchContainer: {
     backgroundColor: '#F6F6F6',

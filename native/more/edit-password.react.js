@@ -121,7 +121,10 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
       ? <ActivityIndicator size="small" color="white" />
       : <Text style={styles.saveText}>Save</Text>;
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        style={styles.container}
+      >
         <Text style={styles.header}>CURRENT PASSWORD</Text>
         <View style={styles.section}>
           <View style={styles.row}>
@@ -343,6 +346,9 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#E9E9EF",
+  },
   scrollView: {
     paddingTop: 24,
   },
