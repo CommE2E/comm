@@ -24,6 +24,7 @@ import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
 
 import t from 'tcomb';
 import invariant from 'invariant';
+import _debounce from 'lodash/debounce';
 
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
@@ -151,7 +152,6 @@ class Socket {
   redis: ?RedisSubscriber;
 
   updateActivityTimeIntervalID: ?IntervalID;
-  pingTimeoutID: ?TimeoutID;
 
   constructor(ws: WebSocket, httpRequest: $Request) {
     this.ws = ws;
@@ -313,7 +313,7 @@ class Socket {
       clearInterval(this.updateActivityTimeIntervalID);
       this.updateActivityTimeIntervalID = null;
     }
-    this.clearTimeout();
+    this.resetTimeout.cancel();
     if (this.viewer && this.viewer.hasSessionInfo) {
       await deleteActivityForViewerSession(this.viewer);
     }
@@ -681,21 +681,13 @@ class Socket {
     handleAsyncPromise(updateActivityTime(viewer));
   }
 
-  clearTimeout() {
-    if (this.pingTimeoutID) {
-      clearTimeout(this.pingTimeoutID);
-      this.pingTimeoutID = null;
-    }
-  }
-
-  resetTimeout() {
-    this.clearTimeout();
-    this.pingTimeoutID = setTimeout(this.timeout, serverRequestSocketTimeout);
-  }
-
-  timeout = () => {
-    this.ws.terminate();
-  }
+  // The Socket will timeout by calling this.ws.terminate()
+  // serverRequestSocketTimeout milliseconds after the last
+  // time resetTimeout is called
+  resetTimeout = _debounce(
+    () => this.ws.terminate(),
+    serverRequestSocketTimeout,
+  )
 
 }
 
