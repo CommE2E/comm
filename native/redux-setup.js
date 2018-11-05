@@ -30,7 +30,7 @@ import invariant from 'invariant';
 import thunk from 'redux-thunk';
 import { createStore as defaultCreateStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { persistStore, persistReducer } from 'redux-persist';
+import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
 import { NavigationActions, StackActions } from 'react-navigation';
 import {
@@ -363,7 +363,10 @@ function validateState(
     };
   }
 
-  if (!state.currentUserInfo || state.currentUserInfo.anonymous) {
+  if (
+    action.type !== REHYDRATE &&
+    (!state.currentUserInfo || state.currentUserInfo.anonymous)
+  ) {
     const navInfo = resetNavInfoAndEnsureLoggedOutModalPresence(state.navInfo);
     if (navInfo.navigationState !== state.navInfo.navigationState) {
       state = { ...state, navInfo };
