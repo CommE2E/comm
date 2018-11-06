@@ -2,17 +2,8 @@
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { type AppState, type NavInfo, navInfoPropType } from './redux-setup';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { type VerifyField, verifyField } from 'lib/types/verify-types';
-import {
-  type CalendarQuery,
-  type CalendarQueryUpdateResult,
-  calendarQueryPropType,
-  type CalendarQueryUpdateStartingPayload,
-} from 'lib/types/entry-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -26,11 +17,9 @@ import classNames from 'classnames';
 import fontawesome from '@fortawesome/fontawesome';
 
 import { getDate } from 'lib/utils/date-utils';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
-  updateCalendarQuery,
 } from 'lib/actions/entry-actions';
 import {
   createLoadingStatusSelector,
@@ -38,9 +27,6 @@ import {
 } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import { registerConfig } from 'lib/utils/config';
-import {
-  includeDeletedSelector,
-} from 'lib/selectors/calendar-filter-selectors';
 import {
   mostRecentReadThreadSelector,
   unreadCount,
@@ -90,22 +76,13 @@ type Props = {
   navInfo: NavInfo,
   verifyField: ?VerifyField,
   entriesLoadingStatus: LoadingStatus,
-  currentCalendarQuery: () => CalendarQuery,
   loggedIn: bool,
-  includeDeleted: bool,
   mostRecentReadThread: ?string,
   activeThreadCurrentlyUnread: bool,
   viewerID: ?string,
   unreadCount: number,
-  actualizedCalendarQuery: CalendarQuery,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  updateCalendarQuery: (
-    calendarQuery: CalendarQuery,
-    reduxAlreadyUpdated?: bool,
-  ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
   currentModal: ?React.Node,
@@ -119,27 +96,16 @@ class App extends React.PureComponent<Props, State> {
     navInfo: navInfoPropType.isRequired,
     verifyField: PropTypes.number,
     entriesLoadingStatus: PropTypes.string.isRequired,
-    currentCalendarQuery: PropTypes.func.isRequired,
     loggedIn: PropTypes.bool.isRequired,
-    includeDeleted: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
     activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     unreadCount: PropTypes.number.isRequired,
-    actualizedCalendarQuery: calendarQueryPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    updateCalendarQuery: PropTypes.func.isRequired,
   };
   state = {
     currentModal: null,
   };
-  actualizedCalendarQuery: CalendarQuery;
-
-  constructor(props: Props) {
-    super(props);
-    this.actualizedCalendarQuery = props.actualizedCalendarQuery;
-  }
 
   componentDidMount() {
     if (this.props.navInfo.verify) {
@@ -209,12 +175,6 @@ class App extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (
-      nextProps.actualizedCalendarQuery !== this.props.actualizedCalendarQuery
-    ) {
-      this.actualizedCalendarQuery = nextProps.actualizedCalendarQuery;
-    }
-
     if (nextProps.loggedIn) {
       if (nextProps.location.pathname !== this.props.location.pathname) {
         const newNavInfo = navInfoFromURL(
@@ -232,20 +192,6 @@ class App extends React.PureComponent<Props, State> {
         if (newURL !== nextProps.location.pathname) {
           history.push(newURL);
         }
-      }
-
-      const calendarQuery = nextProps.currentCalendarQuery();
-      if (
-        !_isEqual(calendarQuery)(this.actualizedCalendarQuery) &&
-        !_isEqual(calendarQuery)(nextProps.actualizedCalendarQuery)
-      ) {
-        this.actualizedCalendarQuery = calendarQuery;
-        nextProps.dispatchActionPromise(
-          updateCalendarQueryActionTypes,
-          nextProps.updateCalendarQuery(calendarQuery, true),
-          undefined,
-          ({ calendarQuery }: CalendarQueryUpdateStartingPayload),
-        );
       }
     }
 
@@ -415,17 +361,15 @@ export default connect(
         fetchEntriesLoadingStatusSelector(state),
         updateCalendarQueryLoadingStatusSelector(state),
       ),
-      currentCalendarQuery: currentCalendarQuery(state),
       loggedIn: !!(state.currentUserInfo &&
         !state.currentUserInfo.anonymous && true),
-      includeDeleted: includeDeletedSelector(state),
       mostRecentReadThread: mostRecentReadThreadSelector(state),
       activeThreadCurrentlyUnread: !activeChatThreadID ||
         state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       unreadCount: unreadCount(state),
-      actualizedCalendarQuery: state.entryStore.actualizedCalendarQuery,
     };
   },
-  { updateCalendarQuery },
+  null,
+  true,
 )(App);
