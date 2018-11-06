@@ -636,7 +636,7 @@ async function checkState(
   }
   const fetchedData = await promiseAll(fetchPromises);
 
-  const hashesToCheck = {}, stateChanges = {};
+  const hashesToCheck = {}, failUnmentioned = {}, stateChanges = {};
   for (let key of invalidKeys) {
     if (key === "threadInfos") {
       // Instead of returning all threadInfos, we want to narrow down and figure
@@ -645,6 +645,7 @@ async function checkState(
       for (let threadID in threadInfos) {
         hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
       }
+      failUnmentioned.threadInfos = true;
     } else if (key === "entryInfos") {
       // Instead of returning all entryInfos, we want to narrow down and figure
       // out which entryInfos don't match first
@@ -656,23 +657,25 @@ async function checkState(
         invariant(entryID, "should be set");
         hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
       }
+      failUnmentioned.entryInfos = true;
     } else if (key === "currentUserInfo") {
       stateChanges.currentUserInfo = fetchedData.currentUserInfo;
     } else if (key.startsWith("threadInfo|")) {
-      if (!stateChanges.rawThreadInfos) {
-        stateChanges.rawThreadInfos = [];
-      }
       const [ ignore, threadID ] = key.split('|');
       const { threadInfos } = fetchedData.threadsResult;
       const threadInfo = threadInfos[threadID];
       if (!threadInfo) {
+        if (!stateChanges.deleteThreadIDs) {
+          stateChanges.deleteThreadIDs = [];
+        }
+        stateChanges.deleteThreadIDs.push(threadID);
         continue;
+      }
+      if (!stateChanges.rawThreadInfos) {
+        stateChanges.rawThreadInfos = [];
       }
       stateChanges.rawThreadInfos.push(threadInfo);
     } else if (key.startsWith("entryInfo|")) {
-      if (!stateChanges.rawEntryInfos) {
-        stateChanges.rawEntryInfos = [];
-      }
       const [ ignore, entryID ] = key.split('|');
       const rawEntryInfos = fetchedData.entriesResult
         ? fetchedData.entriesResult.rawEntryInfos
@@ -681,7 +684,14 @@ async function checkState(
         candidate => candidate.id === entryID,
       );
       if (!entryInfo) {
+        if (!stateChanges.deleteEntryIDs) {
+          stateChanges.deleteEntryIDs = [];
+        }
+        stateChanges.deleteEntryIDs.push(entryID);
         continue;
+      }
+      if (!stateChanges.rawEntryInfos) {
+        stateChanges.rawEntryInfos = [];
       }
       stateChanges.rawEntryInfos.push(entryInfo);
     }
@@ -736,6 +746,7 @@ async function checkState(
   const checkStateRequest = {
     type: serverRequestTypes.CHECK_STATE,
     hashesToCheck,
+    failUnmentioned,
     stateChanges,
   };
   if (Object.keys(hashesToCheck).length === 0) {
