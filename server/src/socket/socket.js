@@ -17,7 +17,11 @@ import {
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
 } from 'lib/types/socket-types';
-import { cookieSources } from 'lib/types/session-types';
+import {
+  cookieSources,
+  sessionCheckFrequency,
+  stateCheckInactivityActivationInterval,
+} from 'lib/types/session-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { serverRequestTypes } from 'lib/types/request-types';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
@@ -144,6 +148,11 @@ function onConnection(ws: WebSocket, req: $Request) {
   new Socket(ws, req);
 }
 
+type StateCheckConditions = {|
+  activityRecentlyOccurred: bool,
+  stateCheckOngoing: bool,
+|};
+
 class Socket {
 
   ws: WebSocket;
@@ -152,6 +161,12 @@ class Socket {
   redis: ?RedisSubscriber;
 
   updateActivityTimeIntervalID: ?IntervalID;
+
+  stateCheckConditions: StateCheckConditions = {
+    activityRecentlyOccurred: true,
+    stateCheckOngoing: false,
+  };
+  stateCheckTimeoutID: ?TimeoutID;
 
   constructor(ws: WebSocket, httpRequest: $Request) {
     this.ws = ws;
@@ -237,6 +252,7 @@ class Socket {
         if (responseTo !== null) {
           errorMessage.responseTo = responseTo;
         }
+        this.markActivityOccurred();
         this.sendMessage(errorMessage);
         return;
       }
@@ -304,6 +320,8 @@ class Socket {
         this.ws.close(4102, error.message);
       } else if (error.message === "session_mutated_from_socket") {
         this.ws.close(4103, error.message);
+      } else {
+        this.markActivityOccurred();
       }
     }
   }
@@ -313,7 +331,9 @@ class Socket {
       clearInterval(this.updateActivityTimeIntervalID);
       this.updateActivityTimeIntervalID = null;
     }
+    this.clearStateCheckTimeout();
     this.resetTimeout.cancel();
+    this.debouncedAfterActivity.cancel();
     if (this.viewer && this.viewer.hasSessionInfo) {
       await deleteActivityForViewerSession(this.viewer);
     }
@@ -337,14 +357,18 @@ class Socket {
     message: ClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
     if (message.type === clientSocketMessageTypes.INITIAL) {
+      this.markActivityOccurred();
       return await this.handleInitialClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.RESPONSES) {
+      this.markActivityOccurred();
       return await this.handleResponsesClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
+      this.markActivityOccurred();
       return await this.handleActivityUpdatesClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.PING) {
       return await this.handlePingClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
+      this.markActivityOccurred();
       return await this.handleAckUpdatesClientSocketMessage(message);
     }
     return [];
@@ -380,7 +404,7 @@ class Socket {
     const threadSelectionCriteria = { threadCursors, joinedThreads: true };
     const [
       fetchMessagesResult,
-      { serverRequests, stateCheckStatus, activityUpdateResult },
+      { serverRequests, activityUpdateResult },
     ] = await Promise.all([
       fetchMessageInfosSince(
         viewer,
@@ -440,6 +464,11 @@ class Socket {
         payload,
       });
     } else {
+      const {
+        sessionUpdate,
+        deltaEntryInfoResult,
+      } = sessionInitializationResult;
+
       const promises = {};
       promises.activityUpdate = updateActivityTime(viewer);
       promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
@@ -451,10 +480,8 @@ class Socket {
         oldUpdatesCurrentAsOf,
         calendarQuery,
       );
-      if (stateCheckStatus) {
-        promises.stateCheck = checkState(viewer, stateCheckStatus, calendarQuery);
-      }
-      const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
+      promises.sessionUpdate = commitSessionUpdate(viewer, sessionUpdate);
+      const { fetchUpdateResult } = await promiseAll(promises);
 
       const updateUserInfos = fetchUpdateResult.userInfos;
       const { updateInfos } = fetchUpdateResult;
@@ -467,16 +494,6 @@ class Socket {
         currentAsOf: newUpdatesCurrentAsOf,
       };
 
-      let sessionUpdate = sessionInitializationResult.sessionUpdate;
-      if (stateCheck && stateCheck.sessionUpdate) {
-        sessionUpdate = { ...sessionUpdate, ...stateCheck.sessionUpdate };
-      }
-      await commitSessionUpdate(viewer, sessionUpdate);
-
-      if (stateCheck && stateCheck.checkStateRequest) {
-        serverRequests.push(stateCheck.checkStateRequest);
-      }
-
       responses.push({
         type: serverSocketMessageTypes.STATE_SYNC,
         responseTo: message.id,
@@ -484,12 +501,11 @@ class Socket {
           type: stateSyncPayloadTypes.INCREMENTAL,
           messagesResult,
           updatesResult,
-          deltaEntryInfos:
-            sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
+          deltaEntryInfos: deltaEntryInfoResult.rawEntryInfos,
           userInfos: values({
             ...fetchMessagesResult.userInfos,
             ...updateUserInfos,
-            ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+            ...deltaEntryInfoResult.userInfos,
           }),
         },
       });
@@ -545,6 +561,7 @@ class Socket {
       );
       if (sessionUpdate) {
         await commitSessionUpdate(viewer, sessionUpdate);
+        this.setStateCheckConditions({ stateCheckOngoing: false });
       }
       if (checkStateRequest) {
         serverRequests.push(checkStateRequest);
@@ -626,6 +643,7 @@ class Socket {
         );
         return;
       }
+      this.markActivityOccurred();
       this.sendMessage({
         type: serverSocketMessageTypes.UPDATES,
         payload: {
@@ -651,6 +669,7 @@ class Socket {
         );
         return;
       }
+      this.markActivityOccurred();
       this.sendMessage({
         type: serverSocketMessageTypes.MESSAGES,
         payload: {
@@ -673,6 +692,7 @@ class Socket {
       this.updateActivityTime,
       focusedTableRefreshFrequency,
     );
+    this.handleStateCheckConditionsUpdate();
   }
 
   updateActivityTime = () => {
@@ -688,6 +708,77 @@ class Socket {
     () => this.ws.terminate(),
     serverRequestSocketTimeout,
   )
+
+  debouncedAfterActivity = _debounce(
+    () => this.setStateCheckConditions({ activityRecentlyOccurred: false }),
+    stateCheckInactivityActivationInterval,
+  )
+
+  markActivityOccurred = () => {
+    this.setStateCheckConditions({ activityRecentlyOccurred: true });
+    this.debouncedAfterActivity();
+  }
+
+  clearStateCheckTimeout() {
+    if (this.stateCheckTimeoutID) {
+      clearTimeout(this.stateCheckTimeoutID);
+      this.stateCheckTimeoutID = null;
+    }
+  }
+
+  setStateCheckConditions(newConditions: $Shape<StateCheckConditions>) {
+    this.stateCheckConditions = {
+      ...this.stateCheckConditions,
+      ...newConditions,
+    };
+    this.handleStateCheckConditionsUpdate();
+  }
+
+  get stateCheckCanStart() {
+    return Object.values(this.stateCheckConditions).every(cond => !cond);
+  }
+
+  handleStateCheckConditionsUpdate() {
+    if (!this.stateCheckCanStart) {
+      this.clearStateCheckTimeout();
+      return;
+    }
+    if (this.stateCheckTimeoutID) {
+      return;
+    }
+    const { viewer } = this;
+    if (!viewer) {
+      return;
+    }
+    const timeUntilStateCheck =
+      viewer.sessionLastValidated + sessionCheckFrequency - Date.now();
+    if (timeUntilStateCheck <= 0) {
+      this.initiateStateCheck();
+    }
+    this.stateCheckTimeoutID = setTimeout(
+      this.initiateStateCheck,
+      timeUntilStateCheck,
+    );
+  }
+
+  initiateStateCheck = async () => {
+    this.setStateCheckConditions({ stateCheckOngoing: true });
+
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+
+    const { checkStateRequest } = await checkState(
+      viewer,
+      { status: "state_check" },
+      viewer.calendarQuery,
+    );
+    invariant(checkStateRequest, "should be set");
+
+    this.sendMessage({
+      type: serverSocketMessageTypes.REQUESTS,
+      payload: { serverRequests: [ checkStateRequest ] },
+    });
+  }
 
 }
 
