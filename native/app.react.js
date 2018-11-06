@@ -19,6 +19,10 @@ import {
   notifPermissionAlertInfoPropType,
 } from './push/alerts';
 import type { RawMessageInfo } from 'lib/types/message-types';
+import {
+  type ConnectionInfo,
+  connectionInfoPropType,
+} from 'lib/types/socket-types';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -112,6 +116,7 @@ type Props = {
   rawThreadInfos: {[id: string]: RawThreadInfo},
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   updatesCurrentAsOf: number,
+  connection: ConnectionInfo,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -134,6 +139,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
+    connection: connectionInfoPropType.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -319,7 +325,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       AppWithNavigationState.clearNotifsOfThread(nextProps);
     }
 
-    if (nextProps.unreadCount !== this.props.unreadCount) {
+    if (
+      nextProps.connection.status === "connected" &&
+      (this.props.connection.status !== "connected" ||
+        nextProps.unreadCount !== this.props.unreadCount)
+    ) {
       AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
     }
 
@@ -672,6 +682,7 @@ const ConnectedAppWithNavigationState = connect(
       rawThreadInfos: state.threadStore.threadInfos,
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
+      connection: state.connection,
     };
   },
   { setDeviceToken },
