@@ -754,11 +754,12 @@ class Socket {
       viewer.sessionLastValidated + sessionCheckFrequency - Date.now();
     if (timeUntilStateCheck <= 0) {
       this.initiateStateCheck();
+    } else {
+      this.stateCheckTimeoutID = setTimeout(
+        this.initiateStateCheck,
+        timeUntilStateCheck,
+      );
     }
-    this.stateCheckTimeoutID = setTimeout(
-      this.initiateStateCheck,
-      timeUntilStateCheck,
-    );
   }
 
   initiateStateCheck = async () => {
