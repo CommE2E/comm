@@ -1,10 +1,11 @@
 // @flow
 
-import type {
-  SaveEntryRequest,
-  SaveEntryResponse,
-  RawEntryInfo,
-  CalendarQuery,
+import {
+  type SaveEntryRequest,
+  type SaveEntryResponse,
+  type RawEntryInfo,
+  type CalendarQuery,
+  defaultCalendarQuery,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
 import { updateTypes, type CreateUpdatesResponse } from 'lib/types/update-types';
@@ -18,7 +19,6 @@ import { messageTypes } from 'lib/types/message-types';
 import { dateString } from 'lib/utils/date-utils';
 import {
   rawEntryInfoWithinCalendarQuery,
-  defaultCalendarQuery,
   calendarQueryDifference,
 } from 'lib/shared/entry-utils';
 import { values } from 'lib/utils/objects';

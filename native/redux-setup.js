@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadStore } from 'lib/types/thread-types';
-import type { EntryStore } from 'lib/types/entry-types';
+import { type EntryStore, defaultCalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -45,7 +45,6 @@ import {
   saveMessagesActionType,
 } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
-import { defaultCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import {

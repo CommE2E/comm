@@ -14,10 +14,11 @@ import {
   defaultNumberPerThread,
   type FetchMessageInfosResult,
 } from 'lib/types/message-types';
-import type {
-  RawEntryInfo,
-  FetchEntryInfosResponse,
-  CalendarQuery,
+import {
+  type RawEntryInfo,
+  type FetchEntryInfosResponse,
+  type CalendarQuery,
+  defaultCalendarQuery,
 } from 'lib/types/entry-types';
 import { type UpdateTarget, redisMessageTypes } from 'lib/types/redis-types';
 
@@ -26,10 +27,7 @@ import _uniq from 'lodash/fp/uniq';
 import _intersection from 'lodash/fp/intersection';
 
 import { promiseAll } from 'lib/utils/promises';
-import {
-  defaultCalendarQuery,
-  usersInRawEntryInfos,
-} from 'lib/shared/entry-utils';
+import { usersInRawEntryInfos } from 'lib/shared/entry-utils';
 import { usersInThreadInfo } from 'lib/shared/thread-utils';
 import { usersInMessageInfos } from 'lib/shared/message-utils';
 import {
