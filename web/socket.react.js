@@ -13,7 +13,10 @@ import {
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 } from './selectors/socket-selectors';
-import { activeThreadSelector } from './selectors/nav-selectors';
+import {
+  activeThreadSelector,
+  webCalendarQuery,
+} from './selectors/nav-selectors';
 
 export default connect(
   (state: AppState) => {
@@ -32,6 +35,7 @@ export default connect(
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       connection: state.connection,
+      currentCalendarQuery: webCalendarQuery(state),
     };
   },
   { logOut },

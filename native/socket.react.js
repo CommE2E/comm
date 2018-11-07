@@ -16,6 +16,7 @@ import {
 import {
   activeThreadSelector,
   appLoggedInSelector,
+  nativeCalendarQuery,
 } from './selectors/nav-selectors';
 
 export default connect(
@@ -35,6 +36,7 @@ export default connect(
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       connection: state.connection,
+      currentCalendarQuery: nativeCalendarQuery(state),
     };
   },
   { logOut },
