@@ -2,16 +2,24 @@
 
 import type { AppState } from '../redux-setup';
 import type { NavigationState } from 'react-navigation';
+import type { CalendarFilter } from 'lib/types/filter-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 import _memoize from 'lodash/memoize';
+
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import {
+  nonThreadCalendarFiltersSelector,
+} from 'lib/selectors/calendar-filter-selectors';
 
 import {
   AppRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatRouteName,
+  CalendarRouteName,
   accountModals,
 } from '../navigation/route-names';
 import {
@@ -91,6 +99,34 @@ const appCanRespondToBackButtonSelector = createSelector(
   },
 );
 
+const calendarActiveSelector = createActiveTabSelector(CalendarRouteName);
+const nativeCalendarQuery = createSelector(
+  currentCalendarQuery,
+  calendarActiveSelector,
+  (
+    calendarQuery: (calendarActive: bool) => CalendarQuery,
+    calendarActive: bool,
+  ) => () => calendarQuery(calendarActive),
+);
+
+const nonThreadCalendarQuery = createSelector(
+  nativeCalendarQuery,
+  nonThreadCalendarFiltersSelector,
+  (
+    calendarQuery: () => CalendarQuery,
+    filters: $ReadOnlyArray<CalendarFilter>,
+  ) => {
+    return (): CalendarQuery => {
+      const query = calendarQuery();
+      return {
+        startDate: query.startDate,
+        endDate: query.endDate,
+        filters,
+      };
+    };
+  },
+);
+
 export {
   createIsForegroundSelector,
   appLoggedInSelector,
@@ -98,4 +134,6 @@ export {
   createActiveTabSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,
+  nativeCalendarQuery,
+  nonThreadCalendarQuery,
 };

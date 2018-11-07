@@ -30,15 +30,15 @@ import {
   filteredThreadIDsSelector,
   includeDeletedSelector,
 } from 'lib/selectors/calendar-filter-selectors';
-import {
-  filterThreadInfos,
-  filterThreadSearchIndex,
-} from 'lib/selectors/calendar-selectors';
 import SearchIndex from 'lib/shared/search-index';
 
 import css from './filter-panel.css';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { MagnifyingGlass } from '../vectors.react';
+import {
+  webFilterThreadInfos,
+  webFilterThreadSearchIndex,
+} from '../selectors/calendar-selectors';
 
 type Props = {|
   setModal: (modal: ?React.Node) => void,
@@ -421,8 +421,8 @@ class Category extends React.PureComponent<CategoryProps> {
 export default connect(
   (state: AppState) => ({
     filteredThreadIDs: filteredThreadIDsSelector(state),
-    filterThreadInfos: filterThreadInfos(state),
-    filterThreadSearchIndex: filterThreadSearchIndex(state),
+    filterThreadInfos: webFilterThreadInfos(state),
+    filterThreadSearchIndex: webFilterThreadSearchIndex(state),
     includeDeleted: includeDeletedSelector(state),
   }),
   null,

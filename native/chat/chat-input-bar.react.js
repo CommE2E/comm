@@ -49,9 +49,9 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;

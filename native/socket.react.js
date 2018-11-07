@@ -3,16 +3,15 @@
 import type { AppState } from './redux-setup';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  queuedClientResponsesSelector,
-  sessionStateFuncSelector,
-} from 'lib/selectors/socket-selectors';
+import { queuedClientResponsesSelector } from 'lib/selectors/socket-selectors';
 import { logOut } from 'lib/actions/user-actions';
 import Socket from 'lib/socket/socket.react';
 
 import {
   openSocketSelector,
   sessionIdentificationSelector,
+  nativeGetClientResponsesSelector,
+  nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors';
 import {
   activeThreadSelector,
@@ -29,8 +28,9 @@ export default connect(
       active,
       openSocket: openSocketSelector(state),
       queuedClientResponses: queuedClientResponsesSelector(state),
+      getClientResponses: nativeGetClientResponsesSelector(state),
       activeThread: active ? activeThreadSelector(state) : null,
-      sessionStateFunc: sessionStateFuncSelector(state),
+      sessionStateFunc: nativeSessionStateFuncSelector(state),
       sessionIdentification: sessionIdentificationSelector(state),
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,

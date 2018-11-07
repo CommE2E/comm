@@ -20,11 +20,11 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 import ForgotPasswordModal from './forgot-password-modal.react';
+import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 
 type Props = {
   setModal: (modal: ?React.Node) => void,
@@ -247,7 +247,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 export default connect(
   (state: AppState) => ({
     inputDisabled: loadingStatusSelector(state) === "loading",
-    logInExtraInfo: logInExtraInfoSelector(state),
+    logInExtraInfo: webLogInExtraInfoSelector(state),
   }),
   { logIn },
 )(LogInModal);

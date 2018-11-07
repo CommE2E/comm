@@ -31,7 +31,6 @@ import {
   resetPassword,
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput } from './modal-components.react';
 import {
@@ -39,6 +38,7 @@ import {
   PanelOnePasswordButton,
   Panel,
 } from './panel-components.react';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 type Props = {
   verifyCode: string,
@@ -294,7 +294,7 @@ const loadingStatusSelector
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: logInExtraInfoSelector(state),
+    logInExtraInfo: nativeLogInExtraInfoSelector(state),
   }),
   { resetPassword },
 )(ResetPasswordPanel);

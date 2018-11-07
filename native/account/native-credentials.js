@@ -14,9 +14,9 @@ import {
 import URL from 'url-parse';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { store } from '../redux-setup';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 type Credentials = {|
   username: string,
@@ -223,7 +223,7 @@ async function resolveInvalidatedCookie(
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
-    const extraInfo = logInExtraInfoSelector(store.getState())();
+    const extraInfo = nativeLogInExtraInfoSelector(store.getState())();
     const { calendarQuery } = extraInfo;
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
@@ -243,7 +243,7 @@ async function resolveInvalidatedCookie(
   }
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
-    const extraInfo = logInExtraInfoSelector(store.getState())();
+    const extraInfo = nativeLogInExtraInfoSelector(store.getState())();
     const { calendarQuery } = extraInfo;
     await dispatchRecoveryAttempt(
       logInActionTypes,

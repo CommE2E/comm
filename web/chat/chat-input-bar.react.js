@@ -34,12 +34,12 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 import { getNewLocalID } from 'lib/utils/local-ids';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 
 type Props = {|
   threadInfo: ThreadInfo,

@@ -40,7 +40,6 @@ import {
 import { ServerError } from 'lib/utils/errors';
 import { dateString } from 'lib/utils/date-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import css from '../style.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -49,6 +48,7 @@ import ConcurrentModificationModal from
 import HistoryModal from '../modals/history/history-modal.react';
 import { HistoryVector, DeleteVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 
 type Props = {
   innerRef: (key: string, me: Entry) => void,

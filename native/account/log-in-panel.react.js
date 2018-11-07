@@ -38,7 +38,6 @@ import {
   logIn,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput, usernamePlaceholder } from './modal-components.react';
 import {
@@ -50,6 +49,7 @@ import {
   fetchNativeCredentials,
   setNativeCredentials,
 } from './native-credentials';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 export type LogInState = {
   usernameOrEmailInputText: string,
@@ -356,7 +356,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: logInExtraInfoSelector(state),
+    logInExtraInfo: nativeLogInExtraInfoSelector(state),
   }),
   { logIn },
 )(LogInPanel);

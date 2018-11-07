@@ -27,10 +27,10 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import css from '../../style.css';
 import LoadingIndicator from '../../loading-indicator.react';
+import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 
 type Props = {
   entryInfo: EntryInfo,

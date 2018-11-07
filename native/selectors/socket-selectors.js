@@ -1,11 +1,22 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { SessionIdentification } from 'lib/types/session-types';
+import type {
+  SessionIdentification,
+  SessionState,
+} from 'lib/types/session-types';
+import type { ServerRequest, ClientResponse } from 'lib/types/request-types';
 
 import { createSelector } from 'reselect';
 
 import { createOpenSocketFunction } from 'lib/shared/socket-utils';
+import {
+  getClientResponsesSelector,
+  sessionStateFuncSelector,
+} from 'lib/selectors/socket-selectors';
+
+import { createActiveTabSelector } from './nav-selectors';
+import { CalendarRouteName } from '../navigation/route-names';
 
 const openSocketSelector = createSelector(
   (state: AppState) => state.urlPrefix,
@@ -23,7 +34,33 @@ const sessionIdentificationSelector = createSelector(
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
 
+const calendarActiveSelector = createActiveTabSelector(CalendarRouteName);
+
+const nativeGetClientResponsesSelector = createSelector(
+  getClientResponsesSelector,
+  calendarActiveSelector,
+  (
+    getClientResponsesFunc: (
+      calendarActive: bool,
+      serverRequests: $ReadOnlyArray<ServerRequest>,
+    ) => $ReadOnlyArray<ClientResponse>,
+    calendarActive: bool,
+  ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
+    getClientResponsesFunc(calendarActive, serverRequests),
+);
+
+const nativeSessionStateFuncSelector = createSelector(
+  sessionStateFuncSelector,
+  calendarActiveSelector,
+  (
+    sessionStateFunc: (calendarActive: bool) => SessionState,
+    calendarActive: bool,
+  ) => () => sessionStateFunc(calendarActive),
+);
+
 export {
   openSocketSelector,
   sessionIdentificationSelector,
+  nativeGetClientResponsesSelector,
+  nativeSessionStateFuncSelector,
 };

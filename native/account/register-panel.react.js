@@ -35,7 +35,6 @@ import {
   validUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-regexes';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { TextInput } from './modal-components.react';
 import {
@@ -44,6 +43,7 @@ import {
   Panel,
 } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 export type RegisterState = {
   usernameInputText: string,
@@ -439,7 +439,7 @@ const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: logInExtraInfoSelector(state),
+    logInExtraInfo: nativeLogInExtraInfoSelector(state),
   }),
   { register },
 )(RegisterPanel);

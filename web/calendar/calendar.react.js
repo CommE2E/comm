@@ -30,7 +30,6 @@ import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
 } from 'lib/actions/entry-actions';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Day from './day.react';
 import {
@@ -40,6 +39,7 @@ import {
 import css from '../style.css';
 import { canonicalURLFromReduxState } from '../url-utils';
 import FilterPanel from './filter-panel.react';
+import { webCalendarQuery } from '../selectors/nav-selectors';
 
 type Props = {
   setModal: (modal: ?React.Node) => void,
@@ -276,7 +276,7 @@ export default connect(
     month: monthAssertingSelector(state),
     daysToEntries: currentDaysToEntries(state),
     navInfo: state.navInfo,
-    currentCalendarQuery: currentCalendarQuery(state),
+    currentCalendarQuery: webCalendarQuery(state),
   }),
   { updateCalendarQuery },
 )(Calendar);

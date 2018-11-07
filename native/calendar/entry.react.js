@@ -62,7 +62,6 @@ import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
-import { nonThreadCalendarQuery } from 'lib/selectors/nav-selectors';
 
 import Button from '../components/button.react';
 import {
@@ -73,6 +72,7 @@ import {
 import {
   createIsForegroundSelector,
   foregroundKeySelector,
+  nonThreadCalendarQuery,
 } from '../selectors/nav-selectors';
 
 type Props = {

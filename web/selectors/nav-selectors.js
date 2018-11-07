@@ -1,9 +1,16 @@
 // @flow
 
 import type { AppState, NavInfo } from '../redux-setup';
+import type { CalendarFilter } from 'lib/types/filter-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
+
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import {
+  nonThreadCalendarFiltersSelector,
+} from 'lib/selectors/calendar-filter-selectors';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
@@ -75,6 +82,33 @@ function activeThreadSelector(state: AppState): ?string {
   return activeThreadFromNavInfo(state.navInfo);
 }
 
+const webCalendarQuery = createSelector(
+  currentCalendarQuery,
+  (state: AppState) => state.navInfo.tab === "calendar",
+  (
+    calendarQuery: (calendarActive: bool) => CalendarQuery,
+    calendarActive: bool,
+  ) => () => calendarQuery(calendarActive),
+);
+
+const nonThreadCalendarQuery = createSelector(
+  webCalendarQuery,
+  nonThreadCalendarFiltersSelector,
+  (
+    calendarQuery: () => CalendarQuery,
+    filters: $ReadOnlyArray<CalendarFilter>,
+  ) => {
+    return (): CalendarQuery => {
+      const query = calendarQuery();
+      return {
+        startDate: query.startDate,
+        endDate: query.endDate,
+        filters,
+      };
+    };
+  },
+);
+
 export {
   yearExtractor,
   yearAssertingSelector,
@@ -82,4 +116,6 @@ export {
   monthAssertingSelector,
   activeThreadFromNavInfo,
   activeThreadSelector,
+  webCalendarQuery,
+  nonThreadCalendarQuery,
 };

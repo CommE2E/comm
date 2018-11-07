@@ -8,7 +8,7 @@ import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { nativeCalendarQuery } from './selectors/nav-selectors';
 import version from 'lib/facts/version';
 
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
@@ -70,7 +70,7 @@ const migrations = {
     entryStore: {
       ...state.entryStore,
       inconsistencyResponses: [],
-      actualizedCalendarQuery: currentCalendarQuery(state)(),
+      actualizedCalendarQuery: nativeCalendarQuery(state)(),
     },
   }),
   [8]: (state: AppState) => ({
