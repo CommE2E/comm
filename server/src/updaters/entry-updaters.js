@@ -12,6 +12,7 @@ import { updateTypes, type CreateUpdatesResponse } from 'lib/types/update-types'
 import type { SessionUpdate } from './session-updaters';
 
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -265,9 +266,9 @@ function compareNewCalendarQuery(
     oldCalendarQuery,
     newCalendarQuery,
   );
-  const sessionUpdate = difference.length > 0
-    ? { query: newCalendarQuery }
-    : {};
+  const sessionUpdate = _isEqual(oldCalendarQuery)(newCalendarQuery)
+    ? {}
+    : { query: newCalendarQuery };
   return { difference, oldCalendarQuery, sessionUpdate };
 }
 
