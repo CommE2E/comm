@@ -20,6 +20,7 @@ import {
   MessageListRouteName,
   ChatRouteName,
   CalendarRouteName,
+  ThreadPickerModalRouteName,
   accountModals,
 } from '../navigation/route-names';
 import {
@@ -99,7 +100,16 @@ const appCanRespondToBackButtonSelector = createSelector(
   },
 );
 
-const calendarActiveSelector = createActiveTabSelector(CalendarRouteName);
+const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
+const threadPickerActiveSelector =
+  createIsForegroundSelector(ThreadPickerModalRouteName);
+const calendarActiveSelector = createSelector(
+  calendarTabActiveSelector,
+  threadPickerActiveSelector,
+  (calendarTabActive: bool, threadPickerActive: bool) =>
+    calendarTabActive || threadPickerActive,
+);
+
 const nativeCalendarQuery = createSelector(
   currentCalendarQuery,
   calendarActiveSelector,
@@ -134,6 +144,7 @@ export {
   createActiveTabSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,
+  calendarActiveSelector,
   nativeCalendarQuery,
   nonThreadCalendarQuery,
 };

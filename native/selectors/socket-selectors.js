@@ -15,8 +15,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 
-import { createActiveTabSelector } from './nav-selectors';
-import { CalendarRouteName } from '../navigation/route-names';
+import { calendarActiveSelector } from './nav-selectors';
 
 const openSocketSelector = createSelector(
   (state: AppState) => state.urlPrefix,
@@ -33,8 +32,6 @@ const sessionIdentificationSelector = createSelector(
   (state: AppState) => state.cookie,
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
-
-const calendarActiveSelector = createActiveTabSelector(CalendarRouteName);
 
 const nativeGetClientResponsesSelector = createSelector(
   getClientResponsesSelector,

@@ -7,10 +7,8 @@ import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
-import { createActiveTabSelector } from './nav-selectors';
-import { CalendarRouteName } from '../navigation/route-names';
+import { calendarActiveSelector } from './nav-selectors';
 
-const calendarActiveSelector = createActiveTabSelector(CalendarRouteName);
 const nativeLogInExtraInfoSelector = createSelector(
   logInExtraInfoSelector,
   calendarActiveSelector,
