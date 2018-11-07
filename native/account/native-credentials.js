@@ -2,7 +2,6 @@
 
 import type { FetchJSON } from 'lib/utils/fetch-json';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
-import type { LogInExtraInfo } from 'lib/types/account-types';
 
 import { Platform } from 'react-native';
 import {
@@ -15,6 +14,9 @@ import {
 import URL from 'url-parse';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
+
+import { store } from '../redux-setup';
 
 type Credentials = {|
   username: string,
@@ -218,11 +220,10 @@ async function deleteNativeCredentialsFor(username: string) {
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  logInExtraInfo: () => LogInExtraInfo,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
-    const extraInfo = logInExtraInfo();
+    const extraInfo = logInExtraInfoSelector(store.getState())();
     const { calendarQuery } = extraInfo;
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
@@ -242,7 +243,7 @@ async function resolveInvalidatedCookie(
   }
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
-    const extraInfo = logInExtraInfo();
+    const extraInfo = logInExtraInfoSelector(store.getState())();
     const { calendarQuery } = extraInfo;
     await dispatchRecoveryAttempt(
       logInActionTypes,

@@ -7,7 +7,6 @@ import {
   queuedClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 import { logOut } from 'lib/actions/user-actions';
 import Socket from 'lib/socket/socket.react';
 
@@ -35,7 +34,6 @@ export default connect(
       sessionIdentification: sessionIdentificationSelector(state),
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
-      logInExtraInfo: logInExtraInfoSelector(state),
       connection: state.connection,
     };
   },

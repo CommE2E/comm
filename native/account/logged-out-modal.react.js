@@ -42,7 +42,6 @@ import {
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import {
   windowHeight,
@@ -84,7 +83,6 @@ type Props = {
   urlPrefix: string,
   loggedIn: bool,
   isForeground: bool,
-  logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -114,7 +112,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
-    logInExtraInfo: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -296,7 +293,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         urlPrefix,
         appStartNativeCredentialsAutoLogIn,
-        nextProps.logInExtraInfo,
       );
       if (!sessionChange) {
         showPrompt();
@@ -321,7 +317,6 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         urlPrefix,
         appStartReduxLoggedInButInvalidCookie,
-        nextProps.logInExtraInfo,
       );
       const newCookie = sessionChange ? sessionChange.cookie : null;
       if (newCookie && newCookie.startsWith("user=")) {
@@ -824,7 +819,6 @@ const LoggedOutModal = connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
-    logInExtraInfo: logInExtraInfoSelector(state),
   }),
   null,
   true,
