@@ -69,7 +69,7 @@ import {
   clearAndroidNotificationActionType,
 } from './navigation/action-types';
 import { store, appBecameInactive } from './redux-setup';
-import { resolveInvalidatedCookie } from './account/native-credentials';
+import { resolveInvalidatedCookie } from './account/resolve-invalidated-cookie';
 import ConnectedStatusBar from './connected-status-bar.react';
 import {
   activeThreadSelector,
