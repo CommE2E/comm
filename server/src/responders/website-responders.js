@@ -132,7 +132,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       entryStore: {
         entryInfos: _keyBy('id')(rawEntryInfos),
         daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
-        actualizedCalendarQuery: calendarQuery,
         lastUserInteractionCalendar: initialTime,
         inconsistencyResponses: [],
       },
@@ -154,7 +153,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       urlPrefix: "",
       windowDimensions: { width: 0, height: 0 },
       baseHref: baseDomain + baseURL,
-      connection: defaultConnectionInfo,
+      connection: defaultConnectionInfo(),
       watchedThreadIDs: [],
       foreground: true,
     }: AppState),

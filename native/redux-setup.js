@@ -1,7 +1,7 @@
 // @flow
 
 import type { ThreadStore } from 'lib/types/thread-types';
-import { type EntryStore, defaultCalendarQuery } from 'lib/types/entry-types';
+import { type EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -116,7 +116,6 @@ const defaultState = ({
   entryStore: {
     entryInfos: {},
     daysToEntries: {},
-    actualizedCalendarQuery: defaultCalendarQuery(),
     lastUserInteractionCalendar: 0,
     inconsistencyResponses: [],
   },
@@ -141,7 +140,7 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   messageSentFromRoute: [],
-  connection: defaultConnectionInfo,
+  connection: defaultConnectionInfo(),
   watchedThreadIDs: [],
   foreground: true,
   _persist: null,

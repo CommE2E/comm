@@ -77,9 +77,13 @@ const migrations = {
     ...state,
     pingTimestamps: undefined,
     activeServerRequests: undefined,
-    connection: defaultConnectionInfo,
+    connection: defaultConnectionInfo(),
     watchedThreadIDs: [],
     foreground: true,
+    entryStore: {
+      ...state.entryStore,
+      actualizedCalendarQuery: undefined,
+    },
   }),
 };
 
