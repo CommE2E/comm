@@ -86,6 +86,7 @@ import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import { persistConfig, codeVersion } from './persist';
 import { AppRouteName } from './navigation/route-names';
+import MessageStorePruner from './chat/message-store-pruner.react';
 import Socket from './socket.react';
 
 registerConfig({
@@ -652,6 +653,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           notificationBodyComponent={NotificationBody}
           ref={this.inAppNotificationRef}
         />
+        <MessageStorePruner />
       </View>
     );
   }
