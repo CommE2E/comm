@@ -295,6 +295,9 @@ async function postMessageSend(
 async function updateUnreadStatus(
   setUnreadPairs: $ReadOnlyArray<{| userID: string, threadID: string |}>,
 ) {
+  if (setUnreadPairs.length === 0) {
+    return;
+  }
   const updateConditions = setUnreadPairs.map(
     pair => SQL`(user = ${pair.userID} AND thread = ${pair.threadID})`,
   );
