@@ -381,7 +381,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     // the corresponding UpdateInfos anyways, so no reason to be worried.
     calendarQuery = viewerInfo.viewer.calendarQuery;
   } else if (!calendarQuery) {
-    calendarQuery = defaultCalendarQuery();
+    calendarQuery = defaultCalendarQuery(viewerInfo.viewer.platform);
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {
     const threadSelectionCriteria = { threadCursors: {} };

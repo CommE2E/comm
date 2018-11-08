@@ -45,6 +45,7 @@ import {
   saveMessagesActionType,
 } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
+import { getConfig } from 'lib/utils/config';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import {
@@ -140,7 +141,7 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   messageSentFromRoute: [],
-  connection: defaultConnectionInfo(),
+  connection: defaultConnectionInfo(getConfig().platformDetails.platform),
   watchedThreadIDs: [],
   foreground: true,
   _persist: null,

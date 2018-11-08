@@ -153,7 +153,10 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       urlPrefix: "",
       windowDimensions: { width: 0, height: 0 },
       baseHref: baseDomain + baseURL,
-      connection: defaultConnectionInfo(),
+      connection: {
+        ...defaultConnectionInfo("web"),
+        actualizedCalendarQuery: calendarQuery,
+      },
       watchedThreadIDs: [],
       foreground: true,
     }: AppState),

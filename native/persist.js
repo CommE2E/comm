@@ -10,6 +10,7 @@ import invariant from 'invariant';
 
 import { nativeCalendarQuery } from './selectors/nav-selectors';
 import version from 'lib/facts/version';
+import { getConfig } from 'lib/utils/config';
 
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
@@ -77,7 +78,7 @@ const migrations = {
     ...state,
     pingTimestamps: undefined,
     activeServerRequests: undefined,
-    connection: defaultConnectionInfo(),
+    connection: defaultConnectionInfo(getConfig().platformDetails.platform),
     watchedThreadIDs: [],
     foreground: true,
     entryStore: {

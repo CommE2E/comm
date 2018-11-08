@@ -211,7 +211,7 @@ async function createUpdateDatasForChangedEntryInfo(
     // the corresponding UpdateInfos anyways, so no reason to be worried.
     calendarQuery = viewer.calendarQuery;
   } else {
-    calendarQuery = defaultCalendarQuery();
+    calendarQuery = defaultCalendarQuery(viewer.platform);
   }
 
   let replaced = null;
