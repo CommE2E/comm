@@ -51,7 +51,9 @@ const tPassword = t.refinement(t.String, (password: string) => password);
 const tCookie = tRegex(/^(user|anonymous)=[0-9]+:[0-9a-f]+$/);
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
-  await checkClientSupported(viewer, inputValidator, input);
+  if (!viewer.isSocket) {
+    await checkClientSupported(viewer, inputValidator, input);
+  }
   checkInputValidator(inputValidator, input);
 }
 

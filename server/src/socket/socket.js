@@ -13,6 +13,7 @@ import {
   type AuthErrorServerSocketMessage,
   type PingClientSocketMessage,
   type AckUpdatesClientSocketMessage,
+  type APIRequestClientSocketMessage,
   clientSocketMessageTypes,
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
@@ -25,6 +26,7 @@ import {
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { serverRequestTypes } from 'lib/types/request-types';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
+import { endpointIsSocketSafe } from 'lib/types/endpoints';
 
 import t from 'tcomb';
 import invariant from 'invariant';
@@ -82,6 +84,7 @@ import {
 import { focusedTableRefreshFrequency } from '../shared/focused-times';
 import { RedisSubscriber } from './redis';
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
+import { jsonEndpoints } from '../endpoints';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({
@@ -139,6 +142,17 @@ const clientSocketMessageInputValidator = t.union([
     id: t.Number,
     payload: tShape({
       currentAsOf: t.Number,
+    }),
+  }),
+  tShape({
+    type: t.irreducible(
+      'clientSocketMessageTypes.API_REQUEST',
+      x => x === clientSocketMessageTypes.API_REQUEST,
+    ),
+    id: t.Number,
+    payload: tShape({
+      endpoint: t.String,
+      input: t.Object,
     }),
   }),
 ]);
@@ -370,6 +384,9 @@ class Socket {
     } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
       this.markActivityOccurred();
       return await this.handleAckUpdatesClientSocketMessage(message);
+    } else if (message.type === clientSocketMessageTypes.API_REQUEST) {
+      this.markActivityOccurred();
+      return await this.handleAPIRequestClientSocketMessage(message);
     }
     return [];
   }
@@ -613,6 +630,23 @@ class Socket {
       commitSessionUpdate(viewer, { lastUpdate: currentAsOf }),
     ]);
     return [];
+  }
+
+  async handleAPIRequestClientSocketMessage(
+    message: APIRequestClientSocketMessage,
+  ): Promise<ServerSocketMessage[]> {
+    if (!endpointIsSocketSafe(message.payload.endpoint)) {
+      throw new ServerError('endpoint_unsafe_for_socket');
+    }
+    const { viewer } = this;
+    invariant(viewer, "should be set");
+    const responder = jsonEndpoints[message.payload.endpoint];
+    const response = await responder(viewer, message.payload.input);
+    return [{
+      type: serverSocketMessageTypes.API_RESPONSE,
+      responseTo: message.id,
+      payload: response,
+    }];
   }
 
   onRedisMessage = async (message: RedisMessage) => {
