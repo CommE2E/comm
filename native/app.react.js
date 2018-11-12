@@ -45,7 +45,6 @@ import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import SplashScreen from 'react-native-splash-screen';
 
-import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
 import {
   setDeviceTokenActionTypes,
@@ -69,7 +68,6 @@ import {
   clearAndroidNotificationActionType,
 } from './navigation/action-types';
 import { store, appBecameInactive } from './redux-setup';
-import { resolveInvalidatedCookie } from './account/resolve-invalidated-cookie';
 import ConnectedStatusBar from './connected-status-bar.react';
 import {
   activeThreadSelector,
@@ -84,22 +82,9 @@ import {
 } from './push/android';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
-import { persistConfig, codeVersion } from './persist';
 import { AppRouteName } from './navigation/route-names';
 import MessageStorePruner from './chat/message-store-pruner.react';
 import Socket from './socket.react';
-
-registerConfig({
-  resolveInvalidatedCookie,
-  setCookieOnRequest: true,
-  setSessionIDOnRequest: false,
-  calendarRangeInactivityLimit: 15 * 60 * 1000,
-  platformDetails: {
-    platform: Platform.OS,
-    codeVersion,
-    stateVersion: persistConfig.version,
-  },
-});
 
 const msInDay = 24 * 60 * 60 * 1000;
 const ReduxifiedRootNavigator = reduxifyNavigator(RootNavigator, "root");

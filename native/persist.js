@@ -7,10 +7,10 @@ import { defaultConnectionInfo } from 'lib/types/socket-types';
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
+import { Platform } from 'react-native';
 
 import { nativeCalendarQuery } from './selectors/nav-selectors';
 import version from 'lib/facts/version';
-import { getConfig } from 'lib/utils/config';
 
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
@@ -78,7 +78,7 @@ const migrations = {
     ...state,
     pingTimestamps: undefined,
     activeServerRequests: undefined,
-    connection: defaultConnectionInfo(getConfig().platformDetails.platform),
+    connection: defaultConnectionInfo(Platform.OS),
     watchedThreadIDs: [],
     foreground: true,
     entryStore: {

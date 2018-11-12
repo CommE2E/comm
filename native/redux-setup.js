@@ -36,7 +36,7 @@ import { NavigationActions, StackActions } from 'react-navigation';
 import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
-import { AppState as NativeAppState } from 'react-native';
+import { AppState as NativeAppState, Platform } from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
@@ -141,7 +141,7 @@ const defaultState = ({
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   messageSentFromRoute: [],
-  connection: defaultConnectionInfo(getConfig().platformDetails.platform),
+  connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   foreground: true,
   _persist: null,
