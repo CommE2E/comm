@@ -457,13 +457,6 @@ async function processClientResponses(
     }
   }
 
-  if (activityUpdates.length > 0) {
-    promises.push(activityUpdater(
-      viewer,
-      { updates: activityUpdates },
-    ));
-  }
-
   let activityUpdateResult;
   if (activityUpdates.length > 0 || promises.length > 0) {
     [ activityUpdateResult ] = await Promise.all([
