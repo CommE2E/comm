@@ -6,7 +6,6 @@ import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
   type ResponsesClientSocketMessage,
-  type ActivityUpdatesClientSocketMessage,
   type StateSyncFullSocketPayload,
   type ServerSocketMessage,
   type ErrorServerSocketMessage,
@@ -65,10 +64,7 @@ import {
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
-import {
-  updateActivityTime,
-  activityUpdater,
-} from '../updaters/activity-updaters';
+import { updateActivityTime } from '../updaters/activity-updaters';
 import {
   deleteUpdatesBeforeTimeTargettingSession,
 } from '../deleters/update-deleters';
@@ -115,16 +111,6 @@ const clientSocketMessageInputValidator = t.union([
     id: t.Number,
     payload: tShape({
       clientResponses: t.list(clientResponseInputValidator),
-    }),
-  }),
-  tShape({
-    type: t.irreducible(
-      'clientSocketMessageTypes.ACTIVITY_UPDATES',
-      x => x === clientSocketMessageTypes.ACTIVITY_UPDATES,
-    ),
-    id: t.Number,
-    payload: tShape({
-      activityUpdates: activityUpdatesInputValidator,
     }),
   }),
   tShape({
@@ -376,9 +362,6 @@ class Socket {
     } else if (message.type === clientSocketMessageTypes.RESPONSES) {
       this.markActivityOccurred();
       return await this.handleResponsesClientSocketMessage(message);
-    } else if (message.type === clientSocketMessageTypes.ACTIVITY_UPDATES) {
-      this.markActivityOccurred();
-      return await this.handleActivityUpdatesClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.PING) {
       return await this.handlePingClientSocketMessage(message);
     } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
@@ -591,22 +574,6 @@ class Socket {
       type: serverSocketMessageTypes.REQUESTS,
       responseTo: message.id,
       payload: { serverRequests },
-    }];
-  }
-
-  async handleActivityUpdatesClientSocketMessage(
-    message: ActivityUpdatesClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
-    const { viewer } = this;
-    invariant(viewer, "should be set");
-    const result = await activityUpdater(
-      viewer,
-      { updates: message.payload.activityUpdates },
-    );
-    return [{
-      type: serverSocketMessageTypes.ACTIVITY_UPDATE_RESPONSE,
-      responseTo: message.id,
-      payload: result,
     }];
   }
 
