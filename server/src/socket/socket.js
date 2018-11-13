@@ -663,6 +663,9 @@ class Socket {
     } else if (message.type === redisMessageTypes.NEW_UPDATES) {
       const { viewer } = this;
       invariant(viewer, "should be set");
+      if (message.ignoreSession && message.ignoreSession === viewer.session) {
+        return;
+      }
       const rawUpdateInfos = message.updates;
       const {
         updateInfos,

@@ -20,7 +20,11 @@ import {
   type CalendarQuery,
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
-import { type UpdateTarget, redisMessageTypes } from 'lib/types/redis-types';
+import {
+  type UpdateTarget,
+  redisMessageTypes,
+  type NewUpdatesRedisMessage,
+} from 'lib/types/redis-types';
 
 import invariant from 'invariant';
 import _uniq from 'lodash/fp/uniq';
@@ -61,15 +65,31 @@ import {
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
 import { handleAsyncPromise } from '../responders/handlers';
 
-export type ViewerInfo =
-  | {| viewer: Viewer |}
+type UpdatesForCurrentSession =
+  // This is the default if no Viewer is passed, or if an isSocket Viewer is
+  // passed in. We will broadcast to all valid sessions via Redis and return
+  // nothing to the caller, relying on the current session's Redis listener to
+  // pick up the updates and deliver them asynchronously.
+  | "broadcast"
+  // This is the default if a non-isSocket Viewer is passed in. We avoid
+  // broadcasting the update to the current session, and instead return the
+  // update to the caller, who will handle delivering it to the client.
+  | "return"
+  // This means we ignore any updates destined for the current session.
+  // Presumably the caller knows what they are doing and has a different way of
+  // communicating the relevant information to the client.
+  | "ignore";
+
+type ViewerInfo =
   | {|
       viewer: Viewer,
-      calendarQuery: ?CalendarQuery,
+      calendarQuery?: ?CalendarQuery,
+      updatesForCurrentSession?: UpdatesForCurrentSession,
     |}
   | {|
       viewer: Viewer,
       calendarQuery: ?CalendarQuery,
+      updatesForCurrentSession?: UpdatesForCurrentSession,
       threadInfos: {[id: string]: RawThreadInfo},
       userInfos: {[id: string]: AccountUserInfo},
     |};
@@ -197,6 +217,20 @@ async function createUpdates(
   }
   const ids = await createIDs("updates", filteredUpdateDatas.length);
 
+  let updatesForCurrentSession =
+    viewerInfo && viewerInfo.updatesForCurrentSession;
+  if (!updatesForCurrentSession && viewerInfo) {
+    updatesForCurrentSession = viewerInfo.viewer.isSocket
+      ? "broadcast"
+      : "return";
+  } else if (!updatesForCurrentSession) {
+    updatesForCurrentSession = "broadcast";
+  }
+  const dontBroadcastSession =
+    updatesForCurrentSession !== "broadcast" && viewerInfo
+      ? viewerInfo.viewer.session
+      : null;
+
   const publishInfos: Map<string, PublishInfo> = new Map();
   const viewerRawUpdateInfos: RawUpdateInfo[] = [];
   const insertRows: (?(number | string))[][] = [];
@@ -233,22 +267,25 @@ async function createUpdates(
     }
 
     const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
-    const updateTarget = target
-      ? { userID: updateData.userID, sessionID: target }
-      : { userID: updateData.userID };
-    const channelName = channelNameForUpdateTarget(updateTarget);
-    let publishInfo = publishInfos.get(channelName);
-    if (!publishInfo) {
-      publishInfo = { updateTarget, rawUpdateInfos: [] };
-      publishInfos.set(channelName, publishInfo);
+
+    if (!target || !dontBroadcastSession || target !== dontBroadcastSession) {
+      const updateTarget = target
+        ? { userID: updateData.userID, sessionID: target }
+        : { userID: updateData.userID };
+      const channelName = channelNameForUpdateTarget(updateTarget);
+      let publishInfo = publishInfos.get(channelName);
+      if (!publishInfo) {
+        publishInfo = { updateTarget, rawUpdateInfos: [] };
+        publishInfos.set(channelName, publishInfo);
+      }
+      publishInfo.rawUpdateInfos.push(rawUpdateInfo);
     }
-    publishInfo.rawUpdateInfos.push(rawUpdateInfo);
 
     if (
+      updatesForCurrentSession === "return" &&
       viewerInfo &&
       updateData.userID === viewerInfo.viewer.id &&
-      (!target || target === viewerInfo.viewer.session) &&
-      !viewerInfo.viewer.isSocket
+      (!target || target === viewerInfo.viewer.session)
     ) {
       viewerRawUpdateInfos.push(rawUpdateInfo);
     }
@@ -275,7 +312,7 @@ async function createUpdates(
       key,
       content,
       updateData.time,
-      viewerInfo ? viewerInfo.viewer.session : null,
+      dontBroadcastSession,
       target,
     ];
     insertRows.push(insertRow);
@@ -311,7 +348,10 @@ async function createUpdates(
   }
 
   if (publishInfos.size > 0) {
-    handleAsyncPromise(redisPublish(publishInfos.values()));
+    handleAsyncPromise(redisPublish(
+      publishInfos.values(),
+      dontBroadcastSession,
+    ));
   }
 
   if (deleteSQLConditions.length > 0) {
@@ -652,16 +692,20 @@ type PublishInfo = {|
   updateTarget: UpdateTarget,
   rawUpdateInfos: RawUpdateInfo[],
 |};
-async function redisPublish(publishInfos: Iterator<PublishInfo>) {
+async function redisPublish(
+  publishInfos: Iterator<PublishInfo>,
+  dontBroadcastSession: ?string,
+): Promise<void> {
   for (let publishInfo of publishInfos) {
     const { updateTarget, rawUpdateInfos } = publishInfo;
-    publisher.sendMessage(
-      updateTarget,
-      {
-        type: redisMessageTypes.NEW_UPDATES,
-        updates: rawUpdateInfos,
-      },
-    );
+    const redisMessage: NewUpdatesRedisMessage = {
+      type: redisMessageTypes.NEW_UPDATES,
+      updates: rawUpdateInfos,
+    };
+    if (!updateTarget.sessionID && dontBroadcastSession) {
+      redisMessage.ignoreSession = dontBroadcastSession;
+    }
+    publisher.sendMessage(updateTarget, redisMessage);
   }
 }
 

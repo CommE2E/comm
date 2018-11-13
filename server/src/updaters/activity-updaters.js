@@ -107,7 +107,7 @@ async function activityUpdater(
         threadID,
         unread: false,
       })),
-      { viewer },
+      { viewer, updatesForCurrentSession: "ignore" },
     ));
     const rescindCondition = SQL`
       n.user = ${viewer.userID} AND n.thread IN (${memberFocusedThreadIDs})
@@ -237,7 +237,7 @@ async function possiblyResetThreadsToUnread(
       threadID,
       unread: true,
     })),
-    { viewer },
+    { viewer, updatesForCurrentSession: "ignore" },
   ));
   await Promise.all(promises);
 
