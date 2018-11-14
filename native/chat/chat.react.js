@@ -24,14 +24,22 @@ import {
   MessageListRouteName,
   ChatThreadListRouteName,
 } from '../navigation/route-names';
+import Header from '../navigation/header.react';
 
-const Chat = createStackNavigator({
-  [ChatThreadListRouteName]: { screen: ChatThreadList },
-  [MessageListRouteName]: { screen: MessageList },
-  [ComposeThreadRouteName]: { screen: ComposeThread },
-  [ThreadSettingsRouteName]: { screen: ThreadSettings },
-  [DeleteThreadRouteName]: { screen: DeleteThread },
-});
+const Chat = createStackNavigator(
+  {
+    [ChatThreadListRouteName]: ChatThreadList,
+    [MessageListRouteName]: MessageList,
+    [ComposeThreadRouteName]: ComposeThread,
+    [ThreadSettingsRouteName]: ThreadSettings,
+    [DeleteThreadRouteName]: DeleteThread,
+  },
+  {
+    defaultNavigationOptions: {
+      header: Header,
+    },
+  },
+);
 Chat.navigationOptions = ({ navigation }) => ({
   tabBarLabel: Platform.OS === "android"
     ? ({ tintColor }) => <ChatLabel color={tintColor} />

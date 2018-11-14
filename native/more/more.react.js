@@ -19,15 +19,23 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
 } from '../navigation/route-names';
+import Header from '../navigation/header.react';
 
-const More = createStackNavigator({
-  [MoreScreenRouteName]: { screen: MoreScreen },
-  [EditEmailRouteName]: { screen: EditEmail },
-  [EditPasswordRouteName]: { screen: EditPassword },
-  [DeleteAccountRouteName]: { screen: DeleteAccount },
-  [BuildInfoRouteName]: { screen: BuildInfo },
-  [DevToolsRouteName]: { screen: DevTools },
-});
+const More = createStackNavigator(
+  {
+    [MoreScreenRouteName]: MoreScreen,
+    [EditEmailRouteName]: EditEmail,
+    [EditPasswordRouteName]: EditPassword,
+    [DeleteAccountRouteName]: DeleteAccount,
+    [BuildInfoRouteName]: BuildInfo,
+    [DevToolsRouteName]: DevTools,
+  },
+  {
+    defaultNavigationOptions: {
+      header: Header,
+    },
+  },
+);
 More.navigationOptions = ({ navigation }) => ({
   tabBarLabel: 'More',
   tabBarIcon: ({ tintColor }) => (

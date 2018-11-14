@@ -81,6 +81,7 @@ import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
+import DisconnectedBar from '../navigation/disconnected-bar.react';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -750,6 +751,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
     return (
       <SafeAreaView forceInset={forceInset} style={styles.container}>
+        <DisconnectedBar />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
