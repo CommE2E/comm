@@ -69,6 +69,7 @@ type Props = {
   // async functions that hit server APIs
   sendMessage: (
     threadID: string,
+    localID: string,
     text: string,
   ) => Promise<SendTextMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
@@ -274,14 +275,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   async sendMessageAction(messageInfo: RawTextMessageInfo) {
     try {
-      const result = await this.props.sendMessage(
-        messageInfo.threadID,
-        messageInfo.text,
-      );
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
         "localID should be set",
+      );
+      const result = await this.props.sendMessage(
+        messageInfo.threadID,
+        localID,
+        messageInfo.text,
       );
       return {
         localID,

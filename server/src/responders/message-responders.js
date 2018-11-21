@@ -9,6 +9,7 @@ import {
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendTextMessageResponse,
+  type TextMessageData,
 } from 'lib/types/message-types';
 
 import t from 'tcomb';
@@ -23,6 +24,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
+  localID: t.maybe(t.String),
   text: t.String,
 });
 
@@ -33,7 +35,7 @@ async function textMessageCreationResponder(
   const request: SendTextMessageRequest = input;
   await validateInput(viewer, sendTextMessageRequestInputValidator, request);
 
-  const { threadID, text: rawText } = request;
+  const { threadID, localID, text: rawText } = request;
   const text = rawText.trim();
   if (!text) {
     throw new ServerError('invalid_parameters');
@@ -48,13 +50,16 @@ async function textMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const messageData = {
+  const messageData: TextMessageData = {
     type: messageTypes.TEXT,
     threadID,
     creatorID: viewer.id,
     time: Date.now(),
     text,
   };
+  if (localID) {
+    messageData.localID = localID;
+  }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
   return { newMessageInfo: rawMessageInfos[0] };

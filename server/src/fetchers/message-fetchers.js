@@ -281,6 +281,8 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
   }
 }
 
+const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+
 async function fetchMessageInfos(
   viewer: Viewer,
   criteria: ThreadSelectionCriteria,
@@ -290,7 +292,6 @@ async function fetchMessageInfos(
   const truncationStatuses = {};
 
   const viewerID = viewer.id;
-  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
@@ -461,7 +462,6 @@ async function fetchMessageInfosSince(
   );
 
   const viewerID = viewer.id;
-  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
@@ -546,9 +546,42 @@ async function getMessageFetchResultFromRedisMessages(
   };
 }
 
+function creationString(viewer: Viewer, localID: string) {
+  return `${viewer.session}|${localID}`;
+}
+
+async function fetchMessageInfoForLocalID(
+  viewer: Viewer,
+  localID: ?string,
+): Promise<?RawMessageInfo> {
+  if (!localID || !viewer.hasSessionInfo) {
+    return null;
+  }
+  const creation = creationString(viewer, localID);
+  const viewerID = viewer.id;
+  const query = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
+      m.user AS creatorID, stm.permissions AS subthread_permissions
+    FROM messages m
+    LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = ${viewerID}
+    WHERE m.user = ${viewerID} AND m.creation = ${creation} AND
+      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+  `;
+
+  const [ result ] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  return rawMessageInfoFromRow(result[0]);
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
+  creationString,
+  fetchMessageInfoForLocalID,
 };

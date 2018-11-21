@@ -34,6 +34,10 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
 import { publisher } from '../socket/redis';
+import {
+  creationString,
+  fetchMessageInfoForLocalID,
+} from '../fetchers/message-fetchers';
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
@@ -44,14 +48,36 @@ async function createMessages(
     return [];
   }
 
-  const ids = await createIDs("messages", messageDatas.length);
+  const messageInfos: RawMessageInfo[] = [];
+  const newMessageDatas: MessageData[] = [];
+  const existingMessages = await Promise.all(
+    messageDatas.map(messageData => fetchMessageInfoForLocalID(
+      viewer,
+      messageData.type === messageTypes.TEXT ? messageData.localID : null,
+    ))
+  );
+  for (let i = 0; i < existingMessages.length; i++) {
+    const existingMessage = existingMessages[i];
+    if (existingMessage) {
+      messageInfos.push(existingMessage);
+    } else {
+      newMessageDatas.push(messageDatas[i]);
+    }
+  }
+  if (newMessageDatas.length === 0) {
+    return shimUnsupportedRawMessageInfos(
+      messageInfos,
+      viewer.platformDetails,
+    );
+  }
+
+  const ids = await createIDs("messages", newMessageDatas.length);
 
   const subthreadPermissionsToCheck: Set<string> = new Set();
   const threadsToMessageIndices: Map<string, number[]> = new Map();
   const messageInsertRows = [];
-  const messageInfos: RawMessageInfo[] = [];
-  for (let i = 0; i < messageDatas.length; i++) {
-    const messageData = messageDatas[i];
+  for (let i = 0; i < newMessageDatas.length; i++) {
+    const messageData = newMessageDatas[i];
     const threadID = messageData.threadID;
     const creatorID = messageData.creatorID;
 
@@ -98,6 +124,11 @@ async function createMessages(
         text: messageData.text,
       });
     }
+
+    const creation = messageData.localID && viewer.hasSessionInfo
+      ? creationString(viewer, messageData.localID)
+      : null;
+
     messageInsertRows.push([
       ids[i],
       threadID,
@@ -105,8 +136,8 @@ async function createMessages(
       messageData.type,
       content,
       messageData.time,
+      creation,
     ]);
-
     messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
   }
 
@@ -118,7 +149,7 @@ async function createMessages(
   ));
 
   const messageInsertQuery = SQL`
-    INSERT INTO messages(id, thread, user, type, content, time)
+    INSERT INTO messages(id, thread, user, type, content, time, creation)
     VALUES ${messageInsertRows}
   `;
   await dbQuery(messageInsertQuery);
