@@ -11,6 +11,7 @@ import {
   messageTruncationStatus,
   type MessageTruncationStatuses,
   type FetchMessageInfosResult,
+  type RawTextMessageInfo,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
@@ -27,7 +28,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchUserInfos } from './user-fetchers';
-import { creationString } from '../utils/idempotent';
+import { creationString, localIDFromCreationString } from '../utils/idempotent';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -133,10 +134,13 @@ async function fetchCollapsableNotifs(
   return { usersToCollapsableNotifInfo, userInfos };
 }
 
-function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
+function rawMessageInfoFromRow(
+  row: Object,
+  viewer?: Viewer,
+): ?RawMessageInfo {
   const type = assertMessageType(row.type);
   if (type === messageTypes.TEXT) {
-    return {
+    const rawTextMessageInfo: RawTextMessageInfo = {
       type: messageTypes.TEXT,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
@@ -144,6 +148,11 @@ function rawMessageInfoFromRow(row: Object): ?RawMessageInfo {
       creatorID: row.creatorID.toString(),
       text: row.content,
     };
+    const localID = localIDFromCreationString(viewer, row.creation);
+    if (localID) {
+      rawTextMessageInfo.localID = localID;
+    }
+    return rawTextMessageInfo;
   } else if (type === messageTypes.CREATE_THREAD) {
     const dbInitialThreadState = JSON.parse(row.content);
     // For legacy clients before the rename
@@ -296,13 +305,13 @@ async function fetchMessageInfos(
   const query = SQL`
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
-        u.username AS creator, x.subthread_permissions,
+        x.creation, u.username AS creator, x.subthread_permissions,
         @num := if(@thread = x.thread, @num + 1, 1) AS number,
         @thread := x.thread AS threadID
       FROM (SELECT @num := 0, @thread := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
-          stm.permissions AS subthread_permissions
+          m.creation, stm.permissions AS subthread_permissions
         FROM messages m
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -329,7 +338,7 @@ async function fetchMessageInfos(
       id: creatorID,
       username: row.creator,
     };
-    const rawMessageInfo = rawMessageInfoFromRow(row);
+    const rawMessageInfo = rawMessageInfoFromRow(row, viewer);
     if (rawMessageInfo) {
       rawMessageInfos.push(rawMessageInfo);
     }
@@ -465,7 +474,7 @@ async function fetchMessageInfosSince(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-      u.username AS creator, m.user AS creatorID,
+      m.creation, u.username AS creator, m.user AS creatorID,
       stm.permissions AS subthread_permissions
     FROM messages m
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -504,7 +513,7 @@ async function fetchMessageInfosSince(
         id: creatorID,
         username: row.creator,
       };
-      const rawMessageInfo = rawMessageInfoFromRow(row);
+      const rawMessageInfo = rawMessageInfoFromRow(row, viewer);
       if (rawMessageInfo) {
         rawMessageInfos.push(rawMessageInfo);
       }
@@ -557,7 +566,7 @@ async function fetchMessageInfoForLocalID(
   const creation = creationString(viewer, localID);
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID, stm.permissions AS subthread_permissions
     FROM messages m
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -571,7 +580,7 @@ async function fetchMessageInfoForLocalID(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRow(result[0]);
+  return rawMessageInfoFromRow(result[0], viewer);
 }
 
 const entryIDExtractString = "$.entryID";
@@ -582,7 +591,7 @@ async function fetchMessageInfoForEntryCreation(
 ): Promise<?RawMessageInfo> {
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID
     FROM messages m
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -596,7 +605,7 @@ async function fetchMessageInfoForEntryCreation(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRow(result[0]);
+  return rawMessageInfoFromRow(result[0], viewer);
 }
 
 export {
