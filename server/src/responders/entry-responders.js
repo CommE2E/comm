@@ -144,6 +144,7 @@ const createEntryRequestInputValidator = tShape({
   timestamp: t.Number,
   date: tDate,
   threadID: t.String,
+  localID: t.maybe(t.String),
   calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
 

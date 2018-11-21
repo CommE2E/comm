@@ -33,6 +33,7 @@ import {
   mergeAndConditions,
   mergeOrConditions,
 } from '../database';
+import { creationString } from '../utils/idempotent';
 
 async function fetchEntryInfo(
   viewer: Viewer,
@@ -43,6 +44,20 @@ async function fetchEntryInfo(
     return null;
   }
   return results[0];
+}
+
+function rawEntryInfoFromRow(row: Object): RawEntryInfo {
+  return {
+    id: row.id.toString(),
+    threadID: row.threadID.toString(),
+    text: row.text,
+    year: row.year,
+    month: row.month,
+    day: row.day,
+    creationTime: row.creationTime,
+    creatorID: row.creatorID.toString(),
+    deleted: !!row.deleted,
+  };
 }
 
 const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
@@ -65,17 +80,7 @@ async function fetchEntryInfosByID(
       JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
   `;
   const [ result ] = await dbQuery(query);
-  return result.map(row => ({
-    id: row.id.toString(),
-    threadID: row.threadID.toString(),
-    text: row.text,
-    year: row.year,
-    month: row.month,
-    day: row.day,
-    creationTime: row.creationTime,
-    creatorID: row.creatorID.toString(),
-    deleted: !!row.deleted,
-  }));
+  return result.map(rawEntryInfoFromRow);
 }
 
 function sqlConditionForCalendarQuery(
@@ -133,19 +138,9 @@ async function fetchEntryInfos(
   const rawEntryInfos = [];
   const userInfos = {};
   for (let row of result) {
-    const creatorID = row.creatorID.toString();
-    rawEntryInfos.push({
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      text: row.text,
-      year: row.year,
-      month: row.month,
-      day: row.day,
-      creationTime: row.creationTime,
-      creatorID,
-      deleted: !!row.deleted,
-    });
+    rawEntryInfos.push(rawEntryInfoFromRow(row));
     if (row.creator) {
+      const creatorID = row.creatorID.toString();
       userInfos[creatorID] = {
         id: creatorID,
         username: row.creator,
@@ -252,6 +247,33 @@ async function fetchEntriesForSession(
   return { rawEntryInfos: filteredRawEntryInfos, userInfos: filteredUserInfos };
 }
 
+async function fetchEntryInfoForLocalID(
+  viewer: Viewer,
+  localID: ?string,
+): Promise<?RawEntryInfo> {
+  if (!localID || !viewer.hasSessionInfo) {
+    return null;
+  }
+  const creation = creationString(viewer, localID);
+  const viewerID = viewer.id;
+  const query = SQL`
+    SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
+      e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
+      e.deleted, e.creator AS creatorID
+    FROM entries e
+    LEFT JOIN days d ON d.id = e.day
+    LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
+    WHERE e.creator = ${viewerID} AND e.creation = ${creation} AND
+      JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
+  `;
+
+  const [ result ] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  return rawEntryInfoFromRow(result[0]);
+}
+
 export {
   fetchEntryInfo,
   fetchEntryInfosByID,
@@ -259,4 +281,5 @@ export {
   checkThreadPermissionForEntry,
   fetchEntryRevisionInfo,
   fetchEntriesForSession,
+  fetchEntryInfoForLocalID,
 };

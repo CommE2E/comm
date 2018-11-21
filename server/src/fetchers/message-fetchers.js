@@ -574,10 +574,36 @@ async function fetchMessageInfoForLocalID(
   return rawMessageInfoFromRow(result[0]);
 }
 
+const entryIDExtractString = "$.entryID";
+async function fetchMessageInfoForEntryCreation(
+  viewer: Viewer,
+  entryID: string,
+  threadID: string,
+): Promise<?RawMessageInfo> {
+  const viewerID = viewer.id;
+  const query = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
+      m.user AS creatorID
+    FROM messages m
+    LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
+    WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
+      m.type = ${messageTypes.CREATE_ENTRY} AND
+      JSON_EXTRACT(m.content, ${entryIDExtractString}) = ${entryID} AND
+      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+  `;
+
+  const [ result ] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  return rawMessageInfoFromRow(result[0]);
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
   fetchMessageInfoForLocalID,
+  fetchMessageInfoForEntryCreation,
 };

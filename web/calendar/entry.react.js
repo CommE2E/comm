@@ -6,7 +6,7 @@ import {
   type CreateEntryInfo,
   type SaveEntryInfo,
   type SaveEntryResult,
-  type SaveEntryPayload,
+  type CreateEntryPayload,
   type DeleteEntryInfo,
   type DeleteEntryPayload,
   type CalendarQuery,
@@ -64,7 +64,7 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  createEntry: (info: CreateEntryInfo) => Promise<SaveEntryPayload>,
+  createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryPayload>,
 };
@@ -310,6 +310,7 @@ class Entry extends React.PureComponent<Props, State> {
           this.props.entryInfo.day,
         ),
         threadID: this.props.entryInfo.threadID,
+        localID,
         calendarQuery: this.props.calendarQuery(),
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
@@ -324,7 +325,7 @@ class Entry extends React.PureComponent<Props, State> {
         this.needsDeleteAfterCreation = false;
         this.delete(response.entryID, false);
       }
-      return { ...response, localID };
+      return response;
     } catch(e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });

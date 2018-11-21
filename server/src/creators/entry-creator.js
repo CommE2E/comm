@@ -8,8 +8,11 @@ import type { Viewer } from '../session/viewer';
 import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 
+import invariant from 'invariant';
+
 import { ServerError } from 'lib/utils/errors';
 import { dateFromString } from 'lib/utils/date-utils'
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import fetchOrCreateDayID from '../creators/day-creator';
@@ -19,6 +22,10 @@ import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import {
   createUpdateDatasForChangedEntryInfo,
 } from '../updaters/entry-updaters';
+import { fetchEntryInfoForLocalID } from '../fetchers/entry-fetchers';
+import { fetchMessageInfoForEntryCreation } from '../fetchers/message-fetchers';
+import { fetchUpdateInfoForEntryCreation } from '../fetchers/update-fetchers';
+import { creationString } from '../utils/idempotent';
 
 async function createEntry(
   viewer: Viewer,
@@ -36,6 +43,27 @@ async function createEntry(
     throw new ServerError('invalid_credentials');
   }
 
+  const existingEntryInfo = await fetchEntryInfoForLocalID(
+    viewer,
+    request.localID,
+  );
+  if (existingEntryInfo) {
+    const { id: entryID, threadID } = existingEntryInfo;
+    invariant(entryID, "should be set");
+    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+      fetchMessageInfoForEntryCreation(viewer, entryID, threadID),
+      fetchUpdateInfoForEntryCreation(viewer, entryID),
+    ]);
+    return {
+      entryID,
+      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      updatesResult: {
+        viewerUpdates: fetchUpdatesResult.updateInfos,
+        userInfos: values(fetchUpdatesResult.userInfos),
+      },
+    };
+  }
+
   const [
     dayID,
     [ entryID ],
@@ -49,6 +77,9 @@ async function createEntry(
     createIDs("revisions", 1),
   ]);
 
+  const creation = request.localID && viewer.hasSessionInfo
+    ? creationString(viewer, request.localID)
+    : null;
   const viewerID = viewer.userID;
   const entryRow = [
     entryID,
@@ -58,6 +89,7 @@ async function createEntry(
     request.timestamp,
     request.timestamp,
     0,
+    creation,
   ];
   const revisionRow = [
     revisionID,
@@ -71,7 +103,7 @@ async function createEntry(
   ];
   const entryInsertQuery = SQL`
     INSERT INTO entries(id, day, text, creator, creation_time, last_update,
-      deleted)
+      deleted, creation)
     VALUES ${[entryRow]}
   `;
   const revisionInsertQuery = SQL`

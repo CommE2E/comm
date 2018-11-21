@@ -117,6 +117,38 @@ function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
   invariant(false, `unrecognized updateType ${type}`);
 }
 
+const entryIDExtractString = "$.entryID";
+async function fetchUpdateInfoForEntryCreation(
+  viewer: Viewer,
+  entryID: string,
+): Promise<FetchUpdatesResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const query = SQL`
+    SELECT id, type, content, time
+    FROM updates
+    WHERE user = ${viewer.id} AND
+      type = ${updateTypes.UPDATE_ENTRY} AND
+      JSON_EXTRACT(content, ${entryIDExtractString}) = ${entryID}
+    ORDER BY time DESC
+    LIMIT 1
+  `;
+  const [ result ] = await dbQuery(query);
+
+  const rawUpdateInfos = [];
+  for (let row of result) {
+    rawUpdateInfos.push(rawUpdateInfoFromRow(row));
+  }
+
+  return await fetchUpdateInfosWithRawUpdateInfos(
+    rawUpdateInfos,
+    { viewer },
+  );
+}
+
 export {
   fetchUpdateInfos,
+  fetchUpdateInfoForEntryCreation,
 };
