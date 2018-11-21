@@ -34,10 +34,8 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
 import { publisher } from '../socket/redis';
-import {
-  creationString,
-  fetchMessageInfoForLocalID,
-} from '../fetchers/message-fetchers';
+import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
+import { creationString } from '../utils/idempotent';
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(

@@ -27,6 +27,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchUserInfos } from './user-fetchers';
+import { creationString } from '../utils/idempotent';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -546,10 +547,6 @@ async function getMessageFetchResultFromRedisMessages(
   };
 }
 
-function creationString(viewer: Viewer, localID: string) {
-  return `${viewer.session}|${localID}`;
-}
-
 async function fetchMessageInfoForLocalID(
   viewer: Viewer,
   localID: ?string,
@@ -582,6 +579,5 @@ export {
   fetchMessageInfos,
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
-  creationString,
   fetchMessageInfoForLocalID,
 };
