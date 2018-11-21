@@ -80,7 +80,7 @@ type UpdatesForCurrentSession =
   // communicating the relevant information to the client.
   | "ignore";
 
-type ViewerInfo =
+export type ViewerInfo =
   | {|
       viewer: Viewer,
       calendarQuery?: ?CalendarQuery,

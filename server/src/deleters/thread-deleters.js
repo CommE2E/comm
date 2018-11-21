@@ -11,15 +11,17 @@ import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import { dbQuery, SQL } from '../database';
 import {
-  checkThreadPermission,
+  fetchThreadPermissionsBlob,
   fetchThreadInfos,
   fetchServerThreadInfos,
 } from '../fetchers/thread-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
+import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers';
 
 async function deleteThread(
   viewer: Viewer,
@@ -28,20 +30,40 @@ async function deleteThread(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+  const { threadID } = threadDeletionRequest;
 
   const [
-    hasPermission,
+    permissionsBlob,
     [ hashResult ],
     { threadInfos: serverThreadInfos },
   ] = await Promise.all([
-    checkThreadPermission(
-      viewer,
-      threadDeletionRequest.threadID,
-      threadPermissions.DELETE_THREAD,
-    ),
+    fetchThreadPermissionsBlob(viewer, threadID),
     dbQuery(SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`),
-    fetchServerThreadInfos(SQL`t.id = ${threadDeletionRequest.threadID}`),
+    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
   ]);
+
+  if (!permissionsBlob) {
+    // This should only occur if the first request goes through but the client
+    // never receives the response
+    const [
+      { threadInfos },
+      { updateInfos },
+    ] = await Promise.all([
+      fetchThreadInfos(viewer),
+      fetchUpdateInfoForThreadDeletion(viewer, threadID),
+    ]);
+    return {
+      threadInfos,
+      updatesResult: {
+        newUpdates: updateInfos,
+      },
+    };
+  }
+
+  const hasPermission = permissionLookup(
+    permissionsBlob,
+    threadPermissions.DELETE_THREAD,
+  );
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
   }
@@ -54,8 +76,8 @@ async function deleteThread(
   }
 
   await rescindPushNotifs(
-    SQL`n.thread = ${threadDeletionRequest.threadID}`,
-    SQL`IF(m.thread = ${threadDeletionRequest.threadID}, NULL, 1)`,
+    SQL`n.thread = ${threadID}`,
+    SQL`IF(m.thread = ${threadID}, NULL, 1)`,
   );
 
   // TODO: if org, delete all descendant threads as well. make sure to warn user
@@ -79,10 +101,10 @@ async function deleteThread(
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
     LEFT JOIN ids ino ON ino.id = n.id
-    WHERE t.id = ${threadDeletionRequest.threadID}
+    WHERE t.id = ${threadID}
   `;
 
-  const serverThreadInfo = serverThreadInfos[threadDeletionRequest.threadID];
+  const serverThreadInfo = serverThreadInfos[threadID];
   const time = Date.now();
   const updateDatas = [];
   for (let memberInfo of serverThreadInfo.members) {
@@ -90,7 +112,7 @@ async function deleteThread(
       type: updateTypes.DELETE_THREAD,
       userID: memberInfo.id,
       time,
-      threadID: threadDeletionRequest.threadID,
+      threadID,
     });
   }
 

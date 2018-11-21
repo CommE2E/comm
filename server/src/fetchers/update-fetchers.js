@@ -7,26 +7,38 @@ import {
 } from 'lib/types/update-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
+import type { ViewerInfo } from '../creators/update-creator';
 
 import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database';
 import {
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,
 } from '../creators/update-creator';
 
-async function fetchUpdateInfos(
+async function fetchUpdateInfosWithQuery(
+  viewerInfo: ViewerInfo,
+  query: SQLStatement,
+): Promise<FetchUpdatesResult> {
+  if (!viewerInfo.viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+  const [ result ] = await dbQuery(query);
+  const rawUpdateInfos = [];
+  for (let row of result) {
+    rawUpdateInfos.push(rawUpdateInfoFromRow(row));
+  }
+  return await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, viewerInfo);
+}
+
+function fetchUpdateInfos(
   viewer: Viewer,
   currentAsOf: number,
   calendarQuery: CalendarQuery,
 ): Promise<FetchUpdatesResult> {
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
   const query = SQL`
     SELECT id, type, content, time
     FROM updates
@@ -35,16 +47,9 @@ async function fetchUpdateInfos(
       AND (target IS NULL OR target = ${viewer.session})
     ORDER BY time ASC
   `;
-  const [ result ] = await dbQuery(query);
-
-  const rawUpdateInfos = [];
-  for (let row of result) {
-    rawUpdateInfos.push(rawUpdateInfoFromRow(row));
-  }
-
-  return await fetchUpdateInfosWithRawUpdateInfos(
-    rawUpdateInfos,
+  return fetchUpdateInfosWithQuery(
     { viewer, calendarQuery },
+    query,
   );
 }
 
@@ -118,14 +123,10 @@ function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
 }
 
 const entryIDExtractString = "$.entryID";
-async function fetchUpdateInfoForEntryCreation(
+function fetchUpdateInfoForEntryCreation(
   viewer: Viewer,
   entryID: string,
 ): Promise<FetchUpdatesResult> {
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
   const query = SQL`
     SELECT id, type, content, time
     FROM updates
@@ -135,20 +136,28 @@ async function fetchUpdateInfoForEntryCreation(
     ORDER BY time DESC
     LIMIT 1
   `;
-  const [ result ] = await dbQuery(query);
+  return fetchUpdateInfosWithQuery({ viewer }, query);
+}
 
-  const rawUpdateInfos = [];
-  for (let row of result) {
-    rawUpdateInfos.push(rawUpdateInfoFromRow(row));
-  }
-
-  return await fetchUpdateInfosWithRawUpdateInfos(
-    rawUpdateInfos,
-    { viewer },
-  );
+const threadIDExtractString = "$.threadID";
+function fetchUpdateInfoForThreadDeletion(
+  viewer: Viewer,
+  threadID: string,
+): Promise<FetchUpdatesResult> {
+  const query = SQL`
+    SELECT id, type, content, time
+    FROM updates
+    WHERE user = ${viewer.id} AND
+      type = ${updateTypes.DELETE_THREAD} AND
+      JSON_EXTRACT(content, ${threadIDExtractString}) = ${threadID}
+    ORDER BY time DESC
+    LIMIT 1
+  `;
+  return fetchUpdateInfosWithQuery({ viewer }, query);
 }
 
 export {
   fetchUpdateInfos,
   fetchUpdateInfoForEntryCreation,
+  fetchUpdateInfoForThreadDeletion,
 };
