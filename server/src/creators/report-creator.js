@@ -21,6 +21,7 @@ import { fetchUsername } from '../fetchers/user-fetchers';
 import urlFacts from '../../facts/url';
 import createMessages from './message-creator';
 import { handleAsyncPromise } from '../responders/handlers';
+import { createBotViewer } from '../session/bots';
 
 const { baseDomain, basePath, https } = urlFacts;
 const { squadbot } = bots;
@@ -77,7 +78,7 @@ async function sendSquadbotMessage(
   }
   const time = Date.now();
   await createMessages(
-    viewer,
+    createBotViewer(squadbot.userID),
     [{
       type: messageTypes.TEXT,
       threadID: squadbot.ashoatThreadID,

@@ -355,7 +355,7 @@ async function redisPublish(
   messageInfosPerUser: {[userID: string]: $ReadOnlyArray<RawMessageInfo>},
 ) {
   for (let userID in messageInfosPerUser) {
-    if (userID === viewer.userID) {
+    if (userID === viewer.userID && viewer.hasSessionInfo) {
       continue;
     }
     const messageInfos = messageInfosPerUser[userID];
@@ -368,7 +368,7 @@ async function redisPublish(
     );
   }
   const viewerMessageInfos = messageInfosPerUser[viewer.userID];
-  if (!viewerMessageInfos) {
+  if (!viewerMessageInfos || !viewer.hasSessionInfo) {
     return;
   }
   const sessionIDs = await fetchOtherSessionsForViewer(viewer);
