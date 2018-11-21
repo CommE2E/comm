@@ -123,7 +123,7 @@ function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
 }
 
 const entryIDExtractString = "$.entryID";
-function fetchUpdateInfoForEntryCreation(
+function fetchUpdateInfoForEntryUpdate(
   viewer: Viewer,
   entryID: string,
 ): Promise<FetchUpdatesResult> {
@@ -158,6 +158,6 @@ function fetchUpdateInfoForThreadDeletion(
 
 export {
   fetchUpdateInfos,
-  fetchUpdateInfoForEntryCreation,
+  fetchUpdateInfoForEntryUpdate,
   fetchUpdateInfoForThreadDeletion,
 };

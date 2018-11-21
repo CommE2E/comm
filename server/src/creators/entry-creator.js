@@ -23,8 +23,8 @@ import {
   createUpdateDatasForChangedEntryInfo,
 } from '../updaters/entry-updaters';
 import { fetchEntryInfoForLocalID } from '../fetchers/entry-fetchers';
-import { fetchMessageInfoForEntryCreation } from '../fetchers/message-fetchers';
-import { fetchUpdateInfoForEntryCreation } from '../fetchers/update-fetchers';
+import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
+import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
 import { creationString } from '../utils/idempotent';
 
 async function createEntry(
@@ -51,8 +51,13 @@ async function createEntry(
     const { id: entryID, threadID } = existingEntryInfo;
     invariant(entryID, "should be set");
     const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
-      fetchMessageInfoForEntryCreation(viewer, entryID, threadID),
-      fetchUpdateInfoForEntryCreation(viewer, entryID),
+      fetchMessageInfoForEntryAction(
+        viewer,
+        messageTypes.CREATE_ENTRY,
+        entryID,
+        threadID,
+      ),
+      fetchUpdateInfoForEntryUpdate(viewer, entryID),
     ]);
     return {
       entryID,

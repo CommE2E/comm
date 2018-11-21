@@ -5,6 +5,7 @@ import type { UserInfos } from 'lib/types/user-types';
 import {
   type RawMessageInfo,
   messageTypes,
+  type MessageType,
   assertMessageType,
   type ThreadSelectionCriteria,
   type MessageTruncationStatus,
@@ -584,8 +585,9 @@ async function fetchMessageInfoForLocalID(
 }
 
 const entryIDExtractString = "$.entryID";
-async function fetchMessageInfoForEntryCreation(
+async function fetchMessageInfoForEntryAction(
   viewer: Viewer,
+  messageType: MessageType,
   entryID: string,
   threadID: string,
 ): Promise<?RawMessageInfo> {
@@ -596,7 +598,7 @@ async function fetchMessageInfoForEntryCreation(
     FROM messages m
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
-      m.type = ${messageTypes.CREATE_ENTRY} AND
+      m.type = ${messageType} AND
       JSON_EXTRACT(m.content, ${entryIDExtractString}) = ${entryID} AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
   `;
@@ -614,5 +616,5 @@ export {
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
   fetchMessageInfoForLocalID,
-  fetchMessageInfoForEntryCreation,
+  fetchMessageInfoForEntryAction,
 };

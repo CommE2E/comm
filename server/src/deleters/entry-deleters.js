@@ -13,6 +13,7 @@ import type {
 
 import { ServerError } from 'lib/utils/errors';
 import { dateString } from 'lib/utils/date-utils';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
@@ -21,6 +22,8 @@ import createMessages from '../creators/message-creator';
 import {
   createUpdateDatasForChangedEntryInfo,
 } from '../updaters/entry-updaters';
+import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
+import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
 
 const lastRevisionQuery = (entryID: string) =>
   (SQL`
@@ -57,8 +60,25 @@ async function deleteEntry(
     throw new ServerError('unknown_error');
   }
   const lastRevisionRow = lastRevisionResult[0];
+  const threadID = lastRevisionRow.thread.toString();
   if (lastRevisionRow.deleted) {
-    throw new ServerError('entry_deleted');
+    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+      fetchMessageInfoForEntryAction(
+        viewer,
+        messageTypes.DELETE_ENTRY,
+        request.entryID,
+        threadID,
+      ),
+      fetchUpdateInfoForEntryUpdate(viewer, request.entryID),
+    ]);
+    return {
+      threadID,
+      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      updatesResult: {
+        viewerUpdates: fetchUpdatesResult.updateInfos,
+        userInfos: values(fetchUpdatesResult.userInfos),
+      },
+    };
   }
 
   const text = lastRevisionRow.text;
@@ -96,7 +116,6 @@ async function deleteEntry(
     VALUES ${[revisionRow]}
   `));
 
-  const threadID = lastRevisionRow.thread.toString();
   const messageData = {
     type: messageTypes.DELETE_ENTRY,
     threadID,
@@ -159,11 +178,38 @@ async function restoreEntry(
     throw new ServerError('unknown_error');
   }
   const lastRevisionRow = lastRevisionResult[0];
-  if (!lastRevisionRow.deleted) {
-    throw new ServerError('entry_not_deleted');
+  const oldEntryInfo = {
+    id: request.entryID,
+    threadID: lastRevisionRow.thread.toString(),
+    text: lastRevisionRow.text,
+    year: lastRevisionRow.year,
+    month: lastRevisionRow.month,
+    day: lastRevisionRow.day,
+    creationTime: lastRevisionRow.creation_time,
+    creatorID: lastRevisionRow.creator.toString(),
+    deleted: !!lastRevisionRow.deleted,
+  };
+
+  if (!oldEntryInfo.deleted) {
+    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+      fetchMessageInfoForEntryAction(
+        viewer,
+        messageTypes.RESTORE_ENTRY,
+        request.entryID,
+        oldEntryInfo.threadID,
+      ),
+      fetchUpdateInfoForEntryUpdate(viewer, request.entryID),
+    ]);
+    return {
+      entryInfo: oldEntryInfo,
+      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      updatesResult: {
+        viewerUpdates: fetchUpdatesResult.updateInfos,
+        userInfos: values(fetchUpdatesResult.userInfos),
+      },
+    };
   }
 
-  const text = lastRevisionRow.text;
   const viewerID = viewer.userID;
   const dbPromises = [];
   dbPromises.push(dbQuery(SQL`
@@ -174,7 +220,7 @@ async function restoreEntry(
     revisionID,
     request.entryID,
     viewerID,
-    text,
+    oldEntryInfo.text,
     request.timestamp,
     viewer.session,
     request.timestamp,
@@ -186,27 +232,14 @@ async function restoreEntry(
     VALUES ${[revisionRow]}
   `));
 
-  const threadID = lastRevisionRow.thread.toString();
   const messageData = {
     type: messageTypes.RESTORE_ENTRY,
-    threadID,
+    threadID: oldEntryInfo.threadID,
     creatorID: viewerID,
     time: Date.now(),
     entryID: request.entryID.toString(),
     date: dateString(lastRevisionRow.date),
-    text,
-  };
-
-  const oldEntryInfo = {
-    id: request.entryID,
-    threadID,
-    text,
-    year: lastRevisionRow.year,
-    month: lastRevisionRow.month,
-    day: lastRevisionRow.day,
-    creationTime: lastRevisionRow.creation_time,
-    creatorID: lastRevisionRow.creator.toString(),
-    deleted: true,
+    text: oldEntryInfo.text,
   };
   const newEntryInfo = {
     ...oldEntryInfo,
