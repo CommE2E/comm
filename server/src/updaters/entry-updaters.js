@@ -241,7 +241,7 @@ async function createUpdateDatasForChangedEntryInfo(
   }));
   const { userInfos, ...updatesResult } = await createUpdates(
     updateDatas,
-    { viewer, calendarQuery },
+    { viewer, calendarQuery, updatesForCurrentSession: "return" },
   );
   return {
     ...updatesResult,
