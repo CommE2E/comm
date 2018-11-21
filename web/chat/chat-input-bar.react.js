@@ -34,7 +34,6 @@ import {
   joinThread,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { getNewLocalID } from 'lib/utils/local-ids';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 
 import css from './chat-message-list.css';
@@ -47,6 +46,7 @@ type Props = {|
   viewerID: ?string,
   joinThreadLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
+  nextLocalID: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -66,6 +66,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
+    nextLocalID: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
@@ -211,7 +212,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     this.updateText("");
-    const localID = `local${getNewLocalID()}`;
+    const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
     const messageInfo = ({
@@ -287,6 +288,7 @@ export default connect(
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
     calendarQuery: nonThreadCalendarQuery(state),
+    nextLocalID: state.nextLocalID,
   }),
   { sendMessage, joinThread },
 )(ChatInputBar);

@@ -63,6 +63,7 @@ export type AppState = {|
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: bool,
+  nextLocalID: number,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";

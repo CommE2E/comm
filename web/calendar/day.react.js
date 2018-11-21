@@ -39,6 +39,7 @@ type Props = {
   onScreenThreadInfos: ThreadInfo[],
   viewerID: ?string,
   loggedIn: bool,
+  nextLocalID: number,
   // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
 };
@@ -92,11 +93,10 @@ class Day extends React.PureComponent<Props, State> {
     let actionLinks = null;
     const hovered = this.state.hovered;
     if (hovered) {
+      const actionLinksClassName =
+        `${css['action-links']} ${css['day-action-links']}`;
       actionLinks = (
-        <div
-          className={`${css['action-links']} ${css['day-action-links']}`}
-          ref={this.actionLinksRef}
-        >
+        <div className={actionLinksClassName} ref={this.actionLinksRef}>
           <a
             href="#"
             className={css['add-entry-button']}
@@ -247,6 +247,7 @@ class Day extends React.PureComponent<Props, State> {
       createLocalEntryActionType,
       createLocalEntry(
         threadID,
+        this.props.nextLocalID,
         this.props.dayString,
         viewerID,
       ),
@@ -289,6 +290,7 @@ Day.propTypes = {
   onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
   viewerID: PropTypes.string,
   loggedIn: PropTypes.bool.isRequired,
+  nextLocalID: PropTypes.number.isRequired,
   dispatchActionPayload: PropTypes.func.isRequired,
 };
 
@@ -298,6 +300,7 @@ export default connect(
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
+    nextLocalID: state.nextLocalID,
   }),
   null,
   true,

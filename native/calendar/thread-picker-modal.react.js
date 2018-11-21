@@ -43,6 +43,7 @@ type Props = {
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
+  nextLocalID: number,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -59,6 +60,7 @@ class ThreadPickerModal extends React.PureComponent<Props> {
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    nextLocalID: PropTypes.number.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -76,12 +78,12 @@ class ThreadPickerModal extends React.PureComponent<Props> {
   }
 
   threadPicked = (threadID: string) => {
-    const { viewerID } = this.props;
+    const { viewerID, nextLocalID } = this.props;
     const { dateString } = this.props.navigation.state.params;
     invariant(dateString && viewerID, "should be set");
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
-      createLocalEntry(threadID, dateString, viewerID),
+      createLocalEntry(threadID, nextLocalID, dateString, viewerID),
     );
   }
 
@@ -106,6 +108,7 @@ export default connect(
     onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     threadSearchIndex: threadSearchIndex(state),
+    nextLocalID: state.nextLocalID,
   }),
   null,
   true,

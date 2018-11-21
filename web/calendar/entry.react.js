@@ -162,6 +162,8 @@ class Entry extends React.PureComponent<Props, State> {
           </a>
         );
       }
+      const rightActionLinksClassName =
+        `${css['right-action-links']} ${css['action-links-text']}`;
       actionLinks = (
         <div className={css['action-links']}>
           <a
@@ -173,9 +175,7 @@ class Entry extends React.PureComponent<Props, State> {
             <span className={css['action-links-text']}>Delete</span>
           </a>
           {historyButton}
-          <span className={
-            `${css['right-action-links']} ${css['action-links-text']}`
-          }>
+          <span className={rightActionLinksClassName}>
             {this.props.threadInfo.uiName}
           </span>
           <div className={css['clear']}></div>

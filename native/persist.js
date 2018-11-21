@@ -9,9 +9,10 @@ import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 
-import { nativeCalendarQuery } from './selectors/nav-selectors';
 import version from 'lib/facts/version';
+import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 
+import { nativeCalendarQuery } from './selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
 const blacklist = __DEV__
@@ -86,6 +87,10 @@ const migrations = {
       actualizedCalendarQuery: undefined,
     },
   }),
+  [9]: (state: AppState) => ({
+    ...state,
+    nextLocalID: highestLocalIDSelector(state),
+  }),
 };
 
 const persistConfig = {
@@ -93,7 +98,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 8,
+  version: 9,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

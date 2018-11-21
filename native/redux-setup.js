@@ -107,6 +107,7 @@ export type AppState = {|
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: bool,
+  nextLocalID: number,
   _persist: ?PersistState,
   sessionID?: void,
 |};
@@ -144,6 +145,7 @@ const defaultState = ({
   connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   foreground: true,
+  nextLocalID: 0,
   _persist: null,
 }: AppState);
 

@@ -159,6 +159,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       },
       watchedThreadIDs: [],
       foreground: true,
+      nextLocalID: 0,
     }: AppState),
   );
   const routerContext = {};
