@@ -90,6 +90,10 @@ const migrations = {
   [9]: (state: AppState) => ({
     ...state,
     nextLocalID: highestLocalIDSelector(state),
+    connection: {
+      ...state.connection,
+      lateResponses: [],
+    },
   }),
 };
 

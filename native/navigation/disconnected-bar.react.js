@@ -8,11 +8,13 @@ import {
 
 import * as React from 'react';
 import { View, Text, StyleSheet, LayoutAnimation } from 'react-native';
+import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
   connectionStatus: ConnectionStatus,
+  someRequestIsLate: bool,
 |};
 type State = {|
   disconnected: bool,
@@ -21,20 +23,25 @@ class DisconnectedBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     connectionStatus: connectionStatusPropType.isRequired,
+    someRequestIsLate: PropTypes.bool.isRequired,
   };
   state = {
     disconnected: false,
   };
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const { connectionStatus } = this.props;
+    const { connectionStatus, someRequestIsLate } = this.props;
+
+    let newDisconnected;
+    if (someRequestIsLate) {
+      newDisconnected = true;
+    } else if (connectionStatus !== "disconnected") {
+      newDisconnected = connectionStatus === "reconnecting";
+    }
+
     const { disconnected } = this.state;
-    if (connectionStatus !== "disconnected") {
-      if (connectionStatus === "reconnecting" && !disconnected) {
-        this.setState({ disconnected: true });
-      } else if (connectionStatus !== "reconnecting" && disconnected) {
-        this.setState({ disconnected: false });
-      }
+    if (newDisconnected !== undefined && newDisconnected !== disconnected) {
+      this.setState({ disconnected: newDisconnected });
     }
 
     if (this.state.disconnected !== prevState.disconnected) {
@@ -77,4 +84,5 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   connectionStatus: state.connection.status,
+  someRequestIsLate: state.connection.lateResponses.length !== 0,
 }))(DisconnectedBar);
