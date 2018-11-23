@@ -26,51 +26,54 @@ async function rescindPushNotifs(
   const promises = [];
   const rescindedIDs = [];
   for (let row of fetchResult) {
-    if (row.delivery.iosID) {
-      const notification = prepareIOSNotification(
-        row.delivery.iosID,
-        row.unread_count,
-      );
-      promises.push(apnPush(
-        notification,
-        row.delivery.iosDeviceTokens,
-      ));
-    }
-    if (row.delivery.androidID) {
-      const notification = prepareAndroidNotification(
-        row.collapse_key ? row.collapse_key : row.id.toString(),
-        row.unread_count,
-      );
-      promises.push(fcmPush(
-        notification,
-        row.delivery.androidDeviceTokens,
-        null,
-      ));
-    }
-    if (Array.isArray(row.delivery)) {
-      for (let delivery of row.delivery) {
-        if (delivery.deviceType === "ios") {
-          const { iosID, deviceTokens } = delivery;
-          const notification = prepareIOSNotification(
-            iosID,
-            row.unread_count,
-          );
-          promises.push(apnPush(
-            notification,
-            deviceTokens,
-          ));
-        } else if (delivery.deviceType === "android") {
-          const { deviceTokens } = delivery;
-          const notification = prepareAndroidNotification(
-            row.collapse_key ? row.collapse_key : row.id.toString(),
-            row.unread_count,
-          );
-          promises.push(fcmPush(
-            notification,
-            deviceTokens,
-            null,
-          ));
-        }
+    const deliveries = Array.isArray(row.delivery)
+      ? row.delivery
+      : [ row.delivery ];
+    for (let delivery of row.delivery) {
+      if (row.delivery.iosID && row.delivery.iosDeviceTokens) {
+        // Old iOS
+        const notification = prepareIOSNotification(
+          row.delivery.iosID,
+          row.unread_count,
+        );
+        promises.push(apnPush(
+          notification,
+          row.delivery.iosDeviceTokens,
+        ));
+      } else if (row.delivery.androidID) {
+        // Old Android
+        const notification = prepareAndroidNotification(
+          row.collapse_key ? row.collapse_key : row.id.toString(),
+          row.unread_count,
+        );
+        promises.push(fcmPush(
+          notification,
+          row.delivery.androidDeviceTokens,
+          null,
+        ));
+      } else if (delivery.deviceType === "ios") {
+        // New iOS
+        const { iosID, deviceTokens } = delivery;
+        const notification = prepareIOSNotification(
+          iosID,
+          row.unread_count,
+        );
+        promises.push(apnPush(
+          notification,
+          deviceTokens,
+        ));
+      } else if (delivery.deviceType === "android") {
+        // New Android
+        const { deviceTokens } = delivery;
+        const notification = prepareAndroidNotification(
+          row.collapse_key ? row.collapse_key : row.id.toString(),
+          row.unread_count,
+        );
+        promises.push(fcmPush(
+          notification,
+          deviceTokens,
+          null,
+        ));
       }
     }
     rescindedIDs.push(row.id);

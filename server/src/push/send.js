@@ -50,6 +50,15 @@ type PushUserInfo = {|
   devices: Device[],
   messageInfos: RawMessageInfo[],
 |};
+type Delivery = IOSDelivery | AndroidDelivery | {| collapsedInto: string |};
+type NotificationRow = {|
+  dbID: string,
+  userID: string,
+  threadID: string,
+  messageID: string,
+  collapseKey: ?string,
+  deliveries: Delivery[];
+|};
 export type PushInfo = { [userID: string]: PushUserInfo };
 
 async function sendPushNotifs(pushInfo: PushInfo) {
@@ -68,7 +77,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   ]);
 
   const deliveryPromises = [];
-  const notifications = [];
+  const notifications: Map<string, NotificationRow> = new Map();
   for (let userID in usersToCollapsableNotifInfo) {
     const threadInfos = _flow(
       _mapValues(
@@ -187,15 +196,16 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       for (let newMessageInfo of remainingNewMessageInfos) {
         const newDBID = dbIDs.shift();
         invariant(newDBID, "should have sufficient DB IDs");
-        notifications.push([
-          newDBID,
+        const messageID = newMessageInfo.id;
+        invariant(messageID, "RawMessageInfo.id should be set on server");
+        notifications.set(newDBID, {
+          dbID: newDBID,
           userID,
-          newMessageInfo.threadID,
-          newMessageInfo.id,
-          notifInfo.collapseKey,
-          JSON.stringify({ collapsedInto: dbID }),
-          0,
-        ]);
+          threadID: newMessageInfo.threadID,
+          messageID,
+          collapseKey: notifInfo.collapseKey,
+          deliveries: [ { collapsedInto: dbID } ],
+        });
       }
     }
   }
@@ -213,16 +223,21 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   const allInvalidTokens = [];
   for (let deliveryResult of deliveryResults) {
     const { info, delivery, invalidTokens } = deliveryResult;
-    const { dbID, userID, threadID, messageID, collapseKey } = info;
-    notifications.push([
-      dbID,
-      userID,
-      threadID,
-      messageID,
-      collapseKey,
-      JSON.stringify(delivery),
-      0,
-    ]);
+    const { dbID, userID } = info;
+    const curNotifRow = notifications.get(dbID);
+    if (curNotifRow) {
+      curNotifRow.deliveries.push(delivery);
+    } else {
+      const { threadID, messageID, collapseKey } = info;
+      notifications.set(dbID, {
+        dbID,
+        userID,
+        threadID,
+        messageID,
+        collapseKey,
+        deliveries: [ delivery ],
+      });
+    }
     if (invalidTokens) {
       allInvalidTokens.push({
         userID,
@@ -231,15 +246,28 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     }
   }
 
+  const notificationRows = [];
+  for (let notification of notifications.values()) {
+    notificationRows.push([
+      notification.dbID,
+      notification.userID,
+      notification.threadID,
+      notification.messageID,
+      notification.collapseKey,
+      JSON.stringify(notification.deliveries),
+      0,
+    ]);
+  }
+
   const dbPromises = [];
   if (allInvalidTokens.length > 0) {
     dbPromises.push(removeInvalidTokens(allInvalidTokens));
   }
-  if (notifications.length > 0) {
+  if (notificationRows.length > 0) {
     const query = SQL`
       INSERT INTO notifications
         (id, user, thread, message, collapse_key, delivery, rescinded)
-      VALUES ${notifications}
+      VALUES ${notificationRows}
     `;
     dbPromises.push(dbQuery(query));
   }
