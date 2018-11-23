@@ -7,7 +7,7 @@ import {
 } from 'lib/types/socket-types';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, LayoutAnimation } from 'react-native';
+import { View, Text, StyleSheet, LayoutAnimation, NetInfo } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -28,12 +28,35 @@ class DisconnectedBar extends React.PureComponent<Props, State> {
   state = {
     disconnected: false,
   };
+  networkActive = true;
+
+  componentDidMount() {
+    NetInfo.addEventListener(
+      'connectionChange',
+      this.handleConnectionChange,
+    );
+    NetInfo.getConnectionInfo().then(this.handleConnectionChange);
+  }
+
+  componentWillUnmount() {
+    NetInfo.removeEventListener(
+      'connectionChange',
+      this.handleConnectionChange,
+    );
+  }
+
+  handleConnectionChange = connectionInfo => {
+    this.networkActive = connectionInfo.type !== "none";
+    if (!this.networkActive && !this.state.disconnected) {
+      this.setState({ disconnected: true });
+    }
+  }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { connectionStatus, someRequestIsLate } = this.props;
 
     let newDisconnected;
-    if (someRequestIsLate) {
+    if (!this.networkActive || someRequestIsLate) {
       newDisconnected = true;
     } else if (connectionStatus !== "disconnected") {
       newDisconnected = connectionStatus === "reconnecting";
