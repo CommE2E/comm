@@ -31,35 +31,35 @@ class DisconnectedBar extends React.PureComponent<Props, State> {
   networkActive = true;
 
   componentDidMount() {
-    NetInfo.addEventListener(
+    NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.handleConnectionChange,
     );
-    NetInfo.getConnectionInfo().then(this.handleConnectionChange);
+    NetInfo.isConnected.fetch().then(this.handleConnectionChange);
   }
 
   componentWillUnmount() {
-    NetInfo.removeEventListener(
+    NetInfo.isConnected.removeEventListener(
       'connectionChange',
       this.handleConnectionChange,
     );
   }
 
-  handleConnectionChange = connectionInfo => {
-    this.networkActive = connectionInfo.type !== "none";
+  handleConnectionChange = isConnected => {
+    this.networkActive = isConnected;
     if (!this.networkActive && !this.state.disconnected) {
       this.setState({ disconnected: true });
     }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const { connectionStatus, someRequestIsLate } = this.props;
+    const { connectionStatus: status, someRequestIsLate } = this.props;
 
     let newDisconnected;
     if (!this.networkActive || someRequestIsLate) {
       newDisconnected = true;
-    } else if (connectionStatus !== "disconnected") {
-      newDisconnected = connectionStatus === "reconnecting";
+    } else if (status !== "disconnected" && status !== "connecting") {
+      newDisconnected = status === "reconnecting";
     }
 
     const { disconnected } = this.state;
@@ -67,7 +67,7 @@ class DisconnectedBar extends React.PureComponent<Props, State> {
       this.setState({ disconnected: newDisconnected });
     }
 
-    if (this.state.disconnected !== prevState.disconnected) {
+    if (disconnected !== prevState.disconnected) {
       LayoutAnimation.easeInEaseOut();
     }
   }
