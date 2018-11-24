@@ -37,7 +37,6 @@ type KeyboardChangeEvent = {
 type Props = {|
   children?: React.Node,
   style?: ViewStyle,
-  keyboardVerticalOffset: number,
 |};
 type State = {|
   bottom: number,
@@ -47,10 +46,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   static propTypes = {
     children: PropTypes.node,
     style: ViewPropTypes.style,
-    keyboardVerticalOffset: PropTypes.number.isRequired,
-  };
-  static defaultProps = {
-    keyboardVerticalOffset: 0,
   };
   state = {
     bottom: 0,
@@ -64,12 +59,9 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     if (!frame || !keyboardFrame) {
       return 0;
     }
-
-    const keyboardY = keyboardFrame.screenY - this.props.keyboardVerticalOffset;
-
     // Calculate the displacement needed for the view such that it
     // no longer overlaps with the keyboard
-    return Math.max(frame.y + frame.height - keyboardY, 0);
+    return Math.max(frame.y + frame.height - keyboardFrame.screenY, 0);
   }
 
   onKeyboardChange = (event: ?KeyboardChangeEvent) => {

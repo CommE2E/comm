@@ -757,10 +757,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={[entryStyles.entry, entryStyles.text]}
         />
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          keyboardVerticalOffset={0}
-        >
+        <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
           {loadingIndicator}
           {flatList}
           <CalendarInputBar
