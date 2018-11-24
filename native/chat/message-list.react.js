@@ -56,7 +56,6 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadSettingsButton from './thread-settings-button.react';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 type NavProp =
   & {
@@ -455,7 +454,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const inputBar = <ChatInputBar threadInfo={threadInfo} />;
 
     return (
-      <KeyboardAvoidingView style={styles.container}>
+      <View style={styles.container}>
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
@@ -464,7 +463,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
           {flatList}
         </View>
         {inputBar}
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 

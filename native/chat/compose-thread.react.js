@@ -62,7 +62,6 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const tagInputProps = {
   placeholder: "username",
@@ -314,8 +313,8 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       ...tagInputProps,
       onSubmitEditing: this.onPressCreateThread,
     };
-    const content = (
-      <React.Fragment>
+    return (
+      <View style={styles.container}>
         {parentThreadRow}
         <View style={styles.userSelectionRow}>
           <Text style={styles.tagInputLabel}>To: </Text>
@@ -339,12 +338,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
           />
         </View>
         {existingThreadsSection}
-      </React.Fragment>
-    );
-    return (
-      <KeyboardAvoidingView style={styles.container}>
-        {content}
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 

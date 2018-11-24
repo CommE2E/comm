@@ -13,6 +13,7 @@
     "color": "^2.0.0",
     "find-root": "^1.1.0",
     "fs-extra": "^6.0.1",
+    "hoist-non-react-statics": "^3.1.0",
     "invariant": "^2.2.2",
     "lib": "0.0.1",
     "lodash": "^4.17.5",

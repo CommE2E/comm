@@ -6,8 +6,9 @@ import type {
 } from 'react-navigation';
 
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import ChatThreadList from './chat-thread-list.react';
 import MessageList from './message-list.react';
@@ -25,6 +26,7 @@ import {
   ChatThreadListRouteName,
 } from '../navigation/route-names';
 import Header from '../navigation/header.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const Chat = createStackNavigator(
   {
@@ -68,4 +70,17 @@ Chat.navigationOptions = ({ navigation }) => ({
   },
 });
 
-export default Chat;
+const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+});
+
+const KeyboardAvoidingChat = (props: *) => (
+  <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
+    <Chat {...props} />
+  </KeyboardAvoidingView>
+);
+hoistNonReactStatics(KeyboardAvoidingChat, Chat);
+
+export default KeyboardAvoidingChat;

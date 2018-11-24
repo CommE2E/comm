@@ -36,7 +36,6 @@ import {
   ComposeThreadRouteName,
   MessageListRouteName,
 } from '../navigation/route-names';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const floatingActions = [{
   text: 'Compose',
@@ -236,8 +235,8 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
         />
       );
     }
-    const content = (
-      <React.Fragment>
+    return (
+      <View style={styles.container}>
         <FlatList
           data={this.state.listData}
           renderItem={this.renderItem}
@@ -249,12 +248,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
           style={styles.flatList}
         />
         {floatingAction}
-      </React.Fragment>
-    );
-    return (
-      <KeyboardAvoidingView style={styles.container}>
-        {content}
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 
