@@ -108,6 +108,10 @@ const migrations = {
       ...state.connection,
       showDisconnectedBar: false,
     },
+    messageStore: {
+      ...state.messageStore,
+      local: {},
+    },
   }),
 };
 

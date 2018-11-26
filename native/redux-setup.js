@@ -129,6 +129,7 @@ const defaultState = ({
   messageStore: {
     messages: {},
     threads: {},
+    local: {},
     currentAsOf: 0,
   },
   drafts: {},
