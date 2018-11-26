@@ -56,10 +56,17 @@ class DisconnectedBar extends React.PureComponent<Props, State> {
     const { connectionStatus: status, someRequestIsLate } = this.props;
 
     let newDisconnected;
-    if (!this.networkActive || someRequestIsLate) {
+    if (status === "connected" && prevProps.connectionStatus !== "connected") {
+      // Sometimes NetInfo misses the network coming back online for some
+      // reason. But if the socket reconnects, the network must be up
+      this.networkActive = true;
+      newDisconnected = false;
+    } else if (!this.networkActive || someRequestIsLate) {
       newDisconnected = true;
-    } else if (status !== "disconnected" && status !== "connecting") {
-      newDisconnected = status === "reconnecting";
+    } else if (status === "reconnecting" || status === "forcedDisconnecting") {
+      newDisconnected = true;
+    } else if (status === "connected") {
+      newDisconnected = false;
     }
 
     const { disconnected } = this.state;
