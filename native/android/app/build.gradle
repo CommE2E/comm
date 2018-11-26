@@ -109,8 +109,8 @@ android {
         applicationId "org.squadcal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "0.0.24"
+        versionCode 25
+        versionName "0.0.25"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
