@@ -95,6 +95,20 @@ const migrations = {
       lateResponses: [],
     },
   }),
+  [9]: (state: AppState) => ({
+    ...state,
+    connection: {
+      ...state.connection,
+      lateResponses: [],
+    },
+  }),
+  [10]: (state: AppState) => ({
+    ...state,
+    connection: {
+      ...state.connection,
+      showDisconnectedBar: false,
+    },
+  }),
 };
 
 const persistConfig = {
@@ -102,7 +116,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 9,
+  version: 10,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 

@@ -84,6 +84,8 @@ import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import { AppRouteName } from './navigation/route-names';
 import MessageStorePruner from './chat/message-store-pruner.react';
+import DisconnectedBarVisibilityHandler
+  from './navigation/disconnected-bar-visibility-handler.react';
 import Socket from './socket.react';
 
 const msInDay = 24 * 60 * 60 * 1000;
@@ -639,6 +641,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           ref={this.inAppNotificationRef}
         />
         <MessageStorePruner />
+        <DisconnectedBarVisibilityHandler />
       </View>
     );
   }
