@@ -107,10 +107,7 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
       ? <ActivityIndicator size="small" color="white" />
       : <Text style={styles.saveText}>Delete account</Text>;
     return (
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        style={styles.container}
-      >
+      <ScrollView contentContainerStyle={styles.scrollView}>
         <View>
           <Text style={styles.warningText}>
             Your account will be permanently deleted.
@@ -213,9 +210,6 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#E9E9EF",
-  },
   scrollView: {
     paddingTop: 24,
   },

@@ -15,10 +15,7 @@ class BuildInfo extends React.PureComponent<Props> {
 
   render() {
     return (
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        style={styles.container}
-      >
+      <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.section}>
           <View style={styles.row}>
             <Text style={styles.label}>Release</Text>
@@ -47,9 +44,6 @@ class BuildInfo extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#E9E9EF",
-  },
   scrollView: {
     paddingTop: 24,
   },

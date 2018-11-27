@@ -297,7 +297,6 @@ class InnerMoreScreen extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E9E9EF",
   },
   scrollView: {
     paddingVertical: 24,

@@ -545,7 +545,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E9E9EF",
   },
   flatListContainer: {
     flex: 1,

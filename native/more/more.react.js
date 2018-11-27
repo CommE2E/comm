@@ -34,6 +34,9 @@ const More = createStackNavigator(
     defaultNavigationOptions: {
       header: Header,
     },
+    cardStyle: {
+      backgroundColor: "#E9E9EF",
+    },
   },
 );
 More.navigationOptions = ({ navigation }) => ({
