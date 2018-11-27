@@ -88,6 +88,11 @@ import DisconnectedBarVisibilityHandler
   from './navigation/disconnected-bar-visibility-handler.react';
 import Socket from './socket.react';
 
+if (Platform.OS === "android") {
+  UIManager.setLayoutAnimationEnabledExperimental &&
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 const msInDay = 24 * 60 * 60 * 1000;
 const ReduxifiedRootNavigator = reduxifyNavigator(RootNavigator, "root");
 
