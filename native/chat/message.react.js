@@ -30,7 +30,7 @@ function messageItemHeight(
     height += robotextMessageItemHeight(item, viewerID);
   }
   if (item.startsConversation) {
-    height += 26; // for time bar
+    height += 27; // for time bar
   }
   return height;
 }
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
   conversationHeader: {
     color: '#777777',
     fontSize: 14,
+    paddingTop: 1,
     paddingBottom: 7,
     alignSelf: 'center',
     height: 26,

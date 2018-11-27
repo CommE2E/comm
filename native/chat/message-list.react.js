@@ -12,6 +12,7 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import {
   type TextMessageInfo,
   type RobotextMessageInfo,
+  type LocalMessageInfo,
   type FetchMessageInfosPayload,
   messageTypes,
 } from 'lib/types/message-types';
@@ -81,6 +82,7 @@ export type ChatMessageInfoItemWithHeight =
   RobotextChatMessageInfoItemWithHeight | {|
     itemType: "message",
     messageInfo: TextMessageInfo,
+    localMessageInfo: ?LocalMessageInfo,
     threadInfo: ThreadInfo,
     startsConversation: bool,
     startsCluster: bool,
@@ -200,11 +202,15 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       if (item.itemType !== "message") {
         continue;
       }
-      const messageInfo = item.messageInfo;
+      const { messageInfo } = item;
       if (messageInfo.type === messageTypes.TEXT) {
-        const style = onlyEmojiRegex.test(messageInfo.text)
-          ? styles.emojiOnlyText
-          : styles.text;
+        const { isViewer } = messageInfo.creator;
+        const style = [
+          onlyEmojiRegex.test(messageInfo.text)
+            ? styles.emojiOnlyText
+            : styles.text,
+          isViewer ? styles.viewerMargins : styles.nonViewerMargins,
+        ];
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: messageInfo.text,
@@ -315,9 +321,14 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         `height for ${messageKey(item.messageInfo)} should be set`,
       );
       if (item.messageInfo.type === messageTypes.TEXT) {
+        // Conditional due to Flow...
+        const localMessageInfo = item.localMessageInfo
+          ? item.localMessageInfo
+          : null;
         return {
           itemType: "message",
           messageInfo: item.messageInfo,
+          localMessageInfo,
           threadInfo,
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
@@ -540,15 +551,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  text: {
+  viewerMargins: {
+    left: 24,
+    right: 42,
+  },
+  nonViewerMargins: {
     left: 24,
     right: 24,
+  },
+  text: {
     fontSize: 18,
     fontFamily: 'Arial',
   },
   emojiOnlyText: {
-    left: 24,
-    right: 24,
     fontSize: 36,
     fontFamily: 'Arial',
   },

@@ -17,6 +17,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
 import Hyperlink from 'react-native-hyperlink';
+import Icon from 'react-native-vector-icons/Feather';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
@@ -73,26 +74,37 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   render() {
-    const isViewer = this.props.item.messageInfo.creator.isViewer;
-    let containerStyle = null,
+    invariant(
+      this.props.item.messageInfo.type === messageTypes.TEXT,
+      "TextMessage should only be used for messageTypes.TEXT",
+    );
+    const { text, id, creator } = this.props.item.messageInfo;
+    const threadColor = this.props.item.threadInfo.color;
+
+    const { isViewer } = creator;
+    let alignStyle = null,
       messageStyle = {},
       textCustomStyle = {},
       darkColor = false;
     if (isViewer) {
-      containerStyle = styles.rightChatBubble;
-      messageStyle.backgroundColor = `#${this.props.item.threadInfo.color}`;
-      darkColor = colorIsDark(this.props.item.threadInfo.color);
+      alignStyle = styles.rightChatBubble;
+      messageStyle.backgroundColor = `#${threadColor}`;
+      darkColor = colorIsDark(threadColor);
       textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
-      containerStyle = styles.leftChatBubble;
+      alignStyle = styles.leftChatBubble;
       messageStyle.backgroundColor = "#DDDDDDBB";
       textCustomStyle.color = 'black';
     }
+    const containerStyle = [
+      styles.alignment,
+      { marginBottom: this.props.item.endsCluster ? 12 : 5 },
+    ];
     let authorName = null;
     if (!isViewer && this.props.item.startsCluster) {
       authorName = (
         <Text style={styles.authorName}>
-          {stringForUser(this.props.item.messageInfo.creator)}
+          {stringForUser(creator)}
         </Text>
       );
     }
@@ -104,47 +116,67 @@ class TextMessage extends React.PureComponent<Props> {
       !isViewer && !this.props.item.startsCluster ? 0 : 8;
     messageStyle.borderBottomLeftRadius =
       !isViewer && !this.props.item.endsCluster ? 0 : 8;
-    messageStyle.marginBottom = this.props.item.endsCluster ? 12 : 5;
     if (this.props.focused) {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
     textCustomStyle.height = this.props.item.textHeight;
 
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const text = this.props.item.messageInfo.text;
+    let deliveryIcon = null;
+    if (isViewer) {
+      let deliveryIconName;
+      if (id !== null && id !== undefined) {
+        deliveryIconName = "check-circle";
+      } else {
+        const sendFailed = this.props.item.localMessageInfo
+          ? this.props.item.localMessageInfo.sendFailed
+          : null;
+        deliveryIconName = sendFailed ? "x-circle" : "circle";
+      }
+      deliveryIcon = (
+        <View style={styles.iconContainer}>
+          <Icon
+            name={deliveryIconName}
+            style={[styles.icon, { color: `#${threadColor}` }]}
+          />
+        </View>
+      );
+    }
 
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     const textStyle = onlyEmojiRegex.test(text)
       ? styles.emojiOnlyText
       : styles.text;
-    const content = (
-      <View style={[styles.message, messageStyle]}>
-        <Hyperlink linkDefault={true} linkStyle={linkStyle}>
-          <Text
-            onPress={this.onPress}
-            onLongPress={this.onPress}
-            style={[textStyle, textCustomStyle]}
-          >{text}</Text>
-        </Hyperlink>
-      </View>
+    const messageBlob = (
+      <Hyperlink
+        linkDefault={true}
+        style={[styles.message, messageStyle]}
+        linkStyle={linkStyle}
+      >
+        <Text
+          onPress={this.onPress}
+          onLongPress={this.onPress}
+          style={[textStyle, textCustomStyle]}
+        >{text}</Text>
+      </Hyperlink>
     );
 
     return (
       <View style={containerStyle}>
         {authorName}
-        <Tooltip
-          buttonComponent={content}
-          items={this.tooltipConfig}
-          labelStyle={styles.popoverLabelStyle}
-          onOpenTooltipMenu={this.onFocus}
-          onCloseTooltipMenu={this.onBlur}
-          componentWrapperStyle={containerStyle}
-          ref={this.tooltipRef}
-        />
+        <View style={[styles.content, alignStyle]}>
+          <View style={[styles.messageBlobContainer, alignStyle]}>
+            <Tooltip
+              buttonComponent={messageBlob}
+              items={this.tooltipConfig}
+              labelStyle={styles.popoverLabelStyle}
+              onOpenTooltipMenu={this.onFocus}
+              onCloseTooltipMenu={this.onBlur}
+              ref={this.tooltipRef}
+            />
+          </View>
+          {deliveryIcon}
+        </View>
       </View>
     );
   }
@@ -194,16 +226,24 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontFamily: 'Arial',
   },
+  alignment: {
+    marginLeft: 12,
+    marginRight: 7,
+  },
   message: {
-    overflow: 'hidden',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    marginHorizontal: 12,
+    marginRight: 5,
+    overflow: 'hidden',
+  },
+  messageBlobContainer: {
+    flex: 1,
+    flexDirection: 'row',
   },
   authorName: {
     color: '#777777',
     fontSize: 14,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     height: 25,
   },
@@ -220,10 +260,23 @@ const styles = StyleSheet.create({
     color: '#444',
   },
   leftChatBubble: {
-    alignSelf: 'flex-start',
+    justifyContent: 'flex-start',
   },
   rightChatBubble: {
-    alignSelf: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  iconContainer: {
+    marginLeft: 2,
+    width: 16,
   },
 });
 
