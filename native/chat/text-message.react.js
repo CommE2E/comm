@@ -5,21 +5,10 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
 import {
   messageTypes,
-  type SendTextMessageResult,
-  type RawTextMessageInfo,
-  type RawMessageInfo,
 } from 'lib/types/message-types';
-import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Clipboard,
-} from 'react-native';
+import { Text, StyleSheet, View, Clipboard } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
@@ -27,17 +16,12 @@ import Hyperlink from 'react-native-hyperlink';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { messageID, messageKey } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
-import { connect } from 'lib/utils/redux-utils';
-import {
-  sendMessageActionTypes,
-  sendMessage,
-} from 'lib/actions/message-actions';
 
 import Tooltip from '../components/tooltip.react';
-import Button from '../components/button.react';
+import FailedSend from './failed-send.react';
 
 function textMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -68,16 +52,6 @@ type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  // Redux state
-  rawMessageInfo: RawMessageInfo,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  sendMessage: (
-    threadID: string,
-    localID: string,
-    text: string,
-  ) => Promise<SendTextMessageResult>,
 };
 class TextMessage extends React.PureComponent<Props> {
 
@@ -85,9 +59,6 @@ class TextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    rawMessageInfo: PropTypes.object.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    sendMessage: PropTypes.func.isRequired,
   };
   tooltipConfig: $ReadOnlyArray<TooltipItemData>;
   tooltip: ?Tooltip;
@@ -171,18 +142,7 @@ class TextMessage extends React.PureComponent<Props> {
           : null;
         if (sendFailed) {
           deliveryIconName = "x-circle";
-          failedSendInfo = (
-            <View style={styles.failedSendInfo}>
-              <Text style={styles.deliveryFailed} numberOfLines={1}>
-                DELIVERY FAILED.
-              </Text>
-              <Button onPress={this.retrySend}>
-                <Text style={styles.retrySend} numberOfLines={1}>
-                  RETRY?
-                </Text>
-              </Button>
-            </View>
-          );
+          failedSendInfo = <FailedSend item={this.props.item} />;
         } else {
           deliveryIconName = "circle";
         }
@@ -270,49 +230,6 @@ class TextMessage extends React.PureComponent<Props> {
     }
   }
 
-  retrySend = () => {
-    const { rawMessageInfo } = this.props;
-    invariant(
-      rawMessageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const newRawMessageInfo = {
-      ...rawMessageInfo,
-      time: Date.now(),
-    };
-    this.props.dispatchActionPromise(
-      sendMessageActionTypes,
-      this.sendMessageAction(newRawMessageInfo),
-      undefined,
-      newRawMessageInfo,
-    );
-  }
-
-  async sendMessageAction(messageInfo: RawTextMessageInfo) {
-    try {
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        "localID should be set",
-      );
-      const result = await this.props.sendMessage(
-        messageInfo.threadID,
-        localID,
-        messageInfo.text,
-      );
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-      };
-    } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
-    }
-  }
-
 }
 
 const styles = StyleSheet.create({
@@ -376,39 +293,9 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     width: 16,
   },
-  failedSendInfo: {
-    paddingTop: 5,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginRight: 20,
-  },
-  deliveryFailed: {
-    paddingHorizontal: 3,
-    color: '#555555',
-  },
-  retrySend: {
-    paddingHorizontal: 3,
-    color: "#036AFF",
-  },
 });
 
-const ConnectedTextMessage = connect(
-  (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => {
-    const { messageInfo } = ownProps.item;
-    invariant(
-      messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const id = messageID(messageInfo);
-    return {
-      rawMessageInfo: state.messageStore.messages[id],
-    };
-  },
-  { sendMessage },
-)(TextMessage);
-
 export {
-  ConnectedTextMessage as TextMessage,
+  TextMessage,
   textMessageItemHeight,
 };
