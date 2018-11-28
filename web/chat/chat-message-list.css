@@ -84,7 +84,7 @@ div.conversationHeader {
   text-transform: uppercase;
   color: #777777;
   font-size: 14px;
-  padding-bottom: 7px;
+  padding: 7px 0;
   text-align: center;
 }
 div.conversationHeader:last-child {
@@ -102,7 +102,7 @@ div.robotext {
 
 div.textMessage {
   padding: 6px 12px;
-  margin: 0 12px;
+  margin: 0 7px 0 12px;
   cursor: pointer;
 }
 div.normalTextMessage {
@@ -123,4 +123,36 @@ span.authorName {
   color: #777777;
   font-size: 14px;
   padding: 4px 24px;
+}
+
+div.content {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+div.iconContainer {
+  margin-right: 1px;
+}
+div.iconContainer > svg {
+  height: 16px;
+}
+
+div.failedSend {
+  text-transform: uppercase;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-right: 20px;
+}
+span.deliveryFailed {
+  padding: 0 3px;
+  color: #555555;
+}
+a.retrySend {
+  padding: 0 3px;
+  color: #036AFF;
+  cursor: pointer;
 }
