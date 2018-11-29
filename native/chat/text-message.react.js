@@ -134,6 +134,7 @@ class TextMessage extends React.PureComponent<Props> {
     let failedSendInfo = null;
     if (isViewer) {
       let deliveryIconName;
+      let deliveryIconColor = threadColor;
       if (id !== null && id !== undefined) {
         deliveryIconName = "check-circle";
       } else {
@@ -142,6 +143,7 @@ class TextMessage extends React.PureComponent<Props> {
           : null;
         if (sendFailed) {
           deliveryIconName = "x-circle";
+          deliveryIconColor = "FF0000";
           failedSendInfo = <FailedSend item={this.props.item} />;
         } else {
           deliveryIconName = "circle";
@@ -151,7 +153,7 @@ class TextMessage extends React.PureComponent<Props> {
         <View style={styles.iconContainer}>
           <Icon
             name={deliveryIconName}
-            style={[styles.icon, { color: `#${threadColor}` }]}
+            style={[styles.icon, { color: `#${deliveryIconColor}` }]}
           />
         </View>
       );

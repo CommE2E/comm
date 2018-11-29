@@ -103,6 +103,7 @@ class TextMessage extends React.PureComponent<Props> {
     let failedSendInfo = null;
     if (isViewer) {
       let deliveryIconSpan;
+      let deliveryIconColor = threadColor;
       if (id !== null && id !== undefined) {
         deliveryIconSpan = <CheckCircleIcon />;
       } else {
@@ -111,6 +112,7 @@ class TextMessage extends React.PureComponent<Props> {
           : null;
         if (sendFailed) {
           deliveryIconSpan = <XCircleIcon />;
+          deliveryIconColor = "FF0000";
           failedSendInfo = (
             <FailedSend
               item={this.props.item}
@@ -124,7 +126,7 @@ class TextMessage extends React.PureComponent<Props> {
       deliveryIcon = (
         <div
           className={css.iconContainer}
-          style={{ color: `#${threadColor}` }}
+          style={{ color: `#${deliveryIconColor}` }}
         >
           {deliveryIconSpan}
         </div>
