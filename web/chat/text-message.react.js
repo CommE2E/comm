@@ -69,8 +69,8 @@ class TextMessage extends React.PureComponent<Props> {
     });
     const contentClassName = classNames({
       [css.content]: true,
-      [css.rightChatBubble]: isViewer,
-      [css.leftChatBubble]: !isViewer,
+      [css.viewerContent]: isViewer,
+      [css.nonViewerContent]: !isViewer,
     });
     let darkColor = false;
     const messageStyle = {};
