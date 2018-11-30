@@ -954,15 +954,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
     this.latestExtraData = {
       activeEntries: _pickBy(
-        (_, key: string) => {
-          if (visibleEntries[key]) {
-            return true;
-          }
-          const item = _find
-            (item => item.entryInfo && entryKey(item.entryInfo) === key)
-            (ldwh);
-          return !!item;
-        },
+        (_, key: string) => visibleEntries[key],
       )(this.latestExtraData.activeEntries),
       visibleEntries,
     };

@@ -74,6 +74,7 @@ import {
   foregroundKeySelector,
   nonThreadCalendarQuery,
 } from '../selectors/nav-selectors';
+import LoadingIndicator from './loading-indicator.react';
 
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -141,7 +142,7 @@ class InternalEntry extends React.Component<Props, State> {
     super(props);
     invariant(props.threadInfo, "should be set");
     this.state = {
-      editing: InternalEntry.isActive(props),
+      editing: false,
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight,
@@ -151,38 +152,12 @@ class InternalEntry extends React.Component<Props, State> {
       // threadInfo is undefined.
       threadInfo: props.threadInfo,
     };
+    this.state.editing = InternalEntry.isActive(props, this.state);
   }
 
   guardedSetState(input: $Shape<State>) {
     if (this.mounted) {
       this.setState(input);
-    }
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const wasActive = InternalEntry.isActive(this.props);
-    const willBeActive = InternalEntry.isActive(nextProps);
-    if (
-      !willBeActive &&
-      (nextProps.entryInfo.text !== this.props.entryInfo.text ||
-        nextProps.entryInfo.textHeight !== this.props.entryInfo.textHeight) &&
-      (nextProps.entryInfo.text !== this.state.text ||
-        nextProps.entryInfo.textHeight !== this.state.height)
-    ) {
-      this.guardedSetState({
-        text: nextProps.entryInfo.text,
-        height: nextProps.entryInfo.textHeight,
-      });
-    }
-    if (
-      nextProps.threadInfo &&
-      !_isEqual(nextProps.threadInfo)(this.state.threadInfo)
-    ) {
-      this.guardedSetState({ threadInfo: nextProps.threadInfo });
-    }
-    if (!nextProps.active && wasActive && this.textInput) {
-      this.textInput.blur();
-      this.completeEdit();
     }
   }
 
@@ -193,15 +168,39 @@ class InternalEntry extends React.Component<Props, State> {
       !_isEqual(nextProps.entryInfo)(this.props.entryInfo);
   }
 
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    const wasActive = InternalEntry.isActive(this.props);
-    const willBeActive = InternalEntry.isActive(nextProps);
-    const wasEditing = InternalEntry.isEditing(this.props, this.state);
-    const willBeEditing = InternalEntry.isEditing(nextProps, nextState);
-    if (!willBeEditing && wasEditing && this.textInput) {
-      this.textInput.blur();
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const wasActive = InternalEntry.isActive(prevProps, prevState);
+    const isActive = InternalEntry.isActive(this.props, this.state);
+
+    if (
+      !isActive &&
+      (this.props.entryInfo.text !== prevProps.entryInfo.text ||
+        this.props.entryInfo.textHeight !== prevProps.entryInfo.textHeight) &&
+      (this.props.entryInfo.text !== this.state.text ||
+        this.props.entryInfo.textHeight !== this.state.height)
+    ) {
+      this.guardedSetState({
+        text: this.props.entryInfo.text,
+        height: this.props.entryInfo.textHeight,
+      });
+      this.currentlySaving = null;
     }
-    if (nextState.height !== this.state.height || willBeActive !== wasActive) {
+
+    if (
+      this.props.threadInfo &&
+      !_isEqual(this.props.threadInfo)(this.state.threadInfo)
+    ) {
+      this.guardedSetState({ threadInfo: this.props.threadInfo });
+    }
+
+    // Our parent will set the active prop to false if something else gets
+    // pressed or if the Entry is scrolled out of view. In either of those cases
+    // we should complete the edit process.
+    if (!this.props.active && prevProps.active) {
+      this.completeEdit();
+    }
+
+    if (this.state.height !== prevState.height || isActive !== wasActive) {
       LayoutAnimation.easeInEaseOut();
     }
   }
@@ -216,17 +215,16 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.entryRef(entryKey(this.props.entryInfo), null);
   }
 
-  static isActive(props: Props) {
-    return props.active || !props.entryInfo.id;
-  }
-
-  static isEditing(props: Props, state: State) {
-    return (props.active && state.editing) || !props.entryInfo.id;
+  static isActive(props: Props, state: State) {
+    return props.active ||
+      state.editing ||
+      !props.entryInfo.id ||
+      state.loadingStatus !== "inactive";
   }
 
   render() {
-    const active = InternalEntry.isActive(this.props);
-    const editing = InternalEntry.isEditing(this.props, this.state);
+    const active = InternalEntry.isActive(this.props, this.state);
+    const { editing } = this.state;
 
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
@@ -297,6 +295,10 @@ class InternalEntry extends React.Component<Props, State> {
             </Button>
           </View>
           <View style={styles.rightLinks}>
+            <LoadingIndicator
+              loadingStatus={this.state.loadingStatus}
+              color={actionLinksColor}
+            />
             <Button
               onPress={this.onPressThreadName}
               iosFormat="highlight"
@@ -384,7 +386,7 @@ class InternalEntry extends React.Component<Props, State> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-    if (textInput && InternalEntry.isEditing(this.props, this.state)) {
+    if (textInput && this.state.editing) {
       this.enterEditMode();
     }
   }
@@ -414,9 +416,17 @@ class InternalEntry extends React.Component<Props, State> {
   setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
 
   completeEdit = () => {
+    // This gets called from CalendarInputBar (save button above keyboard),
+    // onPressEdit (save button in Entry action links), and in
+    // componentDidUpdate above when Calendar sets this Entry to inactive.
+    // Calendar does this if something else gets pressed or the Entry is
+    // scrolled out of view. Note that an Entry won't consider itself inactive
+    // until it's done updating the server with its state, and if the network
+    // requests fail it may stay "active".
+    if (this.textInput) {
+      this.textInput.blur();
+    }
     this.onBlur();
-    this.guardedSetState({ editing: false });
-    this.props.makeActive(entryKey(this.props.entryInfo), false);
   }
 
   onBlur = () => {
@@ -425,6 +435,8 @@ class InternalEntry extends React.Component<Props, State> {
     } else if (this.props.entryInfo.text !== this.state.text) {
       this.save();
     }
+    this.guardedSetState({ editing: false });
+    this.props.makeActive(entryKey(this.props.entryInfo), false);
   }
 
   save = () => {
@@ -466,6 +478,7 @@ class InternalEntry extends React.Component<Props, State> {
       }
     }
 
+    this.guardedSetState({ loadingStatus: "loading" });
     if (!serverID) {
       this.props.dispatchActionPromise(
         createEntryActionTypes,
@@ -483,7 +496,6 @@ class InternalEntry extends React.Component<Props, State> {
     const localID = this.props.entryInfo.localID;
     invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
-    this.guardedSetState({ loadingStatus: "loading" });
     try {
       const response = await this.props.createEntry({
         text,
@@ -520,7 +532,6 @@ class InternalEntry extends React.Component<Props, State> {
 
   async saveAction(entryID: string, newText: string) {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
-    this.guardedSetState({ loadingStatus: "loading" });
     try {
       const response = await this.props.saveEntry({
         entryID,
@@ -538,17 +549,22 @@ class InternalEntry extends React.Component<Props, State> {
         this.guardedSetState({ loadingStatus: "error" });
       }
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
+        const revertedText = e.payload.db;
         const onRefresh = () => {
-          this.guardedSetState({ loadingStatus: "inactive" });
+          this.guardedSetState({
+            loadingStatus: "inactive",
+            text: revertedText,
+          });
+          this.currentlySaving = revertedText;
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
-            { id: entryID, dbText: e.payload.db },
+            { id: entryID, dbText: revertedText },
           );
         };
         Alert.alert(
           "Concurrent modification",
           "It looks like somebody is attempting to modify that field at the " +
-            "same time as you! Please refresh the entry and try again.",
+            "same time as you! Please try again.",
           [
             { text: 'OK', onPress: onRefresh },
           ],
@@ -564,7 +580,7 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   onPressEdit = () => {
-    if (InternalEntry.isEditing(this.props, this.state)) {
+    if (this.state.editing) {
       this.completeEdit();
     } else {
       this.guardedSetState({ editing: true });
@@ -641,7 +657,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     position: 'absolute',
-    top: Platform.OS === "android" ? 5 : 0,
+    top: Platform.OS === "android" ? 2 : 0,
     left: 10,
     right: 10,
     padding: 0,
@@ -693,6 +709,7 @@ const styles = StyleSheet.create({
   },
   pencilIcon: {
     paddingTop: 1,
+    lineHeight: 13,
   },
 });
 
