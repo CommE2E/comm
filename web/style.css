@@ -190,6 +190,7 @@ span.entry-error {
   right: 5px;
   font-size: 16px;
   width: 6px;
+  color: red !important;
 }
 div.action-links {
   line-height: 90%;

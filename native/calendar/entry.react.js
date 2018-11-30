@@ -76,7 +76,7 @@ import {
 } from '../selectors/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
 
-type Props = {
+type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
   entryInfo: EntryInfoWithHeight,
   visible: bool,
@@ -90,6 +90,7 @@ type Props = {
   calendarQuery: () => CalendarQuery,
   threadPickerActive: bool,
   foregroundKey: string,
+  online: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -97,7 +98,7 @@ type Props = {
   createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryPayload>,
-};
+|};
 type State = {|
   editing: bool,
   text: string,
@@ -123,6 +124,7 @@ class InternalEntry extends React.Component<Props, State> {
     calendarQuery: PropTypes.func.isRequired,
     threadPickerActive: PropTypes.bool.isRequired,
     foregroundKey: PropTypes.string.isRequired,
+    online: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -202,6 +204,14 @@ class InternalEntry extends React.Component<Props, State> {
 
     if (this.state.height !== prevState.height || isActive !== wasActive) {
       LayoutAnimation.easeInEaseOut();
+    }
+
+    if (
+      this.props.online &&
+      !prevProps.online &&
+      this.state.loadingStatus === "error"
+    ) {
+      this.save();
     }
   }
 
@@ -526,6 +536,8 @@ class InternalEntry extends React.Component<Props, State> {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
       }
+      this.currentlySaving = null;
+      this.creating = false;
       throw e;
     }
   }
@@ -548,6 +560,7 @@ class InternalEntry extends React.Component<Props, State> {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
       }
+      this.currentlySaving = null;
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
         const revertedText = e.payload.db;
         const onRefresh = () => {
@@ -555,7 +568,6 @@ class InternalEntry extends React.Component<Props, State> {
             loadingStatus: "inactive",
             text: revertedText,
           });
-          this.currentlySaving = revertedText;
           this.props.dispatchActionPayload(
             concurrentModificationResetActionType,
             { id: entryID, dbText: revertedText },
@@ -724,6 +736,7 @@ const Entry = connect(
     calendarQuery: nonThreadCalendarQuery(state),
     threadPickerActive: activeThreadPickerSelector(state),
     foregroundKey: foregroundKeySelector(state),
+    online: state.connection.status === "connected",
   }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);

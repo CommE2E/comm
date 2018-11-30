@@ -50,7 +50,7 @@ import { HistoryVector, DeleteVector } from '../vectors.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 
-type Props = {
+type Props = {|
   innerRef: (key: string, me: Entry) => void,
   entryInfo: EntryInfo,
   focusOnFirstEntryNewerThan: (time: number) => void,
@@ -60,6 +60,7 @@ type Props = {
   threadInfo: ThreadInfo,
   loggedIn: bool,
   calendarQuery: () => CalendarQuery,
+  online: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -67,21 +68,37 @@ type Props = {
   createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryPayload>,
-};
-type State = {
+|};
+type State = {|
   focused: bool,
   loadingStatus: LoadingStatus,
   text: string,
-};
-
+|};
 class Entry extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    innerRef: PropTypes.func.isRequired,
+    entryInfo: entryInfoPropType.isRequired,
+    focusOnFirstEntryNewerThan: PropTypes.func.isRequired,
+    setModal: PropTypes.func.isRequired,
+    tabIndex: PropTypes.number.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
+    loggedIn: PropTypes.bool.isRequired,
+    calendarQuery: PropTypes.func.isRequired,
+    online: PropTypes.bool.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    createEntry: PropTypes.func.isRequired,
+    saveEntry: PropTypes.func.isRequired,
+    deleteEntry: PropTypes.func.isRequired,
+  };
   textarea: ?HTMLTextAreaElement;
   creating: bool;
   needsUpdateAfterCreation: bool;
   needsDeleteAfterCreation: bool;
   nextSaveAttemptIndex: number;
   mounted: bool;
+  currentlySaving: ?string;
 
   constructor(props: Props) {
     super(props);
@@ -94,7 +111,6 @@ class Entry extends React.PureComponent<Props, State> {
     this.needsUpdateAfterCreation = false;
     this.needsDeleteAfterCreation = false;
     this.nextSaveAttemptIndex = 0;
-    this.mounted = true;
   }
 
   guardedSetState(input) {
@@ -104,6 +120,7 @@ class Entry extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.props.innerRef(entryKey(this.props.entryInfo), this);
     this.updateHeight();
     // Whenever a new Entry is created, focus on it
@@ -112,9 +129,22 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.state.focused && this.state.text !== nextProps.entryInfo.text) {
-      this.setState({ text: nextProps.entryInfo.text });
+  componentDidUpdate(prevProps: Props) {
+    if (
+      !this.state.focused &&
+      this.props.entryInfo.text !== this.state.text &&
+      this.props.entryInfo.text !== prevProps.entryInfo.text
+    ) {
+      this.setState({ text: this.props.entryInfo.text });
+      this.currentlySaving = null;
+    }
+
+    if (
+      this.props.online &&
+      !prevProps.online &&
+      this.state.loadingStatus === "error"
+    ) {
+      this.save();
     }
   }
 
@@ -127,7 +157,7 @@ class Entry extends React.PureComponent<Props, State> {
   }
 
   onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
-    if (this.state.focused) {
+    if (this.state.focused && event.target !== this.textarea) {
       // Don't lose focus when some non-textarea part is clicked
       event.preventDefault();
     }
@@ -224,16 +254,26 @@ class Entry extends React.PureComponent<Props, State> {
   }
 
   onFocus = () => {
-    this.setState({ focused: true });
+    if (!this.state.focused) {
+      this.setState({ focused: true });
+    }
   }
 
   onBlur = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     this.setState({ focused: false });
     if (this.state.text.trim() === "") {
-      this.delete(this.props.entryInfo.id, false);
+      this.delete();
     } else if (this.props.entryInfo.text !== this.state.text) {
-      this.save(this.props.entryInfo.id, this.state.text);
+      this.save();
     }
+  }
+
+  delete() {
+    this.dispatchDelete(this.props.entryInfo.id, false);
+  }
+
+  save() {
+    this.dispatchSave(this.props.entryInfo.id, this.state.text);
   }
 
   onChange = (event: SyntheticEvent<HTMLTextAreaElement>) => {
@@ -264,7 +304,12 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  save(serverID: ?string, newText: string) {
+  dispatchSave(serverID: ?string, newText: string) {
+    if (this.currentlySaving === newText) {
+      return;
+    }
+    this.currentlySaving = newText;
+
     if (newText.trim() === "") {
       // We don't save the empty string, since as soon as the element loses
       // focus it'll get deleted
@@ -319,17 +364,19 @@ class Entry extends React.PureComponent<Props, State> {
       this.creating = false;
       if (this.needsUpdateAfterCreation) {
         this.needsUpdateAfterCreation = false;
-        this.save(response.entryID, this.state.text);
+        this.dispatchSave(response.entryID, this.state.text);
       }
       if (this.needsDeleteAfterCreation) {
         this.needsDeleteAfterCreation = false;
-        this.delete(response.entryID, false);
+        this.dispatchDelete(response.entryID, false);
       }
       return response;
     } catch(e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
       }
+      this.currentlySaving = null;
+      this.creating = false;
       throw e;
     }
   }
@@ -353,6 +400,7 @@ class Entry extends React.PureComponent<Props, State> {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: "error" });
       }
+      this.currentlySaving = null;
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
         const onRefresh = () => {
           this.setState(
@@ -387,10 +435,10 @@ class Entry extends React.PureComponent<Props, State> {
       );
       return;
     }
-    this.delete(this.props.entryInfo.id, true);
+    this.dispatchDelete(this.props.entryInfo.id, true);
   }
 
-  delete(serverID: ?string, focusOnNextEntry: bool) {
+  dispatchDelete(serverID: ?string, focusOnNextEntry: bool) {
     const { localID } = this.props.entryInfo;
     this.props.dispatchActionPromise(
       deleteEntryActionTypes,
@@ -444,31 +492,13 @@ class Entry extends React.PureComponent<Props, State> {
 
 export type InnerEntry = Entry;
 
-Entry.propTypes = {
-  innerRef: PropTypes.func.isRequired,
-  entryInfo: entryInfoPropType.isRequired,
-  focusOnFirstEntryNewerThan: PropTypes.func.isRequired,
-  setModal: PropTypes.func.isRequired,
-  tabIndex: PropTypes.number.isRequired,
-  threadInfo: threadInfoPropType.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  calendarQuery: PropTypes.func.isRequired,
-  dispatchActionPayload: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  createEntry: PropTypes.func.isRequired,
-  saveEntry: PropTypes.func.isRequired,
-  deleteEntry: PropTypes.func.isRequired,
-}
-
-type OwnProps = {
-  entryInfo: EntryInfo,
-};
 export default connect(
-  (state: AppState, ownProps: OwnProps) => ({
+  (state: AppState, ownProps: { entryInfo: EntryInfo }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     calendarQuery: nonThreadCalendarQuery(state),
+    online: state.connection.status === "connected",
   }),
   { createEntry, saveEntry, deleteEntry },
 )(Entry);
