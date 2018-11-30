@@ -14,6 +14,7 @@ import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
 
 import { filterRawEntryInfosByCalendarQuery } from 'lib/shared/entry-utils';
+import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -44,6 +45,12 @@ async function createReport(
   } else {
     ({ type, platformDetails, ...report } = request);
     time = Date.now();
+    report = {
+      ...report,
+      preloadedState: sanitizeState(report.preloadedState),
+      currentState: sanitizeState(report.currentState),
+      actions: report.actions.map(sanitizeAction),
+    };
   }
   const row = [
     id,
