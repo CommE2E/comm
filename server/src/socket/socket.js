@@ -311,11 +311,20 @@ class Socket {
         this.ws.close(4101, error.message);
         return;
       }
-      this.sendMessage({
-        type: serverSocketMessageTypes.ERROR,
-        responseTo,
-        message: error.message,
-      });
+      if (error.payload) {
+        this.sendMessage({
+          type: serverSocketMessageTypes.ERROR,
+          responseTo,
+          message: error.message,
+          payload: error.payload,
+        });
+      } else {
+        this.sendMessage({
+          type: serverSocketMessageTypes.ERROR,
+          responseTo,
+          message: error.message,
+        });
+      }
       if (error.message === "not_logged_in") {
         this.ws.close(4102, error.message);
       } else if (error.message === "session_mutated_from_socket") {
