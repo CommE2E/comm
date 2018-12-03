@@ -309,7 +309,7 @@ async function fetchViewerFromRequestBody(
     };
   }
   const cookiePair = body.cookie;
-  if (cookiePair === null) {
+  if (cookiePair === null || cookiePair === "") {
     return {
       type: "nonexistant",
       cookieName: null,
@@ -351,9 +351,12 @@ function getSessionParameterInfoFromRequestBody(
   req: $Request,
 ): SessionParameterInfo {
   const body = (req.body: any);
-  const sessionID = body.sessionID !== undefined || req.method !== "GET"
+  let sessionID = body.sessionID !== undefined || req.method !== "GET"
     ? body.sessionID
     : null;
+  if (sessionID === "") {
+    sessionID = null;
+  }
   const sessionIdentifierType = req.method === "GET" || sessionID !== undefined
     ? sessionIdentifierTypes.BODY_SESSION_ID
     : sessionIdentifierTypes.COOKIE_ID;
