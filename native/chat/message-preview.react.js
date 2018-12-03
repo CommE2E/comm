@@ -10,10 +10,7 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import {
-  robotextForMessageInfo,
-  robotextToRawString,
-} from 'lib/shared/message-utils';
+import { messagePreviewText } from 'lib/shared/message-utils';
 import {
   threadIsPersonalChat,
   threadIsTwoPersonChat,
@@ -55,16 +52,13 @@ class MessagePreview extends React.PureComponent<Props> {
         </Text>
       );
     } else {
-      const robotext = robotextToRawString(robotextForMessageInfo(
-        messageInfo,
-        this.props.threadInfo,
-      ));
+      const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       return (
         <Text
-          style={[styles.lastMessage, styles.robotext, unreadStyle]}
+          style={[styles.lastMessage, styles.preview, unreadStyle]}
           numberOfLines={1}
         >
-          {robotext}
+          {preview}
         </Text>
       );
     }
@@ -82,7 +76,7 @@ const styles = StyleSheet.create({
   username: {
     color: '#AAAAAA',
   },
-  robotext: {
+  preview: {
     color: '#AAAAAA',
   },
   unread: {

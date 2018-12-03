@@ -10,10 +10,7 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import * as React from 'react';
 import classNames from 'classnames';
 
-import {
-  robotextForMessageInfo,
-  robotextToRawString,
-} from 'lib/shared/message-utils';
+import { messagePreviewText } from 'lib/shared/message-utils';
 import {
   threadIsPersonalChat,
   threadIsTwoPersonChat,
@@ -62,16 +59,13 @@ class MessagePreview extends React.PureComponent<Props> {
         </div>
       );
     } else {
-      const robotext = robotextToRawString(robotextForMessageInfo(
-        messageInfo,
-        this.props.threadInfo,
-      ));
+      const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       const colorStyle = unread ? css.black : css.light;
       return (
         <div
           className={classNames([css.lastMessage, colorStyle])}
         >
-          {robotext}
+          {preview}
         </div>
       );
     }
