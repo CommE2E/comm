@@ -4,7 +4,7 @@ import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   messageTypes,
-  type SendTextMessageResult,
+  type SendMessageResult,
   type RawTextMessageInfo,
   type RawMessageInfo,
 } from 'lib/types/message-types';
@@ -19,8 +19,8 @@ import PropTypes from 'prop-types';
 import { messageID } from 'lib/shared/message-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
-  sendMessageActionTypes,
-  sendMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
 } from 'lib/actions/message-actions';
 
 import Button from '../components/button.react';
@@ -32,11 +32,11 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendMessage: (
+  sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
-  ) => Promise<SendTextMessageResult>,
+  ) => Promise<SendMessageResult>,
 };
 class FailedSend extends React.PureComponent<Props> {
 
@@ -44,7 +44,7 @@ class FailedSend extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     rawMessageInfo: PropTypes.object.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    sendMessage: PropTypes.func.isRequired,
+    sendTextMessage: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -106,7 +106,7 @@ class FailedSend extends React.PureComponent<Props> {
       time: Date.now(),
     };
     this.props.dispatchActionPromise(
-      sendMessageActionTypes,
+      sendTextMessageActionTypes,
       this.sendMessageAction(newRawMessageInfo),
       undefined,
       newRawMessageInfo,
@@ -120,7 +120,7 @@ class FailedSend extends React.PureComponent<Props> {
         localID !== null && localID !== undefined,
         "localID should be set",
       );
-      const result = await this.props.sendMessage(
+      const result = await this.props.sendTextMessage(
         messageInfo.threadID,
         localID,
         messageInfo.text,
@@ -170,5 +170,5 @@ export default connect(
       rawMessageInfo: state.messageStore.messages[id],
     };
   },
-  { sendMessage },
+  { sendTextMessage },
 )(FailedSend);

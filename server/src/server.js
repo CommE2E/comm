@@ -16,7 +16,7 @@ import urlFacts from '../facts/url';
 import './cron';
 import { jsonEndpoints } from './endpoints';
 import { websiteResponder } from './responders/website-responders';
-import { errorReportDownloadHandler } from './responders/report-responders';
+import { errorReportDownloadResponder } from './responders/report-responders';
 
 const { baseRoutePath } = urlFacts;
 
@@ -57,7 +57,7 @@ if (cluster.isMaster) {
 
   router.get(
     '/download_error_report/:reportID',
-    downloadHandler(errorReportDownloadHandler),
+    downloadHandler(errorReportDownloadResponder),
   );
   // $FlowFixMe express-ws has side effects that can't be typed
   router.ws('/ws', onConnection);

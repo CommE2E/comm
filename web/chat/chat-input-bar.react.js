@@ -14,7 +14,7 @@ import {
 } from 'lib/types/thread-types';
 import {
   type RawTextMessageInfo,
-  type SendTextMessageResult,
+  type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
 
@@ -26,8 +26,8 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
-  sendMessageActionTypes,
-  sendMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
 } from 'lib/actions/message-actions';
 import {
   joinThreadActionTypes,
@@ -50,11 +50,11 @@ type Props = {|
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendMessage: (
+  sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
-  ) => Promise<SendTextMessageResult>,
+  ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
 type State = {|
@@ -69,7 +69,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    sendMessage: PropTypes.func.isRequired,
+    sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   state = {
@@ -225,7 +225,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       time: Date.now(),
     }: RawTextMessageInfo);
     this.props.dispatchActionPromise(
-      sendMessageActionTypes,
+      sendTextMessageActionTypes,
       this.sendMessageAction(messageInfo),
       undefined,
       messageInfo,
@@ -239,7 +239,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         localID !== null && localID !== undefined,
         "localID should be set",
       );
-      const result = await this.props.sendMessage(
+      const result = await this.props.sendTextMessage(
         messageInfo.threadID,
         localID,
         messageInfo.text,
@@ -292,5 +292,5 @@ export default connect(
     calendarQuery: nonThreadCalendarQuery(state),
     nextLocalID: state.nextLocalID,
   }),
-  { sendMessage, joinThread },
+  { sendTextMessage, joinThread },
 )(ChatInputBar);

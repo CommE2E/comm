@@ -16,8 +16,8 @@ import { nativeCalendarQuery } from './selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
 const blacklist = __DEV__
-  ? [ 'loadingStatuses', 'foreground' ]
-  : [ 'loadingStatuses', 'foreground', 'navInfo' ];
+  ? [ 'loadingStatuses', 'foreground', 'messageSentFromRoute' ]
+  : [ 'loadingStatuses', 'foreground', 'messageSentFromRoute', 'navInfo' ];
 
 const migrations = {
   [1]: (state: AppState) => ({

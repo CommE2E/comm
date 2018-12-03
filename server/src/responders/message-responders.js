@@ -8,7 +8,7 @@ import {
   type FetchMessageInfosResult,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
-  type SendTextMessageResponse,
+  type SendMessageResponse,
   type TextMessageData,
 } from 'lib/types/message-types';
 
@@ -31,7 +31,7 @@ const sendTextMessageRequestInputValidator = tShape({
 async function textMessageCreationResponder(
   viewer: Viewer,
   input: any,
-): Promise<SendTextMessageResponse> {
+): Promise<SendMessageResponse> {
   const request: SendTextMessageRequest = input;
   await validateInput(viewer, sendTextMessageRequestInputValidator, request);
 

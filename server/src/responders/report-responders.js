@@ -115,7 +115,7 @@ async function errorReportFetchInfosResponder(
   return await fetchErrorReportInfos(viewer, request);
 }
 
-async function errorReportDownloadHandler(
+async function errorReportDownloadResponder(
   viewer: Viewer,
   req: $Request,
   res: $Response,
@@ -135,5 +135,5 @@ async function errorReportDownloadHandler(
 export {
   reportCreationResponder,
   errorReportFetchInfosResponder,
-  errorReportDownloadHandler,
+  errorReportDownloadResponder,
 };

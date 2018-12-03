@@ -7,7 +7,7 @@ import type {
 } from 'lib/utils/action-utils';
 import {
   type RawTextMessageInfo,
-  type SendTextMessageResult,
+  type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
 import {
@@ -38,8 +38,8 @@ import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
-  sendMessageActionTypes,
-  sendMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
 } from 'lib/actions/message-actions';
 import { saveDraftActionType } from 'lib/reducers/draft-reducer';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
@@ -67,11 +67,11 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendMessage: (
+  sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
-  ) => Promise<SendTextMessageResult>,
+  ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
 type State = {
@@ -89,7 +89,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     nextLocalID: PropTypes.number.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    sendMessage: PropTypes.func.isRequired,
+    sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
@@ -266,7 +266,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       time: Date.now(),
     }: RawTextMessageInfo);
     this.props.dispatchActionPromise(
-      sendMessageActionTypes,
+      sendTextMessageActionTypes,
       this.sendMessageAction(messageInfo),
       undefined,
       messageInfo,
@@ -280,7 +280,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         localID !== null && localID !== undefined,
         "localID should be set",
       );
-      const result = await this.props.sendMessage(
+      const result = await this.props.sendTextMessage(
         messageInfo.threadID,
         localID,
         messageInfo.text,
@@ -398,5 +398,5 @@ export default connect(
       nextLocalID: state.nextLocalID,
     };
   },
-  { sendMessage, joinThread },
+  { sendTextMessage, joinThread },
 )(ChatInputBar);

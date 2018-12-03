@@ -41,7 +41,7 @@ import { AppState as NativeAppState, Platform } from 'react-native';
 import baseReducer from 'lib/reducers/master-reducer';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import {
-  sendMessageActionTypes,
+  sendTextMessageActionTypes,
   saveMessagesActionType,
 } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
@@ -198,7 +198,7 @@ function reducer(state: AppState = defaultState, action: *) {
 
   const oldState = state;
 
-  if (action.type === sendMessageActionTypes.started) {
+  if (action.type === sendTextMessageActionTypes.started) {
     const chatRoute = chatRouteFromNavInfo(state.navInfo);
     const currentChatSubroute = currentLeafRoute(chatRoute);
     const messageSentFromRoute =
