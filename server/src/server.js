@@ -10,6 +10,7 @@ import {
   jsonHandler,
   downloadHandler,
   htmlHandler,
+  uploadHandler,
 } from './responders/handlers';
 import { onConnection } from './socket/socket';
 import urlFacts from '../facts/url';
@@ -17,6 +18,10 @@ import './cron';
 import { jsonEndpoints } from './endpoints';
 import { websiteResponder } from './responders/website-responders';
 import { errorReportDownloadResponder } from './responders/report-responders';
+import {
+  multerProcessor,
+  multimediaMessageCreationResponder,
+} from './uploads/uploads';
 
 const { baseRoutePath } = urlFacts;
 
@@ -62,6 +67,12 @@ if (cluster.isMaster) {
   // $FlowFixMe express-ws has side effects that can't be typed
   router.ws('/ws', onConnection);
   router.get('*', htmlHandler(websiteResponder));
+
+  router.post(
+    '/create_multimedia_message',
+    multerProcessor,
+    uploadHandler(multimediaMessageCreationResponder),
+  );
 
   server.use(baseRoutePath, router);
   server.listen(parseInt(process.env.PORT) || 3000, 'localhost');

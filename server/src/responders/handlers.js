@@ -18,6 +18,7 @@ export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 export type DownloadResponder
   = (viewer: Viewer, req: $Request, res: $Response) => Promise<void>;
 export type HTMLResponder = (viewer: Viewer, url: string) => Promise<string>;
+export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 
 function jsonHandler(responder: JSONResponder) {
   return async (req: $Request, res: $Response) => {
@@ -94,14 +95,6 @@ async function handleException(
   res.json(result);
 }
 
-async function handleAsyncPromise(promise: Promise<any>) {
-  try {
-    await promise;
-  } catch (error) {
-    console.warn(error);
-  }
-}
-
 function htmlHandler(responder: HTMLResponder) {
   return async (req: $Request, res: $Response) => {
     try {
@@ -118,9 +111,39 @@ function htmlHandler(responder: HTMLResponder) {
   };
 }
 
+function uploadHandler(responder: UploadResponder) {
+  return async (req: $Request, res: $Response) => {
+    let viewer;
+    try {
+      if (!req.body || typeof req.body !== "object") {
+        throw new ServerError('invalid_parameters');
+      }
+      viewer = await fetchViewerForJSONRequest(req);
+      const responderResult = await responder(viewer, req);
+      if (res.headersSent) {
+        return;
+      }
+      const result = { ...responderResult };
+      addCookieToJSONResponse(viewer, res, result);
+      res.json({ success: true, ...result });
+    } catch (e) {
+      await handleException(e, res, viewer);
+    }
+  };
+}
+
+async function handleAsyncPromise(promise: Promise<any>) {
+  try {
+    await promise;
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
 export {
   jsonHandler,
   downloadHandler,
   htmlHandler,
+  uploadHandler,
   handleAsyncPromise,
 };
