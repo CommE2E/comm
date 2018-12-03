@@ -10,7 +10,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import {
-  type TextMessageInfo,
+  type OptimisticallyCreatableMessageInfo,
   type RobotextMessageInfo,
   type LocalMessageInfo,
   type FetchMessageInfosPayload,
@@ -81,7 +81,7 @@ export type RobotextChatMessageInfoItemWithHeight = {|
 export type ChatMessageInfoItemWithHeight =
   RobotextChatMessageInfoItemWithHeight | {|
     itemType: "message",
-    messageInfo: TextMessageInfo,
+    messageInfo: OptimisticallyCreatableMessageInfo,
     localMessageInfo: ?LocalMessageInfo,
     threadInfo: ThreadInfo,
     startsConversation: bool,
@@ -320,7 +320,10 @@ class InnerMessageList extends React.PureComponent<Props, State> {
         textHeight,
         `height for ${messageKey(item.messageInfo)} should be set`,
       );
-      if (item.messageInfo.type === messageTypes.TEXT) {
+      if (
+        item.messageInfo.type === messageTypes.TEXT ||
+        item.messageInfo.type === messageTypes.MULTIMEDIA
+      ) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo

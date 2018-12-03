@@ -14,6 +14,7 @@ import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import TextMessage from './text-message.react';
 import RobotextMessage from './robotext-message.react';
+import MultimediaMessage from './multimedia-message.react';
 import css from './chat-message-list.css';
 
 type Props = {|
@@ -46,6 +47,13 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={this.props.item}
           threadInfo={this.props.threadInfo}
+          toggleFocus={this.props.toggleFocus}
+        />
+      );
+    } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
+      message = (
+        <MultimediaMessage
+          item={this.props.item}
           toggleFocus={this.props.toggleFocus}
         />
       );

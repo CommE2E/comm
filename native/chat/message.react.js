@@ -18,6 +18,7 @@ import {
   RobotextMessage,
   robotextMessageItemHeight,
 } from './robotext-message.react';
+import MultimediaMessage from './multimedia-message.react';
 
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -72,6 +73,13 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={this.props.item}
           focused={this.props.focused}
+          toggleFocus={this.props.toggleFocus}
+        />
+      );
+    } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
+      message = (
+        <MultimediaMessage
+          item={this.props.item}
           toggleFocus={this.props.toggleFocus}
         />
       );
