@@ -115,7 +115,7 @@ type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
-  tabActive: bool,
+  calendarActive: bool,
   threadPickerOpen: bool,
   startDate: string,
   endDate: string,
@@ -159,7 +159,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         dateString: PropTypes.string.isRequired,
       }),
     ])),
-    tabActive: PropTypes.bool.isRequired,
+    calendarActive: PropTypes.bool.isRequired,
     threadPickerOpen: PropTypes.bool.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
@@ -361,7 +361,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       nextProps.listData.length < this.props.listData.length &&
       this.flatList
     ) {
-      if (!nextProps.tabActive) {
+      if (!nextProps.calendarActive) {
         // If the currentCalendarQuery gets reset we scroll to the center
         this.scrollToToday();
       } else if (Date.now() - this.lastForegrounded < 500) {
@@ -388,7 +388,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       // If there are fewer items in our new data, which happens when the
       // current calendar query gets reset due to inactivity, let's reset the
       // scroll position to the center (today)
-      if (!nextProps.tabActive) {
+      if (!nextProps.calendarActive) {
         setTimeout(() => this.scrollToToday(), 50);
       }
       this.firstScrollUpOnAndroidComplete = false;
@@ -589,7 +589,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   scrollToToday(animated: ?bool = undefined) {
     if (animated === undefined) {
-      animated = this.props.tabActive;
+      animated = this.props.calendarActive;
     }
     const ldwh = this.state.listDataWithHeights;
     invariant(ldwh, "should be set");
@@ -954,7 +954,22 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
     this.latestExtraData = {
       activeEntries: _pickBy(
-        (_, key: string) => visibleEntries[key],
+        (_, key: string) => {
+          if (visibleEntries[key]) {
+            return true;
+          }
+          // We don't automatically set scrolled-away entries to be inactive
+          // because entries can be out-of-view at creation time if they need to
+          // be scrolled into view (see onEnterEntryEditMode). If Entry could
+          // distinguish the reasons its active prop gets set to false, it could
+          // differentiate the out-of-view case from the something-pressed case,
+          // and then we could set scrolled-away entries to be inactive without
+          // worrying about this edge case. Until then...
+          const item = _find
+            (item => item.entryInfo && entryKey(item.entryInfo) === key)
+            (ldwh);
+          return !!item;
+        },
       )(this.latestExtraData.activeEntries),
       visibleEntries,
     };
@@ -1098,7 +1113,7 @@ const activeThreadPickerSelector =
 const Calendar = connect(
   (state: AppState) => ({
     listData: calendarListData(state),
-    tabActive: activeTabSelector(state) || activeThreadPickerSelector(state),
+    calendarActive: activeTabSelector(state) || activeThreadPickerSelector(state),
     threadPickerOpen: activeThreadPickerSelector(state)
       || !!state.navInfo.navigationState.isTransitioning,
     startDate: state.navInfo.startDate,
