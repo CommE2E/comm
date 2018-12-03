@@ -5,7 +5,7 @@ import type { ChatMessageInfoItemWithHeight } from './message-list.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypeIsRobotext } from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -48,15 +48,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
     invariant(
-      props.item.messageInfo.type !== messageTypes.TEXT,
-      "TextMessage cannot be used for messageTypes.TEXT",
+      messageTypeIsRobotext(props.item.messageInfo.type),
+      "TextMessage can only be used for robotext",
     );
   }
 
   componentWillReceiveProps(nextProps: Props) {
     invariant(
-      nextProps.item.messageInfo.type !== messageTypes.TEXT,
-      "TextMessage cannot be used for messageTypes.TEXT",
+      messageTypeIsRobotext(nextProps.item.messageInfo.type),
+      "TextMessage can only be used for robotext",
     );
   }
 

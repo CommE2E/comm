@@ -4,7 +4,7 @@ import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypeIsRobotext } from 'lib/types/message-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import {
   type AppState,
@@ -43,15 +43,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
     invariant(
-      props.item.messageInfo.type !== messageTypes.TEXT,
-      "TextMessage cannot be used for messageTypes.TEXT",
+      messageTypeIsRobotext(props.item.messageInfo.type),
+      "TextMessage can only be used for robotext",
     );
   }
 
   componentWillReceiveProps(nextProps: Props) {
     invariant(
-      nextProps.item.messageInfo.type !== messageTypes.TEXT,
-      "TextMessage cannot be used for messageTypes.TEXT",
+      messageTypeIsRobotext(nextProps.item.messageInfo.type),
+      "TextMessage can only be used for robotext",
     );
   }
 
