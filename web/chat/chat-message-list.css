@@ -158,3 +158,22 @@ a.retrySend {
   color: #036AFF;
   cursor: pointer;
 }
+a.multimediaUpload {
+  cursor: pointer;
+}
+a.multimediaUpload > input[type="file"] {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  padding: 0;
+}
+a.multimediaUpload > svg {
+  padding: 0 8px;
+  font-size: 20px;
+  color: #8A8A8A;
+  cursor: pointer;
+}

@@ -14,6 +14,7 @@ import {
 } from 'lib/types/thread-types';
 import {
   type RawTextMessageInfo,
+  type RawMultimediaMessageInfo,
   type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
@@ -22,12 +23,15 @@ import * as React from 'react';
 import invariant from 'invariant';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faChevronRight from '@fortawesome/fontawesome-free-solid/faChevronRight';
+import faFileImage from '@fortawesome/fontawesome-free-regular/faFileImage';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
   sendTextMessageActionTypes,
   sendTextMessage,
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
 } from 'lib/actions/message-actions';
 import {
   joinThreadActionTypes,
@@ -55,6 +59,11 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
+  sendMultimediaMessage: (
+    threadID: string,
+    localID: string,
+    multimedia: $ReadOnlyArray<Object>,
+  ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
 type State = {|
@@ -70,12 +79,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     nextLocalID: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
+    sendMultimediaMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   state = {
     messageText: "",
   };
-  textarea: ?HTMLTextAreaElement = null;
+  textarea: ?HTMLTextAreaElement;
+  multimediaInput: ?HTMLInputElement;
 
   componentDidMount() {
     this.updateHeight();
@@ -132,6 +143,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             onKeyDown={this.onKeyDown}
             ref={this.textareaRef}
           />
+          <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
+            <input
+              type="file"
+              onChange={this.onMultimediaFileChange}
+              ref={this.multimediaInputRef}
+              multiple
+            />
+            <FontAwesomeIcon
+              icon={faFileImage}
+            />
+          </a>
           <a className={css.send} onClick={this.onSend}>
             Send
             <FontAwesomeIcon
@@ -226,13 +248,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }: RawTextMessageInfo);
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendMessageAction(messageInfo),
+      this.sendTextMessageAction(messageInfo),
       undefined,
       messageInfo,
     );
   }
 
-  async sendMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
     try {
       const { localID } = messageInfo;
       invariant(
@@ -243,6 +265,72 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         messageInfo.threadID,
         localID,
         messageInfo.text,
+      );
+      return {
+        localID,
+        serverID: result.id,
+        threadID: messageInfo.threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = messageInfo.localID;
+      e.threadID = messageInfo.threadID;
+      throw e;
+    }
+  }
+
+  multimediaInputRef = (multimediaInput: ?HTMLInputElement) => {
+    this.multimediaInput = multimediaInput;
+  }
+
+  onMultimediaClick = (event: SyntheticEvent<HTMLInputElement>) => {
+    if (this.multimediaInput) {
+      this.multimediaInput.click();
+    }
+  }
+
+  onMultimediaFileChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
+    const files = [...event.target.files];
+    if (files.length === 0) {
+      return;
+    }
+    const localID = `local${this.props.nextLocalID}`;
+    const creatorID = this.props.viewerID;
+    invariant(creatorID, "should have viewer ID in order to send a message");
+    const messageInfo = ({
+      type: messageTypes.MULTIMEDIA,
+      localID,
+      threadID: this.props.threadInfo.id,
+      creatorID,
+      time: Date.now(),
+      media: files.map(file => ({
+        uri: URL.createObjectURL(file),
+        // TODO type
+        type: "photo",
+      })),
+    }: RawMultimediaMessageInfo);
+    this.props.dispatchActionPromise(
+      sendMultimediaMessageActionTypes,
+      this.sendMultimediaMessageAction(messageInfo, files),
+      undefined,
+      messageInfo,
+    );
+  }
+
+  async sendMultimediaMessageAction(
+    messageInfo: RawMultimediaMessageInfo,
+    files: $ReadOnlyArray<File>,
+  ) {
+    try {
+      const { localID } = messageInfo;
+      invariant(
+        localID !== null && localID !== undefined,
+        "localID should be set",
+      );
+      const result = await this.props.sendMultimediaMessage(
+        messageInfo.threadID,
+        localID,
+        files,
       );
       return {
         localID,
@@ -292,5 +380,5 @@ export default connect(
     calendarQuery: nonThreadCalendarQuery(state),
     nextLocalID: state.nextLocalID,
   }),
-  { sendTextMessage, joinThread },
+  { sendTextMessage, sendMultimediaMessage, joinThread },
 )(ChatInputBar);
