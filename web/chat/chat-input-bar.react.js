@@ -39,6 +39,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import { validateFile, allowedMimeTypeString } from 'lib/utils/media-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -148,6 +149,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               type="file"
               onChange={this.onMultimediaFileChange}
               ref={this.multimediaInputRef}
+              accept={allowedMimeTypeString}
               multiple
             />
             <FontAwesomeIcon
@@ -289,11 +291,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
   }
 
-  onMultimediaFileChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    const files = [...event.target.files];
-    if (files.length === 0) {
-      return;
-    }
+  onMultimediaFileChange = async (event: SyntheticInputEvent<HTMLInputElement>) => {
+    const validationResult = await Promise.all(
+      [...event.target.files].map(validateFile)
+    );
+    const validatedFileInfo = validationResult.filter(Boolean);
+    const files = validatedFileInfo.map(({ file }) => file);
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
@@ -303,10 +306,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       threadID: this.props.threadInfo.id,
       creatorID,
       time: Date.now(),
-      media: files.map(file => ({
+      media: validatedFileInfo.map(({ file, mediaType }) => ({
         uri: URL.createObjectURL(file),
-        // TODO type
-        type: "photo",
+        type: mediaType,
       })),
     }: RawMultimediaMessageInfo);
     this.props.dispatchActionPromise(

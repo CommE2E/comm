@@ -11,6 +11,7 @@
     "color": "^1.0.3",
     "dateformat": "^2.0.0",
     "fast-json-stable-stringify": "^2.0.0",
+    "file-type": "^10.6.0",
     "invariant": "^2.2.2",
     "lodash": "^4.17.5",
     "prop-types": "^15.6.0",

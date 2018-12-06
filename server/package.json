@@ -29,7 +29,6 @@
     "denodeify": "^1.2.1",
     "express": "^4.16.2",
     "express-ws": "^4.0.0",
-    "file-type": "^10.6.0",
     "firebase-admin": "^5.7.0",
     "invariant": "^2.2.2",
     "lib": "0.0.1",
