@@ -19,6 +19,7 @@ div.messageContainer > div {
 div.inputBar {
   display: flex;
   flex-direction: column;
+  border-top: 2px solid #E4E4E4;
 }
 div.inputBarTextInput {
   display: flex;

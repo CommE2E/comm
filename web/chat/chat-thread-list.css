@@ -5,6 +5,7 @@ div.container {
   bottom: 0;
   overflow-y: auto;
   background-color: white;
+  border-right: 2px solid #E4E4E4;
 }
 
 a.thread {
