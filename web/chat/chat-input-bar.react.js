@@ -18,6 +18,7 @@ import {
   type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
+import type { PendingMultimediaUpload } from 'lib/types/media-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -44,6 +45,7 @@ import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { validateFile, allowedMimeTypeString } from '../utils/media-utils';
+import MultimediaPreview from './multimedia-preview.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -69,6 +71,7 @@ type Props = {|
 |};
 type State = {|
   messageText: string,
+  pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
 
@@ -85,6 +88,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
   state = {
     messageText: "",
+    pendingUploads: [],
   };
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;
@@ -132,6 +136,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     }
 
+    const multimediaPreviews = this.state.pendingUploads.map(pendingUpload => (
+      <MultimediaPreview
+        pendingUpload={pendingUpload}
+        remove={this.removePendingUpload}
+        key={pendingUpload.uri}
+      />
+    ));
+    const previews = multimediaPreviews.length > 0
+      ? <div className={css.previews}>{multimediaPreviews}</div>
+      : null;
+
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
       content = (
@@ -157,11 +172,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             />
           </a>
           <a className={css.send} onClick={this.onSend}>
-            Send
             <FontAwesomeIcon
               icon={faChevronRight}
               className={css.sendButton}
             />
+            Send
           </a>
         </div>
       );
@@ -199,6 +214,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return (
       <div className={css.inputBar}>
         {joinButton}
+        {previews}
         {content}
       </div>
     );
@@ -231,12 +247,21 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   send() {
     const text = this.state.messageText.trim();
-    if (!text) {
+    if (text) {
       // TODO we should make the send button appear dynamically
       // iff trimmed text is nonempty, just like native
-      return;
+      this.dispatchTextMessageAction(text);
     }
+
+    const { pendingUploads } = this.state;
+    if (pendingUploads.length > 0) {
+      this.dispatchMultimediaMessageAction(pendingUploads);
+    }
+  }
+
+  dispatchTextMessageAction(text: string) {
     this.updateText("");
+
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
@@ -296,7 +321,35 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       [...event.target.files].map(validateFile)
     );
     const validatedFileInfo = validationResult.filter(Boolean);
-    const files = validatedFileInfo.map(({ file }) => file);
+    const pendingUploads = validatedFileInfo.map(({ file, mediaType }) => ({
+      file,
+      mediaType,
+      uri: URL.createObjectURL(file),
+    }));
+    this.setState(prevState => ({
+      pendingUploads: [ ...prevState.pendingUploads, ...pendingUploads ],
+    }));
+  }
+
+  removePendingUpload = (pendingUpload: PendingMultimediaUpload) => {
+    if (this.multimediaInput) {
+      this.multimediaInput.value = null;
+    }
+    this.setState(prevState => ({
+      pendingUploads: prevState.pendingUploads.filter(
+        candidate => candidate !== pendingUpload,
+      ),
+    }));
+  }
+
+  dispatchMultimediaMessageAction(
+    pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
+  ) {
+    this.setState({ pendingUploads: [] });
+    if (this.multimediaInput) {
+      this.multimediaInput.value = null;
+    }
+
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
@@ -306,11 +359,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       threadID: this.props.threadInfo.id,
       creatorID,
       time: Date.now(),
-      media: validatedFileInfo.map(({ file, mediaType }) => ({
-        uri: URL.createObjectURL(file),
+      media: pendingUploads.map(({ uri, mediaType }) => ({
+        uri,
         type: mediaType,
       })),
     }: RawMultimediaMessageInfo);
+    const files = pendingUploads.map(({ file }) => file);
     this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
       this.sendMultimediaMessageAction(messageInfo, files),

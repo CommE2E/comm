@@ -51,7 +51,7 @@ a.send {
   cursor: pointer;
 }
 svg.sendButton {
-  padding-left: 8px;
+  padding: 0 4px;
   font-size: 24px;
   color: #88BB88;
 }
@@ -161,20 +161,49 @@ a.retrySend {
 }
 a.multimediaUpload {
   cursor: pointer;
+  position: relative;
 }
 a.multimediaUpload > input[type="file"] {
+  visibility: hidden;
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   margin: 0;
-  opacity: 0;
   padding: 0;
 }
 a.multimediaUpload > svg {
-  padding: 0 8px;
+  padding: 0 6px;
   font-size: 20px;
   color: #8A8A8A;
   cursor: pointer;
+}
+
+div.previews {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+span.preview {
+  margin: 10px;
+  position: relative;
+  display: inline-block;
+}
+span.preview > img {
+  max-height: 200px;
+  max-width: 200px;
+}
+span.preview > svg {
+  display: none;
+  position: absolute;
+  cursor: pointer;
+  top: 3px;
+  right: 3px;
+  color: white;
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+  background-color: #222222AA;
+}
+span.preview:hover > svg {
+  display: inherit;
 }
