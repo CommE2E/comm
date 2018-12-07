@@ -39,11 +39,11 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
-import { validateFile, allowedMimeTypeString } from 'lib/utils/media-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import { validateFile, allowedMimeTypeString } from '../utils/media-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
