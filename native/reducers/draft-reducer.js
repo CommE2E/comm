@@ -1,18 +1,15 @@
 // @flow
 
-import type { BaseAction } from '../types/redux-types';
-
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
-} from '../actions/user-actions';
-import { setNewSessionActionType } from '../utils/action-utils';
+} from 'lib/actions/user-actions';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
+import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 
-const saveDraftActionType = "SAVE_DRAFT";
-
-function reduceDrafts(
+export default function reduceDrafts(
   state: ?{[key: string]: string},
-  action: BaseAction,
+  action: *,
 ): {[key: string]: string} {
   if (!state) {
     state = {};
@@ -32,8 +29,3 @@ function reduceDrafts(
   }
   return state;
 }
-
-export {
-  saveDraftActionType,
-  reduceDrafts,
-};

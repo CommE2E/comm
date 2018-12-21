@@ -51,7 +51,6 @@ export type AppState = {|
   threadStore: ThreadStore,
   userInfos: {[id: string]: UserInfo},
   messageStore: MessageStore,
-  drafts: {[key: string]: string},
   updatesCurrentAsOf: number,
   loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
   calendarFilters: $ReadOnlyArray<CalendarFilter>,

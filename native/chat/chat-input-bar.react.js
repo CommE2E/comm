@@ -41,7 +41,7 @@ import {
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
-import { saveDraftActionType } from 'lib/reducers/draft-reducer';
+import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import {
   joinThreadActionTypes,

@@ -81,6 +81,7 @@ import {
   MessageListRouteName,
 } from './navigation/route-names';
 import reactotron from './reactotron';
+import reduceDrafts from './reducers/draft-reducer';
 
 const createStore = reactotron
   ? reactotron.createStore
@@ -240,7 +241,10 @@ function reducer(state: AppState = defaultState, action: *) {
     }
   }
 
-  state = baseReducer(state, action);
+  state = {
+    ...baseReducer(state, action),
+    drafts: reduceDrafts(state.drafts, action),
+  };
 
   let navInfo = reduceNavInfo(state, action, state.threadStore.threadInfos);
   if (navInfo && navInfo !== state.navInfo) {

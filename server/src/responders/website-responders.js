@@ -145,7 +145,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         ...threadUserInfos,
       },
       messageStore,
-      drafts: {},
       updatesCurrentAsOf: initialTime,
       loadingStatuses: {},
       calendarFilters: defaultCalendarFilters,
