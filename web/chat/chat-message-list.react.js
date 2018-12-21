@@ -8,6 +8,10 @@ import {
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
+import {
+  chatInputStatePropType,
+  type ChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,8 +37,9 @@ import LoadingIndicator from '../loading-indicator.react';
 import css from './chat-message-list.css';
 
 type Props = {|
-  // Redux state
   activeChatThreadID: ?string,
+  chatInputState: ?ChatInputState,
+  // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   startReached: bool,
@@ -56,6 +61,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
   static propTypes = {
     activeChatThreadID: PropTypes.string,
+    chatInputState: chatInputStatePropType,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
@@ -157,18 +163,22 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    if (!this.props.messageListData) {
+    const { messageListData, threadInfo, chatInputState } = this.props;
+    if (!messageListData) {
       return <div className={css.container} />;
     }
-    const messages = this.props.messageListData.map(this.renderItem);
-    const threadInfo = this.props.threadInfo;
+    const messages = messageListData.map(this.renderItem);
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
+    invariant(chatInputState, "ChatInputState should be set");
     return (
       <div className={css.container}>
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
         </div>
-        <ChatInputBar threadInfo={threadInfo} />
+        <ChatInputBar
+          threadInfo={threadInfo}
+          chatInputState={chatInputState}
+        />
       </div>
     );
   }
@@ -223,10 +233,9 @@ registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
 export default connect(
-  (state: AppState) => {
-    const activeChatThreadID = state.navInfo.activeChatThreadID;
+  (state: AppState, ownProps: { activeChatThreadID: ?string }) => {
+    const { activeChatThreadID } = ownProps;
     return {
-      activeChatThreadID,
       threadInfo: activeChatThreadID
         ? threadInfoSelector(state)[activeChatThreadID]
         : null,

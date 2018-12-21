@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import ChatThreadList from './chat-thread-list.react';
-import ChatMessageList from './chat-message-list.react';
+import ChatInputStateContainer from './chat-input-state-container.react';
 
 type Props = {|
 |};
@@ -13,7 +13,7 @@ class Chat extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <ChatThreadList />
-        <ChatMessageList />
+        <ChatInputStateContainer />
       </React.Fragment>
     );
   }
