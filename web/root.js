@@ -12,6 +12,8 @@ import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
 
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 
@@ -30,14 +32,19 @@ const store: Store<AppState, Action> = createStore(
 );
 
 const RootRouter = () => (
+  <Router history={history.getHistoryObject()}>
+    <Route path="*" component={App} />
+  </Router>
+);
+const ReactDnDConnectedRootRouter = DragDropContext(HTML5Backend)(RootRouter);
+
+const RootComponent = () => (
   <React.Fragment>
-    <Router history={history.getHistoryObject()}>
-      <Route path="*" component={App} />
-    </Router>
+    <ReactDnDConnectedRootRouter />
     <Socket />
   </React.Fragment>
 );
-const RootHMR = hot(module)(RootRouter);
+const RootHMR = hot(module)(RootComponent);
 
 const RootProvider = () => (
   <Provider store={store}>

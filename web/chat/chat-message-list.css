@@ -4,6 +4,11 @@ div.container {
   background-color: white;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+}
+div.activeContainer {
+  border: 2px solid #5989D6;
+  margin-left: 402px;
 }
 div.messageContainer {
   flex-grow: 1;

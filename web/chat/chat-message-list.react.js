@@ -16,6 +16,14 @@ import {
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import {
+  DropTarget,
+  DropTargetMonitor,
+  ConnectDropTarget,
+  DropTargetConnector,
+} from 'react-dnd';
+import { NativeTypes } from 'react-dnd-html5-backend';
+import classNames from 'classnames';
 
 import { connect } from 'lib/utils/redux-utils';
 import { messageKey } from 'lib/shared/message-utils';
@@ -36,7 +44,7 @@ import Message from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
 import css from './chat-message-list.css';
 
-type Props = {|
+type PassedProps = {|
   activeChatThreadID: ?string,
   chatInputState: ?ChatInputState,
   // Redux state
@@ -53,6 +61,15 @@ type Props = {|
   fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
+|};
+type ReactDnDProps = {|
+  isActive: bool,
+  connectDropTarget: ConnectDropTarget,
+|};
+
+type Props = {|
+  ...PassedProps,
+  ...ReactDnDProps,
 |};
 type State = {|
   focusedMessageKey: ?string,
@@ -163,15 +180,25 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { messageListData, threadInfo, chatInputState } = this.props;
+    const {
+      messageListData,
+      threadInfo,
+      chatInputState,
+      connectDropTarget,
+      isActive,
+    } = this.props;
     if (!messageListData) {
       return <div className={css.container} />;
     }
     const messages = messageListData.map(this.renderItem);
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
     invariant(chatInputState, "ChatInputState should be set");
-    return (
-      <div className={css.container}>
+    const containerStyle = classNames({
+      [css.container]: true,
+      [css.activeContainer]: isActive,
+    });
+    return connectDropTarget(
+      <div className={containerStyle}>
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
         </div>
@@ -179,7 +206,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
           threadInfo={threadInfo}
           chatInputState={chatInputState}
         />
-      </div>
+      </div>,
     );
   }
 
@@ -232,7 +259,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-export default connect(
+const ReduxConnectedChatMessageList = connect(
   (state: AppState, ownProps: { activeChatThreadID: ?string }) => {
     const { activeChatThreadID } = ownProps;
     return {
@@ -246,3 +273,19 @@ export default connect(
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
 )(ChatMessageList);
+
+export default DropTarget(
+  NativeTypes.FILE,
+  {
+    drop: (props: PassedProps, monitor: DropTargetMonitor) => {
+      const { files } = monitor.getItem();
+      if (props.chatInputState && files.length > 0) {
+        props.chatInputState.appendFiles(files);
+      }
+    },
+  },
+  (connect: DropTargetConnector, monitor: DropTargetMonitor) => ({
+		connectDropTarget: connect.dropTarget(),
+		isActive: monitor.isOver() && monitor.canDrop(),
+	}),
+)(ReduxConnectedChatMessageList);
