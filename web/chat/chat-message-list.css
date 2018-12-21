@@ -1,6 +1,6 @@
 div.container {
   margin-left: 400px;
-  height: calc(100% - 62px);
+  height: 100%;
   background-color: white;
   display: flex;
   flex-direction: column;

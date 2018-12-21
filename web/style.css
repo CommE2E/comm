@@ -107,11 +107,12 @@ div.chatBadge {
 
 div.main-content-container {
   margin-top: 62px;
-  min-height: calc(100% - 62px);
+  height: calc(100% - 62px);
+  position: relative;
 }
 div.main-content {
   background-color: #FFFFFFD5;
-  min-height: calc(100% - 62px);
+  min-height: 100%;
   overflow-x: hidden;
 }
 
