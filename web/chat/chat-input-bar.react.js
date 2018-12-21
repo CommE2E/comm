@@ -333,7 +333,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   removePendingUpload = (pendingUpload: PendingMultimediaUpload) => {
     if (this.multimediaInput) {
-      this.multimediaInput.value = null;
+      this.multimediaInput.value = "";
     }
     this.setState(prevState => ({
       pendingUploads: prevState.pendingUploads.filter(
@@ -347,7 +347,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   ) {
     this.setState({ pendingUploads: [] });
     if (this.multimediaInput) {
-      this.multimediaInput.value = null;
+      this.multimediaInput.value = "";
     }
 
     const localID = `local${this.props.nextLocalID}`;
