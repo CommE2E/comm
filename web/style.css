@@ -87,6 +87,7 @@ ul.nav-bar > li.current-tab > div > a {
 ul.nav-bar > li.current-tab > div {
   background-color: #FFFFFFD5;
   padding: 18px 20px 19px 20px;
+  height: 25px;
 }
 svg.nav-bar-icon {
   padding-right: 8px;
