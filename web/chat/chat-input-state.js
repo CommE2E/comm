@@ -14,6 +14,7 @@ export type ChatInputState = {|
   removePendingUpload: (pendingUpload: PendingMultimediaUpload) => void,
   clearPendingUploads: () => void,
   setDraft: (draft: string) => void,
+  setProgress: (percent: number) => void,
 |};
 export const chatInputStatePropType = PropTypes.shape({
   pendingUploads: PropTypes.arrayOf(pendingMultimediaUploadPropType).isRequired,
@@ -22,4 +23,5 @@ export const chatInputStatePropType = PropTypes.shape({
   removePendingUpload: PropTypes.func.isRequired,
   clearPendingUploads: PropTypes.func.isRequired,
   setDraft: PropTypes.func.isRequired,
+  setProgress: PropTypes.func.isRequired,
 });

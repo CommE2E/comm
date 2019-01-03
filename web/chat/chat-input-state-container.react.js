@@ -46,6 +46,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         this.removePendingUpload(threadID, pendingUpload),
       clearPendingUploads: () => this.clearPendingUploads(threadID),
       setDraft: (draft: string) => this.setDraft(threadID, draft),
+      setProgress: (percent: number) => this.setProgress(threadID, percent),
     }),
   ));
 
@@ -59,6 +60,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       file,
       mediaType,
       uri: URL.createObjectURL(file),
+      progressPercent: 0,
     }));
     this.setState(prevState => {
       const prevUploads = prevState.pendingUploads[threadID];
@@ -119,6 +121,24 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         [threadID]: draft,
       },
     }));
+  }
+
+  setProgress(threadID: string, percent: number) {
+    this.setState(prevState => {
+      const pendingUploads = prevState.pendingUploads[threadID];
+      if (!pendingUploads) {
+        return {};
+      }
+      const newPendingUploads = pendingUploads.map(
+        pendingUpload => ({ ...pendingUpload, progressPercent: percent }),
+      );
+      return {
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [threadID]: newPendingUploads,
+        },
+      };
+    });
   }
 
   render() {

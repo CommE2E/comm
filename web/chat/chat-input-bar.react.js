@@ -72,6 +72,7 @@ type Props = {|
     threadID: string,
     localID: string,
     multimedia: $ReadOnlyArray<Object>,
+    onProgress: (percent: number) => void,
   ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
@@ -339,8 +340,6 @@ class ChatInputBar extends React.PureComponent<Props> {
   dispatchMultimediaMessageAction(
     pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
   ) {
-    this.props.chatInputState.clearPendingUploads();
-
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
@@ -378,7 +377,9 @@ class ChatInputBar extends React.PureComponent<Props> {
         messageInfo.threadID,
         localID,
         files,
+        this.props.chatInputState.setProgress,
       );
+      this.props.chatInputState.clearPendingUploads();
       return {
         localID,
         serverID: result.id,
