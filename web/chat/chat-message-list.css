@@ -186,19 +186,30 @@ a.multimediaUpload > svg {
 }
 
 div.previews {
+  display: flex;
   overflow-x: auto;
   white-space: nowrap;
 }
 span.preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 10px;
   position: relative;
-  display: inline-block;
 }
-span.preview > img {
+span.preview > span.previewImage {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 50px;
+  min-width: 50px;
+}
+span.preview > span.previewImage > img {
   max-height: 200px;
   max-width: 200px;
 }
-span.preview > svg {
+span.preview > span.previewImage > svg.removeUpload {
   display: none;
   position: absolute;
   cursor: pointer;
@@ -209,6 +220,28 @@ span.preview > svg {
   box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
   background-color: #222222AA;
 }
-span.preview:hover > svg {
+span.preview:hover > span.previewImage > svg.removeUpload {
   display: inherit;
+}
+span.preview > svg.progressIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto auto;
+  width: 50px;
+  height: 50px;
+}
+:global(.CircularProgressbar-background) {
+  fill: #666 !important;
+}
+:global(.CircularProgressbar-text) {
+  fill: #fff !important;
+}
+:global(.CircularProgressbar-path) {
+  stroke: #fff !important;
+}
+:global(.CircularProgressbar-trail) {
+  stroke: transparent !important;
 }
