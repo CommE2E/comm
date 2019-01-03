@@ -29,18 +29,18 @@ async function rescindPushNotifs(
     const deliveries = Array.isArray(row.delivery)
       ? row.delivery
       : [ row.delivery ];
-    for (let delivery of row.delivery) {
-      if (row.delivery.iosID && row.delivery.iosDeviceTokens) {
+    for (let delivery of deliveries) {
+      if (delivery.iosID && delivery.iosDeviceTokens) {
         // Old iOS
         const notification = prepareIOSNotification(
-          row.delivery.iosID,
+          delivery.iosID,
           row.unread_count,
         );
         promises.push(apnPush(
           notification,
-          row.delivery.iosDeviceTokens,
+          delivery.iosDeviceTokens,
         ));
-      } else if (row.delivery.androidID) {
+      } else if (delivery.androidID) {
         // Old Android
         const notification = prepareAndroidNotification(
           row.collapse_key ? row.collapse_key : row.id.toString(),
@@ -48,7 +48,7 @@ async function rescindPushNotifs(
         );
         promises.push(fcmPush(
           notification,
-          row.delivery.androidDeviceTokens,
+          delivery.androidDeviceTokens,
           null,
         ));
       } else if (delivery.deviceType === "ios") {
