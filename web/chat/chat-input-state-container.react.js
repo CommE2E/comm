@@ -7,18 +7,23 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { createSelector } from 'reselect';
 import _memoize from 'lodash/memoize';
+import _keyBy from 'lodash/fp/keyBy';
+import _omit from 'lodash/fp/omit';
 
 import { connect } from 'lib/utils/redux-utils';
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile } from '../utils/media-utils';
 
+let nextLocalMultimediaID = 0;
+
 type Props = {|
   // Redux state
   activeChatThreadID: ?string,
 |};
 type State = {|
-  pendingUploads: {[threadID: string]: $ReadOnlyArray<PendingMultimediaUpload>},
+  pendingUploads:
+    {[threadID: string]: {[localID: string]: PendingMultimediaUpload}},
   drafts: {[threadID: string]: string},
 |};
 class ChatInputStateContainer extends React.PureComponent<Props, State> {
@@ -35,18 +40,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     (state: State) => state.pendingUploads[threadID],
     (state: State) => state.drafts[threadID],
     (
-      pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
+      pendingUploads: ?{[localID: string]: PendingMultimediaUpload},
       draft: ?string,
     ) => ({
-      pendingUploads: pendingUploads ? pendingUploads : [],
+      pendingUploads: pendingUploads ? pendingUploads : {},
       draft: draft ? draft : "",
       appendFiles: (files: $ReadOnlyArray<File>) =>
         this.appendFiles(threadID, files),
-      removePendingUpload: (pendingUpload: PendingMultimediaUpload) =>
-        this.removePendingUpload(threadID, pendingUpload),
+      removePendingUpload: (localID: string) =>
+        this.removePendingUpload(threadID, localID),
       clearPendingUploads: () => this.clearPendingUploads(threadID),
       setDraft: (draft: string) => this.setDraft(threadID, draft),
-      setProgress: (percent: number) => this.setProgress(threadID, percent),
+      setProgress: (localID: string, percent: number) =>
+        this.setProgress(threadID, localID, percent),
     }),
   ));
 
@@ -57,15 +63,18 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
     const newUploads = validatedFileInfo.map(({ file, mediaType }) => ({
+      localID: `localMultimedia${nextLocalMultimediaID++}`,
+      serverID: null,
       file,
       mediaType,
       uri: URL.createObjectURL(file),
       progressPercent: 0,
     }));
+    const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(prevState => {
       const prevUploads = prevState.pendingUploads[threadID];
       const mergedUploads = prevUploads
-        ? [ ...prevUploads, ...newUploads ]
+        ? { ...prevUploads, ...newUploadsObject }
         : newUploads;
       return {
         pendingUploads: {
@@ -78,19 +87,18 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   removePendingUpload(
     threadID: string,
-    pendingUpload: PendingMultimediaUpload,
+    localID: string,
   ) {
     this.setState(prevState => {
       const currentPendingUploads = prevState.pendingUploads[threadID];
       if (!currentPendingUploads) {
         return {};
       }
-      const newPendingUploads = currentPendingUploads.filter(
-        candidate => candidate !== pendingUpload,
-      );
-      if (newPendingUploads.length === currentPendingUploads.length) {
+      const pendingUpload = currentPendingUploads[localID];
+      if (!pendingUpload) {
         return {};
       }
+      const newPendingUploads = _omit([ localID ])(currentPendingUploads);
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -102,13 +110,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   clearPendingUploads(threadID: string) {
     this.setState(prevState => {
-      if (prevState.pendingUploads[threadID].length === 0) {
+      if (
+        !prevState.pendingUploads[threadID] ||
+        Object.keys(prevState.pendingUploads[threadID]).length === 0
+      ) {
         return {};
       }
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: [],
+          [threadID]: {},
         },
       };
     });
@@ -123,15 +134,23 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }));
   }
 
-  setProgress(threadID: string, percent: number) {
+  setProgress(threadID: string, localID: string, progressPercent: number) {
     this.setState(prevState => {
       const pendingUploads = prevState.pendingUploads[threadID];
       if (!pendingUploads) {
         return {};
       }
-      const newPendingUploads = pendingUploads.map(
-        pendingUpload => ({ ...pendingUpload, progressPercent: percent }),
-      );
+      const pendingUpload = pendingUploads[localID];
+      if (!pendingUpload) {
+        return {};
+      }
+      const newPendingUploads = {
+        ...pendingUploads,
+        [localID]: {
+          ...pendingUpload,
+          progressPercent,
+        },
+      };
       return {
         pendingUploads: {
           ...prevState.pendingUploads,

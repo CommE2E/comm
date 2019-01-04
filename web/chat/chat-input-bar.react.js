@@ -45,6 +45,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import { values } from 'lib/utils/objects';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -106,9 +107,9 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (
       this.multimediaInput &&
       _difference(
-        prevChatInputState.pendingUploads,
+        Object.keys(prevChatInputState.pendingUploads),
       )(
-        chatInputState.pendingUploads,
+        Object.keys(chatInputState.pendingUploads),
       ).length > 0
     ) {
       // Whenever a pending upload is removed, we reset the file
@@ -157,14 +158,14 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
-    const multimediaPreviews =
-      this.props.chatInputState.pendingUploads.map(pendingUpload => (
-        <MultimediaPreview
-          pendingUpload={pendingUpload}
-          remove={this.props.chatInputState.removePendingUpload}
-          key={pendingUpload.uri}
-        />
-      ));
+    const pendingUploads = values(this.props.chatInputState.pendingUploads);
+    const multimediaPreviews = pendingUploads.map(pendingUpload => (
+      <MultimediaPreview
+        pendingUpload={pendingUpload}
+        remove={this.props.chatInputState.removePendingUpload}
+        key={pendingUpload.localID}
+      />
+    ));
     const previews = multimediaPreviews.length > 0
       ? <div className={css.previews}>{multimediaPreviews}</div>
       : null;
@@ -270,7 +271,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.dispatchTextMessageAction(text);
     }
 
-    const { pendingUploads } = this.props.chatInputState;
+    const pendingUploads = values(this.props.chatInputState.pendingUploads);
     if (pendingUploads.length > 0) {
       this.dispatchMultimediaMessageAction(pendingUploads);
     }
@@ -377,7 +378,11 @@ class ChatInputBar extends React.PureComponent<Props> {
         messageInfo.threadID,
         localID,
         files,
-        this.props.chatInputState.setProgress,
+        (percent: number) => {
+          for (let uploadID in this.props.chatInputState.pendingUploads) {
+            this.props.chatInputState.setProgress(uploadID, percent);
+          }
+        },
       );
       this.props.chatInputState.clearPendingUploads();
       return {

@@ -8,16 +8,17 @@ import {
 import PropTypes from 'prop-types';
 
 export type ChatInputState = {|
-  pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
+  pendingUploads: {[localID: string]: PendingMultimediaUpload},
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<void>,
-  removePendingUpload: (pendingUpload: PendingMultimediaUpload) => void,
+  removePendingUpload: (localID: string) => void,
   clearPendingUploads: () => void,
   setDraft: (draft: string) => void,
-  setProgress: (percent: number) => void,
+  setProgress: (localID: string, percent: number) => void,
 |};
 export const chatInputStatePropType = PropTypes.shape({
-  pendingUploads: PropTypes.arrayOf(pendingMultimediaUploadPropType).isRequired,
+  pendingUploads:
+    PropTypes.objectOf(pendingMultimediaUploadPropType).isRequired,
   draft: PropTypes.string.isRequired,
   appendFiles: PropTypes.func.isRequired,
   removePendingUpload: PropTypes.func.isRequired,

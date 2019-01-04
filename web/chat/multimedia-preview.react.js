@@ -15,7 +15,7 @@ import css from './chat-message-list.css';
 
 type Props = {|
   pendingUpload: PendingMultimediaUpload,
-  remove: (pendingUpload: PendingMultimediaUpload) => void,
+  remove: (uploadID: string) => void,
 |};
 class MultimediaPreview extends React.PureComponent<Props> {
 
@@ -55,7 +55,7 @@ class MultimediaPreview extends React.PureComponent<Props> {
   }
 
   remove = () => {
-    this.props.remove(this.props.pendingUpload);
+    this.props.remove(this.props.pendingUpload.localID);
   }
 
 }
