@@ -18,10 +18,10 @@ import {
   type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
-import type { PendingMultimediaUpload } from 'lib/types/media-types';
 import {
   chatInputStatePropType,
   type ChatInputState,
+  type PendingMultimediaUpload,
 } from './chat-input-state';
 
 import * as React from 'react';
@@ -45,7 +45,6 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
-import { values } from 'lib/utils/objects';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -107,9 +106,9 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (
       this.multimediaInput &&
       _difference(
-        Object.keys(prevChatInputState.pendingUploads),
+        ChatInputBar.unassignedUploadIDs(prevChatInputState.pendingUploads),
       )(
-        Object.keys(chatInputState.pendingUploads),
+        ChatInputBar.unassignedUploadIDs(chatInputState.pendingUploads),
       ).length > 0
     ) {
       // Whenever a pending upload is removed, we reset the file
@@ -117,6 +116,16 @@ class ChatInputBar extends React.PureComponent<Props> {
       // the onChange call doesn't get filtered
       this.multimediaInput.value = "";
     }
+  }
+
+  static unassignedUploadIDs(
+    pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
+  ) {
+    return pendingUploads.filter(
+      (pendingUpload: PendingMultimediaUpload) => !pendingUpload.messageID,
+    ).map(
+      (pendingUpload: PendingMultimediaUpload) => pendingUpload.localID,
+    );
   }
 
   updateHeight() {
@@ -158,11 +167,11 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
-    const pendingUploads = values(this.props.chatInputState.pendingUploads);
+    const { pendingUploads } = this.props.chatInputState;
     const multimediaPreviews = pendingUploads.map(pendingUpload => (
       <MultimediaPreview
         pendingUpload={pendingUpload}
-        remove={this.props.chatInputState.removePendingUpload}
+        remove={this.props.chatInputState.cancelPendingUpload}
         key={pendingUpload.localID}
       />
     ));
@@ -271,7 +280,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.dispatchTextMessageAction(text);
     }
 
-    const pendingUploads = values(this.props.chatInputState.pendingUploads);
+    const { pendingUploads } = this.props.chatInputState;
     if (pendingUploads.length > 0) {
       this.dispatchMultimediaMessageAction(pendingUploads);
     }
@@ -350,12 +359,20 @@ class ChatInputBar extends React.PureComponent<Props> {
       threadID: this.props.threadInfo.id,
       creatorID,
       time: Date.now(),
-      media: pendingUploads.map(({ uri, mediaType }) => ({
+      media: pendingUploads.map(({ localID, serverID, uri, mediaType }) => ({
+        id: serverID ? serverID : localID,
         uri,
         type: mediaType,
       })),
     }: RawMultimediaMessageInfo);
     const files = pendingUploads.map(({ file }) => file);
+    // This call triggers a setState in ChatInputStateContainer. We hope that
+    // propagates quicker than the SEND_MULTIMEDIA_MESSAGE_STARTED that gets
+    // trigered by the dispatch call below, since ChatInputStateContainer's
+    // appendFiles (which handles the upload) relies on the aforementioned
+    // setState to know which pending uploads are associated to local messages
+    // and thus necessitate Redux actions to update the messageStore.
+    this.props.chatInputState.assignPendingUploads(localID);
     this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
       this.sendMultimediaMessageAction(messageInfo, files),
@@ -379,12 +396,14 @@ class ChatInputBar extends React.PureComponent<Props> {
         localID,
         files,
         (percent: number) => {
-          for (let uploadID in this.props.chatInputState.pendingUploads) {
-            this.props.chatInputState.setProgress(uploadID, percent);
+          for (let pendingUpload of this.props.chatInputState.pendingUploads) {
+            this.props.chatInputState.setProgress(
+              pendingUpload.localID,
+              percent,
+            );
           }
         },
       );
-      this.props.chatInputState.clearPendingUploads();
       return {
         localID,
         serverID: result.id,

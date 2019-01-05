@@ -3,7 +3,7 @@
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
-} from 'lib/types/media-types';
+} from './chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -30,7 +30,7 @@ class MultimediaPreview extends React.PureComponent<Props> {
       ? <XCircleIcon onClick={this.remove} className={css.removeUpload} />
       : null;
     let progressIndicator = null;
-    if (progressPercent !== 0) {
+    if (progressPercent !== 0 && progressPercent !== 1) {
       const outOfHundred = progressPercent * 100;
       const text = `${outOfHundred}%`;
       progressIndicator = (
