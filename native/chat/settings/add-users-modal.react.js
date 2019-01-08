@@ -426,7 +426,8 @@ export default connect(
     }
     return {
       parentThreadInfo,
-      otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
+      otherUserInfos:
+        userInfoSelectorForOtherMembersOfThread((null: ?string))(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       changeThreadSettingsLoadingStatus:
         changeThreadSettingsLoadingStatusSelector(state),

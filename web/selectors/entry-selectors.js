@@ -12,7 +12,7 @@ import _compact from 'lodash/fp/compact';
 
 import { createEntryInfo } from 'lib/shared/entry-utils';
 
-const allDaysToEntries = createSelector(
+const allDaysToEntries = createSelector<*, *, *, *, *, *, *>(
   (state: AppState) => state.entryStore.entryInfos,
   (state: AppState) => state.entryStore.daysToEntries,
   (state: AppState) => state.userInfos,

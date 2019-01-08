@@ -613,7 +613,7 @@ async function sendAndroidNotification(
 
 type InvalidToken = {|
   userID: string,
-  tokens: string[],
+  tokens: $ReadOnlyArray<string>,
 |};
 async function removeInvalidTokens(
   invalidTokens: $ReadOnlyArray<InvalidToken>,

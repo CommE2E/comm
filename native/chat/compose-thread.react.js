@@ -571,7 +571,8 @@ const ComposeThread = connect(
     return {
       parentThreadInfo,
       loadingStatus: loadingStatusSelector(state),
-      otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
+      otherUserInfos:
+        userInfoSelectorForOtherMembersOfThread((null: ?string))(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
     };

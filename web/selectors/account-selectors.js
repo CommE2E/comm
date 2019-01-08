@@ -7,7 +7,7 @@ import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
-const webLogInExtraInfoSelector = createSelector(
+const webLogInExtraInfoSelector = createSelector<*, *, *, *, *>(
   logInExtraInfoSelector,
   (state: AppState) => state.navInfo.tab === "calendar",
   (

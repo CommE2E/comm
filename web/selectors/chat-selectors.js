@@ -16,7 +16,7 @@ import {
   createChatMessageItems,
 } from 'lib/selectors/chat-selectors';
 
-const activeChatThreadItem = createSelector(
+const activeChatThreadItem = createSelector<*, *, *, *, *, *, *, *>(
   threadInfoSelector,
   (state: AppState) => state.messageStore,
   (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
@@ -46,7 +46,7 @@ const activeChatThreadItem = createSelector(
   },
 );
 
-const webChatListData = createSelector(
+const webChatListData = createSelector<*, *, *, *, *>(
   chatListData,
   activeChatThreadItem,
   (
@@ -65,7 +65,7 @@ const webChatListData = createSelector(
   },
 );
 
-const webMessageListData = createSelector(
+const webMessageListData = createSelector<*, *, *, *, *, *, *, *>(
   (state: AppState) => state.navInfo.activeChatThreadID,
   (state: AppState) => state.messageStore,
   (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
