@@ -21,6 +21,9 @@ export type PendingMultimediaUpload = {|
   // is required because those "fake" URLs must be disposed properly
   uriIsReal: bool,
   progressPercent: number,
+  // This is set once the network request begins and used if the upload is
+  // cancelled
+  abort: ?(() => void),
 |};
 export const pendingMultimediaUploadPropType = PropTypes.shape({
   localID: PropTypes.string.isRequired,
@@ -32,6 +35,7 @@ export const pendingMultimediaUploadPropType = PropTypes.shape({
   uri: PropTypes.string.isRequired,
   uriIsReal: PropTypes.bool.isRequired,
   progressPercent: PropTypes.number.isRequired,
+  abort: PropTypes.func,
 });
 
 // This type represents the input state for a particular thread

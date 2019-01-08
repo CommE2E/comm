@@ -1,6 +1,8 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
+import type { UploadMultimediaResult } from 'lib/types/media-types';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { PendingMultimediaUpload } from './chat-input-state';
 
 import * as React from 'react';
@@ -17,6 +19,7 @@ import _partition from 'lodash/fp/partition';
 import _mapValues from 'lodash/fp/mapValues';
 
 import { connect } from 'lib/utils/redux-utils';
+import { uploadMultimedia } from 'lib/actions/upload-actions';
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile } from '../utils/media-utils';
@@ -26,6 +29,14 @@ let nextLocalUploadID = 0;
 type Props = {|
   // Redux state
   activeChatThreadID: ?string,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
+  // async functions that hit server APIs
+  uploadMultimedia: (
+    multimedia: Object,
+    onProgress: (percent: number) => void,
+    abortHandler: (abort: () => void) => void,
+  ) => Promise<UploadMultimediaResult>,
 |};
 type State = {|
   pendingUploads:
@@ -36,6 +47,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   static propTypes = {
     activeChatThreadID: PropTypes.string,
+    dispatchActionPayload: PropTypes.func.isRequired,
+    uploadMultimedia: PropTypes.func.isRequired,
   };
   state = {
     pendingUploads: {},
@@ -94,24 +107,164 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       uri: URL.createObjectURL(file),
       uriIsReal: false,
       progressPercent: 0,
+      abort: null,
     }));
     const newUploadsObject = _keyBy('localID')(newUploads);
+    this.setState(
+      prevState => {
+        const prevUploads = prevState.pendingUploads[threadID];
+        const mergedUploads = prevUploads
+          ? { ...prevUploads, ...newUploadsObject }
+          : newUploads;
+        return {
+          pendingUploads: {
+            ...prevState.pendingUploads,
+            [threadID]: mergedUploads,
+          },
+        };
+      },
+      () => this.uploadFiles(
+        threadID,
+        newUploads,
+      ),
+    );
+  }
+
+  uploadFiles(
+    threadID: string,
+    uploads: $ReadOnlyArray<PendingMultimediaUpload>,
+  ) {
+    return Promise.all(
+      uploads.map(upload => this.uploadFile(threadID, upload)),
+    );
+  }
+
+  async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
+    let result;
+    try {
+      result = await this.props.uploadMultimedia(
+        upload.file,
+        (percent: number) => this.setProgress(
+          threadID,
+          upload.localID,
+          percent,
+        ),
+        (abort: () => void) => this.handleAbortCallback(
+          threadID,
+          upload.localID,
+          abort,
+        ),
+      );
+    } catch (e) {
+      this.handleUploadFailure(
+        threadID,
+        upload.localID,
+        e,
+      );
+      return;
+    }
+
+    const uploadAfterSuccess =
+      this.state.pendingUploads[threadID][upload.localID];
+    if (uploadAfterSuccess && uploadAfterSuccess.messageID) {
+      // TODO implement this action
+      // this.props.dispatchActionPayload(
+      //   assignMediaServerIDActionType,
+      //   { mediaServerID: result.id, messageID: uploadAfterSuccess.messageID },
+      // );
+    }
+
     this.setState(prevState => {
-      const prevUploads = prevState.pendingUploads[threadID];
-      const mergedUploads = prevUploads
-        ? { ...prevUploads, ...newUploadsObject }
-        : newUploads;
+      const uploads = prevState.pendingUploads[threadID];
+      const currentUpload = uploads[upload.localID];
+      if (!currentUpload) {
+        return {};
+      }
+      let newUploads;
+      if (currentUpload.messageID) {
+        // If the messageID is already set, then there is no need to keep
+        // tracking this upload. The above action dispatch should ensure no
+        // pointers to this localID exist.
+        newUploads = _omit([ upload.localID ])(uploads);
+      } else {
+        // Otherwise, the message hasn't been sent yet, so the uploads are still
+        // pending. We'll mark the serverID in our local state.
+        newUploads = {
+          ...uploads,
+          [upload.localID]: {
+            ...currentUpload,
+            serverID: result.id,
+          },
+        };
+      }
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: mergedUploads,
+          [threadID]: newUploads,
+        },
+      };
+    });
+  }
+
+  handleAbortCallback(
+    threadID: string,
+    localUploadID: string,
+    abort: () => void,
+  ) {
+    this.setState(prevState => {
+      const uploads = prevState.pendingUploads[threadID];
+      const upload = uploads[localUploadID];
+      if (!upload) {
+        // The upload has been cancelled before we were even handed the
+        // abort function. We should immediately abort.
+        abort();
+      }
+      return {
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [threadID]: {
+            ...uploads,
+            [localUploadID]: {
+              ...upload,
+              abort,
+            },
+          },
+        },
+      };
+    });
+  }
+
+  handleUploadFailure(
+    threadID: string,
+    localUploadID: string,
+    e: any,
+  ) {
+    const failed = e instanceof Error ? e.message : "failed";
+    this.setState(prevState => {
+      const uploads = prevState.pendingUploads[threadID];
+      const upload = uploads[localUploadID];
+      if (!upload) {
+        // The upload has been cancelled before it failed
+        return;
+      }
+      return {
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [threadID]: {
+            ...uploads,
+            [localUploadID]: {
+              ...upload,
+              failed,
+              abort: null,
+            },
+          },
         },
       };
     });
   }
 
   cancelPendingUpload(threadID: string, localUploadID: string) {
-    let revokeURL;
+    let revokeURL, abortRequest;
     this.setState(
       prevState => {
         const currentPendingUploads = prevState.pendingUploads[threadID];
@@ -125,6 +278,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         if (!pendingUpload.uriIsReal) {
           revokeURL = pendingUpload.uri;
         }
+        if (pendingUpload.abort) {
+          abortRequest = pendingUpload.abort;
+        }
+        if (pendingUpload.serverID) {
+          // TODO delete upload
+        }
         const newPendingUploads = _omit([ localUploadID ])(currentPendingUploads);
         return {
           pendingUploads: {
@@ -136,6 +295,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       () => {
         if (revokeURL) {
           URL.revokeObjectURL(revokeURL);
+        }
+        if (abortRequest) {
+          abortRequest();
         }
       },
     );
@@ -222,6 +384,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
 }
 
-export default connect((state: AppState) => ({
-  activeChatThreadID: state.navInfo.activeChatThreadID,
-}))(ChatInputStateContainer);
+export default connect(
+  (state: AppState) => ({
+    activeChatThreadID: state.navInfo.activeChatThreadID,
+  }),
+  { uploadMultimedia },
+)(ChatInputStateContainer);
