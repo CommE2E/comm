@@ -22,6 +22,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   uploadMultimedia,
   assignMediaServerIDToMessageActionType,
+  assignMediaServerURIToMessageActionType,
 } from 'lib/actions/upload-actions';
 
 import ChatMessageList from './chat-message-list.react';
@@ -212,6 +213,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     });
 
     await preloadImage(result.uri);
+
+    const uploadAfterPreload =
+      this.state.pendingUploads[threadID][upload.localID];
+    if (!uploadAfterPreload || uploadAfterPreload.messageID) {
+      this.props.dispatchActionPayload(
+        assignMediaServerURIToMessageActionType,
+        {
+          messageID: uploadAfterPreload.messageID,
+          mediaID: uploadAfterPreload.serverID
+            ? uploadAfterPreload.serverID
+            : uploadAfterPreload.localID,
+          serverURI: result.uri,
+        },
+      );
+    }
   }
 
   handleAbortCallback(
