@@ -214,19 +214,55 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
     await preloadImage(result.uri);
 
+    const replaceURI = upload => this.props.dispatchActionPayload(
+      assignMediaServerURIToMessageActionType,
+      {
+        messageID: uploadAfterPreload.messageID,
+        mediaID: uploadAfterPreload.serverID
+          ? uploadAfterPreload.serverID
+          : uploadAfterPreload.localID,
+        serverURI: result.uri,
+      },
+    );
+
     const uploadAfterPreload =
       this.state.pendingUploads[threadID][upload.localID];
     if (!uploadAfterPreload || uploadAfterPreload.messageID) {
-      this.props.dispatchActionPayload(
-        assignMediaServerURIToMessageActionType,
-        {
-          messageID: uploadAfterPreload.messageID,
-          mediaID: uploadAfterPreload.serverID
-            ? uploadAfterPreload.serverID
-            : uploadAfterPreload.localID,
-          serverURI: result.uri,
-        },
-      );
+      replaceURI(uploadAfterPreload);
+    } else {
+      this.setState(prevState => {
+        const uploads = prevState.pendingUploads[threadID];
+        const currentUpload = uploads[upload.localID];
+        if (!currentUpload) {
+          replaceURI(currentUpload);
+          return {};
+        }
+        let newUploads;
+        if (currentUpload.messageID) {
+          // If the messageID is already set, then there is no need to keep
+          // tracking this upload. The above action dispatch should ensure no
+          // pointers to this localID exist.
+          newUploads = _omit([ upload.localID ])(uploads);
+          replaceURI(currentUpload);
+        } else {
+          // Otherwise, the message hasn't been sent yet, so the uploads are still
+          // pending. We'll mark the serverID in our local state.
+          newUploads = {
+            ...uploads,
+            [upload.localID]: {
+              ...currentUpload,
+              uri: result.uri,
+              uriIsReal: true,
+            },
+          };
+        }
+        return {
+          pendingUploads: {
+            ...prevState.pendingUploads,
+            [threadID]: newUploads,
+          },
+        };
+      });
     }
   }
 
@@ -269,7 +305,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const upload = uploads[localUploadID];
       if (!upload) {
         // The upload has been cancelled before it failed
-        return;
+        return {};
       }
       return {
         pendingUploads: {
