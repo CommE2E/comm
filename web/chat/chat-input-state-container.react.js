@@ -119,7 +119,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         const prevUploads = prevState.pendingUploads[threadID];
         const mergedUploads = prevUploads
           ? { ...prevUploads, ...newUploadsObject }
-          : newUploads;
+          : newUploadsObject;
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
