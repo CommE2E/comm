@@ -45,6 +45,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import { isStaff } from 'lib/shared/user-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -181,16 +182,9 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
-      content = (
-        <div className={css.inputBarTextInput}>
-          <textarea
-            rows="1"
-            placeholder="Send a message..."
-            value={this.props.chatInputState.draft}
-            onChange={this.onChangeMessageText}
-            onKeyDown={this.onKeyDown}
-            ref={this.textareaRef}
-          />
+      let multimediaUpload = null;
+      if (this.props.viewerID && isStaff(this.props.viewerID)) {
+        multimediaUpload = (
           <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
             <input
               type="file"
@@ -203,6 +197,19 @@ class ChatInputBar extends React.PureComponent<Props> {
               icon={faFileImage}
             />
           </a>
+        );
+      }
+      content = (
+        <div className={css.inputBarTextInput}>
+          <textarea
+            rows="1"
+            placeholder="Send a message..."
+            value={this.props.chatInputState.draft}
+            onChange={this.onChangeMessageText}
+            onKeyDown={this.onKeyDown}
+            ref={this.textareaRef}
+          />
+          {multimediaUpload}
           <a className={css.send} onClick={this.onSend}>
             <FontAwesomeIcon
               icon={faChevronRight}
