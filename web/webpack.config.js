@@ -2,6 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 const cssLoader = {
   loader: 'css-loader',
@@ -28,6 +30,10 @@ const baseBrowserConfig = {
   name: "browser",
   entry: {
     browser: ['./script.js'],
+  },
+  output: {
+    filename: 'prod.[hash:12].build.js',
+    path: path.join(__dirname, 'dist'),
   },
   module: {
     rules: [
@@ -64,6 +70,15 @@ const baseBrowserConfig = {
       '../images': path.resolve('../server/images'),
     },
   },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+      }),
+      new OptimizeCssAssetsPlugin(),
+    ],
+  },
 };
 
 module.exports = function(env) {
@@ -72,10 +87,6 @@ module.exports = function(env) {
   }
   let browserConfig = {
     ...baseBrowserConfig,
-    output: {
-      filename: 'prod.[hash:12].build.js',
-      path: path.join(__dirname, 'dist'),
-    },
     plugins: [
       new webpack.LoaderOptionsPlugin({
         minimize: env === 'prod',
