@@ -19,7 +19,10 @@ import _partition from 'lodash/fp/partition';
 import _mapValues from 'lodash/fp/mapValues';
 
 import { connect } from 'lib/utils/redux-utils';
-import { uploadMultimedia } from 'lib/actions/upload-actions';
+import {
+  uploadMultimedia,
+  assignMediaServerIDToMessageActionType,
+} from 'lib/actions/upload-actions';
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile } from '../utils/media-utils';
@@ -167,11 +170,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const uploadAfterSuccess =
       this.state.pendingUploads[threadID][upload.localID];
     if (uploadAfterSuccess && uploadAfterSuccess.messageID) {
-      // TODO implement this action
-      // this.props.dispatchActionPayload(
-      //   assignMediaServerIDActionType,
-      //   { mediaServerID: result.id, messageID: uploadAfterSuccess.messageID },
-      // );
+      this.props.dispatchActionPayload(
+        assignMediaServerIDToMessageActionType,
+        {
+          messageID: uploadAfterSuccess.messageID,
+          mediaLocalID: upload.localID,
+          mediaServerID: result.id,
+        },
+      );
     }
 
     this.setState(prevState => {
