@@ -25,7 +25,7 @@ import {
 } from 'lib/actions/upload-actions';
 
 import ChatMessageList from './chat-message-list.react';
-import { validateFile } from '../utils/media-utils';
+import { validateFile, preloadImage } from '../utils/media-utils';
 
 let nextLocalUploadID = 0;
 
@@ -210,6 +210,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         },
       };
     });
+
+    await preloadImage(result.uri);
   }
 
   handleAbortCallback(

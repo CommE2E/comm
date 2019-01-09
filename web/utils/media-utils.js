@@ -45,7 +45,16 @@ async function validateFile(file: File): Promise<?FileValidationResult> {
 
 const allowedMimeTypeString = Object.keys(mimeTypesToMediaTypes).join(',');
 
+function preloadImage(uri: string): Promise<void> {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.src = uri;
+    img.onload = resolve;
+  });
+}
+
 export {
   validateFile,
   allowedMimeTypeString,
+  preloadImage,
 };
