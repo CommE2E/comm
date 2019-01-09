@@ -24,6 +24,15 @@ class MultimediaPreview extends React.PureComponent<Props> {
     remove: PropTypes.func.isRequired,
   };
 
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.pendingUpload.uri !== prevProps.pendingUpload.uri &&
+      !prevProps.pendingUpload.uriIsReal
+    ) {
+      URL.revokeObjectURL(prevProps.pendingUpload.uri);
+    }
+  }
+
   render() {
     const { uri, progressPercent } = this.props.pendingUpload;
     const removeButton = progressPercent === 0
