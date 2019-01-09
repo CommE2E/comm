@@ -35,9 +35,6 @@ class MultimediaPreview extends React.PureComponent<Props> {
 
   render() {
     const { uri, progressPercent } = this.props.pendingUpload;
-    const removeButton = progressPercent === 0
-      ? <XCircleIcon onClick={this.remove} className={css.removeUpload} />
-      : null;
     let progressIndicator = null;
     if (progressPercent !== 0 && progressPercent !== 1) {
       const outOfHundred = progressPercent * 100;
@@ -56,7 +53,7 @@ class MultimediaPreview extends React.PureComponent<Props> {
       <span className={css.preview}>
         <span className={css.previewImage}>
           <img src={uri} />
-          {removeButton}
+          <XCircleIcon onClick={this.remove} className={css.removeUpload} />
         </span>
         {progressIndicator}
       </span>
