@@ -98,14 +98,6 @@ module.exports = function(env) {
     browserConfig = {
       ...browserConfig,
       mode: "development",
-      entry: {
-        browser: [
-          'react-hot-loader/patch',
-          'webpack-dev-server/client?http://localhost:8080',
-          'webpack/hot/only-dev-server',
-          ...browserConfig.entry.browser,
-        ],
-      },
       output: {
         ...browserConfig.output,
         filename: 'dev.build.js',
@@ -138,6 +130,11 @@ module.exports = function(env) {
             },
           },
           browserConfig.module.rules[1],
+          {
+            test: /\.jsx?$/,
+            include: /node_modules/,
+            use: ['react-hot-loader/webpack'],
+          },
           {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,

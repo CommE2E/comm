@@ -7,7 +7,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import { Router, Route } from 'react-router';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
@@ -44,7 +44,7 @@ const RootComponent = () => (
     <Socket />
   </React.Fragment>
 );
-const RootHMR = hot(module)(RootComponent);
+const RootHMR = hot(RootComponent);
 
 const RootProvider = () => (
   <Provider store={store}>
