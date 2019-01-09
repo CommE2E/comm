@@ -18,10 +18,7 @@ import './cron';
 import { jsonEndpoints } from './endpoints';
 import { websiteResponder } from './responders/website-responders';
 import { errorReportDownloadResponder } from './responders/report-responders';
-import {
-  multerProcessor,
-  multimediaMessageCreationResponder,
-} from './uploads/uploads';
+import { multerProcessor, multimediaUploadResponder } from './uploads/uploads';
 
 const { baseRoutePath } = urlFacts;
 
@@ -69,9 +66,9 @@ if (cluster.isMaster) {
   router.get('*', htmlHandler(websiteResponder));
 
   router.post(
-    '/create_multimedia_message',
+    '/upload_multimedia',
     multerProcessor,
-    uploadHandler(multimediaMessageCreationResponder),
+    uploadHandler(multimediaUploadResponder),
   );
 
   server.use(baseRoutePath, router);

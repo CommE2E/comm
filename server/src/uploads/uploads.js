@@ -2,7 +2,7 @@
 
 import type { Viewer } from '../session/viewer';
 import type { $Request } from 'express';
-import type { SendMultimediaMessageResponse } from 'lib/types/message-types';
+import type { UploadMultimediaResult } from 'lib/types/media-types';
 
 import multer from 'multer';
 import fileType from 'file-type';
@@ -22,11 +22,10 @@ type MulterFile = {|
   size: number,
 |};
 
-async function multimediaMessageCreationResponder(
+async function multimediaUploadResponder(
   viewer: Viewer,
   req: $Request & { files?: $ReadOnlyArray<MulterFile> },
-): Promise<SendMultimediaMessageResponse> {
-  console.log(req.body);
+): Promise<UploadMultimediaResult> {
   const { files } = req;
   if (!files) {
     throw new ServerError('invalid_parameters');
@@ -39,10 +38,10 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
   console.log(multerFilesWithInfos);
-  return { id: "test", time: 5 };
+  return { id: "test", uri: "fake" };
 }
 
 export {
   multerProcessor,
-  multimediaMessageCreationResponder,
+  multimediaUploadResponder,
 };
