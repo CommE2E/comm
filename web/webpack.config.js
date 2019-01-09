@@ -131,11 +131,6 @@ module.exports = function(env) {
           },
           browserConfig.module.rules[1],
           {
-            test: /\.jsx?$/,
-            include: /node_modules/,
-            use: ['react-hot-loader/webpack'],
-          },
-          {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
             use: [
@@ -174,6 +169,13 @@ module.exports = function(env) {
         port: 8080,
         contentBase: __dirname,
         headers: { 'Access-Control-Allow-Origin': '*' },
+      },
+      resolve: {
+        ...browserConfig.resolve,
+        alias: {
+          ...browserConfig.resolve.alias,
+          'react-dom': '@hot-loader/react-dom',
+        },
       },
     };
   } else {
