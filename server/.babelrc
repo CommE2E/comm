@@ -1,7 +1,7 @@
 {
-  presets: ['react'],
+  presets: ['@babel/preset-react', '@babel/preset-flow'],
   plugins: [
-    ['transform-class-properties', { spec: true }],
-    'transform-object-rest-spread'
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-proposal-object-rest-spread'
   ],
 }

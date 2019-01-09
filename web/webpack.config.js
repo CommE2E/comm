@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 
 const cssLoader = {
@@ -17,11 +16,10 @@ const babelConfig = {
   loader: 'babel-loader',
   exclude: /node_modules\/(?!lib)/,
   options: {
-    presets: ['react'],
+    presets: ['@babel/preset-react', '@babel/preset-flow'],
     plugins: [
-      ['transform-class-properties', { spec: true }],
-      'transform-object-rest-spread',
-      ['transform-builtin-extend', { globals: ["Error"] }],
+      '@babel/plugin-proposal-class-properties',
+      '@babel/plugin-proposal-object-rest-spread',
     ],
   },
 };
@@ -39,7 +37,7 @@ const baseBrowserConfig = {
           ...babelConfig.options,
           presets: [
             ...babelConfig.options.presets,
-            ['latest', { 'es2015': { modules: false } }],
+            ['@babel/preset-env', { modules: false }],
           ],
         },
       },
@@ -88,6 +86,7 @@ module.exports = function(env) {
   if (env === "dev") {
     browserConfig = {
       ...browserConfig,
+      mode: "development",
       entry: {
         browser: [
           'react-hot-loader/patch',
@@ -107,7 +106,6 @@ module.exports = function(env) {
       plugins: [
         ...browserConfig.plugins,
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.NamedModulesPlugin(),
         new webpack.DefinePlugin({
           'process.env': {
             NODE_ENV: JSON.stringify('dev'),
@@ -173,16 +171,18 @@ module.exports = function(env) {
   } else {
     browserConfig = {
       ...browserConfig,
+      mode: "production",
       plugins: [
         ...browserConfig.plugins,
-        new UglifyJSPlugin(),
         new webpack.DefinePlugin({
           'process.env': {
             NODE_ENV: JSON.stringify('production'),
             BROWSER: true,
           },
         }),
-        new ExtractTextPlugin('prod.[contenthash:12].build.css'),
+        new MiniCssExtractPlugin({
+          filename: 'prod.[contenthash:12].build.css',
+        }),
         new AssetsPlugin({
           filename: 'assets.json',
           path: path.join(__dirname, 'dist'),
@@ -197,7 +197,7 @@ module.exports = function(env) {
               ...browserConfig.module.rules[0].options,
               plugins: [
                 ...browserConfig.module.rules[0].options.plugins,
-                'transform-react-constant-elements',
+                '@babel/plugin-transform-react-constant-elements',
                 'transform-remove-console',
               ],
             },
@@ -206,20 +206,26 @@ module.exports = function(env) {
           {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
-            use: ExtractTextPlugin.extract({
-              use: {
+            use: [
+              {
+                loader: MiniCssExtractPlugin.loader,
+              },
+              {
                 ...cssLoader,
                 options: {
                   ...cssLoader.options,
                   url: false,
                 },
               },
-            }),
+            ]
           },
           {
             test: /node_modules\/.*\.css$/,
-            use: ExtractTextPlugin.extract({
-              use: {
+            use: [
+              {
+                loader: MiniCssExtractPlugin.loader,
+              },
+              {
                 ...cssLoader,
                 options: {
                   ...cssLoader.options,
@@ -227,7 +233,7 @@ module.exports = function(env) {
                   modules: false,
                 },
               },
-            }),
+            ]
           },
         ],
       },
@@ -235,6 +241,7 @@ module.exports = function(env) {
   }
   const nodeServerRenderingConfig = {
     name: "server",
+    mode: env === "dev" ? "development" : "production",
     entry: {
       server: ['./server-rendering.js', './app.react.js'],
     },
