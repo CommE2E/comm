@@ -10,6 +10,8 @@ import fileType from 'file-type';
 import { fileInfoFromData } from 'lib/utils/media-utils';
 import { ServerError } from 'lib/utils/errors';
 
+import createUploads from '../creators/upload-creator';
+
 const upload = multer();
 const multerProcessor = upload.array('multimedia');
 
@@ -22,23 +24,30 @@ type MulterFile = {|
   size: number,
 |};
 
+type MultimediaUploadResult = {|
+  results: UploadMultimediaResult[],
+|};
 async function multimediaUploadResponder(
   viewer: Viewer,
   req: $Request & { files?: $ReadOnlyArray<MulterFile> },
-): Promise<UploadMultimediaResult> {
+): Promise<MultimediaUploadResult> {
   const { files } = req;
   if (!files) {
     throw new ServerError('invalid_parameters');
   }
-  const multerFilesWithInfos = files.map(multerFile => ({
-    multerFile,
-    fileInfo: fileInfoFromData(multerFile.buffer, multerFile.originalname),
-  })).filter(Boolean);
-  if (multerFilesWithInfos.length === 0) {
+  const uploadInfos = files.map(multerFile => {
+    const { buffer, originalname } = multerFile;
+    const fileInfo = fileInfoFromData(buffer, originalname);
+    if (!fileInfo) {
+      return null;
+    }
+    return { ...fileInfo, buffer };
+  }).filter(Boolean);
+  if (uploadInfos.length === 0) {
     throw new ServerError('invalid_parameters');
   }
-  console.log(multerFilesWithInfos);
-  return { id: "test", uri: "fake" };
+  const results = await createUploads(viewer, uploadInfos);
+  return { results };
 }
 
 export {
