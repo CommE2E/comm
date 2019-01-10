@@ -213,6 +213,13 @@ class InternalEntry extends React.Component<Props, State> {
     ) {
       this.save();
     }
+
+    if (
+      this.state.editing && prevState.editing &&
+      (this.state.text.trim() === "") !== (prevState.text.trim() === "")
+    ) {
+      LayoutAnimation.easeInEaseOut();
+    }
   }
 
   componentDidMount() {
@@ -242,8 +249,9 @@ class InternalEntry extends React.Component<Props, State> {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#404040';
       const actionLinksTextStyle = { color: actionLinksColor };
       const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
-      let editButtonContent;
-      if (editing) {
+      let editButtonContent = null;
+      if (editing && this.state.text.trim() === "") {
+      } else if (editing) {
         editButtonContent = (
           <React.Fragment>
             <Icon
