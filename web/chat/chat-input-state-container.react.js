@@ -319,6 +319,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             [localUploadID]: {
               ...upload,
               failed,
+              progressPercent: 0,
               abort: null,
             },
           },

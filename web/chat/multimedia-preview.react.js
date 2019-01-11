@@ -8,6 +8,7 @@ import {
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import XCircleIcon from 'react-feather/dist/icons/x-circle';
+import AlertCircleIcon from 'react-feather/dist/icons/alert-circle';
 import CircularProgressbar from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -34,7 +35,8 @@ class MultimediaPreview extends React.PureComponent<Props> {
   }
 
   render() {
-    const { uri, progressPercent } = this.props.pendingUpload;
+    const { uri, progressPercent, failed } = this.props.pendingUpload;
+
     let progressIndicator = null;
     if (progressPercent !== 0 && progressPercent !== 1) {
       const outOfHundred = progressPercent * 100;
@@ -49,6 +51,17 @@ class MultimediaPreview extends React.PureComponent<Props> {
         />
       );
     }
+
+    let errorIndicator = null;
+    if (failed) {
+      errorIndicator = (
+        <AlertCircleIcon
+          className={css.uploadError}
+          size={36}
+        />
+      );
+    }
+
     return (
       <span className={css.preview}>
         <span className={css.previewImage}>
@@ -56,6 +69,7 @@ class MultimediaPreview extends React.PureComponent<Props> {
           <XCircleIcon onClick={this.remove} className={css.removeUpload} />
         </span>
         {progressIndicator}
+        {errorIndicator}
       </span>
     );
   }
