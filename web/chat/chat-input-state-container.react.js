@@ -201,6 +201,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           [upload.localID]: {
             ...currentUpload,
             serverID: result.id,
+            abort: null,
           },
         };
       }
