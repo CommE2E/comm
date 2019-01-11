@@ -23,6 +23,7 @@ import {
   uploadMultimedia,
   assignMediaServerIDToMessageActionType,
   assignMediaServerURIToMessageActionType,
+  deleteUpload,
 } from 'lib/actions/upload-actions';
 
 import ChatMessageList from './chat-message-list.react';
@@ -41,6 +42,7 @@ type Props = {|
     onProgress: (percent: number) => void,
     abortHandler: (abort: () => void) => void,
   ) => Promise<UploadMultimediaResult>,
+  deleteUpload: (id: string) => Promise<void>,
 |};
 type State = {|
   pendingUploads:
@@ -53,6 +55,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     activeChatThreadID: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
+    deleteUpload: PropTypes.func.isRequired,
   };
   state = {
     pendingUploads: {},
@@ -343,7 +346,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           abortRequest = pendingUpload.abort;
         }
         if (pendingUpload.serverID) {
-          // TODO delete upload
+          this.props.deleteUpload(pendingUpload.serverID);
         }
         const newPendingUploads = _omit([ localUploadID ])(currentPendingUploads);
         return {
@@ -449,5 +452,5 @@ export default connect(
   (state: AppState) => ({
     activeChatThreadID: state.navInfo.activeChatThreadID,
   }),
-  { uploadMultimedia },
+  { uploadMultimedia, deleteUpload },
 )(ChatInputStateContainer);

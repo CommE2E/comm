@@ -2,7 +2,10 @@
 
 import type { Viewer } from '../session/viewer';
 import type { $Request } from 'express';
-import type { UploadMultimediaResult } from 'lib/types/media-types';
+import type {
+  UploadMultimediaResult,
+  UploadDeletionRequest,
+} from 'lib/types/media-types';
 
 import multer from 'multer';
 import fileType from 'file-type';
@@ -12,6 +15,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import createUploads from '../creators/upload-creator';
 import { fetchUpload } from '../fetchers/upload-fetchers';
+import { deleteUpload } from '../deleters/upload-deleters';
 
 const upload = multer();
 const multerProcessor = upload.array('multimedia');
@@ -65,8 +69,17 @@ async function uploadDownloadResponder(
   res.send(content);
 }
 
+async function uploadDeletionResponder(
+  viewer: Viewer,
+  request: UploadDeletionRequest,
+): Promise<void> {
+  const { id } = request;
+  await deleteUpload(viewer, id);
+}
+
 export {
   multerProcessor,
   multimediaUploadResponder,
   uploadDownloadResponder,
+  uploadDeletionResponder,
 };

@@ -48,6 +48,7 @@ import {
   reportCreationResponder,
   errorReportFetchInfosResponder,
 } from './responders/report-responders';
+import { uploadDeletionResponder } from './uploads/uploads';
 
 const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'update_activity': updateActivityResponder,
@@ -84,6 +85,7 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'fetch_error_report_infos': errorReportFetchInfosResponder,
   'request_access': requestAccessResponder,
   'update_calendar_query': calendarQueryUpdateResponder,
+  'delete_upload': uploadDeletionResponder,
 };
 
 export {
