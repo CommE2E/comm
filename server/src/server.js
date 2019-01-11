@@ -18,7 +18,11 @@ import './cron';
 import { jsonEndpoints } from './endpoints';
 import { websiteResponder } from './responders/website-responders';
 import { errorReportDownloadResponder } from './responders/report-responders';
-import { multerProcessor, multimediaUploadResponder } from './uploads/uploads';
+import {
+  multerProcessor,
+  multimediaUploadResponder,
+  uploadDownloadResponder,
+} from './uploads/uploads';
 
 const { baseRoutePath } = urlFacts;
 
@@ -61,6 +65,11 @@ if (cluster.isMaster) {
     '/download_error_report/:reportID',
     downloadHandler(errorReportDownloadResponder),
   );
+  router.get(
+    '/upload/:uploadID/:secret',
+    downloadHandler(uploadDownloadResponder),
+  );
+
   // $FlowFixMe express-ws has side effects that can't be typed
   router.ws('/ws', onConnection);
   router.get('*', htmlHandler(websiteResponder));

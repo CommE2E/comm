@@ -11,6 +11,7 @@ import { fileInfoFromData } from 'lib/utils/media-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import createUploads from '../creators/upload-creator';
+import { fetchUpload } from '../fetchers/upload-fetchers';
 
 const upload = multer();
 const multerProcessor = upload.array('multimedia');
@@ -50,7 +51,22 @@ async function multimediaUploadResponder(
   return { results };
 }
 
+async function uploadDownloadResponder(
+  viewer: Viewer,
+  req: $Request,
+  res: $Response,
+): Promise<void> {
+  const { uploadID, secret } = req.params;
+  if (!uploadID || !secret) {
+    throw new ServerError('invalid_parameters');
+  }
+  const { content, mime } = await fetchUpload(viewer, uploadID, secret);
+  res.set("Content-Type", mime);
+  res.send(content);
+}
+
 export {
   multerProcessor,
   multimediaUploadResponder,
+  uploadDownloadResponder,
 };
