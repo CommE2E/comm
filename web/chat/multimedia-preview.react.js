@@ -39,7 +39,7 @@ class MultimediaPreview extends React.PureComponent<Props> {
 
     let progressIndicator = null;
     if (progressPercent !== 0 && progressPercent !== 1) {
-      const outOfHundred = progressPercent * 100;
+      const outOfHundred = Math.floor(progressPercent * 100);
       const text = `${outOfHundred}%`;
       progressIndicator = (
         <CircularProgressbar
