@@ -207,7 +207,10 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     try {
       return await this.props.deleteThread(threadInfo.id, this.state.password);
     } catch (e) {
-      if (e.message === 'invalid_credentials') {
+      if (
+        e.message === 'invalid_credentials' ||
+        e.message === 'invalid_parameters'
+      ) {
         Alert.alert(
           "Incorrect password",
           "The password you entered is incorrect",
