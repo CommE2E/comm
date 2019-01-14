@@ -1,7 +1,10 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPromise,
+  DispatchActionPayload,
+} from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
@@ -36,8 +39,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   sendTextMessageActionTypes,
   sendTextMessage,
-  sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
+  createLocalMultimediaMessageActionType,
 } from 'lib/actions/message-actions';
 import {
   joinThreadActionTypes,
@@ -63,17 +65,12 @@ type Props = {|
   nextLocalID: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
+  dispatchActionPayload: DispatchActionPayload,
   // async functions that hit server APIs
   sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
-  ) => Promise<SendMessageResult>,
-  sendMultimediaMessage: (
-    threadID: string,
-    localID: string,
-    multimedia: $ReadOnlyArray<Object>,
-    onProgress: (percent: number) => void,
   ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
@@ -87,8 +84,8 @@ class ChatInputBar extends React.PureComponent<Props> {
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
-    sendMultimediaMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   textarea: ?HTMLTextAreaElement;
@@ -372,56 +369,17 @@ class ChatInputBar extends React.PureComponent<Props> {
         type: mediaType,
       })),
     }: RawMultimediaMessageInfo);
-    const files = pendingUploads.map(({ file }) => file);
     // This call triggers a setState in ChatInputStateContainer. We hope that
-    // propagates quicker than the SEND_MULTIMEDIA_MESSAGE_STARTED that gets
-    // trigered by the dispatch call below, since ChatInputStateContainer's
-    // appendFiles (which handles the upload) relies on the aforementioned
-    // setState to know which pending uploads are associated to local messages
-    // and thus necessitate Redux actions to update the messageStore.
+    // propagates quicker than the createLocalMultimediaMessageActionType call
+    // below, since ChatInputStateContainer's appendFiles (which handles the
+    // upload) relies on the aforementioned setState to know which pending
+    // uploads are associated to local messages and thus necessitate Redux
+    // actions to update the messageStore.
     this.props.chatInputState.assignPendingUploads(localID);
-    this.props.dispatchActionPromise(
-      sendMultimediaMessageActionTypes,
-      this.sendMultimediaMessageAction(messageInfo, files),
-      undefined,
-      messageInfo,
+    this.props.dispatchActionPayload(
+      createLocalMultimediaMessageActionType,
+      { messageInfo },
     );
-  }
-
-  async sendMultimediaMessageAction(
-    messageInfo: RawMultimediaMessageInfo,
-    files: $ReadOnlyArray<File>,
-  ) {
-    try {
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        "localID should be set",
-      );
-      const result = await this.props.sendMultimediaMessage(
-        messageInfo.threadID,
-        localID,
-        files,
-        (percent: number) => {
-          for (let pendingUpload of this.props.chatInputState.pendingUploads) {
-            this.props.chatInputState.setProgress(
-              pendingUpload.localID,
-              percent,
-            );
-          }
-        },
-      );
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-      };
-    } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
-    }
   }
 
   onClickJoin = (event: SyntheticEvent<HTMLAnchorElement>) => {
@@ -459,5 +417,5 @@ export default connect(
     calendarQuery: nonThreadCalendarQuery(state),
     nextLocalID: state.nextLocalID,
   }),
-  { sendTextMessage, sendMultimediaMessage, joinThread },
+  { sendTextMessage, joinThread },
 )(ChatInputBar);
