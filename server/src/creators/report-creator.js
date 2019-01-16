@@ -13,8 +13,12 @@ import { messageTypes } from 'lib/types/message-types';
 import bots from 'lib/facts/bots';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { filterRawEntryInfosByCalendarQuery } from 'lib/shared/entry-utils';
+import {
+  filterRawEntryInfosByCalendarQuery,
+  serverEntryInfosObject,
+} from 'lib/shared/entry-utils';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -185,11 +189,11 @@ function getInconsistentEntryIDsFromReport(
 ): Set<string> {
   const { pushResult, pollResult, action, calendarQuery } = request;
   const filteredPollResult = filterRawEntryInfosByCalendarQuery(
-    pollResult,
+    serverEntryInfosObject(values(pollResult)),
     calendarQuery,
   );
   const filteredPushResult = filterRawEntryInfosByCalendarQuery(
-    pushResult,
+    serverEntryInfosObject(values(pushResult)),
     calendarQuery,
   );
   return findInconsistentObjectKeys(filteredPollResult, filteredPushResult);
