@@ -24,7 +24,7 @@ import {
 import type {
   RawEntryInfo,
   CalendarQuery,
-  FetchEntryInfosResponse,
+  DeltaEntryInfosResponse,
 } from 'lib/types/entry-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
 import type { CurrentUserInfo } from 'lib/types/user-types';
@@ -516,7 +516,7 @@ type SessionInitializationResult =
   | {| sessionContinued: false |}
   | {|
       sessionContinued: true,
-      deltaEntryInfoResult: FetchEntryInfosResponse,
+      deltaEntryInfoResult: DeltaEntryInfosResponse,
       sessionUpdate: SessionUpdate,
     |};
 async function initializeSession(

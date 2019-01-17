@@ -3,6 +3,7 @@
 import type {
   CalendarQuery,
   FetchEntryInfosResponse,
+  DeltaEntryInfosResponse,
   RawEntryInfo,
 } from 'lib/types/entry-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
@@ -20,6 +21,7 @@ import { ServerError } from 'lib/utils/errors';
 import {
   filteredThreadIDs,
   filterExists,
+  nonExcludeDeletedCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
 import {
   rawEntryInfoWithinCalendarQuery,
@@ -225,17 +227,67 @@ async function fetchEntriesForSession(
   viewer: Viewer,
   calendarQueries: $ReadOnlyArray<CalendarQuery>,
   oldCalendarQuery: CalendarQuery,
-): Promise<FetchEntryInfosResponse> {
+): Promise<DeltaEntryInfosResponse> {
+  // If we're not including deleted entries, we will try and set deletedEntryIDs
+  // so that the client can catch possibly stale deleted entryInfos
+  let filterDeleted = null;
+  for (let calendarQuery of calendarQueries) {
+    const notDeletedFilterExists = filterExists(
+      calendarQuery.filters,
+      calendarThreadFilterTypes.NOT_DELETED,
+    );
+    if (filterDeleted === null) {
+      filterDeleted = notDeletedFilterExists;
+    } else {
+      invariant(
+        filterDeleted === notDeletedFilterExists,
+        'one of the CalendarQueries returned by calendarQueryDifference has ' +
+          'a NOT_DELETED filter but another does not: ' +
+          JSON.stringify(calendarQueries),
+      );
+    }
+  }
+
+  let calendarQueriesForFetch = calendarQueries;
+  if (filterDeleted) {
+    // Because in the filterDeleted case we still need the deleted RawEntryInfos
+    // in order to construct deletedEntryIDs, we get rid of the NOT_DELETED
+    // filters before passing the CalendarQueries to fetchEntryInfos. We will
+    // filter out the deleted RawEntryInfos in a later step.
+    calendarQueriesForFetch = calendarQueriesForFetch.map(calendarQuery => ({
+      ...calendarQuery,
+      filters: nonExcludeDeletedCalendarFilters(calendarQuery.filters),
+    }));
+  }
+
   const { rawEntryInfos, userInfos } = await fetchEntryInfos(
     viewer,
-    calendarQueries,
+    calendarQueriesForFetch,
   );
-  const filteredRawEntryInfos = rawEntryInfos.filter(
+  const entryInfosNotInOldQuery = rawEntryInfos.filter(
     rawEntryInfo => !rawEntryInfoWithinCalendarQuery(
       rawEntryInfo,
       oldCalendarQuery,
     ),
   );
+  let filteredRawEntryInfos = entryInfosNotInOldQuery;
+  let deletedEntryIDs = [];
+  if (filterDeleted) {
+    filteredRawEntryInfos = entryInfosNotInOldQuery.filter(
+      rawEntryInfo => !rawEntryInfo.deleted,
+    );
+    deletedEntryIDs = entryInfosNotInOldQuery.filter(
+      rawEntryInfo => rawEntryInfo.deleted,
+    ).map(rawEntryInfo => {
+      const { id } = rawEntryInfo;
+      invariant(
+        id !== null && id !== undefined,
+        "serverID should be set in fetchEntryInfos result",
+      );
+      return id;
+    });
+  }
+
   const userIDs = new Set(usersInRawEntryInfos(filteredRawEntryInfos));
   const filteredUserInfos = {};
   for (let userID in userInfos) {
@@ -244,7 +296,11 @@ async function fetchEntriesForSession(
     }
     filteredUserInfos[userID] = userInfos[userID];
   }
-  return { rawEntryInfos: filteredRawEntryInfos, userInfos: filteredUserInfos };
+  return {
+    rawEntryInfos: filteredRawEntryInfos,
+    deletedEntryIDs,
+    userInfos: filteredUserInfos,
+  };
 }
 
 async function fetchEntryInfoForLocalID(

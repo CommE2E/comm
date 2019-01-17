@@ -511,6 +511,7 @@ class Socket {
           messagesResult,
           updatesResult,
           deltaEntryInfos: deltaEntryInfoResult.rawEntryInfos,
+          deletedEntryIDs: deltaEntryInfoResult.deletedEntryIDs,
           userInfos: values({
             ...fetchMessagesResult.userInfos,
             ...updateUserInfos,
