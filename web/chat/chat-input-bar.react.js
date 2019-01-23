@@ -53,7 +53,7 @@ import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { allowedMimeTypeString } from '../utils/media-utils';
-import MultimediaPreview from './multimedia-preview.react';
+import Multimedia from './multimedia.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -165,11 +165,12 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
-    const { pendingUploads } = this.props.chatInputState;
+    const { pendingUploads, cancelPendingUpload } = this.props.chatInputState;
     const multimediaPreviews = pendingUploads.map(pendingUpload => (
-      <MultimediaPreview
+      <Multimedia
+        uri={pendingUpload.uri}
         pendingUpload={pendingUpload}
-        remove={this.props.chatInputState.cancelPendingUpload}
+        remove={cancelPendingUpload}
         key={pendingUpload.localID}
       />
     ));
