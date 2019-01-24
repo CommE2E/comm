@@ -6,6 +6,10 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  chatInputStatePropType,
+  type ChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -22,6 +26,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  chatInputState: ChatInputState,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -30,6 +35,7 @@ class Message extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    chatInputState: chatInputStatePropType.isRequired,
   };
 
   render() {
@@ -55,6 +61,7 @@ class Message extends React.PureComponent<Props> {
         <MultimediaMessage
           item={this.props.item}
           toggleFocus={this.props.toggleFocus}
+          chatInputState={this.props.chatInputState}
         />
       );
     } else {

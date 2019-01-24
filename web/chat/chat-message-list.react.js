@@ -156,7 +156,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const threadInfo = this.props.threadInfo;
+    const { threadInfo, chatInputState } = this.props;
+    invariant(chatInputState, "ChatInputState should be set");
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
     const focused =
       messageKey(item.messageInfo) === this.state.focusedMessageKey;
@@ -166,6 +167,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         threadInfo={threadInfo}
         focused={focused}
         toggleFocus={this.toggleMessageFocus}
+        chatInputState={chatInputState}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
@@ -190,9 +192,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!messageListData) {
       return <div className={css.container} />;
     }
-    const messages = messageListData.map(this.renderItem);
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
     invariant(chatInputState, "ChatInputState should be set");
+    const messages = messageListData.map(this.renderItem);
     const containerStyle = classNames({
       [css.container]: true,
       [css.activeContainer]: isActive,
