@@ -18,6 +18,7 @@ import * as React from 'react';
 import invariant from 'invariant';
 import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import {
   messageKey,
@@ -56,11 +57,22 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   render() {
-    return (
-      <div className={css.robotext} onClick={this.onClick}>
-        {this.linkedRobotext()}
-      </div>
-    );
+    if (this.props.item.startsConversation) {
+      return (
+        <div className={css.robotext}>
+          {this.linkedRobotext()}
+        </div>
+      );
+    } else {
+      return (
+        <div
+          className={classNames(css.robotext, css.expandableMessage)}
+          onClick={this.onClick}
+        >
+          {this.linkedRobotext()}
+        </div>
+      );
+    }
   }
 
   linkedRobotext() {

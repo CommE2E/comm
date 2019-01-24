@@ -13,6 +13,7 @@ import {
 import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -68,11 +69,22 @@ class MultimediaMessage extends React.PureComponent<Props> {
         />
       );
     });
-    return (
-      <div className={css.robotext} onClick={this.onClick}>
-        <div className={css.previews}>{multimedia}</div>
-      </div>
-    );
+    if (this.props.item.startsConversation) {
+      return (
+        <div className={css.robotext}>
+          <div className={css.previews}>{multimedia}</div>
+        </div>
+      );
+    } else {
+      return (
+        <div
+          className={classNames(css.robotext, css.expandableMessage)}
+          onClick={this.onClick}
+        >
+          <div className={css.previews}>{multimedia}</div>
+        </div>
+      );
+    }
   }
 
   onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {

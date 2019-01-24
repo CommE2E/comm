@@ -64,6 +64,7 @@ class TextMessage extends React.PureComponent<Props> {
     const onlyEmoji = onlyEmojiRegex.test(text);
     const messageClassName = classNames({
       [css.textMessage]: true,
+      [css.expandableMessage]: !this.props.item.startsConversation,
       [css.normalTextMessage]: !onlyEmoji,
       [css.emojiOnlyTextMessage]: onlyEmoji,
     });
@@ -133,19 +134,31 @@ class TextMessage extends React.PureComponent<Props> {
       );
     }
 
+    const linkifiedText = <Linkify>{text}</Linkify>;
+    let message;
+    if (this.props.item.startsConversation) {
+      message = (
+        <div className={messageClassName} style={messageStyle}>
+          {linkifiedText}
+        </div>
+      );
+    } else {
+      message = (
+        <div
+          onClick={this.onClick}
+          className={messageClassName}
+          style={messageStyle}
+        >
+          {linkifiedText}
+        </div>
+      );
+    }
+
     return (
       <React.Fragment>
         {failedSendInfo}
         <div className={contentClassName}>
-          <div
-            onClick={this.onClick}
-            className={messageClassName}
-            style={messageStyle}
-          >
-            <Linkify>
-              {text}
-            </Linkify>
-          </div>
+          {message}
           {deliveryIcon}
         </div>
         {authorName}
