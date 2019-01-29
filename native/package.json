@@ -52,6 +52,7 @@
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "flow-bin": "^0.78.0",
+    "flow-mono-cli": "^1.4.3",
     "get-yarn-workspaces": "^1.0.2",
     "jest": "^23.6.0",
     "metro-react-native-babel-preset": "^0.45.0",
