@@ -10378,10 +10378,10 @@ react-native-gesture-handler@^1.0.0:
     invariant "^2.2.2"
     prop-types "^15.5.10"
 
-react-native-gesture-handler@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.0.10.tgz#160e55e4886471931b7f7d52e22d94007540ab83"
-  integrity sha512-GNVZ+rbwfi147qOxIvWyfHcTswr+CRT/bSy/Gr5Dz17/tWmomf9D6tGr1yJhyW8IhEZ307KLBWRCXLBM9Q2YQg==
+react-native-gesture-handler@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.0.15.tgz#7e0d0a457820a3c9325a3d492daaed14400508a6"
+  integrity sha512-BePn+YOKcspHb1xPkUdJs+H6jiaECrT2c98txADBYWHwuUeundE+uUJG0r3FQLFvM2MoGeiJeD96sePzk+WSvQ==
   dependencies:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.2"
