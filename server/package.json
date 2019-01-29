@@ -26,7 +26,7 @@
     "concurrently": "^3.5.1",
     "flow-bin": "^0.89.0",
     "flow-typed": "^2.2.3",
-    "nodemon": "^1.14.3"
+    "nodemon": "^1.18.9"
   },
   "dependencies": {
     "apn": "^2.2.0",
