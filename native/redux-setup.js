@@ -28,7 +28,11 @@ import {
 import React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
-import { createStore as defaultCreateStore, applyMiddleware } from 'redux';
+import {
+  createStore as defaultCreateStore,
+  applyMiddleware,
+  type Store,
+} from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
@@ -391,7 +395,7 @@ const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   "root",
   (state: AppState) => state.navInfo.navigationState,
 );
-const store = createStore(
+const store: Store<AppState, *> = createStore(
   persistReducer(persistConfig, reducer),
   defaultState,
   composeWithDevTools(

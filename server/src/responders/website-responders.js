@@ -2,13 +2,12 @@
 
 import type { $Response, $Request } from 'express';
 import type { AppState, Action } from 'web/redux-setup';
-import type { Store } from 'redux';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 
 import html from 'common-tags/lib/html';
-import { createStore } from 'redux';
+import { createStore, type Store } from 'redux';
 import ReactDOMServer from 'react-dom/server';
 import ReactHotLoader from 'react-hot-loader';
 import ReactRedux from 'react-redux';

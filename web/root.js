@@ -1,11 +1,10 @@
 // @flow
 
-import type { Store } from 'redux';
 import type { AppState, Action } from './redux-setup';
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, type Store } from 'redux';
 import { Router, Route } from 'react-router';
 import { hot } from 'react-hot-loader/root';
 import thunk from 'redux-thunk';
