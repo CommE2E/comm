@@ -17,7 +17,7 @@ import {
 
 import { calendarActiveSelector } from './nav-selectors';
 
-const openSocketSelector = createSelector(
+const openSocketSelector = createSelector<*, *, *, *, *>(
   (state: AppState) => state.urlPrefix,
   // We don't actually use the cookie in the socket open function, but we do use
   // it in the initial message, and when the cookie changes the socket needs to
@@ -28,12 +28,12 @@ const openSocketSelector = createSelector(
   createOpenSocketFunction,
 );
 
-const sessionIdentificationSelector = createSelector(
+const sessionIdentificationSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.cookie,
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
 
-const nativeGetClientResponsesSelector = createSelector(
+const nativeGetClientResponsesSelector = createSelector<*, *, *, *, *>(
   getClientResponsesSelector,
   calendarActiveSelector,
   (
@@ -46,7 +46,7 @@ const nativeGetClientResponsesSelector = createSelector(
     getClientResponsesFunc(calendarActive, serverRequests),
 );
 
-const nativeSessionStateFuncSelector = createSelector(
+const nativeSessionStateFuncSelector = createSelector<*, *, *, *, *>(
   sessionStateFuncSelector,
   calendarActiveSelector,
   (

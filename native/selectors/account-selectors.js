@@ -9,7 +9,7 @@ import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
 import { calendarActiveSelector } from './nav-selectors';
 
-const nativeLogInExtraInfoSelector = createSelector(
+const nativeLogInExtraInfoSelector = createSelector<*, *, *, *, *>(
   logInExtraInfoSelector,
   calendarActiveSelector,
   (

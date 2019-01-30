@@ -28,40 +28,43 @@ import {
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
 
-const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) =>
-    navigationState.routes[navigationState.index].routeName === routeName,
-);
-const createIsForegroundSelector = _memoize(baseCreateIsForegroundSelector);
+const baseCreateIsForegroundSelector =
+  (routeName: string) => createSelector<*, *, *, *>(
+    (state: AppState) => state.navInfo.navigationState,
+    (navigationState: NavigationState) =>
+      navigationState.routes[navigationState.index].routeName === routeName,
+  );
+const createIsForegroundSelector =
+  _memoize<*, *>(baseCreateIsForegroundSelector);
 
-const appLoggedInSelector = createSelector(
+const appLoggedInSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => !accountModals.includes(
     navigationState.routes[navigationState.index].routeName,
   ),
 );
 
-const foregroundKeySelector = createSelector(
+const foregroundKeySelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) =>
     navigationState.routes[navigationState.index].key,
 );
 
-const baseCreateActiveTabSelector = (routeName: string) => createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) => {
-    const currentRoute = navigationState.routes[navigationState.index];
-    if (currentRoute.routeName !== AppRouteName) {
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
-    return appRoute.routes[appRoute.index].routeName === routeName;
-  },
-);
-const createActiveTabSelector = _memoize(baseCreateActiveTabSelector);
+const baseCreateActiveTabSelector =
+  (routeName: string) => createSelector<*, *, *, *>(
+    (state: AppState) => state.navInfo.navigationState,
+    (navigationState: NavigationState) => {
+      const currentRoute = navigationState.routes[navigationState.index];
+      if (currentRoute.routeName !== AppRouteName) {
+        return false;
+      }
+      const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
+      return appRoute.routes[appRoute.index].routeName === routeName;
+    },
+  );
+const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
 
-const activeThreadSelector = createSelector(
+const activeThreadSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): ?string => {
     const currentRoute = navigationState.routes[navigationState.index];
@@ -85,7 +88,7 @@ const activeThreadSelector = createSelector(
   },
 );
 
-const appCanRespondToBackButtonSelector = createSelector(
+const appCanRespondToBackButtonSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): bool => {
     const currentRoute = navigationState.routes[navigationState.index];
@@ -103,14 +106,14 @@ const appCanRespondToBackButtonSelector = createSelector(
 const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
 const threadPickerActiveSelector =
   createIsForegroundSelector(ThreadPickerModalRouteName);
-const calendarActiveSelector = createSelector(
+const calendarActiveSelector = createSelector<*, *, *, *, *>(
   calendarTabActiveSelector,
   threadPickerActiveSelector,
   (calendarTabActive: bool, threadPickerActive: bool) =>
     calendarTabActive || threadPickerActive,
 );
 
-const nativeCalendarQuery = createSelector(
+const nativeCalendarQuery = createSelector<*, *, *, *, *>(
   currentCalendarQuery,
   calendarActiveSelector,
   (
@@ -119,7 +122,7 @@ const nativeCalendarQuery = createSelector(
   ) => () => calendarQuery(calendarActive),
 );
 
-const nonThreadCalendarQuery = createSelector(
+const nonThreadCalendarQuery = createSelector<*, *, *, *, *>(
   nativeCalendarQuery,
   nonThreadCalendarFiltersSelector,
   (

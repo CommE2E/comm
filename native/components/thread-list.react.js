@@ -70,7 +70,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     }
   }
 
-  static listData(props: Props, state: State) {
+  static listData(props: Props, state: State): $ReadOnlyArray<ThreadInfo> {
     if (!state.searchText) {
       return props.threadInfos;
     }
