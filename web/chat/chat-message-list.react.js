@@ -89,7 +89,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   state = {
     focusedMessageKey: null,
   };
-  messageContainer: ?HTMLDivElement = null;
+  container: ?HTMLDivElement;
+  messageContainer: ?HTMLDivElement;
   loadingFromScroll = false;
 
   componentDidMount() {
@@ -200,7 +201,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       [css.activeContainer]: isActive,
     });
     return connectDropTarget(
-      <div className={containerStyle}>
+      <div className={containerStyle} ref={this.containerRef}>
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
         </div>
@@ -210,6 +211,32 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         />
       </div>,
     );
+  }
+
+  containerRef = (container: ?HTMLDivElement) => {
+    if (container) {
+      container.addEventListener('paste', this.onPaste);
+    } else if (this.container && this.container !== container) {
+      this.container.removeEventListener('paste', this.onPaste);
+    }
+    this.container = container;
+  }
+
+  onPaste = (e: ClipboardEvent) => {
+    const { chatInputState } = this.props;
+    if (!chatInputState) {
+      return;
+    }
+    const { clipboardData } = e;
+    if (!clipboardData) {
+      return;
+    }
+    const { files } = clipboardData;
+    if (files.length === 0) {
+      return;
+    }
+    e.preventDefault();
+    chatInputState.appendFiles([...files]);
   }
 
   messageContainerRef = (messageContainer: ?HTMLDivElement) => {
