@@ -250,7 +250,7 @@ class App extends React.PureComponent<Props, State> {
       );
     } else if (this.props.navInfo.tab === "chat") {
       mainContent = (
-        <Chat />
+        <Chat setModal={this.setModal} />
       );
     }
 

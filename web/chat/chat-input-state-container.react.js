@@ -28,10 +28,12 @@ import {
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile, preloadImage } from '../utils/media-utils';
+import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 
 let nextLocalUploadID = 0;
 
 type Props = {|
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   activeChatThreadID: ?string,
   // Redux dispatch functions
@@ -52,6 +54,7 @@ type State = {|
 class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   static propTypes = {
+    setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
@@ -102,6 +105,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const validationResult = await Promise.all(files.map(validateFile));
     const validatedFileInfo = validationResult.filter(Boolean);
     if (validatedFileInfo.length === 0) {
+      const { setModal } = this.props;
+      setModal(<InvalidUploadModal setModal={setModal} />);
       return;
     }
     const newUploads = validatedFileInfo.map(({ file, mediaType }) => ({
