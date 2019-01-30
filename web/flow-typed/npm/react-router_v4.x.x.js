@@ -9,8 +9,8 @@ declare module "react-router" {
     pathname: string,
     search: string,
     hash: string,
-    state?: any,
-    key?: string
+    +state?: any,
+    +key?: string
   };
 
   declare export type LocationShape = {
@@ -24,7 +24,7 @@ declare module "react-router" {
 
   declare export type RouterHistory = {
     length: number,
-    location: Location,
+    +location: Location,
     action: HistoryAction,
     listen(
       callback: (location: Location, action: HistoryAction) => void
@@ -35,9 +35,9 @@ declare module "react-router" {
     goBack(): void,
     goForward(): void,
     canGo?: (n: number) => boolean,
-    block(
+    +block: (
       callback: (location: Location, action: HistoryAction) => boolean
-    ): void,
+    ) => () => void,
     // createMemoryHistory
     index?: number,
     entries?: Array<Location>

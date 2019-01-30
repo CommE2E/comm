@@ -27,8 +27,8 @@ declare module "history/createBrowserHistory" {
     goBack(): void,
     goForward(): void,
     listen: Function,
-    block(message: string): typeof Unblock,
-    block((location: BrowserLocation, action: Action) => string): typeof Unblock,
+    +block: (message: string) => typeof Unblock,
+    +block: ((location: BrowserLocation, action: Action) => string | bool) => typeof Unblock,
   }
 
   declare export type BrowserHistory = IBrowserHistory;
