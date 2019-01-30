@@ -1,5 +1,5 @@
-// flow-typed signature: d9766b94a52c23f077a0dcb3f8c649fb
-// flow-typed version: 917093eeb7/lodash_v4.x.x/flow_>=v0.63.x
+// flow-typed signature: eb76e103c3b8c027ca42ac61026baba8
+// flow-typed version: 6bc9a10e83/lodash_v4.x.x/flow_>=v0.63.x
 
 declare module "lodash" {
   declare type __CurriedFunction1<A, R, AA: A> = (...r: [AA]) => R;
@@ -438,9 +438,9 @@ declare module "lodash" {
       a4: $ReadOnlyArray<T>,
       comparator?: Comparator<T>
     ): Array<T>;
-    uniq<T>(array?: ?Array<T>): Array<T>;
-    uniqBy<T>(array?: ?Array<T>, iteratee?: ?ValueOnlyIteratee<T>): Array<T>;
-    uniqWith<T>(array?: ?Array<T>, comparator?: ?Comparator<T>): Array<T>;
+    uniq<T>(array?: ?$ReadOnlyArray<T>): Array<T>;
+    uniqBy<T>(array?: ?$ReadOnlyArray<T>, iteratee?: ?ValueOnlyIteratee<T>): Array<T>;
+    uniqWith<T>(array?: ?$ReadOnlyArray<T>, comparator?: ?Comparator<T>): Array<T>;
     unzip<T>(array?: ?Array<T>): Array<T>;
     unzipWith<T>(array: ?Array<T>, iteratee?: ?Iteratee<T>): Array<T>;
     without<T>(array?: ?$ReadOnlyArray<T>, ...values?: Array<?T>): Array<T>;
@@ -680,7 +680,7 @@ declare module "lodash" {
       orders?: $ReadOnlyArray<"asc" | "desc"> | string
     ): Array<V>;
     partition<T>(
-      array?: ?Array<T>,
+      array?: ?$ReadOnlyArray<T>,
       predicate?: ?Predicate<T>
     ): [Array<T>, Array<T>];
     partition<V, A, T: { [id: any]: A }>(
@@ -1068,7 +1068,7 @@ declare module "lodash" {
     at(object?: ?Object, ...paths: Array<string>): Array<any>;
     at(object?: ?Object, paths: Array<string>): Array<any>;
     create(prototype: void | null, properties: void | null): {};
-    create<T>(prototype: T, properties: Object): $Supertype<T>;
+    create<T>(prototype: T, properties: Object): T;
     create(prototype: any, properties: void | null): {};
     defaults(object?: ?Object, ...sources?: Array<?Object>): Object;
     defaultsDeep(object?: ?Object, ...sources?: Array<?Object>): Object;
@@ -2726,7 +2726,7 @@ declare module "lodash/fp" {
     props(paths: Array<string>, object: Object): Array<any>;
     paths(paths: Array<string>): (object: Object) => Array<any>;
     paths(paths: Array<string>, object: Object): Array<any>;
-    create<T>(prototype: T): $Supertype<T>;
+    create<T>(prototype: T): T;
     defaults(source: Object): (object: Object) => Object;
     defaults(source: Object, object: Object): Object;
     defaultsAll(objects: Array<Object>): Object;
