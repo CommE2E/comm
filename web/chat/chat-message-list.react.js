@@ -43,6 +43,7 @@ import { webMessageListData } from '../selectors/chat-selectors';
 import ChatInputBar from './chat-input-bar.react';
 import Message, { type MessagePositionInfo } from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
+import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
 
 type PassedProps = {|
@@ -209,6 +210,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       <div className={containerStyle} ref={this.containerRef}>
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
+          <MessageTimestampTooltip
+            messagePositionInfo={this.state.messageMouseover}
+          />
         </div>
         <ChatInputBar
           threadInfo={threadInfo}

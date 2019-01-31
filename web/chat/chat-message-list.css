@@ -105,6 +105,16 @@ div.robotext {
   font-size: 15px;
 }
 
+div.messageTimestampTooltip {
+  position: absolute;
+  margin-bottom: 8px;
+  background-color: black;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
 div.textMessage {
   padding: 6px 12px;
   margin: 0 4px 0 12px;
