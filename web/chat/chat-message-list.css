@@ -104,9 +104,6 @@ div.robotext {
   margin: 0 24px 5px 24px;
   font-size: 15px;
 }
-div.expandableMessage {
-  cursor: pointer;
-}
 
 div.textMessage {
   padding: 6px 12px;

@@ -13,6 +13,7 @@ import {
   updateNavInfoActionType,
 } from '../redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -32,13 +33,13 @@ import css from './chat-message-list.css';
 
 type Props = {|
   item: ChatMessageInfoItem,
-  toggleFocus: (messageKey: string) => void,
+  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
+    onMouseOver: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -57,22 +58,13 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   render() {
-    if (this.props.item.startsConversation) {
-      return (
-        <div className={css.robotext}>
+    return (
+      <div className={css.robotext}>
+        <span onMouseOver={this.onMouseOver}>
           {this.linkedRobotext()}
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className={classNames(css.robotext, css.expandableMessage)}
-          onClick={this.onClick}
-        >
-          {this.linkedRobotext()}
-        </div>
-      );
-    }
+        </span>
+      </div>
+    );
   }
 
   linkedRobotext() {
@@ -111,9 +103,12 @@ class RobotextMessage extends React.PureComponent<Props> {
     );
   }
 
-  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
+    const { item } = this.props;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const { top, bottom, left, right, height, width } = rect;
+    const messagePosition = { top, bottom, left, right, height, width };
+    this.props.onMouseOver({ item, messagePosition });
   }
 
 }

@@ -3,6 +3,7 @@
 import type { AppState } from '../redux-setup';
 import {
   type ChatMessageItem,
+  type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -40,7 +41,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { webMessageListData } from '../selectors/chat-selectors';
 import ChatInputBar from './chat-input-bar.react';
-import Message from './message.react';
+import Message, { type MessagePositionInfo } from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
 import css from './chat-message-list.css';
 
@@ -66,13 +67,12 @@ type ReactDnDProps = {|
   isActive: bool,
   connectDropTarget: ConnectDropTarget,
 |};
-
 type Props = {|
   ...PassedProps,
   ...ReactDnDProps,
 |};
 type State = {|
-  focusedMessageKey: ?string,
+  messageMouseover: ?MessagePositionInfo,
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
 
@@ -87,7 +87,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
   state = {
-    focusedMessageKey: null,
+    messageMouseover: null,
   };
   container: ?HTMLDivElement;
   messageContainer: ?HTMLDivElement;
@@ -160,26 +160,31 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     const { threadInfo, chatInputState } = this.props;
     invariant(chatInputState, "ChatInputState should be set");
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
-    const focused =
-      messageKey(item.messageInfo) === this.state.focusedMessageKey;
     return (
       <Message
         item={item}
         threadInfo={threadInfo}
-        focused={focused}
-        toggleFocus={this.toggleMessageFocus}
+        onMouseOver={this.showTimestamp}
         chatInputState={chatInputState}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
   }
 
-  toggleMessageFocus = (key: string) => {
-    if (this.state.focusedMessageKey === key) {
-      this.setState({ focusedMessageKey: null });
-    } else {
-      this.setState({ focusedMessageKey: key });
+  showTimestamp = (messagePositionInfo: MessagePositionInfo) => {
+    if (!this.messageContainer) {
+      return;
     }
+    const containerTop = this.messageContainer.getBoundingClientRect().top;
+    const messageMouseover = {
+      ...messagePositionInfo,
+      messagePosition: {
+        ...messagePositionInfo.messagePosition,
+        top: messagePositionInfo.messagePosition.top - containerTop,
+        bottom: messagePositionInfo.messagePosition.bottom - containerTop,
+      },
+    };
+    this.setState({ messageMouseover });
   }
 
   render() {
@@ -243,13 +248,23 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     this.messageContainer = messageContainer;
     // In case we already have all the most recent messages,
     // but they're not enough
-    this.onScroll();
+    this.possiblyLoadMoreMessages();
     if (messageContainer) {
       messageContainer.addEventListener("scroll", this.onScroll);
     }
   }
 
   onScroll = () => {
+    if (!this.messageContainer) {
+      return;
+    }
+    if (this.state.messageMouseover) {
+      this.setState({ messageMouseover: null });
+    }
+    this.possiblyLoadMoreMessages();
+  }
+
+  possiblyLoadMoreMessages() {
     if (!this.messageContainer) {
       return;
     }

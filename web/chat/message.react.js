@@ -21,11 +21,21 @@ import RobotextMessage from './robotext-message.react';
 import MultimediaMessage from './multimedia-message.react';
 import css from './chat-message-list.css';
 
+export type MessagePositionInfo = {|
+  item: ChatMessageInfoItem,
+  messagePosition: {|
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+    height: number,
+    width: number,
+  |},
+|};
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  focused: bool,
-  toggleFocus: (messageKey: string) => void,
+  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
 |};
 class Message extends React.PureComponent<Props> {
@@ -33,14 +43,13 @@ class Message extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    focused: PropTypes.bool.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
+    onMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
   };
 
   render() {
     let conversationHeader = null;
-    if (this.props.focused || this.props.item.startsConversation) {
+    if (this.props.item.startsConversation) {
       conversationHeader = (
         <div className={css.conversationHeader}>
           {longAbsoluteDate(this.props.item.messageInfo.time)}
@@ -53,14 +62,14 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={this.props.item}
           threadInfo={this.props.threadInfo}
-          toggleFocus={this.props.toggleFocus}
+          onMouseOver={this.props.onMouseOver}
         />
       );
     } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
       message = (
         <MultimediaMessage
           item={this.props.item}
-          toggleFocus={this.props.toggleFocus}
+          onMouseOver={this.props.onMouseOver}
           chatInputState={this.props.chatInputState}
         />
       );
@@ -68,7 +77,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <RobotextMessage
           item={this.props.item}
-          toggleFocus={this.props.toggleFocus}
+          onMouseOver={this.props.onMouseOver}
         />
       );
     }

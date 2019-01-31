@@ -9,6 +9,7 @@ import {
   chatInputStatePropType,
   type ChatInputState,
 } from './chat-input-state';
+import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -22,14 +23,14 @@ import Multimedia from './multimedia.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
-  toggleFocus: (messageKey: string) => void,
+  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
+    onMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
   };
 
@@ -69,27 +70,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
         />
       );
     });
-    if (this.props.item.startsConversation) {
-      return (
-        <div className={css.robotext}>
-          <div className={css.previews}>{multimedia}</div>
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className={classNames(css.robotext, css.expandableMessage)}
-          onClick={this.onClick}
-        >
-          <div className={css.previews}>{multimedia}</div>
-        </div>
-      );
-    }
-  }
-
-  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    return (
+      <div className={css.robotext}>
+        <div className={css.previews}>{multimedia}</div>
+      </div>
+    );
   }
 
 }

@@ -6,6 +6,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -27,14 +28,14 @@ import FailedSend from './failed-send.react';
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  toggleFocus: (messageKey: string) => void,
+  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
+    onMouseOver: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -64,7 +65,6 @@ class TextMessage extends React.PureComponent<Props> {
     const onlyEmoji = onlyEmojiRegex.test(text);
     const messageClassName = classNames({
       [css.textMessage]: true,
-      [css.expandableMessage]: !this.props.item.startsConversation,
       [css.normalTextMessage]: !onlyEmoji,
       [css.emojiOnlyTextMessage]: onlyEmoji,
     });
@@ -134,31 +134,17 @@ class TextMessage extends React.PureComponent<Props> {
       );
     }
 
-    const linkifiedText = <Linkify>{text}</Linkify>;
-    let message;
-    if (this.props.item.startsConversation) {
-      message = (
-        <div className={messageClassName} style={messageStyle}>
-          {linkifiedText}
-        </div>
-      );
-    } else {
-      message = (
-        <div
-          onClick={this.onClick}
-          className={messageClassName}
-          style={messageStyle}
-        >
-          {linkifiedText}
-        </div>
-      );
-    }
-
     return (
       <React.Fragment>
         {failedSendInfo}
         <div className={contentClassName}>
-          {message}
+          <div
+            className={messageClassName}
+            style={messageStyle}
+            onMouseOver={this.onMouseOver}
+          >
+            <Linkify>{text}</Linkify>
+          </div>
           {deliveryIcon}
         </div>
         {authorName}
@@ -166,9 +152,12 @@ class TextMessage extends React.PureComponent<Props> {
     );
   }
 
-  onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
+    const { item } = this.props;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const { top, bottom, left, right, height, width } = rect;
+    const messagePosition = { top, bottom, left, right, height, width };
+    this.props.onMouseOver({ item, messagePosition });
   }
 
 }
