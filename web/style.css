@@ -9,6 +9,7 @@ body {
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
+  margin-top: 62px;
 }
 a {
   text-decoration: none;
@@ -107,8 +108,7 @@ div.chatBadge {
 }
 
 div.main-content-container {
-  margin-top: 62px;
-  height: calc(100% - 62px);
+  height: 100%;
   position: relative;
 }
 div.main-content {
@@ -1133,11 +1133,11 @@ div.splash-bottom-container {
   flex-grow: 1;
 }
 div.splash-bottom {
-  margin-top: 790px;
+  margin-top: 728px;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
-  min-height: calc(100% - 61px);
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 }

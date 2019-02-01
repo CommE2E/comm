@@ -225,8 +225,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   containerRef = (container: ?HTMLDivElement) => {
     if (container) {
       container.addEventListener('paste', this.onPaste);
-    } else if (this.container && this.container !== container) {
-      this.container.removeEventListener('paste', this.onPaste);
     }
     this.container = container;
   }
