@@ -82,10 +82,10 @@ class Message extends React.PureComponent<Props> {
       );
     }
     return (
-      <React.Fragment>
-        {message}
+      <div className={css.message}>
         {conversationHeader}
-      </React.Fragment>
+        {message}
+      </div>
     );
   }
 

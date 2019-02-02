@@ -21,6 +21,20 @@ div.messageContainer > div {
   transform: translateZ(0);
 }
 
+div.firefoxMessageContainer {
+  flex-grow: 1;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+div.message {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
 div.inputBar {
   display: flex;
   flex-direction: column;

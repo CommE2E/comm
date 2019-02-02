@@ -38,6 +38,7 @@
     "babel-loader": "^8.0.5",
     "classnames": "^2.2.5",
     "dateformat": "^2.0.0",
+    "detect-browser": "^4.0.4",
     "history": "^4.6.3",
     "invariant": "^2.2.2",
     "isomorphic-fetch": "^2.2.1",

@@ -25,6 +25,7 @@ import {
 } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
+import { detect as detectBrowser } from 'detect-browser';
 
 import { connect } from 'lib/utils/redux-utils';
 import { messageKey } from 'lib/shared/message-utils';
@@ -45,6 +46,8 @@ import Message, { type MessagePositionInfo } from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
 import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
+
+const browser = detectBrowser();
 
 type PassedProps = {|
   activeChatThreadID: ?string,
@@ -206,14 +209,33 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       [css.container]: true,
       [css.activeContainer]: isActive,
     });
-    return connectDropTarget(
-      <div className={containerStyle} ref={this.containerRef}>
+
+    const tooltip = (
+      <MessageTimestampTooltip
+        messagePositionInfo={this.state.messageMouseover}
+      />
+    );
+
+    let content;
+    if (browser && browser.name === "firefox") {
+      content = (
+        <div className={css.firefoxMessageContainer} ref={this.messageContainerRef}>
+          {[...messages].reverse()}
+          {tooltip}
+        </div>
+      );
+    } else {
+      content = (
         <div className={css.messageContainer} ref={this.messageContainerRef}>
           {messages}
-          <MessageTimestampTooltip
-            messagePositionInfo={this.state.messageMouseover}
-          />
+          {tooltip}
         </div>
+      );
+    }
+
+    return connectDropTarget(
+      <div className={containerStyle} ref={this.containerRef}>
+        {content}
         <ChatInputBar
           threadInfo={threadInfo}
           chatInputState={chatInputState}

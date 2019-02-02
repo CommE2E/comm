@@ -136,7 +136,7 @@ class TextMessage extends React.PureComponent<Props> {
 
     return (
       <React.Fragment>
-        {failedSendInfo}
+        {authorName}
         <div className={contentClassName}>
           <div
             className={messageClassName}
@@ -147,7 +147,7 @@ class TextMessage extends React.PureComponent<Props> {
           </div>
           {deliveryIcon}
         </div>
-        {authorName}
+        {failedSendInfo}
       </React.Fragment>
     );
   }
