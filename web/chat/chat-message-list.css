@@ -21,7 +21,7 @@ div.messageContainer > div {
   transform: translateZ(0);
 }
 
-div.firefoxMessageContainer {
+div.invertedMessageContainer {
   flex-grow: 1;
   flex: 1;
   overflow-y: auto;

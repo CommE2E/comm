@@ -48,6 +48,7 @@ import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
 
 const browser = detectBrowser();
+const usingFlexDirectionColumnReverse = !browser || browser.name !== "firefox";
 
 type PassedProps = {|
   activeChatThreadID: ?string,
@@ -117,26 +118,88 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     threadWatcher.removeID(threadInfo.id);
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.activeChatThreadID !== prevProps.activeChatThreadID) {
-      this.scrollToBottom();
+  getSnapshotBeforeUpdate(prevProps: Props): ?number {
+    if (usingFlexDirectionColumnReverse) {
+      return null;
     }
+
+    const { messageListData } = this.props;
+    const prevMessageListData = prevProps.messageListData;
+    const { messageContainer } = this;
+    if (
+      !messageListData ||
+      !prevMessageListData ||
+      !messageContainer ||
+      messageListData.length <= prevMessageListData.length
+    ) {
+      return null;
+    }
+
+    // We only get here if new messages are being added. If they are being
+    // appended, ie. the user scrolled up to load older messages, we should
+    // always increase scroll position to compensate for the new height. On the
+    // other hand, if they are being prepended because they are new messages,
+    // we should only increase the scroll position if we were already scrolled
+    // to the newest message.
+    if (
+      prevMessageListData.length > 0 &&
+      ChatMessageList.keyExtractor(messageListData[0]) !==
+        ChatMessageList.keyExtractor(prevMessageListData[0]) &&
+      messageContainer.scrollTop !==
+        (messageContainer.scrollHeight - messageContainer.offsetHeight)
+    ) {
+      return null;
+    }
+
+    return messageContainer.scrollHeight;
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State, snapshot: ?number) {
+    const { messageListData } = this.props;
+    const prevMessageListData = prevProps.messageListData;
+
     if (
       this.loadingFromScroll &&
-      this.props.messageListData &&
+      messageListData &&
       (
-        !prevProps.messageListData ||
-        this.props.messageListData.length > prevProps.messageListData.length ||
+        !prevMessageListData ||
+        messageListData.length > prevMessageListData.length ||
         this.props.startReached
       )
     ) {
       this.loadingFromScroll = false;
     }
+
+    const { messageContainer } = this;
     if (
-      this.messageContainer &&
+      messageContainer &&
       prevProps.messageListData !== this.props.messageListData
     ) {
       this.onScroll();
+    }
+
+    if (
+      this.props.activeChatThreadID !== prevProps.activeChatThreadID ||
+      (
+        // This conditional evaluates to true when this client is the case of
+        // a new message being prepended to the messageListData
+        messageListData &&
+        messageListData.length > 0 &&
+        (!prevMessageListData ||
+          prevMessageListData.length === 0 ||
+          ChatMessageList.keyExtractor(prevMessageListData[0]) !==
+            ChatMessageList.keyExtractor(messageListData[0])) &&
+        messageListData[0].itemType === "message" &&
+        messageListData[0].messageInfo.localID
+      )
+    ) {
+      this.scrollToBottom();
+    } else if (
+      snapshot !== null &&
+      snapshot !== undefined &&
+      messageContainer
+    ) {
+      messageContainer.scrollTop += messageContainer.scrollHeight - snapshot;
     }
   }
 
@@ -217,9 +280,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     );
 
     let content;
-    if (browser && browser.name === "firefox") {
+    if (!usingFlexDirectionColumnReverse) {
       content = (
-        <div className={css.firefoxMessageContainer} ref={this.messageContainerRef}>
+        <div className={css.invertedMessageContainer} ref={this.messageContainerRef}>
           {[...messages].reverse()}
           {tooltip}
         </div>
