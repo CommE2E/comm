@@ -54,7 +54,8 @@ function MessageTimestampTooltip(props: Props) {
     const centerOfMessage = messagePosition.top + messagePosition.height / 2;
     const topOfTooltip = centerOfMessage - height / 2;
     style = {
-      right: messagePosition.right + widthWithArrow,
+      // 10 = 7px arrow + 3px extra
+      left: messagePosition.left + messagePosition.width + 10,
       top: topOfTooltip,
     };
     className = css.messageTimestampRightTooltip;
