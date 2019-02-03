@@ -10,7 +10,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import {
-  type OptimisticallyCreatableMessageInfo,
+  type ComposableMessageInfo,
   type RobotextMessageInfo,
   type LocalMessageInfo,
   type FetchMessageInfosPayload,
@@ -81,7 +81,7 @@ export type RobotextChatMessageInfoItemWithHeight = {|
 export type ChatMessageInfoItemWithHeight =
   RobotextChatMessageInfoItemWithHeight | {|
     itemType: "message",
-    messageInfo: OptimisticallyCreatableMessageInfo,
+    messageInfo: ComposableMessageInfo,
     localMessageInfo: ?LocalMessageInfo,
     threadInfo: ThreadInfo,
     startsConversation: bool,
