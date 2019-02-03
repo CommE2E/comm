@@ -51,7 +51,7 @@ import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
 
 const browser = detectBrowser();
-const usingFlexDirectionColumnReverse = !browser || browser.name !== "firefox";
+const usingFlexDirectionColumnReverse = browser && browser.name === "chrome";
 
 type PassedProps = {|
   activeChatThreadID: ?string,
