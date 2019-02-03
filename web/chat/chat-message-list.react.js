@@ -42,7 +42,10 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { webMessageListData } from '../selectors/chat-selectors';
 import ChatInputBar from './chat-input-bar.react';
-import Message, { type MessagePositionInfo } from './message.react';
+import Message, {
+  type MessagePositionInfo,
+  type OnMessagePositionInfo,
+} from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
 import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
@@ -77,7 +80,7 @@ type Props = {|
   ...ReactDnDProps,
 |};
 type State = {|
-  messageMouseover: ?MessagePositionInfo,
+  messageMouseover: ?OnMessagePositionInfo,
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
 
@@ -231,15 +234,25 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       <Message
         item={item}
         threadInfo={threadInfo}
-        onMouseOver={this.showTimestamp}
+        setMouseOver={this.setTimestampTooltip}
         chatInputState={chatInputState}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
   }
 
-  showTimestamp = (messagePositionInfo: MessagePositionInfo) => {
+  setTimestampTooltip = (messagePositionInfo: MessagePositionInfo) => {
     if (!this.messageContainer) {
+      return;
+    }
+    if (messagePositionInfo.type === "off") {
+      if (
+        this.state.messageMouseover &&
+        ChatMessageList.keyExtractor(this.state.messageMouseover.item) ===
+          ChatMessageList.keyExtractor(messagePositionInfo.item)
+      ) {
+        this.setState({ messageMouseover: null });
+      }
       return;
     }
     const containerTop = this.messageContainer.getBoundingClientRect().top;

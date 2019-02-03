@@ -23,14 +23,14 @@ import Multimedia from './multimedia.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
-  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    onMouseOver: PropTypes.func.isRequired,
+    setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
   };
 

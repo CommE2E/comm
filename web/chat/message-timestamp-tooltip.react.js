@@ -1,6 +1,6 @@
 // @flow
 
-import type { MessagePositionInfo } from './message.react';
+import type { OnMessagePositionInfo } from './message.react';
 import { isComposableMessageType } from 'lib/types/message-types';
 
 import * as React from 'react';
@@ -13,7 +13,7 @@ import { calculateTextWidth } from '../utils/text-utils';
 import css from './chat-message-list.css';
 
 type Props = {|
-  messagePositionInfo: ?MessagePositionInfo,
+  messagePositionInfo: ?OnMessagePositionInfo,
 |};
 function MessageTimestampTooltip(props: Props) {
   if (!props.messagePositionInfo) {

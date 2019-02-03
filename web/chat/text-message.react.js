@@ -28,14 +28,14 @@ import FailedSend from './failed-send.react';
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    onMouseOver: PropTypes.func.isRequired,
+    setMouseOver: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -142,6 +142,7 @@ class TextMessage extends React.PureComponent<Props> {
             className={messageClassName}
             style={messageStyle}
             onMouseOver={this.onMouseOver}
+            onMouseOut={this.onMouseOut}
           >
             <Linkify>{text}</Linkify>
           </div>
@@ -157,7 +158,12 @@ class TextMessage extends React.PureComponent<Props> {
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
     const messagePosition = { top, bottom, left, right, height, width };
-    this.props.onMouseOver({ item, messagePosition });
+    this.props.setMouseOver({ type: "on", item, messagePosition });
+  }
+
+  onMouseOut = () => {
+    const { item } = this.props;
+    this.props.setMouseOver({ type: "off", item });
   }
 
 }

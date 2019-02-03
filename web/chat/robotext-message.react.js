@@ -33,13 +33,13 @@ import css from './chat-message-list.css';
 
 type Props = {|
   item: ChatMessageInfoItem,
-  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    onMouseOver: PropTypes.func.isRequired,
+    setMouseOver: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -60,7 +60,7 @@ class RobotextMessage extends React.PureComponent<Props> {
   render() {
     return (
       <div className={css.robotext}>
-        <span onMouseOver={this.onMouseOver}>
+        <span onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOut}>
           {this.linkedRobotext()}
         </span>
       </div>
@@ -108,7 +108,12 @@ class RobotextMessage extends React.PureComponent<Props> {
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
     const messagePosition = { top, bottom, left, right, height, width };
-    this.props.onMouseOver({ item, messagePosition });
+    this.props.setMouseOver({ type: "on", item, messagePosition });
+  }
+
+  onMouseOut = () => {
+    const { item } = this.props;
+    this.props.setMouseOver({ type: "off", item });
   }
 
 }

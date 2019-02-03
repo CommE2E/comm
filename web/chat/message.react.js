@@ -21,7 +21,8 @@ import RobotextMessage from './robotext-message.react';
 import MultimediaMessage from './multimedia-message.react';
 import css from './chat-message-list.css';
 
-export type MessagePositionInfo = {|
+export type OnMessagePositionInfo = {|
+  type: "on",
   item: ChatMessageInfoItem,
   messagePosition: {|
     top: number,
@@ -32,10 +33,16 @@ export type MessagePositionInfo = {|
     width: number,
   |},
 |};
+export type MessagePositionInfo =
+  | OnMessagePositionInfo
+  | {|
+      type: "off",
+      item: ChatMessageInfoItem,
+    |};
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  onMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
 |};
 class Message extends React.PureComponent<Props> {
@@ -43,7 +50,7 @@ class Message extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    onMouseOver: PropTypes.func.isRequired,
+    setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
   };
 
@@ -62,14 +69,14 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={this.props.item}
           threadInfo={this.props.threadInfo}
-          onMouseOver={this.props.onMouseOver}
+          setMouseOver={this.props.setMouseOver}
         />
       );
     } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
       message = (
         <MultimediaMessage
           item={this.props.item}
-          onMouseOver={this.props.onMouseOver}
+          setMouseOver={this.props.setMouseOver}
           chatInputState={this.props.chatInputState}
         />
       );
@@ -77,7 +84,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <RobotextMessage
           item={this.props.item}
-          onMouseOver={this.props.onMouseOver}
+          setMouseOver={this.props.setMouseOver}
         />
       );
     }
