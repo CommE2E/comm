@@ -160,6 +160,7 @@ div.messageTimestampTopRightTooltip:after {
 div.textMessage {
   padding: 6px 12px;
   margin: 0 4px 0 12px;
+  white-space: pre-wrap;
 }
 div.normalTextMessage {
   font-size: 16px;
