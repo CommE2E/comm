@@ -43,7 +43,6 @@ import {
 import { AppState as NativeAppState, Platform } from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { notificationPressActionType } from 'lib/shared/notif-utils';
 import {
   sendTextMessageActionTypes,
   saveMessagesActionType,

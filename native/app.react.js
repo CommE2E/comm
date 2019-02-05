@@ -145,6 +145,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   appStarted = 0;
+  detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool);
 
   componentDidMount() {
     this.appStarted = Date.now();
@@ -537,6 +538,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   iosNotificationOpened = (notification) => {
+    if (this.detectUnsupervisedBackground) {
+      this.detectUnsupervisedBackground(false);
+    }
     const threadID = notification.getData().threadID;
     if (!threadID) {
       console.log("Notification with missing threadID received!");
@@ -635,6 +639,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
       <View style={styles.app}>
+        <Socket
+          detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
+        />
         <ReduxifiedRootNavigator
           state={this.props.navigationState}
           dispatch={this.props.dispatch}
@@ -653,6 +660,12 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   inAppNotificationRef = (inAppNotification: InAppNotification) => {
     this.inAppNotification = inAppNotification;
+  }
+
+  detectUnsupervisedBackgroundRef = (
+    detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
+  ) => {
+    this.detectUnsupervisedBackground = detectUnsupervisedBackground;
   }
 
 }
@@ -687,7 +700,6 @@ const App = (props: {}) =>
   <Provider store={store}>
     <ErrorBoundary>
       <ConnectedAppWithNavigationState />
-      <Socket />
     </ErrorBoundary>
   </Provider>;
 AppRegistry.registerComponent('SquadCal', () => App);
