@@ -27,6 +27,11 @@ import {
 } from '../fetchers/report-fetchers';
 import { newEntryQueryInputValidator } from './entry-responders';
 
+const tActionSummary = tShape({
+  type: t.String,
+  time: t.Number,
+  summary: t.String,
+});
 const threadInconsistencyReportValidatorShape = {
   platformDetails: tPlatformDetails,
   beforeAction: t.Object,
@@ -34,6 +39,7 @@ const threadInconsistencyReportValidatorShape = {
   pollResult: t.Object,
   pushResult: t.Object,
   lastActionTypes: t.maybe(t.list(t.String)),
+  lastActions: t.maybe(t.list(tActionSummary)),
   time: t.maybe(t.Number),
 };
 const entryInconsistencyReportValidatorShape = {
@@ -43,7 +49,8 @@ const entryInconsistencyReportValidatorShape = {
   calendarQuery: newEntryQueryInputValidator,
   pollResult: t.Object,
   pushResult: t.Object,
-  lastActionTypes: t.list(t.String),
+  lastActionTypes: t.maybe(t.list(t.String)),
+  lastActions: t.maybe(t.list(tActionSummary)),
   time: t.Number,
 };
 
