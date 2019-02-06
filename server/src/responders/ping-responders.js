@@ -55,7 +55,6 @@ import {
 } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
-  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
@@ -92,6 +91,10 @@ import {
 } from '../deleters/update-deleters';
 import { activityUpdatesInputValidator } from './activity-responders';
 import { SQL } from '../database';
+import {
+  threadInconsistencyReportValidatorShape,
+  entryInconsistencyReportValidatorShape,
+} from './report-responders';
 
 const clientResponseInputValidator = t.union([
   tShape({
@@ -109,31 +112,18 @@ const clientResponseInputValidator = t.union([
     deviceToken: t.String,
   }),
   tShape({
+    ...threadInconsistencyReportValidatorShape,
     type: t.irreducible(
       'serverRequestTypes.THREAD_INCONSISTENCY',
       x => x === serverRequestTypes.THREAD_INCONSISTENCY,
     ),
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    pollResult: t.Object,
-    pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(t.String)),
-    time: t.maybe(t.Number),
   }),
   tShape({
+    ...entryInconsistencyReportValidatorShape,
     type: t.irreducible(
       'serverRequestTypes.ENTRY_INCONSISTENCY',
       x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
     ),
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    calendarQuery: newEntryQueryInputValidator,
-    pollResult: t.Object,
-    pushResult: t.Object,
-    lastActionTypes: t.list(t.String),
-    time: t.Number,
   }),
   tShape({
     type: t.irreducible(

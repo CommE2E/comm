@@ -27,6 +27,26 @@ import {
 } from '../fetchers/report-fetchers';
 import { newEntryQueryInputValidator } from './entry-responders';
 
+const threadInconsistencyReportValidatorShape = {
+  platformDetails: tPlatformDetails,
+  beforeAction: t.Object,
+  action: t.Object,
+  pollResult: t.Object,
+  pushResult: t.Object,
+  lastActionTypes: t.maybe(t.list(t.String)),
+  time: t.maybe(t.Number),
+};
+const entryInconsistencyReportValidatorShape = {
+  platformDetails: tPlatformDetails,
+  beforeAction: t.Object,
+  action: t.Object,
+  calendarQuery: newEntryQueryInputValidator,
+  pollResult: t.Object,
+  pushResult: t.Object,
+  lastActionTypes: t.list(t.String),
+  time: t.Number,
+};
+
 const reportCreationRequestInputValidator = t.union([
   tShape({
     type: t.maybe(t.irreducible(
@@ -47,31 +67,18 @@ const reportCreationRequestInputValidator = t.union([
     actions: t.list(t.Object),
   }),
   tShape({
+    ...threadInconsistencyReportValidatorShape,
     type: t.irreducible(
       'reportTypes.THREAD_INCONSISTENCY',
       x => x === reportTypes.THREAD_INCONSISTENCY,
     ),
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    pollResult: t.Object,
-    pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(t.String)),
-    time: t.maybe(t.Number),
   }),
   tShape({
+    ...entryInconsistencyReportValidatorShape,
     type: t.irreducible(
       'reportTypes.ENTRY_INCONSISTENCY',
       x => x === reportTypes.ENTRY_INCONSISTENCY,
     ),
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    calendarQuery: newEntryQueryInputValidator,
-    pollResult: t.Object,
-    pushResult: t.Object,
-    lastActionTypes: t.list(t.String),
-    time: t.Number,
   }),
 ]);
 
@@ -133,6 +140,8 @@ async function errorReportDownloadResponder(
 }
 
 export {
+  threadInconsistencyReportValidatorShape,
+  entryInconsistencyReportValidatorShape,
   reportCreationResponder,
   errorReportFetchInfosResponder,
   errorReportDownloadResponder,
