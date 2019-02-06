@@ -5,7 +5,10 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types';
-import type { ServerRequest, ClientResponse } from 'lib/types/request-types';
+import type {
+  ServerRequest,
+  ClientClientResponse,
+} from 'lib/types/request-types';
 
 import { createSelector } from 'reselect';
 
@@ -40,7 +43,7 @@ const nativeGetClientResponsesSelector = createSelector<*, *, *, *, *>(
     getClientResponsesFunc: (
       calendarActive: bool,
       serverRequests: $ReadOnlyArray<ServerRequest>,
-    ) => $ReadOnlyArray<ClientResponse>,
+    ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: bool,
   ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
     getClientResponsesFunc(calendarActive, serverRequests),

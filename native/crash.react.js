@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  type ReportCreationRequest,
+  type ClientReportCreationRequest,
   type ReportCreationResponse,
   reportTypes,
 } from 'lib/types/report-types';
@@ -48,7 +48,7 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendReport: (
-    request: ReportCreationRequest,
+    request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
   logOut: () => Promise<LogOutResult>,
 };
