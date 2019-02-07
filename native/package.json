@@ -10,6 +10,7 @@
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "dependencies": {
+    "@react-navigation/core": "3.0.0",
     "color": "^2.0.0",
     "find-root": "^1.1.0",
     "fs-extra": "^6.0.1",
@@ -33,7 +34,7 @@
     "react-native-splash-screen": "^3.1.1",
     "react-native-vector-icons": "^4.5.0",
     "react-navigation": "3.0.4",
-    "react-navigation-redux-helpers": "^2.0.8",
+    "react-navigation-redux-helpers": "^3.0.0",
     "react-navigation-stack": "^1.0.4",
     "react-redux": "^5.0.6",
     "reactotron-react-native": "^2.0.0",

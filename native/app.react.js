@@ -37,7 +37,7 @@ import {
   Alert,
   DeviceInfo,
 } from 'react-native';
-import { reduxifyNavigator } from 'react-navigation-redux-helpers';
+import { createReduxContainer } from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
@@ -94,7 +94,8 @@ if (Platform.OS === "android") {
 }
 
 const msInDay = 24 * 60 * 60 * 1000;
-const ReduxifiedRootNavigator = reduxifyNavigator(RootNavigator, "root");
+// $FlowFixMe should be fixed on flow-bin@0.89
+const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 

@@ -391,7 +391,6 @@ function appBecameInactive() {
 }
 
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
-  "root",
   (state: AppState) => state.navInfo.navigationState,
 );
 const store: Store<AppState, *> = createStore(
