@@ -100,6 +100,7 @@ type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
 type Props = {
   // Redux state
+  rehydrateConcluded: bool,
   navigationState: NavigationState,
   activeThread: ?string,
   appLoggedIn: bool,
@@ -123,6 +124,7 @@ type Props = {
 class AppWithNavigationState extends React.PureComponent<Props> {
 
   static propTypes = {
+    rehydrateConcluded: PropTypes.bool.isRequired,
     navigationState: PropTypes.object.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
@@ -157,6 +159,13 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.handleInitialURL();
     Linking.addEventListener('url', this.handleURLChange);
+    if (this.props.rehydrateConcluded) {
+      this.onReduxRehydrate();
+    }
+  }
+
+  onReduxRehydrate() {
+    this.onForeground();
     if (Platform.OS === "ios") {
       NotificationsIOS.addEventListener(
         "remoteNotificationsRegistered",
@@ -190,7 +199,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.registerPushPermissionsAndHandleInitialNotif,
       );
     }
-    this.onForeground();
   }
 
   onForeground() {
@@ -338,7 +346,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
+    if (this.props.rehydrateConcluded && !prevProps.rehydrateConcluded) {
+      this.onReduxRehydrate();
+    } else if (
       (this.props.appLoggedIn && !prevProps.appLoggedIn) ||
       (!this.props.deviceToken && prevProps.deviceToken)
     ) {
@@ -680,6 +690,7 @@ const ConnectedAppWithNavigationState = connect(
   (state: AppState) => {
     const appLoggedIn = appLoggedInSelector(state);
     return {
+      rehydrateConcluded: state._persist && state._persist.rehydrated,
       navigationState: state.navInfo.navigationState,
       activeThread: activeThreadSelector(state),
       appLoggedIn,
