@@ -624,6 +624,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       }
 
       // We are here because notif was received, but hasn't been pressed yet
+      if (this.detectUnsupervisedBackground) {
+        this.detectUnsupervisedBackground(false);
+      }
       this.saveMessageInfos(customNotification.messageInfos);
 
       if (this.currentState === "active") {
