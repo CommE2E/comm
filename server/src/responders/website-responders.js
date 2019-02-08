@@ -195,6 +195,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
         href="compiled/${assets.browser.css}"
       />`;
   let result = html`
+    <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="utf-8" />
