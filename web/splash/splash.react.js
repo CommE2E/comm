@@ -119,77 +119,79 @@ class Splash extends React.PureComponent<Props, State> {
             </header>
           </div>
         </div>
-        <div className={css['top-container']}>
-          <div className={css['top']}>
-            <div className={css['body']}>
-              <div className={css['intro']}>
-                <p className={css['intro-header']}>
-                  SquadCal is a chat app with an integrated calendar.
-                </p>
-                <p className={css['intro-description']}>
-                  We make it incredibly easy to plan events with your friends.
-                </p>
-              </div>
-              <div className={css['devices']}>
-                <img
-                  src="images/ios_screenshot.png"
-                  srcSet="images/ios_screenshot@2x.png 526w"
-                  width={263}
-                  height={527}
-                />
-                <img
-                  src="images/android_screenshot.png"
-                  srcSet="images/android_screenshot@2x.png 570w"
-                  width={285}
-                  height={527}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className={css['bottom-container']}>
-          <div className={css['bottom']}>
-            <div className={css['header-rest']}>
-              <div className={css['prompt']}>
-                <p className={css['prompt-header']}>
-                  We're currently alpha testing the first version of our app.
-                </p>
-                <p className={css['prompt-description']}>
-                  If you'd like to try it out, please let us know!
-                </p>
-                <div className={css['request-access-container']}>
-                  <div>
-                    <form className={css['request-access-form']}>
-                      <input
-                        type="text"
-                        value={this.state.email}
-                        onChange={this.onChangeEmail}
-                        placeholder="Email address"
-                        className={css['request-access-email']}
-                        ref={this.emailInputRef}
-                      />
-                      <div className={css['custom-select']}>
-                        <select onChange={this.onChangePlatform}>
-                          <option value="ios">iOS</option>
-                          <option value="android">Android</option>
-                        </select>
-                      </div>
-                      <button
-                        type="submit"
-                        className={css['request-access-submit']}
-                        onClick={this.onSubmitRequestAccess}
-                      >
-                        {submitButtonContent}
-                      </button>
-                    </form>
-                    {androidWarning}
-                  </div>
-                  {error}
-                  {success}
+        <div className={css['content']}>
+          <div className={css['top-container']}>
+            <div className={css['top']}>
+              <div className={css['body']}>
+                <div className={css['intro']}>
+                  <p className={css['intro-header']}>
+                    SquadCal is a chat app with an integrated calendar.
+                  </p>
+                  <p className={css['intro-description']}>
+                    We make it incredibly easy to plan events with your friends.
+                  </p>
+                </div>
+                <div className={css['devices']}>
+                  <img
+                    src="images/ios_screenshot.png"
+                    srcSet="images/ios_screenshot@2x.png 526w"
+                    width={263}
+                    height={527}
+                  />
+                  <img
+                    src="images/android_screenshot.png"
+                    srcSet="images/android_screenshot@2x.png 570w"
+                    width={285}
+                    height={527}
+                  />
                 </div>
               </div>
             </div>
-            <div className={css['header-overscroll']} />
+          </div>
+          <div className={css['bottom-container']}>
+            <div className={css['bottom']}>
+              <div className={css['header-rest']}>
+                <div className={css['prompt']}>
+                  <p className={css['prompt-header']}>
+                    We're currently alpha testing the first version of our app.
+                  </p>
+                  <p className={css['prompt-description']}>
+                    If you'd like to try it out, please let us know!
+                  </p>
+                  <div className={css['request-access-container']}>
+                    <div>
+                      <form className={css['request-access-form']}>
+                        <input
+                          type="text"
+                          value={this.state.email}
+                          onChange={this.onChangeEmail}
+                          placeholder="Email address"
+                          className={css['request-access-email']}
+                          ref={this.emailInputRef}
+                        />
+                        <div className={css['custom-select']}>
+                          <select onChange={this.onChangePlatform}>
+                            <option value="ios">iOS</option>
+                            <option value="android">Android</option>
+                          </select>
+                        </div>
+                        <button
+                          type="submit"
+                          className={css['request-access-submit']}
+                          onClick={this.onSubmitRequestAccess}
+                        >
+                          {submitButtonContent}
+                        </button>
+                      </form>
+                      {androidWarning}
+                    </div>
+                    {error}
+                    {success}
+                  </div>
+                </div>
+              </div>
+              <div className={css['header-overscroll']} />
+            </div>
           </div>
         </div>
         {this.props.currentModal}

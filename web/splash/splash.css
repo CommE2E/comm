@@ -1,25 +1,20 @@
 div.header-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 61px;
-  z-index: 3;
+  flex: 0 1 auto;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
   padding: 0 10px;
 }
 div.top-container {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 100%;
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
-  background-repeat-y: repeat;
-  padding-top: 61px;
+}
+div.content {
+  flex: 1 0 0;
+  position: relative;
+  min-height: 100%;
 }
 div.top {
   max-width: 1024px;
@@ -74,7 +69,9 @@ div.devices {
 }
 div.bottom-container {
   z-index: 2;
-  flex-grow: 1;
+  position: relative;
+  overflow: auto;
+  height: 100%;
 }
 div.bottom {
   margin-top: 728px;
