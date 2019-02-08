@@ -2,6 +2,9 @@
   padding: 0;
   margin: 0;
 }
+html {
+  height: 100%;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
@@ -9,7 +12,8 @@ body {
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
-  margin-top: 62px;
+  height: 100%;
+  overflow: hidden;
 }
 a {
   text-decoration: none;
@@ -34,17 +38,17 @@ input[type='submit']::-moz-focus-inner {
   border: 0;
   padding: 0;
 }
+:global(#react-root) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
 header.header {
-  position: fixed;
-  top: 0;
-  width: 100%;
+  flex: 0 1 auto;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
 }
 div.main-header {
   font-family: 'Anaheim', sans-serif;
@@ -108,12 +112,13 @@ div.chatBadge {
 }
 
 div.main-content-container {
-  height: 100%;
+  flex: 1 0 0;
   position: relative;
+  min-height: 0;
 }
 div.main-content {
   background-color: rgba(255,255,255,0.84);
-  min-height: 100%;
+  height: 100%;
   overflow-x: hidden;
 }
 

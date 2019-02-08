@@ -1,7 +1,7 @@
 div.container {
-  position: fixed;
+  position: absolute;
   width: 400px;
-  top: 62px;
+  top: 0;
   bottom: 0;
   overflow-y: auto;
   background-color: white;

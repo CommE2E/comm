@@ -97,7 +97,7 @@ class Splash extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <div className={css['splash-container']}>
+      <React.Fragment>
         <div className={css['splash-header-container']}>
           <div className={css['splash-top']}>
             <header className={css['splash-header']}>
@@ -193,7 +193,7 @@ class Splash extends React.PureComponent<Props, State> {
           </div>
         </div>
         {this.props.currentModal}
-      </div>
+      </React.Fragment>
     );
   }
 
