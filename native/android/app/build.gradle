@@ -110,8 +110,8 @@ android {
         applicationId "org.squadcal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 26
-        versionName "0.0.26"
+        versionCode 27
+        versionName "0.0.27"
     }
     splits {
         abi {
