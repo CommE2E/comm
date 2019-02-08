@@ -80,7 +80,7 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor = `#${threadColor}`;
       messageStyle.color = darkColor ? 'white' : 'black';
     } else {
-      messageStyle.backgroundColor = "#DDDDDDBB";
+      messageStyle.backgroundColor = "rgba(221,221,221,0.73)";
       messageStyle.color = 'black';
     }
     let authorName = null;

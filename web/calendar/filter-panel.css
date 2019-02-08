@@ -11,7 +11,7 @@ div.container {
 }
 div.filters {
   color: #DDDDDD;
-  background-color: #000000E4;
+  background-color: rgba(0,0,0,0.89);
   overflow-y: auto;
   height: 100%;
 }
@@ -102,13 +102,13 @@ div.optionDetails {
 }
 div.searchContainer {
   padding: 8px 10px;
-  background-color: #000000E4;
+  background-color: rgba(0,0,0,0.89);
 }
 div.search {
   display: flex;
   border-radius: 5px;
   padding: 5px;
-  background-color: #FFFFFF44;
+  background-color: rgba(255,255,255,0.27);
   align-items: center;
 }
 svg.searchVector {
@@ -159,7 +159,7 @@ div.category {
   margin: 5px 18px 8px 18px;
 }
 div.extras {
-  background-color: #000000E4;
+  background-color: rgba(0,0,0,0.89);
   color: #DDDDDD;
   padding: 8px 20px;
   font-size: 14px;

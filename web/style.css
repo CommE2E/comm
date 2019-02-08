@@ -86,7 +86,7 @@ ul.nav-bar > li.current-tab > div > a {
   color: #444444;
 }
 ul.nav-bar > li.current-tab > div {
-  background-color: #FFFFFFD5;
+  background-color: rgba(255,255,255,0.84);
   padding: 18px 20px 19px 20px;
   height: 25px;
 }
@@ -112,7 +112,7 @@ div.main-content-container {
   position: relative;
 }
 div.main-content {
-  background-color: #FFFFFFD5;
+  background-color: rgba(255,255,255,0.84);
   min-height: 100%;
   overflow-x: hidden;
 }
@@ -359,7 +359,7 @@ a.calendar-filters-button {
   font-weight: 600;
   float: left;
   color: white;
-  background-color: #444455AA;
+  background-color: rgba(68,68,85,0.67);
   padding: 8px 18px;
   border-radius: 18px;
   margin: 0 15px 5px 15px;
@@ -443,7 +443,7 @@ div.modal {
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, .3),
     0 0 0 1px rgba(0, 0, 0, .1);
-  background-color: #FFFFFFB5;
+  background-color: rgba(255,255,255,0.71);
   border-radius: 15px;
 }
 span.modal-close {
@@ -1142,7 +1142,7 @@ div.splash-bottom {
   flex-direction: column;
 }
 div.splash-header-rest {
-  background-color: #FFFFFFD5;
+  background-color: rgba(255,255,255,0.84);
   flex-grow: 1;
 }
 div.splash-header-overscroll {
@@ -1187,7 +1187,7 @@ input.splash-request-access-email {
   padding: 10px 10px 8px 10px;
   font-size: 18px;
   border-radius: 5px;
-  background-color: #77777722;
+  background-color: rgba(119,119,119,0.13);
   color: black;
 }
 input.splash-request-access-email::placeholder,
@@ -1199,7 +1199,7 @@ button.splash-request-access-submit {
   padding: 10px 10px 8px 10px;
   font-size: 18px;
   border-radius: 5px;
-  background-color: #00AA0088;
+  background-color: rgba(0,170,0,0.53);
   color: white;
   margin-left: 15px;
   cursor: pointer;

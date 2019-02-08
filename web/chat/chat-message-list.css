@@ -269,7 +269,7 @@ span.preview > span.previewImage > svg.removeUpload {
   color: white;
   border-radius: 50%;
   box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
-  background-color: #222222AA;
+  background-color: rgba(34,34,34,0.67);
 }
 span.preview:hover > span.previewImage > svg.removeUpload {
   display: inherit;
