@@ -209,6 +209,7 @@ div.action-links {
 div.day-action-links {
   padding-left: 3px;
   margin-bottom: 1px;
+  height: 16px;
 }
 div.action-links a + a {
   margin-left: 6px;
