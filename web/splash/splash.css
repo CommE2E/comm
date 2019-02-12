@@ -1,5 +1,5 @@
 div.header-container {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
@@ -65,13 +65,15 @@ p.intro-description {
 }
 div.devices {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  margin: 0 159px;
 }
 div.bottom-container {
   z-index: 2;
   position: relative;
   overflow: auto;
   height: 100%;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 div.bottom {
   margin-top: 728px;
