@@ -111,6 +111,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       fetchMostRecentMessagesActionTypes,
       this.props.fetchMostRecentMessages(threadInfo.id),
     );
+    this.scrollToBottom();
   }
 
   componentWillUnmount() {
