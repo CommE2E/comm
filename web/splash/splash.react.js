@@ -68,7 +68,7 @@ class Splash extends React.PureComponent<Props, State> {
     let androidWarning = null;
     if (this.state.platform === "android") {
       androidWarning = (
-        <p className={css['android-warning']}>
+        <p className={css.androidWarning}>
           Make sure this is the email you use to log in to the Google Play
           Store!
         </p>
@@ -77,7 +77,7 @@ class Splash extends React.PureComponent<Props, State> {
     let error = null
     if (this.state.error) {
       error = (
-        <p className={css['request-access-error']}>
+        <p className={css.requestAccessError}>
           {this.state.error}
         </p>
       );
@@ -85,7 +85,7 @@ class Splash extends React.PureComponent<Props, State> {
     let success = null
     if (this.state.success) {
       success = (
-        <p className={css['request-access-success']}>
+        <p className={css.requestAccessSuccess}>
           {this.state.success}
         </p>
       );
@@ -98,14 +98,14 @@ class Splash extends React.PureComponent<Props, State> {
     }
     return (
       <React.Fragment>
-        <div className={css['header-container']}>
-          <div className={css['top']}>
-            <header className={css['header']}>
-              <div className={css['header-contents']}>
+        <div className={css.headerContainer}>
+          <div className={css.top}>
+            <header className={css.header}>
+              <div className={css.headerContents}>
                 <h1>SquadCal</h1>
-                <div className={css['action-links']}>
+                <div className={css.actionLinks}>
                   <a href="#" onClick={this.onClickRequestAccess}>
-                    <span className={css['request-access']}>
+                    <span className={css.requestAccess}>
                       Request access
                     </span>
                   </a>
@@ -119,19 +119,19 @@ class Splash extends React.PureComponent<Props, State> {
             </header>
           </div>
         </div>
-        <div className={css['content']}>
-          <div className={css['top-container']}>
-            <div className={css['top']}>
-              <div className={css['body']}>
-                <div className={css['intro']}>
-                  <p className={css['intro-header']}>
+        <div className={css.content}>
+          <div className={css.topContainer}>
+            <div className={css.top}>
+              <div className={css.body}>
+                <div className={css.intro}>
+                  <p className={css.introHeader}>
                     SquadCal is a chat app with an integrated calendar.
                   </p>
-                  <p className={css['intro-description']}>
+                  <p className={css.introDescription}>
                     We make it incredibly easy to plan events with your friends.
                   </p>
                 </div>
-                <div className={css['devices']}>
+                <div className={css.devices}>
                   <img
                     src="images/ios_screenshot.png"
                     srcSet="images/ios_screenshot@2x.png 526w"
@@ -148,28 +148,28 @@ class Splash extends React.PureComponent<Props, State> {
               </div>
             </div>
           </div>
-          <div className={css['bottom-container']}>
-            <div className={css['bottom']}>
-              <div className={css['header-rest']}>
-                <div className={css['prompt']}>
-                  <p className={css['prompt-header']}>
+          <div className={css.bottomContainer}>
+            <div className={css.bottom}>
+              <div className={css.headerRest}>
+                <div className={css.prompt}>
+                  <p className={css.promptHeader}>
                     We're currently alpha testing the first version of our app.
                   </p>
-                  <p className={css['prompt-description']}>
+                  <p className={css.promptDescription}>
                     If you'd like to try it out, please let us know!
                   </p>
-                  <div className={css['request-access-container']}>
+                  <div className={css.requestAccessContainer}>
                     <div>
-                      <form className={css['request-access-form']}>
+                      <form className={css.requestAccessForm}>
                         <input
                           type="text"
                           value={this.state.email}
                           onChange={this.onChangeEmail}
                           placeholder="Email address"
-                          className={css['request-access-email']}
+                          className={css.requestAccessEmail}
                           ref={this.emailInputRef}
                         />
-                        <div className={css['custom-select']}>
+                        <div className={css.customSelect}>
                           <select onChange={this.onChangePlatform}>
                             <option value="ios">iOS</option>
                             <option value="android">Android</option>
@@ -177,7 +177,7 @@ class Splash extends React.PureComponent<Props, State> {
                         </div>
                         <button
                           type="submit"
-                          className={css['request-access-submit']}
+                          className={css.requestAccessSubmit}
                           onClick={this.onSubmitRequestAccess}
                         >
                           {submitButtonContent}
@@ -190,7 +190,7 @@ class Splash extends React.PureComponent<Props, State> {
                   </div>
                 </div>
               </div>
-              <div className={css['header-overscroll']} />
+              <div className={css.headerOverscroll} />
             </div>
           </div>
         </div>
