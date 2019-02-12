@@ -73,7 +73,6 @@ div.bottom-container {
   position: relative;
   overflow: auto;
   height: 100%;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 div.bottom {
   margin-top: 728px;

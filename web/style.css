@@ -1,6 +1,7 @@
 * {
   padding: 0;
   margin: 0;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 html {
   height: 100%;
