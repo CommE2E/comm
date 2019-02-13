@@ -28,7 +28,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
-import css from '../../style.css';
+import css from './history.css';
 import LoadingIndicator from '../../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 
@@ -56,7 +56,7 @@ class HistoryEntry extends React.PureComponent<Props> {
       if (this.props.loggedIn) {
         restore = (
           <span>
-            <span className={css['restore-entry-label']}>
+            <span className={css.restoreEntryLabel}>
               (<a
                 href="#"
                 onClick={this.onRestore}
@@ -65,29 +65,28 @@ class HistoryEntry extends React.PureComponent<Props> {
             <LoadingIndicator
               status={this.props.restoreLoadingStatus}
               color="black"
-              loadingClassName={css['restore-loading']}
-              errorClassName={css['restore-error']}
+              loadingClassName={css.restoreLoading}
+              errorClassName={css.restoreError}
             />
           </span>
         );
       }
       deleted = (
-        <span className={css['deleted-entry']}>
-          <span className={css['deleted-entry-label']}>deleted</span>
+        <span className={css.deletedEntry}>
+          <span className={css.deletedEntryLabel}>deleted</span>
           {restore}
         </span>
       );
     }
 
     const textClasses = classNames({
-      [css['entry']]: true,
-      [css['entry-history-entry']]: true,
-      [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
+      [css.entry]: true,
+      [css.darkEntry]: colorIsDark(this.props.threadInfo.color),
     });
     const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
     const creator = this.props.entryInfo.creator === null
       ? "Anonymous"
-      : <span className={css['entry-username']}>
+      : <span className={css.entryUsername}>
           {this.props.entryInfo.creator}
         </span>;
 
@@ -96,21 +95,21 @@ class HistoryEntry extends React.PureComponent<Props> {
         <div className={textClasses} style={textStyle}>
           {this.props.entryInfo.text}
         </div>
-        <span className={css['entry-author']}>
+        <span className={css.entryAuthor}>
           {"created by "}
           {creator}
         </span>
-        <span className={css['entry-thread']}>
+        <span className={css.entryThread}>
           {this.props.threadInfo.uiName}
         </span>
-        <div className={css['clear']} />
+        <div className={css.clear} />
         {deleted}
         <a
           href="#"
-          className={css['revision-history-button']}
+          className={css.revisionHistoryButton}
           onClick={this.onClick}
         >revision history &gt;</a>
-        <div className={css['clear']} />
+        <div className={css.clear} />
       </li>
     );
   }

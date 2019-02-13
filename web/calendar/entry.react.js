@@ -41,7 +41,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dateString } from 'lib/utils/date-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
-import css from '../style.css';
+import css from './calendar.css';
 import LoadingIndicator from '../loading-indicator.react';
 import ConcurrentModificationModal from
   '../modals/concurrent-modification-modal.react';
@@ -182,42 +182,34 @@ class Entry extends React.PureComponent<Props, State> {
       let historyButton = null;
       if (this.props.entryInfo.id) {
         historyButton = (
-          <a
-            href="#"
-            className={css['entry-history-button']}
-            onClick={this.onHistory}
-          >
-            <HistoryVector className={css['history']} />
-            <span className={css['action-links-text']}>History</span>
+          <a href="#" onClick={this.onHistory}>
+            <HistoryVector className={css.history} />
+            <span className={css.actionLinksText}>History</span>
           </a>
         );
       }
       const rightActionLinksClassName =
-        `${css['right-action-links']} ${css['action-links-text']}`;
+        `${css.rightActionLinks} ${css.actionLinksText}`;
       actionLinks = (
-        <div className={css['action-links']}>
-          <a
-            href="#"
-            className={css['delete-entry-button']}
-            onClick={this.onDelete}
-          >
-            <DeleteVector className={css['delete']} />
-            <span className={css['action-links-text']}>Delete</span>
+        <div className={css.actionLinks}>
+          <a href="#" onClick={this.onDelete}>
+            <DeleteVector />
+            <span className={css.actionLinksText}>Delete</span>
           </a>
           {historyButton}
           <span className={rightActionLinksClassName}>
             {this.props.threadInfo.uiName}
           </span>
-          <div className={css['clear']}></div>
+          <div className={css.clear}></div>
         </div>
       );
     }
 
     const darkColor = colorIsDark(this.props.threadInfo.color);
     const entryClasses = classNames({
-      [css['entry']]: true,
-      [css['dark-entry']]: darkColor,
-      [css['focused-entry']]: this.state.focused,
+      [css.entry]: true,
+      [css.darkEntry]: darkColor,
+      [css.focusedEntry]: this.state.focused,
     });
     const style = { backgroundColor: "#" + this.props.threadInfo.color };
     const loadingIndicatorColor = darkColor ? "white" : "black";
@@ -229,7 +221,7 @@ class Entry extends React.PureComponent<Props, State> {
       >
         <textarea
           rows="1"
-          className={css['entry-text']}
+          className={css.entryText}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
           value={this.state.text}
@@ -241,8 +233,8 @@ class Entry extends React.PureComponent<Props, State> {
         <LoadingIndicator
           status={this.state.loadingStatus}
           color={loadingIndicatorColor}
-          loadingClassName={css['entry-loading']}
-          errorClassName={css['entry-error']}
+          loadingClassName={css.entryLoading}
+          errorClassName={css.entryError}
         />
         {actionLinks}
       </div>

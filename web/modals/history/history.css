@@ -1,0 +1,222 @@
+div.modalBody {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+  padding: 6px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: white;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+span.loading {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+}
+span.error {
+  position: absolute;
+  line-height: 16px;
+  font-size: 16px;
+  right: 12px;
+  top: 6px;
+}
+div.entryHistory {
+  position: absolute;
+  width: 100%;
+  top: 27px;
+  box-sizing: border-box;
+}
+div.entryHistoryVisible {
+  left: 0;
+}
+div.entryHistoryInvisible {
+  left: 100%;
+}
+@keyframes entry-history-visible-animation {
+  from { left: 100%; }
+  to { left: 0; }
+}
+div.entryHistoryVisibleAnimate {
+  left: 0;
+  animation-name: entry-history-visible-animation;
+  animation-duration: 0.5s;
+}
+@keyframes entry-history-invisible-animation {
+  from { left: 0; }
+  to { left: 100%; }
+}
+div.entryHistoryInvisibleAnimate {
+  left: 100%;
+  animation-name: entry-history-invisible-animation;
+  animation-duration: 0.5s;
+}
+div.header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 5px;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  background-color: #F4F4F4;
+  box-sizing: border-box;
+}
+a.allHistoryButton {
+  position: absolute;
+  top: 5px;
+  left: 7px;
+}
+span.date {
+  float: left;
+  width: 100%;
+  text-align: center;
+}
+div.entryHistory ul {
+  overflow: auto;
+  height: 211px;
+}
+div.entryHistory li {
+  border-bottom: 2px solid lightgray;
+  margin: 5px;
+  padding-bottom: 8px;
+  padding-top: 1px;
+}
+div.entryHistory li:last-child {
+  border-bottom: none;
+}
+span.entryAuthor {
+  float: left;
+  padding-left: 11px;
+  font-size: 12px;
+  color: gray;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 50%;
+  box-sizing: border-box;
+}
+span.entryUsername {
+  color: #2A5DB0;
+}
+time.entryTime {
+  float: right;
+  padding-right: 11px;
+  font-size: 12px;
+  color: gray;
+}
+span.entryThread {
+  float: right;
+  padding-right: 11px;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  margin-top: -2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 50%;
+  padding-left: 10px;
+  box-sizing: border-box;
+}
+div.clear {
+  clear: both;
+}
+div.entry {
+  padding: 5px;
+  box-shadow: inset 0px 0px 0px 2px white;
+  border-radius: 5px;
+  position: relative;
+  margin: 5px;
+  font-size: 13px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+div.darkEntry {
+  color: white;
+}
+div.dayHistory {
+  position: absolute;
+  width: 100%;
+  top: 27px;
+  box-sizing: border-box;
+}
+div.dayHistoryVisible {
+  left: 0;
+}
+div.dayHistoryInvisible {
+  left: -100%;
+}
+@keyframes day-history-visible-animation {
+  from { left: -100%; }
+  to { left: 0; }
+}
+div.dayHistoryVisibleAnimate {
+  left: 0;
+  animation-name: day-history-visible-animation;
+  animation-duration: 0.5s;
+}
+@keyframes day-history-invisible-animation {
+  from { left: 0; }
+  to { left: -100%; }
+}
+div.dayHistoryInvisibleAnimate {
+  left: -100%;
+  animation-name: day-history-invisible-animation;
+  animation-duration: 0.5s;
+}
+div.dayHistory ul {
+  overflow: auto;
+  height: 211px;
+}
+div.dayHistory li {
+  padding-bottom: 2px;
+}
+div.dayHistory li:last-child {
+  padding-bottom: 8px;
+}
+span.deletedEntry {
+  float: left;
+  padding-top: 2px;
+  padding-left: 11px;
+  font-size: 12px;
+  line-height: 17px;
+}
+span.deletedEntryLabel {
+  color: red;
+  font-style: italic;
+}
+span.restoreEntryLabel {
+  padding-left: 5px;
+}
+span.restoreLoading {
+  position: relative;
+  top: 2px;
+  left: 5px;
+  width: 12px;
+}
+span.restoreError {
+  position: relative;
+  top: 1px;
+  left: 7px;
+  font-size: 15px;
+}
+a.revisionHistoryButton {
+  float: right;
+  padding-top: 2px;
+  padding-right: 11px;
+  font-size: 12px;
+  font-weight: bold;
+}
+div.restored {
+  font-style: italic;
+  font-size: 13px;
+  padding-left: 11px;
+}
+div.deleted {
+  font-style: italic;
+  font-size: 13px;
+  padding-left: 11px;
+  color: red;
+}

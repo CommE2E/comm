@@ -39,7 +39,7 @@ import {
   nonExcludeDeletedCalendarFiltersSelector,
 } from 'lib/selectors/calendar-filter-selectors';
 
-import css from '../../style.css';
+import css from './history.css';
 import Modal from '../modal.react';
 import LoadingIndicator from '../../loading-indicator.react';
 import HistoryEntry from './history-entry.react';
@@ -100,7 +100,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
         <a
           href="#"
           onClick={this.onClickAllEntries}
-          className={css['all-history-button']}
+          className={css.allHistoryButton}
         >
           &lt; all entries
         </a>
@@ -155,32 +155,32 @@ class HistoryModal extends React.PureComponent<Props, State> {
     const animate = this.state.animateModeChange;
     const dayMode = this.state.mode === "day";
     const dayClasses = classNames({
-      [css['day-history']]: true,
-      [css['day-history-visible']]: dayMode && !animate,
-      [css['day-history-invisible']]: !dayMode && !animate,
-      [css['day-history-visible-animate']]: dayMode && animate,
-      [css['day-history-invisible-animate']]: !dayMode && animate,
+      [css.dayHistory]: true,
+      [css.dayHistoryVisible]: dayMode && !animate,
+      [css.dayHistoryInvisible]: !dayMode && !animate,
+      [css.dayHistoryVisibleAnimate]: dayMode && animate,
+      [css.dayHistoryInvisibleAnimate]: !dayMode && animate,
     });
     const entryMode = this.state.mode === "entry";
     const entryClasses = classNames({
-      [css['entry-history']]: true,
-      [css['entry-history-visible']]: entryMode && !animate,
-      [css['entry-history-invisible']]: !entryMode && !animate,
-      [css['entry-history-visible-animate']]: entryMode && animate,
-      [css['entry-history-invisible-animate']]: !entryMode && animate,
+      [css.entryHistory]: true,
+      [css.entryHistoryVisible]: entryMode && !animate,
+      [css.entryHistoryInvisible]: !entryMode && !animate,
+      [css.entryHistoryVisibleAnimate]: entryMode && animate,
+      [css.entryHistoryInvisibleAnimate]: !entryMode && animate,
     });
 
     return (
       <Modal name="History" onClose={this.props.onClose}>
-        <div className={`${css['modal-body']} ${css['history-modal-body']}`}>
-          <div className={css['history-header']}>
+        <div className={css.modalBody}>
+          <div className={css.header}>
             {allHistoryButton}
-            <span className={css['history-date']}>{prettyDate}</span>
+            <span className={css.date}>{prettyDate}</span>
             <LoadingIndicator
               status={loadingStatus}
               color="black"
-              loadingClassName={css['history-loading']}
-              errorClassName={css['history-error']}
+              loadingClassName={css.loading}
+              errorClassName={css.error}
             />
           </div>
           <div className={dayClasses}><ul>{entries}</ul></div>

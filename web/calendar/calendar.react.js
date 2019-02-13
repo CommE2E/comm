@@ -36,7 +36,7 @@ import {
   yearAssertingSelector,
   monthAssertingSelector,
 } from '../selectors/nav-selectors';
-import css from '../style.css';
+import css from './calendar.css';
 import { canonicalURLFromReduxState } from '../url-utils';
 import FilterPanel from './filter-panel.react';
 import { webCalendarQuery } from '../selectors/nav-selectors';
@@ -178,27 +178,27 @@ class Calendar extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className={css['calendar-container']}>
+      <div>
         {filterPanel}
-        <div className={css['calendar-content']} style={calendarContentStyle}>
-          <div className={css['calendar-header']}>
+        <div className={css.content} style={calendarContentStyle}>
+          <div>
             <a
-              className={css['calendar-filters-button']}
+              className={css.filtersButton}
               onClick={this.toggleFilters}
               style={filterButtonStyle}
             >
               <FontAwesomeIcon icon={faFilter} />
               Filters
             </a>
-            <h2 className={css['calendar-nav']}>
+            <h2 className={css.nav}>
               <a
-                className={css['previous-month-link']}
+                className={css.previousMonthLink}
                 href={prevURL}
                 onClick={this.onClickPrevURL}
               >
                 &lt;
               </a>
-              <div className={css['calendar-month-name']}>
+              <div className={css.monthName}>
                 {" "}
                 {monthName}
                 {" "}
@@ -206,7 +206,7 @@ class Calendar extends React.PureComponent<Props, State> {
                 {" "}
               </div>
               <a
-                className={css['next-month-link']}
+                className={css.nextMonthLink}
                 href={nextURL}
                 onClick={this.onClickNextURL}
               >
@@ -214,7 +214,7 @@ class Calendar extends React.PureComponent<Props, State> {
               </a>
             </h2>
           </div>
-          <table className={css['calendar']}>
+          <table className={css.calendar}>
             <thead>
               <tr>
                 <th>Sunday</th>

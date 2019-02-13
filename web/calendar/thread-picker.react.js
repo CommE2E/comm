@@ -13,7 +13,7 @@ import {
 } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
-import css from '../style.css';
+import css from './thread-picker.css';
 import { LeftPager, RightPager } from '../vectors.react';
 import { htmlTargetFromEvent } from '../vector-utils';
 
@@ -36,10 +36,10 @@ class ThreadPickerOption extends React.PureComponent<OptionProps> {
 
   render() {
     return (
-      <div className={css['pick-thread-option']} onClick={this.onClick}>
-        <span className={css['select-thread']}>
-          <div className={css['color-preview']} style={this.style} />
-          <span className={css['select-thread-name']}>
+      <div className={css.option} onClick={this.onClick}>
+        <span className={css.thread}>
+          <div className={css.colorPreview} style={this.style} />
+          <span className={css.threadName}>
             {this.props.threadInfo.uiName}
           </span>
         </span>
@@ -99,34 +99,34 @@ class ThreadPicker extends React.PureComponent<Props, State> {
     let pager = null;
     if (length > ThreadPicker.pageSize) {
       let leftPager = (
-        <LeftPager className={css['thread-picker-pager-svg']} />
+        <LeftPager className={css.pagerIcon} />
       );
       if (this.state.currentPage > 0) {
         leftPager = (
           <a
             href="#"
-            className={css['thread-picker-pager-button']}
+            className={css.pagerButton}
             onClick={this.onBackPagerClick}
           >{leftPager}</a>
         );
       }
       let rightPager = (
-        <RightPager className={css['thread-picker-pager-svg']} />
+        <RightPager className={css.pagerIcon} />
       );
       if (ThreadPicker.pageSize * (this.state.currentPage + 1) < length) {
         rightPager = (
           <a
             href="#"
-            className={css['thread-picker-pager-button']}
+            className={css.pagerButton}
             onClick={this.onNextPagerClick}
           >{rightPager}</a>
         );
       }
       pager = (
-        <div className={css['thread-picker-pager-container']} key="pager">
-          <div className={css['thread-picker-pager']}>
+        <div className={css.pagerContainer} key="pager">
+          <div className={css.pager}>
             {leftPager}
-            <span className={css['thread-picker-pager-status']}>
+            <span className={css.pagerStatus}>
               {`${firstIndex + 1}–${secondIndex} of ${length}`}
             </span>
             {rightPager}
@@ -147,7 +147,7 @@ class ThreadPicker extends React.PureComponent<Props, State> {
 
     return (
       <div
-        className={css['pick-thread']}
+        className={css.container}
         tabIndex="0"
         onBlur={this.props.closePicker}
         onKeyDown={this.onPickerKeyDown}

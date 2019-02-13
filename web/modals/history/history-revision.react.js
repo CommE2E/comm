@@ -17,7 +17,7 @@ import { colorIsDark } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
-import css from '../../style.css';
+import css from './history.css';
 
 type Props = {
   revisionInfo: HistoryRevisionInfo,
@@ -30,14 +30,13 @@ class HistoryRevision extends React.PureComponent<Props> {
   render() {
     let change;
     if (this.props.isDeletionOrRestoration && this.props.revisionInfo.deleted) {
-      change = <div className={css['entry-history-deleted']}>Deleted</div>;
+      change = <div className={css.deleted}>Deleted</div>;
     } else if (this.props.isDeletionOrRestoration) {
-      change = <div className={css['entry-history-restored']}>Restored</div>;
+      change = <div className={css.restored}>Restored</div>;
     } else {
       const textClasses = classNames({
-        [css['entry']]: true,
-        [css['entry-history-entry']]: true,
-        [css['dark-entry']]: colorIsDark(this.props.threadInfo.color),
+        [css.entry]: true,
+        [css.darkEntry]: colorIsDark(this.props.threadInfo.color),
       });
       const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
       change = (
@@ -49,7 +48,7 @@ class HistoryRevision extends React.PureComponent<Props> {
 
     const author = this.props.revisionInfo.author === null
       ? "Anonymous"
-      : <span className={css['entry-username']}>
+      : <span className={css.entryUsername}>
           {this.props.revisionInfo.author}
         </span>;
 
@@ -58,16 +57,16 @@ class HistoryRevision extends React.PureComponent<Props> {
     return (
       <li>
         {change}
-        <span className={css['entry-author']}>
+        <span className={css.entryAuthor}>
           {"updated by "}
           {author}
         </span>
         <TimeAgo
           date={date.toISOString()}
           title={hovertext}
-          className={css['entry-time']}
+          className={css.entryTime}
         />
-        <div className={css['clear']} />
+        <div className={css.clear} />
       </li>
     );
   }

@@ -1,0 +1,192 @@
+a.filtersButton {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  float: left;
+  color: white;
+  background-color: rgba(68,68,85,0.67);
+  padding: 8px 18px;
+  border-radius: 18px;
+  margin: 0 15px 5px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+a.filtersButton > svg {
+  padding-right: 5px;
+}
+div.content {
+  min-height: 100%;
+  padding-top: 10px;
+}
+
+h2.nav {
+  font-family: 'Anaheim', sans-serif;
+  text-align: center;
+  margin: 8px auto 0px auto;
+  width: 200px;
+  color: #333333;
+}
+h2.nav > a.previousMonthLink {
+  margin-left: -100px;
+  color: #036AFF;
+}
+h2.nav > a.nextMonthLink {
+  margin-right: -100px;
+  color: #036AFF;
+}
+h2.nav > div.monthName {
+  display: inline-block;
+  width: 200px;
+}
+
+table.calendar {
+  table-layout: fixed;
+  padding: 10px;
+  width: 100%;
+}
+table.calendar > thead > tr > th {
+  padding-bottom: 6px;
+  color: #888888;
+  font-weight: normal;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+textarea.entryText {
+  background: none;
+  width: 100%;
+  outline: none;
+  border: none;
+  resize: none;
+  overflow: auto;
+  overflow-y: hidden;
+  padding-right: 15px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  font-size: 11px;
+}
+table.calendar td.day {
+  border: 1px solid transparent;
+  background-color: white;
+  position: relative;
+  vertical-align: top;
+  line-height: 0;
+  cursor: text;
+  height: 120px;
+}
+td.day > div.entryContainer {
+  overflow: auto;
+  height: 120px;
+}
+td.day > div.focusedEntryContainer {
+  height: 100px !important;
+}
+div.entryContainer > div.entryContainerSpacer {
+  height: 13px;
+}
+div.entry {
+  padding: 5px;
+  box-shadow: inset 0px 0px 0px 2px white;
+  border-radius: 5px;
+  position: relative;
+}
+div.darkEntry {
+  color: white;
+}
+div.darkEntry textarea.entryText {
+  color: white;
+}
+div.darkEntry div.actionLinks > a {
+  color: lightgray;
+}
+div.darkEntry div.actionLinks > a:hover {
+  color: white;
+}
+span.entryLoading {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 12px;
+}
+span.entryError {
+  position: absolute;
+  top: 11px;
+  right: 5px;
+  font-size: 16px;
+  width: 6px;
+  color: red !important;
+}
+div.actionLinks {
+  line-height: 90%;
+  margin-top: 3px;
+  font-size: 16px;
+}
+div.dayActionLinks {
+  padding-left: 3px;
+  margin-bottom: 1px;
+  height: 16px;
+}
+div.actionLinks a + a {
+  margin-left: 6px;
+}
+span.actionLinksText {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  position: relative;
+  bottom: 1px;
+  padding-left: 5px;
+}
+span.rightActionLinks {
+  float: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: inline-block;
+  overflow: hidden;
+}
+div.actionLinks svg {
+  fill: gray;
+  width: 10px;
+  height: 10px;
+}
+div.actionLinks svg.history {
+  position: relative;
+  top: 1px;
+}
+div.darkEntry div.actionLinks svg {
+  fill: lightgray;
+}
+div.actionLinks a:hover svg {
+  fill: black;
+}
+div.darkEntry div.actionLinks a:hover svg {
+  fill: white;
+}
+div.focusedEntry {
+  z-index: 3 !important;
+}
+div.actionLinks a {
+  color: gray;
+}
+div.actionLinks a:hover {
+  color: black;
+}
+td.day > h2 {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  color: #999999;
+  font-size: 32px;
+  line-height: 32px;
+  z-index: 1;
+  font-family: 'Anaheim', sans-serif;
+}
+td.currentDay > h2 {
+  color: #FF944D;
+}
+
+div.clear {
+  clear: both;
+}

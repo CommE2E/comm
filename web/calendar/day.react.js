@@ -22,7 +22,7 @@ import {
 import { dateString, dateFromString } from 'lib/utils/date-utils'
 import { connect } from 'lib/utils/redux-utils';
 
-import css from '../style.css';
+import css from './calendar.css';
 import Entry from './entry.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import ThreadPicker from './thread-picker.react';
@@ -88,30 +88,22 @@ class Day extends React.PureComponent<Props, State> {
   render() {
     const isToday = this.state.mounted &&
       dateString(new Date()) === this.props.dayString;
-    const tdClasses = classNames(css['day'], { [css['current-day']]: isToday });
+    const tdClasses = classNames(css.day, { [css.currentDay]: isToday });
 
     let actionLinks = null;
     const hovered = this.state.hovered;
     if (hovered) {
       const actionLinksClassName =
-        `${css['action-links']} ${css['day-action-links']}`;
+        `${css.actionLinks} ${css.dayActionLinks}`;
       actionLinks = (
         <div className={actionLinksClassName} ref={this.actionLinksRef}>
-          <a
-            href="#"
-            className={css['add-entry-button']}
-            onClick={this.onAddEntry}
-          >
-            <AddVector className={css['add']} />
-            <span className={css['action-links-text']}>Add</span>
+          <a href="#" onClick={this.onAddEntry}>
+            <AddVector />
+            <span className={css.actionLinksText}>Add</span>
           </a>
-          <a
-            href="#"
-            className={css['day-history-button']}
-            onClick={this.onHistory}
-          >
-            <HistoryVector className={css['history']} />
-            <span className={css['action-links-text']}>History</span>
+          <a href="#" onClick={this.onHistory}>
+            <HistoryVector className={css.history} />
+            <span className={css.actionLinksText}>History</span>
           </a>
         </div>
       );
@@ -146,8 +138,8 @@ class Day extends React.PureComponent<Props, State> {
     }
 
     const entryContainerClasses = classNames(
-      css['entry-container'],
-      { [css['focused-entry-container']]: hovered },
+      css.entryContainer,
+      { [css.focusedEntryContainer]: hovered },
     );
     const date = dateFromString(this.props.dayString);
     return (
@@ -161,7 +153,7 @@ class Day extends React.PureComponent<Props, State> {
         <div className={entryContainerClasses} ref={this.entryContainerRef}>
           {entries}
           <div
-            className={css['entry-container-spacer']}
+            className={css.entryContainerSpacer}
             ref={this.entryContainerSpacerRef}
           />
         </div>
