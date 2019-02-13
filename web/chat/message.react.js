@@ -76,6 +76,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <MultimediaMessage
           item={this.props.item}
+          threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
           chatInputState={this.props.chatInputState}
         />

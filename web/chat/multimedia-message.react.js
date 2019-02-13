@@ -10,6 +10,7 @@ import {
   type ChatInputState,
 } from './chat-input-state';
 import type { MessagePositionInfo } from './message.react';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -20,9 +21,11 @@ import { messageKey } from 'lib/shared/message-utils';
 
 import css from './chat-message-list.css';
 import Multimedia from './multimedia.react';
+import ComposedMessage from './composed-message.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
 |};
@@ -30,6 +33,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
   };
@@ -58,10 +62,14 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]
       : [];
+    let sendFailed = false;
     const multimedia = media.map(singleMedia => {
       const pendingUpload = pendingUploads.find(
         upload => upload.localID === singleMedia.id,
       );
+      if (pendingUpload && pendingUpload.failed) {
+        sendFailed = true;
+      }
       return (
         <Multimedia
           uri={singleMedia.uri}
@@ -71,9 +79,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
       );
     });
     return (
-      <div className={css.robotext}>
+      <ComposedMessage
+        item={this.props.item}
+        threadInfo={this.props.threadInfo}
+        sendFailed={sendFailed}
+      >
         <div className={css.previews}>{multimedia}</div>
-      </div>
+      </ComposedMessage>
     );
   }
 
