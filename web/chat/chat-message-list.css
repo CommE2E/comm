@@ -250,6 +250,7 @@ span.multimedia {
   align-items: center;
   justify-content: center;
   position: relative;
+  vertical-align: top;
 }
 div.previews > span.multimedia {
   margin: 10px;
