@@ -245,14 +245,16 @@ div.previews {
   overflow-x: auto;
   white-space: nowrap;
 }
-span.preview {
+span.multimedia {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 10px;
   position: relative;
 }
-span.preview > span.previewImage {
+div.previews > span.multimedia {
+  margin: 10px;
+}
+span.multimedia > span.multimediaImage {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -260,11 +262,11 @@ span.preview > span.previewImage {
   min-height: 50px;
   min-width: 50px;
 }
-span.preview > span.previewImage > img {
+span.multimedia > span.multimediaImage > img {
   max-height: 200px;
   max-width: 200px;
 }
-span.preview > span.previewImage > svg.removeUpload {
+span.multimedia > span.multimediaImage > svg.removeUpload {
   display: none;
   position: absolute;
   cursor: pointer;
@@ -275,10 +277,10 @@ span.preview > span.previewImage > svg.removeUpload {
   box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
   background-color: rgba(34,34,34,0.67);
 }
-span.preview:hover > span.previewImage > svg.removeUpload {
+span.multimedia:hover > span.multimediaImage > svg.removeUpload {
   display: inherit;
 }
-span.preview > svg.uploadError {
+span.multimedia > svg.uploadError {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -290,7 +292,7 @@ span.preview > svg.uploadError {
   box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
   background-color: #DD2222;
 }
-span.preview > svg.progressIndicator {
+span.multimedia > svg.progressIndicator {
   position: absolute;
   top: 0;
   bottom: 0;

@@ -79,8 +79,8 @@ class Multimedia extends React.PureComponent<Props> {
     }
 
     return (
-      <span className={css.preview}>
-        <span className={css.previewImage}>
+      <span className={css.multimedia}>
+        <span className={css.multimediaImage}>
           <img src={this.props.uri} />
           {removeButton}
         </span>

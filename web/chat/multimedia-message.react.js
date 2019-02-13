@@ -84,7 +84,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed}
       >
-        <div className={css.previews}>{multimedia}</div>
+        {multimedia}
       </ComposedMessage>
     );
   }
