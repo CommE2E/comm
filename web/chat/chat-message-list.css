@@ -179,8 +179,7 @@ div.content {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  margin: 0 4px 5px 12px;
-  overflow: hidden;
+  margin-bottom: 5px;
 }
 div.nonViewerContent {
   align-self: flex-start;
@@ -195,6 +194,11 @@ div.iconContainer {
 }
 div.iconContainer > svg {
   height: 16px;
+}
+
+div.messageBox {
+  margin: 0 4px 0 12px;
+  overflow: hidden;
 }
 
 div.failedSend {

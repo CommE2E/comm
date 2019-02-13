@@ -54,7 +54,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       [css.viewerContent]: isViewer,
       [css.nonViewerContent]: !isViewer,
     });
-    const contentStyle = {
+    const messageBoxStyle = {
       borderTopRightRadius:
         isViewer && !this.props.item.startsCluster ? 0 : 8,
       borderBottomRightRadius:
@@ -81,19 +81,17 @@ class ComposedMessage extends React.PureComponent<Props> {
       let deliveryIconColor = threadColor;
       if (id !== null && id !== undefined) {
         deliveryIconSpan = <CheckCircleIcon />;
+      } else if (this.props.sendFailed) {
+        deliveryIconSpan = <XCircleIcon />;
+        deliveryIconColor = "FF0000";
+        failedSendInfo = (
+          <FailedSend
+            item={this.props.item}
+            threadInfo={this.props.threadInfo}
+          />
+        );
       } else {
-        if (this.props.sendFailed) {
-          deliveryIconSpan = <XCircleIcon />;
-          deliveryIconColor = "FF0000";
-          failedSendInfo = (
-            <FailedSend
-              item={this.props.item}
-              threadInfo={this.props.threadInfo}
-            />
-          );
-        } else {
-          deliveryIconSpan = <CircleIcon />;
-        }
+        deliveryIconSpan = <CircleIcon />;
       }
       deliveryIcon = (
         <div
@@ -108,8 +106,10 @@ class ComposedMessage extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         {authorName}
-        <div className={contentClassName} style={contentStyle}>
-          {this.props.children}
+        <div className={contentClassName}>
+          <div className={css.messageBox} style={messageBoxStyle}>
+            {this.props.children}
+          </div>
           {deliveryIcon}
         </div>
         {failedSendInfo}
