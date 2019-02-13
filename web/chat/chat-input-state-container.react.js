@@ -12,7 +12,7 @@ import _memoize from 'lodash/memoize';
 import _keyBy from 'lodash/fp/keyBy';
 import _omit from 'lodash/fp/omit';
 import _flow from 'lodash/fp/flow';
-import _omitBy from 'lodash/fp/pickBy';
+import _omitBy from 'lodash/fp/omitBy';
 import _map from 'lodash/fp/map';
 import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';

@@ -61,12 +61,15 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const { localID, media } = this.props.item.messageInfo;
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]
-      : [];
+      : null;
     let sendFailed = false;
     const multimedia = media.map(singleMedia => {
-      const pendingUpload = pendingUploads.find(
-        upload => upload.localID === singleMedia.id,
-      );
+      let pendingUpload;
+      if (pendingUploads) {
+        pendingUpload = pendingUploads.find(
+          upload => upload.localID === singleMedia.id,
+        );
+      }
       if (pendingUpload && pendingUpload.failed) {
         sendFailed = true;
       }
