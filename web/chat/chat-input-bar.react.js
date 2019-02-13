@@ -379,7 +379,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.props.chatInputState.assignPendingUploads(localID);
     this.props.dispatchActionPayload(
       createLocalMultimediaMessageActionType,
-      { messageInfo },
+      messageInfo,
     );
   }
 
