@@ -85,30 +85,13 @@ class TextMessage extends React.PureComponent<Props> {
         item={this.props.item}
         threadInfo={this.props.threadInfo}
         sendFailed={!!sendFailed}
+        setMouseOver={this.props.setMouseOver}
       >
-        <div
-          className={messageClassName}
-          style={messageStyle}
-          onMouseOver={this.onMouseOver}
-          onMouseOut={this.onMouseOut}
-        >
+        <div className={messageClassName} style={messageStyle}>
           <Linkify>{text}</Linkify>
         </div>
       </ComposedMessage>
     );
-  }
-
-  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
-    const { item } = this.props;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const { top, bottom, left, right, height, width } = rect;
-    const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOver({ type: "on", item, messagePosition });
-  }
-
-  onMouseOut = () => {
-    const { item } = this.props;
-    this.props.setMouseOver({ type: "off", item });
   }
 
 }

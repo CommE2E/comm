@@ -86,6 +86,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         item={this.props.item}
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed}
+        setMouseOver={this.props.setMouseOver}
       >
         {multimedia}
       </ComposedMessage>

@@ -6,6 +6,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { assertComposableMessageType } from 'lib/types/message-types';
+import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -23,6 +24,7 @@ type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   sendFailed: bool,
+  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   children: React.Node,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
@@ -31,6 +33,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     sendFailed: PropTypes.bool.isRequired,
+    setMouseOver: PropTypes.func.isRequired,
     children: PropTypes.node.isRequired,
   };
 
@@ -107,7 +110,12 @@ class ComposedMessage extends React.PureComponent<Props> {
       <React.Fragment>
         {authorName}
         <div className={contentClassName}>
-          <div className={css.messageBox} style={messageBoxStyle}>
+          <div
+            className={css.messageBox}
+            style={messageBoxStyle}
+            onMouseOver={this.onMouseOver}
+            onMouseOut={this.onMouseOut}
+          >
             {this.props.children}
           </div>
           {deliveryIcon}
@@ -115,6 +123,19 @@ class ComposedMessage extends React.PureComponent<Props> {
         {failedSendInfo}
       </React.Fragment>
     );
+  }
+
+  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
+    const { item } = this.props;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const { top, bottom, left, right, height, width } = rect;
+    const messagePosition = { top, bottom, left, right, height, width };
+    this.props.setMouseOver({ type: "on", item, messagePosition });
+  }
+
+  onMouseOut = () => {
+    const { item } = this.props;
+    this.props.setMouseOver({ type: "off", item });
   }
 
 }
