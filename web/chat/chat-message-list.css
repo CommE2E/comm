@@ -159,7 +159,6 @@ div.messageTimestampTopRightTooltip:after {
 
 div.textMessage {
   padding: 6px 12px;
-  margin: 0 4px 0 12px;
   white-space: pre-wrap;
 }
 div.normalTextMessage {
@@ -180,7 +179,8 @@ div.content {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  margin-bottom: 5px;
+  margin: 0 4px 5px 12px;
+  overflow: hidden;
 }
 div.nonViewerContent {
   align-self: flex-start;
