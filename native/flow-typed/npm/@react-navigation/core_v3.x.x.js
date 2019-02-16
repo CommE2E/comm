@@ -1,3 +1,6 @@
+// flow-typed signature: d7b7a4cc978b332c2a63943f63ac7400
+// flow-typed version: c674c6bec3/@react-navigation/core_v3.x.x/flow_>=v0.60.x
+
 // @flow
 
 declare module '@react-navigation/core' {
@@ -22,18 +25,68 @@ declare module '@react-navigation/core' {
   declare type TextStyleProp = StyleObj;
   declare type AnimatedTextStyleProp = StyleObj;
 
-  // This one is too large to copy. Actual definition is in
-  // react-native/Libraries/Animated/src/nodes/AnimatedValue.js
-  declare type AnimatedValue = Object;
-
-  declare type HeaderForceInset = {
-    horizontal?: string,
-    vertical?: string,
-    left?: string,
-    right?: string,
-    top?: string,
-    bottom?: string,
+  // This is copied from
+  // react-native/Libraries/Animated/src/nodes/AnimatedInterpolation.js
+  declare type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+  declare type InterpolationConfigType = {
+    inputRange: Array<number>,
+    outputRange: Array<number> | Array<string>,
+    easing?: (input: number) => number,
+    extrapolate?: ExtrapolateType,
+    extrapolateLeft?: ExtrapolateType,
+    extrapolateRight?: ExtrapolateType,
   };
+  declare class AnimatedInterpolation {
+    interpolate(config: InterpolationConfigType): AnimatedInterpolation;
+  }
+
+  // This is copied from
+  // react-native/Libraries/Animated/src/animations/Animation.js
+  declare type EndResult = { finished: boolean };
+  declare type EndCallback = (result: EndResult) => void;
+  declare class Animation {
+    start(
+      fromValue: number,
+      onUpdate: (value: number) => void,
+      onEnd: ?EndCallback,
+      previousAnimation: ?Animation,
+      animatedValue: AnimatedValue,
+    ): void;
+    stop(): void;
+  }
+
+  // This is vaguely copied from
+  // react-native/Libraries/Animated/src/nodes/AnimatedTracking.js
+  declare class AnimatedTracking {
+    constructor(
+      value: AnimatedValue,
+      parent: any,
+      animationClass: any,
+      animationConfig: Object,
+      callback?: ?EndCallback,
+    ): void;
+    update(): void;
+  }
+
+  // This is vaguely copied from
+  // react-native/Libraries/Animated/src/nodes/AnimatedValue.js
+  declare type ValueListenerCallback = (state: { value: number }) => void;
+  declare class AnimatedValue {
+    constructor(value: number): void;
+    setValue(value: number): void;
+    setOffset(offset: number): void;
+    flattenOffset(): void;
+    extractOffset(): void;
+    addListener(callback: ValueListenerCallback): string;
+    removeListener(id: string): void;
+    removeAllListeners(): void;
+    stopAnimation(callback?: ?(value: number) => void): void;
+    resetAnimation(callback?: ?(value: number) => void): void;
+    interpolate(config: InterpolationConfigType): AnimatedInterpolation;
+    animate(animation: Animation, callback: ?EndCallback): void;
+    stopTracking(): void;
+    track(tracking: AnimatedTracking): void;
+  }
 
   /**
    * Next, all the type declarations
@@ -363,7 +416,7 @@ declare module '@react-navigation/core' {
     headerPressColorAndroid?: string,
     headerRight?: React$Node,
     headerStyle?: ViewStyleProp,
-    headerForceInset?: HeaderForceInset,
+    headerForceInset?: _SafeAreaViewInsets,
     headerBackground?: React$Node | React$ElementType,
     gesturesEnabled?: boolean,
     gestureResponseDistance?: { vertical?: number, horizontal?: number },
@@ -580,8 +633,8 @@ declare module '@react-navigation/core' {
     // The value that represents the progress of the transition when navigation
     // state changes from one to another. Its numeric value will range from 0
     // to 1.
-    //  progress.__getAnimatedValue() < 1 : transtion is happening.
-    //  progress.__getAnimatedValue() == 1 : transtion completes.
+    //  progress.__getAnimatedValue() < 1 : transition is happening.
+    //  progress.__getAnimatedValue() == 1 : transition completes.
     progress: AnimatedValue,
 
     // All the scenes of the transitioner.
@@ -719,6 +772,16 @@ declare module '@react-navigation/core' {
     routeConfigs: NavigationRouteConfigMap,
     config?: NavigationTabRouterConfig
   ): NavigationRouter<*, *>;
+
+  declare type _SafeAreaViewForceInsetValue = 'always' | 'never' | number;
+  declare type _SafeAreaViewInsets = $Shape<{
+    top: _SafeAreaViewForceInsetValue,
+    bottom: _SafeAreaViewForceInsetValue,
+    left: _SafeAreaViewForceInsetValue,
+    right: _SafeAreaViewForceInsetValue,
+    vertical: _SafeAreaViewForceInsetValue,
+    horizontal: _SafeAreaViewForceInsetValue,
+  }>;
 
   declare export function withNavigation<Props: {}, ComponentType: React$ComponentType<Props>>(
     Component: ComponentType
