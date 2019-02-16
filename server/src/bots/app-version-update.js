@@ -4,7 +4,6 @@ import { messageTypes } from 'lib/types/message-types';
 
 import invariant from 'invariant';
 
-import version from 'lib/facts/version';
 import bots from 'lib/facts/bots';
 import { promiseAll } from 'lib/utils/promises'
 
@@ -13,7 +12,6 @@ import { createSquadbotThread } from './squadbot';
 import createMessages from '../creators/message-creator';
 import { createBotViewer } from '../session/bots';
 
-const { currentCodeVersion } = version;
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 const { squadbot } = bots;
 
@@ -26,7 +24,16 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
         MIN(JSON_EXTRACT(c.versions, "$.codeVersion")) AS min_code_version
       FROM sessions s
       LEFT JOIN cookies c ON c.id = s.cookie
-      WHERE s.last_update > ${cutoff} AND c.platform != "web"
+      LEFT JOIN versions v ON v.platform = c.platform AND v.code_version = (
+        SELECT MAX(code_version)
+        FROM versions
+        WHERE platform = c.platform AND deploy_time IS NOT NULL
+      )
+      WHERE s.last_update > ${cutoff}
+        AND c.platform != "web"
+        AND v.id IS NOT NULL
+        AND JSON_EXTRACT(c.versions, "$.codeVersion") IS NOT NULL
+        AND v.code_version > JSON_EXTRACT(c.versions, "$.codeVersion")
       GROUP BY s.user
     ) x
     LEFT JOIN (
@@ -40,7 +47,6 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
       WHERE m1.user IS NOT NULL AND m2.user IS NOT NULL
       GROUP BY t.id, m1.user
     ) t ON t.user = x.user AND t.user_count = 2
-    WHERE x.min_code_version < ${currentCodeVersion}
     GROUP BY x.user, x.min_code_version
   `;
   const [ result ] = await dbQuery(query);

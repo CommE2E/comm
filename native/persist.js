@@ -9,7 +9,6 @@ import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 
-import version from 'lib/facts/version';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 
 import { nativeCalendarQuery } from './selectors/nav-selectors';
@@ -127,7 +126,7 @@ const persistConfig = {
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
-const codeVersion = version.currentCodeVersion;
+const codeVersion = 28;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
