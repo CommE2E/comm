@@ -81,18 +81,26 @@ class MultimediaMessage extends React.PureComponent<Props> {
         />
       );
     });
+    invariant(
+      multimedia.length > 0,
+      "should be at least one multimedia...",
+    );
+    const content = multimedia.length > 1
+      ? <div className={css.imageGrid}>{multimedia}</div>
+      : multimedia;
+    const className = multimedia.length > 1
+      ? css.fullWidthMessageBox
+      : css.halfWidthMessageBox;
     return (
       <ComposedMessage
         item={this.props.item}
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed}
         setMouseOver={this.props.setMouseOver}
-        className={css.fullWidthMessageBox}
+        className={className}
         borderRadius={16}
       >
-        <div className={css.imageGrid}>
-          {multimedia}
-        </div>
+        {content}
       </ComposedMessage>
     );
   }

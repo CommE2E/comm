@@ -210,6 +210,9 @@ div.messageBox {
 div.fullWidthMessageBox {
   width: 100%;
 }
+div.halfWidthMessageBox {
+  max-width: 50%;
+}
 
 div.failedSend {
   text-transform: uppercase;
@@ -336,6 +339,14 @@ div.messageBox > div.imageGrid {
   grid-template-columns: repeat(6, 1fr);
   grid-gap: 5px;
 }
+div.messageBox span.multimedia > span.multimediaImage {
+  min-height: initial;
+  min-width: initial;
+}
+div.messageBox span.multimedia > span.multimediaImage > img {
+  max-height: initial;
+}
+
 div.imageGrid > span.multimedia {
   grid-column-end: span 3;
 }
@@ -354,7 +365,6 @@ div.imageGrid > span.multimedia > span.multimediaImage > img {
   position: absolute;
   width: 100%;
   height: 100%;
-  max-height: initial;
   object-fit: cover;
 }
 
