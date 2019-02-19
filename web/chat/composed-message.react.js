@@ -27,6 +27,7 @@ type Props = {|
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   children: React.Node,
   className?: string,
+  borderRadius: number,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
 
@@ -37,6 +38,10 @@ class ComposedMessage extends React.PureComponent<Props> {
     setMouseOver: PropTypes.func.isRequired,
     children: PropTypes.node.isRequired,
     className: PropTypes.string,
+    borderRadius: PropTypes.number.isRequired,
+  };
+  static defaultProps = {
+    borderRadius: 8,
   };
 
   constructor(props: Props) {
@@ -50,8 +55,9 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { id, creator } = this.props.item.messageInfo;
-    const threadColor = this.props.threadInfo.color;
+    const { borderRadius, item, threadInfo } = this.props;
+    const { id, creator } = item.messageInfo;
+    const threadColor = threadInfo.color;
 
     const { isViewer } = creator;
     const contentClassName = classNames({
@@ -61,17 +67,17 @@ class ComposedMessage extends React.PureComponent<Props> {
     });
     const messageBoxStyle = {
       borderTopRightRadius:
-        isViewer && !this.props.item.startsCluster ? 0 : 8,
+        isViewer && !item.startsCluster ? 0 : borderRadius,
       borderBottomRightRadius:
-        isViewer && !this.props.item.endsCluster ? 0 : 8,
+        isViewer && !item.endsCluster ? 0 : borderRadius,
       borderTopLeftRadius:
-        !isViewer && !this.props.item.startsCluster ? 0 : 8,
+        !isViewer && !item.startsCluster ? 0 : borderRadius,
       borderBottomLeftRadius:
-        !isViewer && !this.props.item.endsCluster ? 0 : 8,
+        !isViewer && !item.endsCluster ? 0 : borderRadius,
     };
 
     let authorName = null;
-    if (!isViewer && this.props.item.startsCluster) {
+    if (!isViewer && item.startsCluster) {
       authorName = (
         <span className={css.authorName}>
           {stringForUser(creator)}
@@ -91,8 +97,8 @@ class ComposedMessage extends React.PureComponent<Props> {
         deliveryIconColor = "FF0000";
         failedSendInfo = (
           <FailedSend
-            item={this.props.item}
-            threadInfo={this.props.threadInfo}
+            item={item}
+            threadInfo={threadInfo}
           />
         );
       } else {

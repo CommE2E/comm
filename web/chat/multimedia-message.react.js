@@ -88,6 +88,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         sendFailed={sendFailed}
         setMouseOver={this.props.setMouseOver}
         className={css.fullWidthMessageBox}
+        borderRadius={16}
       >
         <div className={css.imageGrid}>
           {multimedia}
