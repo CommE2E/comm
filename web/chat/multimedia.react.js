@@ -17,7 +17,7 @@ import css from './chat-message-list.css';
 
 type Props = {|
   uri: string,
-  pendingUpload?: PendingMultimediaUpload,
+  pendingUpload?: ?PendingMultimediaUpload,
   remove?: (uploadID: string) => void,
 |};
 class Multimedia extends React.PureComponent<Props> {

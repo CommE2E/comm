@@ -330,22 +330,27 @@ span.multimedia > svg.progressIndicator {
   stroke: transparent !important;
 }
 
-div.messageBox > span.multimedia {
-  flex: 0 0 49.75%;
-  margin-top: 2px;
+div.messageBox > div.imageGrid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 5px;
 }
-div.messageBox > span.multimedia:first-child {
+div.imageGrid > span.multimedia {
+  grid-column-end: span 3;
+}
+div.imageGrid > span.multimedia:first-child {
   margin-top: 0;
 }
-div.messageBox > span.multimedia > span.multimediaImage {
+div.imageGrid > span.multimedia > span.multimediaImage {
   flex: 1;
 }
-div.messageBox > span.multimedia > span.multimediaImage:after {
+div.imageGrid > span.multimedia > span.multimediaImage:after {
   content: "";
   display: block;
   padding-bottom: 100%;
 }
-div.messageBox > span.multimedia > span.multimediaImage > img {
+div.imageGrid > span.multimedia > span.multimediaImage > img {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -353,18 +358,15 @@ div.messageBox > span.multimedia > span.multimediaImage > img {
   object-fit: cover;
 }
 
-div.messageBox > span.multimedia:nth-last-child(n+3):first-child,
-div.messageBox > span.multimedia:nth-last-child(n+3):first-child ~ * {
-  flex-basis: 33%;
+div.imageGrid > span.multimedia:nth-last-child(n+3):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n+3):first-child ~ * {
+  grid-column-end: span 2;
 }
-div.messageBox > span.multimedia:nth-last-child(n+4):first-child,
-div.messageBox > span.multimedia:nth-last-child(n+4):first-child ~ * {
-  flex-basis: 49.75%;
+div.imageGrid > span.multimedia:nth-last-child(n+4):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n+4):first-child ~ * {
+  grid-column-end: span 3;
 }
-div.messageBox > span.multimedia:nth-last-child(n+5):first-child,
-div.messageBox > span.multimedia:nth-last-child(n+5):first-child ~ * {
-  flex-basis: 33%;
-}
-div.messageBox > span.multimedia:nth-child(5):last-child {
-  margin-right: auto;
+div.imageGrid > span.multimedia:nth-last-child(n+5):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n+5):first-child ~ * {
+  grid-column-end: span 2;
 }

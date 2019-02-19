@@ -89,7 +89,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
         className={css.fullWidthMessageBox}
       >
-        {multimedia}
+        <div className={css.imageGrid}>
+          {multimedia}
+        </div>
       </ComposedMessage>
     );
   }
