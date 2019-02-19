@@ -26,6 +26,7 @@ type Props = {|
   sendFailed: bool,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   children: React.Node,
+  className?: string,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
 
@@ -35,6 +36,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     sendFailed: PropTypes.bool.isRequired,
     setMouseOver: PropTypes.func.isRequired,
     children: PropTypes.node.isRequired,
+    className: PropTypes.string,
   };
 
   constructor(props: Props) {
@@ -111,7 +113,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         {authorName}
         <div className={contentClassName}>
           <div
-            className={css.messageBox}
+            className={classNames(css.messageBox, this.props.className)}
             style={messageBoxStyle}
             onMouseOver={this.onMouseOver}
             onMouseOut={this.onMouseOut}

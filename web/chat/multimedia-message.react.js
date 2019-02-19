@@ -87,6 +87,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed}
         setMouseOver={this.props.setMouseOver}
+        className={css.fullWidthMessageBox}
       >
         {multimedia}
       </ComposedMessage>

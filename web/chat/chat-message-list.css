@@ -180,14 +180,18 @@ div.content {
   flex-shrink: 0;
   align-items: center;
   margin-bottom: 5px;
+  box-sizing: border-box;
+  width: 100%;
 }
 div.nonViewerContent {
   align-self: flex-start;
-  margin-right: 8px;
+  justify-content: flex-start;
+  padding-right: 8px;
 }
 div.viewerContent {
   align-self: flex-end;
-  margin-right: 4px;
+  justify-content: flex-end;
+  padding-right: 4px;
 }
 div.iconContainer {
   margin-right: 1px;
@@ -199,6 +203,12 @@ div.iconContainer > svg {
 div.messageBox {
   margin: 0 4px 0 12px;
   overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+div.fullWidthMessageBox {
+  width: 100%;
 }
 
 div.failedSend {
@@ -263,9 +273,13 @@ span.multimedia > span.multimediaImage {
   min-height: 50px;
   min-width: 50px;
 }
-span.multimedia > span.multimediaImage > img {
+div.previews > span.multimedia > span.multimediaImage > img {
   max-height: 200px;
   max-width: 200px;
+}
+span.multimedia > span.multimediaImage > img {
+  max-height: 200px;
+  max-width: 100%;
 }
 span.multimedia > span.multimediaImage > svg.removeUpload {
   display: none;
@@ -314,4 +328,43 @@ span.multimedia > svg.progressIndicator {
 }
 :global(.CircularProgressbar-trail) {
   stroke: transparent !important;
+}
+
+div.messageBox > span.multimedia {
+  flex: 0 0 49.75%;
+  margin-top: 2px;
+}
+div.messageBox > span.multimedia:first-child {
+  margin-top: 0;
+}
+div.messageBox > span.multimedia > span.multimediaImage {
+  flex: 1;
+}
+div.messageBox > span.multimedia > span.multimediaImage:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+div.messageBox > span.multimedia > span.multimediaImage > img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  max-height: initial;
+  object-fit: cover;
+}
+
+div.messageBox > span.multimedia:nth-last-child(n+3):first-child,
+div.messageBox > span.multimedia:nth-last-child(n+3):first-child ~ * {
+  flex-basis: 33%;
+}
+div.messageBox > span.multimedia:nth-last-child(n+4):first-child,
+div.messageBox > span.multimedia:nth-last-child(n+4):first-child ~ * {
+  flex-basis: 49.75%;
+}
+div.messageBox > span.multimedia:nth-last-child(n+5):first-child,
+div.messageBox > span.multimedia:nth-last-child(n+5):first-child ~ * {
+  flex-basis: 33%;
+}
+div.messageBox > span.multimedia:nth-child(5):last-child {
+  margin-right: auto;
 }
