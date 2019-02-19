@@ -192,7 +192,7 @@ class Calendar extends React.PureComponent<Props, State> {
             </a>
             <h2 className={css.nav}>
               <a
-                className={css.previousMonthLink}
+                className={css.monthLink}
                 href={prevURL}
                 onClick={this.onClickPrevURL}
               >
@@ -206,7 +206,7 @@ class Calendar extends React.PureComponent<Props, State> {
                 {" "}
               </div>
               <a
-                className={css.nextMonthLink}
+                className={css.monthLink}
                 href={nextURL}
                 onClick={this.onClickNextURL}
               >

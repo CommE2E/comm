@@ -10,6 +10,7 @@ a.filtersButton {
   font-size: 16px;
   cursor: pointer;
   text-transform: uppercase;
+  position: absolute;
 }
 a.filtersButton > svg {
   padding-right: 5px;
@@ -22,16 +23,13 @@ div.content {
 h2.nav {
   font-family: 'Anaheim', sans-serif;
   text-align: center;
-  margin: 8px auto 0px auto;
-  width: 200px;
+  margin: 8px auto 12px auto;
+  width: 250px;
   color: #333333;
+  display: flex;
+  justify-content: space-between;
 }
-h2.nav > a.previousMonthLink {
-  margin-left: -100px;
-  color: #036AFF;
-}
-h2.nav > a.nextMonthLink {
-  margin-right: -100px;
+h2.nav > a.monthLink {
   color: #036AFF;
 }
 h2.nav > div.monthName {
