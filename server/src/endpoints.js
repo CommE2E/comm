@@ -6,6 +6,7 @@ import type { Endpoint } from 'lib/types/endpoints';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
+  multimediaMessageCreationResponder,
 } from './responders/message-responders';
 import { updateActivityResponder } from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
@@ -86,6 +87,7 @@ const jsonEndpoints: {[id: Endpoint]: JSONResponder} = {
   'request_access': requestAccessResponder,
   'update_calendar_query': calendarQueryUpdateResponder,
   'delete_upload': uploadDeletionResponder,
+  'create_multimedia_message': multimediaMessageCreationResponder,
 };
 
 export {

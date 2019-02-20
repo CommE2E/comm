@@ -5,6 +5,7 @@ import {
   messageTypes,
   type MessageData,
   type SendTextMessageRequest,
+  type SendMultimediaMessageRequest,
   type FetchMessageInfosResult,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
@@ -21,13 +22,13 @@ import createMessages from '../creators/message-creator';
 import { validateInput, tShape } from '../utils/validation-utils';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchMedia } from '../fetchers/upload-fetchers';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
   localID: t.maybe(t.String),
   text: t.String,
 });
-
 async function textMessageCreationResponder(
   viewer: Viewer,
   input: any,
@@ -83,7 +84,56 @@ async function messageFetchResponder(
   );
 }
 
+const sendMultimediaMessageRequestInputValidator = tShape({
+  threadID: t.String,
+  localID: t.String,
+  mediaIDs: t.list(t.String),
+});
+async function multimediaMessageCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SendMessageResponse> {
+  const request: SendMultimediaMessageRequest = input;
+  await validateInput(
+    viewer,
+    sendMultimediaMessageRequestInputValidator,
+    request,
+  );
+
+  const { threadID, localID, mediaIDs } = request;
+  if (mediaIDs.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    threadID,
+    threadPermissions.VOICED,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const media = await fetchMedia(viewer, mediaIDs);
+  if (media.length !== mediaIDs.length) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messageData = {
+    type: messageTypes.MULTIMEDIA,
+    localID,
+    threadID,
+    creatorID: viewer.id,
+    time: Date.now(),
+    media,
+  };
+  const rawMessageInfos = await createMessages(viewer, [messageData]);
+
+  return { newMessageInfo: rawMessageInfos[0] };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
+  multimediaMessageCreationResponder,
 };
