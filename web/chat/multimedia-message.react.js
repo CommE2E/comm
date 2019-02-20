@@ -4,13 +4,19 @@ import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
+import {
+  messageTypes,
+  type SendMessageResult,
+  type RawMultimediaMessageInfo,
+} from 'lib/types/message-types';
 import {
   chatInputStatePropType,
   type ChatInputState,
 } from './chat-input-state';
 import type { MessagePositionInfo } from './message.react';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { AppState } from '../redux-setup';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -18,6 +24,12 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { connect } from 'lib/utils/redux-utils';
+import {
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
+} from 'lib/actions/message-actions';
+import { messageID } from 'lib/shared/message-utils';
 
 import css from './chat-message-list.css';
 import Multimedia from './multimedia.react';
@@ -28,6 +40,16 @@ type Props = {|
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
+  // Redux state
+  rawMessageInfo: RawMultimediaMessageInfo,
+  // Redux dispatch functions
+  dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  sendMultimediaMessage: (
+    threadID: string,
+    localID: string,
+    mediaIDs: $ReadOnlyArray<string>,
+  ) => Promise<SendMessageResult>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
@@ -36,6 +58,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
+    rawMessageInfo: PropTypes.object.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    sendMultimediaMessage: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -43,6 +68,19 @@ class MultimediaMessage extends React.PureComponent<Props> {
     invariant(
       props.item.messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+    );
+  }
+
+  componentDidMount() {
+    const { rawMessageInfo } = this.props;
+    if (rawMessageInfo.id) {
+      return;
+    }
+    this.props.dispatchActionPromise(
+      sendMultimediaMessageActionTypes,
+      this.sendMultimediaMessageAction(rawMessageInfo),
+      undefined,
+      rawMessageInfo,
     );
   }
 
@@ -105,6 +143,47 @@ class MultimediaMessage extends React.PureComponent<Props> {
     );
   }
 
+  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+    try {
+      const { localID } = messageInfo;
+      invariant(
+        localID !== null && localID !== undefined,
+        "localID should be set",
+      );
+      const result = await this.props.sendMultimediaMessage(
+        messageInfo.threadID,
+        localID,
+        messageInfo.media.map(({ id }) => id),
+      );
+      return {
+        localID,
+        serverID: result.id,
+        threadID: messageInfo.threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = messageInfo.localID;
+      e.threadID = messageInfo.threadID;
+      throw e;
+    }
+  }
+
 }
 
-export default MultimediaMessage;
+export default connect(
+  (state: AppState, ownProps: { item: ChatMessageInfoItem }) => {
+    const { messageInfo } = ownProps.item;
+    invariant(
+      messageInfo.type === messageTypes.MULTIMEDIA,
+      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+    );
+    const id = messageID(messageInfo);
+    const rawMessageInfo = state.messageStore.messages[id];
+    invariant(
+      rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+    );
+    return { rawMessageInfo };
+  },
+  { sendMultimediaMessage },
+)(MultimediaMessage);
