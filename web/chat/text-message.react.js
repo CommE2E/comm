@@ -76,7 +76,7 @@ class TextMessage extends React.PureComponent<Props> {
 
     const sendFailed =
       isViewer &&
-      id !== null && id !== undefined &&
+      (id === null || id === undefined) &&
       this.props.item.localMessageInfo &&
       this.props.item.localMessageInfo.sendFailed;
 

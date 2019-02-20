@@ -97,6 +97,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         setDraft: (draft: string) => this.setDraft(threadID, draft),
         setProgress: (localUploadID: string, percent: number) =>
           this.setProgress(threadID, localUploadID, percent),
+        messageHasUploadFailure: (localMessageID: string) =>
+          this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
       };
     },
   ));
@@ -437,6 +439,15 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         },
       };
     });
+  }
+
+  messageHasUploadFailure(
+    pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
+  ) {
+    if (!pendingUploads) {
+      return false;
+    }
+    return pendingUploads.some(upload => upload.failed);
   }
 
   render() {

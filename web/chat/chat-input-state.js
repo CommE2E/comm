@@ -49,6 +49,7 @@ export type ChatInputState = {|
   assignPendingUploads: (localMessageID: string) => void,
   setDraft: (draft: string) => void,
   setProgress: (localUploadID: string, percent: number) => void,
+  messageHasUploadFailure: (localMessageID: string) => bool,
 |};
 const arrayOfUploadsPropType =
   PropTypes.arrayOf(pendingMultimediaUploadPropType);
@@ -61,4 +62,5 @@ export const chatInputStatePropType = PropTypes.shape({
   assignPendingUploads: PropTypes.func.isRequired,
   setDraft: PropTypes.func.isRequired,
   setProgress: PropTypes.func.isRequired,
+  messageHasUploadFailure: PropTypes.func.isRequired,
 });

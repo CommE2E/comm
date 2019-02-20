@@ -63,15 +63,22 @@ class MultimediaMessage extends React.PureComponent<Props> {
     sendMultimediaMessage: PropTypes.func.isRequired,
   };
 
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      props.item.messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
-    );
+  componentDidMount() {
+    if (MultimediaMessage.multimediaUploadComplete(this.props)) {
+      this.sendMultimediaMessage();
+    }
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps: Props) {
+    if (
+      !MultimediaMessage.multimediaUploadComplete(prevProps) &&
+      MultimediaMessage.multimediaUploadComplete(this.props)
+    ) {
+      this.sendMultimediaMessage();
+    }
+  }
+
+  sendMultimediaMessage() {
     const { rawMessageInfo } = this.props;
     if (rawMessageInfo.id) {
       return;
@@ -84,33 +91,69 @@ class MultimediaMessage extends React.PureComponent<Props> {
     );
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  static multimediaUploadComplete(props: Props) {
+    const { messageInfo } = props.item;
     invariant(
-      nextProps.item.messageInfo.type === messageTypes.MULTIMEDIA,
+      messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
     );
+    if (messageInfo.id) {
+      return true;
+    }
+    if (MultimediaMessage.multimediaUploadFailed(props)) {
+      return false;
+    }
+    const { localID, media } = messageInfo;
+    const pendingUploads = localID
+      ? props.chatInputState.assignedUploads[localID]
+      : null;
+    if (!pendingUploads) {
+      return true;
+    }
+    return messageInfo.media.every(media => {
+      const pendingUpload = pendingUploads.find(
+        upload => upload.localID === media.id,
+      );
+      return !pendingUpload || pendingUpload.serverID;
+    });
+  }
+
+  static multimediaUploadFailed(props: Props) {
+    const { messageInfo } = props.item;
+    invariant(
+      messageInfo.type === messageTypes.MULTIMEDIA,
+      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+    );
+    const { id, localID, media } = messageInfo;
+    if (id) {
+      return false;
+    }
+    invariant(localID, "localID should be set if serverID is not");
+    return props.chatInputState.messageHasUploadFailure(localID);
   }
 
   render() {
+    const { item } = this.props;
     invariant(
-      this.props.item.messageInfo.type === messageTypes.MULTIMEDIA,
+      item.messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
     );
-    const { localID, media } = this.props.item.messageInfo;
+    const { id, localID, media } = item.messageInfo;
+    const { isViewer } = item.messageInfo.creator;
+
+    const sendFailed =
+      isViewer &&
+      (id === null || id === undefined) &&
+      (MultimediaMessage.multimediaUploadFailed(this.props) ||
+        (item.localMessageInfo && item.localMessageInfo.sendFailed));
+
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]
       : null;
-    let sendFailed = false;
     const multimedia = media.map(singleMedia => {
-      let pendingUpload;
-      if (pendingUploads) {
-        pendingUpload = pendingUploads.find(
-          upload => upload.localID === singleMedia.id,
-        );
-      }
-      if (pendingUpload && pendingUpload.failed) {
-        sendFailed = true;
-      }
+      const pendingUpload = pendingUploads
+        ? pendingUploads.find(upload => upload.localID === singleMedia.id)
+        : null;
       return (
         <Multimedia
           uri={singleMedia.uri}
@@ -119,6 +162,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         />
       );
     });
+
     invariant(
       multimedia.length > 0,
       "should be at least one multimedia...",
@@ -129,11 +173,12 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const className = multimedia.length > 1
       ? css.fullWidthMessageBox
       : css.halfWidthMessageBox;
+
     return (
       <ComposedMessage
-        item={this.props.item}
+        item={item}
         threadInfo={this.props.threadInfo}
-        sendFailed={sendFailed}
+        sendFailed={!!sendFailed}
         setMouseOver={this.props.setMouseOver}
         className={className}
         borderRadius={16}
