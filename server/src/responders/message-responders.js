@@ -14,6 +14,7 @@ import {
 } from 'lib/types/message-types';
 
 import t from 'tcomb';
+import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -23,6 +24,7 @@ import { validateInput, tShape } from '../utils/validation-utils';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
+import { assignMedia } from '../updaters/upload-updaters';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
@@ -127,9 +129,16 @@ async function multimediaMessageCreationResponder(
     time: Date.now(),
     media,
   };
-  const rawMessageInfos = await createMessages(viewer, [messageData]);
+  const [ newMessageInfo ] = await createMessages(viewer, [messageData]);
 
-  return { newMessageInfo: rawMessageInfos[0] };
+  const { id } = newMessageInfo;
+  invariant(
+    id !== null && id !== undefined,
+    "serverID should be set in createMessages result",
+  );
+  await assignMedia(viewer, mediaIDs, id);
+
+  return { newMessageInfo };
 }
 
 export {
