@@ -9,9 +9,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
-import urlFacts from '../../facts/url';
-
-const { baseDomain, basePath } = urlFacts;
+import { getUploadURL } from '../fetchers/upload-fetchers';
 
 type UploadInput = {|
   name: string,
@@ -49,10 +47,6 @@ async function createUploads(
     id: row[0],
     uri: getUploadURL(row[0], row[6]),
   }));
-}
-
-function getUploadURL(id: string, secret: string) {
-  return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 
 export default createUploads;
