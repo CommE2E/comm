@@ -30,6 +30,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchUserInfos } from './user-fetchers';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
+import { getUploadURL } from './upload-fetchers';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -95,9 +96,13 @@ async function fetchCollapsableNotifs(
   const collapseQuery = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions, n.user, n.collapse_key
+      stm.permissions AS subthread_permissions, n.user, n.collapse_key,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
+    LEFT JOIN uploads up
+      ON m.type = ${messageTypes.MULTIMEDIA}
+        AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN memberships stm
       ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -110,14 +115,13 @@ async function fetchCollapsableNotifs(
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
   const [ collapseResult ] = await dbQuery(collapseQuery);
 
-  const userInfos = {};
-  for (let row of collapseResult) {
-    userInfos[row.creatorID] = { id: row.creatorID, username: row.creator };
-    const rawMessageInfo = rawMessageInfoFromRow(row);
-    if (rawMessageInfo) {
-      const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
-      info.existingMessageInfos.push(rawMessageInfo);
-    }
+  const { userInfos, messages } = parseMessageSQLResult(collapseResult);
+
+  for (let message of messages) {
+    const { rawMessageInfo, rows } = message;
+    const [ row ] = rows;
+    const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
+    info.existingMessageInfos.push(rawMessageInfo);
   }
 
   for (let userID in usersToCollapseKeysToInfo) {
@@ -135,12 +139,73 @@ async function fetchCollapsableNotifs(
   return { usersToCollapsableNotifInfo, userInfos };
 }
 
-function rawMessageInfoFromRow(
-  row: Object,
+type MessageSQLResult = {|
+  messages: $ReadOnlyArray<{|
+    rawMessageInfo: RawMessageInfo,
+    rows: $ReadOnlyArray<Object>,
+  |}>,
+  userInfos: UserInfos,
+|};
+function parseMessageSQLResult(
+  rows: $ReadOnlyArray<Object>,
+): MessageSQLResult {
+  const userInfos = {}, rowsByID = new Map();
+  for (let row of rows) {
+    const creatorID = row.creatorID.toString();
+    userInfos[creatorID] = {
+      id: creatorID,
+      username: row.creator,
+    };
+    const id = row.id.toString();
+    const currentRowsForID = rowsByID.get(id);
+    if (currentRowsForID) {
+      currentRowsForID.push(row);
+    } else {
+      rowsByID.set(id, [ row ]);
+    }
+  }
+
+  const messages = [];
+  for (let messageRows of rowsByID.values()) {
+    const rawMessageInfo = rawMessageInfoFromRows(messageRows);
+    if (rawMessageInfo) {
+      messages.push({ rawMessageInfo, rows: messageRows });
+    }
+  }
+
+  return { messages, userInfos };
+}
+
+function assertSingleRow(
+  rows: $ReadOnlyArray<Object>,
+): Object {
+  if (rows.length === 0) {
+    throw new Error("expected single row, but none present!");
+  } else if (rows.length !== 1) {
+    const messageIDs = rows.map(row => row.id.toString());
+    console.log(
+      `expected single row, but there are multiple! ${messageIDs.join(", ")}`,
+    );
+  }
+  return rows[0];
+}
+
+function mostRecentRowType(
+  rows: $ReadOnlyArray<Object>,
+): MessageType {
+  if (rows.length === 0) {
+    throw new Error("expected row, but none present!");
+  }
+  return assertMessageType(rows[0].type);
+}
+
+function rawMessageInfoFromRows(
+  rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
 ): ?RawMessageInfo {
-  const type = assertMessageType(row.type);
+  const type = mostRecentRowType(rows);
   if (type === messageTypes.TEXT) {
+    const row = assertSingleRow(rows);
     const rawTextMessageInfo: RawTextMessageInfo = {
       type: messageTypes.TEXT,
       id: row.id.toString(),
@@ -155,6 +220,7 @@ function rawMessageInfoFromRow(
     }
     return rawTextMessageInfo;
   } else if (type === messageTypes.CREATE_THREAD) {
+    const row = assertSingleRow(rows);
     const dbInitialThreadState = JSON.parse(row.content);
     // For legacy clients before the rename
     const initialThreadState = {
@@ -170,6 +236,7 @@ function rawMessageInfoFromRow(
       initialThreadState,
     };
   } else if (type === messageTypes.ADD_MEMBERS) {
+    const row = assertSingleRow(rows);
     return {
       type: messageTypes.ADD_MEMBERS,
       id: row.id.toString(),
@@ -179,6 +246,7 @@ function rawMessageInfoFromRow(
       addedUserIDs: JSON.parse(row.content),
     };
   } else if (type === messageTypes.CREATE_SUB_THREAD) {
+    const row = assertSingleRow(rows);
     const subthreadPermissions = row.subthread_permissions;
     if (!permissionLookup(subthreadPermissions, threadPermissions.KNOW_OF)) {
       return null;
@@ -192,6 +260,7 @@ function rawMessageInfoFromRow(
       childThreadID: row.content,
     };
   } else if (type === messageTypes.CHANGE_SETTINGS) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     const field = Object.keys(content)[0];
     return {
@@ -204,6 +273,7 @@ function rawMessageInfoFromRow(
       value: content[field],
     };
   } else if (type === messageTypes.REMOVE_MEMBERS) {
+    const row = assertSingleRow(rows);
     return {
       type: messageTypes.REMOVE_MEMBERS,
       id: row.id.toString(),
@@ -213,6 +283,7 @@ function rawMessageInfoFromRow(
       removedUserIDs: JSON.parse(row.content),
     };
   } else if (type === messageTypes.CHANGE_ROLE) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     return {
       type: messageTypes.CHANGE_ROLE,
@@ -224,6 +295,7 @@ function rawMessageInfoFromRow(
       newRole: content.newRole,
     };
   } else if (type === messageTypes.LEAVE_THREAD) {
+    const row = assertSingleRow(rows);
     return {
       type: messageTypes.LEAVE_THREAD,
       id: row.id.toString(),
@@ -232,6 +304,7 @@ function rawMessageInfoFromRow(
       creatorID: row.creatorID.toString(),
     };
   } else if (type === messageTypes.JOIN_THREAD) {
+    const row = assertSingleRow(rows);
     return {
       type: messageTypes.JOIN_THREAD,
       id: row.id.toString(),
@@ -240,6 +313,7 @@ function rawMessageInfoFromRow(
       creatorID: row.creatorID.toString(),
     };
   } else if (type === messageTypes.CREATE_ENTRY) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     return {
       type: messageTypes.CREATE_ENTRY,
@@ -252,6 +326,7 @@ function rawMessageInfoFromRow(
       text: content.text,
     };
   } else if (type === messageTypes.EDIT_ENTRY) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     return {
       type: messageTypes.EDIT_ENTRY,
@@ -264,6 +339,7 @@ function rawMessageInfoFromRow(
       text: content.text,
     };
   } else if (type === messageTypes.DELETE_ENTRY) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     return {
       type: messageTypes.DELETE_ENTRY,
@@ -276,6 +352,7 @@ function rawMessageInfoFromRow(
       text: content.text,
     };
   } else if (type === messageTypes.RESTORE_ENTRY) {
+    const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     return {
       type: messageTypes.RESTORE_ENTRY,
@@ -286,6 +363,28 @@ function rawMessageInfoFromRow(
       entryID: content.entryID,
       date: content.date,
       text: content.text,
+    };
+  } else if (type === messageTypes.MULTIMEDIA) {
+    const media = [];
+    for (let row of rows) {
+      if (!row.uploadID) {
+        continue;
+      }
+      const uploadID = row.uploadID.toString();
+      media.push({
+        id: uploadID,
+        uri: getUploadURL(uploadID, row.uploadSecret),
+        type: row.uploadType,
+      });
+    }
+    const [ row ] = rows;
+    return {
+      type: messageTypes.MULTIMEDIA,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      media,
     };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
@@ -307,13 +406,17 @@ async function fetchMessageInfos(
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
         x.creation, u.username AS creator, x.subthread_permissions,
+        x.uploadID, x.uploadType, x.uploadSecret,
         @num := if(@thread = x.thread, @num + 1, 1) AS number,
         @thread := x.thread AS threadID
       FROM (SELECT @num := 0, @thread := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
-          m.creation, stm.permissions AS subthread_permissions
+          m.creation, stm.permissions AS subthread_permissions,
+          up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
         FROM messages m
+        LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+          AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
         LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -330,20 +433,14 @@ async function fetchMessageInfos(
   `);
   const [ result ] = await dbQuery(query);
 
+  const { userInfos, messages } = parseMessageSQLResult(result);
+
   const rawMessageInfos = [];
-  const userInfos = {};
   const threadToMessageCount = new Map();
-  for (let row of result) {
-    const creatorID = row.creatorID.toString();
-    userInfos[creatorID] = {
-      id: creatorID,
-      username: row.creator,
-    };
-    const rawMessageInfo = rawMessageInfoFromRow(row, viewer);
-    if (rawMessageInfo) {
-      rawMessageInfos.push(rawMessageInfo);
-    }
-    const threadID = row.threadID.toString();
+  for (let message of messages) {
+    const { rawMessageInfo } = message;
+    rawMessageInfos.push(rawMessageInfo);
+    const { threadID } = rawMessageInfo;
     const currentCountValue = threadToMessageCount.get(threadID);
     const currentCount = currentCountValue ? currentCountValue : 0;
     threadToMessageCount.set(threadID, currentCount + 1);
@@ -476,8 +573,11 @@ async function fetchMessageInfosSince(
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       m.creation, u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions
+      stm.permissions AS subthread_permissions,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
     FROM messages m
+    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
@@ -491,12 +591,18 @@ async function fetchMessageInfosSince(
   `);
   const [ result ] = await dbQuery(query);
 
+  const {
+    userInfos: allCreatorUserInfos,
+    messages,
+  } = parseMessageSQLResult(result);
+
   const rawMessageInfos = [];
   const userInfos = {};
   let currentThreadID = null;
   let numMessagesForCurrentThreadID = 0;
-  for (let row of result) {
-    const threadID = row.threadID.toString();
+  for (let message of messages) {
+    const { rawMessageInfo } = message;
+    const { threadID } = rawMessageInfo;
     if (threadID !== currentThreadID) {
       currentThreadID = threadID;
       numMessagesForCurrentThreadID = 1;
@@ -505,19 +611,16 @@ async function fetchMessageInfosSince(
       numMessagesForCurrentThreadID++;
     }
     if (numMessagesForCurrentThreadID <= maxNumberPerThread) {
-      if (row.type === messageTypes.CREATE_THREAD) {
+      if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
         // If a CREATE_THREAD message is here, then we have all messages
         truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
       }
-      const creatorID = row.creatorID.toString();
-      userInfos[creatorID] = {
-        id: creatorID,
-        username: row.creator,
-      };
-      const rawMessageInfo = rawMessageInfoFromRow(row, viewer);
-      if (rawMessageInfo) {
-        rawMessageInfos.push(rawMessageInfo);
+      const { creatorID } = rawMessageInfo;
+      const userInfo = allCreatorUserInfos[creatorID];
+      if (userInfo) {
+        userInfos[creatorID] = userInfo;
       }
+      rawMessageInfos.push(rawMessageInfo);
     } else if (numMessagesForCurrentThreadID === maxNumberPerThread + 1) {
       truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
     }
@@ -568,8 +671,11 @@ async function fetchMessageInfoForLocalID(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
-      m.user AS creatorID, stm.permissions AS subthread_permissions
+      m.user AS creatorID, stm.permissions AS subthread_permissions,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
     FROM messages m
+    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
@@ -581,7 +687,7 @@ async function fetchMessageInfoForLocalID(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRow(result[0], viewer);
+  return rawMessageInfoFromRows(result, viewer);
 }
 
 const entryIDExtractString = "$.entryID";
@@ -594,8 +700,11 @@ async function fetchMessageInfoForEntryAction(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
-      m.user AS creatorID
+      m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
+      up.secret AS uploadSecret
     FROM messages m
+    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
       m.type = ${messageType} AND
@@ -607,7 +716,7 @@ async function fetchMessageInfoForEntryAction(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRow(result[0], viewer);
+  return rawMessageInfoFromRows(result, viewer);
 }
 
 export {
