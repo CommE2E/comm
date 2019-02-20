@@ -2,6 +2,7 @@
 
 import {
   messageTypes,
+  messageDataLocalID,
   type MessageData,
   type RawMessageInfo,
 } from 'lib/types/message-types';
@@ -51,7 +52,7 @@ async function createMessages(
   const existingMessages = await Promise.all(
     messageDatas.map(messageData => fetchMessageInfoForLocalID(
       viewer,
-      messageData.type === messageTypes.TEXT ? messageData.localID : null,
+      messageDataLocalID(messageData),
     ))
   );
   for (let i = 0; i < existingMessages.length; i++) {
@@ -121,6 +122,8 @@ async function createMessages(
         date: messageData.date,
         text: messageData.text,
       });
+    } else if (messageData.type === messageTypes.MULTIMEDIA) {
+      content = JSON.stringify(messageData.media.map(({ id }) => parseInt(id)));
     }
 
     const creation = messageData.localID && viewer.hasSessionInfo
