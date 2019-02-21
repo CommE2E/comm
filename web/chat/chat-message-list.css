@@ -127,6 +127,7 @@ div.messageTimestampTooltip {
   padding: 5px;
   border-radius: 5px;
   font-size: 14px;
+  z-index: 1;
 }
 div.messageTimestampTooltip:after {
   content: "";
@@ -155,6 +156,16 @@ div.messageTimestampTopRightTooltip:after {
   bottom: -14px;
   right: 4px;
   border-color: black transparent transparent transparent;
+}
+div.messageTimestampBottomLeftTooltip:after {
+  top: -14px;
+  left: 4px;
+  border-color: transparent transparent black transparent;
+}
+div.messageTimestampBottomRightTooltip:after {
+  top: -14px;
+  right: 4px;
+  border-color: transparent transparent black transparent;
 }
 
 div.textMessage {

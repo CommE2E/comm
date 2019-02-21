@@ -28,17 +28,26 @@ function MessageTimestampTooltip(props: Props) {
     '"Helvetica Neue", sans-serif';
   const textWidth = calculateTextWidth(text, font);
   const width = textWidth + 10; // 10px padding
-  const widthWithArrow = width + 10; // 7px arrow + 3px extra
+  const sizeOfArrow = 10; // 7px arrow + 3px extra
+  const widthWithArrow = width + sizeOfArrow;
   const height = 27; // 17px line-height + 10px padding
-  const heightWithArrow = height + 10; // 7px arrow + 3px extra
+  const heightWithArrow = height + sizeOfArrow;
 
   const { isViewer } = item.messageInfo.creator;
   const isComposed = isComposableMessageType(item.messageInfo.type);
   let align = isComposed && isViewer ? "right" : "left";
-  if (align === "right" && messagePosition.right + width > window.innerWidth) {
-    align = "top-right";
-  } else if (align === "left" && messagePosition.left - width < 0) {
-    align = "top-left";
+  if (align === "right") {
+    if (messagePosition.top < 0) {
+      align = "bottom-right";
+    } else if (messagePosition.right + width > window.innerWidth) {
+      align = "top-right";
+    }
+  } else if (align === "left") {
+    if (messagePosition.top < 0) {
+      align = "bottom-left";
+    } else if (messagePosition.left - width < 0) {
+      align = "top-left";
+    }
   }
 
   let style, className;
@@ -71,6 +80,18 @@ function MessageTimestampTooltip(props: Props) {
       top: messagePosition.top - heightWithArrow,
     };
     className = css.messageTimestampTopRightTooltip;
+  } else if (align === "bottom-left") {
+    style = {
+      left: messagePosition.left,
+      top: messagePosition.top + messagePosition.height + sizeOfArrow,
+    };
+    className = css.messageTimestampBottomLeftTooltip;
+  } else if (align === "bottom-right") {
+    style = {
+      left: messagePosition.right - width,
+      top: messagePosition.top + messagePosition.height + sizeOfArrow,
+    };
+    className = css.messageTimestampBottomRightTooltip;
   }
   invariant(style, "should be set");
 
