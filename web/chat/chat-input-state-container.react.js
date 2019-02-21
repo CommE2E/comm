@@ -99,6 +99,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           this.setProgress(threadID, localUploadID, percent),
         messageHasUploadFailure: (localMessageID: string) =>
           this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
+        retryUploads: (localMessageID: string) =>
+          this.retryUploads(threadID, threadAssignedUploads[localMessageID]),
       };
     },
   ));
@@ -310,14 +312,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     localUploadID: string,
     e: any,
   ) {
-    const failed = e instanceof Error ? e.message : "failed";
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[threadID];
       const upload = uploads[localUploadID];
-      if (!upload) {
-        // The upload has been cancelled before it failed
+      if (!upload || !upload.abort || upload.serverID) {
+        // The upload has been cancelled or completed before it failed
         return {};
       }
+      const failed = (e instanceof Error && e.message)
+        ? e.message
+        : "failed";
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -448,6 +452,56 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       return false;
     }
     return pendingUploads.some(upload => upload.failed);
+  }
+
+  retryUploads(
+    threadID: string,
+    pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
+  ) {
+    if (!pendingUploads) {
+      return;
+    }
+    const uploadIDsToRetry = new Set();
+    const uploadsToRetry = [];
+    for (let pendingUpload of pendingUploads) {
+      if (pendingUpload.serverID) {
+        continue;
+      }
+      if (pendingUpload.abort) {
+        pendingUpload.abort();
+      }
+      uploadIDsToRetry.add(pendingUpload.localID);
+      uploadsToRetry.push(pendingUpload);
+    }
+
+    this.setState(prevState => {
+      const pendingUploads = prevState.pendingUploads[threadID];
+      if (!pendingUploads) {
+        return {};
+      }
+      const newPendingUploads = {};
+      for (let localID in pendingUploads) {
+        const pendingUpload = pendingUploads[localID];
+        if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
+          newPendingUploads[localID] = {
+            ...pendingUpload,
+            failed: null,
+            progressPercent: 0,
+            abort: null,
+          };
+        } else {
+          newPendingUploads[localID] = pendingUpload;
+        }
+      }
+      return {
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [threadID]: newPendingUploads,
+        },
+      };
+    });
+
+    this.uploadFiles(threadID, uploadsToRetry);
   }
 
   render() {

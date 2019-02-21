@@ -7,12 +7,18 @@ import {
 import {
   messageTypes,
   type SendMessageResult,
+  type RawComposableMessageInfo,
   type RawTextMessageInfo,
-  type RawMessageInfo,
+  type RawMultimediaMessageInfo,
+  assertComposableMessageType,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  chatInputStatePropType,
+  type ChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -23,6 +29,8 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   sendTextMessageActionTypes,
   sendTextMessage,
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
 } from 'lib/actions/message-actions';
 
 import css from './chat-message-list.css';
@@ -30,8 +38,9 @@ import css from './chat-message-list.css';
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
+  chatInputState: ChatInputState,
   // Redux state
-  rawMessageInfo: RawMessageInfo,
+  rawMessageInfo: RawComposableMessageInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -40,58 +49,32 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
+  sendMultimediaMessage: (
+    threadID: string,
+    localID: string,
+    mediaIDs: $ReadOnlyArray<string>,
+  ) => Promise<SendMessageResult>,
 |};
 class FailedSend extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
+    chatInputState: chatInputStatePropType.isRequired,
     rawMessageInfo: PropTypes.object.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
+    sendMultimediaMessage: PropTypes.func.isRequired,
   };
 
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    invariant(
-      nextProps.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-  }
-
   render() {
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const { isViewer } = this.props.item.messageInfo.creator;
-    if (!isViewer) {
-      return null;
-    }
-    const { id } = this.props.item.messageInfo;
-    if (id !== null && id !== undefined) {
-      return null;
-    }
-    const sendFailed = this.props.item.localMessageInfo
-      ? this.props.item.localMessageInfo.sendFailed
-      : null;
-    if (!sendFailed) {
-      return null;
-    }
     return (
       <div className={css.failedSend}>
         <span>
           Delivery failed.
         </span>
         <a onClick={this.retrySend} className={css.retrySend}>
-          Retry?
+          {"Retry?"}
         </a>
       </div>
     );
@@ -101,23 +84,32 @@ class FailedSend extends React.PureComponent<Props> {
     event.stopPropagation();
 
     const { rawMessageInfo } = this.props;
-    invariant(
-      rawMessageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const newRawMessageInfo = {
-      ...rawMessageInfo,
-      time: Date.now(),
-    };
-    this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendMessageAction(newRawMessageInfo),
-      undefined,
-      newRawMessageInfo,
-    );
+    if (rawMessageInfo.type === messageTypes.TEXT) {
+      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+      this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendTextMessageAction(newRawMessageInfo),
+        undefined,
+        newRawMessageInfo,
+      );
+    } else if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
+      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+      const { localID } = newRawMessageInfo;
+      invariant(localID, "failed RawMessageInfo should have localID");
+      if (this.props.chatInputState.messageHasUploadFailure(localID)) {
+        this.props.chatInputState.retryUploads(localID);
+      } else {
+        this.props.dispatchActionPromise(
+          sendMultimediaMessageActionTypes,
+          this.sendMultimediaMessageAction(newRawMessageInfo),
+          undefined,
+          newRawMessageInfo,
+        );
+      }
+    }
   }
 
-  async sendMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
     try {
       const { localID } = messageInfo;
       invariant(
@@ -142,19 +134,46 @@ class FailedSend extends React.PureComponent<Props> {
     }
   }
 
+  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+    try {
+      const { localID } = messageInfo;
+      invariant(
+        localID !== null && localID !== undefined,
+        "localID should be set",
+      );
+      const result = await this.props.sendMultimediaMessage(
+        messageInfo.threadID,
+        localID,
+        messageInfo.media.map(({ id }) => id),
+      );
+      return {
+        localID,
+        serverID: result.id,
+        threadID: messageInfo.threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = messageInfo.localID;
+      e.threadID = messageInfo.threadID;
+      throw e;
+    }
+  }
+
 }
 
 export default connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItem }) => {
     const { messageInfo } = ownProps.item;
-    invariant(
-      messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
+    assertComposableMessageType(messageInfo.type);
     const id = messageID(messageInfo);
-    return {
-      rawMessageInfo: state.messageStore.messages[id],
-    };
+    const rawMessageInfo = state.messageStore.messages[id];
+    assertComposableMessageType(rawMessageInfo.type);
+    invariant(
+      rawMessageInfo.type === messageTypes.TEXT ||
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      "FailedSend should only be used for composable message types",
+    );
+    return { rawMessageInfo };
   },
-  { sendTextMessage },
+  { sendTextMessage, sendMultimediaMessage },
 )(FailedSend);

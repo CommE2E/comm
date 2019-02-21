@@ -70,6 +70,7 @@ class Message extends React.PureComponent<Props> {
           item={this.props.item}
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
+          chatInputState={this.props.chatInputState}
         />
       );
     } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {

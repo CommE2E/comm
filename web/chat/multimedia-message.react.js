@@ -182,6 +182,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
         className={className}
         borderRadius={16}
+        chatInputState={this.props.chatInputState}
       >
         {content}
       </ComposedMessage>

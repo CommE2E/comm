@@ -7,6 +7,10 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MessagePositionInfo } from './message.react';
+import {
+  chatInputStatePropType,
+  type ChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -24,6 +28,7 @@ type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  chatInputState: ChatInputState,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -31,6 +36,7 @@ class TextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
+    chatInputState: chatInputStatePropType.isRequired,
   };
 
   constructor(props: Props) {
@@ -86,6 +92,7 @@ class TextMessage extends React.PureComponent<Props> {
         threadInfo={this.props.threadInfo}
         sendFailed={!!sendFailed}
         setMouseOver={this.props.setMouseOver}
+        chatInputState={this.props.chatInputState}
       >
         <div className={messageClassName} style={messageStyle}>
           <Linkify>{text}</Linkify>
