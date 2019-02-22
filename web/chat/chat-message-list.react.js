@@ -56,6 +56,7 @@ const usingFlexDirectionColumnReverse = browser && browser.name === "chrome";
 type PassedProps = {|
   activeChatThreadID: ?string,
   chatInputState: ?ChatInputState,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
@@ -87,6 +88,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     activeChatThreadID: PropTypes.string,
     chatInputState: chatInputStatePropType,
+    setModal: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
@@ -228,7 +230,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const { threadInfo, chatInputState } = this.props;
+    const { threadInfo, chatInputState, setModal } = this.props;
     invariant(chatInputState, "ChatInputState should be set");
     invariant(threadInfo, "ThreadInfo should be set if messageListData is");
     return (
@@ -237,6 +239,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         threadInfo={threadInfo}
         setMouseOver={this.setTimestampTooltip}
         chatInputState={chatInputState}
+        setModal={setModal}
         key={ChatMessageList.keyExtractor(item)}
       />
     );

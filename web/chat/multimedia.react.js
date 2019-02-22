@@ -12,13 +12,16 @@ import XCircleIcon from 'react-feather/dist/icons/x-circle';
 import AlertCircleIcon from 'react-feather/dist/icons/alert-circle';
 import CircularProgressbar from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import classNames from 'classnames';
 
 import css from './chat-message-list.css';
+import MultimediaModal from './multimedia-modal.react';
 
 type Props = {|
   uri: string,
   pendingUpload?: ?PendingMultimediaUpload,
   remove?: (uploadID: string) => void,
+  setModal?: (modal: ?React.Node) => void,
 |};
 class Multimedia extends React.PureComponent<Props> {
 
@@ -26,6 +29,7 @@ class Multimedia extends React.PureComponent<Props> {
     uri: PropTypes.string.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
     remove: PropTypes.func,
+    setModal: PropTypes.func,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -44,7 +48,7 @@ class Multimedia extends React.PureComponent<Props> {
   render() {
     let progressIndicator, errorIndicator, removeButton;
 
-    const { pendingUpload, remove } = this.props;
+    const { pendingUpload, remove, setModal } = this.props;
     if (pendingUpload) {
       const { progressPercent, failed } = pendingUpload;
 
@@ -78,9 +82,16 @@ class Multimedia extends React.PureComponent<Props> {
       }
     }
 
+    const imageContainerClasses = [ css.multimediaImage ];
+    let onClick;
+    if (setModal) {
+      imageContainerClasses.push(css.clickable);
+      onClick = this.onClick;
+    }
+
     return (
       <span className={css.multimedia}>
-        <span className={css.multimediaImage}>
+        <span className={classNames(imageContainerClasses)} onClick={onClick}>
           <img src={this.props.uri} />
           {removeButton}
         </span>
@@ -98,6 +109,14 @@ class Multimedia extends React.PureComponent<Props> {
         "are unspecified",
     );
     remove(pendingUpload.localID);
+  }
+
+  onClick = (event: SyntheticEvent<HTMLSpanElement>) => {
+    event.stopPropagation();
+
+    const { setModal, uri } = this.props;
+    invariant(setModal, "should be set");
+    setModal(<MultimediaModal uri={uri} setModal={setModal} />);
   }
 
 }

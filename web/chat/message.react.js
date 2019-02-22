@@ -44,6 +44,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
+  setModal: (modal: ?React.Node) => void,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -52,6 +53,7 @@ class Message extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
+    setModal: PropTypes.func.isRequired,
   };
 
   render() {
@@ -80,6 +82,7 @@ class Message extends React.PureComponent<Props> {
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
           chatInputState={this.props.chatInputState}
+          setModal={this.props.setModal}
         />
       );
     } else {

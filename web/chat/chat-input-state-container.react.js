@@ -505,7 +505,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { activeChatThreadID } = this.props;
+    const { activeChatThreadID, setModal } = this.props;
     const chatInputState = activeChatThreadID
       ? this.chatInputStateSelector(activeChatThreadID)(this.state)
       : null;
@@ -513,6 +513,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       <ChatMessageList
         activeChatThreadID={activeChatThreadID}
         chatInputState={chatInputState}
+        setModal={setModal}
       />
     );
   }

@@ -40,6 +40,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
+  setModal: (modal: ?React.Node) => void,
   // Redux state
   rawMessageInfo: RawMultimediaMessageInfo,
   // Redux dispatch functions
@@ -58,6 +59,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
+    setModal: PropTypes.func.isRequired,
     rawMessageInfo: PropTypes.object.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendMultimediaMessage: PropTypes.func.isRequired,
@@ -133,7 +135,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
   }
 
   render() {
-    const { item } = this.props;
+    const { item, setModal } = this.props;
     invariant(
       item.messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
@@ -158,6 +160,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         <Multimedia
           uri={singleMedia.uri}
           pendingUpload={pendingUpload}
+          setModal={setModal}
           key={singleMedia.id}
         />
       );

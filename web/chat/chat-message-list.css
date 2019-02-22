@@ -287,6 +287,9 @@ span.multimedia > span.multimediaImage {
   min-height: 50px;
   min-width: 50px;
 }
+span.clickable {
+  cursor: pointer;
+}
 div.previews > span.multimedia > span.multimediaImage > img {
   max-height: 200px;
   max-width: 200px;
@@ -390,4 +393,38 @@ div.imageGrid > span.multimedia:nth-last-child(n+4):first-child ~ * {
 div.imageGrid > span.multimedia:nth-last-child(n+5):first-child,
 div.imageGrid > span.multimedia:nth-last-child(n+5):first-child ~ * {
   grid-column-end: span 2;
+}
+
+div.multimediaModalOverlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.9);
+  overflow: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+div.multimediaModalOverlay > img {
+  object-fit: scale-down;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+svg.closeMultimediaModal {
+  position: absolute;
+  cursor: pointer;
+  top: 15px;
+  right: 15px;
+  color: white;
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+  background-color: rgba(34,34,34,0.67);
+  height: 36px;
+  width: 36px;
 }
