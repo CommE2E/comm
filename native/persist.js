@@ -3,6 +3,7 @@
 import type { AppState } from './redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
+import { messageTypes } from 'lib/types/message-types';
 
 import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
@@ -10,6 +11,7 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
+import { unshimMessageStore } from 'lib/shared/unshim-utils';
 
 import { nativeCalendarQuery } from './selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
@@ -115,6 +117,13 @@ const migrations = {
       local: {},
     },
   }),
+  [11]: (state: AppState) => ({
+    ...state,
+    messageStore: unshimMessageStore(
+      state.messageStore,
+      [ messageTypes.MULTIMEDIA ],
+    ),
+  }),
 };
 
 const persistConfig = {
@@ -122,7 +131,7 @@ const persistConfig = {
   storage,
   blacklist,
   debug: __DEV__,
-  version: 10,
+  version: 11,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
 };
 
