@@ -27,10 +27,10 @@ function textMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
-  const { messageInfo, textHeight, startsCluster, endsCluster } = item;
+  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { id, creator } = messageInfo;
   const { isViewer } = creator;
-  let height = 17 + textHeight; // for padding, margin, and text
+  let height = 17 + contentHeight; // for padding, margin, and text
   if (!isViewer && startsCluster) {
     height += 25; // for username
   }
@@ -128,7 +128,7 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
-    textCustomStyle.height = this.props.item.textHeight;
+    textCustomStyle.height = this.props.item.contentHeight;
 
     let deliveryIcon = null;
     let failedSendInfo = null;

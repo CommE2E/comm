@@ -75,7 +75,7 @@ export type RobotextChatMessageInfoItemWithHeight = {|
   startsCluster: bool,
   endsCluster: bool,
   robotext: string,
-  textHeight: number,
+  contentHeight: number,
 |};
 
 export type ChatMessageInfoItemWithHeight =
@@ -87,7 +87,7 @@ export type ChatMessageInfoItemWithHeight =
     startsConversation: bool,
     startsCluster: bool,
     endsCluster: bool,
-    textHeight: number,
+    contentHeight: number,
   |};
 type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
@@ -336,7 +336,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
-          textHeight,
+          contentHeight: textHeight,
         };
       } else {
         invariant(
@@ -351,7 +351,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
           robotext: item.robotext,
-          textHeight,
+          contentHeight: textHeight,
         };
       }
     });
