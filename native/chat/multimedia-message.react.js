@@ -11,11 +11,15 @@ import {
   Text,
   StyleSheet,
   TouchableWithoutFeedback,
+  View,
+  ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { messageKey } from 'lib/shared/message-utils';
+
+const multimediaMessageLoadingContentHeight = 100; // TODO
 
 function multimediaMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -46,12 +50,14 @@ function multimediaMessageItemHeight(
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   toggleFocus: (messageKey: string) => void,
+  updateHeightForMessage: (id: string, contentHeight: number) => void,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    updateHeightForMessage: PropTypes.func.isRequired,
   };
 
   constructor(props: Props) {
@@ -62,17 +68,25 @@ class MultimediaMessage extends React.PureComponent<Props> {
     );
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate() {
     invariant(
-      nextProps.item.messageInfo.type === messageTypes.MULTIMEDIA,
+      this.props.item.messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
     );
   }
 
   render() {
+    const { contentHeight } = this.props.item;
+    const style = { height: contentHeight };
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <Text style={styles.robotext}>Blah blah image</Text>
+        <View>
+          <ActivityIndicator
+            color="black"
+            size="large"
+            style={style}
+          />
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -84,18 +98,10 @@ class MultimediaMessage extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  robotext: {
-    textAlign: 'center',
-    color: '#333333',
-    paddingVertical: 6,
-    marginBottom: 5,
-    marginHorizontal: 24,
-    fontSize: 15,
-    fontFamily: 'Arial',
-  },
 });
 
 export {
+  multimediaMessageLoadingContentHeight,
   MultimediaMessage,
   multimediaMessageItemHeight,
 };

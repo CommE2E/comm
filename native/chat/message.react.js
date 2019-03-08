@@ -47,6 +47,7 @@ type Props = {
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  updateHeightForMessage: (id: string, contentHeight: number) => void,
 };
 class Message extends React.PureComponent<Props> {
 
@@ -54,6 +55,7 @@ class Message extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    updateHeightForMessage: PropTypes.func.isRequired,
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -88,6 +90,7 @@ class Message extends React.PureComponent<Props> {
         <MultimediaMessage
           item={this.props.item}
           toggleFocus={this.props.toggleFocus}
+          updateHeightForMessage={this.props.updateHeightForMessage}
         />
       );
     } else {

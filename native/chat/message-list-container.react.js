@@ -38,6 +38,9 @@ import ThreadSettingsButton from './thread-settings-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
+import {
+  multimediaMessageLoadingContentHeight,
+} from './multimedia-message.react';
 
 export type ChatMessageInfoItemWithHeight =
   | {|
@@ -115,6 +118,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         : null,
     headerBackTitle: "Back",
   });
+  updatedHeights: Map<string, number> = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -214,6 +218,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         <MessageList
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
+          updateHeightForMessage={this.updateHeightForMessage}
         />
       );
     } else {
@@ -262,11 +267,17 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         return item;
       }
       const { messageInfo } = item;
+      const id = messageKey(messageInfo);
       if (messageInfo.type === messageTypes.MULTIMEDIA) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo
           : null;
+        const updatedHeight = this.updatedHeights.get(id);
+        const contentHeight =
+          updatedHeight !== null && updatedHeight !== undefined
+            ? updatedHeight
+            : multimediaMessageLoadingContentHeight;
         return {
           itemType: "message",
           messageInfo,
@@ -275,11 +286,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
-          contentHeight: 100, // TODO
+          contentHeight,
         };
       }
       invariant(textHeights, "textHeights not set");
-      const id = messageKey(messageInfo);
       const textHeight = textHeights.get(id);
       invariant(
         textHeight !== null && textHeight !== undefined,
@@ -318,6 +328,50 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       }
     });
     return listDataWithHeights;
+  }
+
+  updateHeightForMessage = (id: string, contentHeight: number) => {
+    this.updatedHeights.set(id, contentHeight);
+    this.setState((prevState: State) => {
+      const prevListData = prevState.listDataWithHeights;
+      if (!prevListData) {
+        return {};
+      }
+      let itemModified = false;
+      const newListData = prevListData.map(item => {
+        if (item.itemType !== "message") {
+          return item;
+        }
+        const { messageInfo } = item;
+        const itemID = messageKey(messageInfo);
+        if (itemID !== id) {
+          return item;
+        }
+        itemModified = true;
+        // Conditional due to Flow...
+        const localMessageInfo = item.localMessageInfo
+          ? item.localMessageInfo
+          : null;
+        invariant(
+          messageInfo.type === messageTypes.MULTIMEDIA,
+          "only MULTIMEDIA messages can have height overriden",
+        );
+        return {
+          itemType: "message",
+          messageInfo,
+          localMessageInfo,
+          threadInfo: item.threadInfo,
+          startsConversation: item.startsConversation,
+          startsCluster: item.startsCluster,
+          endsCluster: item.endsCluster,
+          contentHeight,
+        };
+      });
+      if (!itemModified) {
+        return {};
+      }
+      return { listDataWithHeights: newListData };
+    });
   }
 
 }
