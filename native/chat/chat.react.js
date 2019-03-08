@@ -11,7 +11,7 @@ import { createStackNavigator } from 'react-navigation';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import ChatThreadList from './chat-thread-list.react';
-import MessageList from './message-list.react';
+import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
 import { getChatScreen } from './chat-screen-registry';
@@ -31,7 +31,7 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 const Chat = createStackNavigator(
   {
     [ChatThreadListRouteName]: ChatThreadList,
-    [MessageListRouteName]: MessageList,
+    [MessageListRouteName]: MessageListContainer,
     [ComposeThreadRouteName]: ComposeThread,
     [ThreadSettingsRouteName]: ThreadSettings,
     [DeleteThreadRouteName]: DeleteThread,

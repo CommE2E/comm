@@ -13,13 +13,13 @@ import _isEqual from 'lodash/fp/isEqual';
 
 const measureBatchSize = 50;
 
-export type TextToMeasure = {
+export type TextToMeasure = {|
   id: string,
   text: string,
   style?: TextStyle,
-};
+|};
 type TextToHeight = Map<string, number>;
-type Props = {
+type Props = {|
   textToMeasure: TextToMeasure[],
   allHeightsMeasuredCallback: (
     textToMeasure: TextToMeasure[],
@@ -27,10 +27,10 @@ type Props = {
   ) => void,
   minHeight?: number,
   style?: TextStyle,
-};
-type State = {
+|};
+type State = {|
   currentlyMeasuring: ?Set<TextToMeasure>,
-};
+|};
 class TextHeightMeasurer extends React.PureComponent<Props, State> {
 
   state = {
@@ -73,13 +73,13 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
       this.leftToMeasure.add(textToMeasure);
     }
 
+    const existingTextToHeight = this.nextTextToHeight
+      ? this.nextTextToHeight
+      : this.currentTextToHeight;
     const existingTextToMeasure =
       _intersectionWith(_isEqual)(nextTextToMeasure)(this.props.textToMeasure);
     for (let textToMeasure of existingTextToMeasure) {
-      const id = textToMeasure.id;
-      const existingTextToHeight = this.nextTextToHeight
-        ? this.nextTextToHeight
-        : this.currentTextToHeight;
+      const { id } = textToMeasure;
       const measuredHeight = existingTextToHeight.get(id);
       if (measuredHeight !== undefined) {
         nextNextTextToHeight.set(id, measuredHeight);

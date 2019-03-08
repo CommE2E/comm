@@ -1,41 +1,23 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import {
-  type ChatMessageItem,
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
-import {
-  type ComposableMessageInfo,
-  type RobotextMessageInfo,
-  type LocalMessageInfo,
-  type FetchMessageInfosPayload,
-  messageTypes,
-} from 'lib/types/message-types';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { TextToMeasure } from '../text-height-measurer.react';
+import type {
+  ChatMessageInfoItemWithHeight,
+  ChatMessageItemWithHeight,
+} from './message-list-container.react';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Platform,
-  FlatList,
-  DeviceInfo,
-} from 'react-native';
-import invariant from 'invariant';
+import { View, StyleSheet, FlatList } from 'react-native';
 import _sum from 'lodash/fp/sum';
-import _differenceWith from 'lodash/fp/differenceWith';
 import _find from 'lodash/fp/find';
-import _isEqual from 'lodash/fp/isEqual';
 
-import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
   fetchMessagesBeforeCursorActionTypes,
@@ -46,60 +28,16 @@ import {
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
-import { messageListData } from 'lib/selectors/chat-selectors';
 
 import { Message, messageItemHeight } from './message.react';
-import TextHeightMeasurer from '../text-height-measurer.react';
-import ChatInputBar from './chat-input-bar.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
-import MessageListHeaderTitle from './message-list-header-title.react';
-import { registerChatScreen } from './chat-screen-registry';
-import ThreadSettingsButton from './thread-settings-button.react';
 
-type NavProp =
-  & {
-      state: {
-        params: { threadInfo: ThreadInfo },
-        key: string,
-      },
-    }
-  & NavigationScreenProp<NavigationRoute>;
-
-export type RobotextChatMessageInfoItemWithHeight = {|
-  itemType: "message",
-  messageInfo: RobotextMessageInfo,
+type Props = {|
   threadInfo: ThreadInfo,
-  startsConversation: bool,
-  startsCluster: bool,
-  endsCluster: bool,
-  robotext: string,
-  contentHeight: number,
-|};
-
-export type ChatMessageInfoItemWithHeight =
-  RobotextChatMessageInfoItemWithHeight | {|
-    itemType: "message",
-    messageInfo: ComposableMessageInfo,
-    localMessageInfo: ?LocalMessageInfo,
-    threadInfo: ThreadInfo,
-    startsConversation: bool,
-    startsCluster: bool,
-    endsCluster: bool,
-    contentHeight: number,
-  |};
-type ChatMessageItemWithHeight =
-  {| itemType: "loader" |} |
-  ChatMessageInfoItemWithHeight;
-
-type Props = {
-  navigation: NavProp,
+  messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   // Redux state
-  messageListData: $ReadOnlyArray<ChatMessageItem>,
   viewerID: ?string,
   startReached: bool,
-  threadInfo: ?ThreadInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -110,73 +48,28 @@ type Props = {
   fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
-};
-type State = {
-  textToMeasure: TextToMeasure[],
-  listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+|};
+type State = {|
   focusedMessageKey: ?string,
-};
-class InnerMessageList extends React.PureComponent<Props, State> {
+|};
+class MessageList extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
-      navigate: PropTypes.func.isRequired,
-      setParams: PropTypes.func.isRequired,
-    }).isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
-    threadInfo: threadInfoPropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
-  static navigationOptions = ({ navigation }) => ({
-    headerTitle: (
-      <MessageListHeaderTitle
-        threadInfo={navigation.state.params.threadInfo}
-        navigate={navigation.navigate}
-      />
-    ),
-    headerRight:
-      Platform.OS === "android"
-        ? (
-            <ThreadSettingsButton
-              threadInfo={navigation.state.params.threadInfo}
-              navigate={navigation.navigate}
-            />
-          )
-        : null,
-    headerBackTitle: "Back",
-  });
-  textHeights: ?Map<string, number> = null;
   loadingFromScroll = false;
-
-  constructor(props: Props) {
-    super(props);
-    const textToMeasure = props.messageListData
-      ? InnerMessageList.textToMeasureFromListData(props.messageListData)
-      : [];
-    this.state = {
-      textToMeasure,
-      listDataWithHeights: null,
-      focusedMessageKey: null,
-    };
-  }
-
-  static getThreadInfo(props: Props): ThreadInfo {
-    return props.navigation.state.params.threadInfo;
-  }
+  state = {
+    focusedMessageKey: null,
+  };
 
   componentDidMount() {
-    const threadInfo = InnerMessageList.getThreadInfo(this.props);
-    registerChatScreen(this.props.navigation.state.key, this);
+    const { threadInfo } = this.props;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
       this.props.dispatchActionPromise(
@@ -187,62 +80,15 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    const threadInfo = InnerMessageList.getThreadInfo(this.props);
-    registerChatScreen(this.props.navigation.state.key, null);
+    const { threadInfo } = this.props;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
   }
 
-  get canReset() {
-    return true;
-  }
-
-  static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
-    const textToMeasure = [];
-    for (let item of listData) {
-      if (item.itemType !== "message") {
-        continue;
-      }
-      const { messageInfo } = item;
-      if (messageInfo.type === messageTypes.TEXT) {
-        const { isViewer } = messageInfo.creator;
-        const style = [
-          onlyEmojiRegex.test(messageInfo.text)
-            ? styles.emojiOnlyText
-            : styles.text,
-          isViewer ? styles.viewerMargins : styles.nonViewerMargins,
-        ];
-        textToMeasure.push({
-          id: messageKey(messageInfo),
-          text: messageInfo.text,
-          style,
-        });
-      } else {
-        invariant(
-          item.robotext && typeof item.robotext === "string",
-          "Flow can't handle our fancy types :(",
-        );
-        textToMeasure.push({
-          id: messageKey(messageInfo),
-          text: robotextToRawString(item.robotext),
-          style: styles.robotext,
-        });
-      }
-    }
-    return textToMeasure;
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const oldThreadInfo = InnerMessageList.getThreadInfo(this.props);
-    const newThreadInfo = nextProps.threadInfo;
-
-    let threadInfoChanged = false;
-    if (newThreadInfo && !_isEqual(newThreadInfo)(oldThreadInfo)) {
-      threadInfoChanged = true;
-      this.props.navigation.setParams({ threadInfo: newThreadInfo });
-    }
-
+  componentDidUpdate(prevProps: Props) {
+    const oldThreadInfo = prevProps.threadInfo;
+    const newThreadInfo = this.props.threadInfo;
     if (
       threadInChatList(oldThreadInfo) &&
       !threadInChatList(newThreadInfo)
@@ -255,109 +101,14 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       threadWatcher.removeID(oldThreadInfo.id);
     }
 
-    const oldListData = this.props.messageListData;
-    const newListData = nextProps.messageListData;
-    if (!newListData && oldListData) {
-      this.setState({
-        textToMeasure: [],
-        listDataWithHeights: null,
-        focusedMessageKey: null,
-      });
+    const newListData = this.props.messageListData;
+    const oldListData = prevProps.messageListData;
+    if (
+      this.loadingFromScroll &&
+      (newListData.length > oldListData.length || this.props.startReached)
+    ) {
+      this.loadingFromScroll = false;
     }
-    if (!newListData) {
-      return;
-    }
-
-    if (newListData === oldListData && !threadInfoChanged) {
-      return;
-    }
-
-    const newTextToMeasure = InnerMessageList.textToMeasureFromListData(
-      newListData,
-    );
-
-    let allTextAlreadyMeasured = false;
-    if (this.textHeights) {
-      allTextAlreadyMeasured = true;
-      for (let textToMeasure of newTextToMeasure) {
-        if (!this.textHeights.has(textToMeasure.id)) {
-          allTextAlreadyMeasured = false;
-          break;
-        }
-      }
-    }
-
-    if (allTextAlreadyMeasured) {
-      this.mergeHeightsIntoListData(newListData);
-      return;
-    }
-
-    const newText =
-      _differenceWith(_isEqual)(newTextToMeasure)(this.state.textToMeasure);
-    if (newText.length === 0) {
-      // Since we don't have everything in textHeights, but we do have
-      // everything in textToMeasure, we can conclude that we're just
-      // waiting for the measurement to complete and then we'll be good.
-    } else {
-      // We set textHeights to null here since if a future set of text
-      // came in before we completed text measurement that was a subset
-      // of the earlier text, we would end up merging directly there, but
-      // then when the measurement for the middle text came in it would
-      // override the newer text heights.
-      this.textHeights = null;
-      this.setState({ textToMeasure: newTextToMeasure });
-    }
-  }
-
-  mergeHeightsIntoListData(listData: $ReadOnlyArray<ChatMessageItem>) {
-    const threadInfo = InnerMessageList.getThreadInfo(this.props);
-    const textHeights = this.textHeights;
-    invariant(textHeights, "textHeights should be set");
-    const listDataWithHeights = listData.map((item: ChatMessageItem) => {
-      if (item.itemType !== "message") {
-        return item;
-      }
-      const textHeight = textHeights.get(messageKey(item.messageInfo));
-      invariant(
-        textHeight,
-        `height for ${messageKey(item.messageInfo)} should be set`,
-      );
-      if (
-        item.messageInfo.type === messageTypes.TEXT ||
-        item.messageInfo.type === messageTypes.MULTIMEDIA
-      ) {
-        // Conditional due to Flow...
-        const localMessageInfo = item.localMessageInfo
-          ? item.localMessageInfo
-          : null;
-        return {
-          itemType: "message",
-          messageInfo: item.messageInfo,
-          localMessageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          contentHeight: textHeight,
-        };
-      } else {
-        invariant(
-          typeof item.robotext === "string",
-          "Flow can't handle our fancy types :(",
-        );
-        return {
-          itemType: "message",
-          messageInfo: item.messageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          robotext: item.robotext,
-          contentHeight: textHeight,
-        };
-      }
-    });
-    this.setState({ listDataWithHeights });
   }
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
@@ -381,20 +132,6 @@ class InnerMessageList extends React.PureComponent<Props, State> {
       this.setState({ focusedMessageKey: null });
     } else {
       this.setState({ focusedMessageKey: messageKey });
-    }
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (!this.loadingFromScroll || !this.state.listDataWithHeights) {
-      return;
-    }
-    if (
-      !prevState.listDataWithHeights ||
-      this.state.listDataWithHeights.length >
-        prevState.listDataWithHeights.length ||
-      this.props.startReached
-    ) {
-      this.loadingFromScroll = false;
     }
   }
 
@@ -435,65 +172,23 @@ class InnerMessageList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const listDataWithHeights = this.state.listDataWithHeights;
-    let flatList = null;
-    if (listDataWithHeights) {
-      const footer = this.props.startReached
-        ? InnerMessageList.ListFooterComponent
-        : undefined;
-      flatList = (
+    const { messageListData, startReached } = this.props;
+    const footer = startReached ? MessageList.ListFooterComponent : undefined;
+    return (
+      <View style={styles.container}>
         <FlatList
           inverted={true}
-          data={listDataWithHeights}
+          data={messageListData}
           renderItem={this.renderItem}
-          keyExtractor={InnerMessageList.keyExtractor}
+          keyExtractor={MessageList.keyExtractor}
           getItemLayout={this.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           ListFooterComponent={footer}
           scrollsToTop={false}
           extraData={this.state.focusedMessageKey}
         />
-      );
-    } else {
-      flatList = (
-        <View style={styles.loadingIndicatorContainer}>
-          <ActivityIndicator
-            color="black"
-            size="large"
-            style={styles.loadingIndicator}
-          />
-        </View>
-      );
-    }
-
-    const threadInfo = InnerMessageList.getThreadInfo(this.props);
-    const inputBar = <ChatInputBar threadInfo={threadInfo} />;
-
-    return (
-      <View style={styles.container}>
-        <TextHeightMeasurer
-          textToMeasure={this.state.textToMeasure}
-          allHeightsMeasuredCallback={this.allHeightsMeasured}
-        />
-        <View style={styles.flatListContainer}>
-          {flatList}
-        </View>
-        {inputBar}
       </View>
     );
-  }
-
-  allHeightsMeasured = (
-    textToMeasure: TextToMeasure[],
-    newTextHeights: Map<string, number>,
-  ) => {
-    if (textToMeasure !== this.state.textToMeasure) {
-      return;
-    }
-    this.textHeights = newTextHeights;
-    if (this.props.messageListData) {
-      this.mergeHeightsIntoListData(this.props.messageListData);
-    }
   }
 
   onViewableItemsChanged = (info: {
@@ -524,7 +219,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     const oldestMessageServerID = this.oldestMessageServerID();
     if (oldestMessageServerID) {
       this.loadingFromScroll = true;
-      const threadID = InnerMessageList.getThreadInfo(this.props).id;
+      const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
         this.props.fetchMessagesBeforeCursor(
@@ -550,38 +245,7 @@ class InnerMessageList extends React.PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  flatListContainer: {
-    flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  viewerMargins: {
-    left: 24,
-    right: 42,
-  },
-  nonViewerMargins: {
-    left: 24,
-    right: 24,
-  },
-  text: {
-    fontSize: 18,
-    fontFamily: 'Arial',
-  },
-  emojiOnlyText: {
-    fontSize: 36,
-    fontFamily: 'Arial',
-  },
-  robotext: {
-    left: 24,
-    right: 24,
-    fontSize: 15,
-    fontFamily: 'Arial',
-  },
-  loadingIndicator: {
-    flex: 1,
-  },
-  loadingIndicatorContainer: {
-    flex: 1,
   },
   header: {
     height: 12,
@@ -591,18 +255,14 @@ const styles = StyleSheet.create({
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-const MessageList = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
-    const threadID = ownProps.navigation.state.params.threadInfo.id;
+export default connect(
+  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
+    const threadID = ownProps.threadInfo.id;
     return {
-      messageListData: messageListData(threadID)(state),
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      threadInfo: threadInfoSelector(state)[threadID],
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(InnerMessageList);
-
-export default MessageList;
+)(MessageList);
