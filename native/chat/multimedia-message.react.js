@@ -17,6 +17,32 @@ import PropTypes from 'prop-types';
 
 import { messageKey } from 'lib/shared/message-utils';
 
+function multimediaMessageItemHeight(
+  item: ChatMessageInfoItemWithHeight,
+  viewerID: ?string,
+) {
+  // TODO
+  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
+  const { id, creator } = messageInfo;
+  const { isViewer } = creator;
+  let height = 17 + contentHeight; // for padding, margin, and text
+  if (!isViewer && startsCluster) {
+    height += 25; // for username
+  }
+  if (endsCluster) {
+    height += 7; // extra padding at the end of a cluster
+  }
+  if (
+    isViewer &&
+    id !== null && id !== undefined &&
+    item.localMessageInfo &&
+    item.localMessageInfo.sendFailed
+  ) {
+    height += 22; // extra padding at the end of a cluster
+  }
+  return height;
+}
+
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   toggleFocus: (messageKey: string) => void,
@@ -69,4 +95,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MultimediaMessage;
+export {
+  MultimediaMessage,
+  multimediaMessageItemHeight,
+};

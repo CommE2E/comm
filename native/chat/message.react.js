@@ -20,7 +20,10 @@ import {
   RobotextMessage,
   robotextMessageItemHeight,
 } from './robotext-message.react';
-import MultimediaMessage from './multimedia-message.react';
+import {
+  MultimediaMessage,
+  multimediaMessageItemHeight,
+} from './multimedia-message.react';
 
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -29,6 +32,8 @@ function messageItemHeight(
   let height = 0;
   if (item.messageInfo.type === messageTypes.TEXT) {
     height += textMessageItemHeight(item, viewerID);
+  } else if (item.messageInfo.type === messageTypes.MULTIMEDIA) {
+    height += multimediaMessageItemHeight(item, viewerID);
   } else {
     height += robotextMessageItemHeight(item, viewerID);
   }

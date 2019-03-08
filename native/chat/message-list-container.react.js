@@ -148,11 +148,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           text: messageInfo.text,
           style,
         });
-      } else {
-        invariant(
-          item.robotext && typeof item.robotext === "string",
-          "Flow can't handle our fancy types :(",
-        );
+      } else if (item.robotext && typeof item.robotext === "string") {
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: robotextToRawString(item.robotext),
@@ -266,14 +262,30 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         return item;
       }
       const { messageInfo } = item;
+      if (messageInfo.type === messageTypes.MULTIMEDIA) {
+        // Conditional due to Flow...
+        const localMessageInfo = item.localMessageInfo
+          ? item.localMessageInfo
+          : null;
+        return {
+          itemType: "message",
+          messageInfo,
+          localMessageInfo,
+          threadInfo,
+          startsConversation: item.startsConversation,
+          startsCluster: item.startsCluster,
+          endsCluster: item.endsCluster,
+          contentHeight: 100, // TODO
+        };
+      }
       invariant(textHeights, "textHeights not set");
       const id = messageKey(messageInfo);
       const textHeight = textHeights.get(id);
-      invariant(textHeight, `height for ${id} should be set`);
-      if (
-        messageInfo.type === messageTypes.TEXT ||
-        messageInfo.type === messageTypes.MULTIMEDIA
-      ) {
+      invariant(
+        textHeight !== null && textHeight !== undefined,
+        `height for ${id} should be set`,
+      );
+      if (messageInfo.type === messageTypes.TEXT) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo
