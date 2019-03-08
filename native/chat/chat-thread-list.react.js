@@ -114,7 +114,9 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     }
   }
 
-  canReset = () => false;
+  get canReset() {
+    return false;
+  }
 
   renderItem = (row: { item: Item }) => {
     const item = row.item;

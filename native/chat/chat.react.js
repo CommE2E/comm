@@ -67,7 +67,7 @@ Chat.navigationOptions = ({ navigation }) => ({
     if (!chatScreen) {
       return;
     }
-    if (chatScreen.canReset()) {
+    if (chatScreen.canReset) {
       navigation.goBack(state.routes[1].key);
     }
   },

@@ -292,7 +292,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  canReset = () => {
+  get canReset() {
     return this.props.tabActive &&
       (this.state.nameEditValue === null ||
         this.state.nameEditValue === undefined) &&
@@ -302,7 +302,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   render() {
     const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
 
-    const canStartEditing = this.canReset();
+    const canStartEditing = this.canReset;
     const canEditThread = threadHasPermission(
       threadInfo,
       threadPermissions.EDIT_THREAD,

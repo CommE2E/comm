@@ -194,7 +194,9 @@ class InnerMessageList extends React.PureComponent<Props, State> {
     }
   }
 
-  canReset = () => true;
+  get canReset() {
+    return true;
+  }
 
   static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];

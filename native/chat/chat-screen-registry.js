@@ -8,7 +8,7 @@ import React from 'react';
 
 const chatSceenRegistry: {[key: string]: ?ChatScreen} = {};
 
-export type ChatScreen = React.Component<*, *> & { canReset: () => bool };
+export type ChatScreen = React.Component<*, *> & { +canReset: bool };
 
 function registerChatScreen(key: string, screen: ?ChatScreen) {
   chatSceenRegistry[key] = screen;

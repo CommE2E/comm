@@ -203,7 +203,9 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     setOnPressCreateThread(null);
   }
 
-  canReset = () => false;
+  get canReset() {
+    return false;
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.mounted) {
