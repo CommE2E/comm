@@ -6,6 +6,7 @@ import type {
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import type { Media } from 'lib/types/media-types';
+import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -168,50 +169,80 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     );
     if (messageInfo.media.length === 1) {
       return MultimediaMessage.renderImage(messageInfo.media[0]);
-    } else if (messageInfo.media.length < 4) {
-      const images = messageInfo.media.map(MultimediaMessage.renderImage);
+    } else if (messageInfo.media.length === 2) {
+      const [ one, two ] = messageInfo.media;
       return (
         <View style={styles.row}>
-          {images}
+          {MultimediaMessage.renderImage(one, styles.leftImage)}
+          {MultimediaMessage.renderImage(two, styles.rightImage)}
+        </View>
+      );
+    } else if (messageInfo.media.length === 3) {
+      const [ one, two, three ] = messageInfo.media;
+      return (
+        <View style={styles.row}>
+          {MultimediaMessage.renderImage(one, styles.leftImage)}
+          {MultimediaMessage.renderImage(two, styles.centerImage)}
+          {MultimediaMessage.renderImage(three, styles.rightImage)}
         </View>
       );
     } else if (messageInfo.media.length === 4) {
       const [ one, two, three, four ] = messageInfo.media;
       return (
-        <View>
+        <React.Fragment>
           <View style={styles.row}>
-            {MultimediaMessage.renderImage(one)}
-            {MultimediaMessage.renderImage(two)}
+            {MultimediaMessage.renderImage(one, styles.topLeftImage)}
+            {MultimediaMessage.renderImage(two, styles.topRightImage)}
           </View>
           <View style={styles.row}>
-            {MultimediaMessage.renderImage(three)}
-            {MultimediaMessage.renderImage(four)}
+            {MultimediaMessage.renderImage(three, styles.bottomLeftImage)}
+            {MultimediaMessage.renderImage(four, styles.bottomRightImage)}
           </View>
-        </View>
+        </React.Fragment>
       );
     } else {
       const rows = [];
       for (let i = 0; i < messageInfo.media.length; i += 3) {
         const media = messageInfo.media.slice(i, i + 3);
-        const images = media.map(MultimediaMessage.renderImage);
-        rows.push(
-          <View style={styles.row} key={i}>
-            {images}
-          </View>
-        );
+        const [ one, two, three ] = media;
+        if (i === 0) {
+          rows.push(
+            <View style={styles.row} key={i}>
+              {MultimediaMessage.renderImage(one, styles.topLeftImage)}
+              {MultimediaMessage.renderImage(two, styles.topCenterImage)}
+              {MultimediaMessage.renderImage(three, styles.topRightImage)}
+            </View>
+          );
+        } else if (i + 3 >= messageInfo.media.length) {
+          rows.push(
+            <View style={styles.row} key={i}>
+              {MultimediaMessage.renderImage(one, styles.bottomLeftImage)}
+              {MultimediaMessage.renderImage(two, styles.bottomCenterImage)}
+              {MultimediaMessage.renderImage(three, styles.bottomRightImage)}
+            </View>
+          );
+        } else {
+          rows.push(
+            <View style={styles.row} key={i}>
+              {MultimediaMessage.renderImage(one, styles.leftImage)}
+              {MultimediaMessage.renderImage(two, styles.centerImage)}
+              {MultimediaMessage.renderImage(three, styles.rightImage)}
+            </View>
+          );
+        }
       }
-      return <View>{rows}</View>;
+      return rows;
     }
   }
 
-  static renderImage(media: Media): React.Node {
+  static renderImage(media: Media, style?: ImageStyle): React.Node {
     const { id, uri } = media;
     const source = { uri };
     return (
       <Image
         source={source}
         key={id}
-        style={styles.image}
+        style={[styles.image, style]}
       />
     );
   }
@@ -234,6 +265,42 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
+  },
+  leftImage: {
+    marginRight: 3,
+  },
+  centerImage: {
+    marginLeft: 3,
+    marginRight: 3,
+  },
+  rightImage: {
+    marginLeft: 3,
+  },
+  topLeftImage: {
+    marginRight: 3,
+    marginBottom: 3,
+  },
+  topCenterImage: {
+    marginLeft: 3,
+    marginRight: 3,
+    marginBottom: 3,
+  },
+  topRightImage: {
+    marginLeft: 3,
+    marginBottom: 3,
+  },
+  bottomLeftImage: {
+    marginRight: 3,
+    marginTop: 3,
+  },
+  bottomCenterImage: {
+    marginLeft: 3,
+    marginRight: 3,
+    marginTop: 3,
+  },
+  bottomRightImage: {
+    marginLeft: 3,
+    marginTop: 3,
   },
 });
 
