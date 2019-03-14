@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { stringForUser } from 'lib/shared/user-utils';
 
 import FailedSend from './failed-send.react';
+import RoundedMessageContainer from './rounded-message-container.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -37,7 +38,6 @@ class ComposedMessage extends React.PureComponent<Props> {
     assertComposableMessageType(this.props.item.messageInfo.type);
     const { item, borderRadius } = this.props;
     const { id, creator } = item.messageInfo;
-    const threadColor = item.threadInfo.color;
 
     const { isViewer } = creator;
     const alignStyle = isViewer
@@ -47,16 +47,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       styles.alignment,
       { marginBottom: item.endsCluster ? 12 : 5 },
     ];
-    const messageStyle = {
-      borderTopRightRadius:
-        isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomRightRadius:
-        isViewer && !item.endsCluster ? 0 : borderRadius,
-      borderTopLeftRadius:
-        !isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomLeftRadius:
-        !isViewer && !item.endsCluster ? 0 : borderRadius,
-    };
 
     let authorName = null;
     if (!isViewer && item.startsCluster) {
@@ -71,7 +61,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     let failedSendInfo = null;
     if (isViewer) {
       let deliveryIconName;
-      let deliveryIconColor = threadColor;
+      let deliveryIconColor = item.threadInfo.color;
       if (id !== null && id !== undefined) {
         deliveryIconName = "check-circle";
       } else if (this.props.sendFailed) {
@@ -96,9 +86,12 @@ class ComposedMessage extends React.PureComponent<Props> {
         {authorName}
         <View style={styles.content}>
           <View style={[styles.messageBox, alignStyle]}>
-            <View style={[styles.message, messageStyle]}>
+            <RoundedMessageContainer
+              item={item}
+              borderRadius={borderRadius}
+            >
               {this.props.children}
-            </View>
+            </RoundedMessageContainer>
           </View>
           {deliveryIcon}
         </View>
@@ -123,9 +116,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginRight: 5,
-  },
-  message: {
-    overflow: 'hidden',
   },
   authorName: {
     color: '#777777',

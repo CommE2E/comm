@@ -22,6 +22,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import Tooltip from '../components/tooltip.react';
 import ComposedMessage from './composed-message.react';
+import RoundedMessageContainer from './rounded-message-container.react';
 
 function textMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -71,18 +72,17 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   render() {
+    const { item } = this.props;
     invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
+      item.messageInfo.type === messageTypes.TEXT,
       "TextMessage should only be used for messageTypes.TEXT",
     );
-    const { text, id, creator } = this.props.item.messageInfo;
-    const threadColor = this.props.item.threadInfo.color;
-
+    const { text, id, creator } = item.messageInfo;
     const { isViewer } = creator;
-    let messageStyle = {},
-      textCustomStyle = {},
-      darkColor = false;
+
+    let messageStyle = {}, textCustomStyle = {}, darkColor = false;
     if (isViewer) {
+      const threadColor = item.threadInfo.color;
       messageStyle.backgroundColor = `#${threadColor}`;
       darkColor = colorIsDark(threadColor);
       textCustomStyle.color = darkColor ? 'white' : 'black';
@@ -94,35 +94,37 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
-    textCustomStyle.height = this.props.item.contentHeight;
+    textCustomStyle.height = item.contentHeight;
 
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     const textStyle = onlyEmojiRegex.test(text)
       ? styles.emojiOnlyText
       : styles.text;
     const messageBlob = (
-      <Hyperlink
-        linkDefault={true}
-        style={[styles.message, messageStyle]}
-        linkStyle={linkStyle}
-      >
-        <Text
-          onPress={this.onPress}
-          onLongPress={this.onPress}
-          style={[textStyle, textCustomStyle]}
-        >{text}</Text>
-      </Hyperlink>
+      <RoundedMessageContainer item={item}>
+        <Hyperlink
+          linkDefault={true}
+          style={[styles.message, messageStyle]}
+          linkStyle={linkStyle}
+        >
+          <Text
+            onPress={this.onPress}
+            onLongPress={this.onPress}
+            style={[textStyle, textCustomStyle]}
+          >{text}</Text>
+        </Hyperlink>
+      </RoundedMessageContainer>
     );
 
     const sendFailed =
       isViewer &&
       (id === null || id === undefined) &&
-      this.props.item.localMessageInfo &&
-      this.props.item.localMessageInfo.sendFailed;
+      item.localMessageInfo &&
+      item.localMessageInfo.sendFailed;
 
     return (
       <ComposedMessage
-        item={this.props.item}
+        item={item}
         sendFailed={!!sendFailed}
       >
         <Tooltip
@@ -185,7 +187,6 @@ const styles = StyleSheet.create({
   message: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    overflow: 'hidden',
   },
   darkLinkText: {
     color: "#036AFF",
