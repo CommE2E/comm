@@ -4,14 +4,16 @@ import type {
   ChatMessageInfoItemWithHeight,
 } from './message-list-container.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewPropTypes } from 'react-native';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   borderRadius: number,
+  style?: ViewStyle,
   children: React.Node,
 |};
 class RoundedMessageContainer extends React.PureComponent<Props> {
@@ -19,6 +21,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     borderRadius: PropTypes.number.isRequired,
+    style: ViewPropTypes.style,
     children: PropTypes.node.isRequired,
   };
   static defaultProps = {
@@ -26,7 +29,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
   };
 
   render() {
-    const { item, borderRadius } = this.props;
+    const { item, borderRadius, style } = this.props;
     const { isViewer } = item.messageInfo.creator;
 
     const messageStyle = {
@@ -41,7 +44,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
     };
 
     return (
-      <View style={[styles.message, messageStyle]}>
+      <View style={[styles.message, messageStyle, style]}>
         {this.props.children}
       </View>
     );

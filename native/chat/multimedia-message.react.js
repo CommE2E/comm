@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { messageKey } from 'lib/shared/message-utils';
 import { promiseAll } from 'lib/utils/promises';
 
+import ComposedMessage from './composed-message.react';
 import { type Dimensions, preloadImage } from '../utils/media-utils';
 
 const multimediaMessageLoadingContentHeight = 100; // TODO
@@ -116,12 +117,14 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       messageInfo.type === messageTypes.MULTIMEDIA,
       "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
     );
+    const { id, creator } = messageInfo;
+    const { isViewer } = creator;
     const heightStyle = { height: contentHeight };
 
     let content;
     if (!this.state.dimensions) {
       content = (
-        <View style={heightStyle}>
+        <View style={[heightStyle, styles.container]}>
           <ActivityIndicator
             color="black"
             size="large"
@@ -131,16 +134,29 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       );
     } else {
       content = (
-        <View style={heightStyle}>
+        <View style={[heightStyle, styles.container]}>
           {this.renderContent()}
         </View>
       );
     }
 
+    const sendFailed =
+      isViewer &&
+      (id === null || id === undefined) &&
+      this.props.item.localMessageInfo &&
+      this.props.item.localMessageInfo.sendFailed;
+
     return (
-      <TouchableWithoutFeedback onPress={this.onPress}>
-        {content}
-      </TouchableWithoutFeedback>
+      <ComposedMessage
+        item={this.props.item}
+        sendFailed={!!sendFailed}
+        borderRadius={16}
+        style={styles.row}
+      >
+        <TouchableWithoutFeedback onPress={this.onPress}>
+          {content}
+        </TouchableWithoutFeedback>
+      </ComposedMessage>
     );
   }
 
@@ -207,6 +223,11 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   row: {
     flex: 1,
     flexDirection: 'row',
