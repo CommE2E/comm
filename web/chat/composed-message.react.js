@@ -30,7 +30,7 @@ type Props = {|
   sendFailed: bool,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   children: React.Node,
-  className?: string,
+  className?: ?string,
   borderRadius: number,
   chatInputState: ChatInputState,
 |};
@@ -49,15 +49,6 @@ class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps = {
     borderRadius: 8,
   };
-
-  constructor(props: Props) {
-    super(props);
-    assertComposableMessageType(props.item.messageInfo.type);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    assertComposableMessageType(this.props.item.messageInfo.type);
-  }
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);

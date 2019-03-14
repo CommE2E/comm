@@ -217,12 +217,10 @@ div.messageBox {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  max-width: 68%;
 }
-div.fullWidthMessageBox {
-  width: 100%;
-}
-div.halfWidthMessageBox {
-  max-width: 50%;
+div.fixedWidthMessageBox {
+  width: 68%;
 }
 
 div.failedSend {

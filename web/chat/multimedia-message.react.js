@@ -173,9 +173,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const content = multimedia.length > 1
       ? <div className={css.imageGrid}>{multimedia}</div>
       : multimedia;
-    const className = multimedia.length > 1
-      ? css.fullWidthMessageBox
-      : css.halfWidthMessageBox;
+    const className = multimedia.length > 1 ? css.fixedWidthMessageBox : null;
 
     return (
       <ComposedMessage
