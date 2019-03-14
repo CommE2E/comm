@@ -16,9 +16,15 @@ import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { nativeCalendarQuery } from './selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from './push/alerts';
 
+const baseBlacklist = [
+  'loadingStatuses',
+  'foreground',
+  'messageSentFromRoute',
+  'dimensions',
+];
 const blacklist = __DEV__
-  ? [ 'loadingStatuses', 'foreground', 'messageSentFromRoute' ]
-  : [ 'loadingStatuses', 'foreground', 'messageSentFromRoute', 'navInfo' ];
+  ? baseBlacklist
+  : [ ...baseBlacklist, 'navInfo' ];
 
 const migrations = {
   [1]: (state: AppState) => ({

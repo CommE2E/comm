@@ -7,6 +7,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
+import type { Dimensions } from '../types/dimensions';
 
 import * as React from 'react';
 import {
@@ -24,7 +25,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import { promiseAll } from 'lib/utils/promises';
 
 import ComposedMessage from './composed-message.react';
-import { type Dimensions, preloadImage } from '../utils/media-utils';
+import { preloadImage } from '../utils/media-utils';
 
 const multimediaMessageLoadingContentHeight = 100; // TODO
 

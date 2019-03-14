@@ -24,6 +24,7 @@ import {
   defaultConnectionInfo,
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
+import type { Dimensions } from './types/dimensions';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -40,7 +41,11 @@ import { NavigationActions, StackActions } from 'react-navigation';
 import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
-import { AppState as NativeAppState, Platform } from 'react-native';
+import {
+  AppState as NativeAppState,
+  Platform,
+  Dimensions as NativeDimensions,
+} from 'react-native';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import {
@@ -58,6 +63,7 @@ import {
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
+  updateDimensionsActiveType,
 } from './navigation/action-types';
 import {
   defaultNavInfo,
@@ -114,8 +120,10 @@ export type AppState = {|
   nextLocalID: number,
   _persist: ?PersistState,
   sessionID?: void,
+  dimensions: Dimensions,
 |};
 
+const { height, width } = NativeDimensions.get('window');
 const defaultState = ({
   navInfo: defaultNavInfo,
   currentUserInfo: null,
@@ -152,6 +160,7 @@ const defaultState = ({
   foreground: true,
   nextLocalID: 0,
   _persist: null,
+  dimensions: { height, width },
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
@@ -197,6 +206,11 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       currentUserInfo,
       cookie,
+    };
+  } else if (action.type === updateDimensionsActiveType) {
+    return {
+      ...state,
+      dimensions: action.payload,
     };
   }
 
