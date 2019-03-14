@@ -9,21 +9,19 @@ import {
   messageTypes,
 } from 'lib/types/message-types';
 
-import React from 'react';
-import { Text, StyleSheet, View, Clipboard } from 'react-native';
+import * as React from 'react';
+import { Text, StyleSheet, Clipboard } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
 import Hyperlink from 'react-native-hyperlink';
-import Icon from 'react-native-vector-icons/Feather';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
-import { stringForUser } from 'lib/shared/user-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import Tooltip from '../components/tooltip.react';
-import FailedSend from './failed-send.react';
+import ComposedMessage from './composed-message.react';
 
 function textMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
@@ -50,11 +48,11 @@ function textMessageItemHeight(
   return height;
 }
 
-type Props = {
+type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-};
+|};
 class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
@@ -67,20 +65,9 @@ class TextMessage extends React.PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
-    invariant(
-      props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
     this.tooltipConfig = [
       { label: "Copy", onPress: this.onPressCopy },
     ];
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    invariant(
-      nextProps.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
   }
 
   render() {
@@ -92,74 +79,22 @@ class TextMessage extends React.PureComponent<Props> {
     const threadColor = this.props.item.threadInfo.color;
 
     const { isViewer } = creator;
-    let alignStyle = null,
-      messageStyle = {},
+    let messageStyle = {},
       textCustomStyle = {},
       darkColor = false;
     if (isViewer) {
-      alignStyle = styles.rightChatBubble;
       messageStyle.backgroundColor = `#${threadColor}`;
       darkColor = colorIsDark(threadColor);
       textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
-      alignStyle = styles.leftChatBubble;
       messageStyle.backgroundColor = "#DDDDDDBB";
       textCustomStyle.color = 'black';
     }
-    const containerStyle = [
-      styles.alignment,
-      { marginBottom: this.props.item.endsCluster ? 12 : 5 },
-    ];
-    let authorName = null;
-    if (!isViewer && this.props.item.startsCluster) {
-      authorName = (
-        <Text style={styles.authorName}>
-          {stringForUser(creator)}
-        </Text>
-      );
-    }
-    messageStyle.borderTopRightRadius =
-      isViewer && !this.props.item.startsCluster ? 0 : 8;
-    messageStyle.borderBottomRightRadius =
-      isViewer && !this.props.item.endsCluster ? 0 : 8;
-    messageStyle.borderTopLeftRadius =
-      !isViewer && !this.props.item.startsCluster ? 0 : 8;
-    messageStyle.borderBottomLeftRadius =
-      !isViewer && !this.props.item.endsCluster ? 0 : 8;
     if (this.props.focused) {
       messageStyle.backgroundColor =
         Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
     textCustomStyle.height = this.props.item.contentHeight;
-
-    let deliveryIcon = null;
-    let failedSendInfo = null;
-    if (isViewer) {
-      let deliveryIconName;
-      let deliveryIconColor = threadColor;
-      if (id !== null && id !== undefined) {
-        deliveryIconName = "check-circle";
-      } else {
-        const sendFailed = this.props.item.localMessageInfo
-          ? this.props.item.localMessageInfo.sendFailed
-          : null;
-        if (sendFailed) {
-          deliveryIconName = "x-circle";
-          deliveryIconColor = "FF0000";
-          failedSendInfo = <FailedSend item={this.props.item} />;
-        } else {
-          deliveryIconName = "circle";
-        }
-      }
-      deliveryIcon = (
-        <View style={styles.iconContainer}>
-          <Icon
-            name={deliveryIconName}
-            style={[styles.icon, { color: `#${deliveryIconColor}` }]}
-          />
-        </View>
-      );
-    }
 
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     const textStyle = onlyEmojiRegex.test(text)
@@ -179,24 +114,26 @@ class TextMessage extends React.PureComponent<Props> {
       </Hyperlink>
     );
 
+    const sendFailed =
+      isViewer &&
+      (id === null || id === undefined) &&
+      this.props.item.localMessageInfo &&
+      this.props.item.localMessageInfo.sendFailed;
+
     return (
-      <View style={containerStyle}>
-        {authorName}
-        <View style={[styles.content, alignStyle]}>
-          <View style={[styles.messageBlobContainer, alignStyle]}>
-            <Tooltip
-              buttonComponent={messageBlob}
-              items={this.tooltipConfig}
-              labelStyle={styles.popoverLabelStyle}
-              onOpenTooltipMenu={this.onFocus}
-              onCloseTooltipMenu={this.onBlur}
-              ref={this.tooltipRef}
-            />
-          </View>
-          {deliveryIcon}
-        </View>
-        {failedSendInfo}
-      </View>
+      <ComposedMessage
+        item={this.props.item}
+        sendFailed={!!sendFailed}
+      >
+        <Tooltip
+          buttonComponent={messageBlob}
+          items={this.tooltipConfig}
+          labelStyle={styles.popoverLabelStyle}
+          onOpenTooltipMenu={this.onFocus}
+          onCloseTooltipMenu={this.onBlur}
+          ref={this.tooltipRef}
+        />
+      </ComposedMessage>
     );
   }
 
@@ -245,26 +182,10 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontFamily: 'Arial',
   },
-  alignment: {
-    marginLeft: 12,
-    marginRight: 7,
-  },
   message: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    marginRight: 5,
     overflow: 'hidden',
-  },
-  messageBlobContainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  authorName: {
-    color: '#777777',
-    fontSize: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    height: 25,
   },
   darkLinkText: {
     color: "#036AFF",
@@ -277,25 +198,6 @@ const styles = StyleSheet.create({
   popoverLabelStyle: {
     textAlign: 'center',
     color: '#444',
-  },
-  leftChatBubble: {
-    justifyContent: 'flex-start',
-  },
-  rightChatBubble: {
-    justifyContent: 'flex-end',
-  },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  icon: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  iconContainer: {
-    marginLeft: 2,
-    width: 16,
   },
 });
 
