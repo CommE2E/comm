@@ -5,14 +5,18 @@ import NotificationsIOS from 'react-native-notifications';
 type PushPermissions = { alert?: bool, badge?: bool, sound?: bool };
 
 let currentlyActive = false;
+let firstRun = true;
 
 async function requestIOSPushPermissions(missingDeviceToken: bool) {
-  let permissionNeeded = missingDeviceToken;
+  let permissionNeeded = firstRun || missingDeviceToken;
+  firstRun = false;
+
   if (!permissionNeeded) {
     const permissions: PushPermissions =
       await NotificationsIOS.checkPermissions();
     permissionNeeded = permissionMissing(permissions);
   }
+
   if (permissionNeeded) {
     if (currentlyActive) {
       return;
@@ -20,6 +24,7 @@ async function requestIOSPushPermissions(missingDeviceToken: bool) {
     currentlyActive = true;
     await NotificationsIOS.requestPermissions();
   }
+
   NotificationsIOS.consumeBackgroundQueue();
 }
 
