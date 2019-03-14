@@ -28,7 +28,10 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-regexes';
 
-import { TextInput, usernamePlaceholder } from './modal-components.react';
+import {
+  TextInput,
+  usernamePlaceholderSelector,
+} from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 
 type Props = {
@@ -37,6 +40,7 @@ type Props = {
   onSuccess: () => void,
   // Redux state
   loadingStatus: LoadingStatus,
+  usernamePlaceholder: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -52,6 +56,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
     opacityValue: PropTypes.object.isRequired,
     onSuccess: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string.isRequired,
+    usernamePlaceholder: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     forgotPassword: PropTypes.func.isRequired,
   };
@@ -69,7 +74,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
             style={styles.input}
             value={this.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
-            placeholder={usernamePlaceholder}
+            placeholder={this.props.usernamePlaceholder}
             autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"
@@ -183,6 +188,7 @@ const loadingStatusSelector
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    usernamePlaceholder: usernamePlaceholderSelector(state),
   }),
   { forgotPassword },
 )(ForgotPasswordPanel);

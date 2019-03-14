@@ -1,6 +1,8 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../types/styles';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import {
@@ -9,7 +11,6 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   Text,
   Easing,
   ViewPropTypes,
@@ -18,11 +19,12 @@ import {
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import TooltipItem, { type Label, labelPropType } from './tooltip-item.react';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 export type TooltipItemData = { +label: Label, onPress: () => void };
-
-const window = Dimensions.get('window');
 
 type Props = {
   buttonComponent: React.Node,
@@ -45,6 +47,8 @@ type Props = {
   timingConfig?: { duration?: number },
   springConfig?: { tension?: number, friction?: number },
   opacityChangeDuration?: number,
+  // Redux state
+  dimensions: Dimensions,
 };
 type State = {
   isModalOpen: bool,
@@ -90,6 +94,7 @@ class Tooltip extends React.PureComponent<Props, State> {
     timingConfig: PropTypes.object,
     springConfig: PropTypes.object,
     opacityChangeDuration: PropTypes.number,
+    dimensions: dimensionsPropType.isRequired,
   };
   static defaultProps = {
     buttonComponentExpandRatio: 1.0,
@@ -172,11 +177,12 @@ class Tooltip extends React.PureComponent<Props, State> {
 
     const componentWrapper = this.wrapperComponent;
     invariant(componentWrapper, "should be set");
+    const { width: windowWidth, height: windowHeight } = this.props.dimensions;
     componentWrapper.measure((x, y, width, height, pageX, pageY) => {
       const fullWidth = pageX + tooltipContainerWidth
         + (width - tooltipContainerWidth) / 2;
-      const tooltipContainerX_final = fullWidth > window.width
-        ? window.width - tooltipContainerWidth
+      const tooltipContainerX_final = fullWidth > windowWidth
+        ? windowWidth - tooltipContainerWidth
         : pageX + (width - tooltipContainerWidth) / 2;
       let tooltipContainerY_final = this.state.tooltipTriangleDown
         ? pageY - tooltipContainerHeight - 20
@@ -186,7 +192,7 @@ class Tooltip extends React.PureComponent<Props, State> {
         tooltipContainerY_final = pageY + height + 20;
         tooltipTriangleDown = false;
       }
-      if (pageY + tooltipContainerHeight + 80 > window.height) {
+      if (pageY + tooltipContainerHeight + 80 > windowHeight) {
         tooltipContainerY_final = pageY - tooltipContainerHeight - 20;
         tooltipTriangleDown = true;
       }
@@ -507,4 +513,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Tooltip;
+export default connect(
+  (state: AppState) => ({
+    dimensions: dimensionsSelector(state),
+  }),
+)(Tooltip);

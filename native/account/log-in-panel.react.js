@@ -39,7 +39,10 @@ import {
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import { TextInput, usernamePlaceholder } from './modal-components.react';
+import {
+  TextInput,
+  usernamePlaceholderSelector,
+} from './modal-components.react';
 import {
   PanelButton,
   PanelOnePasswordButton,
@@ -64,6 +67,7 @@ type Props = {
   // Redux state
   loadingStatus: LoadingStatus,
   logInExtraInfo: () => LogInExtraInfo,
+  usernamePlaceholder: string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -79,6 +83,7 @@ class LogInPanel extends React.PureComponent<Props> {
     state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     logInExtraInfo: PropTypes.func.isRequired,
+    usernamePlaceholder: PropTypes.string.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logIn: PropTypes.func.isRequired,
   };
@@ -117,7 +122,7 @@ class LogInPanel extends React.PureComponent<Props> {
             style={styles.input}
             value={this.props.state.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
-            placeholder={usernamePlaceholder}
+            placeholder={this.props.usernamePlaceholder}
             autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"
@@ -357,6 +362,7 @@ export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
     logInExtraInfo: nativeLogInExtraInfoSelector(state),
+    usernamePlaceholder: usernamePlaceholderSelector(state),
   }),
   { logIn },
 )(LogInPanel);

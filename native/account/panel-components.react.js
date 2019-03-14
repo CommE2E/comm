@@ -4,6 +4,8 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { ViewStyle } from '../types/styles';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import {
@@ -14,13 +16,16 @@ import {
   Animated,
   ScrollView,
   LayoutAnimation,
+  ViewPropTypes,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
-import { windowHeight } from '../dimensions';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -86,12 +91,19 @@ type PanelProps = {|
   opacityValue: Animated.Value,
   children: React.Node,
   style?: ViewStyle,
+  dimensions: Dimensions,
 |};
 type PanelState = {|
   keyboardHeight: number,
 |};
-class Panel extends React.PureComponent<PanelProps, PanelState> {
+class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
 
+  static propTypes = {
+    opacityValue: PropTypes.instanceOf(Animated.Value).isRequired,
+    children: PropTypes.node.isRequired,
+    style: ViewPropTypes.style,
+    dimensions: dimensionsPropType.isRequired,
+  };
   state = {
     keyboardHeight: 0,
   };
@@ -116,6 +128,7 @@ class Panel extends React.PureComponent<PanelProps, PanelState> {
   }
 
   keyboardHandler = (event: ?KeyboardEvent) => {
+    const windowHeight = this.props.dimensions.height;
     const keyboardHeight = event
       ? windowHeight - event.endCoordinates.screenY
       : 0;
@@ -139,9 +152,17 @@ class Panel extends React.PureComponent<PanelProps, PanelState> {
   }
 
   render() {
-    const opacityStyle = { opacity: this.props.opacityValue };
+    const windowHeight = this.props.dimensions.height;
+    const containerStyle = {
+      opacity: this.props.opacityValue,
+      marginTop: windowHeight < 600 ? 15 : 40,
+    };
     const content = (
-      <Animated.View style={[styles.container, opacityStyle, this.props.style]}>
+      <Animated.View style={[
+        styles.container,
+        containerStyle,
+        this.props.style,
+      ]}>
         {this.props.children}
       </Animated.View>
     );
@@ -161,6 +182,12 @@ class Panel extends React.PureComponent<PanelProps, PanelState> {
   }
 
 }
+
+const Panel = connect(
+  (state: AppState) => ({
+    dimensions: dimensionsSelector(state),
+  }),
+)(InnerPanel);
 
 const styles = StyleSheet.create({
   loadingIndicatorContainer: {
@@ -201,7 +228,6 @@ const styles = StyleSheet.create({
     paddingRight: 18,
     marginLeft: 20,
     marginRight: 20,
-    marginTop: windowHeight < 600 ? 15 : 40,
     borderRadius: 6,
     backgroundColor: '#FFFFFFAA',
   },

@@ -1,11 +1,9 @@
 // @flow
 
+import type { Dimensions } from '../types/dimensions';
+
 import { Image } from 'react-native';
 
-export type Dimensions = {|
-  height: number,
-  width: number,
-|};
 async function preloadImage(uri: string): Promise<Dimensions> {
   const [ dimensions ] = await Promise.all([
     fetchSize(uri),

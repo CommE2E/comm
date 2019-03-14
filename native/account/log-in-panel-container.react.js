@@ -6,8 +6,10 @@ import {
   stateContainerPropType,
 } from '../utils/state-container';
 import type { LogInState } from './log-in-panel.react';
+import type { AppState } from '../redux-setup';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   Animated,
@@ -20,25 +22,28 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import sleep from 'lib/utils/sleep';
+import { connect } from 'lib/utils/redux-utils';
 
-import { windowWidth } from '../dimensions';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import LogInPanel from './log-in-panel.react';
 import ForgotPasswordPanel from './forgot-password-panel.react';
 
 type LogInMode = "log-in" | "forgot-password" | "forgot-password-success";
 
-type Props = {
+type Props = {|
   onePasswordSupported: bool,
   setActiveAlert: (activeAlert: bool) => void,
   opacityValue: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   logInState: StateContainer<LogInState>,
-};
-type State = {
+  // Redux state
+  dimensions: Dimensions,
+|};
+type State = {|
   panelTransition: Animated.Value,
   logInMode: LogInMode,
   nextLogInMode: LogInMode,
-};
+|};
 class LogInPanelContainer extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -47,6 +52,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     opacityValue: PropTypes.object.isRequired,
     forgotPasswordLinkOpacity: PropTypes.object.isRequired,
     logInState: stateContainerPropType.isRequired,
+    dimensions: dimensionsPropType.isRequired,
   };
   state = {
     panelTransition: new Animated.Value(0),
@@ -56,6 +62,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   logInPanel: ?InnerLogInPanel = null;
 
   render() {
+    const windowWidth = this.props.dimensions.width;
     const logInPanelDynamicStyle = {
       left: this.state.panelTransition.interpolate({
         inputRange: [0, 2],
@@ -284,4 +291,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LogInPanelContainer;
+export default connect(
+  (state: AppState) => ({
+    dimensions: dimensionsSelector(state),
+  }),
+)(LogInPanelContainer);

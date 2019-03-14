@@ -1,6 +1,8 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../types/styles';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -10,7 +12,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
   TouchableWithoutFeedback,
   ScrollView,
   ViewPropTypes,
@@ -18,7 +19,9 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-const windowWidth = Dimensions.get('window').width;
+import { connect } from 'lib/utils/redux-utils';
+
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 type Props<T> = {
   /**
@@ -86,6 +89,8 @@ type Props<T> = {
    * value and the new value, which looks sketchy.
    */
   defaultInputWidth: number,
+  // Redux state
+  dimensions: Dimensions,
 };
 type State = {
   inputWidth: number,
@@ -109,8 +114,9 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     maxHeight: PropTypes.number,
     onHeightChange: PropTypes.func,
     defaultInputWidth: PropTypes.number,
+    dimensions: dimensionsPropType.isRequired,
   };
-  wrapperWidth = windowWidth;
+  wrapperWidth: number;
   spaceLeft = 0;
   // scroll to bottom
   contentHeight = 0;
@@ -150,6 +156,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       inputWidth: props.defaultInputWidth,
       wrapperHeight: 36,
     };
+    this.wrapperWidth = props.dimensions.width;
   }
 
   componentWillReceiveProps(nextProps: Props<T>) {
@@ -466,4 +473,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TagInput;
+export default connect(
+  (state: AppState) => ({
+    dimensions: dimensionsSelector(state),
+  }),
+)(TagInput);

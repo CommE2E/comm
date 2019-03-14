@@ -20,7 +20,7 @@ if (Platform.OS === "android") {
 
 const dimensionsSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.dimensions,
-  (dimensions: Dimensions) => {
+  (dimensions: Dimensions): Dimensions => {
     let { height, width } = dimensions;
     if (Platform.OS === "android") {
       // Android starts the 0 pixel below the status bar height,

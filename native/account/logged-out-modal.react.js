@@ -12,6 +12,8 @@ import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
 import type { LogInExtraInfo } from 'lib/types/account-types';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -44,10 +46,9 @@ import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
 
 import {
-  windowHeight,
-  windowWidth,
+  dimensionsSelector,
   contentVerticalOffset,
-} from '../dimensions';
+} from '../selectors/dimension-selectors';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -57,7 +58,7 @@ import {
   resetUserStateActionType,
 } from '../navigation/action-types';
 import { splashBackgroundURI } from './background-info';
-import { splashStyle } from '../splash';
+import { splashStyleSelector } from '../splash';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -83,6 +84,8 @@ type Props = {
   urlPrefix: string,
   loggedIn: bool,
   isForeground: bool,
+  dimensions: Dimensions,
+  splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -100,7 +103,7 @@ type State = {
   registerState: StateContainer<RegisterState>;
 };
 
-class InnerLoggedOutModal extends React.PureComponent<Props, State> {
+class LoggedOutModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -112,6 +115,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
+    dimensions: dimensionsPropType.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -172,10 +176,10 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     this.state = {
       mode: props.rehydrateConcluded ? "prompt" : "loading",
       panelPaddingTop: new Animated.Value(
-        InnerLoggedOutModal.calculatePanelPaddingTop("prompt", 0),
+        this.calculatePanelPaddingTop("prompt", 0),
       ),
       footerPaddingTop: new Animated.Value(
-        InnerLoggedOutModal.calculateFooterPaddingTop(0),
+        this.calculateFooterPaddingTop(0),
       ),
       panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
@@ -351,10 +355,11 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     return false;
   }
 
-  static calculatePanelPaddingTop(
+  calculatePanelPaddingTop(
     mode: LoggedOutMode,
     keyboardHeight: number,
   ) {
+    const windowHeight = this.props.dimensions.height;
     let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
     if (mode === "log-in") {
       // We need to make space for the reset password button on smaller devices
@@ -373,7 +378,8 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     return (contentHeight - containerSize - keyboardHeight) / 2;
   }
 
-  static calculateFooterPaddingTop(keyboardHeight: number) {
+  calculateFooterPaddingTop(keyboardHeight: number) {
+    const windowHeight = this.props.dimensions.height;
     const textHeight = Platform.OS === "ios" ? 17 : 19;
     if (DeviceInfo.isIPhoneX_deprecated) {
       keyboardHeight -= 34;
@@ -391,7 +397,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     }
     const animations = [];
     const newPanelPaddingTopValue =
-      InnerLoggedOutModal.calculatePanelPaddingTop(
+      this.calculatePanelPaddingTop(
         this.state.mode,
         this.keyboardHeight,
       );
@@ -414,7 +420,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: InnerLoggedOutModal.calculateFooterPaddingTop(
+          toValue: this.calculateFooterPaddingTop(
             realKeyboardHeight,
           ),
         },
@@ -467,7 +473,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
     const newLastPanelPaddingTopValue =
-      InnerLoggedOutModal.calculatePanelPaddingTop(
+      this.calculatePanelPaddingTop(
         this.nextMode,
         0,
       );
@@ -486,7 +492,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: InnerLoggedOutModal.calculateFooterPaddingTop(
+          toValue: this.calculateFooterPaddingTop(
             this.keyboardHeight,
           ),
         },
@@ -571,7 +577,7 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
     const background = (
       <Image
         source={{ uri: splashBackgroundURI }}
-        style={styles.modalBackground}
+        style={[ styles.modalBackground, this.props.splashStyle ]}
       />
     );
 
@@ -651,13 +657,18 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const windowWidth = this.props.dimensions.width;
+    const buttonStyle = {
+      opacity: this.state.panelOpacity,
+      left: windowWidth < 360 ? 28 : 40,
+    };
     const padding = { paddingTop: this.state.panelPaddingTop };
-    const opacity = { opacity: this.state.panelOpacity };
+
     const animatedContent = (
       <Animated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
-          <Animated.View style={[styles.backButton, opacity]}>
+          <Animated.View style={[ styles.backButton, buttonStyle ]}>
             <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
               <Icon
                 name="arrow-circle-o-left"
@@ -688,8 +699,10 @@ class InnerLoggedOutModal extends React.PureComponent<Props, State> {
         </React.Fragment>
       );
     } else {
+      // https://github.com/facebook/react-native/issues/6785
+      const topContainerStyle = { height: this.props.dimensions.height };
       return (
-        <View style={styles.topContainer}>
+        <View style={[ styles.androidTopContainer, topContainerStyle ]}>
           {background}
 					<View style={styles.container}>
 						{statusBar}
@@ -746,12 +759,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    ...splashStyle,
   },
-  topContainer: {
+  androidTopContainer: {
     backgroundColor: 'transparent',
-		// https://github.com/facebook/react-native/issues/6785
-    height: windowHeight,
   },
   container: {
     flex: 1,
@@ -768,7 +778,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    left: windowWidth < 360 ? 28 : 40,
     top: 13,
   },
   buttonContainer: {
@@ -811,7 +820,7 @@ const styles = StyleSheet.create({
 
 const isForegroundSelector =
   createIsForegroundSelector(LoggedOutModalRouteName);
-const LoggedOutModal = connect(
+export default connect(
   (state: AppState) => ({
     rehydrateConcluded: state._persist && state._persist.rehydrated,
     cookie: state.cookie,
@@ -819,9 +828,9 @@ const LoggedOutModal = connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
+    dimensions: dimensionsSelector(state),
+    splashStyle: splashStyleSelector(state),
   }),
   null,
   true,
-)(InnerLoggedOutModal);
-
-export default LoggedOutModal;
+)(LoggedOutModal);

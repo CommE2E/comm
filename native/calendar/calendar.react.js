@@ -22,6 +22,7 @@ import {
   type CalendarFilter,
   calendarFilterPropType,
 } from 'lib/types/filter-types';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
 
 import React from 'react';
 import {
@@ -60,7 +61,11 @@ import { connect } from 'lib/utils/redux-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
-import { contentVerticalOffset, windowHeight, tabBarSize } from '../dimensions';
+import {
+  dimensionsSelector,
+  contentVerticalOffset,
+  tabBarSize,
+} from '../selectors/dimension-selectors';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
@@ -120,6 +125,7 @@ type Props = {
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
+  dimensions: Dimensions,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -164,6 +170,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
+    dimensions: dimensionsPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -715,8 +722,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     let flatList = null;
     if (listDataWithHeights) {
       const flatListStyle = { opacity: this.state.readyToShowList ? 1 : 0 };
-      const initialScrollIndex =
-        InnerCalendar.initialScrollIndex(listDataWithHeights);
+      const initialScrollIndex = this.initialScrollIndex(listDataWithHeights);
       flatList = (
         <FlatList
           data={listDataWithHeights}
@@ -769,16 +775,17 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     );
   }
 
-  static flatListHeight() {
+  flatListHeight() {
+    const windowHeight = this.props.dimensions.height;
     return windowHeight - contentVerticalOffset - tabBarSize;
   }
 
-  static initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
+  initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
     const heightOfTodayHeader = InnerCalendar.itemHeight(data[todayIndex]);
 
     let returnIndex = todayIndex;
-    let heightLeft = (InnerCalendar.flatListHeight() - heightOfTodayHeader) / 2;
+    let heightLeft = (this.flatListHeight() - heightOfTodayHeader) / 2;
     while (heightLeft > 0) {
       heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
     }
@@ -902,7 +909,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const itemHeight = InnerCalendar.itemHeight(data[index]);
     const entryAdditionalActiveHeight = Platform.OS === "android" ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
-    let visibleHeight = InnerCalendar.flatListHeight() - keyboardHeight;
+    let visibleHeight = this.flatListHeight() - keyboardHeight;
     // flatListHeight() factors in the size of the iOS tab bar, but it is hidden
     // by the keyboard since it is at the bottom
     if (Platform.OS === "ios") {
@@ -1119,6 +1126,7 @@ const Calendar = connect(
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,
+    dimensions: dimensionsSelector(state),
   }),
   { updateCalendarQuery },
 )(InnerCalendar);

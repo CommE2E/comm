@@ -1,6 +1,8 @@
 // @flow
 
-import React from 'react';
+import type { Dimensions } from '../types/dimensions';
+
+import * as React from 'react';
 import {
   TextInput as BaseTextInput,
   View,
@@ -8,8 +10,9 @@ import {
   Platform,
 } from 'react-native';
 import invariant from 'invariant';
+import { createSelector } from 'reselect';
 
-import { windowWidth } from '../dimensions';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 class TextInput extends React.PureComponent<*> {
   
@@ -54,11 +57,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const usernamePlaceholder = windowWidth < 360
-  ? "Username or email"
-  : "Username or email address";
+const usernamePlaceholderSelector = createSelector<*, *, *, *>(
+  dimensionsSelector,
+  (dimensions: Dimensions): string => dimensions.width < 360
+    ? "Username or email"
+    : "Username or email address",
+);
 
 export {
   TextInput,
-  usernamePlaceholder,
+  usernamePlaceholderSelector,
 };

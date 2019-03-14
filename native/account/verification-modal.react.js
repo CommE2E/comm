@@ -15,6 +15,8 @@ import {
   type HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
 import type { KeyboardEvent } from '../keyboard';
+import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -45,13 +47,13 @@ import {
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
 
-import { windowHeight } from '../dimensions';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { navigateToAppActionType } from '../navigation/action-types';
 import { splashBackgroundURI } from './background-info';
-import { splashStyle } from '../splash';
+import { splashStyleSelector } from '../splash';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -68,6 +70,8 @@ type Props = {
     & NavigationScreenProp<NavigationLeafRoute>,
   // Redux state
   isForeground: bool,
+  dimensions: Dimensions,
+  splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -96,6 +100,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
+    dimensions: dimensionsPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
@@ -104,7 +109,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   state = {
     mode: "simple-text",
     paddingTop: new Animated.Value(
-      InnerVerificationModal.currentPaddingTop("simple-text", 0),
+      this.currentPaddingTop("simple-text", 0),
     ),
     verifyField: null,
     errorMessage: null,
@@ -160,7 +165,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       this.setState({
         mode: "simple-text",
         paddingTop: new Animated.Value(
-          InnerVerificationModal.currentPaddingTop("simple-text", 0),
+          this.currentPaddingTop("simple-text", 0),
         ),
         verifyField: null,
         errorMessage: null,
@@ -272,10 +277,11 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     }
   }
 
-  static currentPaddingTop(
+  currentPaddingTop(
     mode: VerificationModalMode,
     keyboardHeight: number,
   ) {
+    const windowHeight = this.props.dimensions.height;
     let containerSize = 0;
     if (mode === "simple-text") {
       containerSize = 90;
@@ -293,7 +299,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: InnerVerificationModal.currentPaddingTop(
+          toValue: this.currentPaddingTop(
             this.state.mode,
             this.keyboardHeight,
           ),
@@ -338,7 +344,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
         {
           duration,
           easing: Easing.out(Easing.ease),
-          toValue: InnerVerificationModal.currentPaddingTop(this.nextMode, 0),
+          toValue: this.currentPaddingTop(this.nextMode, 0),
         },
       ),
     ];
@@ -385,7 +391,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     const background = (
       <Image
         source={{ uri: splashBackgroundURI }}
-        style={styles.modalBackground}
+        style={[ styles.modalBackground, this.props.splashStyle ]}
       />
     );
     const closeButton = (
@@ -483,7 +489,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: ('100%': number | string),
     height: ('100%': number | string),
-    ...splashStyle,
   },
   container: {
     flex: 1,
@@ -529,6 +534,8 @@ const isForegroundSelector =
 const VerificationModal = connect(
   (state: AppState) => ({
     isForeground: isForegroundSelector(state),
+    dimensions: dimensionsSelector(state),
+    splashStyle: splashStyleSelector(state),
   }),
   { handleVerificationCode },
 )(InnerVerificationModal);
