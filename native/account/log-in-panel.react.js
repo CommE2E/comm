@@ -62,7 +62,7 @@ type Props = {
   setActiveAlert: (activeAlert: bool) => void,
   opacityValue: Animated.Value,
   onePasswordSupported: bool,
-  innerRef: (logInPanel: LogInPanel) => void,
+  innerRef: (logInPanel: ?LogInPanel) => void,
   state: StateContainer<LogInState>,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -93,6 +93,10 @@ class LogInPanel extends React.PureComponent<Props> {
   componentDidMount() {
     this.props.innerRef(this);
     this.attemptToFetchCredentials();
+  }
+
+  componentWillUnmount() {
+    this.props.innerRef(null);
   }
 
   async attemptToFetchCredentials() {

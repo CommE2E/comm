@@ -47,6 +47,7 @@ type Props = {
   timingConfig?: { duration?: number },
   springConfig?: { tension?: number, friction?: number },
   opacityChangeDuration?: number,
+  innerRef?: (tooltip: ?Tooltip) => void,
   // Redux state
   dimensions: Dimensions,
 };
@@ -94,6 +95,7 @@ class Tooltip extends React.PureComponent<Props, State> {
     timingConfig: PropTypes.object,
     springConfig: PropTypes.object,
     opacityChangeDuration: PropTypes.number,
+    innerRef: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
   };
   static defaultProps = {
@@ -129,12 +131,21 @@ class Tooltip extends React.PureComponent<Props, State> {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const newOppositeOpacity = this.state.opacity.interpolate({
       inputRange: [0, 1],
       outputRange: [1, 0],
     });
     this.setState({ oppositeOpacity: newOppositeOpacity });
+    if (this.props.innerRef) {
+      this.props.innerRef(this);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.innerRef) {
+      this.props.innerRef(null);
+    }
   }
 
   toggleModal = () => {
