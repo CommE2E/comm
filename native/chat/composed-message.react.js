@@ -95,7 +95,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       <View style={containerStyle}>
         {authorName}
         <View style={[ styles.content, alignStyle ]}>
-          <View style={[ styles.messageBox, messageBoxStyle ]}>
+          <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
             <RoundedMessageContainer
               item={item}
               borderRadius={borderRadius}
