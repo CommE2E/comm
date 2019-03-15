@@ -365,11 +365,14 @@ class ChatInputBar extends React.PureComponent<Props> {
       threadID: this.props.threadInfo.id,
       creatorID,
       time: Date.now(),
-      media: pendingUploads.map(({ localID, serverID, uri, mediaType }) => ({
-        id: serverID ? serverID : localID,
-        uri,
-        type: mediaType,
-      })),
+      media: pendingUploads.map(
+        ({ localID, serverID, uri, mediaType, dimensions }) => ({
+          id: serverID ? serverID : localID,
+          uri,
+          type: mediaType,
+          dimensions,
+        }),
+      ),
     }: RawMultimediaMessageInfo);
     // This call triggers a setState in ChatInputStateContainer. We hope that
     // propagates quicker than the createLocalMultimediaMessageActionType call

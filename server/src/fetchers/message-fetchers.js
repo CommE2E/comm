@@ -97,7 +97,8 @@ async function fetchCollapsableNotifs(
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       u.username AS creator, m.user AS creatorID,
       stm.permissions AS subthread_permissions, n.user, n.collapse_key,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+      up.extra AS uploadExtra
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN uploads up
@@ -375,6 +376,7 @@ function rawMessageInfoFromRows(
         id: uploadID,
         uri: getUploadURL(uploadID, row.uploadSecret),
         type: row.uploadType,
+        dimensions: row.uploadExtra,
       });
     }
     const [ row ] = rows;
@@ -406,14 +408,15 @@ async function fetchMessageInfos(
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
         x.creation, u.username AS creator, x.subthread_permissions,
-        x.uploadID, x.uploadType, x.uploadSecret,
+        x.uploadID, x.uploadType, x.uploadSecret, x.uploadExtra,
         @num := if(@thread = x.thread, @num + 1, 1) AS number,
         @thread := x.thread AS threadID
       FROM (SELECT @num := 0, @thread := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
           m.creation, stm.permissions AS subthread_permissions,
-          up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
+          up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+          up.extra AS uploadExtra
         FROM messages m
         LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
           AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
@@ -574,7 +577,8 @@ async function fetchMessageInfosSince(
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       m.creation, u.username AS creator, m.user AS creatorID,
       stm.permissions AS subthread_permissions,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+      up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
@@ -672,7 +676,8 @@ async function fetchMessageInfoForLocalID(
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID, stm.permissions AS subthread_permissions,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+      up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
@@ -701,7 +706,7 @@ async function fetchMessageInfoForEntryAction(
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
-      up.secret AS uploadSecret
+      up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')

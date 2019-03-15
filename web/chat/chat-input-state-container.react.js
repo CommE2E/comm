@@ -106,25 +106,35 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   ));
 
   async appendFiles(threadID: string, files: $ReadOnlyArray<File>) {
-    const validationResult = await Promise.all(files.map(validateFile));
-    const validatedFileInfo = validationResult.filter(Boolean);
-    if (validatedFileInfo.length === 0) {
+    const validationResults = await Promise.all(files.map(validateFile));
+    const newUploads = [];
+    for (let result of validationResults) {
+      if (!result) {
+        continue;
+      }
+      const { file, mediaType, dimensions } = result;
+      if (!dimensions) {
+        continue;
+      }
+      newUploads.push({
+        localID: `localUpload${nextLocalUploadID++}`,
+        serverID: null,
+        messageID: null,
+        failed: null,
+        file,
+        mediaType,
+        dimensions,
+        uri: URL.createObjectURL(file),
+        uriIsReal: false,
+        progressPercent: 0,
+        abort: null,
+      });
+    }
+    if (newUploads.length === 0) {
       const { setModal } = this.props;
       setModal(<InvalidUploadModal setModal={setModal} />);
       return;
     }
-    const newUploads = validatedFileInfo.map(({ file, mediaType }) => ({
-      localID: `localUpload${nextLocalUploadID++}`,
-      serverID: null,
-      messageID: null,
-      failed: null,
-      file,
-      mediaType,
-      uri: URL.createObjectURL(file),
-      uriIsReal: false,
-      progressPercent: 0,
-      abort: null,
-    }));
     const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(
       prevState => {

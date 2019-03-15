@@ -1,6 +1,11 @@
 // @flow
 
-import { type MediaType, mediaTypePropType } from 'lib/types/media-types';
+import {
+  type MediaType,
+  mediaTypePropType,
+  type Dimensions,
+  dimensionsPropType,
+} from 'lib/types/media-types';
 
 import PropTypes from 'prop-types';
 
@@ -16,6 +21,7 @@ export type PendingMultimediaUpload = {|
   failed: ?string,
   file: File,
   mediaType: MediaType,
+  dimensions: Dimensions,
   uri: string,
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
@@ -32,6 +38,7 @@ export const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,
   file: PropTypes.object.isRequired,
   mediaType: mediaTypePropType.isRequired,
+  dimensions: dimensionsPropType.isRequired,
   uri: PropTypes.string.isRequired,
   uriIsReal: PropTypes.bool.isRequired,
   progressPercent: PropTypes.number.isRequired,
