@@ -1,13 +1,13 @@
 // @flow
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type {
-  ChatMessageInfoItemWithHeight,
-} from './message-list-container.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux-setup';
-import { messageTypeIsRobotext } from 'lib/types/message-types';
+import {
+  messageTypeIsRobotext,
+  type RobotextMessageInfo,
+} from 'lib/types/message-types';
 
 import React from 'react';
 import {
@@ -15,7 +15,6 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
 
@@ -29,38 +28,35 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from '../navigation/route-names';
 
+export type ChatRobotextMessageInfoItemWithHeight = {|
+  itemType: "message",
+  messageShapeType: "robotext",
+  messageInfo: RobotextMessageInfo,
+  threadInfo: ThreadInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+  endsCluster: bool,
+  robotext: string,
+  contentHeight: number,
+|};
+
 function robotextMessageItemHeight(
-  item: ChatMessageInfoItemWithHeight,
+  item: ChatRobotextMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
   return 17 + item.contentHeight; // for padding, margin, and text
 }
 
-type Props = {
-  item: ChatMessageInfoItemWithHeight,
+type Props = {|
+  item: ChatRobotextMessageInfoItemWithHeight,
   toggleFocus: (messageKey: string) => void,
-};
+|};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
   };
-
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      messageTypeIsRobotext(props.item.messageInfo.type),
-      "TextMessage can only be used for robotext",
-    );
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    invariant(
-      messageTypeIsRobotext(nextProps.item.messageInfo.type),
-      "TextMessage can only be used for robotext",
-    );
-  }
 
   render() {
     return (
@@ -71,11 +67,7 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   linkedRobotext() {
-    const item = this.props.item;
-    invariant(
-      item.robotext && typeof item.robotext === "string",
-      "Flow can't handle our fancy types :(",
-    );
+    const { item } = this.props;
     const robotext = item.robotext;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];

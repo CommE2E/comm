@@ -2,9 +2,6 @@
 
 import type { AppState } from '../redux-setup';
 import {
-  type ComposableMessageInfo,
-  type RobotextMessageInfo,
-  type LocalMessageInfo,
   type FetchMessageInfosPayload,
   messageTypes,
 } from 'lib/types/message-types';
@@ -18,6 +15,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { TextToMeasure } from '../text-height-measurer.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -38,32 +36,12 @@ import ThreadSettingsButton from './thread-settings-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
+import { multimediaMessageContentHeight } from './multimedia-message.react';
 import {
-  multimediaMessageLoadingContentHeight,
-} from './multimedia-message.react';
-import { textMessageMaxWidthSelector } from './composed-message-width';
+  textMessageMaxWidthSelector,
+  composedMessageMaxWidthSelector,
+} from './composed-message-width';
 
-export type ChatMessageInfoItemWithHeight =
-  | {|
-      itemType: "message",
-      messageInfo: RobotextMessageInfo,
-      threadInfo: ThreadInfo,
-      startsConversation: bool,
-      startsCluster: bool,
-      endsCluster: bool,
-      robotext: string,
-      contentHeight: number,
-    |}
-  | {|
-      itemType: "message",
-      messageInfo: ComposableMessageInfo,
-      localMessageInfo: ?LocalMessageInfo,
-      threadInfo: ThreadInfo,
-      startsConversation: bool,
-      startsCluster: bool,
-      endsCluster: bool,
-      contentHeight: number,
-    |};
 export type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
@@ -81,6 +59,7 @@ type Props = {|
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   textMessageMaxWidth: number,
+  composedMessageMaxWidth: number,
 |};
 type State = {|
   textToMeasure: TextToMeasure[],
@@ -102,6 +81,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
+    composedMessageMaxWidth: PropTypes.number.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -121,7 +101,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         : null,
     headerBackTitle: "Back",
   });
-  updatedHeights: Map<string, number> = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -219,7 +198,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         <MessageList
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
-          updateHeightForMessage={this.updateHeightForMessage}
         />
       );
     } else {
@@ -274,20 +252,19 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo
           : null;
-        const updatedHeight = this.updatedHeights.get(id);
-        const contentHeight =
-          updatedHeight !== null && updatedHeight !== undefined
-            ? updatedHeight
-            : multimediaMessageLoadingContentHeight;
         return {
           itemType: "message",
+          messageShapeType: "multimedia",
           messageInfo,
           localMessageInfo,
           threadInfo,
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
-          contentHeight,
+          contentHeight: multimediaMessageContentHeight(
+            messageInfo,
+            this.props.composedMessageMaxWidth,
+          ),
         };
       }
       invariant(textHeights, "textHeights not set");
@@ -303,6 +280,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           : null;
         return {
           itemType: "message",
+          messageShapeType: "text",
           messageInfo,
           localMessageInfo,
           threadInfo,
@@ -318,6 +296,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         );
         return {
           itemType: "message",
+          messageShapeType: "robotext",
           messageInfo,
           threadInfo,
           startsConversation: item.startsConversation,
@@ -329,50 +308,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       }
     });
     return listDataWithHeights;
-  }
-
-  updateHeightForMessage = (id: string, contentHeight: number) => {
-    this.updatedHeights.set(id, contentHeight);
-    this.setState((prevState: State) => {
-      const prevListData = prevState.listDataWithHeights;
-      if (!prevListData) {
-        return {};
-      }
-      let itemModified = false;
-      const newListData = prevListData.map(item => {
-        if (item.itemType !== "message") {
-          return item;
-        }
-        const { messageInfo } = item;
-        const itemID = messageKey(messageInfo);
-        if (itemID !== id) {
-          return item;
-        }
-        itemModified = true;
-        // Conditional due to Flow...
-        const localMessageInfo = item.localMessageInfo
-          ? item.localMessageInfo
-          : null;
-        invariant(
-          messageInfo.type === messageTypes.MULTIMEDIA,
-          "only MULTIMEDIA messages can have height overriden",
-        );
-        return {
-          itemType: "message",
-          messageInfo,
-          localMessageInfo,
-          threadInfo: item.threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          contentHeight,
-        };
-      });
-      if (!itemModified) {
-        return {};
-      }
-      return { listDataWithHeights: newListData };
-    });
   }
 
 }
@@ -410,6 +345,7 @@ export default connect(
       threadInfo: threadInfoSelector(state)[threadID],
       messageListData: messageListData(threadID)(state),
       textMessageMaxWidth: textMessageMaxWidthSelector(state),
+      composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
     };
   },
 )(MessageListContainer);

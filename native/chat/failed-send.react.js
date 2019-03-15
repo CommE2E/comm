@@ -1,8 +1,6 @@
 // @flow
 
-import type {
-  ChatMessageInfoItemWithHeight,
-} from './message-list-container.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   messageTypes,
@@ -27,7 +25,7 @@ import {
 
 import Button from '../components/button.react';
 
-type Props = {
+type Props = {|
   item: ChatMessageInfoItemWithHeight,
   // Redux state
   rawMessageInfo: RawMessageInfo,
@@ -39,7 +37,7 @@ type Props = {
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
-};
+|};
 class FailedSend extends React.PureComponent<Props> {
 
   static propTypes = {
@@ -49,26 +47,7 @@ class FailedSend extends React.PureComponent<Props> {
     sendTextMessage: PropTypes.func.isRequired,
   };
 
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    invariant(
-      nextProps.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-  }
-
   render() {
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
     const { isViewer } = this.props.item.messageInfo.creator;
     if (!isViewer) {
       return null;
@@ -99,20 +78,18 @@ class FailedSend extends React.PureComponent<Props> {
 
   retrySend = () => {
     const { rawMessageInfo } = this.props;
-    invariant(
-      rawMessageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const newRawMessageInfo = {
-      ...rawMessageInfo,
-      time: Date.now(),
-    };
-    this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendMessageAction(newRawMessageInfo),
-      undefined,
-      newRawMessageInfo,
-    );
+    if (rawMessageInfo.type === messageTypes.TEXT) {
+      const newRawMessageInfo = {
+        ...rawMessageInfo,
+        time: Date.now(),
+      };
+      this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendMessageAction(newRawMessageInfo),
+        undefined,
+        newRawMessageInfo,
+      );
+    }
   }
 
   async sendMessageAction(messageInfo: RawTextMessageInfo) {
@@ -162,12 +139,7 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => {
-    const { messageInfo } = ownProps.item;
-    invariant(
-      messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
-    const id = messageID(messageInfo);
+    const id = messageID(ownProps.item.messageInfo);
     return {
       rawMessageInfo: state.messageStore.messages[id],
     };

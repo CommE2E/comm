@@ -6,10 +6,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type {
-  ChatMessageInfoItemWithHeight,
-  ChatMessageItemWithHeight,
-} from './message-list-container.react';
+import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -29,13 +26,16 @@ import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
-import { Message, messageItemHeight } from './message.react';
+import {
+  Message,
+  messageItemHeight,
+  type ChatMessageInfoItemWithHeight,
+} from './message.react';
 import ListLoadingIndicator from '../list-loading-indicator.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
-  updateHeightForMessage: (id: string, contentHeight: number) => void,
   // Redux state
   viewerID: ?string,
   startReached: bool,
@@ -58,7 +58,6 @@ class MessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    updateHeightForMessage: PropTypes.func.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -125,7 +124,6 @@ class MessageList extends React.PureComponent<Props, State> {
         item={messageInfoItem}
         focused={focused}
         toggleFocus={this.toggleMessageFocus}
-        updateHeightForMessage={this.props.updateHeightForMessage}
       />
     );
   }

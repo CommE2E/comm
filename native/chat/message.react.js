@@ -1,8 +1,14 @@
 // @flow
 
 import type {
-  ChatMessageInfoItemWithHeight,
-} from './message-list-container.react';
+  ChatRobotextMessageInfoItemWithHeight,
+} from './robotext-message.react';
+import type {
+  ChatTextMessageInfoItemWithHeight,
+} from './text-message.react';
+import type {
+  ChatMultimediaMessageInfoItem,
+} from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 
@@ -25,14 +31,19 @@ import {
   multimediaMessageItemHeight,
 } from './multimedia-message.react';
 
+export type ChatMessageInfoItemWithHeight =
+  | ChatRobotextMessageInfoItemWithHeight
+  | ChatTextMessageInfoItemWithHeight
+  | ChatMultimediaMessageInfoItem;
+
 function messageItemHeight(
   item: ChatMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
   let height = 0;
-  if (item.messageInfo.type === messageTypes.TEXT) {
+  if (item.messageShapeType === "text") {
     height += textMessageItemHeight(item, viewerID);
-  } else if (item.messageInfo.type === messageTypes.MULTIMEDIA) {
+  } else if (item.messageShapeType === "multimedia") {
     height += multimediaMessageItemHeight(item, viewerID);
   } else {
     height += robotextMessageItemHeight(item, viewerID);
@@ -43,19 +54,17 @@ function messageItemHeight(
   return height;
 }
 
-type Props = {
+type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  updateHeightForMessage: (id: string, contentHeight: number) => void,
-};
+|};
 class Message extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    updateHeightForMessage: PropTypes.func.isRequired,
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -77,7 +86,7 @@ class Message extends React.PureComponent<Props> {
       );
     }
     let message;
-    if (this.props.item.messageInfo.type === messageTypes.TEXT) {
+    if (this.props.item.messageShapeType === "text") {
       message = (
         <TextMessage
           item={this.props.item}
@@ -85,12 +94,11 @@ class Message extends React.PureComponent<Props> {
           toggleFocus={this.props.toggleFocus}
         />
       );
-    } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
+    } else if (this.props.item.messageShapeType === "multimedia") {
       message = (
         <MultimediaMessage
           item={this.props.item}
           toggleFocus={this.props.toggleFocus}
-          updateHeightForMessage={this.props.updateHeightForMessage}
         />
       );
     } else {

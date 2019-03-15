@@ -1,13 +1,13 @@
 // @flow
 
-import type {
-  ChatMessageInfoItemWithHeight,
-} from './message-list-container.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
 import {
   messageTypes,
+  type TextMessageInfo,
+  type LocalMessageInfo,
 } from 'lib/types/message-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import { Text, StyleSheet, Clipboard } from 'react-native';
@@ -24,8 +24,20 @@ import Tooltip from '../components/tooltip.react';
 import ComposedMessage from './composed-message.react';
 import RoundedMessageContainer from './rounded-message-container.react';
 
+export type ChatTextMessageInfoItemWithHeight = {|
+  itemType: "message",
+  messageShapeType: "text",
+  messageInfo: TextMessageInfo,
+  localMessageInfo: ?LocalMessageInfo,
+  threadInfo: ThreadInfo,
+  startsConversation: bool,
+  startsCluster: bool,
+  endsCluster: bool,
+  contentHeight: number,
+|};
+
 function textMessageItemHeight(
-  item: ChatMessageInfoItemWithHeight,
+  item: ChatTextMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
@@ -50,7 +62,7 @@ function textMessageItemHeight(
 }
 
 type Props = {|
-  item: ChatMessageInfoItemWithHeight,
+  item: ChatTextMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
 |};
@@ -73,10 +85,6 @@ class TextMessage extends React.PureComponent<Props> {
 
   render() {
     const { item } = this.props;
-    invariant(
-      item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
     const { text, id, creator } = item.messageInfo;
     const { isViewer } = creator;
 
@@ -156,10 +164,6 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   onPressCopy = () => {
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
-    );
     Clipboard.setString(this.props.item.messageInfo.text);
   }
 

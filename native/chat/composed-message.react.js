@@ -1,8 +1,6 @@
 // @flow
 
-import type {
-  ChatMessageInfoItemWithHeight,
-} from './message-list-container.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { ViewStyle } from '../types/styles';
