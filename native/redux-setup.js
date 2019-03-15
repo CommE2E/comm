@@ -24,7 +24,7 @@ import {
   defaultConnectionInfo,
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
-import type { Dimensions } from './types/dimensions';
+import type { Dimensions } from 'lib/types/media-types';
 
 import React from 'react';
 import invariant from 'invariant';

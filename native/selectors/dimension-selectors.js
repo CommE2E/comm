@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { Dimensions } from '../types/dimensions';
+import type { Dimensions } from 'lib/types/media-types';
 
 import { Platform, DeviceInfo } from 'react-native';
 

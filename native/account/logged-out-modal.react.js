@@ -12,7 +12,7 @@ import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
 import type { LogInExtraInfo } from 'lib/types/account-types';
-import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';

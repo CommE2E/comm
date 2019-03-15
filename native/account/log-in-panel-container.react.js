@@ -7,7 +7,7 @@ import {
 } from '../utils/state-container';
 import type { LogInState } from './log-in-panel.react';
 import type { AppState } from '../redux-setup';
-import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import {

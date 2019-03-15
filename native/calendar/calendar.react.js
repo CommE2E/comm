@@ -22,7 +22,7 @@ import {
   type CalendarFilter,
   calendarFilterPropType,
 } from 'lib/types/filter-types';
-import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import React from 'react';
 import {

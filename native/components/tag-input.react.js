@@ -1,7 +1,7 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../types/styles';
-import { type Dimensions, dimensionsPropType } from '../types/dimensions';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux-setup';
 
 import * as React from 'react';

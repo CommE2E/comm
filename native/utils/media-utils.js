@@ -1,6 +1,6 @@
 // @flow
 
-import type { Dimensions } from '../types/dimensions';
+import type { Dimensions } from 'lib/types/media-types';
 
 import { Image } from 'react-native';
 

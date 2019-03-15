@@ -1,7 +1,7 @@
 // @flow
 
 import type { ImageStyle } from './types/styles';
-import type { Dimensions } from './types/dimensions';
+import type { Dimensions } from 'lib/types/media-types';
 
 import { Platform, PixelRatio } from 'react-native';
 import { createSelector } from 'reselect';
