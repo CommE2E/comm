@@ -42,7 +42,7 @@ async function fetchMedia(
   mediaIDs: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<Media>> {
   const query = SQL`
-    SELECT id, secret, type
+    SELECT id, secret, type, extra
     FROM uploads
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
@@ -53,6 +53,7 @@ async function fetchMedia(
       id,
       uri: getUploadURL(id, row.secret),
       type: row.type,
+      dimensions: row.extra,
     };
   });
 }
