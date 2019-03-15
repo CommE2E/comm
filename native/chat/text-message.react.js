@@ -2,10 +2,9 @@
 
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { TooltipItemData } from '../components/tooltip.react';
-import {
-  messageTypes,
-  type TextMessageInfo,
-  type LocalMessageInfo,
+import type {
+  TextMessageInfo,
+  LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 

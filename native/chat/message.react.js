@@ -10,7 +10,6 @@ import type {
   ChatMultimediaMessageInfoItem,
 } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
 
 import React from 'react';
 import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';

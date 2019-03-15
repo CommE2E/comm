@@ -19,6 +19,7 @@
 .*/Libraries/polyfills/.*
 
 .*/node_modules/redux-persist/lib/index.js
+.*/node_modules/react-native-fast-image/src/index.js.flow
 
 ; Ignore metro
 .*/node_modules/metro/.*

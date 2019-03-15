@@ -1,10 +1,9 @@
 // @flow
 
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import {
-  messageTypes,
-  type MultimediaMessageInfo,
-  type LocalMessageInfo,
+import type {
+  MultimediaMessageInfo,
+  LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
@@ -16,15 +15,14 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-  Image,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { messageKey } from 'lib/shared/message-utils';
 
 import ComposedMessage from './composed-message.react';
+import Multimedia from './multimedia.react';
 
 export type ChatMultimediaMessageInfoItem = {|
   itemType: "message",
@@ -95,7 +93,7 @@ type Props = {|
   toggleFocus: (messageKey: string) => void,
 |};
 type State = {|
-  preloaded: bool,
+  loadedMediaIDs: $ReadOnlyArray<string>,
 |};
 class MultimediaMessage extends React.PureComponent<Props, State> {
 
@@ -104,35 +102,29 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     toggleFocus: PropTypes.func.isRequired,
   };
   state = {
-    preloaded: true,
+    loadedMediaIDs: [],
   };
+
+  get loaded() {
+    const { loadedMediaIDs } = this.state;
+    const { messageInfo } = this.props.item;
+    return loadedMediaIDs.length === messageInfo.media.length;
+  }
 
   render() {
     const { messageInfo, contentHeight } = this.props.item;
-    invariant(
-      messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
-    );
     const { id, creator } = messageInfo;
     const { isViewer } = creator;
     const heightStyle = { height: contentHeight };
 
-    let content;
-    if (!this.state.preloaded) {
-      content = (
-        <View style={[heightStyle, styles.container]}>
-          <ActivityIndicator
-            color="black"
-            size="large"
-            style={heightStyle}
-          />
-        </View>
-      );
-    } else {
-      content = (
-        <View style={[heightStyle, styles.container]}>
-          {this.renderContent()}
-        </View>
+    let loadingOverlay;
+    if (!this.loaded) {
+      loadingOverlay = (
+        <ActivityIndicator
+          color="black"
+          size="large"
+          style={[heightStyle, styles.loadingOverlay]}
+        />
       );
     }
 
@@ -150,7 +142,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         style={styles.row}
       >
         <TouchableWithoutFeedback onPress={this.onPress}>
-          {content}
+          <View style={[heightStyle, styles.container]}>
+            {loadingOverlay}
+            {this.renderContent()}
+          </View>
         </TouchableWithoutFeedback>
       </ComposedMessage>
     );
@@ -158,27 +153,23 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
 
   renderContent(): React.Node {
     const { messageInfo } = this.props.item;
-    invariant(
-      messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
-    );
     if (messageInfo.media.length === 1) {
-      return MultimediaMessage.renderImage(messageInfo.media[0]);
+      return this.renderImage(messageInfo.media[0]);
     } else if (messageInfo.media.length === 2) {
       const [ one, two ] = messageInfo.media;
       return (
         <View style={styles.row}>
-          {MultimediaMessage.renderImage(one, styles.leftImage)}
-          {MultimediaMessage.renderImage(two, styles.rightImage)}
+          {this.renderImage(one, styles.leftImage)}
+          {this.renderImage(two, styles.rightImage)}
         </View>
       );
     } else if (messageInfo.media.length === 3) {
       const [ one, two, three ] = messageInfo.media;
       return (
         <View style={styles.row}>
-          {MultimediaMessage.renderImage(one, styles.leftImage)}
-          {MultimediaMessage.renderImage(two, styles.centerImage)}
-          {MultimediaMessage.renderImage(three, styles.rightImage)}
+          {this.renderImage(one, styles.leftImage)}
+          {this.renderImage(two, styles.centerImage)}
+          {this.renderImage(three, styles.rightImage)}
         </View>
       );
     } else if (messageInfo.media.length === 4) {
@@ -186,12 +177,12 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       return (
         <View style={styles.grid}>
           <View style={styles.row}>
-            {MultimediaMessage.renderImage(one, styles.topLeftImage)}
-            {MultimediaMessage.renderImage(two, styles.topRightImage)}
+            {this.renderImage(one, styles.topLeftImage)}
+            {this.renderImage(two, styles.topRightImage)}
           </View>
           <View style={styles.row}>
-            {MultimediaMessage.renderImage(three, styles.bottomLeftImage)}
-            {MultimediaMessage.renderImage(four, styles.bottomRightImage)}
+            {this.renderImage(three, styles.bottomLeftImage)}
+            {this.renderImage(four, styles.bottomRightImage)}
           </View>
         </View>
       );
@@ -213,7 +204,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         for (; j < rowMedia.length; j++) {
           const media = rowMedia[j];
           const style = rowStyle[j];
-          row.push(MultimediaMessage.renderImage(media, style));
+          row.push(this.renderImage(media, style));
         }
         for (; j < 3; j++) {
           const key = `filler${j}`;
@@ -230,16 +221,26 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     }
   }
 
-  static renderImage(media: Media, style?: ImageStyle): React.Node {
-    const { id, uri } = media;
-    const source = { uri };
+  renderImage(media: Media, style?: ImageStyle): React.Node {
     return (
-      <Image
-        source={source}
-        key={id}
-        style={[styles.image, style]}
+      <Multimedia
+        media={media}
+        style={style}
+        key={media.id}
+        onLoad={this.onMediaLoad}
       />
     );
+  }
+
+  onMediaLoad = (mediaID: string) => {
+    this.setState(prevState => {
+      const mediaIDs = new Set(prevState.loadedMediaIDs);
+      if (mediaIDs.has(mediaID)) {
+        return {};
+      }
+      mediaIDs.add(mediaID);
+      return { loadedMediaIDs: [...mediaIDs] };
+    });
   }
 
   onPress = () => {
@@ -255,15 +256,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  loadingOverlay: {
+    position: 'absolute',
+  },
   grid: {
     flex: 1,
   },
   row: {
     flex: 1,
     flexDirection: 'row',
-  },
-  image: {
-    flex: 1,
   },
   leftImage: {
     marginRight: spaceBetweenImages,
