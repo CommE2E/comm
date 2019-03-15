@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "apn": "^2.2.0",
+    "buffer-image-size": "^0.6.4",
     "common-tags": "^1.7.2",
     "cookie-parser": "^1.4.3",
     "dateformat": "^3.0.3",
