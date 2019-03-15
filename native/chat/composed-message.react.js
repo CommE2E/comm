@@ -6,6 +6,7 @@ import type {
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { ViewStyle } from '../types/styles';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -13,9 +14,11 @@ import { Text, StyleSheet, View, ViewPropTypes } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { stringForUser } from 'lib/shared/user-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import FailedSend from './failed-send.react';
 import RoundedMessageContainer from './rounded-message-container.react';
+import { composedMessageMaxWidthSelector } from './composed-message-width';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -23,6 +26,8 @@ type Props = {|
   style?: ViewStyle,
   borderRadius: number,
   children: React.Node,
+  // Redux state
+  composedMessageMaxWidth: number,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
 
@@ -32,6 +37,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     style: ViewPropTypes.style,
     borderRadius: PropTypes.number.isRequired,
     children: PropTypes.node.isRequired,
+    composedMessageMaxWidth: PropTypes.number.isRequired,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -50,11 +56,14 @@ class ComposedMessage extends React.PureComponent<Props> {
       styles.alignment,
       { marginBottom: item.endsCluster ? 12 : 5 },
     ];
+    const messageBoxStyle = {
+      maxWidth: this.props.composedMessageMaxWidth,
+    };
 
     let authorName = null;
     if (!isViewer && item.startsCluster) {
       authorName = (
-        <Text style={styles.authorName}>
+        <Text style={styles.authorName} numberOfLines={1}>
           {stringForUser(creator)}
         </Text>
       );
@@ -87,8 +96,8 @@ class ComposedMessage extends React.PureComponent<Props> {
     return (
       <View style={containerStyle}>
         {authorName}
-        <View style={styles.content}>
-          <View style={[styles.messageBox, alignStyle]}>
+        <View style={[ styles.content, alignStyle ]}>
+          <View style={[ styles.messageBox, messageBoxStyle ]}>
             <RoundedMessageContainer
               item={item}
               borderRadius={borderRadius}
@@ -144,4 +153,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ComposedMessage;
+export default connect(
+  (state: AppState) => ({
+    composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+  }),
+)(ComposedMessage);

@@ -41,6 +41,7 @@ import ChatInputBar from './chat-input-bar.react';
 import {
   multimediaMessageLoadingContentHeight,
 } from './multimedia-message.react';
+import { textMessageMaxWidthSelector } from './composed-message-width';
 
 export type ChatMessageInfoItemWithHeight =
   | {|
@@ -79,6 +80,7 @@ type Props = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
+  textMessageMaxWidth: number,
 |};
 type State = {|
   textToMeasure: TextToMeasure[],
@@ -99,6 +101,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }).isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
+    textMessageMaxWidth: PropTypes.number.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -123,7 +126,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const textToMeasure = props.messageListData
-      ? MessageListContainer.textToMeasureFromListData(props.messageListData)
+      ? this.textToMeasureFromListData(props.messageListData)
       : [];
     const listDataWithHeights =
       props.messageListData && textToMeasure.length === 0
@@ -132,7 +135,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     this.state = { textToMeasure, listDataWithHeights };
   }
 
-  static textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
+  textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];
     for (let item of listData) {
       if (item.itemType !== "message") {
@@ -140,12 +143,11 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       }
       const { messageInfo } = item;
       if (messageInfo.type === messageTypes.TEXT) {
-        const { isViewer } = messageInfo.creator;
         const style = [
           onlyEmojiRegex.test(messageInfo.text)
             ? styles.emojiOnlyText
             : styles.text,
-          isViewer ? styles.viewerMargins : styles.nonViewerMargins,
+          { width: this.props.textMessageMaxWidth },
         ];
         textToMeasure.push({
           id: messageKey(messageInfo),
@@ -203,8 +205,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newTextToMeasure =
-      MessageListContainer.textToMeasureFromListData(newListData);
+    const newTextToMeasure = this.textToMeasureFromListData(newListData);
     this.setState({ textToMeasure: newTextToMeasure });
   }
 
@@ -386,14 +387,6 @@ const styles = StyleSheet.create({
   loadingIndicatorContainer: {
     flex: 1,
   },
-  viewerMargins: {
-    left: 24,
-    right: 42,
-  },
-  nonViewerMargins: {
-    left: 24,
-    right: 24,
-  },
   text: {
     fontSize: 18,
     fontFamily: 'Arial',
@@ -416,6 +409,7 @@ export default connect(
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       messageListData: messageListData(threadID)(state),
+      textMessageMaxWidth: textMessageMaxWidthSelector(state),
     };
   },
 )(MessageListContainer);
