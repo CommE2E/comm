@@ -1,12 +1,12 @@
 import url from 'url';
 import Module from 'module';
 import fs from 'fs';
-import Promise from 'promise';
+import { promisify } from 'util';
 
 const builtins = Module.builtinModules;
 const extensions = { js: 'esm', json: "json" };
-const access = Promise.denodeify(fs.access);
-const readFile = Promise.denodeify(fs.readFile);
+const access = promisify(fs.access);
+const readFile = promisify(fs.readFile);
 const baseURL = new url.URL('file://');
 
 export async function resolve(

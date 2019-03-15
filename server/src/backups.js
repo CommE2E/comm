@@ -4,15 +4,15 @@ import fs from 'fs';
 import childProcess from 'child_process';
 import zlib from 'zlib';
 import dateFormat from 'dateformat';
-import denodeify from 'denodeify';
 import StreamCache from 'stream-cache';
+import { promisify } from 'util';
 
 import dbConfig from '../secrets/db_config';
 import backupConfig from '../facts/backups';
 
-const readdir = denodeify(fs.readdir);
-const lstat = denodeify(fs.lstat);
-const unlink = denodeify(fs.unlink);
+const readdir = promisify(fs.readdir);
+const lstat = promisify(fs.lstat);
+const unlink = promisify(fs.unlink);
 
 async function backupDB() {
   if (!backupConfig || !backupConfig.enabled) {
