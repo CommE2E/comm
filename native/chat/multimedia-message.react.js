@@ -134,7 +134,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     } else if (messageInfo.media.length === 4) {
       contentHeight = composedMessageMaxWidth;
     } else {
-      const numRows = Math.floor(messageInfo.media.length / 3);
+      const numRows = Math.ceil(messageInfo.media.length / 3);
       contentHeight = numRows * composedMessageMaxWidth / 3;
     }
     this.props.updateHeightForMessage(messageKey(messageInfo), contentHeight);
@@ -217,7 +217,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     } else if (messageInfo.media.length === 4) {
       const [ one, two, three, four ] = messageInfo.media;
       return (
-        <React.Fragment>
+        <View style={styles.grid}>
           <View style={styles.row}>
             {MultimediaMessage.renderImage(one, styles.topLeftImage)}
             {MultimediaMessage.renderImage(two, styles.topRightImage)}
@@ -226,40 +226,40 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
             {MultimediaMessage.renderImage(three, styles.bottomLeftImage)}
             {MultimediaMessage.renderImage(four, styles.bottomRightImage)}
           </View>
-        </React.Fragment>
+        </View>
       );
     } else {
       const rows = [];
       for (let i = 0; i < messageInfo.media.length; i += 3) {
-        const media = messageInfo.media.slice(i, i + 3);
-        const [ one, two, three ] = media;
+        let rowStyle;
         if (i === 0) {
-          rows.push(
-            <View style={styles.row} key={i}>
-              {MultimediaMessage.renderImage(one, styles.topLeftImage)}
-              {MultimediaMessage.renderImage(two, styles.topCenterImage)}
-              {MultimediaMessage.renderImage(three, styles.topRightImage)}
-            </View>
-          );
+          rowStyle = rowStyles.top;
         } else if (i + 3 >= messageInfo.media.length) {
-          rows.push(
-            <View style={styles.row} key={i}>
-              {MultimediaMessage.renderImage(one, styles.bottomLeftImage)}
-              {MultimediaMessage.renderImage(two, styles.bottomCenterImage)}
-              {MultimediaMessage.renderImage(three, styles.bottomRightImage)}
-            </View>
-          );
+          rowStyle = rowStyles.bottom;
         } else {
-          rows.push(
-            <View style={styles.row} key={i}>
-              {MultimediaMessage.renderImage(one, styles.leftImage)}
-              {MultimediaMessage.renderImage(two, styles.centerImage)}
-              {MultimediaMessage.renderImage(three, styles.rightImage)}
-            </View>
-          );
+          rowStyle = rowStyles.middle;
         }
+
+        const rowMedia = messageInfo.media.slice(i, i + 3);
+        const row = [];
+        let j = 0;
+        for (; j < rowMedia.length; j++) {
+          const media = rowMedia[j];
+          const style = rowStyle[j];
+          row.push(MultimediaMessage.renderImage(media, style));
+        }
+        for (; j < 3; j++) {
+          const key = `filler${j}`;
+          row.push(<View style={styles.image} key={key} />);
+        }
+
+        rows.push(
+          <View style={styles.row} key={i}>
+            {row}
+          </View>
+        );
       }
-      return rows;
+      return <View style={styles.grid}>{rows}</View>;
     }
   }
 
@@ -281,11 +281,15 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
 
 }
 
+const spaceBetweenImages = 2;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  grid: {
+    flex: 1,
   },
   row: {
     flex: 1,
@@ -295,42 +299,59 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   leftImage: {
-    marginRight: 3,
+    marginRight: spaceBetweenImages,
   },
   centerImage: {
-    marginLeft: 3,
-    marginRight: 3,
+    marginLeft: spaceBetweenImages,
+    marginRight: spaceBetweenImages,
   },
   rightImage: {
-    marginLeft: 3,
+    marginLeft: spaceBetweenImages,
   },
   topLeftImage: {
-    marginRight: 3,
-    marginBottom: 3,
+    marginRight: spaceBetweenImages,
+    marginBottom: spaceBetweenImages,
   },
   topCenterImage: {
-    marginLeft: 3,
-    marginRight: 3,
-    marginBottom: 3,
+    marginLeft: spaceBetweenImages,
+    marginRight: spaceBetweenImages,
+    marginBottom: spaceBetweenImages,
   },
   topRightImage: {
-    marginLeft: 3,
-    marginBottom: 3,
+    marginLeft: spaceBetweenImages,
+    marginBottom: spaceBetweenImages,
   },
   bottomLeftImage: {
-    marginRight: 3,
-    marginTop: 3,
+    marginRight: spaceBetweenImages,
+    marginTop: spaceBetweenImages,
   },
   bottomCenterImage: {
-    marginLeft: 3,
-    marginRight: 3,
-    marginTop: 3,
+    marginLeft: spaceBetweenImages,
+    marginRight: spaceBetweenImages,
+    marginTop: spaceBetweenImages,
   },
   bottomRightImage: {
-    marginLeft: 3,
-    marginTop: 3,
+    marginLeft: spaceBetweenImages,
+    marginTop: spaceBetweenImages,
   },
 });
+const rowStyles = {
+  top: [
+    styles.topLeftImage,
+    styles.topCenterImage,
+    styles.topRightImage,
+  ],
+  bottom: [
+    styles.bottomLeftImage,
+    styles.bottomCenterImage,
+    styles.bottomRightImage,
+  ],
+  middle: [
+    styles.leftImage,
+    styles.centerImage,
+    styles.rightImage,
+  ],
+};
 
 const WrappedMultimediaMessage = connect(
   (state: AppState) => ({
