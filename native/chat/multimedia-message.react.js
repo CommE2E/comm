@@ -7,7 +7,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
-import type { Dimensions } from '../types/dimensions';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import {
@@ -22,22 +22,22 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { promiseAll } from 'lib/utils/promises';
+import { connect } from 'lib/utils/redux-utils';
 
 import ComposedMessage from './composed-message.react';
 import { preloadImage } from '../utils/media-utils';
+import { composedMessageMaxWidthSelector } from './composed-message-width';
 
-const multimediaMessageLoadingContentHeight = 100; // TODO
+const multimediaMessageLoadingContentHeight = 100;
 
 function multimediaMessageItemHeight(
   item: ChatMessageInfoItemWithHeight,
   viewerID: ?string,
 ) {
-  // TODO
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { id, creator } = messageInfo;
   const { isViewer } = creator;
-  let height = 17 + contentHeight; // for padding, margin, and text
+  let height = 5 + contentHeight; // for margin and image
   if (!isViewer && startsCluster) {
     height += 25; // for username
   }
@@ -50,7 +50,7 @@ function multimediaMessageItemHeight(
     item.localMessageInfo &&
     item.localMessageInfo.sendFailed
   ) {
-    height += 22; // extra padding at the end of a cluster
+    height += 22; // extra padding for sendFailed
   }
   return height;
 }
@@ -59,9 +59,11 @@ type Props = {|
   item: ChatMessageInfoItemWithHeight,
   toggleFocus: (messageKey: string) => void,
   updateHeightForMessage: (id: string, contentHeight: number) => void,
+  // Redux state
+  composedMessageMaxWidth: number,
 |};
 type State = {|
-  dimensions: ?{[id: string]: Dimensions},
+  preloaded: bool,
 |};
 class MultimediaMessage extends React.PureComponent<Props, State> {
 
@@ -69,9 +71,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     item: chatMessageItemPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     updateHeightForMessage: PropTypes.func.isRequired,
+    composedMessageMaxWidth: PropTypes.number.isRequired,
   };
   state = {
-    dimensions: null,
+    preloaded: false,
   };
 
   componentDidMount() {
@@ -109,8 +112,32 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     for (let media of messageInfo.media) {
       promises[media.id] = preloadImage(media.uri);
     }
-    const dimensions = await promiseAll(promises);
-    this.setState({ dimensions });
+    const dimensions = await Promise.all(messageInfo.media.map(
+      media => preloadImage(media.uri),
+    ));
+    this.setState({ preloaded: true });
+
+    const { composedMessageMaxWidth } = this.props;
+    let contentHeight;
+    if (messageInfo.media.length === 1) {
+      const [ mediaDimensions ] = dimensions;
+      if (composedMessageMaxWidth >= mediaDimensions.width) {
+        contentHeight = mediaDimensions.height;
+      } else {
+        contentHeight = mediaDimensions.height *
+          composedMessageMaxWidth / mediaDimensions.width;
+      }
+    } else if (messageInfo.media.length === 2) {
+      contentHeight = composedMessageMaxWidth / 2;
+    } else if (messageInfo.media.length === 3) {
+      contentHeight = composedMessageMaxWidth / 3;
+    } else if (messageInfo.media.length === 4) {
+      contentHeight = composedMessageMaxWidth;
+    } else {
+      const numRows = Math.floor(messageInfo.media.length / 3);
+      contentHeight = numRows * composedMessageMaxWidth / 3;
+    }
+    this.props.updateHeightForMessage(messageKey(messageInfo), contentHeight);
   }
 
   render() {
@@ -124,7 +151,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     const heightStyle = { height: contentHeight };
 
     let content;
-    if (!this.state.dimensions) {
+    if (!this.state.preloaded) {
       content = (
         <View style={[heightStyle, styles.container]}>
           <ActivityIndicator
@@ -305,8 +332,14 @@ const styles = StyleSheet.create({
   },
 });
 
+const WrappedMultimediaMessage = connect(
+  (state: AppState) => ({
+    composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+  }),
+)(MultimediaMessage);
+
 export {
   multimediaMessageLoadingContentHeight,
-  MultimediaMessage,
+  WrappedMultimediaMessage as MultimediaMessage,
   multimediaMessageItemHeight,
 };

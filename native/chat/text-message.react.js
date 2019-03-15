@@ -44,7 +44,7 @@ function textMessageItemHeight(
     item.localMessageInfo &&
     item.localMessageInfo.sendFailed
   ) {
-    height += 22; // extra padding at the end of a cluster
+    height += 22; // extra padding for sendFailed
   }
   return height;
 }
