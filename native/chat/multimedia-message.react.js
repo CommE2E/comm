@@ -8,6 +8,10 @@ import { messageTypes } from 'lib/types/message-types';
 import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { AppState } from '../redux-setup';
+import {
+  type ConnectionStatus,
+  connectionStatusPropType,
+} from 'lib/types/socket-types';
 
 import * as React from 'react';
 import {
@@ -61,6 +65,7 @@ type Props = {|
   updateHeightForMessage: (id: string, contentHeight: number) => void,
   // Redux state
   composedMessageMaxWidth: number,
+  connectionStatus: ConnectionStatus,
 |};
 type State = {|
   preloaded: bool,
@@ -72,6 +77,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     toggleFocus: PropTypes.func.isRequired,
     updateHeightForMessage: PropTypes.func.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
+    connectionStatus: connectionStatusPropType.isRequired,
   };
   state = {
     preloaded: false,
@@ -99,6 +105,14 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         return;
       }
     }
+
+    if (
+      !this.state.preloaded &&
+      this.props.connectionStatus === "connected" &&
+      prevProps.connectionStatus !== "connected"
+    ) {
+      this.calculateDimensions();
+    }
   }
 
   async calculateDimensions() {
@@ -112,9 +126,14 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     for (let media of messageInfo.media) {
       promises[media.id] = preloadImage(media.uri);
     }
-    const dimensions = await Promise.all(messageInfo.media.map(
-      media => preloadImage(media.uri),
-    ));
+    let dimensions;
+    try {
+      dimensions = await Promise.all(messageInfo.media.map(
+        media => preloadImage(media.uri),
+      ));
+    } catch (e) {
+      return;
+    }
     this.setState({ preloaded: true });
 
     const { composedMessageMaxWidth } = this.props;
@@ -356,6 +375,7 @@ const rowStyles = {
 const WrappedMultimediaMessage = connect(
   (state: AppState) => ({
     composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+    connectionStatus: state.connection.status,
   }),
 )(MultimediaMessage);
 
