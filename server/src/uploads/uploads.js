@@ -65,7 +65,8 @@ async function uploadDownloadResponder(
     throw new ServerError('invalid_parameters');
   }
   const { content, mime } = await fetchUpload(viewer, uploadID, secret);
-  res.set("Content-Type", mime);
+  res.type(mime);
+  res.set('Cache-Control', 'public, max-age=31557600, immutable');
   res.send(content);
 }
 
