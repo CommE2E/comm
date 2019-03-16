@@ -8,7 +8,6 @@ import type {
 } from 'lib/types/media-types';
 
 import multer from 'multer';
-import fileType from 'file-type';
 
 import { fileInfoFromData } from 'lib/utils/media-utils';
 import { ServerError } from 'lib/utils/errors';
