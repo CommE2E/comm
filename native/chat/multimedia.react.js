@@ -3,26 +3,47 @@
 import { type Media, mediaPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import {
+  type ConnectionStatus,
+  connectionStatusPropType,
+} from 'lib/types/socket-types';
+import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
+import { connect } from 'lib/utils/redux-utils';
+
 type Props = {|
   media: Media,
   style?: ?ImageStyle,
+  // Redux state
+  connectionStatus: ConnectionStatus,
 |};
 type State = {|
+  attempt: number,
   loadingStatus: LoadingStatus,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
     media: mediaPropType.isRequired,
+    connectionStatus: connectionStatusPropType.isRequired,
   };
   state = {
+    attempt: 0,
     loadingStatus: "loading",
   };
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.connectionStatus === "connected" &&
+      prevProps.connectionStatus !== "connected"
+    ) {
+      this.setState(prevState => ({ attempt: prevState.attempt + 1 }));
+    }
+  }
 
   render() {
     const { media, style } = this.props;
@@ -33,6 +54,7 @@ class Multimedia extends React.PureComponent<Props, State> {
         source={source}
         onLoad={this.onLoad}
         style={[styles.image, style]}
+        key={this.state.attempt}
       />
     );
 
@@ -73,4 +95,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Multimedia;
+export default connect(
+  (state: AppState) => ({
+    connectionStatus: state.connection.status,
+  }),
+)(Multimedia);
