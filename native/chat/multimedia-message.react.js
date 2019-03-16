@@ -15,7 +15,6 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -49,6 +48,9 @@ function multimediaMessageContentHeight(
     } else {
       contentHeight = mediaDimensions.height *
         composedMessageMaxWidth / mediaDimensions.width;
+    }
+    if (contentHeight < 50) {
+      contentHeight = 50;
     }
   } else if (messageInfo.media.length === 2) {
     contentHeight = composedMessageMaxWidth / 2;
@@ -92,41 +94,18 @@ type Props = {|
   item: ChatMultimediaMessageInfoItem,
   toggleFocus: (messageKey: string) => void,
 |};
-type State = {|
-  loadedMediaIDs: $ReadOnlyArray<string>,
-|};
-class MultimediaMessage extends React.PureComponent<Props, State> {
+class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
   };
-  state = {
-    loadedMediaIDs: [],
-  };
-
-  get loaded() {
-    const { loadedMediaIDs } = this.state;
-    const { messageInfo } = this.props.item;
-    return loadedMediaIDs.length === messageInfo.media.length;
-  }
 
   render() {
     const { messageInfo, contentHeight } = this.props.item;
     const { id, creator } = messageInfo;
     const { isViewer } = creator;
     const heightStyle = { height: contentHeight };
-
-    let loadingOverlay;
-    if (!this.loaded) {
-      loadingOverlay = (
-        <ActivityIndicator
-          color="black"
-          size="large"
-          style={[heightStyle, styles.loadingOverlay]}
-        />
-      );
-    }
 
     const sendFailed =
       isViewer &&
@@ -143,7 +122,6 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       >
         <TouchableWithoutFeedback onPress={this.onPress}>
           <View style={[heightStyle, styles.container]}>
-            {loadingOverlay}
             {this.renderContent()}
           </View>
         </TouchableWithoutFeedback>
@@ -208,7 +186,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         }
         for (; j < 3; j++) {
           const key = `filler${j}`;
-          row.push(<View style={styles.image} key={key} />);
+          row.push(<View style={styles.filler} key={key} />);
         }
 
         rows.push(
@@ -227,20 +205,8 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         media={media}
         style={style}
         key={media.id}
-        onLoad={this.onMediaLoad}
       />
     );
-  }
-
-  onMediaLoad = (mediaID: string) => {
-    this.setState(prevState => {
-      const mediaIDs = new Set(prevState.loadedMediaIDs);
-      if (mediaIDs.has(mediaID)) {
-        return {};
-      }
-      mediaIDs.add(mediaID);
-      return { loadedMediaIDs: [...mediaIDs] };
-    });
   }
 
   onPress = () => {
@@ -256,10 +222,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  loadingOverlay: {
-    position: 'absolute',
-  },
   grid: {
+    flex: 1,
+  },
+  filler: {
     flex: 1,
   },
   row: {
