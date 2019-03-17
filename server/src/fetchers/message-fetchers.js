@@ -409,9 +409,14 @@ async function fetchMessageInfos(
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
         x.creation, u.username AS creator, x.subthread_permissions,
         x.uploadID, x.uploadType, x.uploadSecret, x.uploadExtra,
-        @num := if(@thread = x.thread, @num + 1, 1) AS number,
+        @num := if(
+          @thread = x.thread,
+          if(@message = x.id, @num, @num + 1),
+          1
+        ) AS number,
+        @message := x.id AS messageID,
         @thread := x.thread AS threadID
-      FROM (SELECT @num := 0, @thread := '') init
+      FROM (SELECT @num := 0, @thread := '', @message := '') init
       JOIN (
         SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
           m.creation, stm.permissions AS subthread_permissions,
