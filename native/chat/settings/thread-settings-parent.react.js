@@ -1,11 +1,10 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
-import type { NavigationParams } from 'react-navigation';
+import type { Navigate } from '../../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -19,11 +18,7 @@ import { ThreadSettingsRouteName } from '../../navigation/route-names';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    key?: string,
-  }) => bool,
+  navigate: Navigate,
   // Redux state
   parentThreadInfo?: ?ThreadInfo,
 |};

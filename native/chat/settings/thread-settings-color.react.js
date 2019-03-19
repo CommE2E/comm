@@ -7,9 +7,9 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux-setup';
-import type { NavigationParams } from 'react-navigation';
+import type { Navigate } from '../../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
   StyleSheet,
@@ -32,11 +32,7 @@ type Props = {|
   colorEditValue: string,
   setColorEditValue: (color: string) => void,
   canChangeSettings: bool,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    key?: string,
-  }) => bool,
+  navigate: Navigate,
   // Redux state
   loadingStatus: LoadingStatus,
 |};

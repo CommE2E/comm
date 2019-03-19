@@ -7,6 +7,7 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
+import type { Navigate } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -36,6 +37,7 @@ import ListLoadingIndicator from '../list-loading-indicator.react';
 type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  navigate: Navigate,
   // Redux state
   viewerID: ?string,
   startReached: bool,
@@ -58,6 +60,7 @@ class MessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
+    navigate: PropTypes.func.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -123,6 +126,7 @@ class MessageList extends React.PureComponent<Props, State> {
       <Message
         item={messageInfoItem}
         focused={focused}
+        navigate={this.props.navigate}
         toggleFocus={this.toggleMessageFocus}
       />
     );

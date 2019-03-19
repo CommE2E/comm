@@ -8,6 +8,7 @@ import type {
 import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { Navigate } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -21,7 +22,7 @@ import PropTypes from 'prop-types';
 import { messageKey } from 'lib/shared/message-utils';
 
 import ComposedMessage from './composed-message.react';
-import Multimedia from './multimedia.react';
+import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 
 export type ChatMultimediaMessageInfoItem = {|
   itemType: "message",
@@ -92,12 +93,14 @@ function multimediaMessageItemHeight(
 
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
+  navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
   };
 
@@ -120,7 +123,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         borderRadius={16}
         style={styles.row}
       >
-        <TouchableWithoutFeedback onPress={this.onPress}>
+        <TouchableWithoutFeedback onLongPress={this.onLongPress}>
           <View style={[heightStyle, styles.container]}>
             {this.renderContent()}
           </View>
@@ -201,15 +204,16 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   renderImage(media: Media, style?: ImageStyle): React.Node {
     return (
-      <Multimedia
+      <MultimediaMessageMultimedia
         media={media}
+        navigate={this.props.navigate}
         style={style}
         key={media.id}
       />
     );
   }
 
-  onPress = () => {
+  onLongPress = () => {
     this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
 

@@ -1,8 +1,8 @@
 // @flow
 
-import type { NavigationParams } from 'react-navigation';
+import type { Navigate } from '../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -10,13 +10,9 @@ import PropTypes from 'prop-types';
 import { ComposeThreadRouteName } from '../navigation/route-names';
 import Button from '../components/button.react';
 
-type Props = {
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    key?: string,
-  }) => bool,
-};
+type Props = {|
+  navigate: Navigate,
+|};
 class ComposeThreadButton extends React.PureComponent<Props> {
 
   static propTypes = {

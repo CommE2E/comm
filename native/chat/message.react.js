@@ -10,8 +10,9 @@ import type {
   ChatMultimediaMessageInfoItem,
 } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import type { Navigate } from '../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
@@ -56,6 +57,7 @@ function messageItemHeight(
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
+  navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
 |};
 class Message extends React.PureComponent<Props> {
@@ -63,6 +65,7 @@ class Message extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
+    navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
   };
 
@@ -97,6 +100,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <MultimediaMessage
           item={this.props.item}
+          navigate={this.props.navigate}
           toggleFocus={this.props.toggleFocus}
         />
       );

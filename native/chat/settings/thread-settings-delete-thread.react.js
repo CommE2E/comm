@@ -1,15 +1,9 @@
 // @flow
 
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-} from 'lib/types/thread-types';
-import type {
-  NavigationParams,
-  NavigationNavigateAction,
-} from 'react-navigation';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { Navigate } from '../../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import { Text, StyleSheet, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -18,12 +12,7 @@ import { DeleteThreadRouteName } from '../../navigation/route-names';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    action?: NavigationNavigateAction,
-    key?: string,
-  }) => bool,
+  navigate: Navigate,
   canLeaveThread: bool,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {

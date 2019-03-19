@@ -1,5 +1,17 @@
 // @flow
 
+import type {
+  NavigationParams,
+  NavigationNavigateAction,
+} from 'react-navigation';
+
+export type Navigate = ({
+  routeName: string,
+  params?: NavigationParams,
+  action?: NavigationNavigateAction,
+  key?: string,
+}) => bool;
+
 export const AppRouteName = 'App';
 export const ComposeThreadRouteName = 'ComposeThread';
 export const DeleteThreadRouteName = 'DeleteThread';

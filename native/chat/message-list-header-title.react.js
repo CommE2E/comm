@@ -1,10 +1,10 @@
 // @flow
 
-import type { NavigationParams } from 'react-navigation';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
+import type { Navigate } from '../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -13,14 +13,10 @@ import { HeaderTitle } from 'react-navigation';
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
 
-type Props = {
+type Props = {|
   threadInfo: ThreadInfo,
-  navigate: ({
-    routeName: string,
-    params?: NavigationParams,
-    key?: string,
-  }) => bool,
-};
+  navigate: Navigate,
+|};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   static propTypes = {

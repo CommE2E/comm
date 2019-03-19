@@ -3,8 +3,6 @@
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,
-  NavigationParams,
-  NavigationNavigateAction,
 } from 'react-navigation';
 import {
   type ThreadInfo,
@@ -15,6 +13,7 @@ import {
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
+import type { Navigate } from '../../navigation/route-names';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -79,13 +78,6 @@ type NavProp = NavigationScreenProp<{|
     threadInfo: ThreadInfo,
   |},
 |}>;
-
-type Navigate = ({
-  routeName: string,
-  params?: NavigationParams,
-  action?: NavigationNavigateAction,
-  key?: string,
-}) => bool;
 
 type ChatSettingsItem =
   | {|

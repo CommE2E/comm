@@ -198,6 +198,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         <MessageList
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
+          navigate={this.props.navigation.navigate}
         />
       );
     } else {
