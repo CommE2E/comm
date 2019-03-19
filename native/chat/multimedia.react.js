@@ -2,7 +2,6 @@
 
 import { type Media, mediaPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
-import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ConnectionStatus,
   connectionStatusPropType,
@@ -23,7 +22,7 @@ type Props = {|
 |};
 type State = {|
   attempt: number,
-  loadingStatus: LoadingStatus,
+  loaded: bool,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
 
@@ -33,11 +32,12 @@ class Multimedia extends React.PureComponent<Props, State> {
   };
   state = {
     attempt: 0,
-    loadingStatus: "loading",
+    loaded: false,
   };
 
   componentDidUpdate(prevProps: Props) {
     if (
+      !this.state.loaded &&
       this.props.connectionStatus === "connected" &&
       prevProps.connectionStatus !== "connected"
     ) {
@@ -59,7 +59,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     );
 
     let loadingOverlay;
-    if (this.state.loadingStatus !== "inactive") {
+    if (!this.state.loaded) {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -76,7 +76,7 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   onLoad = () => {
-    this.setState({ loadingStatus: "inactive" });
+    this.setState({ loaded: true });
   }
 
 }
