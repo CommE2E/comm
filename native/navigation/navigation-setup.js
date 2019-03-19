@@ -13,6 +13,7 @@ import type {
   NavigationRouter,
   NavigationRoute,
   NavigationTransitionProps,
+  NavigationStateRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
@@ -28,7 +29,6 @@ import {
 } from 'react-navigation';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
-import _includes from 'lodash/fp/includes';
 import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -218,14 +218,14 @@ const ReduxWrappedAppNavigator = connect((state: AppState) => ({
 
 const RootNavigator = createStackNavigator(
   {
-    [LoggedOutModalRouteName]: { screen: LoggedOutModal },
-    [VerificationModalRouteName]: { screen: VerificationModal },
-    [AppRouteName]: { screen: ReduxWrappedAppNavigator },
-    [ThreadPickerModalRouteName]: { screen: ThreadPickerModal },
-    [AddUsersModalRouteName]: { screen: AddUsersModal },
-    [CustomServerModalRouteName]: { screen: CustomServerModal },
-    [ColorPickerModalRouteName]: { screen: ColorPickerModal },
-    [ComposeSubthreadModalRouteName]: { screen: ComposeSubthreadModal },
+    [LoggedOutModalRouteName]: LoggedOutModal,
+    [VerificationModalRouteName]: VerificationModal,
+    [AppRouteName]: ReduxWrappedAppNavigator,
+    [ThreadPickerModalRouteName]: ThreadPickerModal,
+    [AddUsersModalRouteName]: AddUsersModal,
+    [CustomServerModalRouteName]: CustomServerModal,
+    [ColorPickerModalRouteName]: ColorPickerModal,
+    [ComposeSubthreadModalRouteName]: ComposeSubthreadModal,
   },
   {
     headerMode: 'none',
@@ -368,7 +368,7 @@ function reduceNavInfo(
     return {
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
-      navigationState: removeModals(
+      navigationState: removeRootModals(
         navInfoState.navigationState,
         accountModals,
       ),
@@ -508,13 +508,13 @@ function removeScreensFromStack<S: NavigationState>(
   };
 }
 
-function removeModals(
+function removeRootModals(
   state: NavigationState,
   modalRouteNames: string[],
 ): NavigationState {
   const newState = removeScreensFromStack(
     state,
-    (route: NavigationRoute) => _includes(route.routeName)(modalRouteNames)
+    (route: NavigationRoute) => modalRouteNames.includes(route.routeName)
       ? "remove"
       : "keep",
   );
@@ -528,38 +528,46 @@ function removeModals(
 }
 
 function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
-  const navigationState = { ...state.navigationState };
+  let navigationState = { ...state.navigationState };
   navigationState.routes[0] = defaultNavInfo.navigationState.routes[0];
-  const currentModalIndex =
-    _findIndex(['routeName', LoggedOutModalRouteName])(navigationState.routes);
-  if (currentModalIndex >= 0 && navigationState.index >= currentModalIndex) {
-    return {
-      startDate: defaultNavInfo.startDate,
-      endDate: defaultNavInfo.endDate,
-      navigationState,
+
+  let loggedOutModalFound = false;
+  navigationState = removeScreensFromStack(
+    navigationState,
+    (route: NavigationRoute) => {
+      const { routeName } = route;
+      if (routeName === LoggedOutModalRouteName) {
+        loggedOutModalFound = true;
+      }
+      return routeName === AppRouteName || accountModals.includes(routeName)
+        ? "keep"
+        : "remove";
+    },
+  );
+
+  if (!loggedOutModalFound) {
+    const [ appRoute, ...restRoutes ] = navigationState.routes;
+    navigationState = {
+      ...navigationState,
+      index: navigationState.index + 1,
+      routes: [
+        appRoute,
+        { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
+        ...restRoutes,
+      ],
     };
-  } else if (currentModalIndex >= 0) {
-    return {
-      startDate: defaultNavInfo.startDate,
-      endDate: defaultNavInfo.endDate,
-      navigationState: {
+    if (navigationState.index === 1) {
+      navigationState = {
         ...navigationState,
-        index: currentModalIndex,
         isTransitioning: true,
-      },
-    };
+      };
+    }
   }
+
   return {
     startDate: defaultNavInfo.startDate,
     endDate: defaultNavInfo.endDate,
-    navigationState: {
-      index: navigationState.routes.length,
-      routes: [
-        ...navigationState.routes,
-        { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
-      ],
-      isTransitioning: true,
-    },
+    navigationState,
   };
 }
 
@@ -596,83 +604,80 @@ function logOutIfCookieInvalidated(
   return newState;
 }
 
-function popChatScreensForThreadID(
+function replaceChatRoute(
   state: NavigationState,
-  actionPayload: LeaveThreadPayload,
+  replaceFunc: (chatRoute: NavigationStateRoute) => NavigationStateRoute,
 ): NavigationState {
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+  const tabRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 
-  const newChatRoute = removeScreensFromStack(
-    chatRoute,
-    (route: NavigationRoute) => {
-      if (
-        (route.routeName !== MessageListRouteName &&
-          route.routeName !== ThreadSettingsRouteName) ||
-        (route.routeName === MessageListRouteName &&
-          !!actionPayload.threadInfos[actionPayload.threadID])
-      ) {
-        return "break";
-      }
-      const threadID = getThreadIDFromParams(route);
-      if (threadID !== actionPayload.threadID) {
-        return "break";
-      }
-      return "remove";
-    },
-  );
+  const newChatRoute = replaceFunc(chatRoute);
   if (newChatRoute === chatRoute) {
     return state;
   }
 
-  const newAppSubRoutes = [ ...appRoute.routes ];
-  newAppSubRoutes[1] = newChatRoute;
-  const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+  const newTabRoutes = [ ...tabRoute.routes ];
+  newTabRoutes[1] = newChatRoute;
+  const newTabRoute = { ...tabRoute, routes: newTabRoutes };
+
+  const newRootRoutes = [ ...state.routes ];
+  newRootRoutes[0] = newTabRoute;
   return {
     ...state,
-    routes: newRootSubRoutes,
+    routes: newRootRoutes,
     isTransitioning: true,
   };
+}
+
+function popChatScreensForThreadID(
+  state: NavigationState,
+  actionPayload: LeaveThreadPayload,
+): NavigationState {
+  const replaceFunc =
+    (chatRoute: NavigationStateRoute) => removeScreensFromStack(
+      chatRoute,
+      (route: NavigationRoute) => {
+        if (
+          (route.routeName !== MessageListRouteName &&
+            route.routeName !== ThreadSettingsRouteName) ||
+          (route.routeName === MessageListRouteName &&
+            !!actionPayload.threadInfos[actionPayload.threadID])
+        ) {
+          return "break";
+        }
+        const threadID = getThreadIDFromParams(route);
+        if (threadID !== actionPayload.threadID) {
+          return "break";
+        }
+        return "remove";
+      },
+    );
+  return replaceChatRoute(state, replaceFunc);
 }
 
 function filterChatScreensForThreadInfos(
   state: NavigationState,
   threadInfos: {[id: string]: RawThreadInfo},
 ): NavigationState {
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-
-  const newChatRoute = removeScreensFromStack(
-    chatRoute,
-    (route: NavigationRoute) => {
-      if (
-        route.routeName !== MessageListRouteName &&
-        route.routeName !== ThreadSettingsRouteName &&
-        route.routeName !== DeleteThreadRouteName
-      ) {
-        return "keep";
-      }
-      const threadID = getThreadIDFromParams(route);
-      if (threadID in threadInfos) {
-        return "keep";
-      }
-      return "remove";
-    },
-  );
-  if (newChatRoute === chatRoute) {
-    return state;
-  }
-
-  const newAppSubRoutes = [ ...appRoute.routes ];
-  newAppSubRoutes[1] = newChatRoute;
-  const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return {
-    ...state,
-    routes: newRootSubRoutes,
-    isTransitioning: true,
-  };
+  const replaceFunc =
+    (chatRoute: NavigationStateRoute) => removeScreensFromStack(
+      chatRoute,
+      (route: NavigationRoute) => {
+        if (
+          route.routeName !== MessageListRouteName &&
+          route.routeName !== ThreadSettingsRouteName &&
+          route.routeName !== DeleteThreadRouteName
+        ) {
+          return "keep";
+        }
+        const threadID = getThreadIDFromParams(route);
+        if (threadID in threadInfos) {
+          return "keep";
+        }
+        return "remove";
+      },
+    );
+  return replaceChatRoute(state, replaceFunc);
 }
 
 function handleNewThread(
@@ -686,31 +691,27 @@ function handleNewThread(
     viewerID,
     userInfos,
   );
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-
-  const newChatRoute = removeScreensFromStack(
-    chatRoute,
-    (route: NavigationRoute) => route.routeName === ComposeThreadRouteName
-      ? "remove"
-      : "break",
-  );
-  newChatRoute.routes.push({
-    key: 'NewThreadMessageList',
-    routeName: MessageListRouteName,
-    params: { threadInfo },
-  });
-  newChatRoute.index = newChatRoute.routes.length - 1;
-
-  const newAppSubRoutes = [ ...appRoute.routes ];
-  newAppSubRoutes[1] = newChatRoute;
-  const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return {
-    ...state,
-    routes: newRootSubRoutes,
-    isTransitioning: true,
+  const replaceFunc = (chatRoute: NavigationStateRoute) => {
+    const newChatRoute = removeScreensFromStack(
+      chatRoute,
+      (route: NavigationRoute) => route.routeName === ComposeThreadRouteName
+        ? "remove"
+        : "break",
+    );
+    return {
+      ...newChatRoute,
+      routes: [
+        ...newChatRoute.routes,
+        {
+          key: 'NewThreadMessageList',
+          routeName: MessageListRouteName,
+          params: { threadInfo },
+        },
+      ],
+      index: newChatRoute.routes.length,
+    };
   };
+  return replaceChatRoute(state, replaceFunc);
 }
 
 function replaceChatStackWithThread(
@@ -724,31 +725,27 @@ function replaceChatStackWithThread(
     viewerID,
     userInfos,
   );
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
-
-  const newChatRoute = removeScreensFromStack(
-    chatRoute,
-    (route: NavigationRoute) => route.routeName === ChatThreadListRouteName
-      ? "break"
-      : "remove",
-  );
-  newChatRoute.routes.push({
-    key: 'NewThreadMessageList',
-    routeName: MessageListRouteName,
-    params: { threadInfo },
-  });
-  newChatRoute.index = 1;
-
-  const newAppSubRoutes = [ ...appRoute.routes ];
-  newAppSubRoutes[1] = newChatRoute;
-  const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
-  return {
-    ...state,
-    routes: newRootSubRoutes,
-    isTransitioning: true,
+  const replaceFunc = (chatRoute: NavigationStateRoute) => {
+    const newChatRoute = removeScreensFromStack(
+      chatRoute,
+      (route: NavigationRoute) => route.routeName === ChatThreadListRouteName
+        ? "break"
+        : "remove",
+    );
+    return {
+      ...newChatRoute,
+      routes: [
+        ...newChatRoute.routes,
+        {
+          key: 'NewThreadMessageList',
+          routeName: MessageListRouteName,
+          params: { threadInfo },
+        },
+      ],
+      index: newChatRoute.routes.length,
+    };
   };
+  return replaceChatRoute(state, replaceFunc);
 }
 
 function handleNotificationPress(
@@ -757,14 +754,14 @@ function handleNotificationPress(
   viewerID: ?string,
   userInfos: {[id: string]: UserInfo},
 ): NavigationState {
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+  const tabRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const chatRoute = assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 
   const currentChatRoute = chatRoute.routes[chatRoute.index];
   if (
     currentChatRoute.routeName === MessageListRouteName &&
     getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id &&
-    appRoute.index === 1
+    tabRoute.index === 1
   ) {
     return state;
   }
@@ -776,11 +773,17 @@ function handleNotificationPress(
       viewerID,
       userInfos,
     );
-    newState.routes[0] = {
-      ...assertNavigationRouteNotLeafNode(newState.routes[0]),
-      index: 1,
+
+    const newTabRoute = assertNavigationRouteNotLeafNode(newState.routes[0]);
+    const updatedTabRoute = { ...newTabRoute, index: 1 };
+
+    const updatedRootRoutes = [ ...newState.routes ];
+    updatedRootRoutes[0] = updatedTabRoute;
+    return {
+      ...newState,
+      routes: updatedRootRoutes,
+      isTransitioning: true,
     };
-    return newState;
   }
 
   const threadInfo = threadInfoFromRawThreadInfo(
@@ -800,13 +803,16 @@ function handleNotificationPress(
     ],
     index: chatRoute.routes.length,
   };
-  const newAppSubRoutes = [ ...appRoute.routes ];
-  newAppSubRoutes[1] = newChatRoute;
-  const newRootSubRoutes = [ ...state.routes ];
-  newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes, index: 1 };
+
+  const newTabRoutes = [ ...tabRoute.routes ];
+  newTabRoutes[1] = newChatRoute;
+  const newTabRoute = { ...tabRoute, routes: newTabRoutes, index: 1 };
+
+  const newRootRoutes = [ ...state.routes ];
+  newRootRoutes[0] = newTabRoute;
   return {
     ...state,
-    routes: newRootSubRoutes,
+    routes: newRootRoutes,
     isTransitioning: true,
   };
 }
@@ -816,5 +822,6 @@ export {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
+  replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
 };

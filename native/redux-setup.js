@@ -69,6 +69,7 @@ import {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
+  replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
 } from './navigation/navigation-setup';
 import {
@@ -165,8 +166,8 @@ const defaultState = ({
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
   const navState = navInfo.navigationState;
-  const appRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
-  return assertNavigationRouteNotLeafNode(appRoute.routes[1]);
+  const tabRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
+  return assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 }
 
 function reducer(state: AppState = defaultState, action: *) {
@@ -284,26 +285,20 @@ function reducer(state: AppState = defaultState, action: *) {
         // navigate back to that compose thread screen, but instead, since the
         // user's intent has ostensibly already been satisfied, we will pop up
         // to the screen right before that one.
-        const newChatRoute = removeScreensFromStack(
-          chatRoute,
-          (route: NavigationRoute) => route.key === currentChatSubroute.key
-            ? "remove"
-            : "keep",
-        );
-
-        const appRoute =
-          assertNavigationRouteNotLeafNode(navInfo.navigationState.routes[0]);
-        const newAppSubRoutes = [ ...appRoute.routes ];
-        newAppSubRoutes[1] = newChatRoute;
-        const newRootSubRoutes = [ ...navInfo.navigationState.routes ];
-        newRootSubRoutes[0] = { ...appRoute, routes: newAppSubRoutes };
+        const replaceFunc =
+          (chatRoute: NavigationStateRoute) => removeScreensFromStack(
+            chatRoute,
+            (route: NavigationRoute) => route.key === currentChatSubroute.key
+              ? "remove"
+              : "keep",
+          );
         navInfo = {
           startDate: navInfo.startDate,
           endDate: navInfo.endDate,
-          navigationState: {
-            ...navInfo.navigationState,
-            routes: newRootSubRoutes,
-          },
+          navigationState: replaceChatRoute(
+            navInfo.navigationState,
+            replaceFunc,
+          ),
         };
       }
     }
