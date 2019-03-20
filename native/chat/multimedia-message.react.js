@@ -18,6 +18,7 @@ import {
   View,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -36,34 +37,45 @@ export type ChatMultimediaMessageInfoItem = {|
   contentHeight: number,
 |};
 
+function getMediaPerRow(mediaCount: number) {
+  if (mediaCount === 0) {
+    return 0; // ???
+  } else if (mediaCount === 1) {
+    return 1;
+  } else if (mediaCount === 2) {
+    return 2;
+  } else if (mediaCount === 3) {
+    return 3;
+  } else if (mediaCount === 4) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
 function multimediaMessageContentHeight(
   messageInfo: MultimediaMessageInfo,
   composedMessageMaxWidth: number,
-) {
-  let contentHeight;
+): number {
+  invariant(messageInfo.media.length > 0, "should have media");
   if (messageInfo.media.length === 1) {
     const [ media ] = messageInfo.media;
-    const mediaDimensions = media.dimensions;
-    if (composedMessageMaxWidth >= mediaDimensions.width) {
-      contentHeight = mediaDimensions.height;
-    } else {
-      contentHeight = mediaDimensions.height *
-        composedMessageMaxWidth / mediaDimensions.width;
+    const { height, width } = media.dimensions;
+    let imageHeight = composedMessageMaxWidth >= width
+      ? height
+      : height * composedMessageMaxWidth / width;
+    if (imageHeight < 50) {
+      imageHeight = 50;
     }
-    if (contentHeight < 50) {
-      contentHeight = 50;
-    }
-  } else if (messageInfo.media.length === 2) {
-    contentHeight = composedMessageMaxWidth / 2;
-  } else if (messageInfo.media.length === 3) {
-    contentHeight = composedMessageMaxWidth / 3;
-  } else if (messageInfo.media.length === 4) {
-    contentHeight = composedMessageMaxWidth;
-  } else {
-    const numRows = Math.ceil(messageInfo.media.length / 3);
-    contentHeight = numRows * composedMessageMaxWidth / 3;
+    return imageHeight;
   }
-  return contentHeight;
+
+  const mediaPerRow = getMediaPerRow(messageInfo.media.length);
+  const marginSpace = spaceBetweenImages * (mediaPerRow - 1);
+  const imageHeight = (composedMessageMaxWidth - marginSpace) / mediaPerRow;
+
+  const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
+  return numRows * imageHeight + (numRows - 1) * spaceBetweenImages;
 }
 
 function multimediaMessageItemHeight(
@@ -73,7 +85,7 @@ function multimediaMessageItemHeight(
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { id, creator } = messageInfo;
   const { isViewer } = creator;
-  let height = 5 + contentHeight; // for margin and image
+  let height = 5 + contentHeight; // for margin and images
   if (!isViewer && startsCluster) {
     height += 25; // for username
   }
@@ -134,75 +146,47 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   renderContent(): React.Node {
     const { messageInfo } = this.props.item;
+    invariant(messageInfo.media.length > 0, "should have media");
     if (messageInfo.media.length === 1) {
       return this.renderImage(messageInfo.media[0]);
-    } else if (messageInfo.media.length === 2) {
-      const [ one, two ] = messageInfo.media;
-      return (
-        <View style={styles.row}>
-          {this.renderImage(one, styles.leftImage)}
-          {this.renderImage(two, styles.rightImage)}
-        </View>
-      );
-    } else if (messageInfo.media.length === 3) {
-      const [ one, two, three ] = messageInfo.media;
-      return (
-        <View style={styles.row}>
-          {this.renderImage(one, styles.leftImage)}
-          {this.renderImage(two, styles.centerImage)}
-          {this.renderImage(three, styles.rightImage)}
-        </View>
-      );
-    } else if (messageInfo.media.length === 4) {
-      const [ one, two, three, four ] = messageInfo.media;
-      return (
-        <View style={styles.grid}>
-          <View style={styles.row}>
-            {this.renderImage(one, styles.topLeftImage)}
-            {this.renderImage(two, styles.topRightImage)}
-          </View>
-          <View style={styles.row}>
-            {this.renderImage(three, styles.leftImage)}
-            {this.renderImage(four, styles.rightImage)}
-          </View>
-        </View>
-      );
-    } else {
-      const rows = [];
-      for (let i = 0; i < messageInfo.media.length; i += 3) {
-        let rowStyle;
-        if (i === 0) {
-          rowStyle = rowStyles.top;
-        } else if (i + 3 >= messageInfo.media.length) {
-          rowStyle = rowStyles.bottom;
-        } else {
-          rowStyle = rowStyles.middle;
-        }
-
-        const rowMedia = messageInfo.media.slice(i, i + 3);
-        const row = [];
-        let j = 0;
-        for (; j < rowMedia.length; j++) {
-          const media = rowMedia[j];
-          const style = rowStyle[j];
-          row.push(this.renderImage(media, style));
-        }
-        for (; j < 3; j++) {
-          const key = `filler${j}`;
-          row.push(<View style={styles.filler} key={key} />);
-        }
-
-        rows.push(
-          <View style={styles.row} key={i}>
-            {row}
-          </View>
-        );
-      }
-      return <View style={styles.grid}>{rows}</View>;
     }
+
+    const mediaPerRow = getMediaPerRow(messageInfo.media.length);
+    const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
+
+    const rows = [];
+    for (let i = 0; i < messageInfo.media.length; i += mediaPerRow) {
+      const rowMedia = messageInfo.media.slice(i, i + mediaPerRow);
+      const row = [];
+      let j = 0;
+      for (; j < rowMedia.length; j++) {
+        const media = rowMedia[j];
+        const style = j + 1 < mediaPerRow
+          ? styles.imageBeforeImage
+          : null;
+        row.push(this.renderImage(media, style));
+      }
+      for (; j < mediaPerRow; j++) {
+        const key = `filler${j}`;
+        const style = j + 1 < mediaPerRow
+          ? [ styles.filler, styles.imageBeforeImage ]
+          : styles.filler;
+        row.push(<View style={[ style, styles.filler ]} key={key} />);
+      }
+
+      const rowStyle = i + mediaPerRow < messageInfo.media.length
+        ? [ styles.row, styles.rowAboveRow ]
+        : styles.row;
+      rows.push(
+        <View style={rowStyle} key={i}>
+          {row}
+        </View>
+      );
+    }
+    return <View style={styles.grid}>{rows}</View>;
   }
 
-  renderImage(media: Media, style?: ImageStyle): React.Node {
+  renderImage(media: Media, style?: ?ImageStyle): React.Node {
     return (
       <MultimediaMessageMultimedia
         media={media}
@@ -219,8 +203,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
 }
 
-const horizontalSpaceBetweenImages = 2;
-const verticalSpaceBetweenImages = 4;
+const spaceBetweenImages = 4;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -229,6 +212,7 @@ const styles = StyleSheet.create({
   },
   grid: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   filler: {
     flex: 1,
@@ -236,61 +220,15 @@ const styles = StyleSheet.create({
   row: {
     flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  leftImage: {
-    marginRight: horizontalSpaceBetweenImages,
+  rowAboveRow: {
+    marginBottom: spaceBetweenImages,
   },
-  centerImage: {
-    marginLeft: horizontalSpaceBetweenImages,
-    marginRight: horizontalSpaceBetweenImages,
-  },
-  rightImage: {
-    marginLeft: horizontalSpaceBetweenImages,
-  },
-  topLeftImage: {
-    marginRight: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
-  },
-  topCenterImage: {
-    marginLeft: horizontalSpaceBetweenImages,
-    marginRight: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
-  },
-  topRightImage: {
-    marginLeft: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
-  },
-  middleLeftImage: {
-    marginRight: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
-  },
-  middleCenterImage: {
-    marginRight: horizontalSpaceBetweenImages,
-    marginLeft: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
-  },
-  middleRightImage: {
-    marginLeft: horizontalSpaceBetweenImages,
-    marginBottom: verticalSpaceBetweenImages,
+  imageBeforeImage: {
+    marginRight: spaceBetweenImages,
   },
 });
-const rowStyles = {
-  top: [
-    styles.topLeftImage,
-    styles.topCenterImage,
-    styles.topRightImage,
-  ],
-  middle: [
-    styles.middleLeftImage,
-    styles.middleCenterImage,
-    styles.middleRightImage,
-  ],
-  bottom: [
-    styles.leftImage,
-    styles.centerImage,
-    styles.rightImage,
-  ],
-};
 
 export {
   MultimediaMessage,

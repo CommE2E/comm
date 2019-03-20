@@ -2,13 +2,16 @@
 
 import { type Media, mediaPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
-import type { Navigate } from '../navigation/route-names';
+import {
+  type Navigate,
+  MultimediaModalRouteName,
+} from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 
-import Multimedia from './multimedia.react';
+import Multimedia from '../media/multimedia.react';
 
 type Props = {|
   media: Media,
@@ -25,12 +28,28 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   render() {
     const { media, style } = this.props;
     return (
-      <TouchableWithoutFeedback>
-        <Multimedia media={media} style={style} />
+      <TouchableWithoutFeedback onPress={this.onPress}>
+        <View style={[styles.expand, style]}>
+          <Multimedia media={media} style={styles.expand} />
+        </View>
       </TouchableWithoutFeedback>
     );
   }
 
+  onPress = () => {
+    const { media, navigate } = this.props;
+    navigate({
+      routeName: MultimediaModalRouteName,
+      params: { media },
+    });
+  }
+
 }
+
+const styles = StyleSheet.create({
+  expand: {
+    flex: 1,
+  },
+});
 
 export default MultimediaMessageMultimedia;
