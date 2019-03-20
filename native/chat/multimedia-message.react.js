@@ -162,8 +162,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
             {this.renderImage(two, styles.topRightImage)}
           </View>
           <View style={styles.row}>
-            {this.renderImage(three, styles.bottomLeftImage)}
-            {this.renderImage(four, styles.bottomRightImage)}
+            {this.renderImage(three, styles.leftImage)}
+            {this.renderImage(four, styles.rightImage)}
           </View>
         </View>
       );
@@ -219,7 +219,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
 }
 
-const spaceBetweenImages = 2;
+const horizontalSpaceBetweenImages = 2;
+const verticalSpaceBetweenImages = 4;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -237,40 +238,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   leftImage: {
-    marginRight: spaceBetweenImages,
+    marginRight: horizontalSpaceBetweenImages,
   },
   centerImage: {
-    marginLeft: spaceBetweenImages,
-    marginRight: spaceBetweenImages,
+    marginLeft: horizontalSpaceBetweenImages,
+    marginRight: horizontalSpaceBetweenImages,
   },
   rightImage: {
-    marginLeft: spaceBetweenImages,
+    marginLeft: horizontalSpaceBetweenImages,
   },
   topLeftImage: {
-    marginRight: spaceBetweenImages,
-    marginBottom: spaceBetweenImages,
+    marginRight: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
   topCenterImage: {
-    marginLeft: spaceBetweenImages,
-    marginRight: spaceBetweenImages,
-    marginBottom: spaceBetweenImages,
+    marginLeft: horizontalSpaceBetweenImages,
+    marginRight: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
   topRightImage: {
-    marginLeft: spaceBetweenImages,
-    marginBottom: spaceBetweenImages,
+    marginLeft: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
-  bottomLeftImage: {
-    marginRight: spaceBetweenImages,
-    marginTop: spaceBetweenImages,
+  middleLeftImage: {
+    marginRight: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
-  bottomCenterImage: {
-    marginLeft: spaceBetweenImages,
-    marginRight: spaceBetweenImages,
-    marginTop: spaceBetweenImages,
+  middleCenterImage: {
+    marginRight: horizontalSpaceBetweenImages,
+    marginLeft: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
-  bottomRightImage: {
-    marginLeft: spaceBetweenImages,
-    marginTop: spaceBetweenImages,
+  middleRightImage: {
+    marginLeft: horizontalSpaceBetweenImages,
+    marginBottom: verticalSpaceBetweenImages,
   },
 });
 const rowStyles = {
@@ -279,12 +280,12 @@ const rowStyles = {
     styles.topCenterImage,
     styles.topRightImage,
   ],
-  bottom: [
-    styles.bottomLeftImage,
-    styles.bottomCenterImage,
-    styles.bottomRightImage,
-  ],
   middle: [
+    styles.middleLeftImage,
+    styles.middleCenterImage,
+    styles.middleRightImage,
+  ],
+  bottom: [
     styles.leftImage,
     styles.centerImage,
     styles.rightImage,
