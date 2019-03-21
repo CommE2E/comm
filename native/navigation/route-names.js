@@ -13,6 +13,7 @@ export type Navigate = ({
 }) => bool;
 
 export const AppRouteName = 'App';
+export const TabNavigatorRouteName = 'TabNavigator';
 export const ComposeThreadRouteName = 'ComposeThread';
 export const DeleteThreadRouteName = 'DeleteThread';
 export const ThreadSettingsRouteName = 'ThreadSettings';

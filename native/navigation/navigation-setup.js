@@ -70,6 +70,7 @@ import {
 } from '../utils/navigation-utils';
 import {
   AppRouteName,
+  TabNavigatorRouteName,
   ComposeThreadRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
@@ -86,6 +87,7 @@ import {
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
+  MultimediaModalRouteName,
   accountModals,
 } from './route-names';
 import {
@@ -97,6 +99,7 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import MultimediaModal from '../media/multimedia-modal.react';
 
 useScreens();
 
@@ -141,7 +144,7 @@ if (Platform.OS === "android") {
 const createTabNavigator = Platform.OS === "android"
   ? createMaterialTopTabNavigator
   : createBottomTabNavigator;
-const AppNavigator = createTabNavigator(
+const TabNavigator = createTabNavigator(
   {
     [CalendarRouteName]: { screen: Calendar },
     [ChatRouteName]: { screen: Chat },
@@ -153,6 +156,17 @@ const AppNavigator = createTabNavigator(
     tabBarOptions,
   },
 );
+
+const AppNavigator = createStackNavigator(
+  {
+    [TabNavigatorRouteName]: TabNavigator,
+    [MultimediaModalRouteName]: MultimediaModal,
+  },
+  {
+    headerMode: 'none',
+  },
+);
+
 type WrappedAppNavigatorProps = {|
   navigation: NavigationScreenProp<*>,
   isForeground: bool,
@@ -291,23 +305,30 @@ const defaultNavigationState = {
     {
       key: 'App',
       routeName: AppRouteName,
-      index: 1,
+      index: 0,
       routes: [
-        { key: 'Calendar', routeName: CalendarRouteName },
         {
-          key: 'Chat',
-          routeName: ChatRouteName,
-          index: 0,
+          key: 'TabNavigator',
+          routeName: TabNavigatorRouteName,
+          index: 1,
           routes: [
-            { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
-          ],
-        },
-        {
-          key: 'More',
-          routeName: MoreRouteName,
-          index: 0,
-          routes: [
-            { key: 'MoreScreen', routeName: MoreScreenRouteName },
+            { key: 'Calendar', routeName: CalendarRouteName },
+            {
+              key: 'Chat',
+              routeName: ChatRouteName,
+              index: 0,
+              routes: [
+                { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
+              ],
+            },
+            {
+              key: 'More',
+              routeName: MoreRouteName,
+              index: 0,
+              routes: [
+                { key: 'MoreScreen', routeName: MoreScreenRouteName },
+              ],
+            },
           ],
         },
       ],
@@ -609,7 +630,8 @@ function replaceChatRoute(
   state: NavigationState,
   replaceFunc: (chatRoute: NavigationStateRoute) => NavigationStateRoute,
 ): NavigationState {
-  const tabRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 
   const newChatRoute = replaceFunc(chatRoute);
@@ -621,8 +643,12 @@ function replaceChatRoute(
   newTabRoutes[1] = newChatRoute;
   const newTabRoute = { ...tabRoute, routes: newTabRoutes };
 
+  const newAppRoutes = [ ...appRoute.routes ];
+  newAppRoutes[0] = newTabRoute;
+  const newAppRoute = { ...appRoute, routes: newAppRoutes };
+
   const newRootRoutes = [ ...state.routes ];
-  newRootRoutes[0] = newTabRoute;
+  newRootRoutes[0] = newAppRoute;
   return {
     ...state,
     routes: newRootRoutes,
@@ -755,34 +781,45 @@ function handleNotificationPress(
   viewerID: ?string,
   userInfos: {[id: string]: UserInfo},
 ): NavigationState {
-  const tabRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
+  const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
   const chatRoute = assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 
   const currentChatRoute = chatRoute.routes[chatRoute.index];
   if (
+    state.index === 0 &&
+    appRoute.index === 0 &&
+    tabRoute.index === 1 &&
     currentChatRoute.routeName === MessageListRouteName &&
-    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id &&
-    tabRoute.index === 1
+    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id
   ) {
     return state;
   }
 
   if (payload.clearChatRoutes) {
-    const newState = replaceChatStackWithThread(
+    const replacedState = replaceChatStackWithThread(
       state,
       payload.rawThreadInfo,
       viewerID,
       userInfos,
     );
-
-    const newTabRoute = assertNavigationRouteNotLeafNode(newState.routes[0]);
-    const updatedTabRoute = { ...newTabRoute, index: 1 };
-
-    const updatedRootRoutes = [ ...newState.routes ];
-    updatedRootRoutes[0] = updatedTabRoute;
+    const replacedAppRoute =
+      assertNavigationRouteNotLeafNode(replacedState.routes[0]);
     return {
-      ...newState,
-      routes: updatedRootRoutes,
+      ...replacedState,
+      index: 0,
+      routes: [
+        {
+          ...replacedState.routes[0],
+          index: 0,
+          routes: [
+            {
+              ...replacedAppRoute.routes[0],
+              index: 1,
+            },
+          ],
+        },
+      ],
       isTransitioning: true,
     };
   }
@@ -800,20 +837,29 @@ function handleNotificationPress(
         key: `${MessageListRouteName}${threadInfo.id}`,
         routeName: MessageListRouteName,
         params: { threadInfo },
-      }
+      },
     ],
     index: chatRoute.routes.length,
   };
 
   const newTabRoutes = [ ...tabRoute.routes ];
   newTabRoutes[1] = newChatRoute;
-  const newTabRoute = { ...tabRoute, routes: newTabRoutes, index: 1 };
-
-  const newRootRoutes = [ ...state.routes ];
-  newRootRoutes[0] = newTabRoute;
   return {
     ...state,
-    routes: newRootRoutes,
+    index: 0,
+    routes: [
+      {
+        ...appRoute,
+        index: 0,
+        routes: [
+          {
+            ...tabRoute,
+            index: 1,
+            routes: newTabRoutes,
+          },
+        ],
+      },
+    ],
     isTransitioning: true,
   };
 }

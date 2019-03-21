@@ -160,7 +160,8 @@ const defaultState = ({
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
   const navState = navInfo.navigationState;
-  const tabRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
+  const appRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
+  const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
   return assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
 }
 

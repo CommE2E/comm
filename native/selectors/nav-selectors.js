@@ -16,6 +16,7 @@ import {
 
 import {
   AppRouteName,
+  TabNavigatorRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatRouteName,
@@ -54,12 +55,17 @@ const baseCreateActiveTabSelector =
   (routeName: string) => createSelector<*, *, *, *>(
     (state: AppState) => state.navInfo.navigationState,
     (navigationState: NavigationState) => {
-      const currentRoute = navigationState.routes[navigationState.index];
-      if (currentRoute.routeName !== AppRouteName) {
+      const currentRootSubroute = navigationState.routes[navigationState.index];
+      if (currentRootSubroute.routeName !== AppRouteName) {
         return false;
       }
-      const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
-      return appRoute.routes[appRoute.index].routeName === routeName;
+      const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+      const currentAppSubroute = appRoute.routes[appRoute.index];
+      if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
+        return false;
+      }
+      const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
+      return tabRoute.routes[tabRoute.index].routeName === routeName;
     },
   );
 const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
@@ -67,39 +73,49 @@ const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
 const activeThreadSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): ?string => {
-    const currentRoute = navigationState.routes[navigationState.index];
-    if (currentRoute.routeName !== AppRouteName) {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
       return null;
     }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
-    const innerInnerState = appRoute.routes[appRoute.index];
-    if (innerInnerState.routeName !== ChatRouteName) {
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    const currentAppSubroute = appRoute.routes[appRoute.index];
+    if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
       return null;
     }
-    const chatRoute = assertNavigationRouteNotLeafNode(innerInnerState);
-    const innerInnerInnerState = chatRoute.routes[chatRoute.index];
+    const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
+    const currentTabSubroute = tabRoute.routes[tabRoute.index];
+    if (currentTabSubroute.routeName !== ChatRouteName) {
+      return null;
+    }
+    const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
+    const currentChatSubroute = chatRoute.routes[chatRoute.index];
     if (
-      innerInnerInnerState.routeName !== MessageListRouteName &&
-      innerInnerInnerState.routeName !== ThreadSettingsRouteName
+      currentChatSubroute.routeName !== MessageListRouteName &&
+      currentChatSubroute.routeName !== ThreadSettingsRouteName
     ) {
       return null;
     }
-    return getThreadIDFromParams(innerInnerInnerState);
+    return getThreadIDFromParams(currentChatSubroute);
   },
 );
 
 const appCanRespondToBackButtonSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): bool => {
-    const currentRoute = navigationState.routes[navigationState.index];
-    if (currentRoute.routeName !== AppRouteName) {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
       return false;
     }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRoute);
-    const currentTabRoute = appRoute.routes[appRoute.index];
-    return currentTabRoute.index !== null
-      && currentTabRoute.index !== undefined
-      && currentTabRoute.index > 0;
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    const currentAppSubroute = appRoute.routes[appRoute.index];
+    if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
+      return true;
+    }
+    const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
+    const currentTabSubroute = tabRoute.routes[tabRoute.index];
+    return currentTabSubroute.index !== null
+      && currentTabSubroute.index !== undefined
+      && currentTabSubroute.index > 0;
   },
 );
 
