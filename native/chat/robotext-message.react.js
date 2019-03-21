@@ -129,11 +129,12 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   }
 
   onPressThread = () => {
-    const id = this.props.id;
-    this.props.dispatch({
+    const { id, threadInfo, dispatch } = this.props;
+    dispatch({
       type: "Navigation/NAVIGATE",
       routeName: MessageListRouteName,
-      params: { threadInfo: this.props.threadInfo },
+      params: { threadInfo },
+      key: `${MessageListRouteName}${threadInfo.id}`,
     });
   }
 

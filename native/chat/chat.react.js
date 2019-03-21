@@ -5,7 +5,7 @@ import type {
   NavigationStateRoute,
 } from 'react-navigation';
 
-import React from 'react';
+import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import hoistNonReactStatics from 'hoist-non-react-statics';

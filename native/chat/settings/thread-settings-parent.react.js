@@ -14,7 +14,6 @@ import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../../navigation/route-names';
-import { ThreadSettingsRouteName } from '../../navigation/route-names';
 
 type Props = {|
   threadInfo: ThreadInfo,

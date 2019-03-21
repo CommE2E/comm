@@ -34,6 +34,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StackViewTransitionConfigs } from 'react-navigation-stack';
 import { useScreens } from 'react-native-screens';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -214,7 +215,7 @@ const ReduxWrappedAppNavigator = connect((state: AppState) => ({
   appCanRespondToBackButton: appCanRespondToBackButtonSelector(state),
   isForeground: appLoggedInSelector(state),
 }))(WrappedAppNavigator);
-(ReduxWrappedAppNavigator: Object).router = AppNavigator.router;
+hoistNonReactStatics(ReduxWrappedAppNavigator, AppNavigator);
 
 const RootNavigator = createStackNavigator(
   {
@@ -703,7 +704,7 @@ function handleNewThread(
       routes: [
         ...newChatRoute.routes,
         {
-          key: 'NewThreadMessageList',
+          key: `${MessageListRouteName}${threadInfo.id}`,
           routeName: MessageListRouteName,
           params: { threadInfo },
         },
@@ -737,7 +738,7 @@ function replaceChatStackWithThread(
       routes: [
         ...newChatRoute.routes,
         {
-          key: 'NewThreadMessageList',
+          key: `${MessageListRouteName}${threadInfo.id}`,
           routeName: MessageListRouteName,
           params: { threadInfo },
         },
@@ -796,7 +797,7 @@ function handleNotificationPress(
     routes: [
       ...chatRoute.routes,
       {
-        key: `Notif-${_getUuid()}`,
+        key: `${MessageListRouteName}${threadInfo.id}`,
         routeName: MessageListRouteName,
         params: { threadInfo },
       }

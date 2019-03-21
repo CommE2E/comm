@@ -37,7 +37,6 @@ import {
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
-import { NavigationActions, StackActions } from 'react-navigation';
 import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
@@ -57,8 +56,6 @@ import { getConfig } from 'lib/utils/config';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 import {
-  handleURLActionType,
-  navigateToAppActionType,
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
@@ -86,10 +83,7 @@ import {
   currentLeafRoute,
   findRouteIndexWithKey,
 } from './utils/navigation-utils';
-import {
-  ComposeThreadRouteName,
-  MessageListRouteName,
-} from './navigation/route-names';
+import { ComposeThreadRouteName } from './navigation/route-names';
 import reactotron from './reactotron';
 import reduceDrafts from './reducers/draft-reducer';
 
