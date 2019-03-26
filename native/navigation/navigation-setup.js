@@ -99,6 +99,7 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import { createLightboxNavigator } from '../media/lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 
 useScreens();
@@ -157,13 +158,10 @@ const TabNavigator = createTabNavigator(
   },
 );
 
-const AppNavigator = createStackNavigator(
+const AppNavigator = createLightboxNavigator(
   {
     [TabNavigatorRouteName]: TabNavigator,
     [MultimediaModalRouteName]: MultimediaModal,
-  },
-  {
-    headerMode: 'none',
   },
 );
 

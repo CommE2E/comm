@@ -219,6 +219,7 @@ declare module '@react-navigation/core' {
      */
     index: number,
     routes: Array<NavigationRoute>,
+    isTransitioning?: bool,
   };
 
   declare export type NavigationRoute =
@@ -618,6 +619,7 @@ declare module '@react-navigation/core' {
     isStale: boolean,
     key: string,
     route: NavigationRoute,
+    descriptor: ?NavigationDescriptor,
   };
 
   declare export type NavigationTransitionProps = $Shape<{
@@ -745,9 +747,9 @@ declare module '@react-navigation/core' {
     }) => NavigationCompleteTransitionAction,
   };
 
-  declare type NavigationDescriptor = {
+  declare export type NavigationDescriptor = {
     key: string,
-    state: NavigationLeafRoute | NavigationStateRoute,
+    state: NavigationRoute,
     navigation: NavigationScreenProp<*>,
     getComponent: () => React$ComponentType<{}>,
   };

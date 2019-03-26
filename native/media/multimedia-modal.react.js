@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    overflow: 'visible',
+    overflow: "visible",
   },
   backdrop: {
     position: "absolute",
