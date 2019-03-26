@@ -53,7 +53,7 @@ class Multimedia extends React.PureComponent<Props, State> {
       <FastImage
         source={source}
         onLoad={this.onLoad}
-        style={[styles.image, style]}
+        style={style}
         key={this.state.attempt}
       />
     );
@@ -89,9 +89,6 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     position: 'absolute',
-  },
-  image: {
-    flex: 1,
   },
 });
 
