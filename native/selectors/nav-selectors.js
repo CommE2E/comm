@@ -60,11 +60,11 @@ const baseCreateActiveTabSelector =
         return false;
       }
       const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-      const currentAppSubroute = appRoute.routes[appRoute.index];
-      if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
+      const [ appSubroute ] = appRoute.routes;
+      if (appSubroute.routeName !== TabNavigatorRouteName) {
         return false;
       }
-      const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
+      const tabRoute = assertNavigationRouteNotLeafNode(appSubroute);
       return tabRoute.routes[tabRoute.index].routeName === routeName;
     },
   );
@@ -78,11 +78,11 @@ const activeThreadSelector = createSelector<*, *, *, *>(
       return null;
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const currentAppSubroute = appRoute.routes[appRoute.index];
-    if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
+    const [ appSubroute ] = appRoute.routes;
+    if (appSubroute.routeName !== TabNavigatorRouteName) {
       return null;
     }
-    const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
+    const tabRoute = assertNavigationRouteNotLeafNode(appSubroute);
     const currentTabSubroute = tabRoute.routes[tabRoute.index];
     if (currentTabSubroute.routeName !== ChatRouteName) {
       return null;
