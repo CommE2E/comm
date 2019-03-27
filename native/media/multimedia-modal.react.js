@@ -181,7 +181,7 @@ class MultimediaModal extends React.PureComponent<Props> {
           <Animated.View style={[ styles.backdrop, this.backdropStyle ]} />
         </TouchableWithoutFeedback>
         <Animated.View style={this.imageContainerStyle}>
-          <Multimedia media={media} style={styles.image} />
+          <Multimedia media={media} spinnerColor="white" />
         </Animated.View>
       </View>
     );
@@ -204,9 +204,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "black",
-  },
-  image: {
-    flex: 1,
   },
 });
 

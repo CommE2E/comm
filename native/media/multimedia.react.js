@@ -1,7 +1,6 @@
 // @flow
 
 import { type Media, mediaPropType } from 'lib/types/media-types';
-import type { ImageStyle } from '../types/styles';
 import {
   type ConnectionStatus,
   connectionStatusPropType,
@@ -9,6 +8,7 @@ import {
 import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
@@ -16,7 +16,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
   media: Media,
-  style?: ?ImageStyle,
+  spinnerColor: "black" | "white",
   // Redux state
   connectionStatus: ConnectionStatus,
 |};
@@ -28,7 +28,11 @@ class Multimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
     media: mediaPropType.isRequired,
+    spinnerColor: PropTypes.oneOf([ "black", "white" ]).isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
+  };
+  static defaultProps = {
+    spinnerColor: "black",
   };
   state = {
     attempt: 0,
@@ -46,33 +50,32 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { media, style } = this.props;
-    const { uri } = media;
-    const source = { uri };
-    const image = (
-      <FastImage
-        source={source}
-        onLoad={this.onLoad}
-        style={style}
-        key={this.state.attempt}
-      />
-    );
-
-    let loadingOverlay;
+    let spinner = null;
     if (!this.state.loaded) {
-      return (
-        <View style={styles.loadingContainer}>
+      spinner = (
+        <View style={styles.spinnerContainer}>
           <ActivityIndicator
-            color="black"
+            color={this.props.spinnerColor}
             size="large"
-            style={styles.loadingOverlay}
           />
-          {image}
         </View>
       );
     }
 
-    return image;
+    const { media } = this.props;
+    const { uri } = media;
+    const source = { uri };
+    return (
+      <View style={styles.container}>
+        {spinner}
+        <FastImage
+          source={source}
+          onLoad={this.onLoad}
+          style={styles.image}
+          key={this.state.attempt}
+        />
+      </View>
+    );
   }
 
   onLoad = () => {
@@ -82,13 +85,16 @@ class Multimedia extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  container: {
     flex: 1,
+  },
+  image: {
+    flex: 1,
+  },
+  spinnerContainer: {
+    position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  loadingOverlay: {
-    position: 'absolute',
   },
 });
 

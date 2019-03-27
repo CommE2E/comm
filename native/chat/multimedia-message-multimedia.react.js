@@ -31,7 +31,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
         <View style={[styles.expand, style]} ref={this.viewRef}>
-          <Multimedia media={media} style={styles.expand} />
+          <Multimedia media={media} />
         </View>
       </TouchableWithoutFeedback>
     );
