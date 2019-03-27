@@ -52,12 +52,12 @@ function createLightboxNavigator(
   );
 }
 
-type LightboxProps = {|
+type Props = {|
   navigation: NavigationScreenProp<NavigationState>,
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
 |};
-class Lightbox extends React.PureComponent<LightboxProps> {
+class Lightbox extends React.PureComponent<Props> {
 
   render() {
     return (
@@ -129,6 +129,7 @@ class Lightbox extends React.PureComponent<LightboxProps> {
       <View style={styles.scene} key={scene.key}>
         <SceneComponent
           navigation={navigation}
+          scene={scene}
           transitionProps={transitionProps}
           prevTransitionProps={prevTransitionProps}
         />

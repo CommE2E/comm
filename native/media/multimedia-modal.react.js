@@ -3,6 +3,8 @@
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,
+  NavigationScene,
+  NavigationTransitionProps,
 } from 'react-navigation';
 import {
   type Media,
@@ -13,7 +15,12 @@ import {
 import type { AppState } from '../redux-setup';
 
 import * as React from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Animated,
+} from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -34,6 +41,8 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  scene: NavigationScene,
+  transitionProps: NavigationTransitionProps,
   // Redux state
   screenDimensions: Dimensions,
 |};
@@ -48,6 +57,8 @@ class MultimediaModal extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    transitionProps: PropTypes.object.isRequired,
+    scene: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
   };
 
@@ -97,11 +108,19 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   render() {
     const { media } = this.props.navigation.state.params;
+    const { position } = this.props.transitionProps;
+    const { index } = this.props.scene;
+    const backdropStyle = {
+      opacity: position.interpolate({
+        inputRange: [ index - 1, index ],
+        outputRange: ([ 0, 1 ]: number[]),
+      }),
+    };
     return (
       <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
         <TouchableWithoutFeedback onPress={this.close}>
-          <View style={styles.backdrop} />
+          <Animated.View style={[ styles.backdrop, backdropStyle ]} />
         </TouchableWithoutFeedback>
         <Multimedia media={media} style={this.imageStyle} />
       </View>
@@ -124,7 +143,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    opacity: 0.9,
     backgroundColor: "black",
   },
 });
