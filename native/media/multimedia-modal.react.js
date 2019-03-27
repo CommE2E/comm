@@ -51,13 +51,20 @@ class MultimediaModal extends React.PureComponent<Props> {
     screenDimensions: dimensionsPropType.isRequired,
   };
 
+  get screenDimensions(): Dimensions {
+    const { screenDimensions } = this.props;
+    if (contentVerticalOffset === 0) {
+      return screenDimensions;
+    }
+    const { height, width } = screenDimensions;
+    return { height: height - contentVerticalOffset, width };
+  }
+
   get imageDimensions(): Dimensions {
-    const { screenDimensions, navigation } = this.props;
-    const screenHeight = screenDimensions.height - contentVerticalOffset;
-    const screenWidth = screenDimensions.width;
-    const { dimensions } = navigation.state.params.media;
+    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
+    const { dimensions } = this.props.navigation.state.params.media;
     if (dimensions.height < screenHeight && dimensions.width < screenWidth) {
-      return { ...dimensions };
+      return dimensions;
     }
     const heightRatio = screenHeight / dimensions.height;
     const widthRatio = screenWidth / dimensions.width;
@@ -66,28 +73,37 @@ class MultimediaModal extends React.PureComponent<Props> {
         height: screenHeight,
         width: dimensions.width * heightRatio,
       };
+    } else {
+      return {
+        width: screenWidth,
+        height: dimensions.height * widthRatio,
+      };
     }
+  }
+
+  get imageStyle() {
+    const { height, width } = this.imageDimensions;
+    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
+    const verticalSpace = (screenHeight - height) / 2;
+    const horizontalSpace = (screenWidth - width) / 2;
     return {
-      width: screenWidth,
-      height: dimensions.height * widthRatio,
+      position: 'absolute',
+      height,
+      width,
+      top: verticalSpace + contentVerticalOffset,
+      left: horizontalSpace,
     };
   }
 
   render() {
-    const { navigation, screenDimensions } = this.props;
-    const { media } = navigation.state.params;
-    const style = this.imageDimensions;
-    const screenHeight = screenDimensions.height - contentVerticalOffset;
-    const containerHeightStyle = { height: screenHeight };
+    const { media } = this.props.navigation.state.params;
     return (
       <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
         <TouchableWithoutFeedback onPress={this.close}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
-        <View style={[ styles.media, containerHeightStyle ]}>
-          <Multimedia media={media} style={style} />
-        </View>
+        <Multimedia media={media} style={this.imageStyle} />
       </View>
     );
   }
@@ -101,20 +117,15 @@ class MultimediaModal extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: contentVerticalOffset,
   },
   backdrop: {
     position: "absolute",
-    top: -1 * contentVerticalOffset,
+    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
     opacity: 0.9,
     backgroundColor: "black",
-  },
-  media: {
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 
