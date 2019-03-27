@@ -24,23 +24,35 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     media: mediaPropType.isRequired,
     navigate: PropTypes.func.isRequired,
   };
+  view: ?View;
 
   render() {
     const { media, style } = this.props;
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <View style={[styles.expand, style]}>
+        <View style={[styles.expand, style]} ref={this.viewRef}>
           <Multimedia media={media} style={styles.expand} />
         </View>
       </TouchableWithoutFeedback>
     );
   }
 
+  viewRef = (view: ?View) => {
+    this.view = view;
+  }
+
   onPress = () => {
-    const { media, navigate } = this.props;
-    navigate({
-      routeName: MultimediaModalRouteName,
-      params: { media },
+    const { view } = this;
+    if (!view) {
+      return;
+    }
+    view.measure((x, y, width, height, pageX, pageY) => {
+      const coordinates = { x: pageX, y: pageY, width, height };
+      const { media, navigate } = this.props;
+      navigate({
+        routeName: MultimediaModalRouteName,
+        params: { media, initialCoordinates: coordinates },
+      });
     });
   }
 

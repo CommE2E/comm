@@ -32,10 +32,17 @@ import {
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 
+type LayoutCoordinates = $ReadOnly<{|
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+|}>;
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     media: Media,
+    initialCoordinates: LayoutCoordinates,
   |},
 |}>;
 
@@ -53,6 +60,12 @@ class MultimediaModal extends React.PureComponent<Props> {
       state: PropTypes.shape({
         params: PropTypes.shape({
           media: mediaPropType.isRequired,
+          initialCoordinates: PropTypes.shape({
+            x: PropTypes.number.isRequired,
+            y: PropTypes.number.isRequired,
+            width: PropTypes.number.isRequired,
+            height: PropTypes.number.isRequired,
+          }).isRequired,
         }).isRequired,
       }).isRequired,
       goBack: PropTypes.func.isRequired,
@@ -92,37 +105,79 @@ class MultimediaModal extends React.PureComponent<Props> {
     }
   }
 
-  get imageStyle() {
+  get imageContainerStyle() {
     const { height, width } = this.imageDimensions;
     const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const verticalSpace = (screenHeight - height) / 2;
-    const horizontalSpace = (screenWidth - width) / 2;
+    const top = (screenHeight - height) / 2 + contentVerticalOffset;
+    const left = (screenWidth - width) / 2;
+
+    const { position } = this.props.transitionProps;
+    const { index } = this.props.scene;
+    const { initialCoordinates } = this.props.navigation.state.params;
+
+    const initialScaleX = initialCoordinates.width / width;
+    const scaleX = position.interpolate({
+      inputRange: [ index - 1, index ],
+      outputRange: ([ initialScaleX, 1 ]: number[]),
+    });
+    const initialScaleY = initialCoordinates.height / height;
+    const scaleY = position.interpolate({
+      inputRange: [ index - 1, index ],
+      outputRange: ([ initialScaleY, 1 ]: number[]),
+    });
+
+    const initialTranslateX =
+      (initialCoordinates.x + initialCoordinates.width / 2)
+      - (left + width / 2);
+    const translateX = position.interpolate({
+      inputRange: [ index - 1, index ],
+      outputRange: ([ initialTranslateX, 0 ]: number[]),
+    });
+    const initialTranslateY =
+      (initialCoordinates.y + initialCoordinates.height / 2)
+      - (top + height / 2);
+    const translateY = position.interpolate({
+      inputRange: [ index - 1, index ],
+      outputRange: ([ initialTranslateY, 0 ]: number[]),
+    });
+
     return {
       position: 'absolute',
       height,
       width,
-      top: verticalSpace + contentVerticalOffset,
-      left: horizontalSpace,
+      top,
+      left,
+      transform: [
+        { translateX },
+        { translateY },
+        { scaleX },
+        { scaleY },
+      ],
     };
   }
 
-  render() {
-    const { media } = this.props.navigation.state.params;
+  get backdropStyle() {
     const { position } = this.props.transitionProps;
     const { index } = this.props.scene;
-    const backdropStyle = {
+    return {
       opacity: position.interpolate({
         inputRange: [ index - 1, index ],
         outputRange: ([ 0, 1 ]: number[]),
       }),
     };
+  }
+
+  render() {
+    const { media } = this.props.navigation.state.params;
     return (
       <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
         <TouchableWithoutFeedback onPress={this.close}>
-          <Animated.View style={[ styles.backdrop, backdropStyle ]} />
+          <Animated.View style={[ styles.backdrop, this.backdropStyle ]} />
         </TouchableWithoutFeedback>
-        <Multimedia media={media} style={this.imageStyle} />
+        <Animated.View style={this.imageContainerStyle}>
+          <Multimedia media={media} style={styles.image} />
+        </Animated.View>
       </View>
     );
   }
@@ -144,6 +199,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "black",
+  },
+  image: {
+    flex: 1,
   },
 });
 
