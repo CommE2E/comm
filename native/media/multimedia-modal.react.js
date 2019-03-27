@@ -23,6 +23,7 @@ import {
   contentVerticalOffset,
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
+import ConnectedStatusBar from '../connected-status-bar.react';
 
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
@@ -80,6 +81,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const containerHeightStyle = { height: screenHeight };
     return (
       <View style={styles.container}>
+        <ConnectedStatusBar barStyle="light-content" />
         <TouchableWithoutFeedback onPress={this.close}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
