@@ -20,8 +20,10 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Animated,
+  TouchableHighlight,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import Icon from 'react-native-vector-icons/Feather';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -85,21 +87,22 @@ class MultimediaModal extends React.PureComponent<Props> {
   }
 
   get imageDimensions(): Dimensions {
-    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
+    const { height: screenHeight, width: maxWidth } = this.screenDimensions;
+    const maxHeight = screenHeight - 100; // space for close button
     const { dimensions } = this.props.navigation.state.params.media;
-    if (dimensions.height < screenHeight && dimensions.width < screenWidth) {
+    if (dimensions.height < maxHeight && dimensions.width < maxWidth) {
       return dimensions;
     }
-    const heightRatio = screenHeight / dimensions.height;
-    const widthRatio = screenWidth / dimensions.width;
+    const heightRatio = maxHeight / dimensions.height;
+    const widthRatio = maxWidth / dimensions.width;
     if (heightRatio < widthRatio) {
       return {
-        height: screenHeight,
+        height: maxHeight,
         width: dimensions.width * heightRatio,
       };
     } else {
       return {
-        width: screenWidth,
+        width: maxWidth,
         height: dimensions.height * widthRatio,
       };
     }
@@ -116,6 +119,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const opacity = position.interpolate({
       inputRange: [ index - 1, index - 0.9 ],
       outputRange: ([ 0, 1 ]: number[]),
+      extrapolate: 'clamp',
     });
 
     const { initialCoordinates } = this.props.navigation.state.params;
@@ -123,11 +127,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     const scaleX = position.interpolate({
       inputRange: [ index - 1, index ],
       outputRange: ([ initialScaleX, 1 ]: number[]),
+      extrapolate: 'clamp',
     });
     const initialScaleY = initialCoordinates.height / height;
     const scaleY = position.interpolate({
       inputRange: [ index - 1, index ],
       outputRange: ([ initialScaleY, 1 ]: number[]),
+      extrapolate: 'clamp',
     });
 
     const initialTranslateX =
@@ -136,6 +142,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const translateX = position.interpolate({
       inputRange: [ index - 1, index ],
       outputRange: ([ initialTranslateX, 0 ]: number[]),
+      extrapolate: 'clamp',
     });
     const initialTranslateY =
       (initialCoordinates.y + initialCoordinates.height / 2)
@@ -143,6 +150,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const translateY = position.interpolate({
       inputRange: [ index - 1, index ],
       outputRange: ([ initialTranslateY, 0 ]: number[]),
+      extrapolate: 'clamp',
     });
 
     return {
@@ -178,7 +186,11 @@ class MultimediaModal extends React.PureComponent<Props> {
       <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
         <TouchableWithoutFeedback onPress={this.close}>
-          <Animated.View style={[ styles.backdrop, this.backdropStyle ]} />
+          <Animated.View style={[ styles.backdrop, this.backdropStyle ]}>
+            <TouchableHighlight onPress={this.close} underlayColor="#A0A0A0DD">
+              <Icon name="x-circle" style={styles.closeButton} />
+            </TouchableHighlight>
+          </Animated.View>
         </TouchableWithoutFeedback>
         <Animated.View style={this.imageContainerStyle}>
           <Multimedia media={media} spinnerColor="white" />
@@ -204,6 +216,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "black",
+  },
+  closeButton: {
+    fontSize: 36,
+    color: "white",
+    position: "absolute",
+    top: contentVerticalOffset,
+    right: 12,
   },
 });
 
