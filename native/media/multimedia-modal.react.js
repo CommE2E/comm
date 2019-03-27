@@ -113,8 +113,12 @@ class MultimediaModal extends React.PureComponent<Props> {
 
     const { position } = this.props.transitionProps;
     const { index } = this.props.scene;
-    const { initialCoordinates } = this.props.navigation.state.params;
+    const opacity = position.interpolate({
+      inputRange: [ index - 1, index - 0.9 ],
+      outputRange: ([ 0, 1 ]: number[]),
+    });
 
+    const { initialCoordinates } = this.props.navigation.state.params;
     const initialScaleX = initialCoordinates.width / width;
     const scaleX = position.interpolate({
       inputRange: [ index - 1, index ],
@@ -147,6 +151,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       width,
       top,
       left,
+      opacity,
       transform: [
         { translateX },
         { translateY },
