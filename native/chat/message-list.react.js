@@ -54,6 +54,7 @@ type Props = {|
 |};
 type State = {|
   focusedMessageKey: ?string,
+  scrollDisabled: bool,
 |};
 class MessageList extends React.PureComponent<Props, State> {
 
@@ -70,6 +71,7 @@ class MessageList extends React.PureComponent<Props, State> {
   loadingFromScroll = false;
   state = {
     focusedMessageKey: null,
+    scrollDisabled: false,
   };
 
   componentDidMount() {
@@ -128,6 +130,7 @@ class MessageList extends React.PureComponent<Props, State> {
         focused={focused}
         navigate={this.props.navigate}
         toggleFocus={this.toggleMessageFocus}
+        setScrollDisabled={this.setScrollDisabled}
       />
     );
   }
@@ -138,6 +141,10 @@ class MessageList extends React.PureComponent<Props, State> {
     } else {
       this.setState({ focusedMessageKey: messageKey });
     }
+  }
+
+  setScrollDisabled = (scrollDisabled: bool) => {
+    this.setState({ scrollDisabled });
   }
 
   static keyExtractor(item: ChatMessageItemWithHeight) {
@@ -190,6 +197,7 @@ class MessageList extends React.PureComponent<Props, State> {
           onViewableItemsChanged={this.onViewableItemsChanged}
           ListFooterComponent={footer}
           scrollsToTop={false}
+          scrollEnabled={!this.state.scrollDisabled}
           extraData={this.state.focusedMessageKey}
         />
       </View>

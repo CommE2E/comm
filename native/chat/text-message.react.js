@@ -64,6 +64,7 @@ type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  setScrollDisabled: (scrollDisabled: bool) => void,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -71,6 +72,7 @@ class TextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    setScrollDisabled: PropTypes.func.isRequired,
   };
   tooltipConfig: $ReadOnlyArray<TooltipItemData>;
   tooltip: ?Tooltip;
@@ -151,12 +153,14 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   onFocus = () => {
+    this.props.setScrollDisabled(true);
     if (!this.props.focused) {
       this.props.toggleFocus(messageKey(this.props.item.messageInfo));
     }
   }
 
   onBlur = () => {
+    this.props.setScrollDisabled(false);
     if (this.props.focused) {
       this.props.toggleFocus(messageKey(this.props.item.messageInfo));
     }

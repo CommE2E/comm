@@ -59,6 +59,7 @@ type Props = {|
   focused: bool,
   navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
+  setScrollDisabled: (scrollDisabled: bool) => void,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -67,6 +68,7 @@ class Message extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    setScrollDisabled: PropTypes.func.isRequired,
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -94,6 +96,7 @@ class Message extends React.PureComponent<Props> {
           item={this.props.item}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
+          setScrollDisabled={this.props.setScrollDisabled}
         />
       );
     } else if (this.props.item.messageShapeType === "multimedia") {
