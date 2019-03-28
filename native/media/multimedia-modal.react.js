@@ -174,6 +174,11 @@ class MultimediaModal extends React.PureComponent<Props> {
     };
   }
 
+  get isActive() {
+    const { index } = this.props.scene;
+    return index === this.props.transitionProps.index;
+  }
+
   get contentContainerStyle() {
     const { verticalBounds } = this.props.navigation.state.params;
     const fullScreenHeight = this.screenDimensions.height
@@ -183,8 +188,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
     // margin will clip, but padding won't
-    const { index } = this.props.scene;
-    const verticalStyle = index === this.props.transitionProps.index
+    const verticalStyle = this.isActive
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
     return [ styles.contentContainer, verticalStyle ];
@@ -203,9 +207,12 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   render() {
     const { media } = this.props.navigation.state.params;
+    const statusBar = this.isActive
+      ? <ConnectedStatusBar barStyle="light-content" />
+      : null;
     return (
       <View style={styles.container}>
-        <ConnectedStatusBar barStyle="light-content" />
+        {statusBar}
         <Animated.View style={[ styles.backdrop, this.backdropStyle ]} />
         <View style={this.contentContainerStyle}>
           <TouchableWithoutFeedback onPress={this.close}>
