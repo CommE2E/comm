@@ -21,7 +21,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Animated,
-  TouchableHighlight,
+  TouchableOpacity,
   Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -206,13 +206,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     return (
       <View style={styles.container}>
         <ConnectedStatusBar barStyle="light-content" />
-        <TouchableWithoutFeedback onPress={this.close}>
-          <Animated.View style={[ styles.backdrop, this.backdropStyle ]}>
-            <TouchableHighlight onPress={this.close} underlayColor="#A0A0A0DD">
-              <Icon name="x-circle" style={styles.closeButton} />
-            </TouchableHighlight>
-          </Animated.View>
-        </TouchableWithoutFeedback>
+        <Animated.View style={[ styles.backdrop, this.backdropStyle ]} />
         <View style={this.contentContainerStyle}>
           <TouchableWithoutFeedback onPress={this.close}>
             <View style={styles.cover} />
@@ -221,6 +215,14 @@ class MultimediaModal extends React.PureComponent<Props> {
             <Multimedia media={media} spinnerColor="white" />
           </Animated.View>
         </View>
+        <Animated.View style={[
+          styles.closeButtonContainer,
+          this.backdropStyle,
+        ]}>
+          <TouchableOpacity onPress={this.close}>
+            <Icon name="x-circle" style={styles.closeButton} />
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     );
   }
@@ -235,13 +237,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  cover: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
   backdrop: {
     position: "absolute",
     top: 0,
@@ -250,16 +245,25 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: "black",
   },
-  closeButton: {
-    fontSize: 36,
-    color: "white",
+  contentContainer: {
+    flex: 1,
+    overflow: "hidden",
+  },
+  cover: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  closeButtonContainer: {
     position: "absolute",
     top: Platform.OS === "ios" ? contentVerticalOffset : 6,
     right: 12,
   },
-  contentContainer: {
-    flex: 1,
-    overflow: "hidden",
+  closeButton: {
+    fontSize: 36,
+    color: "white",
   },
 });
 
