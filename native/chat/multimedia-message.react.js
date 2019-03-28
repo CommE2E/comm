@@ -9,6 +9,10 @@ import type { Media } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../media/vertical-bounds';
 
 import * as React from 'react';
 import {
@@ -107,6 +111,7 @@ type Props = {|
   item: ChatMultimediaMessageInfoItem,
   navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
+  verticalBounds: ?VerticalBounds,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
@@ -114,6 +119,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    verticalBounds: verticalBoundsPropType,
   };
 
   render() {
@@ -191,6 +197,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <MultimediaMessageMultimedia
         media={media}
         navigate={this.props.navigate}
+        verticalBounds={this.props.verticalBounds}
         style={style}
         key={media.id}
       />

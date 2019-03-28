@@ -11,6 +11,10 @@ import type {
 } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Navigate } from '../navigation/route-names';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../media/vertical-bounds';
 
 import * as React from 'react';
 import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';
@@ -60,6 +64,7 @@ type Props = {|
   navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
+  verticalBounds: ?VerticalBounds,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -69,6 +74,7 @@ class Message extends React.PureComponent<Props> {
     navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
+    verticalBounds: verticalBoundsPropType,
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -105,6 +111,7 @@ class Message extends React.PureComponent<Props> {
           item={this.props.item}
           navigate={this.props.navigate}
           toggleFocus={this.props.toggleFocus}
+          verticalBounds={this.props.verticalBounds}
         />
       );
     } else {

@@ -8,6 +8,7 @@ import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { Navigate } from '../navigation/route-names';
+import type { VerticalBounds } from '../media/vertical-bounds';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -55,6 +56,7 @@ type Props = {|
 type State = {|
   focusedMessageKey: ?string,
   scrollDisabled: bool,
+  messageListVerticalBounds: ?VerticalBounds,
 |};
 class MessageList extends React.PureComponent<Props, State> {
 
@@ -68,11 +70,13 @@ class MessageList extends React.PureComponent<Props, State> {
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
-  loadingFromScroll = false;
   state = {
     focusedMessageKey: null,
     scrollDisabled: false,
+    messageListVerticalBounds: null,
   };
+  loadingFromScroll = false;
+  flatListContainer: ?View;
 
   componentDidMount() {
     const { threadInfo } = this.props;
@@ -131,6 +135,7 @@ class MessageList extends React.PureComponent<Props, State> {
         navigate={this.props.navigate}
         toggleFocus={this.toggleMessageFocus}
         setScrollDisabled={this.setScrollDisabled}
+        verticalBounds={this.state.messageListVerticalBounds}
       />
     );
   }
@@ -187,7 +192,11 @@ class MessageList extends React.PureComponent<Props, State> {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? MessageList.ListFooterComponent : undefined;
     return (
-      <View style={styles.container}>
+      <View
+        style={styles.container}
+        ref={this.flatListContainerRef}
+        onLayout={this.onFlatListContainerLayout}
+      >
         <FlatList
           inverted={true}
           data={messageListData}
@@ -198,10 +207,24 @@ class MessageList extends React.PureComponent<Props, State> {
           ListFooterComponent={footer}
           scrollsToTop={false}
           scrollEnabled={!this.state.scrollDisabled}
-          extraData={this.state.focusedMessageKey}
+          extraData={this.state}
         />
       </View>
     );
+  }
+
+  flatListContainerRef = (flatListContainer: ?View) => {
+    this.flatListContainer = flatListContainer;
+  }
+
+  onFlatListContainerLayout = () => {
+    const { flatListContainer } = this;
+    if (!flatListContainer) {
+      return;
+    }
+    flatListContainer.measure((x, y, width, height, pageX, pageY) => {
+      this.setState({ messageListVerticalBounds: { height, y: pageY } });
+    });
   }
 
   onViewableItemsChanged = (info: {

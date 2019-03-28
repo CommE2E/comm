@@ -18,33 +18,34 @@ if (Platform.OS === "android") {
   statusBarHeight = 20;
 }
 
-const dimensionsSelector = createSelector<*, *, *, *>(
-  (state: AppState) => state.dimensions,
-  (dimensions: Dimensions): Dimensions => {
-    let { height, width } = dimensions;
-    if (Platform.OS === "android") {
-      // Android starts the 0 pixel below the status bar height,
-      // but doesn't subtract it out of the dimensions
-      height -= statusBarHeight;
-    } else if (isIPhoneX) {
-      // We avoid painting the bottom 34 pixels on the iPhone X,
-      // as they are occupied by the home pill
-      height -= 34;
-    }
-    return { height, width };
-  },
-);
-
 // iOS starts the 0 pixel above the status bar,
 // so we offset our content by the status bar height
 const contentVerticalOffset = Platform.OS === "ios"
   ? statusBarHeight
   : 0;
+const contentBottomOffset = isIPhoneX
+  ? 34 // iPhone X home pill
+  : 0;
+
+const dimensionsSelector = createSelector<*, *, *, *>(
+  (state: AppState) => state.dimensions,
+  (dimensions: Dimensions): Dimensions => {
+    let { height, width } = dimensions;
+    height -= contentBottomOffset;
+    if (Platform.OS === "android") {
+      // Android starts the 0 pixel below the status bar height,
+      // but doesn't subtract it out of the dimensions
+      height -= statusBarHeight;
+    }
+    return { height, width };
+  },
+);
 
 const tabBarSize = Platform.OS === "android" ? 50 : 49;
 
 export {
-  dimensionsSelector,
   contentVerticalOffset,
+  contentBottomOffset,
+  dimensionsSelector,
   tabBarSize,
 };

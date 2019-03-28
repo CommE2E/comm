@@ -6,6 +6,10 @@ import {
   type Navigate,
   MultimediaModalRouteName,
 } from '../navigation/route-names';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../media/vertical-bounds';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -16,6 +20,7 @@ import Multimedia from '../media/multimedia.react';
 type Props = {|
   media: Media,
   navigate: Navigate,
+  verticalBounds: ?VerticalBounds,
   style?: ImageStyle,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props> {
@@ -23,6 +28,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   static propTypes = {
     media: mediaPropType.isRequired,
     navigate: PropTypes.func.isRequired,
+    verticalBounds: verticalBoundsPropType,
   };
   view: ?View;
 
@@ -42,8 +48,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    const { view } = this;
-    if (!view) {
+    const { view, props: { verticalBounds } } = this;
+    if (!view || !verticalBounds) {
       return;
     }
     view.measure((x, y, width, height, pageX, pageY) => {
@@ -51,7 +57,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
       const { media, navigate } = this.props;
       navigate({
         routeName: MultimediaModalRouteName,
-        params: { media, initialCoordinates: coordinates },
+        params: { media, initialCoordinates: coordinates, verticalBounds },
       });
     });
   }

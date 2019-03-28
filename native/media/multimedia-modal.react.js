@@ -13,6 +13,7 @@ import {
   dimensionsPropType,
 } from 'lib/types/media-types';
 import type { AppState } from '../redux-setup';
+import { type VerticalBounds, verticalBoundsPropType } from './vertical-bounds';
 
 import * as React from 'react';
 import {
@@ -21,6 +22,7 @@ import {
   TouchableWithoutFeedback,
   Animated,
   TouchableHighlight,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Feather';
@@ -28,8 +30,9 @@ import Icon from 'react-native-vector-icons/Feather';
 import { connect } from 'lib/utils/redux-utils';
 
 import {
-  dimensionsSelector,
   contentVerticalOffset,
+  contentBottomOffset,
+  dimensionsSelector,
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -45,6 +48,7 @@ type NavProp = NavigationScreenProp<{|
   params: {|
     media: Media,
     initialCoordinates: LayoutCoordinates,
+    verticalBounds: VerticalBounds,
   |},
 |}>;
 
@@ -68,6 +72,7 @@ class MultimediaModal extends React.PureComponent<Props> {
             width: PropTypes.number.isRequired,
             height: PropTypes.number.isRequired,
           }).isRequired,
+          verticalBounds: verticalBoundsPropType.isRequired,
         }).isRequired,
       }).isRequired,
       goBack: PropTypes.func.isRequired,
@@ -153,12 +158,12 @@ class MultimediaModal extends React.PureComponent<Props> {
       extrapolate: 'clamp',
     });
 
+    const { verticalBounds } = this.props.navigation.state.params;
     return {
-      position: 'absolute',
       height,
       width,
-      top,
-      left,
+      marginTop: top - verticalBounds.y,
+      marginLeft: left,
       opacity,
       transform: [
         { translateX },
@@ -167,6 +172,22 @@ class MultimediaModal extends React.PureComponent<Props> {
         { scaleY },
       ],
     };
+  }
+
+  get contentContainerStyle() {
+    const { verticalBounds } = this.props.navigation.state.params;
+    const fullScreenHeight = this.screenDimensions.height
+      + contentBottomOffset
+      + contentVerticalOffset;
+    const top = verticalBounds.y;
+    const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+
+    // margin will clip, but padding won't
+    const { index } = this.props.scene;
+    const verticalStyle = index === this.props.transitionProps.index
+      ? { paddingTop: top, paddingBottom: bottom }
+      : { marginTop: top, marginBottom: bottom };
+    return [ styles.contentContainer, verticalStyle ];
   }
 
   get backdropStyle() {
@@ -192,9 +213,14 @@ class MultimediaModal extends React.PureComponent<Props> {
             </TouchableHighlight>
           </Animated.View>
         </TouchableWithoutFeedback>
-        <Animated.View style={this.imageContainerStyle}>
-          <Multimedia media={media} spinnerColor="white" />
-        </Animated.View>
+        <View style={this.contentContainerStyle}>
+          <TouchableWithoutFeedback onPress={this.close}>
+            <View style={styles.cover} />
+          </TouchableWithoutFeedback>
+          <Animated.View style={this.imageContainerStyle}>
+            <Multimedia media={media} spinnerColor="white" />
+          </Animated.View>
+        </View>
       </View>
     );
   }
@@ -209,6 +235,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  cover: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
   backdrop: {
     position: "absolute",
     top: 0,
@@ -221,8 +254,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: "white",
     position: "absolute",
-    top: contentVerticalOffset,
+    top: Platform.OS === "ios" ? contentVerticalOffset : 6,
     right: 12,
+  },
+  contentContainer: {
+    flex: 1,
+    overflow: "hidden",
   },
 });
 
