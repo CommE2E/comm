@@ -22,7 +22,6 @@ import {
   TouchableWithoutFeedback,
   Animated,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Feather';
@@ -35,9 +34,9 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 
 import {
-  contentVerticalOffset,
   contentBottomOffset,
   dimensionsSelector,
+  contentVerticalOffsetSelector,
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -63,6 +62,7 @@ type Props = {|
   transitionProps: NavigationTransitionProps,
   // Redux state
   screenDimensions: Dimensions,
+  contentVerticalOffset: number,
 |};
 class MultimediaModal extends React.PureComponent<Props> {
 
@@ -85,7 +85,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     transitionProps: PropTypes.object.isRequired,
     scene: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
+    contentVerticalOffset: PropTypes.number.isRequired,
   };
+
+  centerXNum: number;
+  centerYNum: number;
+  centerX = new Animated.Value(0);
+  centerY = new Animated.Value(0);
 
   pinchScale = new Animated.Value(1);
   pinchFocalX = new Animated.Value(0);
@@ -130,10 +136,11 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
+    this.updateCenter();
 
     const { height, width } = this.imageDimensions;
     const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const top = (screenHeight - height) / 2 + contentVerticalOffset;
+    const top = (screenHeight - height) / 2 + props.contentVerticalOffset;
     const left = (screenWidth - width) / 2;
 
     const { initialCoordinates } = props.navigation.state.params;
@@ -176,10 +183,7 @@ class MultimediaModal extends React.PureComponent<Props> {
           this.pinchFocalX,
           this.curX,
         ),
-        Animated.divide(
-          this.props.transitionProps.layout.width,
-          2,
-        ),
+        this.centerX,
       ),
     );
     this.x = Animated.add(
@@ -200,13 +204,7 @@ class MultimediaModal extends React.PureComponent<Props> {
           this.pinchFocalY,
           this.curY,
         ),
-        Animated.divide(
-          Animated.add(
-            this.props.transitionProps.layout.height,
-            contentVerticalOffset - contentBottomOffset,
-          ),
-          2,
-        ),
+        this.centerY,
       ),
     );
     this.y = Animated.add(
@@ -221,8 +219,25 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
+  updateCenter() {
+    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
+    this.centerXNum = screenWidth / 2;
+    this.centerYNum = screenHeight / 2 + this.props.contentVerticalOffset;
+    this.centerX.setValue(this.centerXNum);
+    this.centerY.setValue(this.centerYNum);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.screenDimensions !== prevProps.screenDimensions ||
+      this.props.contentVerticalOffset !== prevProps.contentVerticalOffset
+    ) {
+      this.updateCenter();
+    }
+  }
+
   get screenDimensions(): Dimensions {
-    const { screenDimensions } = this.props;
+    const { screenDimensions, contentVerticalOffset } = this.props;
     if (contentVerticalOffset === 0) {
       return screenDimensions;
     }
@@ -231,12 +246,19 @@ class MultimediaModal extends React.PureComponent<Props> {
   }
 
   get imageDimensions(): Dimensions {
-    const { height: screenHeight, width: maxWidth } = this.screenDimensions;
-    const maxHeight = screenHeight - 100; // space for close button
+    // Make space for the close button
+    let { height: maxHeight, width: maxWidth } = this.screenDimensions;
+    if (maxHeight > maxWidth) {
+      maxHeight -= 100;
+    } else {
+      maxWidth -= 100;
+    }
+
     const { dimensions } = this.props.navigation.state.params.media;
     if (dimensions.height < maxHeight && dimensions.width < maxWidth) {
       return dimensions;
     }
+
     const heightRatio = maxHeight / dimensions.height;
     const widthRatio = maxWidth / dimensions.width;
     if (heightRatio < widthRatio) {
@@ -255,7 +277,7 @@ class MultimediaModal extends React.PureComponent<Props> {
   get imageContainerStyle() {
     const { height, width } = this.imageDimensions;
     const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const top = (screenHeight - height) / 2 + contentVerticalOffset;
+    const top = (screenHeight - height) / 2 + this.props.contentVerticalOffset;
     const left = (screenWidth - width) / 2;
     const { verticalBounds } = this.props.navigation.state.params;
     return {
@@ -281,7 +303,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const { verticalBounds } = this.props.navigation.state.params;
     const fullScreenHeight = this.screenDimensions.height
       + contentBottomOffset
-      + contentVerticalOffset;
+      + this.props.contentVerticalOffset;
     const top = verticalBounds.y;
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
@@ -298,6 +320,10 @@ class MultimediaModal extends React.PureComponent<Props> {
       ? <ConnectedStatusBar barStyle="light-content" />
       : null;
     const backdropStyle = { opacity: this.progress };
+    const closeButtonStyle = {
+      opacity: this.progress,
+      top: Math.max(this.props.contentVerticalOffset, 6),
+    };
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
@@ -310,7 +336,10 @@ class MultimediaModal extends React.PureComponent<Props> {
             <Multimedia media={media} spinnerColor="white" />
           </Animated.View>
         </View>
-        <Animated.View style={[ styles.closeButtonContainer, backdropStyle ]}>
+        <Animated.View style={[
+          styles.closeButtonContainer,
+          closeButtonStyle,
+        ]}>
           <TouchableOpacity onPress={this.close}>
             <Icon name="x-circle" style={styles.closeButton} />
           </TouchableOpacity>
@@ -351,22 +380,16 @@ class MultimediaModal extends React.PureComponent<Props> {
     if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
       return;
     }
-    this.curScaleNum *= event.nativeEvent.scale;
-    this.curScale.setValue(this.curScaleNum);
 
-    // Keep this logic in sync with pinchX/pinchY definitions in constructor.
-    // Note however that this.screenDimensions.height is not the same as
-    // this.props.transitionProps.layout.height. The latter includes both
-    // contentVerticalOffset and contentBottomOffset.
-    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    this.curXNum += (1 - scale)
-      * (focalX - this.curXNum - screenWidth / 2);
-    this.curYNum += (1 - scale)
-      * (focalY - this.curYNum - screenHeight / 2 - contentVerticalOffset);
+    this.curScaleNum *= scale;
+    this.curScale.setValue(this.curScaleNum);
+    this.pinchScale.setValue(1);
+
+    // Keep this logic in sync with pinchX/pinchY definitions in constructor
+    this.curXNum += (1 - scale) * (focalX - this.curXNum - this.centerXNum);
+    this.curYNum += (1 - scale) * (focalY - this.curYNum - this.centerYNum);
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
-
-    this.pinchScale.setValue(1);
   }
 
   onPanHandlerStateChange = (
@@ -377,12 +400,12 @@ class MultimediaModal extends React.PureComponent<Props> {
       translationY: number,
     } },
   ) => {
-    const { state, oldState } = event.nativeEvent;
+    const { state, oldState, translationX, translationY } = event.nativeEvent;
     if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
       return;
     }
-    this.curXNum += event.nativeEvent.translationX;
-    this.curYNum += event.nativeEvent.translationY;
+    this.curXNum += translationX;
+    this.curYNum += translationY;
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
     this.panX.setValue(0);
@@ -416,7 +439,6 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     position: "absolute",
-    top: Platform.OS === "ios" ? contentVerticalOffset : 6,
     right: 12,
   },
   closeButton: {
@@ -428,5 +450,6 @@ const styles = StyleSheet.create({
 export default connect(
   (state: AppState) => ({
     screenDimensions: dimensionsSelector(state),
+    contentVerticalOffset: contentVerticalOffsetSelector(state),
   }),
 )(MultimediaModal);

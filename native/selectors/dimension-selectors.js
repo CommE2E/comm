@@ -18,14 +18,8 @@ if (Platform.OS === "android") {
   statusBarHeight = 20;
 }
 
-// iOS starts the 0 pixel above the status bar,
-// so we offset our content by the status bar height
-const contentVerticalOffset = Platform.OS === "ios"
-  ? statusBarHeight
-  : 0;
-const contentBottomOffset = isIPhoneX
-  ? 34 // iPhone X home pill
-  : 0;
+// iPhone X home pill
+const contentBottomOffset = isIPhoneX ? 34 : 0;
 
 const dimensionsSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.dimensions,
@@ -41,11 +35,29 @@ const dimensionsSelector = createSelector<*, *, *, *>(
   },
 );
 
+// iOS starts the 0 pixel above the status bar,
+// so we offset our content by the status bar height
+const contentVerticalOffsetSelector = createSelector<*, *, *, *>(
+  (state: AppState) => state.dimensions,
+  (dimensions: Dimensions): number => {
+    if (Platform.OS !== "ios") {
+      return 0;
+    }
+    const { height, width } = dimensions;
+    if (width > height) {
+      // We don't display a status bar at all in landscape mode,
+      // plus there is no notch for the iPhone X
+      return 0;
+    }
+    return statusBarHeight;
+  },
+);
+
 const tabBarSize = Platform.OS === "android" ? 50 : 49;
 
 export {
-  contentVerticalOffset,
   contentBottomOffset,
   dimensionsSelector,
+  contentVerticalOffsetSelector,
   tabBarSize,
 };

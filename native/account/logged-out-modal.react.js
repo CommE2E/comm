@@ -47,7 +47,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import {
   dimensionsSelector,
-  contentVerticalOffset,
+  contentVerticalOffsetSelector,
 } from '../selectors/dimension-selectors';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
@@ -85,6 +85,7 @@ type Props = {
   loggedIn: bool,
   isForeground: bool,
   dimensions: Dimensions,
+  contentVerticalOffset: number,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -116,6 +117,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     loggedIn: PropTypes.bool.isRequired,
     isForeground: PropTypes.bool.isRequired,
     dimensions: dimensionsPropType.isRequired,
+    contentVerticalOffset: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -359,7 +361,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     mode: LoggedOutMode,
     keyboardHeight: number,
   ) {
-    const windowHeight = this.props.dimensions.height;
+    const {
+      dimensions: { height: windowHeight },
+      contentVerticalOffset,
+    } = this.props;
     let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
     if (mode === "log-in") {
       // We need to make space for the reset password button on smaller devices
@@ -829,6 +834,7 @@ export default connect(
       !state.currentUserInfo.anonymous && true),
     isForeground: isForegroundSelector(state),
     dimensions: dimensionsSelector(state),
+    contentVerticalOffset: contentVerticalOffsetSelector(state),
     splashStyle: splashStyleSelector(state),
   }),
   null,

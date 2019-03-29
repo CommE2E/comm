@@ -63,7 +63,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { Entry, InternalEntry, entryStyles } from './entry.react';
 import {
   dimensionsSelector,
-  contentVerticalOffset,
+  contentVerticalOffsetSelector,
   tabBarSize,
 } from '../selectors/dimension-selectors';
 import { calendarListData } from '../selectors/calendar-selectors';
@@ -126,6 +126,7 @@ type Props = {
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   dimensions: Dimensions,
+  contentVerticalOffset: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -171,6 +172,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
     dimensions: dimensionsPropType.isRequired,
+    contentVerticalOffset: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -776,7 +778,10 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   flatListHeight() {
-    const windowHeight = this.props.dimensions.height;
+    const {
+      dimensions: { height: windowHeight },
+      contentVerticalOffset,
+    } = this.props;
     return windowHeight - contentVerticalOffset - tabBarSize;
   }
 
@@ -1127,6 +1132,7 @@ const Calendar = connect(
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,
     dimensions: dimensionsSelector(state),
+    contentVerticalOffset: contentVerticalOffsetSelector(state),
   }),
   { updateCalendarQuery },
 )(InnerCalendar);
