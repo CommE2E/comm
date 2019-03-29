@@ -44,6 +44,7 @@ import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import SplashScreen from 'react-native-splash-screen';
+import Orientation from 'react-native-orientation-locker';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -164,6 +165,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (this.props.rehydrateConcluded) {
       this.onReduxRehydrate();
     }
+    Orientation.lockToPortrait();
   }
 
   onReduxRehydrate() {

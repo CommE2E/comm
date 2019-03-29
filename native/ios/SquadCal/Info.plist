@@ -39,6 +39,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>React Native binary makes Apple think we use this, but we don't.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>React Native binary makes Apple think we use this, but we don't.</string>
 	<key>UIAppFonts</key>
@@ -73,10 +75,10 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>React Native binary makes Apple think we use this, but we don't.</string>
 </dict>
 </plist>

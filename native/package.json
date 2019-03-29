@@ -30,6 +30,7 @@
     "react-native-keychain": "^3.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-onepassword": "^1.0.6",
+    "react-native-orientation-locker": "^1.1.5",
     "react-native-screens": "1.0.0-alpha.22",
     "react-native-segmented-control-tab": "^3.2.1",
     "react-native-splash-screen": "^3.1.1",

@@ -147,6 +147,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-orientation-locker')
     implementation project(':react-native-fast-image')
     compile project(':react-native-screens')
     compile project(':react-native-gesture-handler')

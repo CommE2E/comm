@@ -30,6 +30,7 @@ import {
   PanGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
+import Orientation from 'react-native-orientation-locker';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -227,12 +228,26 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.centerY.setValue(this.centerYNum);
   }
 
+  componentDidMount() {
+    if (MultimediaModal.isActive(this.props)) {
+      Orientation.unlockAllOrientations();
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.screenDimensions !== prevProps.screenDimensions ||
       this.props.contentVerticalOffset !== prevProps.contentVerticalOffset
     ) {
       this.updateCenter();
+    }
+
+    const isActive = MultimediaModal.isActive(this.props);
+    const wasActive = MultimediaModal.isActive(prevProps);
+    if (isActive && !wasActive) {
+      Orientation.unlockAllOrientations();
+    } else if (!isActive && wasActive) {
+      Orientation.lockToPortrait();
     }
   }
 
@@ -294,9 +309,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     };
   }
 
-  get isActive() {
-    const { index } = this.props.scene;
-    return index === this.props.transitionProps.index;
+  static isActive(props) {
+    const { index } = props.scene;
+    return index === props.transitionProps.index;
   }
 
   get contentContainerStyle() {
@@ -308,7 +323,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
     // margin will clip, but padding won't
-    const verticalStyle = this.isActive
+    const verticalStyle = MultimediaModal.isActive(this.props)
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
     return [ styles.contentContainer, verticalStyle ];
@@ -316,7 +331,7 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   render() {
     const { media } = this.props.navigation.state.params;
-    const statusBar = this.isActive
+    const statusBar = MultimediaModal.isActive(this.props)
       ? <ConnectedStatusBar barStyle="light-content" />
       : null;
     const backdropStyle = { opacity: this.progress };

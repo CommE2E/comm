@@ -12,6 +12,7 @@
 #import <React/RCTLinkingManager.h>
 #import "RNNotifications.h"
 #import "RNSplashScreen.h"
+#import "Orientation.h"
 
 @implementation AppDelegate
 
@@ -64,6 +65,10 @@
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
   [RNNotifications didReceiveLocalNotification:notification];
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  return [Orientation getOrientation];
 }
 
 @end
