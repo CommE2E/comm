@@ -240,7 +240,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           defaultInputWidth={160}
           maxHeight={36}
           inputProps={tagInputProps}
-          ref={this.tagInputRef}
+          innerRef={this.tagInputRef}
         />
         <UserList
           userInfos={this.state.userSearchResults}

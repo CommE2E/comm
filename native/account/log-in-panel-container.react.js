@@ -36,6 +36,7 @@ type Props = {|
   opacityValue: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   logInState: StateContainer<LogInState>,
+  innerRef: (container: ?LogInPanelContainer) => void,
   // Redux state
   dimensions: Dimensions,
 |};
@@ -52,6 +53,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     opacityValue: PropTypes.object.isRequired,
     forgotPasswordLinkOpacity: PropTypes.object.isRequired,
     logInState: stateContainerPropType.isRequired,
+    innerRef: PropTypes.func.isRequired,
     dimensions: dimensionsPropType.isRequired,
   };
   state = {
@@ -60,6 +62,14 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     nextLogInMode: "log-in",
   };
   logInPanel: ?InnerLogInPanel = null;
+
+  componentDidMount() {
+    this.props.innerRef(this);
+  }
+
+  componentWillUnmount() {
+    this.props.innerRef(null);
+  }
 
   render() {
     const windowWidth = this.props.dimensions.width;

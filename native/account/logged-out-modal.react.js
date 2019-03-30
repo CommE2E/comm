@@ -596,7 +596,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           opacityValue={this.state.panelOpacity}
           forgotPasswordLinkOpacity={this.state.forgotPasswordLinkOpacity}
           logInState={this.state.logInState}
-          ref={this.logInPanelContainerRef}
+          innerRef={this.logInPanelContainerRef}
         />
       );
     } else if (this.state.mode === "register") {

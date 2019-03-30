@@ -328,7 +328,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
               onChangeText={this.setUsernameInputText}
               labelExtractor={this.tagDataLabelExtractor}
               inputProps={inputProps}
-              ref={this.tagInputRef}
+              innerRef={this.tagInputRef}
             />
           </View>
         </View>

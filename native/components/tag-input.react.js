@@ -89,6 +89,7 @@ type Props<T> = {
    * value and the new value, which looks sketchy.
    */
   defaultInputWidth: number,
+  innerRef?: (tagInput: ?TagInput<T>) => void,
   // Redux state
   dimensions: Dimensions,
 };
@@ -114,6 +115,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     maxHeight: PropTypes.number,
     onHeightChange: PropTypes.func,
     defaultInputWidth: PropTypes.number,
+    innerRef: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
   };
   wrapperWidth: number;
@@ -157,6 +159,18 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       wrapperHeight: 36,
     };
     this.wrapperWidth = props.dimensions.width;
+  }
+
+  componentDidMount() {
+    if (this.props.innerRef) {
+      this.props.innerRef(this);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.innerRef) {
+      this.props.innerRef(null);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props<T>) {
