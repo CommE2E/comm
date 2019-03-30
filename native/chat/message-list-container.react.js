@@ -161,7 +161,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const oldThreadInfo = MessageListContainer.getThreadInfo(prevProps);
+    const oldThreadInfo = MessageListContainer.getThreadInfo(this.props);
     const newThreadInfo = this.props.threadInfo;
     const threadInfoChanged = !_isEqual(newThreadInfo)(oldThreadInfo);
 
