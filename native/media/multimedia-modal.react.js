@@ -21,6 +21,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Animated,
+  Easing,
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -398,13 +399,18 @@ class MultimediaModal extends React.PureComponent<Props> {
 
     this.curScaleNum *= scale;
     this.curScale.setValue(this.curScaleNum);
-    this.pinchScale.setValue(1);
 
     // Keep this logic in sync with pinchX/pinchY definitions in constructor
     this.curXNum += (1 - scale) * (focalX - this.curXNum - this.centerXNum);
     this.curYNum += (1 - scale) * (focalY - this.curYNum - this.centerYNum);
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
+
+    this.pinchScale.setValue(1);
+    this.pinchFocalX.setValue(0);
+    this.pinchFocalY.setValue(0);
+
+    this.recenter();
   }
 
   onPanHandlerStateChange = (
@@ -419,12 +425,116 @@ class MultimediaModal extends React.PureComponent<Props> {
     if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
       return;
     }
+
     this.curXNum += translationX;
     this.curYNum += translationY;
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
+
     this.panX.setValue(0);
     this.panY.setValue(0);
+
+    this.recenter();
+  }
+
+  // Figures out what we need to add to this.curX to make it "centered"
+  get deltaX() {
+    if (this.curXNum === 0) {
+      return 0;
+    }
+
+    const nextScale = Math.max(this.curScaleNum, 1);
+    const { width } = this.imageDimensions;
+    const apparentWidth = nextScale * width;
+    const screenWidth = this.screenDimensions.width;
+    if (apparentWidth < screenWidth) {
+      return this.curXNum * -1;
+    }
+
+    const horizPop = (apparentWidth - screenWidth) / 2;
+    const deltaLeft = this.curXNum - horizPop;
+    if (deltaLeft > 0) {
+      return deltaLeft * -1;
+    }
+
+    const deltaRight = this.curXNum + horizPop;
+    if (deltaRight < 0) {
+      return deltaRight * -1;
+    }
+
+    return 0;
+  }
+
+  // Figures out what we need to add to this.curY to make it "centered"
+  get deltaY() {
+    if (this.curYNum === 0) {
+      return 0;
+    }
+
+    const nextScale = Math.max(this.curScaleNum, 1);
+    const { height } = this.imageDimensions;
+    const apparentHeight = nextScale * height;
+    const screenHeight = this.screenDimensions.height
+      + this.props.contentVerticalOffset + contentBottomOffset;
+    if (apparentHeight < screenHeight) {
+      return this.curYNum * -1;
+    }
+
+    const vertPop = (apparentHeight - screenHeight) / 2;
+    const deltaTop = this.curYNum - vertPop;
+    if (deltaTop > 0) {
+      return deltaTop * -1;
+    }
+
+    const deltaBottom = this.curYNum + vertPop;
+    if (deltaBottom < 0) {
+      return deltaBottom * -1;
+    }
+
+    return 0;
+  }
+
+  recenter() {
+    const nextScale = Math.max(this.curScaleNum, 1);
+    const { deltaX, deltaY } = this;
+
+    const animations = [];
+    const config = {
+      duration: 250,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    };
+    if (nextScale !== this.curScaleNum) {
+      this.curScaleNum = nextScale;
+      animations.push(
+        Animated.timing(
+          this.curScale,
+          { ...config, toValue: this.curScaleNum },
+        ),
+      );
+    }
+    if (deltaX !== 0) {
+      this.curXNum += deltaX;
+      animations.push(
+        Animated.timing(
+          this.curX,
+          { ...config, toValue: this.curXNum },
+        ),
+      );
+    }
+    if (deltaY !== 0) {
+      this.curYNum += deltaY;
+      animations.push(
+        Animated.timing(
+          this.curY,
+          { ...config, toValue: this.curYNum },
+        ),
+      );
+    }
+
+    if (animations.length > 0) {
+      Animated.parallel(animations).start();
+    }
   }
 
 }
