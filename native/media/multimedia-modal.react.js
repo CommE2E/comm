@@ -18,6 +18,7 @@ import { type VerticalBounds, verticalBoundsPropType } from './vertical-bounds';
 import * as React from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   TouchableWithoutFeedback,
   Animated,
@@ -26,7 +27,6 @@ import {
   Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/Feather';
 import {
   PinchGestureHandler,
   PanGestureHandler,
@@ -364,7 +364,9 @@ class MultimediaModal extends React.PureComponent<Props> {
           closeButtonStyle,
         ]}>
           <TouchableOpacity onPress={this.close}>
-            <Icon name="x-circle" style={styles.closeButton} />
+            <Text style={styles.closeButton}>
+              ×
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -590,6 +592,9 @@ const styles = StyleSheet.create({
   closeButton: {
     fontSize: 36,
     color: "white",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
 });
 
