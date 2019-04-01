@@ -20,7 +20,6 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Platform, StyleSheet, ActivityIndicator } from 'react-native';
-import _isEqual from 'lodash/fp/isEqual';
 import _differenceWith from 'lodash/fp/differenceWith';
 import invariant from 'invariant';
 
@@ -161,12 +160,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const oldThreadInfo = MessageListContainer.getThreadInfo(this.props);
-    const newThreadInfo = this.props.threadInfo;
-    const threadInfoChanged = !_isEqual(newThreadInfo)(oldThreadInfo);
-
-    if (newThreadInfo && threadInfoChanged) {
-      this.props.navigation.setParams({ threadInfo: newThreadInfo });
+    const oldReduxThreadInfo = prevProps.threadInfo;
+    const newReduxThreadInfo = this.props.threadInfo;
+    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
+      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
     }
 
     const oldListData = prevProps.messageListData;
@@ -180,7 +177,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     if (!newListData) {
       return;
     }
-    if (newListData === oldListData && !threadInfoChanged) {
+
+    const oldNavThreadInfo = MessageListContainer.getThreadInfo(prevProps);
+    const newNavThreadInfo = MessageListContainer.getThreadInfo(this.props);
+    if (newListData === oldListData && newNavThreadInfo === oldNavThreadInfo) {
       return;
     }
 
