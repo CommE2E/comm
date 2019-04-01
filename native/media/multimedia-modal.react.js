@@ -20,7 +20,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableWithoutFeedback,
   Animated,
   Easing,
   TouchableOpacity,
@@ -352,9 +351,6 @@ class MultimediaModal extends React.PureComponent<Props> {
         {statusBar}
         <Animated.View style={[ styles.backdrop, backdropStyle ]} />
         <View style={this.contentContainerStyle}>
-          <TouchableWithoutFeedback onPress={this.close}>
-            <View style={styles.cover} />
-          </TouchableWithoutFeedback>
           <Animated.View style={this.imageContainerStyle}>
             <Multimedia media={media} spinnerColor="white" />
           </Animated.View>
@@ -577,13 +573,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     overflow: "hidden",
-  },
-  cover: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   closeButtonContainer: {
     position: "absolute",
