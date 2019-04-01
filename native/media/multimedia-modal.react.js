@@ -413,8 +413,8 @@ class MultimediaModal extends React.PureComponent<Props> {
     }
 
     this.pinchScale.setValue(1);
-    this.pinchFocalX.setValue(0);
-    this.pinchFocalY.setValue(0);
+    this.pinchFocalX.setValue(this.centerXNum);
+    this.pinchFocalY.setValue(this.centerYNum);
 
     this.curScaleNum *= scale;
     this.curScale.setValue(this.curScaleNum);
