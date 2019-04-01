@@ -522,35 +522,39 @@ class MultimediaModal extends React.PureComponent<Props> {
       easing: Easing.out(Easing.ease),
     };
     if (nextScale !== this.curScaleNum) {
-      this.curScaleNum = nextScale;
       animations.push(
         Animated.timing(
           this.curScale,
-          { ...config, toValue: this.curScaleNum },
+          { ...config, toValue: nextScale },
         ),
       );
     }
     if (deltaX !== 0) {
-      this.curXNum += deltaX;
       animations.push(
         Animated.timing(
           this.curX,
-          { ...config, toValue: this.curXNum },
+          { ...config, toValue: this.curXNum + deltaX },
         ),
       );
     }
     if (deltaY !== 0) {
-      this.curYNum += deltaY;
       animations.push(
         Animated.timing(
           this.curY,
-          { ...config, toValue: this.curYNum },
+          { ...config, toValue: this.curYNum + deltaY },
         ),
       );
     }
 
     if (animations.length > 0) {
-      Animated.parallel(animations).start();
+      Animated.parallel(animations).start(({ finished }) => {
+        if (!finished) {
+          return;
+        }
+        this.curScaleNum = nextScale;
+        this.curXNum += deltaX;
+        this.curYNum += deltaY;
+      });
     }
   }
 
