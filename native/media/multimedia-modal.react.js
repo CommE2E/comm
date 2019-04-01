@@ -95,6 +95,7 @@ class MultimediaModal extends React.PureComponent<Props> {
   centerX = new Animated.Value(0);
   centerY = new Animated.Value(0);
 
+  pinchHandler: React.Ref<PinchGestureHandler> = React.createRef();
   pinchScale = new Animated.Value(1);
   pinchFocalX = new Animated.Value(0);
   pinchFocalY = new Animated.Value(0);
@@ -366,11 +367,14 @@ class MultimediaModal extends React.PureComponent<Props> {
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
         onHandlerStateChange={this.onPinchHandlerStateChange}
+        ref={this.pinchHandler}
       >
         <Animated.View style={styles.container}>
           <PanGestureHandler
             onGestureEvent={this.panEvent}
             onHandlerStateChange={this.onPanHandlerStateChange}
+            simultaneousHandlers={this.pinchHandler}
+            avgTouches
           >
             {view}
           </PanGestureHandler>
@@ -397,6 +401,10 @@ class MultimediaModal extends React.PureComponent<Props> {
       return;
     }
 
+    this.pinchScale.setValue(1);
+    this.pinchFocalX.setValue(0);
+    this.pinchFocalY.setValue(0);
+
     this.curScaleNum *= scale;
     this.curScale.setValue(this.curScaleNum);
 
@@ -405,10 +413,6 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.curYNum += (1 - scale) * (focalY - this.curYNum - this.centerYNum);
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
-
-    this.pinchScale.setValue(1);
-    this.pinchFocalX.setValue(0);
-    this.pinchFocalY.setValue(0);
 
     this.recenter();
   }
@@ -426,13 +430,13 @@ class MultimediaModal extends React.PureComponent<Props> {
       return;
     }
 
+    this.panX.setValue(0);
+    this.panY.setValue(0);
+
     this.curXNum += translationX;
     this.curYNum += translationY;
     this.curX.setValue(this.curXNum);
     this.curY.setValue(this.curYNum);
-
-    this.panX.setValue(0);
-    this.panY.setValue(0);
 
     this.recenter();
   }
