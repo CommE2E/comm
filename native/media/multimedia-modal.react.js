@@ -23,6 +23,7 @@ import {
   Animated,
   Easing,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Feather';
@@ -220,6 +221,11 @@ class MultimediaModal extends React.PureComponent<Props> {
         ),
       ),
     );
+
+    if (Platform.OS === "android") {
+      this.pinchFocalX.addListener(() => { });
+      this.pinchFocalY.addListener(() => { });
+    }
   }
 
   updateCenter() {
@@ -396,9 +402,16 @@ class MultimediaModal extends React.PureComponent<Props> {
       focalY: number,
     } },
   ) => {
-    const { state, oldState, scale, focalX, focalY } = event.nativeEvent;
+    const { state, oldState, scale } = event.nativeEvent;
     if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
       return;
+    }
+
+    // https://github.com/kmagiera/react-native-gesture-handler/issues/546
+    let { focalX, focalY } = event.nativeEvent;
+    if (Platform.OS === "android") {
+      focalX = this.pinchFocalX.__getValue();
+      focalY = this.pinchFocalY.__getValue();
     }
 
     this.pinchScale.setValue(1);
