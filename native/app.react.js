@@ -67,7 +67,7 @@ import {
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
-} from './navigation/action-types';
+} from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import {

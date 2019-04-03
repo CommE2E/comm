@@ -9,7 +9,7 @@ import { Dimensions as NativeDimensions } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { updateDimensionsActiveType } from '../navigation/action-types';
+import { updateDimensionsActiveType } from './action-types';
 
 type Props = {|
   // Redux dispatch functions

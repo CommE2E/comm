@@ -93,7 +93,7 @@ import {
 import {
   handleURLActionType,
   navigateToAppActionType,
-} from './action-types';
+} from '../redux/action-types';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';

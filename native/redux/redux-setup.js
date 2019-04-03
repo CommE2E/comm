@@ -61,7 +61,7 @@ import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
   updateDimensionsActiveType,
-} from '../navigation/action-types';
+} from './action-types';
 import {
   defaultNavInfo,
   reduceNavInfo,

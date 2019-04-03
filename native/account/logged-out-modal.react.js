@@ -56,7 +56,7 @@ import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import {
   navigateToAppActionType,
   resetUserStateActionType,
-} from '../navigation/action-types';
+} from '../redux/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyleSelector } from '../splash';
 import {

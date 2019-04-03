@@ -5,7 +5,7 @@ import FCM from 'react-native-fcm';
 import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
-} from '../navigation/action-types';
+} from '../redux/action-types';
 
 async function requestAndroidPushPermissions(): Promise<?string> {
   const requestResult = await FCM.requestPermissions();
