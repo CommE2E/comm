@@ -3,7 +3,6 @@
 import type { AppState } from './redux/redux-setup';
 
 import { connect } from 'lib/utils/redux-utils';
-import { queuedClientResponsesSelector } from 'lib/selectors/socket-selectors';
 import { logOut } from 'lib/actions/user-actions';
 import Socket from 'lib/socket/socket.react';
 
@@ -28,7 +27,6 @@ export default connect(
     return {
       active,
       openSocket: openSocketSelector(state),
-      queuedClientResponses: queuedClientResponsesSelector(state),
       getClientResponses: nativeGetClientResponsesSelector(state),
       activeThread: active ? activeThreadSelector(state) : null,
       sessionStateFunc: nativeSessionStateFuncSelector(state),
@@ -37,6 +35,7 @@ export default connect(
       urlPrefix: state.urlPrefix,
       connection: state.connection,
       currentCalendarQuery: nativeCalendarQuery(state),
+      hasWiFi: state.connectivity.hasWiFi,
     };
   },
   { logOut },
