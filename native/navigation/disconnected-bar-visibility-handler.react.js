@@ -7,10 +7,13 @@ import {
 } from 'lib/types/socket-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { AppState } from '../redux/redux-setup';
+import {
+  type ConnectivityInfo,
+  connectivityInfoPropType,
+} from '../types/connectivity';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NetInfo } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -19,6 +22,7 @@ type Props = {|
   showDisconnectedBar: bool,
   connectionStatus: ConnectionStatus,
   someRequestIsLate: bool,
+  connectivity: ConnectivityInfo,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -28,6 +32,7 @@ class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
     showDisconnectedBar: PropTypes.bool.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
     someRequestIsLate: PropTypes.bool.isRequired,
+    connectivity: connectivityInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   networkActive = true;
@@ -47,28 +52,22 @@ class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
   }
 
   componentDidMount() {
-    NetInfo.isConnected.addEventListener(
-      'connectionChange',
-      this.handleConnectionChange,
-    );
-    NetInfo.isConnected.fetch().then(this.handleConnectionChange);
+    this.handleConnectionChange();
   }
 
-  componentWillUnmount() {
-    NetInfo.isConnected.removeEventListener(
-      'connectionChange',
-      this.handleConnectionChange,
-    );
-  }
-
-  handleConnectionChange = isConnected => {
-    this.networkActive = isConnected;
+  handleConnectionChange() {
+    this.networkActive = this.props.connectivity.connected;
     if (!this.networkActive) {
       this.setDisconnected(true);
     }
   }
 
   componentDidUpdate(prevProps: Props) {
+    const { connected } = this.props.connectivity;
+    if (connected !== prevProps.connectivity.connected) {
+      this.handleConnectionChange();
+    }
+
     const { connectionStatus: status, someRequestIsLate } = this.props;
     if (status === "connected" && prevProps.connectionStatus !== "connected") {
       // Sometimes NetInfo misses the network coming back online for some
@@ -95,6 +94,7 @@ export default connect(
     showDisconnectedBar: state.connection.showDisconnectedBar,
     connectionStatus: state.connection.status,
     someRequestIsLate: state.connection.lateResponses.length !== 0,
+    connectivity: state.connectivity,
   }),
   null,
   true,

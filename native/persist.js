@@ -21,6 +21,7 @@ const baseBlacklist = [
   'foreground',
   'messageSentFromRoute',
   'dimensions',
+  'connectivity',
 ];
 const blacklist = __DEV__
   ? baseBlacklist

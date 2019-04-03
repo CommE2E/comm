@@ -25,6 +25,10 @@ import {
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
 import type { Dimensions } from 'lib/types/media-types';
+import {
+  type ConnectivityInfo,
+  defaultConnectivityInfo,
+} from '../types/connectivity';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -61,6 +65,7 @@ import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
   updateDimensionsActiveType,
+  updateConnectivityActiveType,
 } from './action-types';
 import {
   defaultNavInfo,
@@ -116,6 +121,7 @@ export type AppState = {|
   _persist: ?PersistState,
   sessionID?: void,
   dimensions: Dimensions,
+  connectivity: ConnectivityInfo,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -156,6 +162,7 @@ const defaultState = ({
   nextLocalID: 0,
   _persist: null,
   dimensions: { height, width },
+  connectivity: defaultConnectivityInfo,
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
@@ -207,6 +214,11 @@ function reducer(state: AppState = defaultState, action: *) {
     return {
       ...state,
       dimensions: action.payload,
+    };
+  } else if (action.type === updateConnectivityActiveType) {
+    return {
+      ...state,
+      connectivity: action.payload,
     };
   }
 

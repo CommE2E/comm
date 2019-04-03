@@ -9,3 +9,4 @@ export const recordAndroidNotificationActionType =
   "RECORD_ANDROID_NOTIFICATION";
 export const clearAndroidNotificationActionType = "CLEAR_ANDROID_NOTIFICATION";
 export const updateDimensionsActiveType = "UPDATE_DIMENSIONS";
+export const updateConnectivityActiveType = "UPDATE_CONNECTIVITY";
