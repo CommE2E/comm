@@ -7,7 +7,7 @@ import {
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { AppState } from '../../redux-setup';
+import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';

@@ -11,7 +11,7 @@ import {
   relativeMemberInfoPropType,
   threadPermissions,
 } from 'lib/types/thread-types';
-import type { AppState } from '../../redux-setup';
+import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 import type { Navigate } from '../../navigation/route-names';
 

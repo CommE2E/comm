@@ -5,12 +5,12 @@ import { type EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { NavInfo } from './navigation/navigation-setup';
+import type { NavInfo } from '../navigation/navigation-setup';
 import type { PersistState } from 'redux-persist/src/types';
 import {
   type NotifPermissionAlertInfo,
   defaultNotifPermissionAlertInfo,
-} from './push/alerts';
+} from '../push/alerts';
 import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
 import {
   type CalendarFilter,
@@ -54,38 +54,38 @@ import {
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { getConfig } from 'lib/utils/config';
 
-import { activeThreadSelector } from './selectors/nav-selectors';
+import { activeThreadSelector } from '../selectors/nav-selectors';
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
   updateDimensionsActiveType,
-} from './navigation/action-types';
+} from '../navigation/action-types';
 import {
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
   replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
-} from './navigation/navigation-setup';
+} from '../navigation/navigation-setup';
 import {
   reduceThreadIDsToNotifIDs,
-} from './push/android';
-import { persistConfig, setPersistor } from './persist';
+} from '../push/android';
+import { persistConfig, setPersistor } from '../persist';
 import {
   defaultURLPrefix,
   natServer,
   setCustomServer,
-} from './utils/url-utils';
+} from '../utils/url-utils';
 import {
   assertNavigationRouteNotLeafNode,
   currentLeafRoute,
   findRouteIndexWithKey,
-} from './utils/navigation-utils';
-import { ComposeThreadRouteName } from './navigation/route-names';
-import reactotron from './reactotron';
-import reduceDrafts from './reducers/draft-reducer';
+} from '../utils/navigation-utils';
+import { ComposeThreadRouteName } from '../navigation/route-names';
+import reactotron from '../reactotron';
+import reduceDrafts from '../reducers/draft-reducer';
 
 const createStore = reactotron
   ? reactotron.createStore

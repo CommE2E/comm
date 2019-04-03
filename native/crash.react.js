@@ -6,7 +6,7 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from './redux-setup';
+import type { AppState } from './redux/redux-setup';
 import type { ErrorData } from 'lib/types/report-types';
 import type { LogOutResult } from 'lib/types/account-types';
 
@@ -34,7 +34,7 @@ import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 
 import Button from './components/button.react';
-import { store } from './redux-setup';
+import { store } from './redux/redux-setup';
 import { persistConfig, codeVersion, getPersistor } from './persist';
 
 const errorTitles = [

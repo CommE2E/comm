@@ -1,7 +1,7 @@
 // @flow
 
 import type { EntryInfo } from 'lib/types/entry-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import { createSelector } from 'reselect';
 import _map from 'lodash/fp/map';

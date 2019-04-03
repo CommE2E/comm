@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';

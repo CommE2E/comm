@@ -4,7 +4,7 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { ViewStyle } from '../types/styles';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

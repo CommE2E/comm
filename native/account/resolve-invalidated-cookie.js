@@ -10,7 +10,7 @@ import {
   getNativeSharedWebCredentials,
 } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { store } from '../redux-setup';
+import { store } from '../redux/redux-setup';
 
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,

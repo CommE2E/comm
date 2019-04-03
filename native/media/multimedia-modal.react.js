@@ -12,7 +12,7 @@ import {
   type Dimensions,
   dimensionsPropType,
 } from 'lib/types/media-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import { type VerticalBounds, verticalBoundsPropType } from './vertical-bounds';
 
 import * as React from 'react';

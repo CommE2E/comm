@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { ThreadMessageInfo } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';

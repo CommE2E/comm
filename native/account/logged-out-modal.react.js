@@ -6,7 +6,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { Action } from '../navigation/navigation-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
 import type { LogInState } from './log-in-panel.react';

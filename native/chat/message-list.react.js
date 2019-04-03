@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';

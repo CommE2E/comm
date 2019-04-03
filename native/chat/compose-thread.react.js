@@ -4,7 +4,7 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {

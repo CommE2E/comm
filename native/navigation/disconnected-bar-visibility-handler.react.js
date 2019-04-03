@@ -6,7 +6,7 @@ import {
   updateDisconnectedBarActionType,
 } from 'lib/types/socket-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

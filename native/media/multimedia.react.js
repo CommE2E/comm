@@ -5,7 +5,7 @@ import {
   type ConnectionStatus,
   connectionStatusPropType,
 } from 'lib/types/socket-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

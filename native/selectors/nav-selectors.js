@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { NavigationState } from 'react-navigation';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';

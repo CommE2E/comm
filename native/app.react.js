@@ -5,7 +5,7 @@ import type {
   NavigationAction,
 } from 'react-navigation';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState } from './redux-setup';
+import type { AppState } from './redux/redux-setup';
 import type { Action } from './navigation/navigation-setup';
 import type {
   DispatchActionPayload,
@@ -68,7 +68,7 @@ import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
 } from './navigation/action-types';
-import { store, appBecameInactive } from './redux-setup';
+import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import {
   activeThreadSelector,

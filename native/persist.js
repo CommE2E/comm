@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from './redux-setup';
+import type { AppState } from './redux/redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { messageTypes } from 'lib/types/message-types';

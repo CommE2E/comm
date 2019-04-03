@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import { messageStorePruneActionType } from 'lib/actions/message-actions';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 

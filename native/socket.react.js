@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from './redux-setup';
+import type { AppState } from './redux/redux-setup';
 
 import { connect } from 'lib/utils/redux-utils';
 import { queuedClientResponsesSelector } from 'lib/selectors/socket-selectors';

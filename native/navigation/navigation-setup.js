@@ -15,7 +15,7 @@ import type {
   NavigationTransitionProps,
   NavigationStateRoute,
 } from 'react-navigation';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from '../push/android';

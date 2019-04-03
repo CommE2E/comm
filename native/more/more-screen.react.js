@@ -2,7 +2,7 @@
 
 import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LogOutResult } from 'lib/types/account-types';
