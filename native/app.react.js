@@ -87,7 +87,7 @@ import { AppRouteName } from './navigation/route-names';
 import MessageStorePruner from './chat/message-store-pruner.react';
 import DisconnectedBarVisibilityHandler
   from './navigation/disconnected-bar-visibility-handler.react';
-import DimensionsUpdater from './dimensions-updater.react';
+import DimensionsUpdater from './redux/dimensions-updater.react';
 import Socket from './socket.react';
 
 if (Platform.OS === "android") {
