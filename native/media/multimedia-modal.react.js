@@ -489,19 +489,20 @@ class MultimediaModal extends React.PureComponent<Props> {
     const nextScale = Math.max(this.curScaleNum, 1);
     const { height } = this.imageDimensions;
     const apparentHeight = nextScale * height;
-    const screenHeight = this.screenDimensions.height
-      + this.props.contentVerticalOffset + contentBottomOffset;
-    if (apparentHeight < screenHeight) {
+    const viewableScreenHeight = this.screenDimensions.height;
+    if (apparentHeight < viewableScreenHeight) {
       return this.curYNum * -1;
     }
 
-    const vertPop = (apparentHeight - screenHeight) / 2;
-    const deltaTop = this.curYNum - vertPop;
+    const fullScreenHeight = viewableScreenHeight
+      + this.props.contentVerticalOffset + contentBottomOffset;
+    const vertPop = (apparentHeight - fullScreenHeight) / 2;
+    const deltaTop = this.curYNum - vertPop - this.props.contentVerticalOffset;
     if (deltaTop > 0) {
       return deltaTop * -1;
     }
 
-    const deltaBottom = this.curYNum + vertPop;
+    const deltaBottom = this.curYNum + vertPop + contentBottomOffset;
     if (deltaBottom < 0) {
       return deltaBottom * -1;
     }
