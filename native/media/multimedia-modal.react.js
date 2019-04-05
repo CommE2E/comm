@@ -452,67 +452,66 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.recenter();
   }
 
-  // Figures out what we need to add to this.curX to make it "centered"
-  get deltaX() {
-    if (this.curXNum === 0) {
-      return 0;
-    }
+  get nextScale() {
+    return Math.max(this.curScaleNum, 1);
+  }
 
-    const nextScale = Math.max(this.curScaleNum, 1);
+  // How much space do we have to pan the image horizontally?
+  get horizontalPanSpace() {
+    const { nextScale } = this;
     const { width } = this.imageDimensions;
     const apparentWidth = nextScale * width;
     const screenWidth = this.screenDimensions.width;
-    if (apparentWidth < screenWidth) {
-      return this.curXNum * -1;
-    }
-
     const horizPop = (apparentWidth - screenWidth) / 2;
-    const deltaLeft = this.curXNum - horizPop;
-    if (deltaLeft > 0) {
-      return deltaLeft * -1;
+    return Math.max(horizPop, 0);
+  }
+
+  // How much space do we have to pan the image vertically?
+  get verticalPanSpace() {
+    const { nextScale } = this;
+    const { height } = this.imageDimensions;
+    const apparentHeight = nextScale * height;
+    const screenHeight = this.screenDimensions.height;
+    const vertPop = (apparentHeight - screenHeight) / 2;
+    return Math.max(vertPop, 0);
+  }
+
+  // Figures out what we need to add to this.curX to make it "centered"
+  get centerDeltaX() {
+    const { curXNum, horizontalPanSpace } = this;
+
+    const rightOverscroll = curXNum - horizontalPanSpace;
+    if (rightOverscroll > 0) {
+      return rightOverscroll * -1;
     }
 
-    const deltaRight = this.curXNum + horizPop;
-    if (deltaRight < 0) {
-      return deltaRight * -1;
+    const leftOverscroll = curXNum + horizontalPanSpace;
+    if (leftOverscroll < 0) {
+      return leftOverscroll * -1;
     }
 
     return 0;
   }
 
   // Figures out what we need to add to this.curY to make it "centered"
-  get deltaY() {
-    if (this.curYNum === 0) {
-      return 0;
+  get centerDeltaY() {
+    const { curYNum, verticalPanSpace } = this;
+
+    const bottomOverscroll = curYNum - verticalPanSpace;
+    if (bottomOverscroll > 0) {
+      return bottomOverscroll * -1;
     }
 
-    const nextScale = Math.max(this.curScaleNum, 1);
-    const { height } = this.imageDimensions;
-    const apparentHeight = nextScale * height;
-    const viewableScreenHeight = this.screenDimensions.height;
-    if (apparentHeight < viewableScreenHeight) {
-      return this.curYNum * -1;
-    }
-
-    const fullScreenHeight = viewableScreenHeight
-      + this.props.contentVerticalOffset + contentBottomOffset;
-    const vertPop = (apparentHeight - fullScreenHeight) / 2;
-    const deltaTop = this.curYNum - vertPop - this.props.contentVerticalOffset;
-    if (deltaTop > 0) {
-      return deltaTop * -1;
-    }
-
-    const deltaBottom = this.curYNum + vertPop + contentBottomOffset;
-    if (deltaBottom < 0) {
-      return deltaBottom * -1;
+    const topOverscroll = curYNum + verticalPanSpace;
+    if (topOverscroll < 0) {
+      return topOverscroll * -1;
     }
 
     return 0;
   }
 
   recenter() {
-    const nextScale = Math.max(this.curScaleNum, 1);
-    const { deltaX, deltaY } = this;
+    const { nextScale, centerDeltaX, centerDeltaY } = this;
 
     const animations = [];
     const config = {
@@ -528,19 +527,19 @@ class MultimediaModal extends React.PureComponent<Props> {
         ),
       );
     }
-    if (deltaX !== 0) {
+    if (centerDeltaX !== 0) {
       animations.push(
         Animated.timing(
           this.curX,
-          { ...config, toValue: this.curXNum + deltaX },
+          { ...config, toValue: this.curXNum + centerDeltaX },
         ),
       );
     }
-    if (deltaY !== 0) {
+    if (centerDeltaY !== 0) {
       animations.push(
         Animated.timing(
           this.curY,
-          { ...config, toValue: this.curYNum + deltaY },
+          { ...config, toValue: this.curYNum + centerDeltaY },
         ),
       );
     }
@@ -551,8 +550,8 @@ class MultimediaModal extends React.PureComponent<Props> {
           return;
         }
         this.curScaleNum = nextScale;
-        this.curXNum += deltaX;
-        this.curYNum += deltaY;
+        this.curXNum += centerDeltaX;
+        this.curYNum += centerDeltaY;
       });
     }
   }
