@@ -20,10 +20,7 @@ import {
   View,
   Text,
   StyleSheet,
-  Animated,
-  Easing,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -32,6 +29,7 @@ import {
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
+import Animated, { Easing } from 'react-native-reanimated';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -62,6 +60,7 @@ type Props = {|
   navigation: NavProp,
   scene: NavigationScene,
   transitionProps: NavigationTransitionProps,
+  position: Animated.Value,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
@@ -85,6 +84,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     transitionProps: PropTypes.object.isRequired,
+    position: PropTypes.instanceOf(Animated.Value).isRequired,
     scene: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
@@ -99,28 +99,22 @@ class MultimediaModal extends React.PureComponent<Props> {
   pinchScale = new Animated.Value(1);
   pinchFocalX = new Animated.Value(0);
   pinchFocalY = new Animated.Value(0);
-  pinchEvent = Animated.event(
-    [{
-      nativeEvent: {
-        scale: this.pinchScale,
-        focalX: this.pinchFocalX,
-        focalY: this.pinchFocalY,
-      },
-    }],
-    { useNativeDriver: true },
-  );
+  pinchEvent = Animated.event([{
+    nativeEvent: {
+      scale: this.pinchScale,
+      focalX: this.pinchFocalX,
+      focalY: this.pinchFocalY,
+    },
+  }]);
 
   panX = new Animated.Value(0);
   panY = new Animated.Value(0);
-  panEvent = Animated.event(
-    [{
-      nativeEvent: {
-        translationX: this.panX,
-        translationY: this.panY,
-      },
-    }],
-    { useNativeDriver: true },
-  );
+  panEvent = Animated.event([{
+    nativeEvent: {
+      translationX: this.panX,
+      translationY: this.panY,
+    },
+  }]);
 
   curScaleNum = 1;
   curXNum = 0;
@@ -157,20 +151,26 @@ class MultimediaModal extends React.PureComponent<Props> {
         - (top + height / 2),
     );
 
-    const { position } = props.transitionProps;
+    const { position } = props;
     const { index } = props.scene;
-    this.progress = position.interpolate({
-      inputRange: [ index - 1, index ],
-      outputRange: ([ 0, 1 ]: number[]),
-      extrapolate: 'clamp',
-    });
-    this.imageContainerOpacity = this.progress.interpolate({
-      inputRange: [ 0, 0.1 ],
-      outputRange: ([ 0, 1 ]: number[]),
-      extrapolate: 'clamp',
-    });
+    this.progress = Animated.interpolate(
+      position,
+      {
+        inputRange: [ index - 1, index ],
+        outputRange: ([ 0, 1 ]: number[]),
+        extrapolate: 'clamp',
+      },
+    );
+    this.imageContainerOpacity = Animated.interpolate(
+      this.progress,
+      {
+        inputRange: [ 0, 0.1 ],
+        outputRange: ([ 0, 1 ]: number[]),
+        extrapolate: 'clamp',
+      },
+    );
 
-    const reverseProgress = Animated.subtract(1, this.progress);
+    const reverseProgress = Animated.sub(1, this.progress);
     this.scale = Animated.add(
       Animated.multiply(reverseProgress, initialScale),
       Animated.multiply(
@@ -180,12 +180,10 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
 
     this.pinchX = Animated.multiply(
-      Animated.subtract(1, this.pinchScale),
-      Animated.subtract(
-        Animated.subtract(
-          this.pinchFocalX,
-          this.curX,
-        ),
+      Animated.sub(1, this.pinchScale),
+      Animated.sub(
+        this.pinchFocalX,
+        this.curX,
         this.centerX,
       ),
     );
@@ -195,18 +193,17 @@ class MultimediaModal extends React.PureComponent<Props> {
         this.progress,
         Animated.add(
           this.curX,
-          Animated.add(this.pinchX, this.panX),
+          this.pinchX,
+          this.panX,
         ),
       ),
     );
 
     this.pinchY = Animated.multiply(
-      Animated.subtract(1, this.pinchScale),
-      Animated.subtract(
-        Animated.subtract(
-          this.pinchFocalY,
-          this.curY,
-        ),
+      Animated.sub(1, this.pinchScale),
+      Animated.sub(
+        this.pinchFocalY,
+        this.curY,
         this.centerY,
       ),
     );
@@ -216,15 +213,11 @@ class MultimediaModal extends React.PureComponent<Props> {
         this.progress,
         Animated.add(
           this.curY,
-          Animated.add(this.pinchY, this.panY),
+          this.pinchY,
+          this.panY,
         ),
       ),
     );
-
-    if (Platform.OS === "android") {
-      this.pinchFocalX.addListener(() => { });
-      this.pinchFocalY.addListener(() => { });
-    }
   }
 
   updateCenter() {
@@ -400,16 +393,9 @@ class MultimediaModal extends React.PureComponent<Props> {
       focalY: number,
     } },
   ) => {
-    const { state, oldState, scale } = event.nativeEvent;
+    const { state, oldState, scale, focalX, focalY } = event.nativeEvent;
     if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
       return;
-    }
-
-    // https://github.com/kmagiera/react-native-gesture-handler/issues/546
-    let { focalX, focalY } = event.nativeEvent;
-    if (Platform.OS === "android") {
-      focalX = this.pinchFocalX.__getValue();
-      focalY = this.pinchFocalY.__getValue();
     }
 
     this.pinchScale.setValue(1);
@@ -513,44 +499,40 @@ class MultimediaModal extends React.PureComponent<Props> {
   recenter() {
     const { nextScale, centerDeltaX, centerDeltaY } = this;
 
-    const animations = [];
     const config = {
       duration: 250,
-      useNativeDriver: true,
       easing: Easing.out(Easing.ease),
     };
     if (nextScale !== this.curScaleNum) {
-      animations.push(
-        Animated.timing(
-          this.curScale,
-          { ...config, toValue: nextScale },
-        ),
-      );
-    }
-    if (centerDeltaX !== 0) {
-      animations.push(
-        Animated.timing(
-          this.curX,
-          { ...config, toValue: this.curXNum + centerDeltaX },
-        ),
-      );
-    }
-    if (centerDeltaY !== 0) {
-      animations.push(
-        Animated.timing(
-          this.curY,
-          { ...config, toValue: this.curYNum + centerDeltaY },
-        ),
-      );
-    }
-
-    if (animations.length > 0) {
-      Animated.parallel(animations).start(({ finished }) => {
+      Animated.timing(
+        this.curScale,
+        { ...config, toValue: nextScale },
+      ).start(({ finished }) => {
         if (!finished) {
           return;
         }
         this.curScaleNum = nextScale;
+      });
+    }
+    if (centerDeltaX !== 0) {
+      Animated.timing(
+        this.curX,
+        { ...config, toValue: this.curXNum + centerDeltaX },
+      ).start(({ finished }) => {
+        if (!finished) {
+          return;
+        }
         this.curXNum += centerDeltaX;
+      });
+    }
+    if (centerDeltaY !== 0) {
+      Animated.timing(
+        this.curY,
+        { ...config, toValue: this.curYNum + centerDeltaY },
+      ).start(({ finished }) => {
+        if (!finished) {
+          return;
+        }
         this.curYNum += centerDeltaY;
       });
     }

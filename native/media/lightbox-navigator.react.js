@@ -14,13 +14,19 @@ import type {
 } from 'react-navigation';
 
 import * as React from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Animated as BaseAnimated,
+  Easing as BaseEasing,
+} from 'react-native';
 import {
   StackRouter,
   createNavigator,
   StackActions,
 } from '@react-navigation/core';
 import { Transitioner } from 'react-navigation-stack';
+import Animated, { Easing } from 'react-native-reanimated';
 
 function createLightboxNavigator(
   routeConfigMap: NavigationRouteConfigMap,
@@ -59,6 +65,13 @@ type Props = $ReadOnly<{|
 |}>;
 class Lightbox extends React.PureComponent<Props> {
 
+  position: Animated.Value;
+
+  constructor(props: Props) {
+    super(props);
+    this.position = new Animated.Value(props.navigation.state.index);
+  }
+
   render() {
     return (
       <Transitioner
@@ -66,6 +79,7 @@ class Lightbox extends React.PureComponent<Props> {
         configureTransition={this.configureTransition}
         navigation={this.props.navigation}
         descriptors={this.props.descriptors}
+        onTransitionStart={this.onTransitionStart}
         onTransitionEnd={this.onTransitionEnd}
       />
     );
@@ -73,10 +87,22 @@ class Lightbox extends React.PureComponent<Props> {
 
   configureTransition = () => ({
     duration: 250,
-    easing: Easing.inOut(Easing.ease),
-    timing: Animated.timing,
+    easing: BaseEasing.inOut(BaseEasing.ease),
+    timing: BaseAnimated.timing,
     useNativeDriver: true,
   })
+
+  onTransitionStart = (transitionProps: NavigationTransitionProps) => {
+    const { index } = transitionProps.navigation.state;
+    Animated.timing(
+      this.position,
+      {
+        duration: 250,
+        easing: Easing.inOut(Easing.ease),
+        toValue: index,
+      },
+    ).start();
+  }
 
   onTransitionEnd = (transitionProps: NavigationTransitionProps) => {
     if (!transitionProps.navigation.state.isTransitioning) {
@@ -120,6 +146,7 @@ class Lightbox extends React.PureComponent<Props> {
           navigation={navigation}
           scene={scene}
           transitionProps={transitionProps}
+          position={this.position}
         />
       </View>
     );
