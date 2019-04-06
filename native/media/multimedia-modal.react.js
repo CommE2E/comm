@@ -64,6 +64,7 @@ const {
   stopClock,
   clockRunning,
   timing,
+  decay,
 } = Animated;
 
 function scaleDelta(value: Value, gestureActive: Value) {
@@ -123,6 +124,39 @@ function runTiming(
       ],
     ),
     timing(clock, state, config),
+    cond(
+      state.finished,
+      stopClock(clock),
+    ),
+    state.position,
+  ];
+}
+
+function runDecay(
+  clock: Clock,
+  velocity: Value,
+  initialPosition: Value,
+): Value {
+  const state = {
+    finished: new Value(0),
+    velocity: new Value(0),
+    position: new Value(0),
+    time: new Value(0),
+  };
+  const config = { deceleration: 0.99 };
+  return [
+    cond(
+      not(clockRunning(clock)),
+      [
+        set(state.finished, 0),
+        set(state.velocity, velocity),
+        set(state.position, initialPosition),
+        set(state.time, 0),
+        startClock(clock),
+      ],
+    ),
+    decay(clock, state, config),
+    set(velocity, state.velocity),
     cond(
       state.finished,
       stopClock(clock),
@@ -242,11 +276,15 @@ class MultimediaModal extends React.PureComponent<Props> {
     const panState = new Value(-1);
     const panTranslationX = new Value(0);
     const panTranslationY = new Value(0);
+    const panVelocityX = new Value(0);
+    const panVelocityY = new Value(0);
     this.panEvent = event([{
       nativeEvent: {
         state: panState,
         translationX: panTranslationX,
         translationY: panTranslationY,
+        velocityX: panVelocityX,
+        velocityY: panVelocityY,
       },
     }]);
     const panActive = eq(panState, GestureState.ACTIVE);
@@ -280,6 +318,8 @@ class MultimediaModal extends React.PureComponent<Props> {
     const resetScaleClock = new Clock();
     const resetXClock = new Clock();
     const resetYClock = new Clock();
+    const flingXClock = new Clock();
+    const flingYClock = new Clock();
     const gestureActive = or(pinchActive, panActive);
 
     const updates = [
@@ -308,6 +348,19 @@ class MultimediaModal extends React.PureComponent<Props> {
         horizontalPanSpace,
         verticalPanSpace,
         curScale,
+        curX,
+        curY,
+      ),
+      this.flingUpdate(
+        flingXClock,
+        flingYClock,
+        resetXClock,
+        resetYClock,
+        gestureActive,
+        panVelocityX,
+        panVelocityY,
+        horizontalPanSpace,
+        verticalPanSpace,
         curX,
         curY,
       ),
@@ -462,6 +515,60 @@ class MultimediaModal extends React.PureComponent<Props> {
             neq(recenteredY, curY),
           ),
           set(curY, runTiming(resetYClock, curY, recenteredY)),
+        ),
+      ],
+    );
+  }
+
+  flingUpdate(
+    // Inputs
+    flingXClock: Clock,
+    flingYClock: Clock,
+    resetXClock: Clock,
+    resetYClock: Clock,
+    gestureActive: Value,
+    panVelocityX: Value,
+    panVelocityY: Value,
+    horizontalPanSpace: Value,
+    verticalPanSpace: Value,
+    // Outputs
+    curX: Value,
+    curY: Value,
+  ): Value {
+    const decayX = runDecay(flingXClock, panVelocityX, curX);
+    const recenteredX = clamp(
+      decayX,
+      multiply(-1, horizontalPanSpace),
+      horizontalPanSpace,
+    );
+    const decayY = runDecay(flingYClock, panVelocityY, curY);
+    const recenteredY = clamp(
+      decayY,
+      multiply(-1, verticalPanSpace),
+      verticalPanSpace,
+    );
+    return cond(
+      gestureActive,
+      [
+        stopClock(flingXClock),
+        stopClock(flingYClock),
+      ],
+      [
+        cond(
+          and(
+            not(clockRunning(resetXClock)),
+            eq(decayX, recenteredX),
+          ),
+          set(curX, decayX),
+          stopClock(flingXClock),
+        ),
+        cond(
+          and(
+            not(clockRunning(resetYClock)),
+            eq(decayY, recenteredY),
+          ),
+          set(curY, decayY),
+          stopClock(flingYClock),
         ),
       ],
     );
