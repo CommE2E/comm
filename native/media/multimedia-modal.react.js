@@ -40,6 +40,96 @@ import {
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
+import { clamp } from '../utils/animation-utils';
+
+const {
+  Value,
+  Clock,
+  event,
+  Extrapolate,
+  set,
+  cond,
+  not,
+  and,
+  or,
+  eq,
+  neq,
+  add,
+  sub,
+  multiply,
+  divide,
+  max,
+  interpolate,
+  startClock,
+  stopClock,
+  clockRunning,
+  timing,
+} = Animated;
+
+function scaleDelta(value: Value, gestureActive: Value) {
+  const diffThisFrame = new Value(1);
+  const prevValue = new Value(1);
+  return cond(
+    gestureActive,
+    [
+      set(diffThisFrame, divide(value, prevValue)),
+      set(prevValue, value),
+      diffThisFrame,
+    ],
+    set(prevValue, 1),
+  );
+}
+
+function panDelta(value: Value, gestureActive: Value) {
+  const diffThisFrame = new Value(0);
+  const prevValue = new Value(0);
+  return cond(
+    gestureActive,
+    [
+      set(diffThisFrame, sub(value, prevValue)),
+      set(prevValue, value),
+      diffThisFrame,
+    ],
+    set(prevValue, 0),
+  );
+}
+
+function runTiming(
+  clock: Clock,
+  initialValue: Value,
+  finalValue: Value,
+): Value {
+  const state = {
+    finished: new Value(0),
+    position: new Value(0),
+    frameTime: new Value(0),
+    time: new Value(0),
+  };
+  const config = {
+    toValue: new Value(0),
+    duration: 250,
+    easing: Easing.out(Easing.ease),
+  };
+  return [
+    cond(
+      not(clockRunning(clock)),
+      [
+        set(state.finished, 0),
+        set(state.frameTime, 0),
+        set(state.time, 0),
+        set(state.position, initialValue),
+        set(config.toValue, finalValue),
+        startClock(clock),
+      ],
+    ),
+    timing(clock, state, config),
+    cond(
+      state.finished,
+      stopClock(clock),
+    ),
+    state.position,
+  ];
+}
 
 type LayoutCoordinates = $ReadOnly<{|
   x: number,
@@ -60,7 +150,7 @@ type Props = {|
   navigation: NavProp,
   scene: NavigationScene,
   transitionProps: NavigationTransitionProps,
-  position: Animated.Value,
+  position: Value,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
@@ -84,148 +174,310 @@ class MultimediaModal extends React.PureComponent<Props> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     transitionProps: PropTypes.object.isRequired,
-    position: PropTypes.instanceOf(Animated.Value).isRequired,
+    position: PropTypes.instanceOf(Value).isRequired,
     scene: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
   };
 
-  centerXNum: number;
-  centerYNum: number;
-  centerX = new Animated.Value(0);
-  centerY = new Animated.Value(0);
+  centerX = new Value(0);
+  centerY = new Value(0);
+  screenWidth = new Value(0);
+  screenHeight = new Value(0);
+  imageWidth = new Value(0);
+  imageHeight = new Value(0);
 
-  pinchHandler: React.Ref<PinchGestureHandler> = React.createRef();
-  pinchScale = new Animated.Value(1);
-  pinchFocalX = new Animated.Value(0);
-  pinchFocalY = new Animated.Value(0);
-  pinchEvent = Animated.event([{
-    nativeEvent: {
-      scale: this.pinchScale,
-      focalX: this.pinchFocalX,
-      focalY: this.pinchFocalY,
-    },
-  }]);
+  pinchHandler = React.createRef();
+  pinchEvent;
+  panEvent;
 
-  panX = new Animated.Value(0);
-  panY = new Animated.Value(0);
-  panEvent = Animated.event([{
-    nativeEvent: {
-      translationX: this.panX,
-      translationY: this.panY,
-    },
-  }]);
-
-  curScaleNum = 1;
-  curXNum = 0;
-  curYNum = 0;
-  curScale = new Animated.Value(1);
-  curX = new Animated.Value(0);
-  curY = new Animated.Value(0);
-
-  progress: Animated.Value;
-  scale: Animated.Value;
-  pinchX: Animated.Value;
-  pinchY: Animated.Value;
-  x: Animated.Value;
-  y: Animated.Value;
-  imageContainerOpacity: Animated.Value;
+  progress: Value;
+  scale: Value;
+  x: Value;
+  y: Value;
+  imageContainerOpacity: Value;
 
   constructor(props: Props) {
     super(props);
-    this.updateCenter();
+    this.updateDimensions();
 
-    const { height, width } = this.imageDimensions;
-    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const top = (screenHeight - height) / 2 + props.contentVerticalOffset;
-    const left = (screenWidth - width) / 2;
+    const { screenWidth, screenHeight, imageWidth, imageHeight } = this;
+    const left = sub(this.centerX, divide(imageWidth, 2));
+    const top = sub(this.centerY, divide(imageHeight, 2));
 
     const { initialCoordinates } = props.navigation.state.params;
-    const initialScale = new Animated.Value(initialCoordinates.width / width);
-    const initialTranslateX = new Animated.Value(
-      (initialCoordinates.x + initialCoordinates.width / 2)
-        - (left + width / 2),
+    const initialScale = divide(
+      initialCoordinates.width,
+      imageWidth,
     );
-    const initialTranslateY = new Animated.Value(
-      (initialCoordinates.y + initialCoordinates.height / 2)
-        - (top + height / 2),
+    const initialTranslateX = sub(
+      initialCoordinates.x + initialCoordinates.width / 2,
+      add(left, divide(imageWidth, 2)),
+    );
+    const initialTranslateY = sub(
+      initialCoordinates.y + initialCoordinates.height / 2,
+      add(top, divide(imageHeight, 2)),
     );
 
     const { position } = props;
     const { index } = props.scene;
-    this.progress = Animated.interpolate(
+    this.progress = interpolate(
       position,
       {
         inputRange: [ index - 1, index ],
-        outputRange: ([ 0, 1 ]: number[]),
-        extrapolate: 'clamp',
+        outputRange: [ 0, 1 ],
+        extrapolate: Extrapolate.CLAMP,
       },
     );
-    this.imageContainerOpacity = Animated.interpolate(
+    this.imageContainerOpacity = interpolate(
       this.progress,
       {
         inputRange: [ 0, 0.1 ],
-        outputRange: ([ 0, 1 ]: number[]),
-        extrapolate: 'clamp',
+        outputRange: [ 0, 1 ],
+        extrapolate: Extrapolate.CLAMP,
       },
     );
 
-    const reverseProgress = Animated.sub(1, this.progress);
-    this.scale = Animated.add(
-      Animated.multiply(reverseProgress, initialScale),
-      Animated.multiply(
-        this.progress,
-        Animated.multiply(this.curScale, this.pinchScale),
-      ),
-    );
+    // The inputs we receive from PanGestureHandler
+    const panState = new Value(-1);
+    const panTranslationX = new Value(0);
+    const panTranslationY = new Value(0);
+    this.panEvent = event([{
+      nativeEvent: {
+        state: panState,
+        translationX: panTranslationX,
+        translationY: panTranslationY,
+      },
+    }]);
+    const panActive = eq(panState, GestureState.ACTIVE);
 
-    this.pinchX = Animated.multiply(
-      Animated.sub(1, this.pinchScale),
-      Animated.sub(
-        this.pinchFocalX,
-        this.curX,
-        this.centerX,
-      ),
-    );
-    this.x = Animated.add(
-      Animated.multiply(reverseProgress, initialTranslateX),
-      Animated.multiply(
-        this.progress,
-        Animated.add(
-          this.curX,
-          this.pinchX,
-          this.panX,
-        ),
-      ),
-    );
+    // The inputs we receive from PinchGestureHandler
+    const pinchState = new Value(-1);
+    const pinchScale = new Value(1);
+    const pinchFocalX = new Value(0);
+    const pinchFocalY = new Value(0);
+    this.pinchEvent = event([{
+      nativeEvent: {
+        state: pinchState,
+        scale: pinchScale,
+        focalX: pinchFocalX,
+        focalY: pinchFocalY,
+      },
+    }]);
+    const pinchActive = eq(pinchState, GestureState.ACTIVE);
 
-    this.pinchY = Animated.multiply(
-      Animated.sub(1, this.pinchScale),
-      Animated.sub(
-        this.pinchFocalY,
-        this.curY,
-        this.centerY,
+    // Shared between Pan/Pinch. After a gesture completes, values are
+    // moved to these variables and then animated back to valid ranges
+    const curScale = new Value(1);
+    const curX = new Value(0);
+    const curY = new Value(0);
+
+    // The centered variables help us know if we need to be recentered
+    const recenteredScale = max(curScale, 1);
+    const horizontalPanSpace = this.horizontalPanSpace(recenteredScale);
+    const verticalPanSpace = this.verticalPanSpace(recenteredScale);
+
+    const resetScaleClock = new Clock();
+    const resetXClock = new Clock();
+    const resetYClock = new Clock();
+    const gestureActive = or(pinchActive, panActive);
+
+    const updates = [
+      this.pinchUpdate(
+        pinchActive,
+        pinchScale,
+        pinchFocalX,
+        pinchFocalY,
+        curScale,
+        curX,
+        curY,
       ),
+      this.panUpdate(
+        panActive,
+        panTranslationX,
+        panTranslationY,
+        curX,
+        curY,
+      ),
+      this.recenter(
+        resetScaleClock,
+        resetXClock,
+        resetYClock,
+        gestureActive,
+        recenteredScale,
+        horizontalPanSpace,
+        verticalPanSpace,
+        curScale,
+        curX,
+        curY,
+      ),
+    ];
+    const updatedScale = [ updates, curScale ];
+    const updatedCurX = [ updates, curX ];
+    const updatedCurY = [ updates, curY ];
+
+    const reverseProgress = sub(1, this.progress);
+    this.scale = add(
+      multiply(reverseProgress, initialScale),
+      multiply(this.progress, updatedScale),
     );
-    this.y = Animated.add(
-      Animated.multiply(reverseProgress, initialTranslateY),
-      Animated.multiply(
-        this.progress,
-        Animated.add(
-          this.curY,
-          this.pinchY,
-          this.panY,
-        ),
-      ),
+    this.x = add(
+      multiply(reverseProgress, initialTranslateX),
+      multiply(this.progress, updatedCurX),
+    );
+    this.y = add(
+      multiply(reverseProgress, initialTranslateY),
+      multiply(this.progress, updatedCurY),
     );
   }
 
-  updateCenter() {
-    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    this.centerXNum = screenWidth / 2;
-    this.centerYNum = screenHeight / 2 + this.props.contentVerticalOffset;
-    this.centerX.setValue(this.centerXNum);
-    this.centerY.setValue(this.centerYNum);
+  // How much space do we have to pan the image horizontally?
+  horizontalPanSpace(scale: Value) {
+    const apparentWidth = multiply(this.imageWidth, scale);
+    const horizPop = divide(
+      sub(apparentWidth, this.screenWidth),
+      2,
+    );
+    return max(horizPop, 0);
+  }
+
+  // How much space do we have to pan the image vertically?
+  verticalPanSpace(scale: Value) {
+    const apparentHeight = multiply(this.imageHeight, scale);
+    const vertPop = divide(
+      sub(apparentHeight, this.screenHeight),
+      2,
+    );
+    return max(vertPop, 0);
+  }
+
+  pinchUpdate(
+    // Inputs
+    pinchActive: Value,
+    pinchScale: Value,
+    pinchFocalX: Value,
+    pinchFocalY: Value,
+    // Outputs
+    curScale: Value,
+    curX: Value,
+    curY: Value,
+  ): Value {
+    const deltaScale = scaleDelta(pinchScale, pinchActive);
+    const deltaPinchX = multiply(
+      sub(1, deltaScale),
+      sub(
+        pinchFocalX,
+        curX,
+        this.centerX,
+      ),
+    );
+    const deltaPinchY = multiply(
+      sub(1, deltaScale),
+      sub(
+        pinchFocalY,
+        curY,
+        this.centerY,
+      ),
+    );
+
+    return cond(
+      [ deltaScale, pinchActive ],
+      [
+        set(curX, add(curX, deltaPinchX)),
+        set(curY, add(curY, deltaPinchY)),
+        set(curScale, multiply(curScale, deltaScale)),
+      ],
+    );
+  }
+
+  panUpdate(
+    // Inputs
+    panActive: Value,
+    panTranslationX: Value,
+    panTranslationY: Value,
+    // Outputs
+    curX: Value,
+    curY: Value,
+  ): Value {
+    const deltaX = panDelta(panTranslationX, panActive);
+    const deltaY = panDelta(panTranslationY, panActive);
+    return cond(
+      [ deltaX, deltaY, panActive ],
+      [
+        set(curX, add(curX, deltaX)),
+        set(curY, add(curY, deltaY)),
+      ],
+    );
+  }
+
+  recenter(
+    // Inputs
+    resetScaleClock: Clock,
+    resetXClock: Clock,
+    resetYClock: Clock,
+    gestureActive: Value,
+    recenteredScale: Value,
+    horizontalPanSpace: Value,
+    verticalPanSpace: Value,
+    // Outputs
+    curScale: Value,
+    curX: Value,
+    curY: Value,
+  ): Value {
+    const recenteredX = clamp(
+      curX,
+      multiply(-1, horizontalPanSpace),
+      horizontalPanSpace,
+    );
+    const recenteredY = clamp(
+      curY,
+      multiply(-1, verticalPanSpace),
+      verticalPanSpace,
+    );
+    return cond(
+      gestureActive,
+      [
+        stopClock(resetScaleClock),
+        stopClock(resetXClock),
+        stopClock(resetYClock),
+      ],
+      [
+        cond(
+          or(
+            clockRunning(resetScaleClock),
+            neq(recenteredScale, curScale),
+          ),
+          set(curScale, runTiming(resetScaleClock, curScale, recenteredScale)),
+        ),
+        cond(
+          or(
+            clockRunning(resetXClock),
+            neq(recenteredX, curX),
+          ),
+          set(curX, runTiming(resetXClock, curX, recenteredX)),
+        ),
+        cond(
+          or(
+            clockRunning(resetYClock),
+            neq(recenteredY, curY),
+          ),
+          set(curY, runTiming(resetYClock, curY, recenteredY)),
+        ),
+      ],
+    );
+  }
+
+  updateDimensions() {
+    const { width: screenWidth, height: screenHeight } = this.screenDimensions;
+    this.screenWidth.setValue(screenWidth);
+    this.screenHeight.setValue(screenHeight);
+
+    this.centerX.setValue(screenWidth / 2);
+    this.centerY.setValue(screenHeight / 2 + this.props.contentVerticalOffset);
+
+    const { width, height } = this.imageDimensions;
+    this.imageWidth.setValue(width);
+    this.imageHeight.setValue(height);
   }
 
   componentDidMount() {
@@ -239,7 +491,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       this.props.screenDimensions !== prevProps.screenDimensions ||
       this.props.contentVerticalOffset !== prevProps.contentVerticalOffset
     ) {
-      this.updateCenter();
+      this.updateDimensions();
     }
 
     const isActive = MultimediaModal.isActive(this.props);
@@ -363,13 +615,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     return (
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
-        onHandlerStateChange={this.onPinchHandlerStateChange}
+        onHandlerStateChange={this.pinchEvent}
         ref={this.pinchHandler}
       >
         <Animated.View style={styles.container}>
           <PanGestureHandler
             onGestureEvent={this.panEvent}
-            onHandlerStateChange={this.onPanHandlerStateChange}
+            onHandlerStateChange={this.panEvent}
             simultaneousHandlers={this.pinchHandler}
             avgTouches
           >
@@ -382,160 +634,6 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   close = () => {
     this.props.navigation.goBack();
-  }
-
-  onPinchHandlerStateChange = (
-    event: { nativeEvent: {
-      state: number,
-      oldState: number,
-      scale: number,
-      focalX: number,
-      focalY: number,
-    } },
-  ) => {
-    const { state, oldState, scale, focalX, focalY } = event.nativeEvent;
-    if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
-      return;
-    }
-
-    this.pinchScale.setValue(1);
-    this.pinchFocalX.setValue(this.centerXNum);
-    this.pinchFocalY.setValue(this.centerYNum);
-
-    this.curScaleNum *= scale;
-    this.curScale.setValue(this.curScaleNum);
-
-    // Keep this logic in sync with pinchX/pinchY definitions in constructor
-    this.curXNum += (1 - scale) * (focalX - this.curXNum - this.centerXNum);
-    this.curYNum += (1 - scale) * (focalY - this.curYNum - this.centerYNum);
-    this.curX.setValue(this.curXNum);
-    this.curY.setValue(this.curYNum);
-
-    this.recenter();
-  }
-
-  onPanHandlerStateChange = (
-    event: { nativeEvent: {
-      state: number,
-      oldState: number,
-      translationX: number,
-      translationY: number,
-    } },
-  ) => {
-    const { state, oldState, translationX, translationY } = event.nativeEvent;
-    if (state === GestureState.ACTIVE || oldState !== GestureState.ACTIVE) {
-      return;
-    }
-
-    this.panX.setValue(0);
-    this.panY.setValue(0);
-
-    this.curXNum += translationX;
-    this.curYNum += translationY;
-    this.curX.setValue(this.curXNum);
-    this.curY.setValue(this.curYNum);
-
-    this.recenter();
-  }
-
-  get nextScale() {
-    return Math.max(this.curScaleNum, 1);
-  }
-
-  // How much space do we have to pan the image horizontally?
-  get horizontalPanSpace() {
-    const { nextScale } = this;
-    const { width } = this.imageDimensions;
-    const apparentWidth = nextScale * width;
-    const screenWidth = this.screenDimensions.width;
-    const horizPop = (apparentWidth - screenWidth) / 2;
-    return Math.max(horizPop, 0);
-  }
-
-  // How much space do we have to pan the image vertically?
-  get verticalPanSpace() {
-    const { nextScale } = this;
-    const { height } = this.imageDimensions;
-    const apparentHeight = nextScale * height;
-    const screenHeight = this.screenDimensions.height;
-    const vertPop = (apparentHeight - screenHeight) / 2;
-    return Math.max(vertPop, 0);
-  }
-
-  // Figures out what we need to add to this.curX to make it "centered"
-  get centerDeltaX() {
-    const { curXNum, horizontalPanSpace } = this;
-
-    const rightOverscroll = curXNum - horizontalPanSpace;
-    if (rightOverscroll > 0) {
-      return rightOverscroll * -1;
-    }
-
-    const leftOverscroll = curXNum + horizontalPanSpace;
-    if (leftOverscroll < 0) {
-      return leftOverscroll * -1;
-    }
-
-    return 0;
-  }
-
-  // Figures out what we need to add to this.curY to make it "centered"
-  get centerDeltaY() {
-    const { curYNum, verticalPanSpace } = this;
-
-    const bottomOverscroll = curYNum - verticalPanSpace;
-    if (bottomOverscroll > 0) {
-      return bottomOverscroll * -1;
-    }
-
-    const topOverscroll = curYNum + verticalPanSpace;
-    if (topOverscroll < 0) {
-      return topOverscroll * -1;
-    }
-
-    return 0;
-  }
-
-  recenter() {
-    const { nextScale, centerDeltaX, centerDeltaY } = this;
-
-    const config = {
-      duration: 250,
-      easing: Easing.out(Easing.ease),
-    };
-    if (nextScale !== this.curScaleNum) {
-      Animated.timing(
-        this.curScale,
-        { ...config, toValue: nextScale },
-      ).start(({ finished }) => {
-        if (!finished) {
-          return;
-        }
-        this.curScaleNum = nextScale;
-      });
-    }
-    if (centerDeltaX !== 0) {
-      Animated.timing(
-        this.curX,
-        { ...config, toValue: this.curXNum + centerDeltaX },
-      ).start(({ finished }) => {
-        if (!finished) {
-          return;
-        }
-        this.curXNum += centerDeltaX;
-      });
-    }
-    if (centerDeltaY !== 0) {
-      Animated.timing(
-        this.curY,
-        { ...config, toValue: this.curYNum + centerDeltaY },
-      ).start(({ finished }) => {
-        if (!finished) {
-          return;
-        }
-        this.curYNum += centerDeltaY;
-      });
-    }
   }
 
 }
