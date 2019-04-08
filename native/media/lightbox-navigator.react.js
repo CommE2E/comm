@@ -28,6 +28,9 @@ import {
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
 
+const LightboxPositionContext: React.Context<Animated.Value>
+  = React.createContext(null);
+
 function createLightboxNavigator(
   routeConfigMap: NavigationRouteConfigMap,
   stackConfig: StackNavigatorConfig = {},
@@ -128,9 +131,9 @@ class Lightbox extends React.PureComponent<Props> {
         transitionProps,
       );
     return (
-      <React.Fragment>
+      <LightboxPositionContext.Provider value={this.position}>
         {scenes.map(renderScene)}
-      </React.Fragment>
+      </LightboxPositionContext.Provider>
     );
   }
 
@@ -164,6 +167,27 @@ const styles = StyleSheet.create({
   },
 });
 
+function withLightboxPositionContext<
+  AllProps: {},
+  ComponentType: React.ComponentType<AllProps>,
+>(Component: ComponentType): React.ComponentType<$Diff<
+  React.ElementConfig<ComponentType>,
+  { lightboxPosition: ?Animated.Value },
+>> {
+  class LightboxPositionHOC extends React.PureComponent<$Diff<
+    React.ElementConfig<ComponentType>,
+    { lightboxPosition: ?Animated.Value },
+  >> {
+    static contextType = LightboxPositionContext;
+    render() {
+      const lightboxPosition = this.context;
+      return <Component {...this.props} lightboxPosition={lightboxPosition} />;
+    }
+  }
+  return LightboxPositionHOC;
+}
+
 export {
   createLightboxNavigator,
+  withLightboxPositionContext,
 };

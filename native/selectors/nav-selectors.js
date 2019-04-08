@@ -60,15 +60,29 @@ const baseCreateActiveTabSelector =
         return false;
       }
       const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-      const [ appSubroute ] = appRoute.routes;
-      if (appSubroute.routeName !== TabNavigatorRouteName) {
+      const [ firstAppSubroute ] = appRoute.routes;
+      if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
         return false;
       }
-      const tabRoute = assertNavigationRouteNotLeafNode(appSubroute);
+      const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
       return tabRoute.routes[tabRoute.index].routeName === routeName;
     },
   );
 const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
+
+const modalsClosedSelector = createSelector<*, *, *, *>(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) => {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
+      return false;
+    }
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    const currentAppSubroute = appRoute.routes[appRoute.index];
+    return !appRoute.isTransitioning &&
+      currentAppSubroute.routeName === TabNavigatorRouteName;
+  },
+);
 
 const activeThreadSelector = createSelector<*, *, *, *>(
   (state: AppState) => state.navInfo.navigationState,
@@ -78,11 +92,11 @@ const activeThreadSelector = createSelector<*, *, *, *>(
       return null;
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const [ appSubroute ] = appRoute.routes;
-    if (appSubroute.routeName !== TabNavigatorRouteName) {
+    const [ firstAppSubroute ] = appRoute.routes;
+    if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
       return null;
     }
-    const tabRoute = assertNavigationRouteNotLeafNode(appSubroute);
+    const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
     const currentTabSubroute = tabRoute.routes[tabRoute.index];
     if (currentTabSubroute.routeName !== ChatRouteName) {
       return null;
@@ -161,6 +175,7 @@ export {
   appLoggedInSelector,
   foregroundKeySelector,
   createActiveTabSelector,
+  modalsClosedSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,
   calendarActiveSelector,
