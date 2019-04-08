@@ -26,6 +26,7 @@ import PropTypes from 'prop-types';
 import {
   PinchGestureHandler,
   PanGestureHandler,
+  TapGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
@@ -54,11 +55,13 @@ const {
   or,
   eq,
   neq,
+  greaterThan,
   add,
   sub,
   multiply,
   divide,
   max,
+  round,
   interpolate,
   startClock,
   stopClock,
@@ -95,10 +98,23 @@ function panDelta(value: Value, gestureActive: Value) {
   );
 }
 
+function gestureJustEnded(tapState: Value) {
+  const prevValue = new Value(-1);
+  return cond(
+    eq(prevValue, tapState),
+    0,
+    [
+      set(prevValue, tapState),
+      eq(tapState, GestureState.END),
+    ],
+  );
+}
+
 function runTiming(
   clock: Clock,
-  initialValue: Value,
-  finalValue: Value,
+  initialValue: Value | number,
+  finalValue: Value | number,
+  startStopClock: bool = true,
 ): Value {
   const state = {
     finished: new Value(0),
@@ -120,13 +136,13 @@ function runTiming(
         set(state.time, 0),
         set(state.position, initialValue),
         set(config.toValue, finalValue),
-        startClock(clock),
+        startStopClock && startClock(clock),
       ],
     ),
     timing(clock, state, config),
     cond(
       state.finished,
-      stopClock(clock),
+      startStopClock && stopClock(clock),
     ),
     state.position,
   ];
@@ -222,8 +238,14 @@ class MultimediaModal extends React.PureComponent<Props> {
   imageHeight = new Value(0);
 
   pinchHandler = React.createRef();
+  panHandler = React.createRef();
+  tapHandler = React.createRef();
+  handlerRefs = [ this.pinchHandler, this.panHandler, this.tapHandler ];
+  priorityHandlerRefs = [ this.pinchHandler, this.panHandler ];
+
   pinchEvent;
   panEvent;
+  tapEvent;
 
   progress: Value;
   scale: Value;
@@ -304,6 +326,19 @@ class MultimediaModal extends React.PureComponent<Props> {
     }]);
     const pinchActive = eq(pinchState, GestureState.ACTIVE);
 
+    // The inputs we receive from TapGestureHandler
+    const tapState = new Value(-1);
+    const tapX = new Value(0);
+    const tapY = new Value(0);
+    this.tapEvent = event([{
+      nativeEvent: {
+        state: tapState,
+        x: tapX,
+        y: tapY,
+      },
+    }]);
+    const tapActive = gestureJustEnded(tapState);
+
     // Shared between Pan/Pinch. After a gesture completes, values are
     // moved to these variables and then animated back to valid ranges
     const curScale = new Value(1);
@@ -320,7 +355,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     const resetYClock = new Clock();
     const flingXClock = new Clock();
     const flingYClock = new Clock();
+    const zoomClock = new Clock();
     const gestureActive = or(pinchActive, panActive);
+    const gestureOrZoomActive = or(gestureActive, clockRunning(zoomClock));
 
     const updates = [
       this.pinchUpdate(
@@ -339,11 +376,21 @@ class MultimediaModal extends React.PureComponent<Props> {
         curX,
         curY,
       ),
+      this.doubleTapUpdate(
+        tapActive,
+        tapX,
+        tapY,
+        zoomClock,
+        gestureActive,
+        curScale,
+        curX,
+        curY,
+      ),
       this.recenter(
         resetScaleClock,
         resetXClock,
         resetYClock,
-        gestureActive,
+        gestureOrZoomActive,
         recenteredScale,
         horizontalPanSpace,
         verticalPanSpace,
@@ -356,7 +403,7 @@ class MultimediaModal extends React.PureComponent<Props> {
         flingYClock,
         resetXClock,
         resetYClock,
-        gestureActive,
+        gestureOrZoomActive,
         panVelocityX,
         panVelocityY,
         horizontalPanSpace,
@@ -463,12 +510,80 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
+  doubleTapUpdate(
+    tapActive: Value,
+    tapX: Value,
+    tapY: Value,
+    zoomClock: Clock,
+    gestureActive: Value,
+    curScale: Value,
+    curX: Value,
+    curY: Value,
+  ): Value {
+    const zoomClockRunning = clockRunning(zoomClock);
+    const zoomActive = and(not(gestureActive), zoomClockRunning);
+
+    const roundedCurScale = divide(round(multiply(curScale, 1000)), 1000);
+    const targetScale = cond(greaterThan(roundedCurScale, 1), 1, 3);
+
+    const tapXDiff = sub(tapX, this.centerX, curX);
+    const tapYDiff = sub(tapY, this.centerY, curY);
+    const tapXPercent = divide(tapXDiff, this.imageWidth, curScale);
+    const tapYPercent = divide(tapYDiff, this.imageHeight, curScale);
+
+    const horizPanSpace = this.horizontalPanSpace(targetScale);
+    const vertPanSpace = this.verticalPanSpace(targetScale);
+    const horizPanPercent = divide(horizPanSpace, this.imageWidth, targetScale);
+    const vertPanPercent = divide(vertPanSpace, this.imageHeight, targetScale);
+
+    const tapXPercentClamped = clamp(
+      tapXPercent,
+      multiply(-1, horizPanPercent),
+      horizPanPercent,
+    );
+    const tapYPercentClamped = clamp(
+      tapYPercent,
+      multiply(-1, vertPanPercent),
+      vertPanPercent,
+    );
+    const targetX = multiply(tapXPercentClamped, this.imageWidth, targetScale);
+    const targetY = multiply(tapYPercentClamped, this.imageHeight, targetScale);
+
+    const targetRelativeScale = divide(targetScale, curScale);
+    const targetRelativeX = multiply(-1, add(targetX, curX));
+    const targetRelativeY = multiply(-1, add(targetY, curY));
+
+    const zoomScale = runTiming(zoomClock, 1, targetRelativeScale);
+    const zoomX = runTiming(zoomClock, 0, targetRelativeX, false);
+    const zoomY = runTiming(zoomClock, 0, targetRelativeY, false);
+
+    const deltaScale = scaleDelta(zoomScale, zoomActive);
+    const deltaX = panDelta(zoomX, zoomActive);
+    const deltaY = panDelta(zoomY, zoomActive);
+
+    return cond(
+      [ deltaX, deltaY, deltaScale, gestureActive ],
+      stopClock(zoomClock),
+      cond(
+        or(zoomClockRunning, tapActive),
+        [
+          zoomX,
+          zoomY,
+          zoomScale,
+          set(curX, add(curX, deltaX)),
+          set(curY, add(curY, deltaY)),
+          set(curScale, multiply(curScale, deltaScale)),
+        ],
+      ),
+    );
+  }
+
   recenter(
     // Inputs
     resetScaleClock: Clock,
     resetXClock: Clock,
     resetYClock: Clock,
-    gestureActive: Value,
+    gestureOrZoomActive: Value,
     recenteredScale: Value,
     horizontalPanSpace: Value,
     verticalPanSpace: Value,
@@ -488,7 +603,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       verticalPanSpace,
     );
     return cond(
-      gestureActive,
+      gestureOrZoomActive,
       [
         stopClock(resetScaleClock),
         stopClock(resetXClock),
@@ -526,7 +641,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     flingYClock: Clock,
     resetXClock: Clock,
     resetYClock: Clock,
-    gestureActive: Value,
+    gestureOrZoomActive: Value,
     panVelocityX: Value,
     panVelocityY: Value,
     horizontalPanSpace: Value,
@@ -548,7 +663,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       verticalPanSpace,
     );
     return cond(
-      gestureActive,
+      gestureOrZoomActive,
       [
         stopClock(flingXClock),
         stopClock(flingYClock),
@@ -723,16 +838,28 @@ class MultimediaModal extends React.PureComponent<Props> {
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
         onHandlerStateChange={this.pinchEvent}
+        simultaneousHandlers={this.handlerRefs}
         ref={this.pinchHandler}
       >
         <Animated.View style={styles.container}>
           <PanGestureHandler
             onGestureEvent={this.panEvent}
             onHandlerStateChange={this.panEvent}
-            simultaneousHandlers={this.pinchHandler}
+            simultaneousHandlers={this.handlerRefs}
+            ref={this.panHandler}
             avgTouches
           >
-            {view}
+            <Animated.View style={styles.container}>
+              <TapGestureHandler
+                onHandlerStateChange={this.tapEvent}
+                simultaneousHandlers={this.handlerRefs}
+                ref={this.tapHandler}
+                waitFor={this.priorityHandlerRefs}
+                numberOfTaps={2}
+              >
+                {view}
+              </TapGestureHandler>
+            </Animated.View>
           </PanGestureHandler>
         </Animated.View>
       </PinchGestureHandler>
