@@ -49,6 +49,7 @@ const {
   event,
   Extrapolate,
   set,
+  call,
   cond,
   not,
   and,
@@ -60,8 +61,11 @@ const {
   sub,
   multiply,
   divide,
+  pow,
   max,
+  min,
   round,
+  abs,
   interpolate,
   startClock,
   stopClock,
@@ -152,6 +156,7 @@ function runDecay(
   clock: Clock,
   velocity: Value,
   initialPosition: Value,
+  startStopClock: bool = true,
 ): Value {
   const state = {
     finished: new Value(0),
@@ -168,14 +173,14 @@ function runDecay(
         set(state.velocity, velocity),
         set(state.position, initialPosition),
         set(state.time, 0),
-        startClock(clock),
+        startStopClock && startClock(clock),
       ],
     ),
     decay(clock, state, config),
     set(velocity, state.velocity),
     cond(
       state.finished,
-      stopClock(clock),
+      startStopClock && stopClock(clock),
     ),
     state.position,
   ];
@@ -247,10 +252,10 @@ class MultimediaModal extends React.PureComponent<Props> {
   panEvent;
   tapEvent;
 
-  progress: Value;
   scale: Value;
   x: Value;
   y: Value;
+  opacity: Value;
   imageContainerOpacity: Value;
 
   constructor(props: Props) {
@@ -277,18 +282,10 @@ class MultimediaModal extends React.PureComponent<Props> {
 
     const { position } = props;
     const { index } = props.scene;
-    this.progress = interpolate(
+    const progress = interpolate(
       position,
       {
         inputRange: [ index - 1, index ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
-    this.imageContainerOpacity = interpolate(
-      this.progress,
-      {
-        inputRange: [ 0, 0.1 ],
         outputRange: [ 0, 1 ],
         extrapolate: Extrapolate.CLAMP,
       },
@@ -337,27 +334,31 @@ class MultimediaModal extends React.PureComponent<Props> {
         y: tapY,
       },
     }]);
-    const tapActive = gestureJustEnded(tapState);
 
-    // Shared between Pan/Pinch. After a gesture completes, values are
-    // moved to these variables and then animated back to valid ranges
+    // The all-important outputs
     const curScale = new Value(1);
     const curX = new Value(0);
     const curY = new Value(0);
+    const curOpacity = new Value(1);
 
     // The centered variables help us know if we need to be recentered
     const recenteredScale = max(curScale, 1);
     const horizontalPanSpace = this.horizontalPanSpace(recenteredScale);
     const verticalPanSpace = this.verticalPanSpace(recenteredScale);
 
-    const resetScaleClock = new Clock();
     const resetXClock = new Clock();
     const resetYClock = new Clock();
-    const flingXClock = new Clock();
-    const flingYClock = new Clock();
     const zoomClock = new Clock();
+
+    const dismissingFromPan = new Value(0);
+
+    const roundedCurScale = divide(round(multiply(curScale, 1000)), 1000);
     const gestureActive = or(pinchActive, panActive);
-    const gestureOrZoomActive = or(gestureActive, clockRunning(zoomClock));
+    const activeInteraction = or(
+      gestureActive,
+      clockRunning(zoomClock),
+      dismissingFromPan,
+    );
 
     const updates = [
       this.pinchUpdate(
@@ -377,20 +378,31 @@ class MultimediaModal extends React.PureComponent<Props> {
         curY,
       ),
       this.doubleTapUpdate(
-        tapActive,
+        tapState,
         tapX,
         tapY,
+        roundedCurScale,
         zoomClock,
         gestureActive,
         curScale,
         curX,
         curY,
       ),
+      this.opacityUpdate(
+        panState,
+        pinchActive,
+        panVelocityX,
+        panVelocityY,
+        curX,
+        curY,
+        roundedCurScale,
+        curOpacity,
+        dismissingFromPan,
+      ),
       this.recenter(
-        resetScaleClock,
         resetXClock,
         resetYClock,
-        gestureOrZoomActive,
+        activeInteraction,
         recenteredScale,
         horizontalPanSpace,
         verticalPanSpace,
@@ -399,11 +411,9 @@ class MultimediaModal extends React.PureComponent<Props> {
         curY,
       ),
       this.flingUpdate(
-        flingXClock,
-        flingYClock,
         resetXClock,
         resetYClock,
-        gestureOrZoomActive,
+        activeInteraction,
         panVelocityX,
         panVelocityY,
         horizontalPanSpace,
@@ -415,19 +425,29 @@ class MultimediaModal extends React.PureComponent<Props> {
     const updatedScale = [ updates, curScale ];
     const updatedCurX = [ updates, curX ];
     const updatedCurY = [ updates, curY ];
+    const updatedOpacity = [ updates, curOpacity ];
 
-    const reverseProgress = sub(1, this.progress);
+    const reverseProgress = sub(1, progress);
     this.scale = add(
       multiply(reverseProgress, initialScale),
-      multiply(this.progress, updatedScale),
+      multiply(progress, updatedScale),
     );
     this.x = add(
       multiply(reverseProgress, initialTranslateX),
-      multiply(this.progress, updatedCurX),
+      multiply(progress, updatedCurX),
     );
     this.y = add(
       multiply(reverseProgress, initialTranslateY),
-      multiply(this.progress, updatedCurY),
+      multiply(progress, updatedCurY),
+    );
+    this.opacity = multiply(progress, updatedOpacity);
+    this.imageContainerOpacity = interpolate(
+      progress,
+      {
+        inputRange: [ 0, 0.1 ],
+        outputRange: [ 0, 1 ],
+        extrapolate: Extrapolate.CLAMP,
+      },
     );
   }
 
@@ -511,19 +531,20 @@ class MultimediaModal extends React.PureComponent<Props> {
   }
 
   doubleTapUpdate(
-    tapActive: Value,
+    // Inputs
+    tapState: Value,
     tapX: Value,
     tapY: Value,
+    roundedCurScale: Value,
     zoomClock: Clock,
     gestureActive: Value,
+    // Outputs
     curScale: Value,
     curX: Value,
     curY: Value,
   ): Value {
     const zoomClockRunning = clockRunning(zoomClock);
     const zoomActive = and(not(gestureActive), zoomClockRunning);
-
-    const roundedCurScale = divide(round(multiply(curScale, 1000)), 1000);
     const targetScale = cond(greaterThan(roundedCurScale, 1), 1, 3);
 
     const tapXDiff = sub(tapX, this.centerX, curX);
@@ -561,11 +582,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     const deltaX = panDelta(zoomX, zoomActive);
     const deltaY = panDelta(zoomY, zoomActive);
 
+    const tapJustEnded = gestureJustEnded(tapState);
+
     return cond(
-      [ deltaX, deltaY, deltaScale, gestureActive ],
+      [ tapJustEnded, deltaX, deltaY, deltaScale, gestureActive ],
       stopClock(zoomClock),
       cond(
-        or(zoomClockRunning, tapActive),
+        or(zoomClockRunning, tapJustEnded),
         [
           zoomX,
           zoomY,
@@ -578,12 +601,66 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
+  opacityUpdate(
+    // Inputs
+    panState: Value,
+    pinchActive: Value,
+    panVelocityX: Value,
+    panVelocityY: Value,
+    curX: Value,
+    curY: Value,
+    roundedCurScale: Value,
+    // Outputs
+    curOpacity: Value,
+    dismissingFromPan: Value,
+  ): Value {
+    const progressiveOpacity = max(
+      min(
+        sub(1, abs(divide(curX, this.screenWidth))),
+        sub(1, abs(divide(curY, this.screenHeight))),
+      ),
+      0,
+    );
+    const panJustEnded = gestureJustEnded(panState);
+
+    const resetClock = new Clock();
+
+    const velocity = pow(add(pow(panVelocityX, 2), pow(panVelocityY, 2)), 0.5);
+    const shouldGoBack = and(
+      panJustEnded,
+      or(
+        greaterThan(velocity, 50),
+        greaterThan(0.7, progressiveOpacity),
+      ),
+    );
+
+    const decayClock = new Clock();
+    const decay = [
+      set(curX, runDecay(decayClock, panVelocityX, curX, false)),
+      set(curY, runDecay(decayClock, panVelocityY, curY)),
+    ];
+
+    return cond(
+      [ panJustEnded, dismissingFromPan ],
+      decay,
+      cond(
+        or(pinchActive, greaterThan(roundedCurScale, 1)),
+        set(curOpacity, runTiming(resetClock, curOpacity, 1)),
+        [
+          stopClock(resetClock),
+          set(curOpacity, progressiveOpacity),
+          set(dismissingFromPan, shouldGoBack),
+          cond(shouldGoBack, call([ ], this.close)),
+        ],
+      ),
+    );
+  }
+
   recenter(
     // Inputs
-    resetScaleClock: Clock,
     resetXClock: Clock,
     resetYClock: Clock,
-    gestureOrZoomActive: Value,
+    activeInteraction: Value,
     recenteredScale: Value,
     horizontalPanSpace: Value,
     verticalPanSpace: Value,
@@ -592,6 +669,8 @@ class MultimediaModal extends React.PureComponent<Props> {
     curX: Value,
     curY: Value,
   ): Value {
+    const resetScaleClock = new Clock();
+
     const recenteredX = clamp(
       curX,
       multiply(-1, horizontalPanSpace),
@@ -602,8 +681,9 @@ class MultimediaModal extends React.PureComponent<Props> {
       multiply(-1, verticalPanSpace),
       verticalPanSpace,
     );
+
     return cond(
-      gestureOrZoomActive,
+      activeInteraction,
       [
         stopClock(resetScaleClock),
         stopClock(resetXClock),
@@ -637,11 +717,9 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   flingUpdate(
     // Inputs
-    flingXClock: Clock,
-    flingYClock: Clock,
     resetXClock: Clock,
     resetYClock: Clock,
-    gestureOrZoomActive: Value,
+    activeInteraction: Value,
     panVelocityX: Value,
     panVelocityY: Value,
     horizontalPanSpace: Value,
@@ -650,6 +728,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     curX: Value,
     curY: Value,
   ): Value {
+    const flingXClock = new Clock();
+    const flingYClock = new Clock();
+
     const decayX = runDecay(flingXClock, panVelocityX, curX);
     const recenteredX = clamp(
       decayX,
@@ -662,8 +743,9 @@ class MultimediaModal extends React.PureComponent<Props> {
       multiply(-1, verticalPanSpace),
       verticalPanSpace,
     );
+
     return cond(
-      gestureOrZoomActive,
+      activeInteraction,
       [
         stopClock(flingXClock),
         stopClock(flingYClock),
@@ -808,9 +890,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     const statusBar = MultimediaModal.isActive(this.props)
       ? <ConnectedStatusBar barStyle="light-content" />
       : null;
-    const backdropStyle = { opacity: this.progress };
+    const backdropStyle = { opacity: this.opacity };
     const closeButtonStyle = {
-      opacity: this.progress,
+      opacity: this.opacity,
       top: Math.max(this.props.contentVerticalOffset - 2, 4),
     };
     const view = (
