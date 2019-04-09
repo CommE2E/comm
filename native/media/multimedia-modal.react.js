@@ -811,7 +811,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     const backdropStyle = { opacity: this.progress };
     const closeButtonStyle = {
       opacity: this.progress,
-      top: Math.max(this.props.contentVerticalOffset, 6),
+      top: Math.max(this.props.contentVerticalOffset - 2, 4),
     };
     const view = (
       <Animated.View style={styles.container}>
@@ -890,9 +890,13 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     position: "absolute",
-    right: 12,
+    right: 4,
   },
   closeButton: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 8,
+    paddingRight: 8,
     fontSize: 36,
     color: "white",
     textShadowColor: "#000",
