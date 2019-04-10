@@ -650,7 +650,13 @@ class MultimediaModal extends React.PureComponent<Props> {
           stopClock(resetClock),
           set(curOpacity, progressiveOpacity),
           set(dismissingFromPan, shouldGoBack),
-          cond(shouldGoBack, call([ ], this.close)),
+          cond(
+            shouldGoBack,
+            [
+              decay,
+              call([], this.close),
+            ],
+          ),
         ],
       ),
     );
