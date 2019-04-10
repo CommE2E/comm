@@ -757,20 +757,20 @@ class MultimediaModal extends React.PureComponent<Props> {
         stopClock(flingYClock),
       ],
       [
+        set(curX, recenteredX),
+        set(curY, recenteredY),
         cond(
-          and(
-            not(clockRunning(resetXClock)),
-            eq(decayX, recenteredX),
+          or(
+            clockRunning(resetXClock),
+            neq(decayX, recenteredX),
           ),
-          set(curX, decayX),
           stopClock(flingXClock),
         ),
         cond(
-          and(
-            not(clockRunning(resetYClock)),
-            eq(decayY, recenteredY),
+          or(
+            clockRunning(resetYClock),
+            neq(decayY, recenteredY),
           ),
-          set(curY, decayY),
           stopClock(flingYClock),
         ),
       ],
