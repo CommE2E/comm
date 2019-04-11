@@ -10665,10 +10665,10 @@ react-navigation-drawer@1.3.0:
   dependencies:
     react-native-tab-view "^1.2.0"
 
-react-navigation-redux-helpers@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/react-navigation-redux-helpers/-/react-navigation-redux-helpers-3.0.1.tgz#4e500c8bef30277c240bb602489dd652a6462675"
-  integrity sha512-WtrAJ/Wle1Tskv7/Z3IqBkXTw0d+ByDE5cFLCVDYeMJf5u0DU0qPy+rdJCAtyTYRTvmmQE/ExNoVa8SHHXPu2A==
+react-navigation-redux-helpers@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-navigation-redux-helpers/-/react-navigation-redux-helpers-3.0.2.tgz#612e1d5b1378ba0c17b6a2d8ec9a01cc698a3a16"
+  integrity sha512-+z7/eBGBpws/W3ffu7ayEl1YFMAbXO3Sgul3KIDyESI1BbmfSvKD2aRMEfE7AlO+58fJJsqWUMhNw+VACAdHjw==
   dependencies:
     invariant "^2.2.2"
 
