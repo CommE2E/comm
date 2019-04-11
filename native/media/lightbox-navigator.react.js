@@ -54,18 +54,17 @@ function createLightboxNavigator(
     NavigationState,
     StackNavigatorConfig,
   >(
-    // $FlowFixMe maybe will be fixed on flow-bin@0.89
     Lightbox,
     StackRouter(routeConfigMap, stackRouterConfig),
     stackConfig,
   );
 }
 
-type Props = $ReadOnly<{|
+type Props = $ReadOnly<{
   navigation: NavigationScreenProp<NavigationState>,
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
-|}>;
+}>;
 class Lightbox extends React.PureComponent<Props> {
 
   position: Animated.Value;

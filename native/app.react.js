@@ -97,7 +97,6 @@ if (Platform.OS === "android") {
 }
 
 const msInDay = 24 * 60 * 60 * 1000;
-// $FlowFixMe should be fixed on flow-bin@0.89
 const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);

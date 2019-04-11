@@ -356,11 +356,8 @@ declare module 'react-navigation' {
   declare export type NavigationScreenComponent<
     Route: NavigationRoute,
     Options: {},
-    Props: {}
-  > = React$ComponentType<{
-    ...Props,
-    ...NavigationNavigatorProps<Options, Route>,
-  }> &
+    Props: NavigationNavigatorProps<Options, Route>,
+  > = React$ComponentType<Props> &
     withOptionalNavigationOptions<Options>;
 
   declare interface withRouter<State, Options> {
@@ -370,11 +367,8 @@ declare module 'react-navigation' {
   declare export type NavigationNavigator<
     State: NavigationState,
     Options: {},
-    Props: {}
-  > = React$StatelessFunctionalComponent<{
-    ...Props,
-    ...NavigationNavigatorProps<Options, State>,
-  }> &
+    Props: NavigationNavigatorProps<Options, State>,
+  > = React$ComponentType<Props> &
     withRouter<State, Options> &
     withOptionalNavigationOptions<Options>;
 
@@ -466,8 +460,14 @@ declare module 'react-navigation' {
       prevTransitionProps: ?NavigationTransitionProps,
       isModal: boolean
     ) => TransitionConfig,
-    onTransitionStart?: () => void,
-    onTransitionEnd?: () => void,
+    onTransitionStart?: (
+      transitionProps: NavigationTransitionProps,
+      prevTransitionProps: ?NavigationTransitionProps,
+    ) => void,
+    onTransitionEnd?: (
+      transitionProps: NavigationTransitionProps,
+      prevTransitionProps: ?NavigationTransitionProps,
+    ) => void,
     transparentCard?: boolean,
     disableKeyboardHandling?: boolean,
   |};
@@ -592,8 +592,8 @@ declare module 'react-navigation' {
       fallback?: $ElementType<
         $PropertyType<
           {|
-            ...{| params: {| [ParamName]: void |} |},
             ...$Exact<S>,
+            ...{| params: {| [ParamName]: void |} |},
           |},
           'params'
         >,
@@ -602,14 +602,14 @@ declare module 'react-navigation' {
     ) => $ElementType<
       $PropertyType<
         {|
-          ...{| params: {| [ParamName]: void |} |},
           ...$Exact<S>,
+          ...{| params: {| [ParamName]: void |} |},
         |},
         'params'
       >,
       ParamName
     >,
-    dangerouslyGetParent: () => NavigationScreenProp<*>,
+    dangerouslyGetParent: () => ?NavigationScreenProp<NavigationState>,
     isFocused: () => boolean,
     // Shared action creators that exist for all routers
     goBack: (routeKey?: ?string) => boolean,
@@ -675,11 +675,8 @@ declare module 'react-navigation' {
   declare export type NavigationContainer<
     State: NavigationState,
     Options: {},
-    Props: {}
-  > = React$ComponentType<{
-    ...Props,
-    ...NavigationContainerProps<State, Options>,
-  }> &
+    Props: NavigationContainerProps<Options, State>,
+  > = React$ComponentType<Props> &
     withRouter<State, Options> &
     withOptionalNavigationOptions<Options>;
 
@@ -939,6 +936,7 @@ declare module 'react-navigation' {
   declare type NavigationView<O, S> = React$ComponentType<{
     descriptors: { [key: string]: NavigationDescriptor },
     navigation: NavigationScreenProp<S>,
+    navigationConfig: *,
   }>;
 
   declare export function createNavigator<O: *, S: *, NavigatorConfig: *>(

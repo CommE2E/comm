@@ -260,10 +260,10 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
             threadInfo.parentThreadID === props.parentThreadInfo.id) &&
           userIDs.every(userID => userIsMember(threadInfo, userID)),
       ),
-      _sortBy([
+      _sortBy(([
         'members.length',
         (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
-      ]),
+      ]: $ReadOnlyArray<string | (threadInfo: ThreadInfo) => mixed>)),
     )(props.threadInfos);
   }
 
