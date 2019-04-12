@@ -77,7 +77,7 @@ import {
 import {
   reduceThreadIDsToNotifIDs,
 } from '../push/android';
-import { persistConfig, setPersistor } from '../persist';
+import { persistConfig, setPersistor } from './persist';
 import {
   defaultURLPrefix,
   natServer,

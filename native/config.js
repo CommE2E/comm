@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 import { registerConfig } from 'lib/utils/config';
 
 import { resolveInvalidatedCookie } from './account/resolve-invalidated-cookie';
-import { persistConfig, codeVersion } from './persist';
+import { persistConfig, codeVersion } from './redux/persist';
 
 registerConfig({
   resolveInvalidatedCookie,

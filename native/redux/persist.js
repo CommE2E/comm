@@ -1,20 +1,20 @@
 // @flow
 
-import type { AppState } from './redux/redux-setup';
+import type { AppState } from './redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { messageTypes } from 'lib/types/message-types';
 
-import storage from 'redux-persist/lib/storage';
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
 
-import { nativeCalendarQuery } from './selectors/nav-selectors';
-import { defaultNotifPermissionAlertInfo } from './push/alerts';
+import { nativeCalendarQuery } from '../selectors/nav-selectors';
+import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 
 const baseBlacklist = [
   'loadingStatuses',
@@ -135,7 +135,7 @@ const migrations = {
 
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
   version: 11,

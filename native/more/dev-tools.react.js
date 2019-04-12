@@ -18,7 +18,7 @@ import { setURLPrefix } from 'lib/utils/url-utils';
 import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
-import { getPersistor } from '../persist';
+import { getPersistor } from '../redux/persist';
 import { serverOptions } from '../utils/url-utils';
 import { CustomServerModalRouteName } from '../navigation/route-names';
 

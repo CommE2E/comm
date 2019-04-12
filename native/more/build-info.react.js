@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 
-import { persistConfig, codeVersion } from '../persist';
+import { persistConfig, codeVersion } from '../redux/persist';
 
 type Props = {|
 |};

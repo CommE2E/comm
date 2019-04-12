@@ -35,7 +35,7 @@ import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 
 import Button from './components/button.react';
 import { store } from './redux/redux-setup';
-import { persistConfig, codeVersion, getPersistor } from './persist';
+import { persistConfig, codeVersion, getPersistor } from './redux/persist';
 
 const errorTitles = [
   "Oh no!!",
