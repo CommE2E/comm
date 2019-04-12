@@ -9,7 +9,7 @@ import {
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NetInfo } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 
 import { connect } from 'lib/utils/redux-utils';
 
