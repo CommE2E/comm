@@ -4,7 +4,7 @@ import {
   type VerifyField,
   verifyField,
   assertVerifyField,
-  type VerificationResult,
+  type ServerSuccessfulVerificationResult,
 } from 'lib/types/verify-types';
 import { updateTypes } from 'lib/types/update-types';
 import type { Viewer } from '../session/viewer';
@@ -100,7 +100,7 @@ async function clearVerifyCodes(result: CodeVerification) {
 async function handleCodeVerificationRequest(
   viewer: Viewer,
   code: string,
-): Promise<?VerificationResult> {
+): Promise<ServerSuccessfulVerificationResult> {
   const result = await verifyCode(code);
   const { userID, field } = result;
   if (field === verifyField.EMAIL) {
@@ -112,7 +112,7 @@ async function handleCodeVerificationRequest(
       time: Date.now(),
     }];
     await createUpdates(updateDatas, { viewer });
-    return { field: verifyField.EMAIL, userID };
+    return { success: true, field: verifyField.EMAIL };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
     const [ usernameResult ] = await dbQuery(usernameQuery);
@@ -121,12 +121,12 @@ async function handleCodeVerificationRequest(
     }
     const usernameRow = usernameResult[0];
     return {
+      success: true,
       field: verifyField.RESET_PASSWORD,
-      userID,
-      resetPasswordUsername: usernameRow.username,
+      username: usernameRow.username,
     };
   }
-  return null;
+  throw new ServerError('invalid_code');
 }
 
 async function deleteExpiredVerifications(): Promise<void> {

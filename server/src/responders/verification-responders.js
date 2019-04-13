@@ -27,18 +27,15 @@ async function codeVerificationResponder(
   await validateInput(viewer, codeVerificationRequestInputValidator, request);
 
   const result = await handleCodeVerificationRequest(viewer, request.code);
-  if (!result) {
-    throw new ServerError('unhandled_field');
-  }
   if (result.field === verifyField.EMAIL) {
     return { verifyField: result.field };
   } else if (result.field === verifyField.RESET_PASSWORD) {
     return {
       verifyField: result.field,
-      resetPasswordUsername: result.resetPasswordUsername,
+      resetPasswordUsername: result.username,
     };
   }
-  throw new ServerError('unhandled_field');
+  throw new ServerError('invalid_code');
 }
 
 export {

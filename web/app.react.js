@@ -3,7 +3,11 @@
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { type AppState, type NavInfo, navInfoPropType } from './redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { type VerifyField, verifyField } from 'lib/types/verify-types';
+import {
+  verifyField,
+  type ServerVerificationResult,
+  serverVerificationResultPropType,
+} from 'lib/types/verify-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -74,7 +78,7 @@ type Props = {
   },
   // Redux state
   navInfo: NavInfo,
-  verifyField: ?VerifyField,
+  serverVerificationResult: ?ServerVerificationResult,
   entriesLoadingStatus: LoadingStatus,
   loggedIn: bool,
   mostRecentReadThread: ?string,
@@ -94,7 +98,7 @@ class App extends React.PureComponent<Props, State> {
       pathname: PropTypes.string.isRequired,
     }).isRequired,
     navInfo: navInfoPropType.isRequired,
-    verifyField: PropTypes.number,
+    serverVerificationResult: serverVerificationResultPropType,
     entriesLoadingStatus: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     mostRecentReadThread: PropTypes.string,
@@ -108,15 +112,13 @@ class App extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    if (this.props.navInfo.verify) {
-      if (this.props.verifyField === verifyField.RESET_PASSWORD) {
+    const { navInfo, serverVerificationResult } = this.props;
+    if (navInfo.verify && serverVerificationResult) {
+      if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
-      } else if (this.props.verifyField === verifyField.EMAIL) {
+      } else if (serverVerificationResult.field === verifyField.EMAIL) {
         const newURL = canonicalURLFromReduxState(
-          {
-            ...this.props.navInfo,
-            verify: null,
-          },
+          { ...navInfo, verify: null },
           this.props.location.pathname,
         );
         history.replace(newURL);
@@ -128,7 +130,7 @@ class App extends React.PureComponent<Props, State> {
 
     if (this.props.loggedIn) {
       const newURL = canonicalURLFromReduxState(
-        this.props.navInfo,
+        navInfo,
         this.props.location.pathname,
       );
       if (this.props.location.pathname !== newURL) {
@@ -150,12 +152,17 @@ class App extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.verifyField === verifyField.RESET_PASSWORD) {
-      if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
-        this.clearModal();
-      } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {
-        this.showResetPasswordModal();
-      }
+    const { navInfo, serverVerificationResult } = this.props;
+    if (
+      !serverVerificationResult ||
+      serverVerificationResult.field !== verifyField.RESET_PASSWORD
+    ) {
+      return;
+    }
+    if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
+      this.clearModal();
+    } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {
+      this.showResetPasswordModal();
     }
   }
 
@@ -356,7 +363,7 @@ export default connect(
     const activeChatThreadID = state.navInfo.activeChatThreadID;
     return {
       navInfo: state.navInfo,
-      verifyField: state.verifyField,
+      serverVerificationResult: state.serverVerificationResult,
       entriesLoadingStatus: combineLoadingStatuses(
         fetchEntriesLoadingStatusSelector(state),
         updateCalendarQueryLoadingStatusSelector(state),

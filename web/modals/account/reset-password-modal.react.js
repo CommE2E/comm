@@ -8,6 +8,7 @@ import type {
   LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
+import { verifyField } from 'lib/types/verify-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -215,7 +216,10 @@ const loadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    resetPasswordUsername: state.resetPasswordUsername,
+    resetPasswordUsername: state.serverVerificationResult &&
+      state.serverVerificationResult.success &&
+      state.serverVerificationResult.field === verifyField.RESET_PASSWORD &&
+      state.serverVerificationResult.username,
     verifyCode: state.navInfo.verify,
     inputDisabled: loadingStatusSelector(state) === "loading",
     logInExtraInfo: webLogInExtraInfoSelector(state),

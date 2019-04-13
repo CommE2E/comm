@@ -5,6 +5,7 @@ import type { AppState, Action } from 'web/redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
+import type { ServerVerificationResult } from 'lib/types/verify-types';
 
 import html from 'common-tags/lib/html';
 import { createStore, type Store } from 'redux';
@@ -82,9 +83,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       threadSelectionCriteria,
       defaultNumberPerThread,
     ),
-    navInfo.verify
-      ? handleCodeVerificationRequest(viewer, navInfo.verify)
-      : null,
+    handleVerificationRequest(viewer, navInfo.verify),
     viewer.loggedIn ? setNewSession(viewer, calendarQuery, initialTime) : null,
   ]);
 
@@ -123,11 +122,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       navInfo,
       currentUserInfo,
       sessionID: viewer.sessionID,
-      verifyField: verificationResult && verificationResult.field,
-      resetPasswordUsername:
-        verificationResult && verificationResult.resetPasswordUsername
-          ? verificationResult.resetPasswordUsername
-          : "",
+      serverVerificationResult: verificationResult,
       entryStore: {
         entryInfos: _keyBy('id')(rawEntryInfos),
         daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
@@ -242,6 +237,23 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     </html>
   `;
   return result;
+}
+
+async function handleVerificationRequest(
+  viewer: Viewer,
+  code: ?string,
+): Promise<?ServerVerificationResult> {
+  if (!code) {
+    return null;
+  }
+  try {
+    return await handleCodeVerificationRequest(viewer, code);
+  } catch (e) {
+    if (e instanceof ServerError && e.message === 'invalid_code') {
+      return { success: false };
+    }
+    throw e;
+  }
 }
 
 export {
