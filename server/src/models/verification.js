@@ -14,11 +14,15 @@ import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
 
-const verifyCodeLifetime = 24 * 60 * 60 * 1000; // in ms
+const day = 24 * 60 * 60 * 1000; // in ms
+const verifyCodeLifetimes = {
+  [verifyField.EMAIL]: day * 30,
+  [verifyField.RESET_PASSWORD]: day,
+};
 
 async function createVerificationCode(
   userID: string,
@@ -59,7 +63,12 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
     throw new ServerError('invalid_code');
   }
 
-  if (row.creation_time + verifyCodeLifetime <= Date.now()) {
+  const field = assertVerifyField(row.field);
+  const verifyCodeLifetime = verifyCodeLifetimes[field];
+  if (
+    verifyCodeLifetime &&
+    row.creation_time + verifyCodeLifetime <= Date.now()
+  ) {
     // Code is expired. Delete it...
     const deleteQuery = SQL`
       DELETE v, i
@@ -73,7 +82,7 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
 
   return {
     userID: row.user.toString(),
-    field: assertVerifyField(row.field),
+    field,
   };
 }
 
@@ -121,13 +130,22 @@ async function handleCodeVerificationRequest(
 }
 
 async function deleteExpiredVerifications(): Promise<void> {
-  const earliestInvalidCreationTime = Date.now() - verifyCodeLifetime;
+  const creationTimeConditions = [];
+  for (let field in verifyCodeLifetimes) {
+    const lifetime = verifyCodeLifetimes[field];
+    const earliestInvalid = Date.now() - lifetime;
+    creationTimeConditions.push(
+      SQL`v.field = ${field} AND v.creation_time <= ${earliestInvalid}`,
+    );
+  }
+  const creationTimeClause = mergeOrConditions(creationTimeConditions);
   const query = SQL`
     DELETE v, i
     FROM verifications v
     LEFT JOIN ids i ON i.id = v.id
-    WHERE v.creation_time <= ${earliestInvalidCreationTime}
+    WHERE
   `;
+  query.append(creationTimeClause);
   await dbQuery(query);
 }
 
