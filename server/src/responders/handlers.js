@@ -56,7 +56,9 @@ function downloadHandler(responder: DownloadResponder) {
 }
 
 function getMessageForException(error: Error & { sqlMessage?: string }) {
-  return error.sqlMessage !== null ? "database error" : error.message;
+  return error.sqlMessage !== null && error.sqlMessage !== undefined
+    ? "database error"
+    : error.message;
 }
 
 async function handleException(
