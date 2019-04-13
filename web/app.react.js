@@ -46,8 +46,7 @@ import css from './style.css';
 import AccountBar from './account-bar.react';
 import Calendar from './calendar/calendar.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
-import VerificationSuccessModal
-  from './modals/account/verification-success-modal.react';
+import VerificationModal from './modals/account/verification-modal.react';
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
 import { updateNavInfoActionType } from './redux-setup';
@@ -116,14 +115,14 @@ class App extends React.PureComponent<Props, State> {
     if (navInfo.verify && serverVerificationResult) {
       if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
-      } else if (serverVerificationResult.field === verifyField.EMAIL) {
+      } else {
         const newURL = canonicalURLFromReduxState(
           { ...navInfo, verify: null },
           this.props.location.pathname,
         );
         history.replace(newURL);
         this.setModal(
-          <VerificationSuccessModal onClose={this.clearModal} />
+          <VerificationModal onClose={this.clearModal} />
         );
       }
     }
