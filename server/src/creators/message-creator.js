@@ -318,10 +318,11 @@ async function postMessageSend(
   }
 
   await Promise.all([
-    sendPushNotifs(pushInfo),
     updateUnreadStatus(setUnreadPairs),
     redisPublish(viewer, messageInfosPerUser),
   ]);
+
+  await sendPushNotifs(pushInfo);
 }
 
 async function updateUnreadStatus(
