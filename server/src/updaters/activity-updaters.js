@@ -106,10 +106,6 @@ async function activityUpdater(
 
   const focusUpdatePromise = updateFocusedRows(viewer, currentlyFocused);
 
-  const rescindCondition = SQL`n.user = ${viewer.userID} AND `;
-  rescindCondition.append(mergeOrConditions(rescindConditions));
-  const rescindPromise = rescindPushNotifs(rescindCondition);
-
   const [ viewerMemberThreads, unfocusedToUnread ] = await Promise.all([
     viewerMemberThreadsPromise,
     determineUnfocusedThreadsReadStatus(
@@ -147,10 +143,7 @@ async function activityUpdater(
     { viewer, updatesForCurrentSession: "ignore" },
   );
 
-  const promises = [
-    focusUpdatePromise,
-    rescindPromise,
-  ];
+  const promises = [ focusUpdatePromise ];
   if (memberSetToRead.length > 0) {
     promises.push(dbQuery(SQL`
       UPDATE memberships
@@ -171,6 +164,12 @@ async function activityUpdater(
   }
 
   await Promise.all(promises);
+
+  // We do this afterwards so the badge count is correct
+  const rescindCondition = SQL`n.user = ${viewer.userID} AND `;
+  rescindCondition.append(mergeOrConditions(rescindConditions));
+  await rescindPushNotifs(rescindCondition);
+
   return { unfocusedToUnread };
 }
 
