@@ -184,6 +184,34 @@ async function checkThreadPermission(
   return permissionLookup(permissionsBlob, permission);
 }
 
+async function checkThreadPermissions(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+  permission: ThreadPermission,
+): Promise<{[threadID: string]: bool}> {
+  const viewerID = viewer.id;
+  const query = SQL`
+    SELECT thread, permissions
+    FROM memberships
+    WHERE thread IN (${threadIDs}) AND user = ${viewerID}
+  `;
+  const [ result ] = await dbQuery(query);
+
+  const permissionsBlobs = new Map();
+  for (let row of result) {
+    const threadID = row.thread.toString();
+    permissionsBlobs.set(threadID, row.permissions);
+  }
+
+  const permissionByThread = {};
+  for (let threadID of threadIDs) {
+    const permissionsBlob = permissionsBlobs.get(threadID);
+    permissionByThread[threadID] =
+      permissionLookup(permissionsBlob, permission);
+  }
+  return permissionByThread;
+}
+
 async function viewerIsMember(
   viewer: Viewer,
   threadID: string,
@@ -210,5 +238,6 @@ export {
   verifyThreadID,
   fetchThreadPermissionsBlob,
   checkThreadPermission,
+  checkThreadPermissions,
   viewerIsMember,
 };
