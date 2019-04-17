@@ -57,9 +57,9 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   for (let row of result) {
     const userID = row.user.toString();
     const minCodeVersion = row.min_code_version;
-    const squadbotThread = row.squadbot_thread.toString();
     codeVersions.set(userID, minCodeVersion);
-    if (squadbotThread) {
+    if (row.squadbot_thread) {
+      const squadbotThread = row.squadbot_thread.toString();
       squadbotThreads.set(userID, squadbotThread);
     } else {
       usersToSquadbotThreadPromises[userID] = createSquadbotThread(userID);
