@@ -12,7 +12,6 @@ import com.swmansion.rnscreens.RNScreensPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.github.wumke.RNExitApp.RNExitAppPackage;
-import com.evollu.react.fcm.FIRMessagingPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.oblador.keychain.KeychainPackage;
 import com.facebook.react.ReactNativeHost;
@@ -44,7 +43,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNGestureHandlerPackage(),
             new SplashScreenReactPackage(),
             new RNExitAppPackage(),
-            new FIRMessagingPackage(),
             new VectorIconsPackage(),
             new KeychainPackage()
       );
