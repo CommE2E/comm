@@ -144,19 +144,21 @@ android {
             }
         }
     }
-    configurations.all {
-        resolutionStrategy.force 'com.android.support:support-v4:28.0.0'
-    }
 }
 
 dependencies {
+    implementation project(':react-native-firebase')
+    implementation "com.google.android.gms:play-services-base:16.1.0"
+    implementation "com.google.firebase:firebase-core:16.0.8"
+    implementation "com.google.firebase:firebase-messaging:17.5.0"
+    implementation "me.leolin:ShortcutBadger:1.1.21@aar"
     implementation project(':@react-native-community_netinfo')
     implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-reanimated')
     implementation project(':react-native-orientation-locker')
     implementation project(':react-native-fast-image')
-    compile project(':react-native-screens')
-    compile project(':react-native-gesture-handler')
+    implementation project(':react-native-screens')
+    implementation project(':react-native-gesture-handler')
     implementation project(':react-native-splash-screen')
     implementation project(':react-native-exit-app')
     implementation project(':react-native-vector-icons')
@@ -172,3 +174,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'
