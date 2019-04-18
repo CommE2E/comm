@@ -10,7 +10,7 @@ async function rescindPushNotifs(
   inputCountCondition?: SQLStatement,
 ) {
   const fetchQuery = SQL`
-    SELECT n.id, n.delivery, n.collapse_key, COUNT(
+    SELECT n.id, n.delivery, n.collapse_key, n.thread, COUNT(
   `;
   fetchQuery.append(inputCountCondition ? inputCountCondition : SQL`m.thread`);
   fetchQuery.append(SQL`
@@ -64,10 +64,12 @@ async function rescindPushNotifs(
         ));
       } else if (delivery.deviceType === "android") {
         // New Android
-        const { deviceTokens } = delivery;
+        const { deviceTokens, codeVersion } = delivery;
         const notification = prepareAndroidNotification(
           row.collapse_key ? row.collapse_key : row.id.toString(),
           row.unread_count,
+          row.thread.toString(),
+          codeVersion,
         );
         promises.push(fcmPush(
           notification,
@@ -108,14 +110,26 @@ function prepareIOSNotification(
 function prepareAndroidNotification(
   notifID: string,
   unreadCount: number,
+  threadID: string,
+  codeVersion: ?number,
 ): Object {
+  if (!codeVersion || codeVersion < 31) {
+    return {
+      data: {
+        badge: unreadCount.toString(),
+        custom_notification: JSON.stringify({
+          rescind: "true",
+          notifID,
+        }),
+      },
+    };
+  }
   return {
     data: {
       badge: unreadCount.toString(),
-      custom_notification: JSON.stringify({
-        rescind: "true",
-        notifID,
-      }),
+      rescind: "true",
+      rescindID: notifID,
+      threadID,
     },
   };
 }

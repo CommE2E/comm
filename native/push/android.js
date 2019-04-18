@@ -12,6 +12,7 @@ import { saveMessageInfos } from './utils';
 import { store } from '../redux/redux-setup';
 
 const androidNotificationChannelID = 'default';
+const vibrationSpec = [ 500, 500 ];
 
 type Texts = {|
   title: string,
@@ -75,7 +76,7 @@ function handleAndroidMessage(
     .setData({ threadID })
     .android.setChannelId(androidNotificationChannelID)
     .android.setDefaults(firebase.notifications.Android.Defaults.All)
-    .android.setVibrate(true)
+    .android.setVibrate(vibrationSpec)
     .android.setAutoCancel(true)
     .android.setLargeIcon("@mipmap/ic_launcher")
     .android.setSmallIcon("@drawable/notif_icon");

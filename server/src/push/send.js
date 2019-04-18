@@ -21,7 +21,7 @@ import _flow from 'lodash/fp/flow';
 import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
 
-import { notifTextForMessageInfo } from 'lib/shared/notif-utils';
+import { notifTextsForMessageInfo } from 'lib/shared/notif-utils';
 import {
   createMessageInfo,
   sortMessageInfoList,
@@ -184,6 +184,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             badgeOnly,
             unreadCounts[userID],
             dbID,
+            codeVersion,
           );
           deliveryPromises.push(sendAndroidNotification(
             notification,
@@ -467,8 +468,8 @@ function prepareIOSNotification(
   const notification = new apn.Notification();
   notification.topic = "org.squadcal.app";
   if (!badgeOnly) {
-    const notifText = notifTextForMessageInfo(allMessageInfos, threadInfo);
-    notification.body = notifText;
+    const { merged } = notifTextsForMessageInfo(allMessageInfos, threadInfo);
+    notification.body = merged;
     notification.sound = "default";
   }
   notification.badge = unreadCount;
@@ -491,6 +492,7 @@ function prepareAndroidNotification(
   badgeOnly: bool,
   unreadCount: number,
   dbID: string,
+  codeVersion: number,
 ): Object {
   const notifID = collapseKey ? collapseKey : dbID;
   if (badgeOnly) {
@@ -502,21 +504,35 @@ function prepareAndroidNotification(
       },
     };
   }
+  const { merged, ...rest } =
+    notifTextsForMessageInfo(allMessageInfos, threadInfo);
+  const messageInfos = JSON.stringify(newRawMessageInfos);
+  if (codeVersion < 31) {
+    return {
+      data: {
+        badge: unreadCount.toString(),
+        custom_notification: JSON.stringify({
+          channel: "default",
+          body: merged,
+          badgeCount: unreadCount,
+          id: notifID,
+          priority: "high",
+          sound: "default",
+          icon: "notif_icon",
+          threadID: threadInfo.id,
+          messageInfos,
+          click_action: "fcm.ACTION.HELLO",
+        }),
+      }
+    };
+  }
   return {
     data: {
       badge: unreadCount.toString(),
-      custom_notification: JSON.stringify({
-        channel: "default",
-        body: notifTextForMessageInfo(allMessageInfos, threadInfo),
-        badgeCount: unreadCount, // TODO: remove this
-        id: notifID,
-        priority: "high",
-        sound: "default",
-        icon: "notif_icon",
-        threadID: threadInfo.id,
-        messageInfos: JSON.stringify(newRawMessageInfos),
-        click_action: "fcm.ACTION.HELLO",
-      }),
+      ...rest,
+      id: notifID,
+      threadID: threadInfo.id,
+      messageInfos,
     }
   };
 }
