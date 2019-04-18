@@ -6,7 +6,10 @@ import type { RemoteMessage } from 'react-native-firebase';
 import firebase from 'react-native-firebase';
 import invariant from 'invariant';
 
-import { recordAndroidNotificationActionType } from '../redux/action-types';
+import {
+  recordAndroidNotificationActionType,
+  rescindAndroidNotificationActionType,
+} from '../redux/action-types';
 
 import { saveMessageInfos } from './utils';
 import { store } from '../redux/redux-setup';
@@ -46,13 +49,22 @@ function handleAndroidMessage(
   }
 
   let { rescind, rescindID } = data;
-  if (!rescind && customNotification) {
+  let rescindActionPayload = null;
+  if (rescind) {
+    rescindActionPayload = { notifID: rescindID, threadID: data.threadID };
+  } else if (customNotification) {
     ({ rescind, notifID: rescindID } = customNotification);
+    rescindActionPayload = { notifID: rescindID };
   }
   if (rescind) {
     invariant(rescindID, "rescind message without notifID");
-    firebase.notifications().removeDeliveredNotification(rescindID);
-    //TODO remove from Redux as well
+    firebase.notifications().android.removeDeliveredNotificationsByTag(
+      rescindID,
+    );
+    dispatch({
+      type: rescindAndroidNotificationActionType,
+      payload: rescindActionPayload,
+    });
     return;
   }
 
@@ -74,6 +86,7 @@ function handleAndroidMessage(
     .setNotificationId(id)
     .setBody(merged)
     .setData({ threadID })
+    .android.setTag(id)
     .android.setChannelId(androidNotificationChannelID)
     .android.setDefaults(firebase.notifications.Android.Defaults.All)
     .android.setVibrate(vibrationSpec)

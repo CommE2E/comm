@@ -64,6 +64,7 @@ import {
   recordNotifPermissionAlertActionType,
   recordAndroidNotificationActionType,
   clearAndroidNotificationsActionType,
+  rescindAndroidNotificationActionType,
   updateDimensionsActiveType,
   updateConnectivityActiveType,
 } from './action-types';
@@ -173,7 +174,8 @@ function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
 function reducer(state: AppState = defaultState, action: *) {
   if (
     action.type === recordAndroidNotificationActionType ||
-    action.type === clearAndroidNotificationsActionType
+    action.type === clearAndroidNotificationsActionType ||
+    action.type === rescindAndroidNotificationActionType
   ) {
     return {
       ...state,

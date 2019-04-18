@@ -5,6 +5,7 @@ import firebase from 'react-native-firebase';
 import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationsActionType,
+  rescindAndroidNotificationActionType,
 } from '../redux/action-types';
 
 type RecordAndroidNotificationPayload = {|
@@ -16,6 +17,11 @@ type ClearAndroidNotificationsPayload = {|
   threadID: string,
 |};
 
+type RescindAndroidNotificationPayload = {|
+  notifID: string,
+  threadID?: string,
+|};
+
 export type AndroidNotificationActions =
   | {|
     type: "RECORD_ANDROID_NOTIFICATION",
@@ -23,6 +29,9 @@ export type AndroidNotificationActions =
   |} | {|
     type: "CLEAR_ANDROID_NOTIFICATIONS",
     payload: ClearAndroidNotificationsPayload,
+  |} | {|
+    type: "RESCIND_ANDROID_NOTIFICATION",
+    payload: RescindAndroidNotificationPayload,
   |};
 
 function reduceThreadIDsToNotifIDs(
@@ -46,12 +55,35 @@ function reduceThreadIDsToNotifIDs(
       return state;
     }
     for (let notifID of state[action.payload.threadID]) {
-      firebase.notifications().removeDeliveredNotification(notifID);
+      firebase.notifications().android.removeDeliveredNotificationsByTag(
+        notifID,
+      );
     }
     return {
       ...state,
       [action.payload.threadID]: [],
     };
+  } else if (action.type === rescindAndroidNotificationActionType) {
+    const { threadID, notifID } = action.payload;
+    if (threadID) {
+      const existingNotifIDs = state[threadID];
+      if (!existingNotifIDs) {
+        return state;
+      }
+      const filtered = existingNotifIDs.filter(id => id !== notifID);
+      if (filtered.length === existingNotifIDs.length) {
+        return state;
+      }
+      return { ...state, [threadID]: filtered };
+    }
+    for (let candThreadID in state) {
+      const existingNotifIDs = state[candThreadID];
+      const filtered = existingNotifIDs.filter(id => id !== notifID);
+      if (filtered.length !== existingNotifIDs.length) {
+        return { ...state, [candThreadID]: filtered };
+      }
+    }
+    return state;
   } else {
     return state;
   }
