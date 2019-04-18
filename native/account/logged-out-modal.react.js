@@ -227,6 +227,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    if (this.props.rehydrateConcluded) {
+      this.onInitialAppLoad();
+    }
     if (this.props.isForeground) {
       this.onForeground();
     }
@@ -239,13 +242,13 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.props.rehydrateConcluded && nextProps.rehydrateConcluded) {
-      this.onInitialAppLoad(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
+      this.onInitialAppLoad();
     }
-    if (!this.props.isForeground && nextProps.isForeground) {
+    if (!prevProps.isForeground && this.props.isForeground) {
       this.onForeground();
-    } else if (this.props.isForeground && !nextProps.isForeground) {
+    } else if (prevProps.isForeground && !this.props.isForeground) {
       this.onBackground();
     }
   }
@@ -270,14 +273,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
-  async onInitialAppLoad(nextProps: Props) {
+  async onInitialAppLoad() {
     if (!initialAppLoad) {
       return;
     }
     initialAppLoad = false;
 
-    let { cookie } = nextProps;
-    const { urlPrefix } = nextProps;
+    let { cookie } = this.props;
+    const { urlPrefix } = this.props;
     const showPrompt = () => {
       this.nextMode = "prompt";
       this.guardedSetState({ mode: "prompt" });
@@ -292,10 +295,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     };
 
     // If we're not logged in, try native credentials
-    if (!nextProps.loggedIn && (!cookie || !cookie.startsWith("user="))) {
+    if (!this.props.loggedIn && (!cookie || !cookie.startsWith("user="))) {
       // If this succeeds it will dispatch LOG_IN_SUCCESS
       const sessionChange = await fetchNewCookieFromNativeCredentials(
-        nextProps.dispatch,
+        this.props.dispatch,
         cookie,
         urlPrefix,
         appStartNativeCredentialsAutoLogIn,
@@ -312,14 +315,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     // Are we possibly already logged in?
-    if (nextProps.loggedIn) {
+    if (this.props.loggedIn) {
       if (cookie && cookie.startsWith("user=")) {
-        nextProps.dispatchActionPayload(navigateToAppActionType, null);
+        this.props.dispatchActionPayload(navigateToAppActionType, null);
         return;
       }
       // This is an unusual error state that should never happen
       const sessionChange = await fetchNewCookieFromNativeCredentials(
-        nextProps.dispatch,
+        this.props.dispatch,
         cookie,
         urlPrefix,
         appStartReduxLoggedInButInvalidCookie,
@@ -339,7 +342,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     // We are here either because the user cookie exists but Redux says we're
     // not logged in, or because Redux says we're logged in but we don't have
     // a user cookie and we failed to acquire one above
-    nextProps.dispatchActionPayload(resetUserStateActionType, null);
+    this.props.dispatchActionPayload(resetUserStateActionType, null);
   }
 
   hardwareBack = () => {
