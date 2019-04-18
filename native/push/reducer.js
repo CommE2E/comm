@@ -4,7 +4,7 @@ import firebase from 'react-native-firebase';
 
 import {
   recordAndroidNotificationActionType,
-  clearAndroidNotificationActionType,
+  clearAndroidNotificationsActionType,
 } from '../redux/action-types';
 
 type RecordAndroidNotificationPayload = {|
@@ -12,7 +12,7 @@ type RecordAndroidNotificationPayload = {|
   notifID: string,
 |};
 
-type ClearAndroidNotificationPayload = {|
+type ClearAndroidNotificationsPayload = {|
   threadID: string,
 |};
 
@@ -21,8 +21,8 @@ export type AndroidNotificationActions =
     type: "RECORD_ANDROID_NOTIFICATION",
     payload: RecordAndroidNotificationPayload,
   |} | {|
-    type: "CLEAR_ANDROID_NOTIFICATION",
-    payload: ClearAndroidNotificationPayload,
+    type: "CLEAR_ANDROID_NOTIFICATIONS",
+    payload: ClearAndroidNotificationsPayload,
   |};
 
 function reduceThreadIDsToNotifIDs(
@@ -41,7 +41,7 @@ function reduceThreadIDsToNotifIDs(
       ...state,
       [action.payload.threadID]: [...set],
     };
-  } else if (action.type === clearAndroidNotificationActionType) {
+  } else if (action.type === clearAndroidNotificationsActionType) {
     if (!state[action.payload.threadID]) {
       return state;
     }

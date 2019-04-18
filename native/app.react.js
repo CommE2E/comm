@@ -68,7 +68,7 @@ import {
 import {
   handleURLActionType,
   recordNotifPermissionAlertActionType,
-  clearAndroidNotificationActionType,
+  clearAndroidNotificationsActionType,
 } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
@@ -242,7 +242,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       );
     } else if (Platform.OS === "android") {
       props.dispatchActionPayload(
-        clearAndroidNotificationActionType,
+        clearAndroidNotificationsActionType,
         { threadID: activeThread },
       );
     }
