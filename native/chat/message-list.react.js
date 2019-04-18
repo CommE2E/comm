@@ -223,6 +223,12 @@ class MessageList extends React.PureComponent<Props, State> {
       return;
     }
     flatListContainer.measure((x, y, width, height, pageX, pageY) => {
+      if (
+        height === null || height === undefined ||
+        pageY === null || pageY === undefined
+      ) {
+        return;
+      }
       this.setState({ messageListVerticalBounds: { height, y: pageY } });
     });
   }

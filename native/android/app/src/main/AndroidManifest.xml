@@ -52,6 +52,10 @@
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+    <meta-data
+      android:name="com.google.firebase.messaging.default_notification_icon"
+      android:resource="@drawable/notif_icon"
+    />
     <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
   </application>
 </manifest>

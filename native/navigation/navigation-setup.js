@@ -18,7 +18,7 @@ import type {
 import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
-import type { AndroidNotificationActions } from '../push/android';
+import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
 import {

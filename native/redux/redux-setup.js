@@ -74,9 +74,7 @@ import {
   replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
 } from '../navigation/navigation-setup';
-import {
-  reduceThreadIDsToNotifIDs,
-} from '../push/android';
+import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import { persistConfig, setPersistor } from './persist';
 import {
   defaultURLPrefix,

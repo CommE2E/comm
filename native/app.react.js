@@ -18,11 +18,15 @@ import {
   type NotifPermissionAlertInfo,
   notifPermissionAlertInfoPropType,
 } from './push/alerts';
-import type { RawMessageInfo } from 'lib/types/message-types';
 import {
   type ConnectionInfo,
   connectionInfoPropType,
 } from 'lib/types/socket-types';
+import type {
+  RemoteMessage,
+  Notification,
+  NotificationOpen,
+} from 'react-native-firebase';
 
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -42,7 +46,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
-import FCM, { FCMEvent } from 'react-native-fcm';
+import firebase from 'react-native-firebase';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 
@@ -53,7 +57,6 @@ import {
 } from 'lib/actions/device-actions';
 import { unreadCount } from 'lib/selectors/thread-selectors';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
-import { saveMessagesActionType } from 'lib/actions/message-actions';
 import {
   backgroundActionType,
   foregroundActionType,
@@ -65,7 +68,6 @@ import {
 import {
   handleURLActionType,
   recordNotifPermissionAlertActionType,
-  recordAndroidNotificationActionType,
   clearAndroidNotificationActionType,
 } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
@@ -79,8 +81,11 @@ import {
   iosPushPermissionResponseReceived,
 } from './push/ios';
 import {
-  requestAndroidPushPermissions,
+  androidNotificationChannelID,
+  handleAndroidMessage,
+  androidBackgroundMessageTask,
 } from './push/android';
+import { saveMessageInfos } from './push/utils';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import { AppRouteName } from './navigation/route-names';
@@ -145,8 +150,9 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   };
   currentState: ?string = NativeAppState.currentState;
   inAppNotification: ?InAppNotification = null;
-  androidNotifListener: ?Object = null;
-  androidRefreshTokenListener: ?Object = null;
+  androidTokenListener: ?(() => void) = null;
+  androidMessageListener: ?(() => void) = null;
+  androidNotifOpenListener: ?(() => void) = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   appStarted = 0;
@@ -188,20 +194,20 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.iosNotificationOpened,
       );
     } else if (Platform.OS === "android") {
-      FCM.createNotificationChannel({
-        id: "default",
-        name: "Default",
-        description: "SquadCal notifications channel",
-        priority: "high",
-      });
-      this.androidNotifListener = FCM.on(
-        FCMEvent.Notification,
-        this.androidNotificationReceived,
-      );
-      this.androidRefreshTokenListener = FCM.on(
-        FCMEvent.RefreshToken,
-        this.registerPushPermissionsAndHandleInitialNotif,
-      );
+      const channel = new firebase.notifications.Android.Channel(
+        androidNotificationChannelID,
+        'Default',
+        firebase.notifications.Android.Importance.Max,
+      ).setDescription("SquadCal notifications channel");
+      firebase.notifications().android.createChannel(channel);
+      this.androidTokenListener =
+        firebase.messaging().onTokenRefresh(this.handleAndroidDeviceToken);
+      this.androidMessageListener =
+        firebase.messaging().onMessage(this.androidMessageReceived);
+      this.androidNotifOpenListener =
+        firebase.notifications().onNotificationOpened(
+          this.androidNotificationOpened,
+        );
     }
   }
 
@@ -219,7 +225,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (Platform.OS === "ios") {
       NotificationsIOS.setBadgesCount(unreadCount);
     } else if (Platform.OS === "android") {
-      FCM.setBadgeNumber(unreadCount);
+      firebase.notifications().setBadge(unreadCount);
     }
   }
 
@@ -285,13 +291,17 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.iosNotificationOpened,
       );
     } else if (Platform.OS === "android") {
-      if (this.androidNotifListener) {
-        this.androidNotifListener.remove();
-        this.androidNotifListener = null;
+      if (this.androidTokenListener) {
+        this.androidTokenListener();
+        this.androidTokenListener = null;
       }
-      if (this.androidRefreshTokenListener) {
-        this.androidRefreshTokenListener.remove();
-        this.androidRefreshTokenListener = null;
+      if (this.androidMessageListener) {
+        this.androidMessageListener();
+        this.androidMessageListener = null;
+      }
+      if (this.androidNotifOpenListener) {
+        this.androidNotifOpenListener();
+        this.androidNotifOpenListener = null;
       }
     }
   }
@@ -374,39 +384,25 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   async ensureAndroidPushNotifsEnabled() {
-    const missingDeviceToken = this.props.deviceToken === null
-      || this.props.deviceToken === undefined;
-    let token = await this.getAndroidFCMToken();
-    if (token) {
-      await this.registerPushPermissionsAndHandleInitialNotif(token);
-      return;
+    const hasPermission = await firebase.messaging().hasPermission();
+    if (!hasPermission) {
+      try {
+        await firebase.messaging().requestPermission();
+      } catch (error) {
+        this.failedToRegisterPushPermissions();
+        return;
+      }
     }
-    try {
-      await FCM.deleteInstanceId();
-    } catch (e) {
-      this.failedToRegisterPushPermissions(e);
-      return null;
-    }
-    token = await this.getAndroidFCMToken();
-    if (token) {
-      await this.registerPushPermissionsAndHandleInitialNotif(token);
-    } else if (missingDeviceToken) {
+
+    const fcmToken = await firebase.messaging().getToken();
+    if (fcmToken) {
+      await this.handleAndroidDeviceToken(fcmToken);
+    } else {
       this.failedToRegisterPushPermissions();
     }
   }
 
-  async getAndroidFCMToken() {
-    try {
-      return await requestAndroidPushPermissions();
-    } catch (e) {
-      this.failedToRegisterPushPermissions(e);
-      return null;
-    }
-  }
-
-  registerPushPermissionsAndHandleInitialNotif = async (
-    deviceToken: string,
-  ) => {
+  handleAndroidDeviceToken = async (deviceToken: string) => {
     this.registerPushPermissions(deviceToken);
     await this.handleInitialAndroidNotification();
   }
@@ -416,9 +412,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
       return;
     }
     this.initialAndroidNotifHandled = true;
-    const initialNotif = await FCM.getInitialNotification();
+    const initialNotif =
+      await firebase.notifications().getInitialNotification();
     if (initialNotif) {
-      await this.androidNotificationReceived(initialNotif, true);
+      await this.androidNotificationOpened(initialNotif);
     }
   }
 
@@ -510,12 +507,10 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   saveMessageInfos(messageInfosString: string) {
-    const messageInfos: $ReadOnlyArray<RawMessageInfo> =
-      JSON.parse(messageInfosString);
-    const { updatesCurrentAsOf } = this.props;
-    this.props.dispatchActionPayload(
-      saveMessagesActionType,
-      { rawMessageInfos: messageInfos, updatesCurrentAsOf },
+    saveMessageInfos(
+      this.props.dispatch,
+      messageInfosString,
+      this.props.updatesCurrentAsOf,
     );
   }
 
@@ -569,87 +564,47 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 
-  showInAppNotification(threadID: string, message: string) {
+  showInAppNotification(threadID: string, message: string, title?: ?string) {
     if (threadID === this.props.activeThread) {
       return;
     }
     invariant(this.inAppNotification, "should be set");
     this.inAppNotification.show({
       message,
+      title,
       onPress: () => this.onPressNotificationForThread(threadID, false),
     });
   }
 
-  // This function gets called when:
-  // - The app is open (either foreground or background) and a notif is
-  //   received. In this case, notification has a custom_notification property.
-  //   custom_notification can have either a new notif or a payload indicating a
-  //   notif should be rescinded. In both cases, the native side will handle
-  //   presenting or rescinding the notif.
-  // - The app is open and a notif is pressed. In this case, notification has a
-  //   body property.
-  // - The app is closed and a notif is pressed. This is possible because when
-  //   the app is closed and a notif is recevied, the native side will boot up
-  //   to process it. However, in this case, this function does not get
-  //   triggered when the notif is received - only when it is pressed.
-  androidNotificationReceived = async (
-    notification,
-    appOpenedFromNotif = false,
+  androidNotificationOpened = async (notificationOpen: NotificationOpen) => {
+    if (this.detectUnsupervisedBackground) {
+      this.detectUnsupervisedBackground(false);
+    }
+    const { threadID } = notificationOpen.notification.data;
+    this.onPressNotificationForThread(threadID, true);
+  }
+
+  androidMessageReceived = async (message: RemoteMessage) => {
+    if (this.detectUnsupervisedBackground) {
+      this.detectUnsupervisedBackground(false);
+    }
+    handleAndroidMessage(
+      message,
+      this.props.dispatch,
+      this.props.updatesCurrentAsOf,
+      this.handleAndroidNotificationIfActive,
+    );
+  }
+
+  handleAndroidNotificationIfActive = (
+    threadID: string,
+    texts: {| body: string, title: ?string |},
   ) => {
-    if (appOpenedFromNotif && notification.messageInfos) {
-      // This indicates that while the app was closed (not backgrounded), a
-      // notif was delivered to the native side, which presented a local notif.
-      // The local notif was then pressed, opening the app and triggering here.
-      // Normally, this callback is called initially when the local notif is
-      // generated, and at that point the MessageInfos get saved. But in the
-      // case of a notif press opening the app, that doesn't happen, so we'll
-      // save the notifs here.
-      this.saveMessageInfos(notification.messageInfos);
+    if (this.currentState !== "active") {
+      return false;
     }
-
-    if (notification.body) {
-      // This indicates that we're being called because a notif was pressed
-      this.onPressNotificationForThread(notification.threadID, true);
-      return;
-    }
-
-    if (notification.custom_notification) {
-      const customNotification = JSON.parse(notification.custom_notification);
-      if (customNotification.rescind === "true") {
-        // We have nothing to do on the JS thread in the case of a rescind
-        return;
-      }
-
-      const threadID = customNotification.threadID;
-      if (!threadID) {
-        console.log("Server notification with missing threadID received!");
-        return;
-      }
-
-      // We are here because notif was received, but hasn't been pressed yet
-      if (this.detectUnsupervisedBackground) {
-        this.detectUnsupervisedBackground(false);
-      }
-      this.saveMessageInfos(customNotification.messageInfos);
-
-      if (this.currentState === "active") {
-        // In the case where the app is in the foreground, we will show an
-        // in-app notif
-        this.showInAppNotification(threadID, customNotification.body);
-      } else {
-        // We keep track of what notifs have been rendered for a given thread so
-        // that we can clear them immediately (without waiting for the rescind)
-        // when the user navigates to that thread. Since we can't do this while
-        // the app is closed, we rely on the rescind notif in that case.
-        this.props.dispatchActionPayload(
-          recordAndroidNotificationActionType,
-          {
-            threadID,
-            notifID: customNotification.id,
-          },
-        );
-      }
-    }
+    this.showInAppNotification(threadID, texts.body, texts.title);
+    return true;
   }
 
   render() {
@@ -723,3 +678,7 @@ const App = (props: {}) =>
     </ErrorBoundary>
   </Provider>;
 AppRegistry.registerComponent('SquadCal', () => App);
+AppRegistry.registerHeadlessTask(
+  'RNFirebaseBackgroundMessage',
+  () => androidBackgroundMessageTask,
+);
