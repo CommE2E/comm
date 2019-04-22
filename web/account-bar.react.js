@@ -19,7 +19,7 @@ import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { UpCaret, DownCaret } from './vectors.react';
 import { htmlTargetFromEvent } from './vector-utils';
 
-type Props = {
+type Props = {|
   setModal: (modal: ?React.Node) => void,
   // Redux state
   loggedIn: bool,
@@ -28,21 +28,23 @@ type Props = {
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   logOut: () => Promise<LogOutResult>,
-};
-type State = {
+|};
+type State = {|
   expanded: bool,
-}
-
+|};
 class AccountBar extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    setModal: PropTypes.func.isRequired,
+    loggedIn: PropTypes.bool.isRequired,
+    username: PropTypes.string,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    logOut: PropTypes.func.isRequired,
+  };
+  state = {
+    expanded: false,
+  };
   menu: ?HTMLDivElement;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      expanded: false,
-    };
-  }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.expanded && !prevState.expanded) {
@@ -162,13 +164,6 @@ class AccountBar extends React.PureComponent<Props, State> {
   }
 
 }
-
-AccountBar.propTypes = {
-  setModal: PropTypes.func.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  username: PropTypes.string,
-  dispatchActionPromise: PropTypes.func.isRequired,
-};
 
 export default connect(
   (state: AppState) => ({

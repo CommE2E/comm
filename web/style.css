@@ -53,6 +53,7 @@ header.header {
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
+  z-index: 1;
 }
 div.main-header {
   font-family: 'Anaheim', sans-serif;
@@ -127,7 +128,9 @@ div.main-content {
 }
 
 div.upper-right {
-  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
   padding: 15px 16px;
 }
 span.loading-indicator-loading {
@@ -199,11 +202,9 @@ div.account-bar {
   font-weight: 600;
   padding: 0 6px;
   cursor: pointer;
-  float: right;
 }
 div.account-button {
   padding: 3px 4px 3px 8px;
-  font-size: 0;
 }
 div.account-button > span {
   font-size: 16px;
