@@ -1,12 +1,11 @@
 // @flow
 
-import firebase from 'react-native-firebase';
-
 import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationsActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
+import { getFirebase } from './firebase';
 
 type RecordAndroidNotificationPayload = {|
   threadID: string,
@@ -55,7 +54,7 @@ function reduceThreadIDsToNotifIDs(
       return state;
     }
     for (let notifID of state[action.payload.threadID]) {
-      firebase.notifications().android.removeDeliveredNotificationsByTag(
+      getFirebase().notifications().android.removeDeliveredNotificationsByTag(
         notifID,
       );
     }

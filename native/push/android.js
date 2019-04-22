@@ -3,13 +3,13 @@
 import type { Dispatch } from 'lib/types/redux-types';
 import type { RemoteMessage } from 'react-native-firebase';
 
-import firebase from 'react-native-firebase';
 import invariant from 'invariant';
 
 import {
   recordAndroidNotificationActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
+import { getFirebase } from './firebase';
 
 import { saveMessageInfos } from './utils';
 import { store } from '../redux/redux-setup';
@@ -31,6 +31,7 @@ function handleAndroidMessage(
     texts: {| body: string, title: ?string |},
   ) => bool,
 ) {
+  const firebase = getFirebase();
   const { data } = message;
   const { badge } = data;
   if (badge !== undefined && badge !== null) {

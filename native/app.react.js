@@ -46,7 +46,6 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
 import InAppNotification from 'react-native-in-app-notification';
-import firebase from 'react-native-firebase';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 
@@ -85,6 +84,7 @@ import {
   handleAndroidMessage,
   androidBackgroundMessageTask,
 } from './push/android';
+import { getFirebase } from './push/firebase';
 import { saveMessageInfos } from './push/utils';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
@@ -194,6 +194,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
         this.iosNotificationOpened,
       );
     } else if (Platform.OS === "android") {
+      const firebase = getFirebase();
       const channel = new firebase.notifications.Android.Channel(
         androidNotificationChannelID,
         'Default',
@@ -225,7 +226,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (Platform.OS === "ios") {
       NotificationsIOS.setBadgesCount(unreadCount);
     } else if (Platform.OS === "android") {
-      firebase.notifications().setBadge(unreadCount);
+      getFirebase().notifications().setBadge(unreadCount);
     }
   }
 
@@ -384,6 +385,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   }
 
   async ensureAndroidPushNotifsEnabled() {
+    const firebase = getFirebase();
     const hasPermission = await firebase.messaging().hasPermission();
     if (!hasPermission) {
       try {
@@ -413,7 +415,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     this.initialAndroidNotifHandled = true;
     const initialNotif =
-      await firebase.notifications().getInitialNotification();
+      await getFirebase().notifications().getInitialNotification();
     if (initialNotif) {
       await this.androidNotificationOpened(initialNotif);
     }
