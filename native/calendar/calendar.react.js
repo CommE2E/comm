@@ -23,6 +23,10 @@ import {
   calendarFilterPropType,
 } from 'lib/types/filter-types';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type LoadingStatus,
+  loadingStatusPropType,
+} from 'lib/types/loading-types';
 
 import React from 'react';
 import {
@@ -58,7 +62,7 @@ import {
   updateCalendarQuery,
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
 import {
@@ -127,6 +131,7 @@ type Props = {
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   dimensions: Dimensions,
   contentVerticalOffset: number,
+  loadingStatus: LoadingStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -173,6 +178,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
     dimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
+    loadingStatus: loadingStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -200,7 +206,6 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   currentState: ?string = NativeAppState.currentState;
   lastForegrounded = 0;
   lastCalendarReset = 0;
-  loadingFromScroll = false;
   currentScrollPosition: ?number = null;
   // We don't always want an extraData update to trigger a state update, so we
   // cache the most recent value as a member here
@@ -216,6 +221,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   keyboardDidDismissListener: ?Object;
   keyboardShownHeight: ?number = null;
   keyboardPartiallyVisible = false;
+  // If the query fails, we try it again
+  topLoadingFromScroll: ?CalendarQuery = null;
+  bottomLoadingFromScroll: ?CalendarQuery = null;
   // We wait until the loaders leave view before letting them be triggered again
   topLoaderWaitingToLeaveView = true;
   bottomLoaderWaitingToLeaveView = true;
@@ -411,6 +419,26 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    if (
+      this.props.loadingStatus === "error" &&
+      prevProps.loadingStatus === "loading"
+    ) {
+      if (this.topLoadingFromScroll) {
+        if (this.topLoaderWaitingToLeaveView) {
+          this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+        } else {
+          this.topLoadingFromScroll = null;
+        }
+      }
+      if (this.bottomLoadingFromScroll) {
+        if (this.bottomLoaderWaitingToLeaveView) {
+          this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+        } else {
+          this.bottomLoadingFromScroll = null;
+        }
+      }
+    }
+
     const lastLDWH = prevState.listDataWithHeights;
     const newLDWH = this.state.listDataWithHeights;
     if (!lastLDWH || !newLDWH) {
@@ -419,7 +447,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const { lastStartDate, newStartDate, lastEndDate, newEndDate }
       = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
     if (newStartDate < lastStartDate || newEndDate > lastEndDate) {
-      this.loadingFromScroll = false;
+      this.topLoadingFromScroll = null;
+      this.bottomLoadingFromScroll = null;
     }
 
     const { keyboardShownHeight, lastEntryKeyActive } = this;
@@ -987,14 +1016,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     };
 
     const topLoader = _find({ key: "TopLoader" })(info.viewableItems);
+    if (this.topLoaderWaitingToLeaveView && !topLoader) {
+      this.topLoaderWaitingToLeaveView = false;
+    }
+
     const bottomLoader = _find({ key: "BottomLoader" })(info.viewableItems);
-    if (!this.loadingFromScroll) {
-      if (this.topLoaderWaitingToLeaveView && !topLoader) {
-        this.topLoaderWaitingToLeaveView = false;
-      }
-      if (this.bottomLoaderWaitingToLeaveView && !bottomLoader) {
-        this.bottomLoaderWaitingToLeaveView = false;
-      }
+    if (this.bottomLoaderWaitingToLeaveView && !bottomLoader) {
+      this.bottomLoaderWaitingToLeaveView = false;
     }
 
     if (
@@ -1009,30 +1037,45 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       });
     }
 
-    let startDate = null, endDate = null;
-    if (topLoader && !this.topLoaderWaitingToLeaveView) {
+    if (
+      topLoader &&
+      !this.topLoaderWaitingToLeaveView &&
+      !this.topLoadingFromScroll
+    ) {
       this.topLoaderWaitingToLeaveView = true;
       const start = dateFromString(this.props.startDate);
       start.setDate(start.getDate() - 31);
-      startDate = dateString(start);
-      endDate = this.props.endDate;
-    } else if (bottomLoader && !this.bottomLoaderWaitingToLeaveView) {
-      this.bottomLoaderWaitingToLeaveView = true;
-      const end = dateFromString(this.props.endDate);
-      end.setDate(end.getDate() + 31);
-      endDate = dateString(end);
-      startDate = this.props.startDate;
-    } else {
-      return;
-    }
-    this.loadingFromScroll = true;
-    this.props.dispatchActionPromise(
-      updateCalendarQueryActionTypes,
-      this.props.updateCalendarQuery({
+      const startDate = dateString(start);
+      const endDate = this.props.endDate;
+      this.topLoadingFromScroll = {
         startDate,
         endDate,
         filters: this.props.calendarFilters,
-      }),
+      };
+      this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+    } else if (
+      bottomLoader &&
+      !this.bottomLoaderWaitingToLeaveView &&
+      !this.bottomLoadingFromScroll
+    ) {
+      this.bottomLoaderWaitingToLeaveView = true;
+      const end = dateFromString(this.props.endDate);
+      end.setDate(end.getDate() + 31);
+      const endDate = dateString(end);
+      const startDate = this.props.startDate;
+      this.bottomLoadingFromScroll = {
+        startDate,
+        endDate,
+        filters: this.props.calendarFilters,
+      };
+      this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+    }
+  }
+
+  dispatchCalendarQueryUpdate(calendarQuery: CalendarQuery) {
+    this.props.dispatchActionPromise(
+      updateCalendarQueryActionTypes,
+      this.props.updateCalendarQuery(calendarQuery),
     );
   }
 
@@ -1117,8 +1160,9 @@ const styles = StyleSheet.create({
   },
 });
 
-registerFetchKey(updateCalendarQueryActionTypes);
-
+const loadingStatusSelector = createLoadingStatusSelector(
+  updateCalendarQueryActionTypes,
+);
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const activeThreadPickerSelector =
   createIsForegroundSelector(ThreadPickerModalRouteName);
@@ -1133,6 +1177,7 @@ const Calendar = connect(
     calendarFilters: state.calendarFilters,
     dimensions: dimensionsSelector(state),
     contentVerticalOffset: contentVerticalOffsetSelector(state),
+    loadingStatus: loadingStatusSelector(state),
   }),
   { updateCalendarQuery },
 )(InnerCalendar);
