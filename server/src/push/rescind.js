@@ -45,6 +45,8 @@ async function rescindPushNotifs(
         const notification = prepareAndroidNotification(
           row.collapse_key ? row.collapse_key : row.id.toString(),
           row.unread_count,
+          row.thread.toString(),
+          null,
         );
         promises.push(fcmPush(
           notification,
