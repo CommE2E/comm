@@ -25,6 +25,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
+		164ABF33429CFE672F0D2509 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */; };
 		1914154F4B054443B725346F /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EA40FBBA484449FAA8915A48 /* Foundation.ttf */; };
 		1BFB77B74B924FA79ACBC2F6 /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99A8CC0EA47F466EAD201409 /* libRCTOrientation.a */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
@@ -63,6 +64,7 @@
 		8894ACD632254222B23F69E2 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC468F28D944F293B91ACC /* Ionicons.ttf */; };
 		9985FC0D9B2A43E49A4C1789 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AB1FC0EFD3A4ED1A082E32F /* FontAwesome.ttf */; };
 		A1145AA76F5B4EF5B3ACB31D /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E4E90F44E9F4420080594671 /* MaterialIcons.ttf */; };
+		A3E3B6D59954857009DE61B2 /* libPods-SquadCalTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AE3DE4A6CB22365D5B888510 /* libPods-SquadCalTests.a */; };
 		A4B3D66697E04C11B4167EE7 /* libFastImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47C86914FEF44D79AD04F880 /* libFastImage.a */; };
 		A6EF57DD8BDA4D43812D0B13 /* libRNScreens.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AAA81E566EC47C883CDFA61 /* libRNScreens.a */; };
 		AFA44E75249D4766A4ED74C7 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2D04F3CCBAFF4A8184206FAC /* Octicons.ttf */; };
@@ -476,8 +478,10 @@
 		00E356EE1AD99517003FC87E /* SquadCalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SquadCalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* SquadCalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SquadCalTests.m; sourceTree = "<group>"; };
+		014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
 		02810FBD603C4C36A94AF79B /* libRNCAsyncStorage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCAsyncStorage.a; sourceTree = "<group>"; };
 		067F7283F74C4423A00B9690 /* libRNReanimated.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReanimated.a; sourceTree = "<group>"; };
+		0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
 		118DE3D4318D437D8F568F03 /* RNCNetInfo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCNetInfo.xcodeproj; path = "../node_modules/@react-native-community/netinfo/ios/RNCNetInfo.xcodeproj"; sourceTree = "<group>"; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
@@ -521,9 +525,13 @@
 		95EEFC35D4D14053ACA7E064 /* RNKeychain.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNKeychain.xcodeproj; path = "../node_modules/react-native-keychain/RNKeychain.xcodeproj"; sourceTree = "<group>"; };
 		99A8CC0EA47F466EAD201409 /* libRCTOrientation.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTOrientation.a; sourceTree = "<group>"; };
 		A06F10E4481746D2B76CA60E /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
+		A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE31AFFF88FB4112A29ADE33 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
+		AE3DE4A6CB22365D5B888510 /* libPods-SquadCalTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCalTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE948BDFEBFF0E001C92466E /* Pods-SquadCalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCalTests.release.xcconfig"; path = "Target Support Files/Pods-SquadCalTests/Pods-SquadCalTests.release.xcconfig"; sourceTree = "<group>"; };
 		BA72871056D240AEB0706398 /* RNScreens.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNScreens.xcodeproj; path = "../node_modules/react-native-screens/ios/RNScreens.xcodeproj"; sourceTree = "<group>"; };
 		C2449EA8EFA9461DABF09B72 /* SplashScreen.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SplashScreen.xcodeproj; path = "../node_modules/react-native-splash-screen/ios/SplashScreen.xcodeproj"; sourceTree = "<group>"; };
+		C31F1DCD54AFD77F728CBF09 /* Pods-SquadCalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCalTests.debug.xcconfig"; path = "Target Support Files/Pods-SquadCalTests/Pods-SquadCalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C3BA31E561EB497494D7882F /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
 		E0952482A8094CE88F96C0EB /* libRNGestureHandler.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNGestureHandler.a; sourceTree = "<group>"; };
 		E4E90F44E9F4420080594671 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
@@ -540,6 +548,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */,
+				A3E3B6D59954857009DE61B2 /* libPods-SquadCalTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,6 +582,7 @@
 				63CCE55F632C4A96B5BDBFD7 /* libRNReanimated.a in Frameworks */,
 				5124B6D20E534DE8B5FEA0D3 /* libRNCAsyncStorage.a in Frameworks */,
 				02BD5DEEF10D43DAB506184E /* libRNCNetInfo.a in Frameworks */,
+				164ABF33429CFE672F0D2509 /* libPods-SquadCal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -904,6 +914,8 @@
 			isa = PBXGroup;
 			children = (
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
+				A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */,
+				AE3DE4A6CB22365D5B888510 /* libPods-SquadCalTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -960,6 +972,7 @@
 				7FF0870B1E833C3F000A1ACF /* Frameworks */,
 				7F5B10C02005349C00FE096A /* Recovered References */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				D533B93718E3B9684B508006 /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -976,6 +989,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		D533B93718E3B9684B508006 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */,
+				014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */,
+				C31F1DCD54AFD77F728CBF09 /* Pods-SquadCalTests.debug.xcconfig */,
+				AE948BDFEBFF0E001C92466E /* Pods-SquadCalTests.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -983,6 +1008,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "SquadCalTests" */;
 			buildPhases = (
+				7C17A6FD8CE5A860D2030A9C /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
@@ -1001,6 +1027,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SquadCal" */;
 			buildPhases = (
+				71A3C0E6E4C594516228C60A /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -1687,6 +1714,50 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
+		71A3C0E6E4C594516228C60A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SquadCal-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7C17A6FD8CE5A860D2030A9C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SquadCalTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1754,6 +1825,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C31F1DCD54AFD77F728CBF09 /* Pods-SquadCalTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 6BF4H9TU5U;
@@ -1807,6 +1879,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE948BDFEBFF0E001C92466E /* Pods-SquadCalTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -1857,6 +1930,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
@@ -1897,6 +1971,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
