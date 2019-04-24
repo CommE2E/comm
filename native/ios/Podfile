@@ -35,6 +35,7 @@ target 'SquadCal' do
   pod 'react-native-async-storage', :path => '../../node_modules/@react-native-community/async-storage'
   pod 'react-native-netinfo', :path => '../../node_modules/@react-native-community/netinfo'
   pod 'react-native-notifications', :path => '../../node_modules/react-native-notifications'
+  pod 'react-native-exit-app', :path => '../../node_modules/react-native-exit-app'
 
   target 'SquadCalTests' do
     inherit! :search_paths
