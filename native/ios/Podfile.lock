@@ -1,11 +1,58 @@
 PODS:
+  - 1PasswordExtension (1.8.5)
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
+  - FLAnimatedImage (1.0.12)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - libwebp (1.0.2):
+    - libwebp/core (= 1.0.2)
+    - libwebp/dec (= 1.0.2)
+    - libwebp/demux (= 1.0.2)
+    - libwebp/dsp (= 1.0.2)
+    - libwebp/enc (= 1.0.2)
+    - libwebp/mux (= 1.0.2)
+    - libwebp/utils (= 1.0.2)
+    - libwebp/webp (= 1.0.2)
+  - libwebp/core (1.0.2):
+    - libwebp/webp
+  - libwebp/dec (1.0.2):
+    - libwebp/core
+  - libwebp/demux (1.0.2):
+    - libwebp/core
+  - libwebp/dsp (1.0.2):
+    - libwebp/core
+  - libwebp/enc (1.0.2):
+    - libwebp/core
+  - libwebp/mux (1.0.2):
+    - libwebp/core
+  - libwebp/utils (1.0.2):
+    - libwebp/core
+  - libwebp/webp (1.0.2)
+  - React (0.59.4):
+    - React/Core (= 0.59.4)
+  - react-native-async-storage (1.3.0):
+    - React
+  - react-native-fast-image (5.2.0):
+    - FLAnimatedImage
+    - React
+    - SDWebImage/Core
+    - SDWebImage/GIF
+    - SDWebImage/WebP
+  - react-native-netinfo (2.0.0):
+    - React
+  - react-native-notifications (1.1.19):
+    - React
+  - react-native-onepassword (1.0.6):
+    - 1PasswordExtension
+    - React
+  - react-native-orientation-locker (1.1.5):
+    - React
+  - react-native-splash-screen (3.1.1):
+    - React
   - React/Core (0.59.4):
     - yoga (= 0.59.4.React)
   - React/CxxBridge (0.59.4):
@@ -51,12 +98,36 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
+  - RNGestureHandler (1.1.0):
+    - React
+  - RNKeychain (3.0.0):
+    - React
+  - RNReanimated (1.0.0):
+    - React
+  - RNScreens (1.0.0-alpha.17):
+    - React
+  - RNVectorIcons (4.6.0):
+    - React
+  - SDWebImage/Core (4.4.6)
+  - SDWebImage/GIF (4.4.6):
+    - FLAnimatedImage (~> 1.0)
+    - SDWebImage/Core
+  - SDWebImage/WebP (4.4.6):
+    - libwebp (>= 0.5)
+    - SDWebImage/Core
   - yoga (0.59.4.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - "react-native-async-storage (from `../../node_modules/@react-native-community/async-storage`)"
+  - react-native-fast-image (from `../../node_modules/react-native-fast-image`)
+  - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
+  - react-native-notifications (from `../../node_modules/react-native-notifications`)
+  - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
+  - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
+  - react-native-splash-screen (from `../../node_modules/react-native-splash-screen`)
   - React/Core (from `../../node_modules/react-native`)
   - React/CxxBridge (from `../../node_modules/react-native`)
   - React/DevSupport (from `../../node_modules/react-native`)
@@ -66,11 +137,20 @@ DEPENDENCIES:
   - React/RCTNetwork (from `../../node_modules/react-native`)
   - React/RCTText (from `../../node_modules/react-native`)
   - React/RCTWebSocket (from `../../node_modules/react-native`)
+  - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
+  - RNKeychain (from `../../node_modules/react-native-keychain`)
+  - RNReanimated (from `../../node_modules/react-native-reanimated`)
+  - RNScreens (from `../../node_modules/react-native-screens`)
+  - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
   - yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - 1PasswordExtension
     - boost-for-react-native
+    - FLAnimatedImage
+    - libwebp
+    - SDWebImage
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -81,17 +161,57 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
     :path: "../../node_modules/react-native"
+  react-native-async-storage:
+    :path: "../../node_modules/@react-native-community/async-storage"
+  react-native-fast-image:
+    :path: "../../node_modules/react-native-fast-image"
+  react-native-netinfo:
+    :path: "../../node_modules/@react-native-community/netinfo"
+  react-native-notifications:
+    :path: "../../node_modules/react-native-notifications"
+  react-native-onepassword:
+    :path: "../../node_modules/react-native-onepassword"
+  react-native-orientation-locker:
+    :path: "../../node_modules/react-native-orientation-locker"
+  react-native-splash-screen:
+    :path: "../../node_modules/react-native-splash-screen"
+  RNGestureHandler:
+    :path: "../../node_modules/react-native-gesture-handler"
+  RNKeychain:
+    :path: "../../node_modules/react-native-keychain"
+  RNReanimated:
+    :path: "../../node_modules/react-native-reanimated"
+  RNScreens:
+    :path: "../../node_modules/react-native-screens"
+  RNVectorIcons:
+    :path: "../../node_modules/react-native-vector-icons"
   yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  1PasswordExtension: 0e95bdea64ec8ff2f4f693be5467a09fac42a83d
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
+  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
+  libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
   React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
+  react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
+  react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
+  react-native-netinfo: d6ff19d6b0fff3c617d01949f87e9976e7ecc9a9
+  react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
+  react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
+  react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
+  react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
+  RNGestureHandler: b65d391f4f570178d657b99a16ec99d09b8656b0
+  RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
+  RNReanimated: 9497464b378759f538c539df105cda235de496c5
+  RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
+  RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
+  SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: ca6bcd531ceb6ccefe6729416fe8f2be25135679
+PODFILE CHECKSUM: d0422deb6f8fcaa02c637f23140450218a1ad741
 
 COCOAPODS: 1.6.1

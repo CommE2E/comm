@@ -23,6 +23,19 @@ target 'SquadCal' do
   pod 'glog', :podspec => '../../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'RNScreens', :path => '../../node_modules/react-native-screens'
+  pod 'RNGestureHandler', :path => '../../node_modules/react-native-gesture-handler'
+  pod 'react-native-onepassword', :path => '../../node_modules/react-native-onepassword'
+  pod 'RNVectorIcons', :path => '../../node_modules/react-native-vector-icons'
+  pod 'react-native-splash-screen', :path => '../../node_modules/react-native-splash-screen'
+  pod 'RNKeychain', :path => '../../node_modules/react-native-keychain'
+  pod 'react-native-fast-image', :path => '../../node_modules/react-native-fast-image'
+  pod 'react-native-orientation-locker', :path => '../../node_modules/react-native-orientation-locker'
+  pod 'RNReanimated', :path => '../../node_modules/react-native-reanimated'
+  pod 'react-native-async-storage', :path => '../../node_modules/@react-native-community/async-storage'
+  pod 'react-native-netinfo', :path => '../../node_modules/@react-native-community/netinfo'
+  pod 'react-native-notifications', :path => '../../node_modules/react-native-notifications'
+
   target 'SquadCalTests' do
     inherit! :search_paths
     # Pods for testing
