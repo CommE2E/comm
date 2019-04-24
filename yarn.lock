@@ -10554,10 +10554,9 @@ react-native-keychain@^3.0.0:
     core-js "^1.0.0"
     uuid "^2.0.3"
 
-react-native-onepassword@^1.0.6:
+"react-native-onepassword@git+https://git@github.com/DriveWealth/react-native-onepassword#aed794d8c6f0f2560b62a0012449abf6f1b3576c":
   version "1.0.6"
-  resolved "https://registry.yarnpkg.com/react-native-onepassword/-/react-native-onepassword-1.0.6.tgz#f4c2f07253fffcd3bb4fb795cfb1e11158221a54"
-  integrity sha512-kRgWo3H4FTL/7GRFVsfJosr47nDbXGtT+FhEAGlMC39xmuNGr5qa1dkcjIirNu3biEHED/WATMP2tLFCmDLm8g==
+  resolved "git+https://git@github.com/DriveWealth/react-native-onepassword#aed794d8c6f0f2560b62a0012449abf6f1b3576c"
   dependencies:
     "1PasswordExtension" "git+https://github.com/jjshammas/onepassword-app-extension.git"
 
