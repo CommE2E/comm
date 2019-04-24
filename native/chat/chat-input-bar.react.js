@@ -32,7 +32,7 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
@@ -55,7 +55,7 @@ import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
 
-type Props = {
+type Props = {|
   threadInfo: ThreadInfo,
   // Redux state
   viewerID: ?string,
@@ -73,11 +73,11 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-};
-type State = {
+|};
+type State = {|
   text: string,
   height: number,
-};
+|};
 class ChatInputBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -174,7 +174,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             style={styles.sendButton}
           >
             <Icon
-              name="chevron-right"
+              name="md-send"
               size={25}
               style={styles.sendIcon}
               color="#88BB88"
