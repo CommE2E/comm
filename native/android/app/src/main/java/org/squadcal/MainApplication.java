@@ -52,7 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
             new RNExitAppPackage(),
             new VectorIconsPackage(),
             new KeychainPackage(),
-            new KeyboardInputPackage(this)
+            new KeyboardInputPackage(this.getApplication())
       );
     }
 

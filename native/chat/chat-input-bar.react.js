@@ -38,6 +38,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated, { Easing } from 'react-native-reanimated';
+import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -59,6 +60,9 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
+import {
+  imageGalleryKeyboardName,
+} from '../media/image-gallery-keyboard.react';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -85,6 +89,8 @@ type Props = {|
 type State = {|
   text: string,
   height: number,
+  buttonsExpanded: bool,
+  customKeyboard: ?string,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
 
@@ -112,6 +118,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.state = {
       text: props.draft,
       height: 0,
+      buttonsExpanded: true,
+      customKeyboard: null,
     };
     this.cameraRollOpacity = new Animated.Value(1);
     this.expandOpacity = Animated.sub(1, this.cameraRollOpacity);
@@ -119,7 +127,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.cameraRollOpacity,
       {
         inputRange: [ 0, 1 ],
-        outputRange: [ 22, 27 ],
+        outputRange: [ 22, 28 ],
       },
     );
   }
@@ -150,6 +158,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       currentText !== "" && prevText === ""
     ) {
       LayoutAnimation.easeInEaseOut();
+    }
+
+    if (!this.state.customKeyboard && prevState.customKeyboard) {
+      this.hideButtons();
+    } else if (this.state.customKeyboard && !prevState.customKeyboard) {
+      this.expandButtons();
     }
   }
 
@@ -234,18 +248,22 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       content = (
         <View style={styles.inputContainer}>
           <Animated.View style={this.expandoButtonsStyle}>
-            <TouchableOpacity onPress={this.expandButtons} activeOpacity={0.4}>
-              <Animated.View style={this.cameraRollIconStyle}>
-                <Icon
-                  name="md-image"
-                  size={25}
-                  color="#888888"
-                />
-              </Animated.View>
+            <TouchableOpacity
+              onPress={this.onRightmostButtonPress}
+              activeOpacity={0.4}
+              style={styles.expandoButtons}
+            >
               <Animated.View style={this.expandIconStyle}>
                 <FAIcon
                   name="chevron-right"
                   size={19}
+                  color="#888888"
+                />
+              </Animated.View>
+              <Animated.View style={this.cameraRollIconStyle}>
+                <Icon
+                  name="md-image"
+                  size={25}
                   color="#888888"
                 />
               </Animated.View>
@@ -302,6 +320,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       <View style={styles.container}>
         {joinButton}
         {content}
+        <KeyboardAccessoryView
+          kbInputRef={this.textInput}
+          kbComponent={this.state.customKeyboard}
+          onItemSelected={this.onImageGalleryItemSelected}
+          onKeyboardResigned={this.hideCustomKeyboard}
+        />
       </View>
     );
   }
@@ -398,17 +422,40 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   expandButtons = () => {
+    if (this.state.buttonsExpanded) {
+      return;
+    }
     Animated.timing(
       this.cameraRollOpacity,
       { duration: 500, toValue: 1, easing: Easing.inOut(Easing.ease) },
     ).start();
+    this.setState({ buttonsExpanded: true });
   }
 
   hideButtons = () => {
+    if (this.state.customKeyboard || !this.state.buttonsExpanded) {
+      return;
+    }
     Animated.timing(
       this.cameraRollOpacity,
       { duration: 500, toValue: 0, easing: Easing.inOut(Easing.ease) },
     ).start();
+    this.setState({ buttonsExpanded: false });
+  }
+
+  onRightmostButtonPress = () => {
+    if (!this.state.buttonsExpanded) {
+      this.expandButtons();
+    } else {
+      this.setState({ customKeyboard: imageGalleryKeyboardName });
+    }
+  }
+
+  hideCustomKeyboard = () => {
+    this.setState({ customKeyboard: null });
+  }
+
+  onImageGalleryItemSelected = () => {
   }
 
 }
@@ -439,7 +486,7 @@ const styles = StyleSheet.create({
   },
   bottomAligned: {
     alignSelf: 'flex-end',
-    paddingBottom: 7,
+    paddingBottom: Platform.OS === "ios" ? 7 : 9,
   },
   expandoButtons: {
     alignSelf: 'flex-end',
@@ -451,12 +498,11 @@ const styles = StyleSheet.create({
   expandIcon: {
     position: 'absolute',
     right: 0,
-    bottom: 10,
+    bottom: Platform.OS === "ios" ? 10 : 12,
   },
   cameraRollIcon: {
-    position: 'absolute',
-    right: 2,
-    bottom: 5,
+    paddingRight: 2,
+    paddingBottom: Platform.OS === "ios" ? 5 : 8,
   },
   explanation: {
     color: '#777777',
