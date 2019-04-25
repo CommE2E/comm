@@ -37,6 +37,8 @@ target 'SquadCal' do
   pod 'react-native-netinfo', :path => '../../node_modules/@react-native-community/netinfo'
   pod 'react-native-notifications', :path => '../../node_modules/react-native-notifications'
   pod 'react-native-exit-app', :path => '../../node_modules/react-native-exit-app'
+  pod 'react-native-keyboard-tracking-view', :path => '../../node_modules/react-native-keyboard-tracking-view'
+  pod 'react-native-keyboard-input', :path => '../../node_modules/react-native-keyboard-input'
 
   target 'SquadCalTests' do
     inherit! :search_paths

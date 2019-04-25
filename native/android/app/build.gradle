@@ -163,6 +163,7 @@ dependencies {
     implementation project(':react-native-exit-app')
     implementation project(':react-native-vector-icons')
     implementation project(':react-native-keychain')
+    implementation project(':reactnativekeyboardinput')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules

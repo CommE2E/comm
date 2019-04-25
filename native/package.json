@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "node link-workspaces.js && cd ../; npx flow-mono create-symlinks native/.flowconfig",
+    "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
     "devtools": "react-devtools",
@@ -29,6 +29,7 @@
     "react-native-gesture-handler": "1.1.0",
     "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-in-app-notification": "^2.1.0",
+    "react-native-keyboard-input": "^5.3.1",
     "react-native-keychain": "^3.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-onepassword": "git+https://git@github.com/DriveWealth/react-native-onepassword.git#aed794d8c6f0f2560b62a0012449abf6f1b3576c",
@@ -64,6 +65,7 @@
     "get-yarn-workspaces": "^1.0.2",
     "jest": "^24.7.1",
     "metro-react-native-babel-preset": "^0.53.1",
+    "postinstall-postinstall": "^2.0.0",
     "react-devtools": "^3.0.0",
     "react-test-renderer": "16.8.3",
     "schedule": "0.4.0"

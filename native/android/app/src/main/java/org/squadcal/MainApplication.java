@@ -17,6 +17,7 @@ import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.github.wumke.RNExitApp.RNExitAppPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.oblador.keychain.KeychainPackage;
+import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -50,7 +51,8 @@ public class MainApplication extends Application implements ReactApplication {
             new SplashScreenReactPackage(),
             new RNExitAppPackage(),
             new VectorIconsPackage(),
-            new KeychainPackage()
+            new KeychainPackage(),
+            new KeyboardInputPackage(this)
       );
     }
 

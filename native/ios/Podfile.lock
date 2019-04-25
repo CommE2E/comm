@@ -44,6 +44,11 @@ PODS:
     - SDWebImage/Core
     - SDWebImage/GIF
     - SDWebImage/WebP
+  - react-native-keyboard-input (5.3.1):
+    - React
+    - react-native-keyboard-tracking-view
+  - react-native-keyboard-tracking-view (5.5.0):
+    - React
   - react-native-netinfo (2.0.0):
     - React
   - react-native-notifications (1.1.19):
@@ -129,6 +134,8 @@ DEPENDENCIES:
   - "react-native-async-storage (from `../../node_modules/@react-native-community/async-storage`)"
   - react-native-exit-app (from `../../node_modules/react-native-exit-app`)
   - react-native-fast-image (from `../../node_modules/react-native-fast-image`)
+  - react-native-keyboard-input (from `../../node_modules/react-native-keyboard-input`)
+  - react-native-keyboard-tracking-view (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
@@ -174,6 +181,10 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-exit-app"
   react-native-fast-image:
     :path: "../../node_modules/react-native-fast-image"
+  react-native-keyboard-input:
+    :path: "../../node_modules/react-native-keyboard-input"
+  react-native-keyboard-tracking-view:
+    :path: "../../node_modules/react-native-keyboard-tracking-view"
   react-native-netinfo:
     :path: "../../node_modules/@react-native-community/netinfo"
   react-native-notifications:
@@ -209,6 +220,8 @@ SPEC CHECKSUMS:
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
   react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
+  react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
+  react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
   react-native-netinfo: d6ff19d6b0fff3c617d01949f87e9976e7ecc9a9
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
@@ -222,6 +235,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: 418ffddaaf4af58276e77925466f61f19ccf31b5
+PODFILE CHECKSUM: ffdcac0712f6be90ee5f78b3720bdbcd0237f5c5
 
 COCOAPODS: 1.6.1
