@@ -20,8 +20,9 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import type { KeyboardEvent } from '../keyboard';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   StyleSheet,
@@ -33,8 +34,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import Animated, { Easing } from 'react-native-reanimated';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -51,6 +54,11 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -93,6 +101,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThread: PropTypes.func.isRequired,
   };
   textInput: ?TextInput;
+  keyboardShowListener: ?Object;
+  keyboardDismissListener: ?Object;
+  cameraRollOpacity: Animated.Value;
+  expandOpacity: Animated.Value;
+  expandoButtonsWidth: Animated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -100,17 +113,69 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       height: 0,
     };
+    this.cameraRollOpacity = new Animated.Value(1);
+    this.expandOpacity = Animated.sub(1, this.cameraRollOpacity);
+    this.expandoButtonsWidth = Animated.interpolate(
+      this.cameraRollOpacity,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 22, 27 ],
+      },
+    );
   }
 
-  componentWillUpdate(nextProps: Props, nextState: State) {
+  componentDidMount() {
+    this.keyboardShowListener = addKeyboardShowListener(this.hideButtons);
+    this.keyboardDismissListener = addKeyboardDismissListener(
+      this.expandButtons,
+    );
+  }
+
+  componentWillUnmount() {
+    if (this.keyboardShowListener) {
+      removeKeyboardListener(this.keyboardShowListener);
+      this.keyboardShowListener = null;
+    }
+    if (this.keyboardDismissListener) {
+      removeKeyboardListener(this.keyboardDismissListener);
+      this.keyboardDismissListener = null;
+    }
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
     const currentText = this.state.text.trim();
-    const nextText = nextState.text.trim();
+    const prevText = prevState.text.trim();
     if (
-      currentText === "" && nextText !== "" ||
-      currentText !== "" && nextText === ""
+      currentText === "" && prevText !== "" ||
+      currentText !== "" && prevText === ""
     ) {
       LayoutAnimation.easeInEaseOut();
     }
+  }
+
+  get textInputStyle() {
+    return { height: Math.max(this.state.height, 30) };
+  }
+
+  get expandoButtonsStyle() {
+    return {
+      ...styles.expandoButtons,
+      width: this.expandoButtonsWidth,
+    };
+  }
+
+  get cameraRollIconStyle() {
+    return {
+      ...styles.cameraRollIcon,
+      opacity: this.cameraRollOpacity,
+    };
+  }
+
+  get expandIconStyle() {
+    return {
+      ...styles.expandIcon,
+      opacity: this.expandOpacity,
+    };
   }
 
   render() {
@@ -149,29 +214,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
-      const textInputStyle = {
-        height: Math.max(this.state.height, 30),
-      };
-      const textInput = (
-        <TextInput
-          value={this.state.text}
-          onChangeText={this.updateText}
-          underlineColorAndroid="transparent"
-          placeholder="Send a message..."
-          placeholderTextColor="#888888"
-          multiline={true}
-          onContentSizeChange={this.onContentSizeChange}
-          style={[styles.textInput, textInputStyle]}
-          ref={this.textInputRef}
-        />
-      );
       let button = null;
       if (this.state.text.trim()) {
         button = (
           <TouchableOpacity
             onPress={this.onSend}
             activeOpacity={0.4}
-            style={styles.sendButton}
+            style={styles.bottomAligned}
           >
             <Icon
               name="md-send"
@@ -184,8 +233,36 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       }
       content = (
         <View style={styles.inputContainer}>
+          <Animated.View style={this.expandoButtonsStyle}>
+            <TouchableOpacity onPress={this.expandButtons} activeOpacity={0.4}>
+              <Animated.View style={this.cameraRollIconStyle}>
+                <Icon
+                  name="md-image"
+                  size={25}
+                  color="#888888"
+                />
+              </Animated.View>
+              <Animated.View style={this.expandIconStyle}>
+                <FAIcon
+                  name="chevron-right"
+                  size={19}
+                  color="#888888"
+                />
+              </Animated.View>
+            </TouchableOpacity>
+          </Animated.View>
           <View style={styles.textInputContainer}>
-            {textInput}
+            <TextInput
+              value={this.state.text}
+              onChangeText={this.updateText}
+              underlineColorAndroid="transparent"
+              placeholder="Send a message..."
+              placeholderTextColor="#888888"
+              multiline={true}
+              onContentSizeChange={this.onContentSizeChange}
+              style={[styles.textInput, this.textInputStyle]}
+              ref={this.textInputRef}
+            />
           </View>
           {button}
         </View>
@@ -320,6 +397,20 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }
 
+  expandButtons = () => {
+    Animated.timing(
+      this.cameraRollOpacity,
+      { duration: 500, toValue: 1, easing: Easing.inOut(Easing.ease) },
+    ).start();
+  }
+
+  hideButtons = () => {
+    Animated.timing(
+      this.cameraRollOpacity,
+      { duration: 500, toValue: 0, easing: Easing.inOut(Easing.ease) },
+    ).start();
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -338,7 +429,7 @@ const styles = StyleSheet.create({
   textInput: {
     backgroundColor: 'white',
     marginVertical: 5,
-    marginHorizontal: 8,
+    marginHorizontal: 4,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
@@ -346,13 +437,26 @@ const styles = StyleSheet.create({
     borderColor: '#AAAAAAAA',
     borderWidth: 1,
   },
-  sendButton: {
+  bottomAligned: {
     alignSelf: 'flex-end',
     paddingBottom: 7,
   },
+  expandoButtons: {
+    alignSelf: 'flex-end',
+  },
   sendIcon: {
-    paddingLeft: 2,
+    paddingLeft: 5,
     paddingRight: 8,
+  },
+  expandIcon: {
+    position: 'absolute',
+    right: 0,
+    bottom: 10,
+  },
+  cameraRollIcon: {
+    position: 'absolute',
+    right: 2,
+    bottom: 5,
   },
   explanation: {
     color: '#777777',
