@@ -10571,10 +10571,9 @@ react-native-floating-action@^1.9.0:
   resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.13.0.tgz#876ab9227c4eda8630020a6a3adc20041870edf3"
   integrity sha512-KqqaEO/nIdims+reWq1pPPDptKqEuG9N8Pt+FtnuVUr35HvyWfiwBf91o9ZMRuO2S+X9AKnq+xuy1iuQK77eQQ==
 
-react-native-gesture-handler@1.1.0:
+"react-native-gesture-handler@git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8":
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.1.0.tgz#2a7d545ad2e0ca23adce22b2af441ad360ecccee"
-  integrity sha512-E9IKHpmL+sz/iCYkUriTUjBaQBORWV+oheYPQleADkxjo2sYsQfnlyTz4EQYFONkUwJ6WmfTNkYt2/yc5U4Ziw==
+  resolved "git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8"
   dependencies:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.2"
@@ -10630,10 +10629,9 @@ react-native-orientation-locker@^1.1.5:
   resolved "https://registry.yarnpkg.com/react-native-orientation-locker/-/react-native-orientation-locker-1.1.5.tgz#695babee0e0b97a9620a12bb677792d0b9b88ef8"
   integrity sha512-RY2kwXK1SNq8+nQN0xVCTdi0A08FnUtzR4dOOEm2dGUUIcxSqnseE7adx5cr+oqwd0WUqb043MS+NKDPMUCmMA==
 
-react-native-reanimated@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-1.0.0.tgz#d4e356e852ec55611de565d8791542eeb25a45ae"
-  integrity sha512-jfg+lYZ2QeeV+JMibjXwHoLDZIRVwZT2qdvDDmbAsMmxRNGI95evMPXKWa3BqkzWLb2SlZ2T/MBSGrqt/CiCAQ==
+"react-native-reanimated@git+https://git@github.com/kmagiera/react-native-reanimated.git#0a6405dc21ed76185969a2970f642911519a59c1":
+  version "1.0.1"
+  resolved "git+https://git@github.com/kmagiera/react-native-reanimated.git#0a6405dc21ed76185969a2970f642911519a59c1"
 
 react-native-safe-area-view@^0.13.0:
   version "0.13.1"
