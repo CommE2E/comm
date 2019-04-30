@@ -2,16 +2,20 @@
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
+
+import { contentBottomOffset } from '../selectors/dimension-selectors';
 
 class ImageGalleryKeyboard extends React.PureComponent<{||}> {
 
   render() {
     return (
-      <TouchableOpacity onPress={this.onPress}>
-        <Text style={styles.text}>HELOOOO!!!</Text>
-      </TouchableOpacity>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={this.onPress}>
+          <Text style={styles.text}>HELOOOO!!!</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -22,6 +26,13 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    bottom: -contentBottomOffset,
+    left: 0,
+    right: 0,
+  },
   text: {
     color: 'red',
   },
