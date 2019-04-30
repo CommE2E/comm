@@ -112,7 +112,7 @@ PODS:
     - React
   - RNKeychain (3.0.0):
     - React
-  - RNReanimated (1.0.0):
+  - RNReanimated (1.0.1):
     - React
   - RNScreens (1.0.0-alpha.17):
     - React
@@ -227,9 +227,9 @@ SPEC CHECKSUMS:
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
   react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
-  RNGestureHandler: b65d391f4f570178d657b99a16ec99d09b8656b0
+  RNGestureHandler: 8a75e1d2f83d73aba148653252953e4bcf363b98
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
-  RNReanimated: 9497464b378759f538c539df105cda235de496c5
+  RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
   RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
