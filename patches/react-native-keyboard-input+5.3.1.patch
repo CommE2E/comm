@@ -1,3 +1,22 @@
+diff --git a/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp b/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp
+new file mode 100644
+index 0000000..98b73b6
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp differ
+diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
+index e856264..cc5ba15 100644
+--- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
++++ b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
+@@ -7,8 +7,8 @@
+ 
+ #import "RCTCustomKeyboardViewController.h"
+ 
+-#if __has_include(<KeyboardTrackingView/ObservingInputAccessoryView.h>)
+-    #import <KeyboardTrackingView/ObservingInputAccessoryView.h>
++#if __has_include(<react-native-keyboard-tracking-view/ObservingInputAccessoryView.h>)
++    #import <react-native-keyboard-tracking-view/ObservingInputAccessoryView.h>
+     #define ObservingInputAccessoryView_IsAvailable true
+ #endif
+ 
 diff --git a/node_modules/react-native-keyboard-input/react-native-keyboard-input.podspec b/node_modules/react-native-keyboard-input/react-native-keyboard-input.podspec
 new file mode 100644
 index 0000000..9f724be
