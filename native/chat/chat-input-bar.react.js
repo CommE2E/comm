@@ -325,6 +325,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           kbComponent={this.state.customKeyboard}
           onItemSelected={this.onImageGalleryItemSelected}
           onKeyboardResigned={this.hideCustomKeyboard}
+          manageScrollView={false}
         />
       </View>
     );
