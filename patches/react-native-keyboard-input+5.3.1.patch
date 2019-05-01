@@ -1,7 +1,16 @@
-diff --git a/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp b/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp
-new file mode 100644
-index 0000000..98b73b6
-Binary files /dev/null and b/node_modules/react-native-keyboard-input/.react-native-keyboard-input.podspec.swp differ
+diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
+index 2a31b47..21090bf 100644
+--- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
++++ b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
+@@ -222,7 +222,7 @@ -(UIView*)getFirstResponder:(UIView*)view
+     }
+ }
+ 
+--(void)changeKeyboardHeightForInput:(nonnull NSNumber*)inputFieldTag newHeight:(CGFloat)newHeight
++RCT_EXPORT_METHOD(changeKeyboardHeightForInput:(nonnull NSNumber*)inputFieldTag newHeight:(CGFloat)newHeight)
+ {
+     UIView* inputField = [self.bridge.uiManager viewForReactTag:inputFieldTag];
+     if(inputField != nil)
 diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
 index e856264..cc5ba15 100644
 --- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
@@ -41,3 +50,20 @@ index 0000000..9f724be
 +  s.dependency 'react-native-keyboard-tracking-view'
 +
 +end 
+diff --git a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
+index 20d61c9..13a6493 100644
+--- a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
++++ b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
+@@ -41,6 +41,12 @@ export default class TextInputKeyboardManagerIOS {
+       }
+     }
+   };
++
++  static setKeyboardHeight(textInputRef, keyboardHeight) {
++    const reactTag = findNodeHandle(textInputRef);
++    CustomInputController.changeKeyboardHeightForInput(reactTag, keyboardHeight);
++  }
++
+ }
+ 
+ function findNodeHandle(ref) {

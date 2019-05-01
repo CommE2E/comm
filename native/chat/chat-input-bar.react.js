@@ -38,7 +38,10 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated, { Easing } from 'react-native-reanimated';
-import { KeyboardAccessoryView } from 'react-native-keyboard-input';
+import {
+  KeyboardAccessoryView,
+  TextInputKeyboardMangerIOS,
+} from 'react-native-keyboard-input';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -56,6 +59,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import {
+  getKeyboardHeight,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
@@ -164,7 +168,23 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.hideButtons();
     } else if (this.state.customKeyboard && !prevState.customKeyboard) {
       this.expandButtons();
+      this.setIOSKeyboardHeight();
     }
+  }
+
+  setIOSKeyboardHeight() {
+    if (Platform.OS !== "ios") {
+      return;
+    }
+    const { textInput } = this;
+    if (!textInput) {
+      return;
+    }
+    const keyboardHeight = getKeyboardHeight();
+    if (keyboardHeight === null || keyboardHeight === undefined) {
+      return;
+    }
+    TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
   }
 
   get textInputStyle() {
