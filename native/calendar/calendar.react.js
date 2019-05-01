@@ -916,11 +916,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     this.keyboardPartiallyVisible = true;
   }
 
-  keyboardDismiss = (event: KeyboardEvent) => {
+  keyboardDismiss = (event: ?KeyboardEvent) => {
     this.keyboardShownHeight = null;
   }
 
-  keyboardDidDismiss = (event: KeyboardEvent) => {
+  keyboardDidDismiss = (event: ?KeyboardEvent) => {
     this.keyboardPartiallyVisible = false;
     if (!this.props.threadPickerOpen) {
       this.setState({ disableInputBar: false });

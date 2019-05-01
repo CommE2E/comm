@@ -14,15 +14,27 @@ export type KeyboardEvent = $ReadOnly<{|
   endCoordinates: ScreenRect,
   startCoordinates?: ScreenRect,
 |}>;
-type KeyboardCallback = (event: KeyboardEvent) => void;
-type IgnoredKeyboardEvent = {|
-  callback: KeyboardCallback,
-  event: KeyboardEvent,
-  time: number,
-|};
+
+type ShowKeyboardCallback = (event: KeyboardEvent) => void;
+type HideKeyboardCallback = (event: ?KeyboardEvent) => void;
+type IgnoredKeyboardEvent =
+ | {|
+     type: "show",
+     callback: ShowKeyboardCallback,
+     event: KeyboardEvent,
+     time: number,
+   |}
+ | {|
+     type: "hide",
+     callback: HideKeyboardCallback,
+     event: ?KeyboardEvent,
+     time: number,
+   |};
+
 export type EmitterSubscription = {
   +remove: () => void,
 };
+
 // If the app becomes active within 500ms after a keyboard event is triggered,
 // we will call the relevant keyboard callbacks.
 const appStateChangeDelay = 500;
@@ -53,7 +65,13 @@ function handleAppStateChange(nextAppState: ?string) {
     return;
   }
   for (let ignoredEvent of ignoredEvents) {
-    if (ignoredEvent.time + appStateChangeDelay > time) {
+    if (ignoredEvent.time + appStateChangeDelay <= time) {
+      continue;
+    }
+    // Conditional necessary for Flow :(
+    if (ignoredEvent.type === "show") {
+      ignoredEvent.callback(ignoredEvent.event);
+    } else {
       ignoredEvent.callback(ignoredEvent.event);
     }
   }
@@ -77,7 +95,9 @@ function decrementAppStateListeners() {
   }
 }
 
-function callCallbackIfAppActive(callback: KeyboardCallback): KeyboardCallback {
+function callShowCallbackIfAppActive(
+  callback: ShowKeyboardCallback,
+): ShowKeyboardCallback {
   return (event: KeyboardEvent) => {
     if (event) {
       const { height } = event.endCoordinates;
@@ -88,31 +108,60 @@ function callCallbackIfAppActive(callback: KeyboardCallback): KeyboardCallback {
     if (currentState === "active") {
       callback(event);
     } else {
-      recentIgnoredKeyboardEvents.push({ callback, event, time: Date.now() });
+      recentIgnoredKeyboardEvents.push({
+        type: "show",
+        callback,
+        event,
+        time: Date.now(),
+      });
     }
   }
 }
-function addKeyboardShowListener(callback: KeyboardCallback) {
+function addKeyboardShowListener(callback: ShowKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
     Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-    callCallbackIfAppActive(callback),
+    callShowCallbackIfAppActive(callback),
   );
 }
-function addKeyboardDismissListener(callback: KeyboardCallback) {
+
+function callHideCallbackIfAppActive(
+  callback: HideKeyboardCallback,
+): HideKeyboardCallback {
+  return (event: ?KeyboardEvent) => {
+    if (event) {
+      const { height } = event.endCoordinates;
+      if (height > 0 && (!keyboardHeight || keyboardHeight < height)) {
+        keyboardHeight = height;
+      }
+    }
+    if (currentState === "active") {
+      callback(event);
+    } else {
+      recentIgnoredKeyboardEvents.push({
+        type: "hide",
+        callback,
+        event,
+        time: Date.now(),
+      });
+    }
+  }
+}
+function addKeyboardDismissListener(callback: HideKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
     Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-    callCallbackIfAppActive(callback),
+    callHideCallbackIfAppActive(callback),
   );
 }
-function addKeyboardDidDismissListener(callback: KeyboardCallback) {
+function addKeyboardDidDismissListener(callback: HideKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
     "keyboardDidHide",
-    callCallbackIfAppActive(callback),
+    callHideCallbackIfAppActive(callback),
   );
 }
+
 function removeKeyboardListener(listener: EmitterSubscription) {
   decrementAppStateListeners();
   listener.remove();
