@@ -347,10 +347,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       }
     }
 
-    return (
-      <View style={styles.container}>
-        {joinButton}
-        {content}
+    let keyboardAccessoryView = null;
+    if (Platform.OS !== "android" || this.state.customKeyboard) {
+      keyboardAccessoryView = (
         <KeyboardAccessoryView
           kbInputRef={this.textInput}
           kbComponent={this.state.customKeyboard}
@@ -358,6 +357,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           onKeyboardResigned={this.hideCustomKeyboard}
           manageScrollView={false}
         />
+      );
+    }
+
+    return (
+      <View style={styles.container}>
+        {joinButton}
+        {content}
+        {keyboardAccessoryView}
       </View>
     );
   }
