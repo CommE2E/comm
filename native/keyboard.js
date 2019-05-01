@@ -1,6 +1,6 @@
 // @flow
 
-import { AppState, Keyboard, Platform } from 'react-native';
+import { AppState, Keyboard, Platform, DeviceInfo } from 'react-native';
 
 type ScreenRect = $ReadOnly<{|
   screenX: number,
@@ -26,6 +26,19 @@ export type EmitterSubscription = {
 // If the app becomes active within 500ms after a keyboard event is triggered,
 // we will call the relevant keyboard callbacks.
 const appStateChangeDelay = 500;
+
+const isIPhoneX = Platform.OS === "ios" && DeviceInfo.isIPhoneX_deprecated;
+const defaultKeyboardHeight = Platform.select({
+  ios: isIPhoneX ? 335 : 216,
+  android: 282.28,
+});
+let keyboardHeight = null;
+function getKeyboardHeight(): ?number {
+  if (keyboardHeight !== null && keyboardHeight !== undefined) {
+    return keyboardHeight;
+  }
+  return defaultKeyboardHeight;
+}
 
 let currentState = AppState.currentState;
 let recentIgnoredKeyboardEvents: IgnoredKeyboardEvent[] = [];
@@ -66,6 +79,12 @@ function decrementAppStateListeners() {
 
 function callCallbackIfAppActive(callback: KeyboardCallback): KeyboardCallback {
   return (event: KeyboardEvent) => {
+    if (event) {
+      const { height } = event.endCoordinates;
+      if (height > 0 && (!keyboardHeight || keyboardHeight < height)) {
+        keyboardHeight = height;
+      }
+    }
     if (currentState === "active") {
       callback(event);
     } else {
@@ -100,6 +119,7 @@ function removeKeyboardListener(listener: EmitterSubscription) {
 }
 
 export {
+  getKeyboardHeight,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   addKeyboardDidDismissListener,
