@@ -116,6 +116,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   cameraRollOpacity: Animated.Value;
   expandOpacity: Animated.Value;
   expandoButtonsWidth: Animated.Value;
+  keyboardShowing = false;
 
   constructor(props: Props) {
     super(props);
@@ -137,10 +138,20 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    this.keyboardShowListener = addKeyboardShowListener(this.hideButtons);
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
     this.keyboardDismissListener = addKeyboardDismissListener(
-      this.expandButtons,
+      this.keyboardDismiss,
     );
+  }
+
+  keyboardShow = () => {
+    this.keyboardShowing = true;
+    this.hideButtons();
+  }
+
+  keyboardDismiss = () => {
+    this.keyboardShowing = false;
+    this.expandButtons();
   }
 
   componentWillUnmount() {
@@ -442,7 +453,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }
 
-  expandButtons = () => {
+  expandButtons() {
     if (this.state.buttonsExpanded) {
       return;
     }
@@ -453,8 +464,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({ buttonsExpanded: true });
   }
 
-  hideButtons = () => {
-    if (this.state.customKeyboard || !this.state.buttonsExpanded) {
+  hideButtons() {
+    if (
+      this.state.customKeyboard ||
+      !this.keyboardShowing ||
+      !this.state.buttonsExpanded
+    ) {
       return;
     }
     Animated.timing(
