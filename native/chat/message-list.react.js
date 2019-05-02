@@ -33,7 +33,7 @@ import {
   messageItemHeight,
   type ChatMessageInfoItemWithHeight,
 } from './message.react';
-import ListLoadingIndicator from '../list-loading-indicator.react';
+import ListLoadingIndicator from '../components/list-loading-indicator.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

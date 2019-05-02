@@ -76,7 +76,7 @@ import {
   createActiveTabSelector,
 } from '../selectors/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
-import ListLoadingIndicator from '../list-loading-indicator.react';
+import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import CalendarInputBar from './calendar-input-bar.react';
 import {
