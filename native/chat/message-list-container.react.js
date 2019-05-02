@@ -63,6 +63,7 @@ type Props = {|
 type State = {|
   textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+  imageGalleryOpen: bool,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
 
@@ -110,7 +111,11 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       props.messageListData && textToMeasure.length === 0
         ? this.mergeHeightsIntoListData()
         : null;
-    this.state = { textToMeasure, listDataWithHeights };
+    this.state = {
+      textToMeasure,
+      listDataWithHeights,
+      imageGalleryOpen: false,
+    };
   }
 
   textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
@@ -199,6 +204,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
           navigate={this.props.navigation.navigate}
+          imageGalleryOpen={this.state.imageGalleryOpen}
         />
       );
     } else {
@@ -220,9 +226,17 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           allHeightsMeasuredCallback={this.allHeightsMeasured}
         />
         {messageList}
-        <ChatInputBar threadInfo={threadInfo} />
+        <ChatInputBar
+          threadInfo={threadInfo}
+          imageGalleryOpen={this.state.imageGalleryOpen}
+          setImageGalleryOpen={this.setImageGalleryOpen}
+        />
       </View>
     );
+  }
+
+  setImageGalleryOpen = (imageGalleryOpen: bool) => {
+    this.setState({ imageGalleryOpen });
   }
 
   allHeightsMeasured = (

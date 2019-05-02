@@ -50,6 +50,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   navigate: Navigate,
+  imageGalleryOpen: bool,
   // Redux state
   viewerID: ?string,
   startReached: bool,
@@ -76,6 +77,7 @@ class MessageList extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     navigate: PropTypes.func.isRequired,
+    imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -172,6 +174,8 @@ class MessageList extends React.PureComponent<Props, State> {
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const focused =
       messageKey(messageInfoItem.messageInfo) === this.state.focusedMessageKey;
+    const keyboardShowing =
+      this.state.keyboardShowing || this.props.imageGalleryOpen;
     return (
       <Message
         item={messageInfoItem}
@@ -180,7 +184,7 @@ class MessageList extends React.PureComponent<Props, State> {
         toggleFocus={this.toggleMessageFocus}
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={this.state.messageListVerticalBounds}
-        keyboardShowing={this.state.keyboardShowing}
+        keyboardShowing={keyboardShowing}
       />
     );
   }
