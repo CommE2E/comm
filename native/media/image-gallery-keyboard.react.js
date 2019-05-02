@@ -25,6 +25,9 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}> {
 
 }
 
+const imageGalleryKeyboardName = 'ImageGalleryKeyboard';
+const imageGalleryBackgroundColor = '#EEEEEE';
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -32,13 +35,12 @@ const styles = StyleSheet.create({
     bottom: -contentBottomOffset,
     left: 0,
     right: 0,
+    backgroundColor: imageGalleryBackgroundColor,
   },
   text: {
     color: 'red',
   },
 });
-
-const imageGalleryKeyboardName = 'ImageGalleryKeyboard';
 
 KeyboardRegistry.registerKeyboard(
   imageGalleryKeyboardName,
@@ -47,4 +49,5 @@ KeyboardRegistry.registerKeyboard(
 
 export {
   imageGalleryKeyboardName,
+  imageGalleryBackgroundColor,
 };

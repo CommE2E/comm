@@ -67,6 +67,7 @@ import {
 } from '../keyboard';
 import {
   imageGalleryKeyboardName,
+  imageGalleryBackgroundColor,
 } from '../media/image-gallery-keyboard.react';
 
 const draftKeyFromThreadID =
@@ -110,6 +111,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
+  };
+  static kbInitialProps = {
+    backgroundColor: imageGalleryBackgroundColor,
   };
   textInput: ?TextInput;
   keyboardShowListener: ?Object;
@@ -354,6 +358,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         <KeyboardAccessoryView
           kbInputRef={this.textInput}
           kbComponent={this.state.customKeyboard}
+          kbInitialProps={ChatInputBar.kbInitialProps}
           onItemSelected={this.onImageGalleryItemSelected}
           onKeyboardResigned={this.hideCustomKeyboard}
           manageScrollView={false}
@@ -511,7 +516,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    backgroundColor: '#EEEEEEEE',
+    backgroundColor: '#EEEEEE',
     borderTopWidth: 1,
     borderColor: '#AAAAAAAA',
   },
