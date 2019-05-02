@@ -14,6 +14,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Color from 'color';
 import Hyperlink from 'react-native-hyperlink';
+import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
@@ -65,6 +66,7 @@ type Props = {|
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
+  keyboardShowing: bool,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -73,6 +75,7 @@ class TextMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
+    keyboardShowing: PropTypes.bool.isRequired,
   };
   tooltipConfig: $ReadOnlyArray<TooltipItemData>;
   tooltip: ?Tooltip;
@@ -142,6 +145,7 @@ class TextMessage extends React.PureComponent<Props> {
           labelStyle={styles.popoverLabelStyle}
           onOpenTooltipMenu={this.onFocus}
           onCloseTooltipMenu={this.onBlur}
+          onPressOverride={this.onPress}
           innerRef={this.tooltipRef}
         />
       </ComposedMessage>
@@ -171,6 +175,10 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   onPress = () => {
+    if (this.props.keyboardShowing) {
+      KeyboardUtils.dismiss();
+      return;
+    }
     const tooltip = this.tooltip;
     invariant(tooltip, "tooltip should be set");
     if (this.props.focused) {

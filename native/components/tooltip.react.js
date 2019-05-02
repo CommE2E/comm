@@ -48,6 +48,7 @@ type Props = {
   springConfig?: { tension?: number, friction?: number },
   opacityChangeDuration?: number,
   innerRef?: (tooltip: ?Tooltip) => void,
+  onPressOverride?: () => void,
   // Redux state
   dimensions: Dimensions,
 };
@@ -96,6 +97,7 @@ class Tooltip extends React.PureComponent<Props, State> {
     springConfig: PropTypes.object,
     opacityChangeDuration: PropTypes.number,
     innerRef: PropTypes.func,
+    onPressOverride: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
   };
   static defaultProps = {
@@ -310,8 +312,8 @@ class Tooltip extends React.PureComponent<Props, State> {
       <TouchableOpacity
         ref={this.wrapperRef}
         style={this.props.componentWrapperStyle}
-        onPress={this.toggle}
-        onLongPress={this.toggle}
+        onPress={this.onPress}
+        onLongPress={this.onPress}
         delayLongPress={this.props.delayLongPress}
         activeOpacity={1.0}
       >
@@ -376,7 +378,7 @@ class Tooltip extends React.PureComponent<Props, State> {
             ],
           }}>
             <TouchableOpacity
-              onPress={this.toggle}
+              onPress={this.onPress}
               activeOpacity={1.0}
             >
               {this.props.buttonComponent}
@@ -450,6 +452,14 @@ class Tooltip extends React.PureComponent<Props, State> {
         },
       ),
     ]).start(this.toggleModal);
+  }
+
+  onPress = () => {
+    if (this.props.onPressOverride) {
+      this.props.onPressOverride();
+    } else {
+      this.toggle();
+    }
   }
 
   toggle = () => {

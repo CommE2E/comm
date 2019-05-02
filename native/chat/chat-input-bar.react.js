@@ -32,6 +32,7 @@ import {
   Platform,
   Text,
   ActivityIndicator,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -367,11 +368,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     return (
-      <View style={styles.container}>
-        {joinButton}
-        {content}
-        {keyboardAccessoryView}
-      </View>
+      <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+        <View style={styles.container}>
+          {joinButton}
+          {content}
+          {keyboardAccessoryView}
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 

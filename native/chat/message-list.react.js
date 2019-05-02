@@ -12,9 +12,15 @@ import type { VerticalBounds } from '../media/vertical-bounds';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, FlatList } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
+import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -34,6 +40,11 @@ import {
   type ChatMessageInfoItemWithHeight,
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+} from '../keyboard';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -57,6 +68,7 @@ type State = {|
   focusedMessageKey: ?string,
   scrollDisabled: bool,
   messageListVerticalBounds: ?VerticalBounds,
+  keyboardShowing: bool,
 |};
 class MessageList extends React.PureComponent<Props, State> {
 
@@ -74,9 +86,21 @@ class MessageList extends React.PureComponent<Props, State> {
     focusedMessageKey: null,
     scrollDisabled: false,
     messageListVerticalBounds: null,
+    keyboardShowing: false,
   };
   loadingFromScroll = false;
   flatListContainer: ?View;
+
+  keyboardShowListener: ?Object;
+  keyboardDismissListener: ?Object;
+
+  keyboardShow = () => {
+    this.setState({ keyboardShowing: true });
+  }
+
+  keyboardDismiss = () => {
+    this.setState({ keyboardShowing: false });
+  }
 
   componentDidMount() {
     const { threadInfo } = this.props;
@@ -87,12 +111,26 @@ class MessageList extends React.PureComponent<Props, State> {
         this.props.fetchMostRecentMessages(threadInfo.id),
       );
     }
+
+    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
+    this.keyboardDismissListener = addKeyboardDismissListener(
+      this.keyboardDismiss,
+    );
   }
 
   componentWillUnmount() {
     const { threadInfo } = this.props;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
+    }
+
+    if (this.keyboardShowListener) {
+      removeKeyboardListener(this.keyboardShowListener);
+      this.keyboardShowListener = null;
+    }
+    if (this.keyboardDismissListener) {
+      removeKeyboardListener(this.keyboardDismissListener);
+      this.keyboardDismissListener = null;
     }
   }
 
@@ -123,7 +161,13 @@ class MessageList extends React.PureComponent<Props, State> {
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
     if (row.item.itemType === "loader") {
-      return <ListLoadingIndicator />;
+      return (
+        <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+          <View style={styles.listLoadingIndicator}>
+            <ListLoadingIndicator />
+          </View>
+        </TouchableWithoutFeedback>
+      );
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const focused =
@@ -136,6 +180,7 @@ class MessageList extends React.PureComponent<Props, State> {
         toggleFocus={this.toggleMessageFocus}
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={this.state.messageListVerticalBounds}
+        keyboardShowing={this.state.keyboardShowing}
       />
     );
   }
@@ -291,6 +336,9 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 12,
+  },
+  listLoadingIndicator: {
+    flex: 1,
   },
 });
 

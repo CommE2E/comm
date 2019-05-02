@@ -17,10 +17,17 @@ import {
 } from '../media/vertical-bounds';
 
 import * as React from 'react';
-import { Text, StyleSheet, View, LayoutAnimation } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  LayoutAnimation,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -65,6 +72,7 @@ type Props = {|
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
+  keyboardShowing: bool,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -75,11 +83,12 @@ class Message extends React.PureComponent<Props> {
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
+    keyboardShowing: PropTypes.bool.isRequired,
   };
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (
-      (nextProps.focused || nextProps.item.startsConversation) !==
+      (prevProps.focused || prevProps.item.startsConversation) !==
         (this.props.focused || this.props.item.startsConversation)
     ) {
       LayoutAnimation.easeInEaseOut();
@@ -103,6 +112,7 @@ class Message extends React.PureComponent<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           setScrollDisabled={this.props.setScrollDisabled}
+          keyboardShowing={this.props.keyboardShowing}
         />
       );
     } else if (this.props.item.messageShapeType === "multimedia") {
@@ -123,10 +133,12 @@ class Message extends React.PureComponent<Props> {
       );
     }
     return (
-      <View>
-        {conversationHeader}
-        {message}
-      </View>
+      <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+        <View>
+          {conversationHeader}
+          {message}
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 
