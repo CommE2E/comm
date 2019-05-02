@@ -41,6 +41,7 @@ import Animated, { Easing } from 'react-native-reanimated';
 import {
   KeyboardAccessoryView,
   TextInputKeyboardMangerIOS,
+  KeyboardUtils,
 } from 'react-native-keyboard-input';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -499,6 +500,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   onImageGalleryItemSelected = () => {
+    KeyboardUtils.dismiss();
   }
 
 }
