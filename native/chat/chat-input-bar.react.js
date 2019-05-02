@@ -192,7 +192,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   setIOSKeyboardHeight() {
-    if (Platform.OS !== "ios") {
+    if (Platform.OS !== "ios" || this.keyboardShowing) {
       return;
     }
     const { textInput } = this;
