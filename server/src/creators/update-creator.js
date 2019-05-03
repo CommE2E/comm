@@ -125,7 +125,12 @@ async function createUpdates(
     // If we don't end up `continue`ing below, types indicates which
     // update types we should delete for the corresponding key
     let types;
-    if (updateData.type === updateTypes.UPDATE_THREAD) {
+    if (updateData.type === updateTypes.DELETE_ACCOUNT) {
+      types = [
+        updateTypes.DELETE_ACCOUNT,
+        updateTypes.UPDATE_USER,
+      ];
+    } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       types = [
         updateTypes.UPDATE_THREAD,
         updateTypes.UPDATE_THREAD_READ_STATUS,
@@ -141,6 +146,8 @@ async function createUpdates(
       types = [];
     } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
       types = [ updateTypes.UPDATE_CURRENT_USER ];
+    } else if (updateData.type === updateTypes.UPDATE_USER) {
+      types = [ updateTypes.UPDATE_USER ];
     } else {
       filteredUpdateDatas.push(updateData);
       continue;
@@ -262,6 +269,9 @@ async function createUpdates(
     } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
       // user column contains all the info we need to construct the UpdateInfo
       content = null;
+    } else if (updateData.type === updateTypes.UPDATE_USER) {
+      const { updatedUserID } = updateData;
+      content = JSON.stringify({ updatedUserID });
     } else {
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
@@ -615,6 +625,17 @@ async function updateInfosFromRawUpdateInfos(
         time: rawUpdateInfo.time,
         currentUserInfo,
       });
+    } else if (rawUpdateInfo.type === updateTypes.UPDATE_USER) {
+      updateInfos.push({
+        type: updateTypes.UPDATE_USER,
+        id: rawUpdateInfo.id,
+        time: rawUpdateInfo.time,
+        updatedUserID: rawUpdateInfo.updatedUserID,
+      });
+      userIDs = new Set([
+        ...userIDs,
+        rawUpdateInfo.updatedUserID,
+      ]);
     } else {
       invariant(false, `unrecognized updateType ${rawUpdateInfo.type}`);
     }
@@ -653,7 +674,8 @@ async function updateInfosFromRawUpdateInfos(
       continue;
     } else if (
       updateInfo.type === updateTypes.DELETE_THREAD ||
-      updateInfo.type === updateTypes.JOIN_THREAD
+      updateInfo.type === updateTypes.JOIN_THREAD ||
+      updateInfo.type === updateTypes.DELETE_ACCOUNT
     ) {
       updateForKey.set(key, updateInfo);
       continue;

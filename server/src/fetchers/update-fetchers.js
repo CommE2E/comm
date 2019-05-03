@@ -118,6 +118,14 @@ function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
       id: row.id.toString(),
       time: row.time,
     };
+  } else if (type === updateTypes.UPDATE_USER) {
+    const content = JSON.parse(row.content);
+    return {
+      type: updateTypes.UPDATE_USER,
+      id: row.id.toString(),
+      time: row.time,
+      updatedUserID: content.updatedUserID,
+    };
   }
   invariant(false, `unrecognized updateType ${type}`);
 }
