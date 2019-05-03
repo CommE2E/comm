@@ -735,9 +735,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
       this.animateToSecondMode();
-    } else if (Platform.OS === "ios") {
-      this.expectingKeyboardToAppear = true;
+      return;
     }
+    this.expectingKeyboardToAppear = true;
+    setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
   }
 
   onPressRegister = () => {
@@ -748,9 +749,18 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
       this.animateToSecondMode();
-    } else if (Platform.OS === "ios") {
-      this.expectingKeyboardToAppear = true;
+      return;
     }
+    this.expectingKeyboardToAppear = true;
+    setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
+  }
+
+  animateToSecondIfKeyboardStillHidden = () => {
+    if (!this.expectingKeyboardToAppear || !this.mounted) {
+      return;
+    }
+    this.expectingKeyboardToAppear = false;
+    this.animateToSecondMode();
   }
 
   onPressForgotPassword = () => {
