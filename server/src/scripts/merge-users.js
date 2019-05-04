@@ -3,7 +3,7 @@
 import { type UpdateData, updateTypes } from 'lib/types/update-types';
 import type { ServerThreadInfo } from 'lib/types/thread-types';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   changeRole,
@@ -34,15 +34,18 @@ async function mergeUsers(
   toUserID: string,
   replaceUserInfo?: ReplaceUserInfo,
 ) {
+  let updateUserRowQuery = null;
   let updateDatas = [];
-
   if (replaceUserInfo) {
-    const replaceUpdateDatas = await replaceUser(
+    const replaceUserResult = await replaceUser(
       fromUserID,
       toUserID,
       replaceUserInfo,
     );
-    updateDatas = [ ...updateDatas, ...replaceUpdateDatas ];
+    ({
+      sql: updateUserRowQuery,
+      updateDatas,
+    } = replaceUserResult);
   }
 
   const usersGettingUpdate = new Set();
@@ -124,15 +127,26 @@ async function mergeUsers(
 
   const fromViewer = createScriptViewer(fromUserID);
   await deleteAccount(fromViewer);
+
+  if (updateUserRowQuery) {
+    await dbQuery(updateUserRowQuery);
+  }
 }
 
+type ReplaceUserResult = {|
+  sql: ?SQLStatement,
+  updateDatas: UpdateData[],
+|};
 async function replaceUser(
   fromUserID: string,
   toUserID: string,
   replaceUserInfo: ReplaceUserInfo,
-): Promise<UpdateData[]> {
+): Promise<ReplaceUserResult> {
   if (Object.keys(replaceUserInfo).length === 0) {
-    return [];
+    return {
+      sql: null,
+      updateDatas: [],
+    };
   }
   
   const fromUserQuery = SQL`
@@ -161,7 +175,6 @@ async function replaceUser(
   const updateUserRowQuery = SQL`
     UPDATE users SET ${changedFields} WHERE id = ${toUserID}
   `;
-  await dbQuery(updateUserRowQuery);
 
   const updateDatas = [];
   if (replaceUserInfo.username || replaceUserInfo.email) {
@@ -171,7 +184,10 @@ async function replaceUser(
       time: Date.now(),
     });
   }
-  return updateDatas;
+  return {
+    sql: updateUserRowQuery,
+    updateDatas,
+  };
 }
 
 main();
