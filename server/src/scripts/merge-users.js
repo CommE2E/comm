@@ -3,7 +3,7 @@
 import { type UpdateData, updateTypes } from 'lib/types/update-types';
 import type { ServerThreadInfo } from 'lib/types/thread-types';
 
-import { pool, dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   changeRole,
@@ -12,13 +12,14 @@ import {
 import { createUpdates } from '../creators/update-creator';
 import { createScriptViewer } from '../session/scripts';
 import { deleteAccount } from '../deleters/account-deleters';
+import { endScript } from './utils';
 
 async function main() {
   try {
     await mergeUsers("15972", "7147", { email: true });
-    pool.end();
+    endScript();
   } catch (e) {
-    pool.end();
+    endScript();
     console.warn(e);
   }
 }

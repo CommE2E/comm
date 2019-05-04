@@ -2,14 +2,15 @@
 
 import sizeOf from 'buffer-image-size';
 
-import { pool, dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database';
+import { endScript } from './utils';
 
 async function main() {
   try {
     await addImageSizeToUploadsTable();
-    pool.end();
+    endScript();
   } catch (e) {
-    pool.end();
+    endScript();
     console.warn(e);
   }
 }

@@ -39,6 +39,10 @@ class RedisPublisher {
     this.pub.publish(channelName, stringifiedMessage);
   }
 
+  end() {
+    this.pub.unref();
+  }
+
 }
 const publisher = new RedisPublisher();
 
