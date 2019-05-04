@@ -12,7 +12,7 @@
   },
   "scripts": {
     "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf server/node_modules/ && rm -rf web/dist/ && rm -rf server/dist/ && rm -rf native/ios/Pods",
-    "cleaninstall": "npm run clean && yarn && pushd native/ios && pod install && popd",
+    "cleaninstall": "npm run clean && yarn && cd native/ios && pod install",
     "postinstall": "patch-package"
   }
 }
