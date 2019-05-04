@@ -107,13 +107,18 @@ const sortFunction = (
 // excluded from the update.
 async function createUpdates(
   updateDatas: $ReadOnlyArray<UpdateData>,
-  viewerInfo?: ?ViewerInfo,
+  passedViewerInfo?: ?ViewerInfo,
 ): Promise<CreateUpdatesResult> {
   if (updateDatas.length === 0) {
     return defaultUpdateCreationResult;
   }
-  if (viewerInfo && !viewerInfo.viewer.loggedIn) {
+  if (passedViewerInfo && !passedViewerInfo.viewer.loggedIn) {
     throw new ServerError('not_logged_in');
+  }
+  let viewerInfo = passedViewerInfo;
+  if (viewerInfo && viewerInfo.viewer.isBotViewer) {
+    // viewer.session will throw for a bot Viewer
+    viewerInfo = null;
   }
 
   const sortedUpdateDatas = [...updateDatas].sort(sortFunction);

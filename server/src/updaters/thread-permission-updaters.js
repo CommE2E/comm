@@ -585,10 +585,10 @@ async function commitMembershipChangeset(
     viewer,
     serverThreadInfoFetchResult,
   );
-  const viewerInfo = viewer.isBotViewer
-    ? null
-    : { viewer, calendarQuery, ...threadInfoFetchResult };
-  const { viewerUpdates } = await createUpdates(updateDatas, viewerInfo);
+  const { viewerUpdates } = await createUpdates(
+    updateDatas,
+    { viewer, calendarQuery, ...threadInfoFetchResult },
+  );
 
   return {
     ...threadInfoFetchResult,
