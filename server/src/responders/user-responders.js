@@ -20,6 +20,7 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
+import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -152,7 +153,9 @@ async function accountDeletionResponder(
 ): Promise<LogOutResponse> {
   const request: DeleteAccountRequest = input;
   await validateInput(viewer, deleteAccountRequestInputValidator, request);
-  return await deleteAccount(viewer, request);
+  const result = await deleteAccount(viewer, request);
+  invariant(result, "deleteAccount should return result if handed request");
+  return result;
 }
 
 const deviceTokenUpdateRequestInputValidator = tShape({

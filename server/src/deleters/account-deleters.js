@@ -10,6 +10,7 @@ import { updateTypes } from 'lib/types/update-types';
 import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
+import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL } from '../database';
 import { createNewAnonymousCookie } from '../session/cookies';
@@ -19,20 +20,22 @@ import { handleAsyncPromise } from '../responders/handlers';
 
 async function deleteAccount(
   viewer: Viewer,
-  request: DeleteAccountRequest,
-): Promise<LogOutResponse> {
-  if (!viewer.loggedIn) {
+  request?: DeleteAccountRequest,
+): Promise<?LogOutResponse> {
+  if (!viewer.loggedIn || (!request && !viewer.isBotViewer)) {
     throw new ServerError('not_logged_in');
   }
 
-  const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-  const [ result ] = await dbQuery(hashQuery);
-  if (result.length === 0) {
-    throw new ServerError('internal_error');
-  }
-  const row = result[0];
-  if (!bcrypt.compareSync(request.password, row.hash)) {
-    throw new ServerError('invalid_credentials');
+  if (request) {
+    const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
+    const [ result ] = await dbQuery(hashQuery);
+    if (result.length === 0) {
+      throw new ServerError('internal_error');
+    }
+    const row = result[0];
+    if (!bcrypt.compareSync(request.password, row.hash)) {
+      throw new ServerError('invalid_credentials');
+    }
   }
 
   // TODO: if this results in any orphaned orgs, convert them to chats
@@ -55,23 +58,36 @@ async function deleteAccount(
     LEFT JOIN ids si ON si.id = s.id
     WHERE u.id = ${deletedUserID}
   `;
-  const [ anonymousViewerData ] = await Promise.all([
-    createNewAnonymousCookie({
+
+  const promises = {};
+  promises.deletion = dbQuery(deletionQuery);
+  if (request) {
+    promises.anonymousViewerData = createNewAnonymousCookie({
       platformDetails: viewer.platformDetails,
       deviceToken: viewer.deviceToken,
-    }),
-    dbQuery(deletionQuery),
-  ]);
-  viewer.setNewCookie(anonymousViewerData);
+    });
+  }
+  const { anonymousViewerData } = await promiseAll(promises);
+  if (anonymousViewerData) {
+    viewer.setNewCookie(anonymousViewerData);
+  }
 
-  handleAsyncPromise(createAccountDeletionUpdates(deletedUserID));
+  const deletionUpdatesPromise = createAccountDeletionUpdates(deletedUserID);
+  if (request) {
+    handleAsyncPromise(deletionUpdatesPromise);
+  } else {
+    await deletionUpdatesPromise;
+  }
 
-  return {
-    currentUserInfo: {
-      id: viewer.id,
-      anonymous: true,
-    },
-  };
+  if (request) {
+    return {
+      currentUserInfo: {
+        id: viewer.id,
+        anonymous: true,
+      },
+    };
+  }
+  return null;
 }
 
 async function createAccountDeletionUpdates(
