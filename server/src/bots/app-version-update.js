@@ -18,24 +18,24 @@ const { squadbot } = bots;
 async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   const cutoff = Date.now() - thirtyDays;
   const query = SQL`
-    SELECT x.user, x.min_code_version, MIN(t.id) AS squadbot_thread
+    SELECT x.user,
+      MIN(x.max_code_version) AS code_version,
+      MIN(t.id) AS squadbot_thread
     FROM (
-      SELECT s.user,
-        MIN(JSON_EXTRACT(c.versions, "$.codeVersion")) AS min_code_version
+      SELECT s.user, c.platform,
+        MAX(JSON_EXTRACT(c.versions, "$.codeVersion")) AS max_code_version
       FROM sessions s
       LEFT JOIN cookies c ON c.id = s.cookie
-      LEFT JOIN versions v ON v.platform = c.platform AND v.code_version = (
-        SELECT MAX(code_version)
-        FROM versions
-        WHERE platform = c.platform AND deploy_time IS NOT NULL
-      )
       WHERE s.last_update > ${cutoff}
         AND c.platform != "web"
-        AND v.id IS NOT NULL
         AND JSON_EXTRACT(c.versions, "$.codeVersion") IS NOT NULL
-        AND v.code_version > JSON_EXTRACT(c.versions, "$.codeVersion")
-      GROUP BY s.user
+      GROUP BY s.user, c.platform
     ) x
+    LEFT JOIN versions v ON v.platform = x.platform AND v.code_version = (
+      SELECT MAX(code_version)
+      FROM versions
+      WHERE platform = x.platform AND deploy_time IS NOT NULL
+    )
     LEFT JOIN (
       SELECT t.id, m1.user, COUNT(m3.user) AS user_count
       FROM threads t
@@ -47,7 +47,8 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
       WHERE m1.user IS NOT NULL AND m2.user IS NOT NULL
       GROUP BY t.id, m1.user
     ) t ON t.user = x.user AND t.user_count = 2
-    GROUP BY x.user, x.min_code_version
+    WHERE v.id IS NOT NULL AND x.max_code_version < v.code_version
+    GROUP BY x.user
   `;
   const [ result ] = await dbQuery(query);
 
@@ -56,8 +57,8 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   const usersToSquadbotThreadPromises = {};
   for (let row of result) {
     const userID = row.user.toString();
-    const minCodeVersion = row.min_code_version;
-    codeVersions.set(userID, minCodeVersion);
+    const codeVersion = row.code_version;
+    codeVersions.set(userID, codeVersion);
     if (row.squadbot_thread) {
       const squadbotThread = row.squadbot_thread.toString();
       squadbotThreads.set(userID, squadbotThread);
