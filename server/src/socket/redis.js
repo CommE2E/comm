@@ -11,6 +11,8 @@ import {
 import redis from 'redis';
 import uuidv4 from 'uuid/v4';
 
+import { isDryRun } from '../scripts/dry-run';
+
 function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
   if (updateTarget.sessionID) {
     return `user.${updateTarget.userID}.${updateTarget.sessionID}`;
@@ -28,10 +30,13 @@ class RedisPublisher {
   }
 
   sendMessage(target: UpdateTarget, message: RedisMessage) {
-    this.pub.publish(
-      channelNameForUpdateTarget(target),
-      JSON.stringify(message),
-    );
+    const channelName = channelNameForUpdateTarget(target);
+    const stringifiedMessage = JSON.stringify(message);
+    if (isDryRun()) {
+      console.log(`Redis publish to ${channelName}: ${stringifiedMessage}`);
+      return;
+    }
+    this.pub.publish(channelName, stringifiedMessage);
   }
 
 }

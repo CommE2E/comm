@@ -5,6 +5,7 @@ import mysql from 'mysql2';
 import SQL from 'sql-template-strings';
 
 import dbConfig from '../secrets/db_config';
+import { isDryRun } from './scripts/dry-run';
 
 const SQLStatement = SQL.SQLStatement;
 
@@ -57,8 +58,25 @@ function mergeOrConditions(andConditions: $ReadOnlyArray<SQLStatement>) {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
+// We use this fake result for dry runs
+function FakeSQLResult() {
+  this.insertId = -1;
+}
+FakeSQLResult.prototype = Array.prototype;
+const fakeResult: any = new FakeSQLResult();
+
 async function dbQuery(statement: SQLStatement) {
   try {
+    const sql = statement.sql.trim();
+    if (
+      isDryRun() &&
+      (sql.startsWith("INSERT") ||
+        sql.startsWith("DELETE") ||
+        sql.startsWith("UPDATE"))
+    ) {
+      console.log(rawSQL(statement));
+      return [ fakeResult ];
+    }
     return await pool.query(statement);
   } catch (e) {
     e.query = statement.sql;
