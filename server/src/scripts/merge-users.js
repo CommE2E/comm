@@ -10,7 +10,7 @@ import {
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
 import { createUpdates } from '../creators/update-creator';
-import { createBotViewer } from '../session/bots';
+import { createScriptViewer } from '../session/scripts';
 import { deleteAccount } from '../deleters/account-deleters';
 
 async function main() {
@@ -117,11 +117,11 @@ async function mergeUsers(
     changeset = [ ...changeset, ...currentChangeset ];
   }
   if (changeset.length > 0) {
-    const toViewer = createBotViewer(toUserID);
+    const toViewer = createScriptViewer(toUserID);
     await commitMembershipChangeset(toViewer, changeset);
   }
 
-  const fromViewer = createBotViewer(fromUserID);
+  const fromViewer = createScriptViewer(fromUserID);
   await deleteAccount(fromViewer);
 }
 

@@ -116,8 +116,8 @@ async function createUpdates(
     throw new ServerError('not_logged_in');
   }
   let viewerInfo = passedViewerInfo;
-  if (viewerInfo && viewerInfo.viewer.isBotViewer) {
-    // viewer.session will throw for a bot Viewer
+  if (viewerInfo && viewerInfo.viewer.isScriptViewer) {
+    // viewer.session will throw for a script Viewer
     viewerInfo = null;
   }
 

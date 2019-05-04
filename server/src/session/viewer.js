@@ -26,7 +26,7 @@ export type UserViewerData = {|
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
-  +isBotViewer: bool,
+  +isScriptViewer: bool,
   +isSocket?: bool,
 |};
 
@@ -42,7 +42,7 @@ export type AnonymousViewerData = {|
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
-  +isBotViewer: bool,
+  +isScriptViewer: bool,
   +isSocket?: bool,
 |};
 
@@ -273,8 +273,8 @@ class Viewer {
     return this.data.deviceToken;
   }
 
-  get isBotViewer(): bool {
-    return this.data.isBotViewer;
+  get isScriptViewer(): bool {
+    return this.data.isScriptViewer;
   }
 
   get isSocket(): bool {

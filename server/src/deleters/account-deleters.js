@@ -22,7 +22,7 @@ async function deleteAccount(
   viewer: Viewer,
   request?: DeleteAccountRequest,
 ): Promise<?LogOutResponse> {
-  if (!viewer.loggedIn || (!request && !viewer.isBotViewer)) {
+  if (!viewer.loggedIn || (!request && !viewer.isScriptViewer)) {
     throw new ServerError('not_logged_in');
   }
 

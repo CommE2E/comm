@@ -1,24 +1,11 @@
 // @flow
 
-import { ServerError } from 'lib/utils/errors';
-import bots from 'lib/facts/bots';
-
 import { Viewer } from './viewer';
 
 // Note that since the returned Viewer doesn't have a valid cookieID or
 // sessionID, a lot of things can go wrong when trying to use it with certain
 // functions.
-function createBotViewer(userID: string): Viewer {
-  let userIDIsBot = false;
-  for (let botName in bots) {
-    if (bots[botName].userID === userID) {
-      userIDIsBot = true;
-      break;
-    }
-  }
-  if (!userIDIsBot) {
-    throw new ServerError('invalid_bot_id');
-  }
+function createScriptViewer(userID: string): Viewer {
   return new Viewer({
     isSocket: true,
     loggedIn: true,
@@ -35,5 +22,5 @@ function createBotViewer(userID: string): Viewer {
 }
 
 export {
-  createBotViewer,
+  createScriptViewer,
 };

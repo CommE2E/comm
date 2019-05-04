@@ -150,7 +150,7 @@ async function fetchUserViewer(
     sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
-    isBotViewer: false,
+    isScriptViewer: false,
   });
   return { type: "valid", viewer };
 }
@@ -232,7 +232,7 @@ async function fetchAnonymousViewer(
     sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
-    isBotViewer: false,
+    isScriptViewer: false,
   });
   return { type: "valid", viewer };
 }
@@ -592,7 +592,7 @@ async function createNewAnonymousCookie(
     sessionID: undefined,
     sessionInfo: null,
     cookieInsertedThisRequest: true,
-    isBotViewer: false,
+    isScriptViewer: false,
   };
 }
 
@@ -651,7 +651,7 @@ async function createNewUserCookie(
     sessionInfo: null,
     cookiePassword,
     cookieInsertedThisRequest: true,
-    isBotViewer: false,
+    isScriptViewer: false,
   };
 }
 
