@@ -16,7 +16,7 @@ import { endScript } from './utils';
 
 async function main() {
   try {
-    await mergeUsers("15972", "7147", { email: true });
+    await mergeUsers("7147", "15972", { username: true, password: true });
     endScript();
   } catch (e) {
     endScript();
@@ -99,6 +99,13 @@ async function mergeUsers(
     }
   }
 
+  const fromViewer = createScriptViewer(fromUserID);
+  await deleteAccount(fromViewer);
+
+  if (updateUserRowQuery) {
+    await dbQuery(updateUserRowQuery);
+  }
+
   const time = Date.now();
   for (let userID of usersNeedingUpdate) {
     updateDatas.push({
@@ -123,13 +130,6 @@ async function mergeUsers(
   if (changeset.length > 0) {
     const toViewer = createScriptViewer(toUserID);
     await commitMembershipChangeset(toViewer, changeset);
-  }
-
-  const fromViewer = createScriptViewer(fromUserID);
-  await deleteAccount(fromViewer);
-
-  if (updateUserRowQuery) {
-    await dbQuery(updateUserRowQuery);
   }
 }
 
