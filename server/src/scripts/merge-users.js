@@ -1,0 +1,176 @@
+// @flow
+
+import { type UpdateData, updateTypes } from 'lib/types/update-types';
+import type { ServerThreadInfo } from 'lib/types/thread-types';
+
+import { pool, dbQuery, SQL } from '../database';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import {
+  changeRole,
+  commitMembershipChangeset,
+} from '../updaters/thread-permission-updaters';
+import { createUpdates } from '../creators/update-creator';
+import { createBotViewer } from '../session/bots';
+import { deleteAccount } from '../deleters/account-deleters';
+
+async function main() {
+  try {
+    await mergeUsers("15972", "7147", { email: true });
+    pool.end();
+  } catch (e) {
+    pool.end();
+    console.warn(e);
+  }
+}
+
+type ReplaceUserInfo = $Shape<{|
+  username: bool,
+  email: bool,
+  password: bool,
+|}>;
+async function mergeUsers(
+  fromUserID: string,
+  toUserID: string,
+  replaceUserInfo?: ReplaceUserInfo,
+) {
+  let updateDatas = [];
+
+  if (replaceUserInfo) {
+    const replaceUpdateDatas = await replaceUser(
+      fromUserID,
+      toUserID,
+      replaceUserInfo,
+    );
+    updateDatas = [ ...updateDatas, ...replaceUpdateDatas ];
+  }
+
+  const usersGettingUpdate = new Set();
+  const usersNeedingUpdate = new Set();
+  const needUserInfoUpdate = replaceUserInfo && replaceUserInfo.username;
+  const setGettingUpdate = (threadInfo: ServerThreadInfo) => {
+    if (!needUserInfoUpdate) {
+      return;
+    }
+    for (let { id } of threadInfo.members) {
+      usersGettingUpdate.add(id);
+      usersNeedingUpdate.delete(id);
+    }
+  };
+  const setNeedingUpdate = (threadInfo: ServerThreadInfo) => {
+    if (!needUserInfoUpdate) {
+      return;
+    }
+    for (let { id } of threadInfo.members) {
+      if (!usersGettingUpdate.has(id)) {
+        usersNeedingUpdate.add(id);
+      }
+    }
+  };
+
+  const newThreadRolePairs = [];
+  const { threadInfos } = await fetchServerThreadInfos();
+  for (let threadID in threadInfos) {
+    const threadInfo = threadInfos[threadID];
+    const fromUserExistingMember = threadInfo.members.find(
+      memberInfo => memberInfo.id === fromUserID,
+    );
+    if (!fromUserExistingMember) {
+      setNeedingUpdate(threadInfo);
+      continue;
+    }
+    const { role } = fromUserExistingMember;
+    if (!role) {
+      // Only transfer explicit memberships
+      setNeedingUpdate(threadInfo);
+      continue;
+    }
+    const toUserExistingMember = threadInfo.members.find(
+      memberInfo => memberInfo.id === toUserID,
+    );
+    if (!toUserExistingMember || !toUserExistingMember.role) {
+      setGettingUpdate(threadInfo);
+      newThreadRolePairs.push([ threadID, role ]);
+    } else {
+      setNeedingUpdate(threadInfo);
+    }
+  }
+
+  const time = Date.now();
+  for (let userID of usersNeedingUpdate) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID,
+      time,
+      updatedUserID: toUserID,
+    });
+  }
+  await createUpdates(updateDatas);
+
+  const changesets = await Promise.all(newThreadRolePairs.map(
+    ([ threadID, role ]) => changeRole(threadID, [ toUserID ], role),
+  ));
+  let changeset = [];
+  for (let currentChangeset of changesets) {
+    if (!currentChangeset) {
+      throw new Error("changeRole returned null");
+    }
+    changeset = [ ...changeset, ...currentChangeset ];
+  }
+  if (changeset.length > 0) {
+    const toViewer = createBotViewer(toUserID);
+    await commitMembershipChangeset(toViewer, changeset);
+  }
+
+  const fromViewer = createBotViewer(fromUserID);
+  await deleteAccount(fromViewer);
+}
+
+async function replaceUser(
+  fromUserID: string,
+  toUserID: string,
+  replaceUserInfo: ReplaceUserInfo,
+): Promise<UpdateData[]> {
+  if (Object.keys(replaceUserInfo).length === 0) {
+    return [];
+  }
+  
+  const fromUserQuery = SQL`
+    SELECT username, hash, email, email_verified
+    FROM users
+    WHERE id = ${fromUserID}
+  `;
+  const [ fromUserResult ] = await dbQuery(fromUserQuery);
+  const [ firstResult ] = fromUserResult;
+  if (!firstResult) {
+    throw new Error(`couldn't fetch fromUserID ${fromUserID}`);
+  }
+
+  const changedFields = {};
+  if (replaceUserInfo.username) {
+    changedFields.username = firstResult.username;
+  }
+  if (replaceUserInfo.email) {
+    changedFields.email = firstResult.email;
+    changedFields.email_verified = firstResult.email_verified;
+  }
+  if (replaceUserInfo.password) {
+    changedFields.hash = firstResult.hash;
+  }
+
+  const updateUserRowQuery = SQL`
+    UPDATE users SET ${changedFields} WHERE id = ${toUserID}
+  `;
+  await dbQuery(updateUserRowQuery);
+
+  const updateDatas = [];
+  if (replaceUserInfo.username || replaceUserInfo.email) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_CURRENT_USER,
+      userID: toUserID,
+      time: Date.now(),
+    });
+  }
+  return updateDatas;
+}
+
+main();
