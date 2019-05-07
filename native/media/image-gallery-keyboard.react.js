@@ -1,31 +1,25 @@
 // @flow
 
-import type { Dimensions } from 'lib/types/media-types';
+import type { GalleryImageInfo } from './image-gallery-image.react';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
   View,
-  TouchableOpacity,
   Text,
   StyleSheet,
   CameraRoll,
   Platform,
   PermissionsAndroid,
   FlatList,
-  Image,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
+import ImageGalleryImage from './image-gallery-image.react';
 
-type ImageInfo = {|
-  ...Dimensions,
-  uri: string,
-|};
 type State = {|
-  imageInfos: ?$ReadOnlyArray<ImageInfo>,
+  imageInfos: ?$ReadOnlyArray<GalleryImageInfo>,
   error: ?string,
   containerHeight: ?number,
 |};
@@ -86,24 +80,19 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     }
   }
 
-  renderItem = (row: { item: ImageInfo }) => {
+  renderItem = (row: { item: GalleryImageInfo }) => {
     const { containerHeight } = this.state;
     invariant(containerHeight, "should be set");
-    const { uri, width, height } = row.item;
-    const source = { uri };
-    const style = {
-      height: containerHeight,
-      width: width / height * containerHeight,
-    };
     return (
-      <Image
-        source={source}
-        style={[ styles.image, style ]}
+      <ImageGalleryImage
+        imageInfo={row.item}
+        containerHeight={containerHeight}
+        onSelect={this.onSelectImage}
       />
     );
   }
 
-  static keyExtractor(item: ImageInfo) {
+  static keyExtractor(item: GalleryImageInfo) {
     return item.uri;
   }
 
@@ -139,8 +128,8 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     this.setState({ containerHeight: event.nativeEvent.layout.height });
   }
 
-  onPress = () => {
-    KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, {});
+  onSelectImage = (imageInfo: GalleryImageInfo) => {
+    KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, imageInfo);
   }
 
 }
@@ -160,9 +149,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'red',
-  },
-  image: {
-    marginRight: 2,
   },
 });
 
