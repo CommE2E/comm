@@ -22,6 +22,8 @@ type State = {|
   imageInfos: ?$ReadOnlyArray<GalleryImageInfo>,
   error: ?string,
   containerHeight: ?number,
+  // null means end reached; undefined means no fetch yet
+  cursor: ?string,
 |};
 class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
 
@@ -29,9 +31,31 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     imageInfos: null,
     error: null,
     containerHeight: null,
+    cursor: undefined,
   };
+  mounted = false;
+  fetchingPhotos = false;
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.mounted = true;
+    return this.fetchPhotos();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  guardedSetState(change) {
+    if (this.mounted) {
+      this.setState(change);
+    }
+  }
+
+  async fetchPhotos(after?: ?string) {
+    if (this.fetchingPhotos) {
+      return;
+    }
+    this.fetchingPhotos = true;
     try {
       if (Platform.OS === "android") {
         const hasPermission = await this.getAndroidPermissions();
@@ -39,13 +63,17 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           return;
         }
       }
-      const photoResults = await CameraRoll.getPhotos({
-        first: 10,
+      const { edges, page_info } = await CameraRoll.getPhotos({
+        first: 20,
+        after,
         groupTypes: "All",
         assetType: "Photos",
       });
-      const existingURIs = new Set();
-      const imageInfos = photoResults.edges.map(
+      const imageURIs = this.state.imageInfos
+        ? this.state.imageInfos.map(({ uri }) => uri)
+        : [];
+      const existingURIs = new Set(imageURIs);
+      const imageInfos = edges.map(
         ({ node }) => {
           const { uri, height, width } = node.image;
           if (existingURIs.has(uri)) {
@@ -55,10 +83,26 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           return { uri, height, width };
         },
       ).filter(Boolean);
-      this.setState({ imageInfos });
+      this.guardedSetState((prevState: State) => {
+        const updatedImageInfos = prevState.imageInfos
+          ? [ ...prevState.imageInfos, ...imageInfos ]
+          : imageInfos;
+        const cursor = page_info.has_next_page
+          ? page_info.end_cursor
+          : null;
+        return {
+          imageInfos: updatedImageInfos,
+          error: null,
+          cursor,
+        };
+      });
     } catch (e) {
-      this.setState({ error: "something went wrong :(" });
+      this.guardedSetState({
+        imageInfos: null,
+        error: "something went wrong :(",
+      });
     }
+    this.fetchingPhotos = false;
   }
 
   async getAndroidPermissions() {
@@ -75,7 +119,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
       }
       return true;
     } catch (err) {
-      this.setState({ error: "don't have permissions :(" });
+      this.guardedSetState({ error: "don't have permissions :(" });
       return false;
     }
   }
@@ -108,6 +152,8 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           keyExtractor={ImageGalleryKeyboard.keyExtractor}
           scrollsToTop={false}
           showsHorizontalScrollIndicator={false}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={5}
           extraData={this.state.containerHeight}
         />
       );
@@ -125,11 +171,18 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
   onContainerLayout = (
     event: { nativeEvent: { layout: { height: number } } },
   ) => {
-    this.setState({ containerHeight: event.nativeEvent.layout.height });
+    this.guardedSetState({ containerHeight: event.nativeEvent.layout.height });
   }
 
   onSelectImage = (imageInfo: GalleryImageInfo) => {
     KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, imageInfo);
+  }
+
+  onEndReached = () => {
+    const { cursor } = this.state;
+    if (cursor !== null) {
+      this.fetchPhotos(cursor);
+    }
   }
 
 }
