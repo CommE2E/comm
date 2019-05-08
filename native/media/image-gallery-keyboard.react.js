@@ -11,6 +11,7 @@ import {
   Platform,
   PermissionsAndroid,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
@@ -162,9 +163,16 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           extraData={this.state.containerHeight}
         />
       );
+    } else if (error) {
+      content = <Text style={styles.error}>{error}</Text>;
     } else {
-      const message = error ? error : "Loading...";
-      content = <Text style={styles.text}>{message}</Text>;
+      content = (
+        <ActivityIndicator
+          color="black"
+          size="large"
+          style={styles.loadingIndicator}
+        />
+      );
     }
     return (
       <View style={styles.container} onLayout={this.onContainerLayout}>
@@ -204,12 +212,20 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: imageGalleryBackgroundColor,
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  text: {
-    color: 'red',
+  error: {
+    flex: 1,
+    fontSize: 28,
+    textAlign: 'center',
+    marginBottom: contentBottomOffset,
   },
   separator: {
     width: 2,
+  },
+  loadingIndicator: {
+    flex: 1,
+    marginBottom: contentBottomOffset,
   },
 });
 
