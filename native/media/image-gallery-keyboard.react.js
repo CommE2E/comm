@@ -136,6 +136,10 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     );
   }
 
+  static renderItemSeparator() {
+    return <View style={styles.separator} />;
+  }
+
   static keyExtractor(item: GalleryImageInfo) {
     return item.uri;
   }
@@ -149,6 +153,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           horizontal={true}
           data={imageInfos}
           renderItem={this.renderItem}
+          ItemSeparatorComponent={ImageGalleryKeyboard.renderItemSeparator}
           keyExtractor={ImageGalleryKeyboard.keyExtractor}
           scrollsToTop={false}
           showsHorizontalScrollIndicator={false}
@@ -202,6 +207,9 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'red',
+  },
+  separator: {
+    width: 2,
   },
 });
 

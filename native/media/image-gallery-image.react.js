@@ -4,7 +4,7 @@ import type { Dimensions } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -38,10 +38,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     };
     return (
       <TouchableOpacity onPress={this.onPress}>
-        <Image
-          source={source}
-          style={[ styles.image, style ]}
-        />
+        <Image source={source} style={style} />
       </TouchableOpacity>
     );
   }
@@ -51,11 +48,5 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
 }
-
-const styles = StyleSheet.create({
-  image: {
-    marginRight: 2,
-  },
-});
 
 export default ImageGalleryImage;
