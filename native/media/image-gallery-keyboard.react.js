@@ -26,6 +26,7 @@ type State = {|
   // null means end reached; undefined means no fetch yet
   cursor: ?string,
   queuedImageURIs: Set<string>,
+  focusedImageURI: ?string,
 |};
 class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
 
@@ -35,6 +36,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     containerHeight: null,
     cursor: undefined,
     queuedImageURIs: new Set(),
+    focusedImageURI: null,
   };
   mounted = false;
   fetchingPhotos = false;
@@ -134,7 +136,8 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
   renderItem = (row: { item: GalleryImageInfo }) => {
     const { containerHeight, queuedImageURIs } = this.state;
     invariant(containerHeight, "should be set");
-    const isQueued = queuedImageURIs.has(row.item.uri);
+    const { uri } = row.item;
+    const isQueued = queuedImageURIs.has(uri);
     const { queueModeActive } = this;
     return (
       <ImageGalleryImage
@@ -144,6 +147,8 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
         isQueued={isQueued}
         setImageQueued={this.setImageQueued}
         sendImage={this.sendImage}
+        isFocused={this.state.focusedImageURI === uri}
+        setFocus={this.setFocus}
       />
     );
   }
@@ -171,7 +176,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           showsHorizontalScrollIndicator={false}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={5}
-          extraData={this.state.containerHeight}
+          extraData={this.state}
         />
       );
     } else if (error) {
@@ -224,6 +229,10 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
       }
       return null;
     });
+  }
+
+  setFocus = (imageInfo: GalleryImageInfo) => {
+    this.setState({ focusedImageURI: imageInfo.uri });
   }
 
   sendImage = (imageInfo: GalleryImageInfo) => {

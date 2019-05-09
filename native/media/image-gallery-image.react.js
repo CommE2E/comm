@@ -18,11 +18,10 @@ type Props = {|
   isQueued: bool,
   setImageQueued: (image: GalleryImageInfo, isQueued: bool) => void,
   sendImage: (image: GalleryImageInfo) => void,
+  isFocused: bool,
+  setFocus: (image: GalleryImageInfo) => void,
 |};
-type State = {|
-  selected: bool,
-|};
-class ImageGalleryImage extends React.PureComponent<Props, State> {
+class ImageGalleryImage extends React.PureComponent<Props> {
 
   static propTypes = {
     imageInfo: PropTypes.shape({
@@ -35,20 +34,25 @@ class ImageGalleryImage extends React.PureComponent<Props, State> {
     isQueued: PropTypes.bool.isRequired,
     setImageQueued: PropTypes.func.isRequired,
     sendImage: PropTypes.func.isRequired,
-  };
-  state = {
-    selected: false,
+    isFocused: PropTypes.bool.isRequired,
+    setFocus: PropTypes.func.isRequired,
   };
   button: ?TouchableOpacity;
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  static isActive(props: Props) {
+    return props.isFocused || props.isQueued;
+  }
+
+  componentDidUpdate(prevProps: Props) {
     const { button } = this;
     if (!button) {
       return;
     }
-    if (this.state.selected && !prevState.selected) {
+    const isActive = ImageGalleryImage.isActive(this.props);
+    const wasActive = ImageGalleryImage.isActive(prevProps);
+    if (isActive && !wasActive) {
       button.setOpacityTo(0.2, 0);
-    } else if (!this.state.selected && prevState.selected) {
+    } else if (!isActive && wasActive) {
       button.setOpacityTo(1, 0);
     }
   }
@@ -62,7 +66,7 @@ class ImageGalleryImage extends React.PureComponent<Props, State> {
       width: width / height * containerHeight,
     };
     const buttonStyle = {
-      opacity: this.state.selected ? 0.2 : 1,
+      opacity: ImageGalleryImage.isActive(this.props) ? 0.2 : 1,
     };
     return (
       <TouchableOpacity
@@ -80,7 +84,7 @@ class ImageGalleryImage extends React.PureComponent<Props, State> {
   }
 
   onPress = () => {
-    this.setState({ selected: true });
+    this.props.setFocus(this.props.imageInfo);
   }
 
 }
