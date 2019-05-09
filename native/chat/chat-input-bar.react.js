@@ -21,6 +21,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard';
+import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
 import * as React from 'react';
 import {
@@ -512,7 +513,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.props.setImageGalleryOpen(false);
   }
 
-  onImageGalleryItemSelected = () => {
+  onImageGalleryItemSelected = (
+    keyboardName: string,
+    imageInfos: $ReadOnlyArray<GalleryImageInfo>,
+  ) => {
     KeyboardUtils.dismiss();
   }
 

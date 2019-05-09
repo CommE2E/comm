@@ -25,6 +25,7 @@ type State = {|
   containerHeight: ?number,
   // null means end reached; undefined means no fetch yet
   cursor: ?string,
+  queuedImageURIs: Set<string>,
 |};
 class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
 
@@ -33,6 +34,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     error: null,
     containerHeight: null,
     cursor: undefined,
+    queuedImageURIs: new Set(),
   };
   mounted = false;
   fetchingPhotos = false;
@@ -125,14 +127,23 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     }
   }
 
+  get queueModeActive() {
+    return this.state.queuedImageURIs.size > 0;
+  }
+
   renderItem = (row: { item: GalleryImageInfo }) => {
-    const { containerHeight } = this.state;
+    const { containerHeight, queuedImageURIs } = this.state;
     invariant(containerHeight, "should be set");
+    const isQueued = queuedImageURIs.has(row.item.uri);
+    const { queueModeActive } = this;
     return (
       <ImageGalleryImage
         imageInfo={row.item}
         containerHeight={containerHeight}
-        onSelect={this.onSelectImage}
+        queueModeActive={queueModeActive}
+        isQueued={isQueued}
+        setImageQueued={this.setImageQueued}
+        sendImage={this.sendImage}
       />
     );
   }
@@ -187,15 +198,55 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
     this.guardedSetState({ containerHeight: event.nativeEvent.layout.height });
   }
 
-  onSelectImage = (imageInfo: GalleryImageInfo) => {
-    KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, imageInfo);
-  }
-
   onEndReached = () => {
     const { cursor } = this.state;
     if (cursor !== null) {
       this.fetchPhotos(cursor);
     }
+  }
+
+  setImageQueued = (imageInfo: GalleryImageInfo, isQueued: bool) => {
+    this.setState((prevState: State) => {
+      const prevQueuedImageURIs = [ ...prevState.queuedImageURIs ];
+      if (isQueued) {
+        return {
+          queuedImageURIs: new Set([
+            ...prevQueuedImageURIs,
+            imageInfo.uri,
+          ]),
+        };
+      }
+      const queuedImageURIs = prevQueuedImageURIs.filter(
+        uri => uri !== imageInfo.uri,
+      );
+      if (queuedImageURIs.length < prevQueuedImageURIs.length) {
+        return { queuedImageURIs: new Set(queuedImageURIs) };
+      }
+      return null;
+    });
+  }
+
+  sendImage = (imageInfo: GalleryImageInfo) => {
+    this.sendImages([ imageInfo ]);
+  }
+
+  sendQueuedImages = () => {
+    const { imageInfos, queuedImageURIs } = this.state;
+    invariant(imageInfos, "should be set");
+    const queuedImageInfos = [];
+    for (let uri of this.state.queuedImageURIs) {
+      for (let imageInfo of imageInfos) {
+        if (imageInfo.uri === uri) {
+          queuedImageInfos.push(imageInfo);
+          break;
+        }
+      }
+    }
+    this.sendImages(queuedImageInfos);
+  }
+
+  sendImages(imageInfos: $ReadOnlyArray<GalleryImageInfo>) {
+    KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, imageInfos);
   }
 
 }

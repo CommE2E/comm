@@ -14,7 +14,10 @@ export type GalleryImageInfo = {|
 type Props = {|
   imageInfo: GalleryImageInfo,
   containerHeight: number,
-  onSelect: (imageInfo: GalleryImageInfo) => void,
+  queueModeActive: bool,
+  isQueued: bool,
+  setImageQueued: (image: GalleryImageInfo, isQueued: bool) => void,
+  sendImage: (image: GalleryImageInfo) => void,
 |};
 type State = {|
   selected: bool,
@@ -28,7 +31,10 @@ class ImageGalleryImage extends React.PureComponent<Props, State> {
       uri: PropTypes.string.isRequired,
     }).isRequired,
     containerHeight: PropTypes.number.isRequired,
-    onSelect: PropTypes.func.isRequired,
+    queueModeActive: PropTypes.bool.isRequired,
+    isQueued: PropTypes.bool.isRequired,
+    setImageQueued: PropTypes.func.isRequired,
+    sendImage: PropTypes.func.isRequired,
   };
   state = {
     selected: false,
@@ -74,7 +80,6 @@ class ImageGalleryImage extends React.PureComponent<Props, State> {
   }
 
   onPress = () => {
-    //this.props.onSelect(this.props.imageInfo);
     this.setState({ selected: true });
   }
 
