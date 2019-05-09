@@ -1,6 +1,8 @@
 // @flow
 
 import type { GalleryImageInfo } from './image-gallery-image.react';
+import type { AppState } from '../redux/redux-setup';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import {
@@ -15,10 +17,21 @@ import {
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
+import { Provider } from 'react-redux';
 
-import { contentBottomOffset } from '../selectors/dimension-selectors';
+import { connect } from 'lib/utils/redux-utils';
+
+import { store } from '../redux/redux-setup';
+import {
+  dimensionsSelector,
+  contentBottomOffset,
+} from '../selectors/dimension-selectors';
 import ImageGalleryImage from './image-gallery-image.react';
 
+type Props = {|
+  // Redux state
+  screenDimensions: Dimensions,
+|};
 type State = {|
   imageInfos: ?$ReadOnlyArray<GalleryImageInfo>,
   error: ?string,
@@ -28,8 +41,11 @@ type State = {|
   queuedImageURIs: Set<string>,
   focusedImageURI: ?string,
 |};
-class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
+class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    screenDimensions: dimensionsPropType.isRequired,
+  };
   state = {
     imageInfos: null,
     error: null,
@@ -149,6 +165,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
         sendImage={this.sendImage}
         isFocused={this.state.focusedImageURI === uri}
         setFocus={this.setFocus}
+        screenWidth={this.props.screenDimensions.width}
       />
     );
   }
@@ -177,6 +194,7 @@ class ImageGalleryKeyboard extends React.PureComponent<{||}, State> {
           onEndReached={this.onEndReached}
           onEndReachedThreshold={5}
           extraData={this.state}
+          anotherExtraData={this.props.screenDimensions.width}
         />
       );
     } else if (error) {
@@ -289,9 +307,23 @@ const styles = StyleSheet.create({
   },
 });
 
+const ReduxConnectedImageGalleryKeyboard = connect(
+  (state: AppState) => ({
+    screenDimensions: dimensionsSelector(state)
+  }),
+)(ImageGalleryKeyboard);
+
+function ReduxImageGalleryKeyboard(props: {||}) {
+  return (
+    <Provider store={store}>
+      <ReduxConnectedImageGalleryKeyboard />
+    </Provider>
+  );
+}
+
 KeyboardRegistry.registerKeyboard(
   imageGalleryKeyboardName,
-  () => ImageGalleryKeyboard,
+  () => ReduxImageGalleryKeyboard,
 );
 
 export {

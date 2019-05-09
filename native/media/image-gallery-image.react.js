@@ -20,6 +20,7 @@ type Props = {|
   sendImage: (image: GalleryImageInfo) => void,
   isFocused: bool,
   setFocus: (image: GalleryImageInfo) => void,
+  screenWidth: number,
 |};
 class ImageGalleryImage extends React.PureComponent<Props> {
 
@@ -36,6 +37,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     sendImage: PropTypes.func.isRequired,
     isFocused: PropTypes.bool.isRequired,
     setFocus: PropTypes.func.isRequired,
+    screenWidth: PropTypes.number.isRequired,
   };
   button: ?TouchableOpacity;
 
@@ -63,7 +65,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     const source = { uri };
     const imageStyle = {
       height: containerHeight,
-      width: width / height * containerHeight,
+      width: Math.min(
+        width / height * containerHeight,
+        this.props.screenWidth,
+      ),
     };
     const buttonStyle = {
       opacity: ImageGalleryImage.isActive(this.props) ? 0.2 : 1,
