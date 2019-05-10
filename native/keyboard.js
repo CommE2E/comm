@@ -101,7 +101,9 @@ function callShowCallbackIfAppActive(
   return (event: KeyboardEvent) => {
     if (event) {
       const { height } = event.endCoordinates;
-      if (height > 0 && (!keyboardHeight || keyboardHeight < height)) {
+      // On iOS simulator, when the keyboard is disabled we still trigger here,
+      // but with small values. This condition should filter that out
+      if (Platform.OS !== "ios" || height > 100) {
         keyboardHeight = height;
       }
     }
