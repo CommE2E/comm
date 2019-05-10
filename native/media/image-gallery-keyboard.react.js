@@ -40,22 +40,28 @@ type State = {|
   cursor: ?string,
   queuedImageURIs: Set<string>,
   focusedImageURI: ?string,
+  screenWidth: number,
 |};
 class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
   static propTypes = {
     screenDimensions: dimensionsPropType.isRequired,
   };
-  state = {
-    imageInfos: null,
-    error: null,
-    containerHeight: null,
-    cursor: undefined,
-    queuedImageURIs: new Set(),
-    focusedImageURI: null,
-  };
   mounted = false;
   fetchingPhotos = false;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      imageInfos: null,
+      error: null,
+      containerHeight: null,
+      cursor: undefined,
+      queuedImageURIs: new Set(),
+      focusedImageURI: null,
+      screenWidth: props.screenDimensions.width,
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -64,6 +70,15 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { width } = this.props.screenDimensions;
+    if (width !== prevProps.screenDimensions.width) {
+      // We keep screenWidth in this.state since that's what we pass in as
+      // FlatList's extraData
+      this.setState({ screenWidth: width });
+    }
   }
 
   guardedSetState(change) {
@@ -175,7 +190,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
         sendImage={this.sendImage}
         isFocused={this.state.focusedImageURI === uri}
         setFocus={this.setFocus}
-        screenWidth={this.props.screenDimensions.width}
+        screenWidth={this.state.screenWidth}
       />
     );
   }
@@ -204,7 +219,6 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
           onEndReached={this.onEndReached}
           onEndReachedThreshold={5}
           extraData={this.state}
-          anotherExtraData={this.props.screenDimensions.width}
         />
       );
     } else if (error) {
