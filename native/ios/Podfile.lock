@@ -36,6 +36,8 @@ PODS:
     - React/Core (= 0.59.4)
   - react-native-async-storage (1.3.0):
     - React
+  - react-native-cameraroll (1.0.4):
+    - React
   - react-native-exit-app (0.1.0):
     - React
   - react-native-fast-image (5.2.0):
@@ -132,6 +134,7 @@ DEPENDENCIES:
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - "react-native-async-storage (from `../../node_modules/@react-native-community/async-storage`)"
+  - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-exit-app (from `../../node_modules/react-native-exit-app`)
   - react-native-fast-image (from `../../node_modules/react-native-fast-image`)
   - react-native-keyboard-input (from `../../node_modules/react-native-keyboard-input`)
@@ -177,6 +180,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native"
   react-native-async-storage:
     :path: "../../node_modules/@react-native-community/async-storage"
+  react-native-cameraroll:
+    :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-exit-app:
     :path: "../../node_modules/react-native-exit-app"
   react-native-fast-image:
@@ -218,6 +223,7 @@ SPEC CHECKSUMS:
   libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
   React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
+  react-native-cameraroll: 63207a7daac2786786b301545a709c19f285aec6
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
   react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
@@ -235,6 +241,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: ffdcac0712f6be90ee5f78b3720bdbcd0237f5c5
+PODFILE CHECKSUM: c5dd2e520f9a9151f0af2081ebe40fcb63e74e0a
 
 COCOAPODS: 1.6.1

@@ -9,7 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  CameraRoll,
   Platform,
   PermissionsAndroid,
   FlatList,
@@ -18,6 +17,7 @@ import {
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
+import CameraRoll from '@react-native-community/cameraroll';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -72,6 +72,19 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
+  static getPhotosQuery(after: ?string) {
+    const base = {};
+    base.first = 20;
+    base.assetType = "Photos";
+    if (Platform.OS !== "android") {
+      base.groupTypes = "All";
+    }
+    if (after) {
+      base.after = after;
+    }
+    return base;
+  }
+
   async fetchPhotos(after?: ?string) {
     if (this.fetchingPhotos) {
       return;
@@ -84,12 +97,9 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
           return;
         }
       }
-      const { edges, page_info } = await CameraRoll.getPhotos({
-        first: 20,
-        after,
-        groupTypes: "All",
-        assetType: "Photos",
-      });
+      const { edges, page_info } = await CameraRoll.getPhotos(
+        ImageGalleryKeyboard.getPhotosQuery(after),
+      );
       const imageURIs = this.state.imageInfos
         ? this.state.imageInfos.map(({ uri }) => uri)
         : [];
