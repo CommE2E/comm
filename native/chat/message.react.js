@@ -23,6 +23,7 @@ import {
   View,
   LayoutAnimation,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
@@ -132,12 +133,21 @@ class Message extends React.PureComponent<Props> {
         />
       );
     }
+    const messageView = (
+      <View>
+        {conversationHeader}
+        {message}
+      </View>
+    );
+    if (Platform.OS === "android" && Platform.Version < 21) {
+      // On old Android 4.4 devices, we can get a stack overflow during draw
+      // when we use the TouchableWithoutFeedback below. It's just too deep of
+      // a stack for the old hardware to handle
+      return messageView;
+    }
     return (
       <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
-        <View>
-          {conversationHeader}
-          {message}
-        </View>
+        {messageView}
       </TouchableWithoutFeedback>
     );
   }
