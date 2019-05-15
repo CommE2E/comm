@@ -3,6 +3,7 @@
 import type { GalleryImageInfo } from './image-gallery-image.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 
 import * as React from 'react';
 import {
@@ -49,6 +50,8 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   };
   mounted = false;
   fetchingPhotos = false;
+  flatList: ?FlatList;
+  viewableIndices: number[] = [];
 
   constructor(props: Props) {
     super(props);
@@ -72,12 +75,32 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     const { width } = this.props.screenDimensions;
     if (width !== prevProps.screenDimensions.width) {
       // We keep screenWidth in this.state since that's what we pass in as
       // FlatList's extraData
       this.setState({ screenWidth: width });
+    }
+
+    const { flatList, viewableIndices } = this;
+    const { imageInfos, focusedImageURI } = this.state;
+    if (
+      flatList &&
+      imageInfos &&
+      focusedImageURI &&
+      focusedImageURI !== prevState.focusedImageURI
+    ) {
+      const index = imageInfos.findIndex(({ uri }) => uri === focusedImageURI);
+      invariant(
+        index !== null && index !== undefined,
+        `could not find ${focusedImageURI} in imageInfos state!`,
+      );
+      if (index === this.viewableIndices[0]) {
+        flatList.scrollToIndex({ index });
+      } else if (index === viewableIndices[viewableIndices.length - 1]) {
+        flatList.scrollToIndex({ index, viewPosition: 1 });
+      }
     }
   }
 
@@ -218,7 +241,9 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
           showsHorizontalScrollIndicator={false}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={5}
+          onViewableItemsChanged={this.onViewableItemsChanged}
           extraData={this.state}
+          ref={this.flatListRef}
         />
       );
     } else if (error) {
@@ -239,6 +264,10 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     );
   }
 
+  flatListRef = (flatList: ?FlatList) => {
+    this.flatList = flatList;
+  }
+
   onContainerLayout = (
     event: { nativeEvent: { layout: { height: number } } },
   ) => {
@@ -250,6 +279,19 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     if (cursor !== null) {
       this.fetchPhotos(cursor);
     }
+  }
+
+  onViewableItemsChanged = (info: {
+    viewableItems: ViewToken[],
+    changed: ViewToken[],
+  }) => {
+    const viewableIndices = [];
+    for (let { index } of info.viewableItems) {
+      if (index !== null && index !== undefined) {
+        viewableIndices.push(index);
+      }
+    }
+    this.viewableIndices = viewableIndices;
   }
 
   setImageQueued = (imageInfo: GalleryImageInfo, isQueued: bool) => {
