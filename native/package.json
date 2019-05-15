@@ -21,6 +21,7 @@
     "invariant": "^2.2.2",
     "lib": "0.0.1",
     "lodash": "^4.17.5",
+    "lottie-react-native": "^2.6.1",
     "react": "16.8.3",
     "react-native": "0.59.4",
     "react-native-exit-app": "git+https://github.com/wumke/react-native-exit-app.git#460d40aaacb1aa95d7ed5f21e7906ba930c74301",

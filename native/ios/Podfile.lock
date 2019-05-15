@@ -32,6 +32,10 @@ PODS:
   - libwebp/utils (1.0.2):
     - libwebp/core
   - libwebp/webp (1.0.2)
+  - lottie-ios (2.5.3)
+  - lottie-react-native (2.6.1):
+    - lottie-ios (~> 2.5.0)
+    - React
   - React (0.59.4):
     - React/Core (= 0.59.4)
   - react-native-async-storage (1.3.0):
@@ -133,6 +137,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - lottie-react-native (from `../../node_modules/lottie-react-native`)
   - "react-native-async-storage (from `../../node_modules/@react-native-community/async-storage`)"
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-exit-app (from `../../node_modules/react-native-exit-app`)
@@ -167,6 +172,7 @@ SPEC REPOS:
     - boost-for-react-native
     - FLAnimatedImage
     - libwebp
+    - lottie-ios
     - SDWebImage
 
 EXTERNAL SOURCES:
@@ -176,6 +182,8 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
+  lottie-react-native:
+    :path: "../../node_modules/lottie-react-native"
   React:
     :path: "../../node_modules/react-native"
   react-native-async-storage:
@@ -221,6 +229,8 @@ SPEC CHECKSUMS:
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
+  lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
+  lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
   React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
   react-native-cameraroll: 63207a7daac2786786b301545a709c19f285aec6
@@ -241,6 +251,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: c5dd2e520f9a9151f0af2081ebe40fcb63e74e0a
+PODFILE CHECKSUM: 4eb375e902364646a45875bc7e829aa6b00f5de5
 
 COCOAPODS: 1.6.1

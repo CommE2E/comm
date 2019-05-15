@@ -40,6 +40,7 @@ target 'SquadCal' do
   pod 'react-native-keyboard-tracking-view', :path => '../../node_modules/react-native-keyboard-tracking-view'
   pod 'react-native-keyboard-input', :path => '../../node_modules/react-native-keyboard-input'
   pod 'react-native-cameraroll', :path => '../../node_modules/@react-native-community/cameraroll'
+  pod 'lottie-react-native', :path => '../../node_modules/lottie-react-native'
 
   target 'SquadCalTests' do
     inherit! :search_paths
