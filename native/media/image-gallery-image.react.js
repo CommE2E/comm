@@ -1,6 +1,7 @@
 // @flow
 
 import type { Dimensions } from 'lib/types/media-types';
+import type { ViewStyle, ImageStyle } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Animated, { Easing } from 'react-native-reanimated';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -49,22 +51,63 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     screenWidth: PropTypes.number.isRequired,
   };
   backdrop: ?TouchableOpacity;
+  focusProgress = new Animated.Value(0);
+  buttonsStyle: ViewStyle;
+  imageStyle: ImageStyle;
+
+  constructor(props: Props) {
+    super(props);
+    const buttonsScale = Animated.interpolate(
+      this.focusProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1.3, 1 ],
+      },
+    );
+    this.buttonsStyle = {
+      ...styles.buttons,
+      opacity: this.focusProgress,
+      transform: [
+        { scale: buttonsScale },
+      ],
+    };
+    const imageScale = Animated.interpolate(
+      this.focusProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1, 1.3 ],
+      },
+    );
+    this.imageStyle = {
+      transform: [
+        { scale: imageScale },
+      ],
+    };
+  }
 
   static isActive(props: Props) {
     return props.isFocused || props.isQueued;
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { backdrop } = this;
-    if (!backdrop) {
-      return;
-    }
     const isActive = ImageGalleryImage.isActive(this.props);
     const wasActive = ImageGalleryImage.isActive(prevProps);
     if (isActive && !wasActive) {
-      backdrop.setOpacityTo(0.2, 0);
+      if (this.backdrop) {
+        this.backdrop.setOpacityTo(0.2, 0);
+      }
+      Animated.timing(
+        this.focusProgress,
+        { duration: 400, toValue: 1, easing: Easing.inOut(Easing.ease) },
+      ).start();
     } else if (!isActive && wasActive) {
-      backdrop.setOpacityTo(1, 0);
+      if (this.backdrop) {
+        this.backdrop.setOpacityTo(1, 0);
+      }
+      Animated.timing(
+        this.focusProgress,
+        { duration: 400, toValue: 0, easing: Easing.inOut(Easing.ease) },
+      ).start();
     }
   }
 
@@ -118,9 +161,9 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         </TouchableOpacity>
       );
       buttons = (
-        <View style={styles.buttons}>
+        <Animated.View style={this.buttonsStyle}>
           {buttonList}
-        </View>
+        </Animated.View>
       );
     }
 
@@ -128,10 +171,13 @@ class ImageGalleryImage extends React.PureComponent<Props> {
       <View style={[ styles.container, dimensionsStyle ]}>
         <TouchableOpacity
           onPress={this.onPressBackdrop}
-          style={[ styles.container, backdropStyle ]}
+          style={[ backdropStyle ]}
           ref={this.backdropRef}
         >
-          <Image source={source} style={dimensionsStyle} />
+          <Animated.Image
+            source={source}
+            style={[ this.imageStyle, dimensionsStyle ]}
+          />
         </TouchableOpacity>
         {buttons}
       </View>
@@ -169,6 +215,7 @@ const buttonStyle = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    overflow: 'hidden',
   },
   buttons: {
     position: 'absolute',
