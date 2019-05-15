@@ -4,7 +4,16 @@ import type { Dimensions } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Image, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import {
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -84,8 +93,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
           <TouchableOpacity
             onPress={this.onPressSend}
             style={styles.sendButton}
+            activeOpacity={0.6}
             key="send"
           >
+            <Icon name="send" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
               Send
             </Text>
@@ -97,8 +108,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         <TouchableOpacity
           onPress={this.onPressEnqueue}
           style={styles.enqueueButton}
+          activeOpacity={0.6}
           key="queue"
         >
+          <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
           <Text style={styles.buttonText}>
             {enqueueButtonText}
           </Text>
@@ -143,6 +156,16 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
 }
 
+const buttonStyle = {
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  margin: 10,
+  borderRadius: 20,
+  paddingLeft: 20,
+  paddingRight: 20,
+  paddingTop: 10,
+  paddingBottom: 10,
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -157,21 +180,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sendButton: {
-    margin: 10,
-    borderRadius: 20,
-    padding: 10,
-    borderColor: 'black',
-    borderWidth: 1,
+    ...buttonStyle,
+    backgroundColor: '#0D9314',
+    paddingLeft: 18,
   },
   enqueueButton: {
-    margin: 10,
-    borderRadius: 20,
-    padding: 10,
-    borderColor: 'black',
-    borderWidth: 1,
+    ...buttonStyle,
+    backgroundColor: '#0C3092',
+  },
+  buttonIcon: {
+    alignSelf: Platform.OS === "android" ? 'center' : 'flex-end',
+    marginRight: 6,
+    color: 'white',
+    fontSize: 18,
+    paddingRight: 5,
   },
   buttonText: {
-    color: 'black',
+    color: 'white',
     fontSize: 16,
   },
 });
