@@ -203,7 +203,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
             />
           </Animated.View>
         </GenericTouchable>
-        <Animated.View style={this.buttonsStyle} pointerEvents="box-none">
+        <Animated.View
+          style={this.buttonsStyle}
+          pointerEvents={active ? 'box-none' : 'none'}
+        >
           {buttons}
         </Animated.View>
       </View>
@@ -271,12 +274,12 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     ...buttonStyle,
-    backgroundColor: '#0D9314',
+    backgroundColor: '#7ED321',
     paddingLeft: 18,
   },
   enqueueButton: {
     ...buttonStyle,
-    backgroundColor: '#0C3092',
+    backgroundColor: '#2A78E5',
   },
   buttonIcon: {
     alignSelf: Platform.OS === "android" ? 'center' : 'flex-end',

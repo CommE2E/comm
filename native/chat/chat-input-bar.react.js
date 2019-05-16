@@ -286,44 +286,46 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         );
       }
       content = (
-        <View style={styles.inputContainer}>
-          <Animated.View style={this.expandoButtonsStyle}>
-            <TouchableOpacity
-              onPress={this.onRightmostButtonPress}
-              activeOpacity={0.4}
-              style={styles.expandoButtons}
-            >
-              <Animated.View style={this.expandIconStyle}>
-                <FAIcon
-                  name="chevron-right"
-                  size={19}
-                  color="#888888"
-                />
-              </Animated.View>
-              <Animated.View style={this.cameraRollIconStyle}>
-                <Icon
-                  name="md-image"
-                  size={25}
-                  color="#888888"
-                />
-              </Animated.View>
-            </TouchableOpacity>
-          </Animated.View>
-          <View style={styles.textInputContainer}>
-            <TextInput
-              value={this.state.text}
-              onChangeText={this.updateText}
-              underlineColorAndroid="transparent"
-              placeholder="Send a message..."
-              placeholderTextColor="#888888"
-              multiline={true}
-              onContentSizeChange={this.onContentSizeChange}
-              style={[styles.textInput, this.textInputStyle]}
-              ref={this.textInputRef}
-            />
+        <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+          <View style={styles.inputContainer}>
+            <Animated.View style={this.expandoButtonsStyle}>
+              <TouchableOpacity
+                onPress={this.onRightmostButtonPress}
+                activeOpacity={0.4}
+                style={styles.expandoButtons}
+              >
+                <Animated.View style={this.expandIconStyle}>
+                  <FAIcon
+                    name="chevron-right"
+                    size={19}
+                    color="#888888"
+                  />
+                </Animated.View>
+                <Animated.View style={this.cameraRollIconStyle}>
+                  <Icon
+                    name="md-image"
+                    size={25}
+                    color="#888888"
+                  />
+                </Animated.View>
+              </TouchableOpacity>
+            </Animated.View>
+            <View style={styles.textInputContainer}>
+              <TextInput
+                value={this.state.text}
+                onChangeText={this.updateText}
+                underlineColorAndroid="transparent"
+                placeholder="Send a message..."
+                placeholderTextColor="#888888"
+                multiline={true}
+                onContentSizeChange={this.onContentSizeChange}
+                style={[styles.textInput, this.textInputStyle]}
+                ref={this.textInputRef}
+              />
+            </View>
+            {button}
           </View>
-          {button}
-        </View>
+        </TouchableWithoutFeedback>
       );
     } else if (isMember) {
       content = (
@@ -374,13 +376,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     return (
-      <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
-        <View style={styles.container}>
-          {joinButton}
-          {content}
-          {keyboardAccessoryView}
-        </View>
-      </TouchableWithoutFeedback>
+      <View style={styles.container}>
+        {joinButton}
+        {content}
+        {keyboardAccessoryView}
+      </View>
     );
   }
 
