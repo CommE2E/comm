@@ -19,6 +19,10 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LottieView from 'lottie-react-native';
+import
+  GenericTouchable,
+  { TOUCHABLE_STATE }
+from 'react-native-gesture-handler/touchables/GenericTouchable';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -58,9 +62,9 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
   };
-  backdrop: ?TouchableOpacity;
   focusProgress = new Animated.Value(0);
   buttonsStyle: ViewStyle;
+  backdropProgress = new Animated.Value(0);
   imageStyle: ImageStyle;
   checkProgress = new Animated.Value(0);
 
@@ -77,11 +81,16 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         { scale: buttonsScale },
       ],
     };
+    const backdropOpacity = this.backdropProgress.interpolate({
+      inputRange: [ 0, 1 ],
+      outputRange: [ 1, 0.2 ],
+    });
     const imageScale = this.focusProgress.interpolate({
       inputRange: [ 0, 1 ],
       outputRange: [ 1, 1.3 ],
     });
     this.imageStyle = {
+      opacity: backdropOpacity,
       transform: [
         { scale: imageScale },
       ],
@@ -98,37 +107,35 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     const isActive = ImageGalleryImage.isActive(this.props);
     const wasActive = ImageGalleryImage.isActive(prevProps);
     if (isActive && !wasActive) {
-      if (this.backdrop) {
-        this.backdrop.setOpacityTo(0.2, 0);
-      }
-      animations.push(Animated.timing(
+      Animated.timing(
+        this.backdropProgress,
+        { ...animationSpec, toValue: 1 },
+      ).start();
+      Animated.timing(
         this.focusProgress,
         { ...animationSpec, toValue: 1 },
-      ));
+      ).start();
     } else if (!isActive && wasActive) {
-      if (this.backdrop) {
-        this.backdrop.setOpacityTo(1, 0);
-      }
-      animations.push(Animated.timing(
+      Animated.timing(
+        this.backdropProgress,
+        { ...animationSpec, toValue: 0 },
+      ).start();
+      Animated.timing(
         this.focusProgress,
         { ...animationSpec, toValue: 0 },
-      ));
+      ).start();
     }
 
     if (this.props.isQueued && !prevProps.isQueued) {
-      animations.push(Animated.timing(
+      Animated.timing(
         this.checkProgress,
         { ...animationSpec, toValue: 1 },
-      ));
+      ).start();
     } else if (!this.props.isQueued && prevProps.isQueued) {
-      animations.push(Animated.timing(
+      Animated.timing(
         this.checkProgress,
         { ...animationSpec, toValue: 0 },
-      ));
-    }
-
-    if (animations.length > 0) {
-      Animated.parallel(animations).start();
+      ).start();
     }
   }
 
@@ -144,9 +151,6 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         this.props.screenWidth,
       ),
     };
-    const backdropStyle = {
-      opacity: active ? 0.2 : 1,
-    };
 
     let buttons = null;
     const { queueModeActive, isQueued } = this.props;
@@ -157,6 +161,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
             onPress={this.onPressSend}
             style={styles.sendButton}
             activeOpacity={0.6}
+            disabled={!active}
           >
             <Icon name="send" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
@@ -167,6 +172,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
             onPress={this.onPressEnqueue}
             style={styles.enqueueButton}
             activeOpacity={0.6}
+            disabled={!active}
           >
             <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
@@ -179,37 +185,29 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
     return (
       <View style={[ styles.container, dimensionsStyle ]}>
-        <TouchableOpacity
+        <GenericTouchable
           onPress={this.onPressBackdrop}
-          style={[ backdropStyle ]}
-          ref={this.backdropRef}
+          onStateChange={this.onBackdropStateChange}
+          delayPressOut={1}
         >
           <Animated.Image
             source={source}
             style={[ this.imageStyle, dimensionsStyle ]}
           />
-        </TouchableOpacity>
-        <Animated.View style={this.buttonsStyle} pointerEvents="box-none">
-          <TouchableWithoutFeedback
-            style={styles.buttons}
-            onPress={this.onPressBackdrop}
-          >
+          <Animated.View style={this.buttonsStyle}>
             <LottieView
               source={require('../animations/check.json')}
               progress={this.checkProgress}
               style={styles.checkAnimation}
-              pointerEvents="box-none"
               resizeMode="cover"
             />
-          </TouchableWithoutFeedback>
+          </Animated.View>
+        </GenericTouchable>
+        <Animated.View style={this.buttonsStyle} pointerEvents="box-none">
           {buttons}
         </Animated.View>
       </View>
     );
-  }
-
-  backdropRef = (backdrop: ?TouchableOpacity) => {
-    this.backdrop = backdrop;
   }
 
   onPressBackdrop = () => {
@@ -219,6 +217,21 @@ class ImageGalleryImage extends React.PureComponent<Props> {
       this.props.setImageQueued(this.props.imageInfo, true);
     } else {
       this.props.setFocus(this.props.imageInfo, !this.props.isFocused);
+    }
+  }
+
+  onBackdropStateChange = (from: number, to: number) => {
+    if (to === TOUCHABLE_STATE.BEGAN) {
+      this.backdropProgress.setValue(1);
+    } else if (
+      !ImageGalleryImage.isActive(this.props) &&
+      (to === TOUCHABLE_STATE.UNDETERMINED ||
+        to === TOUCHABLE_STATE.MOVED_OUTSIDE)
+    ) {
+      Animated.timing(
+        this.backdropProgress,
+        { ...animationSpec, duration: 150, toValue: 0 },
+      ).start();
     }
   }
 
