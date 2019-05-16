@@ -167,9 +167,12 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     const active = ImageGalleryImage.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
-      width: Math.min(
-        width / height * containerHeight,
-        this.props.screenWidth,
+      width: Math.max(
+        Math.min(
+          width / height * containerHeight,
+          this.props.screenWidth,
+        ),
+        150,
       ),
     };
 
