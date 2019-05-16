@@ -14,11 +14,13 @@ import {
   PermissionsAndroid,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
 import CameraRoll from '@react-native-community/cameraroll';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -270,9 +272,30 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
         />
       );
     }
+
+    let floatingSendButton = null;
+    const { queuedImageURIs } = this.state;
+    if (queuedImageURIs && queuedImageURIs.size > 0) {
+      floatingSendButton = (
+        <TouchableOpacity
+          onPress={this.sendQueuedImages}
+          style={styles.sendButton}
+          activeOpacity={0.6}
+        >
+          <Icon name="send" style={styles.sendIcon} />
+          <View style={styles.queueCountBubble}>
+            <Text style={styles.queueCountText}>
+              {queuedImageURIs.size}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
     return (
       <View style={styles.container} onLayout={this.onContainerLayout}>
         {content}
+        {floatingSendButton}
       </View>
     );
   }
@@ -394,6 +417,40 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     flex: 1,
     marginBottom: contentBottomOffset,
+  },
+  sendButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: '#7ED321',
+    borderRadius: 30,
+    paddingLeft: 14,
+    paddingRight: 16,
+    paddingTop: 14,
+    paddingBottom: 16,
+    borderWidth: 4,
+    borderColor: 'white',
+  },
+  sendIcon: {
+    color: 'white',
+    fontSize: 22,
+  },
+  queueCountBubble: {
+    backgroundColor: '#222222',
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 25,
+    height: 25,
+    paddingLeft: 1,
+    paddingBottom: Platform.OS === "android" ? 2 : 0,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  queueCountText: {
+    textAlign: 'center',
+    color: 'white',
   },
 });
 
