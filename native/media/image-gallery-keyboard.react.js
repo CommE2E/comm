@@ -39,7 +39,7 @@ type State = {|
   containerHeight: ?number,
   // null means end reached; undefined means no fetch yet
   cursor: ?string,
-  queuedImageURIs: Set<string>,
+  queuedImageURIs: ?Set<string>,
   focusedImageURI: ?string,
   screenWidth: number,
 |};
@@ -60,7 +60,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       error: null,
       containerHeight: null,
       cursor: undefined,
-      queuedImageURIs: new Set(),
+      queuedImageURIs: null,
       focusedImageURI: null,
       screenWidth: props.screenDimensions.width,
     };
@@ -85,13 +85,18 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
     const { flatList, viewableIndices } = this;
     const { imageInfos, focusedImageURI, queuedImageURIs } = this.state;
+    const prevQueuedImageURIs = prevState.queuedImageURIs;
     if (flatList && imageInfos) {
       let newURI;
       if (focusedImageURI && focusedImageURI !== prevState.focusedImageURI) {
         newURI = focusedImageURI;
-      } else if (queuedImageURIs.size > prevState.queuedImageURIs.size) {
+      } else if (
+        queuedImageURIs &&
+        (!prevQueuedImageURIs ||
+          queuedImageURIs.size > prevQueuedImageURIs.size)
+      ) {
         for (let queuedImageURI of queuedImageURIs) {
-          if (prevState.queuedImageURIs.has(queuedImageURI)) {
+          if (prevQueuedImageURIs && prevQueuedImageURIs.has(queuedImageURI)) {
             continue;
           }
           newURI = queuedImageURI;
@@ -99,7 +104,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
         }
       }
       let index;
-      if (newURI !== null & newURI !== undefined) {
+      if (newURI !== null && newURI !== undefined) {
         index = imageInfos.findIndex(({ uri }) => uri === newURI);
       }
       if (index !== null && index !== undefined) {
@@ -202,14 +207,14 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   get queueModeActive() {
-    return this.state.queuedImageURIs.size > 0;
+    return !!this.state.queuedImageURIs;
   }
 
   renderItem = (row: { item: GalleryImageInfo }) => {
     const { containerHeight, queuedImageURIs } = this.state;
     invariant(containerHeight, "should be set");
     const { uri } = row.item;
-    const isQueued = queuedImageURIs.has(uri);
+    const isQueued = !!(queuedImageURIs && queuedImageURIs.has(uri));
     const { queueModeActive } = this;
     return (
       <ImageGalleryImage
@@ -304,7 +309,9 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
   setImageQueued = (imageInfo: GalleryImageInfo, isQueued: bool) => {
     this.setState((prevState: State) => {
-      const prevQueuedImageURIs = [ ...prevState.queuedImageURIs ];
+      const prevQueuedImageURIs = prevState.queuedImageURIs
+        ? [ ...prevState.queuedImageURIs ]
+        : [];
       if (isQueued) {
         return {
           queuedImageURIs: new Set([
@@ -337,9 +344,9 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
   sendQueuedImages = () => {
     const { imageInfos, queuedImageURIs } = this.state;
-    invariant(imageInfos, "should be set");
+    invariant(imageInfos && queuedImageURIs, "should be set");
     const queuedImageInfos = [];
-    for (let uri of this.state.queuedImageURIs) {
+    for (let uri of queuedImageURIs) {
       for (let imageInfo of imageInfos) {
         if (imageInfo.uri === uri) {
           queuedImageInfos.push(imageInfo);
