@@ -4,6 +4,7 @@ import type { GalleryImageInfo } from './image-gallery-image.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -30,6 +31,12 @@ import {
   contentBottomOffset,
 } from '../selectors/dimension-selectors';
 import ImageGalleryImage from './image-gallery-image.react';
+import Animated, { Easing } from 'react-native-reanimated';
+
+const animationSpec = {
+  duration: 400,
+  easing: Easing.inOut(Easing.ease),
+};
 
 type Props = {|
   // Redux state
@@ -54,9 +61,25 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   fetchingPhotos = false;
   flatList: ?FlatList;
   viewableIndices: number[] = [];
+  queueModeProgress = new Animated.Value(0);
+  sendButtonStyle: ViewStyle;
 
   constructor(props: Props) {
     super(props);
+    const sendButtonScale = Animated.interpolate(
+      this.queueModeProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1.3, 1 ],
+      },
+    );
+    this.sendButtonStyle = {
+      ...styles.sendButton,
+      opacity: this.queueModeProgress,
+      transform: [
+        { scale: sendButtonScale },
+      ],
+    };
     this.state = {
       imageInfos: null,
       error: null,
@@ -85,9 +108,22 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       this.setState({ screenWidth: width });
     }
 
-    const { flatList, viewableIndices } = this;
-    const { imageInfos, focusedImageURI, queuedImageURIs } = this.state;
+    const { queuedImageURIs } = this.state;
     const prevQueuedImageURIs = prevState.queuedImageURIs;
+    if (queuedImageURIs && !prevQueuedImageURIs) {
+      Animated.timing(
+        this.queueModeProgress,
+        { ...animationSpec, toValue: 1 },
+      ).start();
+    } else if (!queuedImageURIs && prevQueuedImageURIs) {
+      Animated.timing(
+        this.queueModeProgress,
+        { ...animationSpec, toValue: 0 },
+      ).start();
+    }
+
+    const { flatList, viewableIndices } = this;
+    const { imageInfos, focusedImageURI } = this.state;
     if (flatList && imageInfos) {
       let newURI;
       if (focusedImageURI && focusedImageURI !== prevState.focusedImageURI) {
@@ -273,29 +309,25 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       );
     }
 
-    let floatingSendButton = null;
     const { queuedImageURIs } = this.state;
-    if (queuedImageURIs && queuedImageURIs.size > 0) {
-      floatingSendButton = (
-        <TouchableOpacity
-          onPress={this.sendQueuedImages}
-          style={styles.sendButton}
-          activeOpacity={0.6}
-        >
-          <Icon name="send" style={styles.sendIcon} />
-          <View style={styles.queueCountBubble}>
-            <Text style={styles.queueCountText}>
-              {queuedImageURIs.size}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
+    const queueCount = queuedImageURIs ? queuedImageURIs.size : 0;
     return (
       <View style={styles.container} onLayout={this.onContainerLayout}>
         {content}
-        {floatingSendButton}
+        <TouchableOpacity
+          onPress={this.sendQueuedImages}
+          activeOpacity={0.6}
+          style={styles.sendButtonContainer}
+        >
+          <Animated.View style={this.sendButtonStyle}>
+            <Icon name="send" style={styles.sendIcon} />
+            <View style={styles.queueCountBubble}>
+              <Text style={styles.queueCountText}>
+                {queueCount}
+              </Text>
+            </View>
+          </Animated.View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -418,10 +450,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: contentBottomOffset,
   },
-  sendButton: {
+  sendButtonContainer: {
     position: 'absolute',
     bottom: 30,
     right: 30,
+  },
+  sendButton: {
     backgroundColor: '#7ED321',
     borderRadius: 30,
     paddingLeft: 14,
