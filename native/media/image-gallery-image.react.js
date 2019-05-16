@@ -73,6 +73,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
   backdropProgress = new Reanimated.Value(0);
+  animatingBackdropToZero = false;
   imageStyle: ImageStyle;
   checkProgress = new Animated.Value(0);
 
@@ -133,10 +134,13 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         { ...reanimatedSpec, toValue: 1 },
       ).start();
     } else if (!isActive && wasActive) {
-      Reanimated.timing(
-        this.backdropProgress,
-        { ...reanimatedSpec, toValue: 0 },
-      ).start();
+      if (!this.animatingBackdropToZero) {
+        this.animatingBackdropToZero = true;
+        Reanimated.timing(
+          this.backdropProgress,
+          { ...reanimatedSpec, toValue: 0 },
+        ).start(this.onAnimatingBackdropToZeroCompletion);
+      }
       Reanimated.timing(
         this.focusProgress,
         { ...reanimatedSpec, toValue: 0 },
@@ -241,17 +245,21 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   onBackdropStateChange = (from: number, to: number) => {
+    if (ImageGalleryImage.isActive(this.props)) {
+      return;
+    }
     if (to === TOUCHABLE_STATE.BEGAN) {
       this.backdropProgress.setValue(1);
     } else if (
-      !ImageGalleryImage.isActive(this.props) &&
+      !this.animatingBackdropToZero &&
       (to === TOUCHABLE_STATE.UNDETERMINED ||
         to === TOUCHABLE_STATE.MOVED_OUTSIDE)
     ) {
+      this.animatingBackdropToZero = true;
       Reanimated.timing(
         this.backdropProgress,
         { ...reanimatedSpec, duration: 150, toValue: 0 },
-      ).start();
+      ).start(this.onAnimatingBackdropToZeroCompletion);
     }
   }
 
@@ -261,6 +269,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
   onPressEnqueue = () => {
     this.props.setImageQueued(this.props.imageInfo, true);
+  }
+
+  onAnimatingBackdropToZeroCompletion = ({ finished }) => {
+    this.animatingBackdropToZero = false;
   }
 
 }
