@@ -16,6 +16,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Animated, { Easing } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -128,41 +129,42 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     };
 
     let buttons = null;
-    if (active) {
-      const buttonList = [];
-      const { queueModeActive } = this.props;
-      if (!queueModeActive) {
-        buttonList.push(
+    const { queueModeActive, isQueued } = this.props;
+    if (isQueued) {
+      buttons = (
+        <View style={styles.buttons} pointerEvents='box-none'>
+          <LottieView
+            source={require('../animations/check.json')}
+            style={styles.checkAnimation}
+            loop={false}
+            resizeMode="cover"
+            autoPlay
+          />
+        </View>
+      );
+    } else if (!queueModeActive && active) {
+      buttons = (
+        <Animated.View style={this.buttonsStyle} pointerEvents='box-none'>
           <TouchableOpacity
             onPress={this.onPressSend}
             style={styles.sendButton}
             activeOpacity={0.6}
-            key="send"
           >
             <Icon name="send" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
               Send
             </Text>
           </TouchableOpacity>
-        );
-      }
-      const enqueueButtonText = queueModeActive ? "Select" : "Queue";
-      buttonList.push(
-        <TouchableOpacity
-          onPress={this.onPressEnqueue}
-          style={styles.enqueueButton}
-          activeOpacity={0.6}
-          key="queue"
-        >
-          <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
-          <Text style={styles.buttonText}>
-            {enqueueButtonText}
-          </Text>
-        </TouchableOpacity>
-      );
-      buttons = (
-        <Animated.View style={this.buttonsStyle}>
-          {buttonList}
+          <TouchableOpacity
+            onPress={this.onPressEnqueue}
+            style={styles.enqueueButton}
+            activeOpacity={0.6}
+          >
+            <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>
+              Queue
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
       );
     }
@@ -189,7 +191,13 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   onPressBackdrop = () => {
-    this.props.setFocus(this.props.imageInfo);
+    if (this.props.isQueued) {
+      this.props.setImageQueued(this.props.imageInfo, false);
+    } else if (this.props.queueModeActive) {
+      this.props.setImageQueued(this.props.imageInfo, true);
+    } else {
+      this.props.setFocus(this.props.imageInfo);
+    }
   }
 
   onPressSend = () => {
@@ -197,7 +205,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   onPressEnqueue = () => {
-    this.props.setImageQueued(this.props.imageInfo, !this.props.isQueued);
+    this.props.setImageQueued(this.props.imageInfo, true);
   }
 
 }
@@ -245,6 +253,9 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  checkAnimation: {
+    width: 128,
   },
 });
 
