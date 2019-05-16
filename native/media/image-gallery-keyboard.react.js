@@ -84,22 +84,30 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     }
 
     const { flatList, viewableIndices } = this;
-    const { imageInfos, focusedImageURI } = this.state;
-    if (
-      flatList &&
-      imageInfos &&
-      focusedImageURI &&
-      focusedImageURI !== prevState.focusedImageURI
-    ) {
-      const index = imageInfos.findIndex(({ uri }) => uri === focusedImageURI);
-      invariant(
-        index !== null && index !== undefined,
-        `could not find ${focusedImageURI} in imageInfos state!`,
-      );
-      if (index === this.viewableIndices[0]) {
-        flatList.scrollToIndex({ index });
-      } else if (index === viewableIndices[viewableIndices.length - 1]) {
-        flatList.scrollToIndex({ index, viewPosition: 1 });
+    const { imageInfos, focusedImageURI, queuedImageURIs } = this.state;
+    if (flatList && imageInfos) {
+      let newURI;
+      if (focusedImageURI && focusedImageURI !== prevState.focusedImageURI) {
+        newURI = focusedImageURI;
+      } else if (queuedImageURIs.size > prevState.queuedImageURIs.size) {
+        for (let queuedImageURI of queuedImageURIs) {
+          if (prevState.queuedImageURIs.has(queuedImageURI)) {
+            continue;
+          }
+          newURI = queuedImageURI;
+          break;
+        }
+      }
+      let index;
+      if (newURI !== null & newURI !== undefined) {
+        index = imageInfos.findIndex(({ uri }) => uri === newURI);
+      }
+      if (index !== null && index !== undefined) {
+        if (index === viewableIndices[0]) {
+          flatList.scrollToIndex({ index });
+        } else if (index === viewableIndices[viewableIndices.length - 1]) {
+          flatList.scrollToIndex({ index, viewPosition: 1 });
+        }
       }
     }
   }
@@ -303,13 +311,17 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
             ...prevQueuedImageURIs,
             imageInfo.uri,
           ]),
+          focusedImageURI: null,
         };
       }
       const queuedImageURIs = prevQueuedImageURIs.filter(
         uri => uri !== imageInfo.uri,
       );
       if (queuedImageURIs.length < prevQueuedImageURIs.length) {
-        return { queuedImageURIs: new Set(queuedImageURIs) };
+        return {
+          queuedImageURIs: new Set(queuedImageURIs),
+          focusedImageURI: null,
+        };
       }
       return null;
     });
