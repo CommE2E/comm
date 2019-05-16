@@ -23,15 +23,23 @@ import
   GenericTouchable,
   { TOUCHABLE_STATE }
 from 'react-native-gesture-handler/touchables/GenericTouchable';
+import
+  Reanimated,
+  { Easing as ReanimatedEasing }
+from 'react-native-reanimated';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
   uri: string,
 |};
-const animationSpec = {
+const animatedSpec = {
   duration: 400,
   easing: Easing.inOut(Easing.ease),
   useNativeDriver: true,
+};
+const reanimatedSpec = {
+  duration: 400,
+  easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
 };
 
 type Props = {|
@@ -62,18 +70,21 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
   };
-  focusProgress = new Animated.Value(0);
+  focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
-  backdropProgress = new Animated.Value(0);
+  backdropProgress = new Reanimated.Value(0);
   imageStyle: ImageStyle;
   checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
     super(props);
-    const buttonsScale = this.focusProgress.interpolate({
-      inputRange: [ 0, 1 ],
-      outputRange: [ 1.3, 1 ],
-    });
+    const buttonsScale = Reanimated.interpolate(
+      this.focusProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1.3, 1 ],
+      },
+    );
     this.buttonsStyle = {
       ...styles.buttons,
       opacity: this.focusProgress,
@@ -81,14 +92,20 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         { scale: buttonsScale },
       ],
     };
-    const backdropOpacity = this.backdropProgress.interpolate({
-      inputRange: [ 0, 1 ],
-      outputRange: [ 1, 0.2 ],
-    });
-    const imageScale = this.focusProgress.interpolate({
-      inputRange: [ 0, 1 ],
-      outputRange: [ 1, 1.3 ],
-    });
+    const backdropOpacity = Reanimated.interpolate(
+      this.backdropProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1, 0.2 ],
+      },
+    );
+    const imageScale = Reanimated.interpolate(
+      this.focusProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1, 1.3 ],
+      },
+    );
     this.imageStyle = {
       opacity: backdropOpacity,
       transform: [
@@ -107,34 +124,34 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     const isActive = ImageGalleryImage.isActive(this.props);
     const wasActive = ImageGalleryImage.isActive(prevProps);
     if (isActive && !wasActive) {
-      Animated.timing(
+      Reanimated.timing(
         this.backdropProgress,
-        { ...animationSpec, toValue: 1 },
+        { ...reanimatedSpec, toValue: 1 },
       ).start();
-      Animated.timing(
+      Reanimated.timing(
         this.focusProgress,
-        { ...animationSpec, toValue: 1 },
+        { ...reanimatedSpec, toValue: 1 },
       ).start();
     } else if (!isActive && wasActive) {
-      Animated.timing(
+      Reanimated.timing(
         this.backdropProgress,
-        { ...animationSpec, toValue: 0 },
+        { ...reanimatedSpec, toValue: 0 },
       ).start();
-      Animated.timing(
+      Reanimated.timing(
         this.focusProgress,
-        { ...animationSpec, toValue: 0 },
+        { ...reanimatedSpec, toValue: 0 },
       ).start();
     }
 
     if (this.props.isQueued && !prevProps.isQueued) {
       Animated.timing(
         this.checkProgress,
-        { ...animationSpec, toValue: 1 },
+        { ...animatedSpec, toValue: 1 },
       ).start();
     } else if (!this.props.isQueued && prevProps.isQueued) {
       Animated.timing(
         this.checkProgress,
-        { ...animationSpec, toValue: 0 },
+        { ...animatedSpec, toValue: 0 },
       ).start();
     }
   }
@@ -190,25 +207,25 @@ class ImageGalleryImage extends React.PureComponent<Props> {
           onStateChange={this.onBackdropStateChange}
           delayPressOut={1}
         >
-          <Animated.Image
+          <Reanimated.Image
             source={source}
             style={[ this.imageStyle, dimensionsStyle ]}
           />
-          <Animated.View style={this.buttonsStyle}>
+          <Reanimated.View style={this.buttonsStyle}>
             <LottieView
               source={require('../animations/check.json')}
               progress={this.checkProgress}
               style={styles.checkAnimation}
               resizeMode="cover"
             />
-          </Animated.View>
+          </Reanimated.View>
         </GenericTouchable>
-        <Animated.View
+        <Reanimated.View
           style={this.buttonsStyle}
           pointerEvents={active ? 'box-none' : 'none'}
         >
           {buttons}
-        </Animated.View>
+        </Reanimated.View>
       </View>
     );
   }
@@ -231,9 +248,9 @@ class ImageGalleryImage extends React.PureComponent<Props> {
       (to === TOUCHABLE_STATE.UNDETERMINED ||
         to === TOUCHABLE_STATE.MOVED_OUTSIDE)
     ) {
-      Animated.timing(
+      Reanimated.timing(
         this.backdropProgress,
-        { ...animationSpec, duration: 150, toValue: 0 },
+        { ...reanimatedSpec, duration: 150, toValue: 0 },
       ).start();
     }
   }
