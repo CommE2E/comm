@@ -38,7 +38,7 @@ type Props = {|
   setImageQueued: (image: GalleryImageInfo, isQueued: bool) => void,
   sendImage: (image: GalleryImageInfo) => void,
   isFocused: bool,
-  setFocus: (image: GalleryImageInfo) => void,
+  setFocus: (image: GalleryImageInfo, isFocused: bool) => void,
   screenWidth: number,
 |};
 class ImageGalleryImage extends React.PureComponent<Props> {
@@ -150,7 +150,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
     let buttons = null;
     const { queueModeActive, isQueued } = this.props;
-    if (!queueModeActive && active) {
+    if (!queueModeActive) {
       buttons = (
         <React.Fragment>
           <TouchableOpacity
@@ -218,7 +218,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     } else if (this.props.queueModeActive) {
       this.props.setImageQueued(this.props.imageInfo, true);
     } else {
-      this.props.setFocus(this.props.imageInfo);
+      this.props.setFocus(this.props.imageInfo, !this.props.isFocused);
     }
   }
 

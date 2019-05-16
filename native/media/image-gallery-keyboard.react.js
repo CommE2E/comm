@@ -334,8 +334,13 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     });
   }
 
-  setFocus = (imageInfo: GalleryImageInfo) => {
-    this.setState({ focusedImageURI: imageInfo.uri });
+  setFocus = (imageInfo: GalleryImageInfo, isFocused: bool) => {
+    const { uri } = imageInfo;
+    if (isFocused) {
+      this.setState({ focusedImageURI: uri });
+    } else if (this.state.focusedImageURI === uri) {
+      this.setState({ focusedImageURI: null });
+    }
   }
 
   sendImage = (imageInfo: GalleryImageInfo) => {
