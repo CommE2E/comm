@@ -12,16 +12,23 @@ import {
   View,
   Text,
   Platform,
+  TouchableWithoutFeedback,
+  Animated,
+  Easing,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Animated, { Easing } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
   uri: string,
 |};
+const animationSpec = {
+  duration: 400,
+  easing: Easing.inOut(Easing.ease),
+  useNativeDriver: true,
+};
 
 type Props = {|
   imageInfo: GalleryImageInfo,
@@ -55,16 +62,14 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   focusProgress = new Animated.Value(0);
   buttonsStyle: ViewStyle;
   imageStyle: ImageStyle;
+  checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
     super(props);
-    const buttonsScale = Animated.interpolate(
-      this.focusProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1.3, 1 ],
-      },
-    );
+    const buttonsScale = this.focusProgress.interpolate({
+      inputRange: [ 0, 1 ],
+      outputRange: [ 1.3, 1 ],
+    });
     this.buttonsStyle = {
       ...styles.buttons,
       opacity: this.focusProgress,
@@ -72,13 +77,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         { scale: buttonsScale },
       ],
     };
-    const imageScale = Animated.interpolate(
-      this.focusProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1, 1.3 ],
-      },
-    );
+    const imageScale = this.focusProgress.interpolate({
+      inputRange: [ 0, 1 ],
+      outputRange: [ 1, 1.3 ],
+    });
     this.imageStyle = {
       transform: [
         { scale: imageScale },
@@ -91,24 +93,42 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const animations = [];
+
     const isActive = ImageGalleryImage.isActive(this.props);
     const wasActive = ImageGalleryImage.isActive(prevProps);
     if (isActive && !wasActive) {
       if (this.backdrop) {
         this.backdrop.setOpacityTo(0.2, 0);
       }
-      Animated.timing(
+      animations.push(Animated.timing(
         this.focusProgress,
-        { duration: 400, toValue: 1, easing: Easing.inOut(Easing.ease) },
-      ).start();
+        { ...animationSpec, toValue: 1 },
+      ));
     } else if (!isActive && wasActive) {
       if (this.backdrop) {
         this.backdrop.setOpacityTo(1, 0);
       }
-      Animated.timing(
+      animations.push(Animated.timing(
         this.focusProgress,
-        { duration: 400, toValue: 0, easing: Easing.inOut(Easing.ease) },
-      ).start();
+        { ...animationSpec, toValue: 0 },
+      ));
+    }
+
+    if (this.props.isQueued && !prevProps.isQueued) {
+      animations.push(Animated.timing(
+        this.checkProgress,
+        { ...animationSpec, toValue: 1 },
+      ));
+    } else if (!this.props.isQueued && prevProps.isQueued) {
+      animations.push(Animated.timing(
+        this.checkProgress,
+        { ...animationSpec, toValue: 0 },
+      ));
+    }
+
+    if (animations.length > 0) {
+      Animated.parallel(animations).start();
     }
   }
 
@@ -130,21 +150,9 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
     let buttons = null;
     const { queueModeActive, isQueued } = this.props;
-    if (isQueued) {
+    if (!queueModeActive && active) {
       buttons = (
-        <View style={styles.buttons} pointerEvents='box-none'>
-          <LottieView
-            source={require('../animations/check.json')}
-            style={styles.checkAnimation}
-            loop={false}
-            resizeMode="cover"
-            autoPlay
-          />
-        </View>
-      );
-    } else if (!queueModeActive && active) {
-      buttons = (
-        <Animated.View style={this.buttonsStyle} pointerEvents='box-none'>
+        <React.Fragment>
           <TouchableOpacity
             onPress={this.onPressSend}
             style={styles.sendButton}
@@ -165,7 +173,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
               Queue
             </Text>
           </TouchableOpacity>
-        </Animated.View>
+        </React.Fragment>
       );
     }
 
@@ -181,7 +189,21 @@ class ImageGalleryImage extends React.PureComponent<Props> {
             style={[ this.imageStyle, dimensionsStyle ]}
           />
         </TouchableOpacity>
-        {buttons}
+        <Animated.View style={this.buttonsStyle} pointerEvents="box-none">
+          <TouchableWithoutFeedback
+            style={styles.buttons}
+            onPress={this.onPressBackdrop}
+          >
+            <LottieView
+              source={require('../animations/check.json')}
+              progress={this.checkProgress}
+              style={styles.checkAnimation}
+              pointerEvents="box-none"
+              resizeMode="cover"
+            />
+          </TouchableWithoutFeedback>
+          {buttons}
+        </Animated.View>
       </View>
     );
   }
@@ -255,6 +277,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   checkAnimation: {
+    position: 'absolute',
     width: 128,
   },
 });
