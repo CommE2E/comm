@@ -27,6 +27,7 @@ import
   Reanimated,
   { Easing as ReanimatedEasing }
 from 'react-native-reanimated';
+import invariant from 'invariant';
 
 export type GalleryImageInfo = {|
   ...Dimensions,
@@ -41,6 +42,7 @@ const reanimatedSpec = {
   duration: 400,
   easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
 };
+const isAndroid44 = Platform.OS === "android" && Platform.Version < 21;
 
 type Props = {|
   imageInfo: GalleryImageInfo,
@@ -70,15 +72,17 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
   };
+  backdrop: ?TouchableOpacity;
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
-  backdropProgress = new Reanimated.Value(0);
+  backdropProgress: ?Reanimated.Value;
   animatingBackdropToZero = false;
   imageStyle: ImageStyle;
   checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
     super(props);
+
     const buttonsScale = Reanimated.interpolate(
       this.focusProgress,
       {
@@ -93,13 +97,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         { scale: buttonsScale },
       ],
     };
-    const backdropOpacity = Reanimated.interpolate(
-      this.backdropProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1, 0.2 ],
-      },
-    );
+
     const imageScale = Reanimated.interpolate(
       this.focusProgress,
       {
@@ -107,12 +105,28 @@ class ImageGalleryImage extends React.PureComponent<Props> {
         outputRange: [ 1, 1.3 ],
       },
     );
-    this.imageStyle = {
-      opacity: backdropOpacity,
-      transform: [
-        { scale: imageScale },
-      ],
-    };
+    if (isAndroid44) {
+      this.imageStyle = {
+        transform: [
+          { scale: imageScale },
+        ],
+      };
+    } else {
+      this.backdropProgress = new Reanimated.Value(0);
+      const backdropOpacity = Reanimated.interpolate(
+        this.backdropProgress,
+        {
+          inputRange: [ 0, 1 ],
+          outputRange: [ 1, 0.2 ],
+        },
+      );
+      this.imageStyle = {
+        opacity: backdropOpacity,
+        transform: [
+          { scale: imageScale },
+        ],
+      };
+    }
   }
 
   static isActive(props: Props) {
@@ -124,22 +138,31 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
     const isActive = ImageGalleryImage.isActive(this.props);
     const wasActive = ImageGalleryImage.isActive(prevProps);
+    const { backdrop, backdropProgress } = this;
     if (isActive && !wasActive) {
-      Reanimated.timing(
-        this.backdropProgress,
-        { ...reanimatedSpec, toValue: 1 },
-      ).start();
+      if (backdropProgress) {
+        Reanimated.timing(
+          backdropProgress,
+          { ...reanimatedSpec, toValue: 1 },
+        ).start();
+      }
+      if (backdrop) {
+        backdrop.setOpacityTo(0.2, 0);
+      }
       Reanimated.timing(
         this.focusProgress,
         { ...reanimatedSpec, toValue: 1 },
       ).start();
     } else if (!isActive && wasActive) {
-      if (!this.animatingBackdropToZero) {
+      if (backdropProgress && !this.animatingBackdropToZero) {
         this.animatingBackdropToZero = true;
         Reanimated.timing(
-          this.backdropProgress,
+          backdropProgress,
           { ...reanimatedSpec, toValue: 0 },
         ).start(this.onAnimatingBackdropToZeroCompletion);
+      }
+      if (backdrop) {
+        backdrop.setOpacityTo(1, 0);
       }
       Reanimated.timing(
         this.focusProgress,
@@ -207,6 +230,41 @@ class ImageGalleryImage extends React.PureComponent<Props> {
       );
     }
 
+    const image = (
+      <Reanimated.Image
+        source={source}
+        style={[ this.imageStyle, dimensionsStyle ]}
+      />
+    );
+    const checkAnimation = (
+      <LottieView
+        source={require('../animations/check.json')}
+        progress={this.checkProgress}
+        style={styles.checkAnimation}
+        resizeMode="cover"
+      />
+    );
+
+    if (isAndroid44) {
+      const backdropStyle = {
+        opacity: active ? 0.2 : 1,
+      };
+      return (
+        <View style={[ styles.container, dimensionsStyle ]}>
+          <TouchableOpacity
+            onPress={this.onPressBackdrop}
+            style={backdropStyle}
+            ref={this.backdropRef}
+          >
+            {image}
+          </TouchableOpacity>
+          <Reanimated.View style={this.buttonsStyle} pointerEvents="none">
+            {checkAnimation}
+          </Reanimated.View>
+        </View>
+      );
+    }
+
     return (
       <View style={[ styles.container, dimensionsStyle ]}>
         <GenericTouchable
@@ -214,27 +272,23 @@ class ImageGalleryImage extends React.PureComponent<Props> {
           onStateChange={this.onBackdropStateChange}
           delayPressOut={1}
         >
-          <Reanimated.Image
-            source={source}
-            style={[ this.imageStyle, dimensionsStyle ]}
-          />
+          {image}
           <Reanimated.View style={this.buttonsStyle}>
-            <LottieView
-              source={require('../animations/check.json')}
-              progress={this.checkProgress}
-              style={styles.checkAnimation}
-              resizeMode="cover"
-            />
+            {checkAnimation}
           </Reanimated.View>
         </GenericTouchable>
         <Reanimated.View
           style={this.buttonsStyle}
-          pointerEvents={active ? 'box-none' : 'none'}
+          pointerEvents={active ? "box-none" : "none"}
         >
           {buttons}
         </Reanimated.View>
       </View>
     );
+  }
+
+  backdropRef = (backdrop: ?TouchableOpacity) => {
+    this.backdrop = backdrop;
   }
 
   onPressBackdrop = () => {
@@ -251,8 +305,10 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     if (ImageGalleryImage.isActive(this.props)) {
       return;
     }
+    const { backdropProgress } = this;
+    invariant(backdropProgress, "should be set");
     if (to === TOUCHABLE_STATE.BEGAN) {
-      this.backdropProgress.setValue(1);
+      backdropProgress.setValue(1);
     } else if (
       !this.animatingBackdropToZero &&
       (to === TOUCHABLE_STATE.UNDETERMINED ||
@@ -260,7 +316,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     ) {
       this.animatingBackdropToZero = true;
       Reanimated.timing(
-        this.backdropProgress,
+        backdropProgress,
         { ...reanimatedSpec, duration: 150, toValue: 0 },
       ).start(this.onAnimatingBackdropToZeroCompletion);
     }
@@ -274,7 +330,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     this.props.setImageQueued(this.props.imageInfo, true);
   }
 
-  onAnimatingBackdropToZeroCompletion = ({ finished }) => {
+  onAnimatingBackdropToZeroCompletion = ({ finished }: { finished: bool }) => {
     this.animatingBackdropToZero = false;
   }
 
