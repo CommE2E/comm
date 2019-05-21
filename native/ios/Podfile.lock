@@ -153,6 +153,7 @@ DEPENDENCIES:
   - React/CxxBridge (from `../../node_modules/react-native`)
   - React/DevSupport (from `../../node_modules/react-native`)
   - React/RCTAnimation (from `../../node_modules/react-native`)
+  - React/RCTBlob (from `../../node_modules/react-native`)
   - React/RCTCameraRoll (from `../../node_modules/react-native`)
   - React/RCTImage (from `../../node_modules/react-native`)
   - React/RCTLinkingIOS (from `../../node_modules/react-native`)
@@ -251,6 +252,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: 4eb375e902364646a45875bc7e829aa6b00f5de5
+PODFILE CHECKSUM: 4e4591f1770ff5cc15c73ae1a206faacb23b2a5b
 
 COCOAPODS: 1.6.1
