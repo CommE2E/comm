@@ -17,7 +17,6 @@ import {
 } from 'lib/types/thread-types';
 import {
   type RawTextMessageInfo,
-  type RawMultimediaMessageInfo,
   type SendMessageResult,
   messageTypes,
 } from 'lib/types/message-types';
@@ -39,7 +38,6 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   sendTextMessageActionTypes,
   sendTextMessage,
-  createLocalMultimediaMessageActionType,
 } from 'lib/actions/message-actions';
 import {
   joinThreadActionTypes,
@@ -286,10 +284,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.dispatchTextMessageAction(text);
     }
 
-    const { pendingUploads } = this.props.chatInputState;
-    if (pendingUploads.length > 0) {
-      this.dispatchMultimediaMessageAction(pendingUploads);
-    }
+    this.props.chatInputState.createMultimediaMessage();
   }
 
   dispatchTextMessageAction(text: string) {
@@ -351,40 +346,6 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   onMultimediaFileChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     this.props.chatInputState.appendFiles([...event.target.files]);
-  }
-
-  dispatchMultimediaMessageAction(
-    pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
-  ) {
-    const localID = `local${this.props.nextLocalID}`;
-    const creatorID = this.props.viewerID;
-    invariant(creatorID, "should have viewer ID in order to send a message");
-    const messageInfo = ({
-      type: messageTypes.MULTIMEDIA,
-      localID,
-      threadID: this.props.threadInfo.id,
-      creatorID,
-      time: Date.now(),
-      media: pendingUploads.map(
-        ({ localID, serverID, uri, mediaType, dimensions }) => ({
-          id: serverID ? serverID : localID,
-          uri,
-          type: mediaType,
-          dimensions,
-        }),
-      ),
-    }: RawMultimediaMessageInfo);
-    // This call triggers a setState in ChatInputStateContainer. We hope that
-    // propagates quicker than the createLocalMultimediaMessageActionType call
-    // below, since ChatInputStateContainer's appendFiles (which handles the
-    // upload) relies on the aforementioned setState to know which pending
-    // uploads are associated to local messages and thus necessitate Redux
-    // actions to update the messageStore.
-    this.props.chatInputState.assignPendingUploads(localID);
-    this.props.dispatchActionPayload(
-      createLocalMultimediaMessageActionType,
-      messageInfo,
-    );
   }
 
   onClickJoin = (event: SyntheticEvent<HTMLAnchorElement>) => {

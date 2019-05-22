@@ -9,7 +9,6 @@ import {
   type SendMessageResult,
   type RawComposableMessageInfo,
   type RawTextMessageInfo,
-  type RawMultimediaMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -29,8 +28,6 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   sendTextMessageActionTypes,
   sendTextMessage,
-  sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
 } from 'lib/actions/message-actions';
 
 import css from './chat-message-list.css';
@@ -93,19 +90,9 @@ class FailedSend extends React.PureComponent<Props> {
         newRawMessageInfo,
       );
     } else if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
-      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
-      const { localID } = newRawMessageInfo;
+      const { localID } = rawMessageInfo;
       invariant(localID, "failed RawMessageInfo should have localID");
-      if (this.props.chatInputState.messageHasUploadFailure(localID)) {
-        this.props.chatInputState.retryUploads(localID);
-      } else {
-        this.props.dispatchActionPromise(
-          sendMultimediaMessageActionTypes,
-          this.sendMultimediaMessageAction(newRawMessageInfo),
-          undefined,
-          newRawMessageInfo,
-        );
-      }
+      this.props.chatInputState.retryMultimediaMessage(localID);
     }
   }
 
@@ -120,31 +107,6 @@ class FailedSend extends React.PureComponent<Props> {
         messageInfo.threadID,
         localID,
         messageInfo.text,
-      );
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-      };
-    } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
-    }
-  }
-
-  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
-    try {
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        "localID should be set",
-      );
-      const result = await this.props.sendMultimediaMessage(
-        messageInfo.threadID,
-        localID,
-        messageInfo.media.map(({ id }) => id),
       );
       return {
         localID,
@@ -175,5 +137,5 @@ export default connect(
     );
     return { rawMessageInfo };
   },
-  { sendTextMessage, sendMultimediaMessage },
+  { sendTextMessage },
 )(FailedSend);

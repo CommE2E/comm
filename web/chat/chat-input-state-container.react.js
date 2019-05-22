@@ -2,8 +2,17 @@
 
 import type { AppState } from '../redux-setup';
 import type { UploadMultimediaResult } from 'lib/types/media-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import type { PendingMultimediaUpload } from './chat-input-state';
+import {
+  messageTypes,
+  type RawMessageInfo,
+  type RawMultimediaMessageInfo,
+  type SendMessageResult,
+} from 'lib/types/message-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -12,11 +21,10 @@ import _memoize from 'lodash/memoize';
 import _keyBy from 'lodash/fp/keyBy';
 import _omit from 'lodash/fp/omit';
 import _flow from 'lodash/fp/flow';
-import _omitBy from 'lodash/fp/omitBy';
 import _map from 'lodash/fp/map';
 import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';
-import _mapValues from 'lodash/fp/mapValues';
+import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -25,6 +33,11 @@ import {
   assignMediaServerURIToMessageActionType,
   deleteUpload,
 } from 'lib/actions/upload-actions';
+import {
+  createLocalMultimediaMessageActionType,
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
+} from 'lib/actions/message-actions';
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile, preloadImage } from '../utils/media-utils';
@@ -36,8 +49,12 @@ type Props = {|
   setModal: (modal: ?React.Node) => void,
   // Redux state
   activeChatThreadID: ?string,
+  viewerID: ?string,
+  nextLocalID: number,
+  messageStoreMessages: { [id: string]: RawMessageInfo },
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
@@ -45,6 +62,11 @@ type Props = {|
     abortHandler: (abort: () => void) => void,
   ) => Promise<UploadMultimediaResult>,
   deleteUpload: (id: string) => Promise<void>,
+  sendMultimediaMessage: (
+    threadID: string,
+    localID: string,
+    mediaIDs: $ReadOnlyArray<string>,
+  ) => Promise<SendMessageResult>,
 |};
 type State = {|
   pendingUploads:
@@ -56,14 +78,199 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
+    viewerID: PropTypes.string,
+    nextLocalID: PropTypes.number.isRequired,
+    messageStoreMessages: PropTypes.object.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
     deleteUpload: PropTypes.func.isRequired,
+    sendMultimediaMessage: PropTypes.func.isRequired,
   };
   state = {
     pendingUploads: {},
     drafts: {},
   };
+
+  static completedMessageIDs(state: State) {
+    const completed = new Map();
+    for (let threadID in state.pendingUploads) {
+      const pendingUploads = state.pendingUploads[threadID];
+      for (let localUploadID in pendingUploads) {
+        const upload = pendingUploads[localUploadID];
+        const { messageID, serverID, failed } = upload;
+        if (!messageID || !messageID.startsWith("local")) {
+          continue;
+        }
+        if (!serverID || failed) {
+          completed.set(messageID, false);
+          continue;
+        }
+        if (completed.get(messageID) === undefined) {
+          completed.set(messageID, true);
+        }
+      }
+    }
+    const messageIDs = new Set();
+    for (let [ messageID, isCompleted ] of completed) {
+      if (isCompleted) {
+        messageIDs.add(messageID);
+      }
+    }
+    return messageIDs;
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const previouslyAssignedMessageIDs = new Set();
+    for (let threadID in prevState.pendingUploads) {
+      const pendingUploads = prevState.pendingUploads[threadID];
+      for (let localUploadID in pendingUploads) {
+        const { messageID } = pendingUploads[localUploadID];
+        if (messageID) {
+          previouslyAssignedMessageIDs.add(messageID);
+        }
+      }
+    }
+
+    const newlyAssignedUploads = new Map();
+    for (let threadID in this.state.pendingUploads) {
+      const pendingUploads = this.state.pendingUploads[threadID];
+      for (let localUploadID in pendingUploads) {
+        const upload = pendingUploads[localUploadID];
+        const { messageID } = upload;
+        if (
+          !messageID ||
+          !messageID.startsWith("local") ||
+          previouslyAssignedMessageIDs.has(messageID)
+        ) {
+          continue;
+        }
+        let assignedUploads = newlyAssignedUploads.get(messageID);
+        if (!assignedUploads) {
+          assignedUploads = { threadID, uploads: [] };
+          newlyAssignedUploads.set(messageID, assignedUploads);
+        }
+        assignedUploads.uploads.push(upload);
+      }
+    }
+
+    const newMessageInfos = new Map();
+    for (let [ messageID, assignedUploads ] of newlyAssignedUploads) {
+      const { uploads, threadID } = assignedUploads;
+      const creatorID = this.props.viewerID;
+      invariant(creatorID, "need viewer ID in order to send a message");
+      const messageInfo = ({
+        type: messageTypes.MULTIMEDIA,
+        localID: messageID,
+        threadID,
+        creatorID,
+        time: Date.now(),
+        media: uploads.map(
+          ({ localID, serverID, uri, mediaType, dimensions }) => ({
+            id: serverID ? serverID : localID,
+            uri,
+            type: mediaType,
+            dimensions,
+          }),
+        ),
+      }: RawMultimediaMessageInfo);
+      newMessageInfos.set(messageID, messageInfo);
+    }
+
+    const currentlyCompleted =
+      ChatInputStateContainer.completedMessageIDs(this.state);
+    const previouslyCompleted =
+      ChatInputStateContainer.completedMessageIDs(prevState);
+    for (let messageID of currentlyCompleted) {
+      if (previouslyCompleted.has(messageID)) {
+        continue;
+      }
+      let rawMessageInfo = newMessageInfos.get(messageID);
+      if (rawMessageInfo) {
+        newMessageInfos.delete(messageID);
+      } else {
+        rawMessageInfo = this.getRawMultimediaMessageInfo(messageID);
+      }
+      this.sendMultimediaMessage(rawMessageInfo);
+    }
+
+    for (let [ messageID, messageInfo ] of newMessageInfos) {
+      this.props.dispatchActionPayload(
+        createLocalMultimediaMessageActionType,
+        messageInfo,
+      );
+    }
+  }
+
+  getRawMultimediaMessageInfo(
+    localMessageID: string,
+  ): RawMultimediaMessageInfo {
+    const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
+    invariant(
+      rawMessageInfo,
+      `rawMessageInfo ${localMessageID} should exist in sendMultimediaMessage`,
+    );
+    invariant(
+      rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      `rawMessageInfo ${localMessageID} should be messageTypes.MULTIMEDIA`,
+    );
+    return rawMessageInfo;
+  }
+
+  sendMultimediaMessage(messageInfo: RawMultimediaMessageInfo) {
+    this.props.dispatchActionPromise(
+      sendMultimediaMessageActionTypes,
+      this.sendMultimediaMessageAction(messageInfo),
+      undefined,
+      messageInfo,
+    );
+  }
+
+  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+    const { localID, threadID, media } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      "localID should be set",
+    );
+    try {
+      const result = await this.props.sendMultimediaMessage(
+        threadID,
+        localID,
+        media.map(({ id }) => id),
+      );
+      this.setState(prevState => {
+        const prevUploads = prevState.pendingUploads[threadID];
+        const newUploads = {};
+        for (let localUploadID in prevUploads) {
+          const upload = prevUploads[localUploadID];
+          if (upload.messageID !== localID) {
+            newUploads[localUploadID] = upload;
+          } else if (!upload.uriIsReal) {
+            newUploads[localUploadID] = {
+              ...upload,
+              messageID: result.id,
+            };
+          }
+        }
+        return {
+          pendingUploads: {
+            ...prevState.pendingUploads,
+            [threadID]: newUploads,
+          },
+        };
+      });
+      return {
+        localID,
+        serverID: result.id,
+        threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = localID;
+      e.threadID = threadID;
+      throw e;
+    }
+  }
 
   chatInputStateSelector = _memoize((threadID: string) => createSelector(
     (state: State) => state.pendingUploads[threadID],
@@ -92,15 +299,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           this.appendFiles(threadID, files),
         cancelPendingUpload: (localUploadID: string) =>
           this.cancelPendingUpload(threadID, localUploadID),
-        assignPendingUploads: (localMessageID: string) =>
-          this.assignPendingUploads(threadID, localMessageID),
+        createMultimediaMessage: () =>
+          this.createMultimediaMessage(threadID),
         setDraft: (draft: string) => this.setDraft(threadID, draft),
         setProgress: (localUploadID: string, percent: number) =>
           this.setProgress(threadID, localUploadID, percent),
         messageHasUploadFailure: (localMessageID: string) =>
           this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
-        retryUploads: (localMessageID: string) =>
-          this.retryUploads(threadID, threadAssignedUploads[localMessageID]),
+        retryMultimediaMessage: (localMessageID: string) =>
+          this.retryMultimediaMessage(
+            threadID,
+            localMessageID,
+            threadAssignedUploads[localMessageID],
+          ),
       };
     },
   ));
@@ -192,7 +403,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
     const uploadAfterSuccess =
       this.state.pendingUploads[threadID][upload.localID];
-    if (uploadAfterSuccess && uploadAfterSuccess.messageID) {
+    invariant(
+      uploadAfterSuccess,
+      `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
+        `after upload`,
+    );
+    if (uploadAfterSuccess.messageID) {
       this.props.dispatchActionPayload(
         assignMediaServerIDToMessageActionType,
         {
@@ -206,87 +422,80 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[threadID];
       const currentUpload = uploads[upload.localID];
-      if (!currentUpload) {
-        return {};
-      }
-      let newUploads;
-      if (currentUpload.messageID) {
-        // If the messageID is already set, then there is no need to keep
-        // tracking this upload. The above action dispatch should ensure no
-        // pointers to this localID exist.
-        newUploads = _omit([ upload.localID ])(uploads);
-      } else {
-        // Otherwise, the message hasn't been sent yet, so the uploads are still
-        // pending. We'll mark the serverID in our local state.
-        newUploads = {
-          ...uploads,
-          [upload.localID]: {
-            ...currentUpload,
-            serverID: result.id,
-            abort: null,
-          },
-        };
-      }
+      invariant(
+        currentUpload,
+        `pendingUpload ${upload.localID}/${result.id} for ${threadID} ` +
+          `missing while assigning serverID`,
+      );
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: newUploads,
+          [threadID]: {
+            ...uploads,
+            [upload.localID]: {
+              ...currentUpload,
+              serverID: result.id,
+              abort: null,
+            },
+          },
         },
       };
     });
 
     await preloadImage(result.uri);
 
-    const replaceURI = upload => this.props.dispatchActionPayload(
-      assignMediaServerURIToMessageActionType,
-      {
-        messageID: uploadAfterPreload.messageID,
-        mediaID: uploadAfterPreload.serverID
-          ? uploadAfterPreload.serverID
-          : uploadAfterPreload.localID,
-        serverURI: result.uri,
-      },
-    );
-
     const uploadAfterPreload =
       this.state.pendingUploads[threadID][upload.localID];
-    if (!uploadAfterPreload || uploadAfterPreload.messageID) {
-      replaceURI(uploadAfterPreload);
-    } else {
-      this.setState(prevState => {
-        const uploads = prevState.pendingUploads[threadID];
-        const currentUpload = uploads[upload.localID];
-        if (!currentUpload) {
-          replaceURI(currentUpload);
-          return {};
-        }
-        let newUploads;
-        if (currentUpload.messageID) {
-          // If the messageID is already set, then there is no need to keep
-          // tracking this upload. The above action dispatch should ensure no
-          // pointers to this localID exist.
-          newUploads = _omit([ upload.localID ])(uploads);
-          replaceURI(currentUpload);
-        } else {
-          // Otherwise, the message hasn't been sent yet, so the uploads are still
-          // pending. We'll mark the serverID in our local state.
-          newUploads = {
+    invariant(
+      uploadAfterPreload,
+      `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
+        `after preload`,
+    );
+    if (uploadAfterPreload.messageID) {
+      this.props.dispatchActionPayload(
+        assignMediaServerURIToMessageActionType,
+        {
+          messageID: uploadAfterPreload.messageID,
+          mediaID: uploadAfterPreload.serverID
+            ? uploadAfterPreload.serverID
+            : uploadAfterPreload.localID,
+          serverURI: result.uri,
+        },
+      );
+    }
+
+    this.setState(prevState => {
+      const uploads = prevState.pendingUploads[threadID];
+      const currentUpload = uploads[upload.localID];
+      invariant(
+        currentUpload,
+        `pendingUpload ${upload.localID}/${result.id} for ${threadID} ` +
+          `missing while assigning URI`,
+      );
+      const { messageID } = currentUpload;
+      if (messageID && !messageID.startsWith("local")) {
+        const newPendingUploads = _omit([ upload.localID ])(uploads);
+        return {
+          pendingUploads: {
+            ...prevState.pendingUploads,
+            [threadID]: newPendingUploads,
+          },
+        };
+      }
+      return {
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [threadID]: {
             ...uploads,
             [upload.localID]: {
               ...currentUpload,
               uri: result.uri,
               uriIsReal: true,
             },
-          };
-        }
-        return {
-          pendingUploads: {
-            ...prevState.pendingUploads,
-            [threadID]: newUploads,
           },
-        };
-      });
-    }
+        },
+      };
+    });
   }
 
   handleAbortCallback(
@@ -389,24 +598,33 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  assignPendingUploads(threadID: string, localMessageID: string) {
+  // Creates a MultimediaMessage from the unassigned pending uploads,
+  // if there are any
+  createMultimediaMessage(threadID: string) {
+    const localMessageID = `local${this.props.nextLocalID}`;
     this.setState(prevState => {
       const currentPendingUploads = prevState.pendingUploads[threadID];
-      if (
-        !currentPendingUploads ||
-        Object.keys(currentPendingUploads).length === 0
-      ) {
+      if (!currentPendingUploads) {
         return {};
       }
-      const newPendingUploads = _flow(
-        _omitBy('serverID'),
-        _mapValues(
-          (pendingUpload: PendingMultimediaUpload) => ({
-            ...pendingUpload,
+      const newPendingUploads = {};
+      let uploadAssigned = false;
+      for (let localUploadID in currentPendingUploads) {
+        const upload = currentPendingUploads[localUploadID];
+        if (upload.messageID) {
+          newPendingUploads[localUploadID] = upload;
+        } else {
+          const newUpload = {
+            ...upload,
             messageID: localMessageID,
-          }),
-        ),
-      )(currentPendingUploads);
+          };
+          uploadAssigned = true;
+          newPendingUploads[localUploadID] = newUpload;
+        }
+      }
+      if (!uploadAssigned) {
+        return {};
+      }
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -464,13 +682,23 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     return pendingUploads.some(upload => upload.failed);
   }
 
-  retryUploads(
+  retryMultimediaMessage(
     threadID: string,
+    localMessageID: string,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
+    const completed = ChatInputStateContainer.completedMessageIDs(this.state);
+    if (completed.has(localMessageID)) {
+      const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
+      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+      this.sendMultimediaMessage(newRawMessageInfo);
+      return;
+    }
+
     if (!pendingUploads) {
       return;
     }
+
     const uploadIDsToRetry = new Set();
     const uploadsToRetry = [];
     for (let pendingUpload of pendingUploads) {
@@ -490,6 +718,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         return {};
       }
       const newPendingUploads = {};
+      let pendingUploadChanged = false;
       for (let localID in pendingUploads) {
         const pendingUpload = pendingUploads[localID];
         if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
@@ -499,9 +728,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             progressPercent: 0,
             abort: null,
           };
+          pendingUploadChanged = true;
         } else {
           newPendingUploads[localID] = pendingUpload;
         }
+      }
+      if (!pendingUploadChanged) {
+        return {};
       }
       return {
         pendingUploads: {
@@ -533,6 +766,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 export default connect(
   (state: AppState) => ({
     activeChatThreadID: state.navInfo.activeChatThreadID,
+    viewerID: state.currentUserInfo && state.currentUserInfo.id,
+    nextLocalID: state.nextLocalID,
+    messageStoreMessages: state.messageStore.messages,
   }),
-  { uploadMultimedia, deleteUpload },
+  { uploadMultimedia, deleteUpload, sendMultimediaMessage },
 )(ChatInputStateContainer);

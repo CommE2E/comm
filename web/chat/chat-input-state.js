@@ -13,9 +13,7 @@ export type PendingMultimediaUpload = {|
   localID: string,
   // Pending uploads are assigned a serverID once they are complete
   serverID: ?string,
-  // Pending uploads are assigned a messageID once they are sent. serverID and
-  // messageID shouldn't both be set, as in that case the upload is no longer
-  // pending and should be cleared out
+  // Pending uploads are assigned a messageID once they are sent
   messageID: ?string,
   // This is set to truthy if the upload fails for whatever reason
   failed: ?string,
@@ -53,11 +51,11 @@ export type ChatInputState = {|
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<void>,
   cancelPendingUpload: (localUploadID: string) => void,
-  assignPendingUploads: (localMessageID: string) => void,
+  createMultimediaMessage: () => void,
   setDraft: (draft: string) => void,
   setProgress: (localUploadID: string, percent: number) => void,
   messageHasUploadFailure: (localMessageID: string) => bool,
-  retryUploads: (localMessageID: string) => void,
+  retryMultimediaMessage: (localMessageID: string) => void,
 |};
 const arrayOfUploadsPropType =
   PropTypes.arrayOf(pendingMultimediaUploadPropType);
@@ -67,9 +65,9 @@ export const chatInputStatePropType = PropTypes.shape({
   draft: PropTypes.string.isRequired,
   appendFiles: PropTypes.func.isRequired,
   cancelPendingUpload: PropTypes.func.isRequired,
-  assignPendingUploads: PropTypes.func.isRequired,
+  createMultimediaMessage: PropTypes.func.isRequired,
   setDraft: PropTypes.func.isRequired,
   setProgress: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
-  retryUploads: PropTypes.func.isRequired,
+  retryMultimediaMessage: PropTypes.func.isRequired,
 });
