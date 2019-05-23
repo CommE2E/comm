@@ -89,7 +89,6 @@ import { saveMessageInfos } from './push/utils';
 import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import { AppRouteName } from './navigation/route-names';
-import MessageStorePruner from './chat/message-store-pruner.react';
 import DisconnectedBarVisibilityHandler
   from './navigation/disconnected-bar-visibility-handler.react';
 import DimensionsUpdater from './redux/dimensions-updater.react';
@@ -626,7 +625,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           notificationBodyComponent={NotificationBody}
           ref={this.inAppNotificationRef}
         />
-        <MessageStorePruner />
         <DisconnectedBarVisibilityHandler />
         <DimensionsUpdater />
         <ConnectivityUpdater />
