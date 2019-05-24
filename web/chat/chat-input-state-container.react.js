@@ -59,7 +59,7 @@ type Props = {|
   uploadMultimedia: (
     multimedia: Object,
     onProgress: (percent: number) => void,
-    abortHandler: (abort: () => void) => void,
+    abortHandler?: (abort: () => void) => void,
   ) => Promise<UploadMultimediaResult>,
   deleteUpload: (id: string) => Promise<void>,
   sendMultimediaMessage: (
