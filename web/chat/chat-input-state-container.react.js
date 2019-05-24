@@ -29,8 +29,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 import {
   uploadMultimedia,
-  assignMediaServerIDToMessageActionType,
-  assignMediaServerURIToMessageActionType,
+  updateMultimediaMessageMediaActionType,
   deleteUpload,
 } from 'lib/actions/upload-actions';
 import {
@@ -408,11 +407,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
     if (uploadAfterSuccess.messageID) {
       this.props.dispatchActionPayload(
-        assignMediaServerIDToMessageActionType,
+        updateMultimediaMessageMediaActionType,
         {
           messageID: uploadAfterSuccess.messageID,
-          mediaLocalID: upload.localID,
-          mediaServerID: result.id,
+          currentMediaID: upload.localID,
+          mediaUpdate: {
+            id: result.id,
+          },
         },
       );
     }
@@ -451,13 +452,15 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
     if (uploadAfterPreload.messageID) {
       this.props.dispatchActionPayload(
-        assignMediaServerURIToMessageActionType,
+        updateMultimediaMessageMediaActionType,
         {
           messageID: uploadAfterPreload.messageID,
-          mediaID: uploadAfterPreload.serverID
+          currentMediaID: uploadAfterPreload.serverID
             ? uploadAfterPreload.serverID
             : uploadAfterPreload.localID,
-          serverURI: result.uri,
+          mediaUpdate: {
+            uri: result.uri,
+          },
         },
       );
     }
