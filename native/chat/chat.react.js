@@ -24,6 +24,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { StyleSheet } from 'react-native';
 import hoistNonReactStatics from 'hoist-non-react-statics';
+import { createSelector } from 'reselect';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -81,30 +82,19 @@ class Chat extends React.PureComponent<Props, State> {
     uploadMultimedia: PropTypes.func.isRequired,
     sendMultimediaMessage: PropTypes.func.isRequired,
   };
-  chatInputState: ChatInputState;
+  state = {
+    pendingUploads: {},
+  };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      pendingUploads: {},
-    };
-    this.updateChatInputState();
-  }
-
-  updateChatInputState() {
-    this.chatInputState = {
-      pendingUploads: this.state.pendingUploads,
+  chatInputStateSelector = createSelector(
+    (state: State) => state.pendingUploads,
+    (pendingUploads: PendingMultimediaUploads) => ({
+      pendingUploads,
       sendMultimediaMessage: this.sendMultimediaMessage,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
-    };
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (this.state.pendingUploads !== prevState.pendingUploads) {
-      this.updateChatInputState();
-    }
-  }
+    }),
+  );
 
   sendMultimediaMessage = async (
     threadID: string,
@@ -263,8 +253,9 @@ class Chat extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const chatInputState = this.chatInputStateSelector(this.state);
     return (
-      <ChatInputStateContext.Provider value={this.chatInputState}>
+      <ChatInputStateContext.Provider value={chatInputState}>
         <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
           <ChatNavigator {...this.props} />
           <MessageStorePruner />
