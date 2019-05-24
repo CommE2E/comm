@@ -302,8 +302,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         createMultimediaMessage: () =>
           this.createMultimediaMessage(threadID),
         setDraft: (draft: string) => this.setDraft(threadID, draft),
-        setProgress: (localUploadID: string, percent: number) =>
-          this.setProgress(threadID, localUploadID, percent),
         messageHasUploadFailure: (localMessageID: string) =>
           this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
         retryMultimediaMessage: (localMessageID: string) =>

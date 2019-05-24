@@ -53,7 +53,6 @@ export type ChatInputState = {|
   cancelPendingUpload: (localUploadID: string) => void,
   createMultimediaMessage: () => void,
   setDraft: (draft: string) => void,
-  setProgress: (localUploadID: string, percent: number) => void,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => void,
 |};
@@ -67,7 +66,6 @@ export const chatInputStatePropType = PropTypes.shape({
   cancelPendingUpload: PropTypes.func.isRequired,
   createMultimediaMessage: PropTypes.func.isRequired,
   setDraft: PropTypes.func.isRequired,
-  setProgress: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
 });

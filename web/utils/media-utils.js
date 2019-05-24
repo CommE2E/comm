@@ -47,11 +47,7 @@ async function validateFile(file: File): Promise<?FileValidationResult> {
   if (!fileInfo) {
     return null;
   }
-  const { name, mime } = fileInfo;
-  const mediaType = mimeTypesToMediaTypes[mime];
-  if (!mediaType) {
-    return null;
-  }
+  const { name, mime, mediaType } = fileInfo;
   let dimensions = null;
   if (mediaType === "photo") {
     dimensions = await getPhotoDimensions(file);
