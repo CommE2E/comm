@@ -1,5 +1,5 @@
-// flow-typed signature: 75f886cf5a1707c87517fb87387dbfa8
-// flow-typed version: 96ddcb844e/react-navigation_v3.x.x/flow_>=v0.92.x
+// flow-typed signature: 9b2f8a97675f279f008e0178b185e266
+// flow-typed version: 8bb97d26b9/react-navigation_v3.x.x/flow_>=v0.92.x
 
 // @flow
 
@@ -454,6 +454,8 @@ declare module 'react-navigation' {
     headerTransitionPreset?: 'fade-in-place' | 'uikit',
     headerLayoutPreset?: 'left' | 'center',
     headerBackTitleVisible?: boolean,
+    cardShadowEnabled?: boolean,
+    cardOverlayEnabled?: boolean,
     cardStyle?: ViewStyleProp,
     transitionConfig?: (
       transitionProps: NavigationTransitionProps,
