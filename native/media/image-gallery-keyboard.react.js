@@ -63,6 +63,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   viewableIndices: number[] = [];
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
+  imagesSelected = false;
 
   constructor(props: Props) {
     super(props);
@@ -421,6 +422,10 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   sendImages(imageInfos: $ReadOnlyArray<GalleryImageInfo>) {
+    if (this.imagesSelected) {
+      return;
+    }
+    this.imagesSelected = true;
     KeyboardRegistry.onItemSelected(imageGalleryKeyboardName, imageInfos);
   }
 
