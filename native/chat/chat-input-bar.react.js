@@ -71,6 +71,7 @@ import {
   imageGalleryKeyboardName,
   imageGalleryBackgroundColor,
 } from '../media/image-gallery-keyboard.react';
+import { ChatInputStateContext } from './chat-input-state';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -117,6 +118,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
+  static contextType = ChatInputStateContext;
   static kbInitialProps = {
     backgroundColor: imageGalleryBackgroundColor,
   };
@@ -422,13 +424,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }: RawTextMessageInfo);
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendMessageAction(messageInfo),
+      this.sendTextMessageAction(messageInfo),
       undefined,
       messageInfo,
     );
   }
 
-  async sendMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
     try {
       const { localID } = messageInfo;
       invariant(
@@ -518,6 +520,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     imageInfos: $ReadOnlyArray<GalleryImageInfo>,
   ) => {
     KeyboardUtils.dismiss();
+    const chatInputState = this.context;
+    invariant(chatInputState, "chatInputState should be set in ChatInputBar");
+    chatInputState.sendMultimediaMessage(this.props.threadInfo.id, imageInfos);
   }
 
 }
