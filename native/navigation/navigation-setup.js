@@ -101,6 +101,7 @@ import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import { createLightboxNavigator } from '../media/lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
+import ChatInputStateContainer from '../chat/chat-input-state-container.react';
 
 useScreens();
 
@@ -218,7 +219,11 @@ class WrappedAppNavigator
   }
 
   render() {
-    return <AppNavigator navigation={this.props.navigation} />;
+    return (
+      <ChatInputStateContainer>
+        <AppNavigator navigation={this.props.navigation} />
+      </ChatInputStateContainer>
+    );
   }
 
 }
