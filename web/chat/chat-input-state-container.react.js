@@ -207,7 +207,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(
       rawMessageInfo,
-      `rawMessageInfo ${localMessageID} should exist in sendMultimediaMessage`,
+      `rawMessageInfo ${localMessageID} should exist`,
     );
     invariant(
       rawMessageInfo.type === messageTypes.MULTIMEDIA,
@@ -703,13 +703,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const uploadIDsToRetry = new Set();
     const uploadsToRetry = [];
     for (let pendingUpload of pendingUploads) {
-      if (pendingUpload.serverID) {
+      const { serverID, messageID, localID, abort } = pendingUpload;
+      if (serverID || messageID !== localMessageID) {
         continue;
       }
-      if (pendingUpload.abort) {
-        pendingUpload.abort();
+      if (abort) {
+        abort();
       }
-      uploadIDsToRetry.add(pendingUpload.localID);
+      uploadIDsToRetry.add(localID);
       uploadsToRetry.push(pendingUpload);
     }
 
