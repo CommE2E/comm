@@ -48,6 +48,7 @@ type ImageInfo = {|
   ...NativeImageInfo,
   localID: string,
 |};
+type CompletedUploads = { [localMessageID: string]: ?Set<string> };
 
 type Props = {|
   // Redux state
@@ -86,6 +87,155 @@ class Chat extends React.PureComponent<Props, State> {
   state = {
     pendingUploads: {},
   };
+
+  static getCompletedUploads(props: Props, state: State): CompletedUploads {
+    const completedUploads = {};
+    for (let localMessageID in state.pendingUploads) {
+      const messagePendingUploads = state.pendingUploads[localMessageID];
+      const rawMessageInfo = props.messageStoreMessages[localMessageID];
+      if (!rawMessageInfo) {
+        continue;
+      }
+      invariant(
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+        `${localMessageID} should be messageTypes.MULTIMEDIA`,
+      );
+
+      const completed = [];
+      let allUploadsComplete = true;
+      for (let localUploadID in messagePendingUploads) {
+        const media = rawMessageInfo.media.find(
+          media => media.id === localUploadID,
+        );
+        if (media) {
+          allUploadsComplete = false;
+        } else {
+          completed.push(localUploadID);
+        }
+      }
+
+      if (allUploadsComplete) {
+        completedUploads[localMessageID] = null;
+      } else if (completed.length > 0) {
+        completedUploads[localMessageID] = new Set(completed);
+      }
+    }
+    return completedUploads;
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const currentlyComplete = Chat.getCompletedUploads(this.props, this.state);
+    const previouslyComplete = Chat.getCompletedUploads(prevProps, prevState);
+
+    const newPendingUploads = {};
+    let pendingUploadsChanged = false;
+    const readyMessageIDs = [];
+    for (let localMessageID in this.state.pendingUploads) {
+      const messagePendingUploads = this.state.pendingUploads[localMessageID];
+      const prevRawMessageInfo = prevProps.messageStoreMessages[localMessageID];
+      const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
+      const completedUploadIDs = currentlyComplete[localMessageID];
+      const previouslyCompletedUploadIDs = previouslyComplete[localMessageID];
+
+      if (!rawMessageInfo && prevRawMessageInfo) {
+        // A previously failed message got pruned out
+        pendingUploadsChanged = true;
+        continue;
+      } else if (completedUploadIDs === null) {
+        // All of this message's uploads have been completed
+        if (previouslyCompletedUploadIDs !== null) {
+          readyMessageIDs.push(localMessageID);
+          pendingUploadsChanged = true;
+        }
+        continue;
+      } else if (!completedUploadIDs) {
+        // Nothing has been completed
+        newPendingUploads[localMessageID] = messagePendingUploads;
+        continue;
+      }
+
+      const newUploads = {};
+      let uploadsChanged = false;
+      for (let localUploadID in messagePendingUploads) {
+        if (!completedUploadIDs.has(localUploadID)) {
+          newUploads[localUploadID] = messagePendingUploads[localUploadID];
+          continue;
+        }
+        if (
+          !previouslyCompletedUploadIDs ||
+          !previouslyCompletedUploadIDs.has(localUploadID)
+        ) {
+          uploadsChanged = true;
+        }
+      }
+
+      const numOldUploads = Object.keys(messagePendingUploads).length;
+      const numNewUploads = Object.keys(newUploads).length;
+      const allUploadsComplete = numNewUploads === 0;
+      const someUploadsComplete = numNewUploads > numOldUploads;
+      if (!allUploadsComplete && !someUploadsComplete) {
+        newPendingUploads[localMessageID] = messagePendingUploads;
+      } else if (!allUploadsComplete) {
+        newPendingUploads[localMessageID] = newUploads;
+      }
+
+      if (uploadsChanged) {
+        pendingUploadsChanged = true;
+        if (allUploadsComplete) {
+          readyMessageIDs.push(localMessageID);
+        }
+      }
+    }
+    if (pendingUploadsChanged) {
+      this.setState({ pendingUploads: newPendingUploads });
+    }
+
+    for (let localMessageID of readyMessageIDs) {
+      const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
+      if (!rawMessageInfo) {
+        continue;
+      }
+      invariant(
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+        `${localMessageID} should be messageTypes.MULTIMEDIA`,
+      );
+      this.dispatchMultimediaMessageAction(rawMessageInfo);
+    }
+  }
+
+  dispatchMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+    this.props.dispatchActionPromise(
+      sendMultimediaMessageActionTypes,
+      this.sendMultimediaMessageAction(messageInfo),
+      undefined,
+      messageInfo,
+    );
+  }
+
+  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+    const { localID, threadID, media } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      "localID should be set",
+    );
+    try {
+      const result = await this.props.sendMultimediaMessage(
+        threadID,
+        localID,
+        media.map(({ id }) => id),
+      );
+      return {
+        localID,
+        serverID: result.id,
+        threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = localID;
+      e.threadID = threadID;
+      throw e;
+    }
+  }
 
   chatInputStateSelector = createSelector(
     (state: State) => state.pendingUploads,
