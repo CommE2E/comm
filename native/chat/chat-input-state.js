@@ -6,6 +6,10 @@ import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 import * as React from 'react';
 
 export type PendingMultimediaUpload = {|
+  // On some platforms (iOS) the URI we get isn't something that can be passed
+  // to an Image or be uploaded by fetch. We therefore convert it to a data URI,
+  // but avoid storing that string in Redux as it's quite long.
+  dataURI: ?string,
   failed: ?string,
   progressPercent: number,
 |};

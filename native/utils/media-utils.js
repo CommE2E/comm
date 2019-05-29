@@ -24,6 +24,7 @@ function blobToDataURI(blob: Blob): Promise<string> {
 
 export type NativeImageInfo = {|
   uri: string,
+  dataURI: ?string,
   dimensions: Dimensions,
   name: string,
   mime: string,
@@ -32,8 +33,8 @@ export type NativeImageInfo = {|
 async function validateMedia(
   imageInfo: GalleryImageInfo,
 ): Promise<?NativeImageInfo> {
-  const { uri: inputURI, ...dimensions } = imageInfo;
-  const response = await fetch(inputURI);
+  const { uri, ...dimensions } = imageInfo;
+  const response = await fetch(uri);
   const blob = await response.blob();
 
   const dataURI = await blobToDataURI(blob);
@@ -47,8 +48,18 @@ async function validateMedia(
   }
 
   const { name, mime, mediaType } = fileInfo;
-  const uri = Platform.OS === "ios" ? dataURI : inputURI;
-  return { uri, dimensions, name, mime, mediaType };
+  return {
+    uri,
+    // On iOS, the URI we receive from the native side doesn't render with Image
+    // and can't upload with fetch. Thus we need to use the dataURI for those
+    // things, but we have to be careful to avoid storing it in Redux, as it's
+    // quite long.
+    dataURI: Platform.OS === "ios" ? dataURI : null,
+    dimensions,
+    name,
+    mime,
+    mediaType,
+  };
 }
 
 export {

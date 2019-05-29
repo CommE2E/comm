@@ -29,6 +29,7 @@ import { createSelector } from 'reselect';
 import { connect } from 'lib/utils/redux-utils';
 import {
   uploadMultimedia,
+  updateMultimediaMessageMediaActionType,
 } from 'lib/actions/upload-actions';
 import {
   createLocalMultimediaMessageActionType,
@@ -110,8 +111,9 @@ class Chat extends React.PureComponent<Props, State> {
     const localMessageID = `local${this.props.nextLocalID}`;
 
     const pendingUploads = {};
-    for (let { localID } of imageInfos) {
+    for (let { localID, dataURI } of imageInfos) {
       pendingUploads[localID] = {
+        dataURI,
         failed: null,
         progressPercent: 0,
       };
@@ -157,7 +159,8 @@ class Chat extends React.PureComponent<Props, State> {
   }
 
   async uploadFile(localMessageID: string, imageInfo: ImageInfo) {
-    const { localID, uri, name, mime } = imageInfo;
+    const { localID, uri: nativeURI, dataURI, name, mime } = imageInfo;
+    const uri = dataURI ? dataURI : nativeURI;
     let result;
     try {
       result = await this.props.uploadMultimedia(
@@ -172,6 +175,17 @@ class Chat extends React.PureComponent<Props, State> {
       this.handleUploadFailure(localMessageID, localID, e);
       return;
     }
+    this.props.dispatchActionPayload(
+      updateMultimediaMessageMediaActionType,
+      {
+        messageID: localMessageID,
+        currentMediaID: localID,
+        mediaUpdate: {
+          id: result.id,
+          uri: result.uri,
+        },
+      },
+    );
   }
 
   setProgress(
