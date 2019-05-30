@@ -24,7 +24,7 @@ import {
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey, messageID } from 'lib/shared/message-utils';
 
 import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
@@ -154,7 +154,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const { messageInfo } = this.props.item;
     invariant(messageInfo.media.length > 0, "should have media");
     if (messageInfo.media.length === 1) {
-      return this.renderImage(messageInfo.media[0]);
+      return this.renderImage(messageInfo.media[0], 0);
     }
 
     const mediaPerRow = getMediaPerRow(messageInfo.media.length);
@@ -170,7 +170,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         const style = j + 1 < mediaPerRow
           ? styles.imageBeforeImage
           : null;
-        row.push(this.renderImage(media, style));
+        row.push(this.renderImage(media, i + j, style));
       }
       for (; j < mediaPerRow; j++) {
         const key = `filler${j}`;
@@ -192,14 +192,24 @@ class MultimediaMessage extends React.PureComponent<Props> {
     return <View style={styles.grid}>{rows}</View>;
   }
 
-  renderImage(media: Media, style?: ?ImageStyle): React.Node {
+  renderImage(
+    media: Media,
+    index: number,
+    style?: ?ImageStyle,
+  ): React.Node {
+    const id = messageID(this.props.item.messageInfo);
+    const mediaInfo = {
+      ...media,
+      messageID: id,
+      index,
+    };
     return (
       <MultimediaMessageMultimedia
-        media={media}
+        mediaInfo={mediaInfo}
         navigate={this.props.navigate}
         verticalBounds={this.props.verticalBounds}
         style={style}
-        key={media.id}
+        key={index}
       />
     );
   }

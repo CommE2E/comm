@@ -1,85 +1,112 @@
 // @flow
 
-import { type Media, mediaPropType } from 'lib/types/media-types';
-import {
-  type ConnectionStatus,
-  connectionStatusPropType,
-} from 'lib/types/socket-types';
-import type { AppState } from '../redux/redux-setup';
+import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import { View, Image, StyleSheet } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from '../chat/chat-input-state';
+import RemoteImage from './remote-image.react';
 
 type Props = {|
-  media: Media,
+  mediaInfo: MediaInfo,
   spinnerColor: "black" | "white",
-  // Redux state
-  connectionStatus: ConnectionStatus,
+  chatInputState: ?ChatInputState,
 |};
 type State = {|
-  attempt: number,
-  loaded: bool,
+  currentURI: string,
+  departingURI: ?string,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    media: mediaPropType.isRequired,
+    mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.oneOf([ "black", "white" ]).isRequired,
-    connectionStatus: connectionStatusPropType.isRequired,
+    chatInputState: chatInputStatePropType,
   };
   static defaultProps = {
     spinnerColor: "black",
   };
-  state = {
-    attempt: 0,
-    loaded: false,
-  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      currentURI: props.mediaInfo.uri,
+      departingURI: null,
+    };
+  }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      !this.state.loaded &&
-      this.props.connectionStatus === "connected" &&
-      prevProps.connectionStatus !== "connected"
-    ) {
-      this.setState(prevState => ({ attempt: prevState.attempt + 1 }));
+    const newURI = this.props.mediaInfo.uri;
+    const oldURI = prevProps.mediaInfo.uri;
+    if (newURI !== oldURI && !this.state.departingURI) {
+      this.setState({ currentURI: newURI, departingURI: oldURI });
+    } else if (newURI !== oldURI) {
+      this.setState({ currentURI: newURI });
     }
   }
 
   render() {
-    let spinner = null;
-    if (!this.state.loaded) {
-      spinner = (
-        <View style={styles.spinnerContainer}>
-          <ActivityIndicator
-            color={this.props.spinnerColor}
-            size="large"
-          />
-        </View>
-      );
+    const images = [];
+    const { currentURI, departingURI } = this.state;
+    if (departingURI) {
+      images.push(this.renderURI(currentURI, true));
+      images.push(this.renderURI(departingURI, true));
+    } else {
+      images.push(this.renderURI(currentURI));
     }
 
-    const { media } = this.props;
-    const { uri } = media;
-    const source = { uri };
     return (
       <View style={styles.container}>
-        {spinner}
-        <FastImage
-          source={source}
-          onLoad={this.onLoad}
-          style={styles.image}
-          key={this.state.attempt}
-        />
+        {images}
       </View>
     );
   }
 
+  static isRemoteURI(uri: string) {
+    return uri.startsWith("http");
+  }
+
+  renderURI(uri: string, invisibleLoad?: bool = false) {
+    if (Multimedia.isRemoteURI(uri)) {
+      return (
+        <RemoteImage
+          uri={uri}
+          onLoad={this.onRemoteImageLoad}
+          spinnerColor={this.props.spinnerColor}
+          style={styles.image}
+          invisibleLoad={invisibleLoad}
+          key={uri}
+        />
+      );
+    } else {
+      const source = { uri };
+      return (
+        <Image
+          source={source}
+          onLoad={this.onLoad}
+          style={styles.image}
+          key={uri}
+        />
+      );
+    }
+  }
+
+  onRemoteImageLoad = (uri: string) => {
+    if (this.state.departingURI) {
+      this.setState({ departingURI: null });
+    }
+  }
+
   onLoad = () => {
-    this.setState({ loaded: true });
+    if (this.state.departingURI) {
+      this.setState({ departingURI: null });
+    }
   }
 
 }
@@ -89,21 +116,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   image: {
-    flex: 1,
-  },
-  spinnerContainer: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    connectionStatus: state.connection.status,
-  }),
-)(Multimedia);
+export default withChatInputState(Multimedia);

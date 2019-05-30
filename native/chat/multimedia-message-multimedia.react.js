@@ -1,6 +1,6 @@
 // @flow
 
-import { type Media, mediaPropType } from 'lib/types/media-types';
+import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import {
   type Navigate,
@@ -24,7 +24,7 @@ import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
 
 type Props = {|
-  media: Media,
+  mediaInfo: MediaInfo,
   navigate: Navigate,
   verticalBounds: ?VerticalBounds,
   style?: ImageStyle,
@@ -40,7 +40,7 @@ type State = {|
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    media: mediaPropType.isRequired,
+    mediaInfo: mediaInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     modalsClosed: PropTypes.bool.isRequired,
@@ -86,7 +86,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { media, style } = this.props;
+    const { mediaInfo, style } = this.props;
     const wrapperStyles = [ styles.expand ];
     if (this.state.hidden && this.state.opacity) {
       wrapperStyles.push({ opacity: this.state.opacity });
@@ -95,7 +95,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       <TouchableWithoutFeedback onPress={this.onPress}>
         <View style={[ styles.expand, style ]} ref={this.viewRef}>
           <Animated.View style={wrapperStyles}>
-            <Multimedia media={media} />
+            <Multimedia mediaInfo={mediaInfo} />
           </Animated.View>
         </View>
       </TouchableWithoutFeedback>
@@ -113,10 +113,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      const { media, navigate } = this.props;
+      const { mediaInfo, navigate } = this.props;
       navigate({
         routeName: MultimediaModalRouteName,
-        params: { media, initialCoordinates: coordinates, verticalBounds },
+        params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
       });
       this.setState({ hidden: true });
     });

@@ -6,7 +6,6 @@ import type { ViewStyle, ImageStyle } from '../types/styles';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Image,
   TouchableOpacity,
   StyleSheet,
   View,

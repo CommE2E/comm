@@ -261,9 +261,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const localMessageID = `local${this.props.nextLocalID}`;
 
     const pendingUploads = {};
-    for (let { localID, dataURI } of imageInfos) {
+    for (let { localID } of imageInfos) {
       pendingUploads[localID] = {
-        dataURI,
         failed: null,
         progressPercent: 0,
       };

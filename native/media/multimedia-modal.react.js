@@ -7,8 +7,8 @@ import type {
   NavigationTransitionProps,
 } from 'react-navigation';
 import {
-  type Media,
-  mediaPropType,
+  type MediaInfo,
+  mediaInfoPropType,
   type Dimensions,
   dimensionsPropType,
 } from 'lib/types/media-types';
@@ -195,7 +195,7 @@ type LayoutCoordinates = $ReadOnly<{|
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
-    media: Media,
+    mediaInfo: MediaInfo,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
   |},
@@ -216,7 +216,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
-          media: mediaPropType.isRequired,
+          mediaInfo: mediaInfoPropType.isRequired,
           initialCoordinates: PropTypes.shape({
             x: PropTypes.number.isRequired,
             y: PropTypes.number.isRequired,
@@ -831,7 +831,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       maxWidth -= 100;
     }
 
-    const { dimensions } = this.props.navigation.state.params.media;
+    const { dimensions } = this.props.navigation.state.params.mediaInfo;
     if (dimensions.height < maxHeight && dimensions.width < maxWidth) {
       return dimensions;
     }
@@ -892,7 +892,7 @@ class MultimediaModal extends React.PureComponent<Props> {
   }
 
   render() {
-    const { media } = this.props.navigation.state.params;
+    const { mediaInfo } = this.props.navigation.state.params;
     const statusBar = MultimediaModal.isActive(this.props)
       ? <ConnectedStatusBar barStyle="light-content" />
       : null;
@@ -907,7 +907,7 @@ class MultimediaModal extends React.PureComponent<Props> {
         <Animated.View style={[ styles.backdrop, backdropStyle ]} />
         <View style={this.contentContainerStyle}>
           <Animated.View style={this.imageContainerStyle}>
-            <Multimedia media={media} spinnerColor="white" />
+            <Multimedia mediaInfo={mediaInfo} spinnerColor="white" />
           </Animated.View>
         </View>
         <Animated.View style={[
