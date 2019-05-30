@@ -177,10 +177,12 @@ function withLightboxPositionContext<
     React.ElementConfig<ComponentType>,
     { lightboxPosition: ?Animated.Value },
   >> {
-    static contextType = LightboxPositionContext;
     render() {
-      const lightboxPosition = this.context;
-      return <Component {...this.props} lightboxPosition={lightboxPosition} />;
+      return (
+        <LightboxPositionContext.Consumer>
+          {value => (<Component {...this.props} lightboxPosition={value} />)}
+        </LightboxPositionContext.Consumer>
+      );
     }
   }
   return LightboxPositionHOC;
