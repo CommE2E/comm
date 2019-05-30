@@ -3,8 +3,8 @@
 import type { Dimensions, MediaType } from 'lib/types/media-types';
 import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
-import str2ab from 'string-to-arraybuffer';
 import { Platform } from 'react-native';
+import base64 from 'base-64';
 
 import { fileInfoFromData } from 'lib/utils/media-utils';
 
@@ -20,6 +20,41 @@ function blobToDataURI(blob: Blob): Promise<string> {
     };
     fileReader.readAsDataURL(blob);
   });
+}
+
+function stringToIntArray(str: string): Uint8Array {
+  const array = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    array[i] = str.charCodeAt(i);
+  }
+  return array;
+}
+
+function dataURIToIntArray(dataURI: string): Uint8Array {
+  let uri = dataURI;
+  uri = uri.replace(/\r?\n/g, '');
+  const firstComma = uri.indexOf(',');
+  if (-1 === firstComma || firstComma <= 4) {
+    throw new TypeError('malformed data-URI');
+  }
+  const meta = uri.substring(5, firstComma).split(';');
+
+  let base64Encoded = false;
+  let charset = 'US-ASCII';
+  for (let i = 0; i < meta.length; i++) {
+    if (meta[i] === 'base64') {
+      base64Encoded = true;
+    } else if (meta[i].indexOf('charset=') === 0) {
+      charset = meta[i].substring(8);
+    }
+  }
+
+  let data = unescape(uri.substring(firstComma + 1));
+  if (base64Encoded) {
+    data = base64.decode(data);
+  }
+
+  return stringToIntArray(data);
 }
 
 export type NativeImageInfo = {|
@@ -38,11 +73,10 @@ async function validateMedia(
   const blob = await response.blob();
 
   const dataURI = await blobToDataURI(blob);
-  const arrayBuffer = str2ab(dataURI);
-  const uint8Array = new Uint8Array(arrayBuffer);
+  const intArray = dataURIToIntArray(dataURI);
 
   const blobName = blob.data.name;
-  const fileInfo = fileInfoFromData(new Uint8Array(arrayBuffer), blobName);
+  const fileInfo = fileInfoFromData(intArray, blobName);
   if (!fileInfo) {
     return null;
   }
