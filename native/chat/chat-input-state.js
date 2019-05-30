@@ -68,6 +68,7 @@ function withChatInputState<
 }
 
 export {
+  pendingMultimediaUploadPropType,
   chatInputStatePropType,
   ChatInputStateContext,
   withChatInputState,

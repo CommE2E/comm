@@ -13,6 +13,7 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../media/vertical-bounds';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import {
@@ -23,11 +24,20 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import Animated from 'react-native-reanimated';
 
 import { messageKey, messageID } from 'lib/shared/message-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
+import { modalsClosedSelector } from '../selectors/nav-selectors';
+import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from './chat-input-state';
 
 export type ChatMultimediaMessageInfoItem = {|
   itemType: "message",
@@ -112,6 +122,12 @@ type Props = {|
   navigate: Navigate,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
+  // Redux state
+  modalsClosed: bool,
+  // withLightboxPositionContext
+  lightboxPosition: ?Animated.Value,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
@@ -120,6 +136,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
     navigate: PropTypes.func.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
+    modalsClosed: PropTypes.bool.isRequired,
+    lightboxPosition: PropTypes.instanceOf(Animated.Value),
+    chatInputState: chatInputStatePropType,
   };
 
   render() {
@@ -203,12 +222,19 @@ class MultimediaMessage extends React.PureComponent<Props> {
       messageID: id,
       index,
     };
+    const { chatInputState } = this.props;
+    const pendingUpload = chatInputState
+      && chatInputState[id]
+      && chatInputState[id][media.id];
     return (
       <MultimediaMessageMultimedia
         mediaInfo={mediaInfo}
         navigate={this.props.navigate}
         verticalBounds={this.props.verticalBounds}
         style={style}
+        modalsClosed={this.props.modalsClosed}
+        lightboxPosition={this.props.lightboxPosition}
+        pendingUpload={pendingUpload}
         key={index}
       />
     );
@@ -247,8 +273,19 @@ const styles = StyleSheet.create({
   },
 });
 
+
+const WrappedMultimediaMessage = withChatInputState(
+  withLightboxPositionContext(
+    connect(
+      (state: AppState) => ({
+        modalsClosed: modalsClosedSelector(state),
+      }),
+    )(MultimediaMessage),
+  ),
+);
+
 export {
-  MultimediaMessage,
+  WrappedMultimediaMessage as MultimediaMessage,
   multimediaMessageContentHeight,
   multimediaMessageItemHeight,
 };

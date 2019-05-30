@@ -10,28 +10,26 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../media/vertical-bounds';
-import type { AppState } from '../redux/redux-setup';
+import {
+  type PendingMultimediaUpload,
+  pendingMultimediaUploadPropType,
+} from './chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import Multimedia from '../media/multimedia.react';
-import { modalsClosedSelector } from '../selectors/nav-selectors';
-import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
   navigate: Navigate,
   verticalBounds: ?VerticalBounds,
   style?: ImageStyle,
-  // Redux state
   modalsClosed: bool,
-  // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
+  pendingUpload: ?PendingMultimediaUpload,
 |};
 type State = {|
   hidden: bool,
@@ -45,6 +43,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     verticalBounds: verticalBoundsPropType,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
+    pendingUpload: pendingMultimediaUploadPropType,
   };
   view: ?View;
 
@@ -130,10 +129,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withLightboxPositionContext(
-  connect(
-    (state: AppState) => ({
-      modalsClosed: modalsClosedSelector(state),
-    }),
-  )(MultimediaMessageMultimedia),
-);
+export default MultimediaMessageMultimedia;

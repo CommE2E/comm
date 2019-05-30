@@ -6,17 +6,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Image, StyleSheet } from 'react-native';
 
-import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from '../chat/chat-input-state';
 import RemoteImage from './remote-image.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
   spinnerColor: "black" | "white",
-  chatInputState: ?ChatInputState,
 |};
 type State = {|
   currentURI: string,
@@ -27,7 +21,6 @@ class Multimedia extends React.PureComponent<Props, State> {
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.oneOf([ "black", "white" ]).isRequired,
-    chatInputState: chatInputStatePropType,
   };
   static defaultProps = {
     spinnerColor: "black",
@@ -60,7 +53,6 @@ class Multimedia extends React.PureComponent<Props, State> {
     } else {
       images.push(this.renderURI(currentURI));
     }
-
     return (
       <View style={styles.container}>
         {images}
@@ -68,12 +60,8 @@ class Multimedia extends React.PureComponent<Props, State> {
     );
   }
 
-  static isRemoteURI(uri: string) {
-    return uri.startsWith("http");
-  }
-
   renderURI(uri: string, invisibleLoad?: bool = false) {
-    if (Multimedia.isRemoteURI(uri)) {
+    if (uri.startsWith("http")) {
       return (
         <RemoteImage
           uri={uri}
@@ -124,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withChatInputState(Multimedia);
+export default Multimedia;
