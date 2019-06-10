@@ -40,7 +40,7 @@ PODS:
     - React/Core (= 0.59.4)
   - react-native-async-storage (1.3.0):
     - React
-  - react-native-cameraroll (1.0.4):
+  - react-native-cameraroll (1.0.5):
     - React
   - react-native-exit-app (0.1.0):
     - React
@@ -122,6 +122,8 @@ PODS:
     - React
   - RNScreens (1.0.0-alpha.17):
     - React
+  - RNSVG (9.5.1):
+    - React
   - RNVectorIcons (4.6.0):
     - React
   - SDWebImage/Core (4.4.6)
@@ -164,6 +166,7 @@ DEPENDENCIES:
   - RNKeychain (from `../../node_modules/react-native-keychain`)
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../node_modules/react-native-screens`)
+  - RNSVG (from `../../node_modules/react-native-svg`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
   - yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -217,6 +220,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../../node_modules/react-native-vector-icons"
   yoga:
@@ -234,7 +239,7 @@ SPEC CHECKSUMS:
   lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
   React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
-  react-native-cameraroll: 63207a7daac2786786b301545a709c19f285aec6
+  react-native-cameraroll: b1faef9f2ea27b07bdf818b8043909a93f797eca
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
   react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
@@ -248,10 +253,11 @@ SPEC CHECKSUMS:
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
   RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
+  RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: 4e4591f1770ff5cc15c73ae1a206faacb23b2a5b
+PODFILE CHECKSUM: 2c1283b3653368eadc003796b177c252a2323cde
 
 COCOAPODS: 1.6.1
