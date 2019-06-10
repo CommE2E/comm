@@ -10579,6 +10579,13 @@ react-linkify@^0.2.2:
     prop-types "^15.5.8"
     tlds "^1.57.0"
 
+react-native-circular-progress@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-circular-progress/-/react-native-circular-progress-1.1.0.tgz#5cb3efe570796226c59bf15a35250fb8b0d45025"
+  integrity sha512-4Fx7hDGUJyLHTc9fThnXmsW+ea3wjNC8xUwoTCnaL6W29ki9IJQZY9QiDzwtReDxHW6CvNiEzeYB3obNgOfUrQ==
+  dependencies:
+    prop-types "^15.6.2"
+
 "react-native-exit-app@git+https://github.com/wumke/react-native-exit-app.git#460d40aaacb1aa95d7ed5f21e7906ba930c74301":
   version "1.0.0"
   resolved "git+https://github.com/wumke/react-native-exit-app.git#460d40aaacb1aa95d7ed5f21e7906ba930c74301"
