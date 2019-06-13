@@ -224,8 +224,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
     };
     const { chatInputState } = this.props;
     const pendingUpload = chatInputState
-      && chatInputState[id]
-      && chatInputState[id][media.id];
+      && chatInputState.pendingUploads
+      && chatInputState.pendingUploads[id]
+      && chatInputState.pendingUploads[id][media.id];
     return (
       <MultimediaMessageMultimedia
         mediaInfo={mediaInfo}
