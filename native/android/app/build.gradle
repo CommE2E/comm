@@ -149,7 +149,6 @@ android {
 dependencies {
     implementation project(':react-native-fs')
     implementation project(':react-native-image-resizer')
-    implementation project(':react-native-svg')
     implementation project(':lottie-react-native')
     implementation project(':@react-native-community_cameraroll')
     implementation project(':react-native-firebase')

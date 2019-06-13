@@ -5,7 +5,6 @@ import android.app.Application;
 import com.facebook.react.ReactApplication;
 import com.rnfs.RNFSPackage;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
-import com.horcrux.svg.SvgPackage;
 import com.airbnb.android.react.lottie.LottiePackage;
 import com.reactnativecommunity.cameraroll.CameraRollPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -45,7 +44,6 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new RNFSPackage(),
             new ImageResizerPackage(),
-            new SvgPackage(),
             new LottiePackage(),
             new CameraRollPackage(),
             new RNFirebasePackage(),
