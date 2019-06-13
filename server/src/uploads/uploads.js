@@ -9,12 +9,12 @@ import type {
 
 import multer from 'multer';
 
-import { fileInfoFromData } from 'lib/utils/media-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import createUploads from '../creators/upload-creator';
 import { fetchUpload } from '../fetchers/upload-fetchers';
 import { deleteUpload } from '../deleters/upload-deleters';
+import { validateAndConvert } from './media-utils';
 
 const upload = multer();
 const multerProcessor = upload.array('multimedia');
@@ -39,14 +39,16 @@ async function multimediaUploadResponder(
   if (!files) {
     throw new ServerError('invalid_parameters');
   }
-  const uploadInfos = files.map(multerFile => {
-    const { buffer, originalname } = multerFile;
-    const fileInfo = fileInfoFromData(buffer, originalname);
-    if (!fileInfo) {
-      return null;
-    }
-    return { ...fileInfo, buffer };
-  }).filter(Boolean);
+  const validationResults = await Promise.all(
+    files.map(
+      ({ buffer, size, originalname }) => validateAndConvert(
+        buffer,
+        originalname,
+        size,
+      ),
+    ),
+  );
+  const uploadInfos = validationResults.filter(Boolean);
   if (uploadInfos.length === 0) {
     throw new ServerError('invalid_parameters');
   }

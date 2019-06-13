@@ -20,7 +20,7 @@ function uploadExtras(upload: UploadInput) {
   return JSON.stringify({ height, width });
 }
 
-type UploadInput = {|
+export type UploadInput = {|
   name: string,
   mime: string,
   mediaType: MediaType,
