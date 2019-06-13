@@ -260,6 +260,15 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }));
     const localMessageID = `local${this.props.nextLocalID}`;
 
+    if (imageInfos.length < validationResults.length) {
+      // Since we filter our MIME types in our calls to CameraRoll,
+      // this should never be triggered
+      console.log('unexpected MIME type found');
+    }
+    if (imageInfos.length === 0) {
+      return;
+    }
+
     const pendingUploads = {};
     for (let { localID } of imageInfos) {
       pendingUploads[localID] = {
