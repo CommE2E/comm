@@ -31,6 +31,7 @@
     "react-native-firebase": "^5.3.1",
     "react-native-floating-action": "^1.9.0",
     "react-native-gesture-handler": "git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8",
+    "react-native-heic-converter": "^1.2.0",
     "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-in-app-notification": "^2.1.0",
     "react-native-keyboard-input": "^5.3.1",

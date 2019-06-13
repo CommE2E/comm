@@ -5,8 +5,33 @@ import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
 import { Platform } from 'react-native';
 import base64 from 'base-64';
+import HeicConverter from 'react-native-heic-converter';
 
-import { fileInfoFromData } from 'lib/utils/media-utils';
+import {
+  fileInfoFromData,
+  mimeTypesToMediaTypes,
+} from 'lib/utils/media-utils';
+
+type ReactNativeBlob = Blob & { data: { type: string, name: string } };
+export type MediaValidationResult = {
+  uri: string,
+  dimensions: Dimensions,
+  mediaType: MediaType,
+  blob: ReactNativeBlob,
+};
+async function validateMedia(
+  imageInfo: GalleryImageInfo,
+): Promise<?MediaValidationResult> {
+  const { uri, ...dimensions } = imageInfo;
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  const reportedMIME = blob.data.type;
+  const mediaType = mimeTypesToMediaTypes[reportedMIME];
+  if (!mediaType) {
+    return null;
+  }
+  return { uri, dimensions, mediaType, blob };
+}
 
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();
@@ -57,20 +82,39 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   return stringToIntArray(data);
 }
 
-export type NativeImageInfo = {|
-  uri: string,
-  dataURI: ?string,
-  dimensions: Dimensions,
+function getHEICAssetLibraryURI(uri: string) {
+  if (!uri.startsWith('ph://')) {
+    return uri;
+  }
+  const photoKitID = uri.substr(5);
+  const hash = photoKitID.split('/')[0];
+  return `assets-library://asset/asset.heic?id=${hash}&ext=heic`;
+}
+
+type MediaConversionResult = {|
+  uploadURI: string,
   name: string,
   mime: string,
   mediaType: MediaType,
 |};
-async function validateMedia(
-  imageInfo: GalleryImageInfo,
-): Promise<?NativeImageInfo> {
-  const { uri, ...dimensions } = imageInfo;
-  const response = await fetch(uri);
-  const blob = await response.blob();
+async function convertMedia(
+  validationResult: MediaValidationResult,
+): Promise<?MediaConversionResult> {
+  const { uri } = validationResult;
+  let { blob } = validationResult;
+
+  const reportedMIME = blob.data.type;
+  if (Platform.OS === "ios" && reportedMIME === "image/heic") {
+    const assetLibraryURI = getHEICAssetLibraryURI(uri);
+    const { success, path } = await HeicConverter.convert({
+      path: assetLibraryURI,
+      quality: 0.7,
+    });
+    if (success) {
+      const jpegResponse = await fetch(path);
+      blob = await jpegResponse.blob();
+    }
+  }
 
   const dataURI = await blobToDataURI(blob);
   const intArray = dataURIToIntArray(dataURI);
@@ -83,13 +127,7 @@ async function validateMedia(
 
   const { name, mime, mediaType } = fileInfo;
   return {
-    uri,
-    // On iOS, the URI we receive from the native side doesn't render with Image
-    // and can't upload with fetch. Thus we need to use the dataURI for those
-    // things, but we have to be careful to avoid storing it in Redux, as it's
-    // quite long.
-    dataURI: Platform.OS === "ios" ? dataURI : null,
-    dimensions,
+    uploadURI: Platform.OS === "ios" ? dataURI : uri,
     name,
     mime,
     mediaType,
@@ -98,4 +136,5 @@ async function validateMedia(
 
 export {
   validateMedia,
+  convertMedia,
 };

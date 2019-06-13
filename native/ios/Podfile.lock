@@ -116,6 +116,8 @@ PODS:
     - React/RCTBlob
   - RNGestureHandler (1.1.0):
     - React
+  - RNHeicConverter (1.0.0):
+    - React
   - RNKeychain (3.0.0):
     - React
   - RNReanimated (1.0.1):
@@ -163,6 +165,7 @@ DEPENDENCIES:
   - React/RCTText (from `../../node_modules/react-native`)
   - React/RCTWebSocket (from `../../node_modules/react-native`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
+  - RNHeicConverter (from `../../node_modules/react-native-heic-converter/ios`)
   - RNKeychain (from `../../node_modules/react-native-keychain`)
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../node_modules/react-native-screens`)
@@ -214,6 +217,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-splash-screen"
   RNGestureHandler:
     :path: "../../node_modules/react-native-gesture-handler"
+  RNHeicConverter:
+    :path: "../../node_modules/react-native-heic-converter/ios"
   RNKeychain:
     :path: "../../node_modules/react-native-keychain"
   RNReanimated:
@@ -250,6 +255,7 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
   react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
   RNGestureHandler: 8a75e1d2f83d73aba148653252953e4bcf363b98
+  RNHeicConverter: 6cee6a94c1331cb136cdffe9e791491b00aae4f9
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
   RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
@@ -258,6 +264,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: 2c1283b3653368eadc003796b177c252a2323cde
+PODFILE CHECKSUM: e83a37fa952cddae025cbd6b30a3e88d1a488a45
 
 COCOAPODS: 1.6.1

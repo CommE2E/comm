@@ -14,7 +14,7 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
 } from 'lib/types/message-types';
-import type { NativeImageInfo } from '../utils/media-utils';
+import type { MediaValidationResult } from '../utils/media-utils';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,11 +33,11 @@ import {
 } from 'lib/actions/message-actions';
 
 import { ChatInputStateContext } from './chat-input-state';
-import { validateMedia } from '../utils/media-utils';
+import { validateMedia, convertMedia } from '../utils/media-utils';
 
 let nextLocalUploadID = 0;
 type ImageInfo = {|
-  ...NativeImageInfo,
+  ...$Exact<MediaValidationResult>,
   localID: string,
 |};
 type CompletedUploads = { [localMessageID: string]: ?Set<string> };
@@ -317,12 +317,22 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async uploadFile(localMessageID: string, imageInfo: ImageInfo) {
-    const { localID, uri: nativeURI, dataURI, name, mime } = imageInfo;
-    const uri = dataURI ? dataURI : nativeURI;
+    const { localID } = imageInfo;
+    const conversionResult = await convertMedia(imageInfo);
+    if (!conversionResult) {
+      this.handleUploadFailure(
+        localMessageID,
+        localID,
+        new Error("conversion failed"),
+      );
+      return;
+    }
+    const { uploadURI, name, mime, mediaType } = conversionResult;
+
     let result;
     try {
       result = await this.props.uploadMultimedia(
-        { uri, name, type: mime },
+        { uri: uploadURI, name, type: mime },
         (percent: number) => this.setProgress(
           localMessageID,
           localID,
@@ -341,6 +351,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         mediaUpdate: {
           id: result.id,
           uri: result.uri,
+          mediaType,
         },
       },
     );

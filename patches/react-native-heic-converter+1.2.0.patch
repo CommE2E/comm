@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-heic-converter/ios/RNHeicConverter.podspec b/node_modules/react-native-heic-converter/ios/RNHeicConverter.podspec
+index 36a41ac..4861d6c 100644
+--- a/node_modules/react-native-heic-converter/ios/RNHeicConverter.podspec
++++ b/node_modules/react-native-heic-converter/ios/RNHeicConverter.podspec
+@@ -4,15 +4,15 @@ Pod::Spec.new do |s|
+   s.version      = "1.0.0"
+   s.summary      = "RNHeicConverter"
+   s.description  = <<-DESC
+-                  RNHeicConverter
++                  RNHeicConverter2
+                    DESC
+-  s.homepage     = ""
++  s.homepage     = "https://github.com/maxim-kolesnikov/react-native-heic-converter"
+   s.license      = "MIT"
+   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
+   s.author             = { "author" => "author@domain.cn" }
+   s.platform     = :ios, "7.0"
+-  s.source       = { :git => "https://github.com/author/RNHeicConverter.git", :tag => "master" }
+-  s.source_files  = "RNHeicConverter/**/*.{h,m}"
++  s.source       = { :git => "https://github.com/maxim-kolesnikov/react-native-heic-converter.git", :tag => s.version }
++  s.source_files  = "**/*.{h,m}"
+   s.requires_arc = true
+ 
+ 
