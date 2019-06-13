@@ -20,6 +20,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
+import filesystem from 'react-native-fs';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -336,7 +337,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     } = conversionResult;
 
     let result;
-    let success = true;
     try {
       result = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -348,23 +348,27 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     } catch (e) {
       this.handleUploadFailure(localMessageID, localID, e);
-      success = false;
     }
-    if (!success) {
+    if (result) {
+      this.props.dispatchActionPayload(
+        updateMultimediaMessageMediaActionType,
+        {
+          messageID: localMessageID,
+          currentMediaID: localID,
+          mediaUpdate: {
+            id: result.id,
+            uri: result.uri,
+            mediaType,
+          },
+        },
+      );
+    }
+    if (!shouldDisposePath) {
       return;
     }
-    this.props.dispatchActionPayload(
-      updateMultimediaMessageMediaActionType,
-      {
-        messageID: localMessageID,
-        currentMediaID: localID,
-        mediaUpdate: {
-          id: result.id,
-          uri: result.uri,
-          mediaType,
-        },
-      },
-    );
+    try {
+      await filesystem.unlink(shouldDisposePath);
+    } catch (e) { }
   }
 
   setProgress(
