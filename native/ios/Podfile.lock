@@ -68,6 +68,8 @@ PODS:
     - React
   - react-native-splash-screen (3.1.1):
     - React
+  - React/ART (0.59.4):
+    - React/Core
   - React/Core (0.59.4):
     - yoga (= 0.59.4.React)
   - React/CxxBridge (0.59.4):
@@ -154,6 +156,7 @@ DEPENDENCIES:
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
   - react-native-splash-screen (from `../../node_modules/react-native-splash-screen`)
+  - React/ART (from `../../node_modules/react-native`)
   - React/Core (from `../../node_modules/react-native`)
   - React/CxxBridge (from `../../node_modules/react-native`)
   - React/DevSupport (from `../../node_modules/react-native`)
@@ -264,6 +267,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: e635d99ac1ac04e337c8e37d89213dcf86d730ca
+PODFILE CHECKSUM: 557d6ad2cd7fd4073717f3c874bbe0ea71279370
 
 COCOAPODS: 1.6.1

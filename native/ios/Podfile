@@ -18,6 +18,7 @@ target 'SquadCal' do
     'RCTLinkingIOS',
     'RCTCameraRoll',
     'RCTBlob',
+    'ART',
   ]
 
   pod 'yoga', :path => '../../node_modules/react-native/ReactCommon/yoga'
