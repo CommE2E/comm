@@ -16,14 +16,20 @@ const pendingMultimediaUploadPropType = PropTypes.shape({
   progressPercent: PropTypes.number.isRequired,
 });
 
+export type MessagePendingUploads = {
+  [localUploadID: string]: PendingMultimediaUpload,
+};
+
+const messagePendingUploadsPropType = PropTypes.objectOf(
+  pendingMultimediaUploadPropType,
+);
+
 export type PendingMultimediaUploads = {
-  [localMessageID: string]: {
-    [localUploadID: string]: PendingMultimediaUpload,
-  },
+  [localMessageID: string]: MessagePendingUploads,
 };
 
 const pendingMultimediaUploadsPropType = PropTypes.objectOf(
-  PropTypes.objectOf(pendingMultimediaUploadPropType),
+  messagePendingUploadsPropType,
 );
 
 export type ChatInputState = {|
@@ -68,6 +74,7 @@ function withChatInputState<
 }
 
 export {
+  messagePendingUploadsPropType,
   pendingMultimediaUploadPropType,
   chatInputStatePropType,
   ChatInputStateContext,

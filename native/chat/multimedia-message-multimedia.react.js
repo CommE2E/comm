@@ -31,6 +31,7 @@ type Props = {|
   style?: ImageStyle,
   modalsClosed: bool,
   lightboxPosition: ?Animated.Value,
+  inProgress: bool,
   pendingUpload: ?PendingMultimediaUpload,
 |};
 type State = {|
@@ -45,6 +46,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     verticalBounds: verticalBoundsPropType,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
+    inProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
   };
   view: ?View;
@@ -87,9 +89,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { mediaInfo, pendingUpload, style } = this.props;
+    const { mediaInfo, pendingUpload, style, inProgress } = this.props;
 
-    let failed = mediaInfo.id.startsWith('localUpload');
+    let failed = mediaInfo.id.startsWith('localUpload') && !inProgress;
     let progressPercent = 1;
     if (pendingUpload) {
       ({ progressPercent, failed } = pendingUpload);

@@ -14,6 +14,7 @@ import {
   verticalBoundsPropType,
 } from '../media/vertical-bounds';
 import type { AppState } from '../redux/redux-setup';
+import type { MessagePendingUploads } from './chat-input-state';
 
 import * as React from 'react';
 import {
@@ -33,11 +34,6 @@ import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
-import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
 
 export type ChatMultimediaMessageInfoItem = {|
   itemType: "message",
@@ -48,6 +44,7 @@ export type ChatMultimediaMessageInfoItem = {|
   startsConversation: bool,
   startsCluster: bool,
   endsCluster: bool,
+  pendingUploads: ?MessagePendingUploads,
   contentHeight: number,
 |};
 
@@ -92,6 +89,32 @@ function multimediaMessageContentHeight(
   return numRows * imageHeight + (numRows - 1) * spaceBetweenImages;
 }
 
+function sendFailed(item: ChatMultimediaMessageInfoItem) {
+  const { messageInfo, localMessageInfo, pendingUploads } = item;
+  const { id: serverID } = messageInfo;
+  if (serverID !== null && serverID !== undefined) {
+    return false;
+  }
+
+  const { isViewer } = messageInfo.creator;
+  if (!isViewer) {
+    return false;
+  }
+
+  if (localMessageInfo && localMessageInfo.sendFailed) {
+    return true;
+  }
+
+  for (let media of messageInfo.media) {
+    const pendingUpload = pendingUploads && pendingUploads[media.id];
+    if (pendingUpload && pendingUpload.failed) {
+      return true;
+    }
+  }
+
+  return !pendingUploads;
+}
+
 function multimediaMessageItemHeight(
   item: ChatMultimediaMessageInfoItem,
   viewerID: ?string,
@@ -106,12 +129,7 @@ function multimediaMessageItemHeight(
   if (endsCluster) {
     height += 7; // extra padding at the end of a cluster
   }
-  if (
-    isViewer &&
-    id !== null && id !== undefined &&
-    item.localMessageInfo &&
-    item.localMessageInfo.sendFailed
-  ) {
+  if (sendFailed(item)) {
     height += 22; // extra padding for sendFailed
   }
   return height;
@@ -126,8 +144,6 @@ type Props = {|
   modalsClosed: bool,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
@@ -138,25 +154,14 @@ class MultimediaMessage extends React.PureComponent<Props> {
     verticalBounds: verticalBoundsPropType,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
-    chatInputState: chatInputStatePropType,
   };
 
   render() {
-    const { messageInfo, contentHeight } = this.props.item;
-    const { id, creator } = messageInfo;
-    const { isViewer } = creator;
-    const heightStyle = { height: contentHeight };
-
-    const sendFailed =
-      isViewer &&
-      (id === null || id === undefined) &&
-      this.props.item.localMessageInfo &&
-      this.props.item.localMessageInfo.sendFailed;
-
+    const heightStyle = { height: this.props.item.contentHeight };
     return (
       <ComposedMessage
         item={this.props.item}
-        sendFailed={!!sendFailed}
+        sendFailed={sendFailed(this.props.item)}
         borderRadius={16}
         style={styles.row}
       >
@@ -216,17 +221,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
     index: number,
     style?: ?ImageStyle,
   ): React.Node {
-    const id = messageID(this.props.item.messageInfo);
+    const { pendingUploads, messageInfo } = this.props.item;
     const mediaInfo = {
       ...media,
-      messageID: id,
+      messageID: messageID(messageInfo),
       index,
     };
-    const { chatInputState } = this.props;
-    const pendingUpload = chatInputState
-      && chatInputState.pendingUploads
-      && chatInputState.pendingUploads[id]
-      && chatInputState.pendingUploads[id][media.id];
+    const pendingUpload = pendingUploads && pendingUploads[media.id];
     return (
       <MultimediaMessageMultimedia
         mediaInfo={mediaInfo}
@@ -235,6 +236,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         style={style}
         modalsClosed={this.props.modalsClosed}
         lightboxPosition={this.props.lightboxPosition}
+        inProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         key={index}
       />
@@ -274,16 +276,14 @@ const styles = StyleSheet.create({
   },
 });
 
-
-const WrappedMultimediaMessage = withChatInputState(
+const WrappedMultimediaMessage =
   withLightboxPositionContext(
     connect(
       (state: AppState) => ({
         modalsClosed: modalsClosedSelector(state),
       }),
     )(MultimediaMessage),
-  ),
-);
+  );
 
 export {
   WrappedMultimediaMessage as MultimediaMessage,

@@ -26,7 +26,11 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageListData } from 'lib/selectors/chat-selectors';
-import { messageKey, robotextToRawString } from 'lib/shared/message-utils';
+import {
+  messageKey,
+  messageID,
+  robotextToRawString,
+} from 'lib/shared/message-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import MessageList from './message-list.react';
@@ -40,6 +44,11 @@ import {
   textMessageMaxWidthSelector,
   composedMessageMaxWidthSelector,
 } from './composed-message-width';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from './chat-input-state';
 
 export type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
@@ -59,6 +68,8 @@ type Props = {|
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   textMessageMaxWidth: number,
   composedMessageMaxWidth: number,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
 |};
 type State = {|
   textToMeasure: TextToMeasure[],
@@ -82,6 +93,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
+    chatInputState: chatInputStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -185,7 +197,13 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     const oldNavThreadInfo = MessageListContainer.getThreadInfo(prevProps);
     const newNavThreadInfo = MessageListContainer.getThreadInfo(this.props);
-    if (newListData === oldListData && newNavThreadInfo === oldNavThreadInfo) {
+    const oldChatInputState = prevProps.chatInputState;
+    const newChatInputState = this.props.chatInputState;
+    if (
+      newListData === oldListData &&
+      newNavThreadInfo === oldNavThreadInfo &&
+      newChatInputState === oldChatInputState
+    ) {
       return;
     }
 
@@ -254,19 +272,23 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   mergeHeightsIntoListData(textHeights?: Map<string, number>) {
-    const listData = this.props.messageListData;
+    const { messageListData: listData, chatInputState } = this.props;
     const threadInfo = MessageListContainer.getThreadInfo(this.props);
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
       if (item.itemType !== "message") {
         return item;
       }
       const { messageInfo } = item;
-      const id = messageKey(messageInfo);
+      const key = messageKey(messageInfo);
       if (messageInfo.type === messageTypes.MULTIMEDIA) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo
           : null;
+        const id = messageID(messageInfo);
+        const pendingUploads = chatInputState
+          && chatInputState.pendingUploads
+          && chatInputState.pendingUploads[id];
         return {
           itemType: "message",
           messageShapeType: "multimedia",
@@ -276,6 +298,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
+          pendingUploads,
           contentHeight: multimediaMessageContentHeight(
             messageInfo,
             this.props.composedMessageMaxWidth,
@@ -283,10 +306,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         };
       }
       invariant(textHeights, "textHeights not set");
-      const textHeight = textHeights.get(id);
+      const textHeight = textHeights.get(key);
       invariant(
         textHeight !== null && textHeight !== undefined,
-        `height for ${id} should be set`,
+        `height for ${key} should be set`,
       );
       if (messageInfo.type === messageTypes.TEXT) {
         // Conditional due to Flow...
@@ -363,4 +386,4 @@ export default connect(
       composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
     };
   },
-)(MessageListContainer);
+)(withChatInputState(MessageListContainer));

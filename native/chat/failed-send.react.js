@@ -28,7 +28,7 @@ import Button from '../components/button.react';
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   // Redux state
-  rawMessageInfo: RawMessageInfo,
+  rawMessageInfo: ?RawMessageInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -42,24 +42,13 @@ class FailedSend extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    rawMessageInfo: PropTypes.object.isRequired,
+    rawMessageInfo: PropTypes.object,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
   };
 
   render() {
-    const { isViewer } = this.props.item.messageInfo.creator;
-    if (!isViewer) {
-      return null;
-    }
-    const { id } = this.props.item.messageInfo;
-    if (id !== null && id !== undefined) {
-      return null;
-    }
-    const sendFailed = this.props.item.localMessageInfo
-      ? this.props.item.localMessageInfo.sendFailed
-      : null;
-    if (!sendFailed) {
+    if (!this.props.rawMessageInfo) {
       return null;
     }
     return (
@@ -78,6 +67,9 @@ class FailedSend extends React.PureComponent<Props> {
 
   retrySend = () => {
     const { rawMessageInfo } = this.props;
+    if (!rawMessageInfo) {
+      return;
+    }
     if (rawMessageInfo.type === messageTypes.TEXT) {
       const newRawMessageInfo = {
         ...rawMessageInfo,

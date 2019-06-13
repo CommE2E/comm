@@ -139,11 +139,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const previouslyCompletedUploadIDs = previouslyComplete[localMessageID];
 
       if (!rawMessageInfo && prevRawMessageInfo) {
-        // A previously failed message got pruned out
         pendingUploadsChanged = true;
         continue;
       } else if (completedUploadIDs === null) {
         // All of this message's uploads have been completed
+        newPendingUploads[localMessageID] = {};
         if (previouslyCompletedUploadIDs !== null) {
           readyMessageIDs.push(localMessageID);
           pendingUploadsChanged = true;
@@ -160,9 +160,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       for (let localUploadID in messagePendingUploads) {
         if (!completedUploadIDs.has(localUploadID)) {
           newUploads[localUploadID] = messagePendingUploads[localUploadID];
-          continue;
-        }
-        if (
+        } else if (
           !previouslyCompletedUploadIDs ||
           !previouslyCompletedUploadIDs.has(localUploadID)
         ) {
@@ -170,21 +168,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         }
       }
 
-      const numOldUploads = Object.keys(messagePendingUploads).length;
       const numNewUploads = Object.keys(newUploads).length;
-      const allUploadsComplete = numNewUploads === 0;
-      const someUploadsComplete = numNewUploads > numOldUploads;
-      if (!allUploadsComplete && !someUploadsComplete) {
-        newPendingUploads[localMessageID] = messagePendingUploads;
-      } else if (!allUploadsComplete) {
-        newPendingUploads[localMessageID] = newUploads;
-      }
-
       if (uploadsChanged) {
         pendingUploadsChanged = true;
-        if (allUploadsComplete) {
-          readyMessageIDs.push(localMessageID);
-        }
+        newPendingUploads[localMessageID] = newUploads;
+      } else {
+        newPendingUploads[localMessageID] = messagePendingUploads;
       }
     }
     if (pendingUploadsChanged) {
