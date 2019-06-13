@@ -43,7 +43,7 @@ target 'SquadCal' do
   pod 'react-native-cameraroll', :path => '../../node_modules/@react-native-community/cameraroll'
   pod 'lottie-react-native', :path => '../../node_modules/lottie-react-native'
   pod 'RNSVG', :path => '../../node_modules/react-native-svg'
-  pod 'RNHeicConverter', :path => '../../node_modules/react-native-heic-converter/ios'
+  pod 'react-native-image-resizer', :path => '../../node_modules/react-native-image-resizer'
 
   target 'SquadCalTests' do
     inherit! :search_paths

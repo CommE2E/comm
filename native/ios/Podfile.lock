@@ -50,6 +50,8 @@ PODS:
     - SDWebImage/Core
     - SDWebImage/GIF
     - SDWebImage/WebP
+  - react-native-image-resizer (1.0.1):
+    - React
   - react-native-keyboard-input (5.3.1):
     - React
     - react-native-keyboard-tracking-view
@@ -116,8 +118,6 @@ PODS:
     - React/RCTBlob
   - RNGestureHandler (1.1.0):
     - React
-  - RNHeicConverter (1.0.0):
-    - React
   - RNKeychain (3.0.0):
     - React
   - RNReanimated (1.0.1):
@@ -146,6 +146,7 @@ DEPENDENCIES:
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-exit-app (from `../../node_modules/react-native-exit-app`)
   - react-native-fast-image (from `../../node_modules/react-native-fast-image`)
+  - react-native-image-resizer (from `../../node_modules/react-native-image-resizer`)
   - react-native-keyboard-input (from `../../node_modules/react-native-keyboard-input`)
   - react-native-keyboard-tracking-view (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
@@ -165,7 +166,6 @@ DEPENDENCIES:
   - React/RCTText (from `../../node_modules/react-native`)
   - React/RCTWebSocket (from `../../node_modules/react-native`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
-  - RNHeicConverter (from `../../node_modules/react-native-heic-converter/ios`)
   - RNKeychain (from `../../node_modules/react-native-keychain`)
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../node_modules/react-native-screens`)
@@ -201,6 +201,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-exit-app"
   react-native-fast-image:
     :path: "../../node_modules/react-native-fast-image"
+  react-native-image-resizer:
+    :path: "../../node_modules/react-native-image-resizer"
   react-native-keyboard-input:
     :path: "../../node_modules/react-native-keyboard-input"
   react-native-keyboard-tracking-view:
@@ -217,8 +219,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-splash-screen"
   RNGestureHandler:
     :path: "../../node_modules/react-native-gesture-handler"
-  RNHeicConverter:
-    :path: "../../node_modules/react-native-heic-converter/ios"
   RNKeychain:
     :path: "../../node_modules/react-native-keychain"
   RNReanimated:
@@ -247,6 +247,7 @@ SPEC CHECKSUMS:
   react-native-cameraroll: b1faef9f2ea27b07bdf818b8043909a93f797eca
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
   react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
+  react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
   react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
   react-native-netinfo: d6ff19d6b0fff3c617d01949f87e9976e7ecc9a9
@@ -255,7 +256,6 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
   react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
   RNGestureHandler: 8a75e1d2f83d73aba148653252953e4bcf363b98
-  RNHeicConverter: 6cee6a94c1331cb136cdffe9e791491b00aae4f9
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
   RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
@@ -264,6 +264,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: e83a37fa952cddae025cbd6b30a3e88d1a488a45
+PODFILE CHECKSUM: c854be7f2da33ebedc540e03582c25dd1d7818d9
 
 COCOAPODS: 1.6.1

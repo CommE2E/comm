@@ -327,9 +327,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
       return;
     }
-    const { uploadURI, name, mime, mediaType } = conversionResult;
+    const {
+      uploadURI,
+      shouldDisposePath,
+      name,
+      mime,
+      mediaType,
+    } = conversionResult;
 
     let result;
+    let success = true;
     try {
       result = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -341,6 +348,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     } catch (e) {
       this.handleUploadFailure(localMessageID, localID, e);
+      success = false;
+    }
+    if (!success) {
       return;
     }
     this.props.dispatchActionPayload(

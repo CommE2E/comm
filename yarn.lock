@@ -10616,17 +10616,17 @@ react-native-floating-action@^1.9.0:
     invariant "^2.2.2"
     prop-types "^15.5.10"
 
-react-native-heic-converter@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-native-heic-converter/-/react-native-heic-converter-1.2.0.tgz#1391b37a5ab0c21181561a7529271fd89809fc65"
-  integrity sha512-xMx3ASil698ABJFLXHkYTvFzouO4Y7P+rQ7UEzr1qgfkgcua4vOCvt/D2y94YJ7LWCKEo0XNnJir1+ThpU/15Q==
-
 "react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git#both":
   version "0.0.12"
   resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#0c872d5be30ba6382c926e78ad1545a97f586f85"
   dependencies:
     linkify-it "^1.2.0"
     mdurl "^1.0.0"
+
+react-native-image-resizer@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-image-resizer/-/react-native-image-resizer-1.0.1.tgz#e9eeb7f81596ffc490f822897952b046c07ee95c"
+  integrity sha512-upBF/9TIs4twg19dSkSaDW/MzMpNbysEXtPuapu3GqvOuGIYHKQ30v6httDn7rIb6uCcNIWL1BwZJM2cDt/C9Q==
 
 react-native-in-app-notification@^2.1.0:
   version "2.2.0"

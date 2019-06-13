@@ -5,14 +5,16 @@ import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
 import { Platform } from 'react-native';
 import base64 from 'base-64';
-import HeicConverter from 'react-native-heic-converter';
+import ImageResizer from 'react-native-image-resizer';
 
 import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
 } from 'lib/utils/media-utils';
 
-type ReactNativeBlob = Blob & { data: { type: string, name: string } };
+type ReactNativeBlob = 
+  & Blob
+  & { data: { type: string, name: string, size: number } };
 export type MediaValidationResult = {
   uri: string,
   dimensions: Dimensions,
@@ -82,17 +84,9 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   return stringToIntArray(data);
 }
 
-function getHEICAssetLibraryURI(uri: string) {
-  if (!uri.startsWith('ph://')) {
-    return uri;
-  }
-  const photoKitID = uri.substr(5);
-  const hash = photoKitID.split('/')[0];
-  return `assets-library://asset/asset.heic?id=${hash}&ext=heic`;
-}
-
 type MediaConversionResult = {|
   uploadURI: string,
+  shouldDisposePath: ?string,
   name: string,
   mime: string,
   mediaType: MediaType,
@@ -103,17 +97,26 @@ async function convertMedia(
   const { uri } = validationResult;
   let { blob } = validationResult;
 
-  const reportedMIME = blob.data.type;
-  if (Platform.OS === "ios" && reportedMIME === "image/heic") {
-    const assetLibraryURI = getHEICAssetLibraryURI(uri);
-    const { success, path } = await HeicConverter.convert({
-      path: assetLibraryURI,
-      quality: 0.7,
-    });
-    if (success) {
-      const jpegResponse = await fetch(path);
-      blob = await jpegResponse.blob();
-    }
+  const { type: reportedMIME, size } = blob.data;
+  if (reportedMIME === "image/heic" || size > 500000) {
+    try {
+      const compressFormat = reportedMIME === "image/png" ? "PNG" : "JPEG";
+      const { uri: resizedURI, path, name } =
+        await ImageResizer.createResizedImage(
+          uri,
+          3000,
+          2000,
+          compressFormat,
+          0.92,
+        );
+      return {
+        uploadURI: resizedURI,
+        shouldDisposePath: path,
+        name,
+        mime: "image/jpeg",
+        mediaType: "photo",
+      };
+    } catch (e) { }
   }
 
   const dataURI = await blobToDataURI(blob);
@@ -128,6 +131,7 @@ async function convertMedia(
   const { name, mime, mediaType } = fileInfo;
   return {
     uploadURI: Platform.OS === "ios" ? dataURI : uri,
+    shouldDisposePath: null,
     name,
     mime,
     mediaType,
