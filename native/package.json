@@ -25,7 +25,6 @@
     "lottie-react-native": "^2.6.1",
     "react": "16.8.3",
     "react-native": "0.59.4",
-    "react-native-circular-progress": "^1.1.0",
     "react-native-exit-app": "git+https://github.com/wumke/react-native-exit-app.git#460d40aaacb1aa95d7ed5f21e7906ba930c74301",
     "react-native-fast-image": "^5.2.0",
     "react-native-firebase": "^5.3.1",
