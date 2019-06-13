@@ -44,6 +44,7 @@ target 'SquadCal' do
   pod 'lottie-react-native', :path => '../../node_modules/lottie-react-native'
   pod 'RNSVG', :path => '../../node_modules/react-native-svg'
   pod 'react-native-image-resizer', :path => '../../node_modules/react-native-image-resizer'
+  pod 'RNFS', :path => '../../node_modules/react-native-fs'
 
   target 'SquadCalTests' do
     inherit! :search_paths

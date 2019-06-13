@@ -24,6 +24,8 @@
 ; Ignore metro
 .*/node_modules/metro/.*
 
+.*/node_modules/react-native-fs/FS.common.js
+
 [include]
 ../lib
 

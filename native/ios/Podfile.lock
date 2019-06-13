@@ -116,6 +116,8 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
+  - RNFS (2.13.3):
+    - React
   - RNGestureHandler (1.1.0):
     - React
   - RNKeychain (3.0.0):
@@ -165,6 +167,7 @@ DEPENDENCIES:
   - React/RCTNetwork (from `../../node_modules/react-native`)
   - React/RCTText (from `../../node_modules/react-native`)
   - React/RCTWebSocket (from `../../node_modules/react-native`)
+  - RNFS (from `../../node_modules/react-native-fs`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../../node_modules/react-native-keychain`)
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
@@ -217,6 +220,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-orientation-locker"
   react-native-splash-screen:
     :path: "../../node_modules/react-native-splash-screen"
+  RNFS:
+    :path: "../../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../../node_modules/react-native-gesture-handler"
   RNKeychain:
@@ -255,6 +260,7 @@ SPEC CHECKSUMS:
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
   react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
+  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 8a75e1d2f83d73aba148653252953e4bcf363b98
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
   RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
@@ -264,6 +270,6 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
-PODFILE CHECKSUM: c854be7f2da33ebedc540e03582c25dd1d7818d9
+PODFILE CHECKSUM: ae819defa5963e229fa7c2bc475e5b8771d60ba1
 
 COCOAPODS: 1.6.1

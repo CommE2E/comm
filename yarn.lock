@@ -10721,6 +10721,14 @@ react-native-floating-action@^1.9.0:
   resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.13.0.tgz#876ab9227c4eda8630020a6a3adc20041870edf3"
   integrity sha512-KqqaEO/nIdims+reWq1pPPDptKqEuG9N8Pt+FtnuVUr35HvyWfiwBf91o9ZMRuO2S+X9AKnq+xuy1iuQK77eQQ==
 
+react-native-fs@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.13.3.tgz#a422f0ecd8a093a7e99d8d51ff51440e090a18a8"
+  integrity sha512-B62LSSAEYQGItg7KVTzTVVCxezOYFBYp4DMVFbdoZUd1mZVFdqR2sy1HY1mye1VI/Lf3IbxSyZEQ0GmrrdwLjg==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^2.1.1"
+
 "react-native-gesture-handler@git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8":
   version "1.1.0"
   resolved "git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8"
@@ -13210,6 +13218,11 @@ utf-8-validate@^5.0.1:
   integrity sha512-Qef1AuiWWxQeZ1Oa4DTV3ArRafpZvsK+CLrlB8khLfsV+9mwhj58hNSGmel0ns5jYP+3yEwav6vxxW7Gz85bVw==
   dependencies:
     node-gyp-build "~3.4.0"
+
+utf8@^2.1.1:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-2.1.2.tgz#1fa0d9270e9be850d9b05027f63519bf46457d96"
+  integrity sha1-H6DZJw6b6FDZsFAn9jUZv0ZFfZY=
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"

@@ -30,6 +30,7 @@
     "react-native-fast-image": "^5.2.0",
     "react-native-firebase": "^5.3.1",
     "react-native-floating-action": "^1.9.0",
+    "react-native-fs": "^2.13.3",
     "react-native-gesture-handler": "git+https://git@github.com/kmagiera/react-native-gesture-handler.git#99dce5e787f0c0e87cf748bc78d32fb65fcdb0e8",
     "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-image-resizer": "^1.0.1",
