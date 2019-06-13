@@ -44,12 +44,13 @@ async function createUploads(
     uploadInfo.mime,
     uploadInfo.buffer,
     secret,
+    Date.now(),
     uploadExtras(uploadInfo),
   ]);
 
   const insertQuery = SQL`
-    INSERT INTO uploads(id, uploader, type,
-      filename, mime, content, secret, extra)
+    INSERT INTO uploads(id, uploader, type, filename,
+      mime, content, secret, creation_time, extra)
     VALUES ${uploadRows}
   `;
   await dbQuery(insertQuery);
