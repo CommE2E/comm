@@ -347,7 +347,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           mediaUpdate: {
             id: result.id,
             uri: result.uri,
-            mediaType,
+            type: mediaType,
+            dimensions: conversionResult.dimensions,
           },
         },
       );

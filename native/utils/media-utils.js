@@ -3,7 +3,7 @@
 import type { Dimensions, MediaType } from 'lib/types/media-types';
 import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
-import { Platform } from 'react-native';
+import { Platform, Image } from 'react-native';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
 
@@ -84,17 +84,28 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   return stringToIntArray(data);
 }
 
+function getDimensions(uri: string): Promise<Dimensions> {
+  return new Promise((resolve, reject) => {
+    Image.getSize(
+      uri,
+      (width: number, height: number) => resolve({ height, width }),
+      reject,
+    );
+  });
+}
+
 type MediaConversionResult = {|
   uploadURI: string,
   shouldDisposePath: ?string,
   name: string,
   mime: string,
   mediaType: MediaType,
+  dimensions: Dimensions,
 |};
 async function convertMedia(
   validationResult: MediaValidationResult,
 ): Promise<?MediaConversionResult> {
-  const { uri } = validationResult;
+  const { uri, dimensions } = validationResult;
   let { blob } = validationResult;
 
   const { type: reportedMIME, size } = blob.data;
@@ -109,12 +120,14 @@ async function convertMedia(
           compressFormat,
           0.92,
         );
+      const resizedDimensions = await getDimensions(resizedURI);
       return {
         uploadURI: resizedURI,
         shouldDisposePath: path,
         name,
         mime: "image/jpeg",
         mediaType: "photo",
+        dimensions: resizedDimensions,
       };
     } catch (e) { }
   }
@@ -135,6 +148,7 @@ async function convertMedia(
     name,
     mime,
     mediaType,
+    dimensions,
   };
 }
 
