@@ -22,6 +22,11 @@ import {
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from './chat-input-state';
 
 import Button from '../components/button.react';
 
@@ -37,6 +42,8 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
 
@@ -45,6 +52,7 @@ class FailedSend extends React.PureComponent<Props> {
     rawMessageInfo: PropTypes.object,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
+    chatInputState: chatInputStatePropType,
   };
 
   render() {
@@ -77,14 +85,23 @@ class FailedSend extends React.PureComponent<Props> {
       };
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
-        this.sendMessageAction(newRawMessageInfo),
+        this.sendTextMessageAction(newRawMessageInfo),
         undefined,
         newRawMessageInfo,
       );
+    } else if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
+      const { localID } = rawMessageInfo;
+      invariant(localID, "failed RawMessageInfo should have localID");
+      const { chatInputState } = this.props;
+      invariant(
+        chatInputState,
+        `chatInputState should be initialized before user can hit retry`,
+      );
+      chatInputState.retryMultimediaMessage(localID);
     }
   }
 
-  async sendMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
     try {
       const { localID } = messageInfo;
       invariant(
@@ -137,4 +154,4 @@ export default connect(
     };
   },
   { sendTextMessage },
-)(FailedSend);
+)(withChatInputState(FailedSend));

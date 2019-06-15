@@ -301,7 +301,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await Promise.all(
+    await this.uploadFiles(localMessageID, imageInfos);
+  }
+
+  uploadFiles(
+    localMessageID: string,
+    imageInfos: $ReadOnlyArray<ImageInfo>,
+  ) {
+    return Promise.all(
       imageInfos.map(imageInfo => this.uploadFile(localMessageID, imageInfo)),
     );
   }
@@ -437,6 +444,82 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   }
 
   retryMultimediaMessage = async (localMessageID: string) => {
+    const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
+    invariant(
+      rawMessageInfo && rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      "messageStore should contain entry for message being retried",
+    );
+
+    const incompleteMedia = rawMessageInfo.media.filter(
+      ({ id }) => id.startsWith('localUpload'),
+    );
+    if (incompleteMedia.length === 0) {
+      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+      this.dispatchMultimediaMessageAction(newRawMessageInfo);
+      this.setState(prevState => ({
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [localMessageID]: {},
+        },
+      }));
+      return;
+    }
+
+    let pendingUploads = this.state.pendingUploads[localMessageID];
+    if (!pendingUploads) {
+      pendingUploads = {};
+    }
+
+    const retryMedia = incompleteMedia.filter(
+      ({ id }) => (!pendingUploads[id] || pendingUploads[id].failed),
+    );
+    if (retryMedia.length === 0) {
+      // All media are already in the process of being uploaded
+      return;
+    }
+
+    const imageGalleryImages = retryMedia.map(
+      ({ dimensions, uri }) => ({ ...dimensions, uri }),
+    );
+    const validationResults = await Promise.all(
+      imageGalleryImages.map(validateMedia),
+    );
+
+    const imageInfos = [];
+    for (let i = 0; i < validationResults.length; i++) {
+      const result = validationResults[i];
+      if (!result) {
+        continue;
+      }
+      const { id } = retryMedia[i];
+      imageInfos.push({
+        ...result,
+        localID: id,
+      });
+    }
+    if (imageInfos.length < validationResults.length) {
+      // Since we filter our MIME types in our calls to CameraRoll,
+      // this should never be triggered
+      console.log('unexpected MIME type found');
+    }
+    if (imageInfos.length === 0) {
+      return;
+    }
+
+    for (let { localID } of imageInfos) {
+      pendingUploads[localID] = {
+        failed: null,
+        progressPercent: 0,
+      };
+    }
+    this.setState(prevState => ({
+      pendingUploads: {
+        ...prevState.pendingUploads,
+        [localMessageID]: pendingUploads,
+      },
+    }));
+
+    await this.uploadFiles(localMessageID, imageInfos);
   }
 
   render() {
