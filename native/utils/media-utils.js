@@ -27,7 +27,7 @@ async function validateMedia(
   const { uri, ...dimensions } = imageInfo;
   const response = await fetch(uri);
   const blob = await response.blob();
-  const reportedMIME = blob.data.type;
+  const reportedMIME = blob.type;
   const mediaType = mimeTypesToMediaTypes[reportedMIME];
   if (!mediaType) {
     return null;
@@ -108,17 +108,22 @@ async function convertMedia(
   const { uri, dimensions } = validationResult;
   let { blob } = validationResult;
 
-  const { type: reportedMIME, size } = blob.data;
-  if (reportedMIME === "image/heic" || size > 500000) {
+  const { type: reportedMIME, size } = blob;
+  if (
+    reportedMIME === "image/heic" ||
+    size > 5e6 ||
+    (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000))
+  ) {
     try {
       const compressFormat = reportedMIME === "image/png" ? "PNG" : "JPEG";
+      const compressQuality = size > 5e6 ? 92 : 100;
       const { uri: resizedURI, path, name } =
         await ImageResizer.createResizedImage(
           uri,
           3000,
           2000,
           compressFormat,
-          0.92,
+          compressQuality,
         );
       const resizedDimensions = await getDimensions(resizedURI);
       return {
