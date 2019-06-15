@@ -120,6 +120,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.props.viewerID !== prevProps.viewerID) {
+      this.setState({ pendingUploads: {} });
+      return;
+    }
+
     const previouslyAssignedMessageIDs = new Set();
     for (let threadID in prevState.pendingUploads) {
       const pendingUploads = prevState.pendingUploads[threadID];
