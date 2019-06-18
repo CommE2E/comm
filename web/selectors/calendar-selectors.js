@@ -11,7 +11,9 @@ import {
 } from 'lib/selectors/calendar-selectors';
 import type SearchIndex from 'lib/shared/search-index';
 
-const webFilterThreadInfos = createSelector<*, *, *, *, *>(
+const webFilterThreadInfos: (
+  state: AppState,
+) => () => $ReadOnlyArray<FilterThreadInfo> = createSelector(
   filterThreadInfos,
   (state: AppState) => state.navInfo.tab === "calendar",
   (
@@ -20,7 +22,9 @@ const webFilterThreadInfos = createSelector<*, *, *, *, *>(
   ) => () => threadInfoFunc(calendarActive),
 );
 
-const webFilterThreadSearchIndex = createSelector<*, *, *, *, *>(
+const webFilterThreadSearchIndex: (
+  state: AppState,
+) => () => SearchIndex = createSelector(
   filterThreadSearchIndex,
   (state: AppState) => state.navInfo.tab === "calendar",
   (

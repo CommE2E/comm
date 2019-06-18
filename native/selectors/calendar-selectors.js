@@ -32,7 +32,7 @@ export type CalendarItem =
       entryInfo: EntryInfo,
     |};
 
-const calendarListData = createSelector<*, *, *, *, *>(
+const calendarListData: (state: AppState) => ?CalendarItem[] = createSelector(
   (state: AppState) => !!(state.currentUserInfo &&
     !state.currentUserInfo.anonymous && true),
   currentDaysToEntries,

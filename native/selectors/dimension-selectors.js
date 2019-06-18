@@ -21,7 +21,7 @@ if (Platform.OS === "android") {
 // iPhone X home pill
 const contentBottomOffset = isIPhoneX ? 34 : 0;
 
-const dimensionsSelector = createSelector<*, *, *, *>(
+const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: Dimensions): Dimensions => {
     let { height, width } = dimensions;
@@ -37,7 +37,9 @@ const dimensionsSelector = createSelector<*, *, *, *>(
 
 // iOS starts the 0 pixel above the status bar,
 // so we offset our content by the status bar height
-const contentVerticalOffsetSelector = createSelector<*, *, *, *>(
+const contentVerticalOffsetSelector: (
+  state: AppState,
+) => number = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: Dimensions): number => {
     if (Platform.OS !== "ios") {

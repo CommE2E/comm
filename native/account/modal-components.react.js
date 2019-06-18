@@ -1,6 +1,7 @@
 // @flow
 
 import type { Dimensions } from 'lib/types/media-types';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import {
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const usernamePlaceholderSelector = createSelector<*, *, *, *>(
+const usernamePlaceholderSelector: (state: AppState) => string = createSelector(
   dimensionsSelector,
   (dimensions: Dimensions): string => dimensions.width < 360
     ? "Username or email"

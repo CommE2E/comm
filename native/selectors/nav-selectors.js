@@ -29,48 +29,50 @@ import {
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
 
-const baseCreateIsForegroundSelector =
-  (routeName: string) => createSelector<*, *, *, *>(
-    (state: AppState) => state.navInfo.navigationState,
-    (navigationState: NavigationState) =>
-      navigationState.routes[navigationState.index].routeName === routeName,
-  );
+const baseCreateIsForegroundSelector: (
+  routeName: string,
+) => (state: AppState) => bool = (routeName: string) => createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) =>
+    navigationState.routes[navigationState.index].routeName === routeName,
+);
 const createIsForegroundSelector =
   _memoize<*, *>(baseCreateIsForegroundSelector);
 
-const appLoggedInSelector = createSelector<*, *, *, *>(
+const appLoggedInSelector: (state: AppState) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => !accountModals.includes(
     navigationState.routes[navigationState.index].routeName,
   ),
 );
 
-const foregroundKeySelector = createSelector<*, *, *, *>(
+const foregroundKeySelector: (state: AppState) => string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) =>
     navigationState.routes[navigationState.index].key,
 );
 
-const baseCreateActiveTabSelector =
-  (routeName: string) => createSelector<*, *, *, *>(
-    (state: AppState) => state.navInfo.navigationState,
-    (navigationState: NavigationState) => {
-      const currentRootSubroute = navigationState.routes[navigationState.index];
-      if (currentRootSubroute.routeName !== AppRouteName) {
-        return false;
-      }
-      const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-      const [ firstAppSubroute ] = appRoute.routes;
-      if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
-        return false;
-      }
-      const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-      return tabRoute.routes[tabRoute.index].routeName === routeName;
-    },
-  );
+const baseCreateActiveTabSelector: (
+  routeName: string,
+) => (state: AppState) => bool = (routeName: string) => createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) => {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
+      return false;
+    }
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    const [ firstAppSubroute ] = appRoute.routes;
+    if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
+      return false;
+    }
+    const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
+    return tabRoute.routes[tabRoute.index].routeName === routeName;
+  },
+);
 const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
 
-const modalsClosedSelector = createSelector<*, *, *, *>(
+const modalsClosedSelector: (state: AppState) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -84,7 +86,7 @@ const modalsClosedSelector = createSelector<*, *, *, *>(
   },
 );
 
-const activeThreadSelector = createSelector<*, *, *, *>(
+const activeThreadSelector: (state: AppState) => ?string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): ?string => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -113,7 +115,9 @@ const activeThreadSelector = createSelector<*, *, *, *>(
   },
 );
 
-const appCanRespondToBackButtonSelector = createSelector<*, *, *, *>(
+const appCanRespondToBackButtonSelector: (
+  state: AppState,
+) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): bool => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -136,14 +140,16 @@ const appCanRespondToBackButtonSelector = createSelector<*, *, *, *>(
 const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
 const threadPickerActiveSelector =
   createIsForegroundSelector(ThreadPickerModalRouteName);
-const calendarActiveSelector = createSelector<*, *, *, *, *>(
+const calendarActiveSelector: (state: AppState) => bool = createSelector(
   calendarTabActiveSelector,
   threadPickerActiveSelector,
   (calendarTabActive: bool, threadPickerActive: bool) =>
     calendarTabActive || threadPickerActive,
 );
 
-const nativeCalendarQuery = createSelector<*, *, *, *, *>(
+const nativeCalendarQuery: (
+  state: AppState,
+) => () => CalendarQuery = createSelector(
   currentCalendarQuery,
   calendarActiveSelector,
   (
@@ -152,7 +158,9 @@ const nativeCalendarQuery = createSelector<*, *, *, *, *>(
   ) => () => calendarQuery(calendarActive),
 );
 
-const nonThreadCalendarQuery = createSelector<*, *, *, *, *>(
+const nonThreadCalendarQuery: (
+  state: AppState,
+) => () => CalendarQuery = createSelector(
   nativeCalendarQuery,
   nonThreadCalendarFiltersSelector,
   (

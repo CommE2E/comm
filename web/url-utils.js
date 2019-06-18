@@ -4,7 +4,6 @@ import type { Store } from 'redux';
 import type { NavInfo, AppState, Action } from './redux-setup';
 
 import invariant from 'invariant';
-import { createSelector } from 'reselect';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import {

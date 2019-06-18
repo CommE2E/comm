@@ -36,7 +36,7 @@ function yearAssertingExtractor(startDate: string, endDate: string): number {
   return result;
 }
 
-const yearAssertingSelector = createSelector<*, *, *, *, *>(
+const yearAssertingSelector: (state: AppState) => number = createSelector(
   (state: AppState) => state.navInfo.startDate,
   (state: AppState) => state.navInfo.endDate,
   yearAssertingExtractor,
@@ -68,7 +68,7 @@ function monthAssertingExtractor(startDate: string, endDate: string): number {
 }
 
 // 1-indexed
-const monthAssertingSelector = createSelector<*, *, *, *, *>(
+const monthAssertingSelector: (state: AppState) => number = createSelector(
   (state: AppState) => state.navInfo.startDate,
   (state: AppState) => state.navInfo.endDate,
   monthAssertingExtractor,
@@ -82,7 +82,9 @@ function activeThreadSelector(state: AppState): ?string {
   return activeThreadFromNavInfo(state.navInfo);
 }
 
-const webCalendarQuery = createSelector<*, *, *, *, *>(
+const webCalendarQuery: (
+  state: AppState,
+) => () => CalendarQuery = createSelector(
   currentCalendarQuery,
   (state: AppState) => state.navInfo.tab === "calendar",
   (
@@ -91,7 +93,9 @@ const webCalendarQuery = createSelector<*, *, *, *, *>(
   ) => () => calendarQuery(calendarActive),
 );
 
-const nonThreadCalendarQuery = createSelector<*, *, *, *, *>(
+const nonThreadCalendarQuery: (
+  state: AppState,
+) => () => CalendarQuery = createSelector(
   webCalendarQuery,
   nonThreadCalendarFiltersSelector,
   (

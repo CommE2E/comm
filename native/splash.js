@@ -2,13 +2,14 @@
 
 import type { ImageStyle } from './types/styles';
 import type { Dimensions } from 'lib/types/media-types';
+import type { AppState } from './redux/redux-setup';
 
 import { Platform, PixelRatio } from 'react-native';
 import { createSelector } from 'reselect';
 
 import { dimensionsSelector } from './selectors/dimension-selectors';
 
-const splashStyleSelector = createSelector<*, *, *, *>(
+const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
   dimensionsSelector,
   (dimensions: Dimensions): ImageStyle => {
     if (Platform.OS !== "android") {

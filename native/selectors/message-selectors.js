@@ -9,7 +9,9 @@ import { activeThreadSelector } from './nav-selectors';
 
 const msInHour = 60 * 60 * 1000;
 
-const nextMessagePruneTimeSelector = createSelector<*, *, *, *>(
+const nextMessagePruneTimeSelector: (
+  state: AppState,
+) => ?number = createSelector(
   (state: AppState) => state.messageStore.threads,
   (threadMessageInfos: {[id: string]: ThreadMessageInfo}): ?number => {
     const now = Date.now();
@@ -28,7 +30,9 @@ const nextMessagePruneTimeSelector = createSelector<*, *, *, *>(
   },
 );
 
-const pruneThreadIDsSelector = createSelector<*, *, *, *, *>(
+const pruneThreadIDsSelector: (
+  state: AppState,
+) => () => $ReadOnlyArray<string> = createSelector(
   (state: AppState) => state.messageStore.threads,
   activeThreadSelector,
   (

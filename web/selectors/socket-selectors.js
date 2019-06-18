@@ -18,17 +18,23 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 
-const openSocketSelector = createSelector<*, *, *, *>(
+const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   (state: AppState) => state.baseHref,
   createOpenSocketFunction,
 );
 
-const sessionIdentificationSelector = createSelector<*, *, *, *>(
+const sessionIdentificationSelector: (
+  state: AppState,
+) => SessionIdentification = createSelector(
   (state: AppState) => state.sessionID,
   (sessionID: ?string): SessionIdentification => ({ sessionID }),
 );
 
-const webGetClientResponsesSelector = createSelector<*, *, *, *, *>(
+const webGetClientResponsesSelector: (
+  state: AppState,
+) => (
+  serverRequests: $ReadOnlyArray<ServerRequest>,
+) => $ReadOnlyArray<ClientClientResponse> = createSelector(
   getClientResponsesSelector,
   (state: AppState) => state.navInfo.tab === "calendar",
   (
@@ -41,7 +47,9 @@ const webGetClientResponsesSelector = createSelector<*, *, *, *, *>(
     getClientResponsesFunc(calendarActive, serverRequests),
 );
 
-const webSessionStateFuncSelector = createSelector<*, *, *, *, *>(
+const webSessionStateFuncSelector: (
+  state: AppState,
+) => () => SessionState = createSelector(
   sessionStateFuncSelector,
   (state: AppState) => state.navInfo.tab === "calendar",
   (

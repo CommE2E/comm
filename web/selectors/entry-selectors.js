@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { RawEntryInfo } from 'lib/types/entry-types';
+import type { RawEntryInfo, EntryInfo } from 'lib/types/entry-types';
 import type { UserInfo } from 'lib/types/user-types';
 
 import { createSelector } from 'reselect';
@@ -12,7 +12,9 @@ import _compact from 'lodash/fp/compact';
 
 import { createEntryInfo } from 'lib/shared/entry-utils';
 
-const allDaysToEntries = createSelector<*, *, *, *, *, *, *>(
+const allDaysToEntries: (
+  state: AppState,
+) => { [dayString: string]: EntryInfo[] } = createSelector(
   (state: AppState) => state.entryStore.entryInfos,
   (state: AppState) => state.entryStore.daysToEntries,
   (state: AppState) => state.userInfos,
