@@ -29,15 +29,14 @@ import {
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
 
-const baseCreateIsForegroundSelector: (
-  routeName: string,
-) => (state: AppState) => bool = (routeName: string) => createSelector(
+const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) =>
     navigationState.routes[navigationState.index].routeName === routeName,
 );
-const createIsForegroundSelector =
-  _memoize<*, *>(baseCreateIsForegroundSelector);
+const createIsForegroundSelector: (
+  routeName: string,
+) => (state: AppState) => bool = _memoize(baseCreateIsForegroundSelector);
 
 const appLoggedInSelector: (state: AppState) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
@@ -52,9 +51,7 @@ const foregroundKeySelector: (state: AppState) => string = createSelector(
     navigationState.routes[navigationState.index].key,
 );
 
-const baseCreateActiveTabSelector: (
-  routeName: string,
-) => (state: AppState) => bool = (routeName: string) => createSelector(
+const baseCreateActiveTabSelector = (routeName: string) => createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -70,7 +67,9 @@ const baseCreateActiveTabSelector: (
     return tabRoute.routes[tabRoute.index].routeName === routeName;
   },
 );
-const createActiveTabSelector = _memoize<*, *>(baseCreateActiveTabSelector);
+const createActiveTabSelector: (
+  routeName: string,
+) => (state: AppState) => bool = _memoize(baseCreateActiveTabSelector);
 
 const modalsClosedSelector: (state: AppState) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
