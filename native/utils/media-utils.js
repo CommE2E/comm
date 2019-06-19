@@ -58,23 +58,15 @@ function stringToIntArray(str: string): Uint8Array {
 }
 
 function dataURIToIntArray(dataURI: string): Uint8Array {
-  let uri = dataURI;
-  uri = uri.replace(/\r?\n/g, '');
+  const uri = dataURI.replace(/\r?\n/g, '');
+
   const firstComma = uri.indexOf(',');
-  if (-1 === firstComma || firstComma <= 4) {
+  if (firstComma <= 4) {
     throw new TypeError('malformed data-URI');
   }
-  const meta = uri.substring(5, firstComma).split(';');
 
-  let base64Encoded = false;
-  let charset = 'US-ASCII';
-  for (let i = 0; i < meta.length; i++) {
-    if (meta[i] === 'base64') {
-      base64Encoded = true;
-    } else if (meta[i].indexOf('charset=') === 0) {
-      charset = meta[i].substring(8);
-    }
-  }
+  const meta = uri.substring(5, firstComma).split(';');
+  const base64Encoded = meta.some(metum => metum === 'base64');
 
   let data = unescape(uri.substring(firstComma + 1));
   if (base64Encoded) {
