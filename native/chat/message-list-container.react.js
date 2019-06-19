@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { View, Platform, StyleSheet, ActivityIndicator } from 'react-native';
 import _differenceWith from 'lodash/fp/differenceWith';
 import invariant from 'invariant';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -376,7 +377,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
+const ConnectedMessageListContainer = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     return {
@@ -387,3 +388,7 @@ export default connect(
     };
   },
 )(withChatInputState(MessageListContainer));
+
+hoistNonReactStatics(ConnectedMessageListContainer, MessageListContainer);
+
+export default ConnectedMessageListContainer;
