@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import sizeOf from 'buffer-image-size';
 
 import { ServerError } from 'lib/utils/errors';
+import { shimUploadURI } from 'lib/shared/media-utils';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
@@ -57,7 +58,10 @@ async function createUploads(
 
   return uploadRows.map(row => ({
     id: row[0],
-    uri: getUploadURL(row[0], row[6]),
+    uri: shimUploadURI(
+      getUploadURL(row[0], row[6]),
+      viewer.platformDetails,
+    ),
   }));
 }
 
