@@ -27,6 +27,7 @@ import invariant from 'invariant';
 
 import Multimedia from '../media/multimedia.react';
 import Tooltip from '../components/tooltip.react';
+import { saveImage } from '../media/save-image';
 
 type Props = {|
   mediaInfo: MediaInfo,
@@ -216,6 +217,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onPressSave = () => {
+    return saveImage(this.props.mediaInfo);
   }
 
   onLongPress = () => {

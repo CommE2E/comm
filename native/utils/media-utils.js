@@ -151,5 +151,7 @@ async function convertMedia(
 
 export {
   validateMedia,
+  blobToDataURI,
+  dataURIToIntArray,
   convertMedia,
 };
