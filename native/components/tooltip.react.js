@@ -24,7 +24,7 @@ import { connect } from 'lib/utils/redux-utils';
 import TooltipItem, { type Label, labelPropType } from './tooltip-item.react';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
-export type TooltipItemData = { +label: Label, onPress: () => void };
+export type TooltipItemData = { +label: Label, onPress: () => mixed };
 
 type Props = {
   buttonComponent: React.Node,
@@ -49,6 +49,7 @@ type Props = {
   opacityChangeDuration?: number,
   innerRef?: (tooltip: ?Tooltip) => void,
   onPressOverride?: () => void,
+  onLongPress?: () => void,
   // Redux state
   dimensions: Dimensions,
 };
@@ -98,6 +99,7 @@ class Tooltip extends React.PureComponent<Props, State> {
     opacityChangeDuration: PropTypes.number,
     innerRef: PropTypes.func,
     onPressOverride: PropTypes.func,
+    onLongPress: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
   };
   static defaultProps = {
@@ -313,7 +315,7 @@ class Tooltip extends React.PureComponent<Props, State> {
         ref={this.wrapperRef}
         style={this.props.componentWrapperStyle}
         onPress={this.onPress}
-        onLongPress={this.onPress}
+        onLongPress={this.onLongPress}
         delayLongPress={this.props.delayLongPress}
         activeOpacity={1.0}
       >
@@ -380,6 +382,7 @@ class Tooltip extends React.PureComponent<Props, State> {
             <TouchableOpacity
               onPress={this.onPress}
               activeOpacity={1.0}
+              style={this.props.componentContainerStyle}
             >
               {this.props.buttonComponent}
             </TouchableOpacity>
@@ -456,6 +459,16 @@ class Tooltip extends React.PureComponent<Props, State> {
 
   onPress = () => {
     if (this.props.onPressOverride) {
+      this.props.onPressOverride();
+    } else {
+      this.toggle();
+    }
+  }
+
+  onLongPress = () => {
+    if (this.props.onLongPress) {
+      this.props.onLongPress();
+    } else if (this.props.onPressOverride) {
       this.props.onPressOverride();
     } else {
       this.toggle();

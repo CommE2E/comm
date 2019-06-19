@@ -17,12 +17,7 @@ import type { AppState } from '../redux/redux-setup';
 import type { MessagePendingUploads } from './chat-input-state';
 
 import * as React from 'react';
-import {
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
@@ -145,8 +140,11 @@ const borderRadius = 16;
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
   navigate: Navigate,
+  focused: bool,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
+  keyboardShowing: bool,
+  setScrollDisabled: (scrollDisabled: bool) => void,
   // Redux state
   modalsClosed: bool,
   // withLightboxPositionContext
@@ -157,8 +155,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     navigate: PropTypes.func.isRequired,
+    focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
+    keyboardShowing: PropTypes.bool.isRequired,
+    setScrollDisabled: PropTypes.func.isRequired,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
   };
@@ -172,11 +173,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
         borderRadius={borderRadius}
         style={styles.row}
       >
-        <TouchableWithoutFeedback onLongPress={this.onLongPress}>
-          <View style={[heightStyle, styles.container]}>
-            {this.renderContent()}
-          </View>
-        </TouchableWithoutFeedback>
+        <View style={[heightStyle, styles.container]}>
+          {this.renderContent()}
+        </View>
       </ComposedMessage>
     );
   }
@@ -261,6 +260,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const mediaInfo = {
       ...media,
       messageID: messageID(messageInfo),
+      messageKey: messageKey(messageInfo),
       index,
     };
     const pendingUpload = pendingUploads && pendingUploads[media.id];
@@ -274,13 +274,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
         lightboxPosition={this.props.lightboxPosition}
         inProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
+        keyboardShowing={this.props.keyboardShowing}
+        setScrollDisabled={this.props.setScrollDisabled}
+        messageFocused={this.props.focused}
+        toggleMessageFocus={this.props.toggleFocus}
         key={index}
       />
     );
-  }
-
-  onLongPress = () => {
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
   }
 
 }
