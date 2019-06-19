@@ -2,36 +2,11 @@ PODS:
   - 1PasswordExtension (1.8.5)
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
-  - FLAnimatedImage (1.0.12)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - libwebp (1.0.2):
-    - libwebp/core (= 1.0.2)
-    - libwebp/dec (= 1.0.2)
-    - libwebp/demux (= 1.0.2)
-    - libwebp/dsp (= 1.0.2)
-    - libwebp/enc (= 1.0.2)
-    - libwebp/mux (= 1.0.2)
-    - libwebp/utils (= 1.0.2)
-    - libwebp/webp (= 1.0.2)
-  - libwebp/core (1.0.2):
-    - libwebp/webp
-  - libwebp/dec (1.0.2):
-    - libwebp/core
-  - libwebp/demux (1.0.2):
-    - libwebp/core
-  - libwebp/dsp (1.0.2):
-    - libwebp/core
-  - libwebp/enc (1.0.2):
-    - libwebp/core
-  - libwebp/mux (1.0.2):
-    - libwebp/core
-  - libwebp/utils (1.0.2):
-    - libwebp/core
-  - libwebp/webp (1.0.2)
   - lottie-ios (2.5.3)
   - lottie-react-native (2.6.1):
     - lottie-ios (~> 2.5.0)
@@ -44,12 +19,9 @@ PODS:
     - React
   - react-native-exit-app (0.1.0):
     - React
-  - react-native-fast-image (5.2.0):
-    - FLAnimatedImage
+  - react-native-fast-image (6.0.3):
     - React
-    - SDWebImage/Core
-    - SDWebImage/GIF
-    - SDWebImage/WebP
+    - SDWebImage (~> 5.0)
   - react-native-image-resizer (1.0.1):
     - React
   - react-native-keyboard-input (5.3.1):
@@ -130,13 +102,9 @@ PODS:
     - React
   - RNVectorIcons (4.6.0):
     - React
-  - SDWebImage/Core (4.4.6)
-  - SDWebImage/GIF (4.4.6):
-    - FLAnimatedImage (~> 1.0)
-    - SDWebImage/Core
-  - SDWebImage/WebP (4.4.6):
-    - libwebp (>= 0.5)
-    - SDWebImage/Core
+  - SDWebImage (5.0.6):
+    - SDWebImage/Core (= 5.0.6)
+  - SDWebImage/Core (5.0.6)
   - yoga (0.59.4.React)
 
 DEPENDENCIES:
@@ -180,8 +148,6 @@ SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - 1PasswordExtension
     - boost-for-react-native
-    - FLAnimatedImage
-    - libwebp
     - lottie-ios
     - SDWebImage
 
@@ -239,17 +205,15 @@ SPEC CHECKSUMS:
   1PasswordExtension: 0e95bdea64ec8ff2f4f693be5467a09fac42a83d
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
-  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
-  libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
   lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
   lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
   React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
   react-native-cameraroll: b1faef9f2ea27b07bdf818b8043909a93f797eca
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
-  react-native-fast-image: 21d2d84a46b12cacbe7958ab6414fe828c094f82
+  react-native-fast-image: 3390cc968d598f0c6b5c710df138f4b653a87231
   react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
   react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
@@ -264,7 +228,7 @@ SPEC CHECKSUMS:
   RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
   RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
-  SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
+  SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
   yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
 
 PODFILE CHECKSUM: 557d6ad2cd7fd4073717f3c874bbe0ea71279370
