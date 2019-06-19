@@ -134,7 +134,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <View style={[ styles.expand, style ]} ref={this.viewRef}>
+        <View style={[ styles.multimediaContainer, style ]} ref={this.viewRef}>
           <Animated.View style={wrapperStyles}>
             <Multimedia mediaInfo={mediaInfo} />
             {progressIndicator}
@@ -167,6 +167,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  multimediaContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   expand: {
     flex: 1,
   },

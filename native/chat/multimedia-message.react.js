@@ -34,6 +34,11 @@ import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
+import {
+  type Corners,
+  allCorners,
+  getRoundedContainerStyle,
+} from './rounded-message-container.react';
 
 export type ChatMultimediaMessageInfoItem = {|
   itemType: "message",
@@ -135,6 +140,8 @@ function multimediaMessageItemHeight(
   return height;
 }
 
+const borderRadius = 16;
+
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
   navigate: Navigate,
@@ -162,7 +169,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={this.props.item}
         sendFailed={sendFailed(this.props.item)}
-        borderRadius={16}
+        borderRadius={borderRadius}
         style={styles.row}
       >
         <TouchableWithoutFeedback onLongPress={this.onLongPress}>
@@ -178,7 +185,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const { messageInfo } = this.props.item;
     invariant(messageInfo.media.length > 0, "should have media");
     if (messageInfo.media.length === 1) {
-      return this.renderImage(messageInfo.media[0], 0);
+      return this.renderImage(
+        messageInfo.media[0],
+        0,
+        this.getCornerStyle(allCorners),
+      );
     }
 
     const mediaPerRow = getMediaPerRow(messageInfo.media.length);
@@ -187,13 +198,34 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const rows = [];
     for (let i = 0; i < messageInfo.media.length; i += mediaPerRow) {
       const rowMedia = messageInfo.media.slice(i, i + mediaPerRow);
+      const firstRow = i === 0;
+      const lastRow = i + mediaPerRow >= messageInfo.media.length;
+
       const row = [];
       let j = 0;
       for (; j < rowMedia.length; j++) {
         const media = rowMedia[j];
-        const style = j + 1 < mediaPerRow
-          ? styles.imageBeforeImage
-          : null;
+        const firstInRow = j === 0;
+        const lastInRow = j + 1 === rowMedia.length;
+        const inLastColumn = j + 1 === mediaPerRow;
+
+        const style = [];
+        if (!lastInRow) {
+          style.push(styles.imageBeforeImage);
+        }
+        if (firstRow && firstInRow) {
+          style.push(this.getCornerStyle({ topLeft: true }));
+        }
+        if (firstRow && inLastColumn) {
+          style.push(this.getCornerStyle({ topRight: true }));
+        }
+        if (lastRow && firstInRow) {
+          style.push(this.getCornerStyle({ bottomLeft: true }));
+        }
+        if (lastRow && inLastColumn) {
+          style.push(this.getCornerStyle({ bottomRight: true }));
+        }
+
         row.push(this.renderImage(media, i + j, style));
       }
       for (; j < mediaPerRow; j++) {
@@ -204,9 +236,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
         row.push(<View style={[ style, styles.filler ]} key={key} />);
       }
 
-      const rowStyle = i + mediaPerRow < messageInfo.media.length
-        ? [ styles.row, styles.rowAboveRow ]
-        : styles.row;
+      const rowStyle = lastRow
+        ? styles.row
+        : [ styles.row, styles.rowAboveRow ];
       rows.push(
         <View style={rowStyle} key={i}>
           {row}
@@ -216,10 +248,14 @@ class MultimediaMessage extends React.PureComponent<Props> {
     return <View style={styles.grid}>{rows}</View>;
   }
 
+  getCornerStyle(corners: Corners) {
+    return getRoundedContainerStyle(this.props.item, corners, borderRadius);
+  }
+
   renderImage(
     media: Media,
     index: number,
-    style?: ?ImageStyle,
+    style: ImageStyle,
   ): React.Node {
     const { pendingUploads, messageInfo } = this.props.item;
     const mediaInfo = {

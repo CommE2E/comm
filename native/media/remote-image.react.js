@@ -27,7 +27,7 @@ type State = {|
   attempt: number,
   loaded: bool,
 |};
-class Image extends React.PureComponent<Props, State> {
+class RemoteImage extends React.PureComponent<Props, State> {
 
   static propTypes = {
     uri: PropTypes.string.isRequired,
@@ -113,4 +113,4 @@ export default connect(
   (state: AppState) => ({
     connectionStatus: state.connection.status,
   }),
-)(Image);
+)(RemoteImage);

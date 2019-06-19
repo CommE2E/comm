@@ -15,7 +15,7 @@ import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import FailedSend from './failed-send.react';
-import RoundedMessageContainer from './rounded-message-container.react';
+import { RoundedMessageContainer } from './rounded-message-container.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 
 type Props = {|

@@ -22,7 +22,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import Tooltip from '../components/tooltip.react';
 import ComposedMessage from './composed-message.react';
-import RoundedMessageContainer from './rounded-message-container.react';
+import { RoundedMessageContainer } from './rounded-message-container.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: "message",

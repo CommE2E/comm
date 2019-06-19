@@ -8,6 +8,46 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, ViewPropTypes } from 'react-native';
 
+export type Corners = $Shape<{|
+  topLeft: bool,
+  topRight: bool,
+  bottomLeft: bool,
+  bottomRight: bool,
+|}>;
+const allCorners = {
+  topLeft: true,
+  topRight: true,
+  bottomLeft: true,
+  bottomRight: true,
+};
+function getRoundedContainerStyle(
+  item: ChatMessageInfoItemWithHeight,
+  corners: Corners,
+  borderRadius?: number = 8,
+) {
+  const { startsCluster, endsCluster } = item;
+  const { isViewer } = item.messageInfo.creator;
+  const { topLeft, topRight, bottomLeft, bottomRight } = corners;
+  return {
+    borderTopLeftRadius:
+      topLeft && !isViewer && !startsCluster
+        ? 0
+        : borderRadius,
+    borderTopRightRadius:
+      topRight && isViewer && !startsCluster
+        ? 0
+        : borderRadius,
+    borderBottomLeftRadius:
+      bottomLeft && !isViewer && !endsCluster
+        ? 0
+        : borderRadius,
+    borderBottomRightRadius:
+      bottomRight && isViewer && !endsCluster
+        ? 0
+        : borderRadius,
+  };
+}
+
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   borderRadius: number,
@@ -28,21 +68,13 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
 
   render() {
     const { item, borderRadius, style } = this.props;
-    const { isViewer } = item.messageInfo.creator;
-
-    const messageStyle = {
-      borderTopRightRadius:
-        isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomRightRadius:
-        isViewer && !item.endsCluster ? 0 : borderRadius,
-      borderTopLeftRadius:
-        !isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomLeftRadius:
-        !isViewer && !item.endsCluster ? 0 : borderRadius,
-    };
-
+    const cornerStyle = getRoundedContainerStyle(
+      item,
+      allCorners,
+      borderRadius,
+    );
     return (
-      <View style={[styles.message, messageStyle, style]}>
+      <View style={[styles.message, cornerStyle, style]}>
         {this.props.children}
       </View>
     );
@@ -56,4 +88,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RoundedMessageContainer;
+export {
+  allCorners,
+  getRoundedContainerStyle,
+  RoundedMessageContainer,
+};
