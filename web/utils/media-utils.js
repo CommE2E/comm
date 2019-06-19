@@ -5,7 +5,7 @@ import type { MediaType, Dimensions } from 'lib/types/media-types';
 import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
-} from 'lib/utils/media-utils';
+} from 'lib/utils/file-utils';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();

@@ -10,7 +10,7 @@ import ImageResizer from 'react-native-image-resizer';
 import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
-} from 'lib/utils/media-utils';
+} from 'lib/utils/file-utils';
 
 type ReactNativeBlob = 
   & Blob

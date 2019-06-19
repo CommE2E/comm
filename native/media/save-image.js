@@ -7,7 +7,7 @@ import filesystem from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import invariant from 'invariant';
 
-import { fileInfoFromData } from 'lib/utils/media-utils';
+import { fileInfoFromData } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
 

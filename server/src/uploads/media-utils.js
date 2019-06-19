@@ -4,7 +4,7 @@ import type { UploadInput } from '../creators/upload-creator';
 
 import sharp from 'sharp';
 
-import { fileInfoFromData } from 'lib/utils/media-utils';
+import { fileInfoFromData } from 'lib/utils/file-utils';
 
 const fiveMegabytes = 5 * 1024 * 1024;
 

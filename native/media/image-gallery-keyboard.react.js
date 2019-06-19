@@ -24,7 +24,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
-import { mimeTypesToMediaTypes } from 'lib/utils/media-utils';
+import { mimeTypesToMediaTypes } from 'lib/utils/file-utils';
 
 import { store } from '../redux/redux-setup';
 import {
