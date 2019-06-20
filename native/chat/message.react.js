@@ -18,20 +18,13 @@ import {
 
 import * as React from 'react';
 import {
-  Text,
-  StyleSheet,
   View,
   LayoutAnimation,
   TouchableWithoutFeedback,
   Platform,
 } from 'react-native';
-import _isEqual from 'lodash/fp/isEqual';
-import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';
-
-import { longAbsoluteDate } from 'lib/utils/date-utils';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
 import {
@@ -42,6 +35,7 @@ import {
   MultimediaMessage,
   multimediaMessageItemHeight,
 } from './multimedia-message.react';
+import Timestamp from './timestamp.react';
 
 export type ChatMessageInfoItemWithHeight =
   | ChatRobotextMessageInfoItemWithHeight
@@ -102,9 +96,7 @@ class Message extends React.PureComponent<Props> {
     let conversationHeader = null;
     if (this.props.focused || this.props.item.startsConversation) {
       conversationHeader = (
-        <Text style={styles.conversationHeader}>
-          {longAbsoluteDate(this.props.item.messageInfo.time).toUpperCase()}
-        </Text>
+        <Timestamp time={this.props.item.messageInfo.time} />
       );
     }
     let message;
@@ -158,17 +150,6 @@ class Message extends React.PureComponent<Props> {
   }
 
 }
-
-const styles = StyleSheet.create({
-  conversationHeader: {
-    color: '#777777',
-    fontSize: 14,
-    paddingTop: 1,
-    paddingBottom: 7,
-    alignSelf: 'center',
-    height: 26,
-  },
-});
 
 export {
   Message,
