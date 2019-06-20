@@ -157,11 +157,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  onPressSave = () => {
-    // TODO
-    return saveImage(this.props.mediaInfo);
-  }
-
   onLongPress = () => {
     if (this.props.keyboardShowing) {
       KeyboardUtils.dismiss();

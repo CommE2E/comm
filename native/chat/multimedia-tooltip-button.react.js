@@ -7,6 +7,10 @@ import {
   type LayoutCoordinates,
   layoutCoordinatesPropType,
 } from '../types/lightbox-types';
+import type {
+  NavigationScreenProp,
+  NavigationLeafRoute,
+} from 'react-navigation';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -20,24 +24,39 @@ import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-message-container.react';
 
-type Props = {|
-  mediaInfo: MediaInfo,
-  initialCoordinates: LayoutCoordinates,
-  verticalBounds: VerticalBounds,
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {
+    mediaInfo: MediaInfo,
+    initialCoordinates: LayoutCoordinates,
+    verticalBounds: VerticalBounds,
+  },
+|}>;
+
+type Props = {
+  navigation: NavProp,
   // withChatInputState
   chatInputState: ?ChatInputState,
-|};
+};
 class MultimediaTooltipButton extends React.PureComponent<Props> {
 
   static propTypes = {
-    mediaInfo: mediaInfoPropType.isRequired,
-    initialCoordinates: layoutCoordinatesPropType.isRequired,
-    verticalBounds: verticalBoundsPropType.isRequired,
+    navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          mediaInfo: mediaInfoPropType.isRequired,
+          initialCoordinates: layoutCoordinatesPropType.isRequired,
+          verticalBounds: verticalBoundsPropType.isRequired,
+        }).isRequired,
+      }).isRequired,
+      goBack: PropTypes.func.isRequired,
+    }).isRequired,
     chatInputState: chatInputStatePropType,
   };
 
   render() {
-    const { chatInputState, mediaInfo } = this.props;
+    const { chatInputState } = this.props;
+    const { mediaInfo } = this.props.navigation.state.params;
 
     const { id: mediaID, messageID } = mediaInfo;
     const pendingUploads = chatInputState
@@ -64,6 +83,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   }
 
   onPress = () => {
+    this.props.navigation.goBack();
   }
 
 }

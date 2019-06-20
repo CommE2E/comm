@@ -17,7 +17,7 @@ import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import Animated, { Easing } from 'react-native-reanimated';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -37,19 +37,21 @@ type TooltipEntry<CustomProps> = {|
 |};
 type TooltipSpec<CustomProps> = $ReadOnlyArray<TooltipEntry<CustomProps>>;
 
-type NavParams<CustomProps> = {
-  ...CustomProps,
-  initialCoordinates: LayoutCoordinates,
-  verticalBounds: VerticalBounds,
-};
-
-type NavProp<NavParams> = NavigationScreenProp<{|
+type NavProp<CustomProps> = NavigationScreenProp<{|
   ...NavigationLeafRoute,
-  params: NavParams,
+  params: {
+    ...CustomProps,
+    initialCoordinates: LayoutCoordinates,
+    verticalBounds: VerticalBounds,
+  },
 |}>;
 
-type TooltipProps<NavParams> = {
-  navigation: NavProp<NavParams>,
+type ButtonProps<Navigation> = {
+  navigation: Navigation,
+};
+
+type TooltipProps<Navigation> = {
+  navigation: Navigation,
   scene: NavigationScene,
   transitionProps: NavigationTransitionProps,
   position: Value,
@@ -57,9 +59,9 @@ type TooltipProps<NavParams> = {
 };
 function createTooltip<
   CustomProps: {},
-  NavParamsType: NavParams<CustomProps>,
-  TooltipPropsType: TooltipProps<NavParamsType>,
-  ButtonComponentType: React.ComponentType<NavParamsType>,
+  Navigation: NavProp<CustomProps>,
+  TooltipPropsType: TooltipProps<Navigation>,
+  ButtonComponentType: React.ComponentType<ButtonProps<Navigation>>,
   TooltipComponent: React.ComponentType<TooltipPropsType>,
 >(
   ButtonComponent: ButtonComponentType,
@@ -88,7 +90,8 @@ function createTooltip<
       const fullScreenHeight = this.props.screenDimensions.height
         + contentBottomOffset;
       const top = verticalBounds.y;
-      const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+      const bottom = fullScreenHeight
+        - verticalBounds.y - verticalBounds.height;
       const verticalStyle = { marginTop: top, marginBottom: bottom };
       return [ styles.contentContainer, verticalStyle ];
     }
@@ -106,15 +109,22 @@ function createTooltip<
     }
 
     render() {
-      const { params } = this.props.navigation.state;
+      const { navigation } = this.props;
       return (
-        <View style={this.contentContainerStyle}>
-          <View style={this.buttonStyle}>
-            <ButtonComponent {...params} />
+        <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
+          <View style={styles.backdrop}>
+            <View style={this.contentContainerStyle}>
+              <View style={this.buttonStyle}>
+                <ButtonComponent navigation={navigation} />
+              </View>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       );
-      // TODO handle opacity animation (or not?)
+    }
+
+    onPressBackdrop = () => {
+      this.props.navigation.goBack();
     }
 
   }
@@ -126,6 +136,11 @@ function createTooltip<
 }
 
 const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    opacity: 0.7,
+    backgroundColor: 'black',
+  },
   contentContainer: {
     flex: 1,
     overflow: "hidden",
