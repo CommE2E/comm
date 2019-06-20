@@ -9,7 +9,7 @@ import {
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../media/vertical-bounds';
+} from '../types/lightbox-types';
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,

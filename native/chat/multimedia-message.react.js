@@ -12,7 +12,7 @@ import type { Navigate } from '../navigation/route-names';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../media/vertical-bounds';
+} from '../types/lightbox-types';
 import type { AppState } from '../redux/redux-setup';
 import type { MessagePendingUploads } from './chat-input-state';
 

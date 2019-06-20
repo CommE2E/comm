@@ -8,7 +8,7 @@ import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { Navigate } from '../navigation/route-names';
-import type { VerticalBounds } from '../media/vertical-bounds';
+import type { VerticalBounds } from '../types/lightbox-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

@@ -13,7 +13,10 @@ import {
   dimensionsPropType,
 } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
-import { type VerticalBounds, verticalBoundsPropType } from './vertical-bounds';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../types/lightbox-types';
 
 import * as React from 'react';
 import {

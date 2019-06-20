@@ -14,7 +14,7 @@ import type { Navigate } from '../navigation/route-names';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../media/vertical-bounds';
+} from '../types/lightbox-types';
 
 import * as React from 'react';
 import {
