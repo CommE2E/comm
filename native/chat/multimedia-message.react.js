@@ -158,6 +158,16 @@ class MultimediaMessage extends React.PureComponent<Props> {
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
   };
 
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.modalsClosed &&
+      !prevProps.modalsClosed &&
+      this.props.focused
+    ) {
+      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    }
+  }
+
   render() {
     const heightStyle = { height: this.props.item.contentHeight };
     return (

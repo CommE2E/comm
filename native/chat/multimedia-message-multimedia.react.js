@@ -139,20 +139,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     });
   }
 
-  onFocus = () => {
-    // TODO
-    if (!this.props.messageFocused) {
-      this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
-    }
-  }
-
-  onBlur = () => {
-    // TODO
-    if (this.props.messageFocused) {
-      this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
-    }
-  }
-
   onLongPress = () => {
     if (this.props.keyboardShowing) {
       KeyboardUtils.dismiss();
@@ -161,6 +147,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     const { view, props: { verticalBounds } } = this;
     if (!view || !verticalBounds) {
       return;
+    }
+    if (!this.props.messageFocused) {
+      this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
     }
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
