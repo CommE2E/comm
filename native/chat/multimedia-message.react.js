@@ -5,7 +5,7 @@ import type {
   MultimediaMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
-import type { Media } from 'lib/types/media-types';
+import type { Media, Corners } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
@@ -30,7 +30,6 @@ import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
 import {
-  type Corners,
   allCorners,
   getRoundedContainerStyle,
 } from './rounded-message-container.react';

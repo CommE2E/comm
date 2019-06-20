@@ -3,17 +3,12 @@
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewStyle } from '../types/styles';
+import type { Corners } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, ViewPropTypes } from 'react-native';
 
-export type Corners = $Shape<{|
-  topLeft: bool,
-  topRight: bool,
-  bottomLeft: bool,
-  bottomRight: bool,
-|}>;
 const allCorners = {
   topLeft: true,
   topRight: true,
