@@ -38,7 +38,6 @@ type Props = {|
   keyboardShowing: bool,
   messageFocused: bool,
   toggleMessageFocus: (messageKey: string) => void,
-  setScrollDisabled: (scrollDisabled: bool) => void,
 |};
 type State = {|
   hidden: bool,
@@ -57,7 +56,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     keyboardShowing: PropTypes.bool.isRequired,
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
   };
   view: ?View;
 
@@ -143,7 +141,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   onFocus = () => {
     // TODO
-    this.props.setScrollDisabled(true);
     if (!this.props.messageFocused) {
       this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
     }
@@ -151,7 +148,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   onBlur = () => {
     // TODO
-    this.props.setScrollDisabled(false);
     if (this.props.messageFocused) {
       this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
     }

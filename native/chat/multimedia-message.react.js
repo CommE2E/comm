@@ -141,7 +141,6 @@ type Props = {|
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
-  setScrollDisabled: (scrollDisabled: bool) => void,
   modalsClosed: bool,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
@@ -155,7 +154,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
   };
@@ -263,7 +261,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         keyboardShowing={this.props.keyboardShowing}
-        setScrollDisabled={this.props.setScrollDisabled}
         messageFocused={this.props.focused}
         toggleMessageFocus={this.props.toggleFocus}
         key={index}

@@ -127,7 +127,6 @@ class Message extends React.PureComponent<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
-          setScrollDisabled={this.props.setScrollDisabled}
           modalsClosed={this.props.modalsClosed}
         />
       );

@@ -214,6 +214,12 @@ class MessageList extends React.PureComponent<Props, State> {
     ) {
       this.loadingFromScroll = false;
     }
+
+    if (this.props.modalsClosed && !prevProps.modalsClosed) {
+      this.setState({ scrollDisabled: false });
+    } else if (!this.props.modalsClosed && prevProps.modalsClosed) {
+      this.setState({ scrollDisabled: true });
+    }
   }
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
