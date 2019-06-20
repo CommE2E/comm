@@ -31,6 +31,7 @@ import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
 import {
   allCorners,
+  filterCorners,
   getRoundedContainerStyle,
 } from './rounded-message-container.react';
 
@@ -186,7 +187,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       return this.renderImage(
         messageInfo.media[0],
         0,
-        this.getCornerStyle(allCorners),
+        allCorners,
       );
     }
 
@@ -206,25 +207,14 @@ class MultimediaMessage extends React.PureComponent<Props> {
         const firstInRow = j === 0;
         const lastInRow = j + 1 === rowMedia.length;
         const inLastColumn = j + 1 === mediaPerRow;
-
-        const style = [];
-        if (!lastInRow) {
-          style.push(styles.imageBeforeImage);
-        }
-        if (firstRow && firstInRow) {
-          style.push(this.getCornerStyle({ topLeft: true }));
-        }
-        if (firstRow && inLastColumn) {
-          style.push(this.getCornerStyle({ topRight: true }));
-        }
-        if (lastRow && firstInRow) {
-          style.push(this.getCornerStyle({ bottomLeft: true }));
-        }
-        if (lastRow && inLastColumn) {
-          style.push(this.getCornerStyle({ bottomRight: true }));
-        }
-
-        row.push(this.renderImage(media, i + j, style));
+        const corners = {
+          topLeft: firstRow && firstInRow,
+          topRight: firstRow && inLastColumn,
+          bottomLeft: lastRow && firstInRow,
+          bottomRight: lastRow && inLastColumn,
+        };
+        const style = lastInRow ? null : styles.imageBeforeImage;
+        row.push(this.renderImage(media, i + j, corners, style));
       }
       for (; j < mediaPerRow; j++) {
         const key = `filler${j}`;
@@ -246,18 +236,21 @@ class MultimediaMessage extends React.PureComponent<Props> {
     return <View style={styles.grid}>{rows}</View>;
   }
 
-  getCornerStyle(corners: Corners) {
-    return getRoundedContainerStyle(this.props.item, corners, borderRadius);
-  }
-
   renderImage(
     media: Media,
     index: number,
-    style: ImageStyle,
+    corners: Corners,
+    style?: ImageStyle,
   ): React.Node {
+    const filteredCorners = filterCorners(corners, this.props.item);
+    const roundedStyle = getRoundedContainerStyle(
+      filteredCorners,
+      borderRadius,
+    );
     const { pendingUploads, messageInfo } = this.props.item;
     const mediaInfo = {
       ...media,
+      corners: filteredCorners,
       messageID: messageID(messageInfo),
       messageKey: messageKey(messageInfo),
       index,
@@ -268,7 +261,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         mediaInfo={mediaInfo}
         navigate={this.props.navigate}
         verticalBounds={this.props.verticalBounds}
-        style={style}
+        style={[ style, roundedStyle ]}
         modalsClosed={this.props.modalsClosed}
         lightboxPosition={this.props.lightboxPosition}
         postInProgress={!!pendingUploads}
