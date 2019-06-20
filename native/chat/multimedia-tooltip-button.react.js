@@ -1,6 +1,11 @@
 // @flow
 
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
+import {
+  type MediaInfo,
+  mediaInfoPropType,
+  type Dimensions,
+  dimensionsPropType,
+} from 'lib/types/media-types';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
@@ -11,9 +16,14 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
+import type { RawMessageInfo } from 'lib/types/message-types';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { View } from 'react-native';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import {
   type ChatInputState,
@@ -23,6 +33,8 @@ import {
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-message-container.react';
+import Timestamp from './timestamp.react';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
@@ -35,6 +47,9 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {
   navigation: NavProp,
+  // Redux state
+  rawMessageInfo: ?RawMessageInfo,
+  screenDimensions: Dimensions,
   // withChatInputState
   chatInputState: ?ChatInputState,
 };
@@ -51,8 +66,20 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    rawMessageInfo: PropTypes.object,
+    screenDimensions: dimensionsPropType.isRequired,
     chatInputState: chatInputStatePropType,
   };
+
+  get timestampStyle() {
+    const { initialCoordinates } = this.props.navigation.state.params;
+    return {
+      position: 'absolute',
+      left: -initialCoordinates.x,
+      width: this.props.screenDimensions.width,
+      top: -26,
+    };
+  }
 
   render() {
     const { chatInputState } = this.props;
@@ -70,15 +97,28 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       multimediaMessageBorderRadius,
     );
 
+    let timestamp = null;
+    if (this.props.rawMessageInfo) {
+      const { time } = this.props.rawMessageInfo;
+      timestamp = (
+        <View style={this.timestampStyle}>
+          <Timestamp time={time} color="light" />
+        </View>
+      );
+    }
+
     return (
-      <InlineMultimedia
-        mediaInfo={mediaInfo}
-        style={roundedStyle}
-        onPress={this.onPress}
-        onLongPress={this.onPress}
-        postInProgress={postInProgress}
-        pendingUpload={pendingUpload}
-      />
+      <React.Fragment>
+        {timestamp}
+        <InlineMultimedia
+          mediaInfo={mediaInfo}
+          style={roundedStyle}
+          onPress={this.onPress}
+          onLongPress={this.onPress}
+          postInProgress={postInProgress}
+          pendingUpload={pendingUpload}
+        />
+      </React.Fragment>
     );
   }
 
@@ -88,4 +128,13 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
 
 }
 
-export default withChatInputState(MultimediaTooltipButton);
+export default connect(
+  (state: AppState, ownProps: { navigation: NavProp }) => {
+    const { messageID } = ownProps.navigation.state.params.mediaInfo;
+    const rawMessageInfo = state.messageStore.messages[messageID];
+    return {
+      rawMessageInfo,
+      screenDimensions: dimensionsSelector(state),
+    };
+  },
+)(withChatInputState(MultimediaTooltipButton));

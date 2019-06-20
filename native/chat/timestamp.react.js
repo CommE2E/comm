@@ -10,23 +10,32 @@ import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 type Props = {|
   time: number,
+  color: 'light' | 'dark',
 |};
 function Timestamp(props: Props) {
+  const style = props.color === 'light'
+    ? [ styles.timestamp, styles.light ]
+    : [ styles.timestamp, styles.dark ];
   return (
-    <Text style={styles.conversationHeader} numberOfLines={1}>
+    <Text style={style} numberOfLines={1}>
       {longAbsoluteDate(props.time).toUpperCase()}
     </Text>
   );
 }
 
 const styles = StyleSheet.create({
-  conversationHeader: {
-    color: '#777777',
+  timestamp: {
     fontSize: 14,
     paddingTop: 1,
     paddingBottom: 7,
     alignSelf: 'center',
     height: 26,
+  },
+  dark: {
+    color: '#777777',
+  },
+  light: {
+    color: 'white',
   },
 });
 

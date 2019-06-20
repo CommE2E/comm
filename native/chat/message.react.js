@@ -96,7 +96,7 @@ class Message extends React.PureComponent<Props> {
     let conversationHeader = null;
     if (this.props.focused || this.props.item.startsConversation) {
       conversationHeader = (
-        <Timestamp time={this.props.item.messageInfo.time} />
+        <Timestamp time={this.props.item.messageInfo.time} color="dark" />
       );
     }
     let message;
