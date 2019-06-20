@@ -16,6 +16,8 @@ import type { AppState } from '../redux/redux-setup';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
+  type LayoutCoordinates,
+  layoutCoordinatesPropType,
 } from '../types/lightbox-types';
 
 import * as React from 'react';
@@ -189,12 +191,6 @@ function runDecay(
   ];
 }
 
-type LayoutCoordinates = $ReadOnly<{|
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-|}>;
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
@@ -220,12 +216,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       state: PropTypes.shape({
         params: PropTypes.shape({
           mediaInfo: mediaInfoPropType.isRequired,
-          initialCoordinates: PropTypes.shape({
-            x: PropTypes.number.isRequired,
-            y: PropTypes.number.isRequired,
-            width: PropTypes.number.isRequired,
-            height: PropTypes.number.isRequired,
-          }).isRequired,
+          initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
         }).isRequired,
       }).isRequired,
