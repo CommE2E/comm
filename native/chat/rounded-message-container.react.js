@@ -17,10 +17,10 @@ function filterCorners(
   const { isViewer } = item.messageInfo.creator;
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
   return {
-    topLeft: topLeft && !isViewer && !startsCluster,
-    topRight: topRight && isViewer && !startsCluster,
-    bottomLeft: bottomLeft && !isViewer && !endsCluster,
-    bottomRight: bottomRight && isViewer && !endsCluster,
+    topLeft: topLeft && (isViewer || startsCluster),
+    topRight: topRight && (!isViewer || startsCluster),
+    bottomLeft: bottomLeft && (isViewer || endsCluster),
+    bottomRight: bottomRight && (!isViewer || endsCluster),
   };
 }
 
@@ -36,10 +36,10 @@ function getRoundedContainerStyle(
 ) {
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
   return {
-    borderTopLeftRadius: topLeft ? 0 : borderRadius,
-    borderTopRightRadius: topRight ? 0 : borderRadius,
-    borderBottomLeftRadius: bottomLeft ? 0 : borderRadius,
-    borderBottomRightRadius: bottomRight ? 0 : borderRadius,
+    borderTopLeftRadius: topLeft ? borderRadius : 0,
+    borderTopRightRadius: topRight ? borderRadius : 0,
+    borderBottomLeftRadius: bottomLeft ? borderRadius : 0,
+    borderBottomRightRadius: bottomRight ? borderRadius : 0,
   };
 }
 
