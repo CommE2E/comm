@@ -29,6 +29,8 @@ import {
 
 const {
   Value,
+  Extrapolate,
+  interpolate,
 } = Animated;
 
 type TooltipEntry<CustomProps> = {|
@@ -84,6 +86,29 @@ function createTooltip<
       position: PropTypes.instanceOf(Value).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
     };
+    tooltipOpacity: Value;
+
+    constructor(props: TooltipPropsType) {
+      super(props);
+
+      const { position } = props;
+      const { index } = props.scene;
+      this.tooltipOpacity = interpolate(
+        position,
+        {
+          inputRange: [ index - 1, index ],
+          outputRange: [ 0, 1 ],
+          extrapolate: Extrapolate.CLAMP,
+        },
+      );
+    }
+
+    get opacityStyle() {
+      return {
+        flex: 1,
+        opacity: this.tooltipOpacity,
+      };
+    }
 
     get contentContainerStyle() {
       const { verticalBounds } = this.props.navigation.state.params;
@@ -112,13 +137,15 @@ function createTooltip<
       const { navigation } = this.props;
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
-          <View style={styles.backdrop}>
-            <View style={this.contentContainerStyle}>
-              <View style={this.buttonStyle}>
-                <ButtonComponent navigation={navigation} />
+          <Animated.View style={this.opacityStyle}>
+            <View style={styles.backdrop}>
+              <View style={this.contentContainerStyle}>
+                <View style={this.buttonStyle}>
+                  <ButtonComponent navigation={navigation} />
+                </View>
               </View>
             </View>
-          </View>
+          </Animated.View>
         </TouchableWithoutFeedback>
       );
     }
