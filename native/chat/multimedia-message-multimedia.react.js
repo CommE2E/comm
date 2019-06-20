@@ -5,6 +5,7 @@ import type { ImageStyle } from '../types/styles';
 import {
   type Navigate,
   MultimediaModalRouteName,
+  MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
 import {
   type VerticalBounds,
@@ -14,26 +15,22 @@ import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
 } from './chat-input-state';
-import type { TooltipItemData } from '../components/tooltip.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import * as Progress from 'react-native-progress';
-import Icon from 'react-native-vector-icons/Feather';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
-import Multimedia from '../media/multimedia.react';
-import Tooltip from '../components/tooltip.react';
+import InlineMultimedia from './inline-multimedia.react';
 import { saveImage } from '../media/save-image';
 
 type Props = {|
   mediaInfo: MediaInfo,
   navigate: Navigate,
   verticalBounds: ?VerticalBounds,
-  style?: ImageStyle,
+  style: ImageStyle,
   modalsClosed: bool,
   lightboxPosition: ?Animated.Value,
   postInProgress: bool,
@@ -63,8 +60,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     setScrollDisabled: PropTypes.func.isRequired,
   };
   view: ?View;
-  tooltipConfig: $ReadOnlyArray<TooltipItemData>;
-  tooltip: ?Tooltip;
 
   constructor(props: Props) {
     super(props);
@@ -72,9 +67,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       hidden: false,
       opacity: this.getOpacity(),
     };
-    this.tooltipConfig = [
-      { label: "Save", onPress: this.onPressSave },
-    ];
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
@@ -107,71 +99,25 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
-
-    let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
-    let progressPercent = 1;
-    if (pendingUpload) {
-      ({ progressPercent, failed } = pendingUpload);
-    }
-
-    let progressIndicator;
-    if (failed) {
-      progressIndicator = (
-        <View style={styles.centerContainer}>
-          <Icon
-            name="alert-circle"
-            style={styles.uploadError}
-            size={64}
-          />
-        </View>
-      );
-    } else if (progressPercent !== 1) {
-      progressIndicator = (
-        <View style={styles.centerContainer}>
-          <Progress.Circle
-            size={100}
-            indeterminate={progressPercent === 0}
-            progress={progressPercent}
-            borderWidth={5}
-            fill="#DDDDDD"
-            unfilledColor="#DDDDDD"
-            color="#88BB88"
-            thickness={15}
-            showsText={true}
-            textStyle={styles.progressIndicatorText}
-          />
-        </View>
-      );
-    }
-
     const wrapperStyles = [ styles.expand ];
     if (this.state.hidden && this.state.opacity) {
       wrapperStyles.push({ opacity: this.state.opacity });
     }
 
-    const multimedia = (
-      <View style={[ styles.multimediaContainer, style ]} ref={this.viewRef}>
-        <Animated.View style={wrapperStyles}>
-          <Multimedia mediaInfo={mediaInfo} />
-          {progressIndicator}
-        </Animated.View>
-      </View>
-    );
-
+    const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
     return (
-      <Tooltip
-        buttonComponent={multimedia}
-        items={this.tooltipConfig}
-        componentWrapperStyle={styles.expand}
-        componentContainerStyle={styles.expand}
-        labelStyle={styles.popoverLabelStyle}
-        onOpenTooltipMenu={this.onFocus}
-        onCloseTooltipMenu={this.onBlur}
-        onPressOverride={this.onPress}
-        onLongPress={this.onLongPress}
-        innerRef={this.tooltipRef}
-      />
+      <Animated.View style={wrapperStyles}>
+        <View style={styles.expand} ref={this.viewRef}>
+          <InlineMultimedia
+            mediaInfo={this.props.mediaInfo}
+            style={this.props.style}
+            onPress={this.onPress}
+            onLongPress={this.onLongPress}
+            postInProgress={this.props.postInProgress}
+            pendingUpload={this.props.pendingUpload}
+          />
+        </View>
+      </Animated.View>
     );
   }
 
@@ -179,17 +125,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     this.view = view;
   }
 
-  tooltipRef = (tooltip: ?Tooltip) => {
-    this.tooltip = tooltip;
-  }
-
   onPress = () => {
-    const { view, props: { verticalBounds }, tooltip } = this;
+    const { view, props: { verticalBounds } } = this;
     if (!view || !verticalBounds) {
       return;
-    }
-    if (tooltip) {
-      tooltip.hideModal();
     }
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -203,6 +142,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onFocus = () => {
+    // TODO
     this.props.setScrollDisabled(true);
     if (!this.props.messageFocused) {
       this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
@@ -210,6 +150,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onBlur = () => {
+    // TODO
     this.props.setScrollDisabled(false);
     if (this.props.messageFocused) {
       this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
@@ -217,6 +158,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onPressSave = () => {
+    // TODO
     return saveImage(this.props.mediaInfo);
   }
 
@@ -225,47 +167,25 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       KeyboardUtils.dismiss();
       return;
     }
-    const tooltip = this.tooltip;
-    invariant(tooltip, "tooltip should be set");
-    if (this.props.messageFocused) {
-      tooltip.hideModal();
-    } else {
-      tooltip.openModal();
+    const { view, props: { verticalBounds } } = this;
+    if (!view || !verticalBounds) {
+      return;
     }
+    view.measure((x, y, width, height, pageX, pageY) => {
+      const coordinates = { x: pageX, y: pageY, width, height };
+      const { mediaInfo, navigate } = this.props;
+      navigate({
+        routeName: MultimediaTooltipModalRouteName,
+        params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
+      });
+    });
   }
 
 }
 
 const styles = StyleSheet.create({
-  multimediaContainer: {
-    flex: 1,
-    overflow: 'hidden',
-  },
   expand: {
     flex: 1,
-  },
-  centerContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  progressIndicatorText: {
-    color: 'black',
-    fontSize: 21,
-  },
-  uploadError: {
-    color: "white",
-    textShadowColor: "#000",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
-  },
-  popoverLabelStyle: {
-    textAlign: 'center',
-    color: '#444',
   },
 });
 
