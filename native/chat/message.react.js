@@ -74,6 +74,7 @@ type Props = {|
   setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
+  modalsClosed: bool,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -85,6 +86,7 @@ class Message extends React.PureComponent<Props> {
     setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
+    modalsClosed: PropTypes.bool.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -126,6 +128,7 @@ class Message extends React.PureComponent<Props> {
           verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
           setScrollDisabled={this.props.setScrollDisabled}
+          modalsClosed={this.props.modalsClosed}
         />
       );
     } else {

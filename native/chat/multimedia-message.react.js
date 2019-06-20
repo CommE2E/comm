@@ -13,7 +13,6 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/lightbox-types';
-import type { AppState } from '../redux/redux-setup';
 import type { MessagePendingUploads } from './chat-input-state';
 
 import * as React from 'react';
@@ -23,11 +22,9 @@ import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
 
 import { messageKey, messageID } from 'lib/shared/message-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import { modalsClosedSelector } from '../selectors/nav-selectors';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
 import {
   allCorners,
@@ -145,7 +142,6 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
   setScrollDisabled: (scrollDisabled: bool) => void,
-  // Redux state
   modalsClosed: bool,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
@@ -304,14 +300,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const WrappedMultimediaMessage =
-  withLightboxPositionContext(
-    connect(
-      (state: AppState) => ({
-        modalsClosed: modalsClosedSelector(state),
-      }),
-    )(MultimediaMessage),
-  );
+const WrappedMultimediaMessage = withLightboxPositionContext(MultimediaMessage);
 
 export {
   borderRadius as multimediaMessageBorderRadius,

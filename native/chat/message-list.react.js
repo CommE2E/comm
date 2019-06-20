@@ -46,6 +46,7 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
+import { modalsClosedSelector } from '../selectors/nav-selectors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -55,6 +56,7 @@ type Props = {|
   // Redux state
   viewerID: ?string,
   startReached: bool,
+  modalsClosed: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -78,6 +80,7 @@ type PropsAndState = {|
   ...State,
 |};
 type FlatListExtraData = {|
+  modalsClosed: bool,
   keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
@@ -91,6 +94,7 @@ class MessageList extends React.PureComponent<Props, State> {
     imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
+    modalsClosed: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -108,6 +112,7 @@ class MessageList extends React.PureComponent<Props, State> {
       messageListVerticalBounds: null,
       keyboardShowing: false,
       flatListExtraData: {
+        modalsClosed: props.modalsClosed,
         keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
@@ -116,16 +121,19 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static flatListExtraDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.modalsClosed,
     (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (
+      modalsClosed: bool,
       keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
       imageGalleryOpen: bool,
       focusedMessageKey: ?string,
     ) => ({
+      modalsClosed,
       keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -220,6 +228,7 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const {
+      modalsClosed,
       keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -235,6 +244,7 @@ class MessageList extends React.PureComponent<Props, State> {
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={messageListVerticalBounds}
         keyboardShowing={keyboardShowing}
+        modalsClosed={modalsClosed}
       />
     );
   }
@@ -406,6 +416,7 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
+      modalsClosed: modalsClosedSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
