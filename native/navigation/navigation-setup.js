@@ -88,6 +88,7 @@ import {
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
   MultimediaModalRouteName,
+  MultimediaTooltipModalRouteName,
   accountModals,
 } from './route-names';
 import {
@@ -101,6 +102,7 @@ import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import { createLightboxNavigator } from '../media/lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
+import MultimediaTooltipModal from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
 
 useScreens();
@@ -163,6 +165,7 @@ const AppNavigator = createLightboxNavigator(
   {
     [TabNavigatorRouteName]: TabNavigator,
     [MultimediaModalRouteName]: MultimediaModal,
+    [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
   },
 );
 

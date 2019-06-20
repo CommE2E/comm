@@ -36,6 +36,7 @@ export const CustomServerModalRouteName = 'CustomServerModal';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
 export const MultimediaModalRouteName = 'MultimediaModal';
+export const MultimediaTooltipModalRouteName = 'MultimediaTooltipModal';
 
 export const accountModals = [
   LoggedOutModalRouteName,

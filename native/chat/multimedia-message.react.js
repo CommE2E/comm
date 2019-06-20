@@ -314,6 +314,7 @@ const WrappedMultimediaMessage =
   );
 
 export {
+  borderRadius as multimediaMessageBorderRadius,
   WrappedMultimediaMessage as MultimediaMessage,
   multimediaMessageContentHeight,
   multimediaMessageItemHeight,
