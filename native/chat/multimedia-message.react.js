@@ -272,7 +272,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         style={style}
         modalsClosed={this.props.modalsClosed}
         lightboxPosition={this.props.lightboxPosition}
-        inProgress={!!pendingUploads}
+        postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         keyboardShowing={this.props.keyboardShowing}
         setScrollDisabled={this.props.setScrollDisabled}
