@@ -21,6 +21,7 @@ import {
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { KeyboardUtils } from 'react-native-keyboard-input';
+import { createSelector } from 'reselect';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -70,6 +71,16 @@ type State = {|
   scrollDisabled: bool,
   messageListVerticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
+  flatListExtraData: FlatListExtraData,
+|};
+type PropsAndState = {|
+  ...Props,
+  ...State,
+|};
+type FlatListExtraData = {|
+  keyboardShowing: bool,
+  messageListVerticalBounds: ?VerticalBounds,
+  focusedMessageKey: ?string,
 |};
 class MessageList extends React.PureComponent<Props, State> {
 
@@ -84,17 +95,53 @@ class MessageList extends React.PureComponent<Props, State> {
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
-  state = {
-    focusedMessageKey: null,
-    scrollDisabled: false,
-    messageListVerticalBounds: null,
-    keyboardShowing: false,
-  };
   loadingFromScroll = false;
   flatListContainer: ?View;
-
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      focusedMessageKey: null,
+      scrollDisabled: false,
+      messageListVerticalBounds: null,
+      keyboardShowing: false,
+      flatListExtraData: {
+        keyboardShowing: props.imageGalleryOpen,
+        messageListVerticalBounds: null,
+        focusedMessageKey: null,
+      },
+    };
+  }
+
+  static flatListExtraDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
+    (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
+    (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
+    (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
+    (
+      keyboardShowing: bool,
+      messageListVerticalBounds: ?VerticalBounds,
+      imageGalleryOpen: bool,
+      focusedMessageKey: ?string,
+    ) => ({
+      keyboardShowing: keyboardShowing || imageGalleryOpen,
+      messageListVerticalBounds,
+      focusedMessageKey,
+    }),
+  );
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const flatListExtraData = MessageList.flatListExtraDataSelector({
+      ...props,
+      ...state,
+    });
+    if (flatListExtraData !== state.flatListExtraData) {
+      return { flatListExtraData };
+    }
+    return null;
+  }
 
   keyboardShow = () => {
     this.setState({ keyboardShowing: true });
@@ -172,10 +219,13 @@ class MessageList extends React.PureComponent<Props, State> {
       );
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
+    const {
+      keyboardShowing,
+      messageListVerticalBounds,
+      focusedMessageKey,
+    } = this.state.flatListExtraData;
     const focused =
-      messageKey(messageInfoItem.messageInfo) === this.state.focusedMessageKey;
-    const keyboardShowing =
-      this.state.keyboardShowing || this.props.imageGalleryOpen;
+      messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
     return (
       <Message
         item={messageInfoItem}
@@ -183,7 +233,7 @@ class MessageList extends React.PureComponent<Props, State> {
         navigate={this.props.navigate}
         toggleFocus={this.toggleMessageFocus}
         setScrollDisabled={this.setScrollDisabled}
-        verticalBounds={this.state.messageListVerticalBounds}
+        verticalBounds={messageListVerticalBounds}
         keyboardShowing={keyboardShowing}
       />
     );
@@ -256,7 +306,7 @@ class MessageList extends React.PureComponent<Props, State> {
           ListFooterComponent={footer}
           scrollsToTop={false}
           scrollEnabled={!this.state.scrollDisabled}
-          extraData={this.state}
+          extraData={this.state.flatListExtraData}
         />
       </View>
     );
