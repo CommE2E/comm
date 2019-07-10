@@ -60,6 +60,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     toggleMessageFocus: PropTypes.func.isRequired,
   };
   view: ?View;
+  clickable = true;
 
   constructor(props: Props) {
     super(props);
@@ -92,9 +93,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { lightboxPosition } = this.props;
-    if (lightboxPosition !== prevProps.lightboxPosition) {
+    if (this.props.lightboxPosition !== prevProps.lightboxPosition) {
       this.setState({ opacity: this.getOpacity() });
+    }
+
+    if (this.props.modalsClosed && !prevProps.modalsClosed) {
+      this.clickable = true;
     }
   }
 
@@ -130,6 +134,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     if (!view || !verticalBounds) {
       return;
     }
+
+    if (!this.clickable) {
+      return;
+    }
+    this.clickable = false;
+
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
       const { mediaInfo, navigate } = this.props;
@@ -146,13 +156,21 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       KeyboardUtils.dismiss();
       return;
     }
+
     const { view, props: { verticalBounds, verticalOffset } } = this;
     if (!view || !verticalBounds) {
       return;
     }
+
+    if (!this.clickable) {
+      return;
+    }
+    this.clickable = false;
+
     if (!this.props.messageFocused) {
       this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
     }
+
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
       const { mediaInfo, navigate } = this.props;
