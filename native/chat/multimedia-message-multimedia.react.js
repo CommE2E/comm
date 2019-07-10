@@ -30,6 +30,7 @@ type Props = {|
   mediaInfo: MediaInfo,
   navigate: Navigate,
   verticalBounds: ?VerticalBounds,
+  verticalOffset: number,
   style: ImageStyle,
   modalsClosed: bool,
   lightboxPosition: ?Animated.Value,
@@ -49,6 +50,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     mediaInfo: mediaInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
+    verticalOffset: PropTypes.number.isRequired,
     modalsClosed: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
     postInProgress: PropTypes.bool.isRequired,
@@ -144,7 +146,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       KeyboardUtils.dismiss();
       return;
     }
-    const { view, props: { verticalBounds } } = this;
+    const { view, props: { verticalBounds, verticalOffset } } = this;
     if (!view || !verticalBounds) {
       return;
     }
@@ -156,7 +158,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       const { mediaInfo, navigate } = this.props;
       navigate({
         routeName: MultimediaTooltipModalRouteName,
-        params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
+        params: {
+          mediaInfo,
+          initialCoordinates: coordinates,
+          verticalOffset,
+          verticalBounds,
+        },
       });
     });
   }

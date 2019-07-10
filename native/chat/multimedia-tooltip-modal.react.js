@@ -9,6 +9,7 @@ import { saveImage } from '../media/save-image';
 
 type CustomProps = {
   mediaInfo: MediaInfo,
+  verticalOffset: number,
 };
 
 function onPressSave(props: CustomProps) {

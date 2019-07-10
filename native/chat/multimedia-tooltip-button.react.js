@@ -42,6 +42,7 @@ type NavProp = NavigationScreenProp<{|
     mediaInfo: MediaInfo,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
+    verticalOffset: number,
   },
 |}>;
 
@@ -62,6 +63,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
           mediaInfo: mediaInfoPropType.isRequired,
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
+          verticalOffset: PropTypes.number.isRequired,
         }).isRequired,
       }).isRequired,
       goBack: PropTypes.func.isRequired,
@@ -72,12 +74,13 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   };
 
   get timestampStyle() {
-    const { initialCoordinates } = this.props.navigation.state.params;
+    const { initialCoordinates, verticalOffset } = this.props.navigation.state.params;
+    const top = -26 - verticalOffset;
     return {
       position: 'absolute',
       left: -initialCoordinates.x,
       width: this.props.screenDimensions.width,
-      top: -26,
+      top,
     };
   }
 

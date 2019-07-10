@@ -196,11 +196,12 @@ class MultimediaMessage extends React.PureComponent<Props> {
   }
 
   renderContent(): React.Node {
-    const { messageInfo } = this.props.item;
+    const { messageInfo, imageHeight } = this.props.item;
     invariant(messageInfo.media.length > 0, "should have media");
     if (messageInfo.media.length === 1) {
       return this.renderImage(
         messageInfo.media[0],
+        0,
         0,
         allCorners,
       );
@@ -208,9 +209,15 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
     const mediaPerRow = getMediaPerRow(messageInfo.media.length);
     const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
+    const rowHeight = imageHeight + spaceBetweenImages;
 
     const rows = [];
-    for (let i = 0; i < messageInfo.media.length; i += mediaPerRow) {
+    let verticalOffset = 0;
+    for (
+      let i = 0, verticalOffset = 0;
+      i < messageInfo.media.length;
+      i += mediaPerRow, verticalOffset += rowHeight
+    ) {
       const rowMedia = messageInfo.media.slice(i, i + mediaPerRow);
       const firstRow = i === 0;
       const lastRow = i + mediaPerRow >= messageInfo.media.length;
@@ -229,7 +236,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
           bottomRight: lastRow && inLastColumn,
         };
         const style = lastInRow ? null : styles.imageBeforeImage;
-        row.push(this.renderImage(media, i + j, corners, style));
+        row.push(this.renderImage(
+          media,
+          i + j,
+          verticalOffset,
+          corners,
+          style,
+        ));
       }
       for (; j < mediaPerRow; j++) {
         const key = `filler${j}`;
@@ -254,6 +267,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
   renderImage(
     media: Media,
     index: number,
+    verticalOffset: number,
     corners: Corners,
     style?: ImageStyle,
   ): React.Node {
@@ -276,6 +290,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         mediaInfo={mediaInfo}
         navigate={this.props.navigate}
         verticalBounds={this.props.verticalBounds}
+        verticalOffset={verticalOffset}
         style={[ style, roundedStyle ]}
         modalsClosed={this.props.modalsClosed}
         lightboxPosition={this.props.lightboxPosition}
