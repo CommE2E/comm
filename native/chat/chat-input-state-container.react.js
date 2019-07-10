@@ -454,12 +454,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       rawMessageInfo && rawMessageInfo.type === messageTypes.MULTIMEDIA,
       "messageStore should contain entry for message being retried",
     );
+    const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
 
     const incompleteMedia = rawMessageInfo.media.filter(
       ({ id }) => id.startsWith('localUpload'),
     );
     if (incompleteMedia.length === 0) {
-      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
       this.dispatchMultimediaMessageAction(newRawMessageInfo);
       this.setState(prevState => ({
         pendingUploads: {
@@ -482,6 +482,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       // All media are already in the process of being uploaded
       return;
     }
+
+    // We're not actually starting the send here,
+    // we just use this action to update the message's timestamp in Redux
+    this.props.dispatchActionPayload(
+      sendMultimediaMessageActionTypes.started,
+      newRawMessageInfo,
+    );
 
     const imageGalleryImages = retryMedia.map(
       ({ dimensions, uri }) => ({ ...dimensions, uri }),

@@ -693,10 +693,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     localMessageID: string,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
+    const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
+    const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+
     const completed = ChatInputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {
-      const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
-      const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
       this.sendMultimediaMessage(newRawMessageInfo);
       return;
     }
@@ -704,6 +705,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     if (!pendingUploads) {
       return;
     }
+
+    // We're not actually starting the send here,
+    // we just use this action to update the message's timestamp in Redux
+    this.props.dispatchActionPayload(
+      sendMultimediaMessageActionTypes.started,
+      newRawMessageInfo,
+    );
 
     const uploadIDsToRetry = new Set();
     const uploadsToRetry = [];
