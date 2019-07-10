@@ -32,7 +32,12 @@ import {
   getRoundedContainerStyle,
 } from './rounded-message-container.react';
 
+type ContentHeights = {|
+  imageHeight: number,
+  contentHeight: number,
+|};
 export type ChatMultimediaMessageInfoItem = {|
+  ...ContentHeights,
   itemType: "message",
   messageShapeType: "multimedia",
   messageInfo: MultimediaMessageInfo,
@@ -42,7 +47,6 @@ export type ChatMultimediaMessageInfoItem = {|
   startsCluster: bool,
   endsCluster: bool,
   pendingUploads: ?MessagePendingUploads,
-  contentHeight: number,
 |};
 
 function getMediaPerRow(mediaCount: number) {
@@ -61,10 +65,12 @@ function getMediaPerRow(mediaCount: number) {
   }
 }
 
-function multimediaMessageContentHeight(
+// Called by MessageListContainer
+// The results are merged into ChatMultimediaMessageInfoItem
+function multimediaMessageContentHeights(
   messageInfo: MultimediaMessageInfo,
   composedMessageMaxWidth: number,
-): number {
+): ContentHeights {
   invariant(messageInfo.media.length > 0, "should have media");
   if (messageInfo.media.length === 1) {
     const [ media ] = messageInfo.media;
@@ -75,7 +81,7 @@ function multimediaMessageContentHeight(
     if (imageHeight < 50) {
       imageHeight = 50;
     }
-    return imageHeight;
+    return { imageHeight, contentHeight: imageHeight };
   }
 
   const mediaPerRow = getMediaPerRow(messageInfo.media.length);
@@ -83,7 +89,10 @@ function multimediaMessageContentHeight(
   const imageHeight = (composedMessageMaxWidth - marginSpace) / mediaPerRow;
 
   const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
-  return numRows * imageHeight + (numRows - 1) * spaceBetweenImages;
+  const contentHeight = numRows * imageHeight
+    + (numRows - 1) * spaceBetweenImages;
+
+  return { imageHeight, contentHeight };
 }
 
 function sendFailed(item: ChatMultimediaMessageInfoItem) {
@@ -112,6 +121,8 @@ function sendFailed(item: ChatMultimediaMessageInfoItem) {
   return !pendingUploads;
 }
 
+// Called by Message
+// Given a ChatMultimediaMessageInfoItem, determines exact height of row
 function multimediaMessageItemHeight(
   item: ChatMultimediaMessageInfoItem,
   viewerID: ?string,
@@ -312,6 +323,6 @@ const WrappedMultimediaMessage = withLightboxPositionContext(MultimediaMessage);
 export {
   borderRadius as multimediaMessageBorderRadius,
   WrappedMultimediaMessage as MultimediaMessage,
-  multimediaMessageContentHeight,
+  multimediaMessageContentHeights,
   multimediaMessageItemHeight,
 };
