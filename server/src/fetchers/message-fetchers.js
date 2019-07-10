@@ -150,6 +150,7 @@ type MessageSQLResult = {|
 |};
 function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
+  viewer?: Viewer,
 ): MessageSQLResult {
   const userInfos = {}, rowsByID = new Map();
   for (let row of rows) {
@@ -169,7 +170,7 @@ function parseMessageSQLResult(
 
   const messages = [];
   for (let messageRows of rowsByID.values()) {
-    const rawMessageInfo = rawMessageInfoFromRows(messageRows);
+    const rawMessageInfo = rawMessageInfoFromRows(messageRows, viewer);
     if (rawMessageInfo) {
       messages.push({ rawMessageInfo, rows: messageRows });
     }
@@ -203,7 +204,7 @@ function mostRecentRowType(
 
 function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
-  viewer?: Viewer,
+  viewer?: ?Viewer,
 ): ?RawMessageInfo {
   const type = mostRecentRowType(rows);
   if (type === messageTypes.TEXT) {
@@ -447,7 +448,7 @@ async function fetchMessageInfos(
   `);
   const [ result ] = await dbQuery(query);
 
-  const { userInfos, messages } = parseMessageSQLResult(result);
+  const { userInfos, messages } = parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -609,7 +610,7 @@ async function fetchMessageInfosSince(
   const {
     userInfos: allCreatorUserInfos,
     messages,
-  } = parseMessageSQLResult(result);
+  } = parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   const userInfos = {};
