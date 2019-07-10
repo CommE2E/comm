@@ -13,6 +13,7 @@ import {
   type MessageTruncationStatuses,
   type FetchMessageInfosResult,
   type RawTextMessageInfo,
+  type RawMultimediaMessageInfo,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
@@ -380,7 +381,7 @@ function rawMessageInfoFromRows(
       });
     }
     const [ row ] = rows;
-    return {
+    const rawMultimediaMessageInfo: RawMultimediaMessageInfo = {
       type: messageTypes.MULTIMEDIA,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
@@ -388,6 +389,11 @@ function rawMessageInfoFromRows(
       creatorID: row.creatorID.toString(),
       media,
     };
+    const localID = localIDFromCreationString(viewer, row.creation);
+    if (localID) {
+      rawMultimediaMessageInfo.localID = localID;
+    }
+    return rawMultimediaMessageInfo;
   } else {
     invariant(false, `unrecognized messageType ${type}`);
   }
