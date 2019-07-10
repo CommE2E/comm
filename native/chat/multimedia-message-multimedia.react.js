@@ -111,7 +111,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
     return (
       <Animated.View style={wrapperStyles}>
-        <View style={styles.expand} ref={this.viewRef}>
+        <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
           <InlineMultimedia
             mediaInfo={this.props.mediaInfo}
             style={this.props.style}
@@ -124,6 +124,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       </Animated.View>
     );
   }
+
+  onLayout = () => {}
 
   viewRef = (view: ?View) => {
     this.view = view;
