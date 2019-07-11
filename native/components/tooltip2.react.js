@@ -90,7 +90,8 @@ function createTooltip<
       position: PropTypes.instanceOf(Value).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
     };
-    tooltipProgress: Value;
+    progress: Value;
+    backdropOpacity: Value;
     tooltipVerticalAbove: Value;
     tooltipVerticalBelow: Value;
 
@@ -99,11 +100,19 @@ function createTooltip<
 
       const { position } = props;
       const { index } = props.scene;
-      this.tooltipProgress = interpolate(
+      this.progress = interpolate(
         position,
         {
           inputRange: [ index - 1, index ],
           outputRange: [ 0, 1 ],
+          extrapolate: Extrapolate.CLAMP,
+        },
+      );
+      this.backdropOpacity = interpolate(
+        this.progress,
+        {
+          inputRange: [ 0, 1 ],
+          outputRange: [ 0, 0.7 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
@@ -113,7 +122,7 @@ function createTooltip<
       const entryCount = tooltipSpec.entries.length;
       const tooltipHeight = 9 + entryCount * 38;
       this.tooltipVerticalAbove = interpolate(
-        this.tooltipProgress,
+        this.progress,
         {
           inputRange: [ 0, 1 ],
           outputRange: [ 20 + tooltipHeight / 2, 0 ],
@@ -128,8 +137,8 @@ function createTooltip<
 
     get opacityStyle() {
       return {
-        flex: 1,
-        opacity: this.tooltipProgress,
+        ...styles.backdrop,
+        opacity: this.backdropOpacity,
       };
     }
 
@@ -138,10 +147,12 @@ function createTooltip<
       const fullScreenHeight = this.props.screenDimensions.height
         + contentBottomOffset;
       const top = verticalBounds.y;
-      const bottom = fullScreenHeight
-        - verticalBounds.y - verticalBounds.height;
-      const verticalStyle = { marginTop: top, marginBottom: bottom };
-      return [ styles.contentContainer, verticalStyle ];
+      const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+      return {
+        ...styles.contentContainer,
+        marginTop: top,
+        marginBottom: bottom,
+      };
     }
 
     get buttonStyle() {
@@ -183,7 +194,7 @@ function createTooltip<
         style.bottom = fullScreenHeight - Math.max(y, verticalBounds.y) + 20;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
       }
-      style.transform.push({ scale: this.tooltipProgress });
+      style.transform.push({ scale: this.progress });
       return style;
     }
 
@@ -219,13 +230,12 @@ function createTooltip<
       }
 
       return (
-        <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-          <Animated.View style={this.opacityStyle}>
-            <View style={styles.backdrop}>
-              <View style={this.contentContainerStyle}>
-                <View style={this.buttonStyle}>
-                  <ButtonComponent navigation={navigation} />
-                </View>
+        <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
+          <View style={styles.container}>
+            <Animated.View style={this.opacityStyle} />
+            <View style={this.contentContainerStyle}>
+              <View style={this.buttonStyle}>
+                <ButtonComponent navigation={navigation} />
               </View>
             </View>
             <Animated.View style={this.tooltipContainerStyle}>
@@ -237,9 +247,13 @@ function createTooltip<
                 {triangleDown}
               </View>
             </Animated.View>
-          </Animated.View>
+          </View>
         </TouchableWithoutFeedback>
       );
+    }
+
+    onPressBackdrop = () => {
+      this.props.navigation.goBack();
     }
 
     onPressEntry = (entry: TooltipEntry<CustomProps>) => {
@@ -262,10 +276,16 @@ function createTooltip<
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
-    opacity: 0.7,
-    backgroundColor: 'black',
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "black",
   },
   contentContainer: {
     flex: 1,
