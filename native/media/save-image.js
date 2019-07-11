@@ -21,6 +21,8 @@ function saveImage(mediaInfo: MediaInfo) {
   }
 }
 
+// On Android, we save the image to our own SquadCal folder in the
+// Pictures directory, and then trigger the media scanner to pick it up
 async function saveImageAndroid(mediaInfo: MediaInfo) {
   const hasPermission = await getAndroidPermissions();
   if (!hasPermission) {
@@ -28,7 +30,8 @@ async function saveImageAndroid(mediaInfo: MediaInfo) {
   }
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
   await filesystem.mkdir(saveFolder);
-  await saveToDisk(mediaInfo.uri, saveFolder);
+  const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
+  await filesystem.scanFile(filePath);
 }
 
 async function getAndroidPermissions() {
@@ -49,6 +52,7 @@ async function getAndroidPermissions() {
   }
 }
 
+// On iOS, we save the image to the camera roll
 async function saveImageIOS(mediaInfo: MediaInfo) {
   const { uri, type } = mediaInfo;
 
