@@ -183,6 +183,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           initialCoordinates: coordinates,
           verticalOffset,
           verticalBounds,
+          location: 'above',
         },
       });
     });

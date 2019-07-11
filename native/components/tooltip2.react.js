@@ -14,6 +14,8 @@ import {
 } from '../types/lightbox-types';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import type { ViewStyle } from '../types/styles';
+import type { TooltipEntry } from './tooltip2-item.react';
 
 import * as React from 'react';
 import Animated, { Easing } from 'react-native-reanimated';
@@ -26,18 +28,19 @@ import {
   contentBottomOffset,
   dimensionsSelector,
 } from '../selectors/dimension-selectors';
+import TooltipItem from './tooltip2-item.react';
 
 const {
   Value,
   Extrapolate,
   interpolate,
+  multiply,
 } = Animated;
 
-type TooltipEntry<CustomProps> = {|
-  text: string,
-  onPress: (props: CustomProps) => mixed,
+type TooltipSpec<CustomProps> = {|
+  entries: $ReadOnlyArray<TooltipEntry<CustomProps>>,
+  labelStyle?: ViewStyle,
 |};
-type TooltipSpec<CustomProps> = $ReadOnlyArray<TooltipEntry<CustomProps>>;
 
 type NavProp<CustomProps> = NavigationScreenProp<{|
   ...NavigationLeafRoute,
@@ -45,6 +48,7 @@ type NavProp<CustomProps> = NavigationScreenProp<{|
     ...CustomProps,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
+    location: 'above' | 'below',
   },
 |}>;
 
@@ -86,14 +90,16 @@ function createTooltip<
       position: PropTypes.instanceOf(Value).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
     };
-    tooltipOpacity: Value;
+    tooltipProgress: Value;
+    tooltipVerticalAbove: Value;
+    tooltipVerticalBelow: Value;
 
     constructor(props: TooltipPropsType) {
       super(props);
 
       const { position } = props;
       const { index } = props.scene;
-      this.tooltipOpacity = interpolate(
+      this.tooltipProgress = interpolate(
         position,
         {
           inputRange: [ index - 1, index ],
@@ -101,12 +107,29 @@ function createTooltip<
           extrapolate: Extrapolate.CLAMP,
         },
       );
+
+      const { initialCoordinates } = props.navigation.state.params;
+      const { y, height } = initialCoordinates;
+      const entryCount = tooltipSpec.entries.length;
+      const tooltipHeight = 9 + entryCount * 38;
+      this.tooltipVerticalAbove = interpolate(
+        this.tooltipProgress,
+        {
+          inputRange: [ 0, 1 ],
+          outputRange: [ 20 + tooltipHeight / 2, 0 ],
+          extrapolate: Extrapolate.CLAMP,
+        },
+      );
+      this.tooltipVerticalBelow = multiply(
+        this.tooltipVerticalAbove,
+        -1,
+      );
     }
 
     get opacityStyle() {
       return {
         flex: 1,
-        opacity: this.tooltipOpacity,
+        opacity: this.tooltipProgress,
       };
     }
 
@@ -133,10 +156,70 @@ function createTooltip<
       };
     }
 
+    get tooltipContainerStyle() {
+      const { screenDimensions, navigation } = this.props;
+      const {
+        initialCoordinates,
+        verticalBounds,
+        location,
+      } = navigation.state.params;
+      const { x, y, width, height } = initialCoordinates;
+
+      const style: ViewStyle = {
+        position: 'absolute',
+        left: x,
+        width: width,
+        alignItems: 'center',
+        transform: [],
+      };
+      if (location === 'below') {
+        style.top = Math.min(
+          y + height,
+          verticalBounds.y + verticalBounds.height,
+        ) + 20;
+        style.transform.push({ translateY: this.tooltipVerticalBelow });
+      } else {
+        const fullScreenHeight = screenDimensions.height + contentBottomOffset;
+        style.bottom = fullScreenHeight - Math.max(y, verticalBounds.y) + 20;
+        style.transform.push({ translateY: this.tooltipVerticalAbove });
+      }
+      style.transform.push({ scale: this.tooltipProgress });
+      return style;
+    }
+
     render() {
       const { navigation } = this.props;
+
+      const entries = tooltipSpec.entries.map((entry, index) => {
+        const style = index !== tooltipSpec.entries.length - 1
+          ? styles.itemMargin
+          : null;
+        return (
+          <TooltipItem
+            key={index}
+            spec={entry}
+            onPress={this.onPressEntry}
+            containerStyle={style}
+            labelStyle={[ styles.label, tooltipSpec.labelStyle ]}
+          />
+        );
+      });
+
+      let triangleDown = null;
+      let triangleUp = null;
+      const { location } = navigation.state.params;
+      if (location === 'above') {
+        triangleDown = (
+          <View style={styles.triangleDown} />
+        );
+      } else {
+        triangleUp = (
+          <View style={styles.triangleUp} />
+        );
+      }
+
       return (
-        <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
+        <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
           <Animated.View style={this.opacityStyle}>
             <View style={styles.backdrop}>
               <View style={this.contentContainerStyle}>
@@ -145,12 +228,28 @@ function createTooltip<
                 </View>
               </View>
             </View>
+            <Animated.View style={this.tooltipContainerStyle}>
+              <View>
+                {triangleUp}
+                <View style={styles.entries}>
+                  {entries}
+                </View>
+                {triangleDown}
+              </View>
+            </Animated.View>
           </Animated.View>
         </TouchableWithoutFeedback>
       );
     }
 
-    onPressBackdrop = () => {
+    onPressEntry = (entry: TooltipEntry<CustomProps>) => {
+      const {
+        initialCoordinates,
+        verticalBounds,
+        location,
+        ...customProps
+      } = this.props.navigation.state.params;
+      entry.onPress(customProps);
       this.props.navigation.goBack();
     }
 
@@ -171,6 +270,50 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     overflow: "hidden",
+  },
+  entries: {
+    borderRadius: 5,
+    backgroundColor: 'white',
+    alignSelf: 'stretch',
+    overflow: 'hidden',
+  },
+  itemMargin: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#E1E1E1",
+  },
+  triangleDown: {
+    alignSelf: 'center',
+    width: 10,
+    height: 10,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderTopWidth: 10,
+    borderRightWidth: 10,
+    borderBottomWidth: 0,
+    borderLeftWidth: 10,
+    borderTopColor: 'white',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: 'transparent',
+  },
+  triangleUp: {
+    alignSelf: 'center',
+    width: 10,
+    height: 10,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderTopWidth: 0,
+    borderRightWidth: 10,
+    borderBottomWidth: 10,
+    borderLeftWidth: 10,
+    borderBottomColor: 'white',
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderLeftColor: 'transparent',
+  },
+  label: {
+    fontSize: 14,
+    lineHeight: 17,
   },
 });
 

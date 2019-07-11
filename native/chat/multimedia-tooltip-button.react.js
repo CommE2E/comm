@@ -39,9 +39,12 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {
-    mediaInfo: MediaInfo,
+    // Tooltip props
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
+    location: 'above' | 'below',
+    // Custom props
+    mediaInfo: MediaInfo,
     verticalOffset: number,
   },
 |}>;
@@ -60,9 +63,10 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
-          mediaInfo: mediaInfoPropType.isRequired,
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
+          location: PropTypes.oneOf([ 'above', 'below' ]).isRequired,
+          mediaInfo: mediaInfoPropType.isRequired,
           verticalOffset: PropTypes.number.isRequired,
         }).isRequired,
       }).isRequired,
