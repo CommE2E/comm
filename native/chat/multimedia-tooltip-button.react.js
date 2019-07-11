@@ -21,7 +21,7 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -113,14 +113,15 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         {timestamp}
-        <InlineMultimedia
-          mediaInfo={mediaInfo}
-          style={roundedStyle}
-          onPress={this.onPress}
-          onLongPress={this.onPress}
-          postInProgress={postInProgress}
-          pendingUpload={pendingUpload}
-        />
+        <View style={[ styles.media, roundedStyle ]}>
+          <InlineMultimedia
+            mediaInfo={mediaInfo}
+            onPress={this.onPress}
+            onLongPress={this.onPress}
+            postInProgress={postInProgress}
+            pendingUpload={pendingUpload}
+          />
+        </View>
       </React.Fragment>
     );
   }
@@ -130,6 +131,14 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   }
 
 }
+
+
+const styles = StyleSheet.create({
+  media: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+});
 
 export default connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {

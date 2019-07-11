@@ -103,10 +103,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const wrapperStyles = [ styles.expand ];
+    const wrapperStyles = [ styles.container ];
     if (this.state.hidden && this.state.opacity) {
       wrapperStyles.push({ opacity: this.state.opacity });
     }
+    wrapperStyles.push(this.props.style);
 
     const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
     return (
@@ -114,7 +115,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
           <InlineMultimedia
             mediaInfo={this.props.mediaInfo}
-            style={this.props.style}
             onPress={this.onPress}
             onLongPress={this.onLongPress}
             postInProgress={this.props.postInProgress}
@@ -191,6 +191,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   expand: {
     flex: 1,
   },

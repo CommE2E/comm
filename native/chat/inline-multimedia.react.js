@@ -17,7 +17,6 @@ import Multimedia from '../media/multimedia.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
-  style: ImageStyle,
   onPress: () => void,
   onLongPress: () => void,
   postInProgress: bool,
@@ -34,7 +33,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
   };
 
   render() {
-    const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
+    const { mediaInfo, pendingUpload, postInProgress } = this.props;
 
     let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
     let progressPercent = 1;
@@ -79,7 +78,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
         onLongPress={this.props.onLongPress}
         style={styles.expand}
       >
-        <View style={[ styles.multimediaContainer, style ]}>
+        <View style={styles.expand}>
           <Multimedia mediaInfo={mediaInfo} />
           {progressIndicator}
         </View>
@@ -92,10 +91,6 @@ class InlineMultimedia extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   expand: {
     flex: 1,
-  },
-  multimediaContainer: {
-    flex: 1,
-    overflow: 'hidden',
   },
   centerContainer: {
     position: 'absolute',
