@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import type { MediaInfo } from 'lib/types/media-types';
 
-import { createTooltip } from '../components/tooltip2.react';
+import { createTooltip, tooltipHeight } from '../components/tooltip2.react';
 
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { saveImage } from '../media/save-image';
@@ -25,14 +25,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const MultimediaTooltipModal = createTooltip(
-  MultimediaTooltipButton,
-  {
-    entries: [
-      { text: "Save", onPress: onPressSave },
-    ],
-    labelStyle: styles.popoverLabelStyle,
-  },
-);
+const spec = {
+  entries: [
+    { text: "Save", onPress: onPressSave },
+  ],
+  labelStyle: styles.popoverLabelStyle,
+};
 
-export default MultimediaTooltipModal;
+const MultimediaTooltipModal = createTooltip(MultimediaTooltipButton, spec);
+
+const multimediaTooltipHeight = tooltipHeight(spec.entries.length);
+
+export {
+  MultimediaTooltipModal,
+  multimediaTooltipHeight,
+};

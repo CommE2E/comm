@@ -125,12 +125,11 @@ function createTooltip<
       const { initialCoordinates } = props.navigation.state.params;
       const { y, height } = initialCoordinates;
       const entryCount = tooltipSpec.entries.length;
-      const tooltipHeight = 9 + entryCount * 38;
       this.tooltipVerticalAbove = interpolate(
         this.progress,
         {
           inputRange: [ 0, 1 ],
-          outputRange: [ 20 + tooltipHeight / 2, 0 ],
+          outputRange: [ 20 + tooltipHeight(entryCount) / 2, 0 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
@@ -341,6 +340,12 @@ const styles = StyleSheet.create({
   },
 });
 
+function tooltipHeight(numEntries: number) {
+  // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
+  return 9 + 38 * numEntries;
+}
+
 export {
   createTooltip,
+  tooltipHeight,
 };

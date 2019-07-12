@@ -24,7 +24,7 @@ import { KeyboardUtils } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
 import InlineMultimedia from './inline-multimedia.react';
-import { saveImage } from '../media/save-image';
+import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
@@ -175,6 +175,21 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
+
+      const multimediaTop = pageY;
+      const multimediaBottom = pageY + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+      const multimediaTooltipVerticalSpace = multimediaTooltipHeight + 20;
+
+      let location = 'below';
+      if (
+        multimediaBottom + multimediaTooltipVerticalSpace > boundsBottom &&
+        multimediaTop - multimediaTooltipVerticalSpace > boundsTop
+      ) {
+        location = 'above';
+      }
+
       const { mediaInfo, navigate } = this.props;
       navigate({
         routeName: MultimediaTooltipModalRouteName,
@@ -183,7 +198,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           initialCoordinates: coordinates,
           verticalOffset,
           verticalBounds,
-          location: 'above',
+          location,
         },
       });
     });
