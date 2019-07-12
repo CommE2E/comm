@@ -19,7 +19,12 @@ import type { TooltipEntry } from './tooltip2-item.react';
 
 import * as React from 'react';
 import Animated, { Easing } from 'react-native-reanimated';
-import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Platform,
+} from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -315,6 +320,7 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderBottomColor: 'transparent',
     borderLeftColor: 'transparent',
+    top: Platform.OS === "android" ? -1 : 0,
   },
   triangleUp: {
     alignSelf: 'center',
