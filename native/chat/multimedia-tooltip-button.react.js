@@ -43,6 +43,7 @@ type NavProp = NavigationScreenProp<{|
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
     location?: 'above' | 'below',
+    margin?: number,
     // Custom props
     mediaInfo: MediaInfo,
     verticalOffset: number,
@@ -66,6 +67,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
           location: PropTypes.oneOf([ 'above', 'below' ]),
+          margin: PropTypes.number,
           mediaInfo: mediaInfoPropType.isRequired,
           verticalOffset: PropTypes.number.isRequired,
         }).isRequired,

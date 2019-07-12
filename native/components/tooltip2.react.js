@@ -50,10 +50,11 @@ type TooltipSpec<CustomProps> = {|
 type NavProp<CustomProps> = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {
-    ...CustomProps,
+    ...$Exact<CustomProps>,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
     location?: 'above' | 'below',
+    margin?: number,
   },
 |}>;
 
@@ -178,8 +179,12 @@ function createTooltip<
         initialCoordinates,
         verticalBounds,
         location,
+        margin: customMargin,
       } = navigation.state.params;
       const { x, y, width, height } = initialCoordinates;
+      const margin = customMargin !== null && customMargin !== undefined
+        ? customMargin
+        : 20;
 
       const style: ViewStyle = {
         position: 'absolute',
@@ -190,13 +195,15 @@ function createTooltip<
       };
       if (location === 'above') {
         const fullScreenHeight = screenDimensions.height + contentBottomOffset;
-        style.bottom = fullScreenHeight - Math.max(y, verticalBounds.y) + 20;
+        style.bottom = fullScreenHeight -
+          Math.max(y, verticalBounds.y) +
+          margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
       } else {
         style.top = Math.min(
           y + height,
           verticalBounds.y + verticalBounds.height,
-        ) + 20;
+        ) + margin;
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
       style.transform.push({ scale: this.progress });

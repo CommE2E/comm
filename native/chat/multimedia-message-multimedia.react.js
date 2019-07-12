@@ -180,14 +180,19 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       const multimediaBottom = pageY + height;
       const boundsTop = verticalBounds.y;
       const boundsBottom = verticalBounds.y + verticalBounds.height;
-      const multimediaTooltipVerticalSpace = multimediaTooltipHeight + 20;
 
-      let location = 'below';
+      const belowMargin = 20;
+      const belowSpace = multimediaTooltipHeight + belowMargin;
+      const aboveMargin = verticalOffset === 0 ? 30 : 20;
+      const aboveSpace = multimediaTooltipHeight + aboveMargin;
+
+      let location = 'below', margin = belowMargin;
       if (
-        multimediaBottom + multimediaTooltipVerticalSpace > boundsBottom &&
-        multimediaTop - multimediaTooltipVerticalSpace > boundsTop
+        multimediaBottom + belowSpace > boundsBottom &&
+        multimediaTop - aboveSpace > boundsTop
       ) {
         location = 'above';
+        margin = aboveMargin;
       }
 
       const { mediaInfo, navigate } = this.props;
@@ -199,6 +204,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           verticalOffset,
           verticalBounds,
           location,
+          margin,
         },
       });
     });
