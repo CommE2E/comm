@@ -53,7 +53,7 @@ type NavProp<CustomProps> = NavigationScreenProp<{|
     ...CustomProps,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
-    location: 'above' | 'below',
+    location?: 'above' | 'below',
   },
 |}>;
 
@@ -188,16 +188,16 @@ function createTooltip<
         alignItems: 'center',
         transform: [],
       };
-      if (location === 'below') {
+      if (location === 'above') {
+        const fullScreenHeight = screenDimensions.height + contentBottomOffset;
+        style.bottom = fullScreenHeight - Math.max(y, verticalBounds.y) + 20;
+        style.transform.push({ translateY: this.tooltipVerticalAbove });
+      } else {
         style.top = Math.min(
           y + height,
           verticalBounds.y + verticalBounds.height,
         ) + 20;
         style.transform.push({ translateY: this.tooltipVerticalBelow });
-      } else {
-        const fullScreenHeight = screenDimensions.height + contentBottomOffset;
-        style.bottom = fullScreenHeight - Math.max(y, verticalBounds.y) + 20;
-        style.transform.push({ translateY: this.tooltipVerticalAbove });
       }
       style.transform.push({ scale: this.progress });
       return style;
