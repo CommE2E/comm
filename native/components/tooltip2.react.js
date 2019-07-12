@@ -157,6 +157,7 @@ function createTooltip<
         ...styles.contentContainer,
         marginTop: top,
         marginBottom: bottom,
+        opacity: this.progress,
       };
     }
 
@@ -238,11 +239,11 @@ function createTooltip<
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
           <View style={styles.container}>
             <Animated.View style={this.opacityStyle} />
-            <View style={this.contentContainerStyle}>
+            <Animated.View style={this.contentContainerStyle}>
               <View style={this.buttonStyle}>
                 <ButtonComponent navigation={navigation} />
               </View>
-            </View>
+            </Animated.View>
             <Animated.View style={this.tooltipContainerStyle}>
               {triangleUp}
               <View style={styles.entries}>
