@@ -244,13 +244,11 @@ function createTooltip<
               </View>
             </View>
             <Animated.View style={this.tooltipContainerStyle}>
-              <View>
-                {triangleUp}
-                <View style={styles.entries}>
-                  {entries}
-                </View>
-                {triangleDown}
+              {triangleUp}
+              <View style={styles.entries}>
+                {entries}
               </View>
+              {triangleDown}
             </Animated.View>
           </View>
         </TouchableWithoutFeedback>
@@ -299,7 +297,6 @@ const styles = StyleSheet.create({
   entries: {
     borderRadius: 5,
     backgroundColor: 'white',
-    alignSelf: 'stretch',
     overflow: 'hidden',
   },
   itemMargin: {
