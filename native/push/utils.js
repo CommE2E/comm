@@ -5,8 +5,9 @@ import type { RawMessageInfo } from 'lib/types/message-types';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions';
 
+import { dispatch } from '../redux/redux-setup';
+
 function saveMessageInfos(
-  dispatch: Dispatch,
   messageInfosString: string,
   updatesCurrentAsOf: number,
 ) {

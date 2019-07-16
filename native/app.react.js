@@ -509,7 +509,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
 
   saveMessageInfos(messageInfosString: string) {
     saveMessageInfos(
-      this.props.dispatch,
       messageInfosString,
       this.props.updatesCurrentAsOf,
     );
@@ -591,7 +590,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
     handleAndroidMessage(
       message,
-      this.props.dispatch,
       this.props.updatesCurrentAsOf,
       this.handleAndroidNotificationIfActive,
     );

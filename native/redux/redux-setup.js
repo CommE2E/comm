@@ -29,6 +29,7 @@ import {
   type ConnectivityInfo,
   defaultConnectivityInfo,
 } from '../types/connectivity';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -419,7 +420,11 @@ const store: Store<AppState, *> = createStore(
 const persistor = persistStore(store);
 setPersistor(persistor);
 
+const unsafeDispatch: any = store.dispatch;
+const dispatch: Dispatch = unsafeDispatch;
+
 export {
   store,
+  dispatch,
   appBecameInactive,
 };

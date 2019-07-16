@@ -12,7 +12,7 @@ import {
 import { getFirebase } from './firebase';
 
 import { saveMessageInfos } from './utils';
-import { store } from '../redux/redux-setup';
+import { store, dispatch } from '../redux/redux-setup';
 
 const androidNotificationChannelID = 'default';
 const vibrationSpec = [ 500, 500 ];
@@ -24,7 +24,6 @@ type Texts = {|
 |};
 function handleAndroidMessage(
   message: RemoteMessage,
-  dispatch: Dispatch,
   updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
@@ -46,7 +45,7 @@ function handleAndroidMessage(
     messageInfos = customNotification.messageInfos;
   }
   if (messageInfos) {
-    saveMessageInfos(dispatch, messageInfos, updatesCurrentAsOf);
+    saveMessageInfos(messageInfos, updatesCurrentAsOf);
   }
 
   let { rescind, rescindID } = data;
@@ -110,9 +109,8 @@ function handleAndroidMessage(
 }
 
 async function androidBackgroundMessageTask(message: RemoteMessage) {
-  const { dispatch } = store;
   const { updatesCurrentAsOf } = store.getState();
-  handleAndroidMessage(message, dispatch, updatesCurrentAsOf);
+  handleAndroidMessage(message, updatesCurrentAsOf);
 }
 
 export {
