@@ -6,19 +6,37 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import invariant from 'invariant';
+import { NavigationActions } from 'react-navigation';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
+import { dispatch } from '../redux/redux-setup';
+import { MultimediaSavedModalRouteName } from '../navigation/route-names';
 
-function saveImage(mediaInfo: MediaInfo) {
+async function saveImage(mediaInfo: MediaInfo) {
+  let result, message;
   if (Platform.OS === "android") {
-    return saveImageAndroid(mediaInfo);
+    result = await saveImageAndroid(mediaInfo);
   } else if (Platform.OS === "ios") {
-    return saveImageIOS(mediaInfo);
+    result = await saveImageIOS(mediaInfo);
   } else {
-    invariant(false, `saveImage unsupported on ${Platform.OS}`);
+    message = `saving images is unsupported on ${Platform.OS}`;
   }
+
+  if (result) {
+    message = "saved!";
+  } else if (!message) {
+    message = "don't have permission :(";
+  }
+
+  dispatch({
+    // We do this for Flow
+    ...NavigationActions.navigate({
+      routeName: MultimediaSavedModalRouteName,
+      params: { message },
+    }),
+  });
 }
 
 // On Android, we save the image to our own SquadCal folder in the
@@ -26,12 +44,13 @@ function saveImage(mediaInfo: MediaInfo) {
 async function saveImageAndroid(mediaInfo: MediaInfo) {
   const hasPermission = await getAndroidPermissions();
   if (!hasPermission) {
-    return;
+    return false;
   }
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
   await filesystem.mkdir(saveFolder);
   const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
   await filesystem.scanFile(filePath);
+  return true;
 }
 
 async function getAndroidPermissions() {
@@ -67,6 +86,7 @@ async function saveImageIOS(mediaInfo: MediaInfo) {
   if (tempFile) {
     await filesystem.unlink(tempFile);
   }
+  return true;
 }
 
 async function saveToDisk(uri: string, directory: string) {
