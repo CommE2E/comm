@@ -186,10 +186,16 @@ function createTooltip<
         ? customMargin
         : 20;
 
+      const extraLeftSpace = x;
+      const extraRightSpace = screenDimensions.width - width - x;
+      const extraSpace = Math.min(extraLeftSpace, extraRightSpace);
+      const left = x - extraSpace;
+      const containerWidth = width + 2 * extraSpace;
+
       const style: ViewStyle = {
         position: 'absolute',
-        left: x,
-        width: width,
+        left,
+        width: containerWidth,
         alignItems: 'center',
         transform: [],
       };
@@ -311,10 +317,8 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E1E1E1",
   },
   triangleDown: {
-    alignSelf: 'center',
     width: 10,
     height: 10,
-    backgroundColor: 'transparent',
     borderStyle: 'solid',
     borderTopWidth: 10,
     borderRightWidth: 10,
@@ -327,10 +331,8 @@ const styles = StyleSheet.create({
     top: Platform.OS === "android" ? -1 : 0,
   },
   triangleUp: {
-    alignSelf: 'center',
     width: 10,
     height: 10,
-    backgroundColor: 'transparent',
     borderStyle: 'solid',
     borderTopWidth: 0,
     borderRightWidth: 10,
