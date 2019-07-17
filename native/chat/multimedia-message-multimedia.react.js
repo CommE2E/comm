@@ -32,7 +32,7 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
-  modalsClosed: bool,
+  scrollDisabled: bool,
   lightboxPosition: ?Animated.Value,
   postInProgress: bool,
   pendingUpload: ?PendingMultimediaUpload,
@@ -51,7 +51,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     navigate: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
-    modalsClosed: PropTypes.bool.isRequired,
+    scrollDisabled: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
@@ -71,7 +71,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    if (props.modalsClosed && state.hidden) {
+    if (!props.scrollDisabled && state.hidden) {
       return { hidden: false };
     }
     return null;
@@ -97,7 +97,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.setState({ opacity: this.getOpacity() });
     }
 
-    if (this.props.modalsClosed && !prevProps.modalsClosed) {
+    if (!this.props.scrollDisabled && prevProps.scrollDisabled) {
       this.clickable = true;
     }
   }

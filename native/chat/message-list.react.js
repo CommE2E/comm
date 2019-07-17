@@ -84,7 +84,7 @@ type PropsAndState = {|
   ...State,
 |};
 type FlatListExtraData = {|
-  multimediaModalsClosed: bool,
+  scrollDisabled: bool,
   keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
@@ -111,13 +111,14 @@ class MessageList extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const scrollDisabled = !props.multimediaModalsClosed;
     this.state = {
       focusedMessageKey: null,
-      scrollDisabled: false,
+      scrollDisabled,
       messageListVerticalBounds: null,
       keyboardShowing: false,
       flatListExtraData: {
-        multimediaModalsClosed: props.multimediaModalsClosed,
+        scrollDisabled,
         keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
@@ -126,19 +127,19 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static flatListExtraDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.multimediaModalsClosed,
+    (propsAndState: PropsAndState) => propsAndState.scrollDisabled,
     (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (
-      multimediaModalsClosed: bool,
+      scrollDisabled: bool,
       keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
       imageGalleryOpen: bool,
       focusedMessageKey: ?string,
     ) => ({
-      multimediaModalsClosed,
+      scrollDisabled,
       keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -246,7 +247,7 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const {
-      multimediaModalsClosed,
+      scrollDisabled,
       keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -262,7 +263,7 @@ class MessageList extends React.PureComponent<Props, State> {
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={messageListVerticalBounds}
         keyboardShowing={keyboardShowing}
-        multimediaModalsClosed={multimediaModalsClosed}
+        scrollDisabled={scrollDisabled}
       />
     );
   }
