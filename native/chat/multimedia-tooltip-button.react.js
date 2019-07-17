@@ -20,6 +20,7 @@ import type { RawMessageInfo } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 
@@ -35,6 +36,8 @@ import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-message-container.react';
 import Timestamp from './timestamp.react';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
+
+const { Value } = Animated;
 
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
@@ -52,6 +55,7 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {
   navigation: NavProp,
+  progress: Value,
   // Redux state
   rawMessageInfo: ?RawMessageInfo,
   screenDimensions: Dimensions,
@@ -74,6 +78,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    progress: PropTypes.object.isRequired,
     rawMessageInfo: PropTypes.object,
     screenDimensions: dimensionsPropType.isRequired,
     chatInputState: chatInputStatePropType,
@@ -86,6 +91,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     } = this.props.navigation.state.params;
     const top = -26 - verticalOffset;
     return {
+      opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
       width: this.props.screenDimensions.width,
@@ -113,9 +119,9 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     if (this.props.rawMessageInfo) {
       const { time } = this.props.rawMessageInfo;
       timestamp = (
-        <View style={this.timestampStyle}>
+        <Animated.View style={this.timestampStyle}>
           <Timestamp time={time} color="light" />
-        </View>
+        </Animated.View>
       );
     }
 

@@ -18,7 +18,7 @@ import type { ViewStyle } from '../types/styles';
 import type { TooltipEntry } from './tooltip2-item.react';
 
 import * as React from 'react';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import {
   View,
   StyleSheet,
@@ -60,6 +60,7 @@ type NavProp<CustomProps> = NavigationScreenProp<{|
 
 type ButtonProps<Navigation> = {
   navigation: Navigation,
+  progress: Value,
 };
 
 type TooltipProps<Navigation> = {
@@ -157,7 +158,6 @@ function createTooltip<
         ...styles.contentContainer,
         marginTop: top,
         marginBottom: bottom,
-        opacity: this.progress,
       };
     }
 
@@ -251,11 +251,14 @@ function createTooltip<
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
           <View style={styles.container}>
             <Animated.View style={this.opacityStyle} />
-            <Animated.View style={this.contentContainerStyle}>
+            <View style={this.contentContainerStyle}>
               <View style={this.buttonStyle}>
-                <ButtonComponent navigation={navigation} />
+                <ButtonComponent
+                  navigation={navigation}
+                  progress={this.progress}
+                />
               </View>
-            </Animated.View>
+            </View>
             <Animated.View style={this.tooltipContainerStyle}>
               {triangleUp}
               <View style={styles.entries}>

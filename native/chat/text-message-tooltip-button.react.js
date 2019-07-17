@@ -16,6 +16,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -24,6 +25,8 @@ import { connect } from 'lib/utils/redux-utils';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 import Timestamp from './timestamp.react';
 import InnerTextMessage from './inner-text-message.react';
+
+const { Value } = Animated;
 
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
@@ -40,6 +43,7 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {
   navigation: NavProp,
+  progress: Value,
   // Redux state
   screenDimensions: Dimensions,
 };
@@ -58,12 +62,14 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    progress: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
   };
 
   get timestampStyle() {
     const { initialCoordinates } = this.props.navigation.state.params;
     return {
+      opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
       width: this.props.screenDimensions.width,
@@ -87,9 +93,9 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
     const { time } = item.messageInfo;
     return (
       <React.Fragment>
-        <View style={this.timestampStyle}>
+        <Animated.View style={this.timestampStyle}>
           <Timestamp time={time} color="light" />
-        </View>
+        </Animated.View>
         <InnerTextMessage 
           item={item}
           focused={true}
