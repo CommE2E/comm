@@ -39,6 +39,7 @@ type Props = {|
   keyboardShowing: bool,
   messageFocused: bool,
   toggleMessageFocus: (messageKey: string) => void,
+  setScrollDisabled: (scrollDisabled: bool) => void,
 |};
 type State = {|
   hidden: bool,
@@ -58,6 +59,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     keyboardShowing: PropTypes.bool.isRequired,
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
+    setScrollDisabled: PropTypes.func.isRequired,
   };
   view: ?View;
   clickable = true;
@@ -147,10 +149,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
+    const { setScrollDisabled, mediaInfo } = this.props;
+    setScrollDisabled(true);
+
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      const { mediaInfo, navigate } = this.props;
-      navigate({
+      this.props.navigate({
         routeName: MultimediaModalRouteName,
         params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
       });
@@ -164,7 +168,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       return;
     }
 
-    const { view, props: { verticalBounds, verticalOffset } } = this;
+    const { view, props: { verticalBounds } } = this;
     if (!view || !verticalBounds) {
       return;
     }
@@ -174,9 +178,17 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
-    if (!this.props.messageFocused) {
-      this.props.toggleMessageFocus(this.props.mediaInfo.messageKey);
+    const {
+      messageFocused,
+      toggleMessageFocus,
+      setScrollDisabled,
+      mediaInfo,
+      verticalOffset,
+    } = this.props;
+    if (!messageFocused) {
+      toggleMessageFocus(mediaInfo.messageKey);
     }
+    setScrollDisabled(true);
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -200,8 +212,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         margin = aboveMargin;
       }
 
-      const { mediaInfo, navigate } = this.props;
-      navigate({
+      this.props.navigate({
         routeName: MultimediaTooltipModalRouteName,
         params: {
           mediaInfo,

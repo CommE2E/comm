@@ -150,6 +150,7 @@ type Props = {|
   navigate: Navigate,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
   scrollDisabled: bool,
@@ -163,6 +164,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     navigate: PropTypes.func.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
     scrollDisabled: PropTypes.bool.isRequired,
@@ -299,6 +301,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         keyboardShowing={this.props.keyboardShowing}
         messageFocused={this.props.focused}
         toggleMessageFocus={this.props.toggleFocus}
+        setScrollDisabled={this.props.setScrollDisabled}
         key={index}
       />
     );
