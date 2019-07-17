@@ -1,11 +1,10 @@
 // @flow
 
-import { StyleSheet } from 'react-native';
-
 import type { MediaInfo } from 'lib/types/media-types';
 
-import { createTooltip, tooltipHeight } from '../components/tooltip2.react';
+import { StyleSheet } from 'react-native';
 
+import { createTooltip, tooltipHeight } from '../components/tooltip2.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { saveImage } from '../media/save-image';
 

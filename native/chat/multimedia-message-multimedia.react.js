@@ -132,6 +132,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onPress = () => {
+    if (this.props.keyboardShowing) {
+      KeyboardUtils.dismiss();
+      return;
+    }
+
     const { view, props: { verticalBounds } } = this;
     if (!view || !verticalBounds) {
       return;

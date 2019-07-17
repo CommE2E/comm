@@ -80,7 +80,10 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   };
 
   get timestampStyle() {
-    const { initialCoordinates, verticalOffset } = this.props.navigation.state.params;
+    const {
+      initialCoordinates,
+      verticalOffset,
+    } = this.props.navigation.state.params;
     const top = -26 - verticalOffset;
     return {
       position: 'absolute',
@@ -137,7 +140,6 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   }
 
 }
-
 
 const styles = StyleSheet.create({
   media: {
