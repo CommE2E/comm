@@ -23,6 +23,7 @@ import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
   accountModals,
+  multimediaModals,
 } from '../navigation/route-names';
 import {
   assertNavigationRouteNotLeafNode,
@@ -71,7 +72,22 @@ const createActiveTabSelector: (
   routeName: string,
 ) => (state: AppState) => bool = _memoize(baseCreateActiveTabSelector);
 
-const modalsClosedSelector: (state: AppState) => bool = createSelector(
+const multimediaModalsClosedSelector: (
+  state: AppState,
+) => bool = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState) => {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
+      return true;
+    }
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    const currentAppSubroute = appRoute.routes[appRoute.index];
+    return !multimediaModals.includes(currentAppSubroute.routeName);
+  },
+);
+
+const lightboxTransitioningSelector: (state: AppState) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -79,9 +95,7 @@ const modalsClosedSelector: (state: AppState) => bool = createSelector(
       return false;
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const currentAppSubroute = appRoute.routes[appRoute.index];
-    return !appRoute.isTransitioning &&
-      currentAppSubroute.routeName === TabNavigatorRouteName;
+    return !!appRoute.isTransitioning;
   },
 );
 
@@ -182,7 +196,8 @@ export {
   appLoggedInSelector,
   foregroundKeySelector,
   createActiveTabSelector,
-  modalsClosedSelector,
+  multimediaModalsClosedSelector,
+  lightboxTransitioningSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,
   calendarActiveSelector,

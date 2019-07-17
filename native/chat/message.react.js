@@ -68,7 +68,7 @@ type Props = {|
   setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
-  modalsClosed: bool,
+  multimediaModalsClosed: bool,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -80,7 +80,7 @@ class Message extends React.PureComponent<Props> {
     setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
-    modalsClosed: PropTypes.bool.isRequired,
+    multimediaModalsClosed: PropTypes.bool.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -119,7 +119,7 @@ class Message extends React.PureComponent<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
-          modalsClosed={this.props.modalsClosed}
+          modalsClosed={this.props.multimediaModalsClosed}
         />
       );
     } else {

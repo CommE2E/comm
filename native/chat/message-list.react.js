@@ -46,7 +46,10 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
-import { modalsClosedSelector } from '../selectors/nav-selectors';
+import {
+  multimediaModalsClosedSelector,
+  lightboxTransitioningSelector,
+} from '../selectors/nav-selectors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -56,7 +59,8 @@ type Props = {|
   // Redux state
   viewerID: ?string,
   startReached: bool,
-  modalsClosed: bool,
+  multimediaModalsClosed: bool,
+  lightboxIsTransitioning: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -80,7 +84,7 @@ type PropsAndState = {|
   ...State,
 |};
 type FlatListExtraData = {|
-  modalsClosed: bool,
+  multimediaModalsClosed: bool,
   keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
@@ -94,7 +98,8 @@ class MessageList extends React.PureComponent<Props, State> {
     imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
-    modalsClosed: PropTypes.bool.isRequired,
+    multimediaModalsClosed: PropTypes.bool.isRequired,
+    lightboxIsTransitioning: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -112,7 +117,7 @@ class MessageList extends React.PureComponent<Props, State> {
       messageListVerticalBounds: null,
       keyboardShowing: false,
       flatListExtraData: {
-        modalsClosed: props.modalsClosed,
+        multimediaModalsClosed: props.multimediaModalsClosed,
         keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
@@ -121,19 +126,19 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static flatListExtraDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.modalsClosed,
+    (propsAndState: PropsAndState) => propsAndState.multimediaModalsClosed,
     (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (
-      modalsClosed: bool,
+      multimediaModalsClosed: bool,
       keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
       imageGalleryOpen: bool,
       focusedMessageKey: ?string,
     ) => ({
-      modalsClosed,
+      multimediaModalsClosed,
       keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -215,9 +220,16 @@ class MessageList extends React.PureComponent<Props, State> {
       this.loadingFromScroll = false;
     }
 
-    if (this.props.modalsClosed && !prevProps.modalsClosed) {
+    if (
+      this.state.scrollDisabled &&
+      this.props.multimediaModalsClosed &&
+      !this.props.lightboxIsTransitioning
+    ) {
       this.setState({ scrollDisabled: false });
-    } else if (!this.props.modalsClosed && prevProps.modalsClosed) {
+    } else if (
+      !this.state.scrollDisabled &&
+      !this.props.multimediaModalsClosed
+    ) {
       this.setState({ scrollDisabled: true });
     }
   }
@@ -234,7 +246,7 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const {
-      modalsClosed,
+      multimediaModalsClosed,
       keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -250,7 +262,7 @@ class MessageList extends React.PureComponent<Props, State> {
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={messageListVerticalBounds}
         keyboardShowing={keyboardShowing}
-        modalsClosed={modalsClosed}
+        multimediaModalsClosed={multimediaModalsClosed}
       />
     );
   }
@@ -422,7 +434,8 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      modalsClosed: modalsClosedSelector(state),
+      multimediaModalsClosed: multimediaModalsClosedSelector(state),
+      lightboxIsTransitioning: lightboxTransitioningSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },

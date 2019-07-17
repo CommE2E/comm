@@ -43,3 +43,9 @@ export const accountModals = [
   LoggedOutModalRouteName,
   VerificationModalRouteName,
 ];
+
+// Only includes the modals that block scroll
+export const multimediaModals = [
+  MultimediaModalRouteName,
+  MultimediaTooltipModalRouteName,
+];
