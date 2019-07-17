@@ -3,26 +3,22 @@
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
-import type { ViewStyle } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Text, StyleSheet, View, ViewPropTypes } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import FailedSend from './failed-send.react';
-import { RoundedMessageContainer } from './rounded-message-container.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   sendFailed: bool,
-  style?: ViewStyle,
-  borderRadius: number,
   children: React.Node,
   // Redux state
   composedMessageMaxWidth: number,
@@ -32,18 +28,13 @@ class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     sendFailed: PropTypes.bool.isRequired,
-    style: ViewPropTypes.style,
-    borderRadius: PropTypes.number.isRequired,
     children: PropTypes.node.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
-  };
-  static defaultProps = {
-    borderRadius: 8,
   };
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { item, borderRadius, style } = this.props;
+    const { item } = this.props;
     const { id, creator } = item.messageInfo;
 
     const { isViewer } = creator;
@@ -96,13 +87,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         {authorName}
         <View style={[ styles.content, alignStyle ]}>
           <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
-            <RoundedMessageContainer
-              item={item}
-              borderRadius={borderRadius}
-              style={style}
-            >
-              {this.props.children}
-            </RoundedMessageContainer>
+            {this.props.children}
           </View>
           {deliveryIcon}
         </View>

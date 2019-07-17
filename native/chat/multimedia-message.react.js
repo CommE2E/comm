@@ -177,8 +177,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={this.props.item}
         sendFailed={sendFailed(this.props.item)}
-        borderRadius={borderRadius}
-        style={styles.row}
       >
         <View style={[heightStyle, styles.container]}>
           {this.renderContent()}
