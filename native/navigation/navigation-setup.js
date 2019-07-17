@@ -90,6 +90,7 @@ import {
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
   MultimediaSavedModalRouteName,
+  TextMessageTooltipModalRouteName,
   accountModals,
 } from './route-names';
 import {
@@ -100,12 +101,16 @@ import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import ComposeSubthreadModal
+  from '../chat/settings/compose-subthread-modal.react';
 import { createLightboxNavigator } from '../media/lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
 import MultimediaSavedModal from '../media/multimedia-saved-modal.react';
+import {
+  TextMessageTooltipModal,
+} from '../chat/text-message-tooltip-modal.react';
 
 useScreens();
 
@@ -169,6 +174,7 @@ const AppNavigator = createLightboxNavigator(
     [MultimediaModalRouteName]: MultimediaModal,
     [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
     [MultimediaSavedModalRouteName]: MultimediaSavedModal,
+    [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
   },
 );
 

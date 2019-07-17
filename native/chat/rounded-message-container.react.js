@@ -78,6 +78,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   message: {
+    backgroundColor: 'white',
     overflow: 'hidden',
   },
 });

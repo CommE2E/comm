@@ -1,28 +1,28 @@
 // @flow
 
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { TooltipItemData } from '../components/tooltip.react';
 import type {
   TextMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../types/lightbox-types';
+import type { Navigate } from '../navigation/route-names';
 
 import * as React from 'react';
-import { Text, StyleSheet, Clipboard } from 'react-native';
-import invariant from 'invariant';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import Color from 'color';
-import Hyperlink from 'react-native-hyperlink';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
-import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageKey } from 'lib/shared/message-utils';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
 
-import Tooltip from '../components/tooltip.react';
+import InnerTextMessage from './inner-text-message.react';
+import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
+import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import ComposedMessage from './composed-message.react';
-import { RoundedMessageContainer } from './rounded-message-container.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: "message",
@@ -63,71 +63,42 @@ function textMessageItemHeight(
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
+  navigate: Navigate,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
+  verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
+  scrollDisabled: bool,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    navigate: PropTypes.func.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
+    verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
+    scrollDisabled: PropTypes.bool.isRequired,
   };
-  tooltipConfig: $ReadOnlyArray<TooltipItemData>;
-  tooltip: ?Tooltip;
+  message: ?View;
 
-  constructor(props: Props) {
-    super(props);
-    this.tooltipConfig = [
-      { label: "Copy", onPress: this.onPressCopy },
-    ];
+  componentDidUpdate(prevProps: Props) {
+    if (
+      !this.props.scrollDisabled &&
+      prevProps.scrollDisabled &&
+      this.props.focused
+    ) {
+      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    }
   }
 
   render() {
     const { item } = this.props;
-    const { text, id, creator } = item.messageInfo;
+    const { id, creator } = item.messageInfo;
     const { isViewer } = creator;
-
-    let messageStyle = {}, textCustomStyle = {}, darkColor = false;
-    if (isViewer) {
-      const threadColor = item.threadInfo.color;
-      messageStyle.backgroundColor = `#${threadColor}`;
-      darkColor = colorIsDark(threadColor);
-      textCustomStyle.color = darkColor ? 'white' : 'black';
-    } else {
-      messageStyle.backgroundColor = "#DDDDDDBB";
-      textCustomStyle.color = 'black';
-    }
-    if (this.props.focused) {
-      messageStyle.backgroundColor =
-        Color(messageStyle.backgroundColor).darken(0.15).hex();
-    }
-    textCustomStyle.height = item.contentHeight;
-
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
-    const textStyle = onlyEmojiRegex.test(text)
-      ? styles.emojiOnlyText
-      : styles.text;
-    const messageBlob = (
-      <RoundedMessageContainer item={item}>
-        <Hyperlink
-          linkDefault={true}
-          style={[styles.message, messageStyle]}
-          linkStyle={linkStyle}
-        >
-          <Text
-            onPress={this.onPress}
-            onLongPress={this.onPress}
-            style={[textStyle, textCustomStyle]}
-          >{text}</Text>
-        </Hyperlink>
-      </RoundedMessageContainer>
-    );
-
     const sendFailed =
       isViewer &&
       (id === null || id === undefined) &&
@@ -136,42 +107,21 @@ class TextMessage extends React.PureComponent<Props> {
 
     return (
       <ComposedMessage
-        item={item}
+        item={this.props.item}
         sendFailed={!!sendFailed}
       >
-        <Tooltip
-          buttonComponent={messageBlob}
-          items={this.tooltipConfig}
-          labelStyle={styles.popoverLabelStyle}
-          onOpenTooltipMenu={this.onFocus}
-          onCloseTooltipMenu={this.onBlur}
-          onPressOverride={this.onPress}
-          innerRef={this.tooltipRef}
+        <InnerTextMessage
+          item={this.props.item}
+          focused={this.props.focused}
+          onPress={this.onPress}
+          messageRef={this.messageRef}
         />
       </ComposedMessage>
     );
   }
 
-  tooltipRef = (tooltip: ?Tooltip) => {
-    this.tooltip = tooltip;
-  }
-
-  onFocus = () => {
-    this.props.setScrollDisabled(true);
-    if (!this.props.focused) {
-      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
-    }
-  }
-
-  onBlur = () => {
-    this.props.setScrollDisabled(false);
-    if (this.props.focused) {
-      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
-    }
-  }
-
-  onPressCopy = () => {
-    Clipboard.setString(this.props.item.messageInfo.text);
+  messageRef = (message: ?View) => {
+    this.message = message;
   }
 
   onPress = () => {
@@ -179,43 +129,54 @@ class TextMessage extends React.PureComponent<Props> {
       KeyboardUtils.dismiss();
       return;
     }
-    const tooltip = this.tooltip;
-    invariant(tooltip, "tooltip should be set");
-    if (this.props.focused) {
-      tooltip.hideModal();
-    } else {
-      tooltip.openModal();
+
+    const { message, props: { verticalBounds } } = this;
+    if (!message || !verticalBounds) {
+      return;
     }
+
+    const { focused, toggleFocus, item, setScrollDisabled } = this.props;
+    if (!focused) {
+      toggleFocus(messageKey(item.messageInfo));
+    }
+    setScrollDisabled(true);
+
+    message.measure((x, y, width, height, pageX, pageY) => {
+      const coordinates = { x: pageX, y: pageY, width, height };
+
+      const messageTop = pageY;
+      const messageBottom = pageY + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+      const belowMargin = 20;
+      const belowSpace = textMessageTooltipHeight + belowMargin;
+      const aboveMargin = 30;
+      const aboveSpace = textMessageTooltipHeight + aboveMargin;
+
+      let location = 'below', margin = belowMargin;
+      if (
+        messageBottom + belowSpace > boundsBottom &&
+        messageTop - aboveSpace > boundsTop
+      ) {
+        location = 'above';
+        margin = aboveMargin;
+      }
+
+      this.props.navigate({
+        routeName: TextMessageTooltipModalRouteName,
+        params: {
+          initialCoordinates: coordinates,
+          verticalBounds,
+          location,
+          margin,
+          item,
+        },
+      });
+    });
   }
 
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 18,
-    fontFamily: 'Arial',
-  },
-  emojiOnlyText: {
-    fontSize: 36,
-    fontFamily: 'Arial',
-  },
-  message: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  darkLinkText: {
-    color: "#036AFF",
-    textDecorationLine: "underline",
-  },
-  lightLinkText: {
-    color: "#129AFF",
-    textDecorationLine: "underline",
-  },
-  popoverLabelStyle: {
-    textAlign: 'center',
-    color: '#444',
-  },
-});
 
 export {
   TextMessage,

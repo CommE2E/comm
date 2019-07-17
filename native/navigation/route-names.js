@@ -38,6 +38,7 @@ export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
 export const MultimediaModalRouteName = 'MultimediaModal';
 export const MultimediaTooltipModalRouteName = 'MultimediaTooltipModal';
 export const MultimediaSavedModalRouteName = 'MultimediaSavedModal';
+export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 
 export const accountModals = [
   LoggedOutModalRouteName,
@@ -47,4 +48,5 @@ export const accountModals = [
 export const scrollBlockingChatModals = [
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
+  TextMessageTooltipModalRouteName,
 ];

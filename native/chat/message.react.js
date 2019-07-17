@@ -104,10 +104,13 @@ class Message extends React.PureComponent<Props> {
       message = (
         <TextMessage
           item={this.props.item}
+          navigate={this.props.navigate}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           setScrollDisabled={this.props.setScrollDisabled}
+          verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
+          scrollDisabled={this.props.scrollDisabled}
         />
       );
     } else if (this.props.item.messageShapeType === "multimedia") {
