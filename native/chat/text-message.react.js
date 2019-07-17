@@ -69,7 +69,6 @@ type Props = {|
   setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
-  scrollDisabled: bool,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -81,19 +80,8 @@ class TextMessage extends React.PureComponent<Props> {
     setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
-    scrollDisabled: PropTypes.bool.isRequired,
   };
   message: ?View;
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      !this.props.scrollDisabled &&
-      prevProps.scrollDisabled &&
-      this.props.focused
-    ) {
-      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
-    }
-  }
 
   render() {
     const { item } = this.props;

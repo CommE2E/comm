@@ -60,7 +60,7 @@ type Props = {|
   viewerID: ?string,
   startReached: bool,
   scrollBlockingModalsClosed: bool,
-  lightboxIsTransitioning: bool,
+  scrollBlockingModalsGone: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -99,7 +99,7 @@ class MessageList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
-    lightboxIsTransitioning: PropTypes.bool.isRequired,
+    scrollBlockingModalsGone: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -223,15 +223,23 @@ class MessageList extends React.PureComponent<Props, State> {
 
     if (
       this.state.scrollDisabled &&
-      this.props.scrollBlockingModalsClosed &&
-      !this.props.lightboxIsTransitioning
+      this.props.scrollBlockingModalsGone &&
+      !prevProps.scrollBlockingModalsGone
     ) {
       this.setState({ scrollDisabled: false });
     } else if (
       !this.state.scrollDisabled &&
-      !this.props.scrollBlockingModalsClosed
+      !this.props.scrollBlockingModalsClosed &&
+      prevProps.scrollBlockingModalsClosed
     ) {
       this.setState({ scrollDisabled: true });
+    }
+
+    if (
+      this.props.scrollBlockingModalsClosed &&
+      !prevProps.scrollBlockingModalsClosed
+    ) {
+      this.setState({ focusedMessageKey: null });
     }
   }
 
@@ -431,12 +439,15 @@ registerFetchKey(fetchMostRecentMessagesActionTypes);
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
     const threadID = ownProps.threadInfo.id;
+    const scrollBlockingModalsClosed =
+      scrollBlockingChatModalsClosedSelector(state);
     return {
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
-      lightboxIsTransitioning: lightboxTransitioningSelector(state),
+      scrollBlockingModalsClosed,
+      scrollBlockingModalsGone: scrollBlockingModalsClosed &&
+        !lightboxTransitioningSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
