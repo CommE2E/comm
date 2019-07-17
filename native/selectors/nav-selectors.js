@@ -23,7 +23,7 @@ import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
   accountModals,
-  multimediaModals,
+  scrollBlockingChatModals,
 } from '../navigation/route-names';
 import {
   assertNavigationRouteNotLeafNode,
@@ -72,7 +72,7 @@ const createActiveTabSelector: (
   routeName: string,
 ) => (state: AppState) => bool = _memoize(baseCreateActiveTabSelector);
 
-const multimediaModalsClosedSelector: (
+const scrollBlockingChatModalsClosedSelector: (
   state: AppState,
 ) => bool = createSelector(
   (state: AppState) => state.navInfo.navigationState,
@@ -83,7 +83,7 @@ const multimediaModalsClosedSelector: (
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
     const currentAppSubroute = appRoute.routes[appRoute.index];
-    return !multimediaModals.includes(currentAppSubroute.routeName);
+    return !scrollBlockingChatModals.includes(currentAppSubroute.routeName);
   },
 );
 
@@ -196,7 +196,7 @@ export {
   appLoggedInSelector,
   foregroundKeySelector,
   createActiveTabSelector,
-  multimediaModalsClosedSelector,
+  scrollBlockingChatModalsClosedSelector,
   lightboxTransitioningSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,

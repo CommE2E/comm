@@ -47,7 +47,7 @@ import {
   removeKeyboardListener,
 } from '../keyboard';
 import {
-  multimediaModalsClosedSelector,
+  scrollBlockingChatModalsClosedSelector,
   lightboxTransitioningSelector,
 } from '../selectors/nav-selectors';
 
@@ -59,7 +59,7 @@ type Props = {|
   // Redux state
   viewerID: ?string,
   startReached: bool,
-  multimediaModalsClosed: bool,
+  scrollBlockingModalsClosed: bool,
   lightboxIsTransitioning: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -98,7 +98,7 @@ class MessageList extends React.PureComponent<Props, State> {
     imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
-    multimediaModalsClosed: PropTypes.bool.isRequired,
+    scrollBlockingModalsClosed: PropTypes.bool.isRequired,
     lightboxIsTransitioning: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
@@ -111,7 +111,7 @@ class MessageList extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const scrollDisabled = !props.multimediaModalsClosed;
+    const scrollDisabled = !props.scrollBlockingModalsClosed;
     this.state = {
       focusedMessageKey: null,
       scrollDisabled,
@@ -223,13 +223,13 @@ class MessageList extends React.PureComponent<Props, State> {
 
     if (
       this.state.scrollDisabled &&
-      this.props.multimediaModalsClosed &&
+      this.props.scrollBlockingModalsClosed &&
       !this.props.lightboxIsTransitioning
     ) {
       this.setState({ scrollDisabled: false });
     } else if (
       !this.state.scrollDisabled &&
-      !this.props.multimediaModalsClosed
+      !this.props.scrollBlockingModalsClosed
     ) {
       this.setState({ scrollDisabled: true });
     }
@@ -435,7 +435,7 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      multimediaModalsClosed: multimediaModalsClosedSelector(state),
+      scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
       lightboxIsTransitioning: lightboxTransitioningSelector(state),
     };
   },

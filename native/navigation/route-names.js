@@ -44,8 +44,7 @@ export const accountModals = [
   VerificationModalRouteName,
 ];
 
-// Only includes the modals that block scroll
-export const multimediaModals = [
+export const scrollBlockingChatModals = [
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 ];
