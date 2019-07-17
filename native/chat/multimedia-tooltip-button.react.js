@@ -89,13 +89,13 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       initialCoordinates,
       verticalOffset,
     } = this.props.navigation.state.params;
-    const top = -26 - verticalOffset;
+    const bottom = initialCoordinates.height + verticalOffset;
     return {
       opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
       width: this.props.screenDimensions.width,
-      top,
+      bottom,
     };
   }
 

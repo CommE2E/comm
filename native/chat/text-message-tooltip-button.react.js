@@ -68,12 +68,13 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
 
   get timestampStyle() {
     const { initialCoordinates } = this.props.navigation.state.params;
+    const bottom = initialCoordinates.height;
     return {
       opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
       width: this.props.screenDimensions.width,
-      top: -26,
+      bottom,
     };
   }
 
