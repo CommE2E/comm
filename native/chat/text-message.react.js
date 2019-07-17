@@ -112,7 +112,6 @@ class TextMessage extends React.PureComponent<Props> {
       >
         <InnerTextMessage
           item={this.props.item}
-          focused={this.props.focused}
           onPress={this.onPress}
           messageRef={this.messageRef}
         />

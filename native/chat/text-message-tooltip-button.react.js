@@ -98,7 +98,6 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
         </Animated.View>
         <InnerTextMessage 
           item={item}
-          focused={true}
           onPress={this.onPress}
         />
       </React.Fragment>

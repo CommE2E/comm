@@ -6,7 +6,6 @@ import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
-import Color from 'color';
 import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -16,7 +15,6 @@ import { RoundedMessageContainer } from './rounded-message-container.react';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
-  focused: bool,
   onPress: () => void,
   messageRef?: (message: ?View) => void,
 |};
@@ -24,7 +22,6 @@ class InnerTextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    focused: PropTypes.bool.isRequired,
     onPress: PropTypes.func.isRequired,
     messageRef: PropTypes.func,
   };
@@ -43,10 +40,6 @@ class InnerTextMessage extends React.PureComponent<Props> {
     } else {
       messageStyle.backgroundColor = "#DDDDDDBB";
       textCustomStyle.color = 'black';
-    }
-    if (this.props.focused) {
-      messageStyle.backgroundColor =
-        Color(messageStyle.backgroundColor).darken(0.15).hex();
     }
     textCustomStyle.height = item.contentHeight;
 
