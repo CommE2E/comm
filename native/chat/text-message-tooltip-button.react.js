@@ -23,8 +23,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 import { dimensionsSelector } from '../selectors/dimension-selectors';
-import Timestamp from './timestamp.react';
 import InnerTextMessage from './inner-text-message.react';
+import MessageHeader from './message-header.react';
 
 const { Value } = Animated;
 
@@ -66,7 +66,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
     screenDimensions: dimensionsPropType.isRequired,
   };
 
-  get timestampStyle() {
+  get headerStyle() {
     const { initialCoordinates } = this.props.navigation.state.params;
     const bottom = initialCoordinates.height;
     return {
@@ -91,11 +91,10 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
 
   render() {
     const { item } = this.props.navigation.state.params;
-    const { time } = item.messageInfo;
     return (
       <React.Fragment>
-        <Animated.View style={this.timestampStyle}>
-          <Timestamp time={time} color="light" />
+        <Animated.View style={this.headerStyle}>
+          <MessageHeader item={item} focused={true} color="light" />
         </Animated.View>
         <InnerTextMessage 
           item={item}

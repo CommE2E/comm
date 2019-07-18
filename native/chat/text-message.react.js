@@ -139,7 +139,8 @@ class TextMessage extends React.PureComponent<Props> {
 
       const belowMargin = 20;
       const belowSpace = textMessageTooltipHeight + belowMargin;
-      const aboveMargin = 30;
+      const { isViewer } = item.messageInfo.creator;
+      const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = textMessageTooltipHeight + aboveMargin;
 
       let location = 'below', margin = belowMargin;

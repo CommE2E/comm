@@ -1,6 +1,9 @@
 // @flow
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
+import type {
+  ChatMultimediaMessageInfoItem,
+} from './multimedia-message.react';
 import type { ImageStyle } from '../types/styles';
 import {
   type Navigate,
@@ -23,11 +26,15 @@ import Animated from 'react-native-reanimated';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
+import { messageKey } from 'lib/shared/message-utils';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
+  item: ChatMultimediaMessageInfoItem,
   navigate: Navigate,
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
@@ -49,6 +56,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
+    item: chatMessageItemPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
@@ -182,11 +190,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       messageFocused,
       toggleMessageFocus,
       setScrollDisabled,
+      item,
       mediaInfo,
       verticalOffset,
     } = this.props;
     if (!messageFocused) {
-      toggleMessageFocus(mediaInfo.messageKey);
+      toggleMessageFocus(messageKey(item.messageInfo));
     }
     setScrollDisabled(true);
 
@@ -200,7 +209,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
       const belowMargin = 20;
       const belowSpace = multimediaTooltipHeight + belowMargin;
-      const aboveMargin = verticalOffset === 0 ? 30 : 20;
+      const { isViewer } = item.messageInfo.creator;
+      const directlyAboveMargin = isViewer ? 30 : 50;
+      const aboveMargin = verticalOffset === 0 ? directlyAboveMargin : 20;
       const aboveSpace = multimediaTooltipHeight + aboveMargin;
 
       let location = 'below', margin = belowMargin;
@@ -216,6 +227,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         routeName: MultimediaTooltipModalRouteName,
         params: {
           mediaInfo,
+          item,
           initialCoordinates: coordinates,
           verticalOffset,
           verticalBounds,

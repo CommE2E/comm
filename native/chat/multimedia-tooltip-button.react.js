@@ -16,8 +16,10 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { RawMessageInfo } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
+import type {
+  ChatMultimediaMessageInfoItem,
+} from './multimedia-message.react';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -25,6 +27,8 @@ import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageID } from 'lib/shared/message-utils';
 
 import {
   type ChatInputState,
@@ -34,7 +38,7 @@ import {
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-message-container.react';
-import Timestamp from './timestamp.react';
+import MessageHeader from './message-header.react';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 const { Value } = Animated;
@@ -48,6 +52,7 @@ type NavProp = NavigationScreenProp<{|
     location?: 'above' | 'below',
     margin?: number,
     // Custom props
+    item: ChatMultimediaMessageInfoItem,
     mediaInfo: MediaInfo,
     verticalOffset: number,
   },
@@ -57,7 +62,6 @@ type Props = {
   navigation: NavProp,
   progress: Value,
   // Redux state
-  rawMessageInfo: ?RawMessageInfo,
   screenDimensions: Dimensions,
   // withChatInputState
   chatInputState: ?ChatInputState,
@@ -72,6 +76,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
           verticalBounds: verticalBoundsPropType.isRequired,
           location: PropTypes.oneOf([ 'above', 'below' ]),
           margin: PropTypes.number,
+          item: chatMessageItemPropType.isRequired,
           mediaInfo: mediaInfoPropType.isRequired,
           verticalOffset: PropTypes.number.isRequired,
         }).isRequired,
@@ -79,12 +84,11 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     progress: PropTypes.object.isRequired,
-    rawMessageInfo: PropTypes.object,
     screenDimensions: dimensionsPropType.isRequired,
     chatInputState: chatInputStatePropType,
   };
 
-  get timestampStyle() {
+  get headerStyle() {
     const {
       initialCoordinates,
       verticalOffset,
@@ -101,12 +105,13 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
 
   render() {
     const { chatInputState } = this.props;
-    const { mediaInfo } = this.props.navigation.state.params;
+    const { mediaInfo, item } = this.props.navigation.state.params;
 
-    const { id: mediaID, messageID } = mediaInfo;
+    const { id: mediaID } = mediaInfo;
+    const ourMessageID = messageID(item.messageInfo);
     const pendingUploads = chatInputState
       && chatInputState.pendingUploads
-      && chatInputState.pendingUploads[messageID];
+      && chatInputState.pendingUploads[ourMessageID];
     const pendingUpload = pendingUploads && pendingUploads[mediaID];
     const postInProgress = !!pendingUploads;
 
@@ -115,19 +120,11 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       multimediaMessageBorderRadius,
     );
 
-    let timestamp = null;
-    if (this.props.rawMessageInfo) {
-      const { time } = this.props.rawMessageInfo;
-      timestamp = (
-        <Animated.View style={this.timestampStyle}>
-          <Timestamp time={time} color="light" />
-        </Animated.View>
-      );
-    }
-
     return (
       <React.Fragment>
-        {timestamp}
+        <Animated.View style={this.headerStyle}>
+          <MessageHeader item={item} focused={true} color="light" />
+        </Animated.View>
         <View style={[ styles.media, roundedStyle ]}>
           <InlineMultimedia
             mediaInfo={mediaInfo}
@@ -155,12 +152,7 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
-    const { messageID } = ownProps.navigation.state.params.mediaInfo;
-    const rawMessageInfo = state.messageStore.messages[messageID];
-    return {
-      rawMessageInfo,
-      screenDimensions: dimensionsSelector(state),
-    };
-  },
+  (state: AppState) => ({
+    screenDimensions: dimensionsSelector(state),
+  }),
 )(withChatInputState(MultimediaTooltipButton));

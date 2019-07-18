@@ -21,8 +21,6 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
 
-import { messageKey, messageID } from 'lib/shared/message-utils';
-
 import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
@@ -267,12 +265,10 @@ class MultimediaMessage extends React.PureComponent<Props> {
       filteredCorners,
       borderRadius,
     );
-    const { pendingUploads, messageInfo } = this.props.item;
+    const { pendingUploads } = this.props.item;
     const mediaInfo = {
       ...media,
       corners: filteredCorners,
-      messageID: messageID(messageInfo),
-      messageKey: messageKey(messageInfo),
       index,
     };
     const pendingUpload = pendingUploads && pendingUploads[media.id];
@@ -291,6 +287,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         messageFocused={this.props.focused}
         toggleMessageFocus={this.props.toggleFocus}
         setScrollDisabled={this.props.setScrollDisabled}
+        item={this.props.item}
         key={index}
       />
     );

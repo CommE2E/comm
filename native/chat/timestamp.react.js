@@ -26,8 +26,7 @@ function Timestamp(props: Props) {
 const styles = StyleSheet.create({
   timestamp: {
     fontSize: 14,
-    paddingTop: 1,
-    paddingBottom: 7,
+    paddingVertical: 3,
     alignSelf: 'center',
     height: 26,
   },

@@ -9,11 +9,12 @@ import {
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
   StyleSheet,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
@@ -27,6 +28,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from '../navigation/route-names';
+import Timestamp from './timestamp.react';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: "message",
@@ -49,20 +51,31 @@ function robotextMessageItemHeight(
 
 type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
+  focused: bool,
   toggleFocus: (messageKey: string) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
   };
 
   render() {
+    let timestamp = null;
+    if (this.props.focused || this.props.item.startsConversation) {
+      timestamp = (
+        <Timestamp time={this.props.item.messageInfo.time} color="dark" />
+      );
+    }
     return (
-      <TouchableWithoutFeedback onPress={this.onPress}>
-        {this.linkedRobotext()}
-      </TouchableWithoutFeedback>
+      <View>
+        {timestamp}
+        <TouchableWithoutFeedback onPress={this.onPress}>
+          {this.linkedRobotext()}
+        </TouchableWithoutFeedback>
+      </View>
     );
   }
 

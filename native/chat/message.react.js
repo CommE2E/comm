@@ -35,7 +35,6 @@ import {
   MultimediaMessage,
   multimediaMessageItemHeight,
 } from './multimedia-message.react';
-import Timestamp from './timestamp.react';
 
 export type ChatMessageInfoItemWithHeight =
   | ChatRobotextMessageInfoItemWithHeight
@@ -93,12 +92,6 @@ class Message extends React.PureComponent<Props> {
   }
 
   render() {
-    let conversationHeader = null;
-    if (this.props.focused || this.props.item.startsConversation) {
-      conversationHeader = (
-        <Timestamp time={this.props.item.messageInfo.time} color="dark" />
-      );
-    }
     let message;
     if (this.props.item.messageShapeType === "text") {
       message = (
@@ -129,25 +122,20 @@ class Message extends React.PureComponent<Props> {
       message = (
         <RobotextMessage
           item={this.props.item}
+          focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
         />
       );
     }
-    const messageView = (
-      <View>
-        {conversationHeader}
-        {message}
-      </View>
-    );
     if (Platform.OS === "android" && Platform.Version < 21) {
       // On old Android 4.4 devices, we can get a stack overflow during draw
       // when we use the TouchableWithoutFeedback below. It's just too deep of
       // a stack for the old hardware to handle
-      return messageView;
+      return message;
     }
     return (
       <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
-        {messageView}
+        {message}
       </TouchableWithoutFeedback>
     );
   }

@@ -1,6 +1,9 @@
 // @flow
 
 import type { MediaInfo } from 'lib/types/media-types';
+import type {
+  ChatMultimediaMessageInfoItem,
+} from './multimedia-message.react';
 
 import { StyleSheet } from 'react-native';
 
@@ -9,6 +12,7 @@ import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { saveImage } from '../media/save-image';
 
 type CustomProps = {
+  item: ChatMultimediaMessageInfoItem,
   mediaInfo: MediaInfo,
   verticalOffset: number,
 };

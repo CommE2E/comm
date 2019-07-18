@@ -7,14 +7,14 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Text, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import FailedSend from './failed-send.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
+import MessageHeader from './message-header.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -51,15 +51,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       maxWidth: this.props.composedMessageMaxWidth,
     };
 
-    let authorName = null;
-    if (!isViewer && (item.startsCluster || focused)) {
-      authorName = (
-        <Text style={styles.authorName} numberOfLines={1}>
-          {stringForUser(creator)}
-        </Text>
-      );
-    }
-
     let deliveryIcon = null;
     let failedSendInfo = null;
     if (isViewer) {
@@ -85,15 +76,17 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     return (
-      <View style={containerStyle}>
-        {authorName}
-        <View style={[ styles.content, alignStyle ]}>
-          <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
-            {this.props.children}
+      <View>
+        <MessageHeader item={item} focused={focused} color="dark" />
+        <View style={containerStyle}>
+          <View style={[ styles.content, alignStyle ]}>
+            <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
+              {this.props.children}
+            </View>
+            {deliveryIcon}
           </View>
-          {deliveryIcon}
+          {failedSendInfo}
         </View>
-        {failedSendInfo}
       </View>
     );
   }
@@ -114,13 +107,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginRight: 5,
-  },
-  authorName: {
-    color: '#777777',
-    fontSize: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    height: 25,
   },
   leftChatBubble: {
     justifyContent: 'flex-start',

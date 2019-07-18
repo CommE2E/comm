@@ -39,7 +39,6 @@ const {
   Value,
   Extrapolate,
   interpolate,
-  multiply,
 } = Animated;
 
 type TooltipSpec<CustomProps> = {|
@@ -127,17 +126,22 @@ function createTooltip<
       const { initialCoordinates } = props.navigation.state.params;
       const { y, height } = initialCoordinates;
       const entryCount = tooltipSpec.entries.length;
+      const { margin } = this;
       this.tooltipVerticalAbove = interpolate(
         this.progress,
         {
           inputRange: [ 0, 1 ],
-          outputRange: [ 20 + tooltipHeight(entryCount) / 2, 0 ],
+          outputRange: [ margin + tooltipHeight(entryCount) / 2, 0 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
-      this.tooltipVerticalBelow = multiply(
-        this.tooltipVerticalAbove,
-        -1,
+      this.tooltipVerticalBelow = interpolate(
+        this.progress,
+        {
+          inputRange: [ 0, 1 ],
+          outputRange: [ -margin - tooltipHeight(entryCount) / 2, 0 ],
+          extrapolate: Extrapolate.CLAMP,
+        },
       );
     }
 
@@ -173,18 +177,22 @@ function createTooltip<
       };
     }
 
+    get margin() {
+      const customMargin = this.props.navigation.state.params.margin;
+      return customMargin !== null && customMargin !== undefined
+        ? customMargin
+        : 20;
+    }
+
     get tooltipContainerStyle() {
       const { screenDimensions, navigation } = this.props;
       const {
         initialCoordinates,
         verticalBounds,
         location,
-        margin: customMargin,
       } = navigation.state.params;
       const { x, y, width, height } = initialCoordinates;
-      const margin = customMargin !== null && customMargin !== undefined
-        ? customMargin
-        : 20;
+      const { margin } = this;
 
       const extraLeftSpace = x;
       const extraRightSpace = screenDimensions.width - width - x;
