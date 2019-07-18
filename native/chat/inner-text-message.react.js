@@ -4,7 +4,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
 
@@ -49,19 +49,25 @@ class InnerTextMessage extends React.PureComponent<Props> {
       : styles.text;
 
     const message = (
-      <RoundedMessageContainer item={item}>
-        <Hyperlink
-          linkDefault={true}
-          style={[styles.message, messageStyle]}
-          linkStyle={linkStyle}
-        >
-          <Text
-            onPress={this.props.onPress}
-            onLongPress={this.props.onPress}
-            style={[textStyle, textCustomStyle]}
-          >{text}</Text>
-        </Hyperlink>
-      </RoundedMessageContainer>
+      <TouchableOpacity
+        onPress={this.props.onPress}
+        onLongPress={this.props.onPress}
+        activeOpacity={0.6}
+      >
+        <RoundedMessageContainer item={item}>
+          <Hyperlink
+            linkDefault={true}
+            style={[styles.message, messageStyle]}
+            linkStyle={linkStyle}
+          >
+            <Text
+              onPress={this.props.onPress}
+              onLongPress={this.props.onPress}
+              style={[textStyle, textCustomStyle]}
+            >{text}</Text>
+          </Hyperlink>
+        </RoundedMessageContainer>
+      </TouchableOpacity>
     );
 
     const { messageRef } = this.props;
