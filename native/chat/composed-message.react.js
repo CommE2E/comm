@@ -19,6 +19,7 @@ import { composedMessageMaxWidthSelector } from './composed-message-width';
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   sendFailed: bool,
+  focused: bool,
   children: React.Node,
   // Redux state
   composedMessageMaxWidth: number,
@@ -28,13 +29,14 @@ class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     sendFailed: PropTypes.bool.isRequired,
+    focused: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
   };
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { item } = this.props;
+    const { item, focused } = this.props;
     const { id, creator } = item.messageInfo;
 
     const { isViewer } = creator;
@@ -50,7 +52,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     };
 
     let authorName = null;
-    if (!isViewer && item.startsCluster) {
+    if (!isViewer && (item.startsCluster || focused)) {
       authorName = (
         <Text style={styles.authorName} numberOfLines={1}>
           {stringForUser(creator)}

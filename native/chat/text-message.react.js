@@ -97,6 +97,7 @@ class TextMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={this.props.item}
         sendFailed={!!sendFailed}
+        focused={this.props.focused}
       >
         <InnerTextMessage
           item={this.props.item}
