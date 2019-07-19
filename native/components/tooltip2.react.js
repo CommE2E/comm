@@ -309,8 +309,8 @@ function createTooltip<
         location,
         ...customProps
       } = this.props.navigation.state.params;
-      entry.onPress(customProps);
       this.props.navigation.goBack();
+      entry.onPress(customProps);
     }
 
     onTooltipContainerLayout = (

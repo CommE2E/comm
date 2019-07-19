@@ -12,9 +12,11 @@ type CustomProps = {
   item: ChatTextMessageInfoItemWithHeight,
 };
 
+const confirmCopy = () => displayActionResultModal("copied!");
+
 function onPressCopy(props: CustomProps) {
   Clipboard.setString(props.item.messageInfo.text);
-  displayActionResultModal("copied!");
+  setTimeout(confirmCopy);
 }
 
 const styles = StyleSheet.create({
