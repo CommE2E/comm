@@ -38,6 +38,8 @@ import TooltipItem from './tooltip2-item.react';
 const {
   Value,
   Extrapolate,
+  add,
+  multiply,
   interpolate,
 } = Animated;
 
@@ -100,6 +102,8 @@ function createTooltip<
     backdropOpacity: Value;
     tooltipVerticalAbove: Value;
     tooltipVerticalBelow: Value;
+    tooltipHorizontalOffset = new Animated.Value(0);
+    tooltipHorizontal: Value;
 
     constructor(props: TooltipPropsType) {
       super(props);
@@ -142,6 +146,11 @@ function createTooltip<
           outputRange: [ -margin - tooltipHeight(entryCount) / 2, 0 ],
           extrapolate: Extrapolate.CLAMP,
         },
+      );
+
+      this.tooltipHorizontal = multiply(
+        add(1, multiply(-1, this.progress)),
+        this.tooltipHorizontalOffset,
       );
     }
 
@@ -194,19 +203,24 @@ function createTooltip<
       const { x, y, width, height } = initialCoordinates;
       const { margin } = this;
 
-      const extraLeftSpace = x;
-      const extraRightSpace = screenDimensions.width - width - x;
-      const extraSpace = Math.min(extraLeftSpace, extraRightSpace);
-      const left = x - extraSpace;
-      const containerWidth = width + 2 * extraSpace;
-
       const style: ViewStyle = {
         position: 'absolute',
-        left,
-        width: containerWidth,
         alignItems: 'center',
-        transform: [],
+        transform: [
+          { translateX: this.tooltipHorizontal },
+        ],
       };
+
+      const extraLeftSpace = x;
+      const extraRightSpace = screenDimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        style.left = 0;
+        style.minWidth = width + 2 * extraLeftSpace;
+      } else {
+        style.right = 0;
+        style.minWidth = width + 2 * extraRightSpace;
+      }
+
       if (location === 'above') {
         const fullScreenHeight = screenDimensions.height + contentBottomOffset;
         style.bottom = fullScreenHeight -
@@ -244,14 +258,16 @@ function createTooltip<
 
       let triangleDown = null;
       let triangleUp = null;
-      const { location } = navigation.state.params;
+      const { location, initialCoordinates } = navigation.state.params;
+      const { x, width } = initialCoordinates;
+      const triangleStyle = { left: x + (width - 20) / 2 };
       if (location === 'above') {
         triangleDown = (
-          <View style={styles.triangleDown} />
+          <View style={[ styles.triangleDown, triangleStyle ]} />
         );
       } else {
         triangleUp = (
-          <View style={styles.triangleUp} />
+          <View style={[ styles.triangleUp, triangleStyle ]} />
         );
       }
 
@@ -267,7 +283,10 @@ function createTooltip<
                 />
               </View>
             </View>
-            <Animated.View style={this.tooltipContainerStyle}>
+            <Animated.View
+              style={this.tooltipContainerStyle}
+              onLayout={this.onTooltipContainerLayout}
+            >
               {triangleUp}
               <View style={styles.entries}>
                 {entries}
@@ -292,6 +311,25 @@ function createTooltip<
       } = this.props.navigation.state.params;
       entry.onPress(customProps);
       this.props.navigation.goBack();
+    }
+
+    onTooltipContainerLayout = (
+      event: { nativeEvent: { layout: { x: number, width: number } } },
+    ) => {
+      const { navigation, screenDimensions } = this.props;
+      const { x, width } = navigation.state.params.initialCoordinates;
+
+      const extraLeftSpace = x;
+      const extraRightSpace = screenDimensions.width - width - x;
+
+      const actualWidth = event.nativeEvent.layout.width;
+      if (extraLeftSpace < extraRightSpace) {
+        const minWidth = width + 2 * extraLeftSpace;
+        this.tooltipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
+      } else {
+        const minWidth = width + 2 * extraRightSpace;
+        this.tooltipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
+      }
     }
 
   }
@@ -328,6 +366,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E1E1E1",
   },
   triangleDown: {
+    alignSelf: 'flex-start',
     width: 10,
     height: 10,
     borderStyle: 'solid',
@@ -342,6 +381,7 @@ const styles = StyleSheet.create({
     top: Platform.OS === "android" ? -1 : 0,
   },
   triangleUp: {
+    alignSelf: 'flex-start',
     width: 10,
     height: 10,
     borderStyle: 'solid',
