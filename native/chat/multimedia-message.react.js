@@ -8,12 +8,15 @@ import type {
 import type { Media, Corners } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { Navigate } from '../navigation/route-names';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/lightbox-types';
 import type { MessagePendingUploads } from './chat-input-state';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
@@ -145,7 +148,7 @@ const borderRadius = 16;
 
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
-  navigate: Navigate,
+  navigation: MessageListNavProp,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
@@ -159,7 +162,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
+    navigation: messageListNavPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
@@ -275,7 +278,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     return (
       <MultimediaMessageMultimedia
         mediaInfo={mediaInfo}
-        navigate={this.props.navigate}
+        navigation={this.props.navigation}
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
         style={[ style, roundedStyle ]}

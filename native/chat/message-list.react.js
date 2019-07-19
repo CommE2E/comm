@@ -7,8 +7,11 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import type { Navigate } from '../navigation/route-names';
 import type { VerticalBounds } from '../types/lightbox-types';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -54,7 +57,7 @@ import {
 type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
-  navigate: Navigate,
+  navigation: MessageListNavProp,
   imageGalleryOpen: bool,
   // Redux state
   viewerID: ?string,
@@ -88,13 +91,14 @@ type FlatListExtraData = {|
   keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
+  navigation: MessageListNavProp,
 |};
 class MessageList extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    navigate: PropTypes.func.isRequired,
+    navigation: messageListNavPropType.isRequired,
     imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
@@ -122,6 +126,7 @@ class MessageList extends React.PureComponent<Props, State> {
         keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
+        navigation: props.navigation,
       },
     };
   }
@@ -132,17 +137,20 @@ class MessageList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
+    (propsAndState: PropsAndState) => propsAndState.navigation,
     (
       scrollDisabled: bool,
       keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
       imageGalleryOpen: bool,
       focusedMessageKey: ?string,
+      navigation: MessageListNavProp,
     ) => ({
       scrollDisabled,
       keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
+      navigation,
     }),
   );
 
@@ -259,6 +267,7 @@ class MessageList extends React.PureComponent<Props, State> {
       keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
+      navigation,
     } = this.state.flatListExtraData;
     const focused =
       messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
@@ -266,7 +275,7 @@ class MessageList extends React.PureComponent<Props, State> {
       <Message
         item={messageInfoItem}
         focused={focused}
-        navigate={this.props.navigate}
+        navigation={navigation}
         toggleFocus={this.toggleMessageFocus}
         setScrollDisabled={this.setScrollDisabled}
         verticalBounds={messageListVerticalBounds}

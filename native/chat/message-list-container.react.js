@@ -10,12 +10,12 @@ import {
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -55,15 +55,8 @@ export type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
   ChatMessageInfoItemWithHeight;
 
-type NavProp = NavigationScreenProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    threadInfo: ThreadInfo,
-  |},
-|}>;
-
 type Props = {|
-  navigation: NavProp,
+  navigation: MessageListNavProp,
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
@@ -80,16 +73,7 @@ type State = {|
 class MessageListContainer extends React.PureComponent<Props, State> {
 
   static propTypes = {
-    navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
-      navigate: PropTypes.func.isRequired,
-      setParams: PropTypes.func.isRequired,
-    }).isRequired,
+    navigation: messageListNavPropType.isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
@@ -222,7 +206,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         <MessageList
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
-          navigate={this.props.navigation.navigate}
+          navigation={this.props.navigation}
           imageGalleryOpen={this.state.imageGalleryOpen}
         />
       );
@@ -379,7 +363,7 @@ const styles = StyleSheet.create({
 });
 
 const ConnectedMessageListContainer = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
+  (state: AppState, ownProps: { navigation: MessageListNavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],

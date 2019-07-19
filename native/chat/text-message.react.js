@@ -10,7 +10,10 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/lightbox-types';
-import type { Navigate } from '../navigation/route-names';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import { View } from 'react-native';
@@ -63,7 +66,7 @@ function textMessageItemHeight(
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
-  navigate: Navigate,
+  navigation: MessageListNavProp,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
@@ -74,7 +77,7 @@ class TextMessage extends React.PureComponent<Props> {
 
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
+    navigation: messageListNavPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
@@ -152,7 +155,7 @@ class TextMessage extends React.PureComponent<Props> {
         margin = aboveMargin;
       }
 
-      this.props.navigate({
+      this.props.navigation.navigate({
         routeName: TextMessageTooltipModalRouteName,
         params: {
           initialCoordinates: coordinates,

@@ -6,7 +6,6 @@ import type {
 } from './multimedia-message.react';
 import type { ImageStyle } from '../types/styles';
 import {
-  type Navigate,
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
@@ -18,6 +17,10 @@ import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
 } from './chat-input-state';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -35,7 +38,7 @@ import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 type Props = {|
   mediaInfo: MediaInfo,
   item: ChatMultimediaMessageInfoItem,
-  navigate: Navigate,
+  navigation: MessageListNavProp,
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
@@ -57,7 +60,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     item: chatMessageItemPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
+    navigation: messageListNavPropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
     scrollDisabled: PropTypes.bool.isRequired,
@@ -162,7 +165,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      this.props.navigate({
+      this.props.navigation.navigate({
         routeName: MultimediaModalRouteName,
         params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
       });
@@ -223,7 +226,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         margin = aboveMargin;
       }
 
-      this.props.navigate({
+      this.props.navigation.navigate({
         routeName: MultimediaTooltipModalRouteName,
         params: {
           mediaInfo,

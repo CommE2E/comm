@@ -10,11 +10,14 @@ import type {
   ChatMultimediaMessageInfoItem,
 } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { Navigate } from '../navigation/route-names';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/lightbox-types';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import {
@@ -62,7 +65,7 @@ function messageItemHeight(
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
-  navigate: Navigate,
+  navigation: MessageListNavProp,
   toggleFocus: (messageKey: string) => void,
   setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
@@ -74,7 +77,7 @@ class Message extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
-    navigate: PropTypes.func.isRequired,
+    navigation: messageListNavPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
@@ -97,7 +100,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <TextMessage
           item={this.props.item}
-          navigate={this.props.navigate}
+          navigation={this.props.navigation}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           setScrollDisabled={this.props.setScrollDisabled}
@@ -109,7 +112,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <MultimediaMessage
           item={this.props.item}
-          navigate={this.props.navigate}
+          navigation={this.props.navigation}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           setScrollDisabled={this.props.setScrollDisabled}
