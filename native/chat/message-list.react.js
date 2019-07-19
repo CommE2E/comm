@@ -205,7 +205,7 @@ class MessageList extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     const oldThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
     if (
@@ -248,6 +248,12 @@ class MessageList extends React.PureComponent<Props, State> {
       !prevProps.scrollBlockingModalsClosed
     ) {
       this.setState({ focusedMessageKey: null });
+    }
+
+    if (!prevState.scrollDisabled && this.state.scrollDisabled) {
+      this.props.navigation.setParams({ gesturesDisabled: true });
+    } else if (prevState.scrollDisabled && !this.state.scrollDisabled) {
+      this.props.navigation.setParams({ gesturesDisabled: false });
     }
   }
 

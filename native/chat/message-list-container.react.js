@@ -97,6 +97,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           )
         : null,
     headerBackTitle: "Back",
+    gesturesEnabled: !navigation.state.params.gesturesDisabled,
   });
 
   constructor(props: Props) {
