@@ -6,6 +6,7 @@ import { Clipboard, StyleSheet } from 'react-native';
 
 import { createTooltip, tooltipHeight } from '../components/tooltip2.react';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
+import { displayActionResultModal } from '../navigation/action-result-modal';
 
 type CustomProps = {
   item: ChatTextMessageInfoItemWithHeight,
@@ -13,6 +14,7 @@ type CustomProps = {
 
 function onPressCopy(props: CustomProps) {
   Clipboard.setString(props.item.messageInfo.text);
+  displayActionResultModal("copied!");
 }
 
 const styles = StyleSheet.create({

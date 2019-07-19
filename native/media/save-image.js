@@ -6,13 +6,11 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import invariant from 'invariant';
-import { NavigationActions } from 'react-navigation';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
-import { dispatch } from '../redux/redux-setup';
-import { ActionResultModalRouteName } from '../navigation/route-names';
+import { displayActionResultModal } from '../navigation/action-result-modal';
 
 async function saveImage(mediaInfo: MediaInfo) {
   let result, message;
@@ -30,13 +28,7 @@ async function saveImage(mediaInfo: MediaInfo) {
     message = "don't have permission :(";
   }
 
-  dispatch({
-    // We do this for Flow
-    ...NavigationActions.navigate({
-      routeName: ActionResultModalRouteName,
-      params: { message },
-    }),
-  });
+  displayActionResultModal(message);
 }
 
 // On Android, we save the image to our own SquadCal folder in the
