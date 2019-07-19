@@ -142,8 +142,9 @@ class Lightbox extends React.PureComponent<Props> {
     }
     const { navigation, getComponent } = scene.descriptor;
     const SceneComponent = getComponent();
+    const pointerEvents = scene.isActive ? "auto" : "none";
     return (
-      <View style={styles.scene} key={scene.key}>
+      <View style={styles.scene} key={scene.key} pointerEvents={pointerEvents}>
         <SceneComponent
           navigation={navigation}
           scene={scene}
