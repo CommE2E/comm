@@ -26,7 +26,9 @@ import Animated from 'react-native-reanimated';
 
 import ComposedMessage from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import { withLightboxPositionContext } from '../media/lightbox-navigator.react';
+import {
+  withLightboxPositionContext,
+} from '../navigation/lightbox-navigator.react';
 import {
   allCorners,
   filterCorners,
