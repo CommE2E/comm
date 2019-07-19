@@ -12,7 +12,7 @@ import { fileInfoFromData } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
 import { dispatch } from '../redux/redux-setup';
-import { MultimediaSavedModalRouteName } from '../navigation/route-names';
+import { ActionResultModalRouteName } from '../navigation/route-names';
 
 async function saveImage(mediaInfo: MediaInfo) {
   let result, message;
@@ -33,7 +33,7 @@ async function saveImage(mediaInfo: MediaInfo) {
   dispatch({
     // We do this for Flow
     ...NavigationActions.navigate({
-      routeName: MultimediaSavedModalRouteName,
+      routeName: ActionResultModalRouteName,
       params: { message },
     }),
   });

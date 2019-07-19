@@ -31,7 +31,7 @@ type Props = {|
   scene: NavigationScene,
   position: Value,
 |};
-class MultimediaSavedModal extends React.PureComponent<Props> {
+class ActionResultModal extends React.PureComponent<Props> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -118,4 +118,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MultimediaSavedModal;
+export default ActionResultModal;

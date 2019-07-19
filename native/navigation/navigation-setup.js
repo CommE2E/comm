@@ -89,7 +89,7 @@ import {
   ComposeSubthreadModalRouteName,
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
-  MultimediaSavedModalRouteName,
+  ActionResultModalRouteName,
   TextMessageTooltipModalRouteName,
   accountModals,
 } from './route-names';
@@ -107,7 +107,7 @@ import { createLightboxNavigator } from './lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
-import MultimediaSavedModal from '../media/multimedia-saved-modal.react';
+import ActionResultModal from '../navigation/action-result-modal.react';
 import {
   TextMessageTooltipModal,
 } from '../chat/text-message-tooltip-modal.react';
@@ -173,7 +173,7 @@ const AppNavigator = createLightboxNavigator(
     [TabNavigatorRouteName]: TabNavigator,
     [MultimediaModalRouteName]: MultimediaModal,
     [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
-    [MultimediaSavedModalRouteName]: MultimediaSavedModal,
+    [ActionResultModalRouteName]: ActionResultModal,
     [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
   },
 );

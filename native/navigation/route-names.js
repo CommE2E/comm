@@ -37,7 +37,7 @@ export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
 export const MultimediaModalRouteName = 'MultimediaModal';
 export const MultimediaTooltipModalRouteName = 'MultimediaTooltipModal';
-export const MultimediaSavedModalRouteName = 'MultimediaSavedModal';
+export const ActionResultModalRouteName = 'ActionResultModal';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 
 export const accountModals = [
