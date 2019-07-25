@@ -13,7 +13,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   Text,
@@ -22,7 +22,6 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
@@ -41,6 +40,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import EditSettingButton from '../../components/edit-setting-button.react';
 import Button from '../../components/button.react';
 import Tooltip from '../../components/tooltip.react';
+import PencilIcon from './pencil-icon.react';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,
@@ -315,12 +315,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: "#888888",
   },
-  editIcon: {
-    lineHeight: 20,
-    paddingLeft: 10,
-    paddingTop: Platform.select({ android: 1, default: 0 }),
-    textAlign: 'right',
-  },
   popoverLabelStyle: {
     textAlign: 'center',
     color: '#444',
@@ -337,14 +331,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const icon = (
-  <Icon
-    name="pencil"
-    size={16}
-    style={styles.editIcon}
-    color="#036AFF"
-  />
-);
+const icon = <PencilIcon />;
 
 export default connect(
   (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
