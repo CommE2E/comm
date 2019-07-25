@@ -21,6 +21,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import {
+  type OverlayableScrollViewState,
+  overlayableScrollViewStatePropType,
+  withOverlayableScrollViewState,
+} from '../navigation/overlayable-scroll-view-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -42,14 +47,14 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
-  scrollDisabled: bool,
   lightboxPosition: ?Animated.Value,
   postInProgress: bool,
   pendingUpload: ?PendingMultimediaUpload,
   keyboardShowing: bool,
   messageFocused: bool,
   toggleMessageFocus: (messageKey: string) => void,
-  setScrollDisabled: (scrollDisabled: bool) => void,
+  // withOverlayableScrollViewState
+  overlayableScrollViewState: ?OverlayableScrollViewState,
 |};
 type State = {|
   hidden: bool,
@@ -63,14 +68,13 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     navigation: messageListNavPropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
-    scrollDisabled: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
     keyboardShowing: PropTypes.bool.isRequired,
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
+    overlayableScrollViewState: overlayableScrollViewStatePropType,
   };
   view: ?View;
   clickable = true;
@@ -84,7 +88,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    if (!props.scrollDisabled && state.hidden) {
+    const scrollIsDisabled = MultimediaMessageMultimedia.scrollDisabled(props);
+    if (!scrollIsDisabled && state.hidden) {
       return { hidden: false };
     }
     return null;
@@ -105,12 +110,22 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     );
   }
 
+  static scrollDisabled(props: Props) {
+    const { overlayableScrollViewState } = props;
+    return !!(overlayableScrollViewState &&
+      overlayableScrollViewState.scrollDisabled);
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (this.props.lightboxPosition !== prevProps.lightboxPosition) {
       this.setState({ opacity: this.getOpacity() });
     }
 
-    if (!this.props.scrollDisabled && prevProps.scrollDisabled) {
+    const scrollIsDisabled =
+      MultimediaMessageMultimedia.scrollDisabled(this.props);
+    const scrollWasDisabled =
+      MultimediaMessageMultimedia.scrollDisabled(prevProps);
+    if (!scrollIsDisabled && scrollWasDisabled) {
       this.clickable = true;
     }
   }
@@ -160,8 +175,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
-    const { setScrollDisabled, mediaInfo } = this.props;
-    setScrollDisabled(true);
+    const { overlayableScrollViewState, mediaInfo } = this.props;
+    if (overlayableScrollViewState) {
+      overlayableScrollViewState.setScrollDisabled(true);
+    }
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -192,7 +209,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     const {
       messageFocused,
       toggleMessageFocus,
-      setScrollDisabled,
       item,
       mediaInfo,
       verticalOffset,
@@ -200,7 +216,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     if (!messageFocused) {
       toggleMessageFocus(messageKey(item.messageInfo));
     }
-    setScrollDisabled(true);
+
+    const { overlayableScrollViewState } = this.props;
+    if (overlayableScrollViewState) {
+      overlayableScrollViewState.setScrollDisabled(true);
+    }
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -253,4 +273,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MultimediaMessageMultimedia;
+export default withOverlayableScrollViewState(MultimediaMessageMultimedia);

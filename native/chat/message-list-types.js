@@ -12,6 +12,7 @@ export type MessageListNavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
+    gesturesDisabled?: bool,
   |},
 |}>;
 
@@ -20,6 +21,7 @@ export const messageListNavPropType = PropTypes.shape({
     key: PropTypes.string.isRequired,
     params: PropTypes.shape({
       threadInfo: threadInfoPropType.isRequired,
+      gesturesDisabled: PropTypes.bool,
     }).isRequired,
   }).isRequired,
   navigate: PropTypes.func.isRequired,

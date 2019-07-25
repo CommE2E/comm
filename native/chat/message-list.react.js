@@ -12,6 +12,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import {
+  type OverlayableScrollViewState,
+  overlayableScrollViewStatePropType,
+  withOverlayableScrollViewState,
+} from '../navigation/overlayable-scroll-view-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -51,7 +56,6 @@ import {
 } from '../keyboard';
 import {
   scrollBlockingChatModalsClosedSelector,
-  lightboxTransitioningSelector,
 } from '../selectors/nav-selectors';
 
 type Props = {|
@@ -63,7 +67,8 @@ type Props = {|
   viewerID: ?string,
   startReached: bool,
   scrollBlockingModalsClosed: bool,
-  scrollBlockingModalsGone: bool,
+  // withOverlayableScrollViewState
+  overlayableScrollViewState: ?OverlayableScrollViewState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -77,7 +82,6 @@ type Props = {|
 |};
 type State = {|
   focusedMessageKey: ?string,
-  scrollDisabled: bool,
   messageListVerticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
   flatListExtraData: FlatListExtraData,
@@ -87,7 +91,6 @@ type PropsAndState = {|
   ...State,
 |};
 type FlatListExtraData = {|
-  scrollDisabled: bool,
   keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
@@ -103,7 +106,7 @@ class MessageList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
-    scrollBlockingModalsGone: PropTypes.bool.isRequired,
+    overlayableScrollViewState: overlayableScrollViewStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -115,14 +118,11 @@ class MessageList extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const scrollDisabled = !props.scrollBlockingModalsClosed;
     this.state = {
       focusedMessageKey: null,
-      scrollDisabled,
       messageListVerticalBounds: null,
       keyboardShowing: false,
       flatListExtraData: {
-        scrollDisabled,
         keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
@@ -132,21 +132,18 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static flatListExtraDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.scrollDisabled,
     (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (propsAndState: PropsAndState) => propsAndState.navigation,
     (
-      scrollDisabled: bool,
       keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
       imageGalleryOpen: bool,
       focusedMessageKey: ?string,
       navigation: MessageListNavProp,
     ) => ({
-      scrollDisabled,
       keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -205,6 +202,12 @@ class MessageList extends React.PureComponent<Props, State> {
     }
   }
 
+  static scrollDisabled(props: Props) {
+    const { overlayableScrollViewState } = props;
+    return !!(overlayableScrollViewState &&
+      overlayableScrollViewState.scrollDisabled);
+  }
+
   componentDidUpdate(prevProps: Props, prevState: State) {
     const oldThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
@@ -230,29 +233,17 @@ class MessageList extends React.PureComponent<Props, State> {
     }
 
     if (
-      this.state.scrollDisabled &&
-      this.props.scrollBlockingModalsGone &&
-      !prevProps.scrollBlockingModalsGone
-    ) {
-      this.setState({ scrollDisabled: false });
-    } else if (
-      !this.state.scrollDisabled &&
-      !this.props.scrollBlockingModalsClosed &&
-      prevProps.scrollBlockingModalsClosed
-    ) {
-      this.setState({ scrollDisabled: true });
-    }
-
-    if (
       this.props.scrollBlockingModalsClosed &&
       !prevProps.scrollBlockingModalsClosed
     ) {
       this.setState({ focusedMessageKey: null });
     }
 
-    if (!prevState.scrollDisabled && this.state.scrollDisabled) {
+    const scrollIsDisabled = MessageList.scrollDisabled(this.props);
+    const scrollWasDisabled = MessageList.scrollDisabled(prevProps);
+    if (!scrollWasDisabled && scrollIsDisabled) {
       this.props.navigation.setParams({ gesturesDisabled: true });
-    } else if (prevState.scrollDisabled && !this.state.scrollDisabled) {
+    } else if (scrollWasDisabled && !scrollIsDisabled) {
       this.props.navigation.setParams({ gesturesDisabled: false });
     }
   }
@@ -269,7 +260,6 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const {
-      scrollDisabled,
       keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
@@ -283,10 +273,8 @@ class MessageList extends React.PureComponent<Props, State> {
         focused={focused}
         navigation={navigation}
         toggleFocus={this.toggleMessageFocus}
-        setScrollDisabled={this.setScrollDisabled}
         verticalBounds={messageListVerticalBounds}
         keyboardShowing={keyboardShowing}
-        scrollDisabled={scrollDisabled}
       />
     );
   }
@@ -297,10 +285,6 @@ class MessageList extends React.PureComponent<Props, State> {
     } else {
       this.setState({ focusedMessageKey: messageKey });
     }
-  }
-
-  setScrollDisabled = (scrollDisabled: bool) => {
-    this.setState({ scrollDisabled });
   }
 
   static keyExtractor(item: ChatMessageItemWithHeight) {
@@ -357,7 +341,7 @@ class MessageList extends React.PureComponent<Props, State> {
           onViewableItemsChanged={this.onViewableItemsChanged}
           ListFooterComponent={footer}
           scrollsToTop={false}
-          scrollEnabled={!this.state.scrollDisabled}
+          scrollEnabled={!MessageList.scrollDisabled(this.props)}
           extraData={this.state.flatListExtraData}
         />
       </View>
@@ -454,16 +438,12 @@ registerFetchKey(fetchMostRecentMessagesActionTypes);
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
     const threadID = ownProps.threadInfo.id;
-    const scrollBlockingModalsClosed =
-      scrollBlockingChatModalsClosedSelector(state);
     return {
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
-      scrollBlockingModalsClosed,
-      scrollBlockingModalsGone: scrollBlockingModalsClosed &&
-        !lightboxTransitioningSelector(state),
+      scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(MessageList);
+)(withOverlayableScrollViewState(MessageList));

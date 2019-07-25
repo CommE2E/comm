@@ -153,10 +153,8 @@ type Props = {|
   navigation: MessageListNavProp,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
-  scrollDisabled: bool,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
 |};
@@ -167,10 +165,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
     navigation: messageListNavPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
-    scrollDisabled: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
   };
 
@@ -284,14 +280,12 @@ class MultimediaMessage extends React.PureComponent<Props> {
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
         style={[ style, roundedStyle ]}
-        scrollDisabled={this.props.scrollDisabled}
         lightboxPosition={this.props.lightboxPosition}
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         keyboardShowing={this.props.keyboardShowing}
         messageFocused={this.props.focused}
         toggleMessageFocus={this.props.toggleFocus}
-        setScrollDisabled={this.props.setScrollDisabled}
         item={this.props.item}
         key={index}
       />

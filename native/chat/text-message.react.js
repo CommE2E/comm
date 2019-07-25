@@ -14,6 +14,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import {
+  type OverlayableScrollViewState,
+  overlayableScrollViewStatePropType,
+  withOverlayableScrollViewState,
+} from '../navigation/overlayable-scroll-view-state';
 
 import * as React from 'react';
 import { View } from 'react-native';
@@ -69,9 +74,10 @@ type Props = {|
   navigation: MessageListNavProp,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
-  setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
+  // withOverlayableScrollViewState
+  overlayableScrollViewState: ?OverlayableScrollViewState,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -80,9 +86,9 @@ class TextMessage extends React.PureComponent<Props> {
     navigation: messageListNavPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
+    overlayableScrollViewState: overlayableScrollViewStatePropType,
   };
   message: ?View;
 
@@ -126,11 +132,15 @@ class TextMessage extends React.PureComponent<Props> {
       return;
     }
 
-    const { focused, toggleFocus, item, setScrollDisabled } = this.props;
+    const { focused, toggleFocus, item } = this.props;
     if (!focused) {
       toggleFocus(messageKey(item.messageInfo));
     }
-    setScrollDisabled(true);
+
+    const { overlayableScrollViewState } = this.props;
+    if (overlayableScrollViewState) {
+      overlayableScrollViewState.setScrollDisabled(true);
+    }
 
     message.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -170,7 +180,9 @@ class TextMessage extends React.PureComponent<Props> {
 
 }
 
+const WrappedTextMessage = withOverlayableScrollViewState(TextMessage);
+
 export {
-  TextMessage,
+  WrappedTextMessage as TextMessage,
   textMessageItemHeight,
 };

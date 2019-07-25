@@ -107,7 +107,9 @@ import { createLightboxNavigator } from './lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
-import ActionResultModal from '../navigation/action-result-modal.react';
+import OverlayableScrollViewStateContainer
+  from './overlayable-scroll-view-state-container.react';
+import ActionResultModal from './action-result-modal.react';
 import {
   TextMessageTooltipModal,
 } from '../chat/text-message-tooltip-modal.react';
@@ -233,7 +235,9 @@ class WrappedAppNavigator
   render() {
     return (
       <ChatInputStateContainer>
-        <AppNavigator navigation={this.props.navigation} />
+        <OverlayableScrollViewStateContainer>
+          <AppNavigator navigation={this.props.navigation} />
+        </OverlayableScrollViewStateContainer>
       </ChatInputStateContainer>
     );
   }

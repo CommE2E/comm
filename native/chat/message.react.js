@@ -67,10 +67,8 @@ type Props = {|
   focused: bool,
   navigation: MessageListNavProp,
   toggleFocus: (messageKey: string) => void,
-  setScrollDisabled: (scrollDisabled: bool) => void,
   verticalBounds: ?VerticalBounds,
   keyboardShowing: bool,
-  scrollDisabled: bool,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -79,10 +77,8 @@ class Message extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     navigation: messageListNavPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
-    setScrollDisabled: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardShowing: PropTypes.bool.isRequired,
-    scrollDisabled: PropTypes.bool.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -103,7 +99,6 @@ class Message extends React.PureComponent<Props> {
           navigation={this.props.navigation}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
-          setScrollDisabled={this.props.setScrollDisabled}
           verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
         />
@@ -115,10 +110,8 @@ class Message extends React.PureComponent<Props> {
           navigation={this.props.navigation}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
-          setScrollDisabled={this.props.setScrollDisabled}
           verticalBounds={this.props.verticalBounds}
           keyboardShowing={this.props.keyboardShowing}
-          scrollDisabled={this.props.scrollDisabled}
         />
       );
     } else {
