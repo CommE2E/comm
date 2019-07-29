@@ -18,6 +18,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../navigation/keyboard-state';
 
 import * as React from 'react';
 import {
@@ -27,7 +32,6 @@ import {
   Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
 import {
@@ -68,7 +72,8 @@ type Props = {|
   navigation: MessageListNavProp,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  keyboardShowing: bool,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -78,7 +83,7 @@ class Message extends React.PureComponent<Props> {
     navigation: messageListNavPropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    keyboardShowing: PropTypes.bool.isRequired,
+    keyboardState: keyboardStatePropType,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -100,7 +105,6 @@ class Message extends React.PureComponent<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
-          keyboardShowing={this.props.keyboardShowing}
         />
       );
     } else if (this.props.item.messageShapeType === "multimedia") {
@@ -111,7 +115,6 @@ class Message extends React.PureComponent<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
-          keyboardShowing={this.props.keyboardShowing}
         />
       );
     } else {
@@ -130,15 +133,22 @@ class Message extends React.PureComponent<Props> {
       return message;
     }
     return (
-      <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+      <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         {message}
       </TouchableWithoutFeedback>
     );
   }
 
+  dismissKeyboard = () => {
+    const { keyboardState } = this.props;
+    keyboardState && keyboardState.dismissKeyboard();
+  }
+
 }
 
+const WrappedMessage = withKeyboardState(Message);
+
 export {
-  Message,
+  WrappedMessage as Message,
   messageItemHeight,
 };

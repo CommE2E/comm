@@ -154,7 +154,6 @@ type Props = {|
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  keyboardShowing: bool,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
 |};
@@ -166,7 +165,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    keyboardShowing: PropTypes.bool.isRequired,
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
   };
 
@@ -283,7 +281,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         lightboxPosition={this.props.lightboxPosition}
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
-        keyboardShowing={this.props.keyboardShowing}
         messageFocused={this.props.focused}
         toggleMessageFocus={this.props.toggleFocus}
         item={this.props.item}

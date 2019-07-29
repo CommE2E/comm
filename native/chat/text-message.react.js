@@ -19,11 +19,15 @@ import {
   overlayableScrollViewStatePropType,
   withOverlayableScrollViewState,
 } from '../navigation/overlayable-scroll-view-state';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../navigation/keyboard-state';
 
 import * as React from 'react';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -75,9 +79,10 @@ type Props = {|
   focused: bool,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  keyboardShowing: bool,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -87,8 +92,8 @@ class TextMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    keyboardShowing: PropTypes.bool.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
+    keyboardState: keyboardStatePropType,
   };
   message: ?View;
 
@@ -122,8 +127,7 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    if (this.props.keyboardShowing) {
-      KeyboardUtils.dismiss();
+    if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
@@ -178,9 +182,16 @@ class TextMessage extends React.PureComponent<Props> {
     });
   }
 
+  dismissKeyboardIfShowing = () => {
+    const { keyboardState } = this.props;
+    return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
+  }
+
 }
 
-const WrappedTextMessage = withOverlayableScrollViewState(TextMessage);
+const WrappedTextMessage = withKeyboardState(
+  withOverlayableScrollViewState(TextMessage),
+);
 
 export {
   WrappedTextMessage as TextMessage,

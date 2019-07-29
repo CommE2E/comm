@@ -17,6 +17,11 @@ import {
   overlayableScrollViewStatePropType,
   withOverlayableScrollViewState,
 } from '../navigation/overlayable-scroll-view-state';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../navigation/keyboard-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -28,7 +33,6 @@ import {
 } from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
-import { KeyboardUtils } from 'react-native-keyboard-input';
 import { createSelector } from 'reselect';
 
 import { messageKey } from 'lib/shared/message-utils';
@@ -50,11 +54,6 @@ import {
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
-  addKeyboardShowListener,
-  addKeyboardDismissListener,
-  removeKeyboardListener,
-} from '../keyboard';
-import {
   scrollBlockingChatModalsClosedSelector,
 } from '../selectors/nav-selectors';
 
@@ -62,13 +61,14 @@ type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   navigation: MessageListNavProp,
-  imageGalleryOpen: bool,
   // Redux state
   viewerID: ?string,
   startReached: bool,
   scrollBlockingModalsClosed: bool,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -83,7 +83,6 @@ type Props = {|
 type State = {|
   focusedMessageKey: ?string,
   messageListVerticalBounds: ?VerticalBounds,
-  keyboardShowing: bool,
   flatListExtraData: FlatListExtraData,
 |};
 type PropsAndState = {|
@@ -91,7 +90,6 @@ type PropsAndState = {|
   ...State,
 |};
 type FlatListExtraData = {|
-  keyboardShowing: bool,
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
   navigation: MessageListNavProp,
@@ -102,28 +100,24 @@ class MessageList extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     navigation: messageListNavPropType.isRequired,
-    imageGalleryOpen: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
+    keyboardState: keyboardStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
   loadingFromScroll = false;
   flatListContainer: ?View;
-  keyboardShowListener: ?Object;
-  keyboardDismissListener: ?Object;
 
   constructor(props: Props) {
     super(props);
     this.state = {
       focusedMessageKey: null,
       messageListVerticalBounds: null,
-      keyboardShowing: false,
       flatListExtraData: {
-        keyboardShowing: props.imageGalleryOpen,
         messageListVerticalBounds: null,
         focusedMessageKey: null,
         navigation: props.navigation,
@@ -132,19 +126,14 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static flatListExtraDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.keyboardShowing,
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
-    (propsAndState: PropsAndState) => propsAndState.imageGalleryOpen,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (propsAndState: PropsAndState) => propsAndState.navigation,
     (
-      keyboardShowing: bool,
       messageListVerticalBounds: ?VerticalBounds,
-      imageGalleryOpen: bool,
       focusedMessageKey: ?string,
       navigation: MessageListNavProp,
     ) => ({
-      keyboardShowing: keyboardShowing || imageGalleryOpen,
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
@@ -162,14 +151,6 @@ class MessageList extends React.PureComponent<Props, State> {
     return null;
   }
 
-  keyboardShow = () => {
-    this.setState({ keyboardShowing: true });
-  }
-
-  keyboardDismiss = () => {
-    this.setState({ keyboardShowing: false });
-  }
-
   componentDidMount() {
     const { threadInfo } = this.props;
     if (!threadInChatList(threadInfo)) {
@@ -179,26 +160,12 @@ class MessageList extends React.PureComponent<Props, State> {
         this.props.fetchMostRecentMessages(threadInfo.id),
       );
     }
-
-    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
-    this.keyboardDismissListener = addKeyboardDismissListener(
-      this.keyboardDismiss,
-    );
   }
 
   componentWillUnmount() {
     const { threadInfo } = this.props;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
-    }
-
-    if (this.keyboardShowListener) {
-      removeKeyboardListener(this.keyboardShowListener);
-      this.keyboardShowListener = null;
-    }
-    if (this.keyboardDismissListener) {
-      removeKeyboardListener(this.keyboardDismissListener);
-      this.keyboardDismissListener = null;
     }
   }
 
@@ -248,10 +215,15 @@ class MessageList extends React.PureComponent<Props, State> {
     }
   }
 
+  dismissKeyboard = () => {
+    const { keyboardState } = this.props;
+    keyboardState && keyboardState.dismissKeyboard();
+  }
+
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
     if (row.item.itemType === "loader") {
       return (
-        <TouchableWithoutFeedback onPress={KeyboardUtils.dismiss}>
+        <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
           <View style={styles.listLoadingIndicator}>
             <ListLoadingIndicator />
           </View>
@@ -260,7 +232,6 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const {
-      keyboardShowing,
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
@@ -274,7 +245,6 @@ class MessageList extends React.PureComponent<Props, State> {
         navigation={navigation}
         toggleFocus={this.toggleMessageFocus}
         verticalBounds={messageListVerticalBounds}
-        keyboardShowing={keyboardShowing}
       />
     );
   }
@@ -446,4 +416,4 @@ export default connect(
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(withOverlayableScrollViewState(MessageList));
+)(withKeyboardState(withOverlayableScrollViewState(MessageList)));

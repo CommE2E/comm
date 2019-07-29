@@ -26,12 +26,16 @@ import {
   overlayableScrollViewStatePropType,
   withOverlayableScrollViewState,
 } from '../navigation/overlayable-scroll-view-state';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../navigation/keyboard-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { KeyboardUtils } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
@@ -50,11 +54,12 @@ type Props = {|
   lightboxPosition: ?Animated.Value,
   postInProgress: bool,
   pendingUpload: ?PendingMultimediaUpload,
-  keyboardShowing: bool,
   messageFocused: bool,
   toggleMessageFocus: (messageKey: string) => void,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
 |};
 type State = {|
   hidden: bool,
@@ -71,10 +76,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     lightboxPosition: PropTypes.instanceOf(Animated.Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
-    keyboardShowing: PropTypes.bool.isRequired,
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
+    keyboardState: keyboardStatePropType,
   };
   view: ?View;
   clickable = true;
@@ -160,8 +165,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onPress = () => {
-    if (this.props.keyboardShowing) {
-      KeyboardUtils.dismiss();
+    if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
@@ -191,8 +195,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onLongPress = () => {
-    if (this.props.keyboardShowing) {
-      KeyboardUtils.dismiss();
+    if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
@@ -261,6 +264,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     });
   }
 
+  dismissKeyboardIfShowing = () => {
+    const { keyboardState } = this.props;
+    return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -273,4 +281,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withOverlayableScrollViewState(MultimediaMessageMultimedia);
+export default withKeyboardState(
+  withOverlayableScrollViewState(MultimediaMessageMultimedia),
+);
