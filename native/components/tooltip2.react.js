@@ -239,7 +239,7 @@ function createTooltip<
     }
 
     render() {
-      const { navigation } = this.props;
+      const { navigation, screenDimensions } = this.props;
 
       const entries = tooltipSpec.entries.map((entry, index) => {
         const style = index !== tooltipSpec.entries.length - 1
@@ -256,11 +256,26 @@ function createTooltip<
         );
       });
 
+      let triangleStyle;
+      const { initialCoordinates } = navigation.state.params;
+      const { x, width } = initialCoordinates;
+      const extraLeftSpace = x;
+      const extraRightSpace = screenDimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        triangleStyle = {
+          alignSelf: 'flex-start',
+          left: extraLeftSpace + (width - 20) / 2,
+        };
+      } else {
+        triangleStyle = {
+          alignSelf: 'flex-end',
+          right: extraRightSpace + (width - 20) / 2,
+        };
+      }
+
       let triangleDown = null;
       let triangleUp = null;
-      const { location, initialCoordinates } = navigation.state.params;
-      const { x, width } = initialCoordinates;
-      const triangleStyle = { left: x + (width - 20) / 2 };
+      const { location } = navigation.state.params;
       if (location === 'above') {
         triangleDown = (
           <View style={[ styles.triangleDown, triangleStyle ]} />
@@ -366,7 +381,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E1E1E1",
   },
   triangleDown: {
-    alignSelf: 'flex-start',
     width: 10,
     height: 10,
     borderStyle: 'solid',
@@ -381,7 +395,6 @@ const styles = StyleSheet.create({
     top: Platform.OS === "android" ? -1 : 0,
   },
   triangleUp: {
-    alignSelf: 'flex-start',
     width: 10,
     height: 10,
     borderStyle: 'solid',
