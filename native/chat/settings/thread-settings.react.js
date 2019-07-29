@@ -14,12 +14,19 @@ import {
 import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 import type { Navigate } from '../../navigation/route-names';
+import type { VerticalBounds } from '../../types/lightbox-types';
+import {
+  type OverlayableScrollViewState,
+  overlayableScrollViewStatePropType,
+  withOverlayableScrollViewState,
+} from '../../navigation/overlayable-scroll-view-state';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import {
   relativeMemberInfoSelectorForMembersOfThread,
@@ -76,6 +83,7 @@ type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
+    gesturesDisabled?: bool,
   |},
 |}>;
 
@@ -154,6 +162,7 @@ type ChatSettingsItem =
       threadInfo: ThreadInfo,
       canEdit: bool,
       lastListItem: bool,
+      verticalBounds: ?VerticalBounds,
     |}
   | {|
       itemType: "addMember",
@@ -181,6 +190,8 @@ type Props = {|
   childThreadInfos: ?ThreadInfo[],
   somethingIsSaving: bool,
   tabActive: bool,
+  // withOverlayableScrollViewState
+  overlayableScrollViewState: ?OverlayableScrollViewState,
 |};
 type State = {|
   showMaxMembers: number,
@@ -190,8 +201,9 @@ type State = {|
   nameTextHeight: ?number,
   descriptionTextHeight: ?number,
   colorEditValue: string,
+  verticalBounds: ?VerticalBounds,
 |};
-class InnerThreadSettings extends React.PureComponent<Props, State> {
+class ThreadSettings extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -199,6 +211,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
         key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           threadInfo: threadInfoPropType.isRequired,
+          gesturesDisabled: PropTypes.bool,
         }).isRequired,
       }).isRequired,
       navigate: PropTypes.func.isRequired,
@@ -209,11 +222,14 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
     tabActive: PropTypes.bool.isRequired,
+    overlayableScrollViewState: overlayableScrollViewStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
     headerBackTitle: "Back",
+    gesturesEnabled: !navigation.state.params.gesturesDisabled,
   });
+  flatListContainer: ?View;
 
   constructor(props: Props) {
     super(props);
@@ -230,6 +246,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       nameTextHeight: null,
       descriptionTextHeight: null,
       colorEditValue: threadInfo.color,
+      verticalBounds: null,
     };
   }
 
@@ -237,9 +254,15 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     return props.navigation.state.params.threadInfo;
   }
 
+  static scrollDisabled(props: Props) {
+    const { overlayableScrollViewState } = props;
+    return !!(overlayableScrollViewState &&
+      overlayableScrollViewState.scrollDisabled);
+  }
+
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
-    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
@@ -247,15 +270,15 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
-    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const oldThreadInfo = InnerThreadSettings.getThreadInfo(this.props);
-    const newThreadInfo = nextProps.threadInfo;
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const oldThreadInfo = ThreadSettings.getThreadInfo(prevProps);
+    const newThreadInfo = this.props.threadInfo;
 
     if (
       threadInChatList(oldThreadInfo) &&
@@ -269,18 +292,24 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadWatcher.removeID(oldThreadInfo.id);
     }
 
-    if (!newThreadInfo) {
-      return;
+    if (newThreadInfo) {
+      if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
+        this.props.navigation.setParams({ threadInfo: newThreadInfo });
+      }
+      if (
+        newThreadInfo.color !== oldThreadInfo.color &&
+        this.state.colorEditValue === oldThreadInfo.color
+      ) {
+        this.setState({ colorEditValue: newThreadInfo.color });
+      }
     }
 
-    if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
-      this.props.navigation.setParams({ threadInfo: newThreadInfo });
-    }
-    if (
-      newThreadInfo.color !== oldThreadInfo.color &&
-      this.state.colorEditValue === oldThreadInfo.color
-    ) {
-      this.setState({ colorEditValue: newThreadInfo.color });
+    const scrollIsDisabled = ThreadSettings.scrollDisabled(this.props);
+    const scrollWasDisabled = ThreadSettings.scrollDisabled(prevProps);
+    if (!scrollWasDisabled && scrollIsDisabled) {
+      this.props.navigation.setParams({ gesturesDisabled: true });
+    } else if (scrollWasDisabled && !scrollIsDisabled) {
+      this.props.navigation.setParams({ gesturesDisabled: false });
     }
   }
 
@@ -292,7 +321,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const threadInfo = ThreadSettings.getThreadInfo(this.props);
 
     const canStartEditing = this.canReset;
     const canEditThread = threadHasPermission(
@@ -463,6 +492,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     } else {
       threadMembers = this.props.threadMembers;
     }
+    const { verticalBounds } = this.state;
     const members = threadMembers.map(memberInfo => ({
       itemType: "member",
       key: `member${memberInfo.id}`,
@@ -470,6 +500,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
       threadInfo,
       canEdit: canStartEditing,
       lastListItem: false,
+      verticalBounds,
     }));
     let memberItems;
     if (seeMoreMembers) {
@@ -552,12 +583,39 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
     }
 
     return (
-      <FlatList
-        data={listData}
-        contentContainerStyle={styles.flatList}
-        renderItem={this.renderItem}
-      />
+      <View
+        style={styles.container}
+        ref={this.flatListContainerRef}
+        onLayout={this.onFlatListContainerLayout}
+      >
+        <FlatList
+          data={listData}
+          contentContainerStyle={styles.flatList}
+          renderItem={this.renderItem}
+          scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
+        />
+      </View>
     );
+  }
+
+  flatListContainerRef = (flatListContainer: ?View) => {
+    this.flatListContainer = flatListContainer;
+  }
+
+  onFlatListContainerLayout = () => {
+    const { flatListContainer } = this;
+    if (!flatListContainer) {
+      return;
+    }
+    flatListContainer.measure((x, y, width, height, pageX, pageY) => {
+      if (
+        height === null || height === undefined ||
+        pageY === null || pageY === undefined
+      ) {
+        return;
+      }
+      this.setState({ verticalBounds: { height, y: pageY } });
+    });
   }
 
   renderItem = (row: { item: ChatSettingsItem }) => {
@@ -635,6 +693,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
           threadInfo={item.threadInfo}
           canEdit={item.canEdit}
           lastListItem={item.lastListItem}
+          verticalBounds={item.verticalBounds}
         />
       );
     } else if (item.itemType === "addMember") {
@@ -678,7 +737,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   onPressComposeSubthread = () => {
-    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(
       ComposeSubthreadModalRouteName,
       { threadInfo },
@@ -686,7 +745,7 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
   }
 
   onPressAddMember = () => {
-    const threadInfo = InnerThreadSettings.getThreadInfo(this.props);
+    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(
       AddUsersModalRouteName,
       { threadInfo },
@@ -708,6 +767,9 @@ class InnerThreadSettings extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   flatList: {
     paddingVertical: 16,
   },
@@ -760,7 +822,7 @@ const somethingIsSaving = (
 };
 
 const activeTabSelector = createActiveTabSelector(ChatRouteName);
-const ThreadSettings = connect(
+const WrappedThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     const threadMembers =
@@ -773,6 +835,8 @@ const ThreadSettings = connect(
       tabActive: activeTabSelector(state),
     };
   },
-)(InnerThreadSettings);
+)(withOverlayableScrollViewState(ThreadSettings));
 
-export default ThreadSettings;
+hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);
+
+export default WrappedThreadSettings;

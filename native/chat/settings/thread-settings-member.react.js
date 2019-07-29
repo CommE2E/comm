@@ -12,6 +12,15 @@ import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  type OverlayableScrollViewState,
+  overlayableScrollViewStatePropType,
+  withOverlayableScrollViewState,
+} from '../../navigation/overlayable-scroll-view-state';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../../types/lightbox-types';
 
 import * as React from 'react';
 import {
@@ -47,9 +56,12 @@ type Props = {|
   threadInfo: ThreadInfo,
   canEdit: bool,
   lastListItem: bool,
+  verticalBounds: ?VerticalBounds,
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
   changeRoleLoadingStatus: LoadingStatus,
+  // withOverlayableScrollViewState
+  overlayableScrollViewState: ?OverlayableScrollViewState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -73,8 +85,10 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     canEdit: PropTypes.bool.isRequired,
     lastListItem: PropTypes.bool.isRequired,
+    verticalBounds: verticalBoundsPropType,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
+    overlayableScrollViewState: overlayableScrollViewStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     removeUsersFromThread: PropTypes.func.isRequired,
     changeThreadMemberRoles: PropTypes.func.isRequired,
@@ -345,4 +359,4 @@ export default connect(
     )(state),
   }),
   { removeUsersFromThread, changeThreadMemberRoles },
-)(ThreadSettingsMember);
+)(withOverlayableScrollViewState(ThreadSettingsMember));
