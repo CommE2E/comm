@@ -21,7 +21,7 @@ function MessageHeader(props: Props) {
 
   let authorName = null;
   if (!isViewer && (item.startsCluster || focused)) {
-    const style = color === 'light'
+    const style = color === 'light' || !item.startsCluster
       ? [ styles.authorName, styles.light ]
       : [ styles.authorName, styles.dark ];
     authorName = (
@@ -31,8 +31,11 @@ function MessageHeader(props: Props) {
     );
   }
 
+  const timestampColor = color === 'light' || !item.startsConversation
+    ? 'light'
+    : 'dark';
   const timestamp = focused || item.startsConversation
-    ? <Timestamp time={time} color={color} />
+    ? <Timestamp time={time} color={timestampColor} />
     : null;
   if (!timestamp && !authorName) {
     return null;
