@@ -21,6 +21,15 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../../types/lightbox-types';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../../navigation/keyboard-state';
+import {
+  type Navigate,
+  ThreadSettingsMemberTooltipModalRouteName,
+} from '../../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -30,6 +39,7 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
@@ -55,6 +65,7 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: bool,
+  navigate: Navigate,
   lastListItem: bool,
   verticalBounds: ?VerticalBounds,
   // Redux state
@@ -62,6 +73,8 @@ type Props = {|
   changeRoleLoadingStatus: LoadingStatus,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -84,15 +97,18 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
     memberInfo: relativeMemberInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     canEdit: PropTypes.bool.isRequired,
+    navigate: PropTypes.func.isRequired,
     lastListItem: PropTypes.bool.isRequired,
     verticalBounds: verticalBoundsPropType,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
+    keyboardState: keyboardStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     removeUsersFromThread: PropTypes.func.isRequired,
     changeThreadMemberRoles: PropTypes.func.isRequired,
   };
+  editButton: ?View;
 
   static memberIsAdmin(props: Props) {
     const role = props.memberInfo.role &&
@@ -177,11 +193,11 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
       editButton = <ActivityIndicator size="small" />;
     } else if (this.state.popoverConfig.length !== 0) {
       editButton = (
-        <Tooltip
-          buttonComponent={icon}
-          items={this.state.popoverConfig}
-          labelStyle={styles.popoverLabelStyle}
-        />
+        <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
+          <View onLayout={this.onEditButtonLayout} ref={this.editButtonRef}>
+            <PencilIcon />
+          </View>
+        </TouchableOpacity>
       );
     }
 
@@ -223,6 +239,44 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
         </View>
       </View>
     );
+  }
+
+  editButtonRef = (editButton: ?View) => {
+    this.editButton = editButton;
+  }
+
+  onEditButtonLayout = () => {}
+
+  onPressEdit = () => {
+    if (this.dismissKeyboardIfShowing()) {
+      return;
+    }
+
+    const { editButton, props: { verticalBounds } } = this;
+    if (!editButton || !verticalBounds) {
+      return;
+    }
+
+    const { overlayableScrollViewState } = this.props;
+    if (overlayableScrollViewState) {
+      overlayableScrollViewState.setScrollDisabled(true);
+    }
+
+    editButton.measure((x, y, width, height, pageX, pageY) => {
+      const coordinates = { x: pageX, y: pageY, width, height };
+      this.props.navigate({
+        routeName: ThreadSettingsMemberTooltipModalRouteName,
+        params: {
+          initialCoordinates: coordinates,
+          verticalBounds,
+        },
+      });
+    });
+  }
+
+  dismissKeyboardIfShowing = () => {
+    const { keyboardState } = this.props;
+    return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
   }
 
   showRemoveUserConfirmation = () => {
@@ -329,10 +383,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: "#888888",
   },
-  popoverLabelStyle: {
-    textAlign: 'center',
-    color: '#444',
-  },
   role: {
     flex: 1,
     fontSize: 14,
@@ -343,9 +393,10 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: Platform.OS === "ios" ? 12 : 10,
   },
+  editButton: {
+    paddingLeft: 10,
+  },
 });
-
-const icon = <PencilIcon />;
 
 export default connect(
   (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
@@ -359,4 +410,4 @@ export default connect(
     )(state),
   }),
   { removeUsersFromThread, changeThreadMemberRoles },
-)(withOverlayableScrollViewState(ThreadSettingsMember));
+)(withKeyboardState(withOverlayableScrollViewState(ThreadSettingsMember)));

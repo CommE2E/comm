@@ -161,6 +161,7 @@ type ChatSettingsItem =
       memberInfo: RelativeMemberInfo,
       threadInfo: ThreadInfo,
       canEdit: bool,
+      navigate: Navigate,
       lastListItem: bool,
       verticalBounds: ?VerticalBounds,
     |}
@@ -499,6 +500,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       memberInfo,
       threadInfo,
       canEdit: canStartEditing,
+      navigate: this.props.navigation.navigate,
       lastListItem: false,
       verticalBounds,
     }));
@@ -692,6 +694,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           memberInfo={item.memberInfo}
           threadInfo={item.threadInfo}
           canEdit={item.canEdit}
+          navigate={item.navigate}
           lastListItem={item.lastListItem}
           verticalBounds={item.verticalBounds}
         />

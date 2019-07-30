@@ -18,7 +18,6 @@ function PencilIcon(props: {||}) {
 const styles = StyleSheet.create({
   editIcon: {
     lineHeight: 20,
-    paddingLeft: 10,
     paddingTop: Platform.select({ android: 1, default: 0 }),
     textAlign: 'right',
   },
