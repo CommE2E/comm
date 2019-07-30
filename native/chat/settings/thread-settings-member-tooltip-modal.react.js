@@ -2,7 +2,7 @@
 
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 
-import { createTooltip } from '../../components/tooltip2.react';
+import { createTooltip } from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton
   from './thread-settings-member-tooltip-button.react';
 

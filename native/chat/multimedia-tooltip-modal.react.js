@@ -5,7 +5,7 @@ import type {
   ChatMultimediaMessageInfoItem,
 } from './multimedia-message.react';
 
-import { createTooltip, tooltipHeight } from '../components/tooltip2.react';
+import { createTooltip, tooltipHeight } from '../navigation/tooltip.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { saveImage } from '../media/save-image';
 

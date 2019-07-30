@@ -15,7 +15,7 @@ import {
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewStyle } from '../types/styles';
-import type { TooltipEntry } from './tooltip2-item.react';
+import type { TooltipEntry } from './tooltip-item.react';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -33,7 +33,7 @@ import {
   contentBottomOffset,
   dimensionsSelector,
 } from '../selectors/dimension-selectors';
-import TooltipItem from './tooltip2-item.react';
+import TooltipItem from './tooltip-item.react';
 
 const {
   Value,
