@@ -6,12 +6,10 @@ import {
   threadInfoPropType,
   threadPermissions,
   relativeMemberInfoPropType,
-  type ChangeThreadSettingsResult,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type OverlayableScrollViewState,
   overlayableScrollViewStatePropType,
@@ -37,21 +35,18 @@ import {
   Text,
   StyleSheet,
   Platform,
-  Alert,
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
   removeUsersFromThreadActionTypes,
-  removeUsersFromThread,
   changeThreadMemberRolesActionTypes,
-  changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -73,18 +68,6 @@ type Props = {|
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  removeUsersFromThread: (
-    threadID: string,
-    userIDs: string[],
-  ) => Promise<ChangeThreadSettingsResult>,
-  changeThreadMemberRoles: (
-    threadID: string,
-    userIDs: string[],
-    newRole: string,
-  ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsMember extends React.PureComponent<Props> {
 
@@ -99,17 +82,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
     keyboardState: keyboardStatePropType,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    removeUsersFromThread: PropTypes.func.isRequired,
-    changeThreadMemberRoles: PropTypes.func.isRequired,
   };
   editButton: ?View;
-
-  static memberIsAdmin(props: Props) {
-    const role = props.memberInfo.role &&
-      props.threadInfo.roles[props.memberInfo.role];
-    return role && !role.isDefault && role.name === "Admins";
-  }
 
   visibleEntryIDs() {
     const role = this.props.memberInfo.role;
@@ -143,7 +117,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
     if (canChangeRoles && this.props.memberInfo.username) {
       result.push(
-        ThreadSettingsMember.memberIsAdmin(this.props)
+        memberIsAdmin(this.props.memberInfo, this.props.threadInfo)
           ? "remove_admin"
           : "make_admin"
       );
@@ -184,7 +158,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     }
 
     let roleInfo = null;
-    if (ThreadSettingsMember.memberIsAdmin(this.props)) {
+    if (memberIsAdmin(this.props.memberInfo, this.props.threadInfo)) {
       roleInfo = (
         <View style={styles.row}>
           <Text style={styles.role}>admin</Text>
@@ -252,6 +226,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs: this.visibleEntryIDs(),
+          memberInfo: this.props.memberInfo,
+          threadInfo: this.props.threadInfo,
         },
       });
     });
@@ -260,81 +236,6 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
   dismissKeyboardIfShowing = () => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  }
-
-  showRemoveUserConfirmation = () => {
-    const userText = stringForUser(this.props.memberInfo);
-    Alert.alert(
-      "Confirm removal",
-      `Are you sure you want to remove ${userText} from this thread?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: this.onConfirmRemoveUser },
-      ],
-    );
-  }
-
-  onConfirmRemoveUser = () => {
-    const customKeyName = removeUsersFromThreadActionTypes.started +
-      `:${this.props.memberInfo.id}`;
-    this.props.dispatchActionPromise(
-      removeUsersFromThreadActionTypes,
-      this.removeUser(),
-      { customKeyName },
-    );
-  }
-
-  async removeUser() {
-    return await this.props.removeUsersFromThread(
-      this.props.threadInfo.id,
-      [ this.props.memberInfo.id ],
-    );
-  }
-
-  showMakeAdminConfirmation = () => {
-    const userText = stringForUser(this.props.memberInfo);
-    const actionClause = ThreadSettingsMember.memberIsAdmin(this.props)
-      ? `remove ${userText} as an admin`
-      : `make ${userText} an admin`;
-    Alert.alert(
-      "Confirm action",
-      `Are you sure you want to ${actionClause} of this thread?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: this.onConfirmMakeAdmin },
-      ],
-    );
-  }
-
-  onConfirmMakeAdmin = () => {
-    const isCurrentlyAdmin = ThreadSettingsMember.memberIsAdmin(this.props);
-    let newRole = null;
-    for (let roleID in this.props.threadInfo.roles) {
-      const role = this.props.threadInfo.roles[roleID];
-      if (isCurrentlyAdmin && role.isDefault) {
-        newRole = role.id;
-        break;
-      } else if (!isCurrentlyAdmin && role.name === "Admins") {
-        newRole = role.id;
-        break;
-      }
-    }
-    invariant(newRole !== null, "Could not find new role");
-    const customKeyName = changeThreadMemberRolesActionTypes.started +
-      `:${this.props.memberInfo.id}`;
-    this.props.dispatchActionPromise(
-      changeThreadMemberRolesActionTypes,
-      this.makeAdmin(newRole),
-      { customKeyName },
-    );
-  }
-
-  async makeAdmin(newRole: string) {
-    return await this.props.changeThreadMemberRoles(
-      this.props.threadInfo.id,
-      [ this.props.memberInfo.id ],
-      newRole,
-    );
   }
 
 }
@@ -392,5 +293,4 @@ export default connect(
       `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
     )(state),
   }),
-  { removeUsersFromThread, changeThreadMemberRoles },
 )(withKeyboardState(withOverlayableScrollViewState(ThreadSettingsMember)));
