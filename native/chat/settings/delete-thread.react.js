@@ -104,15 +104,11 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const newThreadInfo = nextProps.threadInfo;
-    if (!newThreadInfo) {
-      return;
-    }
-
-    const oldThreadInfo = InnerDeleteThread.getThreadInfo(this.props);
-    if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
-      this.props.navigation.setParams({ threadInfo: newThreadInfo });
+  componentDidUpdate(prevProps: Props) {
+    const oldReduxThreadInfo = prevProps.threadInfo;
+    const newReduxThreadInfo = this.props.threadInfo;
+    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
+      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
     }
   }
 

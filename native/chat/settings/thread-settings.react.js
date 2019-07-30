@@ -278,31 +278,27 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const oldThreadInfo = ThreadSettings.getThreadInfo(prevProps);
-    const newThreadInfo = this.props.threadInfo;
-
-    if (
-      threadInChatList(oldThreadInfo) &&
-      !threadInChatList(newThreadInfo)
-    ) {
-      threadWatcher.watchID(oldThreadInfo.id);
-    } else if (
-      !threadInChatList(oldThreadInfo) &&
-      threadInChatList(newThreadInfo)
-    ) {
-      threadWatcher.removeID(oldThreadInfo.id);
+    const oldReduxThreadInfo = prevProps.threadInfo;
+    const newReduxThreadInfo = this.props.threadInfo;
+    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
+      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
     }
 
-    if (newThreadInfo) {
-      if (!_isEqual(newThreadInfo)(oldThreadInfo)) {
-        this.props.navigation.setParams({ threadInfo: newThreadInfo });
+    const oldNavThreadInfo = ThreadSettings.getThreadInfo(prevProps);
+    const newNavThreadInfo = ThreadSettings.getThreadInfo(this.props);
+    if (oldNavThreadInfo.id !== newNavThreadInfo.id) {
+      if (!threadInChatList(oldNavThreadInfo)) {
+        threadWatcher.removeID(oldNavThreadInfo.id);
       }
-      if (
-        newThreadInfo.color !== oldThreadInfo.color &&
-        this.state.colorEditValue === oldThreadInfo.color
-      ) {
-        this.setState({ colorEditValue: newThreadInfo.color });
+      if (!threadInChatList(newNavThreadInfo)) {
+        threadWatcher.watchID(newNavThreadInfo.id);
       }
+    }
+    if (
+      newNavThreadInfo.color !== oldNavThreadInfo.color &&
+      this.state.colorEditValue === oldNavThreadInfo.color
+    ) {
+      this.setState({ colorEditValue: newNavThreadInfo.color });
     }
 
     const scrollIsDisabled = ThreadSettings.scrollDisabled(this.props);

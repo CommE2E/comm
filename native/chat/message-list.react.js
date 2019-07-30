@@ -178,16 +178,13 @@ class MessageList extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props, prevState: State) {
     const oldThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
-    if (
-      threadInChatList(oldThreadInfo) &&
-      !threadInChatList(newThreadInfo)
-    ) {
-      threadWatcher.watchID(oldThreadInfo.id);
-    } else if (
-      !threadInChatList(oldThreadInfo) &&
-      threadInChatList(newThreadInfo)
-    ) {
-      threadWatcher.removeID(oldThreadInfo.id);
+    if (oldThreadInfo.id !== newThreadInfo.id) {
+      if (!threadInChatList(oldThreadInfo)) {
+        threadWatcher.removeID(oldThreadInfo.id);
+      }
+      if (!threadInChatList(newThreadInfo)) {
+        threadWatcher.watchID(newThreadInfo.id);
+      }
     }
 
     const newListData = this.props.messageListData;
