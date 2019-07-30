@@ -42,7 +42,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 
 import { threadHasPermission } from 'lib/shared/thread-utils';
@@ -88,10 +87,7 @@ type Props = {|
     newRole: string,
   ) => Promise<ChangeThreadSettingsResult>,
 |};
-type State = {|
-  popoverConfig: $ReadOnlyArray<{ label: string, onPress: () => void }>,
-|};
-class ThreadSettingsMember extends React.PureComponent<Props, State> {
+class ThreadSettingsMember extends React.PureComponent<Props> {
 
   static propTypes = {
     memberInfo: relativeMemberInfoPropType.isRequired,
@@ -116,58 +112,45 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
     return role && !role.isDefault && role.name === "Admins";
   }
 
-  generatePopoverConfig(props: Props) {
-    const role = props.memberInfo.role;
-    if (!props.canEdit || !role) {
+  enabledEntries() {
+    const role = this.props.memberInfo.role;
+    if (!this.props.canEdit || !role) {
       return [];
     }
 
     const canRemoveMembers = threadHasPermission(
-      props.threadInfo,
+      this.props.threadInfo,
       threadPermissions.REMOVE_MEMBERS,
     );
     const canChangeRoles = threadHasPermission(
-      props.threadInfo,
+      this.props.threadInfo,
       threadPermissions.CHANGE_ROLE,
     );
 
     const result = [];
     if (
       canRemoveMembers &&
-      !props.memberInfo.isViewer &&
+      !this.props.memberInfo.isViewer &&
       (
         canChangeRoles ||
         (
-          props.threadInfo.roles[role] &&
-          props.threadInfo.roles[role].isDefault
+          this.props.threadInfo.roles[role] &&
+          this.props.threadInfo.roles[role].isDefault
         )
       )
     ) {
-      result.push({ label: "Remove user", onPress: this.showRemoveUserConfirmation });
+      result.push("Remove user");
     }
 
-    if (canChangeRoles && props.memberInfo.username) {
-      const adminText = ThreadSettingsMember.memberIsAdmin(props)
-        ? "Remove admin"
-        : "Make admin";
-      result.push({ label: adminText, onPress: this.showMakeAdminConfirmation });
+    if (canChangeRoles && this.props.memberInfo.username) {
+      result.push(
+        ThreadSettingsMember.memberIsAdmin(this.props)
+          ? "Remove admin"
+          : "Make admin"
+      );
     }
 
     return result;
-  }
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      popoverConfig: this.generatePopoverConfig(props),
-    };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const nextPopoverConfig = this.generatePopoverConfig(nextProps);
-    if (!_isEqual(this.state.popoverConfig)(nextPopoverConfig)) {
-      this.setState({ popoverConfig: nextPopoverConfig });
-    }
   }
 
   render() {
@@ -191,7 +174,7 @@ class ThreadSettingsMember extends React.PureComponent<Props, State> {
       this.props.changeRoleLoadingStatus === "loading"
     ) {
       editButton = <ActivityIndicator size="small" />;
-    } else if (this.state.popoverConfig.length !== 0) {
+    } else if (this.enabledEntries().length !== 0) {
       editButton = (
         <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
           <View onLayout={this.onEditButtonLayout} ref={this.editButtonRef}>
