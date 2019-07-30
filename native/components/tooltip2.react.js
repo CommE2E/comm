@@ -251,7 +251,7 @@ function createTooltip<
             spec={entry}
             onPress={this.onPressEntry}
             containerStyle={style}
-            labelStyle={[ styles.label, tooltipSpec.labelStyle ]}
+            labelStyle={tooltipSpec.labelStyle}
           />
         );
       });
@@ -406,10 +406,6 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
     borderLeftColor: 'transparent',
-  },
-  label: {
-    fontSize: 14,
-    lineHeight: 17,
   },
 });
 

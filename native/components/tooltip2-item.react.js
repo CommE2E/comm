@@ -39,7 +39,10 @@ class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
     return (
       <View style={[styles.itemContainer, this.props.containerStyle]}>
         <TouchableOpacity onPress={this.onPress}>
-          <Text style={this.props.labelStyle} numberOfLines={1}>
+          <Text
+            style={[ styles.label, this.props.labelStyle ]}
+            numberOfLines={1}
+          >
             {this.props.spec.text}
           </Text>
         </TouchableOpacity>
@@ -56,6 +59,12 @@ class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
 const styles = StyleSheet.create({
   itemContainer: {
     padding: 10,
+  },
+  label: {
+    textAlign: 'center',
+    color: '#444',
+    fontSize: 14,
+    lineHeight: 17,
   },
 });
 

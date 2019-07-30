@@ -107,10 +107,6 @@ const styles = StyleSheet.create({
     color: "#129AFF",
     textDecorationLine: "underline",
   },
-  popoverLabelStyle: {
-    textAlign: 'center',
-    color: '#444',
-  },
 });
 
 export default InnerTextMessage;
