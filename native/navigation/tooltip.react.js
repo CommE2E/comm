@@ -133,13 +133,12 @@ function createTooltip<
 
       const { initialCoordinates } = props.navigation.state.params;
       const { y, height } = initialCoordinates;
-      const entryCount = this.entries.length;
       const { margin } = this;
       this.tooltipVerticalAbove = interpolate(
         this.progress,
         {
           inputRange: [ 0, 1 ],
-          outputRange: [ margin + tooltipHeight(entryCount) / 2, 0 ],
+          outputRange: [ margin + this.tooltipHeight / 2, 0 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
@@ -147,7 +146,7 @@ function createTooltip<
         this.progress,
         {
           inputRange: [ 0, 1 ],
-          outputRange: [ -margin - tooltipHeight(entryCount) / 2, 0 ],
+          outputRange: [ -margin - this.tooltipHeight / 2, 0 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
@@ -166,6 +165,36 @@ function createTooltip<
       }
       const visibleSet = new Set(visibleEntryIDs);
       return entries.filter(entry => visibleSet.has(entry.id));
+    }
+
+    get tooltipHeight(): number {
+      return tooltipHeight(this.entries.length);
+    }
+
+    get location(): ('above' | 'below') {
+      const { params } = this.props.navigation.state;
+      const { location } = params;
+      if (location) {
+        return location;
+      }
+
+      const { initialCoordinates, verticalBounds } = params;
+      const { y, height } = initialCoordinates;
+      const contentTop = y;
+      const contentBottom = y + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+      const { margin, tooltipHeight } = this;
+      const fullHeight = tooltipHeight + margin;
+      if (
+        contentBottom + fullHeight > boundsBottom &&
+        contentTop - fullHeight > boundsTop
+      ) {
+        return 'above';
+      }
+
+      return 'below';
     }
 
     get opacityStyle() {
@@ -209,13 +238,9 @@ function createTooltip<
 
     get tooltipContainerStyle() {
       const { screenDimensions, navigation } = this.props;
-      const {
-        initialCoordinates,
-        verticalBounds,
-        location,
-      } = navigation.state.params;
+      const { initialCoordinates, verticalBounds } = navigation.state.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin } = this;
+      const { margin, location } = this;
 
       const style: ViewStyle = {
         position: 'absolute',
@@ -290,7 +315,7 @@ function createTooltip<
 
       let triangleDown = null;
       let triangleUp = null;
-      const { location } = navigation.state.params;
+      const { location } = this;
       if (location === 'above') {
         triangleDown = (
           <View style={[ styles.triangleDown, triangleStyle ]} />
