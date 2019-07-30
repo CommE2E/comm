@@ -57,7 +57,6 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
 import Button from '../../components/button.react';
-import Tooltip from '../../components/tooltip.react';
 import PencilIcon from './pencil-icon.react';
 
 type Props = {|
