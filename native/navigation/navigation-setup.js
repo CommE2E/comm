@@ -284,6 +284,9 @@ const RootNavigator = createStackNavigator(
       const { route } = scene;
       const { scene: prevScene } = prevTransitionProps;
       const { route: prevRoute } = prevScene;
+      if (route.key === prevRoute.key) {
+        return;
+      }
       if (
         route.routeName !== AppRouteName ||
         prevRoute.routeName !== ThreadPickerModalRouteName
