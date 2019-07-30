@@ -19,9 +19,9 @@ function onToggleAdmin(props: CustomProps) {
 
 const spec = {
   entries: [
-    { text: "Remove user", onPress: onRemoveUser },
-    { text: "Remove admin", onPress: onToggleAdmin },
-    { text: "Make admin", onPress: onToggleAdmin },
+    { id: "remove_user", text: "Remove user", onPress: onRemoveUser },
+    { id: "remove_admin", text: "Remove admin", onPress: onToggleAdmin },
+    { id: "make_admin", text: "Make admin", onPress: onToggleAdmin },
   ],
 };
 

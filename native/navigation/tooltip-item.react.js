@@ -13,6 +13,7 @@ import {
 import PropTypes from 'prop-types';
 
 export type TooltipEntry<CustomProps> = {|
+  id: string,
   text: string,
   onPress: (props: CustomProps) => mixed,
 |};

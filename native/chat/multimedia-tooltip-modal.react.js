@@ -21,7 +21,7 @@ function onPressSave(props: CustomProps) {
 
 const spec = {
   entries: [
-    { text: "Save", onPress: onPressSave },
+    { id: "save", text: "Save", onPress: onPressSave },
   ],
 };
 

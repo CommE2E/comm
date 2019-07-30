@@ -111,7 +111,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     return role && !role.isDefault && role.name === "Admins";
   }
 
-  enabledEntries() {
+  visibleEntryIDs() {
     const role = this.props.memberInfo.role;
     if (!this.props.canEdit || !role) {
       return [];
@@ -138,14 +138,14 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         )
       )
     ) {
-      result.push("Remove user");
+      result.push("remove_user");
     }
 
     if (canChangeRoles && this.props.memberInfo.username) {
       result.push(
         ThreadSettingsMember.memberIsAdmin(this.props)
-          ? "Remove admin"
-          : "Make admin"
+          ? "remove_admin"
+          : "make_admin"
       );
     }
 
@@ -173,7 +173,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       this.props.changeRoleLoadingStatus === "loading"
     ) {
       editButton = <ActivityIndicator size="small" />;
-    } else if (this.enabledEntries().length !== 0) {
+    } else if (this.visibleEntryIDs().length !== 0) {
       editButton = (
         <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
           <View onLayout={this.onEditButtonLayout} ref={this.editButtonRef}>
@@ -251,6 +251,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         params: {
           initialCoordinates: coordinates,
           verticalBounds,
+          visibleEntryIDs: this.visibleEntryIDs(),
         },
       });
     });

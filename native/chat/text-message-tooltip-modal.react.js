@@ -21,7 +21,7 @@ function onPressCopy(props: CustomProps) {
 
 const spec = {
   entries: [
-    { text: "Copy", onPress: onPressCopy },
+    { id: "copy", text: "Copy", onPress: onPressCopy },
   ],
 };
 

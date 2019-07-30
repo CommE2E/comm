@@ -56,6 +56,7 @@ type NavProp<CustomProps> = NavigationScreenProp<{|
     verticalBounds: VerticalBounds,
     location?: 'above' | 'below',
     margin?: number,
+    visibleEntryIDs?: $ReadOnlyArray<string>,
   },
 |}>;
 
@@ -89,6 +90,9 @@ function createTooltip<
           params: PropTypes.shape({
             initialCoordinates: layoutCoordinatesPropType.isRequired,
             verticalBounds: verticalBoundsPropType.isRequired,
+            location: PropTypes.oneOf([ "above", "below" ]),
+            margin: PropTypes.number,
+            visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
           }).isRequired,
         }).isRequired,
         goBack: PropTypes.func.isRequired,
@@ -129,7 +133,7 @@ function createTooltip<
 
       const { initialCoordinates } = props.navigation.state.params;
       const { y, height } = initialCoordinates;
-      const entryCount = tooltipSpec.entries.length;
+      const entryCount = this.entries.length;
       const { margin } = this;
       this.tooltipVerticalAbove = interpolate(
         this.progress,
@@ -152,6 +156,16 @@ function createTooltip<
         add(1, multiply(-1, this.progress)),
         this.tooltipHorizontalOffset,
       );
+    }
+
+    get entries() {
+      const { entries } = tooltipSpec;
+      const { visibleEntryIDs } = this.props.navigation.state.params;
+      if (!visibleEntryIDs) {
+        return entries;
+      }
+      const visibleSet = new Set(visibleEntryIDs);
+      return entries.filter(entry => visibleSet.has(entry.id));
     }
 
     get opacityStyle() {
@@ -241,8 +255,9 @@ function createTooltip<
     render() {
       const { navigation, screenDimensions } = this.props;
 
-      const entries = tooltipSpec.entries.map((entry, index) => {
-        const style = index !== tooltipSpec.entries.length - 1
+      const { entries } = this;
+      const items = entries.map((entry, index) => {
+        const style = index !== entries.length - 1
           ? styles.itemMargin
           : null;
         return (
@@ -303,8 +318,8 @@ function createTooltip<
               onLayout={this.onTooltipContainerLayout}
             >
               {triangleUp}
-              <View style={styles.entries}>
-                {entries}
+              <View style={styles.items}>
+                {items}
               </View>
               {triangleDown}
             </Animated.View>
@@ -371,7 +386,7 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: "hidden",
   },
-  entries: {
+  items: {
     borderRadius: 5,
     backgroundColor: 'white',
     overflow: 'hidden',
