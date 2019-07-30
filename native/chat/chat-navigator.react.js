@@ -57,9 +57,6 @@ ChatNavigator.navigationOptions = ({ navigation }) => ({
       return;
     }
     const state = navigation.state;
-    if (state.index === 0) {
-      return;
-    }
     const currentRoute = state.routes[state.index];
     const chatScreen = getChatScreen(currentRoute.key);
     if (!chatScreen) {

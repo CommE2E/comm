@@ -58,7 +58,7 @@ type State = {|
   searchText: string,
   searchResults: Set<string>,
 |};
-class InnerChatThreadList extends React.PureComponent<Props, State> {
+class ChatThreadList extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -79,6 +79,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
     headerBackTitle: "Back",
   });
   searchInput: ?TextInput;
+  flatList: ?FlatList;
 
   constructor(props: Props) {
     super(props);
@@ -87,7 +88,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
       searchText: "",
       searchResults: new Set(),
     };
-    this.state.listData = InnerChatThreadList.listData(props, this.state);
+    this.state.listData = ChatThreadList.listData(props, this.state);
   }
 
   componentDidMount() {
@@ -101,7 +102,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.chatListData !== this.props.chatListData) {
       this.setState((prevState: State) => ({
-        listData: InnerChatThreadList.listData(newProps, prevState),
+        listData: ChatThreadList.listData(newProps, prevState),
       }));
     }
   }
@@ -109,12 +110,15 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   componentWillUpdate(nextProps: Props, nextState: State) {
     if (nextState.searchText !== this.state.searchText) {
       this.setState((prevState: State) => ({
-        listData: InnerChatThreadList.listData(nextProps, nextState),
+        listData: ChatThreadList.listData(nextProps, nextState),
       }));
     }
   }
 
   get canReset() {
+    if (this.flatList) {
+      this.flatList.scrollToOffset({ offset: 0, animated: true });
+    }
     return false;
   }
 
@@ -189,9 +193,9 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
       return { length: 0, offset: 0, index };
     }
     const offset =
-      InnerChatThreadList.heightOfItems(data.filter((_, i) => i < index));
+      ChatThreadList.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];
-    const length = item ? InnerChatThreadList.itemHeight(item) : 0;
+    const length = item ? ChatThreadList.itemHeight(item) : 0;
     return { length, offset, index };
   }
 
@@ -203,7 +207,7 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
   }
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {
-    return _sum(data.map(InnerChatThreadList.itemHeight));
+    return _sum(data.map(ChatThreadList.itemHeight));
   }
 
   static listData(props: Props, state: State) {
@@ -242,16 +246,21 @@ class InnerChatThreadList extends React.PureComponent<Props, State> {
         <FlatList
           data={this.state.listData}
           renderItem={this.renderItem}
-          keyExtractor={InnerChatThreadList.keyExtractor}
-          getItemLayout={InnerChatThreadList.getItemLayout}
+          keyExtractor={ChatThreadList.keyExtractor}
+          getItemLayout={ChatThreadList.getItemLayout}
           extraData={this.props.viewerID}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
           style={styles.flatList}
+          ref={this.flatListRef}
         />
         {floatingAction}
       </View>
     );
+  }
+
+  flatListRef = (flatList: ?FlatList) => {
+    this.flatList = flatList;
   }
 
   onChangeSearchText = (searchText: string) => {
@@ -326,10 +335,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ChatThreadList = connect((state: AppState) => ({
+export default connect((state: AppState) => ({
   chatListData: chatListData(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
-}))(InnerChatThreadList);
-
-export default ChatThreadList;
+}))(ChatThreadList);
