@@ -16,6 +16,12 @@ import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewStyle } from '../types/styles';
 import type { TooltipEntry } from './tooltip-item.react';
+import type { Dispatch } from 'lib/types/redux-types';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+  ActionFunc,
+} from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -27,7 +33,13 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type ServerCallState,
+  serverCallStatePropType,
+  serverCallStateSelector,
+  connect,
+} from 'lib/utils/redux-utils';
+import { createBoundServerCallsSelector } from 'lib/utils/action-utils';
 
 import {
   contentBottomOffset,
@@ -70,18 +82,23 @@ type TooltipProps<Navigation> = {
   scene: NavigationScene,
   transitionProps: NavigationTransitionProps,
   position: Value,
+  // Redux state
   screenDimensions: Dimensions,
+  serverCallState: ServerCallState,
+  // Redux dispatch functions
+  dispatch: Dispatch,
+  dispatchActionPayload: DispatchActionPayload,
+  dispatchActionPromise: DispatchActionPromise,
 };
 function createTooltip<
   CustomProps: {},
   Navigation: NavProp<CustomProps>,
   TooltipPropsType: TooltipProps<Navigation>,
   ButtonComponentType: React.ComponentType<ButtonProps<Navigation>>,
-  TooltipComponent: React.ComponentType<TooltipPropsType>,
 >(
   ButtonComponent: ButtonComponentType,
   tooltipSpec: TooltipSpec<CustomProps>,
-): TooltipComponent {
+) {
   class Tooltip extends React.PureComponent<TooltipPropsType> {
 
     static propTypes = {
@@ -101,6 +118,10 @@ function createTooltip<
       scene: PropTypes.object.isRequired,
       position: PropTypes.instanceOf(Value).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
+      serverCallState: serverCallStatePropType.isRequired,
+      dispatch: PropTypes.func.isRequired,
+      dispatchActionPayload: PropTypes.func.isRequired,
+      dispatchActionPromise: PropTypes.func.isRequired,
     };
     progress: Value;
     backdropOpacity: Value;
@@ -362,10 +383,39 @@ function createTooltip<
         initialCoordinates,
         verticalBounds,
         location,
+        margin,
+        visibleEntryIDs,
         ...customProps
       } = this.props.navigation.state.params;
       this.props.navigation.goBack();
-      entry.onPress(customProps);
+      const dispatchFunctions = {
+        dispatch: this.props.dispatch,
+        dispatchActionPayload: this.props.dispatchActionPayload,
+        dispatchActionPromise: this.props.dispatchActionPromise,
+      };
+      entry.onPress(
+        customProps,
+        dispatchFunctions,
+        this.bindServerCall,
+      );
+    }
+
+    bindServerCall = (serverCall: ActionFunc) => {
+      const {
+        cookie,
+        urlPrefix,
+        sessionID,
+        currentUserInfoLoggedIn: loggedIn,
+        connectionStatus,
+      } = this.props.serverCallState;
+      return createBoundServerCallsSelector(serverCall)({
+        dispatch: this.props.dispatch,
+        cookie,
+        urlPrefix,
+        sessionID,
+        loggedIn,
+        connectionStatus,
+      });
     }
 
     onTooltipContainerLayout = (
@@ -391,7 +441,10 @@ function createTooltip<
   return connect(
     (state: AppState) => ({
       screenDimensions: dimensionsSelector(state),
+      serverCallState: serverCallStateSelector(state),
     }),
+    null,
+    true,
   )(Tooltip);
 }
 

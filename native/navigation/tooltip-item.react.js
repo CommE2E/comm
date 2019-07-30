@@ -1,6 +1,11 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../types/styles';
+import type {
+  DispatchFunctions,
+  ActionFunc,
+  BoundServerCall,
+} from 'lib/utils/action-utils';
 
 import * as React from 'react';
 import {
@@ -15,7 +20,11 @@ import PropTypes from 'prop-types';
 export type TooltipEntry<CustomProps> = {|
   id: string,
   text: string,
-  onPress: (props: CustomProps) => mixed,
+  onPress: (
+    props: CustomProps,
+    dispatchFunctions: DispatchFunctions,
+    bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  ) => mixed,
 |};
 
 type Props<CustomProps: {}> = {
