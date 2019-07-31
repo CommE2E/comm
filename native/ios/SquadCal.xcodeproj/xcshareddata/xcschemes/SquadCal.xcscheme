@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0EC1D81647432CEE5AD57706545D64A2"
+               BlueprintIdentifier = "F3967460BD03277C6549D2DBC950CA28"
                BuildableName = "libreact-native-keyboard-tracking-view.a"
                BlueprintName = "react-native-keyboard-tracking-view"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">

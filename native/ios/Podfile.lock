@@ -11,8 +11,8 @@ PODS:
   - lottie-react-native (2.6.1):
     - lottie-ios (~> 2.5.0)
     - React
-  - React (0.59.4):
-    - React/Core (= 0.59.4)
+  - React (0.59.8):
+    - React/Core (= 0.59.8)
   - react-native-async-storage (1.3.0):
     - React
   - react-native-cameraroll (1.0.5):
@@ -40,63 +40,63 @@ PODS:
     - React
   - react-native-splash-screen (3.1.1):
     - React
-  - React/ART (0.59.4):
+  - React/ART (0.59.8):
     - React/Core
-  - React/Core (0.59.4):
-    - yoga (= 0.59.4.React)
-  - React/CxxBridge (0.59.4):
+  - React/Core (0.59.8):
+    - yoga (= 0.59.8.React)
+  - React/CxxBridge (0.59.8):
     - Folly (= 2018.10.22.00)
     - React/Core
     - React/cxxreact
     - React/jsiexecutor
-  - React/cxxreact (0.59.4):
+  - React/cxxreact (0.59.8):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
     - React/jsinspector
-  - React/DevSupport (0.59.4):
+  - React/DevSupport (0.59.8):
     - React/Core
     - React/RCTWebSocket
-  - React/fishhook (0.59.4)
-  - React/jsi (0.59.4):
+  - React/fishhook (0.59.8)
+  - React/jsi (0.59.8):
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-  - React/jsiexecutor (0.59.4):
+  - React/jsiexecutor (0.59.8):
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
     - React/cxxreact
     - React/jsi
-  - React/jsinspector (0.59.4)
-  - React/RCTAnimation (0.59.4):
+  - React/jsinspector (0.59.8)
+  - React/RCTAnimation (0.59.8):
     - React/Core
-  - React/RCTBlob (0.59.4):
+  - React/RCTBlob (0.59.8):
     - React/Core
-  - React/RCTCameraRoll (0.59.4):
+  - React/RCTCameraRoll (0.59.8):
     - React/Core
     - React/RCTImage
-  - React/RCTImage (0.59.4):
+  - React/RCTImage (0.59.8):
     - React/Core
     - React/RCTNetwork
-  - React/RCTLinkingIOS (0.59.4):
+  - React/RCTLinkingIOS (0.59.8):
     - React/Core
-  - React/RCTNetwork (0.59.4):
+  - React/RCTNetwork (0.59.8):
     - React/Core
-  - React/RCTText (0.59.4):
+  - React/RCTText (0.59.8):
     - React/Core
-  - React/RCTWebSocket (0.59.4):
+  - React/RCTWebSocket (0.59.8):
     - React/Core
     - React/fishhook
     - React/RCTBlob
   - RNFS (2.13.3):
     - React
-  - RNGestureHandler (1.1.0):
+  - RNGestureHandler (1.3.0):
     - React
   - RNKeychain (3.0.0):
     - React
-  - RNReanimated (1.0.1):
+  - RNReanimated (1.1.0):
     - React
   - RNScreens (1.0.0-alpha.17):
     - React
@@ -105,7 +105,7 @@ PODS:
   - SDWebImage (5.0.6):
     - SDWebImage/Core (= 5.0.6)
   - SDWebImage/Core (5.0.6)
-  - yoga (0.59.4.React)
+  - yoga (0.59.8.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -209,7 +209,7 @@ SPEC CHECKSUMS:
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
   lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
-  React: 5cb71fb1a15b5ce04794ab49e24b48ebe4c94e65
+  React: 76e6aa2b87d05eb6cccb6926d72685c9a07df152
   react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
   react-native-cameraroll: b1faef9f2ea27b07bdf818b8043909a93f797eca
   react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
@@ -223,13 +223,13 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
   react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
-  RNGestureHandler: 8a75e1d2f83d73aba148653252953e4bcf363b98
+  RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
-  RNReanimated: c8dd490ca98a4edcba229bfa49f2516c95a43afb
+  RNReanimated: 7a52c90473b5e81c13408d40d797b98387eaddde
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
   RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
   SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
-  yoga: 596e61c9b57751d08a22b07aba310dbd3e65ab75
+  yoga: 92b2102c3d373d1a790db4ab761d2b0ffc634f64
 
 PODFILE CHECKSUM: 557d6ad2cd7fd4073717f3c874bbe0ea71279370
 
