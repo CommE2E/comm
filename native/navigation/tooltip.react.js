@@ -125,6 +125,7 @@ function createTooltip<
     };
     progress: Value;
     backdropOpacity: Value;
+    tooltipContainerOpacity: Value;
     tooltipVerticalAbove: Value;
     tooltipVerticalBelow: Value;
     tooltipHorizontalOffset = new Animated.Value(0);
@@ -148,6 +149,14 @@ function createTooltip<
         {
           inputRange: [ 0, 1 ],
           outputRange: [ 0, 0.7 ],
+          extrapolate: Extrapolate.CLAMP,
+        },
+      );
+      this.tooltipContainerOpacity = interpolate(
+        this.progress,
+        {
+          inputRange: [ 0, 0.1 ],
+          outputRange: [ 0, 1 ],
           extrapolate: Extrapolate.CLAMP,
         },
       );
@@ -266,6 +275,7 @@ function createTooltip<
       const style: ViewStyle = {
         position: 'absolute',
         alignItems: 'center',
+        opacity: this.tooltipContainerOpacity,
         transform: [
           { translateX: this.tooltipHorizontal },
         ],
