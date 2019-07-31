@@ -35,7 +35,7 @@ import React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
 import {
-  createStore as defaultCreateStore,
+  createStore,
   applyMiddleware,
   type Store,
 } from 'redux';
@@ -91,10 +91,6 @@ import {
 import { ComposeThreadRouteName } from '../navigation/route-names';
 import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
-
-const createStore = reactotron
-  ? reactotron.createStore
-  : defaultCreateStore;
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -407,15 +403,25 @@ function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
 
+let enhancers;
 const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
   (state: AppState) => state.navInfo.navigationState,
 );
+if (reactotron) {
+  enhancers = composeWithDevTools(
+    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
+    reactotron.createEnhancer(),
+  );
+} else {
+  enhancers = composeWithDevTools(
+    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
+  );
+}
+
 const store: Store<AppState, *> = createStore(
   persistReducer(persistConfig, reducer),
   defaultState,
-  composeWithDevTools(
-    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
-  ),
+  enhancers,
 );
 const persistor = persistStore(store);
 setPersistor(persistor);
