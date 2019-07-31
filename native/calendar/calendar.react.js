@@ -1040,7 +1040,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (
       topLoader &&
       !this.topLoaderWaitingToLeaveView &&
-      !this.topLoadingFromScroll
+      (!this.topLoadingFromScroll || this.props.loadingStatus === "inactive")
     ) {
       this.topLoaderWaitingToLeaveView = true;
       const start = dateFromString(this.props.startDate);
@@ -1056,7 +1056,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     } else if (
       bottomLoader &&
       !this.bottomLoaderWaitingToLeaveView &&
-      !this.bottomLoadingFromScroll
+      (!this.bottomLoadingFromScroll || this.props.loadingStatus === "inactive")
     ) {
       this.bottomLoaderWaitingToLeaveView = true;
       const end = dateFromString(this.props.endDate);
