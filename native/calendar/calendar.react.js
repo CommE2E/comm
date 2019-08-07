@@ -27,6 +27,10 @@ import {
   type LoadingStatus,
   loadingStatusPropType,
 } from 'lib/types/loading-types';
+import {
+  type ConnectionStatus,
+  connectionStatusPropType,
+} from 'lib/types/socket-types';
 
 import React from 'react';
 import {
@@ -133,6 +137,7 @@ type Props = {
   dimensions: Dimensions,
   contentVerticalOffset: number,
   loadingStatus: LoadingStatus,
+  connectionStatus: ConnectionStatus,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -180,6 +185,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     dimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    connectionStatus: connectionStatusPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -420,24 +426,17 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    const { loadingStatus, connectionStatus } = this.props;
+    const {
+      loadingStatus: prevLoadingStatus,
+      connectionStatus: prevConnectionStatus,
+    } = prevProps;
     if (
-      this.props.loadingStatus === "error" &&
-      prevProps.loadingStatus === "loading"
+      (loadingStatus === "error" && prevLoadingStatus === "loading") ||
+      (connectionStatus === "connected" && prevConnectionStatus !== "connected")
     ) {
-      if (this.topLoadingFromScroll) {
-        if (this.topLoaderWaitingToLeaveView) {
-          this.loadMoreAbove();
-        } else {
-          this.topLoadingFromScroll = null;
-        }
-      }
-      if (this.bottomLoadingFromScroll) {
-        if (this.bottomLoaderWaitingToLeaveView) {
-          this.loadMoreBelow();
-        } else {
-          this.bottomLoadingFromScroll = null;
-        }
-      }
+      this.loadMoreAbove();
+      this.loadMoreBelow();
     }
 
     const lastLDWH = prevState.listDataWithHeights;
@@ -1019,11 +1018,13 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     const topLoader = _find({ key: "TopLoader" })(info.viewableItems);
     if (this.topLoaderWaitingToLeaveView && !topLoader) {
       this.topLoaderWaitingToLeaveView = false;
+      this.topLoadingFromScroll = null;
     }
 
     const bottomLoader = _find({ key: "BottomLoader" })(info.viewableItems);
     if (this.bottomLoaderWaitingToLeaveView && !bottomLoader) {
       this.bottomLoaderWaitingToLeaveView = false;
+      this.bottomLoadingFromScroll = null;
     }
 
     if (
@@ -1082,7 +1083,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   loadMoreAbove = _debounce(
     () => {
-      if (this.topLoadingFromScroll) {
+      if (
+        this.topLoadingFromScroll &&
+        this.topLoaderWaitingToLeaveView &&
+        this.props.connectionStatus === "connected"
+      ) {
         this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
       }
     },
@@ -1092,7 +1097,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   loadMoreBelow = _debounce(
     () => {
-      if (this.bottomLoadingFromScroll) {
+      if (
+        this.bottomLoadingFromScroll &&
+        this.bottomLoaderWaitingToLeaveView &&
+        this.props.connectionStatus === "connected"
+      ) {
         this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
       }
     },
@@ -1199,6 +1208,7 @@ const Calendar = connect(
     dimensions: dimensionsSelector(state),
     contentVerticalOffset: contentVerticalOffsetSelector(state),
     loadingStatus: loadingStatusSelector(state),
+    connectionStatus: state.connection.status,
   }),
   { updateCalendarQuery },
 )(InnerCalendar);
