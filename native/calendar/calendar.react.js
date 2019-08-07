@@ -54,6 +54,7 @@ import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
+import _debounce from 'lodash/debounce';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -425,14 +426,14 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     ) {
       if (this.topLoadingFromScroll) {
         if (this.topLoaderWaitingToLeaveView) {
-          this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+          this.loadMoreAbove();
         } else {
           this.topLoadingFromScroll = null;
         }
       }
       if (this.bottomLoadingFromScroll) {
         if (this.bottomLoaderWaitingToLeaveView) {
-          this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+          this.loadMoreBelow();
         } else {
           this.bottomLoadingFromScroll = null;
         }
@@ -1040,7 +1041,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (
       topLoader &&
       !this.topLoaderWaitingToLeaveView &&
-      (!this.topLoadingFromScroll || this.props.loadingStatus === "inactive")
+      !this.topLoadingFromScroll
     ) {
       this.topLoaderWaitingToLeaveView = true;
       const start = dateFromString(this.props.startDate);
@@ -1052,11 +1053,11 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         endDate,
         filters: this.props.calendarFilters,
       };
-      this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+      this.loadMoreAbove();
     } else if (
       bottomLoader &&
       !this.bottomLoaderWaitingToLeaveView &&
-      (!this.bottomLoadingFromScroll || this.props.loadingStatus === "inactive")
+      !this.bottomLoadingFromScroll
     ) {
       this.bottomLoaderWaitingToLeaveView = true;
       const end = dateFromString(this.props.endDate);
@@ -1068,7 +1069,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         endDate,
         filters: this.props.calendarFilters,
       };
-      this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+      this.loadMoreBelow();
     }
   }
 
@@ -1078,6 +1079,26 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       this.props.updateCalendarQuery(calendarQuery),
     );
   }
+
+  loadMoreAbove = _debounce(
+    () => {
+      if (this.topLoadingFromScroll) {
+        this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+      }
+    },
+    1000,
+    { leading: true, trailing: true },
+  )
+
+  loadMoreBelow = _debounce(
+    () => {
+      if (this.bottomLoadingFromScroll) {
+        this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+      }
+    },
+    1000,
+    { leading: true, trailing: true },
+  )
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
