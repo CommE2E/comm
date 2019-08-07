@@ -11,7 +11,6 @@
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		164ABF33429CFE672F0D2509 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */; };
 		18985E4AA5904D639E79FF24 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D93876C58814C70A51B11CA /* SimpleLineIcons.ttf */; };
 		2765B03152DC46AA9BF9C619 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 679D0ED4D6CD443282915074 /* Octicons.ttf */; };
 		2E72CD8C0A0E45EA96D7DE39 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8642FC942DA484383E738BC /* Foundation.ttf */; };
@@ -27,12 +26,11 @@
 		B623ACE13EBF4A499897718B /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 76DBEB73A008439E97F240AC /* Entypo.ttf */; };
 		D6934A274A584CD1A9BA225D /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB874B1A580F4300A923B4A0 /* EvilIcons.ttf */; };
 		EB37E3DA34EE413AB9DDD891 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 385405DD37934EDF872A9264 /* MaterialIcons.ttf */; };
+		EC1D8862480F431D658EC317 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D7454B8E941C3B33A417A5F /* libPods-SquadCal.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
-		0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* SquadCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SquadCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = SquadCal/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = SquadCal/AppDelegate.m; sourceTree = "<group>"; };
@@ -47,14 +45,14 @@
 		679D0ED4D6CD443282915074 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		6D556981F43D459CB36250F9 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		76DBEB73A008439E97F240AC /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Anaheim-Regular.ttf"; sourceTree = "<group>"; };
 		7FB58ABC1E7F6BC600B4C1B1 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
 		7FB58ABD1E7F6BC600B4C1B1 /* OpenSans-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Semibold.ttf"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SquadCal.entitlements; path = SquadCal/SquadCal.entitlements; sourceTree = "<group>"; };
-		A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE948BDFEBFF0E001C92466E /* Pods-SquadCalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCalTests.release.xcconfig"; path = "Target Support Files/Pods-SquadCalTests/Pods-SquadCalTests.release.xcconfig"; sourceTree = "<group>"; };
-		C31F1DCD54AFD77F728CBF09 /* Pods-SquadCalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCalTests.debug.xcconfig"; path = "Target Support Files/Pods-SquadCalTests/Pods-SquadCalTests.debug.xcconfig"; sourceTree = "<group>"; };
+		8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
+		9D7454B8E941C3B33A417A5F /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C8642FC942DA484383E738BC /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		D70A534A191746A08CD82B83 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		E594F1B870984E85B20C0622 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
@@ -67,7 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
-				164ABF33429CFE672F0D2509 /* libPods-SquadCal.a in Frameworks */,
+				EC1D8862480F431D658EC317 /* libPods-SquadCal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,7 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
-				A0DD07F9928C5FD45DC1BEA6 /* libPods-SquadCal.a */,
+				9D7454B8E941C3B33A417A5F /* libPods-SquadCal.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,10 +141,8 @@
 		D533B93718E3B9684B508006 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */,
-				014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */,
-				C31F1DCD54AFD77F728CBF09 /* Pods-SquadCalTests.debug.xcconfig */,
-				AE948BDFEBFF0E001C92466E /* Pods-SquadCalTests.release.xcconfig */,
+				8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */,
+				7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -158,12 +154,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SquadCal" */;
 			buildPhases = (
-				71A3C0E6E4C594516228C60A /* [CP] Check Pods Manifest.lock */,
+				3FE01AD85986FDE151C2E50A /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				7E9A2F093C5F94FE0B812FE7 /* [CP] Copy Pods Resources */,
+				DC10C46355D57CB12F6B6D49 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -269,7 +265,7 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		71A3C0E6E4C594516228C60A /* [CP] Check Pods Manifest.lock */ = {
+		3FE01AD85986FDE151C2E50A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -291,12 +287,10 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7E9A2F093C5F94FE0B812FE7 /* [CP] Copy Pods Resources */ = {
+		DC10C46355D57CB12F6B6D49 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SquadCal/Pods-SquadCal-resources.sh",
@@ -314,8 +308,6 @@
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/Zocial.ttf",
 			);
 			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/OnePasswordExtensionResources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Entypo.ttf",
@@ -364,7 +356,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C7EDB01EA89B2CC28DB5C92 /* Pods-SquadCal.debug.xcconfig */;
+			baseConfigurationReference = 8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
@@ -392,7 +384,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 014977C8FB73A1BAFFC6A440 /* Pods-SquadCal.release.xcconfig */;
+			baseConfigurationReference = 7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
