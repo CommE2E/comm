@@ -20,6 +20,7 @@ import { ServerError } from 'lib/utils/errors';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
+  currentDateInTimeZone,
 } from 'lib/utils/date-utils';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
@@ -55,7 +56,10 @@ const { reducer } = ReduxSetup;
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   let navInfo;
   try {
-    navInfo = navInfoFromURL(url);
+    navInfo = navInfoFromURL(
+      url,
+      { now: currentDateInTimeZone(viewer.timeZone) },
+    );
   } catch (e) {
     throw new ServerError(e.message);
   }
@@ -147,7 +151,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       windowDimensions: { width: 0, height: 0 },
       baseHref: baseDomain + baseURL,
       connection: {
-        ...defaultConnectionInfo("web"),
+        ...defaultConnectionInfo("web", viewer.timeZone),
         actualizedCalendarQuery: calendarQuery,
       },
       watchedThreadIDs: [],

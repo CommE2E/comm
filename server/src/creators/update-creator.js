@@ -397,6 +397,8 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   viewerInfo: ViewerInfo,
 ): Promise<FetchUpdatesResult> {
+  const { viewer } = viewerInfo;
+
   const threadIDsNeedingFetch = new Set();
   const entryIDsNeedingFetch = new Set();
   const currentUserIDsNeedingFetch = new Set();
@@ -414,7 +416,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
       entryIDsNeedingFetch.add(rawUpdateInfo.entryID);
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      currentUserIDsNeedingFetch.add(viewerInfo.viewer.userID);
+      currentUserIDsNeedingFetch.add(viewer.userID);
     }
   }
 
@@ -422,7 +424,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
 
   if (!viewerInfo.threadInfos && threadIDsNeedingFetch.size > 0) {
     promises.threadResult = fetchThreadInfos(
-      viewerInfo.viewer,
+      viewer,
       SQL`t.id IN (${[...threadIDsNeedingFetch]})`,
     );
   }
@@ -430,13 +432,13 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   let calendarQuery: ?CalendarQuery = viewerInfo.calendarQuery
     ? viewerInfo.calendarQuery
     : null;
-  if (!calendarQuery && viewerInfo.viewer.hasSessionInfo) {
+  if (!calendarQuery && viewer.hasSessionInfo) {
     // This should only ever happen for "legacy" clients who call in without
     // providing this information. These clients wouldn't know how to deal with
     // the corresponding UpdateInfos anyways, so no reason to be worried.
-    calendarQuery = viewerInfo.viewer.calendarQuery;
+    calendarQuery = viewer.calendarQuery;
   } else if (!calendarQuery) {
-    calendarQuery = defaultCalendarQuery(viewerInfo.viewer.platform);
+    calendarQuery = defaultCalendarQuery(viewer.platform, viewer.timeZone);
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {
     const threadSelectionCriteria = { threadCursors: {} };
@@ -444,7 +446,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
       threadSelectionCriteria.threadCursors[threadID] = false;
     }
     promises.messageInfosResult = fetchMessageInfos(
-      viewerInfo.viewer,
+      viewer,
       threadSelectionCriteria,
       defaultNumberPerThread,
     );
@@ -456,14 +458,14 @@ async function fetchUpdateInfosWithRawUpdateInfos(
       ],
     };
     promises.calendarResult = fetchEntryInfos(
-      viewerInfo.viewer,
+      viewer,
       [ threadCalendarQuery ],
     );
   }
 
   if (entryIDsNeedingFetch.size > 0) {
     promises.entryInfosResult = fetchEntryInfosByID(
-      viewerInfo.viewer,
+      viewer,
       [...entryIDsNeedingFetch],
     );
   }
@@ -493,7 +495,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   }
 
   return await updateInfosFromRawUpdateInfos(
-    viewerInfo.viewer,
+    viewer,
     rawUpdateInfos,
     {
       threadInfosResult,

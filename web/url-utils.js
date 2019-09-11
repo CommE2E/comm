@@ -67,16 +67,18 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
 // default if they are unspecified. 
 function navInfoFromURL(
   url: string,
-  navInfo?: NavInfo,
+  backupInfo: {| now?: Date, navInfo?: NavInfo |},
 ): NavInfo {
   const urlInfo = infoFromURL(url);
+  const { navInfo } = backupInfo;
+  const now = backupInfo.now ? backupInfo.now : new Date();
 
   let year = urlInfo.year;
   if (!year && navInfo) {
     year = yearExtractor(navInfo.startDate, navInfo.endDate);
   }
   if (!year) {
-    year = (new Date()).getFullYear();
+    year = now.getFullYear();
   }
 
   let month = urlInfo.month;
@@ -84,7 +86,7 @@ function navInfoFromURL(
     month = monthExtractor(navInfo.startDate, navInfo.endDate);
   }
   if (!month) {
-    month = (new Date()).getMonth() + 1;
+    month = now.getMonth() + 1;
   }
 
   let activeChatThreadID = null;

@@ -185,7 +185,7 @@ class App extends React.PureComponent<Props, State> {
       if (nextProps.location.pathname !== this.props.location.pathname) {
         const newNavInfo = navInfoFromURL(
           nextProps.location.pathname,
-          nextProps.navInfo,
+          { navInfo: nextProps.navInfo },
         );
         if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
           this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
