@@ -28,6 +28,7 @@ export type UserViewerData = {|
   +sessionInfo: ?SessionInfo,
   +isScriptViewer: bool,
   +isSocket?: bool,
+  +ipAddress?: string,
 |};
 
 export type AnonymousViewerData = {|
@@ -44,6 +45,7 @@ export type AnonymousViewerData = {|
   +sessionInfo: ?SessionInfo,
   +isScriptViewer: bool,
   +isSocket?: bool,
+  +ipAddress?: string,
 |};
 
 type SessionInfo = {|
@@ -101,6 +103,14 @@ class Viewer {
       } else {
         // This is a separate condition because of Flow
         data = { ...data, isSocket: this.isSocket };
+      }
+    }
+    if (data.ipAddress === null || data.ipAddress === undefined) {
+      if (data.loggedIn) {
+        data = { ...data, ipAddress: this.ipAddress };
+      } else {
+        // This is a separate condition because of Flow
+        data = { ...data, ipAddress: this.ipAddress };
       }
     }
 
@@ -283,6 +293,14 @@ class Viewer {
       "isSocket should be set",
     );
     return this.data.isSocket;
+  }
+
+  get ipAddress(): string {
+    invariant(
+      this.data.ipAddress !== null && this.data.ipAddress !== undefined,
+      "ipAddress should be set",
+    );
+    return this.data.ipAddress;
   }
 
 }

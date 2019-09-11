@@ -23,6 +23,7 @@ import type { InitialClientSocketMessage } from 'lib/types/socket-types';
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
 import crypto from 'crypto';
+import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
@@ -48,6 +49,7 @@ type SessionParameterInfo = {|
   isSocket: bool,
   sessionID: ?string,
   sessionIdentifierType: SessionIdentifierType,
+  ipAddress: string,
 |};
 
 type FetchViewerResult =
@@ -151,6 +153,7 @@ async function fetchUserViewer(
     sessionID,
     sessionInfo,
     isScriptViewer: false,
+    ipAddress: sessionParameterInfo.ipAddress,
   });
   return { type: "valid", viewer };
 }
@@ -233,6 +236,7 @@ async function fetchAnonymousViewer(
     sessionID,
     sessionInfo,
     isScriptViewer: false,
+    ipAddress: sessionParameterInfo.ipAddress,
   });
   return { type: "valid", viewer };
 }
@@ -360,7 +364,9 @@ function getSessionParameterInfoFromRequestBody(
   const sessionIdentifierType = req.method === "GET" || sessionID !== undefined
     ? sessionIdentifierTypes.BODY_SESSION_ID
     : sessionIdentifierTypes.COOKIE_ID;
-  return { isSocket: false, sessionID, sessionIdentifierType };
+  const ipAddress = req.get("X-Forwarded-For");
+  invariant(ipAddress, "X-Forwarded-For header missing");
+  return { isSocket: false, sessionID, sessionIdentifierType, ipAddress };
 }
 
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
@@ -391,12 +397,15 @@ async function fetchViewerForSocket(
   assertSecureRequest(req);
   const { sessionIdentification } = clientMessage.payload;
   const { sessionID } = sessionIdentification;
+  const ipAddress = req.get("X-Forwarded-For");
+  invariant(ipAddress, "X-Forwarded-For header missing");
   const sessionParameterInfo = {
     isSocket: true,
     sessionID,
     sessionIdentifierType: sessionID !== undefined
       ? sessionIdentifierTypes.BODY_SESSION_ID
       : sessionIdentifierTypes.COOKIE_ID,
+    ipAddress,
   };
 
   let result = await fetchViewerFromRequestBody(
@@ -484,6 +493,7 @@ function createViewerForInvalidFetchViewerResult(
     cookieSource,
     sessionIdentifierType: result.sessionParameterInfo.sessionIdentifierType,
     isSocket: result.sessionParameterInfo.isSocket,
+    ipAddress: result.sessionParameterInfo.ipAddress,
   });
   viewer.sessionChanged = true;
 
@@ -542,13 +552,13 @@ type CookieCreationParams = $Shape<{|
 |}>;
 const defaultPlatformDetails = {};
 
-// The AnonymousViewerData returned by this function...
-// (1) Does not specify a sessionIdentifierType. This will cause an exception
-//     if passed directly to the Viewer constructor, so the caller should set it
-//     before doing so.
-// (2) Does not specify a cookieSource. This will cause an exception if passed
-//     directly to the Viewer constructor, so the caller should set it before
-//     doing so.
+// The result of this function should not be passed directly to the Viewer
+// constructor. Instead, it should be passed to viewer.setNewCookie. There are
+// several fields on AnonymousViewerData that are not set by this function:
+// sessionIdentifierType, cookieSource, and ipAddress. These parameters all
+// depend on the initial request. If the result of this function is passed to
+// the Viewer constructor directly, the resultant Viewer object will throw
+// whenever anybody attempts to access the relevant properties.
 async function createNewAnonymousCookie(
   params: CookieCreationParams,
 ): Promise<AnonymousViewerData> {
@@ -596,16 +606,13 @@ async function createNewAnonymousCookie(
   };
 }
 
-// The UserViewerData returned by this function...
-// (1) Will always have an undefined sessionID. If the caller wants the response
-//     body to specify a sessionID, they need to call setSessionID on Viewer.
-// (2) Does not specify a sessionIdentifierType. Currently this function is only
-//     ever called with the intent of passing its return value to setNewCookie,
-//     which means it will inherit the earlier value of sessionIdentifierType
-//     and won't throw an exception, as it would if passed directly to the
-//     Viewer constructor.
-// (3) Does not specify a cookieSource. Same as (2), this only works because the
-//     result is never passed directly to the Viewer constructor.
+// The result of this function should never be passed directly to the Viewer
+// constructor. Instead, it should be passed to viewer.setNewCookie. There are
+// several fields on UserViewerData that are not set by this function:
+// sessionID, sessionIdentifierType, cookieSource, and ipAddress. These
+// parameters all depend on the initial request. If the result of this function
+// is passed to the Viewer constructor directly, the resultant Viewer object
+// will throw whenever anybody attempts to access the relevant properties.
 async function createNewUserCookie(
   userID: string,
   params: CookieCreationParams,

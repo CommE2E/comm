@@ -298,6 +298,13 @@ class Socket {
           message: error.message,
         }
         if (anonymousViewerData) {
+          // It is normally not safe to pass the result of
+          // createNewAnonymousCookie to the Viewer constructor. That is because
+          // createNewAnonymousCookie leaves several fields of
+          // AnonymousViewerData unset, and consequently Viewer will throw when
+          // access is attempted. It is only safe here because we can guarantee
+          // that only cookiePairString and cookieID are accessed on anonViewer
+          // below.
           const anonViewer = new Viewer(anonymousViewerData);
           authErrorMessage.sessionChange = {
             cookie: anonViewer.cookiePairString,
