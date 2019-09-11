@@ -10,6 +10,7 @@ import type { Platform, PlatformDetails } from 'lib/types/device-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 
 import invariant from 'invariant';
+import geoip from 'geoip-lite';
 
 import { ServerError } from 'lib/utils/errors';
 
@@ -61,6 +62,7 @@ class Viewer {
   sessionChanged = false;
   cookieInvalidated = false;
   initialCookieName: string;
+  cachedTimeZone: ?string;
 
   constructor(data: ViewerData) {
     this.data = data;
@@ -112,6 +114,8 @@ class Viewer {
         // This is a separate condition because of Flow
         data = { ...data, ipAddress: this.ipAddress };
       }
+    } else {
+      this.cachedTimeZone = undefined;
     }
 
     this.data = data;
@@ -301,6 +305,14 @@ class Viewer {
       "ipAddress should be set",
     );
     return this.data.ipAddress;
+  }
+
+  get timeZone(): ?string {
+    if (this.cachedTimeZone === undefined) {
+      const geoData = geoip.lookup(this.ipAddress);
+      this.cachedTimeZone = geoData ? geoData.timezone : null;
+    }
+    return this.cachedTimeZone;
   }
 
 }
