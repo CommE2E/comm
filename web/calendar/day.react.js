@@ -19,7 +19,11 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
-import { dateString, dateFromString } from 'lib/utils/date-utils'
+import {
+  dateString,
+  dateFromString,
+  currentDateInTimeZone,
+} from 'lib/utils/date-utils'
 import { connect } from 'lib/utils/redux-utils';
 
 import css from './calendar.css';
@@ -40,6 +44,7 @@ type Props = {
   viewerID: ?string,
   loggedIn: bool,
   nextLocalID: number,
+  timeZone: ?string,
   // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
 };
@@ -48,9 +53,20 @@ type State = {
   hovered: bool,
   mounted: bool,
 };
-
 class Day extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    dayString: PropTypes.string.isRequired,
+    entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
+    setModal: PropTypes.func.isRequired,
+    startingTabIndex: PropTypes.number.isRequired,
+    onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
+    viewerID: PropTypes.string,
+    loggedIn: PropTypes.bool.isRequired,
+    nextLocalID: PropTypes.number.isRequired,
+    timeZone: PropTypes.string,
+    dispatchActionPayload: PropTypes.func.isRequired,
+  };
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
@@ -86,8 +102,9 @@ class Day extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const now = currentDateInTimeZone(this.props.timeZone);
     const isToday = this.state.mounted &&
-      dateString(new Date()) === this.props.dayString;
+      dateString(now) === this.props.dayString;
     const tdClasses = classNames(css.day, { [css.currentDay]: isToday });
 
     let actionLinks = null;
@@ -274,18 +291,6 @@ class Day extends React.PureComponent<Props, State> {
 
 }
 
-Day.propTypes = {
-  dayString: PropTypes.string.isRequired,
-  entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
-  setModal: PropTypes.func.isRequired,
-  startingTabIndex: PropTypes.number.isRequired,
-  onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-  viewerID: PropTypes.string,
-  loggedIn: PropTypes.bool.isRequired,
-  nextLocalID: PropTypes.number.isRequired,
-  dispatchActionPayload: PropTypes.func.isRequired,
-};
-
 export default connect(
   (state: AppState) => ({
     onScreenThreadInfos: onScreenThreadInfos(state),
@@ -293,6 +298,7 @@ export default connect(
     loggedIn: !!(state.currentUserInfo &&
       !state.currentUserInfo.anonymous && true),
     nextLocalID: state.nextLocalID,
+    timeZone: state.timeZone,
   }),
   null,
   true,

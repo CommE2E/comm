@@ -157,6 +157,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       watchedThreadIDs: [],
       foreground: true,
       nextLocalID: 0,
+      timeZone: viewer.timeZone,
     }: AppState),
   );
   const routerContext = {};
@@ -178,7 +179,9 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   }
 
   const state = store.getState();
-  const stringifiedState = JSON.stringify(state).replace(/</g, '\\u003c');
+  const filteredState = { ...state, timeZone: null };
+  const stringifiedState =
+    JSON.stringify(filteredState).replace(/</g, '\\u003c');
 
   const fontsURL = process.env.NODE_ENV === "dev"
     ? "fonts/local-fonts.css"

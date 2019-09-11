@@ -62,6 +62,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: bool,
   nextLocalID: number,
+  timeZone: ?string,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";
