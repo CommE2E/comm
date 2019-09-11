@@ -1,5 +1,5 @@
-// flow-typed signature: d4caab3aabaf3dcaf2bd3c9f764002d1
-// flow-typed version: 8ffacb29b6/redis_v2.x.x/flow_>=v0.34.x
+// flow-typed signature: 20bdcdd4993e04a93358586608804889
+// flow-typed version: c6154227d1/redis_v2.x.x/flow_>=v0.34.x <=v0.103.x
 
 /* This module definition is by no means complete. A lot of methods of the RedisClient class are missing */
 
