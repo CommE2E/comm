@@ -8,8 +8,10 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const cssLoader = {
   loader: 'css-loader',
   options: {
-    modules: true,
-    localIdentName: '[path][name]__[local]--[hash:base64:5]',
+    modules: {
+      mode: 'local',
+      localIdentName: '[path][name]__[local]--[hash:base64:5]',
+    },
   },
 };
 
@@ -268,7 +270,10 @@ module.exports = function(env) {
           test: /\.css$/,
           use: {
             ...cssLoader,
-            loader: 'css-loader/locals',
+            options: {
+              ...cssLoader.options,
+              onlyLocals: true,
+            },
           },
         },
         browserConfig.module.rules[1],
