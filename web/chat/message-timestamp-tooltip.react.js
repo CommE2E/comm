@@ -14,13 +14,14 @@ import css from './chat-message-list.css';
 
 type Props = {|
   messagePositionInfo: ?OnMessagePositionInfo,
+  timeZone: ?string,
 |};
 function MessageTimestampTooltip(props: Props) {
   if (!props.messagePositionInfo) {
     return null;
   }
   const { item, messagePosition } = props.messagePositionInfo;
-  const text = longAbsoluteDate(item.messageInfo.time);
+  const text = longAbsoluteDate(item.messageInfo.time, props.timeZone);
 
   const font =
     '14px -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", ' +
@@ -100,7 +101,7 @@ function MessageTimestampTooltip(props: Props) {
       className={classNames(css.messageTimestampTooltip, className)}
       style={style}
     >
-      {longAbsoluteDate(item.messageInfo.time)}
+      {text}
     </div>
   );
 }

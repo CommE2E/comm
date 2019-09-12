@@ -45,6 +45,7 @@ type Props = {|
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
   chatInputState: ChatInputState,
   setModal: (modal: ?React.Node) => void,
+  timeZone: ?string,
 |};
 class Message extends React.PureComponent<Props> {
 
@@ -54,31 +55,34 @@ class Message extends React.PureComponent<Props> {
     setMouseOver: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
     setModal: PropTypes.func.isRequired,
+    timeZone: PropTypes.string,
   };
 
   render() {
+    const { item, timeZone } = this.props;
+
     let conversationHeader = null;
-    if (this.props.item.startsConversation) {
+    if (item.startsConversation) {
       conversationHeader = (
         <div className={css.conversationHeader}>
-          {longAbsoluteDate(this.props.item.messageInfo.time)}
+          {longAbsoluteDate(item.messageInfo.time, timeZone)}
         </div>
       );
     }
     let message;
-    if (this.props.item.messageInfo.type === messageTypes.TEXT) {
+    if (item.messageInfo.type === messageTypes.TEXT) {
       message = (
         <TextMessage
-          item={this.props.item}
+          item={item}
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
           chatInputState={this.props.chatInputState}
         />
       );
-    } else if (this.props.item.messageInfo.type === messageTypes.MULTIMEDIA) {
+    } else if (item.messageInfo.type === messageTypes.MULTIMEDIA) {
       message = (
         <MultimediaMessage
-          item={this.props.item}
+          item={item}
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
           chatInputState={this.props.chatInputState}
@@ -88,7 +92,7 @@ class Message extends React.PureComponent<Props> {
     } else {
       message = (
         <RobotextMessage
-          item={this.props.item}
+          item={item}
           setMouseOver={this.props.setMouseOver}
         />
       );

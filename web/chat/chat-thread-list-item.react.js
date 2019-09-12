@@ -24,6 +24,7 @@ type Props = {|
   item: ChatThreadItem,
   active: bool,
   navInfo: NavInfo,
+  timeZone: ?string,
   dispatchActionPayload: DispatchActionPayload,
 |};
 class ChatThreadListItem extends React.PureComponent<Props> {
@@ -32,12 +33,13 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     item: chatThreadItemPropType.isRequired,
     active: PropTypes.bool.isRequired,
     navInfo: navInfoPropType.isRequired,
+    timeZone: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   render() {
-    const { item } = this.props;
-    const lastActivity = shortAbsoluteDate(item.lastUpdatedTime);
+    const { item, timeZone } = this.props;
+    const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
     const colorSplotchStyle = { backgroundColor: `#${item.threadInfo.color}` };
     const unread = item.threadInfo.currentUser.unread;
     const activeStyle = this.props.active ? css.activeThread : null;

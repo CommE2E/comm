@@ -61,6 +61,7 @@ type PassedProps = {|
   threadInfo: ?ThreadInfo,
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   startReached: bool,
+  timeZone: ?string,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -92,6 +93,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
+    timeZone: PropTypes.string,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -240,6 +242,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         setMouseOver={this.setTimestampTooltip}
         chatInputState={chatInputState}
         setModal={setModal}
+        timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
@@ -293,13 +296,17 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     const tooltip = (
       <MessageTimestampTooltip
         messagePositionInfo={this.state.messageMouseover}
+        timeZone={this.props.timeZone}
       />
     );
 
     let content;
     if (!usingFlexDirectionColumnReverse) {
       content = (
-        <div className={css.invertedMessageContainer} ref={this.messageContainerRef}>
+        <div
+          className={css.invertedMessageContainer}
+          ref={this.messageContainerRef}
+        >
           {[...messages].reverse()}
           {tooltip}
         </div>
@@ -417,6 +424,7 @@ const ReduxConnectedChatMessageList = connect(
       messageListData: webMessageListData(state),
       startReached: !!(activeChatThreadID &&
         state.messageStore.threads[activeChatThreadID].startReached),
+      timeZone: state.timeZone,
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
