@@ -14,7 +14,7 @@ import {
 } from './responders/handlers';
 import { onConnection } from './socket/socket';
 import urlFacts from '../facts/url';
-import './cron';
+import './cron/cron';
 import { jsonEndpoints } from './endpoints';
 import { websiteResponder } from './responders/website-responders';
 import { errorReportDownloadResponder } from './responders/report-responders';

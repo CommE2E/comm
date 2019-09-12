@@ -3,26 +3,26 @@
 import schedule from 'node-schedule';
 import cluster from 'cluster';
 
-import { deleteExpiredCookies } from './deleters/cookie-deleters';
-import { deleteExpiredVerifications } from './models/verification';
-import { deleteInaccessibleThreads } from './deleters/thread-deleters';
-import { deleteOrphanedDays } from './deleters/day-deleters';
-import { deleteOrphanedMemberships } from './deleters/membership-deleters';
-import { deleteOrphanedEntries } from './deleters/entry-deleters';
-import { deleteOrphanedRevisions } from './deleters/revision-deleters';
-import { deleteOrphanedRoles } from './deleters/role-deleters';
-import { deleteOrphanedMessages } from './deleters/message-deleters';
-import { deleteOrphanedActivity } from './deleters/activity-deleters';
-import { deleteOrphanedNotifs } from './deleters/notif-deleters';
-import { deleteExpiredUpdates } from './deleters/update-deleters';
+import { deleteExpiredCookies } from '../deleters/cookie-deleters';
+import { deleteExpiredVerifications } from '../models/verification';
+import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
+import { deleteOrphanedDays } from '../deleters/day-deleters';
+import { deleteOrphanedMemberships } from '../deleters/membership-deleters';
+import { deleteOrphanedEntries } from '../deleters/entry-deleters';
+import { deleteOrphanedRevisions } from '../deleters/revision-deleters';
+import { deleteOrphanedRoles } from '../deleters/role-deleters';
+import { deleteOrphanedMessages } from '../deleters/message-deleters';
+import { deleteOrphanedActivity } from '../deleters/activity-deleters';
+import { deleteOrphanedNotifs } from '../deleters/notif-deleters';
+import { deleteExpiredUpdates } from '../deleters/update-deleters';
 import {
   deleteOrphanedSessions,
   deleteOldWebSessions,
-} from './deleters/session-deleters';
+} from '../deleters/session-deleters';
 import { backupDB } from './backups';
 import {
   botherMonthlyActivesToUpdateAppVersion,
-} from './bots/app-version-update';
+} from '../bots/app-version-update';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(

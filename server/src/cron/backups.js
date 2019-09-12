@@ -7,8 +7,8 @@ import dateFormat from 'dateformat';
 import StreamCache from 'stream-cache';
 import { promisify } from 'util';
 
-import dbConfig from '../secrets/db_config';
-import backupConfig from '../facts/backups';
+import dbConfig from '../../secrets/db_config';
+import backupConfig from '../../facts/backups';
 
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
