@@ -23,6 +23,7 @@ import { backupDB } from './backups';
 import {
   botherMonthlyActivesToUpdateAppVersion,
 } from '../bots/app-version-update';
+import { updateAndReloadGeoipDB } from './update-geoip-db';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -74,6 +75,19 @@ if (cluster.isMaster) {
       } catch (e) {
         console.warn(
           "encountered error while trying to bother monthly actives to update",
+          e,
+        );
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '0 3 ? * 0', // every Sunday at 3:00 AM Pacific Time
+    async () => {
+      try {
+        await updateAndReloadGeoipDB();
+      } catch (e) {
+        console.warn(
+          "encountered error while trying to update GeoIP database",
           e,
         );
       }
