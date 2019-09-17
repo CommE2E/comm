@@ -88,7 +88,7 @@ function handleAndroidMessage(
     .setData({ threadID })
     .android.setTag(id)
     .android.setChannelId(androidNotificationChannelID)
-    .android.setDefaults(firebase.notifications.Android.Defaults.All)
+    .android.setDefaults([ firebase.notifications.Android.Defaults.All ])
     .android.setVibrate(vibrationSpec)
     .android.setAutoCancel(true)
     .android.setLargeIcon("@mipmap/ic_launcher")
