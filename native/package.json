@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig",
-    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
     "devtools": "react-devtools",
@@ -24,8 +24,8 @@
     "lib": "0.0.1",
     "lodash": "^4.17.5",
     "lottie-react-native": "^2.6.1",
-    "react": "16.8.3",
-    "react-native": "0.59.8",
+    "react": "16.8.6",
+    "react-native": "0.60.5",
     "react-native-exit-app": "git+https://github.com/wumke/react-native-exit-app.git#460d40aaacb1aa95d7ed5f21e7906ba930c74301",
     "react-native-fast-image": "^6.0.3",
     "react-native-firebase": "^5.5.6",
@@ -62,8 +62,8 @@
     "url-parse": "^1.1.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/runtime": "^7.4.4",
+    "@babel/core": "^7.5.5",
+    "@babel/runtime": "^7.5.5",
     "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "^24.8.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
@@ -73,10 +73,10 @@
     "flow-mono-cli": "^1.5.0",
     "get-yarn-workspaces": "^1.0.2",
     "jest": "^24.8.0",
-    "metro-react-native-babel-preset": "^0.54.0",
+    "metro-react-native-babel-preset": "^0.56.0",
     "postinstall-postinstall": "^2.0.0",
     "react-devtools": "^3.0.0",
-    "react-test-renderer": "16.8.3",
+    "react-test-renderer": "16.8.6",
     "schedule": "0.4.0"
   },
   "jest": {
