@@ -6,6 +6,7 @@
     "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
+    "lint": "eslint .",
     "devtools": "react-devtools",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
@@ -63,9 +64,11 @@
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/runtime": "^7.4.4",
+    "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "^24.8.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "eslint": "^6.1.0",
     "flow-bin": "^0.92.0",
     "flow-mono-cli": "^1.5.0",
     "get-yarn-workspaces": "^1.0.2",
