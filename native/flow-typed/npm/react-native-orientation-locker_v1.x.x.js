@@ -1,5 +1,5 @@
-// flow-typed signature: f4c2e907bfc9b54623a88d7c7ce3cee0
-// flow-typed version: b98ff4b09a/react-native-orientation-locker_v1.x.x/flow_>=v0.72.0
+// flow-typed signature: 4d6b3e45a1b044dd073049ff76d5a90d
+// flow-typed version: c6154227d1/react-native-orientation-locker_v1.x.x/flow_>=v0.72.0 <=v0.103.x
 
 declare module "react-native-orientation-locker" {
   declare export type Orientations =

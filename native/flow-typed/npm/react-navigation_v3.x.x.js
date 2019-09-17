@@ -1,5 +1,5 @@
-// flow-typed signature: 9b2f8a97675f279f008e0178b185e266
-// flow-typed version: 8bb97d26b9/react-navigation_v3.x.x/flow_>=v0.92.x
+// flow-typed signature: cdf7cca012d2f1d33a7aec83b0578373
+// flow-typed version: c6154227d1/react-navigation_v3.x.x/flow_>=v0.92.x <=v0.103.x
 
 // @flow
 
@@ -1278,4 +1278,12 @@ declare module 'react-navigation' {
     getScreenProps: () => {},
     getCurrentNavigation: () => ?NavigationScreenProp<State>
   ): NavigationScreenProp<State>;
+
+  declare export function getActiveChildNavigationOptions<
+    State: NavigationState,
+    Options: {}
+  >(
+    navigation: NavigationScreenProp<State>,
+    screenProps?: {}
+  ): Options;
 }
