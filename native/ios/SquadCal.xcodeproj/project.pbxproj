@@ -36,7 +36,7 @@
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = SquadCal/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SquadCal/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SquadCal/Info.plist; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = SquadCal/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SquadCal/main.m; sourceTree = "<group>"; };
 		1BACB9A55ECC42C38F5FE331 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		1D93876C58814C70A51B11CA /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -46,6 +46,7 @@
 		6D556981F43D459CB36250F9 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		76DBEB73A008439E97F240AC /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
 		7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
+		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = SquadCal/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Anaheim-Regular.ttf"; sourceTree = "<group>"; };
 		7FB58ABC1E7F6BC600B4C1B1 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
@@ -80,7 +81,8 @@
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
-				13B07FB61A68108700A75B9A /* Info.plist */,
+				7F554F822332D58B007CB9F7 /* Info.debug.plist */,
+				13B07FB61A68108700A75B9A /* Info.release.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
@@ -368,7 +370,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 				);
-				INFOPLIST_FILE = SquadCal/Info.plist;
+				INFOPLIST_FILE = SquadCal/Info.debug.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -395,7 +397,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 				);
-				INFOPLIST_FILE = SquadCal/Info.plist;
+				INFOPLIST_FILE = SquadCal/Info.release.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
