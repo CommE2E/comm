@@ -1,3 +1,15 @@
+diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
+index 3c8d37e..069e216 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
++++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
+@@ -13,7 +13,6 @@ public class CustomKeyboardRootViewShadow extends LayoutShadowNode {
+         mLayout.setShadowNode(this);
+     }
+ 
+-    @Override
+     public void onBeforeLayout() {
+         mLayout.setShadowNode(this);
+     }
 diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
 index 2a31b47..21090bf 100644
 --- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m

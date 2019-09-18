@@ -5,11 +5,25 @@ PODS:
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
+    - Folly/Default (= 2018.10.22.00)
+    - glog
+  - Folly/Default (2018.10.22.00):
+    - boost-for-react-native
+    - DoubleConversion
     - glog
   - glog (0.3.5)
-  - lottie-ios (2.5.3)
-  - lottie-react-native (2.6.1):
-    - lottie-ios (~> 2.5.0)
+  - libwebp (1.0.3):
+    - libwebp/demux (= 1.0.3)
+    - libwebp/mux (= 1.0.3)
+    - libwebp/webp (= 1.0.3)
+  - libwebp/demux (1.0.3):
+    - libwebp/webp
+  - libwebp/mux (1.0.3):
+    - libwebp/demux
+  - libwebp/webp (1.0.3)
+  - lottie-ios (3.0.3)
+  - lottie-react-native (3.1.1):
+    - lottie-ios (~> 3.0.3)
     - React
   - React (0.60.5):
     - React-Core (= 0.60.5)
@@ -58,15 +72,8 @@ PODS:
     - React-cxxreact (= 0.60.5)
     - React-jsi (= 0.60.5)
   - React-jsinspector (0.60.5)
-  - react-native-async-storage (1.3.0):
+  - react-native-cameraroll (1.2.1):
     - React
-  - react-native-cameraroll (1.0.5):
-    - React
-  - react-native-exit-app (0.1.0):
-    - React
-  - react-native-fast-image (6.0.3):
-    - React
-    - SDWebImage (~> 5.0)
   - react-native-image-resizer (1.0.1):
     - React
   - react-native-keyboard-input (5.3.1):
@@ -74,16 +81,16 @@ PODS:
     - react-native-keyboard-tracking-view
   - react-native-keyboard-tracking-view (5.5.0):
     - React
-  - react-native-netinfo (2.0.0):
+  - react-native-netinfo (4.2.1):
     - React
   - react-native-notifications (1.1.19):
     - React
   - react-native-onepassword (1.0.6):
     - 1PasswordExtension
     - React
-  - react-native-orientation-locker (1.1.5):
+  - react-native-orientation-locker (1.1.6):
     - React
-  - react-native-splash-screen (3.1.1):
+  - react-native-splash-screen (3.2.0):
     - React
   - React-RCTActionSheet (0.60.5):
     - React-Core (= 0.60.5)
@@ -93,9 +100,6 @@ PODS:
     - React-Core (= 0.60.5)
     - React-RCTNetwork (= 0.60.5)
     - React-RCTWebSocket (= 0.60.5)
-  - React-RCTCameraRoll (0.60.5):
-    - React-Core (= 0.60.5)
-    - React-RCTImage (= 0.60.5)
   - React-RCTImage (0.60.5):
     - React-Core (= 0.60.5)
     - React-RCTNetwork (= 0.60.5)
@@ -111,27 +115,39 @@ PODS:
     - React-Core (= 0.60.5)
   - React-RCTWebSocket (0.60.5):
     - React-Core (= 0.60.5)
-  - RNFS (2.13.3):
+  - RNCAsyncStorage (1.6.1):
     - React
-  - RNGestureHandler (1.3.0):
+  - RNExitApp (1.1.0):
     - React
-  - RNKeychain (3.0.0):
+  - RNFastImage (7.0.2):
     - React
-  - RNReanimated (1.1.0):
+    - SDWebImage (~> 5.0)
+    - SDWebImageWebPCoder (~> 0.2.3)
+  - RNFS (2.14.1):
+    - React
+  - RNGestureHandler (1.4.1):
+    - React
+  - RNKeychain (4.0.0):
+    - React
+  - RNReanimated (1.2.0):
     - React
   - RNScreens (1.0.0-alpha.17):
     - React
-  - RNVectorIcons (4.6.0):
+  - RNVectorIcons (6.6.0):
     - React
-  - SDWebImage (5.0.6):
-    - SDWebImage/Core (= 5.0.6)
-  - SDWebImage/Core (5.0.6)
+  - SDWebImage (5.1.1):
+    - SDWebImage/Core (= 5.1.1)
+  - SDWebImage/Core (5.1.1)
+  - SDWebImageWebPCoder (0.2.4):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (~> 5.0)
   - yoga (0.60.5.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - lottie-ios (from `../../node_modules/lottie-ios`)
   - lottie-react-native (from `../../node_modules/lottie-react-native`)
   - React (from `../../node_modules/react-native/`)
   - React-ART (from `../../node_modules/react-native/Libraries/ART`)
@@ -141,10 +157,7 @@ DEPENDENCIES:
   - React-jsi (from `../../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../../node_modules/react-native/ReactCommon/jsinspector`)
-  - "react-native-async-storage (from `../../node_modules/@react-native-community/async-storage`)"
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
-  - react-native-exit-app (from `../../node_modules/react-native-exit-app`)
-  - react-native-fast-image (from `../../node_modules/react-native-fast-image`)
   - react-native-image-resizer (from `../../node_modules/react-native-image-resizer`)
   - react-native-keyboard-input (from `../../node_modules/react-native-keyboard-input`)
   - react-native-keyboard-tracking-view (from `../../node_modules/react-native-keyboard-tracking-view`)
@@ -156,7 +169,6 @@ DEPENDENCIES:
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../../node_modules/react-native/Libraries/Blob`)
-  - React-RCTCameraRoll (from `../../node_modules/react-native/Libraries/CameraRoll`)
   - React-RCTImage (from `../../node_modules/react-native/Libraries/Image`)
   - React-RCTLinking (from `../../node_modules/react-native/Libraries/LinkingIOS`)
   - React-RCTNetwork (from `../../node_modules/react-native/Libraries/Network`)
@@ -164,6 +176,9 @@ DEPENDENCIES:
   - React-RCTText (from `../../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../../node_modules/react-native/Libraries/WebSocket`)
+  - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
+  - RNExitApp (from `../../node_modules/react-native-exit-app`)
+  - RNFastImage (from `../../node_modules/react-native-fast-image`)
   - RNFS (from `../../node_modules/react-native-fs`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../../node_modules/react-native-keychain`)
@@ -176,8 +191,9 @@ SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - 1PasswordExtension
     - boost-for-react-native
-    - lottie-ios
+    - libwebp
     - SDWebImage
+    - SDWebImageWebPCoder
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -186,6 +202,8 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
+  lottie-ios:
+    :path: "../../node_modules/lottie-ios"
   lottie-react-native:
     :path: "../../node_modules/lottie-react-native"
   React:
@@ -204,14 +222,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../../node_modules/react-native/ReactCommon/jsinspector"
-  react-native-async-storage:
-    :path: "../../node_modules/@react-native-community/async-storage"
   react-native-cameraroll:
     :path: "../../node_modules/@react-native-community/cameraroll"
-  react-native-exit-app:
-    :path: "../../node_modules/react-native-exit-app"
-  react-native-fast-image:
-    :path: "../../node_modules/react-native-fast-image"
   react-native-image-resizer:
     :path: "../../node_modules/react-native-image-resizer"
   react-native-keyboard-input:
@@ -234,8 +246,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/Libraries/NativeAnimation"
   React-RCTBlob:
     :path: "../../node_modules/react-native/Libraries/Blob"
-  React-RCTCameraRoll:
-    :path: "../../node_modules/react-native/Libraries/CameraRoll"
   React-RCTImage:
     :path: "../../node_modules/react-native/Libraries/Image"
   React-RCTLinking:
@@ -250,6 +260,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/Libraries/Vibration"
   React-RCTWebSocket:
     :path: "../../node_modules/react-native/Libraries/WebSocket"
+  RNCAsyncStorage:
+    :path: "../../node_modules/@react-native-community/async-storage"
+  RNExitApp:
+    :path: "../../node_modules/react-native-exit-app"
+  RNFastImage:
+    :path: "../../node_modules/react-native-fast-image"
   RNFS:
     :path: "../../node_modules/react-native-fs"
   RNGestureHandler:
@@ -268,11 +284,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   1PasswordExtension: 0e95bdea64ec8ff2f4f693be5467a09fac42a83d
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
-  Folly: de497beb10f102453a1afa9edbf8cf8a251890de
-  glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
-  lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
-  lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
+  DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
+  Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
+  glog: 1f3da668190260b06b429bb211bfbee5cd790c28
+  libwebp: 057912d6d0abfb6357d8bb05c0ea470301f5d61e
+  lottie-ios: 6037add6441183d4ffd100d2ac78724aa8d919d4
+  lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
   React: 53c53c4d99097af47cf60594b8706b4e3321e722
   React-ART: 662252e1a2f87f7d4e56150403040b4cd725c0f9
   React-Core: ba421f6b4f4cbe2fb17c0b6fc675f87622e78a64
@@ -281,22 +298,18 @@ SPEC CHECKSUMS:
   React-jsi: 4d8c9efb6312a9725b18d6fc818ffc103f60fec2
   React-jsiexecutor: 90ad2f9db09513fc763bc757fdc3c4ff8bde2a30
   React-jsinspector: e08662d1bf5b129a3d556eb9ea343a3f40353ae4
-  react-native-async-storage: 6aa3086d7b4f45e49adc8e087b4a03e47279aa1b
-  react-native-cameraroll: b1faef9f2ea27b07bdf818b8043909a93f797eca
-  react-native-exit-app: 3f9b8c2f2071f7e51fba21dfac9fc235c1764e84
-  react-native-fast-image: 3390cc968d598f0c6b5c710df138f4b653a87231
+  react-native-cameraroll: 3e5e34d36d93548ae7770ee8ab7b2ae9e778f571
   react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
   react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
-  react-native-netinfo: d6ff19d6b0fff3c617d01949f87e9976e7ecc9a9
+  react-native-netinfo: aeb1752abb78a9c15cdcea067a6c95d596dcfc45
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
-  react-native-orientation-locker: 132a63bab4dddd2a5709f6f7935ad9676b0af7c5
-  react-native-splash-screen: 353334c5ae82d8c74501ea7cbb916cb7cb20c8bf
+  react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
+  react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
   React-RCTBlob: 5e2b55f76e9a1c7ae52b826923502ddc3238df24
-  React-RCTCameraRoll: 5f1df2809c06d2df3ddf96ae257221f11351d613
   React-RCTImage: f5f1c50922164e89bdda67bcd0153952a5cfe719
   React-RCTLinking: d0ecbd791e9ddddc41fa1f66b0255de90e8ee1e9
   React-RCTNetwork: e26946300b0ab7bb6c4a6348090e93fa21f33a9d
@@ -304,15 +317,19 @@ SPEC CHECKSUMS:
   React-RCTText: b074d89033583d4f2eb5faf7ea2db3a13c7553a2
   React-RCTVibration: 2105b2e0e2b66a6408fc69a46c8a7fb5b2fdade0
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
-  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
-  RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
-  RNKeychain: 3aa3cf891a09a0d18d306862ab2bb9e106079b24
-  RNReanimated: 7a52c90473b5e81c13408d40d797b98387eaddde
+  RNCAsyncStorage: 2e2e3feb9bdadc752a026703d8c4065ca912e75a
+  RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
+  RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
+  RNFS: a8fbe7060fa49157d819466404794ad9c58e58cf
+  RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
+  RNKeychain: de0a565ff2f548576ac494612f05f77a7cda3f55
+  RNReanimated: 1b52415c4302f198cb581282a0166690bad62c43
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
-  RNVectorIcons: a3c395829c56e2cb054a0730126298bf805a2dca
-  SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
+  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
+  SDWebImage: 96d7f03415ccb28d299d765f93557ff8a617abd8
+  SDWebImageWebPCoder: cc72085bb20368b2f8dbb21b7e355c667e1309b7
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 6354828c20c7daa0dceb587b5c1d542c273a889e
+PODFILE CHECKSUM: 7292900a639369e9530fcdd5b003e1b768d4dd0e
 
 COCOAPODS: 1.7.5

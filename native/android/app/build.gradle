@@ -183,26 +183,10 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-fs')
-    implementation project(':react-native-image-resizer')
-    implementation project(':lottie-react-native')
-    implementation project(':@react-native-community_cameraroll')
-    implementation project(':react-native-firebase')
     implementation "com.google.android.gms:play-services-base:16.1.0"
-    implementation "com.google.firebase:firebase-core:16.0.8"
-    implementation "com.google.firebase:firebase-messaging:17.5.0"
+    implementation "com.google.firebase:firebase-core:16.0.9"
+    implementation "com.google.firebase:firebase-messaging:18.0.0"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
-    implementation project(':@react-native-community_netinfo')
-    implementation project(':@react-native-community_async-storage')
-    implementation project(':react-native-reanimated')
-    implementation project(':react-native-orientation-locker')
-    implementation project(':react-native-fast-image')
-    implementation project(':react-native-screens')
-    implementation project(':react-native-gesture-handler')
-    implementation project(':react-native-splash-screen')
-    implementation project(':react-native-exit-app')
-    implementation project(':react-native-vector-icons')
-    implementation project(':react-native-keychain')
     implementation project(':reactnativekeyboardinput')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
@@ -224,5 +208,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle");
-applyNativeModulesAppBuildGradle(project, "../..")
+applyNativeModulesAppBuildGradle(project, "..")
 apply plugin: 'com.google.gms.google-services'
