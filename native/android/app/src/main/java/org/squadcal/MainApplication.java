@@ -1,7 +1,11 @@
 package org.squadcal;
 
 import android.app.Application;
+import android.util.Log;
 
+import com.facebook.react.PackageList;
+import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
+import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.ReactApplication;
 import com.rnfs.RNFSPackage;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
@@ -40,28 +44,27 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-            new RNFSPackage(),
-            new ImageResizerPackage(),
-            new LottiePackage(),
-            new CameraRollPackage(),
-            new RNFirebasePackage(),
-            new RNFirebaseMessagingPackage(),
-            new RNFirebaseNotificationsPackage(),
-            new NetInfoPackage(),
-            new AsyncStoragePackage(),
-            new ReanimatedPackage(),
-            new OrientationPackage(),
-            new FastImageViewPackage(),
-            new RNScreensPackage(),
-            new RNGestureHandlerPackage(),
-            new SplashScreenReactPackage(),
-            new RNExitAppPackage(),
-            new VectorIconsPackage(),
-            new KeychainPackage(),
-            new KeyboardInputPackage(this.getApplication())
-      );
+      List<ReactPackage> packages = new PackageList(this).getPackages();
+      packages.add(new RNFSPackage());
+      packages.add(new ImageResizerPackage());
+      packages.add(new LottiePackage());
+      packages.add(new CameraRollPackage());
+      packages.add(new RNFirebasePackage());
+      packages.add(new RNFirebaseMessagingPackage());
+      packages.add(new RNFirebaseNotificationsPackage());
+      packages.add(new NetInfoPackage());
+      packages.add(new AsyncStoragePackage());
+      packages.add(new ReanimatedPackage());
+      packages.add(new OrientationPackage());
+      packages.add(new FastImageViewPackage());
+      packages.add(new RNScreensPackage());
+      packages.add(new RNGestureHandlerPackage());
+      packages.add(new SplashScreenReactPackage());
+      packages.add(new RNExitAppPackage());
+      packages.add(new VectorIconsPackage());
+      packages.add(new KeychainPackage());
+      packages.add(new KeyboardInputPackage(this.getApplication()));
+      return packages;
     }
 
     @Override
