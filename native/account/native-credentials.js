@@ -7,16 +7,13 @@ import {
   setInternetCredentials,
   setSharedWebCredentials,
   resetInternetCredentials,
+  type UserCredentials,
 } from 'react-native-keychain';
 import URL from 'url-parse';
 
-type Credentials = {|
-  username: string,
-  password: string,
-|};
 type StoredCredentials = {|
   state: "undetermined" | "determined" | "unsupported",
-  credentials: ?Credentials,
+  credentials: ?UserCredentials,
 |};
 let storedNativeKeychainCredentials = {
   state: "undetermined",
@@ -27,7 +24,7 @@ let storedSharedWebCredentials = {
   credentials: null,
 };
 
-async function fetchNativeKeychainCredentials(): Promise<?Credentials> {
+async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
   if (storedNativeKeychainCredentials.state === "determined") {
     return storedNativeKeychainCredentials.credentials;
   }
@@ -43,7 +40,7 @@ async function fetchNativeKeychainCredentials(): Promise<?Credentials> {
   }
 }
 
-function getNativeSharedWebCredentials(): ?Credentials {
+function getNativeSharedWebCredentials(): ?UserCredentials {
   if (Platform.OS !== "ios") {
     return null;
   }
@@ -53,7 +50,7 @@ function getNativeSharedWebCredentials(): ?Credentials {
   return storedSharedWebCredentials.credentials;
 }
 
-async function fetchNativeSharedWebCredentials(): Promise<?Credentials> {
+async function fetchNativeSharedWebCredentials(): Promise<?UserCredentials> {
   if (Platform.OS !== "ios") {
     return null;
   }
@@ -61,8 +58,10 @@ async function fetchNativeSharedWebCredentials(): Promise<?Credentials> {
     return storedSharedWebCredentials.credentials;
   }
   try {
-    let credentials = await requestSharedWebCredentials("squadcal.org");
-    credentials = credentials ? credentials : undefined;
+    const result = await requestSharedWebCredentials();
+    const credentials = result
+      ? { username: result.username, password: result.password }
+      : undefined;
     storedSharedWebCredentials = { state: "determined", credentials };
     return credentials;
   } catch (e) {
@@ -72,7 +71,7 @@ async function fetchNativeSharedWebCredentials(): Promise<?Credentials> {
   }
 }
 
-async function fetchNativeCredentials(): Promise<?Credentials> {
+async function fetchNativeCredentials(): Promise<?UserCredentials> {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
     return keychainCredentials;
@@ -80,7 +79,7 @@ async function fetchNativeCredentials(): Promise<?Credentials> {
   return await fetchNativeSharedWebCredentials();
 }
 
-async function setNativeKeychainCredentials(credentials: Credentials) {
+async function setNativeKeychainCredentials(credentials: UserCredentials) {
   const current = await fetchNativeKeychainCredentials();
   if (
     current &&
@@ -104,7 +103,7 @@ async function setNativeKeychainCredentials(credentials: Credentials) {
   }
 }
 
-async function setNativeSharedWebCredentials(credentials: Credentials) {
+async function setNativeSharedWebCredentials(credentials: UserCredentials) {
   if (Platform.OS !== "ios") {
     return;
   }
@@ -147,7 +146,7 @@ async function setNativeSharedWebCredentials(credentials: Credentials) {
   }
 }
 
-async function setNativeCredentials(credentials: $Shape<Credentials>) {
+async function setNativeCredentials(credentials: $Shape<UserCredentials>) {
   if (!credentials.username || !credentials.password) {
     const currentCredentials = await fetchNativeCredentials();
     if (currentCredentials) {
