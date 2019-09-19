@@ -1,6 +1,7 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../../types/styles';
+import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
 
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
@@ -11,7 +12,7 @@ import Button from '../../components/button.react';
 type ListActionProps = {|
   onPress: () => void,
   text: string,
-  iconName: string,
+  iconName: IoniconsGlyphs,
   iconColor: string,
   iconSize: number,
   iconStyle?: TextStyle,
