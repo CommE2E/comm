@@ -170,9 +170,13 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     }
 
     if (this.props.isQueued && !prevProps.isQueued) {
+      // When I updated to React Native 0.60, I also updated Lottie. At that
+      // time, on iOS the last frame of the animation drops the circle outlining
+      // the checkmark. This is a hack to get around that
+      const maxValue = Platform.OS === "ios" ? 0.99 : 1;
       Animated.timing(
         this.checkProgress,
-        { ...animatedSpec, toValue: 1 },
+        { ...animatedSpec, toValue: 0.99 },
       ).start();
     } else if (!this.props.isQueued && prevProps.isQueued) {
       Animated.timing(
