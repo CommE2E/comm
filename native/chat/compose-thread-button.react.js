@@ -4,7 +4,7 @@ import type { Navigate } from '../navigation/route-names';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PropTypes from 'prop-types';
 
 import { ComposeThreadRouteName } from '../navigation/route-names';
@@ -23,10 +23,10 @@ class ComposeThreadButton extends React.PureComponent<Props> {
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
         <Icon
-          name="ios-create-outline"
-          size={30}
+          name="pencil-plus-outline"
+          size={26}
           style={styles.composeButton}
-          color="#036AFF"
+          color="#036ABB"
         />
       </Button>
     );
