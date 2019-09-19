@@ -7,7 +7,7 @@ import type {
 
 import * as React from 'react';
 import { Platform } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 
 import ChatThreadList from './chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';

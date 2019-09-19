@@ -8,8 +8,6 @@ import type {
   NavigationRouteConfigMap,
   NavigationTransitionProps,
   NavigationScene,
-} from '@react-navigation/core';
-import type { 
   StackNavigatorConfig,
 } from 'react-navigation';
 
@@ -20,11 +18,7 @@ import {
   Animated as BaseAnimated,
   Easing as BaseEasing,
 } from 'react-native';
-import {
-  StackRouter,
-  createNavigator,
-  StackActions,
-} from '@react-navigation/core';
+import { StackRouter, createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
 

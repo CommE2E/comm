@@ -21,12 +21,12 @@ import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
+import { NavigationActions } from 'react-navigation';
 import {
   createBottomTabNavigator,
   createMaterialTopTabNavigator,
-  createStackNavigator,
-  NavigationActions,
-} from 'react-navigation';
+} from 'react-navigation-tabs';
+import { createStackNavigator } from 'react-navigation-stack';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
