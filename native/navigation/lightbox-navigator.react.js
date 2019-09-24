@@ -1,15 +1,15 @@
 // @flow
 
 import type {
-  NavigationScreenProp,
+  NavigationStackProp,
   NavigationState,
   NavigationDescriptor,
   NavigationStackScreenOptions,
   NavigationRouteConfigMap,
-  NavigationTransitionProps,
-  NavigationScene,
-  StackNavigatorConfig,
-} from 'react-navigation';
+  NavigationStackTransitionProps,
+  NavigationStackScene,
+} from 'react-navigation-stack';
+import type { StackNavigatorConfig } from 'react-navigation-stack';
 
 import * as React from 'react';
 import {
@@ -47,6 +47,7 @@ function createLightboxNavigator(
     NavigationStackScreenOptions,
     NavigationState,
     StackNavigatorConfig,
+    NavigationStackProp<NavigationState>,
   >(
     Lightbox,
     StackRouter(routeConfigMap, stackRouterConfig),
@@ -55,7 +56,7 @@ function createLightboxNavigator(
 }
 
 type Props = $ReadOnly<{
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationStackProp<NavigationState>,
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
 }>;
@@ -88,7 +89,7 @@ class Lightbox extends React.PureComponent<Props> {
     useNativeDriver: true,
   })
 
-  onTransitionStart = (transitionProps: NavigationTransitionProps) => {
+  onTransitionStart = (transitionProps: NavigationStackTransitionProps) => {
     const { index } = transitionProps.navigation.state;
     Animated.timing(
       this.position,
@@ -100,7 +101,7 @@ class Lightbox extends React.PureComponent<Props> {
     ).start();
   }
 
-  onTransitionEnd = (transitionProps: NavigationTransitionProps) => {
+  onTransitionEnd = (transitionProps: NavigationStackTransitionProps) => {
     if (!transitionProps.navigation.state.isTransitioning) {
       return;
     }
@@ -116,10 +117,10 @@ class Lightbox extends React.PureComponent<Props> {
     );
   }
 
-  renderScenes = (transitionProps: NavigationTransitionProps) => {
+  renderScenes = (transitionProps: NavigationStackTransitionProps) => {
     const { scenes } = transitionProps;
     const renderScene =
-      (scene: NavigationScene) => this.renderScene(
+      (scene: NavigationStackScene) => this.renderScene(
         scene,
         transitionProps,
       );
@@ -130,7 +131,10 @@ class Lightbox extends React.PureComponent<Props> {
     );
   }
 
-  renderScene(scene: NavigationScene, transitionProps: NavigationTransitionProps) {
+  renderScene(
+    scene: NavigationStackScene,
+    transitionProps: NavigationStackTransitionProps,
+  ) {
     if (!scene.descriptor) {
       return null;
     }

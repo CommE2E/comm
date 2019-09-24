@@ -1,11 +1,11 @@
 // @flow
 
 import type {
-  NavigationScreenProp,
   NavigationLeafRoute,
-  NavigationScene,
-  NavigationTransitionProps,
-} from 'react-navigation';
+  NavigationStackProp,
+  NavigationStackScene,
+  NavigationStackTransitionProps,
+} from 'react-navigation-stack';
 import {
   type MediaInfo,
   mediaInfoPropType,
@@ -191,7 +191,7 @@ function runDecay(
   ];
 }
 
-type NavProp = NavigationScreenProp<{|
+type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {|
     mediaInfo: MediaInfo,
@@ -202,8 +202,8 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
-  scene: NavigationScene,
-  transitionProps: NavigationTransitionProps,
+  scene: NavigationStackScene,
+  transitionProps: NavigationStackTransitionProps,
   position: Value,
   // Redux state
   screenDimensions: Dimensions,

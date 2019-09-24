@@ -1,9 +1,9 @@
 // @flow
 
 import type {
-  NavigationScreenProp,
+  NavigationStackProp,
   NavigationLeafRoute,
-  NavigationScene,
+  NavigationStackScene,
 } from 'react-navigation';
 
 import * as React from 'react';
@@ -19,7 +19,7 @@ const {
   interpolate,
 } = Animated;
 
-type NavProp = NavigationScreenProp<{|
+type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {|
     message: string,
@@ -28,7 +28,7 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
-  scene: NavigationScene,
+  scene: NavigationStackScene,
   position: Value,
 |};
 class ActionResultModal extends React.PureComponent<Props> {

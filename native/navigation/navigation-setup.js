@@ -8,13 +8,15 @@ import type {
 } from 'lib/types/thread-types';
 import type {
   NavigationState,
-  NavigationScreenProp,
   NavigationAction,
   NavigationRouter,
   NavigationRoute,
-  NavigationTransitionProps,
   NavigationStateRoute,
 } from 'react-navigation';
+import type {
+  NavigationStackProp,
+  NavigationStackTransitionProps,
+} from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import type { NotificationPressPayload } from 'lib/shared/notif-utils';
@@ -145,9 +147,14 @@ export type Action =
   | {| type: "BACKGROUND" |}
   | {| type: "FOREGROUND" |};
 
-let tabBarOptions;
+let TabNavigator;
+const routeConfig = {
+  [CalendarRouteName]: { screen: Calendar },
+  [ChatRouteName]: { screen: Chat },
+  [MoreRouteName]: { screen: More },
+};
 if (Platform.OS === "android") {
-  tabBarOptions = {
+  const tabBarOptions = {
     style: {
       backgroundColor: '#445588',
     },
@@ -155,24 +162,23 @@ if (Platform.OS === "android") {
       backgroundColor: '#AAFFCC',
     },
   };
+  TabNavigator = createMaterialTopTabNavigator(
+    routeConfig,
+    {
+      initialRouteName: CalendarRouteName,
+      lazy: false,
+      tabBarOptions,
+    },
+  );
 } else {
-  tabBarOptions = {};
+  TabNavigator = createBottomTabNavigator(
+    routeConfig,
+    {
+      initialRouteName: CalendarRouteName,
+      lazy: false,
+    },
+  );
 }
-const createTabNavigator = Platform.OS === "android"
-  ? createMaterialTopTabNavigator
-  : createBottomTabNavigator;
-const TabNavigator = createTabNavigator(
-  {
-    [CalendarRouteName]: { screen: Calendar },
-    [ChatRouteName]: { screen: Chat },
-    [MoreRouteName]: { screen: More },
-  },
-  {
-    initialRouteName: CalendarRouteName,
-    lazy: false,
-    tabBarOptions,
-  },
-);
 
 const AppNavigator = createLightboxNavigator(
   {
@@ -186,7 +192,7 @@ const AppNavigator = createLightboxNavigator(
 );
 
 type WrappedAppNavigatorProps = {|
-  navigation: NavigationScreenProp<*>,
+  navigation: NavigationStackProp<NavigationStateRoute>,
   isForeground: bool,
   appCanRespondToBackButton: bool,
 |};
@@ -274,8 +280,8 @@ const RootNavigator = createStackNavigator(
     transparentCard: true,
     disableKeyboardHandling: true,
     onTransitionStart: (
-      transitionProps: NavigationTransitionProps,
-      prevTransitionProps: ?NavigationTransitionProps,
+      transitionProps: NavigationStackTransitionProps,
+      prevTransitionProps: ?NavigationStackTransitionProps,
     ) => {
       if (!prevTransitionProps) {
         return;
@@ -295,8 +301,8 @@ const RootNavigator = createStackNavigator(
       }
     },
     transitionConfig: (
-      transitionProps: NavigationTransitionProps,
-      prevTransitionProps: ?NavigationTransitionProps,
+      transitionProps: NavigationStackTransitionProps,
+      prevTransitionProps: ?NavigationStackTransitionProps,
       isModal: bool,
     ) => {
       const defaultConfig = StackViewTransitionConfigs.defaultTransitionConfig(
@@ -319,7 +325,7 @@ const RootNavigator = createStackNavigator(
           }
           const opacity = position.interpolate({
             inputRange: [index - 1, index],
-            outputRange: [0, 1],
+            outputRange: ([0, 1]: number[]),
           });
           return { ...defaultInterpolation, opacity };
         },

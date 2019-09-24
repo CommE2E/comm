@@ -1,11 +1,11 @@
 // @flow
 
 import type {
-  NavigationScreenProp,
   NavigationLeafRoute,
-  NavigationScene,
-  NavigationTransitionProps,
-} from 'react-navigation';
+  NavigationStackProp,
+  NavigationStackScene,
+  NavigationStackTransitionProps,
+} from 'react-navigation-stack';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
@@ -60,7 +60,7 @@ type TooltipSpec<CustomProps> = {|
   labelStyle?: ViewStyle,
 |};
 
-type NavProp<CustomProps> = NavigationScreenProp<{|
+type NavProp<CustomProps> = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {
     ...$Exact<CustomProps>,
@@ -79,8 +79,8 @@ type ButtonProps<Navigation> = {
 
 type TooltipProps<Navigation> = {
   navigation: Navigation,
-  scene: NavigationScene,
-  transitionProps: NavigationTransitionProps,
+  scene: NavigationStackScene,
+  transitionProps: NavigationStackTransitionProps,
   position: Value,
   // Redux state
   screenDimensions: Dimensions,
