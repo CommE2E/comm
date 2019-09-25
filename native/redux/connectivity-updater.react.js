@@ -27,14 +27,15 @@ class ConnectivityUpdater extends React.PureComponent<Props> {
     connectivity: connectivityInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
+  netInfoUnsubscribe: ?(() => void);
 
   componentDidMount() {
-    NetInfo.addEventListener('connectionChange', this.onConnectionChange);
-    NetInfo.getConnectionInfo().then(this.onConnectionChange);
+    this.netInfoUnsubscribe = NetInfo.addEventListener(this.onConnectionChange);
+    NetInfo.fetch().then(this.onConnectionChange);
   }
 
   componentWillUnmount() {
-    NetInfo.removeEventListener('connectionChange', this.onConnectionChange);
+    this.netInfoUnsubscribe && this.netInfoUnsubscribe();
   }
 
   onConnectionChange = ({ type }) => {
