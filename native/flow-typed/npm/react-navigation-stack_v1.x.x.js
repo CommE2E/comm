@@ -1,3 +1,6 @@
+// flow-typed signature: 5f53ee4cc02ae0b94bf9928fefc14cdc
+// flow-typed version: 536c492332/react-navigation-stack_v1.x.x/flow_>=v0.92.x <=v0.103.x
+
 // @flow
 
 declare module 'react-navigation-stack' {
@@ -26,7 +29,7 @@ declare module 'react-navigation-stack' {
     | false
     | ''
     | $ReadOnlyArray<StyleObj>
-    | { [name: string]: any, ... };
+    | { [name: string]: any };
   declare type ViewStyleProp = StyleObj;
   declare type TextStyleProp = StyleObj;
   declare type AnimatedViewStyleProp = StyleObj;
@@ -42,7 +45,9 @@ declare module 'react-navigation-stack' {
    * Navigation State + Action
    */
 
-  declare export type NavigationParams = { [key: string]: mixed, ... };
+  declare export type NavigationParams = {
+    [key: string]: mixed,
+  };
 
   declare export type NavigationBackAction = {|
     type: 'Navigation/BACK',
@@ -104,7 +109,6 @@ declare module 'react-navigation-stack' {
   declare export type NavigationCompleteTransitionAction = {|
     +type: 'Navigation/COMPLETE_TRANSITION',
     +key?: string,
-    +toChildKey?: string,
   |};
 
   declare export type NavigationOpenDrawerAction = {|
@@ -174,7 +178,6 @@ declare module 'react-navigation-stack' {
     index: number,
     routes: Array<NavigationRoute>,
     isTransitioning?: bool,
-    ...
   };
 
   declare export type NavigationRoute =
@@ -212,21 +215,22 @@ declare module 'react-navigation-stack' {
    * Router
    */
 
-  declare export type NavigationScreenProps = { [key: string]: mixed, ... };
+  declare export type NavigationScreenProps = { [key: string]: mixed };
 
-  declare export type NavigationScreenOptionsGetter<Options: {...}> = (
+  declare export type NavigationScreenOptionsGetter<Options: {}> = (
     navigation: NavigationScreenProp<NavigationRoute>,
     screenProps: ?NavigationScreenProps,
     theme: SupportedThemes,
   ) => Options;
 
-  declare export type NavigationRouter<State: NavigationState, Options: {...}> = {
+  declare export type NavigationRouter<State: NavigationState, Options: {}> = {
     /**
      * The reducer that outputs the new navigation state for a given action,
      * with an optional previous state. When the action is considered handled
      * but the state is unchanged, the output state is null.
      */
     getStateForAction: (action: NavigationAction, lastState: ?State) => ?State,
+
     /**
      * Maps a URI-like string to an action. This can be mapped to a state
      * using `getStateForAction`.
@@ -235,15 +239,18 @@ declare module 'react-navigation-stack' {
       path: string,
       params?: NavigationParams
     ) => ?NavigationAction,
+
     getPathAndParamsForState: (
       state: State
     ) => {
       path: string,
       params?: NavigationParams,
-      ...
     },
+
     getComponentForRouteName: (routeName: string) => NavigationComponent,
+
     getComponentForState: (state: State) => NavigationComponent,
+
     /**
      * Gets the screen navigation options for a given screen.
      *
@@ -253,25 +260,26 @@ declare module 'react-navigation-stack' {
      *  {routeName: 'Foo', key: '123'}
      */
     getScreenOptions: NavigationScreenOptionsGetter<Options>,
-    ...
   };
 
-  declare export type NavigationScreenOptions = { title?: string, ... };
+  declare export type NavigationScreenOptions = {
+    title?: string,
+  };
 
   declare export type SupportedThemes = 'light' | 'dark';
 
-  declare export type NavigationScreenConfigProps = $Shape<{|
+  declare export type NavigationScreenConfigProps = $Shape<{
     navigation: NavigationScreenProp<NavigationRoute>,
     screenProps: NavigationScreenProps,
     theme: SupportedThemes,
-  |}>;
+  }>;
 
   declare export type NavigationScreenConfig<Options> =
     | Options
-    | (({|
-        ...NavigationScreenConfigProps,
+    | (({
+        ...$Exact<NavigationScreenConfigProps>,
         navigationOptions: Options,
-      |}) => Options);
+      }) => Options);
 
   declare export type NavigationComponent =
     | NavigationScreenComponent<NavigationRoute, *, *>
@@ -283,7 +291,7 @@ declare module 'react-navigation-stack' {
 
   declare export type NavigationScreenComponent<
     Route: NavigationRoute,
-    Options: {...},
+    Options: {},
     Props: NavigationNavigatorProps<Options, Route>,
   > = React$ComponentType<Props> &
     withOptionalNavigationOptions<Options>;
@@ -294,7 +302,7 @@ declare module 'react-navigation-stack' {
 
   declare export type NavigationNavigator<
     State: NavigationState,
-    Options: {...},
+    Options: {},
     Props: NavigationNavigatorProps<Options, State>,
   > = React$ComponentType<Props> &
     withRouter<State, Options> &
@@ -310,7 +318,9 @@ declare module 'react-navigation-stack' {
     | {| ..._NavigationRouteConfigCore, screen: NavigationComponent |}
     | {| ..._NavigationRouteConfigCore, getScreen: () => NavigationComponent |};
 
-  declare export type NavigationRouteConfigMap = { [routeName: string]: NavigationRouteConfig, ... };
+  declare export type NavigationRouteConfigMap = {
+    [routeName: string]: NavigationRouteConfig,
+  };
 
   /**
    * Navigator Prop
@@ -327,18 +337,20 @@ declare module 'react-navigation-stack' {
     | 'didBlur'
     | 'action';
 
-  declare export type NavigationEventPayload = {|
+  declare export type NavigationEventPayload = {
     type: EventType,
     action: NavigationAction,
     state: NavigationState,
     lastState: ?NavigationState,
-  |};
+  };
 
   declare export type NavigationEventCallback = (
     payload: NavigationEventPayload
   ) => void;
 
-  declare export type NavigationEventSubscription = {| remove: () => void |};
+  declare export type NavigationEventSubscription = {
+    remove: () => void,
+  };
 
   declare export type NavigationScreenProp<+S> = {
     +state: S,
@@ -352,7 +364,7 @@ declare module 'react-navigation-stack' {
       fallback?: $ElementType<
         $PropertyType<
           {|
-            ...{| params: {...} |},
+            ...{| params: { } |},
             ...$Exact<S>,
           |},
           'params'
@@ -362,7 +374,7 @@ declare module 'react-navigation-stack' {
     ) => $ElementType<
       $PropertyType<
         {|
-          ...{| params: {...} |},
+          ...{| params: { } |},
           ...$Exact<S>,
         |},
         'params'
@@ -381,22 +393,19 @@ declare module 'react-navigation-stack' {
             params?: NavigationParams,
             action?: NavigationNavigateAction,
             key?: string,
-            ...
           },
       params?: NavigationParams,
       action?: NavigationNavigateAction
     ) => boolean,
     setParams: (newParams: NavigationParams) => boolean,
-    ...
   };
 
-  declare export type NavigationNavigatorProps<O: {...}, S: {...}> = $Shape<{
+  declare export type NavigationNavigatorProps<O: {}, S: {}> = $Shape<{
     navigation: NavigationScreenProp<S>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
     theme?: SupportedThemes | 'no-preference',
     detached?: boolean,
-    ...
   }>;
 
   /**
@@ -405,13 +414,13 @@ declare module 'react-navigation-stack' {
 
   declare export type NavigationContainer<
     State: NavigationState,
-    Options: {...},
+    Options: {},
     Props: NavigationContainerProps<Options, State>,
   > = React$ComponentType<Props> &
     withRouter<State, Options> &
     withOptionalNavigationOptions<Options>;
 
-  declare export type NavigationContainerProps<S: {...}, O: {...}> = $Shape<{
+  declare export type NavigationContainerProps<S: {}, O: {}> = $Shape<{
     uriPrefix?: string | RegExp,
     onNavigationStateChange?: ?(
       NavigationState,
@@ -420,10 +429,9 @@ declare module 'react-navigation-stack' {
     ) => void,
     navigation?: NavigationScreenProp<S>,
     persistenceKey?: ?string,
-    renderLoadingExperimental?: React$ComponentType<{...}>,
+    renderLoadingExperimental?: React$ComponentType<{}>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
-    ...
   }>;
 
   /**
@@ -435,12 +443,6 @@ declare module 'react-navigation-stack' {
     state: NavigationRoute,
     navigation: NavigationScreenProp<NavigationRoute>,
     getComponent: () => NavigationComponent,
-    ...
-  };
-
-  declare export type NavigationDescriptorMap = {
-    [key: string]: NavigationDescriptor,
-    ...
   };
 
   //---------------------------------------------------------------------------
@@ -465,7 +467,6 @@ declare module 'react-navigation-stack' {
     extrapolate?: ExtrapolateType,
     extrapolateLeft?: ExtrapolateType,
     extrapolateRight?: ExtrapolateType,
-    ...
   };
   declare class AnimatedInterpolation {
     interpolate(config: InterpolationConfigType): AnimatedInterpolation;
@@ -473,7 +474,7 @@ declare module 'react-navigation-stack' {
 
   // This is copied from
   // react-native/Libraries/Animated/src/animations/Animation.js
-  declare type EndResult = { finished: boolean, ... };
+  declare type EndResult = { finished: boolean };
   declare type EndCallback = (result: EndResult) => void;
   declare class Animation {
     start(
@@ -501,7 +502,7 @@ declare module 'react-navigation-stack' {
 
   // This is vaguely copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedValue.js
-  declare type ValueListenerCallback = (state: { value: number, ... }) => void;
+  declare type ValueListenerCallback = (state: { value: number }) => void;
   declare class AnimatedValue {
     constructor(value: number): void;
     setValue(value: number): void;
@@ -525,27 +526,29 @@ declare module 'react-navigation-stack' {
    * used below in section 3, but also in other libdefs.
    */
 
-  declare export type NavigationPathsConfig = { [routeName: string]: string, ... };
+  declare export type NavigationPathsConfig = {
+    [routeName: string]: string,
+  };
 
   /**
    * SafeAreaView
    */
 
   declare type _SafeAreaViewForceInsetValue = 'always' | 'never' | number;
-  declare type _SafeAreaViewInsets = $Shape<{|
+  declare type _SafeAreaViewInsets = $Shape<{
     top: _SafeAreaViewForceInsetValue,
     bottom: _SafeAreaViewForceInsetValue,
     left: _SafeAreaViewForceInsetValue,
     right: _SafeAreaViewForceInsetValue,
     vertical: _SafeAreaViewForceInsetValue,
     horizontal: _SafeAreaViewForceInsetValue,
-  |}>;
+  }>;
 
   /**
    * Interpolation
    */
 
-  declare export type NavigationStackInterpolatorProps = $Shape<{|
+  declare export type NavigationStackInterpolatorProps = $Shape<{
     layout: NavigationStackLayout,
     scene: NavigationStackScene,
     scenes: NavigationStackScene[],
@@ -554,9 +557,9 @@ declare module 'react-navigation-stack' {
     mode?: HeaderMode,
     shadowEnabled?: boolean,
     cardOverlayEnabled?: boolean,
-  |}>;
+  }>;
 
-  declare type _InterpolationResult = { [key: string]: mixed, ... };
+  declare type _InterpolationResult = { [key: string]: mixed };
   declare export type NavigationStackInterpolator =
     (props: NavigationStackInterpolatorProps) => _InterpolationResult;
 
@@ -566,7 +569,7 @@ declare module 'react-navigation-stack' {
 
   declare export type HeaderMode = 'float' | 'screen' | 'none';
 
-  declare export type HeaderProps = {|
+  declare export type HeaderProps = {
     layout: NavigationStackLayout,
     scene: NavigationStackScene,
     scenes: NavigationStackScene[],
@@ -581,7 +584,7 @@ declare module 'react-navigation-stack' {
     transitionPreset?: 'fade-in-place' | 'uikit',
     backTitleVisible?: boolean,
     isLandscape: boolean,
-  |};
+  };
 
   /**
    * StackRouter
@@ -590,8 +593,8 @@ declare module 'react-navigation-stack' {
   declare export type NavigationStackProp<+S> =
     & NavigationScreenProp<S>
     & {
-        pop: (n?: number, params?: {| immediate?: boolean |}) => boolean,
-        popToTop: (params?: {| immediate?: boolean |}) => boolean,
+        pop: (n?: number, params?: { immediate?: boolean }) => boolean,
+        popToTop: (params?: { immediate?: boolean }) => boolean,
         push: (
           routeName: string,
           params?: NavigationParams,
@@ -603,19 +606,14 @@ declare module 'react-navigation-stack' {
           action?: NavigationNavigateAction
         ) => boolean,
         reset: (actions: NavigationAction[], index: number) => boolean,
-        ...
       };
 
-  declare type _HeaderBackButtonProps = {|
+  declare type _HeaderBackButtonProps = {
     disabled?: boolean,
     onPress: () => void,
     pressColorAndroid?: string,
     tintColor?: ?string,
-    backImage?: React$ComponentType<{
-      tintColor: string,
-      title?: ?string,
-      ...
-    }>,
+    backImage?: React$ComponentType<{ tintColor: string, title?: ?string }>,
     title?: ?string,
     truncatedTitle?: ?string,
     backTitleVisible?: boolean,
@@ -624,12 +622,12 @@ declare module 'react-navigation-stack' {
     headerLayoutPreset: 'left' | 'center',
     width?: ?number,
     scene: NavigationStackScene,
-  |};
+  };
 
   declare export type NavigationStackScreenOptions = NavigationScreenOptions & {
     header?: ?(React$Node | (HeaderProps => React$Node)),
     headerTransparent?: boolean,
-    headerTitle?: (props: { children: ?string, ... }) => React$Node | React$Node,
+    headerTitle?: (props: { children: ?string }) => React$Node | React$Node,
     headerTitleStyle?: AnimatedTextStyleProp,
     headerTitleAllowFontScaling?: boolean,
     headerTintColor?: string,
@@ -647,12 +645,8 @@ declare module 'react-navigation-stack' {
     headerForceInset?: _SafeAreaViewInsets,
     headerBackground?: React$Node | React$ElementType,
     gesturesEnabled?: boolean,
-    gestureResponseDistance?: {|
-      vertical?: number,
-      horizontal?: number,
-    |},
+    gestureResponseDistance?: { vertical?: number, horizontal?: number },
     gestureDirection?: 'default' | 'inverted',
-    ...
   };
 
   declare export type NavigationStackRouterConfig = {|
@@ -674,7 +668,6 @@ declare module 'react-navigation-stack' {
     initWidth: number,
     isMeasured: boolean,
     width: AnimatedValue,
-    ...
   };
 
   declare export type NavigationStackScene = {
@@ -684,7 +677,6 @@ declare module 'react-navigation-stack' {
     key: string,
     route: NavigationRoute,
     descriptor: ?NavigationDescriptor,
-    ...
   };
 
   //---------------------------------------------------------------------------
@@ -697,15 +689,19 @@ declare module 'react-navigation-stack' {
    * NavigationStackTransitionProps
    */
 
-  declare export type NavigationStackTransitionProps = $Shape<{|
+  declare export type NavigationStackTransitionProps = $Shape<{
     // The layout of the screen container
     layout: NavigationStackLayout,
+
     // The destination navigation state of the transition
     navigation: NavigationStackProp<NavigationState>,
+
     // The progressive index of the transitioner's navigation state.
     position: AnimatedValue,
+
     // All the scenes of the transitioner.
     scenes: Array<NavigationStackScene>,
+
     // The active scene, corresponding to the route at
     // `navigation.state.routes[navigation.state.index]`. When rendering
     // NavigationSceneRendererPropsIndex, the scene does not refer to the active
@@ -713,7 +709,7 @@ declare module 'react-navigation-stack' {
     // is the index of the scene
     scene: NavigationStackScene,
     index: number,
-  |}>;
+  }>;
 
 
   /**
@@ -764,11 +760,10 @@ declare module 'react-navigation-stack' {
     duration?: number,
     // An easing function from `Easing`.
     easing?: (t: number) => number,
-    ...
   };
 
   // Describes a visual transition from one screen to another.
-  declare export type TransitionConfig = {|
+  declare export type TransitionConfig = {
     // The basics properties of the animation, such as duration and easing
     transitionSpec: NavigationTransitionSpec,
     // How to animate position and opacity of the screen
@@ -789,7 +784,7 @@ declare module 'react-navigation-stack' {
     containerStyle?: ViewStyleProp,
     containerStyleLight?: ViewStyleProp,
     containerStyleDark?: ViewStyleProp,
-  |};
+  };
 
   //---------------------------------------------------------------------------
   // SECTION 4: EXPORTED MODULE
@@ -802,19 +797,21 @@ declare module 'react-navigation-stack' {
     stackConfig?: StackNavigatorConfig
   ): NavigationNavigator<*, *, *>;
 
-  declare export var Header: React$ComponentType<HeaderProps> & { HEIGHT: number, ... };
+  declare export var Header: React$ComponentType<HeaderProps> & {
+    HEIGHT: number,
+  };
 
   declare export var HeaderBackButton: React$ComponentType<
     _HeaderBackButtonProps
   >;
 
-  declare type _HeaderTitleProps = {|
+  declare type _HeaderTitleProps = {
     children: React$Node,
     style?: AnimatedTextStyleProp,
-  |};
+  };
   declare export var HeaderTitle: React$ComponentType<_HeaderTitleProps>;
 
-  declare export var HeaderStyleInterpolator: {|
+  declare export var HeaderStyleInterpolator: {
     forLayout: NavigationStackInterpolator,
     forLeft: NavigationStackInterpolator,
     forLeftButton: NavigationStackInterpolator,
@@ -826,11 +823,11 @@ declare module 'react-navigation-stack' {
     forBackgroundWithInactiveHidden: NavigationStackInterpolator,
     forBackgroundWithFade: NavigationStackInterpolator,
     forBackgroundWithTranslation: NavigationStackInterpolator,
-  |};
+  };
 
-  declare type _StackViewProps = {|
+  declare type _StackViewProps = {
     navigation: NavigationStackProp<NavigationState>,
-    descriptors: NavigationDescriptorMap,
+    descriptors: { [key: string]: NavigationDescriptor },
     navigationConfig: NavigationStackViewConfig,
     onTransitionStart?: (
       transitionProps: NavigationStackTransitionProps,
@@ -840,20 +837,20 @@ declare module 'react-navigation-stack' {
     onGestureCanceled?: () => void,
     onGestureEnd?: () => void,
     screenProps?: NavigationScreenProps,
-  |};
+  };
   declare export var StackView: React$ComponentType<_StackViewProps>;
 
-  declare type _StackViewCardProps = {|
+  declare type _StackViewCardProps = {
     ...$Exact<_PointerEventsInputProps>,
     style: ViewStyleProp,
     animatedStyle: any,
     position: AnimatedInterpolation,
     transparent?: boolean,
     children: React$Node,
-  |};
+  };
   declare export var StackViewCard: React$ComponentType<_StackViewCardProps>;
 
-  declare type _StackViewLayoutProps = {|
+  declare type _StackViewLayoutProps = {
     mode?: 'card' | 'modal',
     headerMode?: HeaderMode,
     headerLayoutPreset?: 'left' | 'center',
@@ -870,19 +867,19 @@ declare module 'react-navigation-stack' {
     onGestureEnd?: () => void,
     onGestureCanceled?: () => void,
     screenProps?: NavigationScreenProps,
-  |};
+  };
   declare export var StackViewLayout: React$ComponentType<_StackViewLayoutProps>;
 
-  declare export var StackViewStyleInterpolator: {|
+  declare export var StackViewStyleInterpolator: {
     forHorizontal: NavigationStackInterpolator,
     forVertical: NavigationStackInterpolator,
     forFadeFromBottomAndroid: NavigationStackInterpolator,
     forFadeToBottomAndroid: NavigationStackInterpolator,
     forFade: NavigationStackInterpolator,
     forNoAnimation: NavigationStackInterpolator,
-  |};
+  };
 
-  declare export var StackViewTransitionConfigs: {|
+  declare export var StackViewTransitionConfigs: {
     defaultTransitionConfig: _NavigationTransitionConfigurer,
     getTransitionConfig: (
       transitionConfigurer: ?_NavigationTransitionConfigurer,
@@ -895,27 +892,24 @@ declare module 'react-navigation-stack' {
     FadeInFromBottomAndroid: TransitionConfig,
     FadeOutToBottomAndroid: TransitionConfig,
     NoAnimation: TransitionConfig,
-  |};
+  };
 
   declare type _PointerEventsInputProps = {
     scene: NavigationStackScene,
     navigation: NavigationStackProp<NavigationState>,
     realPosition: AnimatedValue,
-    ...
   };
   declare type _PointerEventsInjectedProps = {
     pointerEvents: 'box-only' | 'none' | 'auto',
     onComponentRef: (ref: any) => void,
-    ...
   };
   declare export function createPointerEventsContainer<
-    Props: _PointerEventsInputProps & _PointerEventsInjectedProps,
-    ComponentType: React$ComponentType<Props>,
+    Props: _PointerEventsInputProps & _PointerEventsInjectedProps
   >(
-    Component: ComponentType
-  ): React$ComponentType<$Diff<React$ElementConfig<ComponentType>, _PointerEventsInjectedProps>>;
+    Component: React$ComponentType<Props>
+  ): React$ComponentType<$Diff<Props, _PointerEventsInjectedProps>>;
 
-  declare type _TransitionerProps = {|
+  declare type _TransitionerProps = {
     render: (
       transitionProps: NavigationStackTransitionProps,
       prevTransitionProps: ?NavigationStackTransitionProps
@@ -933,16 +927,16 @@ declare module 'react-navigation-stack' {
       prevTransitionProps: ?NavigationStackTransitionProps
     ) => void,
     navigation: NavigationStackProp<NavigationState>,
-    descriptors: NavigationDescriptorMap,
+    descriptors: { [key: string]: NavigationDescriptor },
     screenProps?: NavigationScreenProps,
-  |};
+  };
   declare export var Transitioner: React$ComponentType<_TransitionerProps>;
 
   declare export function ScenesReducer(
     scenes: $ReadOnlyArray<NavigationStackScene>,
     nextState: NavigationState,
     prevState: ?NavigationState,
-    descriptors: NavigationDescriptorMap
+    descriptors: { [key: string]: NavigationDescriptor }
   ): NavigationStackScene[];
 
   declare export var StackGestureContext: React$Context<?React$Ref<any>>;

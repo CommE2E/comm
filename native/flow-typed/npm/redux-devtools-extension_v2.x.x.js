@@ -1,5 +1,5 @@
-// flow-typed signature: 3def7c0db196e88258b4ce3a44249d8a
-// flow-typed version: c6154227d1/redux-devtools-extension_v2.x.x/flow_>=v0.47.x <=v0.103.x
+// flow-typed signature: dde9329b5d39c60765e23c080dc5d018
+// flow-typed version: 9931c6ffb0/redux-devtools-extension_v2.x.x/flow_>=v0.47.x <=v0.103.x
 
 import type { ActionCreator, StoreEnhancer } from 'redux';
 import typeof { compose } from 'redux';

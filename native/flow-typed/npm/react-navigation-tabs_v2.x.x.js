@@ -1,3 +1,6 @@
+// flow-typed signature: 42446e48f9492758fdb746d11db1fb57
+// flow-typed version: 536c492332/react-navigation-tabs_v2.x.x/flow_>=v0.92.x <=v0.103.x
+
 // @flow
 
 declare module 'react-navigation-tabs' {
@@ -26,7 +29,7 @@ declare module 'react-navigation-tabs' {
     | false
     | ''
     | $ReadOnlyArray<StyleObj>
-    | { [name: string]: any, ... };
+    | { [name: string]: any };
   declare type ViewStyleProp = StyleObj;
   declare type TextStyleProp = StyleObj;
   declare type AnimatedViewStyleProp = StyleObj;
@@ -42,7 +45,9 @@ declare module 'react-navigation-tabs' {
    * Navigation State + Action
    */
 
-  declare export type NavigationParams = { [key: string]: mixed, ... };
+  declare export type NavigationParams = {
+    [key: string]: mixed,
+  };
 
   declare export type NavigationBackAction = {|
     type: 'Navigation/BACK',
@@ -104,7 +109,6 @@ declare module 'react-navigation-tabs' {
   declare export type NavigationCompleteTransitionAction = {|
     +type: 'Navigation/COMPLETE_TRANSITION',
     +key?: string,
-    +toChildKey?: string,
   |};
 
   declare export type NavigationOpenDrawerAction = {|
@@ -174,7 +178,6 @@ declare module 'react-navigation-tabs' {
     index: number,
     routes: Array<NavigationRoute>,
     isTransitioning?: bool,
-    ...
   };
 
   declare export type NavigationRoute =
@@ -212,21 +215,22 @@ declare module 'react-navigation-tabs' {
    * Router
    */
 
-  declare export type NavigationScreenProps = { [key: string]: mixed, ... };
+  declare export type NavigationScreenProps = { [key: string]: mixed };
 
-  declare export type NavigationScreenOptionsGetter<Options: {...}> = (
+  declare export type NavigationScreenOptionsGetter<Options: {}> = (
     navigation: NavigationScreenProp<NavigationRoute>,
     screenProps: ?NavigationScreenProps,
     theme: SupportedThemes,
   ) => Options;
 
-  declare export type NavigationRouter<State: NavigationState, Options: {...}> = {
+  declare export type NavigationRouter<State: NavigationState, Options: {}> = {
     /**
      * The reducer that outputs the new navigation state for a given action,
      * with an optional previous state. When the action is considered handled
      * but the state is unchanged, the output state is null.
      */
     getStateForAction: (action: NavigationAction, lastState: ?State) => ?State,
+
     /**
      * Maps a URI-like string to an action. This can be mapped to a state
      * using `getStateForAction`.
@@ -235,15 +239,18 @@ declare module 'react-navigation-tabs' {
       path: string,
       params?: NavigationParams
     ) => ?NavigationAction,
+
     getPathAndParamsForState: (
       state: State
     ) => {
       path: string,
       params?: NavigationParams,
-      ...
     },
+
     getComponentForRouteName: (routeName: string) => NavigationComponent,
+
     getComponentForState: (state: State) => NavigationComponent,
+
     /**
      * Gets the screen navigation options for a given screen.
      *
@@ -253,25 +260,26 @@ declare module 'react-navigation-tabs' {
      *  {routeName: 'Foo', key: '123'}
      */
     getScreenOptions: NavigationScreenOptionsGetter<Options>,
-    ...
   };
 
-  declare export type NavigationScreenOptions = { title?: string, ... };
+  declare export type NavigationScreenOptions = {
+    title?: string,
+  };
 
   declare export type SupportedThemes = 'light' | 'dark';
 
-  declare export type NavigationScreenConfigProps = $Shape<{|
+  declare export type NavigationScreenConfigProps = $Shape<{
     navigation: NavigationScreenProp<NavigationRoute>,
     screenProps: NavigationScreenProps,
     theme: SupportedThemes,
-  |}>;
+  }>;
 
   declare export type NavigationScreenConfig<Options> =
     | Options
-    | (({|
-        ...NavigationScreenConfigProps,
+    | (({
+        ...$Exact<NavigationScreenConfigProps>,
         navigationOptions: Options,
-      |}) => Options);
+      }) => Options);
 
   declare export type NavigationComponent =
     | NavigationScreenComponent<NavigationRoute, *, *>
@@ -283,7 +291,7 @@ declare module 'react-navigation-tabs' {
 
   declare export type NavigationScreenComponent<
     Route: NavigationRoute,
-    Options: {...},
+    Options: {},
     Props: NavigationNavigatorProps<Options, Route>,
   > = React$ComponentType<Props> &
     withOptionalNavigationOptions<Options>;
@@ -294,7 +302,7 @@ declare module 'react-navigation-tabs' {
 
   declare export type NavigationNavigator<
     State: NavigationState,
-    Options: {...},
+    Options: {},
     Props: NavigationNavigatorProps<Options, State>,
   > = React$ComponentType<Props> &
     withRouter<State, Options> &
@@ -310,7 +318,9 @@ declare module 'react-navigation-tabs' {
     | {| ..._NavigationRouteConfigCore, screen: NavigationComponent |}
     | {| ..._NavigationRouteConfigCore, getScreen: () => NavigationComponent |};
 
-  declare export type NavigationRouteConfigMap = { [routeName: string]: NavigationRouteConfig, ... };
+  declare export type NavigationRouteConfigMap = {
+    [routeName: string]: NavigationRouteConfig,
+  };
 
   /**
    * Navigator Prop
@@ -327,18 +337,20 @@ declare module 'react-navigation-tabs' {
     | 'didBlur'
     | 'action';
 
-  declare export type NavigationEventPayload = {|
+  declare export type NavigationEventPayload = {
     type: EventType,
     action: NavigationAction,
     state: NavigationState,
     lastState: ?NavigationState,
-  |};
+  };
 
   declare export type NavigationEventCallback = (
     payload: NavigationEventPayload
   ) => void;
 
-  declare export type NavigationEventSubscription = {| remove: () => void |};
+  declare export type NavigationEventSubscription = {
+    remove: () => void,
+  };
 
   declare export type NavigationScreenProp<+S> = {
     +state: S,
@@ -352,7 +364,7 @@ declare module 'react-navigation-tabs' {
       fallback?: $ElementType<
         $PropertyType<
           {|
-            ...{| params: {...} |},
+            ...{| params: { } |},
             ...$Exact<S>,
           |},
           'params'
@@ -362,7 +374,7 @@ declare module 'react-navigation-tabs' {
     ) => $ElementType<
       $PropertyType<
         {|
-          ...{| params: {...} |},
+          ...{| params: { } |},
           ...$Exact<S>,
         |},
         'params'
@@ -381,22 +393,19 @@ declare module 'react-navigation-tabs' {
             params?: NavigationParams,
             action?: NavigationNavigateAction,
             key?: string,
-            ...
           },
       params?: NavigationParams,
       action?: NavigationNavigateAction
     ) => boolean,
     setParams: (newParams: NavigationParams) => boolean,
-    ...
   };
 
-  declare export type NavigationNavigatorProps<O: {...}, S: {...}> = $Shape<{
+  declare export type NavigationNavigatorProps<O: {}, S: {}> = $Shape<{
     navigation: NavigationScreenProp<S>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
     theme?: SupportedThemes | 'no-preference',
     detached?: boolean,
-    ...
   }>;
 
   /**
@@ -405,13 +414,13 @@ declare module 'react-navigation-tabs' {
 
   declare export type NavigationContainer<
     State: NavigationState,
-    Options: {...},
+    Options: {},
     Props: NavigationContainerProps<Options, State>,
   > = React$ComponentType<Props> &
     withRouter<State, Options> &
     withOptionalNavigationOptions<Options>;
 
-  declare export type NavigationContainerProps<S: {...}, O: {...}> = $Shape<{
+  declare export type NavigationContainerProps<S: {}, O: {}> = $Shape<{
     uriPrefix?: string | RegExp,
     onNavigationStateChange?: ?(
       NavigationState,
@@ -420,10 +429,9 @@ declare module 'react-navigation-tabs' {
     ) => void,
     navigation?: NavigationScreenProp<S>,
     persistenceKey?: ?string,
-    renderLoadingExperimental?: React$ComponentType<{...}>,
+    renderLoadingExperimental?: React$ComponentType<{}>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
-    ...
   }>;
 
   /**
@@ -435,12 +443,6 @@ declare module 'react-navigation-tabs' {
     state: NavigationRoute,
     navigation: NavigationScreenProp<NavigationRoute>,
     getComponent: () => NavigationComponent,
-    ...
-  };
-
-  declare export type NavigationDescriptorMap = {
-    [key: string]: NavigationDescriptor,
-    ...
   };
 
   //---------------------------------------------------------------------------
@@ -459,7 +461,7 @@ declare module 'react-navigation-tabs' {
   // https://github.com/kmagiera/react-native-reanimated/blob/master/react-native-reanimated.d.ts
   declare class AnimatedNode<T> {
     constructor(
-      nodeConfig: {...},
+      nodeConfig: {},
       inputNodes?: $ReadOnlyArray<AnimatedNode<any>>,
     ): void;
     isNativelyInitialized(): boolean;
@@ -501,7 +503,6 @@ declare module 'react-navigation-tabs' {
     checked?: ?boolean | 'mixed',
     busy?: boolean,
     expanded?: boolean,
-    ...
   };
 
   /**
@@ -510,21 +511,23 @@ declare module 'react-navigation-tabs' {
    * used below in section 3, but also in other libdefs.
    */
 
-  declare export type NavigationPathsConfig = { [routeName: string]: string, ... };
+  declare export type NavigationPathsConfig = {
+    [routeName: string]: string,
+  };
 
   /**
    * SafeAreaView
    */
 
   declare type _SafeAreaViewForceInsetValue = 'always' | 'never' | number;
-  declare type _SafeAreaViewInsets = $Shape<{|
+  declare type _SafeAreaViewInsets = $Shape<{
     top: _SafeAreaViewForceInsetValue,
     bottom: _SafeAreaViewForceInsetValue,
     left: _SafeAreaViewForceInsetValue,
     right: _SafeAreaViewForceInsetValue,
     vertical: _SafeAreaViewForceInsetValue,
     horizontal: _SafeAreaViewForceInsetValue,
-  |}>;
+  }>;
 
   /**
    * SwitchRouter
@@ -549,11 +552,11 @@ declare module 'react-navigation-tabs' {
 
   declare export type NavigationTabProp<+S> =
     & NavigationScreenProp<S>
-    & { jumpTo: (routeName: string, key?: string) => void, ... };
+    & { jumpTo: (routeName: string, key?: string) => void };
 
   declare export type NavigationTabRouterConfig = NavigationSwitchRouterConfig;
 
-  declare export type NavigationTabScreenOptions = {
+  declare export type NavigationTabScreenOptions = {|
     ...$Exact<NavigationScreenOptions>,
     tabBarLabel?: React$Node,
     tabBarVisible?: boolean,
@@ -561,21 +564,20 @@ declare module 'react-navigation-tabs' {
     tabBarTestID?: string,
     tabBarIcon?:
       | React$Node
-      | ((props: {|
-          focused: boolean,
-          tintColor?: string,
-          horizontal?: boolean,
-        |}) => React$Node),
-    tabBarOnPress?: (props: {|
+      | ((props: {
+          focused: boolean;
+          tintColor?: string;
+          horizontal?: boolean;
+        }) => React$Node),
+    tabBarOnPress?: (props: {
       navigation: NavigationTabProp<NavigationRoute>,
       defaultHandler: () => void,
-    |}) => void,
-    tabBarOnLongPress?: (props: {|
+    }) => void,
+    tabBarOnLongPress?: (props: {
       navigation: NavigationTabProp<NavigationRoute>,
       defaultHandler: () => void,
-    |}) => void,
-    ...
-  };
+    }) => void,
+  |};
 
   //---------------------------------------------------------------------------
   // SECTION 3: UNIQUE TYPE DEFINITIONS
@@ -589,14 +591,14 @@ declare module 'react-navigation-tabs' {
 
   declare type _TabViewLayout = $Shape<{| height: number, width: number |}>;
 
-  declare export type TabNavigatorConfig<CustomProps: {...}> = {|
+  declare export type TabNavigatorConfig<CustomProps: {}> = {|
     ...NavigationTabRouterConfig,
     ...$Exact<CustomProps>,
     tabBarComponent?: React$ElementType,
     lazy?: boolean,
   |};
 
-  declare type _MaterialTopTabBarOptions = {|
+  declare type _MaterialTopTabBarOptions = {
     activeTintColor?: string,
     allowFontScaling?: boolean,
     bounces?: boolean,
@@ -613,29 +615,28 @@ declare module 'react-navigation-tabs' {
     labelStyle?: TextStyleProp,
     contentContainerStyle?: ViewStyleProp,
     style?: ViewStyleProp,
-  |};
-  declare export type MaterialTopTabNavigatorConfig = TabNavigatorConfig<{|
+  };
+  declare export type MaterialTopTabNavigatorConfig = TabNavigatorConfig<{
     tabBarOptions?: _MaterialTopTabBarOptions,
     keyboardDismissMode?: 'none' | 'on-drag',
     swipeEnabled?: boolean,
     swipeDistanceThreshold?: number,
     swipeVelocityThreshold?: number,
     initialLayout?: _TabViewLayout,
-    lazyPlaceholderComponent?: React$ComponentType<{ route: {|
-      key: string,
-      routeName: string,
-    |}, ... }>,
+    lazyPlaceholderComponent?: React$ComponentType<{
+      route: { key: string, routeName: string },
+    }>,
     tabBarPosition?: 'top' | 'bottom',
     sceneContainerStyle?: ViewStyleProp,
     style?: ViewStyleProp,
-  |}>;
+  }>;
 
   declare type _ThemedColor =
     | string
-    | {| light: string, dark: string |};
+    | { light: string, dark: string };
   declare type _LabelPosition = 'beside-icon' | 'below-icon';
   declare type _Orientation = 'horizontal' | 'vertical';
-  declare type _BottomTabBarOptions = {|
+  declare type _BottomTabBarOptions = {
     keyboardHidesTabBar?: boolean,
     activeTintColor?: _ThemedColor,
     inactiveTintColor?: _ThemedColor,
@@ -648,12 +649,14 @@ declare module 'react-navigation-tabs' {
     tabStyle?: ViewStyleProp,
     labelPosition?:
       | _LabelPosition
-      | ((options: {| deviceOrientation: _Orientation |}) => _LabelPosition),
+      | ((options: { deviceOrientation: _Orientation }) => _LabelPosition),
     adaptive?: boolean,
     safeAreaInset?: _SafeAreaViewInsets,
     style?: ViewStyleProp,
-  |};
-  declare export type BottomTabNavigatorConfig = TabNavigatorConfig<{| tabBarOptions?: _BottomTabBarOptions |}>;
+  };
+  declare export type BottomTabNavigatorConfig = TabNavigatorConfig<{
+    tabBarOptions?: _BottomTabBarOptions,
+  }>;
 
   /**
    * Tab views
@@ -664,7 +667,6 @@ declare module 'react-navigation-tabs' {
     focused: boolean,
     index: number,
     tintColor?: ?string,
-    ...
   };
 
   //---------------------------------------------------------------------------
@@ -682,16 +684,16 @@ declare module 'react-navigation-tabs' {
     config?: MaterialTopTabNavigatorConfig
   ): NavigationNavigator<*, *, *>;
 
-  declare type _SharedTabBarProps = {|
-    getAccessibilityLabel: (props: {| route: NavigationRoute |}) => ?string,
-    getTestID: (props: {| route: NavigationRoute |}) => ?string,
-    renderIcon: (props: {|
+  declare type _SharedTabBarProps = {
+    getAccessibilityLabel: (props: { route: NavigationRoute }) => ?string,
+    getTestID: (props: { route: NavigationRoute }) => ?string,
+    renderIcon: (props: {
       route: NavigationRoute,
       focused: boolean,
       tintColor?: string,
       horizontal?: boolean,
-    |}) => React$Node,
-  |};
+    }) => React$Node,
+  };
 
   declare type _BottomTabBarButtonComponentProps = {
     route: NavigationRoute,
@@ -703,26 +705,31 @@ declare module 'react-navigation-tabs' {
     accessibilityRole?: AccessibilityRole,
     accessibilityStates?: AccessibilityState[],
     style?: ViewStyleProp,
-    ...
   };
   declare type _BottomTabBarProps = {|
-    ..._BottomTabBarOptions,
-    ..._SharedTabBarProps,
+    ...$Exact<_BottomTabBarOptions>,
+    ...$Exact<_SharedTabBarProps>,
     navigation: NavigationTabProp<NavigationState>,
-    onTabPress: (props: {| route: NavigationRoute |}) => void,
-    onTabLongPress: (props: {| route: NavigationRoute |}) => void,
-    getAccessibilityRole: (props: {| route: NavigationRoute |}) => ?AccessibilityRole,
-    getAccessibilityStates: (props: {|
+    onTabPress: (props: { route: NavigationRoute }) => void,
+    onTabLongPress: (props: { route: NavigationRoute }) => void,
+    getAccessibilityRole: (props: {
+      route: NavigationRoute,
+    }) => ?AccessibilityRole,
+    getAccessibilityStates: (props: {
       route: NavigationRoute,
       focused: boolean,
-    |}) => AccessibilityState[],
-    getButtonComponent: (props: {| route: NavigationRoute |}) => ?React$ComponentType<_BottomTabBarButtonComponentProps>,
-    getLabelText: (props: {| route: NavigationRoute |}) =>
-      | ((scene: {|
+    }) => AccessibilityState[],
+    getButtonComponent: (props: {
+      route: NavigationRoute,
+    }) => ?React$ComponentType<_BottomTabBarButtonComponentProps>,
+    getLabelText: (props: {
+      route: NavigationRoute,
+    }) =>
+      | ((scene: {
           focused: boolean,
           tintColor?: string,
           orientation?: 'horizontal' | 'vertical',
-        |}) => ?string)
+        }) => ?string)
       | ?string,
     isLandscape: boolean,
     jumpTo: (key: string) => void,
@@ -731,21 +738,18 @@ declare module 'react-navigation-tabs' {
   declare export var BottomTabBar: React$ComponentType<_BottomTabBarProps>;
 
   declare type _MaterialTopTabBarProps = {|
-    ..._MaterialTopTabBarOptions,
-    ..._SharedTabBarProps,
+    ...$Exact<_MaterialTopTabBarOptions>,
+    ...$Exact<_SharedTabBarProps>,
     layout: _TabViewLayout,
     position: AnimatedNode<number>,
     jumpTo: (key: string) => void,
-    getLabelText: (scene: {| route: NavigationRoute |}) =>
-      | ((scene: {|
-          focused: boolean,
-          tintColor: string,
-        |}) => ?string)
+    getLabelText: (scene: { route: NavigationRoute }) =>
+      | ((scene: { focused: boolean, tintColor: string }) => ?string)
       | ?string,
-    getAccessible?: (scene: {| route: NavigationRoute |}) => ?boolean,
-    renderBadge?: (scene: {| route: NavigationRoute |}) => React$Node,
-    onTabPress?: (scene: {| route: NavigationRoute |}) => void,
-    onTabLongPress?: (scene: {| route: NavigationRoute |}) => void,
+    getAccessible?: (scene: { route: NavigationRoute }) => ?boolean,
+    renderBadge?: (scene: { route: NavigationRoute }) => React$Node,
+    onTabPress?: (scene: { route: NavigationRoute }) => void,
+    onTabLongPress?: (scene: { route: NavigationRoute }) => void,
     tabBarPosition?: 'top' | 'bottom',
     screenProps: NavigationScreenProps,
     navigation: NavigationTabProp<NavigationState>,
@@ -756,18 +760,17 @@ declare module 'react-navigation-tabs' {
 
   declare type _TabViewProps = {
     ..._SharedTabBarProps,
-    getLabelText: (props: {| route: NavigationRoute |}) => ?string,
-    renderScene: (props: {| route: NavigationRoute |}) => React$Node,
+    getLabelText: (props: { route: NavigationRoute }) => ?string,
+    renderScene: (props: { route: NavigationRoute }) => React$Node,
     onIndexChange: (index: number) => void,
-    onTabPress: (props: {| route: NavigationRoute |}) => void,
-    onTabLongPress: (props: {| route: NavigationRoute |}) => void,
+    onTabPress: (props: { route: NavigationRoute }) => void,
+    onTabLongPress: (props: { route: NavigationRoute }) => void,
     navigation: NavigationTabProp<NavigationState>,
-    descriptors: NavigationDescriptorMap,
+    descriptors: { [key: string]: NavigationDescriptor },
     screenProps?: NavigationScreenProps,
-    ...
   };
   declare export function createTabNavigator<
-    CustomProps: {...},
+    CustomProps: {},
   >(
     TabView: React$ComponentType<_TabViewProps & CustomProps>
   ): (
