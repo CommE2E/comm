@@ -119,9 +119,9 @@ type ExtraData = $ReadOnly<{|
 // than any other component in this project. This owes mostly to its complex
 // infinite-scrolling behavior.
 // But not this particular piece of sadness, actually. We have to cache the
-// current InnerCalendar ref here so we can access it from the statically
-// defined navigationOptions.tabBarOnPress below.
-let currentCalendarRef: ?InnerCalendar = null;
+// current Calendar ref here so we can access it from the statically defined
+// navigationOptions.tabBarOnPress below.
+let currentCalendarRef: ?Calendar = null;
 
 const forceInset = { top: 'always', bottom: 'never' };
 
@@ -153,7 +153,7 @@ type State = {|
   extraData: ExtraData,
   disableInputBar: bool,
 |};
-class InnerCalendar extends React.PureComponent<Props, State> {
+class Calendar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -223,9 +223,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   // When an entry becomes active, we make a note of its key so that once the
   // keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyActive: ?string = null;
-  keyboardShowListener: ?Object;
-  keyboardDismissListener: ?Object;
-  keyboardDidDismissListener: ?Object;
+  keyboardShowListener: ?{ +remove: () => void };
+  keyboardDismissListener: ?{ +remove: () => void };
+  keyboardDidDismissListener: ?{ +remove: () => void };
   keyboardShownHeight: ?number = null;
   keyboardPartiallyVisible = false;
   // If the query fails, we try it again
@@ -240,7 +240,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const textToMeasure = props.listData
-      ? InnerCalendar.textToMeasureFromListData(props.listData)
+      ? Calendar.textToMeasureFromListData(props.listData)
       : [];
     this.latestExtraData = {
       activeEntries: {},
@@ -320,14 +320,97 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    // When the listData changes we may need to recalculate some heights
-    if (newProps.listData === this.props.listData) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.props.listData !== prevProps.listData) {
+      this.handleNewTextToMeasure();
+    }
+
+    const { loadingStatus, connectionStatus } = this.props;
+    const {
+      loadingStatus: prevLoadingStatus,
+      connectionStatus: prevConnectionStatus,
+    } = prevProps;
+    if (
+      (loadingStatus === "error" && prevLoadingStatus === "loading") ||
+      (connectionStatus === "connected" && prevConnectionStatus !== "connected")
+    ) {
+      this.loadMoreAbove();
+      this.loadMoreBelow();
+    }
+
+    const lastLDWH = prevState.listDataWithHeights;
+    const newLDWH = this.state.listDataWithHeights;
+    if (!lastLDWH || !newLDWH) {
       return;
     }
-    const newListData = newProps.listData;
 
-    if (!newListData) {
+    if (newLDWH.length < lastLDWH.length && this.flatList) {
+      if (!this.props.calendarActive) {
+        // If the currentCalendarQuery gets reset we scroll to the center
+        this.scrollToToday();
+      } else if (Date.now() - this.lastForegrounded < 500) {
+        // If the app got foregrounded right before the calendar got reset, that
+        // indicates we should reset the scroll position
+        this.lastForegrounded = 0;
+        this.scrollToToday(false);
+      } else {
+        // Otherwise, it's possible that the foreground callback is about to get
+        // triggered. We record a timestamp here so we can scrollToToday there.
+        this.lastCalendarReset = Date.now();
+      }
+    }
+
+    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
+      = Calendar.datesFromListData(lastLDWH, newLDWH);
+
+    if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
+      // If there are fewer items in our new data, which happens when the
+      // current calendar query gets reset due to inactivity, let's reset the
+      // scroll position to the center (today)
+      if (!this.props.calendarActive) {
+        setTimeout(() => this.scrollToToday(), 50);
+      }
+      this.firstScrollUpOnAndroidComplete = false;
+    } else if (newStartDate < lastStartDate) {
+      this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
+    } else if (newEndDate > lastEndDate) {
+      this.firstScrollUpOnAndroidComplete = true;
+    } else if (newLDWH.length > lastLDWH.length) {
+      LayoutAnimation.easeInEaseOut();
+    }
+
+    if (newStartDate < lastStartDate) {
+      this.topLoadingFromScroll = null;
+    }
+    if (newEndDate > lastEndDate) {
+      this.bottomLoadingFromScroll = null;
+    }
+
+    const { keyboardShownHeight, lastEntryKeyActive } = this;
+    if (keyboardShownHeight && lastEntryKeyActive) {
+      this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
+      this.lastEntryKeyActive = null;
+    }
+
+    if (
+      this.props.threadPickerOpen &&
+      !prevProps.threadPickerOpen &&
+      !this.state.disableInputBar
+    ) {
+      this.setState({ disableInputBar: true });
+    }
+    if (
+      !this.props.threadPickerOpen &&
+      prevProps.threadPickerOpen &&
+      !this.keyboardPartiallyVisible
+    ) {
+      this.setState({ disableInputBar: false });
+    }
+  }
+
+  handleNewTextToMeasure() {
+    const { listData } = this.props;
+    if (!listData) {
       this.latestExtraData = {
         activeEntries: {},
         visibleEntries: {},
@@ -343,9 +426,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newTextToMeasure = InnerCalendar.textToMeasureFromListData(
-      newListData,
-    );
+    const newTextToMeasure = Calendar.textToMeasureFromListData(listData);
     const newText =
       _differenceWith(_isEqual)(newTextToMeasure)(this.state.textToMeasure);
     if (newText.length !== 0) {
@@ -370,107 +451,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       }
     }
     if (allTextAlreadyMeasured) {
-      this.mergeHeightsIntoListData(newListData);
+      this.mergeHeightsIntoListData();
     }
 
     // If we don't have everything in textHeights, but we do have everything in
     // textToMeasure, we can conclude that we're just waiting for the
     // measurement to complete and then we'll be good.
-  }
-
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    if (
-      nextProps.listData &&
-      this.props.listData &&
-      nextProps.listData.length < this.props.listData.length &&
-      this.flatList
-    ) {
-      if (!nextProps.calendarActive) {
-        // If the currentCalendarQuery gets reset we scroll to the center
-        this.scrollToToday();
-      } else if (Date.now() - this.lastForegrounded < 500) {
-        // If the app got foregrounded right before the calendar got reset, that
-        // indicates we should reset the scroll position
-        this.lastForegrounded = 0;
-        this.scrollToToday(false);
-      } else {
-        // Otherwise, it's possible that the foreground callback is about to get
-        // triggered. We record a timestamp here so we can scrollToToday there.
-        this.lastCalendarReset = Date.now();
-      }
-    }
-
-    const lastLDWH = this.state.listDataWithHeights;
-    const newLDWH = nextState.listDataWithHeights;
-    if (!lastLDWH || !newLDWH) {
-      return;
-    }
-    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
-      = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
-
-    if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
-      // If there are fewer items in our new data, which happens when the
-      // current calendar query gets reset due to inactivity, let's reset the
-      // scroll position to the center (today)
-      if (!nextProps.calendarActive) {
-        setTimeout(() => this.scrollToToday(), 50);
-      }
-      this.firstScrollUpOnAndroidComplete = false;
-    } else if (newStartDate < lastStartDate) {
-      this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
-    } else if (newEndDate > lastEndDate) {
-      this.firstScrollUpOnAndroidComplete = true;
-    } else if (newLDWH.length > lastLDWH.length) {
-      LayoutAnimation.easeInEaseOut();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const { loadingStatus, connectionStatus } = this.props;
-    const {
-      loadingStatus: prevLoadingStatus,
-      connectionStatus: prevConnectionStatus,
-    } = prevProps;
-    if (
-      (loadingStatus === "error" && prevLoadingStatus === "loading") ||
-      (connectionStatus === "connected" && prevConnectionStatus !== "connected")
-    ) {
-      this.loadMoreAbove();
-      this.loadMoreBelow();
-    }
-
-    const lastLDWH = prevState.listDataWithHeights;
-    const newLDWH = this.state.listDataWithHeights;
-    if (!lastLDWH || !newLDWH) {
-      return;
-    }
-    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
-      = InnerCalendar.datesFromListData(lastLDWH, newLDWH);
-    if (newStartDate < lastStartDate || newEndDate > lastEndDate) {
-      this.topLoadingFromScroll = null;
-      this.bottomLoadingFromScroll = null;
-    }
-
-    const { keyboardShownHeight, lastEntryKeyActive } = this;
-    if (newLDWH && keyboardShownHeight && lastEntryKeyActive) {
-      this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
-      this.lastEntryKeyActive = null;
-    }
-
-    if (
-      this.props.threadPickerOpen &&
-      !prevProps.threadPickerOpen &&
-      !this.state.disableInputBar
-    ) {
-      this.setState({ disableInputBar: true });
-    }
-    if (
-      !this.props.threadPickerOpen &&
-      prevProps.threadPickerOpen &&
-      !this.keyboardPartiallyVisible
-    ) {
-      this.setState({ disableInputBar: false });
-    }
   }
 
   static datesFromListData(
@@ -512,12 +498,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
     newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
   ) {
-    const existingKeys = new Set(_map(InnerCalendar.keyExtractor)(lastLDWH));
+    const existingKeys = new Set(_map(Calendar.keyExtractor)(lastLDWH));
     const newItems = _filter(
       (item: CalendarItemWithHeight) =>
-        !existingKeys.has(InnerCalendar.keyExtractor(item)),
+        !existingKeys.has(Calendar.keyExtractor(item)),
     )(newLDWH);
-    const heightOfNewItems = InnerCalendar.heightOfItems(newItems);
+    const heightOfNewItems = Calendar.heightOfItems(newItems);
     const flatList = this.flatList;
     invariant(flatList, "flatList should be set");
     const scrollAction = () => {
@@ -590,7 +576,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     }
   }
 
-  mergeHeightsIntoListData(listData: $ReadOnlyArray<CalendarItem>) {
+  mergeHeightsIntoListData() {
+    const { listData } = this.props;
+    if (!listData) {
+      return;
+    }
+
     const textHeights = this.textHeights;
     invariant(textHeights, "textHeights should be set");
     const listDataWithHeights = _map((item: CalendarItem) => {
@@ -605,7 +596,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       );
       return {
         itemType: "entryInfo",
-        entryInfo: InnerCalendar.entryInfoWithHeight(
+        entryInfo: Calendar.entryInfoWithHeight(
           item.entryInfo,
           textHeight,
         ),
@@ -616,7 +607,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       // want the loaders to trigger when nothing is there
       !this.state.listDataWithHeights ||
       // We know that this is going to shrink our FlatList. When our FlatList
-      // shrinks, componentWillUpdate will trigger scrollToToday
+      // shrinks, componentDidUpdate will trigger scrollToToday
       listDataWithHeights.length < this.state.listDataWithHeights.length
     ) {
       this.topLoaderWaitingToLeaveView = true;
@@ -630,9 +621,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       animated = this.props.calendarActive;
     }
     const ldwh = this.state.listDataWithHeights;
-    invariant(ldwh, "should be set");
+    invariant(ldwh, "scrollToToday called, but listDataWithHeights isn't set");
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(ldwh);
-    invariant(this.flatList, "flatList should be set");
+    invariant(this.flatList, "scrollToToday called, but flatList isn't set");
     this.flatList.scrollToIndex({
       index: todayIndex,
       animated,
@@ -723,10 +714,9 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
-    const offset =
-      InnerCalendar.heightOfItems(data.filter((_, i) => i < index));
+    const offset = Calendar.heightOfItems(data.filter((_, i) => i < index));
     const item = data[index];
-    const length = item ? InnerCalendar.itemHeight(item) : 0;
+    const length = item ? Calendar.itemHeight(item) : 0;
     return { length, offset, index };
   }
 
@@ -745,7 +735,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
   }
 
   static heightOfItems(data: $ReadOnlyArray<CalendarItemWithHeight>): number {
-    return _sum(data.map(InnerCalendar.itemHeight));
+    return _sum(data.map(Calendar.itemHeight));
   }
 
   render() {
@@ -758,8 +748,8 @@ class InnerCalendar extends React.PureComponent<Props, State> {
         <FlatList
           data={listDataWithHeights}
           renderItem={this.renderItem}
-          keyExtractor={InnerCalendar.keyExtractor}
-          getItemLayout={InnerCalendar.getItemLayout}
+          keyExtractor={Calendar.keyExtractor}
+          getItemLayout={Calendar.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           onScroll={this.onScroll}
           initialScrollIndex={initialScrollIndex}
@@ -816,12 +806,12 @@ class InnerCalendar extends React.PureComponent<Props, State> {
 
   initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
-    const heightOfTodayHeader = InnerCalendar.itemHeight(data[todayIndex]);
+    const heightOfTodayHeader = Calendar.itemHeight(data[todayIndex]);
 
     let returnIndex = todayIndex;
     let heightLeft = (this.flatListHeight() - heightOfTodayHeader) / 2;
     while (heightLeft > 0) {
-      heightLeft -= InnerCalendar.itemHeight(data[--returnIndex]);
+      heightLeft -= Calendar.itemHeight(data[--returnIndex]);
     }
     return returnIndex;
   }
@@ -932,15 +922,15 @@ class InnerCalendar extends React.PureComponent<Props, State> {
     invariant(data, "should be set");
     const index = _findIndex(
       (item: CalendarItemWithHeight) =>
-        InnerCalendar.keyExtractor(item) === lastEntryKeyActive,
+        Calendar.keyExtractor(item) === lastEntryKeyActive,
     )(data);
     if (index === null || index === undefined) {
       return;
     }
-    const itemStart = InnerCalendar.heightOfItems(
+    const itemStart = Calendar.heightOfItems(
       data.filter((_, i) => i < index),
     );
-    const itemHeight = InnerCalendar.itemHeight(data[index]);
+    const itemHeight = Calendar.itemHeight(data[index]);
     const entryAdditionalActiveHeight = Platform.OS === "android" ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
     let visibleHeight = this.flatListHeight() - keyboardHeight;
@@ -970,9 +960,7 @@ class InnerCalendar extends React.PureComponent<Props, State> {
       return;
     }
     this.textHeights = newTextHeights;
-    if (this.props.listData) {
-      this.mergeHeightsIntoListData(this.props.listData);
-    }
+    this.mergeHeightsIntoListData();
   }
 
   onViewableItemsChanged = (info: {
@@ -1196,7 +1184,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const activeThreadPickerSelector =
   createIsForegroundSelector(ThreadPickerModalRouteName);
-const Calendar = connect(
+export default connect(
   (state: AppState) => ({
     listData: calendarListData(state),
     calendarActive: activeTabSelector(state) || activeThreadPickerSelector(state),
@@ -1211,6 +1199,4 @@ const Calendar = connect(
     connectionStatus: state.connection.status,
   }),
   { updateCalendarQuery },
-)(InnerCalendar);
-
-export default Calendar;
+)(Calendar);
