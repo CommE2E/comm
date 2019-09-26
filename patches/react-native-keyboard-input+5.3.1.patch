@@ -24,7 +24,7 @@ index 2a31b47..21090bf 100644
      UIView* inputField = [self.bridge.uiManager viewForReactTag:inputFieldTag];
      if(inputField != nil)
 diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
-index e856264..cc5ba15 100644
+index e856264..3286907 100644
 --- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
 +++ b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
 @@ -7,8 +7,8 @@
@@ -62,6 +62,40 @@ index 0000000..9f724be
 +  s.dependency 'react-native-keyboard-tracking-view'
 +
 +end 
+diff --git a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
+index 078efb6..da709f1 100644
+--- a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
++++ b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
+@@ -49,16 +49,16 @@ export default class CustomKeyboardView extends Component {
+     }
+   }
+ 
+-  async componentWillReceiveProps(nextProps) {
+-    const {inputRef, component, initialProps, onRequestShowKeyboard} = nextProps;
++  async componentDidUpdate(prevProps) {
++    const {inputRef, component, initialProps, onRequestShowKeyboard} = this.props;
+ 
+     if (IsAndroid) {
+-      if (this.props.component !== component && !component) {
++      if (prevProps.component !== component && !component) {
+         await TextInputKeyboardManagerAndroid.reset();
+       }
+     }
+ 
+-    if (IsIOS && TextInputKeyboardManagerIOS && inputRef && component !== this.props.component) {
++    if (IsIOS && TextInputKeyboardManagerIOS && inputRef && component !== prevProps.component) {
+       if (component) {
+         TextInputKeyboardManagerIOS.setInputComponent(inputRef, {component, initialProps});
+       } else {
+@@ -72,7 +72,7 @@ export default class CustomKeyboardView extends Component {
+         onRequestShowKeyboard(args.keyboardId);
+       });
+     }
+-    this.registerListener(this.props, nextProps);
++    this.registerListener(prevProps, this.props);
+   }
+ 
+   shouldComponentUpdate(nextProps) {
 diff --git a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
 index 20d61c9..13a6493 100644
 --- a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
