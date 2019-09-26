@@ -1,0 +1,58 @@
+diff --git a/node_modules/react-native-hyperlink/dist/index.js b/node_modules/react-native-hyperlink/dist/index.js
+index a895324..caa80b6 100644
+--- a/node_modules/react-native-hyperlink/dist/index.js
++++ b/node_modules/react-native-hyperlink/dist/index.js
+@@ -52,13 +52,11 @@ var Hyperlink = function (_Component) {
+   }
+ 
+   _createClass(Hyperlink, [{
+-    key: 'componentWillReceiveProps',
+-    value: function componentWillReceiveProps() {
+-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+-          _ref$linkify = _ref.linkify,
+-          linkify = _ref$linkify === undefined ? require('linkify-it')() : _ref$linkify;
+-
+-      this.linkifyIt = linkify;
++    key: 'componentDidUpdate',
++    value: function componentDidUpdate(prevProps) {
++      if (this.props.linkify !== prevProps.linkify) {
++        this.linkifyIt = this.props.linkify || require('linkify-it')()
++      }
+     }
+   }, {
+     key: 'render',
+@@ -115,7 +113,7 @@ var Hyperlink = function (_Component) {
+           if (_this2.props.linkText) text = typeof _this2.props.linkText === 'function' ? _this2.props.linkText(url) : _this2.props.linkText;
+ 
+           var clickHandlerProps = {};
+-          if (OS !== 'web') {
++          if (OS !== 'web' && this.props.onLongPress) {
+             clickHandlerProps.onLongPress = _this2.props.onLongPress ? function () {
+               return _this2.props.onLongPress(url, text);
+             } : undefined;
+diff --git a/node_modules/react-native-hyperlink/src/Hyperlink.js b/node_modules/react-native-hyperlink/src/Hyperlink.js
+index c391bb0..7d6f69e 100644
+--- a/node_modules/react-native-hyperlink/src/Hyperlink.js
++++ b/node_modules/react-native-hyperlink/src/Hyperlink.js
+@@ -23,8 +23,10 @@ class Hyperlink extends Component {
+     this.linkifyIt = props.linkify || require('linkify-it')()
+   }
+ 
+-  componentWillReceiveProps ({ linkify = require('linkify-it')() } = {}) {
+-    this.linkifyIt = linkify
++  componentDidUpdate(prevProps) {
++    if (this.props.linkify !== prevProps.linkify) {
++      this.linkifyIt = this.props.linkify || require('linkify-it')()
++    }
+   }
+ 
+   render() {
+@@ -79,7 +81,7 @@ class Hyperlink extends Component {
+               : this.props.linkText
+ 
+         const clickHandlerProps = {}
+-        if (OS !== 'web') {
++        if (OS !== 'web' && this.props.onLongPress) {
+           clickHandlerProps.onLongPress = this.props.onLongPress 
+             ? () => this.props.onLongPress(url, text)
+             : undefined

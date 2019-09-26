@@ -7929,17 +7929,17 @@ lightercollective@^0.1.0:
   resolved "https://registry.yarnpkg.com/lightercollective/-/lightercollective-0.1.0.tgz#70df102c530dcb8d0ccabfe6175a8d00d5f61300"
   integrity sha512-J9tg5uraYoQKaWbmrzDDexbG6hHnMcWS1qLYgJSWE+mpA3U5OCSeMUhb+K55otgZJ34oFdR0ECvdIb3xuO5JOQ==
 
-linkify-it@^1.2.0:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-1.2.4.tgz#0773526c317c8fd13bd534ee1d180ff88abf881a"
-  integrity sha1-B3NSbDF8j9E71TTuHRgP+Iq/iBo=
-  dependencies:
-    uc.micro "^1.0.1"
-
 linkify-it@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.0.3.tgz#d94a4648f9b1c179d64fa97291268bdb6ce9434f"
   integrity sha1-2UpGSPmxwXnWT6lykSaL22zpQ08=
+  dependencies:
+    uc.micro "^1.0.1"
+
+linkify-it@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.2.0.tgz#e3b54697e78bf915c70a38acd78fd09e0058b1cf"
+  integrity sha512-GnAl/knGn+i1U/wjBz3akz2stz+HrHLsxMwHQGofCDfPvlf+gDKN58UtfmUquTY4/MXeE2x7k19KQmeoZi94Iw==
   dependencies:
     uc.micro "^1.0.1"
 
@@ -10817,11 +10817,12 @@ react-native-gesture-handler@^1.4.1:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-"react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git#both":
-  version "0.0.12"
-  resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#0c872d5be30ba6382c926e78ad1545a97f586f85"
+react-native-hyperlink@^0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/react-native-hyperlink/-/react-native-hyperlink-0.0.16.tgz#3f60f6d1fb86ea883c64a2cec3e9ee2c890ae739"
+  integrity sha512-3W+dK0u96XTbNzmjTV0NLBCjZuF3r87Zr1FwDYeob5fjeU9grc9dss5Rind/drJFmXH5hXRyhKxX0xFs1gULFw==
   dependencies:
-    linkify-it "^1.2.0"
+    linkify-it "^2.2.0"
     mdurl "^1.0.0"
 
 react-native-image-resizer@^1.0.1:
