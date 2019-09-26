@@ -50,9 +50,9 @@ class RobotextMessage extends React.PureComponent<Props> {
     );
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate() {
     invariant(
-      messageTypeIsRobotext(nextProps.item.messageInfo.type),
+      messageTypeIsRobotext(this.props.item.messageInfo.type),
       "TextMessage can only be used for robotext",
     );
   }

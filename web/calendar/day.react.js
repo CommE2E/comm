@@ -88,10 +88,11 @@ class Day extends React.PureComponent<Props, State> {
     this.setState({ mounted: true });
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.onScreenThreadInfos.length === 0) {
-      this.setState({ pickerOpen: false });
+  static getDerivedStateFromProps(props: Props) {
+    if (props.onScreenThreadInfos.length === 0) {
+      return { pickerOpen: false };
     }
+    return null;
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {

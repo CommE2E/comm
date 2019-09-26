@@ -151,17 +151,52 @@ class App extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    if (this.props.loggedIn) {
+      if (this.props.location.pathname !== prevProps.location.pathname) {
+        const newNavInfo = navInfoFromURL(
+          this.props.location.pathname,
+          { navInfo: this.props.navInfo },
+        );
+        if (!_isEqual(newNavInfo)(this.props.navInfo)) {
+          this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
+        }
+      } else if (!_isEqual(this.props.navInfo)(prevProps.navInfo)) {
+        const newURL = canonicalURLFromReduxState(
+          this.props.navInfo,
+          this.props.location.pathname,
+        );
+        if (newURL !== this.props.location.pathname) {
+          history.push(newURL);
+        }
+      }
+    }
+
+    const justLoggedIn = this.props.loggedIn && !prevProps.loggedIn;
+    if (justLoggedIn) {
+      const newURL = canonicalURLFromReduxState(
+        this.props.navInfo,
+        this.props.location.pathname,
+      );
+      if (this.props.location.pathname !== newURL) {
+        history.replace(newURL);
+      }
+    }
+
+    const justLoggedOut = !this.props.loggedIn && prevProps.loggedIn;
+    if (justLoggedOut && this.props.location.pathname !== '/') {
+      history.replace('/');
+    }
+
     const { navInfo, serverVerificationResult } = this.props;
     if (
-      !serverVerificationResult ||
-      serverVerificationResult.field !== verifyField.RESET_PASSWORD
+      serverVerificationResult &&
+      serverVerificationResult.field === verifyField.RESET_PASSWORD
     ) {
-      return;
-    }
-    if (prevProps.navInfo.verify && !this.props.navInfo.verify) {
-      this.clearModal();
-    } else if (!prevProps.navInfo.verify && this.props.navInfo.verify) {
-      this.showResetPasswordModal();
+      if (this.props.navInfo.verify && !prevProps.navInfo.verify) {
+        this.showResetPasswordModal();
+      } else if (!this.props.navInfo.verify && prevProps.navInfo.verify) {
+        this.clearModal();
+      }
     }
   }
 
@@ -178,44 +213,6 @@ class App extends React.PureComponent<Props, State> {
     this.setModal(
       <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />
     );
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.loggedIn) {
-      if (nextProps.location.pathname !== this.props.location.pathname) {
-        const newNavInfo = navInfoFromURL(
-          nextProps.location.pathname,
-          { navInfo: nextProps.navInfo },
-        );
-        if (!_isEqual(newNavInfo)(nextProps.navInfo)) {
-          this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
-        }
-      } else if (!_isEqual(nextProps.navInfo)(this.props.navInfo)) {
-        const newURL = canonicalURLFromReduxState(
-          nextProps.navInfo,
-          nextProps.location.pathname,
-        );
-        if (newURL !== nextProps.location.pathname) {
-          history.push(newURL);
-        }
-      }
-    }
-
-    const justLoggedIn = nextProps.loggedIn && !this.props.loggedIn;
-    if (justLoggedIn) {
-      const newURL = canonicalURLFromReduxState(
-        nextProps.navInfo,
-        nextProps.location.pathname,
-      );
-      if (nextProps.location.pathname !== newURL) {
-        history.replace(newURL);
-      }
-    }
-
-    const justLoggedOut = !nextProps.loggedIn && this.props.loggedIn;
-    if (justLoggedOut && nextProps.location.pathname !== '/') {
-      history.replace('/');
-    }
   }
 
   render() {

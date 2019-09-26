@@ -23,22 +23,12 @@ type OptionProps = {
 };
 class ThreadPickerOption extends React.PureComponent<OptionProps> {
 
-  style: { backgroundColor: string };
-
-  constructor(props: OptionProps) {
-    super(props);
-    this.style = { backgroundColor: "#" + props.threadInfo.color };
-  }
-
-  componentWillReceiveProps(nextProps: OptionProps) {
-    this.style = { backgroundColor: "#" + nextProps.threadInfo.color };
-  }
-
   render() {
+    const colorStyle = { backgroundColor: `#{this.props.threadInfo.color}` };
     return (
       <div className={css.option} onClick={this.onClick}>
         <span className={css.thread}>
-          <div className={css.colorPreview} style={this.style} />
+          <div className={css.colorPreview} style={colorStyle} />
           <span className={css.threadName}>
             {this.props.threadInfo.uiName}
           </span>
