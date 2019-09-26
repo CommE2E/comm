@@ -45,7 +45,10 @@ import { createReduxContainer } from 'react-navigation-redux-helpers';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import NotificationsIOS from 'react-native-notifications';
-import InAppNotification from 'react-native-in-app-notification';
+import {
+  InAppNotificationProvider,
+  withInAppNotification,
+} from 'react-native-in-app-notification';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 
@@ -106,6 +109,8 @@ const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
 type Props = {
+  // withInAppNotification
+  showNotification: (spec: {...}) => void,
   // Redux state
   rehydrateConcluded: bool,
   navigationState: NavigationState,
@@ -131,6 +136,7 @@ type Props = {
 class AppWithNavigationState extends React.PureComponent<Props> {
 
   static propTypes = {
+    showNotification: PropTypes.func.isRequired,
     rehydrateConcluded: PropTypes.bool.isRequired,
     navigationState: PropTypes.object.isRequired,
     activeThread: PropTypes.string,
@@ -148,7 +154,6 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     setDeviceToken: PropTypes.func.isRequired,
   };
   currentState: ?string = NativeAppState.currentState;
-  inAppNotification: ?InAppNotification = null;
   androidTokenListener: ?(() => void) = null;
   androidMessageListener: ?(() => void) = null;
   androidNotifOpenListener: ?(() => void) = null;
@@ -566,8 +571,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (threadID === this.props.activeThread) {
       return;
     }
-    invariant(this.inAppNotification, "should be set");
-    this.inAppNotification.show({
+    this.props.showNotification({
       message,
       title,
       onPress: () => this.onPressNotificationForThread(threadID, false),
@@ -607,29 +611,25 @@ class AppWithNavigationState extends React.PureComponent<Props> {
   render() {
     const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
     return (
-      <View style={styles.app}>
-        <Socket
-          detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
-        />
-        <ReduxifiedRootNavigator
-          state={this.props.navigationState}
-          dispatch={this.props.dispatch}
-        />
-        <ConnectedStatusBar />
-        <InAppNotification
-          height={inAppNotificationHeight}
-          notificationBodyComponent={NotificationBody}
-          ref={this.inAppNotificationRef}
-        />
-        <DisconnectedBarVisibilityHandler />
-        <DimensionsUpdater />
-        <ConnectivityUpdater />
-      </View>
+      <InAppNotificationProvider
+        height={inAppNotificationHeight}
+        notificationBodyComponent={NotificationBody}
+      >
+        <View style={styles.app}>
+          <Socket
+            detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
+          />
+          <ReduxifiedRootNavigator
+            state={this.props.navigationState}
+            dispatch={this.props.dispatch}
+          />
+          <ConnectedStatusBar />
+          <DisconnectedBarVisibilityHandler />
+          <DimensionsUpdater />
+          <ConnectivityUpdater />
+        </View>
+      </InAppNotificationProvider>
     );
-  }
-
-  inAppNotificationRef = (inAppNotification: InAppNotification) => {
-    this.inAppNotification = inAppNotification;
   }
 
   detectUnsupervisedBackgroundRef = (
@@ -665,7 +665,7 @@ const ConnectedAppWithNavigationState = connect(
     };
   },
   { setDeviceToken },
-)(AppWithNavigationState);
+)(withInAppNotification(AppWithNavigationState));
 
 const App = (props: {}) =>
   <Provider store={store}>

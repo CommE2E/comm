@@ -34,7 +34,7 @@
     "react-native-gesture-handler": "^1.4.1",
     "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-image-resizer": "^1.0.1",
-    "react-native-in-app-notification": "^2.1.0",
+    "react-native-in-app-notification": "^3.0.0",
     "react-native-keyboard-input": "^5.3.1",
     "react-native-keychain": "^4.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",

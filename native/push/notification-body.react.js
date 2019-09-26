@@ -5,7 +5,7 @@ import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 import * as React from 'react';
 import { View, StyleSheet, DeviceInfo, Platform } from 'react-native';
 import DefaultNotificationBody
-  from 'react-native-in-app-notification/DefaultNotificationBody';
+  from 'react-native-in-app-notification/src/DefaultNotificationBody';
 
 type Props = {
   title: string,
