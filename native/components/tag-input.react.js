@@ -23,7 +23,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
-type Props<T> = {
+type Props<T> = {|
   /**
    * An array of tags, which can be any type, as long as labelExtractor below
    * can extract a string from it.
@@ -92,11 +92,13 @@ type Props<T> = {
   innerRef?: (tagInput: ?TagInput<T>) => void,
   // Redux state
   dimensions: Dimensions,
-};
-type State = {
-  inputWidth: number,
+|};
+type State = {|
   wrapperHeight: number,
-};
+  contentHeight: number,
+  wrapperWidth: number,
+  spaceLeft: number,
+|};
 class TagInput<T> extends React.PureComponent<Props<T>, State> {
 
   static propTypes = {
@@ -118,10 +120,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     innerRef: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
   };
-  wrapperWidth: number;
-  spaceLeft = 0;
   // scroll to bottom
-  contentHeight = 0;
   scrollViewHeight = 0;
   scrollToBottomAfterNextScrollViewLayout = false;
   // refs
@@ -132,33 +131,20 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     tagColor: '#dddddd',
     tagTextColor: '#777777',
     inputColor: '#777777',
-    minHeight: 27,
+    minHeight: 30,
     maxHeight: 75,
     defaultInputWidth: 90,
   };
 
-  static inputWidth(
-    text: string,
-    spaceLeft: number,
-    wrapperWidth: number,
-    defaultInputWidth: number,
-  ) {
-    if (text === "") {
-      return defaultInputWidth;
-    } else if (spaceLeft >= 100) {
-      return spaceLeft - 10;
-    } else {
-      return wrapperWidth;
-    }
-  }
-
   constructor(props: Props<T>) {
     super(props);
     this.state = {
-      inputWidth: props.defaultInputWidth,
-      wrapperHeight: 36,
+      wrapperHeight: 30,
+      // was wrapperHeight: 36,
+      contentHeight: 0,
+      wrapperWidth: props.dimensions.width,
+      spaceLeft: 0,
     };
-    this.wrapperWidth = props.dimensions.width;
   }
 
   componentDidMount() {
@@ -173,47 +159,30 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props<T>) {
-    const inputWidth = TagInput.inputWidth(
-      nextProps.text,
-      this.spaceLeft,
-      this.wrapperWidth,
-      nextProps.defaultInputWidth,
-    );
-    if (inputWidth !== this.state.inputWidth) {
-      this.setState({ inputWidth });
-    }
+  static getDerivedStateFromProps(props: Props<T>, state: State) {
     const wrapperHeight = Math.max(
       Math.min(
-        nextProps.maxHeight,
-        this.contentHeight,
+        props.maxHeight,
+        state.contentHeight,
       ),
-      nextProps.minHeight,
+      props.minHeight,
     );
-    if (wrapperHeight !== this.state.wrapperHeight) {
-      this.setState({ wrapperHeight });
-    }
+    return { wrapperHeight };
   }
 
-  componentWillUpdate(nextProps: Props<T>, nextState: State) {
+  componentDidUpdate(prevProps: Props<T>, prevState: State) {
     if (
       this.props.onHeightChange &&
-      nextState.wrapperHeight !== this.state.wrapperHeight
+      this.state.wrapperHeight !== prevState.wrapperHeight
     ) {
-      this.props.onHeightChange(nextState.wrapperHeight);
+      this.props.onHeightChange(this.state.wrapperHeight);
     }
   }
 
   measureWrapper = (event: { nativeEvent: { layout: { width: number } } }) => {
-    this.wrapperWidth = event.nativeEvent.layout.width;
-    const inputWidth = TagInput.inputWidth(
-      this.props.text,
-      this.spaceLeft,
-      this.wrapperWidth,
-      this.props.defaultInputWidth,
-    );
-    if (inputWidth !== this.state.inputWidth) {
-      this.setState({ inputWidth });
+    const wrapperWidth = event.nativeEvent.layout.width;
+    if (wrapperWidth !== this.state.wrapperWidth) {
+      this.setState({ wrapperWidth });
     }
   }
 
@@ -268,6 +237,15 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       />
     ));
 
+    let inputWidth;
+    if (this.props.text === "") {
+      inputWidth = this.props.defaultInputWidth;
+    } else if (this.state.spaceLeft >= 100) {
+      inputWidth = this.state.spaceLeft - 10;
+    } else {
+      inputWidth = this.state.wrapperWidth;
+    }
+
     return (
       <TouchableWithoutFeedback
         onPress={this.focus}
@@ -286,7 +264,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
               {tags}
               <View style={[
                 styles.textInputContainer,
-                { width: this.state.inputWidth },
+                { width: inputWidth },
               ]}>
                 <TextInput
                   ref={this.tagInputRef}
@@ -294,7 +272,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
                   onKeyPress={this.onKeyPress}
                   value={this.props.text}
                   style={[styles.textInput, {
-                    width: this.state.inputWidth,
+                    width: inputWidth,
                     color: this.props.inputColor,
                   }]}
                   onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
@@ -324,25 +302,23 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   }
 
   onScrollViewContentSizeChange = (w: number, h: number) => {
-    const oldContentHeight = this.contentHeight;
-    if (oldContentHeight === h) {
+    const oldContentHeight = this.state.contentHeight;
+    if (h === oldContentHeight) {
       return;
     }
-    this.contentHeight = h;
-    const nextWrapperHeight = Math.max(
-      Math.min(this.props.maxHeight, h),
-      this.props.minHeight,
-    );
-    if (nextWrapperHeight !== this.state.wrapperHeight) {
-      this.setState({ wrapperHeight: nextWrapperHeight });
+
+    let callback;
+    if (h > oldContentHeight) {
+      callback = () => {
+        if (this.scrollViewHeight === this.props.maxHeight) {
+          this.scrollToBottom();
+        } else {
+          this.scrollToBottomAfterNextScrollViewLayout = true;
+        }
+      };
     }
-    if (oldContentHeight < h) {
-      if (this.scrollViewHeight === this.props.maxHeight) {
-        this.scrollToBottom();
-      } else {
-        this.scrollToBottomAfterNextScrollViewLayout = true;
-      }
-    }
+
+    this.setState({ contentHeight: h }, callback);
   }
 
   onScrollViewLayout = (
@@ -357,21 +333,15 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
 
   onLayoutLastTag = (endPosOfTag: number) => {
     const margin = 3;
-    this.spaceLeft = this.wrapperWidth - endPosOfTag - margin - 10;
-    const inputWidth = TagInput.inputWidth(
-      this.props.text,
-      this.spaceLeft,
-      this.wrapperWidth,
-      this.props.defaultInputWidth,
-    );
-    if (inputWidth !== this.state.inputWidth) {
-      this.setState({ inputWidth });
+    const spaceLeft = this.state.wrapperWidth - endPosOfTag - margin - 10;
+    if (spaceLeft !== this.state.spaceLeft) {
+      this.setState({ spaceLeft });
     }
   }
 
 }
 
-type TagProps = {
+type TagProps = {|
   index: number,
   label: string,
   isLastTag: bool,
@@ -381,7 +351,7 @@ type TagProps = {
   tagTextColor: string,
   tagContainerStyle?: ViewStyle,
   tagTextStyle?: TextStyle,
-};
+|};
 class Tag extends React.PureComponent<TagProps> {
 
   static propTypes = {
@@ -397,10 +367,10 @@ class Tag extends React.PureComponent<TagProps> {
   };
   curPos: ?number = null;
 
-  componentWillReceiveProps(nextProps: TagProps) {
+  componentDidUpdate(prevProps: TagProps) {
     if (
-      !this.props.isLastTag &&
-      nextProps.isLastTag &&
+      !prevProps.isLastTag &&
+      this.props.isLastTag &&
       this.curPos !== null &&
       this.curPos !== undefined
     ) {

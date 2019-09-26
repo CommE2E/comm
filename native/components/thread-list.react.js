@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
+import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index';
 
@@ -30,10 +31,10 @@ type Props = {|
   searchIndex?: SearchIndex,
 |};
 type State = {|
-  listData: $ReadOnlyArray<ThreadInfo>,
   searchText: string,
   searchResults: Set<string>,
 |};
+type PropsAndState = {| ...Props, ...State |};
 class ThreadList extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -43,40 +44,26 @@ class ThreadList extends React.PureComponent<Props, State> {
     itemTextStyle: Text.propTypes.style,
     searchIndex: PropTypes.instanceOf(SearchIndex),
   };
+  state = {
+    searchText: "",
+    searchResults: new Set(),
+  };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      listData: [],
-      searchText: "",
-      searchResults: new Set(),
-    };
-    this.state.listData = ThreadList.listData(props, this.state);
-  }
+  listDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.threadInfos,
+    (propsAndState: PropsAndState) => propsAndState.searchText,
+    (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (
+      threadInfos: $ReadOnlyArray<ThreadInfo>,
+      text: string,
+      searchResults: Set<string>,
+    ) => text
+      ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+      : threadInfos,
+  );
 
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.threadInfos !== this.props.threadInfos) {
-      this.setState((prevState: State) => ({
-        listData: ThreadList.listData(newProps, prevState),
-      }));
-    }
-  }
-
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    if (nextState.searchText !== this.state.searchText) {
-      this.setState((prevState: State) => ({
-        listData: ThreadList.listData(nextProps, nextState),
-      }));
-    }
-  }
-
-  static listData(props: Props, state: State): $ReadOnlyArray<ThreadInfo> {
-    if (!state.searchText) {
-      return props.threadInfos;
-    }
-    return props.threadInfos.filter(
-      threadInfo => state.searchResults.has(threadInfo.id),
-    );
+  get listData() {
+    return this.listDataSelector({ ...this.props, ...this.state });
   }
 
   render() {
@@ -98,26 +85,24 @@ class ThreadList extends React.PureComponent<Props, State> {
         );
       }
       searchBar = (
-        <View style={styles.searchContainer}>
-          <View style={styles.search}>
-            <Icon
-              name="search"
-              size={18}
-              color="#AAAAAA"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              underlineColorAndroid="transparent"
-              value={this.state.searchText}
-              onChangeText={this.onChangeSearchText}
-              placeholder="Search threads"
-              placeholderTextColor="#AAAAAA"
-              returnKeyType="go"
-              autoFocus={true}
-            />
-            {clearSearchInputIcon}
-          </View>
+        <View style={styles.search}>
+          <Icon
+            name="search"
+            size={18}
+            color="#AAAAAA"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            underlineColorAndroid="transparent"
+            value={this.state.searchText}
+            onChangeText={this.onChangeSearchText}
+            placeholder="Search threads"
+            placeholderTextColor="#AAAAAA"
+            returnKeyType="go"
+            autoFocus={true}
+          />
+          {clearSearchInputIcon}
         </View>
       );
     }
@@ -125,7 +110,7 @@ class ThreadList extends React.PureComponent<Props, State> {
       <React.Fragment>
         {searchBar}
         <FlatList
-          data={this.state.listData}
+          data={this.listData}
           renderItem={this.renderItem}
           keyExtractor={ThreadList.keyExtractor}
           getItemLayout={ThreadList.getItemLayout}
@@ -168,8 +153,6 @@ class ThreadList extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  searchContainer: {
-  },
   searchIcon: {
     paddingBottom: Platform.OS === "android" ? 0 : 2,
   },

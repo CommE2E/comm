@@ -56,19 +56,20 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     this.resetInternalState(this.props.textToMeasure);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.textToMeasure !== this.props.textToMeasure) {
-      this.resetInternalState(nextProps.textToMeasure);
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.textToMeasure !== prevProps.textToMeasure) {
+      this.resetInternalState(prevProps.textToMeasure);
     }
   }
 
   // resets this.leftToMeasure and this.nextTextToHeight
-  resetInternalState(nextTextToMeasure: TextToMeasure[]) {
+  resetInternalState(prevTextToMeasure: TextToMeasure[]) {
     this.leftToMeasure = new Set();
     const nextNextTextToHeight = new Map();
+    const nextTextToMeasure = this.props.textToMeasure;
 
     const newTextToMeasure =
-      _differenceWith(_isEqual)(nextTextToMeasure)(this.props.textToMeasure);
+      _differenceWith(_isEqual)(nextTextToMeasure)(prevTextToMeasure);
     for (let textToMeasure of newTextToMeasure) {
       this.leftToMeasure.add(textToMeasure);
     }
@@ -77,7 +78,7 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
       ? this.nextTextToHeight
       : this.currentTextToHeight;
     const existingTextToMeasure =
-      _intersectionWith(_isEqual)(nextTextToMeasure)(this.props.textToMeasure);
+      _intersectionWith(_isEqual)(nextTextToMeasure)(prevTextToMeasure);
     for (let textToMeasure of existingTextToMeasure) {
       const { id } = textToMeasure;
       const measuredHeight = existingTextToHeight.get(id);

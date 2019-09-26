@@ -53,10 +53,10 @@ class Modal extends React.PureComponent<Props> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.props.isForeground && nextProps.isForeground) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.isForeground && !prevProps.isForeground) {
       this.onForeground();
-    } else if (this.props.isForeground && !nextProps.isForeground) {
+    } else if (!this.props.isForeground && prevProps.isForeground) {
       this.onBackground();
     }
   }

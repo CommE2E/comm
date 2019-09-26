@@ -89,10 +89,6 @@ class ColorPicker extends React.PureComponent<Props, State> {
       color = { h: 0, s: 1, v: 1 };
     }
     this.state = { color, pickerSize: null };
-  }
-
-  componentWillMount() {
-    Keyboard.dismiss();
     const handleColorChange = ({ x, y }: { x: number, y: number }) => {
       if (this._changingHColor) {
         this._handleHColorChange({ x, y });
@@ -119,6 +115,10 @@ class ColorPicker extends React.PureComponent<Props, State> {
       }),
       onPanResponderRelease: () => true,
     });
+  }
+
+  componentDidMount() {
+    Keyboard.dismiss();
   }
 
   _getColor(): HSVColor {

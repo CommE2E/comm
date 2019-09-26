@@ -31,6 +31,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import { createSelector } from 'reselect';
 
 import {
   userInfoSelectorForOtherMembersOfThread,
@@ -71,7 +72,7 @@ type NavProp = NavigationScreenProp<{|
   |},
 |}>;
 
-type Props = {
+type Props = {|
   navigation: NavProp,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
@@ -85,12 +86,12 @@ type Props = {
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsResult>,
   searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-};
+|};
 type State = {|
-  userSearchResults: $ReadOnlyArray<UserListItem>,
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 |};
+type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -110,48 +111,13 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     changeThreadSettings: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
-  mounted = false;
+  state = {
+    usernameInputText: "",
+    userInfoInputArray: [],
+  };
   tagInput: ?TagInput<AccountUserInfo> = null;
 
-  constructor(props: Props) {
-    super(props);
-    const userSearchResults = AddUsersModal.getSearchResults(
-      "",
-      props.otherUserInfos,
-      props.userSearchIndex,
-      [],
-      props.navigation.state.params.threadInfo,
-      props.parentThreadInfo,
-    );
-    this.state = {
-      userSearchResults,
-      usernameInputText: "",
-      userInfoInputArray: [],
-    }
-  }
-
-  static getSearchResults(
-    text: string,
-    userInfos: {[id: string]: AccountUserInfo},
-    searchIndex: SearchIndex,
-    userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
-  ) {
-    const excludeUserIDs = userInfoInputArray
-      .map(userInfo => userInfo.id)
-      .concat(threadActualMembers(threadInfo.members));
-    return getUserSearchResults(
-      text,
-      userInfos,
-      searchIndex,
-      excludeUserIDs,
-      parentThreadInfo,
-    );
-  }
-
   componentDidMount() {
-    this.mounted = true;
     this.searchUsers("");
   }
 
@@ -162,30 +128,37 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     );
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.mounted) {
-      return;
-    }
-    if (
-      this.props.otherUserInfos !== nextProps.otherUserInfos ||
-      this.props.userSearchIndex !== nextProps.userSearchIndex ||
-      this.props.navigation.state.params.threadInfo
-        !== nextProps.navigation.state.params.threadInfo
-    ) {
-      const userSearchResults = AddUsersModal.getSearchResults(
-        this.state.usernameInputText,
-        nextProps.otherUserInfos,
-        nextProps.userSearchIndex,
-        this.state.userInfoInputArray,
-        nextProps.navigation.state.params.threadInfo,
-        nextProps.parentThreadInfo,
+  userSearchResultsSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.usernameInputText,
+    (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
+    (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
+    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
+    (propsAndState: PropsAndState) =>
+      propsAndState.navigation.state.params.threadInfo,
+    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (
+      text: string,
+      userInfos: {[id: string]: AccountUserInfo},
+      searchIndex: SearchIndex,
+      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+      threadInfo: ThreadInfo,
+      parentThreadInfo: ?ThreadInfo,
+    ) => {
+      const excludeUserIDs = userInfoInputArray
+        .map(userInfo => userInfo.id)
+        .concat(threadActualMembers(threadInfo.members));
+      return getUserSearchResults(
+        text,
+        userInfos,
+        searchIndex,
+        excludeUserIDs,
+        parentThreadInfo,
       );
-      this.setState({ userSearchResults });
-    }
+    },
+  );
+
+  get userSearchResults() {
+    return this.userSearchResultsSelector({ ...this.props, ...this.state });
   }
 
   render() {
@@ -243,7 +216,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           innerRef={this.tagInputRef}
         />
         <UserList
-          userInfos={this.state.userSearchResults}
+          userInfos={this.userSearchResults}
           onSelect={this.onUserSelect}
         />
         <View style={styles.buttons}>
@@ -266,15 +239,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     if (this.props.changeThreadSettingsLoadingStatus === "loading") {
       return;
     }
-    const userSearchResults = AddUsersModal.getSearchResults(
-      this.state.usernameInputText,
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      userInfoInputArray,
-      this.props.navigation.state.params.threadInfo,
-      this.props.parentThreadInfo,
-    );
-    this.setState({ userInfoInputArray, userSearchResults });
+    this.setState({ userInfoInputArray });
   }
 
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
@@ -283,16 +248,8 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     if (this.props.changeThreadSettingsLoadingStatus === "loading") {
       return;
     }
-    const userSearchResults = AddUsersModal.getSearchResults(
-      text,
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      this.state.userInfoInputArray,
-      this.props.navigation.state.params.threadInfo,
-      this.props.parentThreadInfo,
-    );
     this.searchUsers(text);
-    this.setState({ usernameInputText: text, userSearchResults });
+    this.setState({ usernameInputText: text });
   }
 
   onUserSelect = (userID: string) => {
@@ -308,18 +265,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       ...this.state.userInfoInputArray,
       this.props.otherUserInfos[userID],
     ];
-    const userSearchResults = AddUsersModal.getSearchResults(
-      "",
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      userInfoInputArray,
-      this.props.navigation.state.params.threadInfo,
-      this.props.parentThreadInfo,
-    );
     this.setState({
       userInfoInputArray,
       usernameInputText: "",
-      userSearchResults,
     });
   }
 
@@ -359,21 +307,10 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   onUnknownErrorAlertAcknowledged = () => {
-    const usernameInputText = "";
-    const userInfoInputArray = [];
-    const userSearchResults = AddUsersModal.getSearchResults(
-      usernameInputText,
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      userInfoInputArray,
-      this.props.navigation.state.params.threadInfo,
-      this.props.parentThreadInfo,
-    );
     this.setState(
       {
-        userInfoInputArray,
-        usernameInputText,
-        userSearchResults,
+        userInfoInputArray: [],
+        usernameInputText: "",
       },
       this.onErrorAcknowledged,
     );

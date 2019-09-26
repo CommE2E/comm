@@ -31,6 +31,7 @@ import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
+import { createSelector } from 'reselect';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -98,7 +99,7 @@ function pressCreateThread() {
   onPressCreateThread();
 }
 
-type Props = {
+type Props = {|
   navigation: NavProp,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
@@ -111,14 +112,13 @@ type Props = {
   // async functions that hit server APIs
   newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
   searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-};
-type State = {
+|};
+type State = {|
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-  userSearchResults: $ReadOnlyArray<UserListItem>,
-  existingThreads: ThreadInfo[],
-};
-class InnerComposeThread extends React.PureComponent<Props, State> {
+|};
+type PropsAndState = {| ...Props, ...State |};
+class ComposeThread extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -153,52 +153,20 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     ),
     headerBackTitle: "Back",
   });
-  mounted = false;
+  state = {
+    usernameInputText: "",
+    userInfoInputArray: [],
+  };
   tagInput: ?TagInput<AccountUserInfo>;
   createThreadPressed = false;
 
-  constructor(props: Props) {
-    super(props);
-    const userSearchResults = InnerComposeThread.getSearchResults(
-      "",
-      props.otherUserInfos,
-      props.userSearchIndex,
-      [],
-      props.parentThreadInfo,
-    );
-    this.state = {
-      usernameInputText: "",
-      userInfoInputArray: [],
-      userSearchResults,
-      existingThreads: [],
-    };
-  }
-
-  static getSearchResults(
-    text: string,
-    userInfos: {[id: string]: AccountUserInfo},
-    searchIndex: SearchIndex,
-    userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-    parentThreadInfo: ?ThreadInfo,
-  ) {
-    return getUserSearchResults(
-      text,
-      userInfos,
-      searchIndex,
-      userInfoInputArray.map(userInfo => userInfo.id),
-      parentThreadInfo,
-    );
-  }
-
   componentDidMount() {
-    this.mounted = true;
     registerChatScreen(this.props.navigation.state.key, this);
     setOnPressCreateThread(this.onPressCreateThread);
     this.searchUsers("");
   }
 
   componentWillUnmount() {
-    this.mounted = false;
     registerChatScreen(this.props.navigation.state.key, null);
     setOnPressCreateThread(null);
   }
@@ -207,69 +175,67 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
     return false;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.mounted) {
-      return;
-    }
-    const newState = {};
-    if (
-      this.props.otherUserInfos !== nextProps.otherUserInfos ||
-      this.props.userSearchIndex !== nextProps.userSearchIndex
-    ) {
-      const userSearchResults = InnerComposeThread.getSearchResults(
-        this.state.usernameInputText,
-        nextProps.otherUserInfos,
-        nextProps.userSearchIndex,
-        this.state.userInfoInputArray,
-        nextProps.parentThreadInfo,
-      );
-      newState.userSearchResults = userSearchResults;
-    }
-    if (this.props.threadInfos !== nextProps.threadInfos) {
-      const existingThreads = InnerComposeThread.existingThreadsWithUsers(
-        nextProps,
-        this.state,
-      );
-      newState.existingThreads = existingThreads;
-    }
-    if (Object.keys(newState).length > 0) {
-      this.setState(newState);
-    }
+  userSearchResultsSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.usernameInputText,
+    (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
+    (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
+    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
+    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (
+      text: string,
+      userInfos: {[id: string]: AccountUserInfo},
+      searchIndex: SearchIndex,
+      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+      parentThreadInfo: ?ThreadInfo,
+    ) => getUserSearchResults(
+      text,
+      userInfos,
+      searchIndex,
+      userInfoInputArray.map(userInfo => userInfo.id),
+      parentThreadInfo,
+    ),
+  );
+
+  get userSearchResults() {
+    return this.userSearchResultsSelector({ ...this.props, ...this.state });
   }
 
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    if (this.state.userInfoInputArray !== nextState.userInfoInputArray) {
-      const existingThreads = InnerComposeThread.existingThreadsWithUsers(
-        nextProps,
-        nextState,
-      );
-      this.setState({ existingThreads });
-    }
-  }
+  existingThreadsSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (propsAndState: PropsAndState) => propsAndState.threadInfos,
+    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
+    (
+      parentThreadInfo: ?ThreadInfo,
+      threadInfos: {[id: string]: ThreadInfo},
+      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+    ) => {
+      const userIDs = userInfoInputArray.map(userInfo => userInfo.id);
+      if (userIDs.length === 0) {
+        return [];
+      }
+      return _flow(
+        _filter(
+          (threadInfo: ThreadInfo) =>
+            threadInChatList(threadInfo) &&
+            (!parentThreadInfo ||
+              threadInfo.parentThreadID === parentThreadInfo.id) &&
+            userIDs.every(userID => userIsMember(threadInfo, userID)),
+        ),
+        _sortBy(([
+          'members.length',
+          (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
+        ]: $ReadOnlyArray<string | (threadInfo: ThreadInfo) => mixed>)),
+      )(threadInfos);
+    },
+  );
 
-  static existingThreadsWithUsers(props: Props, state: State) {
-    const userIDs = state.userInfoInputArray.map(userInfo => userInfo.id);
-    if (userIDs.length === 0) {
-      return [];
-    }
-    return _flow(
-      _filter(
-        (threadInfo: ThreadInfo) =>
-          threadInChatList(threadInfo) &&
-          (!props.parentThreadInfo ||
-            threadInfo.parentThreadID === props.parentThreadInfo.id) &&
-          userIDs.every(userID => userIsMember(threadInfo, userID)),
-      ),
-      _sortBy(([
-        'members.length',
-        (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
-      ]: $ReadOnlyArray<string | (threadInfo: ThreadInfo) => mixed>)),
-    )(props.threadInfos);
+  get existingThreads() {
+    return this.existingThreadsSelector({ ...this.props, ...this.state });
   }
 
   render() {
     let existingThreadsSection = null;
-    const existingThreads = this.state.existingThreads;
+    const { existingThreads, userSearchResults } = this;
     if (existingThreads.length > 0) {
       existingThreadsSection = (
         <View style={styles.existingThreads}>
@@ -334,7 +300,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
         </View>
         <View style={styles.userList}>
           <UserList
-            userInfos={this.state.userSearchResults}
+            userInfos={userSearchResults}
             onSelect={this.onUserSelect}
             itemTextStyle={styles.listItem}
           />
@@ -349,28 +315,14 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
   }
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    const userSearchResults = InnerComposeThread.getSearchResults(
-      this.state.usernameInputText,
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      userInfoInputArray,
-      this.props.parentThreadInfo,
-    );
-    this.setState({ userInfoInputArray, userSearchResults });
+    this.setState({ userInfoInputArray });
   }
 
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    const userSearchResults = InnerComposeThread.getSearchResults(
-      text,
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      this.state.userInfoInputArray,
-      this.props.parentThreadInfo,
-    );
     this.searchUsers(text);
-    this.setState({ usernameInputText: text, userSearchResults });
+    this.setState({ usernameInputText: text });
   }
 
   searchUsers(usernamePrefix: string) {
@@ -390,17 +342,9 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
       ...this.state.userInfoInputArray,
       this.props.otherUserInfos[userID],
     ];
-    const userSearchResults = InnerComposeThread.getSearchResults(
-      "",
-      this.props.otherUserInfos,
-      this.props.userSearchIndex,
-      userInfoInputArray,
-      this.props.parentThreadInfo,
-    );
     this.setState({
       userInfoInputArray,
       usernameInputText: "",
-      userSearchResults,
     });
   }
 
@@ -470,10 +414,7 @@ class InnerComposeThread extends React.PureComponent<Props, State> {
 
   onUnknownErrorAlertAcknowledged = () => {
     this.setState(
-      {
-        usernameInputText: "",
-        userSearchResults: [],
-      },
+      { usernameInputText: "" },
       this.onErrorAcknowledged,
     );
   }
@@ -562,7 +503,7 @@ const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
-const ComposeThread = connect(
+export default connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
     const parentThreadID = ownProps.navigation.getParam('parentThreadID');
@@ -580,6 +521,4 @@ const ComposeThread = connect(
     };
   },
   { newThread, searchUsers },
-)(InnerComposeThread);
-
-export default ComposeThread;
+)(ComposeThread);

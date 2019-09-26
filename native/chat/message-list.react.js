@@ -83,7 +83,6 @@ type Props = {|
 type State = {|
   focusedMessageKey: ?string,
   messageListVerticalBounds: ?VerticalBounds,
-  flatListExtraData: FlatListExtraData,
 |};
 type PropsAndState = {|
   ...Props,
@@ -109,23 +108,14 @@ class MessageList extends React.PureComponent<Props, State> {
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
   };
+  state = {
+    focusedMessageKey: null,
+    messageListVerticalBounds: null,
+  };
   loadingFromScroll = false;
   flatListContainer: ?View;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      focusedMessageKey: null,
-      messageListVerticalBounds: null,
-      flatListExtraData: {
-        messageListVerticalBounds: null,
-        focusedMessageKey: null,
-        navigation: props.navigation,
-      },
-    };
-  }
-
-  static flatListExtraDataSelector = createSelector(
+  flatListExtraDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (propsAndState: PropsAndState) => propsAndState.navigation,
@@ -140,15 +130,8 @@ class MessageList extends React.PureComponent<Props, State> {
     }),
   );
 
-  static getDerivedStateFromProps(props: Props, state: State) {
-    const flatListExtraData = MessageList.flatListExtraDataSelector({
-      ...props,
-      ...state,
-    });
-    if (flatListExtraData !== state.flatListExtraData) {
-      return { flatListExtraData };
-    }
-    return null;
+  get flatListExtraData() {
+    return this.flatListExtraDataSelector({ ...this.props, ...this.state });
   }
 
   componentDidMount() {
@@ -232,7 +215,7 @@ class MessageList extends React.PureComponent<Props, State> {
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
-    } = this.state.flatListExtraData;
+    } = this.flatListExtraData;
     const focused =
       messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
     return (
@@ -309,7 +292,7 @@ class MessageList extends React.PureComponent<Props, State> {
           ListFooterComponent={footer}
           scrollsToTop={false}
           scrollEnabled={!MessageList.scrollDisabled(this.props)}
-          extraData={this.state.flatListExtraData}
+          extraData={this.flatListExtraData}
         />
       </View>
     );

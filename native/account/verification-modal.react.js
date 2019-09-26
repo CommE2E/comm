@@ -128,11 +128,6 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   keyboardHeight = 0;
   nextMode: VerificationModalMode = "simple-text";
 
-  constructor(props: Props) {
-    super(props);
-    this.determineOnePasswordSupport();
-  }
-
   async determineOnePasswordSupport() {
     let onePasswordSupported;
     try {
@@ -143,24 +138,32 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     this.setState({ onePasswordSupported });
   }
 
-  componentWillMount() {
-    const code = this.props.navigation.state.params.verifyCode;
+  componentDidMount() {
+    this.determineOnePasswordSupport();
+
     this.props.dispatchActionPromise(
       handleVerificationCodeActionTypes,
-      this.handleVerificationCodeAction(code),
+      this.handleVerificationCodeAction(),
     );
-    Keyboard.dismiss();
-  }
 
-  componentDidMount() {
+    Keyboard.dismiss();
+
     if (this.props.isForeground) {
       this.onForeground();
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const nextCode = nextProps.navigation.state.params.verifyCode;
-    if (nextCode !== this.props.navigation.state.params.verifyCode) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (
+      this.state.verifyField === verifyField.EMAIL &&
+      prevState.verifyField !== verifyField.EMAIL
+    ) {
+      sleep(1500).then(this.hardwareBack);
+    }
+
+    const prevCode = prevProps.navigation.state.params.verifyCode;
+    const code = this.props.navigation.state.params.verifyCode;
+    if (code !== prevCode) {
       Keyboard.dismiss();
       this.setState({
         mode: "simple-text",
@@ -173,12 +176,13 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       });
       this.props.dispatchActionPromise(
         handleVerificationCodeActionTypes,
-        this.handleVerificationCodeAction(nextCode),
+        this.handleVerificationCodeAction(),
       );
     }
-    if (!this.props.isForeground && nextProps.isForeground) {
+
+    if (this.props.isForeground && !prevProps.isForeground) {
       this.onForeground();
-    } else if (this.props.isForeground && !nextProps.isForeground) {
+    } else if (!this.props.isForeground && prevProps.isForeground) {
       this.onBackground();
     }
   }
@@ -204,12 +208,6 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   hardwareBack = () => {
     this.props.navigation.goBack();
     return true;
-  }
-
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    if (nextState.verifyField === verifyField.EMAIL) {
-      sleep(1500).then(this.hardwareBack);
-    }
   }
 
   onResetPasswordSuccess = () => {
@@ -246,7 +244,8 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     this.props.dispatchActionPayload(navigateToAppActionType, null);
   }
 
-  async handleVerificationCodeAction(code: string) {
+  async handleVerificationCodeAction() {
+    const code = this.props.navigation.state.params.verifyCode;
     try {
       const result = await this.props.handleVerificationCode(code);
       if (result.verifyField === verifyField.EMAIL) {

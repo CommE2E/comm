@@ -105,7 +105,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     this.currentState = nextAppState;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (Platform.OS !== 'ios') {
       return;
     }

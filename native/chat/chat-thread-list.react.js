@@ -22,6 +22,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
 import { FloatingAction } from 'react-native-floating-action';
+import { createSelector } from 'reselect';
 
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
@@ -54,10 +55,10 @@ type Props = {|
   threadSearchIndex: SearchIndex,
 |};
 type State = {|
-  listData: $ReadOnlyArray<Item>,
   searchText: string,
   searchResults: Set<string>,
 |};
+type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
 
   static propTypes = {
@@ -78,18 +79,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       : null,
     headerBackTitle: "Back",
   });
+  state = {
+    searchText: "",
+    searchResults: new Set(),
+  };
   searchInput: ?TextInput;
   flatList: ?FlatList;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      listData: [],
-      searchText: "",
-      searchResults: new Set(),
-    };
-    this.state.listData = ChatThreadList.listData(props, this.state);
-  }
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
@@ -97,22 +92,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     registerChatScreen(this.props.navigation.state.key, null);
-  }
-
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.chatListData !== this.props.chatListData) {
-      this.setState((prevState: State) => ({
-        listData: ChatThreadList.listData(newProps, prevState),
-      }));
-    }
-  }
-
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    if (nextState.searchText !== this.state.searchText) {
-      this.setState((prevState: State) => ({
-        listData: ChatThreadList.listData(nextProps, nextState),
-      }));
-    }
   }
 
   get canReset() {
@@ -210,21 +189,34 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return _sum(data.map(ChatThreadList.itemHeight));
   }
 
-  static listData(props: Props, state: State) {
-    let chatItems;
-    if (!state.searchText) {
-      chatItems = props.chatListData.filter(
-        item => viewerIsMember(item.threadInfo),
-      );
-    } else {
-      chatItems = props.chatListData.filter(
-        item => state.searchResults.has(item.threadInfo.id),
-      );
-    }
-    return [
-      { type: "search", searchText: state.searchText },
-      ...chatItems,
-    ];
+  listDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.chatListData,
+    (propsAndState: PropsAndState) => propsAndState.searchText,
+    (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (
+      chatListData: $ReadOnlyArray<ChatThreadItem>,
+      searchText: string,
+      searchResults: Set<string>,
+    ): Item[] => {
+      let chatItems;
+      if (!searchText) {
+        chatItems = chatListData.filter(
+          item => viewerIsMember(item.threadInfo),
+        );
+      } else {
+        chatItems = chatListData.filter(
+          item => searchResults.has(item.threadInfo.id),
+        );
+      }
+      return [
+        { type: "search", searchText },
+        ...chatItems,
+      ];
+    },
+  );
+
+  get listData() {
+    return this.listDataSelector({ ...this.props, ...this.state });
   }
 
   render() {
@@ -244,7 +236,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return (
       <View style={styles.container}>
         <FlatList
-          data={this.state.listData}
+          data={this.listData}
           renderItem={this.renderItem}
           keyExtractor={ChatThreadList.keyExtractor}
           getItemLayout={ChatThreadList.getItemLayout}

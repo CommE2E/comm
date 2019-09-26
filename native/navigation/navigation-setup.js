@@ -219,10 +219,10 @@ class WrappedAppNavigator
     }
   }
 
-  componentWillReceiveProps(nextProps: WrappedAppNavigatorProps) {
-    if (!this.props.isForeground && nextProps.isForeground) {
+  componentDidUpdate(prevProps: WrappedAppNavigatorProps) {
+    if (this.props.isForeground && !prevProps.isForeground) {
       this.onForeground();
-    } else if (this.props.isForeground && !nextProps.isForeground) {
+    } else if (!this.props.isForeground && prevProps.isForeground) {
       this.onBackground();
     }
   }

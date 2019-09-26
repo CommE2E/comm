@@ -221,7 +221,8 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
-  static updateBadgeCount(unreadCount: number) {
+  updateBadgeCount() {
+    const { unreadCount } = this.props;
     if (Platform.OS === "ios") {
       NotificationsIOS.setBadgesCount(unreadCount);
     } else if (Platform.OS === "android") {
@@ -229,9 +230,11 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     }
   }
 
-  static clearNotifsOfThread(props: Props) {
-    const activeThread = props.activeThread;
-    invariant(activeThread, "activeThread should be set");
+  clearNotifsOfThread() {
+    const { activeThread } = this.props;
+    if (!activeThread) {
+      return;
+    }
     if (Platform.OS === "ios") {
       NotificationsIOS.getDeliveredNotifications(
         (notifications) =>
@@ -241,7 +244,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
           ),
       );
     } else if (Platform.OS === "android") {
-      props.dispatchActionPayload(
+      this.props.dispatchActionPayload(
         clearAndroidNotificationsActionType,
         { threadID: activeThread },
       );
@@ -326,40 +329,35 @@ class AppWithNavigationState extends React.PureComponent<Props> {
     if (lastState === "background" && nextState === "active") {
       this.props.dispatchActionPayload(foregroundActionType, null);
       this.onForeground();
-      if (this.props.activeThread) {
-        AppWithNavigationState.clearNotifsOfThread(this.props);
-      }
+      this.clearNotifsOfThread();
     } else if (lastState !== "background" && nextState === "background") {
       this.props.dispatchActionPayload(backgroundActionType, null);
       appBecameInactive();
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const nextActiveThread = nextProps.activeThread;
-    if (nextActiveThread && nextActiveThread !== this.props.activeThread) {
-      AppWithNavigationState.clearNotifsOfThread(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.activeThread !== prevProps.activeThread) {
+      this.clearNotifsOfThread();
     }
 
     if (
-      nextProps.connection.status === "connected" &&
-      (this.props.connection.status !== "connected" ||
-        nextProps.unreadCount !== this.props.unreadCount)
+      this.props.connection.status === "connected" &&
+      (prevProps.connection.status !== "connected" ||
+        this.props.unreadCount !== prevProps.unreadCount)
     ) {
-      AppWithNavigationState.updateBadgeCount(nextProps.unreadCount);
+      this.updateBadgeCount();
     }
 
     for (let threadID of this.openThreadOnceReceived) {
-      const rawThreadInfo = nextProps.rawThreadInfos[threadID];
+      const rawThreadInfo = this.props.rawThreadInfos[threadID];
       if (rawThreadInfo) {
         this.navigateToThread(rawThreadInfo, false);
         this.openThreadOnceReceived.clear();
         break;
       }
     }
-  }
 
-  componentDidUpdate(prevProps: Props) {
     if (this.props.rehydrateConcluded && !prevProps.rehydrateConcluded) {
       this.onReduxRehydrate();
     } else if (
