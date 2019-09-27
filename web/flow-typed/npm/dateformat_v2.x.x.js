@@ -1,5 +1,5 @@
-// flow-typed signature: 0bdba8c35f59eddc6a1f4a2e8548bcb3
-// flow-typed version: b43dff3e0e/dateformat_v2.x.x/flow_>=v0.28.x
+// flow-typed signature: fe79126ceafaa7209482cc03ca24c353
+// flow-typed version: c6154227d1/dateformat_v2.x.x/flow_>=v0.28.x <=v0.103.x
 
 interface DateFormatMasks {
   default: string;

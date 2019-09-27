@@ -1,5 +1,5 @@
-// flow-typed signature: 33bbf70064fc58400833489a101165a7
-// flow-typed version: 45acb9a3f7/isomorphic-fetch_v2.x.x/flow_>=v0.25.x
+// flow-typed signature: 87ecff52383db025a798afd90d2a1d56
+// flow-typed version: c6154227d1/isomorphic-fetch_v2.x.x/flow_>=v0.25.x <=v0.103.x
 
 declare module "isomorphic-fetch" {
   declare module.exports: (

@@ -1,5 +1,5 @@
-// flow-typed signature: b7f98c6a7afc32bb93cf5d468d7d757a
-// flow-typed version: b999c93144/react-router-dom_v4.x.x/flow_>=v0.63.x
+// flow-typed signature: 47eb60de49014dd5bfdd9b1acb98383a
+// flow-typed version: c6154227d1/react-router-dom_v4.x.x/flow_>=v0.98.x <=v0.103.x
 
 declare module "react-router-dom" {
   declare export var BrowserRouter: React$ComponentType<{|
@@ -69,8 +69,8 @@ declare module "react-router-dom" {
     goForward(): void,
     canGo?: (n: number) => boolean,
     block(
-      callback: (location: Location, action: HistoryAction) => boolean
-    ): void,
+      callback: string | (location: Location, action: HistoryAction) => ?string
+    ): () => void,
     // createMemoryHistory
     index?: number,
     entries?: Array<Location>
@@ -155,7 +155,9 @@ declare module "react-router-dom" {
     location?: Location
   |}>
 
-  declare export function withRouter<Props : {}, Component: React$ComponentType<Props>>(WrappedComponent: Component) : React$ComponentType<$Diff<React$ElementConfig<$Supertype<Component>>, ContextRouterVoid>>;
+  declare export function withRouter<Props: {}, Component: React$ComponentType<Props>>(
+    WrappedComponent: Component
+  ): React$ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
 
   declare type MatchPathOptions = {
     path?: string,

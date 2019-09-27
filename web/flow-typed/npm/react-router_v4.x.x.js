@@ -1,5 +1,5 @@
-// flow-typed signature: e15aeed0d3686f71822b54cde7b71c83
-// flow-typed version: fbf3e77efa/react-router_v4.x.x/flow_>=v0.63.x
+// flow-typed signature: fd05ff7ee75da2ba5d12a620675d5923
+// flow-typed version: c6154227d1/react-router_v4.x.x/flow_>=v0.63.x <=v0.103.x
 
 declare module "react-router" {
   // NOTE: many of these are re-exported by react-router-dom and
@@ -9,8 +9,8 @@ declare module "react-router" {
     pathname: string,
     search: string,
     hash: string,
-    +state?: any,
-    +key?: string
+    state?: any,
+    key?: string
   };
 
   declare export type LocationShape = {
@@ -24,7 +24,7 @@ declare module "react-router" {
 
   declare export type RouterHistory = {
     length: number,
-    +location: Location,
+    location: Location,
     action: HistoryAction,
     listen(
       callback: (location: Location, action: HistoryAction) => void
@@ -35,9 +35,9 @@ declare module "react-router" {
     goBack(): void,
     goForward(): void,
     canGo?: (n: number) => boolean,
-    +block: (
-      callback: (location: Location, action: HistoryAction) => boolean
-    ) => () => void,
+    block(
+      callback: string | (location: Location, action: HistoryAction) => ?string
+    ): () => void,
     // createMemoryHistory
     index?: number,
     entries?: Array<Location>

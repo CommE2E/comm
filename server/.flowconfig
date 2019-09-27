@@ -3,6 +3,7 @@
 <PROJECT_ROOT>/node_modules/google-gax/node_modules/grpc/node_modules/protobufjs/src/bower.json
 .*/node_modules/protobufjs/src/bower.json
 .*/node_modules/react-timeago/.*
+.*/web/flow-typed
 
 [include]
 ../lib
@@ -14,3 +15,25 @@
 module.file_ext=.js
 module.file_ext=.json
 module.file_ext=.build
+
+[lints]
+sketchy-null-number=warn
+sketchy-null-mixed=warn
+sketchy-number=warn
+untyped-type-import=warn
+nonstrict-import=warn
+deprecated-type=warn
+unsafe-getters-setters=warn
+inexact-spread=warn
+unnecessary-invariant=warn
+signature-verification-failure=warn
+deprecated-utility=error
+
+[strict]
+deprecated-type
+nonstrict-import
+sketchy-null
+unclear-type
+unsafe-getters-setters
+untyped-import
+untyped-type-import

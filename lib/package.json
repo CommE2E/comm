@@ -2,7 +2,7 @@
   "name": "lib",
   "version": "0.0.1",
   "devDependencies": {
-    "flow-bin": "^0.89.0"
+    "flow-bin": "^0.98.0"
   },
   "scripts": {
     "flow": "flow; test $? -eq 0 -o $? -eq 2"

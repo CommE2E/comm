@@ -1,6 +1,6 @@
 // @flow
 
-import createBrowserHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 import invariant from 'invariant';
 
 declare var baseURL: string;

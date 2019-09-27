@@ -1,5 +1,5 @@
-// flow-typed signature: 540e42745f797051f3bf17a6af1ccf06
-// flow-typed version: 6a3fe49a8b/history_v4.x.x/flow_>=v0.25.x
+// flow-typed signature: e461b9fe923a5f62ed607392b0742c02
+// flow-typed version: c6154227d1/history_v4.x.x/flow_>=v0.25.x <=v0.103.x
 
 declare module "history/createBrowserHistory" {
   declare function Unblock(): void;
@@ -27,8 +27,8 @@ declare module "history/createBrowserHistory" {
     goBack(): void,
     goForward(): void,
     listen: Function,
-    +block: (message: string) => typeof Unblock,
-    +block: ((location: BrowserLocation, action: Action) => string | bool) => typeof Unblock,
+    block(message: string): typeof Unblock,
+    block((location: BrowserLocation, action: Action) => string): typeof Unblock,
   }
 
   declare export type BrowserHistory = IBrowserHistory;

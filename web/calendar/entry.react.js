@@ -113,7 +113,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.nextSaveAttemptIndex = 0;
   }
 
-  guardedSetState(input) {
+  guardedSetState(input: $Shape<State>) {
     if (this.mounted) {
       this.setState(input);
     }

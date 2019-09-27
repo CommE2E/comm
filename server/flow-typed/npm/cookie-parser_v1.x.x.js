@@ -1,5 +1,5 @@
-// flow-typed signature: b8a1c1addc115f27a6f84f88f53b95ca
-// flow-typed version: c7321cc104/cookie-parser_v1.x.x/flow_>=v0.25.x <=v0.92.x
+// flow-typed signature: cda4a81a8221c6d34f3689a9fad65f2a
+// flow-typed version: c6154227d1/cookie-parser_v1.x.x/flow_>=v0.93.x <=v0.103.x
 
 /**
  * Flow libdef for 'cookie-parser'
@@ -14,7 +14,7 @@ declare module 'cookie-parser' {
   /**
    * NOTE:
    * The following block has all been copied from
-   * https://github.com/flow-typed/flow-typed/blob/master/definitions/npm/express_v4.x.x/flow_v0.32.x-/express_v4.x.x.js#L103-L105
+   * https://github.com/flow-typed/flow-typed/blob/master/definitions/npm/express_v4.x.x/flow_v0.93.x-/express_v4.x.x.js#L103-L105
    */
 
   /* -------------------------- 8< ------------------------------------------------------------------ */
@@ -97,13 +97,13 @@ declare module 'cookie-parser' {
       callback: express$RenderCallback
     ): void;
     handle(
-      req: http$IncomingMessage,
+      req: http$IncomingMessage<>,
       res: http$ServerResponse,
       next?: ?express$NextFunction
     ): void;
     // callable signature is not inherited
     (
-      req: http$IncomingMessage,
+      req: http$IncomingMessage<>,
       res: http$ServerResponse,
       next?: ?express$NextFunction
     ): void;
@@ -155,21 +155,21 @@ declare module 'cookie-parser' {
     ): this;
     use(path: string, router: express$Router): this;
     handle(
-      req: http$IncomingMessage,
+      req: http$IncomingMessage<>,
       res: http$ServerResponse,
       next: express$NextFunction
     ): void;
     param(
       param: string,
       callback: (
-        req: $Subtype<express$Request>,
+        req: express$Request,
         res: express$Response,
         next: express$NextFunction,
         id: string
       ) => mixed
     ): void;
     (
-      req: http$IncomingMessage,
+      req: http$IncomingMessage<>,
       res: http$ServerResponse,
       next?: ?express$NextFunction
     ): void;
@@ -257,13 +257,13 @@ declare module 'cookie-parser' {
   declare type express$NextFunction = (err?: ?Error | 'route') => mixed;
   declare type express$Middleware =
     | ((
-        req: $Subtype<express$Request>,
+        req: express$Request,
         res: express$Response,
         next: express$NextFunction
       ) => mixed)
     | ((
         error: Error,
-        req: $Subtype<express$Request>,
+        req: express$Request,
         res: express$Response,
         next: express$NextFunction
       ) => mixed);

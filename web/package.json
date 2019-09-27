@@ -14,7 +14,7 @@
     "babel-plugin-transform-remove-console": "^6.8.4",
     "concurrently": "^3.5.1",
     "css-loader": "^3.2.0",
-    "flow-bin": "^0.89.0",
+    "flow-bin": "^0.98.0",
     "mini-css-extract-plugin": "^0.5.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "style-loader": "^0.23.1",
