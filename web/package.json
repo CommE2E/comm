@@ -9,7 +9,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-flow": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
-    "@hot-loader/react-dom": "^16.7.0",
+    "@hot-loader/react-dom": "16.8.6",
     "assets-webpack-plugin": "^3.9.7",
     "babel-plugin-transform-remove-console": "^6.8.4",
     "concurrently": "^3.5.1",
