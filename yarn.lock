@@ -10794,10 +10794,10 @@ react-native-firebase@^5.5.6:
     opencollective-postinstall "^2.0.0"
     prop-types "^15.7.2"
 
-react-native-floating-action@^1.9.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.13.0.tgz#876ab9227c4eda8630020a6a3adc20041870edf3"
-  integrity sha512-KqqaEO/nIdims+reWq1pPPDptKqEuG9N8Pt+FtnuVUr35HvyWfiwBf91o9ZMRuO2S+X9AKnq+xuy1iuQK77eQQ==
+react-native-floating-action@^1.19.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.19.1.tgz#fc3dcd0441ecbaf2d870b71f6db27f2db0f811b3"
+  integrity sha512-6zgiCJyV63TOxpDKK+OxzhghMcBSn1Qhjb8p8TrfrUGAkzh7gQcmNN4ahq1CVbrN0ZpKhWET68WeifisYnQWyg==
 
 react-native-fs@^2.14.1:
   version "2.14.1"
