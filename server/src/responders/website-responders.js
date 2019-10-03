@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === "dev") {
   fontsURL = "fonts/local-fonts.css";
   cssInclude = "";
 } else {
-  const assets = require('../../compiled/assets');
+  const assets = import('../../compiled/assets');
   jsURL = `compiled/${assets.browser.js}`;
   fontsURL = "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
   cssInclude = html`<link
