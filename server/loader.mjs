@@ -1,13 +1,13 @@
-import url from 'url';
+import { URL, pathToFileURL } from 'url';
 import Module from 'module';
 import fs from 'fs';
 import { promisify } from 'util';
 
 const builtins = Module.builtinModules;
-const extensions = { js: 'esm', json: "json" };
+const extensions = { js: 'module', json: "json" };
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
-const baseURL = new url.URL('file://');
+const baseURL = pathToFileURL(process.cwd()).href;
 
 export async function resolve(
   specifier,
@@ -32,7 +32,7 @@ export async function resolve(
     const isJSON = resultURL.search(/json(:[0-9]+)?$/) !== -1;
     return {
       url: resultURL,
-      format: isJSON ? 'json' : 'esm',
+      format: isJSON ? 'json' : 'module',
     };
   }
 
@@ -43,7 +43,7 @@ export async function resolve(
     //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
-      format: "cjs",
+      format: "commonjs",
     };
   }
 
@@ -57,7 +57,7 @@ export async function resolve(
     //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
-      format: 'esm',
+      format: 'module',
     };
   }
 
@@ -68,11 +68,11 @@ export async function resolve(
   ) {
     let error;
     try {
-      const candidateURL = new url.URL(specifier, parentModuleURL);
+      const candidateURL = new URL(specifier, parentModuleURL);
       await access(candidateURL.pathname);
       return {
         url: candidateURL.href,
-        format: "esm",
+        format: "module",
       };
     } catch (err) {
       error = err;
@@ -80,7 +80,7 @@ export async function resolve(
     for (let extension in extensions) {
       const candidate = `${specifier}.${extension}`;
       try {
-        const candidateURL = new url.URL(candidate, parentModuleURL);
+        const candidateURL = new URL(candidate, parentModuleURL);
         await access(candidateURL.pathname);
         const resultURL = candidateURL.href;
         //console.log(`${specifier} -> ${resultURL} is server -> server`);
@@ -152,17 +152,17 @@ async function resolveModule(specifier, defaultResult) {
     new RegExp(`file://(.*node_modules\/${module})`),
   )[1];
   if (localPath) {
-    const esPathURL = new url.URL(`file://${moduleFolder}/es/${localPath}.js`);
+    const esPathURL = new URL(`file://${moduleFolder}/es/${localPath}.js`);
     try {
       await access(esPathURL.pathname);
       return {
         url: esPathURL.href,
-        format: "esm",
+        format: "module",
       };
     } catch (err) {
       return {
         url: defaultResult.url,
-        format: "esm",
+        format: "module",
       };
     }
   }
@@ -172,13 +172,13 @@ async function resolveModule(specifier, defaultResult) {
   if (packageJSON["jsnext:main"]) {
     return {
       url: `file://${moduleFolder}/${packageJSON["jsnext:main"]}`,
-      format: "esm",
+      format: "module",
     };
   }
   if (packageJSON.module) {
     return {
       url: `file://${moduleFolder}/${packageJSON.module}`,
-      format: "esm",
+      format: "module",
     };
   }
 
