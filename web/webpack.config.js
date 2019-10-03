@@ -199,7 +199,6 @@ module.exports = function(env) {
               ],
             },
           },
-          imageRule,
           {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
@@ -253,7 +252,6 @@ module.exports = function(env) {
     module: {
       rules: [
         babelRule,
-        imageRule,
         {
           test: /\.css$/,
           use: {
