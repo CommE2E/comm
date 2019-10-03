@@ -9,7 +9,6 @@ import {
   resetInternetCredentials,
   type UserCredentials,
 } from 'react-native-keychain';
-import URL from 'url-parse';
 
 type StoredCredentials = {|
   state: "undetermined" | "determined" | "unsupported",
