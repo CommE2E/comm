@@ -10,7 +10,6 @@ import type { ServerVerificationResult } from 'lib/types/verify-types';
 import html from 'common-tags/lib/html';
 import { createStore, type Store } from 'redux';
 import ReactDOMServer from 'react-dom/server';
-import ReactHotLoader from 'react-hot-loader';
 import ReactRedux from 'react-redux';
 import { Route, StaticRouter } from 'react-router';
 import React from 'react';
@@ -45,13 +44,27 @@ import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
 import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
-import assets from '../../compiled/assets';
 
 const { basePath, baseDomain } = urlFacts;
 const { renderToString } = ReactDOMServer;
-const { AppContainer } = ReactHotLoader;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
+
+let jsURL, fontsURL, cssInclude;
+if (process.env.NODE_ENV === "dev") {
+  jsURL = "http://localhost:8080/dev.build.js";
+  fontsURL = "fonts/local-fonts.css";
+  cssInclude = "";
+} else {
+  const assets = require('../../compiled/assets');
+  jsURL = `compiled/${assets.browser.js}`;
+  fontsURL = "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
+  cssInclude = html`<link
+    rel="stylesheet"
+    type="text/css"
+    href="compiled/${assets.browser.css}"
+  />`;
+}
 
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   let navInfo;
@@ -162,17 +175,15 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   );
   const routerContext = {};
   const rendered = renderToString(
-    <AppContainer>
-      <Provider store={store}>
-        <StaticRouter
-          location={url}
-          basename={baseURL}
-          context={routerContext}
-        >
-          <Route path="*" component={App.default} />
-        </StaticRouter>
-      </Provider>
-    </AppContainer>,
+    <Provider store={store}>
+      <StaticRouter
+        location={url}
+        basename={baseURL}
+        context={routerContext}
+      >
+        <Route path="*" component={App.default} />
+      </StaticRouter>
+    </Provider>,
   );
   if (routerContext.url) {
     throw new ServerError("URL modified during server render!");
@@ -183,19 +194,6 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   const stringifiedState =
     JSON.stringify(filteredState).replace(/</g, '\\u003c');
 
-  const fontsURL = process.env.NODE_ENV === "dev"
-    ? "fonts/local-fonts.css"
-    : "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
-  const jsURL = process.env.NODE_ENV === "dev"
-    ? "compiled/dev.build.js"
-    : `compiled/${assets.browser.js}`;
-  const cssInclude = process.env.NODE_ENV === "dev"
-    ? ""
-    : html`<link
-        rel="stylesheet"
-        type="text/css"
-        href="compiled/${assets.browser.css}"
-      />`;
   let result = html`
     <!DOCTYPE html>
     <html lang="en">

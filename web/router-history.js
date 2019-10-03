@@ -1,7 +1,9 @@
 // @flow
 
-import { createBrowserHistory } from 'history';
+import * as historyModule from 'history';
 import invariant from 'invariant';
+
+const { createBrowserHistory } = historyModule;
 
 declare var baseURL: string;
 const history = process.env.BROWSER
