@@ -122,24 +122,14 @@ module.exports = function(env) {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
             use: [
-              {
-                loader: 'style-loader',
-                options: {
-                  sourceMap: true,
-                },
-              },
+              'style-loader',
               cssLoader,
             ],
           },
           {
             test: /node_modules\/.*\.css$/,
             use: [
-              {
-                loader: 'style-loader',
-                options: {
-                  sourceMap: true,
-                },
-              },
+              'style-loader',
               {
                 ...cssLoader,
                 options: {
