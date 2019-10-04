@@ -15,8 +15,8 @@ import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faFilter from '@fortawesome/fontawesome-free-solid/faFilter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
 
 import {
   getDate,

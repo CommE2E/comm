@@ -14,11 +14,10 @@ import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
 import Visibility from 'visibilityjs';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faCalendar from '@fortawesome/fontawesome-free-solid/faCalendar';
-import faChat from '@fortawesome/fontawesome-free-solid/faComments';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
+import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import classNames from 'classnames';
-import fontawesome from '@fortawesome/fontawesome';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 
@@ -56,9 +55,10 @@ import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
-// so we disable the autoAddCss logic and import the CSS file.
-fontawesome.config = { autoAddCss: false };
-import '@fortawesome/fontawesome/styles.css';
+// so we disable the autoAddCss logic and import the CSS file. Otherwise every
+// icon flashes huge for a second before the CSS is loaded.
+import '@fortawesome/fontawesome-svg-core/styles.css';
+faConfig.autoAddCss = false;
 
 registerConfig({
   // We can't securely cache credentials on web, so we have no way to recover
@@ -288,7 +288,7 @@ class App extends React.PureComponent<Props, State> {
               <li className={chatNavClasses}>
                 <div><a onClick={this.onClickChat}>
                   <FontAwesomeIcon
-                    icon={faChat}
+                    icon={faComments}
                     className={css['nav-bar-icon']}
                   />
                   Chat

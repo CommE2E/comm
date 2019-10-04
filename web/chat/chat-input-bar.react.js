@@ -28,9 +28,9 @@ import {
 
 import * as React from 'react';
 import invariant from 'invariant';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faChevronRight from '@fortawesome/fontawesome-free-solid/faChevronRight';
-import faFileImage from '@fortawesome/fontawesome-free-regular/faFileImage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import PropTypes from 'prop-types';
 import _difference from 'lodash/fp/difference';
 

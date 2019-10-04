@@ -18,12 +18,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import _pickBy from 'lodash/fp/pickBy';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faCog from '@fortawesome/fontawesome-free-solid/faCog';
-import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle';
-import faChevronUp from '@fortawesome/fontawesome-free-solid/faChevronUp';
-import faChevronDown from '@fortawesome/fontawesome-free-solid/faChevronDown';
-import Switch from "react-switch";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCog,
+  faTimesCircle,
+  faChevronUp,
+  faChevronDown,
+} from '@fortawesome/free-solid-svg-icons';
+import Switch from 'react-switch';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
