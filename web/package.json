@@ -1,6 +1,7 @@
 {
   "name": "web",
   "version": "0.0.1",
+  "type": "module",
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-class-properties": "^7.2.3",

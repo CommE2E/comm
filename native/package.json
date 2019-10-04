@@ -1,6 +1,7 @@
 {
   "name": "native",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "scripts": {
     "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig && cd native && npx jetify",
