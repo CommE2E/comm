@@ -39,7 +39,7 @@
     "@fortawesome/react-fontawesome": "^0.1.5",
     "babel-loader": "^8.0.5",
     "classnames": "^2.2.5",
-    "dateformat": "^2.0.0",
+    "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
     "history": "^4.6.3",
     "invariant": "^2.2.4",
