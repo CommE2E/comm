@@ -1,11 +1,7 @@
-import { URL, pathToFileURL } from 'url';
-import Module from 'module';
+import { pathToFileURL } from 'url';
 import fs from 'fs';
 import { promisify } from 'util';
 
-const builtins = Module.builtinModules;
-const extensions = { js: 'module', json: "json" };
-const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
 const baseURL = pathToFileURL(process.cwd()).href;
 
@@ -14,172 +10,43 @@ export async function resolve(
   parentModuleURL = baseURL,
   defaultResolve,
 ) {
-  // Hitting node.js builtins from server
-  if (builtins.includes(specifier)) {
-    //console.log(`${specifier} is builtin`);
-    return {
-      url: specifier,
-      format: 'builtin',
-    };
-  }
+  const defaultResult = defaultResolve(specifier, parentModuleURL);
 
-  // Hitting lib from server or web
-  if (specifier.startsWith('lib')) {
-    const result = defaultResolve(specifier, parentModuleURL);
-    const resultURL =
-      result.url.replace("squadcal/lib", "squadcal/server/dist/lib");
-    //console.log(`${specifier} -> ${resultURL} is server/web -> lib`);
-    const isJSON = resultURL.search(/json(:[0-9]+)?$/) !== -1;
-    return {
-      url: resultURL,
-      format: isJSON ? 'json' : 'module',
-    };
-  }
-
-  // Hitting web/dist/app.build from server
-  if (specifier === 'web/dist/app.build') {
-    const [ rootURL ] = parentModuleURL.split("/squadcal/");
-    const resultURL = `${rootURL}/squadcal/server/dist/web/dist/app.build.js`;
-    //console.log(`${specifier} -> ${resultURL} is server -> web`);
-    return {
-      url: resultURL,
-      format: "commonjs",
-    };
-  }
-
-  // Hitting web from server
-  if (specifier.startsWith('web')) {
-    const result = defaultResolve(specifier, parentModuleURL);
-    const resultURL = result.url.replace(
-      "squadcal/web",
-      "squadcal/server/dist/web",
-    );
-    //console.log(`${specifier} -> ${resultURL} is server -> web`);
-    return {
-      url: resultURL,
-      format: 'module',
-    };
-  }
-
-  // Hitting server from server
-  if (
-    /^\.{0,2}[/]/.test(specifier) === true ||
-    specifier.startsWith('file:')
-  ) {
-    let error;
-    try {
-      const candidateURL = new URL(specifier, parentModuleURL);
-      await access(candidateURL.pathname);
-      return {
-        url: candidateURL.href,
-        format: "module",
-      };
-    } catch (err) {
-      error = err;
-    }
-    for (let extension in extensions) {
-      const candidate = `${specifier}.${extension}`;
-      try {
-        const candidateURL = new URL(candidate, parentModuleURL);
-        await access(candidateURL.pathname);
-        const resultURL = candidateURL.href;
-        //console.log(`${specifier} -> ${resultURL} is server -> server`);
-        return {
-          url: resultURL,
-          format: extensions[extension],
-        };
-      } catch (err) {
-        error = err;
-      }
-    }
-    const result = defaultResolve(specifier, parentModuleURL);
-    //console.log(`couldn't figure out ${specifier} -> ${result.url}`);
-    return result;
-  }
-
-  // Hitting node_modules from lib
-  if (parentModuleURL.includes("squadcal/server/dist/lib")) {
-    const replacedModuleURL = parentModuleURL.replace(
-      "squadcal/server/dist/lib",
-      "squadcal/lib",
-    );
-    const result = await resolveModule(
+  // Special hack to use Babel-transpiled lib and web
+  if (specifier.startsWith('lib/') || specifier.startsWith('web/')) {
+    const url = defaultResult.url.replace(
       specifier,
-      defaultResolve(specifier, replacedModuleURL),
+      `server/dist/${specifier}`,
     );
-    //console.log(`${specifier} -> ${result.url} is lib -> node_modules`);
-    return result;
+
+    let format;
+    if (url.search(/json(:[0-9]+)?$/) !== -1) {
+      format = 'json';
+    } else if (specifier === 'web/dist/app.build') {
+      format = 'commonjs';
+    } else {
+      format = 'module';
+    }
+
+    return { url, format };
   }
 
-  // Hitting node_modules from web
-  if (parentModuleURL.includes("squadcal/server/dist/web")) {
-    const replacedModuleURL = parentModuleURL.replace(
-      "squadcal/server/dist/web",
-      "squadcal/web",
-    );
-    const result = await resolveModule(
-      specifier,
-      defaultResolve(specifier, replacedModuleURL),
-    );
-    //console.log(`${specifier} -> ${result.url} is web -> node_modules`);
-    return result;
-  }
-
-  // Hitting node_modules from server
-  const result = await resolveModule(
-    specifier,
-    defaultResolve(specifier, parentModuleURL),
-  );
-  //console.log(`${specifier} -> ${result.url} is server -> node_modules`);
-  return result;
-}
-
-async function resolveModule(specifier, defaultResult) {
-  // defaultResult resolves as commonjs, and we do that for almost every module.
-  // We use esm in several specific cases below, as commonjs causes errors.
-  if (
-    !specifier.startsWith('reselect') &&
-    !specifier.startsWith('redux') &&
-    !specifier.startsWith('lodash-es') &&
-    !specifier.startsWith('react-router') &&
-    !specifier.startsWith('history')
-  ) {
-    return defaultResult;
-  }
-
-  const [ module, localPath ] = specifier.split('/');
-  const moduleFolder = defaultResult.url.match(
-    new RegExp(`file://(.*node_modules\/${module})`),
-  )[1];
-  if (localPath) {
-    const esPathURL = new URL(`file://${moduleFolder}/es/${localPath}.js`);
-    try {
-      await access(esPathURL.pathname);
+  // We prefer to resolve packages as modules so that Node allows us to do
+  // destructuring imports, as sometimes Flow libdefs don't specify a default
+  // export. defaultResolve doesn't look at the module property in package.json,
+  // so we do it manually here
+  if (specifier === 'reselect' || specifier === 'redux') {
+    const moduleFolder = defaultResult.url.match(
+      new RegExp(`file://(.*node_modules\/${specifier})`),
+    )[1];
+    const packageConfig = await readFile(`${moduleFolder}/package.json`);
+    const packageJSON = JSON.parse(packageConfig);
+    if (packageJSON.module) {
       return {
-        url: esPathURL.href,
-        format: "module",
-      };
-    } catch (err) {
-      return {
-        url: defaultResult.url,
-        format: "module",
+        url: `file://${moduleFolder}/${packageJSON.module}`,
+        format: 'module',
       };
     }
-  }
-
-  const packageConfig = await readFile(`${moduleFolder}/package.json`);
-  const packageJSON = JSON.parse(packageConfig);
-  if (packageJSON["jsnext:main"]) {
-    return {
-      url: `file://${moduleFolder}/${packageJSON["jsnext:main"]}`,
-      format: "module",
-    };
-  }
-  if (packageJSON.module) {
-    return {
-      url: `file://${moduleFolder}/${packageJSON.module}`,
-      format: "module",
-    };
   }
 
   return defaultResult;
