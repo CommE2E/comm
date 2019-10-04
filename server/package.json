@@ -9,9 +9,9 @@
     "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include 'app.build.js' --exclude '*.*' src/ dist/",
     "prod-build": "npm run babel && npm run rsync && npm run update-geoip",
     "update-geoip": "cd ../node_modules/geoip-lite && npm run updatedb",
-    "prod": "node --experimental-modules --loader ./loader.mjs dist/server",
-    "dev-rsync": "chokidar -s 'src/**/*.json' 'src/**/*.build' -c 'npm run rsync' > /dev/null 2>&1",
-    "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"npm run dev-rsync\" \"nodemon -e js,json,build --watch dist --experimental-modules --loader ./loader.mjs dist/server\"",
+    "prod": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server",
+    "dev-rsync": "chokidar -s 'src/**/*.json' 'src/**/*.build.js' -c 'npm run rsync' > /dev/null 2>&1",
+    "dev": "NODE_ENV=dev concurrently \"npm run babel -- --watch\" \"npm run dev-rsync\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
     "script": "node --experimental-modules --loader ./loader.mjs"
   },
   "author": "",
