@@ -14,7 +14,6 @@
 [options]
 module.file_ext=.js
 module.file_ext=.json
-module.file_ext=.build
 
 [lints]
 sketchy-null-number=warn

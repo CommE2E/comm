@@ -39,7 +39,7 @@ export async function resolve(
   // Hitting web/dist/app.build from server
   if (specifier === 'web/dist/app.build') {
     const [ rootURL ] = parentModuleURL.split("/squadcal/");
-    const resultURL = `${rootURL}/squadcal/server/dist/web/dist/app.build`;
+    const resultURL = `${rootURL}/squadcal/server/dist/web/dist/app.build.js`;
     //console.log(`${specifier} -> ${resultURL} is server -> web`);
     return {
       url: resultURL,
