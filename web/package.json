@@ -42,7 +42,7 @@
     "dateformat": "^2.0.0",
     "detect-browser": "^4.0.4",
     "history": "^4.6.3",
-    "invariant": "^2.2.2",
+    "invariant": "^2.2.4",
     "isomorphic-fetch": "^2.2.1",
     "lib": "0.0.1",
     "lodash": "^4.17.5",
