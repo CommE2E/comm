@@ -65,7 +65,7 @@
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.2",
     "redux-thunk": "^2.2.0",
-    "reselect": "^3.0.1",
+    "reselect": "^4.0.0",
     "visibilityjs": "^2.0.2"
   }
 }

@@ -58,7 +58,7 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-persist": "^5.4.0",
     "redux-thunk": "^2.2.0",
-    "reselect": "^3.0.1",
+    "reselect": "^4.0.0",
     "shallowequal": "^1.0.2",
     "tinycolor2": "^1.4.1"
   },
