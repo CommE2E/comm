@@ -60,10 +60,7 @@ const baseBrowserConfig = {
   },
   optimization: {
     minimizer: [
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-      }),
+      new TerserPlugin(),
       new OptimizeCssAssetsPlugin(),
     ],
   },
