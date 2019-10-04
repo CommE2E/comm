@@ -50,20 +50,32 @@ const { renderToString } = ReactDOMServer;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
 
-let jsURL, fontsURL, cssInclude;
-if (process.env.NODE_ENV === "dev") {
-  jsURL = "http://localhost:8080/dev.build.js";
-  fontsURL = "fonts/local-fonts.css";
-  cssInclude = "";
-} else {
-  const assets = import('../../compiled/assets');
-  jsURL = `compiled/${assets.browser.js}`;
-  fontsURL = "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim";
-  cssInclude = html`<link
-    rel="stylesheet"
-    type="text/css"
-    href="compiled/${assets.browser.css}"
-  />`;
+type AssetInfo = {| jsURL: string, fontsURL: string, cssInclude: string |};
+let assetInfo: ?AssetInfo = null;
+async function getAssetInfo() {
+  if (assetInfo) {
+    return assetInfo;
+  }
+  if (process.env.NODE_ENV === "dev") {
+    assetInfo = {
+      jsURL: "http://localhost:8080/dev.build.js",
+      fontsURL: "fonts/local-fonts.css",
+      cssInclude: "",
+    };
+    return assetInfo;
+  }
+  // $FlowFixMe compiled/assets.json doesn't always exist
+  const { default: assets } = await import('../../compiled/assets');
+  assetInfo = {
+    jsURL: `compiled/${assets.browser.js}`,
+    fontsURL: "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim",
+    cssInclude: html`<link
+      rel="stylesheet"
+      type="text/css"
+      href="compiled/${assets.browser.css}"
+    />`,
+  };
+  return assetInfo;
 }
 
 async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
@@ -91,6 +103,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     { rawEntryInfos, userInfos: entryUserInfos },
     { rawMessageInfos, truncationStatuses, userInfos: messageUserInfos },
     verificationResult,
+    { jsURL, fontsURL, cssInclude },
   ] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchCurrentUserInfo(viewer),
@@ -101,6 +114,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       defaultNumberPerThread,
     ),
     handleVerificationRequest(viewer, navInfo.verify),
+    getAssetInfo(),
     viewer.loggedIn ? setNewSession(viewer, calendarQuery, initialTime) : null,
   ]);
 
