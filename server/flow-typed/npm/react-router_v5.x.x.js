@@ -1,5 +1,5 @@
-// flow-typed signature: fd05ff7ee75da2ba5d12a620675d5923
-// flow-typed version: c6154227d1/react-router_v4.x.x/flow_>=v0.63.x <=v0.103.x
+// flow-typed signature: 05910bbabd87fd1003a3fdba9a7bc58b
+// flow-typed version: ad8465c97a/react-router_v5.x.x/flow_>=v0.63.x <=v0.103.x
 
 declare module "react-router" {
   // NOTE: many of these are re-exported by react-router-dom and
@@ -104,7 +104,7 @@ declare module "react-router" {
     component?: React$ComponentType<*>,
     render?: (router: ContextRouter) => React$Node,
     children?: React$ComponentType<ContextRouter> | React$Node,
-    path?: string,
+    path?: string | Array<string>,
     exact?: boolean,
     strict?: boolean,
     location?: LocationShape,
@@ -121,7 +121,7 @@ declare module "react-router" {
   ): React$ComponentType<P>;
 
   declare type MatchPathOptions = {
-    path?: string,
+    path?: string | string[],
     exact?: boolean,
     strict?: boolean,
     sensitive?: boolean
@@ -129,6 +129,22 @@ declare module "react-router" {
 
   declare export function matchPath(
     pathname: string,
-    options?: MatchPathOptions | string
+    options?: MatchPathOptions | string | string[]
   ): null | Match;
+  
+  declare export function generatePath(pattern?: string, params?: {}): string;
+
+  declare export default {
+    StaticRouter: typeof StaticRouter,
+    MemoryRouter: typeof MemoryRouter,
+    Router: typeof Router,
+    Prompt: typeof Prompt,
+    Redirect: typeof Redirect,
+    Route: typeof Route,
+    Switch: typeof Switch,
+    withRouter: typeof withRouter,
+    matchPath: typeof matchPath,
+    generatePath: typeof generatePath,
+  };
+
 }

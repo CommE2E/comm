@@ -11,7 +11,7 @@ import html from 'common-tags/lib/html';
 import { createStore, type Store } from 'redux';
 import ReactDOMServer from 'react-dom/server';
 import ReactRedux from 'react-redux';
-import { Route, StaticRouter } from 'react-router';
+import ReactRouter from 'react-router';
 import React from 'react';
 import _keyBy from 'lodash/fp/keyBy';
 
@@ -49,6 +49,7 @@ const { basePath, baseDomain } = urlFacts;
 const { renderToString } = ReactDOMServer;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
+const { Route, StaticRouter } = ReactRouter;
 
 type AssetInfo = {| jsURL: string, fontsURL: string, cssInclude: string |};
 let assetInfo: ?AssetInfo = null;
