@@ -50,9 +50,6 @@ import LoadingIndicator from '../loading-indicator.react';
 import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import css from './chat-message-list.css';
 
-const browser = detectBrowser();
-const usingFlexDirectionColumnReverse = browser && browser.name === "chrome";
-
 type PassedProps = {|
   activeChatThreadID: ?string,
   chatInputState: ?ChatInputState,
@@ -62,6 +59,7 @@ type PassedProps = {|
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   startReached: bool,
   timeZone: ?string,
+  usingFlexDirectionColumnReverse: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -94,6 +92,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
     timeZone: PropTypes.string,
+    usingFlexDirectionColumnReverse: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -127,7 +126,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   getSnapshotBeforeUpdate(prevProps: Props): ?number {
-    if (usingFlexDirectionColumnReverse) {
+    if (this.props.usingFlexDirectionColumnReverse) {
       return null;
     }
 
@@ -301,7 +300,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     );
 
     let content;
-    if (!usingFlexDirectionColumnReverse) {
+    if (!this.props.usingFlexDirectionColumnReverse) {
       content = (
         <div
           className={css.invertedMessageContainer}
@@ -417,6 +416,9 @@ registerFetchKey(fetchMostRecentMessagesActionTypes);
 const ReduxConnectedChatMessageList = connect(
   (state: AppState, ownProps: { activeChatThreadID: ?string }) => {
     const { activeChatThreadID } = ownProps;
+    const browser = detectBrowser(state.userAgent);
+    const usingFlexDirectionColumnReverse =
+      browser && browser.name === "chrome";
     return {
       threadInfo: activeChatThreadID
         ? threadInfoSelector(state)[activeChatThreadID]
@@ -425,6 +427,7 @@ const ReduxConnectedChatMessageList = connect(
       startReached: !!(activeChatThreadID &&
         state.messageStore.threads[activeChatThreadID].startReached),
       timeZone: state.timeZone,
+      usingFlexDirectionColumnReverse,
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },

@@ -185,6 +185,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       foreground: true,
       nextLocalID: 0,
       timeZone: viewer.timeZone,
+      userAgent: viewer.userAgent,
     }: AppState),
   );
   const routerContext = {};
@@ -204,7 +205,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   }
 
   const state = store.getState();
-  const filteredState = { ...state, timeZone: null };
+  const filteredState = { ...state, timeZone: null, userAgent: null };
   const stringifiedState =
     JSON.stringify(filteredState).replace(/</g, '\\u003c');
 

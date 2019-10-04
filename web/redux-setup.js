@@ -63,6 +63,7 @@ export type AppState = {|
   foreground: bool,
   nextLocalID: number,
   timeZone: ?string,
+  userAgent: ?string,
 |};
 
 export const updateNavInfoActionType = "UPDATE_NAV_INFO";

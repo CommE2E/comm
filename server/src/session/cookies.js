@@ -50,6 +50,7 @@ type SessionParameterInfo = {|
   sessionID: ?string,
   sessionIdentifierType: SessionIdentifierType,
   ipAddress: string,
+  userAgent: ?string,
 |};
 
 type FetchViewerResult =
@@ -154,6 +155,7 @@ async function fetchUserViewer(
     sessionInfo,
     isScriptViewer: false,
     ipAddress: sessionParameterInfo.ipAddress,
+    userAgent: sessionParameterInfo.userAgent,
   });
   return { type: "valid", viewer };
 }
@@ -237,6 +239,7 @@ async function fetchAnonymousViewer(
     sessionInfo,
     isScriptViewer: false,
     ipAddress: sessionParameterInfo.ipAddress,
+    userAgent: sessionParameterInfo.userAgent,
   });
   return { type: "valid", viewer };
 }
@@ -366,7 +369,13 @@ function getSessionParameterInfoFromRequestBody(
     : sessionIdentifierTypes.COOKIE_ID;
   const ipAddress = req.get("X-Forwarded-For");
   invariant(ipAddress, "X-Forwarded-For header missing");
-  return { isSocket: false, sessionID, sessionIdentifierType, ipAddress };
+  return {
+    isSocket: false,
+    sessionID,
+    sessionIdentifierType,
+    ipAddress,
+    userAgent: req.get('User-Agent'),
+  };
 }
 
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
@@ -406,6 +415,7 @@ async function fetchViewerForSocket(
       ? sessionIdentifierTypes.BODY_SESSION_ID
       : sessionIdentifierTypes.COOKIE_ID,
     ipAddress,
+    userAgent: req.get('User-Agent'),
   };
 
   let result = await fetchViewerFromRequestBody(
@@ -494,6 +504,7 @@ function createViewerForInvalidFetchViewerResult(
     sessionIdentifierType: result.sessionParameterInfo.sessionIdentifierType,
     isSocket: result.sessionParameterInfo.isSocket,
     ipAddress: result.sessionParameterInfo.ipAddress,
+    userAgent: result.sessionParameterInfo.userAgent,
   });
   viewer.sessionChanged = true;
 
@@ -555,10 +566,10 @@ const defaultPlatformDetails = {};
 // The result of this function should not be passed directly to the Viewer
 // constructor. Instead, it should be passed to viewer.setNewCookie. There are
 // several fields on AnonymousViewerData that are not set by this function:
-// sessionIdentifierType, cookieSource, and ipAddress. These parameters all
-// depend on the initial request. If the result of this function is passed to
-// the Viewer constructor directly, the resultant Viewer object will throw
-// whenever anybody attempts to access the relevant properties.
+// sessionIdentifierType, cookieSource, ipAddress, and userAgent. These
+// parameters all depend on the initial request. If the result of this function
+// is passed to the Viewer constructor directly, the resultant Viewer object
+// will throw whenever anybody attempts to access the relevant properties.
 async function createNewAnonymousCookie(
   params: CookieCreationParams,
 ): Promise<AnonymousViewerData> {

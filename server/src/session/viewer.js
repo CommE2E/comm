@@ -30,6 +30,7 @@ export type UserViewerData = {|
   +isScriptViewer: bool,
   +isSocket?: bool,
   +ipAddress?: string,
+  +userAgent?: ?string,
 |};
 
 export type AnonymousViewerData = {|
@@ -47,6 +48,7 @@ export type AnonymousViewerData = {|
   +isScriptViewer: bool,
   +isSocket?: bool,
   +ipAddress?: string,
+  +userAgent?: ?string,
 |};
 
 type SessionInfo = {|
@@ -116,6 +118,14 @@ class Viewer {
       }
     } else {
       this.cachedTimeZone = undefined;
+    }
+    if (data.userAgent === null || data.userAgent === undefined) {
+      if (data.loggedIn) {
+        data = { ...data, userAgent: this.userAgent };
+      } else {
+        // This is a separate condition because of Flow
+        data = { ...data, userAgent: this.userAgent };
+      }
     }
 
     this.data = data;
@@ -305,6 +315,10 @@ class Viewer {
       "ipAddress should be set",
     );
     return this.data.ipAddress;
+  }
+
+  get userAgent(): ?string {
+    return this.data.userAgent;
   }
 
   get timeZone(): ?string {
