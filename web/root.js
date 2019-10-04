@@ -9,8 +9,6 @@ import thunk from 'redux-thunk';
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension/logOnlyInProduction';
-import HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContext } from 'react-dnd';
 
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 
@@ -26,11 +24,9 @@ const store: Store<AppState, Action> = createStore(
   ),
 );
 
-const ReactDnDConnectedRoot = DragDropContext(HTML5Backend)(HotRoot);
-
 const RootProvider = () => (
   <Provider store={store}>
-    <ReactDnDConnectedRoot />
+    <HotRoot />
   </Provider>
 );
 

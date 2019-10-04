@@ -19,6 +19,8 @@ import faCalendar from '@fortawesome/fontawesome-free-solid/faCalendar';
 import faChat from '@fortawesome/fontawesome-free-solid/faComments';
 import classNames from 'classnames';
 import fontawesome from '@fortawesome/fontawesome';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
 
 import { getDate } from 'lib/utils/date-utils';
 import {
@@ -375,4 +377,4 @@ export default connect(
   },
   null,
   true,
-)(App);
+)(DragDropContext(HTML5Backend)(App));
