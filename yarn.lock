@@ -11056,13 +11056,6 @@ sax@^1.2.1, sax@^1.2.4, sax@~1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
-schedule@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/schedule/-/schedule-0.4.0.tgz#fa20cfd0bfbf91c47d02272fd7096780d3170bbb"
-  integrity sha512-hYjmoaEMojiMkWCxKr6ue+LYcZ29u29+AamWYmzwT2VOO9ws5UJp/wNhsVUPiUeNh+EdRfZm7nDeB40ffTfMhA==
-  dependencies:
-    object-assign "^4.1.1"
-
 scheduler@0.14.0:
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.14.0.tgz#b392c23c9c14bfa2933d4740ad5603cc0d59ea5b"

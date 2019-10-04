@@ -78,8 +78,7 @@
     "metro-react-native-babel-preset": "^0.56.0",
     "postinstall-postinstall": "^2.0.0",
     "react-devtools": "^3.0.0",
-    "react-test-renderer": "16.8.6",
-    "schedule": "0.4.0"
+    "react-test-renderer": "16.8.6"
   },
   "jest": {
     "preset": "react-native"
