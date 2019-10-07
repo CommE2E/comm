@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig && cd native && npx jetify",
-    "start": "react-native start",
+    "dev": "react-native start",
     "test": "jest",
     "lint": "eslint .",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
