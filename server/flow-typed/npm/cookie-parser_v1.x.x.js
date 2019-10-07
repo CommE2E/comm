@@ -1,3 +1,6 @@
+// flow-typed signature: 4b0c9d45a87420675a90e7f1239da4e3
+// flow-typed version: 2f514ea8dd/cookie-parser_v1.x.x/flow_>=v0.93.x <=v0.103.x
+
 /**
  * Flow libdef for 'cookie-parser'
  * See https://www.npmjs.com/package/cookie-parser

@@ -1,3 +1,6 @@
+// flow-typed signature: 4a2e9d8f7d4830b8f23ef5921e97806d
+// flow-typed version: 2f514ea8dd/express_v4.17.x/flow_>=v0.94.x <=v0.103.x
+
 declare type express$RouterOptions = {
   caseSensitive?: boolean,
   mergeParams?: boolean,
