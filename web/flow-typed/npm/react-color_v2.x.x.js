@@ -1,5 +1,5 @@
-// flow-typed signature: e76c8d9a93ab9a5364f75e5bbf1915ab
-// flow-typed version: c6154227d1/react-color_v2.x.x/flow_>=v0.56.x <=v0.103.x
+// flow-typed signature: 6e9a8aa9b75de0d2f7b8af8ce775346c
+// flow-typed version: b5454b8595/react-color_v2.x.x/flow_>=v0.56.x <=v0.103.x
 
 declare module "react-color" {
   import type { ComponentType, Component } from 'react';
