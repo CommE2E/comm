@@ -38,8 +38,8 @@ import {
   createStore,
   applyMiddleware,
   type Store,
+  compose,
 } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
 import {
@@ -403,19 +403,21 @@ function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
 
-let enhancers;
-const reactNavigationMiddleware = createReactNavigationReduxMiddleware(
-  (state: AppState) => state.navInfo.navigationState,
+const middleware = applyMiddleware(
+  thunk,
+  createReactNavigationReduxMiddleware(
+    (state: AppState) => state.navInfo.navigationState,
+  ),
+  reduxLoggerMiddleware,
 );
+const composeFunc = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+  : compose;
+let enhancers;
 if (reactotron) {
-  enhancers = composeWithDevTools(
-    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
-    reactotron.createEnhancer(),
-  );
+  enhancers = composeFunc(middleware, reactotron.createEnhancer());
 } else {
-  enhancers = composeWithDevTools(
-    applyMiddleware(thunk, reactNavigationMiddleware, reduxLoggerMiddleware),
-  );
+  enhancers = composeFunc(middleware);
 }
 
 const store: Store<AppState, *> = createStore(
