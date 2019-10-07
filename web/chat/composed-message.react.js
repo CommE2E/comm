@@ -15,9 +15,11 @@ import {
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import CircleIcon from 'react-feather/dist/icons/circle';
-import CheckCircleIcon from 'react-feather/dist/icons/check-circle';
-import XCircleIcon from 'react-feather/dist/icons/x-circle';
+import {
+  Circle as CircleIcon,
+  CheckCircle as CheckCircleIcon,
+  XCircle as XCircleIcon,
+} from 'react-feather';
 
 import { stringForUser } from 'lib/shared/user-utils';
 

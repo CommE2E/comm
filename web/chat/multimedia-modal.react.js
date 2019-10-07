@@ -3,7 +3,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import XCircleIcon from 'react-feather/dist/icons/x-circle';
+import { XCircle as XCircleIcon } from 'react-feather';
 
 import css from './chat-message-list.css';
 

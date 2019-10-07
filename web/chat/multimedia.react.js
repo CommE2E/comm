@@ -8,8 +8,10 @@ import {
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import XCircleIcon from 'react-feather/dist/icons/x-circle';
-import AlertCircleIcon from 'react-feather/dist/icons/alert-circle';
+import {
+  XCircle as XCircleIcon,
+  AlertCircle as AlertCircleIcon,
+} from 'react-feather';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import classNames from 'classnames';
