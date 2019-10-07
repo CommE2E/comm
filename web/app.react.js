@@ -19,7 +19,7 @@ import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import classNames from 'classnames';
 import HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContext } from 'react-dnd';
+import { DndProvider } from 'react-dnd';
 
 import { getDate } from 'lib/utils/date-utils';
 import {
@@ -230,10 +230,10 @@ class App extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <React.Fragment>
+      <DndProvider backend={HTML5Backend}>
         {content}
         {this.state.currentModal}
-      </React.Fragment>
+      </DndProvider>
     );
   }
 
@@ -377,4 +377,4 @@ export default connect(
   },
   null,
   true,
-)(DragDropContext(HTML5Backend)(App));
+)(App);
