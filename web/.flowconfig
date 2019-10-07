@@ -1,6 +1,5 @@
 [ignore]
 .*/node_modules/fbjs/.*
-.*/node_modules/react-timeago/.*
 
 [include]
 ../lib
