@@ -81,7 +81,7 @@ PODS:
     - react-native-keyboard-tracking-view
   - react-native-keyboard-tracking-view (5.5.0):
     - React
-  - react-native-netinfo (4.3.1):
+  - react-native-netinfo (4.4.0):
     - React
   - react-native-notifications (1.1.19):
     - React
@@ -302,7 +302,7 @@ SPEC CHECKSUMS:
   react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
   react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
-  react-native-netinfo: 397dc351976ee5640fabca2452c23813895be2e5
+  react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
