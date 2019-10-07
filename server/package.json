@@ -55,7 +55,7 @@
     "react-router": "^5.1.2",
     "redis": "^2.8.0",
     "redux": "^4.0.4",
-    "sharp": "^0.22.1",
+    "sharp": "^0.23.1",
     "sql-template-strings": "^2.2.2",
     "stream-cache": "^0.0.2",
     "tcomb": "^3.2.24",

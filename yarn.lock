@@ -3181,7 +3181,7 @@ color-support@^1.1.3:
   resolved "https://registry.yarnpkg.com/color-support/-/color-support-1.1.3.tgz#93834379a1cc9a0c61f82f52f0d04322251bd5a2"
   integrity sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==
 
-color@^3.0.0, color@^3.1.1:
+color@^3.0.0, color@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/color/-/color-3.1.2.tgz#68148e7f85d41ad7649c5fa8c8106f098d229e10"
   integrity sha512-vXTJhHebByxZn3lDvDJYw4lR5+uB3vuoHsuYA5AKuxRVn5wzzIfQKGLBmgdVRHKTJYeK5rvJcHnrd0Li49CFpg==
@@ -5131,11 +5131,6 @@ fs-constants@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
   integrity sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==
-
-fs-copy-file-sync@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/fs-copy-file-sync/-/fs-copy-file-sync-1.1.1.tgz#11bf32c096c10d126e5f6b36d06eece776062918"
-  integrity sha512-2QY5eeqVv4m2PfyMiEuy9adxNP+ajf+8AR05cEi+OAzPcOj90hvFImeZhTmKLBgSd9EvG33jsD7ZRxsx9dThkQ==
 
 fs-extra@^1.0.0:
   version "1.0.0"
@@ -8268,7 +8263,7 @@ named-placeholders@^1.1.2:
   dependencies:
     lru-cache "^4.1.3"
 
-nan@^2.12.1, nan@^2.13.2:
+nan@^2.12.1, nan@^2.14.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -9587,7 +9582,7 @@ postinstall-postinstall@^2.0.0:
   resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.0.0.tgz#7ba6711b4420575c4f561638836a81faad47f43f"
   integrity sha512-3f6qWexsHiT4WKtZc5DRb0FPLilHtARi5KpY4fqban/DJNn8/YhZH8U7dVKVz51WbOxEnR31gV+qYQhvEdHtdQ==
 
-prebuild-install@^5.3.0:
+prebuild-install@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.2.tgz#6392e9541ac0b879ef0f22b3d65037417eb2035e"
   integrity sha512-INDfXzTPnhT+WYQemqnAXlP7SvfiFMopMozSgXCZ+RDLb279gKfIuLk4o7PgEawLp3WrMgIYGBpkxpraROHsSA==
@@ -11077,20 +11072,19 @@ shallowequal@^1.0.2, shallowequal@^1.1.0:
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
 
-sharp@^0.22.1:
-  version "0.22.1"
-  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.22.1.tgz#a67c0e75567f03dd5a7861b901fec04072c5b0f4"
-  integrity sha512-lXzSk/FL5b/MpWrT1pQZneKe25stVjEbl6uhhJcTULm7PhmJgKKRbTDM/vtjyUuC/RLqL2PRyC4rpKwbv3soEw==
+sharp@^0.23.1:
+  version "0.23.1"
+  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.23.1.tgz#28f930c1677f219b448dee4d28d04a69dc0966aa"
+  integrity sha512-xt1SOwC5ewuqApBzKMFQ5VaRsC3GjOl1xklsnPNAAG7KWEAi50STFrVwjxFRe4puZ/59JU0QQqoFe7TZNnXd/g==
   dependencies:
-    color "^3.1.1"
+    color "^3.1.2"
     detect-libc "^1.0.3"
-    fs-copy-file-sync "^1.1.1"
-    nan "^2.13.2"
+    nan "^2.14.0"
     npmlog "^4.1.2"
-    prebuild-install "^5.3.0"
-    semver "^6.0.0"
-    simple-get "^3.0.3"
-    tar "^4.4.8"
+    prebuild-install "^5.3.2"
+    semver "^6.3.0"
+    simple-get "^3.1.0"
+    tar "^4.4.13"
     tunnel-agent "^0.6.0"
 
 shebang-command@^1.2.0:
@@ -11144,7 +11138,7 @@ simple-concat@^1.0.0:
   resolved "https://registry.yarnpkg.com/simple-concat/-/simple-concat-1.0.0.tgz#7344cbb8b6e26fb27d66b2fc86f9f6d5997521c6"
   integrity sha1-c0TLuLbib7J9ZrL8hvn21Zl1IcY=
 
-simple-get@^3.0.3:
+simple-get@^3.0.3, simple-get@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/simple-get/-/simple-get-3.1.0.tgz#b45be062435e50d159540b576202ceec40b9c6b3"
   integrity sha512-bCR6cP+aTdScaQCnQKbPKtJOKDp/hj9EDLJo3Nw4y1QksqaovlW/bnptB6/c1e+qmNIDHRK+oXFDdEqBT8WzUA==
@@ -11759,7 +11753,7 @@ tar-stream@^2.0.0:
     inherits "^2.0.3"
     readable-stream "^3.1.1"
 
-tar@^4, tar@^4.4.8:
+tar@^4, tar@^4.4.13:
   version "4.4.13"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.13.tgz#43b364bc52888d555298637b10d60790254ab525"
   integrity sha512-w2VwSrBoHa5BsSyH+KxEqeQBAllHhccyMFVHtGtdMpF4W7IRWfZjFiQceJPChOeTsSDVUpER2T8FA93pr0L+QA==
