@@ -10092,10 +10092,10 @@ rc@^1.0.1, rc@^1.1.2, rc@^1.1.6, rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-circular-progressbar@^1.0.0:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-circular-progressbar/-/react-circular-progressbar-1.2.1.tgz#76843292e310683c5981480069ed6b4bbf1d96f9"
-  integrity sha512-vfxCdyveCMbpKrfs+vdLqS2a4hv/h5DL1katSVVip9LVDRNtQtrNvxiMVZDPrkZPDQREBubyFZZ7basNhXWK+A==
+react-circular-progressbar@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/react-circular-progressbar/-/react-circular-progressbar-2.0.2.tgz#8fa5fc4cb5e07dfe4036ade8695ba125742f4de4"
+  integrity sha512-o0xpWnW53LAOmyvk3HpzxcUbysYpOVZJ9sm3kHTLBd10Mryev42eq2Q1UjayaBPkvNHtlcbtjDm4xOCI/4WxQQ==
 
 react-color@^2.13.0:
   version "2.17.3"

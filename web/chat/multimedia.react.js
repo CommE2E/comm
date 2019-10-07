@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import XCircleIcon from 'react-feather/dist/icons/x-circle';
 import AlertCircleIcon from 'react-feather/dist/icons/alert-circle';
-import CircularProgressbar from 'react-circular-progressbar';
+import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import classNames from 'classnames';
 
@@ -57,7 +57,7 @@ class Multimedia extends React.PureComponent<Props> {
         const text = `${outOfHundred}%`;
         progressIndicator = (
           <CircularProgressbar
-            percentage={outOfHundred}
+            value={outOfHundred}
             text={text}
             background
             backgroundPadding={6}

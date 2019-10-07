@@ -48,7 +48,7 @@
     "lodash": "^4.17.5",
     "prop-types": "^15.6.0",
     "react": "16.8.6",
-    "react-circular-progressbar": "^1.0.0",
+    "react-circular-progressbar": "^2.0.2",
     "react-color": "^2.13.0",
     "react-dnd": "^7.0.2",
     "react-dnd-html5-backend": "^7.0.2",
