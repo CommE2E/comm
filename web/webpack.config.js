@@ -231,7 +231,7 @@ module.exports = function(env) {
       server: [ './server-rendering.js', './app.react.js' ],
     },
     output: {
-      filename: 'app.build.js',
+      filename: 'app.build.cjs',
       library: 'app',
       libraryTarget: 'commonjs2',
       path: path.join(__dirname, 'dist'),

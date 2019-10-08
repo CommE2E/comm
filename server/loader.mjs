@@ -18,17 +18,7 @@ export async function resolve(
       specifier,
       `server/dist/${specifier}`,
     );
-
-    let format;
-    if (url.search(/json(:[0-9]+)?$/) !== -1) {
-      format = 'json';
-    } else if (specifier === 'web/dist/app.build') {
-      format = 'commonjs';
-    } else {
-      format = 'module';
-    }
-
-    return { url, format };
+    return { url, format: defaultResult.format };
   }
 
   // We prefer to resolve packages as modules so that Node allows us to do

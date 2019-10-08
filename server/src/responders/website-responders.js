@@ -31,7 +31,7 @@ import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux-setup';
-import App from 'web/dist/app.build';
+import App from 'web/dist/app.build.cjs';
 import { navInfoFromURL } from 'web/url-utils';
 import { activeThreadFromNavInfo } from 'web/selectors/nav-selectors';
 
