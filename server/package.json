@@ -10,8 +10,8 @@
     "prod-build": "npm run babel && npm run rsync && npm run update-geoip",
     "update-geoip": "cd ../node_modules/geoip-lite && npm run updatedb",
     "prod": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server",
-    "dev-rsync": "chokidar --initial -s 'src/**/*.json' 'src/**/*.build.js' -c 'npm run rsync' > /dev/null 2>&1",
-    "dev": "NODE_ENV=dev concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run babel -- --watch\" \"npm run dev-rsync\" \"nodemon -e js,json --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
+    "dev-rsync": "chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'npm run rsync > /dev/null 2>&1'",
+    "dev": "NODE_ENV=dev concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run babel -- --watch\" \"npm run dev-rsync\" \"nodemon -e js,json,cjs --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
     "script": "node --experimental-modules --loader ./loader.mjs"
   },
   "author": "",
