@@ -131,8 +131,8 @@ android {
         applicationId "org.squadcal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 33
-        versionName "0.0.33"
+        versionCode 35
+        versionName "0.0.35"
     }
     splits {
         abi {
