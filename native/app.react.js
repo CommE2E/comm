@@ -623,7 +623,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
             state={this.props.navigationState}
             dispatch={this.props.dispatch}
           />
-          <ConnectedStatusBar />
+          <ConnectedStatusBar barStyle="dark-content" />
           <DisconnectedBarVisibilityHandler />
           <DimensionsUpdater />
           <ConnectivityUpdater />
