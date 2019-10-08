@@ -51,6 +51,7 @@ class Splash extends React.PureComponent<Props, State> {
     requestAccess: PropTypes.func.isRequired,
   };
   emailInput: ?HTMLInputElement;
+  bottomContainer: ?HTMLDivElement;
   state = {
     platform: "ios",
     email: "",
@@ -148,7 +149,7 @@ class Splash extends React.PureComponent<Props, State> {
               </div>
             </div>
           </div>
-          <div className={css.bottomContainer}>
+          <div className={css.bottomContainer} ref={this.bottomContainerRef}>
             <div className={css.bottom}>
               <div className={css.headerRest}>
                 <div className={css.prompt}>
@@ -199,6 +200,10 @@ class Splash extends React.PureComponent<Props, State> {
     );
   }
 
+  bottomContainerRef = (bottomContainer: ?HTMLDivElement) => {
+    this.bottomContainer = bottomContainer;
+  }
+
   emailInputRef = (emailInput: ?HTMLInputElement) => {
     this.emailInput = emailInput;
   }
@@ -218,17 +223,19 @@ class Splash extends React.PureComponent<Props, State> {
 
   onClickRequestAccess = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    if (this.emailInput) {
-      this.emailInput.focus();
-    }
+    const { bottomContainer } = this;
+    invariant(bottomContainer, "bottomContainer should exist");
     const formHeight = 180;
     const contentHeight = 790;
     const guaranteesSpace = contentHeight - window.innerHeight + formHeight;
-    if (window.scrollY >= guaranteesSpace) {
+    if (bottomContainer.scrollTop >= guaranteesSpace) {
       return;
     }
     const defaultScrollHeight = 390;
-    window.scrollTo({ top: Math.max(defaultScrollHeight, guaranteesSpace) });
+    bottomContainer.scrollTo({ top: Math.max(defaultScrollHeight, guaranteesSpace) });
+    if (this.emailInput) {
+      this.emailInput.focus();
+    }
   }
 
   onSubmitRequestAccess = (event: SyntheticEvent<HTMLInputElement>) => {
