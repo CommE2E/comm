@@ -14,7 +14,7 @@ type InjectedProps = {
   globalLoadingStatus: LoadingStatus,
 };
 type OwnProps = {
-  barStyle?: "light-content" | "dark-content",
+  barStyle?: "default" | "light-content" | "dark-content",
   animated?: bool,
 };
 class ConnectedStatusBar extends React.PureComponent<InjectedProps & OwnProps> {

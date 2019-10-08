@@ -105,6 +105,9 @@ if (Platform.OS === "android") {
 
 const msInDay = 24 * 60 * 60 * 1000;
 const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
+const defaultStatusBarStyle = Platform.OS === "ios"
+  ? "dark-content"
+  : "default";
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
@@ -623,7 +626,7 @@ class AppWithNavigationState extends React.PureComponent<Props> {
             state={this.props.navigationState}
             dispatch={this.props.dispatch}
           />
-          <ConnectedStatusBar barStyle="dark-content" />
+          <ConnectedStatusBar barStyle={defaultStatusBarStyle} />
           <DisconnectedBarVisibilityHandler />
           <DimensionsUpdater />
           <ConnectivityUpdater />
