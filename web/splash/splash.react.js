@@ -228,11 +228,12 @@ class Splash extends React.PureComponent<Props, State> {
     const formHeight = 180;
     const contentHeight = 790;
     const guaranteesSpace = contentHeight - window.innerHeight + formHeight;
-    if (bottomContainer.scrollTop >= guaranteesSpace) {
-      return;
+    if (bottomContainer.scrollTop < guaranteesSpace) {
+      const defaultScrollHeight = 390;
+      bottomContainer.scrollTo({
+        top: Math.max(defaultScrollHeight, guaranteesSpace),
+      });
     }
-    const defaultScrollHeight = 390;
-    bottomContainer.scrollTo({ top: Math.max(defaultScrollHeight, guaranteesSpace) });
     if (this.emailInput) {
       this.emailInput.focus();
     }
