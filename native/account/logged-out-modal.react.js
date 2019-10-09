@@ -34,7 +34,6 @@ import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
 import _isEqual from 'lodash/fp/isEqual';
 
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
@@ -71,8 +70,8 @@ import {
   setStateForContainer,
 } from '../utils/state-container';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
+import SafeAreaView from '../components/safe-area-view.react';
 
-const forceInset = { top: 'always', bottom: 'always' };
 let initialAppLoad = true;
 
 type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
@@ -698,7 +697,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       return (
         <React.Fragment>
           {background}
-          <SafeAreaView forceInset={forceInset} style={styles.container}>
+          <SafeAreaView style={styles.container}>
             {statusBar}
             {animatedContent}
             {buttons}

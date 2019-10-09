@@ -37,7 +37,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { connect } from 'lib/utils/redux-utils';
@@ -60,8 +59,7 @@ import {
   removeKeyboardListener,
 } from '../keyboard';
 import { VerificationModalRouteName } from '../navigation/route-names';
-
-const forceInset = { top: 'always', bottom: 'always' };
+import SafeAreaView from '../components/safe-area-view.react';
 
 type VerificationModalMode = "simple-text" | "reset-password";
 type Props = {
@@ -468,7 +466,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     return (
       <React.Fragment>
         {background}
-        <SafeAreaView forceInset={forceInset} style={styles.container}>
+        <SafeAreaView style={styles.container}>
           {statusBar}
           {animatedContent}
           {closeButton}

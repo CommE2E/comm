@@ -32,7 +32,7 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
   StyleSheet,
@@ -45,7 +45,6 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { SafeAreaView } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -96,6 +95,7 @@ import {
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
+import SafeAreaView from '../components/safe-area-view.react';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -122,8 +122,6 @@ type ExtraData = $ReadOnly<{|
 // current Calendar ref here so we can access it from the statically defined
 // navigationOptions.tabBarOnPress below.
 let currentCalendarRef: ?Calendar = null;
-
-const forceInset = { top: 'always', bottom: 'never' };
 
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -777,7 +775,7 @@ class Calendar extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <SafeAreaView forceInset={forceInset} style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <DisconnectedBar />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
