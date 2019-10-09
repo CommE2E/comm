@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 0,
     marginVertical: 0,
+    color: 'black',
   },
   flatList: {
     flex: 1,

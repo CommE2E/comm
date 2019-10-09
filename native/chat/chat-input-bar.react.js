@@ -553,6 +553,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderColor: '#AAAAAAAA',
     borderWidth: 1,
+    color: 'black',
   },
   bottomAligned: {
     alignSelf: 'flex-end',
