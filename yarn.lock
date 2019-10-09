@@ -10217,9 +10217,9 @@ react-navigation-redux-helpers@^4.0.0:
     invariant "^2.2.2"
 
 react-navigation-stack@^1.9.0:
-  version "1.9.3"
-  resolved "https://registry.yarnpkg.com/react-navigation-stack/-/react-navigation-stack-1.9.3.tgz#956a41796878d82c4db506075afea5e3cef64120"
-  integrity sha512-MwQ55tfTJ5LhSdCHc8EMAH3bVinJ1hTLYhyxx7KgnReUl4BZ9s/Qn0fKC95BgSefAeunEphQPLHNNBygDN6uKw==
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/react-navigation-stack/-/react-navigation-stack-1.9.4.tgz#9de7537bb83a1d30a177957bc7932b9447f4c409"
+  integrity sha512-0Iv8t99RPsznXVadlHGRwOJqLzJmj96PfWiwmZEhVnbNwMVXMLz3oOno0LL9tbiukQxEaFAKUIblElpd9izS6w==
   dependencies:
     prop-types "^15.7.2"
 

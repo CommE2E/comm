@@ -176,6 +176,9 @@ if (Platform.OS === "android") {
     {
       initialRouteName: CalendarRouteName,
       lazy: false,
+      tabBarOptions: {
+        keyboardHidesTabBar: false,
+      },
     },
   );
 }
