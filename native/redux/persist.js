@@ -140,6 +140,7 @@ const persistConfig = {
   debug: __DEV__,
   version: 11,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
+  timeout: __DEV__ ? 0 : undefined,
 };
 
 const codeVersion = 36;
