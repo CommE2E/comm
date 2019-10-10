@@ -18,11 +18,9 @@ import {
   Linking,
   View,
   StyleSheet,
-  DeviceInfo,
 } from 'react-native';
 import { createReduxContainer } from 'react-navigation-redux-helpers';
 import PropTypes from 'prop-types';
-import { InAppNotificationProvider } from 'react-native-in-app-notification';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 
@@ -36,7 +34,6 @@ import { RootNavigator } from './navigation/navigation-setup';
 import { handleURLActionType } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
-import NotificationBody from './push/notification-body.react';
 import ErrorBoundary from './error-boundary.react';
 import DisconnectedBarVisibilityHandler
   from './navigation/disconnected-bar-visibility-handler.react';
@@ -50,7 +47,6 @@ if (Platform.OS === "android") {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const inAppNotificationHeight = DeviceInfo.isIPhoneX_deprecated ? 104 : 80;
 const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
 const defaultStatusBarStyle = Platform.OS === "ios"
   ? "dark-content"
@@ -132,27 +128,22 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   render() {
     const { detectUnsupervisedBackground } = this.state;
     return (
-      <InAppNotificationProvider
-        height={inAppNotificationHeight}
-        notificationBodyComponent={NotificationBody}
-      >
-        <View style={styles.app}>
-          <Socket
-            detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
-          />
-          <ReduxifiedRootNavigator
-            state={this.props.navigationState}
-            dispatch={this.props.dispatch}
-          />
-          <ConnectedStatusBar barStyle={defaultStatusBarStyle} />
-          <DisconnectedBarVisibilityHandler />
-          <DimensionsUpdater />
-          <ConnectivityUpdater />
-          <PushHandler
-            detectUnsupervisedBackground={detectUnsupervisedBackground}
-          />
-        </View>
-      </InAppNotificationProvider>
+      <View style={styles.app}>
+        <Socket
+          detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
+        />
+        <ReduxifiedRootNavigator
+          state={this.props.navigationState}
+          dispatch={this.props.dispatch}
+        />
+        <ConnectedStatusBar barStyle={defaultStatusBarStyle} />
+        <DisconnectedBarVisibilityHandler />
+        <DimensionsUpdater />
+        <ConnectivityUpdater />
+        <PushHandler
+          detectUnsupervisedBackground={detectUnsupervisedBackground}
+        />
+      </View>
     );
   }
 

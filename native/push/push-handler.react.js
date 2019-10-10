@@ -20,7 +20,6 @@ import {
 } from 'lib/types/socket-types';
 import type {
   RemoteMessage,
-  Notification,
   NotificationOpen,
 } from 'react-native-firebase';
 
@@ -33,7 +32,7 @@ import {
   Alert,
 } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
-import { withInAppNotification } from 'react-native-in-app-notification';
+import { Notification as InAppNotification } from 'react-native-in-app-message';
 
 import { connect } from 'lib/utils/redux-utils';
 import { unreadCount } from 'lib/selectors/thread-selectors';
@@ -62,13 +61,12 @@ import {
 } from './android';
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
+import InAppNotif from './in-app-notif.react';
 
 const msInDay = 24 * 60 * 60 * 1000;
 
 type Props = {
   detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
-  // withInAppNotification
-  showNotification: (spec: {...}) => void,
   // Redux state
   rehydrateConcluded: bool,
   unreadCount: number,
@@ -88,11 +86,16 @@ type Props = {
     deviceType: DeviceType,
   ) => Promise<string>,
 };
-class PushHandler extends React.PureComponent<Props> {
+type State = {|
+  inAppNotifProps: ?{|
+    customComponent: React.Node,
+    onPress: () => void,
+  |};
+|};
+class PushHandler extends React.PureComponent<Props, State> {
 
   static propTypes = {
     detectUnsupervisedBackground: PropTypes.func,
-    showNotification: PropTypes.func.isRequired,
     rehydrateConcluded: PropTypes.bool.isRequired,
     unreadCount: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
@@ -105,6 +108,9 @@ class PushHandler extends React.PureComponent<Props> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
+  };
+  state = {
+    inAppNotifProps: null,
   };
   currentState: ?string = NativeAppState.currentState;
   appStarted = 0;
@@ -217,7 +223,7 @@ class PushHandler extends React.PureComponent<Props> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.activeThread !== prevProps.activeThread) {
       this.clearNotifsOfThread();
     }
@@ -246,6 +252,13 @@ class PushHandler extends React.PureComponent<Props> {
       (!this.props.deviceToken && prevProps.deviceToken)
     ) {
       this.ensurePushNotifsEnabled();
+    }
+
+    if (
+      this.state.inAppNotifProps &&
+      this.state.inAppNotifProps !== prevState.inAppNotifProps
+    ) {
+      InAppNotification.show();
     }
   }
 
@@ -492,10 +505,14 @@ class PushHandler extends React.PureComponent<Props> {
     if (threadID === this.props.activeThread) {
       return;
     }
-    this.props.showNotification({
-      message,
-      title,
-      onPress: () => this.onPressNotificationForThread(threadID, false),
+    this.setState({
+      inAppNotifProps: {
+        customComponent: <InAppNotif title={title} message={message} />,
+        onPress: () => {
+          InAppNotification.hide();
+          this.onPressNotificationForThread(threadID, false);
+        },
+      },
     });
   }
 
@@ -530,7 +547,7 @@ class PushHandler extends React.PureComponent<Props> {
   }
 
   render() {
-    return null;
+    return <InAppNotification {...this.state.inAppNotifProps} />;
   }
 
 }
@@ -553,4 +570,4 @@ export default connect(
     updatesCurrentAsOf: state.updatesCurrentAsOf,
   }),
   { setDeviceToken },
-)(withInAppNotification(PushHandler));
+)(PushHandler);

@@ -76,6 +76,8 @@ PODS:
     - React
   - react-native-image-resizer (1.0.1):
     - React
+  - react-native-in-app-message (1.0.2):
+    - React
   - react-native-keyboard-input (5.3.1):
     - React
     - react-native-keyboard-tracking-view
@@ -159,6 +161,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-image-resizer (from `../../node_modules/react-native-image-resizer`)
+  - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
   - react-native-keyboard-input (from `../../node_modules/react-native-keyboard-input`)
   - react-native-keyboard-tracking-view (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
@@ -226,6 +229,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-image-resizer:
     :path: "../../node_modules/react-native-image-resizer"
+  react-native-in-app-message:
+    :path: "../../node_modules/react-native-in-app-message"
   react-native-keyboard-input:
     :path: "../../node_modules/react-native-keyboard-input"
   react-native-keyboard-tracking-view:
@@ -300,6 +305,7 @@ SPEC CHECKSUMS:
   React-jsinspector: a58b86545a0185f69768e78ac96ca9fe43fa3694
   react-native-cameraroll: 3e5e34d36d93548ae7770ee8ab7b2ae9e778f571
   react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
+  react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-keyboard-input: 83520632cab76a827bdf1db0aa1c87a047f7c18b
   react-native-keyboard-tracking-view: bf1f758a529e1e87f8a76044414b168251d59d37
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301

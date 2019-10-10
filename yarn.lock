@@ -10058,19 +10058,10 @@ react-native-image-resizer@^1.0.1:
   resolved "https://registry.yarnpkg.com/react-native-image-resizer/-/react-native-image-resizer-1.0.1.tgz#e9eeb7f81596ffc490f822897952b046c07ee95c"
   integrity sha512-upBF/9TIs4twg19dSkSaDW/MzMpNbysEXtPuapu3GqvOuGIYHKQ30v6httDn7rIb6uCcNIWL1BwZJM2cDt/C9Q==
 
-react-native-in-app-notification@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-in-app-notification/-/react-native-in-app-notification-3.0.0.tgz#1ebc4f8f463fe70b366b17901441c81806656632"
-  integrity sha512-0oLUcS/TgLJFfyQkp6FxgQslJnnsvXaVyca8QvFWbw44cjK8zDqDk3HiOQKdW/UCbRbTQ0akMwgjESxNEGgIMg==
-  dependencies:
-    hoist-non-react-statics "^3.0.1"
-    react-native-iphone-x-helper "^1.2.0"
-    react-native-swipe-gestures "^1.0.2"
-
-react-native-iphone-x-helper@^1.2.0:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.2.1.tgz#645e2ffbbb49e80844bb4cbbe34a126fda1e6772"
-  integrity sha512-/VbpIEp8tSNNHIvstuA3Swx610whci1Zpc9mqNkqn14DkMbw+ORviln2u0XyHG1kPvvwTNGZY6QpeFwxYaSdbQ==
+react-native-in-app-message@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-in-app-message/-/react-native-in-app-message-1.0.2.tgz#e971c039bcd0e238306f73fbea43fc866aa94a69"
+  integrity sha512-dbzC3AMT5CzGafzUu8ifFMd5g6v0Ww5q9oQgw8RRqjMhggoXDipct9BBI9g4tAoUB2xE2axqu2tKC5pnpBnbdQ==
 
 react-native-keyboard-input@^5.3.1:
   version "5.3.1"
@@ -10155,11 +10146,6 @@ react-native-splash-screen@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/react-native-splash-screen/-/react-native-splash-screen-3.2.0.tgz#d47ec8557b1ba988ee3ea98d01463081b60fff45"
   integrity sha512-Ls9qiNZzW/OLFoI25wfjjAcrf2DZ975hn2vr6U9gyuxi2nooVbzQeFoQS5vQcbCt9QX5NY8ASEEAtlLdIa6KVg==
-
-react-native-swipe-gestures@^1.0.2:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.4.tgz#6a9c6613bfe06cd9014a36a2c4a09f719ff62451"
-  integrity sha512-C/vz0KPHNyqHk3uF4Cz/jzd/0N8z34ZgsjAZUh/RsXPH2FtJJf3Fw73pQDWJSoCMtvVadlztb8xQ+/aEQrll7w==
 
 react-native-tab-view@^2.9.0:
   version "2.10.0"
