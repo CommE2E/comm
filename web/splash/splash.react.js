@@ -25,6 +25,8 @@ import css from './splash.css';
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
 
+const defaultRequestAccessScrollHeight = 390;
+
 type Props = {
   setModal: (modal: ?React.Node) => void,
   currentModal: ?React.Node,
@@ -229,10 +231,10 @@ class Splash extends React.PureComponent<Props, State> {
     const contentHeight = 790;
     const guaranteesSpace = contentHeight - window.innerHeight + formHeight;
     if (bottomContainer.scrollTop < guaranteesSpace) {
-      const defaultScrollHeight = 390;
-      bottomContainer.scrollTo({
-        top: Math.max(defaultScrollHeight, guaranteesSpace),
-      });
+      bottomContainer.scrollTop = Math.max(
+        defaultRequestAccessScrollHeight,
+        guaranteesSpace,
+      );
     }
     if (this.emailInput) {
       this.emailInput.focus();
