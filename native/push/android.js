@@ -5,23 +5,19 @@ import type { RemoteMessage } from 'react-native-firebase';
 
 import invariant from 'invariant';
 
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+
 import {
   recordAndroidNotificationActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
 import { getFirebase } from './firebase';
-
 import { saveMessageInfos } from './utils';
 import { store, dispatch } from '../redux/redux-setup';
 
 const androidNotificationChannelID = 'default';
 const vibrationSpec = [ 500, 500 ];
 
-type Texts = {|
-  title: string,
-  prefix: string,
-  body: string,
-|};
 function handleAndroidMessage(
   message: RemoteMessage,
   updatesCurrentAsOf: number,
@@ -72,10 +68,10 @@ function handleAndroidMessage(
   if (!id && customNotification) {
     ({ id, body, threadID } = customNotification);
   }
-  const merged = prefix ? `${prefix} ${body}` : body;
+  ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
   if (handleIfActive) {
-    const texts = { title, body: merged };
+    const texts = { title, body };
     const isActive = handleIfActive(threadID, texts);
     if (isActive) {
       return;
@@ -84,7 +80,7 @@ function handleAndroidMessage(
 
   const notification = new firebase.notifications.Notification()
     .setNotificationId(id)
-    .setBody(merged)
+    .setBody(body)
     .setData({ threadID })
     .android.setTag(id)
     .android.setChannelId(androidNotificationChannelID)
