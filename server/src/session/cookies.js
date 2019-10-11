@@ -675,7 +675,7 @@ async function createNewUserCookie(
 
 // This gets called after createNewUserCookie and from websiteResponder. If the
 // Viewer's sessionIdentifierType is COOKIE_ID then the cookieID is used as the
-// session identifier; otherwise, a new ID is create for the session.
+// session identifier; otherwise, a new ID is created for the session.
 async function setNewSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,

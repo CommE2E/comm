@@ -17,7 +17,7 @@ import { deleteCookie } from '../deleters/cookie-deleters';
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 export type DownloadResponder
   = (viewer: Viewer, req: $Request, res: $Response) => Promise<void>;
-export type HTMLResponder = (viewer: Viewer, url: string) => Promise<string>;
+export type HTMLResponder = DownloadResponder;
 export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 
 function jsonHandler(responder: JSONResponder) {
@@ -101,9 +101,9 @@ function htmlHandler(responder: HTMLResponder) {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerForHomeRequest(req);
-      const rendered = await responder(viewer, req.url);
       addCookieToHomeResponse(viewer, res);
-      res.send(rendered);
+      res.type('html');
+      await responder(viewer, req, res);
     } catch (e) {
       console.warn(e);
       if (!res.headersSent) {

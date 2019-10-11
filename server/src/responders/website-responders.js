@@ -46,7 +46,7 @@ import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
 
 const { basePath, baseDomain } = urlFacts;
-const { renderToString } = ReactDOMServer;
+const { renderToNodeStream } = ReactDOMServer;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
 const { Route, StaticRouter } = ReactRouter;
@@ -79,11 +79,15 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
-async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
+async function websiteResponder(
+  viewer: Viewer,
+  req: $Request,
+  res: $Response,
+): Promise<void> {
   let navInfo;
   try {
     navInfo = navInfoFromURL(
-      url,
+      req.url,
       { now: currentDateInTimeZone(viewer.timeZone) },
     );
   } catch (e) {
@@ -190,10 +194,10 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
     }: AppState),
   );
   const routerContext = {};
-  const rendered = renderToString(
+  const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
-        location={url}
+        location={req.url}
         basename={baseURL}
         context={routerContext}
       >
@@ -210,7 +214,7 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
   const stringifiedState =
     JSON.stringify(filteredState).replace(/</g, '\\u003c');
 
-  let result = html`
+  res.write(html`
     <!DOCTYPE html>
     <html lang="en">
       <head>
@@ -249,15 +253,16 @@ async function websiteResponder(viewer: Viewer, url: string): Promise<string> {
       </head>
       <body>
         <div id="react-root">
-  `;
-  result += rendered;
-  result += html`
-        </div>
-        <script src="${jsURL}"></script>
-      </body>
-    </html>
-  `;
-  return result;
+  `);
+  reactStream.pipe(res, { end: false });
+  reactStream.on('end', () => {
+    res.end(html`
+          </div>
+          <script src="${jsURL}"></script>
+        </body>
+      </html>
+    `);
+  });
 }
 
 async function handleVerificationRequest(
