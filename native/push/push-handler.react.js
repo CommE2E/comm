@@ -40,7 +40,10 @@ import {
   setDeviceTokenActionTypes,
   setDeviceToken,
 } from 'lib/actions/device-actions';
-import { notificationPressActionType } from 'lib/shared/notif-utils';
+import {
+  notificationPressActionType,
+  mergePrefixIntoBody,
+} from 'lib/shared/notif-utils';
 
 import {
   recordNotifPermissionAlertActionType,
@@ -479,7 +482,12 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (messageInfos) {
       this.saveMessageInfos(messageInfos);
     }
-    this.showInAppNotification(threadID, notification.getMessage());
+    let title = null;
+    let body = notification.getMessage();
+    if (notification.getData().title) {
+      ({ title, body } = mergePrefixIntoBody(notification.getData()));
+    }
+    this.showInAppNotification(threadID, body, title);
     notification.finish(NotificationsIOS.FetchResult.NewData);
   }
 

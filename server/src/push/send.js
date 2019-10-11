@@ -468,9 +468,14 @@ function prepareIOSNotification(
   const notification = new apn.Notification();
   notification.topic = "org.squadcal.app";
   if (!badgeOnly) {
-    const { merged } = notifTextsForMessageInfo(allMessageInfos, threadInfo);
+    const { merged, ...rest } =
+      notifTextsForMessageInfo(allMessageInfos, threadInfo);
     notification.body = merged;
     notification.sound = "default";
+    notification.payload = {
+      ...notification.payload,
+      ...rest,
+    };
   }
   notification.badge = unreadCount;
   notification.threadId = threadInfo.id;
