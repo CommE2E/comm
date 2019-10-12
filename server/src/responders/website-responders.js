@@ -245,8 +245,9 @@ async function websiteResponder(
         <meta name="application-name" content="SquadCal" />
         <meta name="msapplication-TileColor" content="#b91d47" />
         <meta name="theme-color" content="#b91d47" />
-        <script>
-          var preloadedState =
+      </head>
+      <body>
+        <div id="react-root">
   `);
 
   const statePromises = {
@@ -278,22 +279,6 @@ async function websiteResponder(
     deviceToken: undefined,
   };
 
-  const filteredStatePromises = {
-    ...statePromises,
-    timeZone: null,
-    userAgent: null,
-  };
-  const jsonStream = streamJSON(res, filteredStatePromises);
-  await waitForStream(jsonStream);
-  res.write(html`
-;
-        var baseURL = "${baseURL}";
-      </script>
-    </head>
-    <body>
-      <div id="react-root">
-  `);
-
   const state = await promiseAll(statePromises);
   const store: Store<AppState, Action> = createStore(reducer, state);
   const routerContext = {};
@@ -313,9 +298,23 @@ async function websiteResponder(
   }
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
+  res.write(html`
+    </div>
+    <script>
+      var preloadedState =
+  `);
 
+  const filteredStatePromises = {
+    ...statePromises,
+    timeZone: null,
+    userAgent: null,
+  };
+  const jsonStream = streamJSON(res, filteredStatePromises);
+  await waitForStream(jsonStream);
   res.end(html`
-        </div>
+    ;
+          var baseURL = "${baseURL}";
+        </script>
         <script src="${jsURL}"></script>
       </body>
     </html>
