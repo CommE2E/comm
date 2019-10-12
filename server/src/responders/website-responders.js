@@ -28,6 +28,7 @@ import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
+import { promiseAll } from 'lib/utils/promises';
 
 import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux-setup';
@@ -50,6 +51,9 @@ const { renderToNodeStream } = ReactDOMServer;
 const { Provider } = ReactRedux;
 const { reducer } = ReduxSetup;
 const { Route, StaticRouter } = ReactRouter;
+
+const baseURL = basePath.replace(/\/$/, '');
+const baseHref = baseDomain + baseURL;
 
 type AssetInfo = {| jsURL: string, fontsURL: string, cssInclude: string |};
 let assetInfo: ?AssetInfo = null;
@@ -84,9 +88,9 @@ async function websiteResponder(
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  let navInfo;
+  let initialNavInfo;
   try {
-    navInfo = navInfoFromURL(
+    initialNavInfo = navInfoFromURL(
       req.url,
       { now: currentDateInTimeZone(viewer.timeZone) },
     );
@@ -95,124 +99,117 @@ async function websiteResponder(
   }
 
   const calendarQuery = {
-    startDate: navInfo.startDate,
-    endDate: navInfo.endDate,
+    startDate: initialNavInfo.startDate,
+    endDate: initialNavInfo.endDate,
     filters: defaultCalendarFilters,
   };
   const threadSelectionCriteria = { joinedThreads: true };
   const initialTime = Date.now();
 
-  const [
-    { threadInfos, userInfos: threadUserInfos },
-    currentUserInfo,
-    { rawEntryInfos, userInfos: entryUserInfos },
-    { rawMessageInfos, truncationStatuses, userInfos: messageUserInfos },
-    verificationResult,
-    { jsURL, fontsURL, cssInclude },
-  ] = await Promise.all([
-    fetchThreadInfos(viewer),
-    fetchCurrentUserInfo(viewer),
-    fetchEntryInfos(viewer, [ calendarQuery ]),
-    fetchMessageInfos(
-      viewer,
-      threadSelectionCriteria,
-      defaultNumberPerThread,
-    ),
-    handleVerificationRequest(viewer, navInfo.verify),
-    getAssetInfo(),
-    viewer.loggedIn ? setNewSession(viewer, calendarQuery, initialTime) : null,
-  ]);
-
-  const messageStore = freshMessageStore(
-    rawMessageInfos,
-    truncationStatuses,
-    mostRecentMessageTimestamp(rawMessageInfos, initialTime),
-    threadInfos,
+  const assetInfoPromise = getAssetInfo();
+  const threadInfoPromise = fetchThreadInfos(viewer);
+  const messageInfoPromise = fetchMessageInfos(
+    viewer,
+    threadSelectionCriteria,
+    defaultNumberPerThread,
+  );
+  const entryInfoPromise = fetchEntryInfos(viewer, [ calendarQuery ]);
+  const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
+  const serverVerificationResultPromise = handleVerificationRequest(
+    viewer,
+    initialNavInfo.verify,
   );
 
-  const threadID = navInfo.activeChatThreadID;
-  if (
-    threadID &&
-    !threadHasPermission(threadInfos[threadID], threadPermissions.VISIBLE)
-  ) {
-    navInfo.activeChatThreadID = null;
-  }
-  if (!navInfo.activeChatThreadID) {
-    const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);
-    if (mostRecentThread) {
-      navInfo.activeChatThreadID = mostRecentThread;
+  const sessionIDPromise = (async () => {
+    if (viewer.loggedIn) {
+      await setNewSession(viewer, calendarQuery, initialTime);
     }
-  }
-  const activeThread = activeThreadFromNavInfo(navInfo);
-  if (activeThread) {
-    await activityUpdater(
-      viewer,
-      { updates: [ { focus: true, threadID: activeThread } ] },
+    return viewer.sessionID;
+  })();
+
+  const threadStorePromise = (async () => {
+    const { threadInfos } = await threadInfoPromise;
+    return { threadInfos, inconsistencyResponses: [] };
+  })();
+  const messageStorePromise = (async () => {
+    const [
+      { threadInfos },
+      { rawMessageInfos, truncationStatuses },
+    ] = await Promise.all([ threadInfoPromise, messageInfoPromise ] );
+    return freshMessageStore(
+      rawMessageInfos,
+      truncationStatuses,
+      mostRecentMessageTimestamp(rawMessageInfos, initialTime),
+      threadInfos,
     );
-  }
+  })();
+  const entryStorePromise = (async () => {
+    const { rawEntryInfos } = await entryInfoPromise;
+    return {
+      entryInfos: _keyBy('id')(rawEntryInfos),
+      daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
+      lastUserInteractionCalendar: initialTime,
+      inconsistencyResponses: [],
+    };
+  })();
+  const userInfoPromise = (async () => {
+    const [
+      { userInfos: threadUserInfos },
+      { userInfos: messageUserInfos },
+      { userInfos: entryUserInfos },
+    ] = await Promise.all([
+      threadInfoPromise,
+      messageInfoPromise,
+      entryInfoPromise,
+    ]);
+    return {
+      ...messageUserInfos,
+      ...entryUserInfos,
+      ...threadUserInfos,
+    };
+  })();
 
-  const baseURL = basePath.replace(/\/$/, '');
-  const store: Store<AppState, Action> = createStore(
-    reducer,
-    ({
-      navInfo,
-      currentUserInfo,
-      sessionID: viewer.sessionID,
-      serverVerificationResult: verificationResult,
-      entryStore: {
-        entryInfos: _keyBy('id')(rawEntryInfos),
-        daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
-        lastUserInteractionCalendar: initialTime,
-        inconsistencyResponses: [],
-      },
-      threadStore: {
-        threadInfos,
-        inconsistencyResponses: [],
-      },
-      userInfos: {
-        ...messageUserInfos,
-        ...entryUserInfos,
-        ...threadUserInfos,
-      },
-      messageStore,
-      updatesCurrentAsOf: initialTime,
-      loadingStatuses: {},
-      calendarFilters: defaultCalendarFilters,
-      // We can use paths local to the <base href> on web
-      urlPrefix: "",
-      windowDimensions: { width: 0, height: 0 },
-      baseHref: baseDomain + baseURL,
-      connection: {
-        ...defaultConnectionInfo("web", viewer.timeZone),
-        actualizedCalendarQuery: calendarQuery,
-      },
-      watchedThreadIDs: [],
-      foreground: true,
-      nextLocalID: 0,
-      timeZone: viewer.timeZone,
-      userAgent: viewer.userAgent,
-    }: AppState),
-  );
-  const routerContext = {};
-  const reactStream = renderToNodeStream(
-    <Provider store={store}>
-      <StaticRouter
-        location={req.url}
-        basename={baseURL}
-        context={routerContext}
-      >
-        <Route path="*" component={App.default} />
-      </StaticRouter>
-    </Provider>,
-  );
-  if (routerContext.url) {
-    throw new ServerError("URL modified during server render!");
-  }
+  const navInfoPromise = (async () => {
+    const [ { threadInfos }, messageStore ] = await Promise.all([
+      threadInfoPromise,
+      messageStorePromise,
+    ]);
+    let finalNavInfo = initialNavInfo;
 
-  const state = store.getState();
-  const filteredState = { ...state, timeZone: null, userAgent: null };
-  const stringifiedState =
-    JSON.stringify(filteredState).replace(/</g, '\\u003c');
+    const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
+    if (
+      requestedActiveChatThreadID &&
+      !threadHasPermission(
+        threadInfos[requestedActiveChatThreadID],
+        threadPermissions.VISIBLE,
+      )
+    ) {
+      finalNavInfo.activeChatThreadID = null;
+    }
+
+    if (!finalNavInfo.activeChatThreadID) {
+      const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);
+      if (mostRecentThread) {
+        finalNavInfo.activeChatThreadID = mostRecentThread;
+      }
+    }
+
+    return finalNavInfo;
+  })();
+
+
+  const updateActivityPromise = (async () => {
+    const [ navInfo ] = await Promise.all([ navInfoPromise, sessionIDPromise ]);
+    const activeThread = activeThreadFromNavInfo(navInfo);
+    if (activeThread) {
+      await activityUpdater(
+        viewer,
+        { updates: [ { focus: true, threadID: activeThread } ] },
+      );
+    }
+  })();
+
+  const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
   res.write(html`
     <!DOCTYPE html>
@@ -246,6 +243,42 @@ async function websiteResponder(
         <meta name="application-name" content="SquadCal" />
         <meta name="msapplication-TileColor" content="#b91d47" />
         <meta name="theme-color" content="#b91d47" />
+  `);
+
+  const statePromises = {
+    navInfo: navInfoPromise,
+    currentUserInfo: currentUserInfoPromise,
+    sessionID: sessionIDPromise,
+    serverVerificationResult: serverVerificationResultPromise,
+    entryStore: entryStorePromise,
+    threadStore: threadStorePromise,
+    userInfos: userInfoPromise,
+    messageStore: messageStorePromise,
+    updatesCurrentAsOf: initialTime,
+    loadingStatuses: {},
+    calendarFilters: defaultCalendarFilters,
+    // We can use paths local to the <base href> on web
+    urlPrefix: "",
+    windowDimensions: { width: 0, height: 0 },
+    baseHref,
+    connection: {
+      ...defaultConnectionInfo("web", viewer.timeZone),
+      actualizedCalendarQuery: calendarQuery,
+    },
+    watchedThreadIDs: [],
+    foreground: true,
+    nextLocalID: 0,
+    timeZone: viewer.timeZone,
+    userAgent: viewer.userAgent,
+    cookie: undefined,
+    deviceToken: undefined,
+  };
+  const state = await promiseAll(statePromises);
+
+  const filteredState = { ...state, timeZone: null, userAgent: null };
+  const stringifiedState =
+    JSON.stringify(filteredState).replace(/</g, '\\u003c');
+  res.write(html`
         <script>
           var preloadedState = ${stringifiedState};
           var baseURL = "${baseURL}";
@@ -254,7 +287,27 @@ async function websiteResponder(
       <body>
         <div id="react-root">
   `);
+
+  await updateActivityPromise;
+
+  const store: Store<AppState, Action> = createStore(reducer, state);
+  const routerContext = {};
+  const reactStream = renderToNodeStream(
+    <Provider store={store}>
+      <StaticRouter
+        location={req.url}
+        basename={baseURL}
+        context={routerContext}
+      >
+        <Route path="*" component={App.default} />
+      </StaticRouter>
+    </Provider>,
+  );
+  if (routerContext.url) {
+    throw new ServerError("URL modified during server render!");
+  }
   reactStream.pipe(res, { end: false });
+
   reactStream.on('end', () => {
     res.end(html`
           </div>
