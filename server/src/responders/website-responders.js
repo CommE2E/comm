@@ -45,6 +45,8 @@ import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
 import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
+import { streamJSON, waitForStream } from '../utils/json-stream';
+import { handleAsyncPromise } from '../responders/handlers';
 
 const { basePath, baseDomain } = urlFacts;
 const { renderToNodeStream } = ReactDOMServer;
@@ -243,6 +245,8 @@ async function websiteResponder(
         <meta name="application-name" content="SquadCal" />
         <meta name="msapplication-TileColor" content="#b91d47" />
         <meta name="theme-color" content="#b91d47" />
+        <script>
+          var preloadedState =
   `);
 
   const statePromises = {
@@ -273,23 +277,24 @@ async function websiteResponder(
     cookie: undefined,
     deviceToken: undefined,
   };
-  const state = await promiseAll(statePromises);
 
-  const filteredState = { ...state, timeZone: null, userAgent: null };
-  const stringifiedState =
-    JSON.stringify(filteredState).replace(/</g, '\\u003c');
+  const filteredStatePromises = {
+    ...statePromises,
+    timeZone: null,
+    userAgent: null,
+  };
+  const jsonStream = streamJSON(res, filteredStatePromises);
+  await waitForStream(jsonStream);
   res.write(html`
-        <script>
-          var preloadedState = ${stringifiedState};
-          var baseURL = "${baseURL}";
-        </script>
-      </head>
-      <body>
-        <div id="react-root">
+;
+        var baseURL = "${baseURL}";
+      </script>
+    </head>
+    <body>
+      <div id="react-root">
   `);
 
-  await updateActivityPromise;
-
+  const state = await promiseAll(statePromises);
   const store: Store<AppState, Action> = createStore(reducer, state);
   const routerContext = {};
   const reactStream = renderToNodeStream(
@@ -307,15 +312,16 @@ async function websiteResponder(
     throw new ServerError("URL modified during server render!");
   }
   reactStream.pipe(res, { end: false });
+  await waitForStream(reactStream);
 
-  reactStream.on('end', () => {
-    res.end(html`
-          </div>
-          <script src="${jsURL}"></script>
-        </body>
-      </html>
-    `);
-  });
+  res.end(html`
+        </div>
+        <script src="${jsURL}"></script>
+      </body>
+    </html>
+  `);
+
+  handleAsyncPromise(updateActivityPromise);
 }
 
 async function handleVerificationRequest(

@@ -32,6 +32,7 @@
     "nodemon": "^1.19.3"
   },
   "dependencies": {
+    "JSONStream": "^1.3.5",
     "apn": "^2.2.0",
     "buffer-image-size": "^0.6.4",
     "common-tags": "^1.7.2",
@@ -55,9 +56,11 @@
     "react-router": "^5.1.2",
     "redis": "^2.8.0",
     "redux": "^4.0.4",
+    "replacestream": "^4.0.3",
     "sharp": "^0.23.1",
     "sql-template-strings": "^2.2.2",
     "stream-cache": "^0.0.2",
+    "stream-combiner": "^0.2.2",
     "tcomb": "^3.2.24",
     "twin-bcrypt": "^2.1.1",
     "uuid": "^3.3.3",
