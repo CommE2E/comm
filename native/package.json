@@ -3,12 +3,33 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  "license" : "BSD-3-Clause",
   "scripts": {
-    "postinstall": "node link-workspaces.js && cd ../ && patch-package && npx flow-mono create-symlinks native/.flowconfig && cd native && npx jetify",
+    "clean": "rm -rf ios/Pods/ && rm -rf node_modules/",
+    "postinstall": "cd ../ && patch-package && flow-mono create-symlinks native && cd native && jetify && cd ios && (pod install || true)",
     "dev": "react-native start",
     "test": "jest",
     "lint": "eslint .",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/runtime": "^7.6.2",
+    "@react-native-community/eslint-config": "^0.0.5",
+    "babel-jest": "^24.9.0",
+    "babel-plugin-transform-remove-console": "^6.8.5",
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "eslint": "^6.4.0",
+    "flow-bin": "^0.98.0",
+    "flow-mono-cli": "^1.5.0",
+    "fs-extra": "^8.1.0",
+    "get-yarn-workspaces": "^1.0.2",
+    "jest": "^24.9.0",
+    "jetifier": "^1.6.4",
+    "metro-react-native-babel-preset": "^0.56.0",
+    "patch-package": "^6.1.2",
+    "postinstall-postinstall": "^2.0.0",
+    "react-test-renderer": "16.8.6"
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.6.1",
@@ -57,24 +78,6 @@
     "reselect": "^4.0.0",
     "shallowequal": "^1.0.2",
     "tinycolor2": "^1.4.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/runtime": "^7.6.2",
-    "@react-native-community/eslint-config": "^0.0.5",
-    "babel-jest": "^24.9.0",
-    "babel-plugin-transform-remove-console": "^6.8.5",
-    "babel-plugin-transform-remove-strict-mode": "0.0.2",
-    "eslint": "^6.4.0",
-    "flow-bin": "^0.98.0",
-    "flow-mono-cli": "^1.5.0",
-    "fs-extra": "^8.1.0",
-    "get-yarn-workspaces": "^1.0.2",
-    "jest": "^24.9.0",
-    "jetifier": "^1.6.4",
-    "metro-react-native-babel-preset": "^0.56.0",
-    "postinstall-postinstall": "^2.0.0",
-    "react-test-renderer": "16.8.6"
   },
   "jest": {
     "preset": "react-native"

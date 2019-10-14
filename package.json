@@ -1,18 +1,14 @@
 {
   "private": true,
+  "license" : "BSD-3-Clause",
   "workspaces": [
     "lib",
     "web",
     "native",
     "server"
   ],
-  "devDependencies": {
-    "patch-package": "^6.1.2",
-    "postinstall-postinstall": "^2.0.0"
-  },
   "scripts": {
-    "clean": "rm -rf node_modules/ && rm -rf lib/node_modules/ && rm -rf web/node_modules/ && rm -rf native/node_modules/ && rm -rf server/node_modules/ && rm -rf web/dist/ && rm -rf server/dist/ && mkdir server/dist && rm -rf native/ios/Pods",
-    "cleaninstall": "npm run clean && yarn && cd native/ios && (pod install || true)",
-    "postinstall": "patch-package"
+    "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace server clean && rm -rf node_modules/",
+    "cleaninstall": "yarn clean && yarn"
   }
 }
