@@ -11,10 +11,10 @@
     "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --exclude '*.*' src/ dist/",
     "prod-build": "yarn babel-build && yarn rsync && yarn update-geoip",
     "update-geoip": "cd ../node_modules/geoip-lite && yarn updatedb",
-    "prod": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server",
+    "prod": "node --experimental-modules --experimental-json-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server",
     "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
-    "dev": "NODE_ENV=dev yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build -- --watch\" \"yarn dev-rsync\" \"nodemon -e js,json,cjs --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
-    "script": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node"
+    "dev": "NODE_ENV=dev yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build -- --watch\" \"yarn dev-rsync\" \"nodemon -e js,json,cjs --watch dist --experimental-modules --experimental-json-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
+    "script": "node --experimental-modules --experimental-json-modules --loader ./loader.mjs --es-module-specifier-resolution node"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
