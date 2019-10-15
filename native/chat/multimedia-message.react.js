@@ -156,6 +156,7 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   // withLightboxPositionContext
   lightboxPosition: ?Animated.Value,
+  ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
 
@@ -169,12 +170,22 @@ class MultimediaMessage extends React.PureComponent<Props> {
   };
 
   render() {
-    const heightStyle = { height: this.props.item.contentHeight };
+    const {
+      item,
+      navigation,
+      focused,
+      toggleFocus,
+      verticalBounds,
+      lightboxPosition,
+      ...viewProps
+    } = this.props;
+    const heightStyle = { height: item.contentHeight };
     return (
       <ComposedMessage
-        item={this.props.item}
-        sendFailed={sendFailed(this.props.item)}
-        focused={this.props.focused}
+        item={item}
+        sendFailed={sendFailed(item)}
+        focused={focused}
+        {...viewProps}
       >
         <View style={[heightStyle, styles.container]}>
           {this.renderContent()}

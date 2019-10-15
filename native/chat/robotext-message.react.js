@@ -53,6 +53,7 @@ type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
 
@@ -63,14 +64,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   };
 
   render() {
+    const { item, focused, toggleFocus, ...viewProps } = this.props;
     let timestamp = null;
-    if (this.props.focused || this.props.item.startsConversation) {
+    if (focused || item.startsConversation) {
       timestamp = (
-        <Timestamp time={this.props.item.messageInfo.time} color="dark" />
+        <Timestamp time={item.messageInfo.time} color="dark" />
       );
     }
     return (
-      <View>
+      <View {...viewProps}>
         {timestamp}
         <TouchableWithoutFeedback onPress={this.onPress}>
           {this.linkedRobotext()}

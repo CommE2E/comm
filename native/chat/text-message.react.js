@@ -83,6 +83,7 @@ type Props = {|
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  ...React.ElementProps<typeof View>,
 |};
 class TextMessage extends React.PureComponent<Props> {
 
@@ -98,7 +99,16 @@ class TextMessage extends React.PureComponent<Props> {
   message: ?View;
 
   render() {
-    const { item } = this.props;
+    const {
+      item,
+      navigation,
+      focused,
+      toggleFocus,
+      verticalBounds,
+      overlayableScrollViewState,
+      keyboardState,
+      ...viewProps
+    } = this.props;
     const { id, creator } = item.messageInfo;
     const { isViewer } = creator;
     const sendFailed =
@@ -109,12 +119,13 @@ class TextMessage extends React.PureComponent<Props> {
 
     return (
       <ComposedMessage
-        item={this.props.item}
+        item={item}
         sendFailed={!!sendFailed}
-        focused={this.props.focused}
+        focused={focused}
+        {...viewProps}
       >
         <InnerTextMessage
-          item={this.props.item}
+          item={item}
           onPress={this.onPress}
           messageRef={this.messageRef}
         />

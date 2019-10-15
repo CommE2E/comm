@@ -23,6 +23,7 @@ type Props = {|
   children: React.Node,
   // Redux state
   composedMessageMaxWidth: number,
+  ...React.ElementProps<typeof View>,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
 
@@ -36,7 +37,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { item, focused } = this.props;
+    const { item, focused, sendFailed, children, ...viewProps } = this.props;
     const { id, creator } = item.messageInfo;
 
     const { isViewer } = creator;
@@ -58,7 +59,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       let deliveryIconColor = item.threadInfo.color;
       if (id !== null && id !== undefined) {
         deliveryIconName = "check-circle";
-      } else if (this.props.sendFailed) {
+      } else if (sendFailed) {
         deliveryIconName = "x-circle";
         deliveryIconColor = "FF0000";
         failedSendInfo = <FailedSend item={item} />;
@@ -76,12 +77,12 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     return (
-      <View>
+      <View {...viewProps}>
         <MessageHeader item={item} focused={focused} color="dark" />
         <View style={containerStyle}>
           <View style={[ styles.content, alignStyle ]}>
             <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
-              {this.props.children}
+              {children}
             </View>
             {deliveryIcon}
           </View>
