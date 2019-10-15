@@ -16,7 +16,7 @@ DAEMON_USER=squadcal
 GIT_CLONE_PARAMS=https://github.com/Ashoat/squadcal.git
 
 set -e
-[[ `whoami` = root ]] || exec sudo su -c $0
+[[ `whoami` = root ]] || exec sudo su -c "$0 $1"
 
 # STEP 1: clone source into new directory
 CHECKOUT_PATH=$1.$(date +%F-%H:%I)
@@ -25,6 +25,7 @@ mkdir -p "$CHECKOUT_PATH"
 chown $DAEMON_USER:$DAEMON_USER "$CHECKOUT_PATH"
 su $DAEMON_USER -c "git clone $GIT_CLONE_PARAMS '$CHECKOUT_PATH'"
 cd "$CHECKOUT_PATH"
+su $DAEMON_USER -c "cp -r '$1'/server/secrets '$CHECKOUT_PATH'/server/secrets"
 su $DAEMON_USER -c "server/bash/setup.sh"
 
 # STEP 2: test if the binary crashes within 60 seconds
