@@ -6,7 +6,7 @@
   "license" : "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf node_modules/",
-    "flow": "flow; test $? -eq 0 -o $? -eq 2"
+    "flow": "yarn flow; test $? -eq 0 -o $? -eq 2"
   },
   "devDependencies": {
     "flow-bin": "^0.98.0"

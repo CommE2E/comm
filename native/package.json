@@ -6,10 +6,10 @@
   "license" : "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf ios/Pods/ && rm -rf node_modules/",
-    "postinstall": "cd ../ && patch-package && flow-mono create-symlinks native && cd native && jetify && cd ios && (pod install || true)",
-    "dev": "react-native start",
-    "test": "jest",
-    "lint": "eslint .",
+    "postinstall": "cd ../ && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && cd ios && (pod install || true)",
+    "dev": "yarn react-native start",
+    "test": "yarn jest",
+    "lint": "yarn eslint .",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "devDependencies": {

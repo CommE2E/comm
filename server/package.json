@@ -7,14 +7,14 @@
   "main": "dist/server",
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/ && mkdir dist",
-    "babel": "babel src/ --out-dir dist/ --config-file ./.babelrc --verbose --ignore 'src/lib/flow-typed','src/lib/node_modules','src/lib/package.json','src/web/flow-typed','src/web/node_modules','src/web/package.json','src/web/dist','src/web/webpack.config.js','src/web/account-bar.react.js','src/web/app.react.js','src/web/calendar','src/web/chat','src/web/flow','src/web/loading-indicator.react.js','src/web/modals','src/web/root.js','src/web/router-history.js','src/web/script.js','src/web/selectors/chat-selectors.js','src/web/selectors/entry-selectors.js','src/web/splash','src/web/vector-utils.js','src/web/vectors.react.js'",
+    "babel-build": "yarn --silent babel src/ --out-dir dist/ --config-file ./.babelrc --verbose --ignore 'src/lib/flow-typed','src/lib/node_modules','src/lib/package.json','src/web/flow-typed','src/web/node_modules','src/web/package.json','src/web/dist','src/web/webpack.config.js','src/web/account-bar.react.js','src/web/app.react.js','src/web/calendar','src/web/chat','src/web/flow','src/web/loading-indicator.react.js','src/web/modals','src/web/root.js','src/web/router-history.js','src/web/script.js','src/web/selectors/chat-selectors.js','src/web/selectors/entry-selectors.js','src/web/splash','src/web/vector-utils.js','src/web/vectors.react.js'",
     "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --exclude '*.*' src/ dist/",
-    "prod-build": "yarn babel && yarn rsync && yarn update-geoip",
+    "prod-build": "yarn babel-build && yarn rsync && yarn update-geoip",
     "update-geoip": "cd ../node_modules/geoip-lite && yarn updatedb",
     "prod": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server",
-    "dev-rsync": "chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
-    "dev": "NODE_ENV=dev concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel -- --watch\" \"yarn dev-rsync\" \"nodemon -e js,json,cjs --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
-    "script": "node --experimental-modules --loader ./loader.mjs"
+    "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
+    "dev": "NODE_ENV=dev yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build -- --watch\" \"yarn dev-rsync\" \"nodemon -e js,json,cjs --watch dist --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node dist/server\"",
+    "script": "node --experimental-modules --loader ./loader.mjs --es-module-specifier-resolution node"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
