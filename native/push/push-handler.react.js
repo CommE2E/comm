@@ -30,6 +30,7 @@ import {
   Platform,
   AppState as NativeAppState,
   Alert,
+  Vibration,
 } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
@@ -261,6 +262,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.state.inAppNotifProps &&
       this.state.inAppNotifProps !== prevState.inAppNotifProps
     ) {
+      Vibration.vibrate(400);
       InAppNotification.show();
     }
   }
