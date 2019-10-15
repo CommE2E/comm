@@ -24,8 +24,9 @@ rm -rf "$CHECKOUT_PATH" # badass. risky
 mkdir -p "$CHECKOUT_PATH"
 chown $DAEMON_USER:$DAEMON_USER "$CHECKOUT_PATH"
 su $DAEMON_USER -c "git clone $GIT_CLONE_PARAMS '$CHECKOUT_PATH'"
-cd "$CHECKOUT_PATH"
 su $DAEMON_USER -c "cp -r '$1'/server/secrets '$CHECKOUT_PATH'/server/secrets"
+su $DAEMON_USER -c "cp -r '$1'/server/facts '$CHECKOUT_PATH'/server/facts"
+cd "$CHECKOUT_PATH"
 su $DAEMON_USER -c "server/bash/setup.sh"
 
 # STEP 2: test if the binary crashes within 60 seconds
