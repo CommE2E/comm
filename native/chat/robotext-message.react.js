@@ -8,6 +8,11 @@ import {
   messageTypeIsRobotext,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../navigation/keyboard-state';
 
 import * as React from 'react';
 import {
@@ -53,6 +58,8 @@ type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
   focused: bool,
   toggleFocus: (messageKey: string) => void,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -61,10 +68,17 @@ class RobotextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
+    keyboardState: keyboardStatePropType,
   };
 
   render() {
-    const { item, focused, toggleFocus, ...viewProps } = this.props;
+    const {
+      item,
+      focused,
+      toggleFocus,
+      keyboardState,
+      ...viewProps
+    } = this.props;
     let timestamp = null;
     if (focused || item.startsConversation) {
       timestamp = (
@@ -113,10 +127,17 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    const { keyboardState } = this.props;
+    const didDismiss = keyboardState &&
+      keyboardState.dismissKeyboardIfShowing();
+    if (!didDismiss) {
+      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+    }
   }
 
 }
+
+const WrappedRobotextMessage = withKeyboardState(RobotextMessage);
 
 type InnerThreadEntityProps = {
   id: string,
@@ -183,6 +204,6 @@ const styles = StyleSheet.create({
 });
 
 export {
-  RobotextMessage,
+  WrappedRobotextMessage as RobotextMessage,
   robotextMessageItemHeight,
 };
