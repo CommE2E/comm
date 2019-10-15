@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# run as: ssh user on root wheel
+# run from: wherever
+# param: path to link to
+
+# The maximum amount of space to spend on checkouts. By default we leave around
+# old deployments in case we want to roll back. The limit includes the current
+# prod checkout, but will never delete prod.
+MAX_DISK_USAGE_KB=3145728 # 3 GiB
+
+# The user that spawns the Node server
+DAEMON_USER=squadcal
+
+# Input to git clone
+GIT_CLONE_PARAMS=https://github.com/Ashoat/squadcal.git
+
+set -e
+[[ `whoami` = root ]] || exec sudo su -c $0
+
+# STEP 1: clone source into new directory
+CHECKOUT_PATH=$1.$(date +%F-%H:%I)
+rm -rf "$CHECKOUT_PATH" # badass. risky
+mkdir -p "$CHECKOUT_PATH"
+chown $DAEMON_USER:$DAEMON_USER "$CHECKOUT_PATH"
+su $DAEMON_USER -c "git clone $GIT_CLONE_PARAMS '$CHECKOUT_PATH'"
+cd "$CHECKOUT_PATH"
+su $DAEMON_USER -c "server/bash/setup.sh"
+
+# STEP 2: test if the binary crashes within 60 seconds
+set +e
+su $DAEMON_USER -c "cd server && PORT=3001 timeout 60 bash/run-nvm.sh"
+[[ $? -eq 124 ]] || exit 1
+set -e
+
+# STEP 3: flip it over
+systemctl stop squadcal || true
+rm "$1"
+ln -s "$CHECKOUT_PATH" "$1"
+chown -h $DAEMON_USER:$DAEMON_USER "$1"
+systemctl restart squadcal
+
+# STEP 4: clean out old checkouts
+checkouts=($(ls -dtr "$1".*))
+for checkout in "${checkouts[@]}"; do
+  if [[ "$checkout" = "$CHECKOUT_PATH" ]]; then
+    break
+  fi
+  TOTAL_USAGE=$(sudo du -cs $1* | grep total | awk '{ print $1 }')
+  if [[ $TOTAL_USAGE -le $MAX_DISK_USAGE_KB ]]; then
+    break
+  fi
+  rm -rf "$checkout"
+done
