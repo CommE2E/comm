@@ -22,6 +22,7 @@ import invariant from 'invariant';
 import { Provider } from 'react-redux';
 import CameraRoll from '@react-native-community/cameraroll';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 import { mimeTypesToMediaTypes } from 'lib/utils/file-utils';
@@ -42,6 +43,7 @@ const animationSpec = {
 type Props = {|
   // Redux state
   screenDimensions: Dimensions,
+  foreground: bool,
 |};
 type State = {|
   imageInfos: ?$ReadOnlyArray<GalleryImageInfo>,
@@ -57,6 +59,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
   static propTypes = {
     screenDimensions: dimensionsPropType.isRequired,
+    foreground: PropTypes.bool.isRequired,
   };
   mounted = false;
   fetchingPhotos = false;
@@ -65,6 +68,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   imagesSelected = false;
+  androidPermissionsGranted: bool | void;
 
   constructor(props: Props) {
     super(props);
@@ -126,6 +130,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 
     const { flatList, viewableIndices } = this;
     const { imageInfos, focusedImageURI } = this.state;
+    let scrollingSomewhere = false;
     if (flatList && imageInfos) {
       let newURI;
       if (focusedImageURI && focusedImageURI !== prevState.focusedImageURI) {
@@ -149,11 +154,29 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       }
       if (index !== null && index !== undefined) {
         if (index === viewableIndices[0]) {
+          scrollingSomewhere = true;
           flatList.scrollToIndex({ index });
         } else if (index === viewableIndices[viewableIndices.length - 1]) {
+          scrollingSomewhere = true;
           flatList.scrollToIndex({ index, viewPosition: 1 });
         }
       }
+    }
+
+    if (this.props.foreground && !prevProps.foreground) {
+      this.fetchPhotos();
+    }
+
+    if (
+      !scrollingSomewhere &&
+      this.flatList &&
+      this.state.imageInfos &&
+      prevState.imageInfos &&
+      this.state.imageInfos.length > 0 &&
+      prevState.imageInfos.length > 0 &&
+      this.state.imageInfos[0].uri !== prevState.imageInfos[0].uri
+    ) {
+      this.flatList.scrollToIndex({ index: 0 });
     }
   }
 
@@ -192,32 +215,54 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       const { edges, page_info } = await CameraRoll.getPhotos(
         ImageGalleryKeyboard.getPhotosQuery(after),
       );
+
+      let firstRemoved = false, lastRemoved = false;
+
       const imageURIs = this.state.imageInfos
         ? this.state.imageInfos.map(({ uri }) => uri)
         : [];
       const existingURIs = new Set(imageURIs);
+      let first = true;
       const imageInfos = edges.map(
         ({ node }) => {
           const { uri, height, width } = node.image;
           if (existingURIs.has(uri)) {
+            if (first) {
+              firstRemoved = true;
+            }
+            lastRemoved = true;
+            first = false;
             return null;
           }
+          first = false;
+          lastRemoved = false;
           existingURIs.add(uri);
           return { uri, height, width };
         },
       ).filter(Boolean);
-      this.guardedSetState((prevState: State) => {
-        const updatedImageInfos = prevState.imageInfos
-          ? [ ...prevState.imageInfos, ...imageInfos ]
-          : imageInfos;
-        const cursor = page_info.has_next_page
+
+      let appendOrPrepend = after ? "append" : "prepend";
+      if (firstRemoved && !lastRemoved) {
+        appendOrPrepend = "append";
+      } else if (!firstRemoved && lastRemoved) {
+        appendOrPrepend = "prepend";
+      }
+
+      let newImageInfos = imageInfos;
+      if (this.state.imageInfos) {
+        if (appendOrPrepend === "prepend") {
+          newImageInfos = [ ...newImageInfos, ...this.state.imageInfos ];
+        } else {
+          newImageInfos = [ ...this.state.imageInfos, ...newImageInfos ];
+        }
+      }
+
+      this.guardedSetState({
+        imageInfos: newImageInfos,
+        error: null,
+        cursor: page_info.has_next_page
           ? page_info.end_cursor
-          : null;
-        return {
-          imageInfos: updatedImageInfos,
-          error: null,
-          cursor,
-        };
+          : null,
       });
     } catch (e) {
       this.guardedSetState({
@@ -228,7 +273,10 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     this.fetchingPhotos = false;
   }
 
-  async getAndroidPermissions() {
+  async getAndroidPermissions(): Promise<bool> {
+    if (this.androidPermissionsGranted !== undefined) {
+      return this.androidPermissionsGranted;
+    }
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
@@ -240,11 +288,12 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
         throw new Error('android_permissions');
       }
-      return true;
+      this.androidPermissionsGranted = true;
     } catch (err) {
       this.guardedSetState({ error: "don't have permissions :(" });
-      return false;
+      this.androidPermissionsGranted = false;
     }
+    return this.androidPermissionsGranted;
   }
 
   get queueModeActive() {
@@ -500,7 +549,8 @@ const styles = StyleSheet.create({
 
 const ReduxConnectedImageGalleryKeyboard = connect(
   (state: AppState) => ({
-    screenDimensions: dimensionsSelector(state)
+    screenDimensions: dimensionsSelector(state),
+    foreground: state.foreground,
   }),
 )(ImageGalleryKeyboard);
 
