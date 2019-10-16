@@ -4,6 +4,7 @@ import type {
   NavigationState,
   NavigationAction,
 } from 'react-navigation';
+import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
@@ -58,6 +59,7 @@ type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 type Props = {
   // Redux state
   navigationState: NavigationState,
+  activeTheme: ?GlobalTheme,
   // Redux dispatch functions
   dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
@@ -69,6 +71,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigationState: PropTypes.object.isRequired,
+    activeTheme: globalThemePropType,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -128,6 +131,9 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   render() {
     const { detectUnsupervisedBackground } = this.state;
+    const reactNavigationTheme = this.props.activeTheme
+      ? this.props.activeTheme
+      : 'no-preference';
     return (
       <View style={styles.app}>
         <Socket
@@ -136,6 +142,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
         <ReduxifiedRootNavigator
           state={this.props.navigationState}
           dispatch={this.props.dispatch}
+          theme={reactNavigationTheme}
         />
         <ConnectedStatusBar barStyle={defaultStatusBarStyle} />
         <DisconnectedBarVisibilityHandler />
@@ -166,6 +173,7 @@ const styles = StyleSheet.create({
 const ConnectedAppWithNavigationState = connect(
   (state: AppState) => ({
     navigationState: state.navInfo.navigationState,
+    activeTheme: state.globalThemeInfo.activeTheme,
   }),
   null,
   true,

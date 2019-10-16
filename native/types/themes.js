@@ -12,9 +12,11 @@ export type GlobalThemeInfo = {|
   preference: GlobalThemePreference,
 |};
 
+export const globalThemePropType = PropTypes.oneOf([ 'light', 'dark' ]);
+
 export const globalThemeInfoPropType = PropTypes.shape({
-  activeTheme: PropTypes.oneOf([ 'light', 'dark' ]),
-  systemTheme: PropTypes.oneOf([ 'light', 'dark' ]),
+  activeTheme: globalThemePropType,
+  systemTheme: globalThemePropType,
   preference: PropTypes.oneOf([ 'light', 'dark', 'system' ]).isRequired,
 });
 
