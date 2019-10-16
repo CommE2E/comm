@@ -1,19 +1,39 @@
 // @flow
 
+import type { GlobalTheme } from '../types/themes';
+
 import * as React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 
 type Props = {|
   title: ?string,
   message: string,
+  activeTheme: ?GlobalTheme,
 |};
 function InAppNotif(props: Props) {
-  const title = props.title
-    ? <Text style={styles.title}>{props.title}{"\n"}</Text>
-    : null;
+  const useLightStyle = Platform.OS === "ios" && props.activeTheme !== 'dark';
+
+  let title = null;
+  if (props.title) {
+    const titleStyles = [
+      styles.title,
+      useLightStyle ? styles.lightTitle : null,
+    ];
+    title = (
+      <Text style={titleStyles} numberOfLines={1}>
+        {props.title}
+        {"\n"}
+      </Text>
+    );
+  }
+
+  const textStyles = [
+    styles.text,
+    useLightStyle ? styles.lightText : null,
+  ];
   return (
     <View style={styles.notif}>
-      <Text style={styles.text}>
+      <Text style={textStyles}>
         {title}
         {props.message}
       </Text>
@@ -44,9 +64,15 @@ const styles = StyleSheet.create({
     }),
     marginHorizontal: 10,
   },
+  lightText: {
+    color: 'white',
+  },
   title: {
     color: 'black',
     fontWeight: 'bold',
+  },
+  lightTitle: {
+    color: 'white',
   },
 });
 

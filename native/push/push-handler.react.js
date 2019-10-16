@@ -22,6 +22,7 @@ import type {
   RemoteMessage,
   NotificationOpen,
 } from 'react-native-firebase';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -86,6 +87,7 @@ type Props = {
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   updatesCurrentAsOf: number,
+  activeTheme: ?GlobalTheme,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -98,6 +100,7 @@ type Props = {
 type State = {|
   inAppNotifProps: ?{|
     customComponent: React.Node,
+    blurType: ?('xlight' | 'dark'),
     onPress: () => void,
   |};
 |};
@@ -114,6 +117,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     connection: connectionInfoPropType.isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
+    activeTheme: globalThemePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
@@ -522,7 +526,14 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
     this.setState({
       inAppNotifProps: {
-        customComponent: <InAppNotif title={title} message={message} />,
+        customComponent: (
+          <InAppNotif
+            title={title}
+            message={message}
+            activeTheme={this.props.activeTheme}
+          />
+        ),
+        blurType: this.props.activeTheme === 'dark' ? 'xlight' : 'dark',
         onPress: () => {
           InAppNotification.hide();
           this.onPressNotificationForThread(threadID, false);
@@ -583,6 +594,7 @@ export default connect(
     notifPermissionAlertInfo: state.notifPermissionAlertInfo,
     connection: state.connection,
     updatesCurrentAsOf: state.updatesCurrentAsOf,
+    activeTheme: state.globalThemeInfo.activeTheme,
   }),
   { setDeviceToken },
 )(PushHandler);
