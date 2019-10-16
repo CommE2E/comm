@@ -6,7 +6,6 @@ import type {
 } from 'react-navigation';
 
 import * as React from 'react';
-import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import ChatThreadList from './chat-thread-list.react';
@@ -16,7 +15,6 @@ import ThreadSettings from './settings/thread-settings.react';
 import { getChatScreen } from './chat-screen-registry';
 import DeleteThread from './settings/delete-thread.react';
 import ChatIcon from './chat-icon.react';
-import ChatLabel from './chat-label.react';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
@@ -44,9 +42,6 @@ const ChatNavigator = createStackNavigator(
   },
 );
 ChatNavigator.navigationOptions = ({ navigation }) => ({
-  tabBarLabel: Platform.OS === "android"
-    ? ({ tintColor }) => <ChatLabel color={tintColor} />
-    : "Chat",
   tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
   tabBarOnPress: ({ navigation, defaultHandler }: {
     navigation: NavigationScreenProp<NavigationStateRoute>,

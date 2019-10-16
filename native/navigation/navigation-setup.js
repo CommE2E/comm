@@ -24,10 +24,7 @@ import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
 import { NavigationActions } from 'react-navigation';
-import {
-  createBottomTabNavigator,
-  createMaterialTopTabNavigator,
-} from 'react-navigation-tabs';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
@@ -147,41 +144,20 @@ export type Action =
   | {| type: "BACKGROUND" |}
   | {| type: "FOREGROUND" |};
 
-let TabNavigator;
-const routeConfig = {
-  [CalendarRouteName]: { screen: Calendar },
-  [ChatRouteName]: { screen: Chat },
-  [MoreRouteName]: { screen: More },
-};
-if (Platform.OS === "android") {
-  const tabBarOptions = {
-    style: {
-      backgroundColor: '#445588',
+const TabNavigator = createBottomTabNavigator(
+  {
+    [CalendarRouteName]: { screen: Calendar },
+    [ChatRouteName]: { screen: Chat },
+    [MoreRouteName]: { screen: More },
+  },
+  {
+    initialRouteName: CalendarRouteName,
+    lazy: false,
+    tabBarOptions: {
+      keyboardHidesTabBar: false,
     },
-    indicatorStyle: {
-      backgroundColor: '#AAFFCC',
-    },
-  };
-  TabNavigator = createMaterialTopTabNavigator(
-    routeConfig,
-    {
-      initialRouteName: CalendarRouteName,
-      lazy: false,
-      tabBarOptions,
-    },
-  );
-} else {
-  TabNavigator = createBottomTabNavigator(
-    routeConfig,
-    {
-      initialRouteName: CalendarRouteName,
-      lazy: false,
-      tabBarOptions: {
-        keyboardHidesTabBar: false,
-      },
-    },
-  );
-}
+  },
+);
 
 const AppNavigator = createLightboxNavigator(
   {
