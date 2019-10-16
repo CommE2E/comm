@@ -24,7 +24,7 @@ function yearExtractor(startDate: string, endDate: string): ?number {
   ) {
     return null;
   }
-  return parseInt(startDateResults[1]);
+  return parseInt(startDateResults[1], 10);
 }
 
 function yearAssertingExtractor(startDate: string, endDate: string): number {
@@ -54,7 +54,7 @@ function monthExtractor(startDate: string, endDate: string): ?number {
   ) {
     return null;
   }
-  return parseInt(startDateResults[2]);
+  return parseInt(startDateResults[2], 10);
 }
 
 // 1-indexed

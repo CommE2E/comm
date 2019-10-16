@@ -405,7 +405,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
-    const uiValue = assertThreadType(parseInt(event.currentTarget.value));
+    const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
     const newValue = uiValue !== this.props.threadInfo.type
       ? uiValue
       : null;

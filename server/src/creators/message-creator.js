@@ -123,7 +123,9 @@ async function createMessages(
         text: messageData.text,
       });
     } else if (messageData.type === messageTypes.MULTIMEDIA) {
-      content = JSON.stringify(messageData.media.map(({ id }) => parseInt(id)));
+      content = JSON.stringify(messageData.media.map(
+        ({ id }) => parseInt(id, 10),
+      ));
     }
 
     const creation = messageData.localID && viewer.hasSessionInfo

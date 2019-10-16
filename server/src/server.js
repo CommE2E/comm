@@ -81,5 +81,5 @@ if (cluster.isMaster) {
   );
 
   server.use(baseRoutePath, router);
-  server.listen(parseInt(process.env.PORT) || 3000, 'localhost');
+  server.listen(parseInt(process.env.PORT, 10) || 3000, 'localhost');
 }

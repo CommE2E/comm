@@ -38,7 +38,7 @@ async function createVerificationCode(
     VALUES ${[row]}
   `;
   await dbQuery(query);
-  return `${code}${parseInt(id).toString(16)}`;
+  return `${code}${parseInt(id, 10).toString(16)}`;
 }
 
 type CodeVerification = {|

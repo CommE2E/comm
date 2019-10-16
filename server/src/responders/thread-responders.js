@@ -61,7 +61,7 @@ const roleChangeRequestInputValidator = tShape({
   role: t.refinement(
     t.String,
     str => {
-      const int = parseInt(str);
+      const int = parseInt(str, 10);
       return int == str && int > 0;
     },
   ),

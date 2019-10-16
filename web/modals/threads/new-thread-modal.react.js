@@ -228,7 +228,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
-      threadType: assertThreadType(parseInt(target.value)),
+      threadType: assertThreadType(parseInt(target.value, 10)),
     });
   }
 

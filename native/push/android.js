@@ -30,7 +30,7 @@ function handleAndroidMessage(
   const { data } = message;
   const { badge } = data;
   if (badge !== undefined && badge !== null) {
-    firebase.notifications().setBadge(parseInt(badge));
+    firebase.notifications().setBadge(parseInt(badge, 10));
   }
 
   const customNotification = data.custom_notification
