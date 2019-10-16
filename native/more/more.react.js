@@ -11,6 +11,7 @@ import EditPassword from './edit-password.react';
 import DeleteAccount from './delete-account.react';
 import BuildInfo from './build-info.react';
 import DevTools from './dev-tools.react';
+import AppearancePreferences from './appearance-preferences.react';
 import {
   MoreScreenRouteName,
   EditEmailRouteName,
@@ -18,6 +19,7 @@ import {
   DeleteAccountRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
+  AppearancePreferencesRouteName,
 } from '../navigation/route-names';
 import Header from '../navigation/header.react';
 
@@ -29,6 +31,7 @@ const More = createStackNavigator(
     [DeleteAccountRouteName]: DeleteAccount,
     [BuildInfoRouteName]: BuildInfo,
     [DevToolsRouteName]: DevTools,
+    [AppearancePreferencesRouteName]: AppearancePreferences,
   },
   {
     defaultNavigationOptions: {

@@ -45,6 +45,7 @@ import {
   DeleteAccountRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
+  AppearancePreferencesRouteName,
 } from '../navigation/route-names';
 
 type Props = {
@@ -162,6 +163,22 @@ class InnerMoreScreen extends React.PureComponent<Props> {
                 style={styles.editPasswordButton}
               />
             </View>
+          </View>
+          <Text style={styles.header}>PREFERENCES</Text>
+          <View style={styles.slightlyPaddedSection}>
+            <Button
+              onPress={this.onPressAppearance}
+              style={styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor="#EEEEEEDD"
+            >
+              <Text style={styles.submenuText}>Appearance</Text>
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color="#036AFF"
+              />
+            </Button>
           </View>
           <View style={styles.slightlyPaddedSection}>
             <Button
@@ -290,6 +307,10 @@ class InnerMoreScreen extends React.PureComponent<Props> {
 
   onPressDevTools = () => {
     this.navigateIfActive(DevToolsRouteName);
+  }
+
+  onPressAppearance = () => {
+    this.navigateIfActive(AppearancePreferencesRouteName);
   }
 
 }
