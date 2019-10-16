@@ -30,6 +30,10 @@ import {
   defaultConnectivityInfo,
 } from '../types/connectivity';
 import type { Dispatch } from 'lib/types/redux-types';
+import {
+  type GlobalThemeInfo,
+  defaultGlobalThemeInfo,
+} from '../types/themes';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -68,6 +72,7 @@ import {
   rescindAndroidNotificationActionType,
   updateDimensionsActiveType,
   updateConnectivityActiveType,
+  updateThemeInfoActionType,
 } from './action-types';
 import {
   defaultNavInfo,
@@ -118,6 +123,7 @@ export type AppState = {|
   sessionID?: void,
   dimensions: Dimensions,
   connectivity: ConnectivityInfo,
+  globalThemeInfo: GlobalThemeInfo,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -159,6 +165,7 @@ const defaultState = ({
   _persist: null,
   dimensions: { height, width },
   connectivity: defaultConnectivityInfo,
+  globalThemeInfo: defaultGlobalThemeInfo,
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
@@ -216,6 +223,14 @@ function reducer(state: AppState = defaultState, action: *) {
     return {
       ...state,
       connectivity: action.payload,
+    };
+  } else if (action.type === updateThemeInfoActionType) {
+    return {
+      ...state,
+      globalThemeInfo: {
+        ...state.globalThemeInfo,
+        ...action.payload,
+      },
     };
   }
 

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
-  "license" : "BSD-3-Clause",
+  "license": "BSD-3-Clause",
   "main": "dist/server",
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/ && mkdir dist",

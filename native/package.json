@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
-  "license" : "BSD-3-Clause",
+  "license": "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf ios/Pods/ && rm -rf node_modules/",
     "postinstall": "cd ../ && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && cd ios && (pod install || true)",
@@ -45,6 +45,7 @@
     "lottie-react-native": "^3.2.1",
     "react": "16.8.6",
     "react-native": "0.60.6",
+    "react-native-appearance": "^0.1.0",
     "react-native-exit-app": "^1.1.0",
     "react-native-fast-image": "^7.0.2",
     "react-native-firebase": "^5.5.6",

@@ -4,6 +4,7 @@ import type { AppState } from './redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { messageTypes } from 'lib/types/message-types';
+import { defaultGlobalThemeInfo } from '../types/themes';
 
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
@@ -131,6 +132,10 @@ const migrations = {
       [ messageTypes.MULTIMEDIA ],
     ),
   }),
+  [12]: (state: AppState) => ({
+    ...state,
+    globalThemeInfo: defaultGlobalThemeInfo,
+  }),
 };
 
 const persistConfig = {
@@ -138,7 +143,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
-  version: 11,
+  version: 12,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

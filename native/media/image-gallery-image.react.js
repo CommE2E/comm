@@ -11,7 +11,6 @@ import {
   View,
   Text,
   Platform,
-  TouchableWithoutFeedback,
   Animated,
   Easing,
 } from 'react-native';
