@@ -31,6 +31,7 @@ import {
   AppState as NativeAppState,
   Alert,
   Vibration,
+  YellowBox,
 } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
@@ -66,6 +67,10 @@ import {
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
 import InAppNotif from './in-app-notif.react';
+
+YellowBox.ignoreWarnings([
+  "Require cycle: ../node_modules/react-native-firebase",
+]);
 
 const msInDay = 24 * 60 * 60 * 1000;
 
