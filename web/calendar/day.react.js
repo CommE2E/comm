@@ -51,7 +51,6 @@ type Props = {
 type State = {
   pickerOpen: bool,
   hovered: bool,
-  mounted: bool,
 };
 class Day extends React.PureComponent<Props, State> {
 
@@ -67,26 +66,14 @@ class Day extends React.PureComponent<Props, State> {
     timeZone: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
+  state = {
+    pickerOpen: false,
+    hovered: false,
+  };
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
-  entries: Map<string, InnerEntry>;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      pickerOpen: false,
-      hovered: false,
-      mounted: false,
-    };
-    this.entries = new Map();
-  }
-
-  componentDidMount() {
-    // We do this to force a re-render since the render depends on the
-    // client's timezone, and the server will always render in Pacific Time
-    this.setState({ mounted: true });
-  }
+  entries: Map<string, InnerEntry> = new Map();
 
   static getDerivedStateFromProps(props: Props) {
     if (props.onScreenThreadInfos.length === 0) {
@@ -104,8 +91,7 @@ class Day extends React.PureComponent<Props, State> {
 
   render() {
     const now = currentDateInTimeZone(this.props.timeZone);
-    const isToday = this.state.mounted &&
-      dateString(now) === this.props.dayString;
+    const isToday = dateString(now) === this.props.dayString;
     const tdClasses = classNames(css.day, { [css.currentDay]: isToday });
 
     let actionLinks = null;
