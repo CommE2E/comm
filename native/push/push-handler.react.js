@@ -35,7 +35,10 @@ import {
   YellowBox,
 } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
-import { Notification as InAppNotification } from 'react-native-in-app-message';
+import {
+  Notification as InAppNotification,
+  TapticFeedback,
+} from 'react-native-in-app-message';
 
 import { connect } from 'lib/utils/redux-utils';
 import { unreadCount } from 'lib/selectors/thread-selectors';
@@ -74,6 +77,8 @@ YellowBox.ignoreWarnings([
 ]);
 
 const msInDay = 24 * 60 * 60 * 1000;
+const supportsTapticFeedback = Platform.OS === "ios" &&
+  parseInt(Platform.Version, 10) >= 10;
 
 type Props = {
   detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
@@ -271,7 +276,11 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.state.inAppNotifProps &&
       this.state.inAppNotifProps !== prevState.inAppNotifProps
     ) {
-      Vibration.vibrate(400);
+      if (supportsTapticFeedback) {
+        TapticFeedback.impact();
+      } else {
+        Vibration.vibrate(400);
+      }
       InAppNotification.show();
     }
   }
