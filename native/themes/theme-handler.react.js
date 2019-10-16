@@ -12,7 +12,10 @@ import { updateThemeInfoActionType } from '../redux/action-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Appearance } from 'react-native-appearance';
+import {
+  initialMode as initialSystemTheme,
+  eventEmitter as systemThemeEventEmitter,
+} from 'react-native-dark-mode';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -30,7 +33,6 @@ class ThemeHandler extends React.PureComponent<Props> {
     rehydrateConcluded: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  appearanceListener: ?{ +remove: () => void, ... };
 
   componentDidMount() {
     if (this.props.rehydrateConcluded) {
@@ -45,24 +47,23 @@ class ThemeHandler extends React.PureComponent<Props> {
   }
 
   componentWillUnmount() {
-    if (this.appearanceListener) {
-      this.appearanceListener.remove();
-    }
+    systemThemeEventEmitter.removeListener(
+      'currentModeChanged',
+      this.updateSystemTheme,
+    );
   }
 
   startListening() {
     if (osCanTheme) {
-      this.appearanceListener =
-        Appearance.addChangeListener(this.systemThemeChanged);
-      this.updateSystemTheme(Appearance.getColorScheme());
+      systemThemeEventEmitter.addListener(
+        'currentModeChanged',
+        this.updateSystemTheme,
+      );
+      this.updateSystemTheme(initialSystemTheme);
     }
   }
 
-  systemThemeChanged = ({ colorScheme }: { colorScheme: GlobalTheme, ... }) => {
-    this.updateSystemTheme(colorScheme);
-  }
-
-  updateSystemTheme(colorScheme: GlobalTheme) {
+  updateSystemTheme = (colorScheme: GlobalTheme) => {
     if (this.props.globalThemeInfo.systemTheme === colorScheme) {
       return;
     }

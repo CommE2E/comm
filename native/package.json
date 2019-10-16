@@ -45,7 +45,7 @@
     "lottie-react-native": "^3.2.1",
     "react": "16.8.6",
     "react-native": "0.60.6",
-    "react-native-appearance": "^0.1.0",
+    "react-native-dark-mode": "^0.1.3",
     "react-native-exit-app": "^1.1.0",
     "react-native-fast-image": "^7.0.2",
     "react-native-firebase": "^5.5.6",

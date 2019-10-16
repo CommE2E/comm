@@ -20,8 +20,9 @@ export const globalThemeInfoPropType = PropTypes.shape({
   preference: PropTypes.oneOf([ 'light', 'dark', 'system' ]).isRequired,
 });
 
-export const osCanTheme = Platform.OS === "ios" &&
-  parseInt(Platform.Version, 10) >= 13;
+export const osCanTheme =
+  (Platform.OS === "ios" && parseInt(Platform.Version, 10) >= 13) ||
+  (Platform.OS === "android" && Platform.Version >= 29);
 
 export const defaultGlobalThemeInfo = {
   activeTheme: osCanTheme ? null : 'light',
