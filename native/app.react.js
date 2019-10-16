@@ -50,9 +50,6 @@ if (Platform.OS === "android") {
 }
 
 const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
-const defaultStatusBarStyle = Platform.OS === "ios"
-  ? "dark-content"
-  : "default";
 
 type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
 
@@ -144,7 +141,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
           dispatch={this.props.dispatch}
           theme={reactNavigationTheme}
         />
-        <ConnectedStatusBar barStyle={defaultStatusBarStyle} />
+        <ConnectedStatusBar />
         <DisconnectedBarVisibilityHandler />
         <DimensionsUpdater />
         <ConnectivityUpdater />
