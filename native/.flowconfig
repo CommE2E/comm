@@ -17,6 +17,10 @@
 [untyped]
 .*/node_modules/@react-native-community/cli/.*/.*
 
+; Added this here to avoid Flow errors when importing from react-native/Libraries/StyleSheet/StyleSheetTypes
+.*/node_modules/react-native/Libraries/Renderer
+.*/node_modules/react-native/Libraries/Core/Devtools
+
 [include]
 ../lib
 

@@ -9,16 +9,17 @@ import {
   osCanTheme,
 } from '../types/themes';
 import { updateThemeInfoActionType } from '../redux/action-types';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import colors from '../themes/colors';
+import { colors, styleSelector } from '../themes/colors';
 
 const CheckIcon = (props: {||}) => (
   <Icon
@@ -47,6 +48,7 @@ if (osCanTheme) {
 type Props = {|
   // Redux state
   globalThemeInfo: GlobalThemeInfo,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -54,6 +56,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
 
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
@@ -62,21 +65,6 @@ class AppearancePreferences extends React.PureComponent<Props> {
 
   render() {
     const isDark = this.props.globalThemeInfo.activeTheme === 'dark';
-    const scrollViewStyle = isDark
-      ? styles.scrollViewDark
-      : styles.scrollViewLight;
-    const headerStyle = isDark
-      ? [ styles.header, styles.headerDark ]
-      : [ styles.header, styles.headerLight ];
-    const sectionStyle = isDark
-      ? [ styles.section, styles.sectionDark ]
-      : [ styles.section, styles.sectionLight ];
-    const hrStyle = isDark
-      ? [ styles.hr, styles.hrDark ]
-      : [ styles.hr, styles.hrLight ];
-    const optionStyle = isDark
-      ? [ styles.option, styles.optionDark ]
-      : [ styles.option, styles.optionLight ];
     const { iosHighlightUnderlay } = isDark ? colors.dark : colors.light;
 
     const options = [];
@@ -88,27 +76,32 @@ class AppearancePreferences extends React.PureComponent<Props> {
       options.push(
         <Button
           onPress={() => this.onSelectThemePreference(themePreference)}
-          style={styles.row}
+          style={this.props.styles.row}
           iosFormat="highlight"
           iosHighlightUnderlayColor={iosHighlightUnderlay}
           key={`button_${themePreference}`}
         >
-          <Text style={optionStyle}>{text}</Text>
+          <Text style={this.props.styles.option}>{text}</Text>
           {icon}
         </Button>
       );
       if (i + 1 < optionTexts.length) {
-        options.push(<View style={hrStyle} key={`hr_${themePreference}`} />);
+        options.push(
+          <View
+            style={this.props.styles.hr}
+            key={`hr_${themePreference}`}
+          />
+        );
       }
     }
 
     return (
       <ScrollView
-        contentContainerStyle={styles.scrollViewContentContainer}
-        style={scrollViewStyle}
+        contentContainerStyle={this.props.styles.scrollViewContentContainer}
+        style={this.props.styles.scrollView}
       >
-        <Text style={headerStyle}>APP THEME</Text>
-        <View style={sectionStyle}>{options}</View>
+        <Text style={this.props.styles.header}>APP THEME</Text>
+        <View style={this.props.styles.section}>{options}</View>
       </ScrollView>
     );
   }
@@ -128,41 +121,27 @@ class AppearancePreferences extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   scrollViewContentContainer: {
     paddingTop: 24,
   },
-  scrollViewLight: {
-    backgroundColor: colors.light.background,
-  },
-  scrollViewDark: {
-    backgroundColor: colors.dark.background,
+  scrollView: {
+    backgroundColor: 'background',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-  },
-  headerLight: {
-    color: colors.light.backgroundLabel,
-  },
-  headerDark: {
-    color: colors.dark.backgroundLabel,
+    color: 'backgroundLabel',
   },
   section: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginBottom: 24,
     paddingVertical: 2,
-  },
-  sectionLight: {
-    backgroundColor: colors.light.foreground,
-    borderColor: colors.light.foregroundBorder,
-  },
-  sectionDark: {
-    backgroundColor: colors.dark.foreground,
-    borderColor: colors.dark.foregroundBorder,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -172,12 +151,7 @@ const styles = StyleSheet.create({
   },
   option: {
     fontSize: 16,
-  },
-  optionLight: {
-    color: colors.light.foregroundLabel,
-  },
-  optionDark: {
-    color: colors.dark.foregroundLabel,
+    color: 'foregroundLabel',
   },
   icon: {
     lineHeight: Platform.OS === "ios" ? 18 : 20,
@@ -185,18 +159,15 @@ const styles = StyleSheet.create({
   hr: {
     height: 1,
     marginHorizontal: 15,
+    backgroundColor: 'foregroundBorder',
   },
-  hrLight: {
-    backgroundColor: colors.light.foregroundBorder,
-  },
-  hrDark: {
-    backgroundColor: colors.dark.foregroundBorder,
-  },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState) => ({
     globalThemeInfo: state.globalThemeInfo,
+    styles: stylesSelector(state),
   }),
   null,
   true,
