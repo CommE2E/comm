@@ -931,12 +931,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const itemHeight = Calendar.itemHeight(data[index]);
     const entryAdditionalActiveHeight = Platform.OS === "android" ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
-    let visibleHeight = this.flatListHeight() - keyboardHeight;
-    // flatListHeight() factors in the size of the iOS tab bar, but it is hidden
-    // by the keyboard since it is at the bottom
-    if (Platform.OS === "ios") {
-      visibleHeight += tabBarSize;
-    }
+    // flatListHeight() factors in the size of the tab bar,
+    // but it is hidden by the keyboard since it is at the bottom
+    const visibleHeight = this.flatListHeight() - keyboardHeight + tabBarSize;
     if (
       this.currentScrollPosition !== undefined &&
       this.currentScrollPosition !== null &&
